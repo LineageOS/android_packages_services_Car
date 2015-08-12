@@ -19,8 +19,13 @@ package com.android.car;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.hardware.SensorEvent;
 import android.os.Binder;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -29,37 +34,61 @@ import android.support.car.CarSensorEvent;
 import android.support.car.CarSensorManager;
 import android.support.car.ICarSensor;
 import android.support.car.ICarSensorEventListener;
+import android.support.car.CarSensorManager.CarSensorEventListener;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
-import com.android.car.hal.Hal;
-import com.android.car.hal.SensorHal;
-import com.android.car.hal.SensorHalBase;
-import com.android.car.hal.SensorHalBase.SensorListener;
+import com.android.car.hal.VehicleHal;
+import com.android.car.hal.HalProperty;
+import com.android.car.hal.SensorHalService;
+import com.android.car.hal.SensorHalServiceBase;
+import com.android.car.hal.SensorHalServiceBase.SensorListener;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 
 public class CarSensorService extends ICarSensor.Stub
-        implements CarServiceBase, SensorHal.SensorListener {
+        implements CarServiceBase, SensorHalService.SensorListener {
 
     /**
      * Abstraction for logical sensor which is not physical sensor but presented as sensor to
      * upper layer. Currently {@link CarSensorManager#SENSOR_TYPE_NIGHT} and
      * {@link CarSensorManager#SENSOR_TYPE_DRIVING_STATUS} falls into this category.
      * Implementation can call {@link CarSensorService#onSensorData(CarSensorEvent)} when there
-     * is state change for the given sensor after {@link SensorHalBase#init()}
+     * is state change for the given sensor after {@link SensorHalServiceBase#init()}
      * is called.
      */
-    public static abstract class LogicalSensorHalBase extends SensorHalBase {
+    public static abstract class LogicalSensorHalBase extends SensorHalServiceBase {
+
+        @Override
+        public void handleBooleanHalEvent(int property, boolean value, long timeStamp) {
+            //no-op default version as logical sensor does not come from HAL.
+        }
+
+        @Override
+        public void handleIntHalEvent(int property, int value, long timeStamp) {
+            //no-op
+        }
+
+        @Override
+        public void handleFloatHalEvent(int property, float value, long timeStamp) {
+            //no-op
+        }
+
+        @Override
+        public List<HalProperty> takeSupportedProperties(List<HalProperty> allProperties) {
+            return null;
+        }
 
         /** Sensor service is ready and all vehicle sensors are available. */
         public abstract void onSensorServiceReady();
@@ -90,7 +119,7 @@ public class CarSensorService extends ICarSensor.Stub
     @GuardedBy("mSensorLock")
     private final SparseArray<SensorRecord> mSensorRecords = new SparseArray<>();
 
-    private final SensorHal mSensorHal;
+    private final SensorHalService mSensorHal;
     private int[] mCarProvidedSensors;
     private int[] mSupportedSensors;
     private final AtomicBoolean mSensorDiscovered = new AtomicBoolean(false);
@@ -98,12 +127,20 @@ public class CarSensorService extends ICarSensor.Stub
     private final Context mContext;
 
     private final DrivingStatePolicy mDrivingStatePolicy;
+    private boolean mUseDefaultDrivingPolicy = true;
     private final DayNightModePolicy mDayNightModePolicy;
+    private boolean mUseDefaultDayNightModePolicy = true;
+
+    private final HandlerThread mHandlerThread;
+    private final SensorDispatchHandler mSensorDispatchHandler;
 
     public CarSensorService(Context context) {
         mContext = context;
+        mHandlerThread = new HandlerThread("SENSOR", Process.THREAD_PRIORITY_AUDIO);
+        mHandlerThread.start();
+        mSensorDispatchHandler = new SensorDispatchHandler(mHandlerThread.getLooper());
         // This triggers sensor hal init as well.
-        mSensorHal = Hal.getInstance(context.getApplicationContext()).getSensorHal();
+        mSensorHal = VehicleHal.getInstance(context.getApplicationContext()).getSensorHal();
         mDrivingStatePolicy = new DrivingStatePolicy(context);
         mDayNightModePolicy = new DayNightModePolicy(context);
     }
@@ -112,23 +149,27 @@ public class CarSensorService extends ICarSensor.Stub
     public void init() {
         // Watch out the order. registerSensorListener can lead into onSensorHalReady call.
         // So it should be done last.
-        mDrivingStatePolicy.init();
-        mDayNightModePolicy.init();
         mSensorLock.lock();
         try {
             mSupportedSensors = refreshSupportedSensorsLocked();
-            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
-                    mDrivingStatePolicy.getDefaultValue(
-                            CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
-            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_NIGHT,
-                    mDrivingStatePolicy.getDefaultValue(
-                            CarSensorManager.SENSOR_TYPE_NIGHT));
+            if (mUseDefaultDrivingPolicy) {
+                mDrivingStatePolicy.init();
+                addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
+                        mDrivingStatePolicy.getDefaultValue(
+                                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
+                mDrivingStatePolicy.registerSensorListener(this);
+            }
+            if (mUseDefaultDayNightModePolicy) {
+                mDayNightModePolicy.init();
+                addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_NIGHT,
+                        mDrivingStatePolicy.getDefaultValue(
+                                CarSensorManager.SENSOR_TYPE_NIGHT));
+                mDayNightModePolicy.registerSensorListener(this);
+            }
 
         } finally {
             mSensorLock.unlock();
         }
-        mDrivingStatePolicy.registerSensorListener(this);
-        mDayNightModePolicy.registerSensorListener(this);
         mSensorHal.registerSensorListener(this);
     }
 
@@ -140,10 +181,15 @@ public class CarSensorService extends ICarSensor.Stub
 
     @Override
     public void release() {
-        mDrivingStatePolicy.release();
-        mDayNightModePolicy.release();
+        mHandlerThread.quit();
         tryHoldSensorLock();
         try {
+            if (mUseDefaultDrivingPolicy) {
+                mDrivingStatePolicy.release();
+            }
+            if (mUseDefaultDayNightModePolicy) {
+                mDayNightModePolicy.release();
+            }
             for (int i = mSensorListeners.size() - 1; i >= 0; --i) {
                 SensorListeners listener = mSensorListeners.valueAt(i);
                 listener.release();
@@ -171,7 +217,7 @@ public class CarSensorService extends ICarSensor.Stub
     }
 
     @Override
-    public void onSensorHalReady(SensorHalBase hal) {
+    public void onSensorHalReady(SensorHalServiceBase hal) {
         if (hal == mSensorHal) {
             mCarProvidedSensors = mSensorHal.getSupportedSensors();
             if (Log.isLoggable(CarLog.TAG_SENSOR, Log.VERBOSE)) {
@@ -181,27 +227,42 @@ public class CarSensorService extends ICarSensor.Stub
             mSensorLock.lock();
             try {
                 mSupportedSensors = refreshSupportedSensorsLocked();
+                if (mUseDefaultDrivingPolicy) {
+                    mDrivingStatePolicy.onSensorServiceReady();
+                }
+                if (mUseDefaultDayNightModePolicy) {
+                    mDayNightModePolicy.onSensorServiceReady();
+                }
             } finally {
                 mSensorLock.unlock();
             }
-            mDrivingStatePolicy.onSensorServiceReady();
-            mDayNightModePolicy.onSensorServiceReady();
         }
     }
 
-    private void processSensorDataLocked(CarSensorEvent event) {
-        SensorRecord record = mSensorRecords.get(event.sensorType);
-        if (record != null) {
-            record.lastEvent = event;
-        } else {
-            if (Log.isLoggable(CarLog.TAG_SENSOR, Log.DEBUG)) {
-                Log.d(CarLog.TAG_SENSOR, "sensor data received without matching record");
+    private void processSensorData(List<CarSensorEvent> events) {
+        mSensorLock.lock();
+        for (CarSensorEvent event: events) {
+            SensorRecord record = mSensorRecords.get(event.sensorType);
+            if (record != null) {
+                if (record.lastEvent == null) {
+                    record.lastEvent = event;
+                } else if (record.lastEvent.timeStampNs < event.timeStampNs) {
+                    record.lastEvent = event;
+                    //TODO recycle event
+                } else { // wrong timestamp, throw away this.
+                    //TODO recycle new event
+                    continue;
+                }
+                SensorListeners listeners = mSensorListeners.get(event.sensorType);
+                if (listeners != null) {
+                    listeners.queueSensorEvent(event);
+                }
             }
         }
-        if (Log.isLoggable(CarLog.TAG_SENSOR, Log.VERBOSE)) {
-            Log.v(CarLog.TAG_SENSOR, "onSensorData type: " + event.sensorType);
+        for (SensorClient client: mClients) {
+            client.dispatchSensorUpdate();
         }
-        notifySensorEventToClientLocked(event, event.sensorType);
+        mSensorLock.unlock();
     }
 
     /**
@@ -210,13 +271,13 @@ public class CarSensorService extends ICarSensor.Stub
      * @param event
      */
     @Override
-    public void onSensorData(CarSensorEvent event) {
-        mSensorLock.lock();
-        try {
-            processSensorDataLocked(event);
-        } finally {
-            mSensorLock.unlock();
-        }
+    public void onSensorEvents(List<CarSensorEvent> events) {
+        mSensorDispatchHandler.handleSensorEvents(events);
+    }
+
+    @Override
+    public void onSensorEvent(CarSensorEvent event) {
+        mSensorDispatchHandler.handleSensorEvent(event);
     }
 
     @Override
@@ -280,12 +341,13 @@ public class CarSensorService extends ICarSensor.Stub
             // If we have a cached event for this sensor, send the event.
             SensorRecord record = mSensorRecords.get(sensorType);
             if (record != null && record.lastEvent != null) {
-                sensorClient.onSensorUpdate(record.lastEvent);
+                sensorClient.queueSensorEvent(record.lastEvent);
+                sensorClient.dispatchSensorUpdate();
             }
             if (sensorListeners == null) {
                 sensorListeners = new SensorListeners(rate);
                 mSensorListeners.put(sensorType, sensorListeners);
-                shouldStartSensors = isSensorRealLocked(sensorType);
+                shouldStartSensors = true;
             } else {
                 oldRate = Integer.valueOf(sensorListeners.getRate());
                 sensorClientWithRate = sensorListeners.findSensorClientWithRate(sensorClient);
@@ -298,7 +360,7 @@ public class CarSensorService extends ICarSensor.Stub
             }
             if (sensorListeners.getRate() > rate) {
                 sensorListeners.setRate(rate);
-                shouldStartSensors = isSensorRealLocked(sensorType);
+                shouldStartSensors = sensorSupportRate(sensorType);
             }
             sensorClient.addSensor(sensorType);
         } finally {
@@ -323,6 +385,30 @@ public class CarSensorService extends ICarSensor.Stub
             }
         }
         return true;
+    }
+
+    private boolean sensorSupportRate(int sensorType) {
+        switch (sensorType) {
+            case CarSensorManager.SENSOR_TYPE_COMPASS:
+            case CarSensorManager.SENSOR_TYPE_CAR_SPEED:
+            case CarSensorManager.SENSOR_TYPE_RPM:
+            case CarSensorManager.SENSOR_TYPE_LOCATION:
+            case CarSensorManager.SENSOR_TYPE_ACCELEROMETER:
+            case CarSensorManager.SENSOR_TYPE_GPS_SATELLITE:
+            case CarSensorManager.SENSOR_TYPE_GYROSCOPE:
+                return true;
+            case CarSensorManager.SENSOR_TYPE_ODOMETER:
+            case CarSensorManager.SENSOR_TYPE_FUEL_LEVEL:
+            case CarSensorManager.SENSOR_TYPE_PARKING_BRAKE:
+            case CarSensorManager.SENSOR_TYPE_GEAR:
+            case CarSensorManager.SENSOR_TYPE_NIGHT:
+            case CarSensorManager.SENSOR_TYPE_DRIVING_STATUS:
+            case CarSensorManager.SENSOR_TYPE_ENVIRONMENT:
+                return false;
+            default:
+                Log.w(CarLog.TAG_SENSOR, "sensorSupportRate not listed sensor:" + sensorType);
+                return false;
+        }
     }
 
     private int getSensorPermission(int sensorType) {
@@ -365,7 +451,7 @@ public class CarSensorService extends ICarSensor.Stub
         if (Log.isLoggable(CarLog.TAG_SENSOR, Log.VERBOSE)) {
             Log.v(CarLog.TAG_SENSOR, "startSensor " + sensorType + " with rate " + rate);
         }
-        SensorHalBase sensorHal = getSensorHal(sensorType);
+        SensorHalServiceBase sensorHal = getSensorHal(sensorType);
         if (sensorHal != null) {
             if (!sensorHal.isReady()) {
                 Log.w(CarLog.TAG_SENSOR, "Sensor channel not available.");
@@ -430,11 +516,11 @@ public class CarSensorService extends ICarSensor.Stub
             }
             sensorListeners.removeSensorClientWithRate(clientWithRate);
             if (sensorListeners.getNumberOfClients() == 0) {
-                shouldStopSensor = isSensorRealLocked(sensorType);
+                shouldStopSensor = true;
                 mSensorListeners.remove(sensorType);
             } else if (sensorListeners.updateRate()) { // rate changed
                 newRate = sensorListeners.getRate();
-                shouldRestartSensor = isSensorRealLocked(sensorType);
+                shouldRestartSensor = sensorSupportRate(sensorType);
             }
             if (Log.isLoggable(CarLog.TAG_SENSOR, Log.DEBUG)) {
                 Log.d(CarLog.TAG_SENSOR, "unregister succeeded");
@@ -453,7 +539,7 @@ public class CarSensorService extends ICarSensor.Stub
         if (Log.isLoggable(CarLog.TAG_SENSOR, Log.DEBUG)) {
             Log.d(CarLog.TAG_SENSOR, "stopSensor " + sensorType);
         }
-        SensorHalBase sensorHal = getSensorHal(sensorType);
+        SensorHalServiceBase sensorHal = getSensorHal(sensorType);
         if (sensorHal == null || !sensorHal.isReady()) {
             Log.w(CarLog.TAG_SENSOR, "Sensor channel not available.");
             return;
@@ -471,14 +557,24 @@ public class CarSensorService extends ICarSensor.Stub
         sensorHal.requestSensorStop(sensorType);
     }
 
-    private SensorHalBase getSensorHal(int sensorType) {
-        switch (sensorType) {
-            case CarSensorManager.SENSOR_TYPE_DRIVING_STATUS:
-                return mDrivingStatePolicy;
-            case CarSensorManager.SENSOR_TYPE_NIGHT:
-                return mDayNightModePolicy;
-            default:
-                return mSensorHal;
+    private SensorHalServiceBase getSensorHal(int sensorType) {
+        try {
+            mSensorLock.lock();
+            switch (sensorType) {
+                case CarSensorManager.SENSOR_TYPE_DRIVING_STATUS:
+                    if (mUseDefaultDrivingPolicy) {
+                        return mDrivingStatePolicy;
+                    }
+                    break;
+                case CarSensorManager.SENSOR_TYPE_NIGHT:
+                    if (mUseDefaultDayNightModePolicy) {
+                        return mDayNightModePolicy;
+                    }
+                    break;
+            }
+            return mSensorHal;
+        } finally {
+            mSensorLock.unlock();
         }
     }
 
@@ -499,16 +595,36 @@ public class CarSensorService extends ICarSensor.Stub
 
     private int[] refreshSupportedSensorsLocked() {
         int numCarSensors = (mCarProvidedSensors == null) ? 0 : mCarProvidedSensors.length;
+        for (int i = 0; i < numCarSensors; i++) {
+            int sensor = mCarProvidedSensors[i];
+            if (sensor == CarSensorManager.SENSOR_TYPE_DRIVING_STATUS) {
+                mUseDefaultDrivingPolicy = false;
+            } else if (sensor == CarSensorManager.SENSOR_TYPE_NIGHT) {
+                mUseDefaultDayNightModePolicy = false;
+            }
+        }
+        int totalNumSensors = numCarSensors;
+        if (mUseDefaultDrivingPolicy) {
+            totalNumSensors++;
+        }
+        if (mUseDefaultDayNightModePolicy) {
+            totalNumSensors++;
+        }
         // Two logical sensors are always added.
-        int[] supportedSensors = new int[numCarSensors + 2];
+        int[] supportedSensors = new int[totalNumSensors];
         int index = 0;
-        supportedSensors[index] = CarSensorManager.SENSOR_TYPE_DRIVING_STATUS;
-        index++;
-        supportedSensors[index] = CarSensorManager.SENSOR_TYPE_NIGHT;
-        index++;
+        if (mUseDefaultDrivingPolicy) {
+            supportedSensors[index] = CarSensorManager.SENSOR_TYPE_DRIVING_STATUS;
+            index++;
+        }
+        if (mUseDefaultDayNightModePolicy) {
+            supportedSensors[index] = CarSensorManager.SENSOR_TYPE_NIGHT;
+            index++;
+        }
 
         for (int i = 0; i < numCarSensors; i++) {
             int sensor = mCarProvidedSensors[i];
+
             if (mSensorRecords.get(sensor) == null) {
                 SensorRecord record = new SensorRecord();
                 mSensorRecords.put(sensor, record);
@@ -529,15 +645,6 @@ public class CarSensorService extends ICarSensor.Stub
             }
         }
         return false;
-    }
-
-    private void notifySensorEventToClientLocked(CarSensorEvent event, int sensor) {
-        SensorListeners listeners = mSensorListeners.get(sensor);
-        if (listeners != null) {
-            listeners.onSensorUpdate(event);
-        } else {
-            Log.w(CarLog.TAG_SENSOR, "sensor event while no listener, sensor:" + sensor);
-        }
     }
 
     /**
@@ -569,11 +676,91 @@ public class CarSensorService extends ICarSensor.Stub
         }
     }
 
+    private class SensorDispatchHandler extends Handler {
+        private static final long SENSOR_DISPATCH_MIN_INTERVAL_MS = 16; // over 60Hz
+
+        private static final int MSG_SENSOR_DATA = 0;
+
+        private long mLastSensorDispatchTime = -1;
+        private int mFreeListIndex = 0;
+        private final LinkedList<CarSensorEvent>[] mSensorDataList = new LinkedList[2];
+
+        private SensorDispatchHandler(Looper looper) {
+            super(looper);
+            for (int i = 0; i < mSensorDataList.length; i++) {
+                mSensorDataList[i] = new LinkedList<CarSensorEvent>();
+            }
+        }
+
+        private synchronized void handleSensorEvents(List<CarSensorEvent> data) {
+            LinkedList<CarSensorEvent> list = mSensorDataList[mFreeListIndex];
+            list.addAll(data);
+            requestDispatchLocked();
+        }
+
+        private synchronized void handleSensorEvent(CarSensorEvent event) {
+            LinkedList<CarSensorEvent> list = mSensorDataList[mFreeListIndex];
+            list.add(event);
+            requestDispatchLocked();
+        }
+
+        private void requestDispatchLocked() {
+            Message msg = obtainMessage(MSG_SENSOR_DATA);
+            long now = SystemClock.uptimeMillis();
+            long delta = now - mLastSensorDispatchTime;
+            if (delta > SENSOR_DISPATCH_MIN_INTERVAL_MS) {
+                sendMessage(msg);
+            } else {
+                sendMessageDelayed(msg, SENSOR_DISPATCH_MIN_INTERVAL_MS - delta);
+            }
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_SENSOR_DATA:
+                    doHandleSensorData();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void doHandleSensorData() {
+            List<CarSensorEvent> listToDispatch = null;
+            synchronized (this) {
+                mLastSensorDispatchTime = SystemClock.uptimeMillis();
+                int nonFreeListIndex = mFreeListIndex ^ 0x1;
+                List<CarSensorEvent> nonFreeList = mSensorDataList[nonFreeListIndex];
+                List<CarSensorEvent> freeList = mSensorDataList[mFreeListIndex];
+                if (nonFreeList.size() > 0) {
+                    Log.w(CarLog.TAG_SENSOR, "non free list not empty");
+                    // copy again, but this should not be normal case
+                    nonFreeList.addAll(freeList);
+                    listToDispatch = nonFreeList;
+                    freeList.clear();
+                } else if (freeList.size() > 0) {
+                    listToDispatch = freeList;
+                    mFreeListIndex = nonFreeListIndex;
+                }
+            }
+            // leave this part outside lock so that time-taking dispatching can be done without
+            // blocking sensor event notification.
+            if (listToDispatch != null) {
+                processSensorData(listToDispatch);
+                listToDispatch.clear();
+            }
+        }
+
+    }
+
     /** internal instance for pending client request */
     private class SensorClient implements IBinder.DeathRecipient {
         /** callback for sensor events */
         private final ICarSensorEventListener mListener;
         private final SparseBooleanArray mActiveSensors = new SparseBooleanArray();
+        private final LinkedList<CarSensorEvent> mSensorsToDispatch =
+                new LinkedList<CarSensorEvent>();
 
         /** when false, it is already released */
         private volatile boolean mActive = true;
@@ -628,24 +815,33 @@ public class CarSensorService extends ICarSensor.Stub
             removeClient(this);
         }
 
-        void onSensorUpdate(CarSensorEvent event) {
-            try {
-                if (mActive) {
-                    mListener.onSensorChanged(event);
-                } else {
-                    if (Log.isLoggable(CarLog.TAG_SENSOR, Log.DEBUG)) {
-                        Log.d(CarLog.TAG_SENSOR, "sensor update while client is already released");
-                    }
-                }
-            } catch (RemoteException e) {
-                //ignore. crash will be handled by death handler
+        void queueSensorEvent(CarSensorEvent event) {
+            mSensorsToDispatch.add(event);
+        }
+
+        void dispatchSensorUpdate() {
+            if (mSensorsToDispatch.size() == 0) {
+                return;
             }
+            if (mActive) {
+                try {
+                    mListener.onSensorChanged(mSensorsToDispatch);
+                } catch (RemoteException e) {
+                    //ignore. crash will be handled by death handler
+                }
+            } else {
+                if (Log.isLoggable(CarLog.TAG_SENSOR, Log.DEBUG)) {
+                    Log.d(CarLog.TAG_SENSOR, "sensor update while client is already released");
+                }
+            }
+            mSensorsToDispatch.clear();
         }
 
         void release() {
             if (mActive) {
                 mListener.asBinder().unlinkToDeath(this, 0);
                 mActiveSensors.clear();
+                mSensorsToDispatch.clear();
                 mActive = false;
             }
         }
@@ -745,12 +941,9 @@ public class CarSensorService extends ICarSensor.Stub
             return null;
         }
 
-        void onSensorUpdate(CarSensorEvent event) {
-            if (Log.isLoggable(CarLog.TAG_SENSOR, Log.VERBOSE)) {
-                Log.v(CarLog.TAG_SENSOR, "onSensorUpdate to clients: " + mSensorClients.size());
-            }
+        void queueSensorEvent(CarSensorEvent event) {
             for (SensorClientWithRate clientWithRate: mSensorClients) {
-                clientWithRate.getSensorClient().onSensorUpdate(event);
+                clientWithRate.getSensorClient().queueSensorEvent(event);
             }
         }
 
@@ -777,7 +970,6 @@ public class CarSensorService extends ICarSensor.Stub
                                 + " active: " + record.enabled);
                         // only print sensor data which is not related with location
                         if (sensor != CarSensorManager.SENSOR_TYPE_LOCATION &&
-                                sensor != CarSensorManager.SENSOR_TYPE_DEAD_RECKONING &&
                                 sensor != CarSensorManager.SENSOR_TYPE_GPS_SATELLITE) {
                             writer.println(" " + record.lastEvent.toString());
                         }
@@ -826,8 +1018,12 @@ public class CarSensorService extends ICarSensor.Stub
             writer.println("concurrent modification happened");
         }
         writer.println("**driving policy**");
-        mDrivingStatePolicy.dump(writer);
+        if (mUseDefaultDrivingPolicy) {
+            mDrivingStatePolicy.dump(writer);
+        }
         writer.println("**day/night policy**");
-        mDayNightModePolicy.dump(writer);
+        if (mUseDefaultDayNightModePolicy) {
+            mDayNightModePolicy.dump(writer);
+        }
     }
 }

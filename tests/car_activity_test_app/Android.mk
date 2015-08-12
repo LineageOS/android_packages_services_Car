@@ -22,6 +22,8 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_PACKAGE_NAME := CarActivityTestApp
 
+LOCAL_MODULE_TAGS := tests
+
 LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_STATIC_JAVA_LIBRARIES += libcarsupport

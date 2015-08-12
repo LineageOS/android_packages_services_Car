@@ -23,7 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.android.car.hal.Hal;
+import com.android.car.hal.VehicleHal;
 
 
 /**
@@ -34,7 +34,7 @@ public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.w(CarLog.TAG_SERVICE, "Starting...");
-        Hal hal = Hal.getInstance(context.getApplicationContext());
+        VehicleHal hal = VehicleHal.getInstance(context.getApplicationContext());
         Intent carServiceintent = new Intent();
         carServiceintent.setPackage(context.getPackageName());
         carServiceintent.setAction(Car.CAR_SERVICE_INTERFACE_NAME);

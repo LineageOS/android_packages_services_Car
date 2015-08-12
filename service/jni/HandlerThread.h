@@ -14,15 +14,36 @@
  * limitations under the License.
  */
 
-package android.support.car;
+#ifndef CAR_HANDLER_THREAD_H_
+#define CAR_HANDLER_THREAD_H_
 
-import android.support.car.CarSensorEvent;
+#include <utils/Looper.h>
+#include <utils/threads.h>
+
+namespace android {
 
 /**
- * Binder callback for CarSensorEventListener.
- * This is generated per each CarClient.
- * @hide
+ * Native HandlerThread implementation looking similar to Java version.
  */
-oneway interface ICarSensorEventListener {
-    void onSensorChanged(in List<CarSensorEvent> events) = 0;
-}
+class HandlerThread : public Thread {
+public:
+    HandlerThread();
+    virtual ~HandlerThread();
+
+    sp<Looper> getLooper();
+    status_t start(const char* name = 0, int32_t priority = PRIORITY_DEFAULT, size_t stack = 0);
+    void quit();
+
+private:
+    bool threadLoop();
+
+private:
+    sp<Looper> mLooper;
+    mutable Mutex mLock;
+    bool mShouldQuit;
+    Condition mLooperWait;
+};
+
+};
+
+#endif /* CAR_HANDLER_THREAD_H_ */

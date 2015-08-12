@@ -18,6 +18,8 @@ package com.android.car;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 
+import com.android.car.hal.VehicleHal;
+
 import android.app.Service;
 import android.support.car.Car;
 import android.content.Intent;
@@ -57,5 +59,9 @@ public class CarService extends Service {
     @Override
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         writer.println("*dump car service*");
+        writer.println("*dump HAL*");
+        VehicleHal.getInstance(getApplicationContext()).dump(writer);
+        writer.println("*dump services*");
+        ICarImpl.getInstance(this).dump(writer);
     }
 }

@@ -21,7 +21,7 @@ import android.support.car.Car;
 import android.support.car.CarSensorEvent;
 import android.support.car.CarSensorManager;
 
-import com.android.car.hal.SensorHalBase.SensorListener;
+import com.android.car.hal.SensorHalServiceBase.SensorListener;
 
 import java.io.PrintWriter;
 

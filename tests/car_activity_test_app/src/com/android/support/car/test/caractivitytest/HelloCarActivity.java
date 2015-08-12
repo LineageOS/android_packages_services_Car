@@ -21,6 +21,9 @@ import android.os.Bundle;
 import android.support.car.Car;
 import android.support.car.CarNotConnectedException;
 import android.support.car.CarNotSupportedException;
+import android.support.car.CarSensorEvent;
+import android.support.car.CarSensorManager;
+import android.support.car.CarSensorManager.CarSensorEventListener;
 import android.support.car.app.CarActivity;
 import android.util.Log;
 import android.view.View;
@@ -32,7 +35,32 @@ public class HelloCarActivity extends CarActivity {
     private static final String TAG = HelloCarActivity.class.getSimpleName();
     private TextView mTextView1;
     private Button mButton1;
+    private TextView mTextViewDrivingStatus;
+    private TextView mTextViewGear;
+    private TextView mTextViewParkingBrake;
+    private TextView mTextViewSpeed;
     private int mClickCount = 0;
+    private CarSensorManager mCarSensorManager;
+    private final CarSensorEventListener mListener = new CarSensorEventListener() {
+
+        @Override
+        public void onSensorChanged(CarSensorEvent event) {
+            switch (event.sensorType) {
+                case CarSensorManager.SENSOR_TYPE_CAR_SPEED:
+                    mTextViewSpeed.setText("speed:" + event.floatValues[0]);
+                    break;
+                case CarSensorManager.SENSOR_TYPE_GEAR:
+                    mTextViewGear.setText("gear:" + event.intValues[0]);
+                    break;
+                case CarSensorManager.SENSOR_TYPE_PARKING_BRAKE:
+                    mTextViewParkingBrake.setText("parking brake:" + event.intValues[0]);
+                    break;
+                case CarSensorManager.SENSOR_TYPE_DRIVING_STATUS:
+                    mTextViewDrivingStatus.setText("driving status:" + event.intValues[0]);
+                    break;
+            }
+        }
+    };
 
     public HelloCarActivity(Proxy proxy, Context context, Car carApi) {
         super(proxy, context, carApi);
@@ -53,6 +81,19 @@ public class HelloCarActivity extends CarActivity {
                 mTextView1.setText("You clicked :" + mClickCount);
             }
         });
+        mTextViewDrivingStatus = (TextView) findViewById(R.id.textView_dring_status);
+        mTextViewGear = (TextView) findViewById(R.id.textView_gear);
+        mTextViewParkingBrake = (TextView) findViewById(R.id.textView_parking_brake);
+        mTextViewSpeed = (TextView) findViewById(R.id.textView_speed);
+        mCarSensorManager = (CarSensorManager) getCarApi().getCarManager(Car.SENSOR_SERVICE);
+        mCarSensorManager.registerListener(mListener, CarSensorManager.SENSOR_TYPE_CAR_SPEED,
+                CarSensorManager.SENSOR_RATE_NORMAL);
+        mCarSensorManager.registerListener(mListener, CarSensorManager.SENSOR_TYPE_GEAR,
+                CarSensorManager.SENSOR_RATE_NORMAL);
+        mCarSensorManager.registerListener(mListener, CarSensorManager.SENSOR_TYPE_PARKING_BRAKE,
+                CarSensorManager.SENSOR_RATE_NORMAL);
+        mCarSensorManager.registerListener(mListener, CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
+                CarSensorManager.SENSOR_RATE_NORMAL);
         Log.i(TAG, "onCreate");
     }
 
@@ -89,6 +130,7 @@ public class HelloCarActivity extends CarActivity {
     @Override
     protected void onDestroy() throws CarNotConnectedException {
         super.onDestroy();
+        mCarSensorManager.unregisterListener(mListener);
         Log.i(TAG, "onDestroy");
     }
 

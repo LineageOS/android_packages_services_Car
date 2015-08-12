@@ -57,7 +57,7 @@ public class CarSensorEvent implements Parcelable {
     public static final int INDEX_FUEL_LOW_WARNING = 0;
 
     /**
-     *  GEAR_* represents meaning of byteValues[0] for {@link CarSensorManager#SENSOR_TYPE_GEAR}
+     *  GEAR_* represents meaning of intValues[0] for {@link CarSensorManager#SENSOR_TYPE_GEAR}
      *  sensor type.
      *  GEAR_NEUTRAL means transmission gear is in neutral state, and the car may be moving.
      */
@@ -116,7 +116,7 @@ public class CarSensorEvent implements Parcelable {
             DRIVE_STATUS_LIMIT_MESSAGE_LEN;
     /**
      * Index for {@link CarSensorManager#SENSOR_TYPE_LOCATION} in floatValues.
-     * Each bit byteValues[0] represents whether the corresponding data is present.
+     * Each bit intValues[0] represents whether the corresponding data is present.
      */
     public static final int INDEX_LOCATION_LATITUDE  = 0;
     public static final int INDEX_LOCATION_LONGITUDE = 1;
@@ -125,8 +125,8 @@ public class CarSensorEvent implements Parcelable {
     public static final int INDEX_LOCATION_SPEED     = 4;
     public static final int INDEX_LOCATION_BEARING   = 5;
     public static final int INDEX_LOCATION_MAX = INDEX_LOCATION_BEARING;
-    public static final int INDEX_LOCATION_LATITUDE_BYTES = 1;
-    public static final int INDEX_LOCATION_LONGITUDE_BYTES = 5;
+    public static final int INDEX_LOCATION_LATITUDE_INTS = 1;
+    public static final int INDEX_LOCATION_LONGITUDE_INTS = 2;
 
     /**
      * Index for {@link CarSensorManager#SENSOR_TYPE_ENVIRONMENT} in floatValues.
@@ -138,17 +138,6 @@ public class CarSensorEvent implements Parcelable {
      * Pressure in kPa.
      */
     public static final int INDEX_ENVIRONMENT_PRESSURE = 1;
-
-    /**
-     * Index for {@link CarSensorManager#SENSOR_TYPE_HVAC} in floatValues.
-     * Target temperature set in Celsius degrees.
-     */
-    public static final int INDEX_HVAC_TARGET_TEMPERATURE = 0;
-    /**
-     * Index for {@link CarSensorManager#SENSOR_TYPE_HVAC} in floatValues.
-     * The current temperature set in Celsius degrees.
-     */
-    public static final int INDEX_HVAC_CURRENT_TEMPERATURE = 1;
 
     /**
      * Indices for {@link CarSensorManager#SENSOR_TYPE_COMPASS} in floatValues.
@@ -187,8 +176,8 @@ public class CarSensorEvent implements Parcelable {
      */
     public static final int INDEX_GPS_SATELLITE_NUMBER_IN_USE = 0;
     public static final int INDEX_GPS_SATELLITE_NUMBER_IN_VIEW = 1;
-    public static final int INDEX_GPS_SATELLITE_ARRAY_BYTE_OFFSET = 2;
-    public static final int INDEX_GPS_SATELLITE_ARRAY_BYTE_INTERVAL = 1;
+    public static final int INDEX_GPS_SATELLITE_ARRAY_INT_OFFSET = 2;
+    public static final int INDEX_GPS_SATELLITE_ARRAY_INT_INTERVAL = 1;
     public static final int INDEX_GPS_SATELLITE_ARRAY_FLOAT_OFFSET = 0;
     public static final int INDEX_GPS_SATELLITE_ARRAY_FLOAT_INTERVAL = 4;
     public static final int INDEX_GPS_SATELLITE_PRN_OFFSET = 0;
@@ -210,20 +199,20 @@ public class CarSensorEvent implements Parcelable {
      * array holding float type of sensor data. If the sensor has single value, only floatValues[0]
      * should be used. */
     public final float[] floatValues;
-    /** array holding byte type of sensor data */
-    public final byte[] byteValues;
+    /** array holding int type of sensor data */
+    public final int[] intValues;
 
     public CarSensorEvent(
             int versionCode,
             int sensorType,
             long timeStampNs,
             float[] floatValues,
-            byte[] byteValues) {
+            int[] intValues) {
         this.mVersionCode = versionCode;
         this.sensorType = sensorType;
         this.timeStampNs = timeStampNs;
         this.floatValues = floatValues;
-        this.byteValues = byteValues;
+        this.intValues = intValues;
     }
 
     public CarSensorEvent(Parcel in) {
@@ -234,8 +223,8 @@ public class CarSensorEvent implements Parcelable {
         floatValues = new float[len];
         in.readFloatArray(floatValues);
         len = in.readInt();
-        byteValues = new byte[len];
-        in.readByteArray(byteValues);
+        intValues = new int[len];
+        in.readIntArray(intValues);
         // version 1 up to here
     }
 
@@ -251,8 +240,8 @@ public class CarSensorEvent implements Parcelable {
         dest.writeLong(timeStampNs);
         dest.writeInt(floatValues.length);
         dest.writeFloatArray(floatValues);
-        dest.writeInt(byteValues.length);
-        dest.writeByteArray(byteValues);
+        dest.writeInt(intValues.length);
+        dest.writeIntArray(intValues);
         // version 1 up to here
     }
 
@@ -274,21 +263,21 @@ public class CarSensorEvent implements Parcelable {
         return mVersionCode;
     }
 
-    public CarSensorEvent(int sensorType, long timeStampNs, int floatValueSize, int byteValueSize) {
+    public CarSensorEvent(int sensorType, long timeStampNs, int floatValueSize, int intValueSize) {
         mVersionCode = VERSION;
         this.sensorType = sensorType;
         this.timeStampNs = timeStampNs;
         floatValues = new float[floatValueSize];
-        byteValues = new byte[byteValueSize];
+        intValues = new int[intValueSize];
     }
 
     /** @hide */
-    CarSensorEvent(int sensorType, long timeStampNs, float[] floatValues, byte[] byteValues) {
+    CarSensorEvent(int sensorType, long timeStampNs, float[] floatValues, int[] intValues) {
         mVersionCode = VERSION;
         this.sensorType = sensorType;
         this.timeStampNs = timeStampNs;
         this.floatValues = floatValues;
-        this.byteValues = byteValues;
+        this.intValues = intValues;
     }
 
     private void checkType(int type) {
@@ -326,33 +315,6 @@ public class CarSensorEvent implements Parcelable {
         return data;
     }
 
-    public static class HvacData {
-        public long timeStampNs;
-        /** If unsupported by the car, this value is NaN. */
-        public float targetTemperature;
-        /** If unsupported by the car, this value is NaN. */
-        public float currentTemperature;
-    }
-
-    /**
-     * Convenience method for obtaining a {@link HvacData} object from a CarSensorEvent
-     * object with type {@link CarSensorManager#SENSOR_TYPE_HVAC}.
-     *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
-     * @return a HvacData object corresponding to the data contained in the CarSensorEvent.
-     */
-    public HvacData getHvacData(HvacData data) {
-        checkType(CarSensorManager.SENSOR_TYPE_HVAC);
-        if (data == null) {
-            data = new HvacData();
-        }
-        data.timeStampNs = timeStampNs;
-        data.targetTemperature = floatValues[INDEX_ENVIRONMENT_TEMPERATURE];
-        data.currentTemperature = floatValues[INDEX_ENVIRONMENT_PRESSURE];
-        return data;
-    }
-
     public static class NightData {
         public long timeStampNs;
         public boolean isNightMode;
@@ -372,7 +334,7 @@ public class CarSensorEvent implements Parcelable {
             data = new NightData();
         }
         data.timeStampNs = timeStampNs;
-        data.isNightMode = byteValues[0] == 1;
+        data.isNightMode = intValues[0] == 1;
         return data;
     }
 
@@ -395,7 +357,7 @@ public class CarSensorEvent implements Parcelable {
             data = new GearData();
         }
         data.timeStampNs = timeStampNs;
-        data.gear = byteValues[0];
+        data.gear = intValues[0];
         return data;
     }
 
@@ -418,7 +380,7 @@ public class CarSensorEvent implements Parcelable {
             data = new ParkingBrakeData();
         }
         data.timeStampNs = timeStampNs;
-        data.isEngaged = byteValues[0] == 1;
+        data.isEngaged = intValues[0] == 1;
         return data;
     }
 
@@ -448,7 +410,7 @@ public class CarSensorEvent implements Parcelable {
         data.timeStampNs = timeStampNs;
         data.level = (int) floatValues[INDEX_FUEL_LEVEL_IN_PERCENTILE];
         data.range = (int) floatValues[INDEX_FUEL_LEVEL_IN_DISTANCE];
-        data.lowFuelWarning = byteValues[0] == 1;
+        data.lowFuelWarning = intValues[0] == 1;
         return data;
     }
 
@@ -563,15 +525,15 @@ public class CarSensorEvent implements Parcelable {
         if (location == null) {
             location = new Location("Car-GPS");
         }
-        // byteValues[0]: bit flags for the presence of other values following.
-        int presense = byteValues[0];
+        // intValues[0]: bit flags for the presence of other values following.
+        int presense = intValues[0];
         if ((presense & (0x1 << INDEX_LOCATION_LATITUDE)) != 0) {
-            int latBytes = unpackBytes(byteValues, INDEX_LOCATION_LATITUDE_BYTES);
-            location.setLatitude(latBytes * 1e-7);
+            int latE7 = intValues[INDEX_LOCATION_LATITUDE_INTS];
+            location.setLatitude(latE7 * 1e-7);
         }
         if ((presense & (0x1 << INDEX_LOCATION_LONGITUDE)) != 0) {
-            int longBytes = unpackBytes(byteValues, INDEX_LOCATION_LONGITUDE_BYTES);
-            location.setLongitude(longBytes * 1e-7);
+            int longE7 = intValues[INDEX_LOCATION_LONGITUDE_INTS];
+            location.setLongitude(longE7 * 1e-7);
         }
         if ((presense & (0x1 << INDEX_LOCATION_ACCURACY)) != 0) {
             location.setAccuracy(floatValues[INDEX_LOCATION_ACCURACY]);
@@ -598,7 +560,7 @@ public class CarSensorEvent implements Parcelable {
 
     public static class DrivingStatusData {
         public long timeStampNs;
-        public byte status;
+        public int status;
     }
 
     /**
@@ -614,7 +576,7 @@ public class CarSensorEvent implements Parcelable {
         if (data == null) {
             data = new DrivingStatusData();
         }
-        data.status = byteValues[0];
+        data.status = intValues[0];
         return data;
     }
 
@@ -733,14 +695,14 @@ public class CarSensorEvent implements Parcelable {
         if (data == null) {
             data = new GpsSatelliteData();
         }
-        final int byteOffset = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_BYTE_OFFSET;
-        final int byteInterval = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_BYTE_INTERVAL;
+        final int intOffset = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_INT_OFFSET;
+        final int intInterval = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_INT_INTERVAL;
         final int floatOffset = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_FLOAT_OFFSET;
         final int floatInterval = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_FLOAT_INTERVAL;
         final int numberOfSats = (floatValues.length - floatOffset) / floatInterval;
 
-        data.numberInUse = byteValues[CarSensorEvent.INDEX_GPS_SATELLITE_NUMBER_IN_USE];
-        data.numberInView = byteValues[CarSensorEvent.INDEX_GPS_SATELLITE_NUMBER_IN_VIEW];
+        data.numberInUse = intValues[CarSensorEvent.INDEX_GPS_SATELLITE_NUMBER_IN_USE];
+        data.numberInView = intValues[CarSensorEvent.INDEX_GPS_SATELLITE_NUMBER_IN_VIEW];
         if (withPerSatellite && data.numberInView >= 0) {
             data.usedInFix = new boolean[numberOfSats];
             data.prn = new int[numberOfSats];
@@ -749,9 +711,9 @@ public class CarSensorEvent implements Parcelable {
             data.elevation = new float[numberOfSats];
 
             for (int i = 0; i < numberOfSats; ++i) {
-                int iByte = byteOffset + byteInterval * i;
+                int iInt = intOffset + intInterval * i;
                 int iFloat = floatOffset + floatInterval * i;
-                data.usedInFix[i] = byteValues[iByte] != 0;
+                data.usedInFix[i] = intValues[iInt] != 0;
                 data.prn[i] = Math.round(
                         floatValues[iFloat + CarSensorEvent.INDEX_GPS_SATELLITE_PRN_OFFSET]);
                 data.snr[i] =
@@ -766,23 +728,6 @@ public class CarSensorEvent implements Parcelable {
     }
 
     /** @hide */
-    public static int unpackBytes(byte[] arr, int offset) {
-        int b0 = arr[offset] & 0xff;
-        int b1 = (arr[offset + 1] << 8) & 0xff00;
-        int b2 = (arr[offset + 2] << 16) & 0xff0000;
-        int b3 = (arr[offset + 3] << 24) & 0xff000000;
-        return b0 | b1 | b2 | b3;
-    }
-
-    /** @hide */
-    public static void packBytes(byte[] arr, int offset, int value) {
-        arr[offset] = (byte) (value & 0xff);
-        arr[offset + 1] = (byte) ((value >> 8) & 0xff);
-        arr[offset + 2] = (byte) ((value >> 16) & 0xff);
-        arr[offset + 3] = (byte) ((value >> 24) & 0xff);
-    }
-
-    /** @hide */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -794,9 +739,9 @@ public class CarSensorEvent implements Parcelable {
                 sb.append(" " + v);
             }
         }
-        if (byteValues != null && byteValues.length > 0) {
-            sb.append(" byte values:");
-            for (byte v: byteValues) {
+        if (intValues != null && intValues.length > 0) {
+            sb.append(" int values:");
+            for (int v: intValues) {
                 sb.append(" " + v);
             }
         }

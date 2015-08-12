@@ -20,4 +20,5 @@ public class CarLog {
 
     public static final String TAG_SERVICE = "CAR.SERVICE";
     public static final String TAG_SENSOR = "CAR.SENSOR";
+    public static final String TAG_HAL = "CAR.HAL";
 }

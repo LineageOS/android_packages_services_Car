@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package android.support.car;
+package com.android.car;
 
-import android.support.car.CarSensorEvent;
+import android.app.Application;
 
-/**
- * Binder callback for CarSensorEventListener.
- * This is generated per each CarClient.
- * @hide
- */
-oneway interface ICarSensorEventListener {
-    void onSensorChanged(in List<CarSensorEvent> events) = 0;
+public class CarServiceApplication extends Application {
+
+    @Override
+    public void onCreate() {
+        // TODO Auto-generated method stub
+        super.onCreate();
+    }
+
+    @Override
+    public void onTerminate() {
+        // TODO Auto-generated method stub
+        super.onTerminate();
+    }
+
 }

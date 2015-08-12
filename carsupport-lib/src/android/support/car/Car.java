@@ -141,7 +141,7 @@ public class Car {
                 if (mConnectionState  == STATE_DISCONNECTED) {
                     return;
                 }
-                mConnectionState = STATE_CONNECTING;
+                mConnectionState = STATE_DISCONNECTED;
             }
             mServiceConnectionListenerClient.onServiceDisconnected(name);
             connect();

@@ -22,6 +22,37 @@
 
     <original-package android:name="com.android.car" />
 
+    <permission-group
+        android:name="android.support.car.permission.CAR_INFORMATION"
+        android:icon="@drawable/car_ic_mode"
+        android:description="@string/car_permission_desc"
+        android:label="@string/car_permission_label" />
+
+    <permission
+        android:name="android.support.car.permission.CAR_FUEL"
+        android:permissionGroup="android.support.car.permission.CAR_INFORMATION"
+        android:protectionLevel="dangerous"
+        android:label="@string/car_permission_label_fuel"
+        android:description="@string/car_permission_desc_fuel" />
+    <permission
+        android:name="android.support.car.permission.CAR_MILEAGE"
+        android:permissionGroup="android.support.car.permission.CAR_INFORMATION"
+        android:protectionLevel="dangerous"
+        android:label="@string/car_permission_label_mileage"
+        android:description="@string/car_permission_desc_mileage" />
+    <permission
+        android:name="android.support.car.permission.CAR_SPEED"
+        android:permissionGroup="android.permission-group.LOCATION"
+        android:protectionLevel="dangerous"
+        android:label="@string/car_permission_label_speed"
+        android:description="@string/car_permission_desc_speed" />
+    <permission
+        android:name="android.support.car.permission.CAR_VENDOR_EXTENSION"
+        android:permissionGroup="android.support.car.permission.CAR_INFORMATION"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_vendor_extension"
+        android:description="@string/car_permission_desc_vendor_extension" />
+
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <uses-permission android:name="android.permission.DEVICE_POWER" />

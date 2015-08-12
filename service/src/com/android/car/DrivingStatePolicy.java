@@ -24,9 +24,11 @@ import android.support.car.CarSensorManager;
 import android.support.car.ICarSensorEventListener;
 import android.util.Log;
 
-import com.android.car.hal.SensorHalBase.SensorListener;
+import com.android.car.hal.SensorHalServiceBase.SensorListener;
 
 import java.io.PrintWriter;
+import java.util.List;
+
 
 /**
  * Logical sensor implementing driving state policy. This policy sets only two states:
@@ -47,8 +49,10 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
     private final ICarSensorEventListener mICarSensorEventListener =
             new ICarSensorEventListener.Stub() {
         @Override
-        public void onSensorChanged(CarSensorEvent event) {
-            handleSensorEvent(event);
+        public void onSensorChanged(List<CarSensorEvent> events) {
+            for (CarSensorEvent event: events) {
+                handleSensorEvent(event);
+            }
         }
     };
 
@@ -118,7 +122,7 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
     @Override
     public synchronized boolean requestSensorStart(int sensorType, int rate) {
         mStarted = true;
-        mSensorListener.onSensorData(createEvent(mDringState));
+        mSensorListener.onSensorEvent(createEvent(mDringState));
         return true;
     }
 
@@ -149,7 +153,7 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
                 int drivingState = recalcDrivingStateLocked();
                 if (drivingState != mDringState && mSensorListener != null) {
                     mDringState = drivingState;
-                    mSensorListener.onSensorData(createEvent(mDringState));
+                    mSensorListener.onSensorEvent(createEvent(mDringState));
                 }
                 break;
             default:
@@ -184,24 +188,24 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
     }
 
     private boolean isParkingBrakeApplied(CarSensorEvent event) {
-        return event.byteValues[0] == 1;
+        return event.intValues[0] == 1;
     }
 
     private boolean isGearInParkingOrNeutral(CarSensorEvent event) {
-        byte gear = event.byteValues[0];
-        return (gear == ((byte) CarSensorEvent.GEAR_NEUTRAL & 0xff)) ||
-                (gear == ((byte) CarSensorEvent.GEAR_PARK & 0xff));
+        int gear = event.intValues[0];
+        return (gear == CarSensorEvent.GEAR_NEUTRAL) ||
+                (gear == CarSensorEvent.GEAR_PARK);
     }
 
     private boolean isGearInParking(CarSensorEvent event) {
-        byte gear = event.byteValues[0];
-        return gear == ((byte) CarSensorEvent.GEAR_PARK & 0xff);
+        int gear = event.intValues[0];
+        return gear == CarSensorEvent.GEAR_PARK;
     }
 
     private CarSensorEvent createEvent(int drivingState) {
         CarSensorEvent event = new CarSensorEvent(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
                 SystemClock.elapsedRealtimeNanos(), 0, 1);
-        event.byteValues[0] = (byte) (drivingState & 0xff);
+        event.intValues[0] = drivingState;
         return event;
     }
 }

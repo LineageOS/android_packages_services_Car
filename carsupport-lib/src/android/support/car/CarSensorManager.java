@@ -30,6 +30,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  *  API for monitoring car sensor data.
@@ -70,25 +71,20 @@ public class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_FUEL_LEVEL        = 5;
     /**
      * Represents the current status of parking brake. Sensor data in {@link CarSensorEvent} is an
-     * int (byteValues[0]). Value of 1 represents parking brake applied while 0 means the other way
+     * intValues[0]. Value of 1 represents parking brake applied while 0 means the other way
      * around. For this sensor, rate in {@link #registerListener(CarSensorEventListener, int, int)}
      * will be ignored and all changes will be notified.
      */
     public static final int SENSOR_TYPE_PARKING_BRAKE     = 6;
     /**
      * This represents the current position of transmission gear. Sensor data in
-     * {@link CarSensorEvent} is an int (byteValues[0]). For the meaning of the value, check
+     * {@link CarSensorEvent} is an intValues[0]. For the meaning of the value, check
      * {@link CarSensorEvent#GEAR_NEUTRAL} and other GEAR_*.
      */
     public static final int SENSOR_TYPE_GEAR              = 7;
+    public static final int SENSOR_TYPE_RESERVED8         = 8;
     /**
-     * Diagnostics message / event coming from car. The data is coming as byte array in
-     * {@link CarSensorEvent}.
-     * TODO: clarify data format
-     */
-    public static final int SENSOR_TYPE_DIAGNOSTICS       = 8;
-    /**
-     * Day/night sensor. Sensor data is an int (byteValues[0]).
+     * Day/night sensor. Sensor data is intValues[0].
      */
     public static final int SENSOR_TYPE_NIGHT             = 9;
     /**
@@ -97,7 +93,7 @@ public class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_LOCATION          = 10;
     /**
      * Represents the current driving status of car. Different user interaction should be used
-     * depending on the current driving status. Driving status is an int (byteValues[0]).
+     * depending on the current driving status. Driving status is intValues[0].
      */
     public static final int SENSOR_TYPE_DRIVING_STATUS    = 11;
     /**
@@ -107,24 +103,26 @@ public class CarSensorManager implements CarManagerBase {
     /**
      * Current status of HVAC system like target temperature and current temperature.
      */
-    public static final int SENSOR_TYPE_HVAC              = 13;
+    public static final int SENSOR_TYPE_RESERVED13        = 13;
     public static final int SENSOR_TYPE_ACCELEROMETER     = 14;
-    public static final int SENSOR_TYPE_DEAD_RECKONING    = 15;
-    public static final int SENSOR_TYPE_DOOR              = 16;
+    public static final int SENSOR_TYPE_RESERVED15        = 15;
+    public static final int SENSOR_TYPE_RESERVED16        = 16;
     public static final int SENSOR_TYPE_GPS_SATELLITE     = 17;
     public static final int SENSOR_TYPE_GYROSCOPE         = 18;
-    public static final int SENSOR_TYPE_LIGHT             = 19;
-    public static final int SENSOR_TYPE_PASSENGER         = 20;
-    public static final int SENSOR_TYPE_TIRE_PRESSURE     = 21;
+    public static final int SENSOR_TYPE_RESERVED19        = 19;
+    public static final int SENSOR_TYPE_RESERVED20        = 20;
+    public static final int SENSOR_TYPE_RESERVED21        = 21;
     /** Sensor type bigger than this is invalid. Always update this after adding a new sensor. */
-    private static final int SENSOR_TYPE_MAX              = SENSOR_TYPE_TIRE_PRESSURE;
+    private static final int SENSOR_TYPE_MAX              = SENSOR_TYPE_RESERVED21;
 
-    /** Read sensor in default normal rate set for each sensors. */
+    /** Read sensor in default normal rate set for each sensors. This is default rate. */
     public static final int SENSOR_RATE_NORMAL  = 3;
-    /** Read sensor at the maximum rate. Actual rate will be different depending on the sensor */
+    public static final int SENSOR_RATE_UI = 2;
+    public static final int SENSOR_RATE_FAST = 1;
+    /** Read sensor at the maximum rate. Actual rate will be different depending on the sensor. */
     public static final int SENSOR_RATE_FASTEST = 0;
 
-    private static final int MSG_SENSOR_EVENT = 0;
+    private static final int MSG_SENSOR_EVENTS = 0;
 
     private static final int VERSION = 1;
     private final ICarSensor mService;
@@ -145,12 +143,15 @@ public class CarSensorManager implements CarManagerBase {
         @Override
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_SENSOR_EVENT:
+                case MSG_SENSOR_EVENTS:
                     synchronized(mActiveSensorListeners) {
-                        CarSensorEvent event = (CarSensorEvent) msg.obj;
-                        CarSensorListeners listeners = mActiveSensorListeners.get(event.sensorType);
-                        if (listeners != null) {
-                            listeners.onSensorChanged(event);
+                        List<CarSensorEvent> events = (List<CarSensorEvent>) msg.obj;
+                        for (CarSensorEvent event: events) {
+                            CarSensorListeners listeners =
+                                    mActiveSensorListeners.get(event.sensorType);
+                            if (listeners != null) {
+                                listeners.onSensorChanged(event);
+                            }
                         }
                     }
                     break;
@@ -403,8 +404,8 @@ public class CarSensorManager implements CarManagerBase {
         }
     }
 
-    private void handleOnSensorChanged(CarSensorEvent event) {
-        mHandler.sendMessage(mHandler.obtainMessage(MSG_SENSOR_EVENT, event));
+    private void handleOnSensorChanged(List<CarSensorEvent> events) {
+        mHandler.sendMessage(mHandler.obtainMessage(MSG_SENSOR_EVENTS, events));
     }
 
     private static class CarSensorEventListenerToService extends ICarSensorEventListener.Stub {
@@ -415,10 +416,10 @@ public class CarSensorManager implements CarManagerBase {
         }
 
         @Override
-        public void onSensorChanged(CarSensorEvent event) {
+        public void onSensorChanged(List<CarSensorEvent> events) {
             CarSensorManager manager = mManager.get();
             if (manager != null) {
-                manager.handleOnSensorChanged(event);
+                manager.handleOnSensorChanged(events);
             }
         }
     }

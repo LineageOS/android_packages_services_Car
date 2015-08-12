@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import java.io.PrintWriter;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
@@ -27,7 +29,7 @@ import android.support.car.ICarConnectionListener;
 import android.support.car.ICarSensor;
 import android.util.Log;
 
-import com.android.car.hal.Hal;
+import com.android.car.hal.VehicleHal;
 import com.android.internal.annotations.GuardedBy;
 
 public class ICarImpl extends ICar.Stub {
@@ -37,7 +39,7 @@ public class ICarImpl extends ICar.Stub {
     private static ICarImpl sInstance = null;
 
     private final Context mContext;
-    private final Hal mHal;
+    private final VehicleHal mHal;
 
     private final CarSensorService mCarSensorService;
 
@@ -59,7 +61,7 @@ public class ICarImpl extends ICar.Stub {
 
     public ICarImpl(Context serviceContext) {
         mContext = serviceContext;
-        mHal = Hal.getInstance(serviceContext.getApplicationContext());
+        mHal = VehicleHal.getInstance(serviceContext.getApplicationContext());
         mCarSensorService = new CarSensorService(serviceContext);
     }
 
@@ -69,7 +71,7 @@ public class ICarImpl extends ICar.Stub {
 
     private void release() {
         mCarSensorService.release();
-        Hal.releaseInstance();
+        VehicleHal.releaseInstance();
     }
 
     @Override
@@ -124,5 +126,10 @@ public class ICarImpl extends ICar.Stub {
     public boolean startCarActivity(Intent intent) {
         //TODO
         return false;
+    }
+
+    void dump(PrintWriter writer) {
+        writer.println("**CarSensorService");
+        mCarSensorService.dump(writer);
     }
 }

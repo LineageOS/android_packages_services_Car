@@ -14,28 +14,30 @@
 #
 #
 
-# Build the Car service.
-
 LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_SRC_FILES := $(patsubst ./%,%, $(shell cd $(LOCAL_PATH); \
+    find . -name "*.cpp" -and -not -name ".*"))
 
-LOCAL_PACKAGE_NAME := CarService
+LOCAL_C_INCLUDES += \
+    external/libvterm/include \
+    libcore/include \
+    frameworks/base/include
 
-# Each update should be signed by OEMs
-LOCAL_CERTIFICATE := platform
-LOCAL_PRIVILEGED_MODULE := true
+LOCAL_SHARED_LIBRARIES := \
+    libandroidfw \
+    libandroid_runtime \
+    liblog \
+    libnativehelper \
+    libutils \
+    libhardware
 
-LOCAL_PROGUARD_FLAG_FILES := proguard.flags
-LOCAL_PROGUARD_ENABLED := disabled
+LOCAL_CFLAGS := \
+    -Wno-unused-parameter \
 
-LOCAL_JNI_SHARED_LIBRARIES := libjni_carservice
+LOCAL_MODULE := libjni_carservice
+LOCAL_MODULE_TAGS := optional
 
-LOCAL_STATIC_JAVA_LIBRARIES += libcarsupport
-
-include $(BUILD_PACKAGE)
-
-include $(call all-makefiles-under,$(LOCAL_PATH))
-
+include $(BUILD_SHARED_LIBRARY)
