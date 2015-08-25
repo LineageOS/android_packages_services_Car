@@ -957,6 +957,7 @@ public class CarSensorService extends ICarSensor.Stub
 
     @Override
     public void dump(PrintWriter writer) {
+        writer.println("*CarSensorService*");
         writer.println("supported sensors:" + Arrays.toString(mSupportedSensors));
         writer.println("**last events for sensors**");
         if (mSensorRecords != null) {

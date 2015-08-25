@@ -45,8 +45,11 @@ import java.util.HashMap;
  */
 public class Car {
 
-    /** Service name for getting car sensor service in {@link #getCarManager(String)}. */
+    /** Service name for {@link CarSensorManager}, to be used in {@link #getCarManager(String)}. */
     public static final String SENSOR_SERVICE = "sensor";
+
+    /** Service name for {@link CarInfoManager}, to be used in {@link #getCarManager(String)}. */
+    public static final String INFO_SERVICE = "info";
 
     /**
      * Service for testing. This is system app only feature.
@@ -179,6 +182,7 @@ public class Car {
             mLooper = looper;
         }
         if (mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
+            //TODO allow overriding this for system api
             mCarServiceLoader = new DefaultCarServiceLoader(context, mServiceConnectionListener);
         } else {
             Class carServiceLoaderClass = null;
@@ -294,7 +298,6 @@ public class Car {
     public Object getCarManager(String serviceName) throws CarNotConnectedException {
         CarManagerBase manager = null;
         synchronized (mCarManagerLock) {
-            //TODO filter known service vs unknown
             manager = mServiceMap.get(serviceName);
             if (manager == null) {
                 try {
@@ -342,6 +345,9 @@ public class Car {
             case SENSOR_SERVICE:
                 manager = new CarSensorManager(mContext, ICarSensor.Stub.asInterface(binder),
                         mLooper);
+                break;
+            case INFO_SERVICE:
+                manager = new CarInfoManager(ICarInfo.Stub.asInterface(binder));
                 break;
             default:
                 manager = mCarServiceLoader.createCustomCarManager(serviceName, binder);

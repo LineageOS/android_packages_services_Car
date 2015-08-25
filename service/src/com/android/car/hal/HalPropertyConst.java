@@ -18,6 +18,7 @@
 package com.android.car.hal;
 
 public class HalPropertyConst {
+    public static final int VEHICLE_PROPERTY_INVALD = 0;
     public static final int VEHICLE_PROPERTY_INFO_VIN = 0x00000100;
     public static final int VEHICLE_PROPERTY_INFO_MAKE = 0x00000101;
     public static final int VEHICLE_PROPERTY_INFO_MODEL = 0x00000102;

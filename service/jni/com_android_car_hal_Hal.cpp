@@ -66,7 +66,7 @@ public:
     };
 
     virtual ~JniVehicleHal() {
-        //TODO
+        //nothing to do
     };
 
     status_t init() {
@@ -155,7 +155,7 @@ public:
             default:
                 ALOGE("onHalEvents type not implemented yet %d", e->value_type);
                 break;
-            /* TODO
+            /* TODO handle more types
             case VEHICLE_VALUE_TYPE_STRING:
             case HVAC: */
             }
@@ -191,7 +191,7 @@ public:
             default:
                 ALOGE("onHalEvents type not implemented yet %d", e->value_type);
                 break;
-                /* TODO
+                /* TODO handle more types
                         case VEHICLE_VALUE_TYPE_STRING:
                         case HVAC: */
             }
@@ -210,7 +210,7 @@ public:
     };
 
     void onHalError(int errorCode) {
-        //TODO
+        //TODO send error upward
     }
 
     void onHalThreadInit() {
@@ -229,8 +229,6 @@ public:
     inline void fillProperty(vehicle_prop_value_t* propValue, int property, int valueType) {
         propValue->prop = property;
         propValue->value_type = valueType;
-        //TODO refine HAL definition to ignore timestamp in set. No need to set this.
-        //propValue->timestamp = elapsedRealtimeNano();
     }
 
     status_t setIntProperty(int property, int value) {
@@ -240,11 +238,9 @@ public:
         return mHal.setProperty(propValue);
     }
 
-    status_t getIntProperty(int property, int* value) {
+    status_t getIntProperty(int property, int32_t* value) {
         vehicle_prop_value_t propValue;
-        //TODO clarify valid items in get, only prop
         propValue.prop = property;
-        //fillProperty(property, VEHICLE_VALUE_TYPE_SIGNED_INT_32);
         int r = mHal.getProperty(&propValue);
         if (r != NO_ERROR) {
             return r;
@@ -253,6 +249,20 @@ public:
             return BAD_TYPE;
         }
         *value = propValue.value.int32_value;
+        return r;
+    }
+
+    status_t getLongProperty(int property, int64_t* value) {
+        vehicle_prop_value_t propValue;
+        propValue.prop = property;
+        int r = mHal.getProperty(&propValue);
+        if (r != NO_ERROR) {
+            return r;
+        }
+        if (propValue.value_type != VEHICLE_VALUE_TYPE_INT64) {
+            return BAD_TYPE;
+        }
+        *value = propValue.value.int64_value;
         return r;
     }
 
@@ -265,7 +275,6 @@ public:
 
     status_t getFloatProperty(int property, float* value) {
         vehicle_prop_value_t propValue;
-        //TODO clarify valid items in get, only prop
         propValue.prop = property;
         int r = mHal.getProperty(&propValue);
         if (r != NO_ERROR) {
@@ -275,6 +284,21 @@ public:
             return BAD_TYPE;
         }
         *value = propValue.value.float_value;
+        return r;
+    }
+
+    status_t getStringProperty(int property, uint8_t** data, int* length) {
+        vehicle_prop_value_t propValue;
+        propValue.prop = property;
+        int r = mHal.getProperty(&propValue);
+        if (r != NO_ERROR) {
+            return r;
+        }
+        if (propValue.value_type != VEHICLE_VALUE_TYPE_STRING) {
+            return BAD_TYPE;
+        }
+        *length = propValue.value.str_value.len;
+        *data = propValue.value.str_value.data;
         return r;
     }
 
@@ -304,17 +328,38 @@ private:
     JNIEnv* mJniEnv;
 };
 
+static const char* JAVA_ILLEGAL_STATE_EXCEPTION_CLASS_NAME = "java/lang/IllegalStateException";
 static const char* JAVA_RUNTIME_EXCEPTION_CLASS_NAME = "java/lang/RuntimeException";
+
+static void throwException(JNIEnv *env, const char* exceptionClass, const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    String8 msg(String8::formatV(fmt, args));
+    ALOGE("%s", msg.string());
+    env->ThrowNew(env->FindClass(exceptionClass), msg.string());
+}
 
 static jmethodID getMethodID(JNIEnv *env, jclass clz, const char* name, const char* sig) {
     const jmethodID r = env->GetMethodID(clz, name, sig);
     if (r == 0) {
-        String8 msg = String8::format("cannot find method %s with signature %s from Java Hal", name,
-                sig);
-        ALOGE("%s", msg.string());
-        env->ThrowNew(env->FindClass(JAVA_RUNTIME_EXCEPTION_CLASS_NAME), msg.string());
+        throwException(env, JAVA_RUNTIME_EXCEPTION_CLASS_NAME,
+                "cannot find method %s with signature %s from Java Hal", name);
     }
     return r;
+}
+
+static void assertGetError(JNIEnv *env, int errorCode) {
+    if (errorCode != NO_ERROR) {
+        throwException(env, JAVA_ILLEGAL_STATE_EXCEPTION_CLASS_NAME,
+                        "cannot get property, returned %d", errorCode);
+    }
+}
+
+static void assertSetError(JNIEnv *env, int errorCode) {
+    if (errorCode != NO_ERROR) {
+        throwException(env, JAVA_ILLEGAL_STATE_EXCEPTION_CLASS_NAME,
+                        "cannot set property, returned %d", errorCode);
+    }
 }
 
 static jlong com_android_car_hal_VehicleHal_nativeInit(JNIEnv *env, jobject javaHal,
@@ -346,8 +391,7 @@ static jlong com_android_car_hal_VehicleHal_nativeInit(JNIEnv *env, jobject java
             jvm);
     status_t r = hal->init();
     if (r != NO_ERROR) {
-        String8 msg = String8::format("cannot init hal, returned %d", r);
-        env->ThrowNew(env->FindClass(JAVA_RUNTIME_EXCEPTION_CLASS_NAME), msg.string());
+        throwException(env, JAVA_RUNTIME_EXCEPTION_CLASS_NAME, "cannot init hal, returned %d", r);
     }
     return (jlong) hal;
 }
@@ -365,33 +409,61 @@ static jobjectArray com_android_car_hal_VehicleHal_getSupportedProperties(JNIEnv
     return hal->getSupportedProperties(env);
 }
 
-static void com_android_car_hal_VehicleHal_setIntProperty(JNIEnv *, jobject, jlong jniHal,
+static void com_android_car_hal_VehicleHal_setIntProperty(JNIEnv *env, jobject, jlong jniHal,
         jint property, jint value) {
     JniVehicleHal* hal = reinterpret_cast<JniVehicleHal*>(jniHal);
-    hal->setIntProperty(property, value);
-    //TODO check error
+    status_t r = hal->setIntProperty(property, value);
+    assertSetError(env, r);
 }
 
-static jint com_android_car_hal_VehicleHal_getIntProperty(JNIEnv *, jobject, jlong jniHal,
+static jlong com_android_car_hal_VehicleHal_getLongProperty(JNIEnv *env, jobject, jlong jniHal,
         jint property) {
     JniVehicleHal* hal = reinterpret_cast<JniVehicleHal*>(jniHal);
-    int value = -1;
-    hal->getIntProperty(property, &value);
-    //TODO check error
+    jlong value = -1;
+    status_t r = hal->getLongProperty(property, &value);
+    assertGetError(env, r);
     return value;
 }
 
-static void com_android_car_hal_VehicleHal_setFloatProperty(JNIEnv *, jobject, jlong jniHal,
-        jint property, jfloat) {
+static jint com_android_car_hal_VehicleHal_getIntProperty(JNIEnv *env, jobject, jlong jniHal,
+        jint property) {
     JniVehicleHal* hal = reinterpret_cast<JniVehicleHal*>(jniHal);
-    //TODO
+    int value = -1;
+    status_t r = hal->getIntProperty(property, &value);
+    assertGetError(env, r);
+    return value;
 }
 
-static jfloat com_android_car_hal_VehicleHal_getFloatProperty(JNIEnv *, jobject,
+static void com_android_car_hal_VehicleHal_setFloatProperty(JNIEnv *env, jobject, jlong jniHal,
+        jint property, jfloat value) {
+    JniVehicleHal* hal = reinterpret_cast<JniVehicleHal*>(jniHal);
+    status_t r = hal->setFloatProperty(property, value);
+    assertSetError(env, r);
+}
+
+static jfloat com_android_car_hal_VehicleHal_getFloatProperty(JNIEnv *env, jobject,
         jlong jniHal, jint property) {
     JniVehicleHal* hal = reinterpret_cast<JniVehicleHal*>(jniHal);
-    //TODO
-    return 0;
+    float value = -1;
+    status_t r = hal->getFloatProperty(property, &value);
+    assertGetError(env, r);
+    return value;
+}
+
+static jbyteArray com_android_car_hal_VehicleHal_getStringProperty(JNIEnv *env, jobject,
+        jlong jniHal, jint property) {
+    JniVehicleHal* hal = reinterpret_cast<JniVehicleHal*>(jniHal);
+    uint8_t* data = NULL;
+    int len = 0;
+    status_t r = hal->getStringProperty(property, &data, &len);
+    assertGetError(env, r);
+    if (r == NO_ERROR && len > 0 && data != NULL) {
+        jbyteArray array = env->NewByteArray(len);
+        env->SetByteArrayRegion(array, 0, len, (jbyte*)data);
+        free(data);
+        return array;
+    }
+    return NULL;
 }
 
 static int com_android_car_hal_VehicleHal_subscribeProperty(JNIEnv *, jobject, jlong jniHal,
@@ -412,8 +484,10 @@ static JNINativeMethod gMethods[] = {
     { "getSupportedProperties", "(J)[Lcom/android/car/hal/HalProperty;", (void*)com_android_car_hal_VehicleHal_getSupportedProperties },
     { "setIntProperty", "(JII)V", (void*)com_android_car_hal_VehicleHal_setIntProperty },
     { "getIntProperty", "(JI)I", (void*)com_android_car_hal_VehicleHal_getIntProperty },
+    { "getLongProperty", "(JI)J", (void*)com_android_car_hal_VehicleHal_getLongProperty },
     { "setFloatProperty", "(JIF)V", (void*)com_android_car_hal_VehicleHal_setFloatProperty },
     { "getFloatProperty", "(JI)F", (void*)com_android_car_hal_VehicleHal_getFloatProperty },
+    { "getStringProperty", "(JI)[B", (void*)com_android_car_hal_VehicleHal_getStringProperty },
     { "subscribeProperty", "(JIF)I", (void*)com_android_car_hal_VehicleHal_subscribeProperty },
     { "unsubscribeProperty", "(JI)V", (void*)com_android_car_hal_VehicleHal_unsubscribeProperty },
 };

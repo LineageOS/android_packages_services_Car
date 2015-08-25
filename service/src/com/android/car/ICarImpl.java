@@ -16,21 +16,18 @@
 
 package com.android.car;
 
-import java.io.PrintWriter;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.car.Car;
-import android.support.car.CarInfo;
-import android.support.car.CarUiInfo;
 import android.support.car.ICar;
 import android.support.car.ICarConnectionListener;
-import android.support.car.ICarSensor;
 import android.util.Log;
 
 import com.android.car.hal.VehicleHal;
 import com.android.internal.annotations.GuardedBy;
+
+import java.io.PrintWriter;
 
 public class ICarImpl extends ICar.Stub {
     private static final int VERSION = 1;
@@ -42,6 +39,8 @@ public class ICarImpl extends ICar.Stub {
     private final VehicleHal mHal;
 
     private final CarSensorService mCarSensorService;
+    private final CarInfoService mCarInfoService;
+    private final CarServiceBase[] mAllServices;
 
     public synchronized static ICarImpl getInstance(Context serviceContext) {
         if (sInstance == null) {
@@ -62,15 +61,26 @@ public class ICarImpl extends ICar.Stub {
     public ICarImpl(Context serviceContext) {
         mContext = serviceContext;
         mHal = VehicleHal.getInstance(serviceContext.getApplicationContext());
+        mCarInfoService = new CarInfoService(serviceContext);
         mCarSensorService = new CarSensorService(serviceContext);
+        // Be careful with order. Service depending on other service should be inited later.
+        mAllServices = new CarServiceBase[] {
+                mCarInfoService,
+                mCarSensorService };
     }
 
     private void init() {
+        for (CarServiceBase service: mAllServices) {
+            service.init();
+        }
         mCarSensorService.init();
     }
 
     private void release() {
-        mCarSensorService.release();
+        // release done in opposite order from init
+        for (int i = mAllServices.length - 1; i >= 0; i--) {
+            mAllServices[i].release();
+        }
         VehicleHal.releaseInstance();
     }
 
@@ -84,22 +94,12 @@ public class ICarImpl extends ICar.Stub {
         switch (serviceName) {
             case Car.SENSOR_SERVICE:
                 return mCarSensorService;
+            case Car.INFO_SERVICE:
+                return mCarInfoService;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:" + serviceName);
                 return null;
         }
-    }
-
-    @Override
-    public CarInfo getCarInfo() {
-        //TODO
-        return null;
-    }
-
-    @Override
-    public CarUiInfo getCarUiInfo() {
-        //TODO
-        return null;
     }
 
     @Override
@@ -129,7 +129,9 @@ public class ICarImpl extends ICar.Stub {
     }
 
     void dump(PrintWriter writer) {
-        writer.println("**CarSensorService");
-        mCarSensorService.dump(writer);
+        writer.println("*Dump all services*");
+        for (CarServiceBase service: mAllServices) {
+            service.dump(writer);
+        }
     }
 }

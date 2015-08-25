@@ -28,6 +28,7 @@ import android.util.SparseArray;
 import com.android.car.CarLog;
 
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -75,6 +76,7 @@ public class VehicleHal {
     }
 
     private final SensorHalService mSensorHal;
+    private final InfoHalService mInfoHal;
     @SuppressWarnings({"UnusedDeclaration"})
     private long mNativePtr; // used by native code
 
@@ -106,7 +108,10 @@ public class VehicleHal {
         mDefaultHandler = new DefaultHandler(mHandlerThread.getLooper());
         // passing this should be safe as long as it is just kept and not used in constructor
         mSensorHal = new SensorHalService(this);
-        mAllServices = new HalServiceBase[] { mSensorHal };
+        mInfoHal = new InfoHalService(this);
+        mAllServices = new HalServiceBase[] {
+                mInfoHal,
+                mSensorHal };
     }
 
     private void startInit() {
@@ -126,6 +131,9 @@ public class VehicleHal {
         }
         for (HalServiceBase service: mAllServices) {
             List<HalProperty> taken = service.takeSupportedProperties(allProperties);
+            if (taken == null) {
+                continue;
+            }
             if (DBG) {
                 Log.i(CarLog.TAG_HAL, "HalService " + service + " take properties " + taken.size());
             }
@@ -150,6 +158,10 @@ public class VehicleHal {
         return mSensorHal;
     }
 
+    public InfoHalService getInfoHal() {
+        return mInfoHal;
+    }
+
     /**
      * Start mocking HAL with given mock. Actual H/W will be stop functioning until mocking is
      * stopped. The call will be blocked until all pending events are delivered to upper layer.
@@ -162,12 +174,50 @@ public class VehicleHal {
         //TODO
     }
 
-    public int subscribeProperty(int property, float samplingRateHz) {
-        return subscribeProperty(mNativePtr, property, samplingRateHz);
+    public int subscribeProperty(HalProperty property, float samplingRateHz) {
+        return subscribeProperty(mNativePtr, property.propertyType, samplingRateHz);
     }
 
-    public void unsubscribeProperty(int property) {
-        unsubscribeProperty(mNativePtr, property);
+    public void unsubscribeProperty(HalProperty property) {
+        unsubscribeProperty(mNativePtr, property.propertyType);
+    }
+
+    public int getIntProperty(HalProperty property) throws IllegalStateException {
+        assertDataType(property, HalPropertyConst.VehicleValueType.VEHICLE_VALUE_TYPE_INT32);
+        return getIntProperty(mNativePtr, property.propertyType);
+    }
+
+    public long getLongProperty(HalProperty property) throws IllegalStateException {
+        assertDataType(property, HalPropertyConst.VehicleValueType.VEHICLE_VALUE_TYPE_INT64);
+        return getLongProperty(mNativePtr, property.propertyType);
+    }
+
+    public float getFloatProperty(HalProperty property) throws IllegalStateException {
+        assertDataType(property, HalPropertyConst.VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT);
+        return getFloatProperty(mNativePtr, property.propertyType);
+    }
+
+    /**
+     * Read String property.
+     * @param property
+     * @return
+     * @throws IllegalStateException
+     */
+    public String getStringProperty(HalProperty property) throws IllegalStateException {
+        assertDataType(property, HalPropertyConst.VehicleValueType.VEHICLE_VALUE_TYPE_STRING);
+        byte[] utf8String = getStringProperty(mNativePtr, property.propertyType);
+        if (utf8String == null) {
+            Log.e(CarLog.TAG_HAL, "get:HAL returned null for valid property 0x" +
+                    Integer.toHexString(property.propertyType));
+            return null;
+        }
+        try {
+            String value = new String(utf8String, "UTF-8");
+            return value;
+        } catch (UnsupportedEncodingException e) {
+            Log.e(CarLog.TAG_HAL, "cannot decode UTF-8", e);
+        }
+        return null;
     }
 
     /**
@@ -230,6 +280,7 @@ public class VehicleHal {
             intDataIndex += intLength;
             floatDataIndex += floatLength;
         }
+        //TODO add completion for sensor HAL to prevent additional blocking
     }
 
     /**
@@ -247,9 +298,20 @@ public class VehicleHal {
     private native void nativeRelease(long nativePtr);
     private native HalProperty[] getSupportedProperties(long nativePtr);
     private native void setIntProperty(long nativePtr, int property, int value);
-    private native int getIntProperty(long nativePtr, int property);
+    private native int getIntProperty(long nativePtr, int property) throws IllegalStateException;
+    private native long getLongProperty(long nativePtr, int property) throws IllegalStateException;
     private native void setFloatProperty(long nativePtr, int property, float value);
-    private native float getFloatProperty(long nativePtr, int property);
+    private native float getFloatProperty(long nativePtr, int property)
+            throws IllegalStateException;
+    /**
+     * Reads UTF-8 string as byte array. Caller should convert it to String if necessary.
+     * @param nativePtr
+     * @param property
+     * @return
+     * @throws IllegalStateException
+     */
+    private native byte[] getStringProperty(long nativePtr, int property)
+            throws IllegalStateException;
 
     /**
      * subsribe property.
@@ -260,6 +322,13 @@ public class VehicleHal {
      */
     private native int subscribeProperty(long nativePtr, int property, float sampleRateHz);
     private native void unsubscribeProperty(long nativePtr, int property);
+
+    static void assertDataType(HalProperty prop, int expectedType) {
+        if (prop.dataType != expectedType) {
+            throw new RuntimeException("Property 0x" + Integer.toHexString(prop.propertyType) +
+                    " with type " + prop.dataType);
+        }
+    }
 
     private class DefaultHandler extends Handler {
         private static final int MSG_INIT = 0;

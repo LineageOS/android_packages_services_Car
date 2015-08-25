@@ -19,21 +19,17 @@ package android.support.car;
 import android.content.Intent;
 //import android.content.pm.ResolveInfo;
 
-import android.support.car.CarInfo;
-import android.support.car.CarUiInfo;
 import android.support.car.ICarConnectionListener;
 
 /** @hide */
 interface ICar {
     int getVersion() = 0;
     IBinder getCarService(in String serviceName) = 1;
-    CarInfo getCarInfo() = 2;
-    CarUiInfo getCarUiInfo() = 3;
-    boolean isConnectedToCar() = 4;
-    int getCarConnectionType() = 5;
-    void registerCarConnectionListener(int clientVersion, in ICarConnectionListener listener) = 6;
-    void unregisterCarConnectionListener(in ICarConnectionListener listener) = 7;
-    boolean startCarActivity(in Intent intent) = 8;
+    boolean isConnectedToCar() = 2;
+    int getCarConnectionType() = 3;
+    void registerCarConnectionListener(int clientVersion, in ICarConnectionListener listener) = 4;
+    void unregisterCarConnectionListener(in ICarConnectionListener listener) = 5;
+    boolean startCarActivity(in Intent intent) = 6;
     /* TODO
     List<ResolveInfo> queryIntentCarProjectionServices(in Intent intent) = 9;
     List<ResolveInfo> queryAllowedServices(in Intent intent, int applicationType) = 10;

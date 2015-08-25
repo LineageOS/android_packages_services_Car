@@ -180,8 +180,7 @@ public class SensorHalService extends SensorHalServiceBase {
             return false;
         }
         //TODO calculate sampling rate properly
-        int r = mHal.subscribeProperty(halProp.propertyType,
-                fixSamplingRateForProperty(halProp, rate));
+        int r = mHal.subscribeProperty(halProp, fixSamplingRateForProperty(halProp, rate));
         return r == 0;
     }
 
@@ -217,7 +216,7 @@ public class SensorHalService extends SensorHalServiceBase {
         if (halProp == null) {
             return;
         }
-        mHal.unsubscribeProperty(halProp.propertyType);
+        mHal.unsubscribeProperty(halProp);
     }
 
     public synchronized void onSensorEvents(List<CarSensorEvent> events) {
@@ -258,8 +257,8 @@ public class SensorHalService extends SensorHalServiceBase {
 
     @Override
     public void dump(PrintWriter writer) {
-        writer.println("***Sensor HAL***");
-        writer.println("****Supported properties****");
+        writer.println("*Sensor HAL*");
+        writer.println("**Supported properties**");
         for (int i = 0; i < mSensorToHalProperty.size(); i++) {
             writer.println(mSensorToHalProperty.valueAt(i).toString());
         }

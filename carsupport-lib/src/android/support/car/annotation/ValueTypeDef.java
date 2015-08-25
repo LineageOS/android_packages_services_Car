@@ -14,6 +14,19 @@
  * limitations under the License.
  */
 
-package android.support.car;
+package android.support.car.annotation;
 
-parcelable CarInfo;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Annotation for specifying value type for key - value pair.
+ * Key definition will have this annotation to specify what kind of value is expected from the key.
+ */
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ValueTypeDef {
+    Class type() default Object.class;
+}
