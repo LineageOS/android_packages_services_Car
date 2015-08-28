@@ -460,7 +460,7 @@ static jbyteArray com_android_car_hal_VehicleHal_getStringProperty(JNIEnv *env, 
     if (r == NO_ERROR && len > 0 && data != NULL) {
         jbyteArray array = env->NewByteArray(len);
         env->SetByteArrayRegion(array, 0, len, (jbyte*)data);
-        free(data);
+        delete[] data;
         return array;
     }
     return NULL;

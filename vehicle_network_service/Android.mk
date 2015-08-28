@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 #
-
 LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
@@ -23,20 +22,21 @@ LOCAL_SRC_FILES := $(patsubst ./%,%, $(shell cd $(LOCAL_PATH); \
 
 LOCAL_C_INCLUDES += \
     libcore/include \
-    frameworks/base/include
+    frameworks/base/include \
+    packages/services/Car/libvehiclenetwork/include
 
 LOCAL_SHARED_LIBRARIES := \
     libandroidfw \
     libandroid_runtime \
+    libbinder \
     liblog \
-    libnativehelper \
     libutils \
-    libhardware
+    libhardware \
+    libvehiclenetwork-native
 
-LOCAL_CFLAGS := \
-    -Wno-unused-parameter \
+LOCAL_STRIP_MODULE := keep_symbols
 
-LOCAL_MODULE := libjni_carservice
+LOCAL_MODULE := vehicle_network_service
 LOCAL_MODULE_TAGS := optional
 
-include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_EXECUTABLE)
