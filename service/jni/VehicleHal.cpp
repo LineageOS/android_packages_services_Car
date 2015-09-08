@@ -152,7 +152,7 @@ int VehicleHal::eventCallback(const vehicle_prop_value_t *eventData) {
 }
 
 
-int VehicleHal::errorCallback(uint32_t errorCode) {
+int VehicleHal::errorCallback(int32_t errorCode) {
     sInstance->onHalError(errorCode);
     return NO_ERROR;
 }
@@ -202,11 +202,11 @@ status_t VehicleHal::setProperty(vehicle_prop_value_t& data) {
     return mDevice->set(mDevice, &data);
 }
 
-status_t VehicleHal::subscribe(uint32_t prop, float sampleRate) {
+status_t VehicleHal::subscribe(int32_t prop, float sampleRate) {
     return mDevice->subscribe(mDevice, prop, sampleRate);
 }
 
-void VehicleHal::unsubscribe(uint32_t prop) {
+void VehicleHal::unsubscribe(int32_t prop) {
     mDevice->unsubscribe(mDevice, prop);
 }
 

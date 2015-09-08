@@ -89,13 +89,13 @@ public:
     vehicle_prop_config_t const * listProperties(int* numConfigs);
     status_t getProperty(vehicle_prop_value_t *data);
     status_t setProperty(vehicle_prop_value_t& data);
-    status_t subscribe(uint32_t prop, float sample_rate);
-    void unsubscribe(uint32_t prop);
+    status_t subscribe(int32_t prop, float sample_rate);
+    void unsubscribe(int32_t prop);
 private:
     status_t loadHal();
     void closeHal();
     static int eventCallback(const vehicle_prop_value_t *eventData);
-    static int errorCallback(uint32_t errorCode);
+    static int errorCallback(int32_t errorCode);
 private:
     static VehicleHal* sInstance;
     HandlerThread mHandlerThread;
