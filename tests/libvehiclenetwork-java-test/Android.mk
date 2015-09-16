@@ -20,13 +20,15 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
-LOCAL_PACKAGE_NAME := CarApiTest
+LOCAL_PACKAGE_NAME := LibVehicleNetworkJavaTest
+
+LOCAL_CERTIFICATE := platform
 
 LOCAL_MODULE_TAGS := tests
 
 LOCAL_PROGUARD_ENABLED := disabled
 
-LOCAL_STATIC_JAVA_LIBRARIES += libcarsupport
+LOCAL_STATIC_JAVA_LIBRARIES += libvehiclenetwork-java
 
 LOCAL_JAVA_LIBRARIES := android.test.runner
 

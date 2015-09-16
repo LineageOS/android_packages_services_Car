@@ -26,6 +26,7 @@
 #include <IVehicleNetwork.h>
 #include <VehicleNetworkProto.pb.h>
 
+#include "BinderUtil.h"
 #include "VehicleNetworkProtoUtil.h"
 
 namespace android {
@@ -40,7 +41,7 @@ enum {
 
 // ----------------------------------------------------------------------------
 
-const char IVehicleNetwork::SERVICE_NAME[] = "com.android.car.IVehicleNetwork";
+const char IVehicleNetwork::SERVICE_NAME[] = "com.android.car.vehiclenetwork.IVehicleNetwork";
 
 // ----------------------------------------------------------------------------
 
@@ -57,6 +58,7 @@ public:
         data.writeInt32(property);
         status_t status = remote()->transact(LIST_PROPERTIES, data, &reply);
         if (status == NO_ERROR) {
+            reply.readExceptionCode(); // for compatibility with java
             if (reply.readInt32() == 0) { // no result
                 return holder;
             }
@@ -117,6 +119,7 @@ public:
         data.writeInt32(value->prop);
         status_t status = remote()->transact(GET_PROPERTY, data, &reply);
         if (status == NO_ERROR) {
+            reply.readExceptionCode(); // for compatibility with java
             if (reply.readInt32() == 0) { // no result
                 return BAD_VALUE;
             }
@@ -176,6 +179,9 @@ static bool isSystemUser() {
         case AID_AUDIO: {
             return true;
         } break;
+        default: {
+            ALOGE("non-system user tried access, uid %d", uid);
+        } break;
     }
     return false;
 }
@@ -192,7 +198,8 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             int32_t property = data.readInt32();
             sp<VehiclePropertiesHolder> holder = listProperties(property);
             if (holder.get() == NULL) { // given property not found
-                return BAD_VALUE;
+                BinderUtil::fillObjectResultReply(reply, false /* isValid */);
+                return NO_ERROR;
             }
             std::unique_ptr<VehiclePropConfigs> configs(new VehiclePropConfigs());
             ASSERT_OR_HANDLE_NO_MEMORY(configs.get(), return NO_MEMORY);
@@ -201,7 +208,7 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             int size = configs->ByteSize();
             WritableBlobHolder blob(new Parcel::WritableBlob());
             ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
-            reply->writeInt32(1);
+            BinderUtil::fillObjectResultReply(reply, true);
             reply->writeInt32(size);
             reply->writeBlob(size, false, blob.blob);
             configs->SerializeToArray(blob.blob->data(), size);
@@ -233,6 +240,7 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
                 return BAD_VALUE;
             }
             r = setProperty(value.value);
+            BinderUtil::fillNoResultReply(reply);
             return r;
         } break;
         case GET_PROPERTY: {
@@ -241,7 +249,7 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             value.value.prop = data.readInt32();
             r = getProperty(&(value.value));
             if (r == NO_ERROR) {
-                reply->writeInt32(1);
+                BinderUtil::fillObjectResultReply(reply, true);
                 std::unique_ptr<VehiclePropValue> v(new VehiclePropValue());
                 ASSERT_OR_HANDLE_NO_MEMORY(v.get(), return NO_MEMORY);
                 VehicleNetworkProtoUtil::toVehiclePropValue(value.value, *v.get());
@@ -261,6 +269,7 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             int32_t property = data.readInt32();
             float sampleRate = data.readFloat();
             r = subscribe(listener, property, sampleRate);
+            BinderUtil::fillNoResultReply(reply);
             return r;
         } break;
         case UNSUBSCRIBE: {
@@ -269,6 +278,7 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
                     interface_cast<IVehicleNetworkListener>(data.readStrongBinder());
             int32_t property = data.readInt32();
             unsubscribe(listener, property);
+            BinderUtil::fillNoResultReply(reply);
             return NO_ERROR;
         } break;
         default:

@@ -62,7 +62,7 @@ public:
     }
 };
 
-IMPLEMENT_META_INTERFACE(VehicleNetworkListener, "com.android.car.IVehicleNetworkListener");
+IMPLEMENT_META_INTERFACE(VehicleNetworkListener, "com.android.car.vehiclenetwork.IVehicleNetworkListener");
 
 // ----------------------------------------------------------------------
 

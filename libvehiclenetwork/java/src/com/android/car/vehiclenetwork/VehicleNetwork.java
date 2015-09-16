@@ -31,15 +31,12 @@ import java.lang.ref.WeakReference;
 
 /**
  * System API to access Vehicle network. This is only for system services and applications should
- * not use this.
+ * not use this. All APIs will fail with security error if normal app tries this.
  */
 public class VehicleNetwork {
     public interface VehicleNetworkListener {
         void onVehicleNetworkEvents(VehiclePropValues values);
     }
-
-    public static final int NO_ERROR = 0;
-    public static final int ERROR_UNKNOWN = -1;
 
     private static final String TAG = VehicleNetwork.class.getSimpleName();
 
@@ -48,11 +45,13 @@ public class VehicleNetwork {
     private final IVehicleNetworkListenerImpl mVehicleNetworkListener;
     private final EventHandler mEventHandler;
 
-    public VehicleNetwork createVehicleNetwork(VehicleNetworkListener listener, Looper looper) {
+    public static VehicleNetwork createVehicleNetwork(VehicleNetworkListener listener,
+            Looper looper) {
         IVehicleNetwork service = IVehicleNetwork.Stub.asInterface(ServiceManager.getService(
                 IVehicleNetwork.class.getCanonicalName()));
         if (service == null) {
-            throw new RuntimeException("Vehicle network service not available");
+            throw new RuntimeException("Vehicle network service not available:" +
+                    IVehicleNetwork.class.getCanonicalName());
         }
         return new VehicleNetwork(service, listener, looper);
     }
@@ -63,6 +62,10 @@ public class VehicleNetwork {
         mListener = listener;
         mEventHandler = new EventHandler(looper);
         mVehicleNetworkListener = new IVehicleNetworkListenerImpl(this);
+    }
+
+    public VehiclePropConfigs listProperties() {
+        return listProperties(0 /* all */);
     }
 
     public VehiclePropConfigs listProperties(int property) {
@@ -77,15 +80,13 @@ public class VehicleNetwork {
         return null;
     }
 
-    public int setProperty(VehiclePropValue value) {
+    public void setProperty(VehiclePropValue value) {
         VehiclePropValueParcelable parcelable = new VehiclePropValueParcelable(value);
         try {
-            int r = mService.setProperty(parcelable);
-            return r;
+            mService.setProperty(parcelable);
         } catch (RemoteException e) {
             handleRemoteException(e);
         }
-        return ERROR_UNKNOWN;
     }
 
     public VehiclePropValue getProperty(int property) {
@@ -100,14 +101,12 @@ public class VehicleNetwork {
         return null;
     }
 
-    public int subscribe(int property, float sampleRate) {
+    public void subscribe(int property, float sampleRate) {
         try {
-            int r = mService.subscribe(mVehicleNetworkListener, property, sampleRate);
-            return r;
+            mService.subscribe(mVehicleNetworkListener, property, sampleRate);
         } catch (RemoteException e) {
             handleRemoteException(e);
         }
-        return ERROR_UNKNOWN;
     }
 
     public void unsubscribe(int property) {

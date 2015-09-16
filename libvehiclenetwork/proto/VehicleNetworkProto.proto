@@ -18,8 +18,6 @@ syntax = "proto2";
 option java_package = "com.android.car.vehiclenetwork";
 option optimize_for = LITE_RUNTIME;
 
-//TODO define all enums, property values
-
 message VehiclePropConfig {
     required int32 prop = 1;
     required int32 access = 2;
@@ -52,7 +50,7 @@ message VehiclePropValue {
     // common data
     required int32 prop = 1;
     required int32 value_type = 2;
-    required int64 timestamp = 3;
+    optional int64 timestamp = 3; // required for valid data from HAL, but can be skipped for set.
     // values
     optional int32 int32_value = 4; // this also covers boolean value.
     optional int64 int64_value = 5;
