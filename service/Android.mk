@@ -31,9 +31,7 @@ LOCAL_PRIVILEGED_MODULE := true
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 LOCAL_PROGUARD_ENABLED := disabled
 
-LOCAL_JNI_SHARED_LIBRARIES := libjni_carservice
-
-LOCAL_STATIC_JAVA_LIBRARIES += libcarsupport
+LOCAL_STATIC_JAVA_LIBRARIES += libcarsupport libvehiclenetwork-java
 
 include $(BUILD_PACKAGE)
 

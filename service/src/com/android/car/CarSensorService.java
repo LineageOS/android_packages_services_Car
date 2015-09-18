@@ -40,7 +40,6 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import com.android.car.hal.VehicleHal;
-import com.android.car.hal.HalProperty;
 import com.android.car.hal.SensorHalService;
 import com.android.car.hal.SensorHalServiceBase;
 import com.android.car.hal.SensorHalServiceBase.SensorListener;
@@ -70,26 +69,6 @@ public class CarSensorService extends ICarSensor.Stub
      */
     public static abstract class LogicalSensorHalBase extends SensorHalServiceBase {
 
-        @Override
-        public void handleBooleanHalEvent(int property, boolean value, long timeStamp) {
-            //no-op default version as logical sensor does not come from HAL.
-        }
-
-        @Override
-        public void handleIntHalEvent(int property, int value, long timeStamp) {
-            //no-op
-        }
-
-        @Override
-        public void handleFloatHalEvent(int property, float value, long timeStamp) {
-            //no-op
-        }
-
-        @Override
-        public List<HalProperty> takeSupportedProperties(List<HalProperty> allProperties) {
-            return null;
-        }
-
         /** Sensor service is ready and all vehicle sensors are available. */
         public abstract void onSensorServiceReady();
 
@@ -102,7 +81,13 @@ public class CarSensorService extends ICarSensor.Stub
         public abstract CarSensorEvent getDefaultValue(int sensorType);
     }
 
-    static final int VERSION = 1;
+    /**
+     * When set, sensor service sets its own dispatching rate limit.
+     * VehicleNetworkService is already doing this, so not necessary to set it for now.
+     */
+    private static final boolean ENABLE_DISPATCHING_LIMIT = false;
+
+    public static final int VERSION = 1;
 
     /** {@link #mSensorLock} is not waited forever for handling disconnection */
     private static final long MAX_SENSOR_LOCK_WAIT_MS = 1000;
@@ -136,11 +121,16 @@ public class CarSensorService extends ICarSensor.Stub
 
     public CarSensorService(Context context) {
         mContext = context;
-        mHandlerThread = new HandlerThread("SENSOR", Process.THREAD_PRIORITY_AUDIO);
-        mHandlerThread.start();
-        mSensorDispatchHandler = new SensorDispatchHandler(mHandlerThread.getLooper());
+        if (ENABLE_DISPATCHING_LIMIT) {
+            mHandlerThread = new HandlerThread("SENSOR", Process.THREAD_PRIORITY_AUDIO);
+            mHandlerThread.start();
+            mSensorDispatchHandler = new SensorDispatchHandler(mHandlerThread.getLooper());
+        } else {
+            mHandlerThread = null;
+            mSensorDispatchHandler = null;
+        }
         // This triggers sensor hal init as well.
-        mSensorHal = VehicleHal.getInstance(context.getApplicationContext()).getSensorHal();
+        mSensorHal = VehicleHal.getInstance().getSensorHal();
         mDrivingStatePolicy = new DrivingStatePolicy(context);
         mDayNightModePolicy = new DayNightModePolicy(context);
     }
@@ -272,12 +262,11 @@ public class CarSensorService extends ICarSensor.Stub
      */
     @Override
     public void onSensorEvents(List<CarSensorEvent> events) {
-        mSensorDispatchHandler.handleSensorEvents(events);
-    }
-
-    @Override
-    public void onSensorEvent(CarSensorEvent event) {
-        mSensorDispatchHandler.handleSensorEvent(event);
+        if (ENABLE_DISPATCHING_LIMIT) {
+            mSensorDispatchHandler.handleSensorEvents(events);
+        } else {
+            processSensorData(events);
+        }
     }
 
     @Override
@@ -423,6 +412,7 @@ public class CarSensorService extends ICarSensor.Stub
         return result;
     }
 
+    //TODO handle per property OEM permission
     private String getPermissionName(int sensorType) {
         String permission = null;
         switch (sensorType) {

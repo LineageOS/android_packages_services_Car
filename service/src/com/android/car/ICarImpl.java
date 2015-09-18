@@ -60,7 +60,7 @@ public class ICarImpl extends ICar.Stub {
 
     public ICarImpl(Context serviceContext) {
         mContext = serviceContext;
-        mHal = VehicleHal.getInstance(serviceContext.getApplicationContext());
+        mHal = VehicleHal.getInstance();
         mCarInfoService = new CarInfoService(serviceContext);
         mCarSensorService = new CarSensorService(serviceContext);
         // Be careful with order. Service depending on other service should be inited later.

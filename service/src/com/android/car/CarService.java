@@ -60,7 +60,7 @@ public class CarService extends Service {
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         writer.println("*dump car service*");
         writer.println("*dump HAL*");
-        VehicleHal.getInstance(getApplicationContext()).dump(writer);
+        VehicleHal.getInstance().dump(writer);
         writer.println("*dump services*");
         ICarImpl.getInstance(this).dump(writer);
     }

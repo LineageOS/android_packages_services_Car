@@ -89,6 +89,33 @@ public class VehicleNetwork {
         }
     }
 
+    public void setIntProperty(int property, int value) {
+        VehiclePropValue v = VehiclePropValue.newBuilder().
+                setProp(property).
+                setValueType(VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_INT32).
+                setInt32Value(value).
+                build();
+        setProperty(v);
+    }
+
+    public void setLongProperty(int property, long value) {
+        VehiclePropValue v = VehiclePropValue.newBuilder().
+                setProp(property).
+                setValueType(VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_INT64).
+                setInt64Value(value).
+                build();
+        setProperty(v);
+    }
+
+    public void setIntProperty(int property, float value) {
+        VehiclePropValue v = VehiclePropValue.newBuilder().
+                setProp(property).
+                setValueType(VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT).
+                setFloatValue(value).
+                build();
+        setProperty(v);
+    }
+
     public VehiclePropValue getProperty(int property) {
         try {
             VehiclePropValueParcelable parcelable = mService.getProperty(property);
@@ -99,6 +126,51 @@ public class VehicleNetwork {
             handleRemoteException(e);
         }
         return null;
+    }
+
+    public int getIntProperty(int property) {
+        VehiclePropValue v = getProperty(property);
+        if (v == null) {
+            throw new IllegalStateException();
+        }
+        if (v.getValueType() != VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_INT32) {
+            throw new IllegalArgumentException();
+        }
+        return v.getInt32Value();
+    }
+
+    public float getFloatProperty(int property) {
+        VehiclePropValue v = getProperty(property);
+        if (v == null) {
+            throw new IllegalStateException();
+        }
+        if (v.getValueType() != VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT) {
+            throw new IllegalArgumentException();
+        }
+        return v.getFloatValue();
+    }
+
+    public long getLongProperty(int property) {
+        VehiclePropValue v = getProperty(property);
+        if (v == null) {
+            throw new IllegalStateException();
+        }
+        if (v.getValueType() != VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_INT64) {
+            throw new IllegalArgumentException();
+        }
+        return v.getInt64Value();
+    }
+
+    //TODO check UTF8 to java string conversion
+    public String getStringProperty(int property) {
+        VehiclePropValue v = getProperty(property);
+        if (v == null) {
+            throw new IllegalStateException();
+        }
+        if (v.getValueType() != VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_STRING) {
+            throw new IllegalArgumentException();
+        }
+        return v.getStringValue();
     }
 
     public void subscribe(int property, float sampleRate) {

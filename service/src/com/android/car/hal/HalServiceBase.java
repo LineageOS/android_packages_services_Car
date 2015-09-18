@@ -16,7 +16,11 @@
 
 package com.android.car.hal;
 
+import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
+import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
+
 import java.io.PrintWriter;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,6 +29,13 @@ import java.util.List;
  * and will translate HAL data into car api specific format.
  */
 public abstract class HalServiceBase {
+    /** For dispatching events. Kept here to avoid alloc every time */
+    private final LinkedList<VehiclePropValue> mDispatchList = new LinkedList<VehiclePropValue>();
+
+    public List<VehiclePropValue> getDispatchList() {
+        return mDispatchList;
+    }
+
     /** initialize */
     public abstract void init();
 
@@ -40,13 +51,10 @@ public abstract class HalServiceBase {
      * @param allProperties
      * @return null if no properties are supported.
      */
-    public abstract List<HalProperty> takeSupportedProperties(List<HalProperty> allProperties);
+    public abstract List<VehiclePropConfig> takeSupportedProperties(
+            List<VehiclePropConfig> allProperties);
 
-    public abstract void handleBooleanHalEvent(int property, boolean value, long timeStamp);
-
-    public abstract void handleIntHalEvent(int property, int value, long timeStamp);
-
-    public abstract void handleFloatHalEvent(int property, float value, long timeStamp);
+    public abstract void handleHalEvents(List<VehiclePropValue> values);
 
     public abstract void dump(PrintWriter writer);
 }

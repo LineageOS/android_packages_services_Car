@@ -19,6 +19,9 @@ import android.support.car.CarInfoManager;
 import android.util.Log;
 
 import com.android.car.CarLog;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts;
+import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
+import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -28,8 +31,8 @@ import java.util.List;
 public class InfoHalService extends HalServiceBase {
 
     private final VehicleHal mHal;
-    private final HashMap<String, HalProperty> mInfoNameToHalPropertyMap =
-            new HashMap<String, HalProperty>();
+    private final HashMap<String, VehiclePropConfig> mInfoNameToHalPropertyMap =
+            new HashMap<String, VehiclePropConfig>();
 
     public InfoHalService(VehicleHal hal) {
         mHal = hal;
@@ -46,10 +49,11 @@ public class InfoHalService extends HalServiceBase {
     }
 
     @Override
-    public synchronized List<HalProperty> takeSupportedProperties(List<HalProperty> allProperties) {
-        List<HalProperty> supported = new LinkedList<HalProperty>();
-        for (HalProperty p: allProperties) {
-            String infoName = getInfoStringFromProperty(p.propertyType);
+    public synchronized List<VehiclePropConfig> takeSupportedProperties(
+            List<VehiclePropConfig> allProperties) {
+        List<VehiclePropConfig> supported = new LinkedList<VehiclePropConfig>();
+        for (VehiclePropConfig p: allProperties) {
+            String infoName = getInfoStringFromProperty(p.getProp());
             if (infoName != null) {
                 supported.add(p);
                 mInfoNameToHalPropertyMap.put(infoName, p);
@@ -59,31 +63,24 @@ public class InfoHalService extends HalServiceBase {
     }
 
     @Override
-    public void handleBooleanHalEvent(int property, boolean value, long timeStamp) {
-        logUnexpectedEvent(property);
-    }
-
-    @Override
-    public void handleIntHalEvent(int property, int value, long timeStamp) {
-        logUnexpectedEvent(property);
-    }
-
-    @Override
-    public void handleFloatHalEvent(int property, float value, long timeStamp) {
-        logUnexpectedEvent(property);
+    public void handleHalEvents(List<VehiclePropValue> values) {
+        for (VehiclePropValue v : values) {
+            logUnexpectedEvent(v.getProp());
+        }
     }
 
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*InfoHal*");
         writer.println("**Supported properties**");
-        for (HalProperty p : mInfoNameToHalPropertyMap.values()) {
+        for (VehiclePropConfig p : mInfoNameToHalPropertyMap.values()) {
+            //TODO fix toString
             writer.println(p.toString());
         }
     }
 
     public int[] getInt(String key) {
-        HalProperty prop = getHalPropertyFromInfoString(key);
+        VehiclePropConfig prop = getHalPropertyFromInfoString(key);
         if (prop == null) {
             return null;
         }
@@ -93,7 +90,7 @@ public class InfoHalService extends HalServiceBase {
     }
 
     public long[] getLong(String key) {
-        HalProperty prop = getHalPropertyFromInfoString(key);
+        VehiclePropConfig prop = getHalPropertyFromInfoString(key);
         if (prop == null) {
             return null;
         }
@@ -103,7 +100,7 @@ public class InfoHalService extends HalServiceBase {
     }
 
     public float[] getFloat(String key) {
-        HalProperty prop = getHalPropertyFromInfoString(key);
+        VehiclePropConfig prop = getHalPropertyFromInfoString(key);
         if (prop == null) {
             return null;
         }
@@ -113,7 +110,7 @@ public class InfoHalService extends HalServiceBase {
     }
 
     public String getString(String key) {
-        HalProperty prop = getHalPropertyFromInfoString(key);
+        VehiclePropConfig prop = getHalPropertyFromInfoString(key);
         if (prop == null) {
             return null;
         }
@@ -121,7 +118,7 @@ public class InfoHalService extends HalServiceBase {
         return mHal.getStringProperty(prop);
     }
 
-    private synchronized HalProperty getHalPropertyFromInfoString(String key) {
+    private synchronized VehiclePropConfig getHalPropertyFromInfoString(String key) {
         return mInfoNameToHalPropertyMap.get(key);
     }
 
@@ -132,13 +129,13 @@ public class InfoHalService extends HalServiceBase {
 
     private static String getInfoStringFromProperty(int property) {
         switch (property) {
-            case HalPropertyConst.VEHICLE_PROPERTY_INFO_MAKE:
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE:
                 return CarInfoManager.KEY_MANUFACTURER;
-            case HalPropertyConst.VEHICLE_PROPERTY_INFO_MODEL:
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL:
                 return CarInfoManager.KEY_MODEL;
-            case HalPropertyConst.VEHICLE_PROPERTY_INFO_MODEL_YEAR:
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL_YEAR:
                 return CarInfoManager.KEY_MODEL_YEAR;
-            case HalPropertyConst.VEHICLE_PROPERTY_INFO_VIN:
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_VIN:
                 return CarInfoManager.KEY_VEHICLE_ID;
             //TODO add more properties
             default:

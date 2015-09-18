@@ -54,7 +54,7 @@ public class CarInfoService extends ICarInfo.Stub implements CarServiceBase {
     private final Context mContext;
 
     public CarInfoService(Context context) {
-        mInfoHal = VehicleHal.getInstance(context.getApplicationContext()).getInfoHal();
+        mInfoHal = VehicleHal.getInstance().getInfoHal();
         mContext = context;
     }
 

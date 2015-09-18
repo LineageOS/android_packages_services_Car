@@ -34,7 +34,7 @@ public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.w(CarLog.TAG_SERVICE, "Starting...");
-        VehicleHal hal = VehicleHal.getInstance(context.getApplicationContext());
+        VehicleHal hal = VehicleHal.getInstance();
         Intent carServiceintent = new Intent();
         carServiceintent.setPackage(context.getPackageName());
         carServiceintent.setAction(Car.CAR_SERVICE_INTERFACE_NAME);

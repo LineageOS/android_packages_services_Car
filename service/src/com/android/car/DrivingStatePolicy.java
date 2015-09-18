@@ -122,7 +122,7 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
     @Override
     public synchronized boolean requestSensorStart(int sensorType, int rate) {
         mStarted = true;
-        mSensorListener.onSensorEvent(createEvent(mDringState));
+        dispatchCarSensorEvent(mSensorListener, createEvent(mDringState));
         return true;
     }
 
@@ -153,7 +153,7 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
                 int drivingState = recalcDrivingStateLocked();
                 if (drivingState != mDringState && mSensorListener != null) {
                     mDringState = drivingState;
-                    mSensorListener.onSensorEvent(createEvent(mDringState));
+                    dispatchCarSensorEvent(mSensorListener, createEvent(mDringState));
                 }
                 break;
             default:

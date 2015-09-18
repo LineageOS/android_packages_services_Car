@@ -27,6 +27,7 @@ using namespace android;
 
 int main(int /*argc*/, char** /*argv*/)
 {
+    ALOGI("vehicle_network_service: starting");
     signal(SIGPIPE, SIG_IGN);
     // this will wait for service manager if not available yet.
     sp<IServiceManager> sm = defaultServiceManager();
