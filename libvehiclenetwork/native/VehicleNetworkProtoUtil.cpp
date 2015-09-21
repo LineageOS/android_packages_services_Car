@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#define LOG_TAG "VehicleNetwork"
+
+#include <utils/Log.h>
+
 #include <IVehicleNetwork.h>
 #include "VehicleNetworkProtoUtil.h"
 
@@ -41,14 +45,30 @@ status_t VehicleNetworkProtoUtil::toVehiclePropValue(const vehicle_prop_value_t&
             out.set_bytes_value(in.value.bytes_value.data, in.value.bytes_value.len);
         } break;
         case VEHICLE_VALUE_TYPE_FLOAT: {
-            out.set_float_value(in.value.float_value);
+            out.add_float_values(in.value.float_value);
+        } break;
+        case VEHICLE_VALUE_TYPE_FLOAT_VEC2:
+        case VEHICLE_VALUE_TYPE_FLOAT_VEC3:
+        case VEHICLE_VALUE_TYPE_FLOAT_VEC4: {
+            int expectedSize = in.value_type - VEHICLE_VALUE_TYPE_FLOAT_VEC2 + 2;
+            for (int i = 0; i < expectedSize; i++) {
+                out.add_float_values(in.value.float_array[i]);
+            }
         } break;
         case VEHICLE_VALUE_TYPE_INT64: {
             out.set_int64_value(in.value.int64_value);
         } break;
         case VEHICLE_VALUE_TYPE_INT32:
         case VEHICLE_VALUE_TYPE_BOOLEAN: {
-            out.set_int32_value(in.value.int32_value);
+            out.add_int32_values(in.value.int32_value);
+        } break;
+        case VEHICLE_VALUE_TYPE_INT32_VEC2:
+        case VEHICLE_VALUE_TYPE_INT32_VEC3:
+        case VEHICLE_VALUE_TYPE_INT32_VEC4: {
+            int expectedSize = in.value_type - VEHICLE_VALUE_TYPE_INT32_VEC2 + 2;
+            for (int i = 0; i < expectedSize; i++) {
+                out.add_int32_values(in.value.int32_array[i]);
+            }
         } break;
         case VEHICLE_VALUE_TYPE_ZONED_INT32:
         case VEHICLE_VALUE_TYPE_ZONED_BOOLEAN: {
@@ -80,6 +100,7 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
                 // set to NULL so that client can just delete this safely.
                 out.value.str_value.data = NULL;
                 out.value.str_value.len = 0;
+                ALOGE("no string value");
                 return BAD_VALUE;
             }
             //TODO fix copy...
@@ -95,6 +116,7 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
             if (!in.has_bytes_value()) {
                 out.value.bytes_value.data = NULL;
                 out.value.bytes_value.len = 0;
+                ALOGE("no bytes value");
                 return BAD_VALUE;
             }
             status_t r = copyString(in.bytes_value(), &(out.value.bytes_value.data),
@@ -106,31 +128,62 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
             }
         } break;
         case VEHICLE_VALUE_TYPE_FLOAT: {
-            if (!in.has_float_value()) {
+            if (in.float_values_size() != 1) {
+                ALOGE("float value, wrong size %d, expecting 1", in.float_values_size());
                 return BAD_VALUE;
             }
-            out.value.float_value = in.float_value();
+            out.value.float_value = in.float_values(0);
+        } break;
+        case VEHICLE_VALUE_TYPE_FLOAT_VEC2:
+        case VEHICLE_VALUE_TYPE_FLOAT_VEC3:
+        case VEHICLE_VALUE_TYPE_FLOAT_VEC4: {
+            int expectedSize = out.value_type - VEHICLE_VALUE_TYPE_FLOAT_VEC2 + 2;
+            if (in.float_values_size() != expectedSize) {
+                ALOGE("float value, wrong size %d, expecting %d", in.float_values_size(),
+                        expectedSize);
+                return BAD_VALUE;
+            }
+            for (int i = 0; i < expectedSize; i++) {
+                out.value.float_array[i] = in.float_values(i);
+            }
         } break;
         case VEHICLE_VALUE_TYPE_INT64: {
             if (!in.has_int64_value()) {
+                ALOGE("no int64 value");
                 return BAD_VALUE;
             }
             out.value.int64_value = in.int64_value();
         } break;
         case VEHICLE_VALUE_TYPE_INT32:
         case VEHICLE_VALUE_TYPE_BOOLEAN: {
-            if (!in.has_int32_value()) {
+            if (in.int32_values_size() != 1) {
+                ALOGE("no int32 value");
                 return BAD_VALUE;
             }
-            out.value.int32_value = in.int32_value();
+            out.value.int32_value = in.int32_values(0);
+        } break;
+        case VEHICLE_VALUE_TYPE_INT32_VEC2:
+        case VEHICLE_VALUE_TYPE_INT32_VEC3:
+        case VEHICLE_VALUE_TYPE_INT32_VEC4: {
+            int expectedSize = out.value_type - VEHICLE_VALUE_TYPE_INT32_VEC2 + 2;
+            if (in.int32_values_size() != expectedSize) {
+                ALOGE("int32 value, wrong size %d, expecting %d", in.int32_values_size(),
+                        expectedSize);
+                return BAD_VALUE;
+            }
+            for (int i = 0; i < expectedSize; i++) {
+                out.value.int32_array[i] = in.int32_values(i);
+            }
         } break;
         case VEHICLE_VALUE_TYPE_ZONED_INT32:
         case VEHICLE_VALUE_TYPE_ZONED_BOOLEAN: {
             if (!in.has_zoned_value()) {
+                ALOGE("no zoned value");
                 return BAD_VALUE;
             }
             const ZonedValue& zonedValue = in.zoned_value();
             if (!zonedValue.has_int32_value()) {
+                ALOGE("no int32 in zoned value");
                 return BAD_VALUE;
             }
             out.value.zoned_int32_value.zone = zonedValue.zone_or_window();
@@ -138,10 +191,12 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
         } break;
         case VEHICLE_VALUE_TYPE_ZONED_FLOAT: {
             if (!in.has_zoned_value()) {
+                ALOGE("no zoned value");
                 return BAD_VALUE;
             }
             const ZonedValue& zonedValue = in.zoned_value();
             if (!zonedValue.has_float_value()) {
+                ALOGE("no float in zoned value");
                 return BAD_VALUE;
             }
             out.value.zoned_float_value.zone = zonedValue.zone_or_window();
@@ -278,12 +333,12 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropConfig(const VehiclePropConfig&
     return NO_ERROR;
 }
 
-status_t VehicleNetworkProtoUtil::toVehiclePropConfigs(vehicle_prop_config_t const* in,
-        int32_t numConfigs, VehiclePropConfigs& out) {
+status_t VehicleNetworkProtoUtil::toVehiclePropConfigs(List<vehicle_prop_config_t const*> &in,
+        VehiclePropConfigs& out) {
     status_t r;
-    for (int32_t i = 0; i < numConfigs; i++) {
+    for (auto& inEntry : in) {
         VehiclePropConfig* config = out.add_configs();
-        r = toVehiclePropConfig(in[i], *config);
+        r = toVehiclePropConfig(*inEntry, *config);
         if (r != NO_ERROR) {
             out.clear_configs();
             return r;
@@ -293,21 +348,28 @@ status_t VehicleNetworkProtoUtil::toVehiclePropConfigs(vehicle_prop_config_t con
 }
 
 status_t VehicleNetworkProtoUtil::fromVehiclePropConfigs(const VehiclePropConfigs& in,
-        vehicle_prop_config_t** out, int32_t* numConfigs) {
+        List<vehicle_prop_config_t const*>& out) {
     int32_t n = in.configs_size();
-    *out = new vehicle_prop_config_t[n];
-    ASSERT_OR_HANDLE_NO_MEMORY(*out, return NO_MEMORY);
-    memset(*out, 0, n * sizeof(vehicle_prop_config_t));
-    *numConfigs = n;
     status_t r;
     for (int32_t i = 0; i < n; i++) {
-        r = fromVehiclePropConfig(in.configs(i), (*out)[i]);
+        vehicle_prop_config_t* entry = new vehicle_prop_config_t();
+        ASSERT_OR_HANDLE_NO_MEMORY(entry, r = NO_MEMORY; goto error);
+        memset(entry, 0, sizeof(vehicle_prop_config_t));
+        r = fromVehiclePropConfig(in.configs(i), *entry);
         if (r != NO_ERROR) {
-            //TODO free all data
-            return r;
+            goto error;
         }
+        out.push_back(entry);
     }
     return NO_ERROR;
+error:
+    for (auto& e : out) {
+        vehicle_prop_config_t* eDelete = const_cast<vehicle_prop_config_t*>(e);
+        VehiclePropertiesUtil::deleteMembers(eDelete);
+        delete eDelete;
+    }
+    out.clear();
+    return r;
 }
 
 }; //namespace android

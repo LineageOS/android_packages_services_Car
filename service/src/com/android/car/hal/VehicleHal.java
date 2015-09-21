@@ -87,6 +87,7 @@ public class VehicleHal implements VehicleNetworkListener {
     private final VehicleNetwork mVehicleNetwork;
     private final SensorHalService mSensorHal;
     private final InfoHalService mInfoHal;
+    private final AudioHalService mAudioHal;
 
     /** stores handler for each HAL property. Property events are sent to handler. */
     private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<HalServiceBase>();
@@ -101,7 +102,9 @@ public class VehicleHal implements VehicleNetworkListener {
         // passing this should be safe as long as it is just kept and not used in constructor
         mSensorHal = new SensorHalService(this);
         mInfoHal = new InfoHalService(this);
+        mAudioHal = new AudioHalService(this);
         mAllServices = new HalServiceBase[] {
+                mAudioHal,
                 mInfoHal,
                 mSensorHal };
         mVehicleNetwork = VehicleNetwork.createVehicleNetwork(this, mHandlerThread.getLooper());
@@ -152,6 +155,10 @@ public class VehicleHal implements VehicleNetworkListener {
         return mInfoHal;
     }
 
+    public AudioHalService getAudioHal() {
+        return mAudioHal;
+    }
+
     /**
      * Start mocking HAL with given mock. Actual H/W will be stop functioning until mocking is
      * stopped. The call will be blocked until all pending events are delivered to upper layer.
@@ -164,8 +171,8 @@ public class VehicleHal implements VehicleNetworkListener {
         //TODO
     }
 
-    private void assertServiceOwner(HalServiceBase service, VehiclePropConfig property) {
-        if (service != mPropertyHandlers.get(property.getProp())) {
+    private void assertServiceOwner(HalServiceBase service, int property) {
+        if (service != mPropertyHandlers.get(property)) {
             throw new IllegalArgumentException("not owned");
         }
     }
@@ -176,57 +183,21 @@ public class VehicleHal implements VehicleNetworkListener {
      * @param property
      * @param samplingRateHz
      */
-    public void subscribeProperty(HalServiceBase service, VehiclePropConfig property,
+    public void subscribeProperty(HalServiceBase service, int property,
             float samplingRateHz) throws IllegalArgumentException {
         assertServiceOwner(service, property);
-        mSubscribedProperties.add(property.getProp());
-        mVehicleNetwork.subscribe(property.getProp(), samplingRateHz);
+        mSubscribedProperties.add(property);
+        mVehicleNetwork.subscribe(property, samplingRateHz);
     }
 
-    public void unsubscribeProperty(HalServiceBase service, VehiclePropConfig property) {
+    public void unsubscribeProperty(HalServiceBase service, int property) {
         assertServiceOwner(service, property);
-        mSubscribedProperties.remove(property.getProp());
-        mVehicleNetwork.unsubscribe(property.getProp());
+        mSubscribedProperties.remove(property);
+        mVehicleNetwork.unsubscribe(property);
     }
 
-    public int getIntProperty(VehiclePropConfig property) {
-        assertDataType(property, VehicleValueType.VEHICLE_VALUE_TYPE_INT32);
-        return mVehicleNetwork.getIntProperty(property.getProp());
-    }
-
-    public long getLongProperty(VehiclePropConfig property) {
-        assertDataType(property, VehicleValueType.VEHICLE_VALUE_TYPE_INT64);
-        return mVehicleNetwork.getLongProperty(property.getProp());
-    }
-
-    public float getFloatProperty(VehiclePropConfig property) {
-        assertDataType(property, VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT);
-        return mVehicleNetwork.getFloatProperty(property.getProp());
-    }
-
-    /**
-     * Read String property.
-     * @param property
-     * @return
-     * @throws IllegalStateException
-     */
-    public String getStringProperty(VehiclePropConfig property) {
-        assertDataType(property, VehicleValueType.VEHICLE_VALUE_TYPE_STRING);
-        /* TODO clarify UTF8 with proto
-        byte[] utf8String = getStringProperty(mNativePtr, property.propertyType);
-        if (utf8String == null) {
-            Log.e(CarLog.TAG_HAL, "get:HAL returned null for valid property 0x" +
-                    Integer.toHexString(property.propertyType));
-            return null;
-        }
-        try {
-            String value = new String(utf8String, "UTF-8");
-            return value;
-        } catch (UnsupportedEncodingException e) {
-            Log.e(CarLog.TAG_HAL, "cannot decode UTF-8", e);
-        }
-        return null;*/
-        return mVehicleNetwork.getStringProperty(property.getProp());
+    public VehicleNetwork getVehicleNetwork() {
+        return mVehicleNetwork;
     }
 
     private final ArraySet<HalServiceBase> mServicesToDispatch = new ArraySet<HalServiceBase>();
@@ -242,13 +213,6 @@ public class VehicleHal implements VehicleNetworkListener {
             s.getDispatchList().clear();
         }
         mServicesToDispatch.clear();
-    }
-
-    static void assertDataType(VehiclePropConfig prop, int expectedType) {
-        if (prop.getValueType() != expectedType) {
-            throw new RuntimeException("Property 0x" + Integer.toHexString(prop.getProp()) +
-                    " with type " + prop.getValueType());
-        }
     }
 
     private class DefaultHandler extends Handler {

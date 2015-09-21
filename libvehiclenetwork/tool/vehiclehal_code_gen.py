@@ -61,6 +61,7 @@ class PropertyInfo(object):
     self.changeMode = ""
     self.access = ""
     self.unit = ""
+    self.startEnd = 0 # _START/END property
 
   def __str__(self):
     r = ["value:" + self.value]
@@ -122,7 +123,8 @@ switch (property) {"""
 """public static String getVehiclePropertyName(int property) {
 switch (property) {"""
   for p in props:
-    print "case " + p.name + ': return "' + p.name +     '";'
+    if (p.startEnd == 0):
+      print "case " + p.name + ': return "' + p.name +     '";'
   print \
 """default: return "UNKNOWN_PROPERTY";
 }
@@ -133,7 +135,22 @@ def printEnum(e):
   print "public static class " + toJavaStyleName(e.name) + " {"
   for entry in e.enums:
     print JAVA_INT_DEF + entry[0] + " = " + entry[1] + ";"
-  print "}"
+  #now implement enumToString
+  print \
+"""public static String enumToString(int v) {
+switch(v) {"""
+  valueStore = []
+  for entry in e.enums:
+    # handling enum with the same value. Print only 1st one.
+    if valueStore.count(entry[1]) == 0:
+      valueStore.append(entry[1])
+      print "case " + entry[0] + ': return "' + entry[0] + '";'
+  print \
+"""default: return "UNKNOWN";
+}
+}
+}
+"""
 
 def printEnums(enums):
   for e in enums:
@@ -144,6 +161,10 @@ def main(argv):
   #print vehicle_h_path
   f = open(vehicle_h_path, 'r')
   text = f.read()
+  f.close()
+  vehicle_internal_h_path = os.path.dirname(os.path.abspath(__file__)) + "/../include/vehicle-internal.h"
+  f = open(vehicle_internal_h_path, 'r')
+  text = text + f.read()
   f.close()
 
   props = []
@@ -169,6 +190,8 @@ def main(argv):
       elif words[i] == "@unit":
         i += 1
         prop.changeMode = words[i]
+      elif words[i] == "@range_start" or words[i] == "@range_end":
+        prop.startEnd = 1
       i += 1
     props.append(prop)
     #for p in props:

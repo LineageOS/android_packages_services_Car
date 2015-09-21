@@ -128,28 +128,24 @@ TEST_F(IVehicleNetworkTest, listProperties) {
     sp<IVehicleNetwork> vn = getDefaultVN();
     sp<VehiclePropertiesHolder> properties = vn->listProperties();
     ASSERT_TRUE(properties.get() != NULL);
-    int32_t numConfigs = properties->getNumConfigs();
+    int32_t numConfigs = properties->getList().size();
     ASSERT_TRUE(numConfigs > 0);
-    vehicle_prop_config_t const * config = properties->getData();
-    for (int32_t i = 0; i < numConfigs; i++) {
+    for (auto& config : properties->getList()) {
         String8 msg = String8::format("prop 0x%x\n", config->prop);
         std::cout<<msg.string();
-        config++;
     }
     sp<VehiclePropertiesHolder> propertiesIvalid  = vn->listProperties(-1); // no such property
     ASSERT_TRUE(propertiesIvalid.get() == NULL);
-    config = properties->getData();
-    for (int32_t i = 0; i < numConfigs; i++) {
+    for (auto& config : properties->getList()) {
         String8 msg = String8::format("query single prop 0x%x\n", config->prop);
         std::cout<<msg.string();
         sp<VehiclePropertiesHolder> singleProperty = vn->listProperties(config->prop);
-        ASSERT_EQ(1, singleProperty->getNumConfigs());
-        vehicle_prop_config_t const * newConfig = singleProperty->getData();
+        ASSERT_EQ(1, singleProperty->getList().size());
+        vehicle_prop_config_t const * newConfig = *singleProperty->getList().begin();
         ASSERT_EQ(config->prop, newConfig->prop);
         ASSERT_EQ(config->access, newConfig->access);
         ASSERT_EQ(config->change_mode, newConfig->change_mode);
         //TODO add more check
-        config++;
     }
 }
 
@@ -157,12 +153,20 @@ TEST_F(IVehicleNetworkTest, getProperty) {
     sp<IVehicleNetwork> vn = getDefaultVN();
     sp<VehiclePropertiesHolder> properties = vn->listProperties();
     ASSERT_TRUE(properties.get() != NULL);
-    int32_t numConfigs = properties->getNumConfigs();
+    int32_t numConfigs = properties->getList().size();
     ASSERT_TRUE(numConfigs > 0);
-    vehicle_prop_config_t const * config = properties->getData();
-    for (int32_t i = 0; i < numConfigs; i++) {
+    for (auto& config : properties->getList()) {
         String8 msg = String8::format("getting prop 0x%x\n", config->prop);
         std::cout<<msg.string();
+        if ((config->prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
+                (config->prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
+            // internal property requires write to get anything.
+            ScopedVehiclePropValue value;
+            value.value.prop = config->prop;
+            value.value.value_type = config->value_type;
+            status_t r = vn->setProperty(value.value);
+            ASSERT_EQ(NO_ERROR, r);
+        }
         ScopedVehiclePropValue value;
         value.value.prop = config->prop;
         status_t r = vn->getProperty(&value.value);
@@ -172,7 +176,6 @@ TEST_F(IVehicleNetworkTest, getProperty) {
             ASSERT_EQ(NO_ERROR, r);
             ASSERT_EQ(config->value_type, value.value.value_type);
         }
-        config++;
     }
 }
 
@@ -181,10 +184,9 @@ TEST_F(IVehicleNetworkTest, setProperty) {
     sp<IVehicleNetwork> vn = getDefaultVN();
     sp<VehiclePropertiesHolder> properties = vn->listProperties();
     ASSERT_TRUE(properties.get() != NULL);
-    int32_t numConfigs = properties->getNumConfigs();
+    int32_t numConfigs = properties->getList().size();
     ASSERT_TRUE(numConfigs > 0);
-    vehicle_prop_config_t const * config = properties->getData();
-    for (int32_t i = 0; i < numConfigs; i++) {
+    for (auto& config : properties->getList()) {
         String8 msg = String8::format("setting prop 0x%x\n", config->prop);
         std::cout<<msg.string();
         ScopedVehiclePropValue value;
@@ -196,7 +198,6 @@ TEST_F(IVehicleNetworkTest, setProperty) {
         } else {
             ASSERT_EQ(NO_ERROR, r);
         }
-        config++;
     }
 }
 
@@ -204,11 +205,10 @@ TEST_F(IVehicleNetworkTest, setSubscribe) {
     sp<IVehicleNetwork> vn = getDefaultVN();
     sp<VehiclePropertiesHolder> properties = vn->listProperties();
     ASSERT_TRUE(properties.get() != NULL);
-    int32_t numConfigs = properties->getNumConfigs();
+    int32_t numConfigs = properties->getList().size();
     ASSERT_TRUE(numConfigs > 0);
     sp<IVehicleNetworkTestTestListener> listener(new IVehicleNetworkTestTestListener());
-    vehicle_prop_config_t const * config = properties->getData();
-    for (int32_t i = 0; i < numConfigs; i++) {
+    for (auto& config : properties->getList()) {
         String8 msg = String8::format("subscribing property 0x%x\n", config->prop);
         std::cout<<msg.string();
         status_t r = vn->subscribe(listener, config->prop, config->max_sample_rate);
@@ -216,22 +216,26 @@ TEST_F(IVehicleNetworkTest, setSubscribe) {
                 (config->change_mode == VEHICLE_PROP_CHANGE_MODE_STATIC)) { // cannot subsctibe
             ASSERT_TRUE(r != NO_ERROR);
         } else {
+            if ((config->prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
+                    (config->prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
+                // internal property requires write for event notification.
+                ScopedVehiclePropValue value;
+                value.value.prop = config->prop;
+                value.value.value_type = config->value_type;
+                status_t r = vn->setProperty(value.value);
+                ASSERT_EQ(NO_ERROR, r);
+            }
             ASSERT_EQ(NO_ERROR, r);
             ASSERT_TRUE(listener->waitForEvent(config->prop, 2000000000));
         }
-        config++;
     }
-    config = properties->getData();
-    for (int32_t i = 0; i < numConfigs; i++) {
+    for (auto& config : properties->getList()) {
         vn->unsubscribe(listener, config->prop);
-        config++;
     }
     usleep(1000000);
-    config = properties->getData();
     //TODO improve this as this will wait for too long
-    for (int32_t i = 0; i < numConfigs; i++) {
+    for (auto& config : properties->getList()) {
         ASSERT_TRUE(!listener->waitForEvent(config->prop, 1000000000));
-        config++;
     }
 }
 

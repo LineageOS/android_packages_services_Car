@@ -40,6 +40,7 @@ public class ICarImpl extends ICar.Stub {
 
     private final CarSensorService mCarSensorService;
     private final CarInfoService mCarInfoService;
+    private final CarAudioService mCarAudioService;
     private final CarServiceBase[] mAllServices;
 
     public synchronized static ICarImpl getInstance(Context serviceContext) {
@@ -63,17 +64,18 @@ public class ICarImpl extends ICar.Stub {
         mHal = VehicleHal.getInstance();
         mCarInfoService = new CarInfoService(serviceContext);
         mCarSensorService = new CarSensorService(serviceContext);
+        mCarAudioService = new CarAudioService(serviceContext);
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
                 mCarInfoService,
-                mCarSensorService };
+                mCarSensorService,
+                mCarAudioService };
     }
 
     private void init() {
         for (CarServiceBase service: mAllServices) {
             service.init();
         }
-        mCarSensorService.init();
     }
 
     private void release() {

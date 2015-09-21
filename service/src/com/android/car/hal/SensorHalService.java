@@ -116,29 +116,29 @@ public class SensorHalService extends SensorHalServiceBase {
             case VehicleNetworkConsts.VEHICLE_PROPERTY_PARKING_BRAKE_ON: {
                 if (DBG_EVENTS) {
                     Log.i(CarLog.TAG_SENSOR, "boolean event, property:" +
-                            Integer.toHexString(property) + " value:" + v.getInt32Value());
+                            Integer.toHexString(property) + " value:" + v.getInt32Values(0));
                 }
                 return CarSensorEventFactory.createBooleanEvent(sensorType, v.getTimestamp(),
-                        v.getInt32Value() == 1);
+                        v.getInt32Values(0) == 1);
             }
             // int
             case VehicleNetworkConsts.VEHICLE_PROPERTY_GEAR_SELECTION:
             case VehicleNetworkConsts.VEHICLE_PROPERTY_DRIVING_STATUS: {
                 if (DBG_EVENTS) {
                     Log.i(CarLog.TAG_SENSOR, "int event, property:" +
-                            Integer.toHexString(property) + " value:" + v.getInt32Value());
+                            Integer.toHexString(property) + " value:" + v.getInt32Values(0));
                 }
                 return CarSensorEventFactory.createIntEvent(sensorType, v.getTimestamp(),
-                        v.getInt32Value());
+                        v.getInt32Values(0));
             }
             // float
             case VehicleNetworkConsts.VEHICLE_PROPERTY_PERF_VEHICLE_SPEED: {
                 if (DBG_EVENTS) {
                     Log.i(CarLog.TAG_SENSOR, "float event, property:" +
-                            Integer.toHexString(property) + " value:" + v.getFloatValue());
+                            Integer.toHexString(property) + " value:" + v.getFloatValues(0));
                 }
                 return CarSensorEventFactory.createFloatEvent(sensorType, v.getTimestamp(),
-                        v.getFloatValue());
+                        v.getFloatValues(0));
             }
         }
         return null;
@@ -173,7 +173,7 @@ public class SensorHalService extends SensorHalServiceBase {
             return false;
         }
         //TODO calculate sampling rate properly
-        mHal.subscribeProperty(this, config, fixSamplingRateForProperty(config, rate));
+        mHal.subscribeProperty(this, config.getProp(), fixSamplingRateForProperty(config, rate));
         return true;
     }
 
@@ -208,7 +208,7 @@ public class SensorHalService extends SensorHalServiceBase {
         if (config == null) {
             return;
         }
-        mHal.unsubscribeProperty(this, config);
+        mHal.unsubscribeProperty(this, config.getProp());
     }
 
     /**
@@ -230,7 +230,8 @@ public class SensorHalService extends SensorHalServiceBase {
             case VehicleNetworkConsts.VEHICLE_PROPERTY_DRIVING_STATUS:
                 return CarSensorManager.SENSOR_TYPE_DRIVING_STATUS;
             default:
-                Log.e(CarLog.TAG_SENSOR, "unknown sensor property from HAL " + halPropertyType);
+                Log.e(CarLog.TAG_SENSOR, "unknown sensor property from HAL 0x" +
+                        Integer.toHexString(halPropertyType));
                 return SENSOR_TYPE_INVALD;
         }
     }

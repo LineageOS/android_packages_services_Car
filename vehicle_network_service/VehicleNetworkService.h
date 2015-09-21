@@ -187,6 +187,23 @@ protected:
 
 // ----------------------------------------------------------------------------
 
+/**
+ * Keeps cached value of property values.
+ * For internal property, static property, and on_change property, caching makes sense.
+ */
+class PropertyValueCache {
+public:
+    PropertyValueCache();
+    virtual ~PropertyValueCache();
+    void writeToCache(const vehicle_prop_value_t& value);
+    bool readFromCache(vehicle_prop_value_t* value);
+
+private:
+    KeyedVector<int32_t, vehicle_prop_value_t*> mCache;
+};
+
+// ----------------------------------------------------------------------------
+
 class VehicleNetworkService :
     public BinderService<VehicleNetworkService>,
     public BnVehicleNetwork,
@@ -211,6 +228,7 @@ public:
             float sampleRate);
     virtual void unsubscribe(const sp<IVehicleNetworkListener> &listener, int32_t property);
     virtual void binderDied(const wp<IBinder>& who);
+    bool isPropertySubsribed(int32_t property);
 private:
     // RefBase
     virtual void onFirstRef();
@@ -233,6 +251,7 @@ private:
     KeyedVector<sp<IBinder>, sp<HalClient> > mBinderToClientMap;
     KeyedVector<int32_t, sp<HalClientSpVector> > mPropertyToClientsMap;
     KeyedVector<int32_t, float> mSampleRates;
+    PropertyValueCache mCache;
 };
 
 };

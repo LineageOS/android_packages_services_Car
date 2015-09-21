@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.android.car.vehiclenetwork.libtest;
 
 import android.os.HandlerThread;
@@ -91,6 +90,13 @@ public class VehicleNetworkTest extends AndroidTestCase {
         Log.i(TAG, "got configs:" + configs.getConfigsCount());
         for (VehiclePropConfig config : configs.getConfigsList()) {
             if ((config.getAccess() & VehiclePropAccess.VEHICLE_PROP_ACCESS_READ) != 0) {
+                if (config.getProp() >= VehicleNetworkConsts.VEHICLE_PROPERTY_INTERNAL_START &&
+                        config.getProp() <= VehicleNetworkConsts.VEHICLE_PROPERTY_INTERNAL_END) {
+                    // internal property requires write to read
+                    VehiclePropValue v = VehicleNetworkTestUtil.createDummyValue(config.getProp(),
+                            config.getValueType());
+                    mVehicleNetwork.setProperty(v);
+                }
                 VehiclePropValue value = mVehicleNetwork.getProperty(config.getProp());
                 assertEquals(config.getProp(), value.getProp());
                 assertEquals(config.getValueType(), value.getValueType());
@@ -105,7 +111,7 @@ public class VehicleNetworkTest extends AndroidTestCase {
             VehiclePropValue value = VehiclePropValue.newBuilder().
                 setProp(-1).
                 setValueType(VehicleValueType.VEHICLE_VALUE_TYPE_INT32).
-                setInt32Value(0).
+                addInt32Values(0).
                 build();
             mVehicleNetwork.setProperty(value);
             fail();
@@ -122,7 +128,7 @@ public class VehicleNetworkTest extends AndroidTestCase {
                     VehiclePropValue value = VehiclePropValue.newBuilder().
                             setProp(config.getProp()).
                             setValueType(config.getValueType()).
-                            setInt32Value(0).
+                            addInt32Values(0).
                             build();
                     mVehicleNetwork.setProperty(value);
                 }
@@ -165,6 +171,13 @@ public class VehicleNetworkTest extends AndroidTestCase {
             } else if ((config.getAccess() & VehiclePropAccess.VEHICLE_PROP_ACCESS_READ) != 0){
                 mVehicleNetwork.subscribe(config.getProp(), config.getSampleRateMin());
                 subscribedProperties.add(config.getProp());
+                if (config.getProp() >= VehicleNetworkConsts.VEHICLE_PROPERTY_INTERNAL_START &&
+                        config.getProp() <= VehicleNetworkConsts.VEHICLE_PROPERTY_INTERNAL_END) {
+                    // internal property requires write to get notification
+                    VehiclePropValue v = VehicleNetworkTestUtil.createDummyValue(config.getProp(),
+                            config.getValueType());
+                    mVehicleNetwork.setProperty(v);
+                }
             }
         }
         // now confirm event

@@ -72,39 +72,28 @@ public:
 class VehiclePropertiesHolder : public virtual RefBase {
 public:
 
-    VehiclePropertiesHolder(vehicle_prop_config_t* configs, int32_t numConfigs,
-            bool deleteConfigsInDestructor = true)
-        : mConfigs(configs),
-          mNumConfigs(numConfigs),
-          mDeleteConfigsInDestructor(deleteConfigsInDestructor) {
+    VehiclePropertiesHolder(bool deleteConfigsInDestructor = true)
+        : mDeleteConfigsInDestructor(deleteConfigsInDestructor) {
     };
 
     virtual ~VehiclePropertiesHolder() {
         if (!mDeleteConfigsInDestructor) {
-            mConfigs = NULL;
-            return; // should not delete mConfigs
+            return; // should not delete members
         }
-        for (int i = 0; i < mNumConfigs; i++) {
-            VehiclePropertiesUtil::deleteMembers(&mConfigs[i]);
+        for (auto& e : mList) {
+            vehicle_prop_config_t* eDelete = const_cast<vehicle_prop_config_t*>(e);
+            VehiclePropertiesUtil::deleteMembers(eDelete);
+            delete eDelete;
         }
-        delete mConfigs;
+        mList.clear();
     };
 
-    /**
-     * Returns array of vehicle_prop_config_t containing properties supported from vehicle HAL.
-     */
-    vehicle_prop_config_t const * getData() {
-        return mConfigs;
-    };
-
-    /** Returns number of elements in the vehicle_prop_config_t array */
-    int32_t getNumConfigs() {
-        return mNumConfigs;
+    List<vehicle_prop_config_t const *>& getList() {
+        return mList;
     };
 
 private:
-    vehicle_prop_config_t* mConfigs;
-    int32_t mNumConfigs;
+    List<vehicle_prop_config_t const *> mList;
     bool mDeleteConfigsInDestructor;
 };
 
@@ -130,25 +119,37 @@ public:
         }
     };
 
+    static status_t copyVehicleProp(vehicle_prop_value_t* dest, const vehicle_prop_value_t& src,
+            bool deleteOldData = false) {
+        if (deleteOldData && dest->value.str_value.data != NULL && dest->value.str_value.len > 0) {
+            delete[] dest->value.str_value.data;
+        }
+        memcpy(dest, &src, sizeof(vehicle_prop_value_t));
+        switch (src.value_type) {
+        case VEHICLE_VALUE_TYPE_BYTES:
+        case VEHICLE_VALUE_TYPE_STRING: {
+            if (dest->value.str_value.len > 0) {
+                dest->value.str_value.data = new uint8_t[dest->value.str_value.len];
+                ASSERT_OR_HANDLE_NO_MEMORY(dest->value.str_value.data, return NO_MEMORY);
+                memcpy(dest->value.str_value.data, src.value.str_value.data,
+                        dest->value.str_value.len);
+            } else {
+                dest->value.str_value.data = NULL;
+            }
+        } break;
+        }
+        return NO_ERROR;
+    }
+
     /**
      * Create a deep copy of vehicle_prop_value_t.
      */
-    static vehicle_prop_value_t* copyVehicleProp(const vehicle_prop_value_t& v) {
+    static vehicle_prop_value_t* allocVehicleProp(const vehicle_prop_value_t& v) {
         std::unique_ptr<vehicle_prop_value_t> copy(new vehicle_prop_value_t());
         ASSERT_OR_HANDLE_NO_MEMORY(copy.get(), return NO_MEMORY);
-        memcpy(copy.get(), &v, sizeof(vehicle_prop_value_t));
-        switch (v.value_type) {
-            case VEHICLE_VALUE_TYPE_BYTES:
-            case VEHICLE_VALUE_TYPE_STRING: {
-                if (copy->value.str_value.len > 0) {
-                    copy->value.str_value.data = new uint8_t[copy->value.str_value.len];
-                    ASSERT_OR_HANDLE_NO_MEMORY(copy->value.str_value.data, return NO_MEMORY);
-                    memcpy(copy->value.str_value.data, v.value.str_value.data,
-                            copy->value.str_value.len);
-                } else {
-                    copy->value.str_value.data = NULL;
-                }
-            } break;
+        status_t r = copyVehicleProp(copy.get(), v);
+        if (r != NO_ERROR) {
+            return NULL;
         }
         return copy.release();
     };

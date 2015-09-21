@@ -82,15 +82,15 @@ public:
                 ALOGE("listProperties, cannot parse reply");
                 return holder;
             }
-            vehicle_prop_config_t* configArray = NULL;
-            int32_t numConfigs;
-            status = VehicleNetworkProtoUtil::fromVehiclePropConfigs(*configs.get(), &configArray,
-                    &numConfigs);
+            holder = new VehiclePropertiesHolder();
+            ASSERT_OR_HANDLE_NO_MEMORY(holder.get(), return);
+            status = VehicleNetworkProtoUtil::fromVehiclePropConfigs(*configs.get(),
+                    holder->getList());
             if (status != NO_ERROR) {
                 ALOGE("listProperties, cannot convert VehiclePropConfigs %d", status);
                 return holder;
             }
-            holder = new VehiclePropertiesHolder(configArray, numConfigs);
+
         }
         return holder;
     }
@@ -203,8 +203,7 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             }
             std::unique_ptr<VehiclePropConfigs> configs(new VehiclePropConfigs());
             ASSERT_OR_HANDLE_NO_MEMORY(configs.get(), return NO_MEMORY);
-            VehicleNetworkProtoUtil::toVehiclePropConfigs(holder->getData(),
-                    holder->getNumConfigs(), *configs.get());
+            VehicleNetworkProtoUtil::toVehiclePropConfigs(holder->getList(), *configs.get());
             int size = configs->ByteSize();
             WritableBlobHolder blob(new Parcel::WritableBlob());
             ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);

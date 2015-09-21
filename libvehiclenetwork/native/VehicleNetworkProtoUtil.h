@@ -54,11 +54,11 @@ public:
 
     static status_t fromVehiclePropConfig(const VehiclePropConfig& in, vehicle_prop_config& out);
 
-    static status_t toVehiclePropConfigs(vehicle_prop_config_t const* in, int32_t numConfigs,
+    static status_t toVehiclePropConfigs(List<vehicle_prop_config_t const*> &in,
             VehiclePropConfigs& out);
 
     static status_t fromVehiclePropConfigs(const VehiclePropConfigs& in,
-            vehicle_prop_config_t** out, int32_t* numConfigs);
+            List<vehicle_prop_config_t const*>& out);
 };
 
 // ----------------------------------------------------------------------------

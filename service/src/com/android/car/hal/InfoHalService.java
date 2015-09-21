@@ -85,7 +85,7 @@ public class InfoHalService extends HalServiceBase {
             return null;
         }
         // no lock here as get can take time and multiple get should be possible.
-        int v = mHal.getIntProperty(prop);
+        int v = mHal.getVehicleNetwork().getIntProperty(prop.getProp());
         return new int[] { v };
     }
 
@@ -95,7 +95,7 @@ public class InfoHalService extends HalServiceBase {
             return null;
         }
         // no lock here as get can take time and multiple get should be possible.
-        long v = mHal.getLongProperty(prop);
+        long v = mHal.getVehicleNetwork().getLongProperty(prop.getProp());
         return new long[] { v };
     }
 
@@ -105,7 +105,7 @@ public class InfoHalService extends HalServiceBase {
             return null;
         }
         // no lock here as get can take time and multiple get should be possible.
-        float v = mHal.getFloatProperty(prop);
+        float v = mHal.getVehicleNetwork().getFloatProperty(prop.getProp());
         return new float[] { v };
     }
 
@@ -115,7 +115,7 @@ public class InfoHalService extends HalServiceBase {
             return null;
         }
         // no lock here as get can take time and multiple get should be possible.
-        return mHal.getStringProperty(prop);
+        return mHal.getVehicleNetwork().getStringProperty(prop.getProp());
     }
 
     private synchronized VehiclePropConfig getHalPropertyFromInfoString(String key) {

@@ -23,6 +23,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Log;
 
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
@@ -92,28 +93,50 @@ public class VehicleNetwork {
     public void setIntProperty(int property, int value) {
         VehiclePropValue v = VehiclePropValue.newBuilder().
                 setProp(property).
-                setValueType(VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_INT32).
-                setInt32Value(value).
+                setValueType(VehicleValueType.VEHICLE_VALUE_TYPE_INT32).
+                addInt32Values(value).
                 build();
         setProperty(v);
+    }
+
+    public void setIntVectorProperty(int property, int[] values) {
+        int len = values.length;
+        VehiclePropValue.Builder builder = VehiclePropValue.newBuilder().
+                setProp(property).
+                setValueType(VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2 + len - 2);
+        for (int v : values) {
+            builder.addInt32Values(v);
+        }
+        setProperty(builder.build());
     }
 
     public void setLongProperty(int property, long value) {
         VehiclePropValue v = VehiclePropValue.newBuilder().
                 setProp(property).
-                setValueType(VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_INT64).
+                setValueType(VehicleValueType.VEHICLE_VALUE_TYPE_INT64).
                 setInt64Value(value).
                 build();
         setProperty(v);
     }
 
-    public void setIntProperty(int property, float value) {
+    public void setFloatProperty(int property, float value) {
         VehiclePropValue v = VehiclePropValue.newBuilder().
                 setProp(property).
-                setValueType(VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT).
-                setFloatValue(value).
+                setValueType(VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT).
+                addFloatValues(value).
                 build();
         setProperty(v);
+    }
+
+    public void setFloatVectorProperty(int property, float[] values) {
+        int len = values.length;
+        VehiclePropValue.Builder builder = VehiclePropValue.newBuilder().
+                setProp(property).
+                setValueType(VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC2 + len - 2);
+        for (float v : values) {
+            builder.addFloatValues(v);
+        }
+        setProperty(builder.build());
     }
 
     public VehiclePropValue getProperty(int property) {
@@ -131,12 +154,44 @@ public class VehicleNetwork {
     public int getIntProperty(int property) {
         VehiclePropValue v = getProperty(property);
         if (v == null) {
+            // if property is invalid, IllegalArgumentException should have been thrown
+            // from getProperty.
             throw new IllegalStateException();
         }
-        if (v.getValueType() != VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_INT32) {
+        if (v.getValueType() != VehicleValueType.VEHICLE_VALUE_TYPE_INT32) {
             throw new IllegalArgumentException();
         }
-        return v.getInt32Value();
+        if (v.getInt32ValuesCount() != 1) {
+            throw new IllegalStateException();
+        }
+        return v.getInt32Values(0);
+    }
+
+    public void getIntVectorProperty(int property, int[] values) {
+        VehiclePropValue v = getProperty(property);
+        if (v == null) {
+            // if property is invalid, IllegalArgumentException should have been thrown
+            // from getProperty.
+            throw new IllegalStateException();
+        }
+        switch (v.getValueType()) {
+            case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC3:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC4:
+                if (values.length !=
+                    (v.getValueType() - VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2 + 2)) {
+                    throw new IllegalArgumentException("wrong array length");
+                }
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+        if (v.getInt32ValuesCount() != values.length) {
+            throw new IllegalStateException();
+        }
+        for (int i = 0; i < values.length; i++) {
+            values[i] = v.getInt32Values(i);
+        }
     }
 
     public float getFloatProperty(int property) {
@@ -144,10 +199,40 @@ public class VehicleNetwork {
         if (v == null) {
             throw new IllegalStateException();
         }
-        if (v.getValueType() != VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT) {
+        if (v.getValueType() != VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT) {
             throw new IllegalArgumentException();
         }
-        return v.getFloatValue();
+        if (v.getFloatValuesCount() != 1) {
+            throw new IllegalStateException();
+        }
+        return v.getFloatValues(0);
+    }
+
+    public void getFloatVectorProperty(int property, float[] values) {
+        VehiclePropValue v = getProperty(property);
+        if (v == null) {
+            // if property is invalid, IllegalArgumentException should have been thrown
+            // from getProperty.
+            throw new IllegalStateException();
+        }
+        switch (v.getValueType()) {
+            case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC2:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC3:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC4:
+                if (values.length !=
+                    (v.getValueType() - VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC2 + 2)) {
+                    throw new IllegalArgumentException("wrong array length");
+                }
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+        if (v.getFloatValuesCount() != values.length) {
+            throw new IllegalStateException();
+        }
+        for (int i = 0; i < values.length; i++) {
+            values[i] = v.getFloatValues(i);
+        }
     }
 
     public long getLongProperty(int property) {
@@ -155,7 +240,7 @@ public class VehicleNetwork {
         if (v == null) {
             throw new IllegalStateException();
         }
-        if (v.getValueType() != VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_INT64) {
+        if (v.getValueType() != VehicleValueType.VEHICLE_VALUE_TYPE_INT64) {
             throw new IllegalArgumentException();
         }
         return v.getInt64Value();
@@ -167,7 +252,7 @@ public class VehicleNetwork {
         if (v == null) {
             throw new IllegalStateException();
         }
-        if (v.getValueType() != VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_STRING) {
+        if (v.getValueType() != VehicleValueType.VEHICLE_VALUE_TYPE_STRING) {
             throw new IllegalArgumentException();
         }
         return v.getStringValue();

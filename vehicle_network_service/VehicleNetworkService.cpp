@@ -143,6 +143,50 @@ void VehicleHalMessageHandler::handleMessage(const Message& message) {
 
 // ----------------------------------------------------------------------------
 
+PropertyValueCache::PropertyValueCache() {
+
+}
+
+PropertyValueCache::~PropertyValueCache() {
+    for (size_t i = 0; i < mCache.size(); i++) {
+        vehicle_prop_value_t* v = mCache.editValueAt(i);
+        VehiclePropValueUtil::deleteMembers(v);
+        delete v;
+    }
+    mCache.clear();
+}
+
+void PropertyValueCache::writeToCache(const vehicle_prop_value_t& value) {
+    vehicle_prop_value_t* v;
+    ssize_t index = mCache.indexOfKey(value.prop);
+    if (index < 0) {
+        v = VehiclePropValueUtil::allocVehicleProp(value);
+        ASSERT_OR_HANDLE_NO_MEMORY(v, return);
+        mCache.add(value.prop, v);
+    } else {
+        v = mCache.editValueAt(index);
+        VehiclePropValueUtil::copyVehicleProp(v, value, true /* deleteOldData */);
+    }
+}
+
+bool PropertyValueCache::readFromCache(vehicle_prop_value_t* value) {
+    ssize_t index = mCache.indexOfKey(value->prop);
+    if (index < 0) {
+        ALOGE("readFromCache 0x%x, not found", value->prop);
+        return false;
+    }
+    const vehicle_prop_value_t* cached = mCache.valueAt(index);
+    //TODO this can be improved by just passing pointer and not deleting members.
+    status_t r = VehiclePropValueUtil::copyVehicleProp(value, *cached);
+    if (r != NO_ERROR) {
+        ALOGD("readFromCache 0x%x, copy failed %d", value->prop, r);
+        return false;
+    }
+    return true;
+}
+
+// ----------------------------------------------------------------------------
+
 
 VehicleNetworkService* VehicleNetworkService::sInstance = NULL;
 
@@ -157,7 +201,11 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
         write(fd, msg.string(), msg.size());
         return NO_ERROR;
     }
-
+    msg.append("*Properties\n");
+    for (auto& prop : mProperties->getList()) {
+        //TODO dump more info
+        msg.appendFormat("property 0x%x\n", prop->prop);
+    }
     msg.append("*Active clients*\n");
     for (size_t i = 0; i < mBinderToClientMap.size(); i++) {
         msg.appendFormat("pid %d uid %d\n", mBinderToClientMap.valueAt(i)->getPid(),
@@ -234,6 +282,11 @@ int VehicleNetworkService::errorCallback(int32_t errorCode) {
     return NO_ERROR;
 }
 
+extern "C" {
+vehicle_prop_config_t const * getInternalProperties();
+int getNumInternalProperties();
+};
+
 void VehicleNetworkService::onFirstRef() {
     Mutex::Autolock autoLock(mLock);
     status_t r = loadHal();
@@ -258,9 +311,15 @@ void VehicleNetworkService::onFirstRef() {
     }
     int numConfigs = 0;
     vehicle_prop_config_t const* configs = mDevice->list_properties(mDevice, &numConfigs);
-    mProperties = new VehiclePropertiesHolder(const_cast<vehicle_prop_config_t*>(configs),
-            numConfigs, false /* deleteConfigsInDestructor */);
+    mProperties = new VehiclePropertiesHolder(false /* deleteConfigsInDestructor */);
     ASSERT_ALWAYS_ON_NO_MEMORY(mProperties);
+    for (int i = 0; i < numConfigs; i++) {
+        mProperties->getList().push_back(&configs[i]);
+    }
+    configs = getInternalProperties();
+    for (int i = 0; i < getNumInternalProperties(); i++) {
+        mProperties->getList().push_back(&configs[i]);
+    }
 }
 
 void VehicleNetworkService::release() {
@@ -273,17 +332,13 @@ void VehicleNetworkService::release() {
 }
 
 vehicle_prop_config_t const * VehicleNetworkService::findConfig(int32_t property) {
-    vehicle_prop_config_t const * config = mProperties->getData();
-    int32_t numConfigs = mProperties->getNumConfigs();
-    for (int32_t i = 0; i < numConfigs; i++) {
+    for (auto& config : mProperties->getList()) {
         if (config->prop == property) {
             return config;
         }
-        config++;
     }
     return NULL;
 }
-
 
 bool VehicleNetworkService::isGettable(int32_t property) {
     vehicle_prop_config_t const * config = findConfig(property);
@@ -331,10 +386,10 @@ sp<VehiclePropertiesHolder> VehicleNetworkService::listProperties(int32_t proper
         return mProperties;
     } else {
         sp<VehiclePropertiesHolder> p;
-        vehicle_prop_config_t const * config = findConfig(property);
+        const vehicle_prop_config_t* config = findConfig(property);
         if (config != NULL) {
-            p = new VehiclePropertiesHolder(const_cast<vehicle_prop_config_t*>(config), 1,
-                    false /* deleteConfigsInDestructor */);
+            p = new VehiclePropertiesHolder(false /* deleteConfigsInDestructor */);
+            p->getList().push_back(config);
             ASSERT_OR_HANDLE_NO_MEMORY(p.get(), return p);
         }
         return p;
@@ -346,6 +401,13 @@ status_t VehicleNetworkService::getProperty(vehicle_prop_value_t *data) {
         Mutex::Autolock autoLock(mLock);
         if (!isGettable(data->prop)) {
             return BAD_VALUE;
+        }
+        if ((data->prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
+                (data->prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
+            if (!mCache.readFromCache(data)) {
+                return BAD_VALUE;
+            }
+            return NO_ERROR;
         }
         //TODO caching for static, on-change type?
     } while (false);
@@ -360,6 +422,16 @@ status_t VehicleNetworkService::setProperty(const vehicle_prop_value_t& data) {
             return BAD_VALUE;
         }
     } while (false);
+    if ((data.prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
+                    (data.prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
+        do {
+            Mutex::Autolock autoLock(mLock);
+            mCache.writeToCache(data);
+        } while (false);
+        // for internal property, just publish it.
+        onHalEvent(&data);
+        return NO_ERROR;
+    }
     //TODO add value check requires auto generated code to return value range for enum types
     // set done outside lock to allow concurrent access
     return mDevice->set(mDevice, &data);
@@ -432,6 +504,11 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
     client->setSampleRate(prop, sampleRate);
     if (shouldSubscribe) {
         mSampleRates.add(prop, sampleRate);
+        if ((prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
+                            (prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
+            ALOGD("subscribe to internal property, prop 0x%x", prop);
+            return NO_ERROR;
+        }
         ALOGD("subscribe to HAL, prop 0x%x sample rate:%f", prop, sampleRate);
         return mDevice->subscribe(mDevice, prop, sampleRate);
     } else {
@@ -469,7 +546,12 @@ void VehicleNetworkService::unsubscribe(const sp<IVehicleNetworkListener> &liste
     }
     //TODO reset sample rate. do not care for now.
     if (clientsForProperty->size() == 0) {
-        mDevice->unsubscribe(mDevice, prop);
+        if ((prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
+                (prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
+            ALOGD("unsubscribe to internal property, prop 0x%x", prop);
+        } else {
+            mDevice->unsubscribe(mDevice, prop);
+        }
         mPropertyToClientsMap.removeItem(prop);
         mSampleRates.removeItem(prop);
     }
@@ -477,7 +559,8 @@ void VehicleNetworkService::unsubscribe(const sp<IVehicleNetworkListener> &liste
 
 void VehicleNetworkService::onHalEvent(const vehicle_prop_value_t* eventData) {
     //TODO add memory pool
-    vehicle_prop_value_t* copy = VehiclePropValueUtil::copyVehicleProp(*eventData);
+    vehicle_prop_value_t* copy = VehiclePropValueUtil::allocVehicleProp(*eventData);
+    ASSERT_OR_HANDLE_NO_MEMORY(copy, return);
     mHandler->handleHalEvent(copy);
 }
 
