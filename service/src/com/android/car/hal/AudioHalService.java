@@ -16,8 +16,8 @@
 package com.android.car.hal;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusRequestType;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusStateType;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusRequest;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusState;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioStreamState;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
@@ -29,33 +29,33 @@ import java.util.List;
 public class AudioHalService extends HalServiceBase {
 
     public static final int VEHICLE_AUDIO_FOCUS_REQUEST_GAIN =
-            VehicleAudioFocusRequestType.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN;
+            VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN;
     public static final int VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT =
-            VehicleAudioFocusRequestType.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT;
+            VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT;
     public static final int VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK =
-            VehicleAudioFocusRequestType.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK;
+            VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK;
     public static final int VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE =
-            VehicleAudioFocusRequestType.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE;
+            VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE;
 
     public static String audioFocusRequestToString(int request) {
-        return VehicleAudioFocusRequestType.enumToString(request);
+        return VehicleAudioFocusRequest.enumToString(request);
     }
 
     public static final int VEHICLE_AUDIO_FOCUS_STATE_GAIN =
-            VehicleAudioFocusStateType.VEHICLE_AUDIO_FOCUS_STATE_GAIN;
+            VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN;
     public static final int VEHICLE_AUDIO_FOCUS_STATE_GAIN_TRANSIENT =
-            VehicleAudioFocusStateType.VEHICLE_AUDIO_FOCUS_STATE_GAIN_TRANSIENT;
+            VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN_TRANSIENT;
     public static final int VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_CAN_DUCK =
-            VehicleAudioFocusStateType.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_CAN_DUCK;
+            VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_CAN_DUCK;
     public static final int VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT =
-            VehicleAudioFocusStateType.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT;
+            VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT;
     public static final int VEHICLE_AUDIO_FOCUS_STATE_LOSS =
-            VehicleAudioFocusStateType.VEHICLE_AUDIO_FOCUS_STATE_LOSS;
+            VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS;
     public static final int VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_EXLCUSIVE =
-            VehicleAudioFocusStateType.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_EXLCUSIVE;
+            VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_EXLCUSIVE;
 
     public static String audioFocusStateToString(int state) {
-        return VehicleAudioFocusStateType.enumToString(state);
+        return VehicleAudioFocusState.enumToString(state);
     }
 
     public static final int VEHICLE_AUDIO_STREAM_STATE_STOPPED =
@@ -115,10 +115,12 @@ public class AudioHalService extends HalServiceBase {
                     VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS);
             mVehicleHal.unsubscribeProperty(this,
                     VehicleNetworkConsts.VEHICLE_PROPERTY_INTERNAL_AUDIO_STREAM_STATE);
+            mFocusSupported = false;
         }
         if (mVolumeSupported) {
             mVehicleHal.unsubscribeProperty(this,
                     VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME);
+            mVolumeSupported = false;
         }
     }
 

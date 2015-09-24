@@ -76,6 +76,14 @@ void VehicleHalMessageHandler::handleHalError(int errorCode) {
     mLooper->sendMessage(this, Message(HAL_ERROR));
 }
 
+void VehicleHalMessageHandler::handleMockStart() {
+    Mutex::Autolock autoLock(mLock);
+    mHalPropertyList[0].clear();
+    mHalPropertyList[1].clear();
+    sp<MessageHandler> self(this);
+    mLooper->removeMessages(self);
+}
+
 void VehicleHalMessageHandler::doHandleInit() {
     // nothing to do
 }
@@ -230,8 +238,8 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
 }
 
 VehicleNetworkService::VehicleNetworkService()
-    : mModule(NULL) {
-    //TODO
+    : mModule(NULL),
+      mMockingEnabled(false) {
     sInstance = this;
 }
 
@@ -331,8 +339,9 @@ void VehicleNetworkService::release() {
     mHandlerThread.quit();
 }
 
-vehicle_prop_config_t const * VehicleNetworkService::findConfig(int32_t property) {
-    for (auto& config : mProperties->getList()) {
+vehicle_prop_config_t const * VehicleNetworkService::findConfigLocked(int32_t property) {
+    for (auto& config : (mMockingEnabled ?
+            mPropertiesForMocking->getList() : mProperties->getList())) {
         if (config->prop == property) {
             return config;
         }
@@ -340,8 +349,8 @@ vehicle_prop_config_t const * VehicleNetworkService::findConfig(int32_t property
     return NULL;
 }
 
-bool VehicleNetworkService::isGettable(int32_t property) {
-    vehicle_prop_config_t const * config = findConfig(property);
+bool VehicleNetworkService::isGettableLocked(int32_t property) {
+    vehicle_prop_config_t const * config = findConfigLocked(property);
     if (config == NULL) {
         return false;
     }
@@ -352,8 +361,8 @@ bool VehicleNetworkService::isGettable(int32_t property) {
     return true;
 }
 
-bool VehicleNetworkService::isSettable(int32_t property) {
-    vehicle_prop_config_t const * config = findConfig(property);
+bool VehicleNetworkService::isSettableLocked(int32_t property) {
+    vehicle_prop_config_t const * config = findConfigLocked(property);
     if (config == NULL) {
         return false;
     }
@@ -364,8 +373,8 @@ bool VehicleNetworkService::isSettable(int32_t property) {
     return true;
 }
 
-bool VehicleNetworkService::isSubscribable(int32_t property) {
-    vehicle_prop_config_t const * config = findConfig(property);
+bool VehicleNetworkService::isSubscribableLocked(int32_t property) {
+    vehicle_prop_config_t const * config = findConfigLocked(property);
     if (config == NULL) {
         return false;
     }
@@ -383,10 +392,14 @@ bool VehicleNetworkService::isSubscribable(int32_t property) {
 sp<VehiclePropertiesHolder> VehicleNetworkService::listProperties(int32_t property) {
     Mutex::Autolock autoLock(mLock);
     if (property == 0) {
-        return mProperties;
+        if (!mMockingEnabled) {
+            return mProperties;
+        } else {
+            return mPropertiesForMocking;
+        }
     } else {
         sp<VehiclePropertiesHolder> p;
-        const vehicle_prop_config_t* config = findConfig(property);
+        const vehicle_prop_config_t* config = findConfigLocked(property);
         if (config != NULL) {
             p = new VehiclePropertiesHolder(false /* deleteConfigsInDestructor */);
             p->getList().push_back(config);
@@ -397,9 +410,10 @@ sp<VehiclePropertiesHolder> VehicleNetworkService::listProperties(int32_t proper
 }
 
 status_t VehicleNetworkService::getProperty(vehicle_prop_value_t *data) {
+    bool inMocking = false;
     do { // for lock scoping
         Mutex::Autolock autoLock(mLock);
-        if (!isGettable(data->prop)) {
+        if (!isGettableLocked(data->prop)) {
             return BAD_VALUE;
         }
         if ((data->prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
@@ -410,24 +424,40 @@ status_t VehicleNetworkService::getProperty(vehicle_prop_value_t *data) {
             return NO_ERROR;
         }
         //TODO caching for static, on-change type?
+        if (mMockingEnabled) {
+            inMocking = true;
+        }
     } while (false);
     // set done outside lock to allow concurrent access
+    if (inMocking) {
+        mHalMock->onPropertyGet(data);
+        return NO_ERROR;
+    }
     return mDevice->get(mDevice, data);
 }
 
 status_t VehicleNetworkService::setProperty(const vehicle_prop_value_t& data) {
+    bool isInternalProperty = false;
+    bool inMocking = false;
     do { // for lock scoping
         Mutex::Autolock autoLock(mLock);
-        if (!isSettable(data.prop)) {
+        if (!isSettableLocked(data.prop)) {
             return BAD_VALUE;
         }
-    } while (false);
-    if ((data.prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
-                    (data.prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
-        do {
-            Mutex::Autolock autoLock(mLock);
+        if ((data.prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
+                            (data.prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
+            isInternalProperty = true;
             mCache.writeToCache(data);
-        } while (false);
+        }
+        if (mMockingEnabled) {
+            inMocking = true;
+        }
+    } while (false);
+    if (inMocking) {
+        mHalMock->onPropertySet(data);
+        return NO_ERROR;
+    }
+    if (isInternalProperty) {
         // for internal property, just publish it.
         onHalEvent(&data);
         return NO_ERROR;
@@ -439,125 +469,188 @@ status_t VehicleNetworkService::setProperty(const vehicle_prop_value_t& data) {
 
 status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &listener, int32_t prop,
         float sampleRate) {
-    Mutex::Autolock autoLock(mLock);
-    if (!isSubscribable(prop)) {
-        return BAD_VALUE;
-    }
-    vehicle_prop_config_t const * config = findConfig(prop);
-    if (config->change_mode == VEHICLE_PROP_CHANGE_MODE_ON_CHANGE) {
-        if (sampleRate != 0) {
-            ALOGW("Sample rate set to non-zeo for on change type. Ignore it");
-            sampleRate = 0;
-        }
-    } else {
-        if (sampleRate > config->max_sample_rate) {
-            ALOGW("sample rate %f higher than max %f. limit to max", sampleRate,
-                    config->max_sample_rate);
-            sampleRate = config->max_sample_rate;
-        }
-        if (sampleRate < config->min_sample_rate) {
-            ALOGW("sample rate %f lower than min %f. limit to min", sampleRate,
-                                config->min_sample_rate);
-            sampleRate = config->min_sample_rate;
-        }
-    }
-    sp<IBinder> iBinder = IInterface::asBinder(listener);
-    ALOGD("subscribe, binder 0x%x prop 0x%x", iBinder.get(), prop);
-    sp<HalClient> client;
-    sp<HalClientSpVector> clientsForProperty;
-    bool createClient = false;
-    ssize_t index = mBinderToClientMap.indexOfKey(iBinder);
-    if (index < 0) {
-        createClient = true;
-    } else {
-        client = mBinderToClientMap.editValueAt(index);
-        index = mPropertyToClientsMap.indexOfKey(prop);
-        if (index >= 0) {
-            clientsForProperty = mPropertyToClientsMap.editValueAt(index);
-        }
-    }
-    if (clientsForProperty.get() == NULL) {
-        clientsForProperty = new HalClientSpVector();
-        ASSERT_OR_HANDLE_NO_MEMORY(clientsForProperty.get(), return NO_MEMORY);
-        mPropertyToClientsMap.add(prop, clientsForProperty);
-    }
-    if (createClient) {
-        client = new HalClient(listener);
-        ASSERT_OR_HANDLE_NO_MEMORY(client.get(), return NO_MEMORY);
-        iBinder->linkToDeath(this);
-        ALOGV("add binder 0x%x to map", iBinder.get());
-        mBinderToClientMap.add(iBinder, client);
-    }
-    clientsForProperty->add(client);
-
-    index = mSampleRates.indexOfKey(prop);
     bool shouldSubscribe = false;
-    if (index < 0) {
-        // first time subscription for this property
-        shouldSubscribe = true;
-    } else {
-        float currentSampleRate = mSampleRates.valueAt(index);
-        if (currentSampleRate < sampleRate) {
+    bool inMock = false;
+    do {
+        Mutex::Autolock autoLock(mLock);
+        if (!isSubscribableLocked(prop)) {
+            return BAD_VALUE;
+        }
+        vehicle_prop_config_t const * config = findConfigLocked(prop);
+        if (config->change_mode == VEHICLE_PROP_CHANGE_MODE_ON_CHANGE) {
+            if (sampleRate != 0) {
+                ALOGW("Sample rate set to non-zeo for on change type. Ignore it");
+                sampleRate = 0;
+            }
+        } else {
+            if (sampleRate > config->max_sample_rate) {
+                ALOGW("sample rate %f higher than max %f. limit to max", sampleRate,
+                        config->max_sample_rate);
+                sampleRate = config->max_sample_rate;
+            }
+            if (sampleRate < config->min_sample_rate) {
+                ALOGW("sample rate %f lower than min %f. limit to min", sampleRate,
+                                    config->min_sample_rate);
+                sampleRate = config->min_sample_rate;
+            }
+        }
+        sp<IBinder> iBinder = IInterface::asBinder(listener);
+        ALOGD("subscribe, binder 0x%x prop 0x%x", iBinder.get(), prop);
+        sp<HalClient> client;
+        sp<HalClientSpVector> clientsForProperty;
+        bool createClient = false;
+        ssize_t index = mBinderToClientMap.indexOfKey(iBinder);
+        if (index < 0) {
+            createClient = true;
+        } else {
+            client = mBinderToClientMap.editValueAt(index);
+            index = mPropertyToClientsMap.indexOfKey(prop);
+            if (index >= 0) {
+                clientsForProperty = mPropertyToClientsMap.editValueAt(index);
+            }
+        }
+        if (clientsForProperty.get() == NULL) {
+            clientsForProperty = new HalClientSpVector();
+            ASSERT_OR_HANDLE_NO_MEMORY(clientsForProperty.get(), return NO_MEMORY);
+            mPropertyToClientsMap.add(prop, clientsForProperty);
+        }
+        if (createClient) {
+            client = new HalClient(listener);
+            ASSERT_OR_HANDLE_NO_MEMORY(client.get(), return NO_MEMORY);
+            iBinder->linkToDeath(this);
+            ALOGV("add binder 0x%x to map", iBinder.get());
+            mBinderToClientMap.add(iBinder, client);
+        }
+        clientsForProperty->add(client);
+
+        index = mSampleRates.indexOfKey(prop);
+        if (index < 0) {
+            // first time subscription for this property
             shouldSubscribe = true;
+        } else {
+            float currentSampleRate = mSampleRates.valueAt(index);
+            if (currentSampleRate < sampleRate) {
+                shouldSubscribe = true;
+            }
         }
-    }
-    client->setSampleRate(prop, sampleRate);
+        client->setSampleRate(prop, sampleRate);
+        if (shouldSubscribe) {
+            inMock = mMockingEnabled;
+            mSampleRates.add(prop, sampleRate);
+            if ((prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
+                                (prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
+                ALOGD("subscribe to internal property, prop 0x%x", prop);
+                return NO_ERROR;
+            }
+        }
+    } while (false);
     if (shouldSubscribe) {
-        mSampleRates.add(prop, sampleRate);
-        if ((prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
-                            (prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
-            ALOGD("subscribe to internal property, prop 0x%x", prop);
-            return NO_ERROR;
+        if (inMock) {
+            return mHalMock->onPropertySubscribe(prop, sampleRate);
+        } else {
+            ALOGD("subscribe to HAL, prop 0x%x sample rate:%f", prop, sampleRate);
+            return mDevice->subscribe(mDevice, prop, sampleRate);
         }
-        ALOGD("subscribe to HAL, prop 0x%x sample rate:%f", prop, sampleRate);
-        return mDevice->subscribe(mDevice, prop, sampleRate);
-    } else {
-        return NO_ERROR;
     }
+    return NO_ERROR;
 }
 
 void VehicleNetworkService::unsubscribe(const sp<IVehicleNetworkListener> &listener, int32_t prop) {
-    Mutex::Autolock autoLock(mLock);
-    if (!isSubscribable(prop)) {
-        return;
-    }
-    sp<IBinder> iBinder = IInterface::asBinder(listener);
-    ALOGD("unsubscribe, binder 0x%x, prop 0x%x", iBinder.get(), prop);
-    ssize_t index = mBinderToClientMap.indexOfKey(iBinder);
-    if (index < 0) {
-        // client not found
-        ALOGD("unsubscribe client not found in binder map");
-        return;
-    }
-    sp<HalClient>& client = mBinderToClientMap.editValueAt(index);
-    index = mPropertyToClientsMap.indexOfKey(prop);
-    if (index < 0) {
-        // not found
-        ALOGD("unsubscribe client not found in prop map, prop:0x%x", prop);
-        return;
-    }
-    sp<HalClientSpVector> clientsForProperty = mPropertyToClientsMap.editValueAt(index);
-    //TODO share code with binderDied
-    clientsForProperty->remove(client);
-    if(!client->removePropertyAndCheckIfActive(prop)) {
-        // client is no longer necessary
-        mBinderToClientMap.removeItem(iBinder);
-        iBinder->unlinkToDeath(this);
-    }
-    //TODO reset sample rate. do not care for now.
-    if (clientsForProperty->size() == 0) {
-        if ((prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
-                (prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
-            ALOGD("unsubscribe to internal property, prop 0x%x", prop);
+    bool shouldUnsubscribe = false;
+    bool inMocking = false;
+    do {
+        Mutex::Autolock autoLock(mLock);
+        if (!isSubscribableLocked(prop)) {
+            return;
+        }
+        sp<IBinder> iBinder = IInterface::asBinder(listener);
+        ALOGD("unsubscribe, binder 0x%x, prop 0x%x", iBinder.get(), prop);
+        ssize_t index = mBinderToClientMap.indexOfKey(iBinder);
+        if (index < 0) {
+            // client not found
+            ALOGD("unsubscribe client not found in binder map");
+            return;
+        }
+        sp<HalClient>& client = mBinderToClientMap.editValueAt(index);
+        index = mPropertyToClientsMap.indexOfKey(prop);
+        if (index < 0) {
+            // not found
+            ALOGD("unsubscribe client not found in prop map, prop:0x%x", prop);
+            return;
+        }
+        sp<HalClientSpVector> clientsForProperty = mPropertyToClientsMap.editValueAt(index);
+        //TODO share code with binderDied
+        clientsForProperty->remove(client);
+        if(!client->removePropertyAndCheckIfActive(prop)) {
+            // client is no longer necessary
+            mBinderToClientMap.removeItem(iBinder);
+            iBinder->unlinkToDeath(this);
+        }
+        //TODO reset sample rate. do not care for now.
+        if (clientsForProperty->size() == 0) {
+            if ((prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
+                    (prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
+                ALOGD("unsubscribe to internal property, prop 0x%x", prop);
+            } else if (mMockingEnabled) {
+                inMocking = true;
+            }
+            mPropertyToClientsMap.removeItem(prop);
+            mSampleRates.removeItem(prop);
+        }
+    } while (false);
+    if (shouldUnsubscribe) {
+        if (inMocking) {
+            mHalMock->onPropertyUnsubscribe(prop);
         } else {
             mDevice->unsubscribe(mDevice, prop);
         }
-        mPropertyToClientsMap.removeItem(prop);
-        mSampleRates.removeItem(prop);
     }
 }
 
-void VehicleNetworkService::onHalEvent(const vehicle_prop_value_t* eventData) {
+status_t VehicleNetworkService::injectEvent(const vehicle_prop_value_t& value) {
+    onHalEvent(&value);
+    return NO_ERROR;
+}
+
+status_t VehicleNetworkService::startMocking(const sp<IVehicleNetworkHalMock>& mock) {
+    Mutex::Autolock autoLock(mLock);
+    mHalMock = mock;
+    mMockingEnabled = true;
+    mHandler->handleMockStart();
+    // Mock implementation should make sure that its startMocking call is not blocking its
+    // onlistProperties call. Otherwise, this will lead into dead-lock.
+    mPropertiesForMocking = mock->onListProperties();
+    //TODO save all old states before dropping all clients
+    mBinderToClientMap.clear();
+    mPropertyToClientsMap.clear();
+    mSampleRates.clear();
+    //TODO handle binder death
+    return NO_ERROR;
+}
+
+void VehicleNetworkService::stopMocking(const sp<IVehicleNetworkHalMock>& mock) {
+    Mutex::Autolock autoLock(mLock);
+    if (mHalMock.get() == NULL) {
+        return;
+    }
+    if (IInterface::asBinder(mock) != IInterface::asBinder(mHalMock)) {
+        ALOGE("stopMocking, not the one started");
+        return;
+    }
+    mHalMock = NULL;
+    mMockingEnabled = false;
+    mPropertiesForMocking = NULL;
+    //TODO restore old states
+}
+
+void VehicleNetworkService::onHalEvent(const vehicle_prop_value_t* eventData, bool isInjection) {
+    if (!isInjection) {
+        Mutex::Autolock autoLock(mLock);
+        if (mMockingEnabled) {
+            // drop real HAL event if mocking is enabled
+            return;
+        }
+    }
     //TODO add memory pool
     vehicle_prop_value_t* copy = VehiclePropValueUtil::allocVehicleProp(*eventData);
     ASSERT_OR_HANDLE_NO_MEMORY(copy, return);

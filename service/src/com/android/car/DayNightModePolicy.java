@@ -17,6 +17,7 @@
 package com.android.car;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.support.car.Car;
 import android.support.car.CarSensorEvent;
 import android.support.car.CarSensorManager;
@@ -47,10 +48,8 @@ public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
         // TODO Auto-generated method stub
     }
 
-    @Override
-    public synchronized CarSensorEvent getDefaultValue(int sensorType) {
-        // TODO Auto-generated method stub
-        return null;
+    public static CarSensorEvent getDefaultValue(int sensorType) {
+        return createEvent(true /* isNight */);
     }
 
     @Override
@@ -87,6 +86,13 @@ public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
     @Override
     public synchronized void requestSensorStop(int sensorType) {
         // TODO Auto-generated method stub
+    }
+
+    private static CarSensorEvent createEvent(boolean isNight) {
+        CarSensorEvent event = new CarSensorEvent(CarSensorManager.SENSOR_TYPE_NIGHT,
+                SystemClock.elapsedRealtimeNanos(), 0, 1);
+        event.intValues[0] = isNight ? 1 : 0;
+        return event;
     }
 
     @Override

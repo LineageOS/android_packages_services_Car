@@ -177,6 +177,7 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
     }
 
     private void doHandleSystemAudioFocusGrant(AudioFocusInfo afi, int requestResult) {
+        //TODO distinguish car service's own focus request from others
         if (requestResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             mFocusInfos[0] = afi;
             sendCarAudioFocusRequestIfNecessary();
@@ -226,6 +227,16 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
             Log.i(CarLog.TAG_AUDIO, "onAudioFocusLoss " + afi + " notified:" + wasNotified +
                     " clientId:" + afi.getClientId() + " loss received:" + afi.getLossReceived());
             doHandleSystemAudioFocusLoss(afi, wasNotified);
+        }
+    }
+
+    /**
+     * Focus listener to take focus away from android apps.
+     */
+    private class AndroidFocusListener implements AudioManager.OnAudioFocusChangeListener {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            // nothing to do as system focus listener will get all necessary information.
         }
     }
 

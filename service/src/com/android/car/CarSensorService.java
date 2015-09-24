@@ -71,14 +71,6 @@ public class CarSensorService extends ICarSensor.Stub
 
         /** Sensor service is ready and all vehicle sensors are available. */
         public abstract void onSensorServiceReady();
-
-        /**
-         * Provide default sensor value. This value should be always provided after {@link #init()}
-         * call. Default value for safety related sensor should be giving safe state.
-         * @param sensorType
-         * @return
-         */
-        public abstract CarSensorEvent getDefaultValue(int sensorType);
     }
 
     /**
@@ -144,19 +136,20 @@ public class CarSensorService extends ICarSensor.Stub
             mSupportedSensors = refreshSupportedSensorsLocked();
             if (mUseDefaultDrivingPolicy) {
                 mDrivingStatePolicy.init();
-                addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
-                        mDrivingStatePolicy.getDefaultValue(
-                                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
                 mDrivingStatePolicy.registerSensorListener(this);
             }
+            // always populate default value
+            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
+                    DrivingStatePolicy.getDefaultValue(
+                            CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
             if (mUseDefaultDayNightModePolicy) {
                 mDayNightModePolicy.init();
-                addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_NIGHT,
-                        mDrivingStatePolicy.getDefaultValue(
-                                CarSensorManager.SENSOR_TYPE_NIGHT));
                 mDayNightModePolicy.registerSensorListener(this);
             }
-
+            // always populate default value
+            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_NIGHT,
+                    DayNightModePolicy.getDefaultValue(
+                            CarSensorManager.SENSOR_TYPE_NIGHT));
         } finally {
             mSensorLock.unlock();
         }
@@ -171,7 +164,9 @@ public class CarSensorService extends ICarSensor.Stub
 
     @Override
     public void release() {
-        mHandlerThread.quit();
+        if (mHandlerThread != null) {
+            mHandlerThread.quit();
+        }
         tryHoldSensorLock();
         try {
             if (mUseDefaultDrivingPolicy) {

@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.os.Looper;
 
 /**
  * Default CarServiceLoader for system with built-in car service.
@@ -45,8 +46,9 @@ public class DefaultCarServiceLoader extends CarServiceLoader {
         }
     };
 
-    public DefaultCarServiceLoader(Context context, ServiceConnectionListener listener) {
-        super(context, listener);
+    public DefaultCarServiceLoader(Context context, ServiceConnectionListener listener,
+            Looper looper) {
+        super(context, listener, looper);
     }
 
     @Override

@@ -147,6 +147,19 @@ public class VehicleHal implements VehicleNetworkListener {
         // keep the looper thread as should be kept for the whole life cycle.
     }
 
+    public void startMocking() {
+        reinitHals();
+    }
+
+    public void stopMocking() {
+        reinitHals();
+    }
+
+    private void reinitHals() {
+        release();
+        doInit();
+    }
+
     public SensorHalService getSensorHal() {
         return mSensorHal;
     }
@@ -157,18 +170,6 @@ public class VehicleHal implements VehicleNetworkListener {
 
     public AudioHalService getAudioHal() {
         return mAudioHal;
-    }
-
-    /**
-     * Start mocking HAL with given mock. Actual H/W will be stop functioning until mocking is
-     * stopped. The call will be blocked until all pending events are delivered to upper layer.
-     */
-    public void startHalMocking(HalMock mock) {
-        //TODO
-    }
-
-    public void stopHalMocking() {
-        //TODO
     }
 
     private void assertServiceOwner(HalServiceBase service, int property) {

@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.android.car.vehiclenetwork;
 
-package android.support.car;
+import com.android.car.vehiclenetwork.VehiclePropConfigsParcelable;
+import com.android.car.vehiclenetwork.VehiclePropValueParcelable;
 
 /**
- * Common interface for Car*Manager
+ * Listener for vehicle HAL mock. This is used for internal testing only.
  * @hide
  */
-public interface CarManagerBase {
-    void onCarDisconnected();
+interface IVehicleNetworkHalMock {
+    VehiclePropConfigsParcelable onListProperties() = 0;
+    void onPropertySet(in VehiclePropValueParcelable value) = 1;
+    VehiclePropValueParcelable onPropertyGet(int property) = 2;
+    void onPropertySubscribe(int property, int sampleRate) = 3;
+    void onPropertyUnsubscribe(int property) = 4;
 }

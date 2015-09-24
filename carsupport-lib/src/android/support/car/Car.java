@@ -51,12 +51,6 @@ public class Car {
     /** Service name for {@link CarInfoManager}, to be used in {@link #getCarManager(String)}. */
     public static final String INFO_SERVICE = "info";
 
-    /**
-     * Service for testing. This is system app only feature.
-     * @hide
-     */
-    public static final String TEST_SERVICE = "car-service-test";
-
     /** Type of car connection: car emulator, not physical connection. */
     public static final int CONNECTION_TYPE_EMULATOR        = 0;
     /** Type of car connection: connected to a car via USB. */
@@ -120,7 +114,7 @@ public class Car {
     private final ServiceConnectionListener mServiceConnectionListener =
             new ServiceConnectionListener () {
         public void onServiceConnected(ComponentName name, IBinder service) {
-            synchronized (this) {
+            synchronized (Car.this) {
                 mService = ICar.Stub.asInterface(service);
                 mConnectionState = STATE_CONNECTED;
                 // getVersion can fail but let it pass through as it is better to
@@ -139,7 +133,7 @@ public class Car {
         }
 
         public void onServiceDisconnected(ComponentName name) {
-            synchronized (this) {
+            synchronized (Car.this) {
                 mService = null;
                 if (mConnectionState  == STATE_DISCONNECTED) {
                     return;
@@ -166,6 +160,17 @@ public class Car {
     private final CarServiceLoader mCarServiceLoader;
 
     /**
+     * This defines CarServiceLoader that will be tried for FEATURE_AUTOMOTIVE case.
+     * For system test and system api, there are separate static libraries. If those
+     * libraries are linked, CarServiceLoader from those libraries are loaded so that
+     * custom car managers can be populated from there.
+     * This is done to prevent bloating the library which is not relevant for the app.
+     */
+    private static final String[] CAR_SERVICE_LOADERS_FOR_FEATURE_AUTOMOTIVE = {
+        "com.android.car.SystemTestApiCarServiceLoader",
+        "com.android.car.SystemApiCarServiceLoader",
+    };
+    /**
      * Create Car instance for all Car API access.
      * @param context
      * @param serviceConnectionListener listner for monitoring service connection.
@@ -182,33 +187,56 @@ public class Car {
             mLooper = looper;
         }
         if (mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
-            //TODO allow overriding this for system api
-            mCarServiceLoader = new DefaultCarServiceLoader(context, mServiceConnectionListener);
+            CarServiceLoader loader = null;
+            for (String classToTry : CAR_SERVICE_LOADERS_FOR_FEATURE_AUTOMOTIVE) {
+                try {
+                    loader = loadCarServiceLoader(classToTry, context, mServiceConnectionListener,
+                            mLooper);
+                } catch (IllegalArgumentException e) {
+                    // expected when only lower level libraries are linked.
+                }
+                if (loader != null) {
+                    break;
+                }
+            }
+            if (loader == null) {
+                mCarServiceLoader = new DefaultCarServiceLoader(context,
+                        mServiceConnectionListener, mLooper);
+            } else {
+                mCarServiceLoader = loader;
+            }
         } else {
-            Class carServiceLoaderClass = null;
-            try {
-                carServiceLoaderClass = Class.forName(PROJECTED_CAR_SERVICE_LOADER);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Cannot find CarServiceLoader implementation:" +
-                        PROJECTED_CAR_SERVICE_LOADER, e);
-            }
-            Constructor<?> ctor;
-            try {
-                ctor = carServiceLoaderClass.getDeclaredConstructor(Context.class,
-                        ServiceConnectionListener.class);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Cannot construct CarServiceLoader, no constructor: " +
-                        PROJECTED_CAR_SERVICE_LOADER, e);
-            }
-            try {
-                mCarServiceLoader = (CarServiceLoader) ctor.newInstance(context,
-                        serviceConnectionListener);
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException e) {
-                throw new RuntimeException(
-                        "Cannot construct CarServiceLoader, constructor failed for "
-                        + carServiceLoaderClass.getName(), e);
-            }
+            mCarServiceLoader = loadCarServiceLoader(PROJECTED_CAR_SERVICE_LOADER, context,
+                    mServiceConnectionListener, mLooper);
+        }
+    }
+
+    private CarServiceLoader loadCarServiceLoader(String carServiceLoaderClassName,
+            Context context, ServiceConnectionListener serviceConnectionListener, Looper looper)
+                    throws IllegalArgumentException {
+        Class carServiceLoaderClass = null;
+        try {
+            carServiceLoaderClass = Class.forName(carServiceLoaderClassName);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Cannot find CarServiceLoader implementation:" +
+                    carServiceLoaderClassName, e);
+        }
+        Constructor<?> ctor;
+        try {
+            ctor = carServiceLoaderClass.getDeclaredConstructor(Context.class,
+                    ServiceConnectionListener.class, Looper.class);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("Cannot construct CarServiceLoader, no constructor: "
+                    + carServiceLoaderClassName, e);
+        }
+        try {
+            return (CarServiceLoader) ctor.newInstance(context,
+                    serviceConnectionListener, looper);
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            throw new IllegalArgumentException(
+                    "Cannot construct CarServiceLoader, constructor failed for "
+                    + carServiceLoaderClass.getName(), e);
         }
     }
 
@@ -297,17 +325,18 @@ public class Car {
      */
     public Object getCarManager(String serviceName) throws CarNotConnectedException {
         CarManagerBase manager = null;
+        ICar service = getICarOrThrow();
         synchronized (mCarManagerLock) {
             manager = mServiceMap.get(serviceName);
             if (manager == null) {
                 try {
-                    IBinder binder = mService.getCarService(serviceName);
+                    IBinder binder = service.getCarService(serviceName);
                     if (binder == null) {
                         Log.w(CarLibLog.TAG_CAR, "getCarManager could not get binder for service:" +
                                 serviceName);
                         return null;
                     }
-                    manager = createCarManager(serviceName, binder);
+                    manager = mCarServiceLoader.createCarManager(serviceName, binder);
                     if (manager == null) {
                         Log.w(CarLibLog.TAG_CAR,
                                 "getCarManager could not create manager for service:" +
@@ -337,23 +366,6 @@ public class Car {
             handleRemoteExceptionAndThrow(e);
         }
         return Car.CONNECTION_TYPE_EMULATOR;
-    }
-
-    private CarManagerBase createCarManager(String serviceName, IBinder binder) {
-        CarManagerBase manager = null;
-        switch (serviceName) {
-            case SENSOR_SERVICE:
-                manager = new CarSensorManager(mContext, ICarSensor.Stub.asInterface(binder),
-                        mLooper);
-                break;
-            case INFO_SERVICE:
-                manager = new CarInfoManager(ICarInfo.Stub.asInterface(binder));
-                break;
-            default:
-                manager = mCarServiceLoader.createCustomCarManager(serviceName, binder);
-                break;
-        }
-        return manager;
     }
 
     private synchronized ICar getICarOrThrow() throws IllegalStateException {

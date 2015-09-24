@@ -304,8 +304,9 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropConfig(const VehiclePropConfig&
                 out.float_max_value = in.float_max();
                 out.float_min_value = in.float_min();
             } else {
-                ALOGE("no float max/min");
-                return BAD_VALUE;
+                ALOGW("no float max/min for property 0x%x", out.prop);
+                out.float_max_value = 0;
+                out.float_min_value = 0;
             }
         } break;
         case VEHICLE_VALUE_TYPE_INT64: {
@@ -313,8 +314,9 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropConfig(const VehiclePropConfig&
                 out.int64_max_value = in.int64_max();
                 out.int64_min_value = in.int64_min();
             } else {
-                ALOGE("no int64 max/min");
-                return BAD_VALUE;
+                ALOGW("no int64 max/min for property 0x%x", out.prop);
+                out.int64_max_value = 0;
+                out.int64_min_value = 0;
             }
         } break;
         case VEHICLE_VALUE_TYPE_INT32:
@@ -323,8 +325,9 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropConfig(const VehiclePropConfig&
                 out.int32_max_value = in.int32_max();
                 out.int32_min_value = in.int32_min();
             } else {
-                ALOGE("no int32 max/min");
-                return BAD_VALUE;
+                ALOGW("no int32 max/min for property 0x%x", out.prop);
+                out.int32_max_value = 0;
+                out.int32_min_value = 0;
             }
         } break;
     }

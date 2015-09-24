@@ -24,6 +24,9 @@ LOCAL_PACKAGE_NAME := CarActivityTestApp
 
 LOCAL_MODULE_TAGS := tests
 
+# When built explicitly put it in the data partition
+LOCAL_MODULE_PATH := $(TARGET_OUT_DATA_APPS)
+
 LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_STATIC_JAVA_LIBRARIES += libcarsupport

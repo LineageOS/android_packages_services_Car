@@ -14,26 +14,18 @@
 #
 #
 
-# Build the Car service.
-
 LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_MODULE := libcarsystemtest
 
-LOCAL_PACKAGE_NAME := CarService
+LOCAL_MODULE_TAGS := optional
 
-# Each update should be signed by OEMs
-LOCAL_CERTIFICATE := platform
-LOCAL_PRIVILEGED_MODULE := true
+LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 
-LOCAL_PROGUARD_FLAG_FILES := proguard.flags
-LOCAL_PROGUARD_ENABLED := disabled
+LOCAL_AIDL_INCLUDES += packages/services/Car/libvehiclenetwork/java/src/
 
-LOCAL_STATIC_JAVA_LIBRARIES += libvehiclenetwork-java libcarsystemtest
+LOCAL_STATIC_JAVA_LIBRARIES += libcarsystem libvehiclenetwork-java
 
-include $(BUILD_PACKAGE)
-
-include $(call all-makefiles-under,$(LOCAL_PATH))
-
+include $(BUILD_STATIC_JAVA_LIBRARY)

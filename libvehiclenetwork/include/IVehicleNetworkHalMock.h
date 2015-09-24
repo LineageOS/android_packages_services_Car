@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_IVEHICLE_NETWORK_H
-#define ANDROID_IVEHICLE_NETWORK_H
+#ifndef ANDROID_IVEHICLE_NETWORK_HAL_MOCK_H
+#define ANDROID_IVEHICLE_NETWORK_HAL_MOCK_H
 
 #include <stdint.h>
 #include <sys/types.h>
-
-#include <hardware/vehicle.h>
 
 #include <utils/RefBase.h>
 #include <utils/Errors.h>
@@ -29,36 +27,28 @@
 #include <binder/Parcel.h>
 
 #include <VehicleNetworkDataTypes.h>
-#include <IVehicleNetworkHalMock.h>
-#include <IVehicleNetworkListener.h>
 
 namespace android {
 
 // ----------------------------------------------------------------------------
 
-class IVehicleNetwork : public IInterface {
+class IVehicleNetworkHalMock : public IInterface
+{
 public:
     static const char SERVICE_NAME[];
-    DECLARE_META_INTERFACE(VehicleNetwork);
+    DECLARE_META_INTERFACE(VehicleNetworkHalMock);
 
-    /**
-     * Return configuration of single property (when argument property is not 0) or all properties
-     * (when property = 0).
-     */
-    virtual sp<VehiclePropertiesHolder> listProperties(int32_t property = 0) = 0;
-    virtual status_t setProperty(const vehicle_prop_value_t& value)= 0;
-    virtual status_t getProperty(vehicle_prop_value_t* value) = 0;
-    virtual status_t subscribe(const sp<IVehicleNetworkListener> &listener, int32_t property,
-            float sampleRate) = 0;
-    virtual void unsubscribe(const sp<IVehicleNetworkListener> &listener, int32_t property) = 0;
-    virtual status_t injectEvent(const vehicle_prop_value_t& value) = 0;
-    virtual status_t startMocking(const sp<IVehicleNetworkHalMock>& mock) = 0;
-    virtual void stopMocking(const sp<IVehicleNetworkHalMock>& mock) = 0;
+    virtual sp<VehiclePropertiesHolder> onListProperties() = 0;
+    virtual status_t onPropertySet(const vehicle_prop_value_t& value) = 0;
+    virtual status_t onPropertyGet(vehicle_prop_value_t* value) = 0;
+    virtual status_t onPropertySubscribe(int32_t property, float sampleRate) = 0;
+    virtual void onPropertyUnsubscribe(int32_t property) = 0;
 };
 
 // ----------------------------------------------------------------------------
 
-class BnVehicleNetwork : public BnInterface<IVehicleNetwork> {
+class BnVehicleNetworkHalMock : public BnInterface<IVehicleNetworkHalMock>
+{
     virtual status_t  onTransact(uint32_t code,
                                  const Parcel& data,
                                  Parcel* reply,
@@ -69,4 +59,4 @@ class BnVehicleNetwork : public BnInterface<IVehicleNetwork> {
 
 }; // namespace android
 
-#endif /* ANDROID_IVEHICLE_NETWORK_H */
+#endif /* ANDROID_IVEHICLE_NETWORK_HAL_MOCK_H */

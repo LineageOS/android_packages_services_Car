@@ -20,20 +20,24 @@
     <!-- Permission text: can access your car's information [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc">Access your car\'s information.</string>
     <!-- Permission text: can access your car's fuel level [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_fuel">car fuel level</string>
+    <string name="car_permission_label_fuel">Car fuel level</string>
     <!-- Permission text: can access your car's fuel level [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_fuel">Access your car\'s fuel level information.</string>
     <!-- Permission text: can access your car's mileage information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_mileage">car mileage</string>
+    <string name="car_permission_label_mileage">Car mileage</string>
     <!-- Permission text: can access your car's mileage information [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_mileage">Access your car\'s mileage information.</string>
     <!-- Permission text: can access your car's speed [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_speed">car speed</string>
+    <string name="car_permission_label_speed">Car speed</string>
     <!-- Permission text: can access your car's speed [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_speed">Access your car\'s speed.</string>
     <!-- Permission text: apps can access car-manufacturer specific data [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_vendor_extension">car vendor channel</string>
+    <string name="car_permission_label_vendor_extension">Car vendor channel</string>
     <!-- Permission text: apps can access car-manufacturer specific data [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_vendor_extension">Access your car\'s vendor channel to
         exchange car-specific information.</string>
+    <string name="car_permission_label_mock_vehicle_hal">Emulate vehicle HAL</string>
+    <!-- Permission text: can emulate information from your car [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_mock_vehicle_hal">Emulate your car\'s vehicle HAL for internal
+        testing purpose.</string>
 </resources>

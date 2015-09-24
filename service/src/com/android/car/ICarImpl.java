@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.support.car.Car;
 import android.support.car.ICar;
@@ -41,6 +42,9 @@ public class ICarImpl extends ICar.Stub {
     private final CarSensorService mCarSensorService;
     private final CarInfoService mCarInfoService;
     private final CarAudioService mCarAudioService;
+    /** Test only service. Populate it only when necessary. */
+    @GuardedBy("this")
+    private CarTestService mCarTestService;
     private final CarServiceBase[] mAllServices;
 
     public synchronized static ICarImpl getInstance(Context serviceContext) {
@@ -86,6 +90,23 @@ public class ICarImpl extends ICar.Stub {
         VehicleHal.releaseInstance();
     }
 
+    public void startMocking() {
+        reinitServices();
+    }
+
+    public void stopMocking() {
+        reinitServices();
+    }
+
+    private void reinitServices() {
+        for (int i = mAllServices.length - 1; i >= 0; i--) {
+            mAllServices[i].release();
+        }
+        for (CarServiceBase service: mAllServices) {
+            service.init();
+        }
+    }
+
     @Override
     public int getVersion() {
         return VERSION;
@@ -98,6 +119,15 @@ public class ICarImpl extends ICar.Stub {
                 return mCarSensorService;
             case Car.INFO_SERVICE:
                 return mCarInfoService;
+            case CarSystemTest.TEST_SERVICE: {
+                assertVehicleHalMockPermission(mContext);
+                synchronized (this) {
+                    if (mCarTestService == null) {
+                        mCarTestService = new CarTestService(mContext, this);
+                    }
+                    return mCarTestService;
+                }
+            }
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:" + serviceName);
                 return null;
@@ -130,10 +160,21 @@ public class ICarImpl extends ICar.Stub {
         return false;
     }
 
+    public static void assertVehicleHalMockPermission(Context context) {
+        if (context.checkCallingOrSelfPermission(CarSystemTest.PERMISSION_MOCK_VEHICLE_HAL)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException("requires CAR_MOCK_VEHICLE_HAL permission");
+        }
+    }
+
     void dump(PrintWriter writer) {
         writer.println("*Dump all services*");
         for (CarServiceBase service: mAllServices) {
             service.dump(writer);
+        }
+        CarTestService testService = mCarTestService;
+        if (testService != null) {
+            testService.dump(writer);
         }
     }
 }

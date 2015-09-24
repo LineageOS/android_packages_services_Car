@@ -60,6 +60,7 @@ public class CarTest extends AndroidTestCase {
     private void assertMainThread() {
         assertTrue(Looper.getMainLooper().isCurrentThread());
     }
+
     private void waitForConnection(long timeoutMs) throws InterruptedException {
         mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
     }

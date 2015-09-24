@@ -117,7 +117,6 @@ switch (property) {"""
 }
 }
 """
-
   #now implement getVehiclePropertyName
   print \
 """public static String getVehiclePropertyName(int property) {
@@ -127,6 +126,34 @@ switch (property) {"""
       print "case " + p.name + ': return "' + p.name +     '";'
   print \
 """default: return "UNKNOWN_PROPERTY";
+}
+}
+"""
+  #now implement getVehicleChangeMode
+  print \
+"""public static int[] getVehicleChangeMode(int property) {
+switch (property) {"""
+  for p in props:
+    if p.changeMode != "":
+      modes = p.changeMode.split('|')
+      modesString = []
+      for m in modes:
+        modesString.append("VehiclePropChangeMode." + m)
+      print "case " + p.name + ": return new int[] { " + " , ".join(modesString) + " };"
+  print \
+"""default: return null;
+}
+}
+"""
+  #now implement getVehicleAccess
+  print \
+"""public static int getVehicleAccess(int property) {
+switch (property) {"""
+  for p in props:
+    if p.access != "":
+      print "case " + p.name + ": return VehiclePropAccess." + p.access + ";"
+  print \
+"""default: return 0;
 }
 }
 """
@@ -189,7 +216,7 @@ def main(argv):
         prop.access = words[i]
       elif words[i] == "@unit":
         i += 1
-        prop.changeMode = words[i]
+        prop.unit = words[i]
       elif words[i] == "@range_start" or words[i] == "@range_end":
         prop.startEnd = 1
       i += 1

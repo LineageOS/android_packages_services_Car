@@ -16,11 +16,11 @@
 
 package com.android.car.vehiclenetwork;
 
+import com.android.car.vehiclenetwork.IVehicleNetworkHalMock;
+import com.android.car.vehiclenetwork.IVehicleNetworkListener;
 import com.android.car.vehiclenetwork.VehiclePropConfigsParcelable;
 import com.android.car.vehiclenetwork.VehiclePropValueParcelable;
 import com.android.car.vehiclenetwork.VehiclePropValuesParcelable;
-
-import com.android.car.vehiclenetwork.IVehicleNetworkListener;
 
 /**
   * Binder API to access vehicle network service.
@@ -34,5 +34,12 @@ interface IVehicleNetwork {
     /** For error case, exception will be thrown. */
     void subscribe(in IVehicleNetworkListener listener, int property, float sampleRate)  = 3;
     void unsubscribe(in IVehicleNetworkListener listener, int property)                  = 4;
+    /** For testing only. inject events. */
+    void injectEvent(in VehiclePropValueParcelable value)                                = 5;
+    /** For testing only. Start in mocking mode. */
+    void startMocking(in IVehicleNetworkHalMock mock)                                    = 6;
+    /** Finish mocking mode. */
+    void stopMocking(in IVehicleNetworkHalMock mock)                                     = 7;
+
     //TODO add specialized set for byte array for efficiency
 }

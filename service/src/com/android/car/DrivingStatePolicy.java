@@ -91,14 +91,13 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
         // TODO Auto-generated method stub
     }
 
-    @Override
-    public synchronized CarSensorEvent getDefaultValue(int sensorType) {
+    public static CarSensorEvent getDefaultValue(int sensorType) {
         if (sensorType != CarSensorManager.SENSOR_TYPE_DRIVING_STATUS) {
-            Log.w(CarLog.TAG_SENSOR, "getCurrentValue to DrivingStatePolicy with sensorType:" +
+            Log.w(CarLog.TAG_SENSOR, "getDefaultValue to DrivingStatePolicy with sensorType:" +
                     sensorType);
             return null;
         }
-        return createEvent(mDringState);
+        return createEvent(CarSensorEvent.DRIVE_STATUS_FULLY_RESTRICTED);
     }
 
     @Override
@@ -202,7 +201,7 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
         return gear == CarSensorEvent.GEAR_PARK;
     }
 
-    private CarSensorEvent createEvent(int drivingState) {
+    private static CarSensorEvent createEvent(int drivingState) {
         CarSensorEvent event = new CarSensorEvent(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
                 SystemClock.elapsedRealtimeNanos(), 0, 1);
         event.intValues[0] = drivingState;

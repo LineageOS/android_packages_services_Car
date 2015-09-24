@@ -27,6 +27,7 @@ import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
+import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;
 
@@ -35,8 +36,22 @@ import java.lang.ref.WeakReference;
  * not use this. All APIs will fail with security error if normal app tries this.
  */
 public class VehicleNetwork {
+    /**
+     * Listener for VNS events.
+     */
     public interface VehicleNetworkListener {
+        /**
+         * Notify HAL events. This requires subscribing the property
+         */
         void onVehicleNetworkEvents(VehiclePropValues values);
+    }
+
+    public interface VehicleNetworkHalMock {
+        VehiclePropConfigs onListProperties();
+        void onPropertySet(VehiclePropValue value);
+        VehiclePropValue onPropertyGet(int property);
+        void onPropertySubscribe(int property, int sampleRate);
+        void onPropertyUnsubscribe(int property);
     }
 
     private static final String TAG = VehicleNetwork.class.getSimpleName();
@@ -45,6 +60,10 @@ public class VehicleNetwork {
     private final VehicleNetworkListener mListener;
     private final IVehicleNetworkListenerImpl mVehicleNetworkListener;
     private final EventHandler mEventHandler;
+
+    @GuardedBy("this")
+    private VehicleNetworkHalMock mHalMock;
+    private IVehicleNetworkHalMock mHalMockImpl;
 
     public static VehicleNetwork createVehicleNetwork(VehicleNetworkListener listener,
             Looper looper) {
@@ -91,52 +110,28 @@ public class VehicleNetwork {
     }
 
     public void setIntProperty(int property, int value) {
-        VehiclePropValue v = VehiclePropValue.newBuilder().
-                setProp(property).
-                setValueType(VehicleValueType.VEHICLE_VALUE_TYPE_INT32).
-                addInt32Values(value).
-                build();
+        VehiclePropValue v = VehiclePropValueUtil.createIntValue(property, value, 0);
         setProperty(v);
     }
 
     public void setIntVectorProperty(int property, int[] values) {
-        int len = values.length;
-        VehiclePropValue.Builder builder = VehiclePropValue.newBuilder().
-                setProp(property).
-                setValueType(VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2 + len - 2);
-        for (int v : values) {
-            builder.addInt32Values(v);
-        }
-        setProperty(builder.build());
+        VehiclePropValue v = VehiclePropValueUtil.createIntVectorValue(property, values, 0);
+        setProperty(v);
     }
 
     public void setLongProperty(int property, long value) {
-        VehiclePropValue v = VehiclePropValue.newBuilder().
-                setProp(property).
-                setValueType(VehicleValueType.VEHICLE_VALUE_TYPE_INT64).
-                setInt64Value(value).
-                build();
+        VehiclePropValue v = VehiclePropValueUtil.createLongValue(property, value, 0);
         setProperty(v);
     }
 
     public void setFloatProperty(int property, float value) {
-        VehiclePropValue v = VehiclePropValue.newBuilder().
-                setProp(property).
-                setValueType(VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT).
-                addFloatValues(value).
-                build();
+        VehiclePropValue v = VehiclePropValueUtil.createFloatValue(property, value, 0);
         setProperty(v);
     }
 
     public void setFloatVectorProperty(int property, float[] values) {
-        int len = values.length;
-        VehiclePropValue.Builder builder = VehiclePropValue.newBuilder().
-                setProp(property).
-                setValueType(VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC2 + len - 2);
-        for (float v : values) {
-            builder.addFloatValues(v);
-        }
-        setProperty(builder.build());
+        VehiclePropValue v = VehiclePropValueUtil.createFloatVectorValue(property, values, 0);
+        setProperty(v);
     }
 
     public VehiclePropValue getProperty(int property) {
@@ -274,6 +269,63 @@ public class VehicleNetwork {
         }
     }
 
+    public synchronized void injectEvent(VehiclePropValue value) {
+        try {
+            mService.injectEvent(new VehiclePropValueParcelable(value));
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+    }
+
+    public synchronized void startMocking(VehicleNetworkHalMock mock) {
+        mHalMock = mock;
+        mHalMockImpl = new IVehicleNetworkHalMockImpl(this);
+        try {
+            mService.startMocking(mHalMockImpl);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+    }
+
+    public synchronized void stopMocking() {
+        try {
+            mService.stopMocking(mHalMockImpl);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        } finally {
+            mHalMock = null;
+            mHalMockImpl = null;
+        }
+    }
+
+    public synchronized void startMocking(IVehicleNetworkHalMock mock) {
+        mHalMock = null;
+        mHalMockImpl = mock;
+        try {
+            mService.startMocking(mHalMockImpl);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+    }
+
+    public synchronized void stopMocking(IVehicleNetworkHalMock mock) {
+        if (mock.asBinder() != mHalMockImpl.asBinder()) {
+            return;
+        }
+        try {
+            mService.stopMocking(mHalMockImpl);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        } finally {
+            mHalMock = null;
+            mHalMockImpl = null;
+        }
+    }
+
+    private synchronized VehicleNetworkHalMock getHalMock() {
+        return mHalMock;
+    }
+
     private void handleRemoteException(RemoteException e) {
         throw new RuntimeException("Vehicle network service not working ", e);
     }
@@ -324,6 +376,61 @@ public class VehicleNetwork {
             if (vehicleNetwork != null) {
                 vehicleNetwork.handleVehicleNetworkEvents(values.values);
             }
+        }
+    }
+
+    private static class IVehicleNetworkHalMockImpl extends IVehicleNetworkHalMock.Stub {
+        private final WeakReference<VehicleNetwork> mVehicleNetwork;
+
+        private IVehicleNetworkHalMockImpl(VehicleNetwork vehicleNewotk) {
+            mVehicleNetwork = new WeakReference<VehicleNetwork>(vehicleNewotk);
+        }
+
+        @Override
+        public VehiclePropConfigsParcelable onListProperties() {
+            VehicleNetwork vehicleNetwork = mVehicleNetwork.get();
+            if (vehicleNetwork == null) {
+                return null;
+            }
+            VehiclePropConfigs configs = vehicleNetwork.getHalMock().onListProperties();
+            return new VehiclePropConfigsParcelable(configs);
+        }
+
+        @Override
+        public void onPropertySet(VehiclePropValueParcelable value) {
+            VehicleNetwork vehicleNetwork = mVehicleNetwork.get();
+            if (vehicleNetwork == null) {
+                return;
+            }
+            vehicleNetwork.getHalMock().onPropertySet(value.value);
+        }
+
+        @Override
+        public VehiclePropValueParcelable onPropertyGet(int property) {
+            VehicleNetwork vehicleNetwork = mVehicleNetwork.get();
+            if (vehicleNetwork == null) {
+                return null;
+            }
+            VehiclePropValue value = vehicleNetwork.getHalMock().onPropertyGet(property);
+            return new VehiclePropValueParcelable(value);
+        }
+
+        @Override
+        public void onPropertySubscribe(int property, int sampleRate) {
+            VehicleNetwork vehicleNetwork = mVehicleNetwork.get();
+            if (vehicleNetwork == null) {
+                return;
+            }
+            vehicleNetwork.getHalMock().onPropertySubscribe(property, sampleRate);
+        }
+
+        @Override
+        public void onPropertyUnsubscribe(int property) {
+            VehicleNetwork vehicleNetwork = mVehicleNetwork.get();
+            if (vehicleNetwork == null) {
+                return;
+            }
+            vehicleNetwork.getHalMock().onPropertyUnsubscribe(property);
         }
     }
 }

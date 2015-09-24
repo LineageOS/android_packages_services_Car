@@ -22,11 +22,17 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_PACKAGE_NAME := CarApiTest
 
+# for system|priviledged permission.
+LOCAL_CERTIFICATE := platform
+
 LOCAL_MODULE_TAGS := tests
+
+# When built explicitly put it in the data partition
+LOCAL_MODULE_PATH := $(TARGET_OUT_DATA_APPS)
 
 LOCAL_PROGUARD_ENABLED := disabled
 
-LOCAL_STATIC_JAVA_LIBRARIES += libcarsupport
+LOCAL_STATIC_JAVA_LIBRARIES += libcarsystemtest
 
 LOCAL_JAVA_LIBRARIES := android.test.runner
 

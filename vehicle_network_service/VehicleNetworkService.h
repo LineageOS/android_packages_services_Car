@@ -73,6 +73,7 @@ public:
     void handleRelease();
     void handleHalEvent(vehicle_prop_value_t *eventData);
     void handleHalError(int errorCode);
+    void handleMockStart();
 
 private:
     void handleMessage(const Message& message);
@@ -215,7 +216,7 @@ public:
     ~VehicleNetworkService();
     virtual status_t dump(int fd, const Vector<String16>& args);
     void release();
-    void onHalEvent(const vehicle_prop_value_t *eventData);
+    void onHalEvent(const vehicle_prop_value_t *eventData, bool isInjection = false);
     void onHalError(int errorCode);
     /**
      * Called by VehicleHalMessageHandler for batching events
@@ -227,6 +228,9 @@ public:
     virtual status_t subscribe(const sp<IVehicleNetworkListener> &listener, int32_t property,
             float sampleRate);
     virtual void unsubscribe(const sp<IVehicleNetworkListener> &listener, int32_t property);
+    virtual status_t injectEvent(const vehicle_prop_value_t& value);
+    virtual status_t startMocking(const sp<IVehicleNetworkHalMock>& mock);
+    virtual void stopMocking(const sp<IVehicleNetworkHalMock>& mock);
     virtual void binderDied(const wp<IBinder>& who);
     bool isPropertySubsribed(int32_t property);
 private:
@@ -234,10 +238,10 @@ private:
     virtual void onFirstRef();
     status_t loadHal();
     void closeHal();
-    vehicle_prop_config_t const * findConfig(int32_t property);
-    bool isGettable(int32_t property);
-    bool isSettable(int32_t property);
-    bool isSubscribable(int32_t property);
+    vehicle_prop_config_t const * findConfigLocked(int32_t property);
+    bool isGettableLocked(int32_t property);
+    bool isSettableLocked(int32_t property);
+    bool isSubscribableLocked(int32_t property);
     static int eventCallback(const vehicle_prop_value_t *eventData);
     static int errorCallback(int32_t errorCode);
 private:
@@ -252,6 +256,9 @@ private:
     KeyedVector<int32_t, sp<HalClientSpVector> > mPropertyToClientsMap;
     KeyedVector<int32_t, float> mSampleRates;
     PropertyValueCache mCache;
+    bool mMockingEnabled;
+    sp<IVehicleNetworkHalMock> mHalMock;
+    sp<VehiclePropertiesHolder> mPropertiesForMocking;
 };
 
 };

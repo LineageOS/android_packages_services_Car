@@ -53,6 +53,12 @@
         android:label="@string/car_permission_label_vendor_extension"
         android:description="@string/car_permission_desc_vendor_extension" />
 
+    <permission
+        android:name="android.support.car.permission.CAR_MOCK_VEHICLE_HAL"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_mock_vehicle_hal"
+        android:description="@string/car_permission_desc_mock_vehicle_hal" />
+
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <uses-permission android:name="android.permission.DEVICE_POWER" />

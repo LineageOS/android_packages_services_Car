@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package android.support.car;
+package com.android.car;
 
 /**
- * Common interface for Car*Manager
+ * Container class to hold static definitions for system api for Car.
+ * Client should still use Car api for all operations, and this class is only for defining
+ * additional parameters available when car api becomes system api.
  * @hide
  */
-public interface CarManagerBase {
-    void onCarDisconnected();
+public class CarSystem {
+
 }

@@ -18,6 +18,7 @@ package android.support.car;
 
 import android.content.Context;
 import android.os.IBinder;
+import android.os.Looper;
 
 /**
  * CarServiceLoader is the abstraction for loading different types of car service.
@@ -27,26 +28,39 @@ public abstract class CarServiceLoader {
 
     private final Context mContext;
     private final ServiceConnectionListener mListener;
+    private final Looper mLooper;
 
-    public CarServiceLoader(Context context, ServiceConnectionListener listener) {
+    public CarServiceLoader(Context context, ServiceConnectionListener listener, Looper looper) {
         mContext = context;
         mListener = listener;
+        mLooper = looper;
     }
 
     public abstract void connect() throws IllegalStateException;
     public abstract void disconnect();
 
     /**
-     * Factory method to create non-standard Car*Manager for the given car service implementation.
-     * This is necessary for Car*Manager which is relevant for one specific implementation like
-     * projected.
+     * Factory method to create Car*Manager for the given car service implementation.
+     * Each implementation can add its own custom Car*Manager while default implementation will
+     * handle all standard Car*Managers.
      * @param serviceName service name for the given Car*Manager.
      * @param binder binder implementation received from car service
      * @return Car*Manager instance for the given serviceName / binder. null if given service is
      *         not supported.
      */
-    public CarManagerBase createCustomCarManager(String serviceName, IBinder binder) {
-        return null;
+    public CarManagerBase createCarManager(String serviceName,
+            IBinder binder) {
+        CarManagerBase manager = null;
+        switch (serviceName) {
+            case Car.SENSOR_SERVICE:
+                manager = new CarSensorManager(mContext, ICarSensor.Stub.asInterface(binder),
+                        mLooper);
+                break;
+            case Car.INFO_SERVICE:
+                manager = new CarInfoManager(ICarInfo.Stub.asInterface(binder));
+                break;
+        }
+        return manager;
     }
 
     protected Context getContext() {
@@ -55,5 +69,9 @@ public abstract class CarServiceLoader {
 
     protected ServiceConnectionListener getConnectionListener() {
         return mListener;
+    }
+
+    protected Looper getLooper() {
+        return mLooper;
     }
 }

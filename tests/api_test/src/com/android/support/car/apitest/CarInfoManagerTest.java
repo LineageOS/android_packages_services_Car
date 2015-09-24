@@ -24,69 +24,37 @@ import android.support.car.ServiceConnectionListener;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
+import com.android.car.vehiclenetwork.VehicleNetworkConsts;
+import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
+import com.android.car.vehiclenetwork.VehiclePropValueUtil;
+
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class CarInfoManagerTest extends AndroidTestCase {
-    private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
+public class CarInfoManagerTest extends MockedCarTestBase {
 
     private static final String TAG = CarInfoManagerTest.class.getSimpleName();
 
-    private final Semaphore mConnectionWait = new Semaphore(0);
+    private static final String MAKE_NAME = "ANDROID";
 
-    private Car mCar;
     private CarInfoManager mCarInfoManager;
-
-    private final ServiceConnectionListener mConnectionListener = new ServiceConnectionListener() {
-
-        @Override
-        public void onServiceSuspended(int cause) {
-            assertMainThread();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            assertMainThread();
-        }
-
-        @Override
-        public void onServiceConnectionFailed(int cause) {
-            assertMainThread();
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            assertMainThread();
-            mConnectionWait.release();
-        }
-    };
-
-    private void assertMainThread() {
-        assertTrue(Looper.getMainLooper().isCurrentThread());
-    }
-    private void waitForConnection(long timeoutMs) throws InterruptedException {
-        mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
-    }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mCar = new Car(getContext(), mConnectionListener, null);
-        mCar.connect();
-        waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
+        getVehicleHalEmulator().addStaticProperty(
+                VehiclePropConfigUtil.createStaticStringProperty(
+                        VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE),
+                VehiclePropValueUtil.createStringValue(
+                        VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE, MAKE_NAME, 0));
+        getVehicleHalEmulator().start();
         mCarInfoManager =
-                (CarInfoManager) mCar.getCarManager(Car.INFO_SERVICE);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        mCar.disconnect();
+                (CarInfoManager) getCarApi().getCarManager(Car.INFO_SERVICE);
     }
 
     public void testManufactuter() throws Exception {
         String name = mCarInfoManager.getString(CarInfoManager.KEY_MANUFACTURER);
-        assertNotNull(name);
+        assertEquals(MAKE_NAME, name);
         Log.i(TAG, CarInfoManager.KEY_MANUFACTURER + ":" + name);
         try {
             Float v = mCarInfoManager.getFloat(CarInfoManager.KEY_MANUFACTURER);

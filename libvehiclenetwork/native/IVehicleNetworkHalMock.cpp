@@ -24,6 +24,7 @@
 #include <utils/Log.h>
 
 #include <IVehicleNetwork.h>
+#include <IVehicleNetworkHalMock.h>
 #include <VehicleNetworkProto.pb.h>
 
 #include "BinderUtil.h"
@@ -32,34 +33,31 @@
 namespace android {
 
 enum {
-    LIST_PROPERTIES = IBinder::FIRST_CALL_TRANSACTION,
-    SET_PROPERTY,
-    GET_PROPERTY,
-    SUBSCRIBE,
-    UNSUBSCRIBE,
-    INJECT_EVENT,
-    START_MOCKING,
-    STOP_MOCKING,
+    ON_LIST_PROPERTIES = IBinder::FIRST_CALL_TRANSACTION,
+    ON_PROPERTY_SET,
+    ON_PROPERTY_GET,
+    ON_SUBSCRIBE,
+    ON_UNSUBSCRIBE,
 };
 
 // ----------------------------------------------------------------------------
 
-const char IVehicleNetwork::SERVICE_NAME[] = "com.android.car.vehiclenetwork.IVehicleNetwork";
+const char IVehicleNetworkHalMock::SERVICE_NAME[] =
+        "com.android.car.vehiclenetwork.IVehicleNetworkHalMock";
 
 // ----------------------------------------------------------------------------
 
-class BpVehicleNetwork : public BpInterface<IVehicleNetwork> {
+class BpVehicleNetworkHalMock : public BpInterface<IVehicleNetworkHalMock> {
 public:
-    BpVehicleNetwork(const sp<IBinder> & impl)
-        : BpInterface<IVehicleNetwork>(impl) {
+    BpVehicleNetworkHalMock(const sp<IBinder> & impl)
+        : BpInterface<IVehicleNetworkHalMock>(impl) {
     }
 
-    virtual sp<VehiclePropertiesHolder> listProperties(int32_t property) {
+    virtual sp<VehiclePropertiesHolder> onListProperties() {
         sp<VehiclePropertiesHolder> holder;
         Parcel data, reply;
-        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
-        data.writeInt32(property);
-        status_t status = remote()->transact(LIST_PROPERTIES, data, &reply);
+        data.writeInterfaceToken(IVehicleNetworkHalMock::getInterfaceDescriptor());
+        status_t status = remote()->transact(ON_LIST_PROPERTIES, data, &reply);
         if (status == NO_ERROR) {
             reply.readExceptionCode(); // for compatibility with java
             if (reply.readInt32() == 0) { // no result
@@ -98,9 +96,9 @@ public:
         return holder;
     }
 
-    virtual status_t setProperty(const vehicle_prop_value_t& value) {
+    virtual status_t onPropertySet(const vehicle_prop_value_t& value) {
         Parcel data, reply;
-        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
+        data.writeInterfaceToken(IVehicleNetworkHalMock::getInterfaceDescriptor());
         data.writeInt32(1); // 0 means no value. For compatibility with aidl based code.
         std::unique_ptr<VehiclePropValue> v(new VehiclePropValue());
         ASSERT_OR_HANDLE_NO_MEMORY(v.get(), return NO_MEMORY);
@@ -111,16 +109,16 @@ public:
         data.writeInt32(size);
         data.writeBlob(size, false, blob.blob);
         v->SerializeToArray(blob.blob->data(), size);
-        status_t status = remote()->transact(SET_PROPERTY, data, &reply);
+        status_t status = remote()->transact(ON_PROPERTY_SET, data, &reply);
         return status;
     }
 
-    virtual status_t getProperty(vehicle_prop_value_t* value) {
+    virtual status_t onPropertyGet(vehicle_prop_value_t* value) {
         Parcel data, reply;
-        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
+        data.writeInterfaceToken(IVehicleNetworkHalMock::getInterfaceDescriptor());
         // only needs to send property itself.
         data.writeInt32(value->prop);
-        status_t status = remote()->transact(GET_PROPERTY, data, &reply);
+        status_t status = remote()->transact(ON_PROPERTY_GET, data, &reply);
         if (status == NO_ERROR) {
             reply.readExceptionCode(); // for compatibility with java
             if (reply.readInt32() == 0) { // no result
@@ -145,65 +143,27 @@ public:
         return status;
     }
 
-    virtual status_t subscribe(const sp<IVehicleNetworkListener> &listener, int32_t property,
-                float sampleRate) {
+    virtual status_t onPropertySubscribe(int32_t property, float sampleRate) {
         Parcel data, reply;
-        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
-        data.writeStrongBinder(IInterface::asBinder(listener));
+        data.writeInterfaceToken(IVehicleNetworkHalMock::getInterfaceDescriptor());
         data.writeInt32(property);
         data.writeFloat(sampleRate);
-        status_t status = remote()->transact(SUBSCRIBE, data, &reply);
+        status_t status = remote()->transact(ON_SUBSCRIBE, data, &reply);
         return status;
     }
 
-    virtual void unsubscribe(const sp<IVehicleNetworkListener> &listener, int32_t property) {
+    virtual void onPropertyUnsubscribe(int32_t property) {
         Parcel data, reply;
-        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
-        data.writeStrongBinder(IInterface::asBinder(listener));
+        data.writeInterfaceToken(IVehicleNetworkHalMock::getInterfaceDescriptor());
         data.writeInt32(property);
-        status_t status = remote()->transact(UNSUBSCRIBE, data, &reply);
+        status_t status = remote()->transact(ON_UNSUBSCRIBE, data, &reply);
         if (status != NO_ERROR) {
-            ALOGI("unsubscribing property %d failed %d", property, status);
-        }
-    }
-
-    virtual status_t injectEvent(const vehicle_prop_value_t& value) {
-        Parcel data, reply;
-        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
-        data.writeInt32(1); // 0 means no value. For compatibility with aidl based code.
-        std::unique_ptr<VehiclePropValue> v(new VehiclePropValue());
-        ASSERT_OR_HANDLE_NO_MEMORY(v.get(), return NO_MEMORY);
-        VehicleNetworkProtoUtil::toVehiclePropValue(value, *v.get());
-        int size = v->ByteSize();
-        WritableBlobHolder blob(new Parcel::WritableBlob());
-        ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
-        data.writeInt32(size);
-        data.writeBlob(size, false, blob.blob);
-        v->SerializeToArray(blob.blob->data(), size);
-        status_t status = remote()->transact(INJECT_EVENT, data, &reply);
-        return status;
-    }
-
-    virtual status_t startMocking(const sp<IVehicleNetworkHalMock>& mock) {
-        Parcel data, reply;
-        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
-        data.writeStrongBinder(IInterface::asBinder(mock));
-        status_t status = remote()->transact(START_MOCKING, data, &reply);
-        return status;
-    }
-
-    virtual void stopMocking(const sp<IVehicleNetworkHalMock>& mock) {
-        Parcel data, reply;
-        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
-        data.writeStrongBinder(IInterface::asBinder(mock));
-        status_t status = remote()->transact(STOP_MOCKING, data, &reply);
-        if (status != NO_ERROR) {
-            ALOGI("stop mocking failed %d", status);
+            ALOGI("onPropertyUnsubscribe property %d failed %d", property, status);
         }
     }
 };
 
-IMPLEMENT_META_INTERFACE(VehicleNetwork, IVehicleNetwork::SERVICE_NAME);
+IMPLEMENT_META_INTERFACE(VehicleNetworkHalMock, IVehicleNetworkHalMock::SERVICE_NAME);
 
 // ----------------------------------------------------------------------
 
@@ -224,17 +184,16 @@ static bool isSystemUser() {
     return false;
 }
 
-status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel* reply,
+status_t BnVehicleNetworkHalMock::onTransact(uint32_t code, const Parcel& data, Parcel* reply,
         uint32_t flags) {
     if (!isSystemUser()) {
         return PERMISSION_DENIED;
     }
     status_t r;
     switch (code) {
-        case LIST_PROPERTIES: {
-            CHECK_INTERFACE(IVehicleNetwork, data, reply);
-            int32_t property = data.readInt32();
-            sp<VehiclePropertiesHolder> holder = listProperties(property);
+        case ON_LIST_PROPERTIES: {
+            CHECK_INTERFACE(IVehicleNetworkHalMock, data, reply);
+            sp<VehiclePropertiesHolder> holder = onListProperties();
             if (holder.get() == NULL) { // given property not found
                 BinderUtil::fillObjectResultReply(reply, false /* isValid */);
                 return NO_ERROR;
@@ -251,8 +210,8 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             configs->SerializeToArray(blob.blob->data(), size);
             return NO_ERROR;
         } break;
-        case SET_PROPERTY: {
-            CHECK_INTERFACE(IVehicleNetwork, data, reply);
+        case ON_PROPERTY_SET: {
+            CHECK_INTERFACE(IVehicleNetworkHalMock, data, reply);
             if (data.readInt32() == 0) { // java side allows passing null with this.
                 return BAD_VALUE;
             }
@@ -276,15 +235,15 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
                 ALOGE("setProperty:service, cannot convert data");
                 return BAD_VALUE;
             }
-            r = setProperty(value.value);
+            r = onPropertySet(value.value);
             BinderUtil::fillNoResultReply(reply);
             return r;
         } break;
-        case GET_PROPERTY: {
-            CHECK_INTERFACE(IVehicleNetwork, data, reply);
+        case ON_PROPERTY_GET: {
+            CHECK_INTERFACE(IVehicleNetworkHalMock, data, reply);
             ScopedVehiclePropValue value;
             value.value.prop = data.readInt32();
-            r = getProperty(&(value.value));
+            r = onPropertyGet(&(value.value));
             if (r == NO_ERROR) {
                 BinderUtil::fillObjectResultReply(reply, true);
                 std::unique_ptr<VehiclePropValue> v(new VehiclePropValue());
@@ -299,67 +258,18 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             }
             return r;
         } break;
-        case SUBSCRIBE: {
-            CHECK_INTERFACE(IVehicleNetwork, data, reply);
-            sp<IVehicleNetworkListener> listener =
-                    interface_cast<IVehicleNetworkListener>(data.readStrongBinder());
+        case ON_SUBSCRIBE: {
+            CHECK_INTERFACE(IVehicleNetworkHalMock, data, reply);
             int32_t property = data.readInt32();
             float sampleRate = data.readFloat();
-            r = subscribe(listener, property, sampleRate);
+            r = onPropertySubscribe(property, sampleRate);
             BinderUtil::fillNoResultReply(reply);
             return r;
         } break;
-        case UNSUBSCRIBE: {
-            CHECK_INTERFACE(IVehicleNetwork, data, reply);
-            sp<IVehicleNetworkListener> listener =
-                    interface_cast<IVehicleNetworkListener>(data.readStrongBinder());
+        case ON_UNSUBSCRIBE: {
+            CHECK_INTERFACE(IVehicleNetworkHalMock, data, reply);
             int32_t property = data.readInt32();
-            unsubscribe(listener, property);
-            BinderUtil::fillNoResultReply(reply);
-            return NO_ERROR;
-        } break;
-        case INJECT_EVENT: {
-            CHECK_INTERFACE(IVehicleNetwork, data, reply);
-            if (data.readInt32() == 0) { // java side allows passing null with this.
-                return BAD_VALUE;
-            }
-            ScopedVehiclePropValue value;
-            ReadableBlobHolder blob(new Parcel::ReadableBlob());
-            ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
-            int32_t size = data.readInt32();
-            r = data.readBlob(size, blob.blob);
-            if (r != NO_ERROR) {
-                ALOGE("injectEvent:service, cannot read blob");
-                return r;
-            }
-            std::unique_ptr<VehiclePropValue> v(new VehiclePropValue());
-            ASSERT_OR_HANDLE_NO_MEMORY(v.get(), return NO_MEMORY);
-            if (!v->ParseFromArray(blob.blob->data(), size)) {
-                ALOGE("injectEvent:service, cannot parse data");
-                return BAD_VALUE;
-            }
-            r = VehicleNetworkProtoUtil::fromVehiclePropValue(*v.get(), value.value);
-            if (r != NO_ERROR) {
-                ALOGE("injectEvent:service, cannot convert data");
-                return BAD_VALUE;
-            }
-            r = injectEvent(value.value);
-            BinderUtil::fillNoResultReply(reply);
-            return r;
-        } break;
-        case START_MOCKING: {
-            CHECK_INTERFACE(IVehicleNetwork, data, reply);
-            sp<IVehicleNetworkHalMock> mock =
-                    interface_cast<IVehicleNetworkHalMock>(data.readStrongBinder());
-            r = startMocking(mock);
-            BinderUtil::fillNoResultReply(reply);
-            return r;
-        } break;
-        case STOP_MOCKING: {
-            CHECK_INTERFACE(IVehicleNetwork, data, reply);
-            sp<IVehicleNetworkHalMock> mock =
-                    interface_cast<IVehicleNetworkHalMock>(data.readStrongBinder());
-            stopMocking(mock);
+            onPropertyUnsubscribe(property);
             BinderUtil::fillNoResultReply(reply);
             return NO_ERROR;
         } break;

@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class SensorHalService extends SensorHalServiceBase {
 
-    private static final boolean DBG_EVENTS = true;
+    private static final boolean DBG_EVENTS = false;
 
     private static final int SENSOR_TYPE_INVALD = -1;
 
