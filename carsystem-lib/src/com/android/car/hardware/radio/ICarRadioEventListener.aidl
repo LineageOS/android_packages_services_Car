@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.hardware.radio;
 
-public class CarLog {
+import com.android.car.hardware.radio.CarRadioEvent;
 
-    public static final String TAG_SERVICE = "CAR.SERVICE";
-    public static final String TAG_SENSOR = "CAR.SENSOR";
-    public static final String TAG_HAL = "CAR.HAL";
-    public static final String TAG_INFO = "CAR.INFO";
-    public static final String TAG_AUDIO = "CAR.AUDIO";
-    public static final String TAG_RADIO = "CAR.RADIO";
-    public static final String TAG_TEST = "CAR.TEST";
+/**
+ * Binder callback for CarRadioEventListener.
+ * This is generated per each CarClient.
+ * @hide
+ */
+oneway interface ICarRadioEventListener {
+    /**
+     * Called when an event is triggered in response to one of the calls (such as on tune) or
+     * asynchronously (such as on announcement).
+     */
+    void onEvent(in CarRadioEvent event) = 1;
 }

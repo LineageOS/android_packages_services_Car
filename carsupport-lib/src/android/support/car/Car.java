@@ -97,6 +97,14 @@ public class Car {
     private static final String PROJECTED_CAR_SERVICE_LOADER =
             "com.google.android.gms.car.GoogleCarServiceLoader";
 
+    /**
+     * CarXyzService throws IllegalStateException with this message is re-thrown as
+     * {@link CarNotConnectedException}.
+     *
+     * @hide
+     */
+    public static final String CAR_NOT_CONNECTED_EXCEPTION_MSG = "CarNotConnected";
+
     private static final int VERSION = 1;
 
     private final Context mContext;
@@ -366,6 +374,25 @@ public class Car {
             handleRemoteExceptionAndThrow(e);
         }
         return Car.CONNECTION_TYPE_EMULATOR;
+    }
+
+    /**
+     * IllegalStateException from XyzCarService with special message is re-thrown as a different
+     * exception. If the IllegalStateException is not understood then this message will throw the
+     * original exception.
+     *
+     * @param e exception from XyzCarService.
+     * @throws CarNotConnectedException
+     * @hide
+     */
+    public static void checkCarNotConnectedExceptionFromCarService(
+            IllegalStateException e) throws CarNotConnectedException, IllegalStateException {
+        String message = e.getMessage();
+        if (message.equals(CAR_NOT_CONNECTED_EXCEPTION_MSG)) {
+            throw new CarNotConnectedException();
+        } else {
+            throw e;
+        }
     }
 
     private synchronized ICar getICarOrThrow() throws IllegalStateException {

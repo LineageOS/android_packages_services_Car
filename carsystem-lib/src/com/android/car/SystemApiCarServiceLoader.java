@@ -18,9 +18,14 @@ package com.android.car;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.Looper;
+import android.support.car.CarLibLog;
 import android.support.car.CarManagerBase;
 import android.support.car.DefaultCarServiceLoader;
 import android.support.car.ServiceConnectionListener;
+import android.util.Log;
+
+import com.android.car.hardware.radio.CarRadioManager;
+import com.android.car.hardware.radio.ICarRadio;
 
 public class SystemApiCarServiceLoader extends DefaultCarServiceLoader {
 
@@ -32,8 +37,20 @@ public class SystemApiCarServiceLoader extends DefaultCarServiceLoader {
     @Override
     public CarManagerBase createCarManager(String serviceName, IBinder binder) {
         //TODO populate system only Car*Managers
-        //switch (serviceName) {
-        //}
-        return super.createCarManager(serviceName, binder);
+        CarManagerBase manager = null;
+        switch (serviceName) {
+            case CarSystem.RADIO_SERVICE:
+                manager =
+                    new CarRadioManager(
+                        getContext(), ICarRadio.Stub.asInterface(binder), getLooper());
+                if (manager == null) {
+                    Log.d(CarLibLog.TAG_CAR, "Radio manager could not be loaded!");
+                }
+                break;
+        }
+        if (manager == null) {
+            return super.createCarManager(serviceName, binder);
+        }
+        return manager;
     }
 }

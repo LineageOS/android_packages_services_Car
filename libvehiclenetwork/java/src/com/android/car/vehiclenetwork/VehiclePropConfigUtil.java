@@ -32,8 +32,19 @@ public class VehiclePropConfigUtil {
                 VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_STATIC,
                 VehicleValueType.VEHICLE_VALUE_TYPE_STRING,
                 VehiclePermissionModel.VEHICLE_PERMISSION_NO_RESTRICTION,
-                0, 0f, 0f).
-                build();
+                0, 0f, 0f)
+                .build();
+    }
+
+    public static VehiclePropConfig createProperty(
+        int property, int propAccess, int changeType, int valueType, int configFlags) {
+        return getBuilder(property,
+                propAccess,
+                changeType,
+                valueType,
+                VehiclePermissionModel.VEHICLE_PERMISSION_NO_RESTRICTION,
+                configFlags, 0f, 0f)
+                .build();
     }
 
     public static VehiclePropConfig.Builder getBuilder(int property, int access, int changeMode,

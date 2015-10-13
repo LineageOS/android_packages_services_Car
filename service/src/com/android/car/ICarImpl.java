@@ -20,11 +20,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
+import android.os.Process;
 import android.support.car.Car;
 import android.support.car.ICar;
 import android.support.car.ICarConnectionListener;
 import android.util.Log;
 
+import com.android.car.CarSystem;
 import com.android.car.hal.VehicleHal;
 import com.android.internal.annotations.GuardedBy;
 
@@ -42,6 +44,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarSensorService mCarSensorService;
     private final CarInfoService mCarInfoService;
     private final CarAudioService mCarAudioService;
+    private final CarRadioService mCarRadioService;
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
     private CarTestService mCarTestService;
@@ -69,11 +72,13 @@ public class ICarImpl extends ICar.Stub {
         mCarInfoService = new CarInfoService(serviceContext);
         mCarSensorService = new CarSensorService(serviceContext);
         mCarAudioService = new CarAudioService(serviceContext);
+        mCarRadioService = new CarRadioService(serviceContext);
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
                 mCarInfoService,
                 mCarSensorService,
-                mCarAudioService };
+                mCarAudioService,
+                mCarRadioService };
     }
 
     private void init() {
@@ -119,6 +124,9 @@ public class ICarImpl extends ICar.Stub {
                 return mCarSensorService;
             case Car.INFO_SERVICE:
                 return mCarInfoService;
+            case CarSystem.RADIO_SERVICE:
+                assertSystemUidOrPermission(mContext);
+                return mCarRadioService;
             case CarSystemTest.TEST_SERVICE: {
                 assertVehicleHalMockPermission(mContext);
                 synchronized (this) {
@@ -164,6 +172,15 @@ public class ICarImpl extends ICar.Stub {
         if (context.checkCallingOrSelfPermission(CarSystemTest.PERMISSION_MOCK_VEHICLE_HAL)
                 != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException("requires CAR_MOCK_VEHICLE_HAL permission");
+        }
+    }
+
+    private static void assertSystemUidOrPermission(Context context) {
+        if (getCallingUid() != Process.SYSTEM_UID &&
+            context.checkCallingOrSelfPermission(CarSystem.PERMISSION_RADIO_VEHICLE_HAL)
+            != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException(
+                "requires system app or " + CarSystem.PERMISSION_RADIO_VEHICLE_HAL);
         }
     }
 

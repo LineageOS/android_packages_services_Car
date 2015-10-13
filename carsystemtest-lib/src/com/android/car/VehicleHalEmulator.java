@@ -15,6 +15,7 @@
  */
 package com.android.car;
 
+import android.util.Log;
 import android.support.car.Car;
 import android.support.car.CarNotConnectedException;
 

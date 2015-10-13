@@ -22,5 +22,9 @@ package com.android.car;
  * @hide
  */
 public class CarSystem {
+    public static final String RADIO_SERVICE = "radio";
 
+    /** Permission necesary to access Car RADIO system APIs. */
+    public static final String PERMISSION_RADIO_VEHICLE_HAL =
+            "com.android.car.permission.CAR_RADIO";
 }

@@ -614,7 +614,7 @@ void VehicleNetworkService::unsubscribe(const sp<IVehicleNetworkListener> &liste
 }
 
 status_t VehicleNetworkService::injectEvent(const vehicle_prop_value_t& value) {
-    onHalEvent(&value);
+    onHalEvent(&value, true);
     return NO_ERROR;
 }
 

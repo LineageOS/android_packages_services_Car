@@ -36,6 +36,10 @@
     <!-- Permission text: apps can access car-manufacturer specific data [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_vendor_extension">Access your car\'s vendor channel to
         exchange car-specific information.</string>
+    <!-- Permission text: apps can control car-radio [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_radio">Car Radio</string>
+    <!-- Permission text: apps can control car-radio [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_radio">Access your car\'s radio.</string>
     <string name="car_permission_label_mock_vehicle_hal">Emulate vehicle HAL</string>
     <!-- Permission text: can emulate information from your car [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_mock_vehicle_hal">Emulate your car\'s vehicle HAL for internal
