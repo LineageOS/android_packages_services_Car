@@ -240,10 +240,10 @@ private:
     void closeHal();
     vehicle_prop_config_t const * findConfigLocked(int32_t property);
     bool isGettableLocked(int32_t property);
-    bool isSettableLocked(int32_t property);
+    bool isSettableLocked(int32_t property, int32_t valueType);
     bool isSubscribableLocked(int32_t property);
     static int eventCallback(const vehicle_prop_value_t *eventData);
-    static int errorCallback(int32_t errorCode);
+    static int errorCallback(int32_t errorCode, int32_t property, int32_t operation);
 private:
     static VehicleNetworkService* sInstance;
     HandlerThread mHandlerThread;

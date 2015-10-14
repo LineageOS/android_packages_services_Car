@@ -51,7 +51,7 @@ JAVA_TRAIL = \
 
 RE_PROPERTY_PATTERN = r'/\*\*(.*?)\*/\n\#define\s+VEHICLE_PROPERTY_(\S+)\s+(\S+)'
 RE_ENUM_PATTERN = r'enum\s+(\S+)\s+\{\S*(.*?)\}'
-RE_ENUM_ENTRY_PATTERN = r'(\S+)\s*=\s*(\S+)'
+RE_ENUM_ENTRY_PATTERN = r'(\S+)\s*=\s*(.*?)[,\n]'
 
 class PropertyInfo(object):
   def __init__(self, value, name):

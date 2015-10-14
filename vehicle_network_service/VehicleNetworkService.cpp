@@ -285,7 +285,8 @@ int VehicleNetworkService::eventCallback(const vehicle_prop_value_t *eventData) 
 }
 
 
-int VehicleNetworkService::errorCallback(int32_t errorCode) {
+int VehicleNetworkService::errorCallback(int32_t errorCode, int32_t property, int32_t operation) {
+    //TODO handle error properly
     sInstance->onHalError(errorCode);
     return NO_ERROR;
 }
@@ -361,13 +362,18 @@ bool VehicleNetworkService::isGettableLocked(int32_t property) {
     return true;
 }
 
-bool VehicleNetworkService::isSettableLocked(int32_t property) {
+bool VehicleNetworkService::isSettableLocked(int32_t property, int32_t valueType) {
     vehicle_prop_config_t const * config = findConfigLocked(property);
     if (config == NULL) {
         return false;
     }
     if ((config->access & VEHICLE_PROP_ACCESS_WRITE) == 0) {
         ALOGI("cannot set, property 0x%x is read only", property);
+        return false;
+    }
+    if (config->value_type != valueType) {
+        ALOGW("cannot set, property 0x%x expects type 0x%x while got 0x%x", property,
+                config->value_type, valueType);
         return false;
     }
     return true;
@@ -441,7 +447,7 @@ status_t VehicleNetworkService::setProperty(const vehicle_prop_value_t& data) {
     bool inMocking = false;
     do { // for lock scoping
         Mutex::Autolock autoLock(mLock);
-        if (!isSettableLocked(data.prop)) {
+        if (!isSettableLocked(data.prop, data.value_type)) {
             return BAD_VALUE;
         }
         if ((data.prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
