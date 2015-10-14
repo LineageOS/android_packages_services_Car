@@ -101,46 +101,29 @@ public:
     virtual status_t setProperty(const vehicle_prop_value_t& value) {
         Parcel data, reply;
         data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
-        data.writeInt32(1); // 0 means no value. For compatibility with aidl based code.
-        std::unique_ptr<VehiclePropValue> v(new VehiclePropValue());
-        ASSERT_OR_HANDLE_NO_MEMORY(v.get(), return NO_MEMORY);
-        VehicleNetworkProtoUtil::toVehiclePropValue(value, *v.get());
-        int size = v->ByteSize();
-        WritableBlobHolder blob(new Parcel::WritableBlob());
-        ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
-        data.writeInt32(size);
-        data.writeBlob(size, false, blob.blob);
-        v->SerializeToArray(blob.blob->data(), size);
-        status_t status = remote()->transact(SET_PROPERTY, data, &reply);
+        status_t status = VehiclePropValueBinderUtil::writeToParcel(data, value);
+        if (status != NO_ERROR) {
+            return status;
+        }
+        status = remote()->transact(SET_PROPERTY, data, &reply);
         return status;
     }
 
     virtual status_t getProperty(vehicle_prop_value_t* value) {
         Parcel data, reply;
+        if (value == NULL) {
+            return BAD_VALUE;
+        }
         data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
-        // only needs to send property itself.
-        data.writeInt32(value->prop);
-        status_t status = remote()->transact(GET_PROPERTY, data, &reply);
+        status_t status = VehiclePropValueBinderUtil::writeToParcel(data, *value);
+        if (status != NO_ERROR) {
+            ALOGE("getProperty, cannot write");
+            return status;
+        }
+        status = remote()->transact(GET_PROPERTY, data, &reply);
         if (status == NO_ERROR) {
             reply.readExceptionCode(); // for compatibility with java
-            if (reply.readInt32() == 0) { // no result
-                return BAD_VALUE;
-            }
-            ReadableBlobHolder blob(new Parcel::ReadableBlob());
-            ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
-            int32_t size = reply.readInt32();
-            status = reply.readBlob(size, blob.blob);
-            if (status != NO_ERROR) {
-                ALOGE("getProperty, cannot read blob");
-                return status;
-            }
-            std::unique_ptr<VehiclePropValue> v(new VehiclePropValue());
-            ASSERT_OR_HANDLE_NO_MEMORY(v.get(), return NO_MEMORY);
-            if (!v->ParseFromArray(blob.blob->data(), size)) {
-                ALOGE("getProperty, cannot parse reply");
-                return BAD_VALUE;
-            }
-            status = VehicleNetworkProtoUtil::fromVehiclePropValue(*v.get(), *value);
+            status = VehiclePropValueBinderUtil::readFromParcel(reply, value);
         }
         return status;
     }
@@ -253,28 +236,11 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
         } break;
         case SET_PROPERTY: {
             CHECK_INTERFACE(IVehicleNetwork, data, reply);
-            if (data.readInt32() == 0) { // java side allows passing null with this.
-                return BAD_VALUE;
-            }
             ScopedVehiclePropValue value;
-            ReadableBlobHolder blob(new Parcel::ReadableBlob());
-            ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
-            int32_t size = data.readInt32();
-            r = data.readBlob(size, blob.blob);
+            r = VehiclePropValueBinderUtil::readFromParcel(data, &value.value,
+                    false /* deleteMembers */);
             if (r != NO_ERROR) {
-                ALOGE("setProperty:service, cannot read blob");
                 return r;
-            }
-            std::unique_ptr<VehiclePropValue> v(new VehiclePropValue());
-            ASSERT_OR_HANDLE_NO_MEMORY(v.get(), return NO_MEMORY);
-            if (!v->ParseFromArray(blob.blob->data(), size)) {
-                ALOGE("setProperty:service, cannot parse data");
-                return BAD_VALUE;
-            }
-            r = VehicleNetworkProtoUtil::fromVehiclePropValue(*v.get(), value.value);
-            if (r != NO_ERROR) {
-                ALOGE("setProperty:service, cannot convert data");
-                return BAD_VALUE;
             }
             r = setProperty(value.value);
             BinderUtil::fillNoResultReply(reply);
@@ -283,19 +249,16 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
         case GET_PROPERTY: {
             CHECK_INTERFACE(IVehicleNetwork, data, reply);
             ScopedVehiclePropValue value;
-            value.value.prop = data.readInt32();
+            r = VehiclePropValueBinderUtil::readFromParcel(data, &value.value,
+                    false /* deleteMembers */, true /*canIgnoreNoData*/);
+            if (r != NO_ERROR) {
+                ALOGE("getProperty cannot read %d", r);
+                return r;
+            }
             r = getProperty(&(value.value));
             if (r == NO_ERROR) {
-                BinderUtil::fillObjectResultReply(reply, true);
-                std::unique_ptr<VehiclePropValue> v(new VehiclePropValue());
-                ASSERT_OR_HANDLE_NO_MEMORY(v.get(), return NO_MEMORY);
-                VehicleNetworkProtoUtil::toVehiclePropValue(value.value, *v.get());
-                int size = v->ByteSize();
-                WritableBlobHolder blob(new Parcel::WritableBlob());
-                ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
-                reply->writeInt32(size);
-                reply->writeBlob(size, false, blob.blob);
-                v->SerializeToArray(blob.blob->data(), size);
+                reply->writeNoException();
+                r = VehiclePropValueBinderUtil::writeToParcel(*reply, value.value);
             }
             return r;
         } break;

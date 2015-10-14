@@ -355,7 +355,7 @@ bool VehicleNetworkService::isGettableLocked(int32_t property) {
         return false;
     }
     if ((config->access & VEHICLE_PROP_ACCESS_READ) == 0) {
-        ALOGE("cannot get, property 0x%x is write only", property);
+        ALOGI("cannot get, property 0x%x is write only", property);
         return false;
     }
     return true;
@@ -367,7 +367,7 @@ bool VehicleNetworkService::isSettableLocked(int32_t property) {
         return false;
     }
     if ((config->access & VEHICLE_PROP_ACCESS_WRITE) == 0) {
-        ALOGE("cannot set, property 0x%x is read only", property);
+        ALOGI("cannot set, property 0x%x is read only", property);
         return false;
     }
     return true;
@@ -379,11 +379,11 @@ bool VehicleNetworkService::isSubscribableLocked(int32_t property) {
         return false;
     }
     if ((config->access & VEHICLE_PROP_ACCESS_READ) == 0) {
-        ALOGE("cannot subscribe, property 0x%x is write only", property);
+        ALOGI("cannot subscribe, property 0x%x is write only", property);
         return false;
     }
     if (config->change_mode == VEHICLE_PROP_CHANGE_MODE_STATIC) {
-        ALOGE("cannot subscribe, property 0x%x is static", property);
+        ALOGI("cannot subscribe, property 0x%x is static", property);
         return false;
     }
     return true;
@@ -669,7 +669,7 @@ void VehicleNetworkService::onHalEvents(List<vehicle_prop_value_t*>& events) {
         for (vehicle_prop_value_t* e : events) {
             ssize_t index = mPropertyToClientsMap.indexOfKey(e->prop);
             if (index < 0) {
-                ALOGE("HAL event for not subscribed property 0x%x", e->prop);
+                ALOGI("HAL event for not subscribed property 0x%x", e->prop);
                 continue;
             }
             sp<HalClientSpVector>& clients = mPropertyToClientsMap.editValueAt(index);

@@ -42,7 +42,7 @@ public:
             VehiclePropValue& out, bool inPlace = false);
 
     static status_t fromVehiclePropValue(const VehiclePropValue& in, vehicle_prop_value_t& out,
-            bool inPlace = false);
+            bool inPlace = false, bool canIgnoreNoData = false);
 
     static status_t toVehiclePropValues(const List<vehicle_prop_value_t*>& in,
             VehiclePropValues& out);
@@ -96,6 +96,14 @@ public:
             delete blob;
         }
     }
+};
+
+class VehiclePropValueBinderUtil {
+public:
+    static status_t writeToParcel(Parcel& parcel, const vehicle_prop_value_t& value);
+
+    static status_t readFromParcel(const Parcel& parcel, vehicle_prop_value_t* value,
+            bool deleteMembers = true, bool canIgnoreNoData = false);
 };
 
 }; // namespace android

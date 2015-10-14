@@ -23,6 +23,7 @@
 
 #include <memory>
 
+#include <binder/Parcel.h>
 #include <hardware/vehicle.h>
 
 #include <utils/List.h>
@@ -115,6 +116,7 @@ public:
             case VEHICLE_VALUE_TYPE_BYTES:
             case VEHICLE_VALUE_TYPE_STRING: {
                 delete[] v->value.str_value.data;
+                v->value.str_value.data = NULL;
             } break;
         }
     };

@@ -52,7 +52,7 @@ public class VehicleHalEmulator {
      */
     public interface VehicleHalPropertyHandler {
         void onPropertySet(VehiclePropValue value);
-        VehiclePropValue onPropertyGet(int property);
+        VehiclePropValue onPropertyGet(VehiclePropValue value);
         void onPropertySubscribe(int property, int sampleRate);
         void onPropertyUnsubscribe(int property);
     }
@@ -232,8 +232,8 @@ public class VehicleHalEmulator {
         getHalPropertyLocked(value.getProp()).handler.onPropertySet(value);
     }
 
-    private synchronized VehiclePropValue handlePropertyGet(int property) {
-        return getHalPropertyLocked(property).handler.onPropertyGet(property);
+    private synchronized VehiclePropValue handlePropertyGet(VehiclePropValue value) {
+        return getHalPropertyLocked(value.getProp()).handler.onPropertyGet(value);
     }
 
     private synchronized void handlePropertySubscribe(int property, int sampleRate) {
@@ -279,8 +279,8 @@ public class VehicleHalEmulator {
         }
 
         @Override
-        public synchronized VehiclePropValue onPropertyGet(int property) {
-            assertPropertyForGet(mConfig, property);
+        public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
+            assertPropertyForGet(mConfig, value.getProp());
             return mValue;
         }
 
@@ -315,8 +315,8 @@ public class VehicleHalEmulator {
         }
 
         @Override
-        public VehiclePropValue onPropertyGet(int property) {
-            return handlePropertyGet(property);
+        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
+            return handlePropertyGet(value);
         }
 
         @Override

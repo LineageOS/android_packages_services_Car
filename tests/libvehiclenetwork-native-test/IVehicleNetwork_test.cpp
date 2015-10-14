@@ -169,6 +169,7 @@ TEST_F(IVehicleNetworkTest, getProperty) {
         }
         ScopedVehiclePropValue value;
         value.value.prop = config->prop;
+        value.value.value_type = config->value_type;
         status_t r = vn->getProperty(&value.value);
         if ((config->access & VEHICLE_PROP_ACCESS_READ) == 0) { // cannot read
             ASSERT_TRUE(r != NO_ERROR);

@@ -115,6 +115,7 @@ status_t VehicleNetwork::setStringProperty(int32_t property, const String8& valu
 status_t VehicleNetwork::getStringProperty(int32_t property, String8& value, int64_t* timestamp) {
     vehicle_prop_value_t v;
     v.prop = property;
+    v.value.str_value.len = 0;
     status_t r = getProperty(&v);
     if (r == NO_ERROR) {
         value.setTo((char*)v.value.str_value.data, v.value.str_value.len);

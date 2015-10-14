@@ -25,6 +25,10 @@ namespace android {
 
 static status_t copyString(const std::string& in, uint8_t** out, int32_t* len) {
     *len = in.length();
+    if (*len == 0) {
+        *out = NULL;
+        return NO_ERROR;
+    }
     *out = new uint8_t[*len];
     ASSERT_OR_HANDLE_NO_MEMORY(*out, return NO_MEMORY);
     memcpy(*out, in.data(), *len);
@@ -39,10 +43,14 @@ status_t VehicleNetworkProtoUtil::toVehiclePropValue(const vehicle_prop_value_t&
     switch (in.value_type) {
         case VEHICLE_VALUE_TYPE_STRING: {
             //TODO fix ugly copy here for inplace mode
-            out.set_string_value((char*)in.value.str_value.data, in.value.str_value.len);
+            if (in.value.str_value.len > 0) {
+                out.set_string_value((char*)in.value.str_value.data, in.value.str_value.len);
+            }
         } break;
         case VEHICLE_VALUE_TYPE_BYTES: {
-            out.set_bytes_value(in.value.bytes_value.data, in.value.bytes_value.len);
+            if (in.value.bytes_value.len > 0) {
+                out.set_bytes_value(in.value.bytes_value.data, in.value.bytes_value.len);
+            }
         } break;
         case VEHICLE_VALUE_TYPE_FLOAT: {
             out.add_float_values(in.value.float_value);
@@ -90,7 +98,7 @@ status_t VehicleNetworkProtoUtil::toVehiclePropValue(const vehicle_prop_value_t&
 }
 
 status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& in,
-        vehicle_prop_value_t& out, bool /*inPlace*/) {
+        vehicle_prop_value_t& out, bool /*inPlace*/, bool canIgnoreNoData) {
     out.prop = in.prop();
     out.value_type = in.value_type();
     out.timestamp = in.timestamp();
@@ -100,8 +108,12 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
                 // set to NULL so that client can just delete this safely.
                 out.value.str_value.data = NULL;
                 out.value.str_value.len = 0;
-                ALOGE("no string value");
-                return BAD_VALUE;
+                if (canIgnoreNoData) {
+                    return NO_ERROR;
+                } else {
+                    ALOGE("fromVehiclePropValue, no string data");
+                    return BAD_VALUE;
+                }
             }
             //TODO fix copy...
             status_t r = copyString(in.string_value(), &(out.value.str_value.data),
@@ -109,6 +121,7 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
             if (r != NO_ERROR) {
                 out.value.str_value.data = NULL;
                 out.value.str_value.len = 0;
+                ALOGE("copyString for string failed %d", r);
                 return r;
             }
         } break;
@@ -116,19 +129,27 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
             if (!in.has_bytes_value()) {
                 out.value.bytes_value.data = NULL;
                 out.value.bytes_value.len = 0;
-                ALOGE("no bytes value");
-                return BAD_VALUE;
+                if (canIgnoreNoData) {
+                    return NO_ERROR;
+                } else {
+                    ALOGE("fromVehiclePropValue, no byte data");
+                    return BAD_VALUE;
+                }
             }
             status_t r = copyString(in.bytes_value(), &(out.value.bytes_value.data),
                     &(out.value.bytes_value.len));
             if (r != NO_ERROR) {
                 out.value.bytes_value.data = NULL;
                 out.value.bytes_value.len = 0;
+                ALOGE("copyString for bytes failed %d", r);
                 return r;
             }
         } break;
         case VEHICLE_VALUE_TYPE_FLOAT: {
             if (in.float_values_size() != 1) {
+                if (canIgnoreNoData) {
+                    return NO_ERROR;
+                }
                 ALOGE("float value, wrong size %d, expecting 1", in.float_values_size());
                 return BAD_VALUE;
             }
@@ -139,6 +160,9 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
         case VEHICLE_VALUE_TYPE_FLOAT_VEC4: {
             int expectedSize = out.value_type - VEHICLE_VALUE_TYPE_FLOAT_VEC2 + 2;
             if (in.float_values_size() != expectedSize) {
+                if (canIgnoreNoData) {
+                    return NO_ERROR;
+                }
                 ALOGE("float value, wrong size %d, expecting %d", in.float_values_size(),
                         expectedSize);
                 return BAD_VALUE;
@@ -149,6 +173,9 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
         } break;
         case VEHICLE_VALUE_TYPE_INT64: {
             if (!in.has_int64_value()) {
+                if (canIgnoreNoData) {
+                    return NO_ERROR;
+                }
                 ALOGE("no int64 value");
                 return BAD_VALUE;
             }
@@ -157,6 +184,9 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
         case VEHICLE_VALUE_TYPE_INT32:
         case VEHICLE_VALUE_TYPE_BOOLEAN: {
             if (in.int32_values_size() != 1) {
+                if (canIgnoreNoData) {
+                    return NO_ERROR;
+                }
                 ALOGE("no int32 value");
                 return BAD_VALUE;
             }
@@ -167,6 +197,9 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
         case VEHICLE_VALUE_TYPE_INT32_VEC4: {
             int expectedSize = out.value_type - VEHICLE_VALUE_TYPE_INT32_VEC2 + 2;
             if (in.int32_values_size() != expectedSize) {
+                if (canIgnoreNoData) {
+                    return NO_ERROR;
+                }
                 ALOGE("int32 value, wrong size %d, expecting %d", in.int32_values_size(),
                         expectedSize);
                 return BAD_VALUE;
@@ -178,11 +211,17 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
         case VEHICLE_VALUE_TYPE_ZONED_INT32:
         case VEHICLE_VALUE_TYPE_ZONED_BOOLEAN: {
             if (!in.has_zoned_value()) {
+                if (canIgnoreNoData) {
+                    return NO_ERROR;
+                }
                 ALOGE("no zoned value");
                 return BAD_VALUE;
             }
             const ZonedValue& zonedValue = in.zoned_value();
             if (!zonedValue.has_int32_value()) {
+                if (canIgnoreNoData) {
+                    return NO_ERROR;
+                }
                 ALOGE("no int32 in zoned value");
                 return BAD_VALUE;
             }
@@ -191,19 +230,30 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
         } break;
         case VEHICLE_VALUE_TYPE_ZONED_FLOAT: {
             if (!in.has_zoned_value()) {
+                if (canIgnoreNoData) {
+                    return NO_ERROR;
+                }
                 ALOGE("no zoned value");
                 return BAD_VALUE;
             }
             const ZonedValue& zonedValue = in.zoned_value();
             if (!zonedValue.has_float_value()) {
+                if (canIgnoreNoData) {
+                    return NO_ERROR;
+                }
                 ALOGE("no float in zoned value");
                 return BAD_VALUE;
             }
             out.value.zoned_float_value.zone = zonedValue.zone_or_window();
             out.value.zoned_float_value.value = zonedValue.float_value();
         } break;
-        default:
+        default: {
+            if (canIgnoreNoData) {
+                return NO_ERROR;
+            }
+            ALOGE("fromVehiclePropValue unknown type 0x%x", out.value_type);
             return BAD_VALUE;
+        }
     }
     return NO_ERROR;
 }
@@ -373,6 +423,48 @@ error:
     }
     out.clear();
     return r;
+}
+
+status_t VehiclePropValueBinderUtil::writeToParcel(Parcel& parcel,
+        const vehicle_prop_value_t& value) {
+    parcel.writeInt32(1); // 0 means no value. For compatibility with aidl based code.
+    std::unique_ptr<VehiclePropValue> v(new VehiclePropValue());
+    ASSERT_OR_HANDLE_NO_MEMORY(v.get(), return NO_MEMORY);
+    VehicleNetworkProtoUtil::toVehiclePropValue(value, *v.get());
+    int size = v->ByteSize();
+    WritableBlobHolder blob(new Parcel::WritableBlob());
+    ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
+    parcel.writeInt32(size);
+    parcel.writeBlob(size, false, blob.blob);
+    v->SerializeToArray(blob.blob->data(), size);
+    return NO_ERROR;
+}
+
+status_t VehiclePropValueBinderUtil::readFromParcel(const Parcel& parcel,
+        vehicle_prop_value_t* value, bool deleteMembers, bool canIgnoreNoData) {
+    if (parcel.readInt32() == 0) { // no result
+        ALOGE("readFromParcel, null data");
+        return BAD_VALUE;
+    }
+    ReadableBlobHolder blob(new Parcel::ReadableBlob());
+    ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
+    int32_t size = parcel.readInt32();
+    status_t status = parcel.readBlob(size, blob.blob);
+    if (status != NO_ERROR) {
+        ALOGE("readFromParcel, cannot read blob");
+        return status;
+    }
+    std::unique_ptr<VehiclePropValue> v(new VehiclePropValue());
+    ASSERT_OR_HANDLE_NO_MEMORY(v.get(), return NO_MEMORY);
+    if (!v->ParseFromArray(blob.blob->data(), size)) {
+        ALOGE("readFromParcel, cannot parse");
+        return BAD_VALUE;
+    }
+    if (deleteMembers) {
+        VehiclePropValueUtil::deleteMembers(value);
+    }
+    return VehicleNetworkProtoUtil::fromVehiclePropValue(*v.get(), *value, false /*inPlace*/,
+            canIgnoreNoData);
 }
 
 }; //namespace android

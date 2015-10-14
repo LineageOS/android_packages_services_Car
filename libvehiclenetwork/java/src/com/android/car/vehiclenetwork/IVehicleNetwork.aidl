@@ -30,7 +30,7 @@ interface IVehicleNetwork {
     VehiclePropConfigsParcelable listProperties(int property)                            = 0;
     /** For error case, exception will be thrown. */
     void setProperty(in VehiclePropValueParcelable value)                                = 1;
-    VehiclePropValueParcelable getProperty(int property)                                 = 2;
+    VehiclePropValueParcelable getProperty(in VehiclePropValueParcelable value)          = 2;
     /** For error case, exception will be thrown. */
     void subscribe(in IVehicleNetworkListener listener, int property, float sampleRate)  = 3;
     void unsubscribe(in IVehicleNetworkListener listener, int property)                  = 4;

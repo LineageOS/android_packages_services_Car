@@ -115,13 +115,13 @@ public class CarTestManager implements CarManagerBase {
         }
 
         @Override
-        public VehiclePropValueParcelable onPropertyGet(int property) {
+        public VehiclePropValueParcelable onPropertyGet(VehiclePropValueParcelable value) {
             CarTestManager testManager = mTestManager.get();
             if (testManager == null) {
                 return null;
             }
-            VehiclePropValue value = testManager.getHalMock().onPropertyGet(property);
-            return new VehiclePropValueParcelable(value);
+            VehiclePropValue retValue = testManager.getHalMock().onPropertyGet(value.value);
+            return new VehiclePropValueParcelable(retValue);
         }
 
         @Override

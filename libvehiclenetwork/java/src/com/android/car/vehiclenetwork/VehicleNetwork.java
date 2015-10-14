@@ -49,7 +49,7 @@ public class VehicleNetwork {
     public interface VehicleNetworkHalMock {
         VehiclePropConfigs onListProperties();
         void onPropertySet(VehiclePropValue value);
-        VehiclePropValue onPropertyGet(int property);
+        VehiclePropValue onPropertyGet(VehiclePropValue property);
         void onPropertySubscribe(int property, int sampleRate);
         void onPropertyUnsubscribe(int property);
     }
@@ -135,10 +135,17 @@ public class VehicleNetwork {
     }
 
     public VehiclePropValue getProperty(int property) {
+        int valueType = VehicleNetworkConsts.getVehicleValueType(property);
+        VehiclePropValue value = VehiclePropValueUtil.createBuilder(property, valueType, 0).build();
+        return getProperty(value);
+    }
+
+    public VehiclePropValue getProperty(VehiclePropValue value) {
+        VehiclePropValueParcelable parcelable = new VehiclePropValueParcelable(value);
         try {
-            VehiclePropValueParcelable parcelable = mService.getProperty(property);
-            if (parcelable != null) {
-                return parcelable.value;
+            VehiclePropValueParcelable resParcelable = mService.getProperty(parcelable);
+            if (resParcelable != null) {
+                return resParcelable.value;
             }
         } catch (RemoteException e) {
             handleRemoteException(e);
@@ -406,13 +413,13 @@ public class VehicleNetwork {
         }
 
         @Override
-        public VehiclePropValueParcelable onPropertyGet(int property) {
+        public VehiclePropValueParcelable onPropertyGet(VehiclePropValueParcelable value) {
             VehicleNetwork vehicleNetwork = mVehicleNetwork.get();
             if (vehicleNetwork == null) {
                 return null;
             }
-            VehiclePropValue value = vehicleNetwork.getHalMock().onPropertyGet(property);
-            return new VehiclePropValueParcelable(value);
+            VehiclePropValue resValue = vehicleNetwork.getHalMock().onPropertyGet(value.value);
+            return new VehiclePropValueParcelable(resValue);
         }
 
         @Override
