@@ -17,15 +17,14 @@
 package android.support.car.app;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionListener;
-import android.util.Log;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import com.android.internal.annotations.GuardedBy;
@@ -39,41 +38,9 @@ import java.util.LinkedList;
  * {@link android.app.Activity} overriding only constructor.
  */
 public class CarProxyActivity extends Activity {
-
     private final Class mCarActivityClass;
     // no synchronization, but main thread only
-    private Car mCarApi;
-    // no synchronization, but main thread only
     private CarActivity mCarActivity;
-    @GuardedBy("this")
-    private boolean mConnected = false;
-    @GuardedBy("this")
-    private final LinkedList<Pair<Integer, Object>> mCmds = new LinkedList<Pair<Integer, Object>>();
-    private final ServiceConnectionListener mConnectionListener= new ServiceConnectionListener() {
-
-        @Override
-        public void onServiceSuspended(int cause) {
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-        }
-
-        @Override
-        public void onServiceConnectionFailed(int cause) {
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            synchronized (this) {
-                mConnected = true;
-                for (Pair<Integer, Object> cmd: mCmds) {
-                    mCarActivity.dispatchCmd(cmd.first, cmd.second);
-                }
-                mCmds.clear();
-            }
-        }
-    };
 
     private final CarActivity.Proxy mCarActivityProxy = new CarActivity.Proxy() {
         @Override
@@ -92,10 +59,19 @@ public class CarProxyActivity extends Activity {
         }
 
         @Override
+        public Resources getResources() {
+            return CarProxyActivity.this.getResources();
+        }
+
+        @Override
         public void finish() {
             CarProxyActivity.this.finish();
         }
 
+        @Override
+        public LayoutInflater getLayoutInflater() {
+            return CarProxyActivity.this.getLayoutInflater();
+        }
     };
 
     public CarProxyActivity(Class carActivityClass) {
@@ -103,18 +79,15 @@ public class CarProxyActivity extends Activity {
     }
 
     private void createCarActivity() {
-        mCarApi = new Car(this, mConnectionListener, null);
-        mCarApi.connect();
         Constructor<?> ctor;
         try {
-            ctor = mCarActivityClass.getDeclaredConstructor(CarActivity.Proxy.class, Context.class,
-                    Car.class);
+            ctor = mCarActivityClass.getDeclaredConstructor(CarActivity.Proxy.class, Context.class);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Cannot construct given CarActivity, no constructor for " +
                     mCarActivityClass.getName(), e);
         }
         try {
-            mCarActivity = (CarActivity) ctor.newInstance(mCarActivityProxy, this, mCarApi);
+            mCarActivity = (CarActivity) ctor.newInstance(mCarActivityProxy, this);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new RuntimeException("Cannot construct given CarActivity, constructor failed for "
@@ -122,69 +95,63 @@ public class CarProxyActivity extends Activity {
         }
     }
 
-    private synchronized boolean isConnected() {
-        return mConnected;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         createCarActivity();
         super.onCreate(savedInstanceState);
-        handleCmd(CarActivity.CMD_ON_CREATE, savedInstanceState);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_CREATE, savedInstanceState);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        handleCmd(CarActivity.CMD_ON_START, null);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_START, null);
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        handleCmd(CarActivity.CMD_ON_RESTART, null);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_RESTART, null);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        handleCmd(CarActivity.CMD_ON_RESUME, null);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_RESUME, null);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        handleCmd(CarActivity.CMD_ON_PAUSE, null);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_PAUSE, null);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        handleCmd(CarActivity.CMD_ON_STOP, null);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_STOP, null);
+    }
+
+    @Override
+    public void onBackPressed() {
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_BACK_PRESSED, null);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (!isConnected()) {
-            // not connected yet, so even onCreate was not called. Do not pass to CarActivity.
-            mCarApi.disconnect();
-            return;
-        }
-        handleCmd(CarActivity.CMD_ON_DESTROY, null);
-        // disconnect last so that car api is valid in onDestroy call.
-        mCarApi.disconnect();
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_DESTROY, null);
     }
 
-    private void handleCmd(int cmd, Object arg0) {
-        if (isConnected()) {
-            mCarActivity.dispatchCmd(cmd, arg0);
-        } else {
-            // not connected yet. queue it and return.
-            Pair<Integer, Object> cmdToQ = new Pair<Integer, Object>(Integer.valueOf(cmd), arg0);
-            synchronized (this) {
-                mCmds.add(cmdToQ);
-            }
-        }
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_SAVE_INSTANCE_STATE, outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedState) {
+        super.onRestoreInstanceState(savedState);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_RESTORE_INSTANCE_STATE, savedState);
     }
 }
