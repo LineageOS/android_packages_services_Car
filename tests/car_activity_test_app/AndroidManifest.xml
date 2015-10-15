@@ -17,15 +17,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
         package="com.android.support.car.test.caractivitytest" >
+    <uses-sdk
+        android:minSdkVersion="22"
+        android:targetSdkVersion='23'/>
 	<uses-permission android:name="android.support.car.permission.CAR_SPEED" />
     <application android:label="CarActivityTest"
         android:icon="@drawable/ic_launcher">
-		<activity android:name=".HelloCarProxyActivity"
-		          android:label="HelloCarActivity">
-		    <intent-filter>
+        <activity android:name=".HelloCarProxyActivity"
+            android:theme="@android:style/Theme.Holo.NoActionBar.TranslucentDecor"
+            android:label="HelloCarActivity">
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-		</activity>
+        </activity>
     </application>
 </manifest>

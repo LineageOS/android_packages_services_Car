@@ -2,36 +2,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="100dp"
     android:orientation="vertical" >
     <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/button1" />
+        android:gravity="center"
+        android:textSize="30dp"
+        android:text="@string/app_title" />
     <TextView
         android:id="@+id/textView_dring_status"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:layout_height="wrap_content" />
     <TextView
         android:id="@+id/textView_gear"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:layout_height="wrap_content" />
     <TextView
         android:id="@+id/textView_speed"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:layout_height="wrap_content" />
     <TextView
         android:id="@+id/textView_parking_brake"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:layout_height="wrap_content" />
 </LinearLayout>

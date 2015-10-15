@@ -20,6 +20,8 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+
 LOCAL_PACKAGE_NAME := CarActivityTestApp
 
 LOCAL_MODULE_TAGS := tests
