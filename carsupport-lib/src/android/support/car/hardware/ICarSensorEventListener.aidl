@@ -14,6 +14,15 @@
  * limitations under the License.
  */
 
-package android.support.car;
+package android.support.car.hardware;
 
-parcelable CarSensorEvent;
+import android.support.car.hardware.CarSensorEvent;
+
+/**
+ * Binder callback for CarSensorEventListener.
+ * This is generated per each CarClient.
+ * @hide
+ */
+oneway interface ICarSensorEventListener {
+    void onSensorChanged(in List<CarSensorEvent> events) = 0;
+}

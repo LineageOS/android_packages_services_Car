@@ -19,6 +19,8 @@ package android.support.car;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.Looper;
+import android.support.car.hardware.CarSensorManager;
+import android.support.car.hardware.ICarSensor;
 
 /**
  * CarServiceLoader is the abstraction for loading different types of car service.

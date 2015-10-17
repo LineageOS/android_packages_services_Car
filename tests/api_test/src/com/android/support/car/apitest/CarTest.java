@@ -20,7 +20,7 @@ import android.content.ComponentName;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.car.Car;
-import android.support.car.CarSensorManager;
+import android.support.car.hardware.CarSensorManager;
 import android.support.car.ServiceConnectionListener;
 import android.test.AndroidTestCase;
 

@@ -16,8 +16,8 @@
 
 package com.android.car.hal;
 
-import android.support.car.CarSensorEvent;
-import android.support.car.CarSensorManager;
+import android.support.car.hardware.CarSensorEvent;
+import android.support.car.hardware.CarSensorManager;
 import android.util.Log;
 import android.util.SparseArray;
 

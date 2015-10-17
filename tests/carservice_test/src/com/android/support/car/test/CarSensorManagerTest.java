@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.support.car.apitest;
+package com.android.support.car.test;
 
 import android.content.ComponentName;
 import android.os.IBinder;
@@ -28,7 +28,7 @@ import android.test.AndroidTestCase;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-
+/** TODO change to mocking
 public class CarSensorManagerTest extends AndroidTestCase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
 
@@ -103,4 +103,4 @@ public class CarSensorManagerTest extends AndroidTestCase {
                 CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
         assertNotNull(lastEvent);
     }
-}
+}*/

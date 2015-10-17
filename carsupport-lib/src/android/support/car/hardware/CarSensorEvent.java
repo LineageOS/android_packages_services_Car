@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.car;
+package android.support.car.hardware;
 
 import android.location.GpsSatellite;
 import android.location.Location;

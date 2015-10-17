@@ -19,9 +19,9 @@ package com.android.car;
 import android.content.Context;
 import android.os.SystemClock;
 import android.support.car.Car;
-import android.support.car.CarSensorEvent;
-import android.support.car.CarSensorManager;
-import android.support.car.ICarSensorEventListener;
+import android.support.car.hardware.CarSensorEvent;
+import android.support.car.hardware.CarSensorManager;
+import android.support.car.hardware.ICarSensorEventListener;
 import android.util.Log;
 
 import com.android.car.hal.SensorHalServiceBase.SensorListener;

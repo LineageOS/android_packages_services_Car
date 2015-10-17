@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.car;
+package android.support.car.hardware;
 
 import android.Manifest;
 import android.annotation.RequiresPermission;
@@ -24,6 +24,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.Handler.Callback;
+import android.support.car.Car;
+import android.support.car.CarApiUtil;
+import android.support.car.CarLibLog;
+import android.support.car.CarManagerBase;
+import android.support.car.CarNotConnectedException;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
@@ -164,7 +169,7 @@ public class CarSensorManager implements CarManagerBase {
 
 
     /** @hide */
-    CarSensorManager(Context context, ICarSensor service, Looper looper) {
+    public CarSensorManager(Context context, ICarSensor service, Looper looper) {
         mService = service;
         mServiceVersion = getVersion();
         if (mServiceVersion < VERSION) {

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package android.support.car;
+package android.support.car.hardware;
 
-import android.support.car.CarSensorEvent;
-import android.support.car.ICarSensorEventListener;
+import android.support.car.hardware.CarSensorEvent;
+import android.support.car.hardware.ICarSensorEventListener;
 
 /** @hide */
 interface ICarSensor {
