@@ -15,11 +15,19 @@
  */
 package com.android.car.hal;
 
+import android.util.Log;
+
+import com.android.car.AudioRoutingPolicy;
+import com.android.car.CarLog;
+import com.android.car.vehiclenetwork.VehicleNetwork;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAppContextFlag;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusRequest;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusState;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioRoutingPolicyIndex;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioStreamState;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
+import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 
 import java.io.PrintWriter;
@@ -71,27 +79,91 @@ public class AudioHalService extends HalServiceBase {
 
     public interface AudioHalListener {
         void onFocusChange(int focusState, int streams);
-        void onVolumeChange(int volume, int streamNumber);
-        void onStreamStatusChange(int state, int streamNumber);
+        void onVolumeChange(int streamNumber, int volume, int volumeState);
+        void onStreamStatusChange(int streamNumber, int state);
     }
 
     private final VehicleHal mVehicleHal;
     private AudioHalListener mListener;
     private boolean mFocusSupported = false;
     private boolean mVolumeSupported = false;
+    private boolean mVolumeLimitSupported = false;
+    private int mVariant;
+
+    private List<VehiclePropValue> mQueuedEvents;
 
     public AudioHalService(VehicleHal vehicleHal) {
         mVehicleHal = vehicleHal;
     }
 
-    public synchronized void setListener(AudioHalListener listener) {
-        mListener = listener;
+    public void setListener(AudioHalListener listener) {
+        List<VehiclePropValue> eventsToDispatch = null;
+        synchronized (this) {
+            mListener = listener;
+            if (mQueuedEvents != null) {
+                eventsToDispatch = mQueuedEvents;
+                mQueuedEvents = null;
+            }
+        }
+        if (eventsToDispatch != null) {
+            dispatchEventToListener(listener, eventsToDispatch);
+        }
+    }
+
+    public void setAudioRoutingPolicy(AudioRoutingPolicy policy) {
+        VehicleNetwork vn = mVehicleHal.getVehicleNetwork();
+        VehiclePropConfigs configs = vn.listProperties(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_ROUTING_POLICY);
+        if (configs == null) {
+            Log.w(CarLog.TAG_AUDIO,
+                    "Vehicle HAL did not implement VEHICLE_PROPERTY_AUDIO_ROUTING_POLICY");
+            return;
+        }
+        int[] policyToSet = new int[2];
+        for (int i = 0; i < policy.getPhysicalStreamsCount(); i++) {
+            policyToSet[VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_STREAM] =
+                    i;
+            int streams = 0;
+            for (int logicalStream : policy.getLogicalStreamsForPhysicalStream(i)) {
+                streams |= logicalStreamToHalStreamType(logicalStream);
+            }
+            policyToSet[VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_CONTEXTS]
+                    = streams;
+            vn.setIntVectorProperty(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_ROUTING_POLICY,
+                    policyToSet);
+        }
+    }
+
+    private static int logicalStreamToHalStreamType(int logicalStream) {
+        switch (logicalStream) {
+            case AudioRoutingPolicy.STREAM_TYPE_CALL:
+                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_CALL_FLAG;
+            case AudioRoutingPolicy.STREAM_TYPE_MEDIA:
+                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_MUSIC_FLAG;
+            case AudioRoutingPolicy.STREAM_TYPE_NAV_GUIDANCE:
+                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_NAVIGATION_FLAG;
+            case AudioRoutingPolicy.STREAM_TYPE_VOICE_COMMAND:
+                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_VOICE_COMMAND_FLAG;
+            case AudioRoutingPolicy.STREAM_TYPE_ALARM:
+                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_ALARM_FLAG;
+            case AudioRoutingPolicy.STREAM_TYPE_NOTIFICATION:
+                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_NOTIFICATION_FLAG;
+            case AudioRoutingPolicy.STREAM_TYPE_UNKNOWN:
+                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_UNKNOWN_FLAG;
+            default:
+                Log.w(CarLog.TAG_AUDIO, "Unknown logical stream:" + logicalStream);
+                return 0;
+        }
     }
 
     public synchronized void requestAudioFocusChange(int request, int streams) {
         int[] payload = { request, streams };
         mVehicleHal.getVehicleNetwork().setIntVectorProperty(
                 VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, payload);
+    }
+
+    public synchronized int getHwVariant() {
+        return mVariant;
     }
 
     @Override
@@ -105,6 +177,17 @@ public class AudioHalService extends HalServiceBase {
         if (mVolumeSupported) {
             mVehicleHal.subscribeProperty(this, VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME,
                     0);
+            if (mVolumeLimitSupported) {
+                mVehicleHal.subscribeProperty(this,
+                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME_LIMIT, 0);
+            }
+        }
+        try {
+            mVariant = mVehicleHal.getVehicleNetwork().getIntProperty(
+                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT);
+        } catch (IllegalArgumentException e) {
+            // no variant. Set to default, 0.
+            mVariant = 0;
         }
     }
 
@@ -121,6 +204,11 @@ public class AudioHalService extends HalServiceBase {
             mVehicleHal.unsubscribeProperty(this,
                     VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME);
             mVolumeSupported = false;
+            if (mVolumeLimitSupported) {
+                mVehicleHal.unsubscribeProperty(this,
+                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME_LIMIT);
+                mVolumeLimitSupported = false;
+            }
         }
     }
 
@@ -138,6 +226,13 @@ public class AudioHalService extends HalServiceBase {
                     mVolumeSupported = true;
                     taken.add(p);
                     break;
+                case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME_LIMIT:
+                    mVolumeLimitSupported = true;
+                    taken.add(p);
+                    break;
+                case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT:
+                    taken.add(p);
+                    break;
                 case VehicleNetworkConsts.VEHICLE_PROPERTY_INTERNAL_AUDIO_STREAM_STATE:
                     taken.add(p);
                     break;
@@ -151,11 +246,19 @@ public class AudioHalService extends HalServiceBase {
         AudioHalListener listener = null;
         synchronized (this) {
             listener = mListener;
+            if (listener == null) {
+                if (mQueuedEvents == null) {
+                    mQueuedEvents = new LinkedList<VehiclePropValue>();
+                }
+                mQueuedEvents.addAll(values);
+            }
         }
-        if (listener == null) {
-            //TODO queue this?
-            return;
+        if (listener != null) {
+            dispatchEventToListener(listener, values);
         }
+    }
+
+    private void dispatchEventToListener(AudioHalListener listener, List<VehiclePropValue> values) {
         for (VehiclePropValue v : values) {
             switch (v.getProp()) {
                 case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS: {
@@ -166,12 +269,16 @@ public class AudioHalService extends HalServiceBase {
                 case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME: {
                     int volume = v.getInt32Values(0);
                     int streamNum = v.getInt32Values(1);
-                    listener.onVolumeChange(volume, streamNum);
+                    int volumeState = v.getInt32Values(2);
+                    listener.onVolumeChange(streamNum, volume, volumeState);
+                } break;
+                case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME_LIMIT: {
+                    //TODO
                 } break;
                 case VehicleNetworkConsts.VEHICLE_PROPERTY_INTERNAL_AUDIO_STREAM_STATE: {
                     int state = v.getInt32Values(0);
                     int streamNum = v.getInt32Values(1);
-                    listener.onStreamStatusChange(state, streamNum);
+                    listener.onStreamStatusChange(streamNum, state);
                 } break;
             }
         }
@@ -179,7 +286,8 @@ public class AudioHalService extends HalServiceBase {
 
     @Override
     public void dump(PrintWriter writer) {
-        writer.println("*Sensor HAL*");
+        writer.println("*Audio HAL*");
+        writer.println(" audio H/W variant:" + mVariant);
         writer.println(" focus supported:" + mFocusSupported +
                 " volume supported:" + mVolumeSupported);
     }

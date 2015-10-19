@@ -136,6 +136,11 @@ public class VehicleHalEmulator {
         }
     }
 
+    /**
+     * Inject given value to VNS which ultimately delivered as HAL event to clients.
+     * This can be used to emulate H/W side change.
+     * @param value
+     */
     public void injectEvent(VehiclePropValue value) {
         mCarTestManager.injectEvent(value);
     }

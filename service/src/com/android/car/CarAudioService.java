@@ -58,6 +58,7 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
     private int mLastFocusRequestStreams;
     @GuardedBy("mLock")
     private final AudioFocusInfo[] mFocusInfos = new AudioFocusInfo[FOCUS_STACK_DEPTH_TO_MONITOR];
+    private AudioRoutingPolicy mAudioRoutingPolicy;
 
     public CarAudioService(Context context) {
         mAudioHal = VehicleHal.getInstance().getAudioHal();
@@ -80,6 +81,9 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
             throw new RuntimeException("registerAudioPolicy failed " + r);
         }
         mAudioHal.setListener(this);
+        int audioHwVariant = mAudioHal.getHwVariant();
+        mAudioRoutingPolicy = AudioRoutingPolicy.create(mContext, audioHwVariant);
+        mAudioHal.setAudioRoutingPolicy(mAudioRoutingPolicy);
     }
 
     @Override
@@ -99,8 +103,8 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
     }
 
     @Override
-    public void onVolumeChange(int volume, int streamNumber) {
-        mHandler.handleVolumeChange(volume, streamNumber);
+    public void onVolumeChange(int streamNumber, int volume, int volumeState) {
+        mHandler.handleVolumeChange(new VolumeStateChangeEvent(streamNumber, volume, volumeState));
     }
 
     @Override
@@ -109,7 +113,11 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
     }
 
     private void doHandleCarFocusChange(int focusState, int streams) {
-        mAllowedStreams = streams;
+        boolean needsFocusUpdate = false;
+        synchronized (mLock) {
+            mCurrentFocusState = focusState;
+            mAllowedStreams = streams;
+        }
         switch (focusState) {
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN:
                 doHandleFocusGainFromCar();
@@ -156,11 +164,11 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
         //TODO
     }
 
-    private void doHandleVolumeChange(int volume, int streamNumber) {
+    private void doHandleVolumeChange(VolumeStateChangeEvent event) {
         //TODO
     }
 
-    private void doHandleStreamStatusChange(int state, int streamNumber) {
+    private void doHandleStreamStatusChange(int streamNumber, int state) {
         //TODO
     }
 
@@ -254,13 +262,13 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
             sendMessage(msg);
         }
 
-        private void handleStreamStateChange(int state, int streamNumber) {
-            Message msg = obtainMessage(MSG_STREAM_STATE_CHANGE, state, streamNumber);
+        private void handleStreamStateChange(int streamNumber, int state) {
+            Message msg = obtainMessage(MSG_STREAM_STATE_CHANGE, streamNumber, state);
             sendMessage(msg);
         }
 
-        private void handleVolumeChange(int volume, int streamNumber) {
-            Message msg = obtainMessage(MSG_VOLUME_CHANGE, volume, streamNumber);
+        private void handleVolumeChange(VolumeStateChangeEvent event) {
+            Message msg = obtainMessage(MSG_VOLUME_CHANGE, event);
             sendMessage(msg);
         }
 
@@ -274,9 +282,21 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
                     doHandleStreamStatusChange(msg.arg1, msg.arg2);
                     break;
                 case MSG_VOLUME_CHANGE:
-                    doHandleVolumeChange(msg.arg1, msg.arg2);
+                    doHandleVolumeChange((VolumeStateChangeEvent) msg.obj);
                     break;
             }
+        }
+    }
+
+    private static class VolumeStateChangeEvent {
+        public final int stream;
+        public final int volume;
+        public final int state;
+
+        public VolumeStateChangeEvent(int stream, int volume, int state) {
+            this.stream = stream;
+            this.volume = volume;
+            this.state = state;
         }
     }
 }

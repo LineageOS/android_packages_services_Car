@@ -65,6 +65,12 @@ public class VehicleNetwork {
     private VehicleNetworkHalMock mHalMock;
     private IVehicleNetworkHalMock mHalMockImpl;
 
+    /**
+     * Factory method to create VehicleNetwork
+     * @param listener listener for listening events
+     * @param looper Looper to dispatch listener events
+     * @return
+     */
     public static VehicleNetwork createVehicleNetwork(VehicleNetworkListener listener,
             Looper looper) {
         IVehicleNetwork service = IVehicleNetwork.Stub.asInterface(ServiceManager.getService(
@@ -84,10 +90,20 @@ public class VehicleNetwork {
         mVehicleNetworkListener = new IVehicleNetworkListenerImpl(this);
     }
 
+    /**
+     * List all properties from vehicle HAL
+     * @return all properties
+     */
     public VehiclePropConfigs listProperties() {
         return listProperties(0 /* all */);
     }
 
+    /**
+     * Return configuration information of single property
+     * @param property vehicle property number defined in {@link VehicleNetworkConsts}. 0 has
+     *        has special meaning of list all properties.
+     * @return null if given property does not exist.
+     */
     public VehiclePropConfigs listProperties(int property) {
         try {
             VehiclePropConfigsParcelable parcelable = mService.listProperties(property);
@@ -100,7 +116,13 @@ public class VehicleNetwork {
         return null;
     }
 
-    public void setProperty(VehiclePropValue value) {
+    /**
+     * Set property which will lead into writing the value to vehicle HAL.
+     * @param value
+     * @throws IllegalArgumentException If value set has wrong value like wrong valueType,
+     *         wrong data, and etc.
+     */
+    public void setProperty(VehiclePropValue value) throws IllegalArgumentException {
         VehiclePropValueParcelable parcelable = new VehiclePropValueParcelable(value);
         try {
             mService.setProperty(parcelable);
@@ -109,38 +131,82 @@ public class VehicleNetwork {
         }
     }
 
-    public void setIntProperty(int property, int value) {
+    /**
+     * Set integer type property
+     * @param property
+     * @param value
+     * @throws IllegalArgumentException For type mismatch (=the property is not int type)
+     */
+    public void setIntProperty(int property, int value) throws IllegalArgumentException {
         VehiclePropValue v = VehiclePropValueUtil.createIntValue(property, value, 0);
         setProperty(v);
     }
 
-    public void setIntVectorProperty(int property, int[] values) {
+    /**
+     * Set int vector type property. Length of passed values should match with vector length.
+     * @param property
+     * @param values
+     * @throws IllegalArgumentException
+     */
+    public void setIntVectorProperty(int property, int[] values) throws IllegalArgumentException {
         VehiclePropValue v = VehiclePropValueUtil.createIntVectorValue(property, values, 0);
         setProperty(v);
     }
 
-    public void setLongProperty(int property, long value) {
+    /**
+     * Set long type property.
+     * @param property
+     * @param value
+     * @throws IllegalArgumentException
+     */
+    public void setLongProperty(int property, long value) throws IllegalArgumentException {
         VehiclePropValue v = VehiclePropValueUtil.createLongValue(property, value, 0);
         setProperty(v);
     }
 
-    public void setFloatProperty(int property, float value) {
+    /**
+     * Set float type property.
+     * @param property
+     * @param value
+     * @throws IllegalArgumentException
+     */
+    public void setFloatProperty(int property, float value) throws IllegalArgumentException {
         VehiclePropValue v = VehiclePropValueUtil.createFloatValue(property, value, 0);
         setProperty(v);
     }
 
-    public void setFloatVectorProperty(int property, float[] values) {
+    /**
+     * Set float vector type property. Length of values should match with vector length.
+     * @param property
+     * @param values
+     * @throws IllegalArgumentException
+     */
+    public void setFloatVectorProperty(int property, float[] values)
+            throws IllegalArgumentException {
         VehiclePropValue v = VehiclePropValueUtil.createFloatVectorValue(property, values, 0);
         setProperty(v);
     }
 
-    public VehiclePropValue getProperty(int property) {
+    /**
+     * Get property. This can be used for a property which does not require any other data.
+     * @param property
+     * @return
+     * @throws IllegalArgumentException
+     */
+    public VehiclePropValue getProperty(int property) throws IllegalArgumentException {
         int valueType = VehicleNetworkConsts.getVehicleValueType(property);
         VehiclePropValue value = VehiclePropValueUtil.createBuilder(property, valueType, 0).build();
         return getProperty(value);
     }
 
-    public VehiclePropValue getProperty(VehiclePropValue value) {
+    /**
+     * Generic get method for any type of property. Some property may require setting data portion
+     * as get may return different result depending on the data set.
+     * @param value
+     * @return
+     * @throws IllegalArgumentException
+     */
+    public VehiclePropValue getProperty(VehiclePropValue value) throws IllegalArgumentException {
         VehiclePropValueParcelable parcelable = new VehiclePropValueParcelable(value);
         try {
             VehiclePropValueParcelable resParcelable = mService.getProperty(parcelable);
@@ -153,7 +219,13 @@ public class VehicleNetwork {
         return null;
     }
 
-    public int getIntProperty(int property) {
+    /**
+     * get int type property
+     * @param property
+     * @return
+     * @throws IllegalArgumentException
+     */
+    public int getIntProperty(int property) throws IllegalArgumentException {
         VehiclePropValue v = getProperty(property);
         if (v == null) {
             // if property is invalid, IllegalArgumentException should have been thrown
@@ -169,7 +241,13 @@ public class VehicleNetwork {
         return v.getInt32Values(0);
     }
 
-    public void getIntVectorProperty(int property, int[] values) {
+    /**
+     * get int vector type property. Length of values should match vector length.
+     * @param property
+     * @param values
+     * @throws IllegalArgumentException
+     */
+    public void getIntVectorProperty(int property, int[] values) throws IllegalArgumentException {
         VehiclePropValue v = getProperty(property);
         if (v == null) {
             // if property is invalid, IllegalArgumentException should have been thrown
@@ -196,7 +274,13 @@ public class VehicleNetwork {
         }
     }
 
-    public float getFloatProperty(int property) {
+    /**
+     * Get float type property.
+     * @param property
+     * @return
+     * @throws IllegalArgumentException
+     */
+    public float getFloatProperty(int property) throws IllegalArgumentException {
         VehiclePropValue v = getProperty(property);
         if (v == null) {
             throw new IllegalStateException();
@@ -210,7 +294,14 @@ public class VehicleNetwork {
         return v.getFloatValues(0);
     }
 
-    public void getFloatVectorProperty(int property, float[] values) {
+    /**
+     * Get float vector type property. Length of values should match vector's length.
+     * @param property
+     * @param values
+     * @throws IllegalArgumentException
+     */
+    public void getFloatVectorProperty(int property, float[] values)
+            throws IllegalArgumentException {
         VehiclePropValue v = getProperty(property);
         if (v == null) {
             // if property is invalid, IllegalArgumentException should have been thrown
@@ -237,7 +328,13 @@ public class VehicleNetwork {
         }
     }
 
-    public long getLongProperty(int property) {
+    /**
+     * Get long type property.
+     * @param property
+     * @return
+     * @throws IllegalArgumentException
+     */
+    public long getLongProperty(int property) throws IllegalArgumentException {
         VehiclePropValue v = getProperty(property);
         if (v == null) {
             throw new IllegalStateException();
@@ -248,8 +345,14 @@ public class VehicleNetwork {
         return v.getInt64Value();
     }
 
+    /**
+     * Get string type property.
+     * @param property
+     * @return
+     * @throws IllegalArgumentException
+     */
     //TODO check UTF8 to java string conversion
-    public String getStringProperty(int property) {
+    public String getStringProperty(int property) throws IllegalArgumentException {
         VehiclePropValue v = getProperty(property);
         if (v == null) {
             throw new IllegalStateException();
@@ -260,7 +363,13 @@ public class VehicleNetwork {
         return v.getStringValue();
     }
 
-    public void subscribe(int property, float sampleRate) {
+    /**
+     * Subscribe given property with given sample rate.
+     * @param property
+     * @param sampleRate
+     * @throws IllegalArgumentException
+     */
+    public void subscribe(int property, float sampleRate) throws IllegalArgumentException {
         try {
             mService.subscribe(mVehicleNetworkListener, property, sampleRate);
         } catch (RemoteException e) {
@@ -268,6 +377,10 @@ public class VehicleNetwork {
         }
     }
 
+    /**
+     * Stop subscribing the property.
+     * @param property
+     */
     public void unsubscribe(int property) {
         try {
             mService.unsubscribe(mVehicleNetworkListener, property);
@@ -276,6 +389,10 @@ public class VehicleNetwork {
         }
     }
 
+    /**
+     * Inject given value to all clients subscribing the property. This is for testing.
+     * @param value
+     */
     public synchronized void injectEvent(VehiclePropValue value) {
         try {
             mService.injectEvent(new VehiclePropValueParcelable(value));
@@ -284,6 +401,10 @@ public class VehicleNetwork {
         }
     }
 
+    /**
+     * Start mocking of vehicle HAL. For testing only.
+     * @param mock
+     */
     public synchronized void startMocking(VehicleNetworkHalMock mock) {
         mHalMock = mock;
         mHalMockImpl = new IVehicleNetworkHalMockImpl(this);
@@ -294,6 +415,9 @@ public class VehicleNetwork {
         }
     }
 
+    /**
+     * Stop mocking of vehicle HAL. For testing only.
+     */
     public synchronized void stopMocking() {
         try {
             mService.stopMocking(mHalMockImpl);
@@ -305,6 +429,10 @@ public class VehicleNetwork {
         }
     }
 
+    /**
+     * Start mocking of vehicle HAL. For testing only.
+     * @param mock
+     */
     public synchronized void startMocking(IVehicleNetworkHalMock mock) {
         mHalMock = null;
         mHalMockImpl = mock;
@@ -315,6 +443,9 @@ public class VehicleNetwork {
         }
     }
 
+    /**
+     * Stop mocking of vehicle HAL. For testing only.
+     */
     public synchronized void stopMocking(IVehicleNetworkHalMock mock) {
         if (mock.asBinder() != mHalMockImpl.asBinder()) {
             return;
