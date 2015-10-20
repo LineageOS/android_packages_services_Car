@@ -25,5 +25,10 @@
 
     <application android:label="CarApiTest">
         <uses-library android:name="android.test.runner" />
+        <activity android:name=".TestCarProxyActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

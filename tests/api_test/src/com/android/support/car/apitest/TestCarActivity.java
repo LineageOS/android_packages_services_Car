@@ -34,12 +34,12 @@ public class TestCarActivity extends CarActivity {
     public static volatile TestAction<TestCarActivity> sStopTestAction;
     public static volatile TestAction<TestCarActivity> sDestroyTestAction;
 
-    public TestCarActivity(CarActivity.Proxy proxy, Context context, Car carApi) {
-        super(proxy, context, carApi);
+    public TestCarActivity(CarActivity.Proxy proxy, Context context) {
+        super(proxy, context);
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) throws CarNotConnectedException {
+    protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         Log.d(TAG, "TestAction " + sCreateTestAction);
@@ -48,14 +48,14 @@ public class TestCarActivity extends CarActivity {
 
 
     @Override
-    protected void onStart() throws CarNotConnectedException {
+    protected void onStart() {
         Log.d(TAG, "onStart");
         super.onStart();
         doRunTest(sStartTestAction);
     }
 
     @Override
-    protected void onResume() throws CarNotConnectedException {
+    protected void onResume() {
         Log.d(TAG, "onResume");
         super.onResume();
         doRunTest(sResumeTestAction);
@@ -63,7 +63,7 @@ public class TestCarActivity extends CarActivity {
     }
 
     @Override
-    protected void onPause() throws CarNotConnectedException {
+    protected void onPause() {
         Log.d(TAG, "onPause");
         super.onPause();
         doRunTest(sPauseTestAction);
@@ -71,14 +71,14 @@ public class TestCarActivity extends CarActivity {
 
 
     @Override
-    protected void onStop() throws CarNotConnectedException {
+    protected void onStop() {
         Log.d(TAG, "onStop");
         super.onStop();
         doRunTest(sStopTestAction);
     }
 
     @Override
-    protected void onDestroy() throws CarNotConnectedException {
+    protected void onDestroy() {
         Log.d(TAG, "onDestroy");
         super.onDestroy();
         doRunTest(sDestroyTestAction);
