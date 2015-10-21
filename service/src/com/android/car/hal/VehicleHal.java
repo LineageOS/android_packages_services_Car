@@ -27,6 +27,9 @@ import android.util.SparseArray;
 import com.android.car.CarLog;
 import com.android.car.vehiclenetwork.VehicleNetwork;
 import com.android.car.vehiclenetwork.VehicleNetwork.VehicleNetworkListener;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
@@ -34,6 +37,7 @@ import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -206,6 +210,22 @@ public class VehicleHal implements VehicleNetworkListener {
 
     public VehicleNetwork getVehicleNetwork() {
         return mVehicleNetwork;
+    }
+
+    public static boolean isPropertySubscribable(VehiclePropConfig config) {
+        if (config.hasAccess() & VehiclePropAccess.VEHICLE_PROP_ACCESS_READ == 0 ||
+                config.getChangeMode() ==
+                VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_STATIC) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void dumpProperties(PrintWriter writer, Collection<VehiclePropConfig> configs) {
+        for (VehiclePropConfig config : configs) {
+            writer.println("property " +
+                    VehicleNetworkConsts.getVehiclePropertyName(config.getProp()));
+        }
     }
 
     private final ArraySet<HalServiceBase> mServicesToDispatch = new ArraySet<HalServiceBase>();

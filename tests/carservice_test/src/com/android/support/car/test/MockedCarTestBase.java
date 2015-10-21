@@ -21,7 +21,9 @@ import java.util.concurrent.TimeUnit;
 import com.android.car.VehicleHalEmulator;
 
 import android.content.ComponentName;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.support.car.Car;
 import android.support.car.ServiceConnectionListener;
 import android.test.AndroidTestCase;
@@ -40,6 +42,8 @@ public class MockedCarTestBase extends AndroidTestCase {
     private VehicleHalEmulator mVehicleHalEmulator;
 
     private final Semaphore mConnectionWait = new Semaphore(0);
+    private final Semaphore mWaitForMain = new Semaphore(0);
+    private final Handler mMainHalder = new Handler(Looper.getMainLooper());
 
     private final ServiceConnectionListener mConnectionListener = new ServiceConnectionListener() {
 
@@ -82,6 +86,21 @@ public class MockedCarTestBase extends AndroidTestCase {
 
     protected synchronized Car getCarApi() {
         return mCar;
+    }
+
+    protected void runOnMain(final Runnable r) {
+        mMainHalder.post(r);
+    }
+
+    protected void runOnMainSync(final Runnable r) throws Exception {
+        mMainHalder.post(new Runnable() {
+            @Override
+            public void run() {
+                r.run();
+                mWaitForMain.release();
+            }
+        });
+        mWaitForMain.acquire();
     }
 
     protected synchronized VehicleHalEmulator getVehicleHalEmulator() {

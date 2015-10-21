@@ -35,7 +35,8 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
 
     private static final long TIMEOUT_MS = 3000;
 
-    private VehicleHalPropertyHandler mAudioRoutingPolicyHandler = new VehicleHalPropertyHandler() {
+    private final VehicleHalPropertyHandler mAudioRoutingPolicyHandler =
+            new VehicleHalPropertyHandler() {
 
         @Override
         public void onPropertySet(VehiclePropValue value) {
@@ -123,7 +124,7 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
     }
 
     private void checkPolicy1() throws Exception {
-        // write should be twice.
+        // write happens twice.
         assertTrue(mWaitSemaphore.tryAcquire(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mWaitSemaphore.tryAcquire(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         VehiclePropValue v = mEvents.get(0);

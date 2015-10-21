@@ -16,6 +16,7 @@
 package com.android.car;
 
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
@@ -24,6 +25,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.support.car.media.CarAudioManager;
+import android.support.car.media.ICarAudio;
 import android.util.Log;
 
 import com.android.car.hal.AudioHalService;
@@ -32,51 +35,99 @@ import com.android.car.hal.VehicleHal;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
+import java.util.LinkedList;
 
 
-public class CarAudioService implements CarServiceBase, AudioHalListener {
+public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, AudioHalListener {
 
-    // support only two streams, default and media for now.
-    private static final int NUMBER_OF_STREAMS = 2;
+    private static final long FOCUS_RESPONSE_WAIT_TIMEOUT_MS = 500;
 
-    private static final int FOCUS_STACK_DEPTH_TO_MONITOR = 2;
+    private static final String TAG_FOCUS = CarLog.TAG_AUDIO + ".FOCUS";
+
+    private static final boolean DBG = true;
+
+    private static final int VERSION = 1;
 
     private final AudioHalService mAudioHal;
     private final Context mContext;
-    private final HandlerThread mHandlerThread;
-    private final CarAudioChangeHandler mHandler;
+    private final HandlerThread mFocusHandlerThread;
+    private final CarAudioFocusChangeHandler mFocusHandler;
+    private final CarAudioVolumeHandler mVolumeHandler;
     private final SystemFocusListener mSystemFocusListener;
     private AudioPolicy mAudioPolicy;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private int mCurrentFocusState;
+    private FocusState mCurrentFocusState = FocusState.STATE_LOSS;
+    /** Focus state received, but not handled yet. Once handled, this will be set to null. */
     @GuardedBy("mLock")
-    private int mAllowedStreams;
+    private FocusState mFocusReceived = null;
     @GuardedBy("mLock")
-    private int mLastFocusRequest;
+    private FocusRequest mLastFocusRequestToCar = null;
     @GuardedBy("mLock")
-    private int mLastFocusRequestStreams;
+    private LinkedList<AudioFocusInfo> mPendingFocusChanges = new LinkedList<>();
     @GuardedBy("mLock")
-    private final AudioFocusInfo[] mFocusInfos = new AudioFocusInfo[FOCUS_STACK_DEPTH_TO_MONITOR];
-    private AudioRoutingPolicy mAudioRoutingPolicy;
+    private AudioFocusInfo mTopFocusInfo = null;
 
-    public CarAudioService(Context context) {
+    private AudioRoutingPolicy mAudioRoutingPolicy;
+    private final AudioManager mAudioManager;
+    private final BottomAudioFocusListener mBottomAudioFocusHandler =
+            new BottomAudioFocusListener();
+    private final CarProxyAndroidFocusListener mCarProxyAudioFocusHandler =
+            new CarProxyAndroidFocusListener();
+    @GuardedBy("mLock")
+    private int mBottomFocusState;
+    @GuardedBy("mLock")
+    private boolean mRadioActive = false;
+    @GuardedBy("mLock")
+    private boolean mCallActive = false;
+
+    private final AppContextService mAppContextService;
+
+    private final AudioAttributes mAttributeBottom = (new AudioAttributes.Builder()).
+            setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN).
+            setUsage(AudioAttributes.USAGE_UNKNOWN).build();
+    private final AudioAttributes mAttributeCarExternal = (new AudioAttributes.Builder()).
+            setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN).
+            setUsage(AudioAttributes.USAGE_UNKNOWN).build();
+
+    public CarAudioService(Context context, AppContextService appContextService) {
         mAudioHal = VehicleHal.getInstance().getAudioHal();
         mContext = context;
-        mHandlerThread = new HandlerThread(CarLog.TAG_AUDIO);
+        mFocusHandlerThread = new HandlerThread(CarLog.TAG_AUDIO);
         mSystemFocusListener = new SystemFocusListener();
-        mHandlerThread.start();
-        AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
-        builder.setLooper(mHandlerThread.getLooper()).
-                setAudioPolicyFocusListener(mSystemFocusListener);
-        mAudioPolicy = builder.build();
-        mHandler = new CarAudioChangeHandler(mHandlerThread.getLooper());
+        mFocusHandlerThread.start();
+        mFocusHandler = new CarAudioFocusChangeHandler(mFocusHandlerThread.getLooper());
+        mVolumeHandler = new CarAudioVolumeHandler(Looper.getMainLooper());
+        mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        mAppContextService = appContextService;
+    }
+
+    @Override
+    public int getVersion() {
+        return VERSION;
     }
 
     @Override
     public void init() {
-        AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        int r = am.registerAudioPolicy(mAudioPolicy);
+        AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
+        builder.setLooper(Looper.getMainLooper());
+        boolean isFocusSuported = mAudioHal.isFocusSupported();
+        if (isFocusSuported) {
+            builder.setAudioPolicyFocusListener(mSystemFocusListener);
+        }
+        mAudioPolicy = builder.build();
+        if (isFocusSuported) {
+            int r = mAudioManager.requestAudioFocus(mBottomAudioFocusHandler, mAttributeBottom,
+                    AudioManager.AUDIOFOCUS_GAIN, AudioManager.AUDIOFOCUS_FLAG_DELAY_OK);
+            synchronized (mLock) {
+                if (r == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    mBottomFocusState = AudioManager.AUDIOFOCUS_GAIN;
+                } else {
+                    mBottomFocusState = AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
+                }
+            }
+        }
+        int r = mAudioManager.registerAudioPolicy(mAudioPolicy);
         if (r != 0) {
             throw new RuntimeException("registerAudioPolicy failed " + r);
         }
@@ -84,84 +135,198 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
         int audioHwVariant = mAudioHal.getHwVariant();
         mAudioRoutingPolicy = AudioRoutingPolicy.create(mContext, audioHwVariant);
         mAudioHal.setAudioRoutingPolicy(mAudioRoutingPolicy);
+        //TODO set routing policy with new AudioPolicy API. This will control which logical stream
+        //     goes to which physical stream.
     }
 
     @Override
     public void release() {
-        AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        am.unregisterAudioPolicyAsync(mAudioPolicy);
+        mAudioManager.unregisterAudioPolicyAsync(mAudioPolicy);
+        mAudioManager.abandonAudioFocus(mBottomAudioFocusHandler);
+        mAudioManager.abandonAudioFocus(mCarProxyAudioFocusHandler);
+        mFocusHandler.cancelAll();
+        synchronized (mLock) {
+            mCurrentFocusState = FocusState.STATE_LOSS;
+            mLastFocusRequestToCar = null;
+            mTopFocusInfo = null;
+            mPendingFocusChanges.clear();
+            mRadioActive = false;
+        }
     }
 
     @Override
     public void dump(PrintWriter writer) {
-        // TODO Auto-generated method stub
+        writer.println("*CarAudioService*");
+        writer.println(" mCurrentFocusState:" + mCurrentFocusState +
+                " mLastFocusRequestToCar:" + mLastFocusRequestToCar);
+        writer.println(" mCallActive:" + mCallActive + " mRadioActive:" + mRadioActive);
     }
 
     @Override
-    public void onFocusChange(int focusState, int streams) {
-        mHandler.handleFocusChange(focusState, streams);
+    public void onFocusChange(int focusState, int streams, int externalFocus) {
+        synchronized (mLock) {
+            mFocusReceived = FocusState.create(focusState, streams, externalFocus);
+            // wake up thread waiting for focus response.
+            mLock.notifyAll();
+        }
+        mFocusHandler.handleFocusChange();
     }
 
     @Override
     public void onVolumeChange(int streamNumber, int volume, int volumeState) {
-        mHandler.handleVolumeChange(new VolumeStateChangeEvent(streamNumber, volume, volumeState));
+        mVolumeHandler.handleVolumeChange(new VolumeStateChangeEvent(streamNumber, volume,
+                volumeState));
+    }
+
+    @Override
+    public void onVolumeLimitChange(int streamNumber, int volume) {
+        //TODO
     }
 
     @Override
     public void onStreamStatusChange(int state, int streamNumber) {
-        mHandler.handleStreamStateChange(state, streamNumber);
+        mFocusHandler.handleStreamStateChange(state, streamNumber);
     }
 
-    private void doHandleCarFocusChange(int focusState, int streams) {
-        boolean needsFocusUpdate = false;
+    private void doHandleCarFocusChange() {
+        int newFocusState = AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_INVALID;
+        FocusState currentState;
+        AudioFocusInfo topInfo;
         synchronized (mLock) {
-            mCurrentFocusState = focusState;
-            mAllowedStreams = streams;
+            if (mFocusReceived == null) {
+                // already handled
+                return;
+            }
+            if (mFocusReceived.equals(mCurrentFocusState)) {
+                // no change
+                mFocusReceived = null;
+                return;
+            }
+            if (DBG) {
+                Log.d(TAG_FOCUS, "focus change from car:" + mFocusReceived);
+            }
+            topInfo = mTopFocusInfo;
+            if (!mFocusReceived.equals(mCurrentFocusState.focusState)) {
+                newFocusState = mFocusReceived.focusState;
+            }
+            mCurrentFocusState = mFocusReceived;
+            currentState = mFocusReceived;
+            mFocusReceived = null;
+            if (mLastFocusRequestToCar != null &&
+                    (mLastFocusRequestToCar.focusRequest ==
+                        AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN ||
+                    mLastFocusRequestToCar.focusRequest ==
+                        AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT ||
+                    mLastFocusRequestToCar.focusRequest ==
+                        AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK) &&
+                    (mCurrentFocusState.streams & mLastFocusRequestToCar.streams) !=
+                    mLastFocusRequestToCar.streams) {
+                Log.w(TAG_FOCUS, "streams mismatch, requested:0x" + Integer.toHexString(
+                        mLastFocusRequestToCar.streams) + " got:0x" +
+                        Integer.toHexString(mCurrentFocusState.streams));
+                // treat it as focus loss as requested streams are not there.
+                newFocusState = AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS;
+            }
+            mLastFocusRequestToCar = null;
+            if (mRadioActive &&
+                    (mCurrentFocusState.externalFocus &
+                    AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG) == 0) {
+                // radio flag dropped
+                newFocusState = AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS;
+                mRadioActive = false;
+            }
         }
-        switch (focusState) {
+        switch (newFocusState) {
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN:
-                doHandleFocusGainFromCar();
+                doHandleFocusGainFromCar(currentState, topInfo);
                 break;
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN_TRANSIENT:
-                doHandleFocusGainTransientFromCar();
+                doHandleFocusGainTransientFromCar(currentState, topInfo);
                 break;
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS:
-                doHandleFocusLossFromCar();
+                doHandleFocusLossFromCar(currentState, topInfo);
                 break;
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT:
-                doHandleFocusLossTransientFromCar();
+                doHandleFocusLossTransientFromCar(currentState);
                 break;
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_CAN_DUCK:
-                doHandleFocusLossTransientCanDuckFromCar();
+                doHandleFocusLossTransientCanDuckFromCar(currentState);
                 break;
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_EXLCUSIVE:
-                doHandleFocusLossTransientExclusiveFromCar();
+                doHandleFocusLossTransientExclusiveFromCar(currentState);
                 break;
         }
     }
 
-    private void doHandleFocusGainFromCar() {
-        //TODO
+    private void doHandleFocusGainFromCar(FocusState currentState, AudioFocusInfo topInfo) {
+        if (isFocusFromCarServiceBottom(topInfo)) {
+            Log.w(TAG_FOCUS, "focus gain from car:" + currentState +
+                    " while bottom listener is top");
+            mFocusHandler.handleFocusReleaseRequest();
+        } else {
+            mAudioManager.abandonAudioFocus(mCarProxyAudioFocusHandler);
+        }
     }
 
-    private void doHandleFocusGainTransientFromCar() {
-        //TODO
+    private void doHandleFocusGainTransientFromCar(FocusState currentState,
+            AudioFocusInfo topInfo) {
+        if ((currentState.externalFocus &
+                (AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_PERMANENT_FLAG |
+                        AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_TRANSIENT_FLAG)) == 0) {
+            mAudioManager.abandonAudioFocus(mCarProxyAudioFocusHandler);
+        } else {
+            if (isFocusFromCarServiceBottom(topInfo) || isFocusFromCarProxy(topInfo)) {
+                Log.w(TAG_FOCUS, "focus gain transient from car:" + currentState +
+                        " while bottom listener or car proxy is top");
+                mFocusHandler.handleFocusReleaseRequest();
+            }
+        }
     }
 
-    private void doHandleFocusLossFromCar() {
-        //TODO
+    private void doHandleFocusLossFromCar(FocusState currentState, AudioFocusInfo topInfo) {
+        if (DBG) {
+            Log.d(TAG_FOCUS, "doHandleFocusLossFromCar current:" + currentState +
+                    " top:" + dumpAudioFocusInfo(topInfo));
+        }
+        boolean shouldRequestProxyFocus = false;
+        if ((currentState.externalFocus &
+                AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_PERMANENT_FLAG) != 0) {
+            shouldRequestProxyFocus = true;
+        }
+        if (isFocusFromCarProxy(topInfo)) {
+            if ((currentState.externalFocus &
+                    (AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_PERMANENT_FLAG |
+                            AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_TRANSIENT_FLAG)) == 0) {
+                // CarProcy in top, but no external focus: Drop it so that some other app
+                // may pick up focus.
+                mAudioManager.abandonAudioFocus(mCarProxyAudioFocusHandler);
+                return;
+            }
+        } else if (!isFocusFromCarServiceBottom(topInfo)) {
+            shouldRequestProxyFocus = true;
+        }
+        if (shouldRequestProxyFocus) {
+            requestCarProxyFocus(AudioManager.AUDIOFOCUS_GAIN, 0);
+        }
     }
 
-    private void doHandleFocusLossTransientFromCar() {
-        //TODO
+    private void doHandleFocusLossTransientFromCar(FocusState currentState) {
+        requestCarProxyFocus(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, 0);
     }
 
-    private void doHandleFocusLossTransientCanDuckFromCar() {
-        //TODO
+    private void doHandleFocusLossTransientCanDuckFromCar(FocusState currentState) {
+        requestCarProxyFocus(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
     }
 
-    private void doHandleFocusLossTransientExclusiveFromCar() {
-        //TODO
+    private void doHandleFocusLossTransientExclusiveFromCar(FocusState currentState) {
+        requestCarProxyFocus(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT,
+                AudioManager.AUDIOFOCUS_FLAG_LOCK);
+    }
+
+    private void requestCarProxyFocus(int androidFocus, int flags) {
+        mAudioManager.requestAudioFocus(mCarProxyAudioFocusHandler, mAttributeCarExternal,
+                androidFocus,
+                flags);
     }
 
     private void doHandleVolumeChange(VolumeStateChangeEvent event) {
@@ -172,99 +337,449 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
         //TODO
     }
 
-    private void lockSystemAudioFocus() {
-        //TODO use AUDIOFOCUS_FLAG_LOCK
-    }
-
-    private void unlockSystemAudioFocus() {
-        //TODO
-    }
-
-    private void sendCarAudioFocusRequestIfNecessary() {
-        //TODO
-    }
-
-    private void doHandleSystemAudioFocusGrant(AudioFocusInfo afi, int requestResult) {
-        //TODO distinguish car service's own focus request from others
-        if (requestResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            mFocusInfos[0] = afi;
-            sendCarAudioFocusRequestIfNecessary();
+    private boolean isFocusFromCarServiceBottom(AudioFocusInfo info) {
+        if (info == null) {
+            return false;
         }
+        AudioAttributes attrib = info.getAttributes();
+        if (info.getPackageName().equals(mContext.getPackageName()) &&
+                info.getClientId().contains(BottomAudioFocusListener.class.getName()) &&
+                attrib != null &&
+                attrib.getContentType() == mAttributeBottom.getContentType() &&
+                attrib.getUsage() == mAttributeBottom.getUsage()) {
+            return true;
+        }
+        return false;
     }
 
-    private void doHandleSystemAudioFocusLoss(AudioFocusInfo afi, boolean wasNotified) {
-        if (!wasNotified) {
-            // app released focus by itself. Remove from stack if it is there.
-            boolean mayNeedsFocusChange = false;
-            for (int i = 0; i < mFocusInfos.length; i++) {
-                AudioFocusInfo info = mFocusInfos[i];
-                if (info == null) {
-                    continue;
+    private boolean isFocusFromCarProxy(AudioFocusInfo info) {
+        if (info == null) {
+            return false;
+        }
+        AudioAttributes attrib = info.getAttributes();
+        if (info.getPackageName().equals(mContext.getPackageName()) &&
+                info.getClientId().contains(CarProxyAndroidFocusListener.class.getName()) &&
+                attrib != null &&
+                attrib.getContentType() == mAttributeCarExternal.getContentType() &&
+                attrib.getUsage() == mAttributeCarExternal.getUsage()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isFocusFromRadio(AudioFocusInfo info) {
+        if (!mAudioHal.isRadioExternal()) {
+            // if radio is not external, no special handling of radio is necessary.
+            return false;
+        }
+        if (info == null) {
+            return false;
+        }
+        AudioAttributes attrib = info.getAttributes();
+        //TODO remove content type check?
+        if (attrib != null &&
+                attrib.getContentType() == AudioAttributes.CONTENT_TYPE_MUSIC &&
+                attrib.getUsage() == CarAudioManager.AUDIO_ATTRIBUTES_USAGE_RADIO) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Re-evaluate current focus state and send focus request to car if new focus was requested.
+     * @return true if focus change was requested to car.
+     */
+    private boolean reevaluateCarAudioFocusLocked() {
+        if (mTopFocusInfo == null) {
+            // should not happen
+            Log.w(TAG_FOCUS, "reevaluateCarAudioFocusLocked, top focus info null");
+            return false;
+        }
+        if (mTopFocusInfo.getLossReceived() != 0) {
+            // top one got loss. This should not happen.
+            Log.e(TAG_FOCUS, "Top focus holder got loss " +  dumpAudioFocusInfo(mTopFocusInfo));
+            return false;
+        }
+        if (isFocusFromCarServiceBottom(mTopFocusInfo) || isFocusFromCarProxy(mTopFocusInfo)) {
+            switch (mCurrentFocusState.focusState) {
+                case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN:
+                case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN_TRANSIENT:
+                    // should not have focus. So enqueue release
+                    mFocusHandler.handleFocusReleaseRequest();
+                    break;
+                case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS:
+                    doHandleFocusLossFromCar(mCurrentFocusState, mTopFocusInfo);
+                    break;
+                case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT:
+                    doHandleFocusLossTransientFromCar(mCurrentFocusState);
+                    break;
+                case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_CAN_DUCK:
+                    doHandleFocusLossTransientCanDuckFromCar(mCurrentFocusState);
+                    break;
+                case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_EXLCUSIVE:
+                    doHandleFocusLossTransientExclusiveFromCar(mCurrentFocusState);
+                    break;
+            }
+            if (mRadioActive) { // radio is no longer active.
+                mRadioActive = false;
+            }
+            return false;
+        }
+        mFocusHandler.cancelFocusReleaseRequest();
+        AudioAttributes attrib = mTopFocusInfo.getAttributes();
+        int logicalStreamTypeForTop = mAudioRoutingPolicy.getLogicalStreamFromAudioAttributes(
+                attrib);
+        int physicalStreamTypeForTop = mAudioRoutingPolicy.getPhysicalStreamForLogicalStream(
+                logicalStreamTypeForTop);
+        if (logicalStreamTypeForTop == AudioRoutingPolicy.STREAM_TYPE_CALL) {
+            if (!mCallActive) {
+                mCallActive = true;
+                mAppContextService.handleCallStateChange(mCallActive);
+            }
+        } else {
+            if (mCallActive) {
+                mCallActive = false;
+                mAppContextService.handleCallStateChange(mCallActive);
+            }
+        }
+        // other apps having focus
+        int focusToRequest = AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE;
+        int extFocus = AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG;
+        int streamsToRequest = 0x1 << physicalStreamTypeForTop;
+        switch (mTopFocusInfo.getGainRequest()) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                if (isFocusFromRadio(mTopFocusInfo)) {
+                    mRadioActive = true;
+                } else {
+                    mRadioActive = false;
                 }
-                if (info.getClientId().equals(afi.getClientId())) {
-                    if (i == 0) { // this is top component releasing focus
-                        // clear bottom one as well. This can lead into sending focus request
-                        // if there is a focus holder other than this one.
-                        // But that cannot be distinguished. So release it now, and request
-                        // again if necessary.
-                        mFocusInfos[1] = null;
+                focusToRequest = AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN;
+                break;
+            case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT:
+            case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE:
+                // radio cannot be active
+                mRadioActive = false;
+                focusToRequest = AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT;
+                break;
+            case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
+                focusToRequest =
+                    AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK;
+                switch (mCurrentFocusState.focusState) {
+                    case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN:
+                        streamsToRequest |= mCurrentFocusState.streams;
+                        focusToRequest = AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN;
                         break;
-                    }
-                    mFocusInfos[i] = null;
-                    mayNeedsFocusChange = true;
+                    case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN_TRANSIENT:
+                        streamsToRequest |= mCurrentFocusState.streams;
+                        //TODO is there a need to change this to GAIN_TRANSIENT?
+                        break;
+                    case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS:
+                    case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT:
+                    case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_CAN_DUCK:
+                        break;
+                    case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_EXLCUSIVE:
+                        doHandleFocusLossTransientExclusiveFromCar(mCurrentFocusState);
+                        return false;
+                }
+                break;
+            default:
+                streamsToRequest = 0;
+                break;
+        }
+        if (mRadioActive) {
+            extFocus = AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG;
+            // TODO any need to keep media stream while radio is active?
+            //     Most cars do not allow that, but if mixing is possible, it can take media stream.
+            //     For now, assume no mixing capability.
+            int radioPhysicalStream = mAudioRoutingPolicy.getPhysicalStreamForLogicalStream(
+                    AudioRoutingPolicy.STREAM_TYPE_MEDIA);
+            streamsToRequest &= ~(0x1 << radioPhysicalStream);
+        } else if (streamsToRequest == 0) {
+            mFocusHandler.handleFocusReleaseRequest();
+            return false;
+        }
+        return sendFocusRequestToCarIfNecessaryLocked(focusToRequest, streamsToRequest, extFocus);
+    }
+
+    private boolean sendFocusRequestToCarIfNecessaryLocked(int focusToRequest,
+            int streamsToRequest, int extFocus) {
+        if (needsToSendFocusRequestLocked(focusToRequest, streamsToRequest, extFocus)) {
+            mLastFocusRequestToCar = FocusRequest.create(focusToRequest, streamsToRequest,
+                    extFocus);
+            if (DBG) {
+                Log.d(TAG_FOCUS, "focus request to car:" + mLastFocusRequestToCar);
+            }
+            mAudioHal.requestAudioFocusChange(focusToRequest, streamsToRequest, extFocus);
+            try {
+                mLock.wait(FOCUS_RESPONSE_WAIT_TIMEOUT_MS);
+            } catch (InterruptedException e) {
+                //ignore
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private boolean needsToSendFocusRequestLocked(int focusToRequest, int streamsToRequest,
+            int extFocus) {
+        if (streamsToRequest != mCurrentFocusState.streams) {
+            return true;
+        }
+        if ((extFocus & mCurrentFocusState.externalFocus) != extFocus) {
+            return true;
+        }
+        switch (focusToRequest) {
+            case AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN:
+                if (mCurrentFocusState.focusState ==
+                    AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN) {
+                    return false;
+                }
+                break;
+            case AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT:
+            case AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK:
+                if (mCurrentFocusState.focusState ==
+                        AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN ||
+                    mCurrentFocusState.focusState ==
+                        AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN_TRANSIENT) {
+                    return false;
+                }
+                break;
+            case AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE:
+                if (mCurrentFocusState.focusState ==
+                        AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS ||
+                        mCurrentFocusState.focusState ==
+                        AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_EXLCUSIVE) {
+                    return false;
+                }
+                break;
+        }
+        return true;
+    }
+
+    private void doHandleAndroidFocusChange() {
+        boolean focusRequested = false;
+        synchronized (mLock) {
+            if (mPendingFocusChanges.isEmpty()) {
+                // no entry. It was handled already.
+                if (DBG) {
+                    Log.d(TAG_FOCUS, "doHandleAndroidFocusChange, mPendingFocusChanges empty");
+                }
+                return;
+            }
+            AudioFocusInfo newTopInfo = mPendingFocusChanges.getFirst();
+            mPendingFocusChanges.clear();
+            if (mTopFocusInfo != null &&
+                    newTopInfo.getClientId().equals(mTopFocusInfo.getClientId()) &&
+                    newTopInfo.getGainRequest() == mTopFocusInfo.getGainRequest() &&
+                    isAudioAttributesSame(
+                            newTopInfo.getAttributes(), mTopFocusInfo.getAttributes())) {
+                if (DBG) {
+                    Log.d(TAG_FOCUS, "doHandleAndroidFocusChange, no change in top state:" +
+                            dumpAudioFocusInfo(mTopFocusInfo));
+                }
+                // already in top somehow, no need to make any change
+                return;
+            }
+            if (DBG) {
+                Log.d(TAG_FOCUS, "top focus changed to:" + dumpAudioFocusInfo(newTopInfo));
+            }
+            mTopFocusInfo = newTopInfo;
+            focusRequested = reevaluateCarAudioFocusLocked();
+            if (DBG) {
+                if (!focusRequested) {
+                    Log.i(TAG_FOCUS, "focus not requested for top focus:" +
+                            dumpAudioFocusInfo(newTopInfo) + " currentState:" + mCurrentFocusState);
                 }
             }
-            if (mayNeedsFocusChange) {
-                sendCarAudioFocusRequestIfNecessary();
+            if (focusRequested && mFocusReceived == null) {
+                Log.w(TAG_FOCUS, "focus response timed out, request sent" +
+                        mLastFocusRequestToCar);
+                // no response. so reset to loss.
+                mFocusReceived = FocusState.STATE_LOSS;
             }
-        } else { // there will be a separate grant soon
-            mFocusInfos[1] = afi;
         }
+        // handle it if there was response or force handle it for timeout.
+        if (focusRequested) {
+            doHandleCarFocusChange();
+        }
+    }
+
+    private void doHandleFocusRelease() {
+        //TODO Is there a need to wait for the stopping of streams?
+        boolean sent = false;
+        synchronized (mLock) {
+            if (mCurrentFocusState != FocusState.STATE_LOSS) {
+                if (DBG) {
+                    Log.d(TAG_FOCUS, "focus release to car");
+                }
+                mLastFocusRequestToCar = FocusRequest.STATE_RELEASE;
+                sent = true;
+                mAudioHal.requestAudioFocusChange(
+                        AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, 0);
+                try {
+                    mLock.wait(FOCUS_RESPONSE_WAIT_TIMEOUT_MS);
+                } catch (InterruptedException e) {
+                    //ignore
+                }
+            } else if (DBG) {
+                Log.d(TAG_FOCUS, "doHandleFocusRelease: do not send, already loss");
+            }
+        }
+        // handle it if there was response.
+        if (sent) {
+            doHandleCarFocusChange();
+        }
+    }
+
+    private static boolean isAudioAttributesSame(AudioAttributes one, AudioAttributes two) {
+        if (one.getContentType() != two.getContentType()) {
+            return false;
+        }
+        if (one.getUsage() != two.getUsage()) {
+            return false;
+        }
+        return true;
+    }
+
+    private static String dumpAudioFocusInfo(AudioFocusInfo info) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("afi package:" + info.getPackageName());
+        builder.append("client id:" + info.getClientId());
+        builder.append(",gain:" + info.getGainRequest());
+        builder.append(",loss:" + info.getLossReceived());
+        builder.append(",flag:" + info.getFlags());
+        AudioAttributes attrib = info.getAttributes();
+        if (attrib != null) {
+            builder.append("," + attrib.toString());
+        }
+        return builder.toString();
     }
 
     private class SystemFocusListener extends AudioPolicyFocusListener {
         @Override
         public void onAudioFocusGrant(AudioFocusInfo afi, int requestResult) {
-            Log.i(CarLog.TAG_AUDIO, "onAudioFocusGrant " + afi + " result:" + requestResult +
-                    " clientId:" + afi.getClientId() + " loss received:" + afi.getLossReceived());
-            doHandleSystemAudioFocusGrant(afi, requestResult);
+            if (afi == null) {
+                return;
+            }
+            if (DBG) {
+                Log.d(TAG_FOCUS, "onAudioFocusGrant " + dumpAudioFocusInfo(afi) +
+                        " result:" + requestResult);
+            }
+            if (requestResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                synchronized (mLock) {
+                    mPendingFocusChanges.addFirst(afi);
+                }
+                mFocusHandler.handleAndroidFocusChange();
+            }
         }
 
         @Override
         public void onAudioFocusLoss(AudioFocusInfo afi, boolean wasNotified) {
-            Log.i(CarLog.TAG_AUDIO, "onAudioFocusLoss " + afi + " notified:" + wasNotified +
-                    " clientId:" + afi.getClientId() + " loss received:" + afi.getLossReceived());
-            doHandleSystemAudioFocusLoss(afi, wasNotified);
+            if (DBG) {
+                Log.d(TAG_FOCUS, "onAudioFocusLoss " + dumpAudioFocusInfo(afi) +
+                        " notified:" + wasNotified);
+            }
+            // ignore loss as tracking gain is enough. At least bottom listener will be
+            // always there and getting focus grant. So it is safe to ignore this here.
         }
     }
 
     /**
-     * Focus listener to take focus away from android apps.
+     * Focus listener to take focus away from android apps as a proxy to car.
      */
-    private class AndroidFocusListener implements AudioManager.OnAudioFocusChangeListener {
+    private class CarProxyAndroidFocusListener implements AudioManager.OnAudioFocusChangeListener {
         @Override
         public void onAudioFocusChange(int focusChange) {
-            // nothing to do as system focus listener will get all necessary information.
+            // Do not need to handle car's focus loss or gain separately. Focus monitoring
+            // through system focus listener will take care all cases.
         }
     }
 
-    private class CarAudioChangeHandler extends Handler {
+    /**
+     * Focus listener kept at the bottom to check if there is any focus holder.
+     *
+     */
+    private class BottomAudioFocusListener implements AudioManager.OnAudioFocusChangeListener {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            synchronized (mLock) {
+                mBottomFocusState = focusChange;
+            }
+        }
+    }
+
+    private class CarAudioFocusChangeHandler extends Handler {
         private static final int MSG_FOCUS_CHANGE = 0;
         private static final int MSG_STREAM_STATE_CHANGE = 1;
-        private static final int MSG_VOLUME_CHANGE = 2;
+        private static final int MSG_ANDROID_FOCUS_CHANGE = 2;
+        private static final int MSG_FOCUS_RELEASE = 3;
 
-        private CarAudioChangeHandler(Looper looper) {
+        /** Focus release is always delayed this much to handle repeated acquire / release. */
+        private static final long FOCUS_RELEASE_DELAY_MS = 500;
+
+        private CarAudioFocusChangeHandler(Looper looper) {
             super(looper);
         }
 
-        private void handleFocusChange(int focusState, int streams) {
-            Message msg = obtainMessage(MSG_FOCUS_CHANGE, focusState, streams);
+        private void handleFocusChange() {
+            Message msg = obtainMessage(MSG_FOCUS_CHANGE);
             sendMessage(msg);
         }
 
         private void handleStreamStateChange(int streamNumber, int state) {
             Message msg = obtainMessage(MSG_STREAM_STATE_CHANGE, streamNumber, state);
             sendMessage(msg);
+        }
+
+        private void handleAndroidFocusChange() {
+            Message msg = obtainMessage(MSG_ANDROID_FOCUS_CHANGE);
+            sendMessage(msg);
+        }
+
+        private void handleFocusReleaseRequest() {
+            if (DBG) {
+                Log.d(TAG_FOCUS, "handleFocusReleaseRequest");
+            }
+            cancelFocusReleaseRequest();
+            Message msg = obtainMessage(MSG_FOCUS_RELEASE);
+            sendMessageDelayed(msg, FOCUS_RELEASE_DELAY_MS);
+        }
+
+        private void cancelFocusReleaseRequest() {
+            removeMessages(MSG_FOCUS_RELEASE);
+        }
+
+        private void cancelAll() {
+            removeMessages(MSG_FOCUS_CHANGE);
+            removeMessages(MSG_STREAM_STATE_CHANGE);
+            removeMessages(MSG_ANDROID_FOCUS_CHANGE);
+            removeMessages(MSG_FOCUS_RELEASE);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_FOCUS_CHANGE:
+                    doHandleCarFocusChange();
+                    break;
+                case MSG_STREAM_STATE_CHANGE:
+                    doHandleStreamStatusChange(msg.arg1, msg.arg2);
+                    break;
+                case MSG_ANDROID_FOCUS_CHANGE:
+                    doHandleAndroidFocusChange();
+                    break;
+                case MSG_FOCUS_RELEASE:
+                    doHandleFocusRelease();
+                    break;
+            }
+        }
+    }
+
+    private class CarAudioVolumeHandler extends Handler {
+        private static final int MSG_VOLUME_CHANGE = 0;
+
+        private CarAudioVolumeHandler(Looper looper) {
+            super(looper);
         }
 
         private void handleVolumeChange(VolumeStateChangeEvent event) {
@@ -275,12 +790,6 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_FOCUS_CHANGE:
-                    doHandleCarFocusChange(msg.arg1, msg.arg2);
-                    break;
-                case MSG_STREAM_STATE_CHANGE:
-                    doHandleStreamStatusChange(msg.arg1, msg.arg2);
-                    break;
                 case MSG_VOLUME_CHANGE:
                     doHandleVolumeChange((VolumeStateChangeEvent) msg.obj);
                     break;
@@ -298,5 +807,89 @@ public class CarAudioService implements CarServiceBase, AudioHalListener {
             this.volume = volume;
             this.state = state;
         }
+    }
+
+    /** Wrapper class for holding the current focus state from car. */
+    private static class FocusState {
+        public final int focusState;
+        public final int streams;
+        public final int externalFocus;
+
+        private FocusState(int focusState, int streams, int externalFocus) {
+            this.focusState = focusState;
+            this.streams = streams;
+            this.externalFocus = externalFocus;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof FocusState)) {
+                return false;
+            }
+            FocusState that = (FocusState) o;
+            return this.focusState == that.focusState && this.streams == that.streams &&
+                    this.externalFocus == that.externalFocus;
+        }
+
+        @Override
+        public String toString() {
+            return "FocusState, state:" + focusState +
+                    " streams:0x" + Integer.toHexString(streams) +
+                    " externalFocus:0x" + Integer.toHexString(externalFocus);
+        }
+
+        public static FocusState create(int focusState, int streams, int externalAudios) {
+            return new FocusState(focusState, streams, externalAudios);
+        }
+
+        public static FocusState STATE_LOSS =
+                new FocusState(AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS, 0, 0);
+    }
+
+    /** Wrapper class for holding the focus requested to car. */
+    private static class FocusRequest {
+        public final int focusRequest;
+        public final int streams;
+        public final int externalFocus;
+
+        private FocusRequest(int focusRequest, int streams, int externalFocus) {
+            this.focusRequest = focusRequest;
+            this.streams = streams;
+            this.externalFocus = externalFocus;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof FocusRequest)) {
+                return false;
+            }
+            FocusRequest that = (FocusRequest) o;
+            return this.focusRequest == that.focusRequest && this.streams == that.streams &&
+                    this.externalFocus == that.externalFocus;
+        }
+
+        @Override
+        public String toString() {
+            return "FocusRequest, request:" + focusRequest +
+                    " streams:0x" + Integer.toHexString(streams) +
+                    " externalFocus:0x" + Integer.toHexString(externalFocus);
+        }
+
+        public static FocusRequest create(int focusRequest, int streams, int externalFocus) {
+            switch (focusRequest) {
+                case AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE:
+                    return STATE_RELEASE;
+            }
+            return new FocusRequest(focusRequest, streams, externalFocus);
+        }
+
+        public static FocusRequest STATE_RELEASE =
+                new FocusRequest(AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, 0, 0);
     }
 }

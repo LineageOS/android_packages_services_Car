@@ -49,6 +49,10 @@ enum vehicle_audio_stream_state {
     VEHICLE_AUDIO_STREAM_STATE_STARTED = 1,
 };
 
+enum vehicle_audio_stream_state_index {
+    VEHICLE_AUDIO_STREAM_STATE_INDEX_STATE = 0,
+    VEHICLE_AUDIO_STREAM_STATE_INDEX_STREAM = 1,
+};
 
 __END_DECLS
 

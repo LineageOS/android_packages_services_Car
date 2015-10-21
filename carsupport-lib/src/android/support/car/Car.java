@@ -51,6 +51,8 @@ public class Car {
     /** Service name for {@link CarInfoManager}, to be used in {@link #getCarManager(String)}. */
     public static final String INFO_SERVICE = "info";
 
+    public static final String APP_CONTEXT_SERVICE = "app_context";
+
     /** Type of car connection: car emulator, not physical connection. */
     public static final int CONNECTION_TYPE_EMULATOR        = 0;
     /** Type of car connection: connected to a car via USB. */

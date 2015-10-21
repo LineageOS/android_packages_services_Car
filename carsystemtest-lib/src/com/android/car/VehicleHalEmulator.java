@@ -201,13 +201,13 @@ public class VehicleHalEmulator {
                 if (changeModes != null) {
                     changeMode = changeModes[0];
                 }
-                int access = VehicleNetworkConsts.getVehicleAccess(property);
-                if (access == 0) { // invalid
+                int[] accesses = VehicleNetworkConsts.getVehicleAccess(property);
+                if (accesses == null) { // invalid
                     continue;
                 }
                 VehiclePropConfig config = VehiclePropConfig.newBuilder().
                         setProp(property).
-                        setAccess(access).
+                        setAccess(accesses[0]).
                         setChangeMode(changeMode).
                         setValueType(valueType).
                         setPermissionModel(

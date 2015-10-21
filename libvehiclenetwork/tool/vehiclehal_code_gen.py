@@ -147,13 +147,17 @@ switch (property) {"""
 """
   #now implement getVehicleAccess
   print \
-"""public static int getVehicleAccess(int property) {
+"""public static int[] getVehicleAccess(int property) {
 switch (property) {"""
   for p in props:
     if p.access != "":
-      print "case " + p.name + ": return VehiclePropAccess." + p.access + ";"
+      accesses = p.access.split('|')
+      accessesString = []
+      for a in accesses:
+        accessesString.append("VehiclePropAccess." + a)
+      print "case " + p.name + ": return new int[] { " + " , ".join(accessesString) + " };"
   print \
-"""default: return 0;
+"""default: return null;
 }
 }
 """
