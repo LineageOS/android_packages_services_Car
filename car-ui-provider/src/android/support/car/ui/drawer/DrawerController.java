@@ -212,7 +212,7 @@ public class DrawerController
                 if (TextUtils.isEmpty(title)) {
                     title = mContentTitle;
                 }
-                mUiEntry.setTitle(title);
+                mUiEntry.setTitleText(title);
                 mTitles.push(title);
                 if (!mSubscriptionIds.isEmpty()) {
                     mPlvAnimationController.enqueueExitAnimation(mClearAdapterRunnable);
