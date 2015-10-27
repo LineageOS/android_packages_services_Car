@@ -47,6 +47,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarSensorService mCarSensorService;
     private final CarInfoService mCarInfoService;
     private final CarAudioService mCarAudioService;
+    private final CarHvacService mCarHvacService;
     private final CarRadioService mCarRadioService;
     private final AppContextService mAppContextService;
 
@@ -83,6 +84,7 @@ public class ICarImpl extends ICar.Stub {
         mAppContextService = new AppContextService(serviceContext);
         mCarSensorService = new CarSensorService(serviceContext);
         mCarAudioService = new CarAudioService(serviceContext, mAppContextService);
+        mCarHvacService = new CarHvacService(serviceContext);
         mCarRadioService = new CarRadioService(serviceContext);
 
         // Be careful with order. Service depending on other service should be inited later.
@@ -92,6 +94,7 @@ public class ICarImpl extends ICar.Stub {
                 mAppContextService,
                 mCarSensorService,
                 mCarAudioService,
+                mCarHvacService,
                 mCarRadioService,
                 };
     }
@@ -162,8 +165,14 @@ public class ICarImpl extends ICar.Stub {
                 return mCarSensorService;
             case Car.INFO_SERVICE:
                 return mCarInfoService;
+
             case Car.APP_CONTEXT_SERVICE:
                 return mAppContextService;
+
+            case CarSystem.HVAC_SERVICE:
+                assertHvacPermission(mContext);
+                return mCarHvacService;
+
             case CarSystem.RADIO_SERVICE:
                 assertRadioPermission(mContext);
                 return mCarRadioService;
@@ -222,6 +231,14 @@ public class ICarImpl extends ICar.Stub {
         if (context.checkCallingOrSelfPermission(CarSystemTest.PERMISSION_MOCK_VEHICLE_HAL)
                 != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException("requires CAR_MOCK_VEHICLE_HAL permission");
+        }
+    }
+
+    public static void assertHvacPermission(Context context) {
+        if (context.checkCallingOrSelfPermission(CarSystem.PERMISSION_CAR_HVAC)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException(
+                    "requires " + CarSystem.PERMISSION_CAR_HVAC);
         }
     }
 

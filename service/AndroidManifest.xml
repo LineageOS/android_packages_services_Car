@@ -35,6 +35,12 @@
         android:label="@string/car_permission_label_fuel"
         android:description="@string/car_permission_desc_fuel" />
     <permission
+        android:name="com.android.car.permission.CAR_HVAC"
+        android:permissionGroup="android.support.car.permission.CAR_INFORMATION"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_hvac"
+        android:description="@string/car_permission_desc_hvac" />
+    <permission
         android:name="android.support.car.permission.CAR_MILEAGE"
         android:permissionGroup="android.support.car.permission.CAR_INFORMATION"
         android:protectionLevel="dangerous"

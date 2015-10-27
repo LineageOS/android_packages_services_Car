@@ -204,6 +204,45 @@ public class VehicleNetwork {
     }
 
     /**
+     * Set zoned boolean type property
+     * @param property
+     * @param zone
+     * @param value
+     * @throws IllegalArgumentException For type mismatch (=the property is not boolean type)
+     */
+    public void setZonedBooleanProperty(int property, int zone, boolean value)
+            throws IllegalArgumentException {
+        VehiclePropValue v = VehiclePropValueUtil.createZonedBooleanValue(property, zone, value, 0);
+        setProperty(v);
+    }
+
+    /**
+     * Set zoned float type property
+     * @param property
+     * @param zone
+     * @param value
+     * @throws IllegalArgumentException For type mismatch (=the property is not float type)
+     */
+    public void setZonedFloatProperty(int property, int zone, float value)
+            throws IllegalArgumentException {
+        VehiclePropValue v = VehiclePropValueUtil.createZonedFloatValue(property, zone, value, 0);
+        setProperty(v);
+    }
+
+    /**
+     * Set zoned integer type property
+     * @param property
+     * @param zone
+     * @param value
+     * @throws IllegalArgumentException For type mismatch (=the property is not int type)
+     */
+    public void setZonedIntProperty(int property, int zone, int value)
+            throws IllegalArgumentException {
+        VehiclePropValue v = VehiclePropValueUtil.createZonedIntValue(property, zone, value, 0);
+        setProperty(v);
+    }
+
+    /**
      * Get property. This can be used for a property which does not require any other data.
      * @param property
      * @return

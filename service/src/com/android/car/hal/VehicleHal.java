@@ -86,6 +86,7 @@ public class VehicleHal implements VehicleNetworkListener {
     private final AudioHalService mAudioHal;
     private final RadioHalService mRadioHal;
     private final PowerHalService mPowerHal;
+    private final HvacHalService mHvacHal;
 
     /** stores handler for each HAL property. Property events are sent to handler. */
     private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<HalServiceBase>();
@@ -103,9 +104,11 @@ public class VehicleHal implements VehicleNetworkListener {
         mInfoHal = new InfoHalService(this);
         mAudioHal = new AudioHalService(this);
         mRadioHal = new RadioHalService(this);
+        mHvacHal = new HvacHalService(this);
         mAllServices = new HalServiceBase[] {
                 mPowerHal,
                 mAudioHal,
+                mHvacHal,
                 mInfoHal,
                 mSensorHal,
                 mRadioHal };
@@ -186,6 +189,10 @@ public class VehicleHal implements VehicleNetworkListener {
 
     public PowerHalService getPowerHal() {
         return mPowerHal;
+    }
+
+    public HvacHalService getHvacHal() {
+        return mHvacHal;
     }
 
     public void updateAppContext(boolean navigationActive, boolean voiceCommandActive,

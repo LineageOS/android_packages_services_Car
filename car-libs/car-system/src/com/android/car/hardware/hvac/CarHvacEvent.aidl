@@ -14,17 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.hardware.hvac;
 
-public class CarLog {
-    public static final String TAG_APP_CONTEXT = "CAR.APP_CONTEXT";
-    public static final String TAG_AUDIO = "CAR.AUDIO";
-    public static final String TAG_HAL = "CAR.HAL";
-    public static final String TAG_HVAC = "CAR.HVAC";
-    public static final String TAG_INFO = "CAR.INFO";
-    public static final String TAG_POWER = "CAR.POWER";
-    public static final String TAG_RADIO = "CAR.RADIO";
-    public static final String TAG_SENSOR = "CAR.SENSOR";
-    public static final String TAG_SERVICE = "CAR.SERVICE";
-    public static final String TAG_TEST = "CAR.TEST";
-}
+parcelable CarHvacEvent;
+

@@ -24,6 +24,8 @@ import android.support.car.DefaultCarServiceLoader;
 import android.support.car.ServiceConnectionListener;
 import android.util.Log;
 
+import com.android.car.hardware.hvac.CarHvacManager;
+import com.android.car.hardware.hvac.ICarHvac;
 import com.android.car.hardware.radio.CarRadioManager;
 import com.android.car.hardware.radio.ICarRadio;
 
@@ -36,9 +38,12 @@ public class SystemApiCarServiceLoader extends DefaultCarServiceLoader {
 
     @Override
     public CarManagerBase createCarManager(String serviceName, IBinder binder) {
-        //TODO populate system only Car*Managers
         CarManagerBase manager = null;
         switch (serviceName) {
+            case CarSystem.HVAC_SERVICE:
+                manager = new CarHvacManager(
+                        getContext(), ICarHvac.Stub.asInterface(binder), getLooper());
+                break;
             case CarSystem.RADIO_SERVICE:
                 manager =
                     new CarRadioManager(

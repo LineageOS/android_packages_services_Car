@@ -24,6 +24,9 @@
     <!-- Permission text: can access your car's fuel level [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_fuel">Access your car\'s fuel level information.</string>
     <!-- Permission text: can access your car's mileage information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_hvac">Car Hvac</string>
+    <!-- Permission text: apps can control car hvac [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_hvac">Access your car\'s hvac.</string>
     <string name="car_permission_label_mileage">Car mileage</string>
     <!-- Permission text: can access your car's mileage information [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_mileage">Access your car\'s mileage information.</string>

@@ -23,6 +23,11 @@ package com.android.car;
  */
 public class CarSystem {
     public static final String RADIO_SERVICE = "radio";
+    public static final String HVAC_SERVICE = "hvac";
+
+    /** Permission necessary to access Car HVAC APIs. */
+    public static final String PERMISSION_CAR_HVAC =
+            "com.android.car.permission.CAR_HVAC";
 
     /** Permission necesary to access Car RADIO system APIs. */
     public static final String PERMISSION_CAR_RADIO =
