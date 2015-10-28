@@ -29,7 +29,6 @@ import android.support.car.Car;
 import android.support.car.CarManagerBase;
 import android.support.car.CarNotConnectedException;
 
-import com.android.car.CarLibLog;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;
@@ -45,7 +44,7 @@ import java.lang.ref.WeakReference;
 @SystemApi
 public class CarRadioManager implements CarManagerBase {
     public final static boolean DBG = true;
-    public final static String TAG = CarLibLog.TAG_RADIO + ".CarRadioManager";
+    public final static String TAG = "CarRadioManager";
 
     // Minimum supported version of the service.
     private static final int MIN_SUPPORTED_VERSION = 1;
@@ -125,7 +124,7 @@ public class CarRadioManager implements CarManagerBase {
         mHandler = new EventCallbackHandler(this, looper);
         mServiceVersion = getVersion();
         if (mServiceVersion < MIN_SUPPORTED_VERSION) {
-            Log.w(CarLibLog.TAG_RADIO, "Old service version: " + mServiceVersion +
+            Log.w(TAG, "Old service version: " + mServiceVersion +
                 " for client lib: " + MIN_SUPPORTED_VERSION);
         }
 
