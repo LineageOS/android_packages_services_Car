@@ -308,7 +308,7 @@ public class DrawerController
                 mTitles.addAll(Arrays.asList(titles));
             }
             if (!mTitles.isEmpty()) {
-                mUiEntry.setTitle(mTitles.peek());
+                mUiEntry.setTitleText(mTitles.peek());
             }
             mRootId = in.getString(KEY_ROOT);
             mIsDrawerOpen = in.getBoolean(KEY_DRAWERSTATE);
@@ -456,7 +456,7 @@ public class DrawerController
             if (TextUtils.isEmpty(title)) {
                 title = mContentTitle;
             }
-            mUiEntry.setTitle(title);
+            mUiEntry.setTitleText(title);
         } else {
             closeDrawer();
         }

@@ -16,9 +16,11 @@
 
 package android.support.car.app;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -28,6 +30,9 @@ import android.support.annotation.LayoutRes;
 import android.support.car.Car;
 import android.support.car.CarLibLog;
 import android.support.car.CarNotConnectedException;
+import android.support.car.app.menu.Constants;
+import android.support.car.app.menu.Utils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,6 +76,7 @@ public abstract class CarActivity {
         View findViewById(int id);
         LayoutInflater getLayoutInflater();
         void finish();
+        void setContentFragment(Fragment fragment, int containerId);
     }
 
     /** @hide */
@@ -117,6 +123,10 @@ public abstract class CarActivity {
     public void setContentView(View view) {
         ViewGroup parent = (ViewGroup) findViewById(mUiController.getFragmentContainerId());
         parent.addView(view);
+    }
+
+    public void setContentFragment(Fragment fragment) {
+        mProxy.setContentFragment(fragment, mUiController.getFragmentContainerId());
     }
 
     public void setContentView(@LayoutRes int resourceId) {
@@ -210,6 +220,16 @@ public abstract class CarActivity {
         mUiController.setScrimColor(color);
     }
 
+    /**
+     * Show the menu associated with the given id in the drawer.
+     *
+     * @param id Id of the menu to link to.
+     * @param title Title that should be displayed.
+     */
+    public void showMenu(String id, String title) {
+        mUiController.showMenu(id, title);
+    }
+
     private void registerCarMenuCallbacks(IBinder callbacks) {
         mUiController.registerCarMenuCallbacks(callbacks);
     }
@@ -254,6 +274,34 @@ public abstract class CarActivity {
 
     }
 
+    private final CarMenuCallbacks.OnChildrenChangedListener mMenuListener =
+            new CarMenuCallbacks.OnChildrenChangedListener() {
+                @Override
+                public void onChildrenChanged(String parentId) {
+                    if (mOnCreateCalled) {
+                        mBinder.onChildrenChanged(parentId);
+                    }
+                }
+
+                @Override
+                public void onChildChanged(String parentId, Bundle item,
+                                           Drawable leftIcon, Drawable rightIcon) {
+                    DisplayMetrics metrics = getResources().getDisplayMetrics();
+                    if (leftIcon != null) {
+                        item.putParcelable(Constants.CarMenuConstants.KEY_LEFTICON,
+                                Utils.snapshot(metrics, leftIcon));
+                    }
+
+                    if (rightIcon != null) {
+                        item.putParcelable(Constants.CarMenuConstants.KEY_RIGHTICON,
+                                Utils.snapshot(metrics, rightIcon));
+                    }
+                    if (mOnCreateCalled) {
+                        mBinder.onChildChanged(parentId, item);
+                    }
+                }
+            };
+
     protected void onCreate(Bundle savedInstanceState) {
         mProxy.setContentView(mUiController.getContentView());
         mBinder = new CarMenuCallbacksBinder(this);
@@ -261,6 +309,9 @@ public abstract class CarActivity {
             @Override
             public void run() {
                 registerCarMenuCallbacks(mBinder);
+                if (mMenuCallbacks != null) {
+                    mMenuCallbacks.registerOnChildrenChangedListener(mMenuListener);
+                }
                 mOnCreateCalled = true;
             }
         });
@@ -282,6 +333,15 @@ public abstract class CarActivity {
     }
 
     protected void onDestroy() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (mMenuCallbacks != null) {
+                    mMenuCallbacks.unregisterOnChildrenChangedListener(mMenuListener);
+                    mMenuCallbacks = null;
+                }
+            }
+        });
     }
 
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -297,10 +357,17 @@ public abstract class CarActivity {
     protected void onBackPressed() {
     }
 
-    protected Resources getResources() {
+    public Resources getResources() {
         return mProxy.getResources();
     }
 
+    public void closeDrawer() {
+        mUiController.closeDrawer();
+    }
+
+    public void openDrawer() {
+        mUiController.openDrawer();
+    }
     private static class CarMenuCallbacksBinder extends ICarMenuCallbacks.Stub {
         // Map of subscribed ids to their respective callbacks.
         private final Map<String, List<ISubscriptionCallbacks>> mSubscriptionMap = new HashMap<>();

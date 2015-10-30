@@ -15,7 +15,29 @@
 #
 
 LOCAL_PATH:= $(call my-dir)
+include $(CLEAR_VARS)
 
+LOCAL_MODULE_TAGS := optional
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_SRC_FILES := $(call all-java-files-under, src)
+
+LOCAL_AAPT_FLAGS := \
+    --auto-add-overlay \
+    --extra-packages android.support.v7.cardview
+
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-recyclerview
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-appcompat
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-cardview
+LOCAL_RESOURCE_DIR += frameworks/support/v7/cardview/res
+LOCAL_STATIC_JAVA_LIBRARIES += libcarsupport
+
+LOCAL_MODULE := caruilib
+LOCAL_PROGUARD_ENABLED := disabled
+
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+################################################
 include $(CLEAR_VARS)
 LOCAL_CERTIFICATE := shared
 LOCAL_MODULE_TAGS := optional

@@ -147,6 +147,10 @@ public class CarUiEntry {
         mDrawerLayout.openDrawer();
     }
 
+    public void showMenu(String id, String title) {
+        mDrawerController.showMenu(id, title);
+    }
+
     private void adjustDrawer() {
         Resources resources = mUiLibContext.getResources();
         float width = resources.getDisplayMetrics().widthPixels;

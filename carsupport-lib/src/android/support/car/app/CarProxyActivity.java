@@ -17,21 +17,19 @@
 package android.support.car.app;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.Message;
-import android.support.car.Car;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedList;
 
 /**
  * android Activity controlling / proxying {@link CarActivity}. Applications should have its own
@@ -72,6 +70,12 @@ public class CarProxyActivity extends Activity {
         public LayoutInflater getLayoutInflater() {
             return CarProxyActivity.this.getLayoutInflater();
         }
+
+        @Override
+        public void setContentFragment(Fragment fragment, int fragmentContainer) {
+            CarProxyActivity.this.getFragmentManager().beginTransaction().replace(
+                    fragmentContainer, fragment).commit();
+        }
     };
 
     public CarProxyActivity(Class carActivityClass) {
@@ -100,6 +104,16 @@ public class CarProxyActivity extends Activity {
         createCarActivity();
         super.onCreate(savedInstanceState);
         mCarActivity.dispatchCmd(CarActivity.CMD_ON_CREATE, savedInstanceState);
+        // Make the app full screen, and status bar transparent
+        Window window = getWindow();
+        // TODO: b/25389126 Currently the menu button is rendered by the app, and it overlaps with
+        // status bar. Touch events cannot pass from status bar window to the app window. The menu
+        // button will not be touchable if the status bar height increases to the same height of the
+        // menu icon.
+        window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        // TODO: b/25389184 if the status bar is always transparent, remove it from here.
+        window.setStatusBarColor(android.R.color.transparent); // set status bar transparent.
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
     }
 
     @Override

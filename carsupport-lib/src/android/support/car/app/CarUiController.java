@@ -51,6 +51,10 @@ public class CarUiController {
     private Method mSetBackgroundResource;
     private Method mOnSaveInstanceState;
     private Method mOnRestoreInstanceState;
+    private Method mCloseDrawer;
+    private Method mOpenDrawer;
+    private Method mShowMenu;
+    private Method mGetCarAppLayoutId;
 
     private Object mCarUiEntryClass;
 
@@ -104,6 +108,15 @@ public class CarUiController {
                         break;
                     case "onRestoreInstanceState":
                         mOnRestoreInstanceState = m;
+                        break;
+                    case "closeDrawer":
+                        mCloseDrawer = m;
+                        break;
+                    case "openDrawer":
+                        mOpenDrawer = m;
+                        break;
+                    case "showMenu":
+                        mShowMenu = m;
                         break;
                 }
             }
@@ -191,5 +204,17 @@ public class CarUiController {
 
     public void onSaveInstanceState(Bundle outState) {
         invoke(mOnSaveInstanceState, outState);
+    }
+
+    public void closeDrawer() {
+        invoke(mCloseDrawer);
+    }
+
+    public void openDrawer() {
+        invoke(mOpenDrawer);
+    }
+
+    public void showMenu(String id, String title) {
+        invoke(mShowMenu, id, title);
     }
 }

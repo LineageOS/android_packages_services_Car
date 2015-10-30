@@ -47,26 +47,23 @@ public class CarListItemViewHolder extends RecyclerView.ViewHolder {
         if (rightStub != null) {
             rightStub.setLayoutResource(viewStubLayoutId);
             rightStub.setInflatedId(R.id.right_item);
-            switch (viewStubLayoutId) {
-                case R.layout.car_menu_checkbox:
-                    rightCheckbox = (CheckBox) rightStub.inflate();
-                    rightImage = null;
-                    rightText = null;
-                    break;
-                case R.layout.car_imageview:
-                    rightImage = (ImageView) rightStub.inflate();
-                    rightCheckbox = null;
-                    rightText = null;
-                    break;
-                case R.layout.car_textview:
-                    rightText = (TextView) rightStub.inflate();
-                    rightCheckbox = null;
-                    rightImage = null;
-                    break;
-                default:
-                    rightImage = null;
-                    rightCheckbox = null;
-                    rightText = null;
+
+            if (viewStubLayoutId == R.layout.car_menu_checkbox) {
+                rightCheckbox = (CheckBox) rightStub.inflate();
+                rightImage = null;
+                rightText = null;
+            } else if (viewStubLayoutId == R.layout.car_imageview) {
+                rightImage = (ImageView) rightStub.inflate();
+                rightCheckbox = null;
+                rightText = null;
+            } else if (viewStubLayoutId == R.layout.car_textview) {
+                rightText = (TextView) rightStub.inflate();
+                rightCheckbox = null;
+                rightImage = null;
+            } else {
+                rightImage = null;
+                rightCheckbox = null;
+                rightText = null;
             }
         } else {
             rightImage = null;
