@@ -87,8 +87,17 @@ public class CarProxyActivity extends Activity {
         try {
             ctor = mCarActivityClass.getDeclaredConstructor(CarActivity.Proxy.class, Context.class);
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Cannot construct given CarActivity, no constructor for " +
-                    mCarActivityClass.getName(), e);
+            StringBuilder msg = new StringBuilder(
+                    "Cannot construct given CarActivity, no constructor for ");
+            msg.append(mCarActivityClass.getName());
+            msg.append("\nAvailable constructors are [");
+            final Constructor<?>[] others = mCarActivityClass.getConstructors();
+            for (int i=0; i<others.length; i++ ) {
+                msg.append("\n  ");
+                msg.append(others[i].toString());
+            }
+            msg.append("\n]");
+            throw new RuntimeException(msg.toString(), e);
         }
         try {
             mCarActivity = (CarActivity) ctor.newInstance(mCarActivityProxy, this);
