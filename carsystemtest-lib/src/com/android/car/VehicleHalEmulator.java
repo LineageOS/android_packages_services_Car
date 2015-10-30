@@ -116,7 +116,7 @@ public class VehicleHalEmulator {
      * Start emulation. All necessary properties should have been added / removed before this.
      */
     public void start() {
-        mCarTestManager.startMocking(mMock);
+        mCarTestManager.startMocking(mMock, CarTestManager.FLAG_MOCKING_NONE);
         synchronized (this) {
             mStarted = true;
         }

@@ -36,6 +36,8 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
     private final Context mContext;
     private final VehicleNetwork mVehicleNetwork;
     private final ICarImpl mICarImpl;
+    private boolean mInMocking = false;
+    private int mMockingFlags = 0;
 
     public CarTestService(Context context, ICarImpl carImpl) {
         mContext = context;
@@ -45,17 +47,20 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
 
     @Override
     public void init() {
-        // TODO Auto-generated method stub
+        // nothing to do.
+        // This service should not reset anything for init / release to maintain mocking.
     }
 
     @Override
     public void release() {
-        // TODO Auto-generated method stub
+        // nothing to do
+        // This service should not reset anything for init / release to maintain mocking.
     }
 
     @Override
     public void dump(PrintWriter writer) {
-        // TODO Auto-generated method stub
+        writer.println("*CarTestService*");
+        writer.println(" mInMocking" + mInMocking);
     }
 
     @Override
@@ -70,17 +75,21 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
     }
 
     @Override
-    public void startMocking(IVehicleNetworkHalMock mock) {
+    public void startMocking(IVehicleNetworkHalMock mock, int flags) {
         ICarImpl.assertVehicleHalMockPermission(mContext);
         try {
             mVehicleNetwork.startMocking(mock);
             VehicleHal.getInstance().startMocking();
             mICarImpl.startMocking();
+            synchronized (this) {
+                mInMocking = true;
+                mMockingFlags = flags;
+            }
         } catch (Exception e) {
             Log.w(CarLog.TAG_TEST, "startMocking failed", e);
             throw e;
         }
-        Log.i(CarLog.TAG_TEST, "start vehicle HAL mocking");
+        Log.i(CarLog.TAG_TEST, "start vehicle HAL mocking, flags:0x" + Integer.toHexString(flags));
     }
 
     @Override
@@ -89,6 +98,18 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
         mVehicleNetwork.stopMocking(mock);
         VehicleHal.getInstance().stopMocking();
         mICarImpl.stopMocking();
+        synchronized (this) {
+            mInMocking = false;
+            mMockingFlags = 0;
+        }
         Log.i(CarLog.TAG_TEST, "stop vehicle HAL mocking");
+    }
+
+    public synchronized boolean isInMocking() {
+        return mInMocking;
+    }
+
+    public synchronized boolean shouldDoRealShutdownInMocking() {
+        return (mMockingFlags & CarTestManager.FLAG_MOCKING_REAL_SHUTDOWN) != 0;
     }
 }

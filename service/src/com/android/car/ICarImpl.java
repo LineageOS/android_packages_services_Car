@@ -41,6 +41,7 @@ public class ICarImpl extends ICar.Stub {
     private final Context mContext;
     private final VehicleHal mHal;
 
+    private final CarPowerManagementService mCarPowerManagementService;
     private final CarSensorService mCarSensorService;
     private final CarInfoService mCarInfoService;
     private final CarAudioService mCarAudioService;
@@ -71,6 +72,7 @@ public class ICarImpl extends ICar.Stub {
     public ICarImpl(Context serviceContext) {
         mContext = serviceContext;
         mHal = VehicleHal.getInstance();
+        mCarPowerManagementService = new CarPowerManagementService(serviceContext);
         mCarInfoService = new CarInfoService(serviceContext);
         mAppContextService = new AppContextService(serviceContext);
         mCarSensorService = new CarSensorService(serviceContext);
@@ -79,6 +81,7 @@ public class ICarImpl extends ICar.Stub {
 
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
+                mCarPowerManagementService,
                 mCarInfoService,
                 mAppContextService,
                 mCarSensorService,
@@ -101,11 +104,13 @@ public class ICarImpl extends ICar.Stub {
         VehicleHal.releaseInstance();
     }
 
-    public void startMocking() {
+    /** Only for CarTestService */
+    void startMocking() {
         reinitServices();
     }
 
-    public void stopMocking() {
+    /** Only for CarTestService */
+    void stopMocking() {
         reinitServices();
     }
 
@@ -172,6 +177,17 @@ public class ICarImpl extends ICar.Stub {
     public boolean startCarActivity(Intent intent) {
         //TODO
         return false;
+    }
+
+    /**
+     * Whether mocking underlying HAL or not.
+     * @return
+     */
+    public synchronized boolean isInMocking() {
+        if (mCarTestService == null) {
+            return false;
+        }
+        return mCarTestService.isInMocking();
     }
 
     public static void assertVehicleHalMockPermission(Context context) {

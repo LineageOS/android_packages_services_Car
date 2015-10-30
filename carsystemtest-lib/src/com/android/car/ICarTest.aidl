@@ -25,7 +25,7 @@ interface ICarTest {
     /** For testing only. inject events. */
     void injectEvent(in VehiclePropValueParcelable value)         = 1;
     /** For testing only. Start in mocking mode. */
-    void startMocking(in IVehicleNetworkHalMock mock)             = 2;
+    void startMocking(in IVehicleNetworkHalMock mock, int flags)  = 2;
     /** Finish mocking mode. */
     void stopMocking(in IVehicleNetworkHalMock mock)              = 3;
 }

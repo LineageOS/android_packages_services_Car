@@ -244,10 +244,9 @@ public class VehicleNetwork {
     /**
      * get int vector type property. Length of values should match vector length.
      * @param property
-     * @param values
      * @throws IllegalArgumentException
      */
-    public void getIntVectorProperty(int property, int[] values) throws IllegalArgumentException {
+    public int[] getIntVectorProperty(int property) throws IllegalArgumentException {
         VehiclePropValue v = getProperty(property);
         if (v == null) {
             // if property is invalid, IllegalArgumentException should have been thrown
@@ -258,20 +257,19 @@ public class VehicleNetwork {
             case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2:
             case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC3:
             case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC4:
-                if (values.length !=
-                    (v.getValueType() - VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2 + 2)) {
-                    throw new IllegalArgumentException("wrong array length");
-                }
                 break;
             default:
                 throw new IllegalArgumentException();
         }
+        int[] values = new int[v.getValueType() - VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2 +
+                               2];
         if (v.getInt32ValuesCount() != values.length) {
             throw new IllegalStateException();
         }
         for (int i = 0; i < values.length; i++) {
             values[i] = v.getInt32Values(i);
         }
+        return values;
     }
 
     /**
@@ -297,10 +295,9 @@ public class VehicleNetwork {
     /**
      * Get float vector type property. Length of values should match vector's length.
      * @param property
-     * @param values
      * @throws IllegalArgumentException
      */
-    public void getFloatVectorProperty(int property, float[] values)
+    public float[] getFloatVectorProperty(int property)
             throws IllegalArgumentException {
         VehiclePropValue v = getProperty(property);
         if (v == null) {
@@ -312,20 +309,19 @@ public class VehicleNetwork {
             case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC2:
             case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC3:
             case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC4:
-                if (values.length !=
-                    (v.getValueType() - VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC2 + 2)) {
-                    throw new IllegalArgumentException("wrong array length");
-                }
                 break;
             default:
                 throw new IllegalArgumentException();
         }
+        float[] values = new float[v.getValueType() -
+                                   VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC2 + 2];
         if (v.getFloatValuesCount() != values.length) {
             throw new IllegalStateException();
         }
         for (int i = 0; i < values.length; i++) {
             values[i] = v.getFloatValues(i);
         }
+        return values;
     }
 
     /**

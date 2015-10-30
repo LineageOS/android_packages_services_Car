@@ -31,6 +31,20 @@ import java.lang.ref.WeakReference;
 
 public class CarTestManager implements CarManagerBase {
 
+    /**
+     * Flag for {@link #startMocking(VehicleNetworkHalMock, int)}.
+     * This is for passing no flag.
+     */
+    public static final int FLAG_MOCKING_NONE = 0x0;
+
+    /**
+     * Flag for {@link #startMocking(VehicleNetworkHalMock, int)}.
+     * When this flag is set, shutdown request from mocked vehicle HAL will shutdown the system
+     * instead of avoiding shutdown, which is the default behavior.
+     * This can be used to test shutdown flow manually using mocking.
+     */
+    public static final int FLAG_MOCKING_REAL_SHUTDOWN = 0x1;
+
     private final ICarTest mService;
 
     @GuardedBy("this")
@@ -58,12 +72,13 @@ public class CarTestManager implements CarManagerBase {
      * Start mocking vehicle HAL. It is somewhat strange to re-use interface in lower level
      * API, but this is only for testing, and interface is exactly the same.
      * @param mock
+     * @flags Combination of FLAG_MOCKING_*
      */
-    public synchronized void startMocking(VehicleNetworkHalMock mock) {
+    public synchronized void startMocking(VehicleNetworkHalMock mock, int flags) {
         mHalMock = mock;
         mHalMockImpl = new IVehicleNetworkHalMockImpl(this);
         try {
-            mService.startMocking(mHalMockImpl);
+            mService.startMocking(mHalMockImpl, flags);
         } catch (RemoteException e) {
             handleRemoteException(e);
         }
