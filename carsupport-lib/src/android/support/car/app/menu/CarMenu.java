@@ -21,7 +21,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.car.app.menu.Constants.CarMenuConstants;
-import android.support.car.app.menu.Utils;
 import android.util.DisplayMetrics;
 import android.widget.RemoteViews;
 

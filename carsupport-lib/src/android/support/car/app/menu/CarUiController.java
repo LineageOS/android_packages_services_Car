@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.car.app;
+package android.support.car.app.menu;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -37,7 +37,7 @@ public class CarUiController {
     private static final String SDK_CLASS_NAME = ".CarUiEntry";
     private static final String CAR_UI_PKG = "android.support.car.ui";
 
-    private final CarActivity mActivity;
+    private final CarDrawerActivity mActivity;
     // TODO: Add more UI control methods
     private Method mGetContentViewMethod;
     private Method mSetScrimColor;
@@ -54,11 +54,10 @@ public class CarUiController {
     private Method mCloseDrawer;
     private Method mOpenDrawer;
     private Method mShowMenu;
-    private Method mGetCarAppLayoutId;
 
     private Object mCarUiEntryClass;
 
-    public CarUiController(CarActivity activity) {
+    public CarUiController(CarDrawerActivity activity) {
         mActivity = activity;
         init();
     }

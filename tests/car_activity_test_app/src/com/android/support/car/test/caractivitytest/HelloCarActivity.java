@@ -27,7 +27,7 @@ import android.os.IBinder;
 import android.support.car.Car;
 import android.support.car.CarNotConnectedException;
 import android.support.car.ServiceConnectionListener;
-import android.support.car.app.CarActivity;
+import android.support.car.app.menu.CarDrawerActivity;
 import android.support.car.app.menu.CarMenu;
 import android.support.car.app.menu.CarMenuCallbacks;
 import android.support.car.app.menu.Root;
@@ -39,7 +39,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HelloCarActivity extends CarActivity {
+public class HelloCarActivity extends CarDrawerActivity {
     private static final String TAG = "HelloCarActivity";
     private static final String FEATURE_AUTOMOTIVE = "android.hardware.type.automotive";
     private TextView mTextView1;
@@ -306,7 +306,6 @@ public class HelloCarActivity extends CarActivity {
 
         @Override
         public void onCarMenuClosed() {
-            resetTitle();
         }
 
         private void sendAsync(final CarMenu result) {
