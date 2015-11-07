@@ -31,7 +31,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
-import com.android.internal.annotations.GuardedBy;
+import javax.annotation.concurrent.GuardedBy;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;

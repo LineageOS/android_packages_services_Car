@@ -22,8 +22,9 @@ public class CarAudioManager implements CarManagerBase {
 
     /**
      * TODO Fix this. Needs new type or custom range in AudioAttribures.
+     * AudioAttributes.USAGE_VIRTUAL_SOURCE == 15, but it's @hide.
      */
-    public static final int AUDIO_ATTRIBUTES_USAGE_RADIO = AudioAttributes.USAGE_VIRTUAL_SOURCE;
+    public static final int AUDIO_ATTRIBUTES_USAGE_RADIO = 15;
 
     private final ICarAudio mService;
 

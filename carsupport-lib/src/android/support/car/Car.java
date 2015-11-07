@@ -16,8 +16,8 @@
 
 package android.support.car;
 
-import android.annotation.IntDef;
-import android.annotation.Nullable;
+import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -28,7 +28,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
 
-import com.android.internal.annotations.GuardedBy;
+import javax.annotation.concurrent.GuardedBy;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

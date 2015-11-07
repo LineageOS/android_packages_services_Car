@@ -17,7 +17,7 @@
 package android.support.car.hardware;
 
 import android.Manifest;
-import android.annotation.RequiresPermission;
+import android.support.annotation.RequiresPermission;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
