@@ -18,6 +18,7 @@ package android.support.car.app;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -47,6 +48,7 @@ public abstract class CarActivity {
         Resources getResources();
         View findViewById(int id);
         LayoutInflater getLayoutInflater();
+        Intent getIntent();
         void finish();
         void setContentFragment(Fragment fragment, int containerId);
     }
@@ -98,6 +100,10 @@ public abstract class CarActivity {
 
     public LayoutInflater getLayoutInflater() {
         return mProxy.getLayoutInflater();
+    }
+
+    public Intent getIntent() {
+        return mProxy.getIntent();
     }
 
     public void setContentFragment(Fragment fragment, int containerId) {

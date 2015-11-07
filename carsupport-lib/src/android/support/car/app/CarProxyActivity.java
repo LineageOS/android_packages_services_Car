@@ -19,6 +19,7 @@ package android.support.car.app;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -69,6 +70,11 @@ public class CarProxyActivity extends Activity {
         @Override
         public LayoutInflater getLayoutInflater() {
             return CarProxyActivity.this.getLayoutInflater();
+        }
+
+        @Override
+        public Intent getIntent() {
+            return CarProxyActivity.this.getIntent();
         }
 
         @Override
