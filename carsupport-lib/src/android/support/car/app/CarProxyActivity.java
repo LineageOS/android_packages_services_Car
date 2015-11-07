@@ -22,13 +22,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.car.input.CarInputManager;
+import android.support.car.input.CarRestrictedEditText;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -40,6 +45,8 @@ public class CarProxyActivity extends Activity {
     private final Class mCarActivityClass;
     // no synchronization, but main thread only
     private CarActivity mCarActivity;
+    // no synchronization, but main thread only
+    private CarInputManager mInputManager;
 
     private final CarActivity.Proxy mCarActivityProxy = new CarActivity.Proxy() {
         @Override
@@ -82,6 +89,11 @@ public class CarProxyActivity extends Activity {
             CarProxyActivity.this.getFragmentManager().beginTransaction().replace(
                     fragmentContainer, fragment).commit();
         }
+
+        @Override
+        public CarInputManager getCarInputManager() {
+            return CarProxyActivity.this.mInputManager;
+        }
     };
 
     public CarProxyActivity(Class carActivityClass) {
@@ -119,6 +131,7 @@ public class CarProxyActivity extends Activity {
         createCarActivity();
         super.onCreate(savedInstanceState);
         mCarActivity.dispatchCmd(CarActivity.CMD_ON_CREATE, savedInstanceState);
+        mInputManager = new EmbeddedInputManager(this);
         // Make the app full screen, and status bar transparent
         Window window = getWindow();
         // TODO: b/25389126 Currently the menu button is rendered by the app, and it overlaps with
@@ -182,5 +195,53 @@ public class CarProxyActivity extends Activity {
     protected void onRestoreInstanceState(Bundle savedState) {
         super.onRestoreInstanceState(savedState);
         mCarActivity.dispatchCmd(CarActivity.CMD_ON_RESTORE_INSTANCE_STATE, savedState);
+    }
+
+    private static final class EmbeddedInputManager extends CarInputManager {
+        private static final String TAG = "EmbeddedInputManager";
+
+        private final InputMethodManager mInputManager;
+        private final WeakReference<CarProxyActivity> mActivity;
+
+        public EmbeddedInputManager(CarProxyActivity activity) {
+            mActivity = new WeakReference<CarProxyActivity>(activity);
+            mInputManager = (InputMethodManager) mActivity.get()
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+        }
+
+        @Override
+        public void startInput(CarRestrictedEditText view) {
+            view.requestFocus();
+            mInputManager.showSoftInput(view, 0);
+        }
+
+        @Override
+        public void stopInput() {
+            if (mActivity.get() == null) {
+                return;
+            }
+
+            View view = mActivity.get().getCurrentFocus();
+            if (view != null) {
+                mInputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            } else {
+                Log.e(TAG, "stopInput called, but no view is accepting input");
+            }
+        }
+
+        @Override
+        public boolean isValid() {
+            return mActivity.get() != null;
+        }
+
+        @Override
+        public boolean isInputActive() {
+            return mInputManager.isActive();
+        }
+
+        @Override
+        public boolean isCurrentCarEditable(CarRestrictedEditText view) {
+            return mInputManager.isActive(view);
+        }
     }
 }

@@ -23,6 +23,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.car.Car;
+import android.support.car.input.CarInputManager;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -51,6 +52,7 @@ public abstract class CarActivity {
         Intent getIntent();
         void finish();
         void setContentFragment(Fragment fragment, int containerId);
+        CarInputManager getCarInputManager();
     }
 
     /** @hide */
@@ -104,6 +106,9 @@ public abstract class CarActivity {
 
     public Intent getIntent() {
         return mProxy.getIntent();
+
+    public CarInputManager getInputManager() {
+        return mProxy.getCarInputManager();
     }
 
     public void setContentFragment(Fragment fragment, int containerId) {
