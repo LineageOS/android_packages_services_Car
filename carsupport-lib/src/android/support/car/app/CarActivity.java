@@ -106,6 +106,7 @@ public abstract class CarActivity {
 
     public Intent getIntent() {
         return mProxy.getIntent();
+    }
 
     public CarInputManager getInputManager() {
         return mProxy.getCarInputManager();
