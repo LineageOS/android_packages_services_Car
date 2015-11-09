@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
 public class CarUiController {
     private static final String TAG = "CarUiController";
     private static final String SDK_CLASS_NAME = ".CarUiEntry";
-    private static final String CAR_UI_PKG = "android.support.car.ui";
+    private static final String CAR_UI_PKG = "android.support.car.ui.provider";
 
     private final CarDrawerActivity mActivity;
     // TODO: Add more UI control methods

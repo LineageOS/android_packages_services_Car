@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.support.car.ui;
+package android.support.car.ui.provider;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -24,8 +24,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.car.app.menu.Constants;
+import android.support.car.ui.DrawerArrowDrawable;
+import android.support.car.ui.PagedListView;
 import android.support.car.ui.drawer.CarDrawerLayout;
-import android.support.car.ui.drawer.DrawerController;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.Gravity;
@@ -34,6 +35,8 @@ import android.widget.TextView;
 import android.view.View;
 import android.content.Context;
 import android.view.LayoutInflater;
+
+import android.support.car.ui.R;
 
 import android.support.car.app.menu.ICarMenuCallbacks;
 

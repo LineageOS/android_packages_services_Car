@@ -58,7 +58,7 @@ public class DrawerApiAdapter extends RecyclerView.Adapter<CarListItemViewHolder
     private static final String INDEX_OUT_OF_BOUNDS_MESSAGE = "invalid item position";
     private static final String KEY_ID_UNAVAILABLE_CATEGORY = "UNAVAILABLE_CATEGORY";
 
-    interface OnItemSelectedListener {
+    public interface OnItemSelectedListener {
         void onItemClicked(Bundle item, int position);
         boolean onItemLongClicked(Bundle item);
     }
