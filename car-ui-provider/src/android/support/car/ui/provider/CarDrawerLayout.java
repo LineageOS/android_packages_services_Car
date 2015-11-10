@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.support.car.ui.drawer;
+package android.support.car.ui.provider;
 
 import android.content.Context;
 import android.content.res.Resources;

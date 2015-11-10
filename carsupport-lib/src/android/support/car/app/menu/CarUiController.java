@@ -34,8 +34,8 @@ import java.lang.reflect.Method;
  */
 public class CarUiController {
     private static final String TAG = "CarUiController";
-    private static final String SDK_CLASS_NAME = ".CarUiEntry";
-    private static final String CAR_UI_PKG = "android.support.car.ui.provider";
+    private static final String UI_ENTRY_CLASS_NAME = ".CarUiEntry";
+    private static final String CAR_UI_PROVIDER_PKG = "android.support.car.ui.provider";
 
     private final CarDrawerActivity mActivity;
     // TODO: Add more UI control methods
@@ -64,12 +64,12 @@ public class CarUiController {
 
     public void init() {
         try{
-            // TODO: need to verify the certificate of the car ui lib apk.
+            // STOPSHIP: need to verify the certificate of the CarUiProvider apk.
             Context carUiContext = mActivity.getContext().createPackageContext(
-                    CAR_UI_PKG,
+                    CAR_UI_PROVIDER_PKG,
                     Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
             ClassLoader classLoader = carUiContext.getClassLoader();
-            Class<?> loadedClass = classLoader.loadClass(CAR_UI_PKG + SDK_CLASS_NAME);
+            Class<?> loadedClass = classLoader.loadClass(CAR_UI_PROVIDER_PKG + UI_ENTRY_CLASS_NAME);
             for (Method m : loadedClass.getDeclaredMethods()) {
                 switch(m.getName()) {
                     case "getContentView":

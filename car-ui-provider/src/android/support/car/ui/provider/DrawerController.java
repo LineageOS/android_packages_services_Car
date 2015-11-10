@@ -19,8 +19,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.support.car.ui.drawer.CarDrawerLayout;
-import android.support.car.ui.drawer.DrawerApiAdapter;
 import android.support.car.ui.PagedListView;
 import android.support.car.ui.R;
 import android.support.v7.widget.CardView;

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cloned from car ui lib for use in CarUiProvider. Must be kept in sync. -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <android.support.car.ui.provider.PagedScrollBarView
+        android:id="@+id/paged_scroll_view"
+        android:layout_width="@dimen/car_paged_list_view_pagination_width"
+        android:layout_height="match_parent"
+        android:paddingBottom="16dp"
+        android:paddingTop="16dp"
+        android:visibility="invisible" />
+
+    <android.support.car.ui.provider.MaxWidthLayout
+        android:id="@+id/max_width_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/car_card_margin"
+        android:clipChildren="false"
+        app:carMaxWidth="@dimen/car_card_max_width" >
+
+        <android.support.car.ui.provider.CarRecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:clipChildren="false" />
+    </android.support.car.ui.provider.MaxWidthLayout>
+
+</merge>

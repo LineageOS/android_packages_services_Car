@@ -26,7 +26,6 @@ import android.os.RemoteException;
 import android.support.car.app.menu.Constants;
 import android.support.car.ui.DrawerArrowDrawable;
 import android.support.car.ui.PagedListView;
-import android.support.car.ui.drawer.CarDrawerLayout;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.Gravity;
