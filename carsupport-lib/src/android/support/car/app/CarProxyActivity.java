@@ -94,6 +94,23 @@ public class CarProxyActivity extends Activity {
         public CarInputManager getCarInputManager() {
             return CarProxyActivity.this.mInputManager;
         }
+
+        @Override
+        public void onRequestPermissionsResult(int requestCode,
+                String[] permissions, int[] grantResults) {
+            CarProxyActivity.this.onRequestPermissionsResult(
+                    requestCode, permissions, grantResults);
+        }
+
+        @Override
+        public void requestPermissions(String[] permissions, int requestCode) {
+            CarProxyActivity.this.requestPermissions(permissions, requestCode);
+        }
+
+        @Override
+        public boolean shouldShowRequestPermissionRationale(String permission) {
+            return CarProxyActivity.this.shouldShowRequestPermissionRationale(permission);
+        }
     };
 
     public CarProxyActivity(Class carActivityClass) {

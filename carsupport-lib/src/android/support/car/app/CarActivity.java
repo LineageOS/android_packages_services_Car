@@ -43,16 +43,24 @@ public abstract class CarActivity {
      * This interface provides utility for {@link CarActivity} to do things like manipulating view,
      * handling menu, and etc.
      */
-    public interface Proxy {
-        void setContentView(View view);
-        void setContentView(int layoutResID);
-        Resources getResources();
-        View findViewById(int id);
-        LayoutInflater getLayoutInflater();
-        Intent getIntent();
-        void finish();
-        void setContentFragment(Fragment fragment, int containerId);
-        CarInputManager getCarInputManager();
+    public abstract static class Proxy {
+        abstract public void setContentView(View view);
+        abstract public void setContentView(int layoutResID);
+        abstract public Resources getResources();
+        abstract public View findViewById(int id);
+        abstract public LayoutInflater getLayoutInflater();
+        abstract public Intent getIntent();
+        abstract public void finish();
+        abstract public void setContentFragment(Fragment fragment, int containerId);
+        abstract public CarInputManager getCarInputManager();
+        public void requestPermissions(String[] permissions, int requestCode) {
+        }
+        public void onRequestPermissionsResult(int requestCode,
+                String[] permissions, int[] grantResults) {
+        }
+        public boolean shouldShowRequestPermissionRationale(String permission) {
+            return false;
+        }
     }
 
     /** @hide */
@@ -122,6 +130,19 @@ public abstract class CarActivity {
 
     public void finish() {
         mProxy.finish();
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+        mProxy.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public boolean shouldShowRequestPermissionRationale(String permission) {
+        return mProxy.shouldShowRequestPermissionRationale(permission);
+    }
+
+    public void requestPermissions(String[] permissions, int requestCode) {
+        mProxy.requestPermissions(permissions, requestCode);
     }
 
     /** @hide */
