@@ -97,13 +97,6 @@ public class CarProxyActivity extends Activity {
         }
 
         @Override
-        public void onRequestPermissionsResult(int requestCode,
-                String[] permissions, int[] grantResults) {
-            CarProxyActivity.this.onRequestPermissionsResult(
-                    requestCode, permissions, grantResults);
-        }
-
-        @Override
         public void requestPermissions(String[] permissions, int requestCode) {
             CarProxyActivity.this.requestPermissions(permissions, requestCode);
         }
@@ -221,6 +214,13 @@ public class CarProxyActivity extends Activity {
         mCarActivity.dispatchCmd(CarActivity.CMD_ON_CONFIG_CHANGED, newConfig);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] results) {
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_REQUEST_PERMISSIONS_RESULT,
+                new Integer(requestCode), permissions, convertArray(results));
+    }
+
     private static final class EmbeddedInputManager extends CarInputManager {
         private static final String TAG = "EmbeddedInputManager";
 
@@ -267,5 +267,13 @@ public class CarProxyActivity extends Activity {
         public boolean isCurrentCarEditable(CarRestrictedEditText view) {
             return mInputManager.isActive(view);
         }
+    }
+
+    private static Integer[] convertArray(int[] array) {
+        Integer[] grantResults = new Integer[array.length];
+        for (int i = 0; i < array.length; i++) {
+            grantResults[i] = array[i];
+        }
+        return grantResults;
     }
 }

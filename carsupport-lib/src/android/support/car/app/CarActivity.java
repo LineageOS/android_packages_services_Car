@@ -56,9 +56,6 @@ public abstract class CarActivity {
         abstract public CarInputManager getCarInputManager();
         public void requestPermissions(String[] permissions, int requestCode) {
         }
-        public void onRequestPermissionsResult(int requestCode,
-                String[] permissions, int[] grantResults) {
-        }
         public boolean shouldShowRequestPermissionRationale(String permission) {
             return false;
         }
@@ -86,6 +83,8 @@ public abstract class CarActivity {
     public static final int CMD_ON_RESTORE_INSTANCE_STATE = 9;
     /** @hide */
     public static final int CMD_ON_CONFIG_CHANGED = 10;
+    /** @hide */
+    public static final int CMD_ON_REQUEST_PERMISSIONS_RESULT = 11;
 
     private final Proxy mProxy;
     private final Context mContext;
@@ -135,11 +134,6 @@ public abstract class CarActivity {
         mProxy.finish();
     }
 
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            int[] grantResults) {
-        mProxy.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
     public boolean shouldShowRequestPermissionRationale(String permission) {
         return mProxy.shouldShowRequestPermissionRationale(permission);
     }
@@ -149,11 +143,12 @@ public abstract class CarActivity {
     }
 
     /** @hide */
-    public void dispatchCmd(int cmd, Object arg0) {
+    public void dispatchCmd(int cmd, Object... args) {
 
         switch (cmd) {
             case CMD_ON_CREATE:
-                onCreate((Bundle) arg0);
+                assertArgsLength(1, args);
+                onCreate((Bundle) args[0]);
                 break;
             case CMD_ON_START:
                 onStart();
@@ -177,13 +172,21 @@ public abstract class CarActivity {
                 onBackPressed();
                 break;
             case CMD_ON_SAVE_INSTANCE_STATE:
-                onSaveInstanceState((Bundle) arg0);
+                assertArgsLength(1, args);
+                onSaveInstanceState((Bundle) args[0]);
                 break;
             case CMD_ON_RESTORE_INSTANCE_STATE:
-                onRestoreInstanceState((Bundle) arg0);
+                assertArgsLength(1, args);
+                onRestoreInstanceState((Bundle) args[0]);
+                break;
+            case CMD_ON_REQUEST_PERMISSIONS_RESULT:
+                assertArgsLength(3, args);
+                onRequestPermissionsResult(((Integer) args[0]).intValue(),
+                        (String[]) args[1], convertArray((Integer[]) args[2]));
                 break;
             case CMD_ON_CONFIG_CHANGED:
-                onConfigurationChanged((Configuration) arg0);
+                assertArgsLength(1, args);
+                onConfigurationChanged((Configuration) args[0]);
                 break;
             default:
                 throw new RuntimeException("Unknown dispatch cmd for CarActivity, " + cmd);
@@ -222,5 +225,25 @@ public abstract class CarActivity {
     }
 
     protected void onConfigurationChanged(Configuration newConfig) {
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+    }
+
+    private void assertArgsLength(int length, Object... args) {
+        if (args == null || args.length != length) {
+            throw new IllegalArgumentException(
+                    String.format("Wrong number of parameters. Expected: %d Actual: %d",
+                            length, args == null ? 0 : args.length));
+        }
+    }
+
+    private static int[] convertArray(Integer[] array) {
+        int[] results = new int[array.length];
+        for(int i = 0; i < results.length; i++) {
+            results[i] = array[i].intValue();
+        }
+        return results;
     }
 }
