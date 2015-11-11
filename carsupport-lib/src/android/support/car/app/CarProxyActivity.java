@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.car.input.CarInputManager;
@@ -212,6 +213,12 @@ public class CarProxyActivity extends Activity {
     protected void onRestoreInstanceState(Bundle savedState) {
         super.onRestoreInstanceState(savedState);
         mCarActivity.dispatchCmd(CarActivity.CMD_ON_RESTORE_INSTANCE_STATE, savedState);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_CONFIG_CHANGED, newConfig);
     }
 
     private static final class EmbeddedInputManager extends CarInputManager {

@@ -19,6 +19,7 @@ package android.support.car.app;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -83,6 +84,8 @@ public abstract class CarActivity {
     public static final int CMD_ON_SAVE_INSTANCE_STATE = 8;
     /** @hide */
     public static final int CMD_ON_RESTORE_INSTANCE_STATE = 9;
+    /** @hide */
+    public static final int CMD_ON_CONFIG_CHANGED = 10;
 
     private final Proxy mProxy;
     private final Context mContext;
@@ -179,6 +182,9 @@ public abstract class CarActivity {
             case CMD_ON_RESTORE_INSTANCE_STATE:
                 onRestoreInstanceState((Bundle) arg0);
                 break;
+            case CMD_ON_CONFIG_CHANGED:
+                onConfigurationChanged((Configuration) arg0);
+                break;
             default:
                 throw new RuntimeException("Unknown dispatch cmd for CarActivity, " + cmd);
         }
@@ -213,5 +219,8 @@ public abstract class CarActivity {
     }
 
     protected void onBackPressed() {
+    }
+
+    protected void onConfigurationChanged(Configuration newConfig) {
     }
 }
