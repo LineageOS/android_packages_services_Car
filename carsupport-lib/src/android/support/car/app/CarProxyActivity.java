@@ -16,8 +16,6 @@
 
 package android.support.car.app;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -25,6 +23,9 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.car.input.CarInputManager;
 import android.support.car.input.CarRestrictedEditText;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +43,7 @@ import java.lang.reflect.InvocationTargetException;
  * android Activity controlling / proxying {@link CarActivity}. Applications should have its own
  * {@link android.app.Activity} overriding only constructor.
  */
-public class CarProxyActivity extends Activity {
+public class CarProxyActivity extends FragmentActivity {
     private final Class mCarActivityClass;
     // no synchronization, but main thread only
     private CarActivity mCarActivity;
@@ -87,7 +88,7 @@ public class CarProxyActivity extends Activity {
 
         @Override
         public void setContentFragment(Fragment fragment, int fragmentContainer) {
-            CarProxyActivity.this.getFragmentManager().beginTransaction().replace(
+            CarProxyActivity.this.getSupportFragmentManager().beginTransaction().replace(
                     fragmentContainer, fragment).commit();
         }
 
@@ -104,6 +105,11 @@ public class CarProxyActivity extends Activity {
         @Override
         public boolean shouldShowRequestPermissionRationale(String permission) {
             return CarProxyActivity.this.shouldShowRequestPermissionRationale(permission);
+        }
+
+        @Override
+        public FragmentManager getSupportFragmentManager() {
+            return CarProxyActivity.this.getSupportFragmentManager();
         }
     };
 

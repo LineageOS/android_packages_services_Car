@@ -16,7 +16,6 @@
 
 package android.support.car.app.menu;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -26,6 +25,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.LayoutRes;
 import android.support.car.app.CarActivity;
+import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -75,6 +75,11 @@ public abstract class CarDrawerActivity extends CarActivity{
 
     public void setContentFragment(Fragment fragment) {
         super.setContentFragment(fragment, mUiController.getFragmentContainerId());
+    }
+
+    @Override
+    public View findViewById(@LayoutRes int id) {
+        return super.findViewById(mUiController.getFragmentContainerId()).findViewById(id);
     }
 
     public interface OnMenuClickListener {

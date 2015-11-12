@@ -16,7 +16,6 @@
 
 package android.support.car.app;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -25,6 +24,8 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.car.Car;
 import android.support.car.input.CarInputManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -58,6 +59,9 @@ public abstract class CarActivity {
         }
         public boolean shouldShowRequestPermissionRationale(String permission) {
             return false;
+        }
+        public FragmentManager getSupportFragmentManager() {
+            return null;
         }
     }
 

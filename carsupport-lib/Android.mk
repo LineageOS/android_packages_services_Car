@@ -21,7 +21,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := libcarsupport
 LOCAL_MODULE_TAGS := optional
 
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-annotations jsr305
-
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-annotations \
+                               jsr305 \
+                               android-support-v4
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 include $(BUILD_STATIC_JAVA_LIBRARY)
