@@ -1,5 +1,6 @@
 #
-# Include this make file to build your application against this module.
+# Include this make file to build your application with car ui.
+# This only applied to app which is not CarActivity based but wants to use car-ui.
 #
 # Make sure to include it after you've set all your desired LOCAL variables.
 # Note that you must explicitly set your LOCAL_RESOURCE_DIR before including this file.
@@ -9,7 +10,7 @@
 #   LOCAL_RESOURCE_DIR := \
 #        $(LOCAL_PATH)/res
 #
-#   include packages/services/Car/car-ui-lib/car-ui-support.mk
+#   include packages/services/Car/car-libs/car-ui/car-ui.mk
 #
 
 # Check that LOCAL_RESOURCE_DIR is defined
@@ -23,11 +24,11 @@ LOCAL_AAPT_FLAGS += --auto-add-overlay
 endif
 
 # Include car ui library, if not already included
-ifeq (,$(findstring caruilib,$(LOCAL_STATIC_JAVA_LIBRARIES)))
+ifeq (,$(findstring car-ui,$(LOCAL_STATIC_JAVA_LIBRARIES)))
 LOCAL_RESOURCE_DIR += \
-    packages/services/Car/car-ui-lib/res
+    packages/services/Car/car-libs/car-ui/res
 LOCAL_AAPT_FLAGS += --extra-packages android.support.car.ui
-LOCAL_STATIC_JAVA_LIBRARIES += caruilib
+LOCAL_STATIC_JAVA_LIBRARIES += car-ui
 endif
 
 ## Include transitive dependencies below

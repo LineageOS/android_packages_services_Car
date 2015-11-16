@@ -27,6 +27,6 @@ LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_SDK_VERSION := current
 
-include packages/services/Car/car-ui-lib/car-ui-support.mk
+include packages/services/Car/car-libs/car.mk
 
 include $(BUILD_PACKAGE)

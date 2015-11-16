@@ -31,7 +31,7 @@ LOCAL_PRIVILEGED_MODULE := true
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 LOCAL_PROGUARD_ENABLED := disabled
 
-LOCAL_STATIC_JAVA_LIBRARIES += libvehiclenetwork-java libcarsystemtest
+LOCAL_STATIC_JAVA_LIBRARIES += libvehiclenetwork-java car-systemtest
 
 include $(BUILD_PACKAGE)
 

@@ -25,7 +25,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
-LOCAL_STATIC_JAVA_LIBRARIES += libcarsupport
+LOCAL_STATIC_JAVA_LIBRARIES += car-core
 
 LOCAL_MODULE := cartestapplib
 
@@ -48,6 +48,6 @@ LOCAL_MODULE_PATH := $(TARGET_OUT_DATA_APPS)
 
 LOCAL_PROGUARD_ENABLED := disabled
 
-LOCAL_STATIC_JAVA_LIBRARIES += libcarsupport
+include packages/services/Car/car-libs/car.mk
 
 include $(BUILD_PACKAGE)

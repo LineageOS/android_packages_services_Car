@@ -18,11 +18,14 @@ LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := libcarsystem
+LOCAL_MODULE := car-systemtest
+
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 
-LOCAL_STATIC_JAVA_LIBRARIES += libcarsupport
+LOCAL_AIDL_INCLUDES += packages/services/Car/libvehiclenetwork/java/src/
+
+LOCAL_STATIC_JAVA_LIBRARIES += car-system libvehiclenetwork-java
 
 include $(BUILD_STATIC_JAVA_LIBRARY)

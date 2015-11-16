@@ -22,7 +22,7 @@ LOCAL_AAPT_FLAGS := --auto-add-overlay \
     --extra-packages android.support.v7.recyclerview \
     --extra-packages android.support.v7.cardview
 
-LOCAL_MODULE := caruilib
+LOCAL_MODULE := car-ui
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_RESOURCE_DIR += frameworks/support/v7/appcompat/res
@@ -36,6 +36,5 @@ LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-appcompat
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-recyclerview
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-cardview
-LOCAL_STATIC_JAVA_LIBRARIES += libcarsupport
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
