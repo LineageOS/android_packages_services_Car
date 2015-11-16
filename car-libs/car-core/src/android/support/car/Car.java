@@ -22,19 +22,24 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
 
-import javax.annotation.concurrent.GuardedBy;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.annotation.concurrent.GuardedBy;
 
 /**
  *   Top level car API.
@@ -180,6 +185,27 @@ public class Car {
         "com.android.car.SystemTestApiCarServiceLoader",
         "com.android.car.SystemApiCarServiceLoader",
     };
+
+    private final ICarConnectionListenerImpl mICarConnectionListenerImpl =
+            new ICarConnectionListenerImpl(this);
+    /**
+     * CarConnectionListener which did not get connected notification yet.
+     */
+    private final HashSet<CarConnectionListener> mCarConnectionNotConnectedListeners =
+            new HashSet<>();
+    /**
+     * CarConnectionListener which got connected notification already. Only listener with
+     * connected notification will get disconnected notification when disconnect event happens.
+     */
+    private final HashSet<CarConnectionListener> mCarConnectionConnectedListeners =
+            new HashSet<>();
+    /** CarConnectionListener to get current event. */
+    private final LinkedList<CarConnectionListener> mCarConnectionListenersForEvent =
+            new LinkedList<>();
+
+    /** Handler for generic event dispatching. */
+    private final Handler mEventHandler;
+
     /**
      * Create Car instance for all Car API access.
      * @param context
@@ -196,6 +222,7 @@ public class Car {
         } else {
             mLooper = looper;
         }
+        mEventHandler = new Handler(mLooper);
         if (mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
             CarServiceLoader loader = null;
             for (String classToTry : CAR_SERVICE_LOADERS_FOR_FEATURE_AUTOMOTIVE) {
@@ -265,6 +292,7 @@ public class Car {
         } else {
             mLooper = looper;
         }
+        mEventHandler = new Handler(mLooper);
         mService = service;
         mConnectionState = STATE_CONNECTED;
         mCarServiceLoader = null;
@@ -379,6 +407,66 @@ public class Car {
     }
 
     /**
+     * Registers a {@link CarConnectionListener}.
+     *
+     * Avoid reregistering unregistered listeners. If an unregistered listener is reregistered,
+     * it may receive duplicate calls to {@link CarConnectionListener#onConnected}.
+     *
+     * @throws IllegalStateException if service is not connected.
+     */
+    public void registerCarConnectionListener(CarConnectionListener listener)
+            throws IllegalStateException {
+        ICar service = getICarOrThrow();
+        int currentConnectionType;
+        synchronized (this) {
+            if (mCarConnectionNotConnectedListeners.size() == 0 &&
+                    mCarConnectionConnectedListeners.size() == 0) {
+                try {
+                    service.registerCarConnectionListener(
+                            ICarConnectionListenerImpl.CAR_CONNECTION_LISTENER_VERSION,
+                            mICarConnectionListenerImpl);
+                } catch (RemoteException e) {
+                    // ignore
+                }
+            }
+            mCarConnectionNotConnectedListeners.add(listener);
+            currentConnectionType = mICarConnectionListenerImpl.getCurrentConnectionType();
+        }
+        if (currentConnectionType != ICarConnectionListenerImpl.CONNECTION_TYPE_INVALID) {
+            final int connectionToPost = currentConnectionType;
+            mEventHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    handleCarConnected(connectionToPost);
+                }
+            });
+        }
+    }
+
+    /**
+     * Unregisters a {@link CarConnectionListener}.
+     *
+     * <b>Note:</b> If this method is called from a thread besides the client's looper thread,
+     * there is no guarantee that the unregistered listener will not receive callbacks after
+     * this method returns.
+     */
+    public void unregisterCarConnectionListener(CarConnectionListener listener) {
+        synchronized (this) {
+            mCarConnectionNotConnectedListeners.remove(listener);
+            mCarConnectionConnectedListeners.remove(listener);
+            if (mCarConnectionNotConnectedListeners.size() == 0 &&
+                    mCarConnectionConnectedListeners.size() == 0) {
+                try {
+                    ICar service = getICarOrThrow();
+                    service.unregisterCarConnectionListener(mICarConnectionListenerImpl);
+                } catch (IllegalStateException | RemoteException e) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    /**
      * IllegalStateException from XyzCarService with special message is re-thrown as a different
      * exception. If the IllegalStateException is not understood then this message will throw the
      * original exception.
@@ -420,6 +508,80 @@ public class Car {
                 manager.onCarDisconnected();
             }
             mServiceMap.clear();
+        }
+    }
+
+    private void handleCarConnected(int connectionType) {
+        synchronized (this) {
+            mCarConnectionListenersForEvent.clear();
+            mCarConnectionConnectedListeners.addAll(mCarConnectionNotConnectedListeners);
+            mCarConnectionListenersForEvent.addAll(mCarConnectionNotConnectedListeners);
+            mCarConnectionNotConnectedListeners.clear();
+        }
+        for (CarConnectionListener listener : mCarConnectionListenersForEvent) {
+            listener.onConnected(connectionType);
+        }
+    }
+
+    private void handleCarDisconnected() {
+        synchronized (this) {
+            mCarConnectionListenersForEvent.clear();
+            mCarConnectionNotConnectedListeners.addAll(mCarConnectionConnectedListeners);
+            mCarConnectionListenersForEvent.addAll(mCarConnectionConnectedListeners);
+            mCarConnectionConnectedListeners.clear();
+        }
+        for (CarConnectionListener listener : mCarConnectionListenersForEvent) {
+            listener.onDisconnected();
+        }
+    }
+
+    private static class ICarConnectionListenerImpl extends ICarConnectionListener.Stub {
+        private static final int CAR_CONNECTION_LISTENER_VERSION = 1;
+        private static final int CONNECTION_TYPE_INVALID = -1;
+
+        private final WeakReference<Car> mCar;
+        private int mCurrentConnectionType = CONNECTION_TYPE_INVALID;
+
+        private ICarConnectionListenerImpl(Car car) {
+            mCar = new WeakReference<>(car);
+        }
+
+        public synchronized int getCurrentConnectionType() {
+            return mCurrentConnectionType;
+        }
+
+        @Override
+        public void onConnected(final int connectionType) {
+            final Car car = mCar.get();
+            if (car == null) {
+                return;
+            }
+            car.mEventHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (this) {
+                        mCurrentConnectionType = connectionType;
+                    }
+                    car.handleCarConnected(connectionType);
+                }
+            });
+        }
+
+        @Override
+        public void onDisconnected() {
+            final Car car = mCar.get();
+            if (car == null) {
+                return;
+            }
+            car.mEventHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (this) {
+                        mCurrentConnectionType = CONNECTION_TYPE_INVALID;
+                    }
+                    car.handleCarDisconnected();
+                }
+            });
         }
     }
 }

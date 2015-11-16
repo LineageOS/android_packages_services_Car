@@ -29,9 +29,4 @@ interface ICar {
     int getCarConnectionType() = 3;
     void registerCarConnectionListener(int clientVersion, in ICarConnectionListener listener) = 4;
     void unregisterCarConnectionListener(in ICarConnectionListener listener) = 5;
-    boolean startCarActivity(in Intent intent) = 6;
-    /* TODO
-    List<ResolveInfo> queryIntentCarProjectionServices(in Intent intent) = 9;
-    List<ResolveInfo> queryAllowedServices(in Intent intent, int applicationType) = 10;
-    boolean isPackageAllowed(in String packageName, int applicationType) = 11;*/
 }

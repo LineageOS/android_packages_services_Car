@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.Process;
+import android.os.RemoteException;
 import android.support.car.Car;
 import android.support.car.ICar;
 import android.support.car.ICarConnectionListener;
@@ -31,6 +32,7 @@ import com.android.car.hal.VehicleHal;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 
 public class ICarImpl extends ICar.Stub {
     private static final int VERSION = 1;
@@ -52,6 +54,10 @@ public class ICarImpl extends ICar.Stub {
     @GuardedBy("this")
     private CarTestService mCarTestService;
     private final CarServiceBase[] mAllServices;
+
+    /** Holds connection listener from client. Only necessary for mocking. */
+    private final BinderInterfaceContainer<ICarConnectionListener> mCarConnectionListeners =
+            new BinderInterfaceContainer<>(null);
 
     public synchronized static ICarImpl getInstance(Context serviceContext) {
         if (sInstance == null) {
@@ -97,6 +103,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     private void release() {
+        mCarConnectionListeners.release();
         // release done in opposite order from init
         for (int i = mAllServices.length - 1; i >= 0; i--) {
             mAllServices[i].release();
@@ -114,12 +121,32 @@ public class ICarImpl extends ICar.Stub {
         reinitServices();
     }
 
+    /** Reset all services when starting / stopping vehicle hal mocking */
     private void reinitServices() {
         for (int i = mAllServices.length - 1; i >= 0; i--) {
             mAllServices[i].release();
         }
         for (CarServiceBase service: mAllServices) {
             service.init();
+        }
+        // send disconnect event and connect event to all clients.
+        Collection<BinderInterfaceContainer.BinderInterface<ICarConnectionListener>>
+                connectionListeners = mCarConnectionListeners.getInterfaces();
+        for (BinderInterfaceContainer.BinderInterface<ICarConnectionListener> client :
+                connectionListeners) {
+            try {
+                client.binderInterface.onDisconnected();
+            } catch (RemoteException e) {
+                //ignore
+            }
+        }
+        for (BinderInterfaceContainer.BinderInterface<ICarConnectionListener> client :
+                connectionListeners) {
+            try {
+                client.binderInterface.onConnected(Car.CONNECTION_TYPE_EMBEDDED);
+            } catch (RemoteException e) {
+                //ignore
+            }
         }
     }
 
@@ -136,7 +163,7 @@ public class ICarImpl extends ICar.Stub {
             case Car.INFO_SERVICE:
                 return mCarInfoService;
             case CarSystem.RADIO_SERVICE:
-                assertSystemUidOrPermission(mContext);
+                assertRadioPermission(mContext);
                 return mCarRadioService;
             case CarSystemTest.TEST_SERVICE: {
                 assertVehicleHalMockPermission(mContext);
@@ -165,18 +192,17 @@ public class ICarImpl extends ICar.Stub {
 
     @Override
     public void registerCarConnectionListener(int clientVersion, ICarConnectionListener listener) {
-        //TODO
+        mCarConnectionListeners.addBinder(clientVersion, listener);
+        try {
+            listener.onConnected(Car.CONNECTION_TYPE_EMBEDDED);
+        } catch (RemoteException e) {
+            //ignore
+        }
     }
 
     @Override
     public void unregisterCarConnectionListener(ICarConnectionListener listener) {
-        //TODO
-    }
-
-    @Override
-    public boolean startCarActivity(Intent intent) {
-        //TODO
-        return false;
+        mCarConnectionListeners.removeBinder(listener);
     }
 
     /**
@@ -197,12 +223,11 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
-    private static void assertSystemUidOrPermission(Context context) {
-        if (getCallingUid() != Process.SYSTEM_UID &&
-            context.checkCallingOrSelfPermission(CarSystem.PERMISSION_RADIO_VEHICLE_HAL)
+    private static void assertRadioPermission(Context context) {
+        if (context.checkCallingOrSelfPermission(CarSystem.PERMISSION_CAR_RADIO)
             != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException(
-                "requires system app or " + CarSystem.PERMISSION_RADIO_VEHICLE_HAL);
+                "requires system app or " + CarSystem.PERMISSION_CAR_RADIO);
         }
     }
 

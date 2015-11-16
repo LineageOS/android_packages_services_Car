@@ -211,10 +211,10 @@ public class CarRadioService extends ICarRadio.Stub
 
     private void checkRadioPremissions() {
         if (getCallingUid() != Process.SYSTEM_UID &&
-            mContext.checkCallingOrSelfPermission(CarSystem.PERMISSION_RADIO_VEHICLE_HAL) !=
+            mContext.checkCallingOrSelfPermission(CarSystem.PERMISSION_CAR_RADIO) !=
             PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException("requires system app or " +
-                CarSystem.PERMISSION_RADIO_VEHICLE_HAL);
+                CarSystem.PERMISSION_CAR_RADIO);
         }
     }
 }

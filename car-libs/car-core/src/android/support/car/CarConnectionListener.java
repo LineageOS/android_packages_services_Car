@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+
+package android.support.car;
 
 /**
- * Container class to hold static definitions for system api for Car.
- * Client should still use Car api for all operations, and this class is only for defining
- * additional parameters available when car api becomes system api.
- * @hide
+ * Listener for monitoring car's connection status.
+ * Callbacks are called from the looper specified when constructing {@link Car}.
  */
-public class CarSystem {
-    public static final String RADIO_SERVICE = "radio";
-
-    /** Permission necesary to access Car RADIO system APIs. */
-    public static final String PERMISSION_CAR_RADIO =
-            "com.android.car.permission.CAR_RADIO";
+public interface CarConnectionListener {
+    /**
+     * Car has been connected. Does not guarantee that the car is still connected whilst this
+     * callback is running, so {@link CarNotConnectedException}s may still be thrown from
+     * {@link Car} method calls.
+     * @param connectionType Type of car connected.
+     */
+    void onConnected(@Car.ConnectionType int connectionType);
+    /** Car disconnected */
+    void onDisconnected();
 }

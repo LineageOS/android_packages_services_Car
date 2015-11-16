@@ -230,8 +230,6 @@ public class SensorHalService extends SensorHalServiceBase {
             case VehicleNetworkConsts.VEHICLE_PROPERTY_DRIVING_STATUS:
                 return CarSensorManager.SENSOR_TYPE_DRIVING_STATUS;
             default:
-                Log.e(CarLog.TAG_SENSOR, "unknown sensor property from HAL 0x" +
-                        Integer.toHexString(halPropertyType));
                 return SENSOR_TYPE_INVALD;
         }
     }
