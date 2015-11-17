@@ -16,88 +16,33 @@
 
 package com.android.support.car.apitest;
 
-import android.content.ComponentName;
-import android.os.IBinder;
-import android.os.Looper;
 import android.support.car.Car;
 import android.support.car.CarConnectionListener;
-import android.support.car.ServiceConnectionListener;
-import android.test.AndroidTestCase;
 import android.util.Log;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class CarConnectionListenerTest extends AndroidTestCase {
-    private static final long DEFAULT_WAIT_TIMEOUT_MS = 1000;
+public class CarConnectionListenerTest extends CarApiTestBase {
     private static final String TAG = CarConnectionListenerTest.class.getSimpleName();
-
-    private final Semaphore mConnectionWait = new Semaphore(0);
-
-    private Car mCar;
-
-    private final ServiceConnectionListener mConnectionListener = new ServiceConnectionListener() {
-
-        @Override
-        public void onServiceSuspended(int cause) {
-            assertMainThread();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            assertMainThread();
-        }
-
-        @Override
-        public void onServiceConnectionFailed(int cause) {
-            assertMainThread();
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            assertMainThread();
-            mConnectionWait.release();
-        }
-    };
-
-    private void assertMainThread() {
-        assertTrue(Looper.getMainLooper().isCurrentThread());
-    }
-    private void waitForConnection(long timeoutMs) throws InterruptedException {
-        mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        mCar = new Car(getContext(), mConnectionListener, null);
-        mCar.connect();
-        waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        mCar.disconnect();
-    }
 
     public void testRegisterUnregister() throws Exception {
         CarConnectionListerImpl listener = new CarConnectionListerImpl();
-        mCar.registerCarConnectionListener(listener);
+        getCar().registerCarConnectionListener(listener);
         assertTrue(listener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
-        mCar.unregisterCarConnectionListener(listener);
+        getCar().unregisterCarConnectionListener(listener);
     }
 
     public void testMultiple() throws Exception {
         CarConnectionListerImpl listener1 = new CarConnectionListerImpl();
-        mCar.registerCarConnectionListener(listener1);
+        getCar().registerCarConnectionListener(listener1);
         assertTrue(listener1.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
         CarConnectionListerImpl listener2 = new CarConnectionListerImpl();
-        mCar.registerCarConnectionListener(listener2);
+        getCar().registerCarConnectionListener(listener2);
         assertTrue(listener2.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
         assertFalse(listener1.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
-        mCar.unregisterCarConnectionListener(listener2);
-        mCar.unregisterCarConnectionListener(listener1);
+        getCar().unregisterCarConnectionListener(listener2);
+        getCar().unregisterCarConnectionListener(listener1);
     }
 
     private class CarConnectionListerImpl implements CarConnectionListener {

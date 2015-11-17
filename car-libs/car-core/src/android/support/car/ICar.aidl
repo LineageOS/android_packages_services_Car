@@ -17,7 +17,6 @@
 package android.support.car;
 
 import android.content.Intent;
-//import android.content.pm.ResolveInfo;
 
 import android.support.car.ICarConnectionListener;
 

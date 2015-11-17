@@ -31,20 +31,21 @@ public class BinderInterfaceContainer<T extends IInterface> {
 
     public static class BinderInterface<T extends IInterface>
             implements IBinder.DeathRecipient {
-        public final T binderInterface;
         public final int version;
+        public final T binderInterface;
         private final BinderInterfaceContainer<T> mContainer;
 
-        private BinderInterface(BinderInterfaceContainer<T> container, T binderInterface,
-                int version) {
+        public BinderInterface(BinderInterfaceContainer<T> container, int version,
+                T binderInterface) {
             mContainer = container;
-            this.binderInterface = binderInterface;
             this.version = version;
+            this.binderInterface = binderInterface;
         }
 
         @Override
         public void binderDied() {
             binderInterface.asBinder().unlinkToDeath(this, 0);
+            mContainer.handleBinderDeath(this);
         }
     }
 
@@ -62,11 +63,11 @@ public class BinderInterfaceContainer<T extends IInterface> {
     public void addBinder(int version, T binderInterface) {
         IBinder binder = binderInterface.asBinder();
         synchronized (this) {
-            BinderInterface bInterface = mBinders.get(binder);
+            BinderInterface<T> bInterface = mBinders.get(binder);
             if (bInterface != null) {
                 return;
             }
-            bInterface = new BinderInterface(this, binderInterface, version);
+            bInterface = new BinderInterface<T>(this, version, binderInterface);
             try {
                 binder.linkToDeath(bInterface, 0);
             } catch (RemoteException e) {
@@ -79,12 +80,31 @@ public class BinderInterfaceContainer<T extends IInterface> {
     public void removeBinder(T binderInterface) {
         IBinder binder = binderInterface.asBinder();
         synchronized(this) {
-            BinderInterface bInterface = mBinders.get(binder);
+            BinderInterface<T> bInterface = mBinders.get(binder);
             if (bInterface != null) {
                 return;
             }
             binder.unlinkToDeath(bInterface, 0);
             mBinders.remove(binder);
+        }
+    }
+
+    public BinderInterface<T> getBinderInterface(T binderInterface) {
+        IBinder binder = binderInterface.asBinder();
+        synchronized (this) {
+            return mBinders.get(binder);
+        }
+    }
+
+    public void addBinderInterface(BinderInterface<T> bInterface) {
+        IBinder binder = bInterface.binderInterface.asBinder();
+        synchronized (this) {
+            try {
+                binder.linkToDeath(bInterface, 0);
+            } catch (RemoteException e) {
+                throw new IllegalArgumentException(e);
+            }
+            mBinders.put(binder, bInterface);
         }
     }
 
@@ -94,7 +114,7 @@ public class BinderInterfaceContainer<T extends IInterface> {
         }
     }
 
-    public synchronized void release() {
+    public synchronized void clear() {
         Collection<BinderInterface<T>> interfaces = getInterfaces();
         for (BinderInterface<T> bInterface : interfaces) {
             removeBinder(bInterface.binderInterface);

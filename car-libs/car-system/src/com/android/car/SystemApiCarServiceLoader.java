@@ -43,9 +43,6 @@ public class SystemApiCarServiceLoader extends DefaultCarServiceLoader {
                 manager =
                     new CarRadioManager(
                         getContext(), ICarRadio.Stub.asInterface(binder), getLooper());
-                if (manager == null) {
-                    Log.d(CarLibLog.TAG_CAR, "Radio manager could not be loaded!");
-                }
                 break;
         }
         if (manager == null) {

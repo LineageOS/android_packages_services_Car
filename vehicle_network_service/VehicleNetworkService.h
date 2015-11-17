@@ -54,10 +54,8 @@ class VehicleNetworkService;
  */
 class VehicleHalMessageHandler : public MessageHandler {
     enum {
-        INIT = 0,
-        RELEASE = 1,
-        HAL_EVENT = 2,
-        HAL_ERROR = 3,
+        HAL_EVENT = 0,
+        HAL_ERROR = 1,
     };
 
     /**
@@ -69,16 +67,12 @@ public:
     VehicleHalMessageHandler(const sp<Looper>& mLooper, VehicleNetworkService& service);
     virtual ~VehicleHalMessageHandler();
 
-    void handleInit();
-    void handleRelease();
     void handleHalEvent(vehicle_prop_value_t *eventData);
     void handleHalError(int errorCode);
     void handleMockStart();
 
 private:
     void handleMessage(const Message& message);
-    void doHandleInit();
-    void doHandleRelease();
     void doHandleHalEvent();
     void doHandleHalError();
 
@@ -255,6 +249,7 @@ private:
     KeyedVector<sp<IBinder>, sp<HalClient> > mBinderToClientMap;
     KeyedVector<int32_t, sp<HalClientSpVector> > mPropertyToClientsMap;
     KeyedVector<int32_t, float> mSampleRates;
+    KeyedVector<int32_t, int> mEventsCount;
     PropertyValueCache mCache;
     bool mMockingEnabled;
     sp<IVehicleNetworkHalMock> mHalMock;

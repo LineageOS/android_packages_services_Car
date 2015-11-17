@@ -42,17 +42,6 @@ VehicleHalMessageHandler::~VehicleHalMessageHandler() {
 
 }
 
-void VehicleHalMessageHandler::handleInit() {
-    Mutex::Autolock autoLock(mLock);
-    mLooper->sendMessage(this, Message(INIT));
-}
-
-void VehicleHalMessageHandler::handleRelease() {
-    Mutex::Autolock autoLock(mLock);
-    mLooper->sendMessage(this, Message(RELEASE));
-    mHalThreadWait.wait(mLock);
-}
-
 static const int MS_TO_NS = 1000000;
 
 void VehicleHalMessageHandler::handleHalEvent(vehicle_prop_value_t *eventData) {
@@ -82,15 +71,6 @@ void VehicleHalMessageHandler::handleMockStart() {
     mHalPropertyList[1].clear();
     sp<MessageHandler> self(this);
     mLooper->removeMessages(self);
-}
-
-void VehicleHalMessageHandler::doHandleInit() {
-    // nothing to do
-}
-
-void VehicleHalMessageHandler::doHandleRelease() {
-    Mutex::Autolock autoLock(mLock);
-    mHalThreadWait.broadcast();
 }
 
 void VehicleHalMessageHandler::doHandleHalEvent() {
@@ -134,12 +114,6 @@ void VehicleHalMessageHandler::doHandleHalError() {
 
 void VehicleHalMessageHandler::handleMessage(const Message& message) {
     switch (message.what) {
-    case INIT:
-        doHandleInit();
-        break;
-    case RELEASE:
-        doHandleRelease();
-        break;
     case HAL_EVENT:
         doHandleHalEvent();
         break;
@@ -233,6 +207,11 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
         msg.appendFormat("prop 0x%x, sample rate %f Hz\n", mSampleRates.keyAt(i),
                 mSampleRates.valueAt(i));
     }
+    msg.append("*Event counts per property*\n");
+    for (size_t i = 0; i < mEventsCount.size(); i++) {
+        msg.appendFormat("prop 0x%x: %d\n", mEventsCount.keyAt(i),
+                mEventsCount.valueAt(i));
+    }
     write(fd, msg.string(), msg.size());
     return NO_ERROR;
 }
@@ -312,7 +291,6 @@ void VehicleNetworkService::onFirstRef() {
             *this));
     ASSERT_ALWAYS_ON_NO_MEMORY(handler.get());
     mHandler = handler;
-    mHandler->handleInit();
     r = mDevice->init(mDevice, eventCallback, errorCallback);
     if (r != NO_ERROR) {
         ALOGE("HAL init failed:%d", r);
@@ -334,9 +312,6 @@ void VehicleNetworkService::onFirstRef() {
 void VehicleNetworkService::release() {
     Mutex::Autolock autoLock(mLock);
     mDevice->release(mDevice);
-    if (mHandler.get() != NULL) {
-        mHandler->handleRelease();
-    }
     mHandlerThread.quit();
 }
 
@@ -626,10 +601,11 @@ status_t VehicleNetworkService::startMocking(const sp<IVehicleNetworkHalMock>& m
     // Mock implementation should make sure that its startMocking call is not blocking its
     // onlistProperties call. Otherwise, this will lead into dead-lock.
     mPropertiesForMocking = mock->onListProperties();
-    //TODO save all old states before dropping all clients
+    //TODO store old state
     mBinderToClientMap.clear();
     mPropertyToClientsMap.clear();
     mSampleRates.clear();
+    mEventsCount.clear();
     //TODO handle binder death
     return NO_ERROR;
 }
@@ -643,20 +619,30 @@ void VehicleNetworkService::stopMocking(const sp<IVehicleNetworkHalMock>& mock) 
         ALOGE("stopMocking, not the one started");
         return;
     }
+    // TODO restore state
     mHalMock = NULL;
     mMockingEnabled = false;
-    mPropertiesForMocking = NULL;
-    //TODO restore old states
+    mEventsCount.clear();
 }
 
 void VehicleNetworkService::onHalEvent(const vehicle_prop_value_t* eventData, bool isInjection) {
-    if (!isInjection) {
+    do {
         Mutex::Autolock autoLock(mLock);
-        if (mMockingEnabled) {
-            // drop real HAL event if mocking is enabled
-            return;
+        if (!isInjection) {
+            if (mMockingEnabled) {
+                // drop real HAL event if mocking is enabled
+                return;
+            }
         }
-    }
+        ssize_t index = mEventsCount.indexOfKey(eventData->prop);
+        if (index < 0) {
+            mEventsCount.add(eventData->prop, 1);
+        } else {
+            int count = mEventsCount.valueAt(index);
+            count++;
+            mEventsCount.add(eventData->prop, count);
+        }
+    } while (false);
     //TODO add memory pool
     vehicle_prop_value_t* copy = VehiclePropValueUtil::allocVehicleProp(*eventData);
     ASSERT_OR_HANDLE_NO_MEMORY(copy, return);

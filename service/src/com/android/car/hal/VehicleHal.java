@@ -28,9 +28,9 @@ import com.android.car.CarLog;
 import com.android.car.vehiclenetwork.VehicleNetwork;
 import com.android.car.vehiclenetwork.VehicleNetwork.VehicleNetworkListener;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAppContextFlag;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
@@ -38,6 +38,7 @@ import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
 
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -51,21 +52,11 @@ public class VehicleHal implements VehicleNetworkListener {
 
     private static final boolean DBG = true;
 
-    /**
-     * Interface for mocking Hal which is used for testing, but should be kept even in release.
-     */
-    public interface HalMock {
-        //TODO
-    };
-
     static {
         createInstance();
     }
 
     private static VehicleHal sInstance;
-
-    private final HandlerThread mHandlerThread;
-    private final DefaultHandler mDefaultHandler;
 
     public static synchronized VehicleHal getInstance() {
         if (sInstance == null) {
@@ -78,7 +69,7 @@ public class VehicleHal implements VehicleNetworkListener {
         sInstance = new VehicleHal();
         // init is handled in a separate thread to prevent blocking the calling thread for too
         // long.
-        sInstance.startInit();
+        sInstance.init();
     }
 
     public static synchronized void releaseInstance() {
@@ -88,6 +79,7 @@ public class VehicleHal implements VehicleNetworkListener {
         }
     }
 
+    private final HandlerThread mHandlerThread;
     private final VehicleNetwork mVehicleNetwork;
     private final SensorHalService mSensorHal;
     private final InfoHalService mInfoHal;
@@ -100,11 +92,11 @@ public class VehicleHal implements VehicleNetworkListener {
     /** This is for iterating all HalServices with fixed order. */
     private final HalServiceBase[] mAllServices;
     private final ArraySet<Integer> mSubscribedProperties = new ArraySet<Integer>();
+    private final HashMap<Integer, VehiclePropConfig> mUnclaimedProperties = new HashMap<>();
 
     private VehicleHal() {
-        mHandlerThread = new HandlerThread("HAL");
+        mHandlerThread = new HandlerThread("VEHICLE-HAL");
         mHandlerThread.start();
-        mDefaultHandler = new DefaultHandler(mHandlerThread.getLooper());
         // passing this should be safe as long as it is just kept and not used in constructor
         mPowerHal = new PowerHalService(this);
         mSensorHal = new SensorHalService(this);
@@ -120,11 +112,7 @@ public class VehicleHal implements VehicleNetworkListener {
         mVehicleNetwork = VehicleNetwork.createVehicleNetwork(this, mHandlerThread.getLooper());
     }
 
-    private void startInit() {
-        mDefaultHandler.requestInit();
-    }
-
-    private void doInit() {
+    private void init() {
         VehiclePropConfigs properties = mVehicleNetwork.listProperties();
         // needs copy as getConfigsList gives unmodifiable one.
         List<VehiclePropConfig> propertiesList =
@@ -137,11 +125,18 @@ public class VehicleHal implements VehicleNetworkListener {
             if (DBG) {
                 Log.i(CarLog.TAG_HAL, "HalService " + service + " take properties " + taken.size());
             }
-            for (VehiclePropConfig p: taken) {
-                mPropertyHandlers.append(p.getProp(), service);
+            synchronized (this) {
+                for (VehiclePropConfig p: taken) {
+                    mPropertyHandlers.append(p.getProp(), service);
+                }
             }
             propertiesList.removeAll(taken);
             service.init();
+        }
+        synchronized (this) {
+            for (VehiclePropConfig p: propertiesList) {
+                mUnclaimedProperties.put(p.getProp(), p);
+            }
         }
     }
 
@@ -150,10 +145,13 @@ public class VehicleHal implements VehicleNetworkListener {
         for (int i = mAllServices.length - 1; i >= 0; i--) {
             mAllServices[i].release();
         }
-        for (int p : mSubscribedProperties) {
-            mVehicleNetwork.unsubscribe(p);
+        synchronized (this) {
+            for (int p : mSubscribedProperties) {
+                mVehicleNetwork.unsubscribe(p);
+            }
+            mSubscribedProperties.clear();
+            mUnclaimedProperties.clear();
         }
-        mSubscribedProperties.clear();
         // keep the looper thread as should be kept for the whole life cycle.
     }
 
@@ -167,7 +165,7 @@ public class VehicleHal implements VehicleNetworkListener {
 
     private void reinitHals() {
         release();
-        doInit();
+        init();
     }
 
     public SensorHalService getSensorHal() {
@@ -190,7 +188,27 @@ public class VehicleHal implements VehicleNetworkListener {
         return mPowerHal;
     }
 
-    private void assertServiceOwner(HalServiceBase service, int property) {
+    public void updateAppContext(boolean navigationActive, boolean voiceCommandActive,
+            boolean callActive) {
+        synchronized (this) {
+            VehiclePropConfig config = mUnclaimedProperties.get(
+                    VehicleNetworkConsts.VEHICLE_PROPERTY_APP_CONTEXT);
+            if (config == null) {
+                return; // not supported
+            }
+        }
+        int currentContext =
+                (navigationActive ?
+                    VehicleAppContextFlag.VEHICLE_APP_CONTEXT_NAVIGATION_FLAG : 0) |
+                (voiceCommandActive ?
+                        VehicleAppContextFlag.VEHICLE_APP_CONTEXT_VOICE_COMMAND_FLAG : 0) |
+                (callActive ?
+                        VehicleAppContextFlag.VEHICLE_APP_CONTEXT_CALL_FLAG : 0);
+        mVehicleNetwork.setIntProperty(VehicleNetworkConsts.VEHICLE_PROPERTY_APP_CONTEXT,
+                currentContext);
+    }
+
+    private void assertServiceOwnerLocked(HalServiceBase service, int property) {
         if (service != mPropertyHandlers.get(property)) {
             throw new IllegalArgumentException("not owned");
         }
@@ -204,14 +222,18 @@ public class VehicleHal implements VehicleNetworkListener {
      */
     public void subscribeProperty(HalServiceBase service, int property,
             float samplingRateHz) throws IllegalArgumentException {
-        assertServiceOwner(service, property);
-        mSubscribedProperties.add(property);
+        synchronized (this) {
+            assertServiceOwnerLocked(service, property);
+            mSubscribedProperties.add(property);
+        }
         mVehicleNetwork.subscribe(property, samplingRateHz);
     }
 
     public void unsubscribeProperty(HalServiceBase service, int property) {
-        assertServiceOwner(service, property);
-        mSubscribedProperties.remove(property);
+        synchronized (this) {
+            assertServiceOwnerLocked(service, property);
+            mSubscribedProperties.remove(property);
+        }
         mVehicleNetwork.unsubscribe(property);
     }
 
@@ -236,43 +258,21 @@ public class VehicleHal implements VehicleNetworkListener {
     }
 
     private final ArraySet<HalServiceBase> mServicesToDispatch = new ArraySet<HalServiceBase>();
+
     @Override
     public void onVehicleNetworkEvents(VehiclePropValues values) {
-        for (VehiclePropValue v : values.getValuesList()) {
-            HalServiceBase service = mPropertyHandlers.get(v.getProp());
-            service.getDispatchList().add(v);
-            mServicesToDispatch.add(service);
+        synchronized (this) {
+            for (VehiclePropValue v : values.getValuesList()) {
+                HalServiceBase service = mPropertyHandlers.get(v.getProp());
+                service.getDispatchList().add(v);
+                mServicesToDispatch.add(service);
+            }
         }
         for (HalServiceBase s : mServicesToDispatch) {
             s.handleHalEvents(s.getDispatchList());
             s.getDispatchList().clear();
         }
         mServicesToDispatch.clear();
-    }
-
-    private class DefaultHandler extends Handler {
-        private static final int MSG_INIT = 0;
-
-        private DefaultHandler(Looper looper) {
-            super(looper);
-        }
-
-        private void requestInit() {
-            Message msg = obtainMessage(MSG_INIT);
-            sendMessage(msg);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_INIT:
-                    doInit();
-                    break;
-                default:
-                    Log.w(CarLog.TAG_HAL, "unown message:" + msg.what, new RuntimeException());
-                    break;
-            }
-        }
     }
 
     public void dump(PrintWriter writer) {

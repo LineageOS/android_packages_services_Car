@@ -103,7 +103,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     private void release() {
-        mCarConnectionListeners.release();
+        mCarConnectionListeners.clear();
         // release done in opposite order from init
         for (int i = mAllServices.length - 1; i >= 0; i--) {
             mAllServices[i].release();
@@ -162,6 +162,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarSensorService;
             case Car.INFO_SERVICE:
                 return mCarInfoService;
+            case Car.APP_CONTEXT_SERVICE:
+                return mAppContextService;
             case CarSystem.RADIO_SERVICE:
                 assertRadioPermission(mContext);
                 return mCarRadioService;

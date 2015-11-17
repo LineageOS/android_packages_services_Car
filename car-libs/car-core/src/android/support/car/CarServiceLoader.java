@@ -61,6 +61,9 @@ public abstract class CarServiceLoader {
             case Car.INFO_SERVICE:
                 manager = new CarInfoManager(ICarInfo.Stub.asInterface(binder));
                 break;
+            case Car.APP_CONTEXT_SERVICE:
+                manager = new CarAppContextManager(IAppContext.Stub.asInterface(binder), mLooper);
+                break;
         }
         return manager;
     }

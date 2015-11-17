@@ -16,18 +16,8 @@
 
 package android.support.car;
 
-import android.support.car.IAppContextListener;
-
 /** @hide */
-interface IAppContext {
-    int getVersion() = 0;
-    void registerContextListener(int clientVersion, IAppContextListener listener, int filter) = 1;
-    void unregisterContextListener(IAppContextListener listener) = 2;
-    int getActiveAppContexts() = 3;
-    /** listener used as a token */
-    boolean isOwningContext(IAppContextListener listener, int context) = 4;
-    /** listener used as a token */
-    void setActiveContexts(IAppContextListener listener, int contexts) = 5;
-    /** listener used as a token */
-    void resetActiveContexts(IAppContextListener listener, int contexts) = 6;
+oneway interface IAppContextListener {
+    void onAppContextChange(int activeContexts) = 0;
+    void onAppContextOwnershipLoss(int context) = 1;
 }
