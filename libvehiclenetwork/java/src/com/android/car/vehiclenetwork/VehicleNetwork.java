@@ -65,6 +65,9 @@ public class VehicleNetwork {
     private VehicleNetworkHalMock mHalMock;
     private IVehicleNetworkHalMock mHalMockImpl;
 
+    private static final int VNS_CONNECT_MAX_RETRY = 10;
+    private static final long VNS_RETRY_WAIT_TIME_MS = 1000;
+
     /**
      * Factory method to create VehicleNetwork
      * @param listener listener for listening events
@@ -73,8 +76,21 @@ public class VehicleNetwork {
      */
     public static VehicleNetwork createVehicleNetwork(VehicleNetworkListener listener,
             Looper looper) {
-        IVehicleNetwork service = IVehicleNetwork.Stub.asInterface(ServiceManager.getService(
-                IVehicleNetwork.class.getCanonicalName()));
+        int retryCount = 0;
+        IVehicleNetwork service = null;
+        while (service == null) {
+            service = IVehicleNetwork.Stub.asInterface(ServiceManager.getService(
+                    IVehicleNetwork.class.getCanonicalName()));
+            retryCount++;
+            if (retryCount > VNS_CONNECT_MAX_RETRY) {
+                break;
+            }
+            try {
+                Thread.sleep(VNS_RETRY_WAIT_TIME_MS);
+            } catch (InterruptedException e) {
+                //ignore
+            }
+        }
         if (service == null) {
             throw new RuntimeException("Vehicle network service not available:" +
                     IVehicleNetwork.class.getCanonicalName());
