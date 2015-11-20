@@ -18,7 +18,8 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(patsubst ./%,%, $(shell cd $(LOCAL_PATH); \
-    find . -name "*.cpp" -and -not -name ".*"))
+    find . -name "*.cpp" -and -not -name ".*")) \
+    TestPropertyDef.c
 
 LOCAL_C_INCLUDES += \
     packages/services/Car/libvehiclenetwork/include

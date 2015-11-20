@@ -41,7 +41,20 @@ public:
      * Pass events contained in VehiclePropValueListHolder. Client (Bn implementor) should
      * hold sp to keep the data received outside this call.
      */
-    virtual status_t onEvents(sp<VehiclePropValueListHolder>& events) = 0;
+    virtual void onEvents(sp<VehiclePropValueListHolder>& events) = 0;
+    /**
+     * Notify error in HAL. For this to be called, either the target property is subscribed
+     * or client should explicitly call registerErrorListener.
+     * @param errorCode
+     * @param property Specific property where the error happened. 0 is for global error.
+     * @param operation
+     */
+    virtual void onHalError(int32_t errorCode, int32_t property, int32_t operation) = 0;
+    /**
+     * HAL is restarting. All subscription becomes invalid after this.
+     * @param inMocking Whether it is in mocking mode or not.
+     */
+    virtual void onHalRestart(bool inMocking) = 0;
 };
 
 // ----------------------------------------------------------------------------

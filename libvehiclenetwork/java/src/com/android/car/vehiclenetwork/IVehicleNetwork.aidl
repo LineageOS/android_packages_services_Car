@@ -40,6 +40,11 @@ interface IVehicleNetwork {
     void startMocking(in IVehicleNetworkHalMock mock)                                    = 6;
     /** Finish mocking mode. */
     void stopMocking(in IVehicleNetworkHalMock mock)                                     = 7;
+    void injectHalError(int errorCode, int property, int operation)                      = 8;
+    void startErrorListening(in IVehicleNetworkListener listener)                        = 9;
+    void stopErrorListening(in IVehicleNetworkListener listener)                         = 10;
+    void startHalRestartMonitoring(in IVehicleNetworkListener listener)                  = 11;
+    void stopHalRestartMonitoring(in IVehicleNetworkListener listener)                   = 12;
 
     //TODO add specialized set for byte array for efficiency
 }

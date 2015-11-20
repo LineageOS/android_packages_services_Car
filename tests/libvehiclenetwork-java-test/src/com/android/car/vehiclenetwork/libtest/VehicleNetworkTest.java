@@ -90,6 +90,9 @@ public class VehicleNetworkTest extends AndroidTestCase {
         Log.i(TAG, "got configs:" + configs.getConfigsCount());
         for (VehiclePropConfig config : configs.getConfigsList()) {
             if ((config.getAccess() & VehiclePropAccess.VEHICLE_PROP_ACCESS_READ) != 0) {
+                if (config.getProp() == VehicleNetworkConsts.VEHICLE_PROPERTY_RADIO_PRESET) {
+                    continue;
+                }
                 if (config.getProp() >= VehicleNetworkConsts.VEHICLE_PROPERTY_INTERNAL_START &&
                         config.getProp() <= VehicleNetworkConsts.VEHICLE_PROPERTY_INTERNAL_END) {
                     // internal property requires write to read
@@ -204,6 +207,16 @@ public class VehicleNetworkTest extends AndroidTestCase {
                     notifyAll();
                 }
             }
+        }
+
+        @Override
+        public void onHalError(int errorCode, int property, int operation) {
+            // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void onHalRestart(boolean inMocking) {
+            // TODO Auto-generated method stub
         }
 
         private synchronized boolean waitForEvent(Integer prop, long timeoutMs)

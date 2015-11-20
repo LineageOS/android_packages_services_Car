@@ -47,7 +47,7 @@ import java.util.HashMap;
  * @hide
  */
 public class VehicleHalEmulator {
-
+    private static final String TAG = VehicleHalEmulator.class.getSimpleName();
     /**
      * Interface for handler of each property.
      */
@@ -253,7 +253,9 @@ public class VehicleHalEmulator {
     private VehicleHalProperty getHalPropertyLocked(int property) {
         VehicleHalProperty halProp = mProperties.get(property);
         if (halProp == null) {
-            throw new IllegalArgumentException();
+            IllegalArgumentException e = new IllegalArgumentException();
+            Log.i(TAG, "property not supported:" + Integer.toHexString(property), e);
+            throw e;
         }
         return halProp;
     }

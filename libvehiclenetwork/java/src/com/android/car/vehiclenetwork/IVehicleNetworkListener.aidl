@@ -25,5 +25,7 @@ import com.android.car.vehiclenetwork.VehiclePropValuesParcelable;
  */
 interface IVehicleNetworkListener {
     void onVehicleNetworkEvents(in VehiclePropValuesParcelable values) = 0;
+    void onHalError(int errorCode, int property, int operation)        = 1;
+    void onHalRestart(boolean inMocking)                               = 2;
     //TODO add specialized onVehicleNetworkEvents for byte array for efficiency
 }

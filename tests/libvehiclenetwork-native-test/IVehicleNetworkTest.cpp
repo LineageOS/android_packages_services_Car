@@ -25,6 +25,8 @@
 #include <utils/SystemClock.h>
 #include <IVehicleNetwork.h>
 
+#include "IVehicleNetworkTestListener.h"
+
 namespace android {
 
 class IVehicleNetworkTest : public testing::Test {
@@ -55,68 +57,6 @@ protected:
     }
 private:
     sp<IVehicleNetwork> mDefaultVN;
-};
-
-class IVehicleNetworkTestTestListener : public BnVehicleNetworkListener {
-public:
-    virtual status_t onEvents(sp<VehiclePropValueListHolder>& events) {
-        String8 msg("events ");
-        Mutex::Autolock autolock(mLock);
-        for (auto& e : events->getList()) {
-            ssize_t index = mEventCounts.indexOfKey(e->prop);
-            if (index < 0) {
-                mEventCounts.add(e->prop, 1); // 1st event
-                msg.appendFormat("0x%x:%d ", e->prop, 1);
-            } else {
-                int count = mEventCounts.valueAt(index);
-                count++;
-                mEventCounts.replaceValueAt(index, count);
-                msg.appendFormat("0x%x:%d ", e->prop, count);
-            }
-        }
-        msg.append("\n");
-        std::cout<<msg.string();
-        mCondition.signal();
-        return NO_ERROR;
-    }
-
-    void waitForEvents(nsecs_t reltime) {
-        Mutex::Autolock autolock(mLock);
-        mCondition.waitRelative(mLock, reltime);
-    }
-
-    bool waitForEvent(int32_t property, nsecs_t reltime) {
-        Mutex::Autolock autolock(mLock);
-        int startCount = getEventCountLocked(property);
-        int currentCount = startCount;
-        int64_t now = android::elapsedRealtimeNano();
-        int64_t endTime = now + reltime;
-        while ((startCount == currentCount) && (now < endTime)) {
-            mCondition.waitRelative(mLock, endTime - now);
-            currentCount = getEventCountLocked(property);
-            now = android::elapsedRealtimeNano();
-        }
-        return (startCount != currentCount);
-    }
-
-    int getEventCount(int32_t property) {
-        Mutex::Autolock autolock(mLock);
-        return getEventCountLocked(property);
-    }
-
-private:
-    int getEventCountLocked(int32_t property) {
-        ssize_t index = mEventCounts.indexOfKey(property);
-        if (index < 0) {
-            return 0;
-        } else {
-            return mEventCounts.valueAt(index);
-        }
-    }
-private:
-    Mutex mLock;
-    Condition mCondition;
-    KeyedVector<int32_t, int> mEventCounts;
 };
 
 TEST_F(IVehicleNetworkTest, connect) {
@@ -156,6 +96,9 @@ TEST_F(IVehicleNetworkTest, getProperty) {
     int32_t numConfigs = properties->getList().size();
     ASSERT_TRUE(numConfigs > 0);
     for (auto& config : properties->getList()) {
+        if (config->prop == VEHICLE_PROPERTY_RADIO_PRESET) {
+            continue;
+        }
         String8 msg = String8::format("getting prop 0x%x\n", config->prop);
         std::cout<<msg.string();
         if ((config->prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
@@ -188,6 +131,9 @@ TEST_F(IVehicleNetworkTest, setProperty) {
     int32_t numConfigs = properties->getList().size();
     ASSERT_TRUE(numConfigs > 0);
     for (auto& config : properties->getList()) {
+        if (config->prop == VEHICLE_PROPERTY_RADIO_PRESET) {
+            continue;
+        }
         String8 msg = String8::format("setting prop 0x%x\n", config->prop);
         std::cout<<msg.string();
         ScopedVehiclePropValue value;
@@ -208,7 +154,7 @@ TEST_F(IVehicleNetworkTest, setSubscribe) {
     ASSERT_TRUE(properties.get() != NULL);
     int32_t numConfigs = properties->getList().size();
     ASSERT_TRUE(numConfigs > 0);
-    sp<IVehicleNetworkTestTestListener> listener(new IVehicleNetworkTestTestListener());
+    sp<IVehicleNetworkTestListener> listener(new IVehicleNetworkTestListener());
     for (auto& config : properties->getList()) {
         String8 msg = String8::format("subscribing property 0x%x\n", config->prop);
         std::cout<<msg.string();

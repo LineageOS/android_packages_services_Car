@@ -61,6 +61,14 @@ public:
         mCondition.signal();
     }
 
+    virtual void onHalError(int32_t errorCode, int32_t property, int32_t operation) {
+        //TODO
+    }
+
+    virtual void onHalRestart(bool inMocking) {
+        //TODO cannot test this in native world without plumbing mocking
+    }
+
     void waitForEvents(nsecs_t reltime) {
         Mutex::Autolock autolock(mLock);
         mCondition.waitRelative(mLock, reltime);
@@ -172,6 +180,9 @@ TEST_F(VehicleNetworkTest, getProperty) {
     int32_t numConfigs = properties->getList().size();
     ASSERT_TRUE(numConfigs > 0);
     for (auto& config : properties->getList()) {
+        if (config->prop == VEHICLE_PROPERTY_RADIO_PRESET) {
+            continue;
+        }
         String8 msg = String8::format("getting prop 0x%x\n", config->prop);
         std::cout<<msg.string();
         ScopedVehiclePropValue value;
@@ -195,6 +206,9 @@ TEST_F(VehicleNetworkTest, setProperty) {
     int32_t numConfigs = properties->getList().size();
     ASSERT_TRUE(numConfigs > 0);
     for (auto& config : properties->getList()) {
+        if (config->prop == VEHICLE_PROPERTY_RADIO_PRESET) {
+            continue;
+        }
         String8 msg = String8::format("setting prop 0x%x\n", config->prop);
         std::cout<<msg.string();
         ScopedVehiclePropValue value;

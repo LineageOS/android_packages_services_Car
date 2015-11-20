@@ -39,11 +39,12 @@
 
 #include <IVehicleNetwork.h>
 #include <IVehicleNetworkListener.h>
-
-#include "HandlerThread.h"
+#include <HandlerThread.h>
 
 
 namespace android {
+
+// ----------------------------------------------------------------------------
 
 class VehicleNetworkService;
 
@@ -63,12 +64,14 @@ class VehicleHalMessageHandler : public MessageHandler {
      * together.
      */
     static const int DISPATCH_INTERVAL_MS = 16;
+    static const int NUM_PROPERTY_EVENT_LISTS = 2;
 public:
+    // not passing VNS as sp as this is held by VNS always.
     VehicleHalMessageHandler(const sp<Looper>& mLooper, VehicleNetworkService& service);
     virtual ~VehicleHalMessageHandler();
 
     void handleHalEvent(vehicle_prop_value_t *eventData);
-    void handleHalError(int errorCode);
+    void handleHalError(VehicleHalError* error);
     void handleMockStart();
 
 private:
@@ -77,25 +80,26 @@ private:
     void doHandleHalError();
 
 private:
-    Mutex mLock;
+    mutable Mutex mLock;
     Condition mHalThreadWait;
-    sp<Looper> mLooper;
+    const sp<Looper> mLooper;
     VehicleNetworkService& mService;
-    int mLastError;
     int mFreeListIndex;
-    List<vehicle_prop_value_t*> mHalPropertyList[2];
+    List<vehicle_prop_value_t*> mHalPropertyList[NUM_PROPERTY_EVENT_LISTS];
     int64_t mLastDispatchTime;
+    List<VehicleHalError*> mHalErrors;
 };
 
 // ----------------------------------------------------------------------------
 
 class HalClient : public virtual RefBase {
 public:
-    HalClient(const sp<IVehicleNetworkListener> &listener) :
-        mListener(listener) {
-        IPCThreadState* self = IPCThreadState::self();
-        mPid = self->getCallingPid();
-        mUid = self->getCallingUid();
+    HalClient(const sp<IVehicleNetworkListener> &listener, pid_t pid, uid_t uid) :
+        mListener(listener),
+        mPid(pid),
+        mUid(uid),
+        mMonitoringHalRestart(false),
+        mMonitoringHalError(false) {
     }
 
     ~HalClient() {
@@ -125,8 +129,39 @@ public:
     }
 
     bool removePropertyAndCheckIfActive(int32_t property) {
+        Mutex::Autolock autoLock(mLock);
         mSampleRates.removeItem(property);
-        return mSampleRates.size() > 0;
+        return mSampleRates.size() > 0 || mMonitoringHalRestart || mMonitoringHalError;
+    }
+
+    void removeAllProperties() {
+        Mutex::Autolock autoLock(mLock);
+        mSampleRates.clear();
+    }
+
+    bool isActive() {
+        Mutex::Autolock autoLock(mLock);
+        return mSampleRates.size() > 0 || mMonitoringHalRestart || mMonitoringHalError;
+    }
+
+    void setHalRestartMonitoringState(bool state) {
+        Mutex::Autolock autoLock(mLock);
+        mMonitoringHalRestart = state;
+    }
+
+    bool isMonitoringHalRestart() {
+        Mutex::Autolock autoLock(mLock);
+        return mMonitoringHalRestart;
+    }
+
+    void setHalErrorMonitoringState(bool state) {
+        Mutex::Autolock autoLock(mLock);
+        mMonitoringHalError = state;
+    }
+
+    bool isMonitoringHalError() {
+        Mutex::Autolock autoLock(mLock);
+        return mMonitoringHalError;
     }
 
     const sp<IVehicleNetworkListener>& getListener() {
@@ -162,13 +197,24 @@ public:
         mEvents.clear();
         return NO_ERROR;
     }
+
+    void dispatchHalError(int32_t errorCode, int32_t property, int32_t operation) {
+        mListener->onHalError(errorCode, property, operation);
+    }
+
+    void dispatchHalRestart(bool inMocking) {
+        mListener->onHalRestart(inMocking);
+    }
+
 private:
-    pid_t mPid;
-    uid_t mUid;
-    Mutex mLock;
-    sp<IVehicleNetworkListener> mListener;
+    mutable Mutex mLock;
+    const sp<IVehicleNetworkListener> mListener;
+    const pid_t mPid;
+    const uid_t mUid;
     KeyedVector<int32_t, float> mSampleRates;
     List<vehicle_prop_value_t*> mEvents;
+    bool mMonitoringHalRestart;
+    bool mMonitoringHalError;
 };
 
 class HalClientSpVector : public SortedVector<sp<HalClient> >, public RefBase {
@@ -199,6 +245,18 @@ private:
 
 // ----------------------------------------------------------------------------
 
+class MockDeathHandler: public IBinder::DeathRecipient {
+public:
+    MockDeathHandler(VehicleNetworkService& vns) :
+        mService(vns) {};
+
+    virtual void binderDied(const wp<IBinder>& who);
+
+private:
+    VehicleNetworkService& mService;
+};
+
+// ----------------------------------------------------------------------------
 class VehicleNetworkService :
     public BinderService<VehicleNetworkService>,
     public BnVehicleNetwork,
@@ -210,12 +268,14 @@ public:
     ~VehicleNetworkService();
     virtual status_t dump(int fd, const Vector<String16>& args);
     void release();
-    void onHalEvent(const vehicle_prop_value_t *eventData, bool isInjection = false);
-    void onHalError(int errorCode);
+    status_t onHalEvent(const vehicle_prop_value_t *eventData, bool isInjection = false);
+    status_t onHalError(int32_t errorCode, int32_t property, int32_t operation,
+            bool isInjection = false);
     /**
      * Called by VehicleHalMessageHandler for batching events
      */
-    void onHalEvents(List<vehicle_prop_value_t*>& events);
+    void dispatchHalEvents(List<vehicle_prop_value_t*>& events);
+    void dispatchHalError(VehicleHalError* error);
     virtual sp<VehiclePropertiesHolder> listProperties(int32_t property = 0);
     virtual status_t setProperty(const vehicle_prop_value_t& value);
     virtual status_t getProperty(vehicle_prop_value_t* value);
@@ -225,8 +285,15 @@ public:
     virtual status_t injectEvent(const vehicle_prop_value_t& value);
     virtual status_t startMocking(const sp<IVehicleNetworkHalMock>& mock);
     virtual void stopMocking(const sp<IVehicleNetworkHalMock>& mock);
+    virtual status_t injectHalError(int32_t errorCode, int32_t property, int32_t operation);
+    virtual status_t startErrorListening(const sp<IVehicleNetworkListener> &listener);
+    virtual void stopErrorListening(const sp<IVehicleNetworkListener> &listener);
+    virtual status_t startHalRestartMonitoring(const sp<IVehicleNetworkListener> &listener);
+    virtual void stopHalRestartMonitoring(const sp<IVehicleNetworkListener> &listener);
     virtual void binderDied(const wp<IBinder>& who);
     bool isPropertySubsribed(int32_t property);
+
+    void handleHalMockDeath(const wp<IBinder>& who);
 private:
     // RefBase
     virtual void onFirstRef();
@@ -236,17 +303,27 @@ private:
     bool isGettableLocked(int32_t property);
     bool isSettableLocked(int32_t property, int32_t valueType);
     bool isSubscribableLocked(int32_t property);
+    sp<HalClient> findClientLocked(sp<IBinder>& ibinder);
+    sp<HalClient> findOrCreateClientLocked(sp<IBinder>& ibinder,
+            const sp<IVehicleNetworkListener> &listener);
+    sp<HalClientSpVector> findClientsVectorForPropertyLocked(int32_t property);
+    sp<HalClientSpVector> findOrCreateClientsVectorForPropertyLocked(int32_t property);
+    bool removePropertyFromClientLocked(sp<IBinder>& ibinder, sp<HalClient>& client,
+            int32_t property);
+    void handleHalRestartAndGetClientsToDispatchLocked(List<sp<HalClient> >& clientsToDispatch);
+
     static int eventCallback(const vehicle_prop_value_t *eventData);
     static int errorCallback(int32_t errorCode, int32_t property, int32_t operation);
 private:
     static VehicleNetworkService* sInstance;
-    HandlerThread mHandlerThread;
+    sp<HandlerThread> mHandlerThread;
     sp<VehicleHalMessageHandler> mHandler;
     mutable Mutex mLock;
     vehicle_module_t* mModule;
     vehicle_hw_device_t* mDevice;
     sp<VehiclePropertiesHolder> mProperties;
     KeyedVector<sp<IBinder>, sp<HalClient> > mBinderToClientMap;
+    // client subscribing properties
     KeyedVector<int32_t, sp<HalClientSpVector> > mPropertyToClientsMap;
     KeyedVector<int32_t, float> mSampleRates;
     KeyedVector<int32_t, int> mEventsCount;
@@ -254,6 +331,7 @@ private:
     bool mMockingEnabled;
     sp<IVehicleNetworkHalMock> mHalMock;
     sp<VehiclePropertiesHolder> mPropertiesForMocking;
+    sp<MockDeathHandler> mHalMockDeathHandler;
 };
 
 };

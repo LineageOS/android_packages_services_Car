@@ -33,6 +33,8 @@ namespace android {
 
 enum {
     ON_EVENTS = IBinder::FIRST_CALL_TRANSACTION,
+    ON_HAL_ERROR,
+    ON_HAL_RESTART,
 };
 
 class BpVehicleNetworkListener : public BpInterface<IVehicleNetworkListener>
@@ -42,14 +44,15 @@ public:
         : BpInterface<IVehicleNetworkListener>(impl) {
     }
 
-    virtual status_t onEvents(sp<VehiclePropValueListHolder>& events) {
+    virtual void onEvents(sp<VehiclePropValueListHolder>& events) {
         Parcel data, reply;
         data.writeInterfaceToken(IVehicleNetworkListener::getInterfaceDescriptor());
         std::unique_ptr<VehiclePropValues> values(new VehiclePropValues());
         ASSERT_OR_HANDLE_NO_MEMORY(values.get(), return NO_MEMORY);
         status_t r = VehicleNetworkProtoUtil::toVehiclePropValues(events->getList(), *values.get());
         if (r != NO_ERROR) {
-            return r;
+            ALOGE("onEvents: toVehiclePropValues failed %d", r);
+            return;
         }
         data.writeInt32(1); // for java compatibility
         WritableBlobHolder blob(new Parcel::WritableBlob());
@@ -57,8 +60,23 @@ public:
         data.writeInt32(size);
         data.writeBlob(size, false, blob.blob);
         values->SerializeToArray(blob.blob->data(), size);
-        r = remote()->transact(ON_EVENTS, data, &reply);
-        return r;
+        remote()->transact(ON_EVENTS, data, &reply);
+    }
+
+    virtual void onHalError(int32_t errorCode, int32_t property, int32_t operation) {
+        Parcel data, reply;
+        data.writeInterfaceToken(IVehicleNetworkListener::getInterfaceDescriptor());
+        data.writeInt32(errorCode);
+        data.writeInt32(property);
+        data.writeInt32(operation);
+        remote()->transact(ON_HAL_ERROR, data, &reply);
+    }
+
+    virtual void onHalRestart(bool inMocking) {
+        Parcel data, reply;
+        data.writeInterfaceToken(IVehicleNetworkListener::getInterfaceDescriptor());
+        data.writeInt32(inMocking ? 1 : 0);
+        remote()->transact(ON_HAL_RESTART, data, &reply);
     }
 };
 
@@ -98,8 +116,22 @@ status_t BnVehicleNetworkListener::onTransact(uint32_t code, const Parcel& data,
                 ALOGE("onEvents: cannot convert data");
                 return BAD_VALUE;
             }
-            r = onEvents(holder);
-            return r;
+            onEvents(holder);
+            return NO_ERROR;
+        } break;
+        case ON_HAL_ERROR: {
+            CHECK_INTERFACE(IVehicleNetworkListener, data, reply);
+            int32_t errorCode = data.readInt32();
+            int32_t property = data.readInt32();
+            int32_t operation = data.readInt32();
+            onHalError(errorCode, property, operation);
+            return NO_ERROR;
+        } break;
+        case ON_HAL_RESTART: {
+            CHECK_INTERFACE(IVehicleNetworkListener, data, reply);
+            bool inMocking = (data.readInt32() == 1);
+            onHalRestart(inMocking);
+            return NO_ERROR;
         } break;
         default:
             return BBinder::onTransact(code, data, reply, flags);

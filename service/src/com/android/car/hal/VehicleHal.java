@@ -282,6 +282,20 @@ public class VehicleHal implements VehicleNetworkListener {
         mServicesToDispatch.clear();
     }
 
+    @Override
+    public void onHalError(int errorCode, int property, int operation) {
+        Log.e(CarLog.TAG_HAL, "onHalError, errorCode:" + errorCode +
+                " property:0x" + Integer.toHexString(property) +
+                " operation:" + operation);
+        // TODO propagate per property error to HAL services and handle global error
+    }
+
+    @Override
+    public void onHalRestart(boolean inMocking) {
+        Log.e(CarLog.TAG_HAL, "onHalRestart, inMocking:" + inMocking);
+        // TODO restart things as other components started mocking. For now, ignore.
+    }
+
     public void dump(PrintWriter writer) {
         writer.println("**dump HAL services**");
         for (HalServiceBase service: mAllServices) {

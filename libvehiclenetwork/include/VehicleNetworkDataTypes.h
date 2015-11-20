@@ -64,6 +64,41 @@ public:
             delete[] config->config_string.data;
         }
     };
+
+    static bool isTheSame(const vehicle_prop_config_t& l, const vehicle_prop_config_t& r) {
+        if (l.prop != r.prop) {
+            return false;
+        }
+        if (l.access != r.access) {
+            return false;
+        }
+        if (l.change_mode != r.change_mode) {
+            return false;
+        }
+        if (l.value_type != r.value_type) {
+            return false;
+        }
+        if (l.permission_model != r.permission_model) {
+            return false;
+        }
+        if (l.config_flags != r.config_flags) {
+            return false;
+        }
+        //TODO config_string
+        if (l.float_min_value != r.float_min_value) {
+            return false;
+        }
+        if (l.float_max_value != r.float_max_value) {
+            return false;
+        }
+        if (l.min_sample_rate != r.min_sample_rate) {
+            return false;
+        }
+        if (l.max_sample_rate != r.max_sample_rate) {
+            return false;
+        }
+        return true;
+    }
 };
 // ----------------------------------------------------------------------------
 
@@ -209,6 +244,17 @@ private:
     bool mDeleteInDestructor;
 };
 
+// ----------------------------------------------------------------------------
+class VehicleHalError {
+public:
+    int32_t errorCode;
+    int32_t property;
+    int32_t operation;
+    VehicleHalError(int32_t aErrorCode, int32_t aProperty, int32_t aOperation) :
+        errorCode(aErrorCode),
+        property(aProperty),
+        operation(aOperation) {};
+};
 }; //namespace android
 
 #endif /* ANDROID_VEHICLE_NETWORK_DATA_TYPES_H*/

@@ -44,12 +44,14 @@ public class VehicleNetwork {
          * Notify HAL events. This requires subscribing the property
          */
         void onVehicleNetworkEvents(VehiclePropValues values);
+        void onHalError(int errorCode, int property, int operation);
+        void onHalRestart(boolean inMocking);
     }
 
     public interface VehicleNetworkHalMock {
         VehiclePropConfigs onListProperties();
         void onPropertySet(VehiclePropValue value);
-        VehiclePropValue onPropertyGet(VehiclePropValue property);
+        VehiclePropValue onPropertyGet(VehiclePropValue value);
         void onPropertySubscribe(int property, int sampleRate);
         void onPropertyUnsubscribe(int property);
     }
@@ -470,6 +472,9 @@ public class VehicleNetwork {
      * Stop mocking of vehicle HAL. For testing only.
      */
     public synchronized void stopMocking() {
+        if (mHalMockImpl == null) {
+            return;
+        }
         try {
             mService.stopMocking(mHalMockImpl);
         } catch (RemoteException e) {
@@ -511,6 +516,46 @@ public class VehicleNetwork {
         }
     }
 
+    public synchronized void injectHalError(int errorCode, int property, int operation) {
+        try {
+            mService.injectHalError(errorCode, property, operation);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+    }
+
+    public synchronized void startErrorListening() {
+        try {
+            mService.startErrorListening(mVehicleNetworkListener);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+    }
+
+    public synchronized void stopErrorListening() {
+        try {
+            mService.stopErrorListening(mVehicleNetworkListener);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+    }
+
+    public synchronized void startHalRestartMonitoring() {
+        try {
+            mService.startHalRestartMonitoring(mVehicleNetworkListener);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+    }
+
+    public synchronized void stopHalRestartMonitoring() {
+        try {
+            mService.stopHalRestartMonitoring(mVehicleNetworkListener);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+    }
+
     private synchronized VehicleNetworkHalMock getHalMock() {
         return mHalMock;
     }
@@ -520,15 +565,21 @@ public class VehicleNetwork {
     }
 
     private void handleVehicleNetworkEvents(VehiclePropValues values) {
-        mEventHandler.notifyEvents(values);
+        mListener.onVehicleNetworkEvents(values);
     }
 
-    private void doHandleVehicleNetworkEvents(VehiclePropValues values) {
-        mListener.onVehicleNetworkEvents(values);
+    private void handleHalError(int errorCode, int property, int operation) {
+        mListener.onHalError(errorCode, property, operation);
+    }
+
+    private void handleHalRestart(boolean inMocking) {
+        mListener.onHalRestart(inMocking);
     }
 
     private class EventHandler extends Handler {
         private static final int MSG_EVENTS = 0;
+        private static final int MSG_HAL_ERROR = 1;
+        private static final int MSG_HAL_RESTART = 2;
 
         private EventHandler(Looper looper) {
             super(looper);
@@ -539,11 +590,28 @@ public class VehicleNetwork {
             sendMessage(msg);
         }
 
+        private void notifyHalError(int errorCode, int property, int operation) {
+            Message msg = obtainMessage(MSG_HAL_ERROR, errorCode, property,
+                    Integer.valueOf(operation));
+            sendMessage(msg);
+        }
+
+        private void notifyHalRestart(boolean inMocking) {
+            Message msg = obtainMessage(MSG_HAL_RESTART, inMocking ? 1 : 0, 0);
+            sendMessage(msg);
+        }
+
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_EVENTS:
-                    doHandleVehicleNetworkEvents((VehiclePropValues)msg.obj);
+                    handleVehicleNetworkEvents((VehiclePropValues)msg.obj);
+                    break;
+                case MSG_HAL_ERROR:
+                    handleHalError(msg.arg1, msg.arg2, (Integer)msg.obj);
+                    break;
+                case MSG_HAL_RESTART:
+                    handleHalRestart(msg.arg1 == 1);
                     break;
                 default:
                     Log.w(TAG, "unown message:" + msg.what, new RuntimeException());
@@ -563,7 +631,23 @@ public class VehicleNetwork {
         public void onVehicleNetworkEvents(VehiclePropValuesParcelable values) {
             VehicleNetwork vehicleNetwork = mVehicleNetwork.get();
             if (vehicleNetwork != null) {
-                vehicleNetwork.handleVehicleNetworkEvents(values.values);
+                vehicleNetwork.mEventHandler.notifyEvents(values.values);
+            }
+        }
+
+        @Override
+        public void onHalError(int errorCode, int property, int operation) {
+            VehicleNetwork vehicleNetwork = mVehicleNetwork.get();
+            if (vehicleNetwork != null) {
+                vehicleNetwork.mEventHandler.notifyHalError(errorCode, property, operation);
+            }
+        }
+
+        @Override
+        public void onHalRestart(boolean inMocking) {
+            VehicleNetwork vehicleNetwork = mVehicleNetwork.get();
+            if (vehicleNetwork != null) {
+                vehicleNetwork.mEventHandler.notifyHalRestart(inMocking);
             }
         }
     }

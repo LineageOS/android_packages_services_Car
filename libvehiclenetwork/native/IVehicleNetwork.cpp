@@ -40,6 +40,11 @@ enum {
     INJECT_EVENT,
     START_MOCKING,
     STOP_MOCKING,
+    INJECT_HAL_ERROR,
+    START_ERROR_LISTENING,
+    STOP_ERROR_LISTENING,
+    START_HAL_RESTART_MONITORING,
+    STOP_HAL_RESTART_MONITORING
 };
 
 // ----------------------------------------------------------------------------
@@ -184,6 +189,52 @@ public:
             ALOGI("stop mocking failed %d", status);
         }
     }
+
+    status_t injectHalError(int32_t errorCode, int32_t property, int32_t operation) {
+        Parcel data, reply;
+        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
+        data.writeInt32(errorCode);
+        data.writeInt32(property);
+        data.writeInt32(operation);
+        status_t status = remote()->transact(INJECT_HAL_ERROR, data, &reply);
+        return status;
+    }
+
+    virtual status_t startErrorListening(const sp<IVehicleNetworkListener> &listener) {
+        Parcel data, reply;
+        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
+        data.writeStrongBinder(IInterface::asBinder(listener));
+        status_t status = remote()->transact(START_ERROR_LISTENING, data, &reply);
+        return status;
+    }
+
+    virtual void stopErrorListening(const sp<IVehicleNetworkListener> &listener) {
+        Parcel data, reply;
+        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
+        data.writeStrongBinder(IInterface::asBinder(listener));
+        status_t status = remote()->transact(STOP_ERROR_LISTENING, data, &reply);
+        if (status != NO_ERROR) {
+            ALOGI("stopErrorListening %d", status);
+        }
+    }
+
+    virtual status_t startHalRestartMonitoring(const sp<IVehicleNetworkListener> &listener) {
+        Parcel data, reply;
+        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
+        data.writeStrongBinder(IInterface::asBinder(listener));
+        status_t status = remote()->transact(START_HAL_RESTART_MONITORING, data, &reply);
+        return status;
+    }
+
+    virtual void stopHalRestartMonitoring(const sp<IVehicleNetworkListener> &listener) {
+        Parcel data, reply;
+        data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
+        data.writeStrongBinder(IInterface::asBinder(listener));
+        status_t status = remote()->transact(STOP_HAL_RESTART_MONITORING, data, &reply);
+        if (status != NO_ERROR) {
+            ALOGI("stopHalRestartMonitoring %d", status);
+        }
+    }
 };
 
 IMPLEMENT_META_INTERFACE(VehicleNetwork, IVehicleNetwork::SERVICE_NAME);
@@ -323,6 +374,47 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             sp<IVehicleNetworkHalMock> mock =
                     interface_cast<IVehicleNetworkHalMock>(data.readStrongBinder());
             stopMocking(mock);
+            BinderUtil::fillNoResultReply(reply);
+            return NO_ERROR;
+        } break;
+        case INJECT_HAL_ERROR: {
+            CHECK_INTERFACE(IVehicleNetwork, data, reply);
+            int32_t errorCode = data.readInt32();
+            int32_t property = data.readInt32();
+            int32_t operation = data.readInt32();
+            r = injectHalError(errorCode, property, operation);
+            BinderUtil::fillNoResultReply(reply);
+            return r;
+        } break;
+        case START_ERROR_LISTENING: {
+            CHECK_INTERFACE(IVehicleNetwork, data, reply);
+            sp<IVehicleNetworkListener> listener =
+                    interface_cast<IVehicleNetworkListener>(data.readStrongBinder());
+            r = startErrorListening(listener);
+            BinderUtil::fillNoResultReply(reply);
+            return r;
+        } break;
+        case STOP_ERROR_LISTENING: {
+            CHECK_INTERFACE(IVehicleNetwork, data, reply);
+            sp<IVehicleNetworkListener> listener =
+                    interface_cast<IVehicleNetworkListener>(data.readStrongBinder());
+            stopErrorListening(listener);
+            BinderUtil::fillNoResultReply(reply);
+            return NO_ERROR;
+        } break;
+        case START_HAL_RESTART_MONITORING: {
+            CHECK_INTERFACE(IVehicleNetwork, data, reply);
+            sp<IVehicleNetworkListener> listener =
+                    interface_cast<IVehicleNetworkListener>(data.readStrongBinder());
+            r = startHalRestartMonitoring(listener);
+            BinderUtil::fillNoResultReply(reply);
+            return r;
+        } break;
+        case STOP_HAL_RESTART_MONITORING: {
+            CHECK_INTERFACE(IVehicleNetwork, data, reply);
+            sp<IVehicleNetworkListener> listener =
+                    interface_cast<IVehicleNetworkListener>(data.readStrongBinder());
+            stopHalRestartMonitoring(listener);
             BinderUtil::fillNoResultReply(reply);
             return NO_ERROR;
         } break;

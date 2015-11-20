@@ -20,13 +20,16 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include <utils/threads.h>
-#include <utils/RefBase.h>
-#include <utils/Errors.h>
 #include <binder/IInterface.h>
 #include <binder/IMemory.h>
 
+#include <utils/threads.h>
+#include <utils/Errors.h>
+#include <utils/List.h>
+#include <utils/RefBase.h>
+
 #include "IVehicleNetwork.h"
+#include "HandlerThread.h"
 
 namespace android {
 
@@ -41,9 +44,44 @@ public:
     VehicleNetworkListener() {};
     virtual ~VehicleNetworkListener() {};
     virtual void onEvents(sp<VehiclePropValueListHolder>& events) = 0;
+    virtual void onHalError(int32_t errorCode, int32_t property, int32_t operation) = 0;
+    virtual void onHalRestart(bool inMocking) = 0;
 };
 
 // ----------------------------------------------------------------------------
+
+/** For internal event handling, not for client */
+class VehicleNetworkEventMessageHandler : public MessageHandler {
+    enum {
+        EVENT_EVENTS = 0,
+        EVENT_HAL_ERROR = 1,
+        EVENT_HAL_RESTART = 2,
+    };
+public:
+    VehicleNetworkEventMessageHandler(const sp<Looper>& looper,
+            sp<VehicleNetworkListener>& listener);
+    virtual ~VehicleNetworkEventMessageHandler();
+
+    void handleHalEvents(sp<VehiclePropValueListHolder>& events);
+    void handleHalError(int32_t errorCode, int32_t property, int32_t operation);
+    void handleHalRestart(bool inMocking);
+
+private:
+    virtual void handleMessage(const Message& message);
+    void doHandleHalEvents();
+    void doHandleHalError();
+    void doHandleHalRestart();
+private:
+    mutable Mutex mLock;
+    sp<Looper> mLooper;
+    sp<VehicleNetworkListener>& mListener;
+    List<sp<VehiclePropValueListHolder>> mEvents;
+    List<VehicleHalError*> mHalErrors;
+    List<bool> mHalRestartEvents;
+};
+
+// ----------------------------------------------------------------------------
+
 /**
  * Vehicle network API for low level components like HALs to access / control car information.
  * This is reference counted. So use with sp<>.
@@ -77,18 +115,40 @@ public:
     status_t subscribe(int32_t property, float sampleRate);
     void unsubscribe(int32_t property);
 
+    // Only for testing purpose
+    status_t injectEvent(const vehicle_prop_value_t& value);
+
+    // starting / stopping mocking not added yet.
+    status_t startMocking(const sp<IVehicleNetworkHalMock>& mock);
+    void stopMocking(const sp<IVehicleNetworkHalMock>& mock);
+
+    // only for testing
+    status_t injectHalError(int32_t errorCode, int32_t property, int32_t operation);
+
+    status_t startErrorListening();
+    void stopErrorListening();
+
+    status_t startHalRestartMonitoring();
+    void stopHalRestartMonitoring();
+
     //IBinder::DeathRecipient, not for client
     void binderDied(const wp<IBinder>& who);
     // BnVehicleNetworkListener, not for client
-    status_t onEvents(sp<VehiclePropValueListHolder>& events);
+    void onEvents(sp<VehiclePropValueListHolder>& events);
+    void onHalError(int32_t errorCode, int32_t property, int32_t operation);
+    void onHalRestart(bool inMocking);
 
 private:
     VehicleNetwork(sp<IVehicleNetwork>& vehicleNetwork, sp<VehicleNetworkListener> &listener);
+    // RefBase
+    virtual void onFirstRef();
 
 private:
     sp<IVehicleNetwork> mService;
     sp<VehicleNetworkListener> mClientListener;
     Mutex mLock;
+    sp<HandlerThread> mHandlerThread;
+    sp<VehicleNetworkEventMessageHandler> mEventHandler;
 };
 
 // ----------------------------------------------------------------------------

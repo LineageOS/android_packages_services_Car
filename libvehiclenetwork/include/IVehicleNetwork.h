@@ -51,9 +51,27 @@ public:
     virtual status_t subscribe(const sp<IVehicleNetworkListener> &listener, int32_t property,
             float sampleRate) = 0;
     virtual void unsubscribe(const sp<IVehicleNetworkListener> &listener, int32_t property) = 0;
+    /**
+     * Inject event for given property. This should work regardless of mocking but usually
+     * used in mocking.
+     */
     virtual status_t injectEvent(const vehicle_prop_value_t& value) = 0;
     virtual status_t startMocking(const sp<IVehicleNetworkHalMock>& mock) = 0;
     virtual void stopMocking(const sp<IVehicleNetworkHalMock>& mock) = 0;
+    virtual status_t injectHalError(int32_t errorCode, int32_t property, int32_t operation) = 0;
+    /**
+     * Register listener and listen for global error from vehicle hal.
+     * Per property error will be delivered when the property is subscribed or global error listener
+     * where there is no subscription.
+     */
+    virtual status_t startErrorListening(const sp<IVehicleNetworkListener> &listener) = 0;
+    virtual void stopErrorListening(const sp<IVehicleNetworkListener> &listener) = 0;
+    /**
+     * Listen for HAL restart. When HAL restarts, as in case of starting or stopping mocking,
+     * all existing subscription becomes invalid.
+     */
+    virtual status_t startHalRestartMonitoring(const sp<IVehicleNetworkListener> &listener) = 0;
+    virtual void stopHalRestartMonitoring(const sp<IVehicleNetworkListener> &listener) = 0;
 };
 
 // ----------------------------------------------------------------------------
