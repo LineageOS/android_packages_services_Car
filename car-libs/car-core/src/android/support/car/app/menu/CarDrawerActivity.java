@@ -82,6 +82,10 @@ public abstract class CarDrawerActivity extends CarActivity{
         return super.findViewById(mUiController.getFragmentContainerId()).findViewById(id);
     }
 
+    public int getFragmentContainerId() {
+        return mUiController.getFragmentContainerId();
+    }
+
     public interface OnMenuClickListener {
         /**
          * Called when the menu button is clicked.

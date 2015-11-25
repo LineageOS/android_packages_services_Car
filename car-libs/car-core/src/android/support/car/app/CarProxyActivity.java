@@ -111,6 +111,11 @@ public class CarProxyActivity extends FragmentActivity {
         public FragmentManager getSupportFragmentManager() {
             return CarProxyActivity.this.getSupportFragmentManager();
         }
+
+        @Override
+        public void setIntent(Intent i) {
+            CarProxyActivity.this.setIntent(i);
+        }
     };
 
     public CarProxyActivity(Class carActivityClass) {
@@ -225,6 +230,11 @@ public class CarProxyActivity extends FragmentActivity {
             int[] results) {
         mCarActivity.dispatchCmd(CarActivity.CMD_ON_REQUEST_PERMISSIONS_RESULT,
                 new Integer(requestCode), permissions, convertArray(results));
+    }
+
+    @Override
+    protected void onNewIntent(Intent i) {
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_NEW_INTENT, i);
     }
 
     private static final class EmbeddedInputManager extends CarInputManager {

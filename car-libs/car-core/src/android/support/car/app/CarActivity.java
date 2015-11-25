@@ -46,6 +46,7 @@ public abstract class CarActivity {
      * handling menu, and etc.
      */
     public abstract static class Proxy {
+        abstract public void setIntent(Intent i);
         abstract public void setContentView(View view);
         abstract public void setContentView(int layoutResID);
         abstract public Resources getResources();
@@ -89,6 +90,8 @@ public abstract class CarActivity {
     public static final int CMD_ON_CONFIG_CHANGED = 10;
     /** @hide */
     public static final int CMD_ON_REQUEST_PERMISSIONS_RESULT = 11;
+    /** @hide */
+    public static final int CMD_ON_NEW_INTENT = 12;
 
     private final Proxy mProxy;
     private final Context mContext;
@@ -146,6 +149,14 @@ public abstract class CarActivity {
         mProxy.requestPermissions(permissions, requestCode);
     }
 
+    public void setIntent(Intent i) {
+        mProxy.setIntent(i);
+    }
+
+    public FragmentManager getSupportFragmentManager() {
+        return mProxy.getSupportFragmentManager();
+    }
+
     /** @hide */
     public void dispatchCmd(int cmd, Object... args) {
 
@@ -192,6 +203,10 @@ public abstract class CarActivity {
                 assertArgsLength(1, args);
                 onConfigurationChanged((Configuration) args[0]);
                 break;
+            case CMD_ON_NEW_INTENT:
+                assertArgsLength(1, args);
+                onNewIntent((Intent) args[0]);
+                break;
             default:
                 throw new RuntimeException("Unknown dispatch cmd for CarActivity, " + cmd);
         }
@@ -229,6 +244,9 @@ public abstract class CarActivity {
     }
 
     protected void onConfigurationChanged(Configuration newConfig) {
+    }
+
+    protected void onNewIntent(Intent intent) {
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
