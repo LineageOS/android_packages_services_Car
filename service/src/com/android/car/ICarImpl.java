@@ -246,7 +246,7 @@ public class ICarImpl extends ICar.Stub {
         if (context.checkCallingOrSelfPermission(CarSystem.PERMISSION_CAR_RADIO)
             != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException(
-                "requires system app or " + CarSystem.PERMISSION_CAR_RADIO);
+                "requires permission " + CarSystem.PERMISSION_CAR_RADIO);
         }
     }
 

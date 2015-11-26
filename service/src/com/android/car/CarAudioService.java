@@ -325,8 +325,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
 
     private void requestCarProxyFocus(int androidFocus, int flags) {
         mAudioManager.requestAudioFocus(mCarProxyAudioFocusHandler, mAttributeCarExternal,
-                androidFocus,
-                flags);
+                androidFocus, flags, mAudioPolicy);
     }
 
     private void doHandleVolumeChange(VolumeStateChangeEvent event) {

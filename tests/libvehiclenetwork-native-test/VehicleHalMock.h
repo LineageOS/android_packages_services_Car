@@ -36,27 +36,25 @@ public:
         }
     };
 
+    virtual ~VehicleHalMock() {};
+
     virtual sp<VehiclePropertiesHolder> onListProperties() {
         return mProperties;
     };
 
     virtual status_t onPropertySet(const vehicle_prop_value_t& value) {
-        //TODO
         return NO_ERROR;
     };
 
     virtual status_t onPropertyGet(vehicle_prop_value_t* value) {
-        //TODO
         return NO_ERROR;
     };
 
     virtual status_t onPropertySubscribe(int32_t property, float sampleRate) {
-        //TODO
         return NO_ERROR;
     };
 
     virtual void onPropertyUnsubscribe(int32_t property) {
-        //TODO
     };
 
     bool isTheSameProperties(sp<VehiclePropertiesHolder>& list) {

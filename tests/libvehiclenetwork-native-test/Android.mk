@@ -19,16 +19,21 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(patsubst ./%,%, $(shell cd $(LOCAL_PATH); \
     find . -name "*.cpp" -and -not -name ".*")) \
-    TestPropertyDef.c
+    TestPropertyDef.c \
+    AudioPropertyDef.c
 
 LOCAL_C_INCLUDES += \
-    packages/services/Car/libvehiclenetwork/include
+    packages/services/Car/libvehiclenetwork/include \
+    packages/services/Car/libvehiclenetwork/libvehiclenetwork-audio-helper/include
 
 LOCAL_SHARED_LIBRARIES := \
     libbinder \
     liblog \
     libutils \
     libvehiclenetwork-native
+
+LOCAL_STATIC_LIBRARIES := \
+    libvehiclenetwork-audio-helper
 
 LOCAL_CFLAGS += -Wall -Wextra
 

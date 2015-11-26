@@ -212,11 +212,18 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
         write(fd, msg.string(), msg.size());
         return NO_ERROR;
     }
-    msg.append("MockingEnabled=%d", mMockingEnabled);
+    msg.append("MockingEnabled=%d\n", mMockingEnabled ? 1 : 0);
     msg.append("*Properties\n");
     for (auto& prop : mProperties->getList()) {
         //TODO dump more info
         msg.appendFormat("property 0x%x\n", prop->prop);
+    }
+    if (mMockingEnabled) {
+        msg.append("*Mocked Properties\n");
+        for (auto& prop : mPropertiesForMocking->getList()) {
+            //TODO dump more info
+            msg.appendFormat("property 0x%x\n", prop->prop);
+        }
     }
     msg.append("*Active clients*\n");
     for (size_t i = 0; i < mBinderToClientMap.size(); i++) {
@@ -267,9 +274,9 @@ void VehicleNetworkService::binderDied(const wp<IBinder>& who) {
     List<int32_t> propertiesToUnsubscribe;
     do {
         Mutex::Autolock autoLock(mLock);
-        sp<IBinder> iBinder = who.promote();
-        iBinder->unlinkToDeath(this);
-        ssize_t index = mBinderToClientMap.indexOfKey(iBinder);
+        sp<IBinder> ibinder = who.promote();
+        ibinder->unlinkToDeath(this);
+        ssize_t index = mBinderToClientMap.indexOfKey(ibinder);
         if (index < 0) {
             // already removed. ignore
             return;
@@ -447,7 +454,7 @@ status_t VehicleNetworkService::getProperty(vehicle_prop_value_t *data) {
     do { // for lock scoping
         Mutex::Autolock autoLock(mLock);
         if (!isGettableLocked(data->prop)) {
-            ALOGW("setProperty, cannot get 0x%x", data->prop);
+            ALOGW("getProperty, cannot get 0x%x", data->prop);
             return BAD_VALUE;
         }
         if ((data->prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
@@ -499,12 +506,15 @@ status_t VehicleNetworkService::setProperty(const vehicle_prop_value_t& data) {
         status_t r = mHalMock->onPropertySet(data);
         if (r != NO_ERROR) {
             ALOGW("setProperty 0x%x failed, mock returned %d", data.prop, r);
+            return r;
         }
-        return r;
     }
     if (isInternalProperty) {
         // for internal property, just publish it.
-        onHalEvent(&data);
+        onHalEvent(&data, inMocking);
+        return NO_ERROR;
+    }
+    if (inMocking) {
         return NO_ERROR;
     }
     //TODO add value check requires auto generated code to return value range for enum types
@@ -543,9 +553,9 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
                 sampleRate = config->min_sample_rate;
             }
         }
-        sp<IBinder> iBinder = IInterface::asBinder(listener);
-        LOG_VERBOSE("subscribe, binder 0x%x prop 0x%x", iBinder.get(), prop);
-        sp<HalClient> client = findOrCreateClientLocked(iBinder, listener);
+        sp<IBinder> ibinder = IInterface::asBinder(listener);
+        LOG_VERBOSE("subscribe, binder 0x%x prop 0x%x", ibinder.get(), prop);
+        sp<HalClient> client = findOrCreateClientLocked(ibinder, listener);
         if (client.get() == NULL) {
             ALOGE("subscribe, no memory, cannot create HalClient");
             return NO_MEMORY;
@@ -605,14 +615,14 @@ void VehicleNetworkService::unsubscribe(const sp<IVehicleNetworkListener> &liste
         if (!isSubscribableLocked(prop)) {
             return;
         }
-        sp<IBinder> iBinder = IInterface::asBinder(listener);
-        LOG_VERBOSE("unsubscribe, binder 0x%x, prop 0x%x", iBinder.get(), prop);
-        sp<HalClient> client = findClientLocked(iBinder);
+        sp<IBinder> ibinder = IInterface::asBinder(listener);
+        LOG_VERBOSE("unsubscribe, binder 0x%x, prop 0x%x", ibinder.get(), prop);
+        sp<HalClient> client = findClientLocked(ibinder);
         if (client.get() == NULL) {
             ALOGD("unsubscribe client not found in binder map");
             return;
         }
-        shouldUnsubscribe = removePropertyFromClientLocked(iBinder, client, prop);
+        shouldUnsubscribe = removePropertyFromClientLocked(ibinder, client, prop);
         if ((prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
                 (prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
             LOG_VERBOSE("unsubscribe to internal property, prop 0x%x", prop);
@@ -787,9 +797,9 @@ void VehicleNetworkService::handleHalRestartAndGetClientsToDispatchLocked(
     }
     for (auto& client : clientsToRemove) {
         // client is no longer necessary
-        sp<IBinder> iBinder = IInterface::asBinder(client->getListener());
-        mBinderToClientMap.removeItem(iBinder);
-        iBinder->unlinkToDeath(this);
+        sp<IBinder> ibinder = IInterface::asBinder(client->getListener());
+        mBinderToClientMap.removeItem(ibinder);
+        ibinder->unlinkToDeath(this);
     }
     clientsToRemove.clear();
 }
@@ -800,11 +810,11 @@ status_t VehicleNetworkService::injectHalError(int32_t errorCode, int32_t proper
 }
 
 status_t VehicleNetworkService::startErrorListening(const sp<IVehicleNetworkListener> &listener) {
-    sp<IBinder> iBinder = IInterface::asBinder(listener);
+    sp<IBinder> ibinder = IInterface::asBinder(listener);
     sp<HalClient> client;
     do {
         Mutex::Autolock autoLock(mLock);
-        client = findOrCreateClientLocked(iBinder, listener);
+        client = findOrCreateClientLocked(ibinder, listener);
     } while (false);
     if (client.get() == NULL) {
         ALOGW("startErrorListening failed, no memory");
@@ -815,11 +825,11 @@ status_t VehicleNetworkService::startErrorListening(const sp<IVehicleNetworkList
 }
 
 void VehicleNetworkService::stopErrorListening(const sp<IVehicleNetworkListener> &listener) {
-    sp<IBinder> iBinder = IInterface::asBinder(listener);
+    sp<IBinder> ibinder = IInterface::asBinder(listener);
     sp<HalClient> client;
     do {
         Mutex::Autolock autoLock(mLock);
-        client = findClientLocked(iBinder);
+        client = findClientLocked(ibinder);
     } while (false);
     if (client.get() != NULL) {
         client->setHalErrorMonitoringState(false);
@@ -828,11 +838,11 @@ void VehicleNetworkService::stopErrorListening(const sp<IVehicleNetworkListener>
 
 status_t VehicleNetworkService::startHalRestartMonitoring(
         const sp<IVehicleNetworkListener> &listener) {
-    sp<IBinder> iBinder = IInterface::asBinder(listener);
+    sp<IBinder> ibinder = IInterface::asBinder(listener);
     sp<HalClient> client;
     do {
         Mutex::Autolock autoLock(mLock);
-        client = findOrCreateClientLocked(iBinder, listener);
+        client = findOrCreateClientLocked(ibinder, listener);
     } while (false);
     if (client.get() == NULL) {
         ALOGW("startHalRestartMonitoring failed, no memory");
@@ -843,11 +853,11 @@ status_t VehicleNetworkService::startHalRestartMonitoring(
 }
 
 void VehicleNetworkService::stopHalRestartMonitoring(const sp<IVehicleNetworkListener> &listener) {
-    sp<IBinder> iBinder = IInterface::asBinder(listener);
+    sp<IBinder> ibinder = IInterface::asBinder(listener);
     sp<HalClient> client;
     do {
         Mutex::Autolock autoLock(mLock);
-        client = findClientLocked(iBinder);
+        client = findClientLocked(ibinder);
     } while (false);
     if (client.get() != NULL) {
         client->setHalRestartMonitoringState(false);
@@ -913,7 +923,7 @@ void VehicleNetworkService::dispatchHalEvents(List<vehicle_prop_value_t*>& event
         for (vehicle_prop_value_t* e : events) {
             ssize_t index = mPropertyToClientsMap.indexOfKey(e->prop);
             if (index < 0) {
-                ALOGI("HAL event for not subscribed property 0x%x", e->prop);
+                EVENT_LOG("HAL event for not subscribed property 0x%x", e->prop);
                 continue;
             }
             sp<HalClientSpVector>& clients = mPropertyToClientsMap.editValueAt(index);

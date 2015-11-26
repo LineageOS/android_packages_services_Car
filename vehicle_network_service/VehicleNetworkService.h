@@ -81,7 +81,6 @@ private:
 
 private:
     mutable Mutex mLock;
-    Condition mHalThreadWait;
     const sp<Looper> mLooper;
     VehicleNetworkService& mService;
     int mFreeListIndex;

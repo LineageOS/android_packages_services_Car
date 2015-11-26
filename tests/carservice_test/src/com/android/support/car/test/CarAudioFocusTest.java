@@ -15,9 +15,12 @@
  */
 package com.android.support.car.test;
 
-import java.util.LinkedList;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
+import android.content.Context;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.os.SystemClock;
+import android.support.car.media.CarAudioManager;
+import android.test.AndroidTestCase;
 
 import com.android.car.VehicleHalEmulator.VehicleHalPropertyHandler;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
@@ -34,12 +37,9 @@ import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 
-import android.content.Context;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
-import android.os.SystemClock;
-import android.support.car.media.CarAudioManager;
-import android.test.AndroidTestCase;
+import java.util.LinkedList;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public class CarAudioFocusTest extends MockedCarTestBase {
 

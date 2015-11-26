@@ -14,17 +14,30 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_IVEHICLENETWORK_TEST_LISTER_H
-#define ANDROID_IVEHICLENETWORK_TEST_LISTER_H
+#ifndef ANDROID_VEHICLENETWORK_TEST_LISTER_H
+#define ANDROID_VEHICLENETWORK_TEST_LISTER_H
 
 #include <IVehicleNetworkListener.h>
+#include <VehicleNetworkDataTypes.h>
 
 namespace android {
 
-class IVehicleNetworkTestListener : public BnVehicleNetworkListener {
+class VehicleNetworkTestListener : public VehicleNetworkListener {
 public:
-    IVehicleNetworkTestListener() :
-        mHalRestartCount(0) {};
+    VehicleNetworkTestListener()
+    : mEvents(new VehiclePropValueListHolder(new List<vehicle_prop_value_t* >())) {
+        String8 msg;
+        msg.appendFormat("Creating VehicleNetworkTestListener 0x%p\n", this);
+        std::cout<<msg.string();
+    }
+
+    virtual ~VehicleNetworkTestListener() {
+        std::cout<<"destroying VehicleNetworkTestListener\n";
+        for (auto& e : mEvents->getList()) {
+            VehiclePropValueUtil::deleteMembers(e);
+            delete e;
+        }
+    }
 
     virtual void onEvents(sp<VehiclePropValueListHolder>& events) {
         String8 msg("events ");
@@ -40,6 +53,8 @@ public:
                 mEventCounts.replaceValueAt(index, count);
                 msg.appendFormat("0x%x:%d ", e->prop, count);
             }
+            vehicle_prop_value_t* copy = VehiclePropValueUtil::allocVehicleProp(*e);
+            mEvents->getList().push_back(copy);
         }
         msg.append("\n");
         std::cout<<msg.string();
@@ -47,17 +62,11 @@ public:
     }
 
     virtual void onHalError(int32_t errorCode, int32_t property, int32_t operation) {
-        Mutex::Autolock autolock(mHalErrorLock);
-        mErrorCode = errorCode;
-        mProperty = property;
-        mOperation = operation;
-        mHalErrorCondition.signal();
+        //TODO
     }
 
     virtual void onHalRestart(bool inMocking) {
-        Mutex::Autolock autolock(mHalRestartLock);
-        mHalRestartCount++;
-        mHalRestartCondition.signal();
+        //TODO cannot test this in native world without plumbing mocking
     }
 
     void waitForEvents(nsecs_t reltime) {
@@ -65,18 +74,17 @@ public:
         mCondition.waitRelative(mLock, reltime);
     }
 
-    bool waitForEvent(int32_t property, nsecs_t reltime) {
+    bool waitForEvent(int32_t property, int initialEventCount, nsecs_t reltime) {
         Mutex::Autolock autolock(mLock);
-        int startCount = getEventCountLocked(property);
-        int currentCount = startCount;
+        int currentCount = initialEventCount;
         int64_t now = android::elapsedRealtimeNano();
         int64_t endTime = now + reltime;
-        while ((startCount == currentCount) && (now < endTime)) {
+        while ((initialEventCount == currentCount) && (now < endTime)) {
             mCondition.waitRelative(mLock, endTime - now);
             currentCount = getEventCountLocked(property);
             now = android::elapsedRealtimeNano();
         }
-        return (startCount != currentCount);
+        return (initialEventCount != currentCount);
     }
 
     int getEventCount(int32_t property) {
@@ -84,24 +92,16 @@ public:
         return getEventCountLocked(property);
     }
 
-    int getHalRestartCount() {
-        Mutex::Autolock autolock(mHalRestartLock);
-        return mHalRestartCount;
+    sp<VehiclePropValueListHolder>& getEvents() {
+        // this is nothing more than memory barrier. Just for testing.
+        Mutex::Autolock autolock(mLock);
+        return mEvents;
     }
 
-    void waitForHalRestart(nsecs_t reltime) {
-        Mutex::Autolock autolock(mHalRestartLock);
-        mHalRestartCondition.waitRelative(mHalRestartLock, reltime);
-    }
-
-    void waitForHalError(nsecs_t reltime) {
-        Mutex::Autolock autolock(mHalErrorLock);
-        mHalErrorCondition.waitRelative(mHalErrorLock, reltime);
-    }
-
-    bool isErrorMatching(int32_t errorCode, int32_t property, int32_t operation) {
-        Mutex::Autolock autolock(mHalErrorLock);
-        return mErrorCode == errorCode && mProperty == property && mOperation == operation;
+    const vehicle_prop_value& getLastValue() {
+        auto itr = getEvents()->getList().end();
+        itr--;
+        return **itr;
     }
 
 private:
@@ -113,23 +113,12 @@ private:
             return mEventCounts.valueAt(index);
         }
     }
-
-
 private:
     Mutex mLock;
     Condition mCondition;
     KeyedVector<int32_t, int> mEventCounts;
-
-    Mutex mHalRestartLock;
-    Condition mHalRestartCondition;
-    int mHalRestartCount;
-
-    Mutex mHalErrorLock;
-    Condition mHalErrorCondition;
-    int32_t mErrorCode;
-    int32_t mProperty;
-    int32_t mOperation;
+    sp<VehiclePropValueListHolder> mEvents;
 };
 
 }; // namespace android
-#endif // ANDROID_IVEHICLENETWORK_TEST_LISTER_H
+#endif // ANDROID_VEHICLENETWORK_TEST_LISTER_H

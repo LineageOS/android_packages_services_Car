@@ -158,13 +158,14 @@ public:
 
     static status_t copyVehicleProp(vehicle_prop_value_t* dest, const vehicle_prop_value_t& src,
             bool deleteOldData = false) {
-        if (deleteOldData && dest->value.str_value.data != NULL && dest->value.str_value.len > 0) {
-            delete[] dest->value.str_value.data;
-        }
-        memcpy(dest, &src, sizeof(vehicle_prop_value_t));
         switch (src.value_type) {
         case VEHICLE_VALUE_TYPE_BYTES:
         case VEHICLE_VALUE_TYPE_STRING: {
+            if (deleteOldData && dest->value.str_value.data != NULL &&
+                    dest->value.str_value.len > 0) {
+                delete[] dest->value.str_value.data;
+            }
+            memcpy(dest, &src, sizeof(vehicle_prop_value_t));
             if (dest->value.str_value.len > 0) {
                 dest->value.str_value.data = new uint8_t[dest->value.str_value.len];
                 ASSERT_OR_HANDLE_NO_MEMORY(dest->value.str_value.data, return NO_MEMORY);
@@ -173,6 +174,9 @@ public:
             } else {
                 dest->value.str_value.data = NULL;
             }
+        } break;
+        default: {
+            memcpy(dest, &src, sizeof(vehicle_prop_value_t));
         } break;
         }
         return NO_ERROR;

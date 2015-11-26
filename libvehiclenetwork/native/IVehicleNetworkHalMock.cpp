@@ -224,7 +224,12 @@ status_t BnVehicleNetworkHalMock::onTransact(uint32_t code, const Parcel& data, 
         case ON_PROPERTY_GET: {
             CHECK_INTERFACE(IVehicleNetworkHalMock, data, reply);
             ScopedVehiclePropValue value;
-            value.value.prop = data.readInt32();
+            r = VehiclePropValueBinderUtil::readFromParcel(data, &value.value,
+                                false /* deleteMembers */, true /*canIgnoreNoData*/);
+            if (r != NO_ERROR) {
+                ALOGE("onPropertyGet cannot read %d", r);
+                return r;
+            }
             r = onPropertyGet(&(value.value));
             if (r == NO_ERROR) {
                 BinderUtil::fillObjectResultReply(reply, true);

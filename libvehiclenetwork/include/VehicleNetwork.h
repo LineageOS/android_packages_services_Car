@@ -64,6 +64,10 @@ public:
 
     void handleHalEvents(sp<VehiclePropValueListHolder>& events);
     void handleHalError(int32_t errorCode, int32_t property, int32_t operation);
+    /**
+     * This error must be handled always. This can be called in vehicle network service's crash
+     * as well.
+     */
     void handleHalRestart(bool inMocking);
 
 private:
@@ -128,9 +132,6 @@ public:
     status_t startErrorListening();
     void stopErrorListening();
 
-    status_t startHalRestartMonitoring();
-    void stopHalRestartMonitoring();
-
     //IBinder::DeathRecipient, not for client
     void binderDied(const wp<IBinder>& who);
     // BnVehicleNetworkListener, not for client
@@ -142,6 +143,8 @@ private:
     VehicleNetwork(sp<IVehicleNetwork>& vehicleNetwork, sp<VehicleNetworkListener> &listener);
     // RefBase
     virtual void onFirstRef();
+    sp<IVehicleNetwork> getService();
+    sp<VehicleNetworkEventMessageHandler> getEventHandler();
 
 private:
     sp<IVehicleNetwork> mService;

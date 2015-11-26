@@ -152,11 +152,14 @@ VehicleNetwork::VehicleNetwork(sp<IVehicleNetwork>& vehicleNetwork,
 }
 
 VehicleNetwork::~VehicleNetwork() {
-    IInterface::asBinder(mService)->unlinkToDeath(this);
+    sp<IVehicleNetwork> service = getService();
+    IInterface::asBinder(service)->unlinkToDeath(this);
+    service->stopHalRestartMonitoring(this);
     mHandlerThread->quit();
 }
 
 void VehicleNetwork::onFirstRef() {
+    Mutex::Autolock autoLock(mLock);
     mHandlerThread = new HandlerThread();
     status_t r = mHandlerThread->start("VNS.NATIVE_LOOP");
     if (r != NO_ERROR) {
@@ -168,6 +171,7 @@ void VehicleNetwork::onFirstRef() {
     ASSERT_ALWAYS_ON_NO_MEMORY(handler.get());
     mEventHandler = handler;
     IInterface::asBinder(mService)->linkToDeath(this);
+    mService->startHalRestartMonitoring(this);
 }
 
 status_t VehicleNetwork::setInt32Property(int32_t property, int32_t value) {
@@ -245,66 +249,79 @@ status_t VehicleNetwork::getStringProperty(int32_t property, String8& value, int
 }
 
 sp<VehiclePropertiesHolder> VehicleNetwork::listProperties(int32_t property) {
-    return mService->listProperties(property);
+    return getService()->listProperties(property);
 }
 
 status_t VehicleNetwork::setProperty(const vehicle_prop_value_t& value) {
-    return mService->setProperty(value);
+    return getService()->setProperty(value);
 }
 
 status_t VehicleNetwork::getProperty(vehicle_prop_value_t* value) {
-    return mService->getProperty(value);
+    return getService()->getProperty(value);
 }
 
 status_t VehicleNetwork::subscribe(int32_t property, float sampleRate) {
-    return mService->subscribe(this, property, sampleRate);
+    return getService()->subscribe(this, property, sampleRate);
 }
 
 void VehicleNetwork::unsubscribe(int32_t property) {
-    mService->unsubscribe(this, property);
+    getService()->unsubscribe(this, property);
 }
 
 status_t VehicleNetwork::injectEvent(const vehicle_prop_value_t& value) {
-    return mService->injectEvent(value);
+    return getService()->injectEvent(value);
 }
 
 status_t VehicleNetwork::startMocking(const sp<IVehicleNetworkHalMock>& mock) {
-    return mService->startMocking(mock);
+    return getService()->startMocking(mock);
 }
 
 void VehicleNetwork::stopMocking(const sp<IVehicleNetworkHalMock>& mock) {
-    mService->stopMocking(mock);
+    getService()->stopMocking(mock);
 }
 
 status_t VehicleNetwork::startErrorListening() {
-    return mService->startErrorListening(this);
+    return getService()->startErrorListening(this);
 }
 
 void VehicleNetwork::stopErrorListening() {
-    mService->stopErrorListening(this);
-}
-
-status_t VehicleNetwork::startHalRestartMonitoring() {
-    return mService->startHalRestartMonitoring(this);
-}
-
-void VehicleNetwork::stopHalRestartMonitoring() {
-    mService->stopHalRestartMonitoring(this);
+    getService()->stopErrorListening(this);
 }
 
 void VehicleNetwork::binderDied(const wp<IBinder>& who) {
-    //TODO recover or notify and give up?
+    ALOGE("service died");
+    do {
+        Mutex::Autolock autoLock(mLock);
+        sp<IBinder> ibinder = who.promote();
+        ibinder->unlinkToDeath(this);
+        sp<IBinder> binder = defaultServiceManager()->getService(
+                String16(IVehicleNetwork::SERVICE_NAME));
+        mService = interface_cast<IVehicleNetwork>(binder);
+        IInterface::asBinder(mService)->linkToDeath(this);
+        mService->startHalRestartMonitoring(this);
+    } while (false);
+    onHalRestart(false);
+}
+
+sp<IVehicleNetwork> VehicleNetwork::getService() {
+    Mutex::Autolock autoLock(mLock);
+    return mService;
+}
+
+sp<VehicleNetworkEventMessageHandler> VehicleNetwork::getEventHandler() {
+    Mutex::Autolock autoLock(mLock);
+    return mEventHandler;
 }
 
 void VehicleNetwork::onEvents(sp<VehiclePropValueListHolder>& events) {
-    mEventHandler->handleHalEvents(events);
+    getEventHandler()->handleHalEvents(events);
 }
 
 void VehicleNetwork::onHalError(int32_t errorCode, int32_t property, int32_t operation) {
-    mEventHandler->handleHalError(errorCode, property, operation);
+    getEventHandler()->handleHalError(errorCode, property, operation);
 }
 
 void VehicleNetwork::onHalRestart(bool inMocking) {
-    mEventHandler->handleHalRestart(inMocking);
+    getEventHandler()->handleHalRestart(inMocking);
 }
 }; // namespace android

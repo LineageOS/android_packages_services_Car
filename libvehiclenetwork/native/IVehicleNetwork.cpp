@@ -248,7 +248,8 @@ static bool isSystemUser() {
         // for now. There can be per property based UID check built-in as well.
         case AID_ROOT:
         case AID_SYSTEM:
-        case AID_AUDIO: {
+        case AID_AUDIO:
+        case AID_MEDIA: {
             return true;
         } break;
         default: {
