@@ -114,6 +114,21 @@ public abstract class CarDrawerActivity extends CarActivity{
         mBinder.setOnMenuClickedListener(listener);
     }
 
+    /**
+     * Restore the menu button drawable
+     */
+    public void restoreMenuButtonDrawable() {
+        mUiController.restoreMenuButtonDrawable();
+    }
+
+    /**
+     * Sets the menu button bitmap
+     *
+     * @param bitmap Bitmap to the menu button to.
+     */
+    public void setMenuButtonBitmap(Bitmap bitmap) {
+        mUiController.setMenuButtonBitmap(bitmap);
+    }
 
     /**
      * Set the title of the menu.

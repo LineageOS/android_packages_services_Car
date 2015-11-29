@@ -80,7 +80,7 @@ public class CarUiEntry {
     private final View.OnClickListener mMenuListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            CarUiEntry.this.mDrawerLayout.openDrawer();
+            CarUiEntry.this.mDrawerController.openDrawer();
         }
     };
 
@@ -118,6 +118,10 @@ public class CarUiEntry {
         mMenuButton.setImageDrawable(mDrawerArrowDrawable);
     }
 
+    public void setMenuButtonBitmap(Bitmap bitmap) {
+        mMenuButton.setImageDrawable(new BitmapDrawable(mUiLibContext.getResources(), bitmap));
+    }
+
     /**
      * Set the progress of the animated {@link DrawerArrowDrawable}.
      * @param progress 0f displays a menu button
@@ -142,11 +146,11 @@ public class CarUiEntry {
     }
 
     public void closeDrawer() {
-        mDrawerLayout.closeDrawer();
+        mDrawerController.closeDrawer();
     }
 
     public void openDrawer() {
-        mDrawerLayout.openDrawer();
+        mDrawerController.openDrawer();
     }
 
     public void showMenu(String id, String title) {

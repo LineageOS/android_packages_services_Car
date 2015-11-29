@@ -43,6 +43,8 @@ public class CarUiController {
     private Method mSetScrimColor;
     private Method mSetTitle;
     private Method mSetCarMenuBinder;
+    private Method mRestoreMenuButtonDrawable;
+    private Method mSetMenuButtonBitmap;
     private Method mGetFragmentContainerId;
     private Method mSetLightMode;
     private Method mSetAutoLightDarkMode;
@@ -83,6 +85,12 @@ public class CarUiController {
                         break;
                     case "setCarMenuBinder":
                         mSetCarMenuBinder = m;
+                        break;
+                    case "restoreMenuDrawable":
+                        mRestoreMenuButtonDrawable = m;
+                        break;
+                    case "setMenuButtonBitmap":
+                        mSetMenuButtonBitmap = m;
                         break;
                     case "getFragmentContainerId":
                         mGetFragmentContainerId = m;
@@ -155,6 +163,14 @@ public class CarUiController {
 
     public void registerCarMenuCallbacks(IBinder callbacks) {
         invoke(mSetCarMenuBinder, callbacks);
+    }
+
+    public void restoreMenuButtonDrawable() {
+        invoke(mRestoreMenuButtonDrawable);
+    }
+
+    public void setMenuButtonBitmap(Bitmap bitmap) {
+        invoke(mSetMenuButtonBitmap, bitmap);
     }
 
     /**
