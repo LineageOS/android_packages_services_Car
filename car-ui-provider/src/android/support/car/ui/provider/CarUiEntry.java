@@ -15,6 +15,7 @@
  */
 package android.support.car.ui.provider;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
@@ -32,18 +33,14 @@ import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.view.View;
-import android.content.Context;
 import android.view.LayoutInflater;
 
 import android.support.car.ui.R;
 
 import android.support.car.app.menu.ICarMenuCallbacks;
 
-public class CarUiEntry {
-    private static final String TAG = "CarUiEntry";
-    private final Context mUiLibContext;
-    @SuppressWarnings("unused")
-    private final Context mAppContext;
+public class CarUiEntry extends android.support.car.app.menu.CarUiEntry {
+    private static final String TAG = "Embedded_CarUiEntry";
 
     private View mContentView;
     private ImageView mMenuButton;
@@ -54,12 +51,11 @@ public class CarUiEntry {
     private PagedListView mListView;
     private DrawerArrowDrawable mDrawerArrowDrawable;
 
-    public CarUiEntry(Context uiLibContext, Context appContext) {
-        mAppContext = appContext;
-        mUiLibContext = uiLibContext.createConfigurationContext(
-                appContext.getResources().getConfiguration());
+    public CarUiEntry(Context appContext, Context providerContext) {
+        super(appContext, providerContext);
     }
 
+    @Override
     public View getContentView() {
         LayoutInflater inflater = LayoutInflater.from(mUiLibContext);
         mContentView = inflater.inflate(R.layout.car_activity, null);
@@ -84,6 +80,7 @@ public class CarUiEntry {
         }
     };
 
+    @Override
     public void setCarMenuBinder(IBinder binder) throws RemoteException {
         ICarMenuCallbacks callbacks = ICarMenuCallbacks.Stub.asInterface(binder);
         Bundle root = callbacks.getRoot();
@@ -95,25 +92,30 @@ public class CarUiEntry {
         }
     }
 
+    @Override
     public int getFragmentContainerId() {
         return R.id.container;
     }
 
+    @Override
     public void setBackground(Bitmap bitmap) {
         BitmapDrawable bd = new BitmapDrawable(mUiLibContext.getResources(), bitmap);
         ImageView bg = (ImageView) mContentView.findViewById(R.id.background);
         bg.setBackground(bd);
     }
 
+    @Override
     public void setBackgroundResource(int resId) {
         ImageView bg = (ImageView) mContentView.findViewById(R.id.background);
         bg.setBackgroundResource(resId);
     }
 
+    @Override
     public void hideMenuButton() {
         mMenuButton.setVisibility(View.GONE);
     }
 
+    @Override
     public void restoreMenuDrawable() {
         mMenuButton.setImageDrawable(mDrawerArrowDrawable);
     }
@@ -129,30 +131,37 @@ public class CarUiEntry {
      *                 anything in between will be an interpolation of the drawable between
      *                 back and menu
      */
+    @Override
     public void setMenuProgress(float progress) {
         mDrawerArrowDrawable.setProgress(progress);
     }
 
+    @Override
     public void setScrimColor(int color) {
         mDrawerLayout.setScrimColor( color);
     }
 
+    @Override
     public void setTitle(CharSequence title) {
         mDrawerController.setTitle(title);
     }
 
+    @Override
     public void setTitleText(CharSequence title) {
         mTitleView.setText(title);
     }
 
+    @Override
     public void closeDrawer() {
         mDrawerController.closeDrawer();
     }
 
+    @Override
     public void openDrawer() {
         mDrawerController.openDrawer();
     }
 
+    @Override
     public void showMenu(String id, String title) {
         mDrawerController.showMenu(id, title);
     }
@@ -192,41 +201,69 @@ public class CarUiEntry {
                 }
             };
 
+    @Override
     public void setMenuButtonColor(int color) {
         setViewColor(mMenuButton, color);
         setViewColor(mTitleView, color);
     }
 
+    @Override
     public void showTitle() {
         mTitleView.setVisibility(View.VISIBLE);
     }
 
+    @Override
     public void hideTitle() {
         mTitleView.setVisibility(View.GONE);
     }
 
+    @Override
     public void setLightMode() {
         mDrawerController.setLightMode();
     }
 
+    @Override
     public void setDarkMode() {
         mDrawerController.setDarkMode();
     }
 
+    @Override
     public void setAutoLightDarkMode() {
         mDrawerController.setAutoLightDarkMode();
     }
 
+    @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         if (mDrawerController != null) {
             mDrawerController.restoreState(savedInstanceState);
         }
     }
 
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         if (mDrawerController != null) {
             mDrawerController.saveState(outState);
         }
+    }
+
+    @Override
+    public void onStart() {
+
+    }
+
+    @Override
+    public void onResume() {
+
+    }
+
+    @Override
+    public void onPause() {
+
+    }
+
+    @Override
+    public void onStop() {
+
     }
 
     private static void setViewColor(View view, int color) {
