@@ -78,4 +78,15 @@ int vehicle_network_audio_helper_get_stream_focus_state(
             (android::VehicleNetworkAudioHelper*) helper->obj;
     return helperObj->getStreamFocusState(stream);
 }
+
+int vehicle_network_audio_helper_wait_for_stream_focus(vehicle_network_audio_helper_t* helper,
+        int32_t stream, nsecs_t waitTimeNs) {
+    android::VehicleNetworkAudioHelper* helperObj =
+            (android::VehicleNetworkAudioHelper*) helper->obj;
+    if (helperObj->waitForStreamFocus(stream, waitTimeNs)) {
+        return 1;
+    }
+    return 0;
+}
+
 }

@@ -86,6 +86,15 @@ enum vehicle_network_audio_helper_focus_state {
 int vehicle_network_audio_helper_get_stream_focus_state(
         vehicle_network_audio_helper_t* helper, int32_t stream);
 
+/**
+ * Wait for focus until given timeout. It will return immediately if given stream has focus.
+ * Otherwise, it will be waiting for focus for given waitTimeNs.
+ * @return 1 if focus is available
+ *         0 if focus is not available and timeout has happened.
+ */
+int vehicle_network_audio_helper_wait_for_stream_focus(vehicle_network_audio_helper_t* helper,
+        int32_t stream, nsecs_t waitTimeNs);
+
 __END_DECLS
 
 #endif /* ANDROID_VEHICLE_NETWORK_AUDIO_HELPER_FOR_C_H */
