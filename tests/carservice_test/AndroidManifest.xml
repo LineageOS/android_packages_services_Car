@@ -19,6 +19,8 @@
         package="com.android.support.car.carservicetest"
         android:sharedUserId="android.uid.system" >
 
+    <uses-permission android:name="android.Manifest.permission.MODIFY_AUDIO_ROUTING" />
+    <uses-permission android:name="com.android.car.permission.CAR_HVAC" />
     <uses-permission android:name="com.android.car.permission.CAR_RADIO" />
     <instrumentation android:name="android.test.InstrumentationTestRunner"
             android:targetPackage="com.android.support.car.carservicetest"
