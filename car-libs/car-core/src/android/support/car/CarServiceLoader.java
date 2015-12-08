@@ -19,6 +19,8 @@ package android.support.car;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.Looper;
+import android.support.car.content.pm.ICarPackageManager;
+import android.support.car.content.pm.CarPackageManager;
 import android.support.car.hardware.CarSensorManager;
 import android.support.car.hardware.ICarSensor;
 
@@ -63,6 +65,10 @@ public abstract class CarServiceLoader {
                 break;
             case Car.APP_CONTEXT_SERVICE:
                 manager = new CarAppContextManager(IAppContext.Stub.asInterface(binder), mLooper);
+                break;
+            case Car.PACKAGE_SERVICE:
+                manager = new CarPackageManager(ICarPackageManager.Stub.asInterface(binder),
+                        mContext);
                 break;
         }
         return manager;
