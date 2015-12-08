@@ -56,7 +56,11 @@ public class Car {
     /** Service name for {@link CarInfoManager}, to be used in {@link #getCarManager(String)}. */
     public static final String INFO_SERVICE = "info";
 
+    /** Service name for {@link CarAppContextManager}. */
     public static final String APP_CONTEXT_SERVICE = "app_context";
+
+    /** Service name for {@link android.suport.car.content.pm.CarPackageManager} */
+    public static final String PACKAGE_SERVICE = "package";
 
     /** Type of car connection: car emulator, not physical connection. */
     public static final int CONNECTION_TYPE_EMULATOR        = 0;

@@ -50,6 +50,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarHvacService mCarHvacService;
     private final CarRadioService mCarRadioService;
     private final AppContextService mAppContextService;
+    private final CarPackageManagerService mCarPackageManagerService;
 
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
@@ -86,10 +87,12 @@ public class ICarImpl extends ICar.Stub {
         mCarAudioService = new CarAudioService(serviceContext, mAppContextService);
         mCarHvacService = new CarHvacService(serviceContext);
         mCarRadioService = new CarRadioService(serviceContext);
+        mCarPackageManagerService = new CarPackageManagerService(serviceContext);
 
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
                 mCarPowerManagementService,
+                mCarPackageManagerService,
                 mCarInfoService,
                 mAppContextService,
                 mCarSensorService,
@@ -168,6 +171,9 @@ public class ICarImpl extends ICar.Stub {
 
             case Car.APP_CONTEXT_SERVICE:
                 return mAppContextService;
+
+            case Car.PACKAGE_SERVICE:
+                return mCarPackageManagerService;
 
             case CarSystem.HVAC_SERVICE:
                 assertHvacPermission(mContext);
