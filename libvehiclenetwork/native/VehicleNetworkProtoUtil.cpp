@@ -279,7 +279,7 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValues(const VehiclePropValues&
         vehicle_prop_value_t* v =  new vehicle_prop_value_t();
         memset(v, 0, sizeof(vehicle_prop_value_t));
         ASSERT_OR_HANDLE_NO_MEMORY(v, r = NO_MEMORY;goto error);
-        status_t r = fromVehiclePropValue(in.values(i), *v);
+        r = fromVehiclePropValue(in.values(i), *v);
         if (r != NO_ERROR) {
             delete v;
             goto error;
