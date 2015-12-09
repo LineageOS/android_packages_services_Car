@@ -29,6 +29,7 @@ import android.util.Log;
 
 import com.android.car.CarSystem;
 import com.android.car.hal.VehicleHal;
+import com.android.car.pm.CarPackageManagerService;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;

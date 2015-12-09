@@ -148,7 +148,7 @@ void VehicleNetworkAudioHelper::notifyStreamStopped(int32_t stream) {
 
 VehicleNetworkAudioHelper::StreamState& VehicleNetworkAudioHelper::getStreamStateLocked(
         int32_t streamNumber) {
-    if (streamNumber >= mStreamStates.size()) {
+    if (streamNumber >= (int32_t) mStreamStates.size()) {
         mStreamStates.insertAt(mStreamStates.size(), streamNumber - mStreamStates.size() + 1);
     }
     return mStreamStates.editItemAt(streamNumber);

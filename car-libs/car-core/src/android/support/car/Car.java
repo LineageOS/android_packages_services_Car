@@ -90,6 +90,9 @@ public class Car {
     /** permission necessary to access car specific communication channel */
     public static final String PERMISSION_VENDOR_EXTENSION =
             "android.support.car.permission.CAR_VENDOR_EXTENSION";
+    /** @hide */
+    public static final String PERMISSION_CONTROL_APP_BLOCKING =
+            "android.support.car.permission.CONTROL_APP_BLOCKING";
 
     /** @hide */
     public static final String CAR_SERVICE_INTERFACE_NAME = "android.support.car.ICar";

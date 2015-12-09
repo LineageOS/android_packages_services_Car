@@ -80,7 +80,7 @@ TEST_F(IVehicleNetworkTest, listProperties) {
         String8 msg = String8::format("query single prop 0x%x\n", config->prop);
         std::cout<<msg.string();
         sp<VehiclePropertiesHolder> singleProperty = vn->listProperties(config->prop);
-        ASSERT_EQ(1, singleProperty->getList().size());
+        ASSERT_EQ((size_t) 1, singleProperty->getList().size());
         vehicle_prop_config_t const * newConfig = *singleProperty->getList().begin();
         ASSERT_EQ(config->prop, newConfig->prop);
         ASSERT_EQ(config->access, newConfig->access);

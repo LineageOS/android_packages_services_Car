@@ -18,10 +18,12 @@ package android.support.car.content.pm;
 
 import android.support.car.content.pm.CarAppBlockingPolicy;
 
-/** @hide */
-interface ICarPackageManager {
+/**
+ * Passed to CarAppBlockingPolicyService to allow setting policy. This also works as a unique
+   token per each Service. Caller still needs permission to set policy.
+ * @hide
+ */
+interface ICarAppBlockingPolicySetter {
     int getVersion() = 0;
-    void setAppBlockingPolicy(in String packageName, in CarAppBlockingPolicy policy, int flags) = 1;
-    boolean isActivityAllowedWhileDriving(in String packageName, in String className) = 2;
-    boolean isServiceAllowedWhileDriving(in String packageName, in String className) = 3;
+    void setAppBlockingPolicy(in CarAppBlockingPolicy policy) = 1;
 }

@@ -16,7 +16,44 @@
 
 package com.android.car;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Binder;
+import android.util.Log;
+
 /** Utility class */
 public class CarServiceUtils {
 
+    private static final String PACKAGE_NOT_FOUND = "Package not found:";
+
+    /**
+     * Check if package name passed belongs to UID for the current binder call.
+     * @param context
+     * @param packageName
+     */
+    public static void assertPakcageName(Context context, String packageName)
+            throws IllegalArgumentException, SecurityException {
+        if (packageName == null) {
+            throw new IllegalArgumentException("Package name null");
+        }
+        ApplicationInfo appInfo = null;
+        try {
+            appInfo = context.getPackageManager().getApplicationInfo(packageName,
+                    0);
+        } catch (NameNotFoundException e) {
+            String msg = PACKAGE_NOT_FOUND + packageName;
+            Log.w(CarLog.TAG_SERVICE, msg, e);
+            throw new SecurityException(msg, e);
+        }
+        if (appInfo == null) {
+            throw new SecurityException(PACKAGE_NOT_FOUND + packageName);
+        }
+        int uid = Binder.getCallingUid();
+        if (uid != appInfo.uid) {
+            throw new SecurityException("Wrong package name:" + packageName +
+                    ", The package does not belong to caller's uid:" + uid);
+        }
+    }
 }

@@ -21,6 +21,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := car-system
 LOCAL_MODULE_TAGS := optional
 
+LOCAL_AIDL_INCLUDES := $(LOCAL_PATH)/src packages/services/Car/car-libs/car-core/src
+
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 
 LOCAL_STATIC_JAVA_LIBRARIES += car-core

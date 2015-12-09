@@ -27,9 +27,9 @@ public class CarSystem {
 
     /** Permission necessary to access Car HVAC APIs. */
     public static final String PERMISSION_CAR_HVAC =
-            "com.android.car.permission.CAR_HVAC";
+            "android.support.car.permission.CAR_HVAC";
 
     /** Permission necesary to access Car RADIO system APIs. */
     public static final String PERMISSION_CAR_RADIO =
-            "com.android.car.permission.CAR_RADIO";
+            "android.support.car.permission.CAR_RADIO";
 }

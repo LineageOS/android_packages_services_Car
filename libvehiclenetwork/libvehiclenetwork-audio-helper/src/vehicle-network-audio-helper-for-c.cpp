@@ -26,7 +26,7 @@ extern "C" {
 
 vehicle_network_audio_helper_t* vehicle_network_audio_helper_create(nsecs_t timeout) {
     android::status_t r;
-    android::VehicleNetworkAudioHelper* helperObj = new android::VehicleNetworkAudioHelper();
+    android::VehicleNetworkAudioHelper* helperObj = new android::VehicleNetworkAudioHelper(timeout);
     if (helperObj == NULL) {
         return NULL;
     }

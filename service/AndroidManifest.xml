@@ -35,7 +35,7 @@
         android:label="@string/car_permission_label_fuel"
         android:description="@string/car_permission_desc_fuel" />
     <permission
-        android:name="com.android.car.permission.CAR_HVAC"
+        android:name="android.support.car.permission.CAR_HVAC"
         android:permissionGroup="android.support.car.permission.CAR_INFORMATION"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_hvac"
@@ -59,7 +59,7 @@
         android:label="@string/car_permission_label_vendor_extension"
         android:description="@string/car_permission_desc_vendor_extension" />
     <permission
-        android:name="com.android.car.permission.CAR_RADIO"
+        android:name="android.support.car.permission.CAR_RADIO"
         android:permissionGroup="android.support.car.permission.CAR_INFORMATION"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_radio"
@@ -70,6 +70,13 @@
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_mock_vehicle_hal"
         android:description="@string/car_permission_desc_mock_vehicle_hal" />
+
+    <!--  may replace this with system permission if proper one is defined. -->
+    <permission
+        android:name="android.support.car.permission.CONTROL_APP_BLOCKING"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_control_app_blocking"
+        android:description="@string/car_permission_desc_control_app_blocking" />
 
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />

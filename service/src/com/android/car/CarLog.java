@@ -22,6 +22,7 @@ public class CarLog {
     public static final String TAG_HAL = "CAR.HAL";
     public static final String TAG_HVAC = "CAR.HVAC";
     public static final String TAG_INFO = "CAR.INFO";
+    public static final String TAG_PACKAGE = "CAR.PACKAGE";
     public static final String TAG_POWER = "CAR.POWER";
     public static final String TAG_RADIO = "CAR.RADIO";
     public static final String TAG_SENSOR = "CAR.SENSOR";

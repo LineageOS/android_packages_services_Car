@@ -47,4 +47,8 @@
     <!-- Permission text: can emulate information from your car [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_mock_vehicle_hal">Emulate your car\'s vehicle HAL for internal
         testing purpose.</string>
+    <string name="car_permission_label_control_app_blocking">Application blocking</string>
+    <!-- Permission text: can emulate information from your car [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_app_blocking">Control application blocking while
+        driving.</string>
 </resources>
