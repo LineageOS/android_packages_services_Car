@@ -275,6 +275,11 @@ public class CarProxyActivity extends FragmentActivity {
         }
     }
 
+    // TODO: eventually we should get CarActivity to directly host fragment, see b/25935686.
+    public CarActivity getCarActivity() {
+        return mCarActivity;
+    }
+
     private static Integer[] convertArray(int[] array) {
         Integer[] grantResults = new Integer[array.length];
         for (int i = 0; i < array.length; i++) {
