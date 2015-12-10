@@ -46,8 +46,8 @@ public class CarRestrictedEditText extends EditText implements CarEditable {
     private KeyListener mListener;
 
     public interface KeyListener {
-        void onKeyDown(char key);
-        void onKeyUp(char key);
+        void onKeyDown(int keyCode);
+        void onKeyUp(int keyCode);
         void onCommitText(String input);
         void onCloseKeyboard();
         void onDelete();
@@ -112,9 +112,17 @@ public class CarRestrictedEditText extends EditText implements CarEditable {
             public boolean sendKeyEvent(android.view.KeyEvent event) {
                 if (mListener != null) {
                     if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                        mListener.onKeyDown((char) event.getKeyCode());
+                        mListener.onKeyDown(event.getKeyCode());
                     } else if (event.getAction() == KeyEvent.ACTION_UP) {
-                        mListener.onKeyUp((char) event.getKeyCode());
+                        mListener.onKeyUp(event.getKeyCode());
+
+                        // InputMethodService#sendKeyChar doesn't call
+                        // InputConnection#commitText for digit chars.
+                        // TODO: fix projected IME to be in coherence with system IME.
+                        char unicodeChar = (char) event.getUnicodeChar();
+                        if (Character.isDigit(unicodeChar)) {
+                            commitText(String.valueOf(unicodeChar), 1);
+                        }
                     }
                     return true;
                 } else {
