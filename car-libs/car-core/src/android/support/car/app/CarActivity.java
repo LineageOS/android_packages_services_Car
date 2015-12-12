@@ -24,22 +24,25 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.car.Car;
 import android.support.car.input.CarInputManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
+import android.view.Window;
 
 /**
  * Abstraction for car UI. Car applications should implement this for car UI.
  * The API looks like {@link android.app.Activity}, and behaves like one, but it is neither
  * android {@link android.app.Activity} nor {@link android.app.Context}.
  * Applications should use {@link #getContext()} to get necessary {@link android.app.Context}.
- * To use car API, {@link #getCarApi()} can be used. The {@link Car} api passed is already
- * connected, and client does not need to call {@link Car#connect()}.
  */
 public abstract class CarActivity {
     private static final String TAG = "CarActivity";
-
+    public interface RequestPermissionsRequestCodeValidator {
+        public void validateRequestPermissionsRequestCode(int requestCode);
+    }
     /**
      * Interface to connect {@link CarActivity} to {@link android.app.Activity} or other app model.
      * This interface provides utility for {@link CarActivity} to do things like manipulating view,
@@ -54,16 +57,22 @@ public abstract class CarActivity {
         abstract public LayoutInflater getLayoutInflater();
         abstract public Intent getIntent();
         abstract public void finish();
-        abstract public void setContentFragment(Fragment fragment, int containerId);
         abstract public CarInputManager getCarInputManager();
+        abstract public boolean isFinishing();
+        abstract public MenuInflater getMenuInflater();
+        abstract public void finishAfterTransition();
+        abstract public Window getWindow();
+
         public void requestPermissions(String[] permissions, int requestCode) {
+            Log.w(TAG, "No support for requestPermissions");
         }
         public boolean shouldShowRequestPermissionRationale(String permission) {
+            Log.w(TAG, "No support for shouldShowRequestPermissionRationale");
             return false;
         }
-        public FragmentManager getSupportFragmentManager() {
-            return null;
-        }
+        public void startActivityForResult(Intent intent, int requestCode) {
+            Log.w(TAG, "No support for startActivityForResult");
+        };
     }
 
     /** @hide */
@@ -92,6 +101,12 @@ public abstract class CarActivity {
     public static final int CMD_ON_REQUEST_PERMISSIONS_RESULT = 11;
     /** @hide */
     public static final int CMD_ON_NEW_INTENT = 12;
+    /** @hide */
+    public static final int CMD_ON_ACTIVITY_RESULT = 13;
+    /** @hide */
+    public static final int CMD_ON_POST_RESUME = 14;
+    /** @hide */
+    public static final int CMD_ON_LOW_MEMORY = 15;
 
     private final Proxy mProxy;
     private final Context mContext;
@@ -129,10 +144,6 @@ public abstract class CarActivity {
         return mProxy.getCarInputManager();
     }
 
-    public void setContentFragment(Fragment fragment, int containerId) {
-        mProxy.setContentFragment(fragment, containerId);
-    }
-
     public View findViewById(int id) {
         return mProxy.findViewById(id);
     }
@@ -141,11 +152,19 @@ public abstract class CarActivity {
         mProxy.finish();
     }
 
+    public boolean isFinishing() {
+        return mProxy.isFinishing();
+    }
+
     public boolean shouldShowRequestPermissionRationale(String permission) {
         return mProxy.shouldShowRequestPermissionRationale(permission);
     }
 
     public void requestPermissions(String[] permissions, int requestCode) {
+        if (this instanceof RequestPermissionsRequestCodeValidator) {
+            ((RequestPermissionsRequestCodeValidator) this)
+                    .validateRequestPermissionsRequestCode(requestCode);
+        }
         mProxy.requestPermissions(permissions, requestCode);
     }
 
@@ -153,8 +172,23 @@ public abstract class CarActivity {
         mProxy.setIntent(i);
     }
 
-    public FragmentManager getSupportFragmentManager() {
-        return mProxy.getSupportFragmentManager();
+    public void finishAfterTransition() {
+        mProxy.finishAfterTransition();
+    }
+
+    public MenuInflater getMenuInflater() {
+        return mProxy.getMenuInflater();
+    }
+
+    public Window getWindow() {
+        return mProxy.getWindow();
+    }
+
+    public Object getLastNonConfigurationInstance() {
+        return null;
+    }
+
+    public void startActivityForResult(Intent intent, int requestCode) {
     }
 
     /** @hide */
@@ -173,6 +207,9 @@ public abstract class CarActivity {
                 break;
             case CMD_ON_RESUME:
                 onResume();
+                break;
+            case CMD_ON_POST_RESUME:
+                onPostResume();
                 break;
             case CMD_ON_PAUSE:
                 onPause();
@@ -207,6 +244,14 @@ public abstract class CarActivity {
                 assertArgsLength(1, args);
                 onNewIntent((Intent) args[0]);
                 break;
+            case CMD_ON_ACTIVITY_RESULT:
+                assertArgsLength(3, args);
+                onActivityResult(((Integer) args[0]).intValue(), ((Integer) args[1]).intValue(),
+                        (Intent) args[2]);
+                break;
+            case CMD_ON_LOW_MEMORY:
+                onLowMemory();
+                break;
             default:
                 throw new RuntimeException("Unknown dispatch cmd for CarActivity, " + cmd);
         }
@@ -223,6 +268,9 @@ public abstract class CarActivity {
     }
 
     protected void onResume() {
+    }
+
+    protected void onPostResume() {
     }
 
     protected void onPause() {
@@ -251,6 +299,26 @@ public abstract class CarActivity {
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    }
+
+    public Object onRetainNonConfigurationInstance() {
+        return null;
+    }
+
+    // TODO: hook up panel menu if it's needed in any apps.
+    public boolean onCreatePanelMenu(int featureId, Menu menu) {
+        return false; // default menu will not be displayed.
+    }
+
+    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        // CarFragmentActivity can override this to dispatch onCreateView to fragments
+        return null;
+    }
+
+    public void onLowMemory() {
     }
 
     private void assertArgsLength(int length, Object... args) {

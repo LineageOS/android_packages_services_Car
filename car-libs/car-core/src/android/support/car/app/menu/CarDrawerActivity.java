@@ -24,7 +24,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.LayoutRes;
-import android.support.car.app.CarActivity;
+import android.support.car.app.CarFragmentActivity;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -42,7 +42,7 @@ import java.util.Map;
 /**
  * Base class for a car app which wants to use a drawer.
  */
-public abstract class CarDrawerActivity extends CarActivity{
+public abstract class CarDrawerActivity extends CarFragmentActivity {
     private static final String TAG = "CarDrawerActivity";
     private static final String KEY_DRAWERSHOWING =
             "android.support.car.app.CarDrawerActivity.DRAWER_SHOWING";

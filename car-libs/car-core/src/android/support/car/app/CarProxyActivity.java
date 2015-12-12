@@ -16,6 +16,7 @@
 
 package android.support.car.app;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -23,14 +24,12 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.car.input.CarInputManager;
 import android.support.car.input.CarRestrictedEditText;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -43,7 +42,7 @@ import java.lang.reflect.InvocationTargetException;
  * android Activity controlling / proxying {@link CarActivity}. Applications should have its own
  * {@link android.app.Activity} overriding only constructor.
  */
-public class CarProxyActivity extends FragmentActivity {
+public class CarProxyActivity extends Activity {
     private final Class mCarActivityClass;
     // no synchronization, but main thread only
     private CarActivity mCarActivity;
@@ -87,12 +86,6 @@ public class CarProxyActivity extends FragmentActivity {
         }
 
         @Override
-        public void setContentFragment(Fragment fragment, int fragmentContainer) {
-            CarProxyActivity.this.getSupportFragmentManager().beginTransaction().replace(
-                    fragmentContainer, fragment).commit();
-        }
-
-        @Override
         public CarInputManager getCarInputManager() {
             return CarProxyActivity.this.mInputManager;
         }
@@ -108,13 +101,33 @@ public class CarProxyActivity extends FragmentActivity {
         }
 
         @Override
-        public FragmentManager getSupportFragmentManager() {
-            return CarProxyActivity.this.getSupportFragmentManager();
+        public void setIntent(Intent i) {
+            CarProxyActivity.this.setIntent(i);
         }
 
         @Override
-        public void setIntent(Intent i) {
-            CarProxyActivity.this.setIntent(i);
+        public MenuInflater getMenuInflater() {
+            return CarProxyActivity.this.getMenuInflater();
+        }
+
+        @Override
+        public void finishAfterTransition() {
+            CarProxyActivity.this.finishAfterTransition();
+        }
+
+        @Override
+        public void startActivityForResult(Intent intent, int requestCode) {
+            CarProxyActivity.this.startActivityForResult(intent, requestCode);
+        }
+
+        @Override
+        public boolean isFinishing() {
+            return CarProxyActivity.this.isFinishing();
+        }
+
+        @Override
+        public Window getWindow() {
+            return CarProxyActivity.this.getWindow();
         }
     };
 
@@ -157,6 +170,15 @@ public class CarProxyActivity extends FragmentActivity {
     }
 
     @Override
+    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        final View view = mCarActivity.onCreateView(parent, name, context, attrs);
+        if (view != null) {
+            return view;
+        }
+        return super.onCreateView(parent, name, context, attrs);
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         mCarActivity.dispatchCmd(CarActivity.CMD_ON_START, null);
@@ -184,6 +206,11 @@ public class CarProxyActivity extends FragmentActivity {
     protected void onStop() {
         super.onStop();
         mCarActivity.dispatchCmd(CarActivity.CMD_ON_STOP, null);
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        return mCarActivity.onRetainNonConfigurationInstance();
     }
 
     @Override
@@ -225,6 +252,12 @@ public class CarProxyActivity extends FragmentActivity {
     @Override
     protected void onNewIntent(Intent i) {
         mCarActivity.dispatchCmd(CarActivity.CMD_ON_NEW_INTENT, i);
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_LOW_MEMORY);
     }
 
     private static final class EmbeddedInputManager extends CarInputManager {
