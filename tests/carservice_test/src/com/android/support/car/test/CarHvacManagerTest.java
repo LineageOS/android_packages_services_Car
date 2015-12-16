@@ -29,8 +29,8 @@ import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleWindow;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZone;
+import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
+import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
 import com.android.car.vehiclenetwork.VehiclePropValueUtil;
@@ -62,21 +62,21 @@ public class CarHvacManagerTest extends MockedCarTestBase {
                         VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
                         VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
                         VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_BOOLEAN,
-                        VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD), handler);
+                        1), handler);
         getVehicleHalEmulator().addProperty(
                 VehiclePropConfigUtil.createProperty(
                         VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_SPEED,
                         VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
                         VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
                         VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32,
-                        VehicleZone.VEHICLE_ZONE_ROW_1_LEFT), handler);
+                        1), handler);
         getVehicleHalEmulator().addProperty(
                 VehiclePropConfigUtil.createProperty(
                         VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET,
                         VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
                         VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
                         VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT,
-                        VehicleZone.VEHICLE_ZONE_ROW_1_LEFT), handler);
+                        1), handler);
         getVehicleHalEmulator().start();
         mCarHvacManager =
                 (CarHvacManager) getCarApi().getCarManager(CarSystem.HVAC_SERVICE);
@@ -86,16 +86,16 @@ public class CarHvacManagerTest extends MockedCarTestBase {
     public void testHvacRearDefrosterOn() throws Exception {
         boolean defrost;
 
-        mCarHvacManager.setBooleanProperty(CarHvacManager.HVAC_WINDOW_DEFROSTER_ON,
-                VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD, true);
-        defrost = mCarHvacManager.getBooleanProperty(CarHvacManager.HVAC_WINDOW_DEFROSTER_ON,
-                VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD);
+        mCarHvacManager.setBooleanProperty(CarHvacManager.HVAC_REAR_DEFROSTER_ON,
+                CarHvacManager.HVAC_ZONE_ALL, true);
+        defrost = mCarHvacManager.getBooleanProperty(CarHvacManager.HVAC_REAR_DEFROSTER_ON,
+                CarHvacManager.HVAC_ZONE_ALL);
         assertEquals("Front defroster is " + defrost, true, defrost);
 
-        mCarHvacManager.setBooleanProperty(CarHvacManager.HVAC_WINDOW_DEFROSTER_ON,
-                VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD, false);
-        defrost = mCarHvacManager.getBooleanProperty(CarHvacManager.HVAC_WINDOW_DEFROSTER_ON,
-                VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD);
+        mCarHvacManager.setBooleanProperty(CarHvacManager.HVAC_REAR_DEFROSTER_ON,
+                CarHvacManager.HVAC_ZONE_ALL, false);
+        defrost = mCarHvacManager.getBooleanProperty(CarHvacManager.HVAC_REAR_DEFROSTER_ON,
+                CarHvacManager.HVAC_ZONE_ALL);
         assertEquals("Front defroster is " + defrost, false, defrost);
     }
 
@@ -104,15 +104,15 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         int speed;
 
         mCarHvacManager.setIntProperty(CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT,
-                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT, 15);
+                CarHvacManager.HVAC_ZONE_ROW_1_LEFT, 15);
         speed = mCarHvacManager.getIntProperty(CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT,
-                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT);
+                CarHvacManager.HVAC_ZONE_ROW_1_LEFT);
         assertEquals("Fan speed is " + speed, 15, speed);
 
         mCarHvacManager.setIntProperty(CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT,
-                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT, 23);
+                CarHvacManager.HVAC_ZONE_ROW_1_LEFT, 23);
         speed = mCarHvacManager.getIntProperty(CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT,
-                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT);
+                CarHvacManager.HVAC_ZONE_ROW_1_LEFT);
         assertEquals("Fan speed is " + speed, 23, speed);
     }
 
@@ -121,15 +121,15 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         float temp;
 
         mCarHvacManager.setFloatProperty(CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
-                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT, 70);
+                CarHvacManager.HVAC_ZONE_ROW_1_LEFT, 70);
         temp = mCarHvacManager.getFloatProperty(CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
-                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT);
+                CarHvacManager.HVAC_ZONE_ROW_1_LEFT);
         assertEquals("Temperature setpoint is  " + temp, 70.0, temp, 0);
 
         mCarHvacManager.setFloatProperty(CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
-                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT, (float) 65.5);
+                CarHvacManager.HVAC_ZONE_ROW_1_LEFT, (float) 65.5);
         temp = mCarHvacManager.getFloatProperty(CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
-                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT);
+                CarHvacManager.HVAC_ZONE_ROW_1_LEFT);
         assertEquals("Temperature setpoint is  " + temp, 65.5, temp, 0);
     }
 
@@ -142,38 +142,38 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         // Inject a boolean event and wait for its callback in onPropertySet.
         VehiclePropValue v = VehiclePropValueUtil.createZonedBooleanValue(
                 VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AC_ON,
-                VehicleZone.VEHICLE_ZONE_ALL, true, 0);
+                CarHvacManager.HVAC_ZONE_ALL, true, 0);
         assertEquals("Lock should be freed by now.", 0, mAvailable.availablePermits());
         getVehicleHalEmulator().injectEvent(v);
 
         success = mAvailable.tryAcquire(2L, TimeUnit.SECONDS);
         assertEquals("injectEvent, onEvent timeout!", true, success);
         assertEquals("Value is incorrect", mEventBoolVal, true);
-        assertEquals("Zone is incorrect", mEventZoneVal, VehicleZone.VEHICLE_ZONE_ALL);
+        assertEquals("Zone is incorrect", mEventZoneVal, CarHvacManager.HVAC_ZONE_ALL);
 
         // Inject a float event and wait for its callback in onPropertySet.
         v = VehiclePropValueUtil.createZonedFloatValue(
                 VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_CURRENT,
-                VehicleZone.VEHICLE_ZONE_ROW_1_ALL, 67, 0);
+                CarHvacManager.HVAC_ZONE_ROW_1_ALL, 67, 0);
         assertEquals("Lock should be freed by now.", 0, mAvailable.availablePermits());
         getVehicleHalEmulator().injectEvent(v);
 
         success = mAvailable.tryAcquire(2L, TimeUnit.SECONDS);
         assertEquals("injectEvent, onEvent timeout!", true, success);
         assertEquals("Value is incorrect", mEventFloatVal, 67, 0);
-        assertEquals("Zone is incorrect", mEventZoneVal, VehicleZone.VEHICLE_ZONE_ROW_1_ALL);
+        assertEquals("Zone is incorrect", mEventZoneVal, CarHvacManager.HVAC_ZONE_ROW_1_ALL);
 
         // Inject an integer event and wait for its callback in onPropertySet.
         v = VehiclePropValueUtil.createZonedIntValue(
                 VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_SPEED,
-                VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT, 4, 0);
+                CarHvacManager.HVAC_ZONE_ROW_1_RIGHT, 4, 0);
         assertEquals("Lock should be freed by now.", 0, mAvailable.availablePermits());
         getVehicleHalEmulator().injectEvent(v);
 
         success = mAvailable.tryAcquire(2L, TimeUnit.SECONDS);
         assertEquals("injectEvent, onEvent timeout!", true, success);
         assertEquals("Value is incorrect", mEventIntVal, 4);
-        assertEquals("Zone is incorrect", mEventZoneVal, VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT);
+        assertEquals("Zone is incorrect", mEventZoneVal, CarHvacManager.HVAC_ZONE_ROW_1_RIGHT);
     }
 
 

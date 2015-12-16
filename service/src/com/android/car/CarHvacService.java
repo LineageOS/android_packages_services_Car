@@ -17,17 +17,23 @@
 package com.android.car;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
+import android.os.Binder;
+import android.os.Process;
 import android.os.RemoteException;
 import android.support.car.Car;
+import android.support.car.CarNotConnectedException;
 import android.util.Log;
 
+import com.android.car.CarLog;
 import com.android.car.hal.VehicleHal;
 import com.android.car.hal.HvacHalService;
 import com.android.car.hardware.hvac.ICarHvac;
 import com.android.car.hardware.hvac.ICarHvacEventListener;
 import com.android.car.hardware.hvac.CarHvacEvent;
 import com.android.car.hardware.hvac.CarHvacProperty;
+import com.android.car.ICarImpl;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
