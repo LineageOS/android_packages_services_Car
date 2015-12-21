@@ -16,6 +16,7 @@
 
 package android.support.car;
 
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.car.annotation.ValueTypeDef;
 
@@ -134,7 +135,26 @@ public class CarInfoManager implements CarManagerBase {
         return null;
     }
 
-    //TODO add more get*
+    /**
+     * get Bundle for the given key. This is intended for passing vendor specific data for key
+     * defined only for the car vendor. Vendor extension can be used for other APIs like
+     * getInt / getString, but this is for passing more complex data.
+     * @param key
+     * @return
+     * @throws CarNotConnectedException
+     * @throws IllegalArgumentException
+     * @hide
+     */
+    public Bundle getBundle(String key) throws CarNotConnectedException, IllegalArgumentException {
+        try {
+            return mService.getBundle(key);
+        } catch (IllegalStateException e) {
+            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
+        } catch (RemoteException e) {
+            //ignore as CarApi will handle disconnection anyway.
+        }
+        return null;
+    }
 
     /** @hide */
     CarInfoManager(ICarInfo service) {

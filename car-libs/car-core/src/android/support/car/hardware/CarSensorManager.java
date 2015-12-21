@@ -105,20 +105,45 @@ public class CarSensorManager implements CarManagerBase {
      * Environment like temperature and pressure.
      */
     public static final int SENSOR_TYPE_ENVIRONMENT       = 12;
-    /**
-     * Current status of HVAC system like target temperature and current temperature.
-     */
+
+    /** @hide */
     public static final int SENSOR_TYPE_RESERVED13        = 13;
+    /** @hide */
     public static final int SENSOR_TYPE_ACCELEROMETER     = 14;
+    /** @hide */
     public static final int SENSOR_TYPE_RESERVED15        = 15;
+    /** @hide */
     public static final int SENSOR_TYPE_RESERVED16        = 16;
+    /** @hide */
     public static final int SENSOR_TYPE_GPS_SATELLITE     = 17;
+    /** @hide */
     public static final int SENSOR_TYPE_GYROSCOPE         = 18;
+    /** @hide */
     public static final int SENSOR_TYPE_RESERVED19        = 19;
+    /** @hide */
     public static final int SENSOR_TYPE_RESERVED20        = 20;
+    /** @hide */
     public static final int SENSOR_TYPE_RESERVED21        = 21;
-    /** Sensor type bigger than this is invalid. Always update this after adding a new sensor. */
+
+    /**
+     * Sensor type bigger than this is invalid. Always update this after adding a new sensor.
+     * @hide
+     */
     private static final int SENSOR_TYPE_MAX              = SENSOR_TYPE_RESERVED21;
+
+    /**
+     * Sensors defined in this range [{@link #SENSOR_TYPE_VENDOR_EXTENSION_START},
+     * {@link #SENSOR_TYPE_VENDOR_EXTENSION_END}] is for each car vendor's to use.
+     * This should be only used for system app to access sensors not defined as standard types.
+     * So the sensor supproted in this range can vary depending on car models / manufacturers.
+     * 3rd party apps should not use sensors in this range as they are not compatible across
+     * different cars. Additionally 3rd party apps trying to access sensor in this range will get
+     * security exception as their access is restricted to system apps.
+     *
+     * @hide
+     */
+    public static final int SENSOR_TYPE_VENDOR_EXTENSION_START = 0x60000000;
+    public static final int SENSOR_TYPE_VENDOR_EXTENSION_END   = 0x6fffffff;
 
     /** Read sensor in default normal rate set for each sensors. This is default rate. */
     public static final int SENSOR_RATE_NORMAL  = 3;
@@ -404,7 +429,9 @@ public class CarSensorManager implements CarManagerBase {
     }
 
     private void assertSensorType(int sensorType) {
-        if (sensorType == 0 || sensorType > SENSOR_TYPE_MAX) {
+        if (sensorType == 0 || !((sensorType <= SENSOR_TYPE_MAX) ||
+                ((sensorType >= SENSOR_TYPE_VENDOR_EXTENSION_START) &&
+                        (sensorType <= SENSOR_TYPE_VENDOR_EXTENSION_END)))) {
             throw new IllegalArgumentException("invalid sensor type " + sensorType);
         }
     }

@@ -18,20 +18,33 @@ package com.android.car.hardware.hvac;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.car.annotation.VersionDef;
+import android.support.car.os.ExtendableParcelable;
 
 /**
  * CarHvacProperty object corresponds to a property of the car's HVAC system
  * @hide
  */
-public class CarHvacProperty implements Parcelable {
+public class CarHvacProperty extends ExtendableParcelable {
+    private static final int VERSION = 1;
+
+    @VersionDef(version = 1)
     private final int   mPropertyId;
+    @VersionDef(version = 1)
     private final int   mType;
+    @VersionDef(version = 1)
     private int         mZone;
+    @VersionDef(version = 1)
     private final float mFloatMax;
+    @VersionDef(version = 1)
     private final float mFloatMin;
+    @VersionDef(version = 1)
     private float       mFloatValue;
+    @VersionDef(version = 1)
     private final int   mIntMax;
+    @VersionDef(version = 1)
     private final int   mIntMin;
+    @VersionDef(version = 1)
     private int         mIntValue;
 
     public int describeContents() {
@@ -39,6 +52,7 @@ public class CarHvacProperty implements Parcelable {
     }
 
     public void writeToParcel(Parcel out, int flags) {
+        int startingPosition = writeHeader(out);
         out.writeInt(mPropertyId);
         out.writeInt(mType);
         out.writeInt(mZone);
@@ -48,6 +62,7 @@ public class CarHvacProperty implements Parcelable {
         out.writeInt(mIntMax);
         out.writeInt(mIntMin);
         out.writeInt(mIntValue);
+        completeWriting(out, startingPosition);
     }
 
     public static final Parcelable.Creator<CarHvacProperty> CREATOR
@@ -62,6 +77,8 @@ public class CarHvacProperty implements Parcelable {
     };
 
     private CarHvacProperty(Parcel in) {
+        super(in, VERSION);
+        int lastPosition = readHeader(in);
         mPropertyId = in.readInt();
         mType       = in.readInt();
         mZone       = in.readInt();
@@ -71,6 +88,7 @@ public class CarHvacProperty implements Parcelable {
         mIntMax     = in.readInt();
         mIntMin     = in.readInt();
         mIntValue   = in.readInt();
+        completeReading(in, lastPosition);
     }
 
     /**
@@ -78,6 +96,7 @@ public class CarHvacProperty implements Parcelable {
      * @param that
      */
     public CarHvacProperty(CarHvacProperty that) {
+        super(VERSION);
         mPropertyId = that.getPropertyId();
         mType       = that.getType();
         mZone       = that.getZone();
@@ -96,6 +115,7 @@ public class CarHvacProperty implements Parcelable {
      * @param value
      */
     public CarHvacProperty(int propertyId, int zone, boolean value) {
+        super(VERSION);
         mPropertyId = propertyId;
         mType       = CarHvacManager.PROPERTY_TYPE_BOOLEAN;
         mZone       = zone;
@@ -121,6 +141,7 @@ public class CarHvacProperty implements Parcelable {
      * @param value
      */
     public CarHvacProperty(int propertyId, int zone, float min, float max, float value) {
+        super(VERSION);
         mPropertyId = propertyId;
         mType       = CarHvacManager.PROPERTY_TYPE_FLOAT;
         mZone       = zone;
@@ -141,6 +162,7 @@ public class CarHvacProperty implements Parcelable {
      * @param value
      */
     public CarHvacProperty(int propertyId, int zone, int min, int max, int value) {
+        super(VERSION);
         mPropertyId = propertyId;
         mType       = CarHvacManager.PROPERTY_TYPE_INT;
         mZone       = zone;
