@@ -18,32 +18,26 @@ package com.android.car.hardware.radio;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.car.annotation.VersionDef;
-import android.support.car.os.ExtendableParcelable;
 
 /**
  * A CarRadioEvent object corresponds to a single radio event coming from the car.
  *
  * This works in conjuction with the callbacks already defined in {@link RadioCallback.Callback}.
  */
-public class CarRadioEvent extends ExtendableParcelable {
+public class CarRadioEvent implements Parcelable {
     /**
      * Event specifying that a radio preset has been changed.
      */
     public static final int RADIO_PRESET = 0;
 
-    private static final int VERSION = 1;
-
     /**
      * Event type.
      */
-    @VersionDef(version = 1)
     private final int mType;
 
     /**
      * CarRadioPreset for the event type EVENT_RADIO_PRESET.
      */
-    @VersionDef(version = 1)
     private final CarRadioPreset mPreset;
 
     // Getters.
@@ -62,10 +56,8 @@ public class CarRadioEvent extends ExtendableParcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        int startingPosition = writeHeader(dest);
         dest.writeInt(mType);
         dest.writeParcelable(mPreset, 0);
-        completeWriting(dest, startingPosition);
     }
 
     public static final Parcelable.Creator<CarRadioEvent> CREATOR
@@ -80,17 +72,13 @@ public class CarRadioEvent extends ExtendableParcelable {
     };
 
     public CarRadioEvent(int type, CarRadioPreset preset) {
-        super(VERSION);
         mType = type;
         mPreset = preset;
     }
 
     private CarRadioEvent(Parcel in) {
-        super(in, VERSION);
-        int lastPosition = readHeader(in);
         mType = in.readInt();
         mPreset = in.readParcelable(CarRadioPreset.class.getClassLoader());
-        completeReading(in, lastPosition);
     }
 
     public String toString() {

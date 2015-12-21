@@ -399,7 +399,9 @@ public class CarSensorService extends ICarSensor.Stub
         String permission = getPermissionName(sensorType);
         int result = PackageManager.PERMISSION_GRANTED;
         if (permission != null) {
-            return mContext.checkCallingOrSelfPermission(permission);
+            /*TODO
+            result = CarServiceUtils.checkCallingPermission(
+                    mContext, permission);*/
         }
         // If no permission is required, return granted.
         return result;
@@ -407,10 +409,6 @@ public class CarSensorService extends ICarSensor.Stub
 
     //TODO handle per property OEM permission
     private String getPermissionName(int sensorType) {
-        if ((sensorType >= CarSensorManager.SENSOR_TYPE_VENDOR_EXTENSION_START) &&
-                (sensorType >= CarSensorManager.SENSOR_TYPE_VENDOR_EXTENSION_END)) {
-            return Car.PERMISSION_VENDOR_EXTENSION;
-        }
         String permission = null;
         switch (sensorType) {
             case CarSensorManager.SENSOR_TYPE_LOCATION:

@@ -18,37 +18,29 @@ package com.android.car.hardware.radio;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.car.annotation.VersionDef;
-import android.support.car.os.ExtendableParcelable;
 
 /**
  * CarPreset object corresponds to a preset that is stored on the car's Radio unit.
  */
-public class CarRadioPreset extends ExtendableParcelable {
-    private static final int VERSION = 1;
-
+public class CarRadioPreset implements Parcelable {
     /*
      * Preset number at which this preset is stored.
      *
      * The value is 1 index based.
      */
-    @VersionDef(version = 1)
     private final int mPresetNumber;
     /**
      * Radio band this preset belongs to.
      * See {@link RadioManager.BAND_FM}, {@link RadioManager.BAND_AM} etc.
      */
-    @VersionDef(version = 1)
     private final int mBand;
     /**
      * Channel number.
      */
-    @VersionDef(version = 1)
     private final int mChannel;
     /**
      * Sub channel number.
      */
-    @VersionDef(version = 1)
     private final int mSubChannel;
 
     public int describeContents() {
@@ -56,12 +48,10 @@ public class CarRadioPreset extends ExtendableParcelable {
     }
 
     public void writeToParcel(Parcel out, int flags) {
-        int startingPosition = writeHeader(out);
         out.writeInt(mPresetNumber);
         out.writeInt(mBand);
         out.writeInt(mChannel);
         out.writeInt(mSubChannel);
-        completeWriting(out, startingPosition);
     }
 
     public static final Parcelable.Creator<CarRadioPreset> CREATOR
@@ -76,17 +66,13 @@ public class CarRadioPreset extends ExtendableParcelable {
     };
 
     private CarRadioPreset(Parcel in) {
-        super(in, VERSION);
-        int lastPosition = readHeader(in);
         mPresetNumber = in.readInt();
         mBand = in.readInt();
         mChannel = in.readInt();
         mSubChannel = in.readInt();
-        completeReading(in, lastPosition);
     }
 
     public CarRadioPreset(int presetNumber, int bandType, int channel, int subChannel) {
-        super(VERSION);
         mPresetNumber = presetNumber;
         mBand = bandType;
         mChannel = channel;

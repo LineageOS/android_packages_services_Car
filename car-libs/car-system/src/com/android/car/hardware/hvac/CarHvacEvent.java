@@ -18,43 +18,34 @@ package com.android.car.hardware.hvac;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.car.annotation.VersionDef;
-import android.support.car.os.ExtendableParcelable;
 
-public class CarHvacEvent extends ExtendableParcelable {
+public class CarHvacEvent implements Parcelable {
     public static final int HVAC_EVENT_PROPERTY_CHANGE = 0;
     public static final int HVAC_EVENT_ERROR = 1;
 
-    private static final int VERSION = 1;
     /**
      * EventType of this message
      */
-    @VersionDef(version = 1)
     private final int mEventType;
     /**
      * PropertyId is defined in {@link CarHvacProperty} and refers only to HVAC properties
      */
-    @VersionDef(version = 1)
     private final int mPropertyId;
     /**
      * Type denotes whether the property is a bool or integer.
      */
-    @VersionDef(version = 1)
     private final int mDataType;
     /**
      * Float value of the property
      */
-    @VersionDef(version = 1)
     private final float mFloatValue;
     /**
      * Integer value of the property
      */
-    @VersionDef(version = 1)
     private final int mIntValue;
     /**
      * Affected zone(s) for the property.  Zone is a bitmask as defined in {@link CarHvacProperty}
      */
-    @VersionDef(version = 1)
     private final int mZone;
 
     // Getters.
@@ -96,14 +87,12 @@ public class CarHvacEvent extends ExtendableParcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        int startingPosition = writeHeader(dest);
         dest.writeInt(mEventType);
         dest.writeInt(mPropertyId);
         dest.writeInt(mDataType);
         dest.writeFloat(mFloatValue);
         dest.writeInt(mIntValue);
         dest.writeInt(mZone);
-        completeWriting(dest, startingPosition);
     }
 
     public static final Parcelable.Creator<CarHvacEvent> CREATOR
@@ -125,7 +114,6 @@ public class CarHvacEvent extends ExtendableParcelable {
      * @param value
      */
     public CarHvacEvent(int eventType, int propertyId, int zone, boolean value) {
-        super(VERSION);
         mEventType  = eventType;
         mPropertyId = propertyId;
         mDataType   = CarHvacManager.PROPERTY_TYPE_BOOLEAN;
@@ -146,7 +134,6 @@ public class CarHvacEvent extends ExtendableParcelable {
      * @param value
      */
     public CarHvacEvent(int eventType, int propertyId, int zone, float value) {
-        super(VERSION);
         mEventType  = eventType;
         mPropertyId = propertyId;
         mDataType   = CarHvacManager.PROPERTY_TYPE_FLOAT;
@@ -163,7 +150,6 @@ public class CarHvacEvent extends ExtendableParcelable {
      * @param value
      */
     public CarHvacEvent(int eventType, int propertyId, int zone, int value) {
-        super(VERSION);
         mEventType  = eventType;
         mPropertyId = propertyId;
         mDataType   = CarHvacManager.PROPERTY_TYPE_INT;
@@ -173,15 +159,12 @@ public class CarHvacEvent extends ExtendableParcelable {
     }
 
     private CarHvacEvent(Parcel in) {
-        super(in, VERSION);
-        int lastPosition = readHeader(in);
         mEventType  = in.readInt();
         mPropertyId = in.readInt();
         mDataType   = in.readInt();
         mFloatValue = in.readFloat();
         mIntValue   = in.readInt();
         mZone       = in.readInt();
-        completeReading(in, lastPosition);
     }
 
     public String toString() {
