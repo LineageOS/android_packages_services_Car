@@ -21,6 +21,8 @@ import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.support.car.annotation.VersionDef;
+import android.support.car.os.ExtendableParcelable;
 
 
 /**
@@ -34,11 +36,9 @@ import android.os.SystemClock;
  * Additionally, calling a conversion method on a CarSensorEvent object with an inappropriate type
  * will result in an {@code UnsupportedOperationException} being thrown.
  */
-public class CarSensorEvent implements Parcelable {
+public class CarSensorEvent extends ExtendableParcelable {
 
     private static final int VERSION = 1;
-
-    final int mVersionCode;
 
     /**
      * Index in {@link #floatValues} for {@link CarSensorManager#SENSOR_TYPE_FUEL_LEVEL} type of
@@ -188,35 +188,27 @@ public class CarSensorEvent implements Parcelable {
     private static final long MILLI_IN_NANOS = 1000000L;
 
     /** Sensor type for this event like {@link CarSensorManager#SENSOR_TYPE_CAR_SPEED}. */
+    @VersionDef(version = 1)
     public int sensorType;
 
     /**
      * When this data was acquired in car or received from car. It is elapsed real-time of data
      * reception from car in nanoseconds since system boot.
      */
+    @VersionDef(version = 1)
     public long timeStampNs;
     /**
      * array holding float type of sensor data. If the sensor has single value, only floatValues[0]
      * should be used. */
+    @VersionDef(version = 1)
     public final float[] floatValues;
     /** array holding int type of sensor data */
+    @VersionDef(version = 1)
     public final int[] intValues;
 
-    public CarSensorEvent(
-            int versionCode,
-            int sensorType,
-            long timeStampNs,
-            float[] floatValues,
-            int[] intValues) {
-        this.mVersionCode = versionCode;
-        this.sensorType = sensorType;
-        this.timeStampNs = timeStampNs;
-        this.floatValues = floatValues;
-        this.intValues = intValues;
-    }
-
     public CarSensorEvent(Parcel in) {
-        mVersionCode = in.readInt();
+        super(in, VERSION);
+        int lastPosition = readHeader(in);
         sensorType = in.readInt();
         timeStampNs = in.readLong();
         int len = in.readInt();
@@ -226,6 +218,7 @@ public class CarSensorEvent implements Parcelable {
         intValues = new int[len];
         in.readIntArray(intValues);
         // version 1 up to here
+        completeReading(in, lastPosition);
     }
 
     @Override
@@ -235,7 +228,7 @@ public class CarSensorEvent implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(mVersionCode);
+        int startingPosition = writeHeader(dest);
         dest.writeInt(sensorType);
         dest.writeLong(timeStampNs);
         dest.writeInt(floatValues.length);
@@ -243,6 +236,7 @@ public class CarSensorEvent implements Parcelable {
         dest.writeInt(intValues.length);
         dest.writeIntArray(intValues);
         // version 1 up to here
+        completeWriting(dest, startingPosition);
     }
 
     public static final Parcelable.Creator<CarSensorEvent> CREATOR
@@ -256,15 +250,8 @@ public class CarSensorEvent implements Parcelable {
         }
     };
 
-    /**
-     * @return version code of this Parcelable.
-     */
-    public int getVersionCode() {
-        return mVersionCode;
-    }
-
     public CarSensorEvent(int sensorType, long timeStampNs, int floatValueSize, int intValueSize) {
-        mVersionCode = VERSION;
+        super(VERSION);
         this.sensorType = sensorType;
         this.timeStampNs = timeStampNs;
         floatValues = new float[floatValueSize];
@@ -273,7 +260,7 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     CarSensorEvent(int sensorType, long timeStampNs, float[] floatValues, int[] intValues) {
-        mVersionCode = VERSION;
+        super(VERSION);
         this.sensorType = sensorType;
         this.timeStampNs = timeStampNs;
         this.floatValues = floatValues;

@@ -16,6 +16,8 @@
 
 package android.support.car;
 
+import android.os.Bundle;
+
 /** @hide */
 interface ICarInfo {
     int getVersion() = 0;
@@ -35,4 +37,5 @@ interface ICarInfo {
      */
     long[] getLong(String key) = 3;
     String getString(String key) = 4;
+    Bundle getBundle(String key) = 5;
 }

@@ -16,6 +16,7 @@
 package com.android.car;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.support.car.CarInfoManager;
 import android.support.car.ICarInfo;
@@ -122,6 +123,12 @@ public class CarInfoService extends ICarInfo.Stub implements CarServiceBase {
             storeToCache(key, v);
         }
         return v;
+    }
+
+    @Override
+    public Bundle getBundle(String key) {
+        // OEM may extend this.
+        return null;
     }
 
     @Override
