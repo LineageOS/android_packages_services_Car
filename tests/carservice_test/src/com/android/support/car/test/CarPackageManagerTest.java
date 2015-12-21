@@ -74,7 +74,6 @@ public class CarPackageManagerTest extends MockedCarTestBase {
     }
 
     public void testSettingWhitelist() throws Exception {
-        //Thread.sleep(1000);
         init(false);
         final String carServicePackageName = "com.android.car";
         final String activityAllowed = "NO_SUCH_ACTIVITY_BUT_ALLOWED";
@@ -106,7 +105,7 @@ public class CarPackageManagerTest extends MockedCarTestBase {
         assertFalse(mCarPm.isActivityAllowedWhileDriving(carServicePackageName,
                 activityNotAllowed));
 
-        //add
+        //add, it replace the whole package policy. So activities are not added.
         info = new AppBlockingPackageInfo(carServicePackageName, 0, 0,
                 AppBlockingPackageInfo.FLAG_SYSTEM_APP, null, new String[] { activityAllowed });
         policy = new CarAppBlockingPolicy(new AppBlockingPackageInfo[] { info }
