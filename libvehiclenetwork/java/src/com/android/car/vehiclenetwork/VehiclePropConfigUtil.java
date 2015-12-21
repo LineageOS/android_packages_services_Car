@@ -56,7 +56,7 @@ public class VehiclePropConfigUtil {
                 setChangeMode(changeMode).
                 setValueType(type).
                 setPermissionModel(permissionModel).
-                setConfigFlags(configFlags).
+                addConfigArray(configFlags).
                 setSampleRateMax(sampleRateMax).
                 setSampleRateMin(sampleRateMin);
     }

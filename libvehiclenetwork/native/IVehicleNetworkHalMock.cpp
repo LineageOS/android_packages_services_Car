@@ -125,11 +125,12 @@ public:
         return status;
     }
 
-    virtual status_t onPropertySubscribe(int32_t property, float sampleRate) {
+    virtual status_t onPropertySubscribe(int32_t property, float sampleRate, int32_t zones) {
         Parcel data, reply;
         data.writeInterfaceToken(IVehicleNetworkHalMock::getInterfaceDescriptor());
         data.writeInt32(property);
         data.writeFloat(sampleRate);
+        data.writeInt32(zones);
         status_t status = remote()->transact(ON_SUBSCRIBE, data, &reply);
         return status;
     }
@@ -249,7 +250,8 @@ status_t BnVehicleNetworkHalMock::onTransact(uint32_t code, const Parcel& data, 
             CHECK_INTERFACE(IVehicleNetworkHalMock, data, reply);
             int32_t property = data.readInt32();
             float sampleRate = data.readFloat();
-            r = onPropertySubscribe(property, sampleRate);
+            int32_t zones = data.readInt32();
+            r = onPropertySubscribe(property, sampleRate, zones);
             BinderUtil::fillNoResultReply(reply);
             return r;
         } break;

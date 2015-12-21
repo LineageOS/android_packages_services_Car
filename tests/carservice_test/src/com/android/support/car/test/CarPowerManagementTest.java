@@ -184,7 +184,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onPropertySubscribe(int property, int sampleRate) {
+        public void onPropertySubscribe(int property, float sampleRate, int zones) {
             mSubscriptionWaitSemaphore.release();
         }
 

@@ -28,7 +28,7 @@ import com.android.car.CarLog;
 import com.android.car.vehiclenetwork.VehicleNetwork;
 import com.android.car.vehiclenetwork.VehicleNetwork.VehicleNetworkListener;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAppContextFlag;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
@@ -199,19 +199,19 @@ public class VehicleHal implements VehicleNetworkListener {
             boolean callActive) {
         synchronized (this) {
             VehiclePropConfig config = mUnclaimedProperties.get(
-                    VehicleNetworkConsts.VEHICLE_PROPERTY_APP_CONTEXT);
+                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_CONTEXT);
             if (config == null) {
                 return; // not supported
             }
         }
         int currentContext =
                 (navigationActive ?
-                    VehicleAppContextFlag.VEHICLE_APP_CONTEXT_NAVIGATION_FLAG : 0) |
+                    VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG : 0) |
                 (voiceCommandActive ?
-                        VehicleAppContextFlag.VEHICLE_APP_CONTEXT_VOICE_COMMAND_FLAG : 0) |
+                        VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG : 0) |
                 (callActive ?
-                        VehicleAppContextFlag.VEHICLE_APP_CONTEXT_CALL_FLAG : 0);
-        mVehicleNetwork.setIntProperty(VehicleNetworkConsts.VEHICLE_PROPERTY_APP_CONTEXT,
+                        VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG : 0);
+        mVehicleNetwork.setIntProperty(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_CONTEXT,
                 currentContext);
     }
 

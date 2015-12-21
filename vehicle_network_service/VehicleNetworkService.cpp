@@ -239,10 +239,11 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
         }
         msg.append("\n");
     }
-    msg.append("*Sample rates per property*\n");
-    for (size_t i = 0; i < mSampleRates.size(); i++) {
-        msg.appendFormat("prop 0x%x, sample rate %f Hz\n", mSampleRates.keyAt(i),
-                mSampleRates.valueAt(i));
+    msg.append("*Subscription info per property*\n");
+    for (size_t i = 0; i < mSubscriptionInfos.size(); i++) {
+        const SubscriptionInfo& info = mSubscriptionInfos.valueAt(i);
+        msg.appendFormat("prop 0x%x, sample rate %f Hz, zones 0x%x\n", mSubscriptionInfos.keyAt(i),
+                info.sampleRate, info.zones);
     }
     msg.append("*Event counts per property*\n");
     for (size_t i = 0; i < mEventsCount.size(); i++) {
@@ -267,7 +268,7 @@ VehicleNetworkService::~VehicleNetworkService() {
     }
     mBinderToClientMap.clear();
     mPropertyToClientsMap.clear();
-    mSampleRates.clear();
+    mSubscriptionInfos.clear();
 }
 
 void VehicleNetworkService::binderDied(const wp<IBinder>& who) {
@@ -293,7 +294,7 @@ void VehicleNetworkService::binderDied(const wp<IBinder>& who) {
             if (clients->size() == 0) {
                 int32_t property = mPropertyToClientsMap.keyAt(i);
                 propertiesToUnsubscribe.push_back(property);
-                mSampleRates.removeItem(property);
+                mSubscriptionInfos.removeItem(property);
             }
         }
         for (int32_t property : propertiesToUnsubscribe) {
@@ -429,6 +430,19 @@ bool VehicleNetworkService::isSubscribableLocked(int32_t property) {
     return true;
 }
 
+bool VehicleNetworkService::isZonedProperty(vehicle_prop_config_t const * config) {
+    if (config == NULL) {
+        return false;
+    }
+    switch (config->value_type) {
+    case VEHICLE_VALUE_TYPE_ZONED_INT32:
+    case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
+    case VEHICLE_VALUE_TYPE_ZONED_BOOLEAN:
+        return true;
+    }
+    return false;
+}
+
 sp<VehiclePropertiesHolder> VehicleNetworkService::listProperties(int32_t property) {
     Mutex::Autolock autoLock(mLock);
     if (property == 0) {
@@ -527,9 +541,10 @@ status_t VehicleNetworkService::setProperty(const vehicle_prop_value_t& data) {
 }
 
 status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &listener, int32_t prop,
-        float sampleRate) {
+        float sampleRate, int32_t zones) {
     bool shouldSubscribe = false;
     bool inMock = false;
+    int32_t newZones = zones;
     do {
         Mutex::Autolock autoLock(mLock);
         if (!isSubscribableLocked(prop)) {
@@ -553,6 +568,15 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
                 sampleRate = config->min_sample_rate;
             }
         }
+        if (isZonedProperty(config)) {
+            if ((zones != 0) && ((zones & config->vehicle_zone_flags) != zones)) {
+                ALOGE("subscribe requested zones 0x%x out of range, supported:0x%x", zones,
+                        config->vehicle_zone_flags);
+                return BAD_VALUE;
+            }
+        } else { // ignore zone
+            zones = 0;
+        }
         sp<IBinder> ibinder = IInterface::asBinder(listener);
         LOG_VERBOSE("subscribe, binder 0x%x prop 0x%x", ibinder.get(), prop);
         sp<HalClient> client = findOrCreateClientLocked(ibinder, listener);
@@ -566,21 +590,25 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
             return NO_MEMORY;
         }
         clientsForProperty->add(client);
-
-        ssize_t index = mSampleRates.indexOfKey(prop);
+        ssize_t index = mSubscriptionInfos.indexOfKey(prop);
         if (index < 0) {
             // first time subscription for this property
             shouldSubscribe = true;
         } else {
-            float currentSampleRate = mSampleRates.valueAt(index);
-            if (currentSampleRate < sampleRate) {
+            const SubscriptionInfo& info = mSubscriptionInfos.valueAt(index);
+            if (info.sampleRate < sampleRate) {
+                shouldSubscribe = true;
+            }
+            newZones = (info.zones == 0) ? 0 : ((zones == 0) ? 0 : (info.zones | zones));
+            if (info.zones != newZones) {
                 shouldSubscribe = true;
             }
         }
-        client->setSampleRate(prop, sampleRate);
+        client->setSubscriptionInfo(prop, sampleRate, zones);
         if (shouldSubscribe) {
             inMock = mMockingEnabled;
-            mSampleRates.add(prop, sampleRate);
+            SubscriptionInfo info(sampleRate, newZones);
+            mSubscriptionInfos.add(prop, info);
             if ((prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
                                 (prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
                 LOG_VERBOSE("subscribe to internal property, prop 0x%x", prop);
@@ -591,13 +619,14 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
     if (shouldSubscribe) {
         status_t r;
         if (inMock) {
-            r = mHalMock->onPropertySubscribe(prop, sampleRate);
+            r = mHalMock->onPropertySubscribe(prop, sampleRate, newZones);
             if (r != NO_ERROR) {
                 ALOGW("subscribe 0x%x failed, mock returned %d", prop, r);
             }
         } else {
-            LOG_VERBOSE("subscribe to HAL, prop 0x%x sample rate:%f", prop, sampleRate);
-            r = mDevice->subscribe(mDevice, prop, sampleRate);
+            LOG_VERBOSE("subscribe to HAL, prop 0x%x sample rate:%f zones:0x%x", prop, sampleRate,
+                    newZones);
+            r = mDevice->subscribe(mDevice, prop, sampleRate, newZones);
             if (r != NO_ERROR) {
                 ALOGW("subscribe 0x%x failed, HAL returned %d", prop, r);
             }
@@ -712,7 +741,7 @@ bool VehicleNetworkService::removePropertyFromClientLocked(sp<IBinder>& ibinder,
     //TODO reset sample rate. do not care for now.
     if (clientsForProperty->size() == 0) {
         mPropertyToClientsMap.removeItem(property);
-        mSampleRates.removeItem(property);
+        mSubscriptionInfos.removeItem(property);
         return true;
     }
     return false;
@@ -782,7 +811,7 @@ void VehicleNetworkService::handleHalRestartAndGetClientsToDispatchLocked(
         List<sp<HalClient> >& clientsToDispatch) {
     // all subscriptions are invalid
     mPropertyToClientsMap.clear();
-    mSampleRates.clear();
+    mSubscriptionInfos.clear();
     mEventsCount.clear();
     List<sp<HalClient> > clientsToRemove;
     for (size_t i = 0; i < mBinderToClientMap.size(); i++) {
@@ -864,7 +893,8 @@ void VehicleNetworkService::stopHalRestartMonitoring(const sp<IVehicleNetworkLis
     }
 }
 
-status_t VehicleNetworkService::onHalEvent(const vehicle_prop_value_t* eventData, bool isInjection) {
+status_t VehicleNetworkService::onHalEvent(const vehicle_prop_value_t* eventData, bool isInjection)
+{
     sp<VehicleHalMessageHandler> handler;
     do {
         Mutex::Autolock autoLock(mLock);

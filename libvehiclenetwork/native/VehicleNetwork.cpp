@@ -260,8 +260,8 @@ status_t VehicleNetwork::getProperty(vehicle_prop_value_t* value) {
     return getService()->getProperty(value);
 }
 
-status_t VehicleNetwork::subscribe(int32_t property, float sampleRate) {
-    return getService()->subscribe(this, property, sampleRate);
+status_t VehicleNetwork::subscribe(int32_t property, float sampleRate, int32_t zones) {
+    return getService()->subscribe(this, property, sampleRate, zones);
 }
 
 void VehicleNetwork::unsubscribe(int32_t property) {

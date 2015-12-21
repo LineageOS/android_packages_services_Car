@@ -105,7 +105,7 @@ TEST_F(IVehicleNetworkMockedTest, halGlobalError) {
 TEST_F(IVehicleNetworkMockedTest, halPropertyError) {
     sp<IVehicleNetworkTestListener> listener(new IVehicleNetworkTestListener());
     ASSERT_EQ(NO_ERROR, mVN->startMocking(mHalMock));
-    ASSERT_EQ(NO_ERROR, mVN->subscribe(listener, TEST_PROPERTY_INT32, 0));
+    ASSERT_EQ(NO_ERROR, mVN->subscribe(listener, TEST_PROPERTY_INT32, 0, 0));
     const int ERROR_CODE = -123;
     const int OPERATION_CODE = 4567;
     ASSERT_EQ(NO_ERROR, mVN->injectHalError(ERROR_CODE, TEST_PROPERTY_INT32, OPERATION_CODE));

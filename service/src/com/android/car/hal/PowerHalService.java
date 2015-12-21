@@ -211,7 +211,7 @@ public class PowerHalService extends HalServiceBase {
         if (config == null) {
             return false;
         }
-        return (config.getConfigFlags() &
+        return (config.getConfigArray(0) &
                 VehicleApPowerStateConfigFlag.VEHICLE_AP_POWER_STATE_CONFIG_ENABLE_DEEP_SLEEP_FLAG)
                 != 0;
     }
@@ -222,7 +222,7 @@ public class PowerHalService extends HalServiceBase {
         if (config == null) {
             return false;
         }
-        return (config.getConfigFlags() &
+        return (config.getConfigArray(0) &
                 VehicleApPowerStateConfigFlag.VEHICLE_AP_POWER_STATE_CONFIG_SUPPORT_TIMER_POWER_ON_FLAG)
                 != 0;
     }

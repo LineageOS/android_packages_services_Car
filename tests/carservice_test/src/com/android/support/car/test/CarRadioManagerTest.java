@@ -111,7 +111,7 @@ public class CarRadioManagerTest extends MockedCarTestBase {
         }
 
         @Override
-        public synchronized void onPropertySubscribe(int property, int sampleRate) {
+        public synchronized void onPropertySubscribe(int property, float sampleRate, int zones) {
             Log.d(TAG, "onPropertySubscribe property: " + property + " rate: " + sampleRate);
             if (mAvailable.availablePermits() != 0) {
                 Log.d(TAG, "Lock was free, should have been locked.");

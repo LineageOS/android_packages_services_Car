@@ -54,7 +54,7 @@ public class VehicleHalEmulator {
     public interface VehicleHalPropertyHandler {
         void onPropertySet(VehiclePropValue value);
         VehiclePropValue onPropertyGet(VehiclePropValue value);
-        void onPropertySubscribe(int property, int sampleRate);
+        void onPropertySubscribe(int property, float sampleRate, int zones);
         void onPropertyUnsubscribe(int property);
     }
 
@@ -163,7 +163,7 @@ public class VehicleHalEmulator {
     }
 
     public static void assertPropertyForSubscribe(VehiclePropConfig config, int property,
-            float sampleRate) {
+            float sampleRate, int zones) {
         assertPropertyForGet(config, property);
         if (config.getChangeMode() == VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_STATIC) {
             throw new IllegalStateException("cannot subscribe static property 0x" +
@@ -212,7 +212,7 @@ public class VehicleHalEmulator {
                         setValueType(valueType).
                         setPermissionModel(
                                 VehiclePermissionModel.VEHICLE_PERMISSION_NO_RESTRICTION).
-                        setConfigFlags(0).
+                        addConfigArray(0).
                         setSampleRateMax(0).
                         setSampleRateMin(0).
                         build();
@@ -242,8 +242,8 @@ public class VehicleHalEmulator {
         return getHalPropertyLocked(value.getProp()).handler.onPropertyGet(value);
     }
 
-    private synchronized void handlePropertySubscribe(int property, int sampleRate) {
-        getHalPropertyLocked(property).handler.onPropertySubscribe(property, sampleRate);
+    private synchronized void handlePropertySubscribe(int property, float sampleRate, int zones) {
+        getHalPropertyLocked(property).handler.onPropertySubscribe(property, sampleRate, zones);
     }
 
     private synchronized void handlePropertyUnsubscribe(int property) {
@@ -293,8 +293,8 @@ public class VehicleHalEmulator {
         }
 
         @Override
-        public synchronized void onPropertySubscribe(int property, int sampleRate) {
-            assertPropertyForSubscribe(mConfig, property, sampleRate);
+        public synchronized void onPropertySubscribe(int property, float sampleRate, int zones) {
+            assertPropertyForSubscribe(mConfig, property, sampleRate, zones);
             mSubscribed = true;
         }
 
@@ -328,8 +328,8 @@ public class VehicleHalEmulator {
         }
 
         @Override
-        public void onPropertySubscribe(int property, int sampleRate) {
-            handlePropertySubscribe(property, sampleRate);
+        public void onPropertySubscribe(int property, float sampleRate, int zones) {
+            handlePropertySubscribe(property, sampleRate, zones);
         }
 
         @Override

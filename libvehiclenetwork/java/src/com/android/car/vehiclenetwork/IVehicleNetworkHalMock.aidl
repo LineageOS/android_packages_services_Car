@@ -26,6 +26,6 @@ interface IVehicleNetworkHalMock {
     VehiclePropConfigsParcelable onListProperties() = 0;
     void onPropertySet(in VehiclePropValueParcelable value) = 1;
     VehiclePropValueParcelable onPropertyGet(in VehiclePropValueParcelable value) = 2;
-    void onPropertySubscribe(int property, int sampleRate) = 3;
+    void onPropertySubscribe(int property, float sampleRate, int zones) = 3;
     void onPropertyUnsubscribe(int property) = 4;
 }

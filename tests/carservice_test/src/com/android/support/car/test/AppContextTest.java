@@ -23,7 +23,7 @@ import android.util.Log;
 
 import com.android.car.VehicleHalEmulator.VehicleHalPropertyHandler;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAppContextFlag;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
 import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePermissionModel;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
@@ -44,7 +44,7 @@ public class AppContextTest extends MockedCarTestBase {
         super.setUp();
         getVehicleHalEmulator().addProperty(
                 VehiclePropConfigUtil.getBuilder(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_APP_CONTEXT,
+                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_CONTEXT,
                         VehiclePropAccess.VEHICLE_PROP_ACCESS_WRITE,
                         VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
                         VehicleValueType.VEHICLE_VALUE_TYPE_INT32,
@@ -62,14 +62,14 @@ public class AppContextTest extends MockedCarTestBase {
                 CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
         manager.setActiveContexts(CarAppContextManager.APP_CONTEXT_NAVIGATION);
         mAppContextHandler.waitForPropertySetAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_NAVIGATION_FLAG);
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG);
         manager.setActiveContexts(CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
         mAppContextHandler.waitForPropertySetAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_NAVIGATION_FLAG |
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_VOICE_COMMAND_FLAG);
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG);
         manager.resetActiveContexts(CarAppContextManager.APP_CONTEXT_NAVIGATION);
         mAppContextHandler.waitForPropertySetAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_VOICE_COMMAND_FLAG);
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG);
         manager.resetActiveContexts(CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
         mAppContextHandler.waitForPropertySetAndAssert(DEFAULT_WAIT_TIMEOUT_MS, 0);
         manager.unregisterContextListener();
@@ -100,7 +100,7 @@ public class AppContextTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onPropertySubscribe(int property, int sampleRate) {
+        public void onPropertySubscribe(int property, float sampleRate, int zones) {
             fail();
         }
 

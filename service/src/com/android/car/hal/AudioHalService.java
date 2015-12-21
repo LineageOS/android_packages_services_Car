@@ -21,7 +21,7 @@ import com.android.car.AudioRoutingPolicy;
 import com.android.car.CarLog;
 import com.android.car.vehiclenetwork.VehicleNetwork;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAppContextFlag;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioExtFocusFlag;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusIndex;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusRequest;
@@ -177,19 +177,19 @@ public class AudioHalService extends HalServiceBase {
     private static int logicalStreamToHalStreamType(int logicalStream) {
         switch (logicalStream) {
             case AudioRoutingPolicy.STREAM_TYPE_CALL:
-                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_CALL_FLAG;
+                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG;
             case AudioRoutingPolicy.STREAM_TYPE_MEDIA:
-                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_MUSIC_FLAG;
+                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG;
             case AudioRoutingPolicy.STREAM_TYPE_NAV_GUIDANCE:
-                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_NAVIGATION_FLAG;
+                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG;
             case AudioRoutingPolicy.STREAM_TYPE_VOICE_COMMAND:
-                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_VOICE_COMMAND_FLAG;
+                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG;
             case AudioRoutingPolicy.STREAM_TYPE_ALARM:
-                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_ALARM_FLAG;
+                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG;
             case AudioRoutingPolicy.STREAM_TYPE_NOTIFICATION:
-                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_NOTIFICATION_FLAG;
+                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG;
             case AudioRoutingPolicy.STREAM_TYPE_UNKNOWN:
-                return VehicleAppContextFlag.VEHICLE_APP_CONTEXT_UNKNOWN_FLAG;
+                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG;
             default:
                 Log.w(CarLog.TAG_AUDIO, "Unknown logical stream:" + logicalStream);
                 return 0;
@@ -216,7 +216,7 @@ public class AudioHalService extends HalServiceBase {
         if (config == null) {
             return true;
         }
-        return (config.getConfigFlags() &
+        return (config.getConfigArray(0) &
                 VehicleAudioHwVariantConfigFlag.VEHICLE_AUDIO_HW_VARIANT_FLAG_PASS_RADIO_AUDIO_FOCUS_FLAG)
                 == 0;
     }

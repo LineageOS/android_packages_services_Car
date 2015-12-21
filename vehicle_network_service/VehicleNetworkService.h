@@ -88,6 +88,21 @@ private:
     int64_t mLastDispatchTime;
     List<VehicleHalError*> mHalErrors;
 };
+// ----------------------------------------------------------------------------
+class SubscriptionInfo {
+public:
+    float sampleRate;
+    int32_t zones;
+    SubscriptionInfo()
+        : sampleRate(0),
+          zones(0) {};
+    SubscriptionInfo(float aSampleRate, int32_t aZones)
+        : sampleRate(aSampleRate),
+          zones(aZones) {};
+    SubscriptionInfo(const SubscriptionInfo& info)
+        : sampleRate(info.sampleRate),
+          zones(info.zones) {};
+};
 
 // ----------------------------------------------------------------------------
 
@@ -102,7 +117,7 @@ public:
     }
 
     ~HalClient() {
-        mSampleRates.clear();
+        mSubscriptionInfos.clear();
     }
 
     pid_t getPid() {
@@ -113,34 +128,35 @@ public:
         return mUid;
     }
 
-    float getSampleRate(int32_t property){
+    SubscriptionInfo* getSubscriptionInfo(int32_t property) {
         Mutex::Autolock autoLock(mLock);
-        ssize_t index = mSampleRates.indexOfKey(property);
+        ssize_t index = mSubscriptionInfos.indexOfKey(property);
         if (index < 0) {
-            return -1;
+            return NULL;
         }
-        return mSampleRates.valueAt(index);
+        return &mSubscriptionInfos.editValueAt(index);
     }
 
-    void setSampleRate(int32_t property, float sampleRate){
+    void setSubscriptionInfo(int32_t property, float sampleRate, int32_t zones) {
         Mutex::Autolock autoLock(mLock);
-        mSampleRates.add(property, sampleRate);
+        SubscriptionInfo info(sampleRate, zones);
+        mSubscriptionInfos.add(property, info);
     }
 
     bool removePropertyAndCheckIfActive(int32_t property) {
         Mutex::Autolock autoLock(mLock);
-        mSampleRates.removeItem(property);
-        return mSampleRates.size() > 0 || mMonitoringHalRestart || mMonitoringHalError;
+        mSubscriptionInfos.removeItem(property);
+        return mSubscriptionInfos.size() > 0 || mMonitoringHalRestart || mMonitoringHalError;
     }
 
     void removeAllProperties() {
         Mutex::Autolock autoLock(mLock);
-        mSampleRates.clear();
+        mSubscriptionInfos.clear();
     }
 
     bool isActive() {
         Mutex::Autolock autoLock(mLock);
-        return mSampleRates.size() > 0 || mMonitoringHalRestart || mMonitoringHalError;
+        return mSubscriptionInfos.size() > 0 || mMonitoringHalRestart || mMonitoringHalError;
     }
 
     void setHalRestartMonitoringState(bool state) {
@@ -210,7 +226,7 @@ private:
     const sp<IVehicleNetworkListener> mListener;
     const pid_t mPid;
     const uid_t mUid;
-    KeyedVector<int32_t, float> mSampleRates;
+    KeyedVector<int32_t, SubscriptionInfo> mSubscriptionInfos;
     List<vehicle_prop_value_t*> mEvents;
     bool mMonitoringHalRestart;
     bool mMonitoringHalError;
@@ -279,7 +295,7 @@ public:
     virtual status_t setProperty(const vehicle_prop_value_t& value);
     virtual status_t getProperty(vehicle_prop_value_t* value);
     virtual status_t subscribe(const sp<IVehicleNetworkListener> &listener, int32_t property,
-            float sampleRate);
+            float sampleRate, int32_t zones);
     virtual void unsubscribe(const sp<IVehicleNetworkListener> &listener, int32_t property);
     virtual status_t injectEvent(const vehicle_prop_value_t& value);
     virtual status_t startMocking(const sp<IVehicleNetworkHalMock>& mock);
@@ -302,6 +318,7 @@ private:
     bool isGettableLocked(int32_t property);
     bool isSettableLocked(int32_t property, int32_t valueType);
     bool isSubscribableLocked(int32_t property);
+    static bool isZonedProperty(vehicle_prop_config_t const * config);
     sp<HalClient> findClientLocked(sp<IBinder>& ibinder);
     sp<HalClient> findOrCreateClientLocked(sp<IBinder>& ibinder,
             const sp<IVehicleNetworkListener> &listener);
@@ -324,7 +341,7 @@ private:
     KeyedVector<sp<IBinder>, sp<HalClient> > mBinderToClientMap;
     // client subscribing properties
     KeyedVector<int32_t, sp<HalClientSpVector> > mPropertyToClientsMap;
-    KeyedVector<int32_t, float> mSampleRates;
+    KeyedVector<int32_t, SubscriptionInfo> mSubscriptionInfos;
     KeyedVector<int32_t, int> mEventsCount;
     PropertyValueCache mCache;
     bool mMockingEnabled;

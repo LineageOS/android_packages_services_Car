@@ -162,7 +162,7 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
     private interface VehiclePropertyHandler {
         void onPropertySet(VehiclePropValue value);
         VehiclePropValue onPropertyGet(VehiclePropValue property);
-        void onPropertySubscribe(int property, int sampleRate);
+        void onPropertySubscribe(int property, float sampleRate, int zones);
         void onPropertyUnsubscribe(int property);
     }
 
@@ -206,12 +206,12 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
         }
 
         @Override
-        public void onPropertySubscribe(int property, int sampleRate) {
+        public void onPropertySubscribe(int property, float sampleRate, int zones) {
             VehiclePropertyHandler handler = getPropertyHandler(property);
             if (handler == null) {
                 fail("onPropertySubscribe for unknown property " + Integer.toHexString(property));
             }
-            handler.onPropertySubscribe(property, sampleRate);
+            handler.onPropertySubscribe(property, sampleRate, zones);
         }
 
         @Override
@@ -246,7 +246,7 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
         }
 
         @Override
-        public void onPropertySubscribe(int property, int sampleRate) {
+        public void onPropertySubscribe(int property, float sampleRate, int zones) {
             // TODO Auto-generated method stub
         }
 

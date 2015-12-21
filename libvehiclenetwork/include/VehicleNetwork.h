@@ -116,7 +116,7 @@ public:
     status_t setProperty(const vehicle_prop_value_t& value);
     /** For generic value getting. value->prop should be set. */
     status_t getProperty(vehicle_prop_value_t* value);
-    status_t subscribe(int32_t property, float sampleRate);
+    status_t subscribe(int32_t property, float sampleRate, int32_t zones = 0);
     void unsubscribe(int32_t property);
 
     // Only for testing purpose

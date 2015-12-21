@@ -59,7 +59,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onPropertySubscribe(int property, int sampleRate) {
+        public void onPropertySubscribe(int property, float sampleRate, int zones) {
             fail("cannot subscribe");
         }
 
@@ -88,7 +88,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onPropertySubscribe(int property, int sampleRate) {
+        public void onPropertySubscribe(int property, float sampleRate, int zones) {
             // TODO Auto-generated method stub
 
         }
@@ -135,7 +135,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
                         mAudioFocusPropertyHandler);
         getVehicleHalEmulator().addProperty(
                 VehiclePropConfigUtil.getBuilder(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_APP_CONTEXT,
+                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_CONTEXT,
                         VehiclePropAccess.VEHICLE_PROP_ACCESS_WRITE,
                         VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
                         VehicleValueType.VEHICLE_VALUE_TYPE_INT32,
@@ -543,7 +543,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onPropertySubscribe(int property, int sampleRate) {
+        public void onPropertySubscribe(int property, float sampleRate, int zones) {
             assertEquals(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, property);
         }
 

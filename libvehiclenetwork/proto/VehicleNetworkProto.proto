@@ -24,7 +24,7 @@ message VehiclePropConfig {
     required int32 change_mode = 3;
     required int32 value_type = 4;
     required int32 permission_model = 5;
-    required int32 config_flags = 6;
+    repeated int32 config_array = 6;
     required float sample_rate_max = 7;
     required float sample_rate_min = 8;
     optional string config_string = 9;

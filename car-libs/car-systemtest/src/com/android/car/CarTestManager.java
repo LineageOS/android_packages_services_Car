@@ -140,12 +140,12 @@ public class CarTestManager implements CarManagerBase {
         }
 
         @Override
-        public void onPropertySubscribe(int property, int sampleRate) {
+        public void onPropertySubscribe(int property, float sampleRate, int zones) {
             CarTestManager testManager = mTestManager.get();
             if (testManager == null) {
                 return;
             }
-            testManager.getHalMock().onPropertySubscribe(property, sampleRate);
+            testManager.getHalMock().onPropertySubscribe(property, sampleRate, zones);
         }
 
         @Override

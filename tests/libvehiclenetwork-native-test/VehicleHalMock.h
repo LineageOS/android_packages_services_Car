@@ -50,7 +50,7 @@ public:
         return NO_ERROR;
     };
 
-    virtual status_t onPropertySubscribe(int32_t property, float sampleRate) {
+    virtual status_t onPropertySubscribe(int32_t property, float sampleRate, int32_t zones) {
         return NO_ERROR;
     };
 

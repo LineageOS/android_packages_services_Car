@@ -196,7 +196,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         }
 
         @Override
-        public synchronized void onPropertySubscribe(int property, int sampleRate) {
+        public synchronized void onPropertySubscribe(int property, float sampleRate, int zones) {
             Log.d(TAG, "onPropertySubscribe property " + property + " sampleRate " + sampleRate);
         }
 

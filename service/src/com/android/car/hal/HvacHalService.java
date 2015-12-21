@@ -194,7 +194,7 @@ public class HvacHalService extends HalServiceBase {
             if (hvacPropId != 0) {
                 CarHvacProperty hvacProp = null;
                 int halType = p.getValueType();
-                int valZone = p.getConfigFlags();
+                int valZone = p.getConfigArray(0);
 
                 switch(halType) {
                     case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_BOOLEAN:

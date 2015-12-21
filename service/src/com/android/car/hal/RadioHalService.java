@@ -230,7 +230,7 @@ public class RadioHalService extends HalServiceBase {
         switch (property.getProp()) {
             case VehicleNetworkConsts.VEHICLE_PROPERTY_RADIO_PRESET:
                 // Extract the count of presets.
-                mPresetCount = property.getConfigFlags();
+                mPresetCount = property.getConfigArray(0);
                 Log.d(TAG, "Read presets count: " + mPresetCount);
                 return true;
             default:

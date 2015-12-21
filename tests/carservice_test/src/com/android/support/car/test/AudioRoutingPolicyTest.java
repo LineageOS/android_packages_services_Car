@@ -17,7 +17,7 @@ package com.android.support.car.test;
 
 import com.android.car.VehicleHalEmulator.VehicleHalPropertyHandler;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAppContextFlag;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioRoutingPolicyIndex;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePermissionModel;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
@@ -50,7 +50,7 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onPropertySubscribe(int property, int sampleRate) {
+        public void onPropertySubscribe(int property, float sampleRate, int zones) {
             fail("cannot subscribe");
         }
 
@@ -111,13 +111,13 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
         assertEquals(0, v.getInt32Values(
                 VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_STREAM));
         assertEquals(
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_ALARM_FLAG |
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_CALL_FLAG |
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_MUSIC_FLAG |
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_NAVIGATION_FLAG |
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_NOTIFICATION_FLAG |
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_UNKNOWN_FLAG |
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_VOICE_COMMAND_FLAG,
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG,
                 v.getInt32Values(
                         VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_CONTEXTS)
                         );
@@ -131,9 +131,9 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
         assertEquals(0, v.getInt32Values(
                 VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_STREAM));
         assertEquals(
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_CALL_FLAG |
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_MUSIC_FLAG |
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_UNKNOWN_FLAG,
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG,
                 v.getInt32Values(
                         VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_CONTEXTS)
                         );
@@ -141,10 +141,10 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
         assertEquals(1, v.getInt32Values(
                 VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_STREAM));
         assertEquals(
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_ALARM_FLAG |
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_NAVIGATION_FLAG |
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_NOTIFICATION_FLAG |
-                VehicleAppContextFlag.VEHICLE_APP_CONTEXT_VOICE_COMMAND_FLAG,
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG,
                 v.getInt32Values(
                         VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_CONTEXTS)
                         );

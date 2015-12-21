@@ -41,7 +41,7 @@ public:
     virtual sp<VehiclePropertiesHolder> onListProperties() = 0;
     virtual status_t onPropertySet(const vehicle_prop_value_t& value) = 0;
     virtual status_t onPropertyGet(vehicle_prop_value_t* value) = 0;
-    virtual status_t onPropertySubscribe(int32_t property, float sampleRate) = 0;
+    virtual status_t onPropertySubscribe(int32_t property, float sampleRate, int32_t zones) = 0;
     virtual void onPropertyUnsubscribe(int32_t property) = 0;
 };
 

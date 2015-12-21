@@ -302,7 +302,9 @@ status_t VehicleNetworkProtoUtil::toVehiclePropConfig(const vehicle_prop_config_
     out.set_change_mode(in.change_mode);
     out.set_value_type(in.value_type);
     out.set_permission_model(in.permission_model);
-    out.set_config_flags(in.config_flags);
+    for (unsigned int i = 0; i < sizeof(in.config_array) / sizeof(int32_t); i++) {
+        out.add_config_array(in.config_array[i]);
+    }
     if (in.config_string.data != NULL && in.config_string.len != 0) {
         out.set_config_string((char*)in.config_string.data, in.config_string.len);
     } else {
@@ -336,7 +338,18 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropConfig(const VehiclePropConfig&
     out.change_mode = in.change_mode();
     out.value_type = in.value_type();
     out.permission_model = in.permission_model();
-    out.config_flags = in.config_flags();
+    int maxConfigSize = sizeof(out.config_array) / sizeof(int32_t);
+    int configSize = in.config_array_size();
+    if (configSize > maxConfigSize) {
+        return BAD_VALUE;
+    }
+    int i = 0;
+    for (; i < configSize; i++) {
+        out.config_array[i] = in.config_array(i);
+    }
+    for (; i < maxConfigSize; i++) {
+        out.config_array[i] = 0;
+    }
     if (in.has_config_string()) {
         status_t r = copyString(in.config_string(), &(out.config_string.data),
                 &(out.config_string.len));

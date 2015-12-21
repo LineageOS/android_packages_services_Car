@@ -52,7 +52,7 @@ public class VehicleNetwork {
         VehiclePropConfigs onListProperties();
         void onPropertySet(VehiclePropValue value);
         VehiclePropValue onPropertyGet(VehiclePropValue value);
-        void onPropertySubscribe(int property, int sampleRate);
+        void onPropertySubscribe(int property, float sampleRate, int zones);
         void onPropertyUnsubscribe(int property);
     }
 
@@ -423,8 +423,19 @@ public class VehicleNetwork {
      * @throws IllegalArgumentException
      */
     public void subscribe(int property, float sampleRate) throws IllegalArgumentException {
+        subscribe(property, sampleRate, 0);
+    }
+
+    /**
+     * Subscribe given property with given sample rate.
+     * @param property
+     * @param sampleRate
+     * @throws IllegalArgumentException
+     */
+    public void subscribe(int property, float sampleRate, int zones)
+            throws IllegalArgumentException {
         try {
-            mService.subscribe(mVehicleNetworkListener, property, sampleRate);
+            mService.subscribe(mVehicleNetworkListener, property, sampleRate, zones);
         } catch (RemoteException e) {
             handleRemoteException(e);
         }
@@ -689,12 +700,12 @@ public class VehicleNetwork {
         }
 
         @Override
-        public void onPropertySubscribe(int property, int sampleRate) {
+        public void onPropertySubscribe(int property, float sampleRate, int zones) {
             VehicleNetwork vehicleNetwork = mVehicleNetwork.get();
             if (vehicleNetwork == null) {
                 return;
             }
-            vehicleNetwork.getHalMock().onPropertySubscribe(property, sampleRate);
+            vehicleNetwork.getHalMock().onPropertySubscribe(property, sampleRate, zones);
         }
 
         @Override

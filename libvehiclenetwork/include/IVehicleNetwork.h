@@ -49,7 +49,7 @@ public:
     virtual status_t setProperty(const vehicle_prop_value_t& value)= 0;
     virtual status_t getProperty(vehicle_prop_value_t* value) = 0;
     virtual status_t subscribe(const sp<IVehicleNetworkListener> &listener, int32_t property,
-            float sampleRate) = 0;
+            float sampleRate, int32_t zones) = 0;
     virtual void unsubscribe(const sp<IVehicleNetworkListener> &listener, int32_t property) = 0;
     /**
      * Inject event for given property. This should work regardless of mocking but usually
