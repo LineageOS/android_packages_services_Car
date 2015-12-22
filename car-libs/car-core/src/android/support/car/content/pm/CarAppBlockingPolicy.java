@@ -20,7 +20,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.car.annotation.VersionDef;
 import android.support.car.os.ExtendableParcelable;
+import android.util.Log;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 /**
@@ -28,7 +31,7 @@ import java.util.Arrays;
  * @hide
  */
 public class CarAppBlockingPolicy extends ExtendableParcelable {
-    //private static final String TAG = CarAppBlockingPolicy.class.getSimpleName();
+    private static final String TAG = CarAppBlockingPolicy.class.getSimpleName();
 
     @VersionDef(version = 1)
     public final AppBlockingPackageInfo[] whitelists;
@@ -36,6 +39,25 @@ public class CarAppBlockingPolicy extends ExtendableParcelable {
     public final AppBlockingPackageInfo[] blacklists;
 
     private static final int VERSION = 1;
+
+    private static final Method sReadBlobMethod;
+    private static final Method sWriteBlobMethod;
+
+    static {
+        Class parcelClass = Parcel.class;
+        Method readBlob = null;
+        Method writeBlob = null;
+        try {
+            readBlob = parcelClass.getMethod("readBlob", new Class[] {});
+            writeBlob = parcelClass.getMethod("writeBlob", new Class[] {byte[].class});
+        } catch (NoSuchMethodException e) {
+            // use it only when both methods are available.
+            readBlob = null;
+            writeBlob = null;
+        }
+        sReadBlobMethod = readBlob;
+        sWriteBlobMethod = writeBlob;
+    }
 
     public CarAppBlockingPolicy(AppBlockingPackageInfo[] whitelists,
             AppBlockingPackageInfo[] blacklists) {
@@ -47,7 +69,17 @@ public class CarAppBlockingPolicy extends ExtendableParcelable {
     public CarAppBlockingPolicy(Parcel in) {
         super(in, VERSION);
         int lastPosition = readHeader(in);
-        byte[] payload = in.readBlob();
+        byte[] payload;
+        if (sReadBlobMethod != null) {
+            try {
+                payload = (byte[]) sReadBlobMethod.invoke(in);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                Log.e(TAG, ":cannot call readBlob", e);
+                payload = in.createByteArray();
+            }
+        } else {
+            payload = in.createByteArray();
+        }
         Parcel payloadParcel = Parcel.obtain();
         payloadParcel.unmarshall(payload, 0, payload.length);
         // reset to initial position to read
@@ -70,6 +102,16 @@ public class CarAppBlockingPolicy extends ExtendableParcelable {
         payloadParcel.writeTypedArray(whitelists, 0);
         payloadParcel.writeTypedArray(blacklists, 0);
         byte[] payload = payloadParcel.marshall();
+        if (sWriteBlobMethod != null) {
+            try {
+                sWriteBlobMethod.invoke(dest, payload);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                Log.e(TAG, ":cannot call writeBlob", e);
+                dest.writeByteArray(payload);
+            }
+        } else {
+            dest.writeByteArray(payload);
+        }
         dest.writeBlob(payload);
         payloadParcel.recycle();
         completeWriting(dest, startingPosition);
