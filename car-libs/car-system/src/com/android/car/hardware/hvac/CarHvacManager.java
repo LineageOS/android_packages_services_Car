@@ -48,69 +48,29 @@ public class CarHvacManager implements CarManagerBase {
     public static final int PROPERTY_TYPE_INT     = 2;
 
     /**
-     * HVAC zone definition.  The zone parameter is a bit mask and the set() command may specify
-     * multiple zones by OR'ing them together.
-     */
-    public static final int HVAC_ZONE_ROW_1_LEFT        = 0x00000001;
-    public static final int HVAC_ZONE_ROW_1_CENTER      = 0x00000002;
-    public static final int HVAC_ZONE_ROW_1_RIGHT       = 0x00000004;
-    public static final int HVAC_ZONE_ROW_1_ALL         = 0x00000008;
-    public static final int HVAC_ZONE_ROW_2_LEFT        = 0x00000010;
-    public static final int HVAC_ZONE_ROW_2_CENTER      = 0x00000020;
-    public static final int HVAC_ZONE_ROW_2_RIGHT       = 0x00000040;
-    public static final int HVAC_ZONE_ROW_2_ALL         = 0x00000080;
-    public static final int HVAC_ZONE_ROW_3_LEFT        = 0x00000100;
-    public static final int HVAC_ZONE_ROW_3_CENTER      = 0x00000200;
-    public static final int HVAC_ZONE_ROW_3_RIGHT       = 0x00000400;
-    public static final int HVAC_ZONE_ROW_3_ALL         = 0x00000800;
-    public static final int HVAC_ZONE_ROW_4_LEFT        = 0x00001000;
-    public static final int HVAC_ZONE_ROW_4_CENTER      = 0x00002000;
-    public static final int HVAC_ZONE_ROW_4_RIGHT       = 0x00004000;
-    public static final int HVAC_ZONE_ROW_4_ALL         = 0x00008000;
-    public static final int HVAC_ZONE_ALL               = 0x80000000;
-
-    /**
-     * HVAC fan positions.  These are a bit mask, but only one bit may be set at a time.  When
-     * getting the available fan positions, it shall set all bits that are available in the
-     * vehicle.
-     */
-    public static final int HVAC_FAC_POSITION_FACE               = 0x00000001;
-    public static final int HVAC_FAC_POSITION_FEET               = 0x00000002;
-    public static final int HVAC_FAC_POSITION_DEFROSTER          = 0x00000004;
-    public static final int HVAC_FAC_POSITION_FACE_AND_FEET      = 0x00001000;
-    public static final int HVAC_FAC_POSITION_DEFROSTER_AND_FEET = 0x00002000;
-
-    /**
      * Global HVAC properties.  There is only a single instance in a car.
      * Global properties are in the range of 0-0x3FFF.
-     *
-     * Front defroster state, bool.
      */
-    public static final int HVAC_FRONT_DEFROSTER_ON      = 1;
-    /**
-     * Rear defroster state, bool.
-     */
-    public static final int HVAC_REAR_DEFROSTER_ON       = 2;
     /**
      * Mirror defrosters state, bool.
      */
-    public static final int HVAC_MIRROR_DEFROSTER_ON     = 3;
+    public static final int HVAC_MIRROR_DEFROSTER_ON     = 1;
     /**
      * Air conditioner state, bool
      */
-    public static final int HVAC_AC_ON                   = 4;
+    public static final int HVAC_AC_ON                   = 2;
     /**
      * HVAC is in automatic mode, bool.
      */
-    public static final int HVAC_AUTOMATIC_MODE_ON       = 5;
+    public static final int HVAC_AUTOMATIC_MODE_ON       = 3;
     /**
      * Air recirculation is active, bool.
      */
-    public static final int HVAC_AIR_RECIRCULATION_ON    = 6;
+    public static final int HVAC_AIR_RECIRCULATION_ON    = 4;
     /**
      * Steering wheel temp:  negative values indicate cooling, positive values indicate heat, int.
      */
-    public static final int HVAC_STEERING_WHEEL_TEMP     = 7;
+    public static final int HVAC_STEERING_WHEEL_TEMP     = 5;
 
     /**
      * HVAC_ZONED_* represents properties available on a per-zone basis.  All zones in a car are
@@ -151,6 +111,10 @@ public class CarHvacManager implements CarManagerBase {
      * i.e. -3 to 3 for 3 levels of cooling and 3 levels of heating.  int.
      */
     public static final int HVAC_ZONED_SEAT_TEMP                 = 0x4008;
+    /**
+     * Defroster is based off of window position
+     */
+    public static final int HVAC_WINDOW_DEFROSTER_ON             = 0x5001;
 
     // Minimum supported version of the service.
     private static final int MIN_SUPPORTED_VERSION = 1;
@@ -578,7 +542,6 @@ public class CarHvacManager implements CarManagerBase {
     }
 
     private void handleEvent(CarHvacEvent event) {
-        Log.d(TAG, "handleEvent()");
         mHandler.sendMessage(mHandler.obtainMessage(MSG_HVAC_EVENT, event));
     }
 
