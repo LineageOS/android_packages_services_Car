@@ -69,7 +69,7 @@ public class MockedCarTestBase extends AndroidTestCase {
     @Override
     protected synchronized void setUp() throws Exception {
         super.setUp();
-        mCar = new Car(getContext(), mConnectionListener, null);
+        mCar = Car.createCar(getContext(), mConnectionListener);
         mCar.connect();
         assertTrue(waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
         mVehicleHalEmulator = new VehicleHalEmulator(mCar);

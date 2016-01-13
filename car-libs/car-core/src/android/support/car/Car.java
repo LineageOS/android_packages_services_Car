@@ -214,13 +214,34 @@ public class Car {
     private final Handler mEventHandler;
 
     /**
-     * Create Car instance for all Car API access.
+     * A factory method that creates Car instance for all Car API access.
      * @param context
      * @param serviceConnectionListener listner for monitoring service connection.
      * @param looper Looper to dispatch all listeners. If null, it will use main thread. Note that
      *        service connection listener will be always in main thread regardless of this Looper.
+     * @return Car instance if system is in car environment and returns {@code null} otherwise.
      */
-    public Car(Context context, ServiceConnectionListener serviceConnectionListener,
+    public static Car createCar(Context context, ServiceConnectionListener serviceConnectionListener,
+            @Nullable Looper looper) {
+        try {
+          return new Car(context, serviceConnectionListener, looper);
+        } catch (IllegalArgumentException e) {
+          // Expected when car service loader is not available.
+        }
+        return null;
+    }
+
+    /**
+     * A factory method that creates Car instance for all Car API access using main thread {@code
+     * Looper}.
+     *
+     * @see #createCar(Context, ServiceConnectionListener, Looper)
+     */
+    public static Car createCar(Context context, ServiceConnectionListener serviceConnectionListener) {
+      return createCar(context, serviceConnectionListener, null);
+    }
+
+    private Car(Context context, ServiceConnectionListener serviceConnectionListener,
             @Nullable Looper looper) {
         mContext = context;
         mServiceConnectionListenerClient = serviceConnectionListener;

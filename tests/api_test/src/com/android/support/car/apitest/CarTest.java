@@ -66,7 +66,7 @@ public class CarTest extends AndroidTestCase {
     }
 
     public void testCarConnection() throws Exception {
-        Car car = new Car(getContext(), mConnectionListener, null);
+        Car car = Car.createCar(getContext(), mConnectionListener);
         assertFalse(car.isConnected());
         assertFalse(car.isConnecting());
         car.connect();
@@ -91,7 +91,7 @@ public class CarTest extends AndroidTestCase {
     }
 
     public void testDoubleConnect() throws Exception {
-        Car car = new Car(getContext(), mConnectionListener, null);
+        Car car = Car.createCar(getContext(), mConnectionListener);
         assertFalse(car.isConnected());
         assertFalse(car.isConnecting());
         car.connect();

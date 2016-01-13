@@ -64,7 +64,7 @@ public class CarAppContextManagerTest extends CarApiTestBase {
     public void testContextChange() throws Exception {
         DefaultServiceConnectionListener connectionListener =
                 new DefaultServiceConnectionListener();
-        Car car2 = new Car(getContext(), connectionListener, null);
+        Car car2 = Car.createCar(getContext(), connectionListener, null);
         car2.connect();
         connectionListener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         CarAppContextManager manager2 = (CarAppContextManager)
@@ -164,7 +164,7 @@ public class CarAppContextManagerTest extends CarApiTestBase {
     public void testFilter() throws Exception {
         DefaultServiceConnectionListener connectionListener =
                 new DefaultServiceConnectionListener();
-        Car car2 = new Car(getContext(), connectionListener, null);
+        Car car2 = Car.createCar(getContext(), connectionListener);
         car2.connect();
         connectionListener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         CarAppContextManager manager2 = (CarAppContextManager)

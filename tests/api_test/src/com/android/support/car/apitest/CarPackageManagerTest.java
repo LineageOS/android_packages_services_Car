@@ -69,7 +69,7 @@ public class CarPackageManagerTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mCar = new Car(getContext(), mConnectionListener, null);
+        mCar = Car.createCar(getContext(), mConnectionListener);
         mCar.connect();
         waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         mCarPackageManager = (CarPackageManager) mCar.getCarManager(Car.PACKAGE_SERVICE);

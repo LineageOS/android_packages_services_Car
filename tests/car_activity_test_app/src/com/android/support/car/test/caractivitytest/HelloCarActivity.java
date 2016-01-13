@@ -41,7 +41,6 @@ import java.util.List;
 
 public class HelloCarActivity extends CarDrawerActivity {
     private static final String TAG = "HelloCarActivity";
-    private static final String FEATURE_AUTOMOTIVE = "android.hardware.type.automotive";
     private TextView mTextView1;
     private TextView mTextViewDrivingStatus;
     private TextView mTextViewGear;
@@ -88,9 +87,9 @@ public class HelloCarActivity extends CarDrawerActivity {
         mTextViewGear = (TextView) findViewById(R.id.textView_gear);
         mTextViewParkingBrake = (TextView) findViewById(R.id.textView_parking_brake);
         mTextViewSpeed = (TextView) findViewById(R.id.textView_speed);
+        mCarApi = Car.createCar(getContext(), mServiceConnectionListener);
         // Connection to Car Service does not work for non-automotive yet.
-        if (getContext().getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
-            mCarApi = new Car(getContext(), mServiceConnectionListener, null);
+        if (mCarApi != null) {
             mCarApi.connect();
         }
         Log.i(TAG, "onCreate");
