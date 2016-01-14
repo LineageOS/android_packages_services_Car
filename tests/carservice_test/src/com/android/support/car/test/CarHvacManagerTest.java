@@ -183,15 +183,11 @@ public class CarHvacManagerTest extends MockedCarTestBase {
 
         @Override
         public synchronized void onPropertySet(VehiclePropValue value) {
-            Log.d(TAG, "onPropertySet intValue = " + value.getZonedValue().getInt32Value() +
-                    " floatValue = " + value.getZonedValue().getFloatValue());
             mMap.put(value.getProp(), value);
         }
 
         @Override
         public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            Log.d(TAG, "onPropertyGet intValue = " + value.getZonedValue().getInt32Value() +
-                    " floatValue = " + value.getZonedValue().getFloatValue());
             return mMap.get(value.getProp());
         }
 

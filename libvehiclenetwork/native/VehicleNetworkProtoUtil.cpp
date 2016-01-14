@@ -52,13 +52,11 @@ status_t VehicleNetworkProtoUtil::toVehiclePropValue(const vehicle_prop_value_t&
                 out.set_bytes_value(in.value.bytes_value.data, in.value.bytes_value.len);
             }
         } break;
-        case VEHICLE_VALUE_TYPE_FLOAT: {
-            out.add_float_values(in.value.float_value);
-        } break;
+        case VEHICLE_VALUE_TYPE_FLOAT:
         case VEHICLE_VALUE_TYPE_FLOAT_VEC2:
         case VEHICLE_VALUE_TYPE_FLOAT_VEC3:
         case VEHICLE_VALUE_TYPE_FLOAT_VEC4: {
-            int expectedSize = in.value_type - VEHICLE_VALUE_TYPE_FLOAT_VEC2 + 2;
+            int expectedSize = in.value_type - VEHICLE_VALUE_TYPE_FLOAT + 1;
             for (int i = 0; i < expectedSize; i++) {
                 out.add_float_values(in.value.float_array[i]);
             }
@@ -66,31 +64,46 @@ status_t VehicleNetworkProtoUtil::toVehiclePropValue(const vehicle_prop_value_t&
         case VEHICLE_VALUE_TYPE_INT64: {
             out.set_int64_value(in.value.int64_value);
         } break;
-        case VEHICLE_VALUE_TYPE_INT32:
         case VEHICLE_VALUE_TYPE_BOOLEAN: {
             out.add_int32_values(in.value.int32_value);
         } break;
+        case VEHICLE_VALUE_TYPE_INT32:
         case VEHICLE_VALUE_TYPE_INT32_VEC2:
         case VEHICLE_VALUE_TYPE_INT32_VEC3:
         case VEHICLE_VALUE_TYPE_INT32_VEC4: {
-            int expectedSize = in.value_type - VEHICLE_VALUE_TYPE_INT32_VEC2 + 2;
+            int expectedSize = in.value_type - VEHICLE_VALUE_TYPE_INT32 + 1;
             for (int i = 0; i < expectedSize; i++) {
                 out.add_int32_values(in.value.int32_array[i]);
             }
         } break;
+        case VEHICLE_VALUE_TYPE_ZONED_BOOLEAN:
         case VEHICLE_VALUE_TYPE_ZONED_INT32:
-        case VEHICLE_VALUE_TYPE_ZONED_BOOLEAN: {
+        case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2:
+        case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3: {
+            int expectedSize;
+            if (in.value_type == VEHICLE_VALUE_TYPE_ZONED_BOOLEAN) {
+                expectedSize = 1;
+            } else {
+                expectedSize = in.value_type - VEHICLE_VALUE_TYPE_ZONED_INT32 + 1;
+            }
             ZonedValue* zonedValue = new ZonedValue();
             ASSERT_OR_HANDLE_NO_MEMORY(zonedValue, return NO_MEMORY);
-            zonedValue->set_zone_or_window(in.value.zoned_int32_value.zone);
-            zonedValue->set_int32_value(in.value.zoned_int32_value.value);
+            zonedValue->set_zone_or_window(in.value.zoned_int32_array.zone);
+            for (int i = 0; i < expectedSize; i++) {
+                zonedValue->add_int32_values(in.value.zoned_int32_array.values[i]);
+            }
             out.set_allocated_zoned_value(zonedValue);
         } break;
-        case VEHICLE_VALUE_TYPE_ZONED_FLOAT: {
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3: {
+            int expectedSize = in.value_type - VEHICLE_VALUE_TYPE_ZONED_FLOAT + 1;
             ZonedValue* zonedValue = new ZonedValue();
             ASSERT_OR_HANDLE_NO_MEMORY(zonedValue, return NO_MEMORY);
-            zonedValue->set_zone_or_window(in.value.zoned_int32_value.zone);
-            zonedValue->set_float_value(in.value.zoned_float_value.value);
+            zonedValue->set_zone_or_window(in.value.zoned_float_array.zone);
+            for (int i = 0; i < expectedSize; i++) {
+                zonedValue->add_float_values(in.value.zoned_float_array.values[i]);
+            }
             out.set_allocated_zoned_value(zonedValue);
         } break;
     }
@@ -181,7 +194,6 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
             }
             out.value.int64_value = in.int64_value();
         } break;
-        case VEHICLE_VALUE_TYPE_INT32:
         case VEHICLE_VALUE_TYPE_BOOLEAN: {
             if (in.int32_values_size() != 1) {
                 if (canIgnoreNoData) {
@@ -192,10 +204,11 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
             }
             out.value.int32_value = in.int32_values(0);
         } break;
+        case VEHICLE_VALUE_TYPE_INT32:
         case VEHICLE_VALUE_TYPE_INT32_VEC2:
         case VEHICLE_VALUE_TYPE_INT32_VEC3:
         case VEHICLE_VALUE_TYPE_INT32_VEC4: {
-            int expectedSize = out.value_type - VEHICLE_VALUE_TYPE_INT32_VEC2 + 2;
+            int expectedSize = out.value_type - VEHICLE_VALUE_TYPE_INT32 + 1;
             if (in.int32_values_size() != expectedSize) {
                 if (canIgnoreNoData) {
                     return NO_ERROR;
@@ -208,8 +221,10 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
                 out.value.int32_array[i] = in.int32_values(i);
             }
         } break;
+        case VEHICLE_VALUE_TYPE_ZONED_BOOLEAN:
         case VEHICLE_VALUE_TYPE_ZONED_INT32:
-        case VEHICLE_VALUE_TYPE_ZONED_BOOLEAN: {
+        case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2:
+        case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3: {
             if (!in.has_zoned_value()) {
                 if (canIgnoreNoData) {
                     return NO_ERROR;
@@ -218,17 +233,28 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
                 return BAD_VALUE;
             }
             const ZonedValue& zonedValue = in.zoned_value();
-            if (!zonedValue.has_int32_value()) {
+            int expectedSize;
+            if (out.value_type == VEHICLE_VALUE_TYPE_ZONED_BOOLEAN) {
+                expectedSize = 1;
+            } else {
+                expectedSize = out.value_type - VEHICLE_VALUE_TYPE_ZONED_INT32 + 1;
+            }
+            if (zonedValue.int32_values_size() != expectedSize) {
                 if (canIgnoreNoData) {
                     return NO_ERROR;
                 }
-                ALOGE("no int32 in zoned value");
+                ALOGE("Wrong data length in zoned int boolean value, expected:%d, got:%d",
+                        expectedSize, zonedValue.int32_values_size());
                 return BAD_VALUE;
             }
-            out.value.zoned_int32_value.zone = zonedValue.zone_or_window();
-            out.value.zoned_int32_value.value = zonedValue.int32_value();
+            out.value.zoned_int32_array.zone = zonedValue.zone_or_window();
+            for (int i = 0; i < expectedSize; i++) {
+                out.value.zoned_int32_array.values[i] = zonedValue.int32_values(i);
+            }
         } break;
-        case VEHICLE_VALUE_TYPE_ZONED_FLOAT: {
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3: {
             if (!in.has_zoned_value()) {
                 if (canIgnoreNoData) {
                     return NO_ERROR;
@@ -237,15 +263,19 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
                 return BAD_VALUE;
             }
             const ZonedValue& zonedValue = in.zoned_value();
-            if (!zonedValue.has_float_value()) {
+            int expectedSize = out.value_type - VEHICLE_VALUE_TYPE_ZONED_FLOAT + 1;
+            if (zonedValue.float_values_size() != expectedSize) {
                 if (canIgnoreNoData) {
                     return NO_ERROR;
                 }
-                ALOGE("no float in zoned value");
+                ALOGE("Wrong data length in zoned float value, expected:%d, got:%d",
+                                        expectedSize, zonedValue.float_values_size());
                 return BAD_VALUE;
             }
-            out.value.zoned_float_value.zone = zonedValue.zone_or_window();
-            out.value.zoned_float_value.value = zonedValue.float_value();
+            out.value.zoned_float_array.zone = zonedValue.zone_or_window();
+            for (int i = 0; i < expectedSize; i++) {
+                out.value.zoned_float_array.values[i] = zonedValue.float_values(i);
+            }
         } break;
         default: {
             if (canIgnoreNoData) {

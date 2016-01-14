@@ -38,10 +38,10 @@ public class VehicleNetworkTestUtil {
                 break;
             case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32:
             case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_BOOLEAN:
-                builder.setZonedValue(ZonedValue.newBuilder().setZoneOrWindow(0).setInt32Value(0).
+                builder.setZonedValue(ZonedValue.newBuilder().setZoneOrWindow(0).addInt32Values(0).
                         build());
             case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT:
-                builder.setZonedValue(ZonedValue.newBuilder().setZoneOrWindow(0).setFloatValue(0f).
+                builder.setZonedValue(ZonedValue.newBuilder().setZoneOrWindow(0).addFloatValues(0f).
                         build());
             case VehicleValueType.VEHICLE_VALUE_TYPE_INT64:
                 builder.setInt64Value(0);

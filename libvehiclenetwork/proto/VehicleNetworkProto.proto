@@ -42,8 +42,8 @@ message VehiclePropConfigs {
 
 message ZonedValue {
     required int32 zone_or_window = 1;
-    optional int32 int32_value = 2; // also covers boolean value.
-    optional float float_value = 3;
+    repeated int32 int32_values = 2; // also covers boolean value.
+    repeated float float_values = 3;
 };
 
 message VehiclePropValue {

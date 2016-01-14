@@ -88,7 +88,7 @@ public class VehiclePropValueUtil {
     public static VehiclePropValue createZonedIntValue(int property, int zone, int value,
             long timestamp) {
         return createBuilder(property, VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32,timestamp).
-                setZonedValue(ZonedValue.newBuilder().setZoneOrWindow(zone).setInt32Value(value).
+                setZonedValue(ZonedValue.newBuilder().setZoneOrWindow(zone).addInt32Values(value).
                         build()).
                 build();
     }
@@ -97,14 +97,14 @@ public class VehiclePropValueUtil {
             long timestamp) {
         return createBuilder(property, VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_BOOLEAN,timestamp).
                 setZonedValue(ZonedValue.newBuilder().setZoneOrWindow(zone).
-                        setInt32Value(value ? 1 : 0).build()).
+                        addInt32Values(value ? 1 : 0).build()).
                 build();
     }
 
     public static VehiclePropValue createZonedFloatValue(int property, int zone, float value,
             long timestamp) {
         return createBuilder(property, VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT,timestamp).
-                setZonedValue(ZonedValue.newBuilder().setZoneOrWindow(zone).setFloatValue(value).
+                setZonedValue(ZonedValue.newBuilder().setZoneOrWindow(zone).addFloatValues(value).
                         build()).
                 build();
     }

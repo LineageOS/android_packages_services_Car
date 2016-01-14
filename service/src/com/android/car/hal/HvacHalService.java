@@ -107,13 +107,13 @@ public class HvacHalService extends HalServiceBase {
         if(value != null) {
             switch(hvacProp.getType()) {
                 case CarHvacManager.PROPERTY_TYPE_BOOLEAN:
-                    hvacProp.setBooleanValue(value.getZonedValue().getInt32Value() == 1);
+                    hvacProp.setBooleanValue(value.getZonedValue().getInt32Values(0) == 1);
                     break;
                 case CarHvacManager.PROPERTY_TYPE_INT:
-                    hvacProp.setIntegerValue(value.getZonedValue().getInt32Value());
+                    hvacProp.setIntegerValue(value.getZonedValue().getInt32Values(0));
                     break;
                 case CarHvacManager.PROPERTY_TYPE_FLOAT:
-                    hvacProp.setFloatValue(value.getZonedValue().getFloatValue());
+                    hvacProp.setFloatValue(value.getZonedValue().getFloatValues(0));
                     break;
             }
             hvacProp.setZone(zone);
@@ -258,16 +258,16 @@ public class HvacHalService extends HalServiceBase {
                 switch(halType) {
                     case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_BOOLEAN:
                         event = new CarHvacEvent(CarHvacEvent.HVAC_EVENT_PROPERTY_CHANGE,
-                                hvacPropId, zone, v.getZonedValue().getInt32Value() == 1);
+                                hvacPropId, zone, v.getZonedValue().getInt32Values(0) == 1);
                         break;
                     case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT: {
                         event = new CarHvacEvent(CarHvacEvent.HVAC_EVENT_PROPERTY_CHANGE,
-                                hvacPropId, zone, v.getZonedValue().getFloatValue());
+                                hvacPropId, zone, v.getZonedValue().getFloatValues(0));
                         break;
                     }
                     case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32: {
                         event = new CarHvacEvent(CarHvacEvent.HVAC_EVENT_PROPERTY_CHANGE,
-                                hvacPropId, zone, v.getZonedValue().getInt32Value());
+                                hvacPropId, zone, v.getZonedValue().getInt32Values(0));
                         break;
                     }
                     default:
