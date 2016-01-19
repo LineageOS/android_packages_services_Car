@@ -21,7 +21,7 @@ import com.android.car.hardware.hvac.CarHvacEvent;
 /**
  * Binder callback for CarHvacEventListener.
  * This is generated per each CarClient.
- * @hide
+ * {@CompatibilityApi}
  */
 oneway interface ICarHvacEventListener {
     /**

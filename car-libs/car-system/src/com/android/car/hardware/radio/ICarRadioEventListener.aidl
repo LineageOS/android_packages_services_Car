@@ -21,7 +21,7 @@ import com.android.car.hardware.radio.CarRadioEvent;
 /**
  * Binder callback for CarRadioEventListener.
  * This is generated per each CarClient.
- * @hide
+ * {@CompatibilityApi}
  */
 oneway interface ICarRadioEventListener {
     /**

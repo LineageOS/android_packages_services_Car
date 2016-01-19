@@ -21,7 +21,7 @@ import android.support.car.hardware.CarSensorEvent;
 /**
  * Binder callback for CarSensorEventListener.
  * This is generated per each CarClient.
- * @hide
+ * {@CompatibilityApi}
  */
 oneway interface ICarSensorEventListener {
     void onSensorChanged(in List<CarSensorEvent> events) = 0;

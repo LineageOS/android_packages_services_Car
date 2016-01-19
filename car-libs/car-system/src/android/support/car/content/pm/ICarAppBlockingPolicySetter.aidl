@@ -21,7 +21,7 @@ import android.support.car.content.pm.CarAppBlockingPolicy;
 /**
  * Passed to CarAppBlockingPolicyService to allow setting policy. This also works as a unique
    token per each Service. Caller still needs permission to set policy.
- * @hide
+ * {@CompatibilityApi}
  */
 interface ICarAppBlockingPolicySetter {
     int getVersion() = 0;

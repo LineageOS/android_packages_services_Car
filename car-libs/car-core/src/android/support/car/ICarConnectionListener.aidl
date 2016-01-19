@@ -18,7 +18,7 @@ package android.support.car;
 
 /**
  * Binder callback for CarConnectionListener.
- * @hide
+ * {@CompatibilityApi}
  */
 oneway interface ICarConnectionListener {
     void onConnected(int connectionType);

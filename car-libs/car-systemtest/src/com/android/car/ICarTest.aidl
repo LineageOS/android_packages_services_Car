@@ -19,7 +19,7 @@ package com.android.car;
 import com.android.car.vehiclenetwork.IVehicleNetworkHalMock;
 import com.android.car.vehiclenetwork.VehiclePropValueParcelable;
 
-/** @hide */
+/** {@CompatibilityApi} */
 interface ICarTest {
     int getVersion()                                              = 0;
     /** For testing only. inject events. */

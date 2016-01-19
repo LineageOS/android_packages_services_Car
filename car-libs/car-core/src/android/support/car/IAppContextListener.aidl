@@ -16,7 +16,7 @@
 
 package android.support.car;
 
-/** @hide */
+/** {@CompatibilityApi} */
 oneway interface IAppContextListener {
     void onAppContextChange(int activeContexts) = 0;
     void onAppContextOwnershipLoss(int context) = 1;

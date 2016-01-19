@@ -19,7 +19,7 @@ package android.support.car.hardware;
 import android.support.car.hardware.CarSensorEvent;
 import android.support.car.hardware.ICarSensorEventListener;
 
-/** @hide */
+/** {@CompatibilityApi} */
 interface ICarSensor {
     int getVersion() = 0;
 

@@ -20,7 +20,7 @@ import android.content.Intent;
 
 import android.support.car.ICarConnectionListener;
 
-/** @hide */
+/** {@CompatibilityApi} */
 interface ICar {
     int getVersion() = 0;
     IBinder getCarService(in String serviceName) = 1;

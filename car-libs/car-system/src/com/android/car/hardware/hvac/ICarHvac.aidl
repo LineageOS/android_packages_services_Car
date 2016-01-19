@@ -19,7 +19,7 @@ package com.android.car.hardware.hvac;
 import com.android.car.hardware.hvac.CarHvacProperty;
 import com.android.car.hardware.hvac.ICarHvacEventListener;
 
-/** @hide */
+/** {@CompatibilityApi} */
 interface ICarHvac {
     int getVersion() = 0;
 

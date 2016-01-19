@@ -18,7 +18,7 @@ package android.support.car.content.pm;
 
 import android.support.car.content.pm.CarAppBlockingPolicy;
 
-/** @hide */
+/** {@CompatibilityApi} */
 interface ICarPackageManager {
     int getVersion() = 0;
     void setAppBlockingPolicy(in String packageName, in CarAppBlockingPolicy policy, int flags) = 1;
