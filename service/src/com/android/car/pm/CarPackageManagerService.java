@@ -384,22 +384,20 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     info.applicationInfo.isUpdatedSystemApp())) {
                 CarAppMetadataInfo metadataInfo = CarAppMetadataReader.parseMetadata(mContext,
                         info.packageName);
-                if (metadataInfo == null) {
-                    AppBlockingPackageInfo appBlockingInfo = new AppBlockingPackageInfo(
-                            info.packageName, 0, 0, AppBlockingPackageInfo.FLAG_SYSTEM_APP, null,
-                            null);
-                    AppBlockingPackageInfoWrapper wrapper = new AppBlockingPackageInfoWrapper(
-                            appBlockingInfo, true);
-                    systemWhitelists.put(info.packageName, wrapper);
-                } else {
-                    int flags = AppBlockingPackageInfo.FLAG_SYSTEM_APP;
+                int flags = AppBlockingPackageInfo.FLAG_SYSTEM_APP;
+                String[] activities = null;
+                if (metadataInfo != null) {
                     if (metadataInfo.useAllActivities) {
                         flags |= AppBlockingPackageInfo.FLAG_WHOLE_ACTIVITY;
+                    } else {
+                        activities = metadataInfo.activities;
                     }
-                    AppBlockingPackageInfo appBlockingInfo = new AppBlockingPackageInfo(
-                            info.packageName, 0, 0, flags, null,
-                            metadataInfo.useAllActivities ? null : metadataInfo.activities);
                 }
+                AppBlockingPackageInfo appBlockingInfo = new AppBlockingPackageInfo(
+                        info.packageName, 0, 0, flags, null, activities);
+                AppBlockingPackageInfoWrapper wrapper = new AppBlockingPackageInfoWrapper(
+                        appBlockingInfo, true);
+                systemWhitelists.put(info.packageName, wrapper);
             }
         }
         synchronized (this) {

@@ -111,8 +111,11 @@ public class CarAppMetadataReader {
             Log.w(CarLog.TAG_PACKAGE, "Resource not parsable [" + packageName + "]");
             return null;
         }
-        return new CarAppMetadataInfo(useService, useAllActivities, (activities == null)? null :
-                (String[]) activities.toArray());
+        String[] activityStrings = null;
+        if (activities != null) {
+            activityStrings = activities.toArray(new String[activities.size()]);
+        }
+        return new CarAppMetadataInfo(useService, useAllActivities, activityStrings);
     }
 
     /**
