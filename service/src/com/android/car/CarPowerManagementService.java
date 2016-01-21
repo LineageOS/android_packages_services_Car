@@ -75,7 +75,13 @@ public class CarPowerManagementService implements CarServiceBase,
          * @return time necessary to run processing in ms. should return 0 if there is no
          *         processing necessary.
          */
-        long onPrePowerEvent(boolean shuttingDown);
+        long onPrepareShutdown(boolean shuttingDown);
+
+        /**
+         * Called when power state is changed to ON state. Display can be either on or off.
+         * @param displayOn
+         */
+        void onPowerOn(boolean displayOn);
 
         /**
          * Returns wake up time after system is fully shutdown. Power controller will power on
@@ -96,7 +102,7 @@ public class CarPowerManagementService implements CarServiceBase,
     private final WakeLock mPartialWakeLock;
     private final CopyOnWriteArrayList<PowerServiceEventListener> mListeners =
             new CopyOnWriteArrayList<>();
-    private final CopyOnWriteArrayList<PowerEventProcessingHandler> mPowerEcentProcessingHandlers =
+    private final CopyOnWriteArrayList<PowerEventProcessingHandler> mPowerEventProcessingHandlers =
             new CopyOnWriteArrayList<>();
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -144,7 +150,7 @@ public class CarPowerManagementService implements CarServiceBase,
         }
         mHandler.cancelAll();
         mListeners.clear();
-        mPowerEcentProcessingHandlers.clear();
+        mPowerEventProcessingHandlers.clear();
         releaseAllWakeLocks();
     }
 
@@ -164,7 +170,7 @@ public class CarPowerManagementService implements CarServiceBase,
      * @param handler
      */
     public void registerPowerEventProcessingHandler(PowerEventProcessingHandler handler) {
-        mPowerEcentProcessingHandlers.add(handler);
+        mPowerEventProcessingHandlers.add(handler);
     }
 
     /**
@@ -199,12 +205,15 @@ public class CarPowerManagementService implements CarServiceBase,
         switch (state.state) {
             case PowerHalService.STATE_ON_DISP_OFF:
                 handleDisplayOff(state);
+                notifyPowerOn(false);
                 break;
             case PowerHalService.STATE_ON_FULL:
                 if (isRearviewCameraActive()) {
                     handleFullOnWithRearviewCameraActive(state);
+                    notifyPowerOn(false);
                 } else {
                     handleFullOn(state);
+                    notifyPowerOn(true);
                 }
                 break;
             case PowerHalService.STATE_SHUTDOWN_PREPARE:
@@ -228,6 +237,12 @@ public class CarPowerManagementService implements CarServiceBase,
         // just hold the wakelock but do not turn display on.
         if (!mFullWakeLock.isHeld()) {
             mFullWakeLock.acquire();
+        }
+    }
+
+    private void notifyPowerOn(boolean displayOn) {
+        for (PowerEventProcessingHandler handler : mPowerEventProcessingHandlers) {
+            handler.onPowerOn(displayOn);
         }
     }
 
@@ -262,8 +277,8 @@ public class CarPowerManagementService implements CarServiceBase,
 
     private void doHandlePreprocessing(boolean shuttingDown) {
         long processingTimeMs = 0;
-        for (PowerEventProcessingHandler handler : mPowerEcentProcessingHandlers) {
-            long handlerProcessingTime = handler.onPrePowerEvent(shuttingDown);
+        for (PowerEventProcessingHandler handler : mPowerEventProcessingHandlers) {
+            long handlerProcessingTime = handler.onPrepareShutdown(shuttingDown);
             if (handlerProcessingTime > processingTimeMs) {
                 processingTimeMs = handlerProcessingTime;
             }
@@ -348,7 +363,7 @@ public class CarPowerManagementService implements CarServiceBase,
 
     private int getWakeupTime() {
         int wakeupTimeSec = 0;
-        for (PowerEventProcessingHandler handler : mPowerEcentProcessingHandlers) {
+        for (PowerEventProcessingHandler handler : mPowerEventProcessingHandlers) {
             int t = handler.getWakeupTime();
             if (t > wakeupTimeSec) {
                 wakeupTimeSec = t;
