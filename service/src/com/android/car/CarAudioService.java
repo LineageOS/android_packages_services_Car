@@ -40,7 +40,7 @@ import java.util.LinkedList;
 
 public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, AudioHalListener {
 
-    private static final long FOCUS_RESPONSE_WAIT_TIMEOUT_MS = 500;
+    private static final long FOCUS_RESPONSE_WAIT_TIMEOUT_MS = 1000;
 
     private static final String TAG_FOCUS = CarLog.TAG_AUDIO + ".FOCUS";
 
