@@ -106,6 +106,16 @@ public class CarProxyActivity extends Activity {
         }
 
         @Override
+        public void setResult(int resultCode) {
+            CarProxyActivity.this.setResult(resultCode);
+        }
+
+        @Override
+        public void setResult(int resultCode, Intent data) {
+            CarProxyActivity.this.setResult(resultCode, data);
+        }
+
+        @Override
         public MenuInflater getMenuInflater() {
             return CarProxyActivity.this.getMenuInflater();
         }
@@ -182,6 +192,12 @@ public class CarProxyActivity extends Activity {
     protected void onStart() {
         super.onStart();
         mCarActivity.dispatchCmd(CarActivity.CMD_ON_START, null);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_ACTIVITY_RESULT, requestCode, resultCode, data);
     }
 
     @Override

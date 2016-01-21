@@ -62,6 +62,8 @@ public abstract class CarActivity {
         abstract public MenuInflater getMenuInflater();
         abstract public void finishAfterTransition();
         abstract public Window getWindow();
+        abstract public void setResult(int resultCode);
+        abstract public void setResult(int resultCode, Intent data);
 
         public void requestPermissions(String[] permissions, int requestCode) {
             Log.w(TAG, "No support for requestPermissions");
@@ -140,6 +142,14 @@ public abstract class CarActivity {
         return mProxy.getIntent();
     }
 
+    public void setResult(int resultCode){
+        mProxy.setResult(resultCode);
+    }
+
+    public void setResult(int resultCode, Intent data) {
+        mProxy.setResult(resultCode, data);
+    }
+
     public CarInputManager getInputManager() {
         return mProxy.getCarInputManager();
     }
@@ -189,6 +199,7 @@ public abstract class CarActivity {
     }
 
     public void startActivityForResult(Intent intent, int requestCode) {
+        mProxy.startActivityForResult(intent, requestCode);
     }
 
     /** @hide */
