@@ -117,6 +117,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
         }
         mAudioPolicy = builder.build();
         if (isFocusSuported) {
+            FocusState currentState = FocusState.create(mAudioHal.getCurrentFocusState());
             int r = mAudioManager.requestAudioFocus(mBottomAudioFocusHandler, mAttributeBottom,
                     AudioManager.AUDIOFOCUS_GAIN, AudioManager.AUDIOFOCUS_FLAG_DELAY_OK);
             synchronized (mLock) {
@@ -125,6 +126,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
                 } else {
                     mBottomFocusState = AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
                 }
+                mCurrentFocusState = currentState;
             }
         }
         int r = mAudioManager.registerAudioPolicy(mAudioPolicy);
@@ -842,6 +844,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
 
         public static FocusState create(int focusState, int streams, int externalAudios) {
             return new FocusState(focusState, streams, externalAudios);
+        }
+
+        public static FocusState create(int[] state) {
+            return create(state[AudioHalService.FOCUS_STATE_ARRAY_INDEX_STATE],
+                    state[AudioHalService.FOCUS_STATE_ARRAY_INDEX_STREAMS],
+                    state[AudioHalService.FOCUS_STATE_ARRAY_INDEX_EXTERNAL_FOCUS]);
         }
 
         public static FocusState STATE_LOSS =

@@ -94,6 +94,10 @@ public class AudioHalService extends HalServiceBase {
 
     public static final int STREAM_NUM_DEFAULT = 0;
 
+    public static final int FOCUS_STATE_ARRAY_INDEX_STATE = 0;
+    public static final int FOCUS_STATE_ARRAY_INDEX_STREAMS = 1;
+    public static final int FOCUS_STATE_ARRAY_INDEX_EXTERNAL_FOCUS = 2;
+
     public interface AudioHalListener {
         /**
          * Audio focus change from car.
@@ -196,11 +200,11 @@ public class AudioHalService extends HalServiceBase {
         }
     }
 
-    public synchronized void requestAudioFocusChange(int request, int streams) {
+    public void requestAudioFocusChange(int request, int streams) {
         requestAudioFocusChange(request, streams, VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
     }
 
-    public synchronized void requestAudioFocusChange(int request, int streams, int extFocus) {
+    public void requestAudioFocusChange(int request, int streams, int extFocus) {
         int[] payload = { request, streams, extFocus };
         mVehicleHal.getVehicleNetwork().setIntVectorProperty(
                 VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, payload);
@@ -223,6 +227,18 @@ public class AudioHalService extends HalServiceBase {
 
     public synchronized boolean isFocusSupported() {
         return isPropertySupportedLocked(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS);
+    }
+
+    /**
+     * Get the current audio focus state.
+     * @return 0: focusState, 1: streams, 2: externalFocus
+     */
+    public int[] getCurrentFocusState() {
+        if (!isFocusSupported()) {
+            return new int[] { VEHICLE_AUDIO_FOCUS_STATE_GAIN, 0xffffffff, 0};
+        }
+        return mVehicleHal.getVehicleNetwork().getIntVectorProperty(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS);
     }
 
     private boolean isPropertySupportedLocked(int property) {
