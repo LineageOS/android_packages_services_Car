@@ -51,6 +51,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarRadioService mCarRadioService;
     private final AppContextService mAppContextService;
     private final CarPackageManagerService mCarPackageManagerService;
+    private final GarageModeService mGarageModeService;
 
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
@@ -81,6 +82,7 @@ public class ICarImpl extends ICar.Stub {
         mContext = serviceContext;
         mHal = VehicleHal.getInstance();
         mCarPowerManagementService = new CarPowerManagementService(serviceContext);
+        mGarageModeService = new GarageModeService(mContext, mCarPowerManagementService);
         mCarInfoService = new CarInfoService(serviceContext);
         mAppContextService = new AppContextService(serviceContext);
         mCarSensorService = new CarSensorService(serviceContext);
@@ -92,6 +94,7 @@ public class ICarImpl extends ICar.Stub {
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
                 mCarPowerManagementService,
+                mGarageModeService,
                 mCarPackageManagerService,
                 mCarInfoService,
                 mAppContextService,
