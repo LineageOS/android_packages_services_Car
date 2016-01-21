@@ -19,10 +19,9 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.SystemClock;
+import android.support.car.VehicleHalEmulator.VehicleHalPropertyHandler;
 import android.support.car.media.CarAudioManager;
-import android.test.AndroidTestCase;
 
-import com.android.car.VehicleHalEmulator.VehicleHalPropertyHandler;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioExtFocusFlag;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusIndex;

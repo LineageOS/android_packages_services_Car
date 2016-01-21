@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 
-package com.android.car.hardware.hvac;
+package android.support.car.hardware.hvac;
 
-import com.android.car.hardware.hvac.CarHvacProperty;
-import com.android.car.hardware.hvac.ICarHvacEventListener;
-
-/** {@CompatibilityApi} */
-interface ICarHvac {
-    int getVersion() = 0;
-
-    void registerListener(in ICarHvacEventListener listener, int version) = 1;
-
-    void unregisterListener(in ICarHvacEventListener listener) = 2;
-
-    List<CarHvacProperty> getHvacProperties() = 3;
-
-    CarHvacProperty getProperty(int prop, int zone) = 4;
-
-    void setProperty(in CarHvacProperty prop) = 5;
-}
+parcelable CarHvacProperty;

@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package com.android.car.hardware.radio;
+package android.support.car.hardware.hvac;
 
-import com.android.car.hardware.radio.CarRadioEvent;
+import android.support.car.hardware.hvac.CarHvacEvent;
 
 /**
- * Binder callback for CarRadioEventListener.
+ * Binder callback for CarHvacEventListener.
  * This is generated per each CarClient.
  * {@CompatibilityApi}
  */
-oneway interface ICarRadioEventListener {
+oneway interface ICarHvacEventListener {
     /**
      * Called when an event is triggered in response to one of the calls (such as on tune) or
      * asynchronously (such as on announcement).
      */
-    void onEvent(in CarRadioEvent event) = 1;
+    void onEvent(in CarHvacEvent event) = 1;
 }
+

@@ -19,9 +19,9 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.support.car.Car;
 import android.support.car.CarAppContextManager;
+import android.support.car.VehicleHalEmulator.VehicleHalPropertyHandler;
 import android.util.Log;
 
-import com.android.car.VehicleHalEmulator.VehicleHalPropertyHandler;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
 import com.android.car.vehiclenetwork.VehiclePropConfigUtil;

@@ -15,7 +15,6 @@
  */
 package com.android.support.car.test;
 
-import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.support.car.Car;
 import android.support.car.CarNotConnectedException;

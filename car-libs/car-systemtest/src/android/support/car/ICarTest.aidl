@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package android.support.car;
 
 import com.android.car.vehiclenetwork.IVehicleNetworkHalMock;
 import com.android.car.vehiclenetwork.VehiclePropValueParcelable;

@@ -18,13 +18,14 @@ package com.android.support.car.test;
 
 import android.util.Log;
 
-import com.android.car.hardware.hvac.CarHvacManager;
-import com.android.car.hardware.hvac.CarHvacManager.CarHvacEventListener;
-import com.android.car.hardware.hvac.CarHvacManager.CarHvacBooleanValue;
-import com.android.car.hardware.hvac.CarHvacManager.CarHvacFloatValue;
-import com.android.car.hardware.hvac.CarHvacManager.CarHvacIntValue;
-import com.android.car.CarSystem;
-import com.android.car.VehicleHalEmulator;
+import android.support.car.CarSystem;
+import android.support.car.VehicleHalEmulator;
+import android.support.car.hardware.hvac.CarHvacManager;
+import android.support.car.hardware.hvac.CarHvacManager.CarHvacEventListener;
+import android.support.car.hardware.hvac.CarHvacManager.CarHvacBooleanValue;
+import android.support.car.hardware.hvac.CarHvacManager.CarHvacFloatValue;
+import android.support.car.hardware.hvac.CarHvacManager.CarHvacIntValue;
+
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;

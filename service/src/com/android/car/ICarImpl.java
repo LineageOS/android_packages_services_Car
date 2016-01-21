@@ -17,17 +17,16 @@
 package com.android.car;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
-import android.os.Process;
 import android.os.RemoteException;
 import android.support.car.Car;
+import android.support.car.CarSystem;
+import android.support.car.CarSystemTest;
 import android.support.car.ICar;
 import android.support.car.ICarConnectionListener;
 import android.util.Log;
 
-import com.android.car.CarSystem;
 import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.internal.annotations.GuardedBy;

@@ -17,6 +17,8 @@ package com.android.car;
 
 import android.content.Context;
 import android.util.Log;
+import android.support.car.CarTestManager;
+import android.support.car.ICarTest;
 
 import com.android.car.hal.VehicleHal;
 import com.android.car.vehiclenetwork.IVehicleNetworkHalMock;

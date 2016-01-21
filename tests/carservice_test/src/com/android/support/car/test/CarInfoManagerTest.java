@@ -15,21 +15,13 @@
  */
 package com.android.support.car.test;
 
-import android.content.ComponentName;
-import android.os.IBinder;
-import android.os.Looper;
 import android.support.car.Car;
 import android.support.car.CarInfoManager;
-import android.support.car.ServiceConnectionListener;
-import android.test.AndroidTestCase;
 import android.util.Log;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
 import com.android.car.vehiclenetwork.VehiclePropValueUtil;
-
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 public class CarInfoManagerTest extends MockedCarTestBase {
 

@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package android.support.car;
 
 import android.content.Context;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.car.CarLibLog;
-import android.support.car.CarManagerBase;
-import android.support.car.DefaultCarServiceLoader;
-import android.support.car.ServiceConnectionListener;
-import android.util.Log;
 
-import com.android.car.hardware.hvac.CarHvacManager;
-import com.android.car.hardware.hvac.ICarHvac;
-import com.android.car.hardware.radio.CarRadioManager;
-import com.android.car.hardware.radio.ICarRadio;
+import android.support.car.hardware.hvac.CarHvacManager;
+import android.support.car.hardware.hvac.ICarHvac;
+import android.support.car.hardware.radio.CarRadioManager;
+import android.support.car.hardware.radio.ICarRadio;
 
 public class SystemApiCarServiceLoader extends DefaultCarServiceLoader {
 

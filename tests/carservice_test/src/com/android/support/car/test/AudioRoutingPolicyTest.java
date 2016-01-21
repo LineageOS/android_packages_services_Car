@@ -15,7 +15,8 @@
  */
 package com.android.support.car.test;
 
-import com.android.car.VehicleHalEmulator.VehicleHalPropertyHandler;
+import android.support.car.VehicleHalEmulator.VehicleHalPropertyHandler;
+
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioRoutingPolicyIndex;
