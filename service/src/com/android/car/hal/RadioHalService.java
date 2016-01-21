@@ -19,8 +19,9 @@ package com.android.car.hal;
 import android.util.Log;
 import android.hardware.radio.RadioManager;
 
-import com.android.car.hardware.radio.CarRadioPreset;
-import com.android.car.hardware.radio.CarRadioEvent;
+import android.support.car.hardware.radio.CarRadioEvent;
+import android.support.car.hardware.radio.CarRadioPreset;
+
 import com.android.car.CarLog;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
@@ -28,7 +29,6 @@ import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.io.PrintWriter;

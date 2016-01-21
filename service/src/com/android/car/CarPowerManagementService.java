@@ -24,6 +24,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
+import android.support.car.CarSystemTest;
 import android.util.Log;
 import android.view.Display;
 

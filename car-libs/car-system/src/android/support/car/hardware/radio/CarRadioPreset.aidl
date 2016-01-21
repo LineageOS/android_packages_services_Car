@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package com.android.car.hardware.radio;
+package android.support.car.hardware.radio;
 
 parcelable CarRadioPreset;

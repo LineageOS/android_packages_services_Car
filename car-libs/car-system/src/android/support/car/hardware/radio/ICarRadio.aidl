@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.car.hardware.radio;
+package android.support.car.hardware.radio;
 
-import com.android.car.hardware.radio.CarRadioPreset;
-import com.android.car.hardware.radio.ICarRadioEventListener;
+import android.support.car.hardware.radio.CarRadioPreset;
+import android.support.car.hardware.radio.ICarRadioEventListener;
 
-/** @hide */
+/** {@CompatibilityApi} */
 interface ICarRadio {
     /**
      * Returns the version number for this implementation of service.

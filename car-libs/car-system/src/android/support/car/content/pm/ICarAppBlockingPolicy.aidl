@@ -21,7 +21,7 @@ import android.support.car.content.pm.ICarAppBlockingPolicySetter;
 
 /**
  * Implemented by CarAppBlockingPolicyService
- * @hide
+ * {@CompatibilityApi}
  */
 oneway interface ICarAppBlockingPolicy {
     void setAppBlockingPolicySetter(in ICarAppBlockingPolicySetter setter) = 1;

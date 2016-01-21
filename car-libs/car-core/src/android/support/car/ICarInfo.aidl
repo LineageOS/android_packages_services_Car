@@ -18,7 +18,7 @@ package android.support.car;
 
 import android.os.Bundle;
 
-/** @hide */
+/** {@CompatibilityApi} */
 interface ICarInfo {
     int getVersion() = 0;
     /**

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package android.support.car;
 
 import android.util.Log;
 import android.support.car.Car;

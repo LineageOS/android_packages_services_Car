@@ -19,6 +19,7 @@ package android.support.car.app.menu;
 import android.os.Bundle;
 import android.support.car.app.menu.ISubscriptionCallbacks;
 
+/** {@CompatibilityApi} */
 interface ICarMenuCallbacks {
     int getVersion() = 0;
     Bundle getRoot() = 1;

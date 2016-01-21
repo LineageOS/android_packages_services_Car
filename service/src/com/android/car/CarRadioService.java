@@ -19,20 +19,18 @@ package com.android.car;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
-import android.os.Binder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.support.car.Car;
-import android.support.car.CarNotConnectedException;
+import android.support.car.CarSystem;
+import android.support.car.hardware.radio.CarRadioEvent;
+import android.support.car.hardware.radio.CarRadioPreset;
+import android.support.car.hardware.radio.ICarRadio;
+import android.support.car.hardware.radio.ICarRadioEventListener;
 import android.util.Log;
 
-import com.android.car.CarLog;
 import com.android.car.hal.VehicleHal;
 import com.android.car.hal.RadioHalService;
-import com.android.car.hardware.radio.ICarRadio;
-import com.android.car.hardware.radio.ICarRadioEventListener;
-import com.android.car.hardware.radio.CarRadioEvent;
-import com.android.car.hardware.radio.CarRadioPreset;
 
 import java.io.PrintWriter;
 import java.util.HashMap;

@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package android.support.car;
 
 import android.os.RemoteException;
-import android.support.car.CarManagerBase;
 
 import com.android.car.vehiclenetwork.IVehicleNetworkHalMock;
 import com.android.car.vehiclenetwork.VehicleNetwork.VehicleNetworkHalMock;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
-import com.android.car.vehiclenetwork.VehicleNetwork;
 import com.android.car.vehiclenetwork.VehiclePropConfigsParcelable;
 import com.android.car.vehiclenetwork.VehiclePropValueParcelable;
 import com.android.internal.annotations.GuardedBy;

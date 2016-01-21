@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.hardware.hvac;
+package android.support.car.hardware.hvac;
 
 import android.annotation.SystemApi;
 import android.content.Context;

@@ -18,14 +18,13 @@ package com.android.support.car.test;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import com.android.car.VehicleHalEmulator;
-
 import android.content.ComponentName;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.car.Car;
 import android.support.car.ServiceConnectionListener;
+import android.support.car.VehicleHalEmulator;
 import android.test.AndroidTestCase;
 import android.util.Log;
 

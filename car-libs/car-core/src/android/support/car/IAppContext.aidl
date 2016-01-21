@@ -18,7 +18,7 @@ package android.support.car;
 
 import android.support.car.IAppContextListener;
 
-/** @hide */
+/** {@CompatibilityApi} */
 interface IAppContext {
     int getVersion() = 0;
     void registerContextListener(int clientVersion, IAppContextListener listener, int filter) = 1;

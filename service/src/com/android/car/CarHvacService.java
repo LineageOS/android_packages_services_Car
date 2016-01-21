@@ -20,14 +20,14 @@ import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.car.Car;
+import android.support.car.hardware.hvac.CarHvacEvent;
+import android.support.car.hardware.hvac.CarHvacProperty;
+import android.support.car.hardware.hvac.ICarHvac;
+import android.support.car.hardware.hvac.ICarHvacEventListener;
 import android.util.Log;
 
 import com.android.car.hal.VehicleHal;
 import com.android.car.hal.HvacHalService;
-import com.android.car.hardware.hvac.ICarHvac;
-import com.android.car.hardware.hvac.ICarHvacEventListener;
-import com.android.car.hardware.hvac.CarHvacEvent;
-import com.android.car.hardware.hvac.CarHvacProperty;
 
 import java.io.PrintWriter;
 import java.util.HashMap;

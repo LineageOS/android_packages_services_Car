@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.hardware.radio;
+package android.support.car.hardware.radio;
 
 import android.annotation.SystemApi;
 import android.content.Context;
@@ -23,7 +23,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
-import android.os.Handler.Callback;
 import android.util.Log;
 import android.support.car.Car;
 import android.support.car.CarManagerBase;

@@ -14,18 +14,6 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package android.support.car.hardware.hvac;
 
-import com.android.car.vehiclenetwork.IVehicleNetworkHalMock;
-import com.android.car.vehiclenetwork.VehiclePropValueParcelable;
-
-/** @hide */
-interface ICarTest {
-    int getVersion()                                              = 0;
-    /** For testing only. inject events. */
-    void injectEvent(in VehiclePropValueParcelable value)         = 1;
-    /** For testing only. Start in mocking mode. */
-    void startMocking(in IVehicleNetworkHalMock mock, int flags)  = 2;
-    /** Finish mocking mode. */
-    void stopMocking(in IVehicleNetworkHalMock mock)              = 3;
-}
+parcelable CarHvacProperty;

@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import java.util.List;
 
+/** {@CompatibilityApi} */
 interface ISubscriptionCallbacks {
         int getVersion() = 0;
         void onChildrenLoaded(String parentId, in List<Bundle> items) = 1;

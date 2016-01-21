@@ -15,19 +15,17 @@
  */
 package com.android.car.hal;
 
-import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.car.CarLog;
 
-import com.android.car.hardware.hvac.CarHvacEvent;
-import com.android.car.hardware.hvac.CarHvacManager;
-import com.android.car.hardware.hvac.CarHvacProperty;
+import android.support.car.hardware.hvac.CarHvacEvent;
+import android.support.car.hardware.hvac.CarHvacManager;
+import android.support.car.hardware.hvac.CarHvacProperty;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 

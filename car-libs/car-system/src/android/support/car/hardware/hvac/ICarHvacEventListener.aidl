@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.car.hardware.hvac;
+package android.support.car.hardware.hvac;
 
-import com.android.car.hardware.hvac.CarHvacEvent;
+import android.support.car.hardware.hvac.CarHvacEvent;
 
 /**
  * Binder callback for CarHvacEventListener.
  * This is generated per each CarClient.
- * @hide
+ * {@CompatibilityApi}
  */
 oneway interface ICarHvacEventListener {
     /**

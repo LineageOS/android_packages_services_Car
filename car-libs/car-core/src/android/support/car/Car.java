@@ -189,8 +189,8 @@ public class Car {
      * This is done to prevent bloating the library which is not relevant for the app.
      */
     private static final String[] CAR_SERVICE_LOADERS_FOR_FEATURE_AUTOMOTIVE = {
-        "com.android.car.SystemTestApiCarServiceLoader",
-        "com.android.car.SystemApiCarServiceLoader",
+        "android.support.car.SystemTestApiCarServiceLoader",
+        "android.support.car.SystemApiCarServiceLoader",
     };
 
     private final ICarConnectionListenerImpl mICarConnectionListenerImpl =

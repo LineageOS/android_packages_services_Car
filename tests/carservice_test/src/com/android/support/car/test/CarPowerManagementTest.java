@@ -20,10 +20,10 @@ import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.support.car.VehicleHalEmulator.VehicleHalPropertyHandler;
 import android.util.Log;
 import android.view.Display;
 
-import com.android.car.VehicleHalEmulator.VehicleHalPropertyHandler;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleApPowerBootupReason;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleApPowerSetState;

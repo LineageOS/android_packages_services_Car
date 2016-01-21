@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package android.support.car;
 
 /**
- * Container class to hold static definitions for system test api for Car.
+ * Container class to hold static definitions for system api for Car.
  * Client should still use Car api for all operations, and this class is only for defining
  * additional parameters available when car api becomes system api.
  * @hide
  */
-public class CarSystemTest {
-    /**
-     * Service for testing. This is system app only feature.
-     * Service name for {@link CarTestManager}, to be used in {@link #getCarManager(String)}.
-     * @hide
-     */
-    public static final String TEST_SERVICE = "car-service-test";
+public class CarSystem {
+    public static final String RADIO_SERVICE = "radio";
+    public static final String HVAC_SERVICE = "hvac";
 
-    /** permission necessary to mock vehicle hal for testing */
-    public static final String PERMISSION_MOCK_VEHICLE_HAL =
-            "android.support.car.permission.CAR_MOCK_VEHICLE_HAL";
+    /** Permission necessary to access Car HVAC APIs. */
+    public static final String PERMISSION_CAR_HVAC =
+            "android.support.car.permission.CAR_HVAC";
+
+    /** Permission necesary to access Car RADIO system APIs. */
+    public static final String PERMISSION_CAR_RADIO =
+            "android.support.car.permission.CAR_RADIO";
 }

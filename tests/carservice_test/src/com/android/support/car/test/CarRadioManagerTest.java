@@ -15,29 +15,20 @@
  */
 package com.android.support.car.test;
 
-import android.content.ComponentName;
 import android.hardware.radio.RadioManager;
-import android.os.IBinder;
-import android.os.Looper;
-import android.support.car.Car;
-import android.support.car.CarInfoManager;
-import android.support.car.ServiceConnectionListener;
-import android.test.AndroidTestCase;
 import android.util.Log;
 
-import com.android.car.hardware.radio.CarRadioEvent;
-import com.android.car.hardware.radio.CarRadioManager;
-import com.android.car.hardware.radio.CarRadioManager.CarRadioEventListener;
-import com.android.car.hardware.radio.CarRadioPreset;
-import com.android.car.CarSystem;
-import com.android.car.VehicleHalEmulator;
+import android.support.car.CarSystem;
+import android.support.car.VehicleHalEmulator;
+import android.support.car.hardware.radio.CarRadioEvent;
+import android.support.car.hardware.radio.CarRadioManager;
+import android.support.car.hardware.radio.CarRadioManager.CarRadioEventListener;
+import android.support.car.hardware.radio.CarRadioPreset;
+
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePermissionModel;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
 import com.android.car.vehiclenetwork.VehiclePropValueUtil;

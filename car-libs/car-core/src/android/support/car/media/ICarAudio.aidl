@@ -16,7 +16,7 @@
 
 package android.support.car.media;
 
-/** @hide */
+/** {@CompatibilityApi} */
 interface ICarAudio {
     int getVersion() = 0;
 }
