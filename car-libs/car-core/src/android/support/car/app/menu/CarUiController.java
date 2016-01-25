@@ -34,8 +34,15 @@ import java.lang.reflect.Method;
  */
 public class CarUiController {
     private static final String TAG = "CarUiController";
+    // TODO: load the package name and class name from resources
     private static final String UI_ENTRY_CLASS_NAME = ".CarUiEntry";
     private static final String CAR_UI_PROVIDER_PKG = "android.support.car.ui.provider";
+
+    private static final String PROJECTED_UI_ENTRY_CLASS_NAME = ".sdk.SdkEntry2";
+    private static final String PROJECTED_UI_PROVIDER_PKG =
+            "com.google.android.projection.gearhead";
+
+    private static final String FEATURE_AUTOMOTIVE = "android.hardware.type.automotive";
 
     private final CarDrawerActivity mActivity;
     // TODO: Add more UI control methods
@@ -56,6 +63,10 @@ public class CarUiController {
     private Method mCloseDrawer;
     private Method mOpenDrawer;
     private Method mShowMenu;
+    private Method mOnStart;
+    private Method mOnResume;
+    private Method mOnPause;
+    private Method mOnStop;
 
     private Object mCarUiEntryClass;
 
@@ -66,12 +77,22 @@ public class CarUiController {
 
     public void init() {
         try{
+            String className;
+            String pkg;
+            if (mActivity.getContext().getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
+                className = UI_ENTRY_CLASS_NAME;
+                pkg = CAR_UI_PROVIDER_PKG;
+            } else {
+                className = PROJECTED_UI_ENTRY_CLASS_NAME;
+                pkg = PROJECTED_UI_PROVIDER_PKG;
+            }
+
             // STOPSHIP: need to verify the certificate of the CarUiProvider apk.
             Context carUiContext = mActivity.getContext().createPackageContext(
-                    CAR_UI_PROVIDER_PKG,
+                    pkg,
                     Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
             ClassLoader classLoader = carUiContext.getClassLoader();
-            Class<?> loadedClass = classLoader.loadClass(CAR_UI_PROVIDER_PKG + UI_ENTRY_CLASS_NAME);
+            Class<?> loadedClass = classLoader.loadClass(pkg + className);
             for (Method m : loadedClass.getDeclaredMethods()) {
                 switch(m.getName()) {
                     case "getContentView":
@@ -124,6 +145,18 @@ public class CarUiController {
                         break;
                     case "showMenu":
                         mShowMenu = m;
+                        break;
+                    case "onStart":
+                        mOnStart = m;
+                        break;
+                    case "onResume":
+                        mOnResume = m;
+                        break;
+                    case "onPause":
+                        mOnPause = m;
+                        break;
+                    case "onStop":
+                        mOnStop = m;
                         break;
                 }
             }
@@ -231,5 +264,21 @@ public class CarUiController {
 
     public void showMenu(String id, String title) {
         invoke(mShowMenu, id, title);
+    }
+
+    public void onStart() {
+        invoke(mOnStart);
+    }
+
+    public void onResume() {
+        invoke(mOnResume);
+    }
+
+    public void onPause() {
+        invoke(mOnPause);
+    }
+
+    public void onStop() {
+        invoke(mOnStop);
     }
 }
