@@ -290,6 +290,14 @@ public class PbapPCEClient extends Service implements PbapHandler.PbapListener {
         // Download Incoming Call Logs.
         CallLogPullRequest ichCallLog = new CallLogPullRequest(this, BluetoothPbapClient.ICH_PATH);
         addPullRequest(ichCallLog);
+
+        // Downoad Outgoing Call Logs.
+        CallLogPullRequest ochCallLog = new CallLogPullRequest(this, BluetoothPbapClient.OCH_PATH);
+        addPullRequest(ochCallLog);
+
+        // Downoad Missed Call Logs.
+        CallLogPullRequest mchCallLog = new CallLogPullRequest(this, BluetoothPbapClient.MCH_PATH);
+        addPullRequest(mchCallLog);
     }
 
     private void downloadPhoneBook() {
