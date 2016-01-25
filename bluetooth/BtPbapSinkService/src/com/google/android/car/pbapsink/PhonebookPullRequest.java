@@ -178,6 +178,11 @@ public class PhonebookPullRequest extends PullRequest {
 
     @Override
     public void onPullComplete(boolean success, List<VCardEntry> entries) {
+        if (entries == null) {
+            Log.e(TAG, "onPullComplete entries is null.");
+            return;
+        }
+
         if (DBG) {
             Log.d(TAG, "onPullComplete with " + entries.size() + " count.");
         }

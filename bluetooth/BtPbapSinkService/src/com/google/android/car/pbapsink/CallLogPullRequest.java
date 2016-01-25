@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.List;
 
 public class CallLogPullRequest extends PullRequest {
+    private static boolean DBG = true;
     private static String TAG = "PbapCallLogPullRequest";
     private static final String TIMESTAMP_PROPERTY = "X-IRMC-CALL-DATETIME";
     private static final String TIMESTAMP_FORMAT = "yyyyMMdd'T'HHmmss";
@@ -47,6 +48,14 @@ public class CallLogPullRequest extends PullRequest {
 
     @Override
     public void onPullComplete(boolean success, List<VCardEntry> entries) {
+        if (entries == null) {
+            Log.e(TAG, "onPullComplete entries is null.");
+            return;
+        }
+
+        if (DBG) {
+            Log.d(TAG, "onPullComplete with " + entries.size() + " count.");
+        }
         int type;
         try {
             if (path.equals(BluetoothPbapClient.ICH_PATH)) {
