@@ -59,11 +59,11 @@ public static final int VEHICLE_PROPERTY_AUDIO_CONTEXT = 0x00000905;
 public static final int VEHICLE_PROPERTY_AP_POWER_STATE = 0x00000A00;
 public static final int VEHICLE_PROPERTY_DISPLAY_BRIGHTNESS = 0x00000A01;
 public static final int VEHICLE_PROPERTY_AP_POWER_BOOTUP_REASON = 0x00000A02;
-public static final int VEHICLE_PROPERTY_CUSTOM_START = 0xf0000000;
-public static final int VEHICLE_PROPERTY_CUSTOM_END = 0xf7ffffff;
-public static final int VEHICLE_PROPERTY_INTERNAL_START = 0xf8000000;
-public static final int VEHICLE_PROPERTY_INTERNAL_END = 0xf8ffffff;
-public static final int VEHICLE_PROPERTY_INTERNAL_AUDIO_STREAM_STATE = 0xf8000000;
+public static final int VEHICLE_PROPERTY_CUSTOM_START = 0x70000000;
+public static final int VEHICLE_PROPERTY_CUSTOM_END = 0x73ffffff;
+public static final int VEHICLE_PROPERTY_INTERNAL_START = 0x74000000;
+public static final int VEHICLE_PROPERTY_INTERNAL_END = 0x74ffffff;
+public static final int VEHICLE_PROPERTY_INTERNAL_AUDIO_STREAM_STATE = 0x74000000;
 public static int getVehicleValueType(int property) {
 switch (property) {
 case VEHICLE_PROPERTY_INFO_VIN: return VehicleValueType.VEHICLE_VALUE_TYPE_STRING;
