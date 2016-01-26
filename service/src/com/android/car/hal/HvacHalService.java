@@ -15,14 +15,16 @@
  */
 package com.android.car.hal;
 
-import android.util.Log;
-
-import com.android.car.CarLog;
+import static com.android.car.vehiclenetwork.VehiclePropValueUtil.toFloatArray;
+import static com.android.car.vehiclenetwork.VehiclePropValueUtil.toIntArray;
 
 import android.support.car.hardware.hvac.CarHvacEvent;
 import android.support.car.hardware.hvac.CarHvacManager;
 import android.support.car.hardware.hvac.CarHvacProperty;
+import android.util.Log;
 
+import com.android.car.CarLog;
+import com.android.car.vehiclenetwork.VehicleNetwork;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
@@ -34,7 +36,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
 
 public class HvacHalService extends HalServiceBase {
     private static final boolean   DBG = true;
@@ -72,49 +73,92 @@ public class HvacHalService extends HalServiceBase {
     }
 
     public List<CarHvacProperty> getHvacProperties() {
-        List<CarHvacProperty> propList = null;
+        List<CarHvacProperty> propList;
         synchronized (mProps) {
-            propList = new ArrayList<CarHvacProperty>(mProps.values());
+            propList = new ArrayList<>(mProps.values());
         }
         return propList;
     }
 
     public CarHvacProperty getHvacProperty(int prop, int zone) {
         int halProp = hvacToHalPropId(prop);
-        CarHvacProperty  hvacProp = null;
-        VehiclePropValue getValue = null;
+        CarHvacProperty  hvacProp;
+        VehiclePropValue prototypeValue;
 
         synchronized (mProps) {
             hvacProp = new CarHvacProperty(mProps.get(halProp));
         }
 
+        boolean zoned = CarHvacManager.isZonedProperty(hvacProp.getPropertyId());
+
         switch(hvacProp.getType()) {
             case CarHvacManager.PROPERTY_TYPE_BOOLEAN:
-                getValue = VehiclePropValueUtil.createZonedBooleanValue(halProp, zone, false, 0);
+                prototypeValue = zoned
+                        ? VehiclePropValueUtil.createZonedBooleanValue(halProp, zone, false, 0)
+                        : VehiclePropValueUtil.createBooleanValue(halProp, false, 0);
                 break;
             case CarHvacManager.PROPERTY_TYPE_FLOAT:
-                getValue = VehiclePropValueUtil.createZonedFloatValue(halProp, zone, 0, 0);
+                prototypeValue = zoned
+                        ? VehiclePropValueUtil.createZonedFloatValue(halProp, zone, 0, 0)
+                        : VehiclePropValueUtil.createFloatValue(halProp, 0, 0);
                 break;
             case CarHvacManager.PROPERTY_TYPE_INT:
-                getValue = VehiclePropValueUtil.createZonedIntValue(halProp, zone, 0, 0);
+                prototypeValue = zoned
+                        ? VehiclePropValueUtil.createZonedIntValue(halProp, zone, 0, 0)
+                        : VehiclePropValueUtil.createIntValue(halProp, 0, 0);
                 break;
+            case CarHvacManager.PROPERTY_TYPE_INT_VECTOR:
+                prototypeValue = zoned
+                        ? VehiclePropValueUtil.createZonedIntVectorValue(
+                                halProp, zone, hvacProp.getIntValues(), 0)
+                        : VehiclePropValueUtil.createIntVectorValue(
+                                halProp, hvacProp.getIntValues(), 0);
+                break;
+            case CarHvacManager.PROPERTY_TYPE_FLOAT_VECTOR:
+                prototypeValue = zoned
+                        ? VehiclePropValueUtil.createZonedFloatVectorValue(
+                                halProp, zone, hvacProp.getFloatValues(), 0)
+                        : VehiclePropValueUtil.createFloatVectorValue(
+                                halProp, hvacProp.getFloatValues(), 0);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown type: " + hvacProp.getType());
         }
 
-        VehiclePropValue value = mVehicleHal.getVehicleNetwork().getProperty(getValue);
+        VehiclePropValue value = mVehicleHal.getVehicleNetwork().getProperty(prototypeValue);
 
         if(value != null) {
             switch(hvacProp.getType()) {
                 case CarHvacManager.PROPERTY_TYPE_BOOLEAN:
-                    hvacProp.setBooleanValue(value.getZonedValue().getInt32Values(0) == 1);
+                    hvacProp.setBooleanValue(zoned
+                            ? value.getZonedValue().getInt32Values(0) == 1
+                            : value.getInt32Values(0) == 1);
                     break;
                 case CarHvacManager.PROPERTY_TYPE_INT:
-                    hvacProp.setIntegerValue(value.getZonedValue().getInt32Values(0));
+                    hvacProp.setIntValue(zoned
+                            ? value.getZonedValue().getInt32Values(0)
+                            : value.getInt32Values(0));
                     break;
                 case CarHvacManager.PROPERTY_TYPE_FLOAT:
-                    hvacProp.setFloatValue(value.getZonedValue().getFloatValues(0));
+                    hvacProp.setFloatValue(zoned
+                            ? value.getZonedValue().getFloatValues(0)
+                            : value.getFloatValues(0));
+                    break;
+                case CarHvacManager.PROPERTY_TYPE_INT_VECTOR:
+                    hvacProp.setIntValues(toIntArray(zoned
+                            ? value.getZonedValue().getInt32ValuesList()
+                            : value.getInt32ValuesList()));
+                    break;
+                case CarHvacManager.PROPERTY_TYPE_FLOAT_VECTOR:
+                    hvacProp.setFloatValues(
+                            toFloatArray(zoned
+                                    ? value.getZonedValue().getFloatValuesList()
+                                    : value.getFloatValuesList()));
                     break;
             }
-            hvacProp.setZone(zone);
+            if (zoned) {
+                hvacProp.setZone(zone);
+            }
         } else {
             hvacProp = null;
         }
@@ -124,19 +168,46 @@ public class HvacHalService extends HalServiceBase {
 
     public void setHvacProperty(CarHvacProperty prop) {
         int halProp = hvacToHalPropId(prop.getPropertyId());
+        VehicleNetwork vehicleNetwork = mVehicleHal.getVehicleNetwork();
+        int zone = prop.getZone();
+        boolean zoned = CarHvacManager.isZonedProperty(prop.getPropertyId());
 
         switch(prop.getType()) {
             case CarHvacManager.PROPERTY_TYPE_BOOLEAN:
-                mVehicleHal.getVehicleNetwork().setZonedBooleanProperty(halProp, prop.getZone(),
-                        prop.getIntValue() == 1);
+                if (zoned) {
+                    vehicleNetwork.setZonedBooleanProperty(halProp, zone, prop.getBooleanValue());
+                } else {
+                    vehicleNetwork.setBooleanProperty(halProp, prop.getBooleanValue());
+                }
                 break;
             case CarHvacManager.PROPERTY_TYPE_INT:
-                mVehicleHal.getVehicleNetwork().setZonedIntProperty(halProp, prop.getZone(),
-                        prop.getIntValue());
+                if (zoned) {
+                    vehicleNetwork.setZonedIntProperty(halProp, zone, prop.getIntValue());
+                } else {
+                    vehicleNetwork.setIntProperty(halProp, prop.getIntValue());
+                }
                 break;
             case CarHvacManager.PROPERTY_TYPE_FLOAT:
-                mVehicleHal.getVehicleNetwork().setZonedFloatProperty(halProp, prop.getZone(),
-                        prop.getFloatValue());
+                if (zoned) {
+                    vehicleNetwork.setZonedFloatProperty(halProp, zone, prop.getFloatValue());
+                } else {
+                    vehicleNetwork.setFloatProperty(halProp, prop.getFloatValue());
+                }
+                break;
+            case CarHvacManager.PROPERTY_TYPE_INT_VECTOR:
+                if (zoned) {
+                    vehicleNetwork.setZonedIntVectorProperty(halProp, zone, prop.getIntValues());
+                } else {
+                    vehicleNetwork.setIntVectorProperty(halProp, prop.getIntValues());
+                }
+                break;
+            case CarHvacManager.PROPERTY_TYPE_FLOAT_VECTOR:
+                if (zoned) {
+                    vehicleNetwork.setZonedFloatVectorProperty(
+                            halProp, zone, prop.getFloatValues());
+                } else {
+                    vehicleNetwork.setFloatVectorProperty(halProp, prop.getFloatValues());
+                }
                 break;
             default:
                 throw new IllegalArgumentException();
@@ -176,11 +247,11 @@ public class HvacHalService extends HalServiceBase {
     @Override
     public synchronized List<VehiclePropConfig> takeSupportedProperties(
             List<VehiclePropConfig> allProperties) {
-        List<VehiclePropConfig> taken = new LinkedList<VehiclePropConfig>();
+        List<VehiclePropConfig> taken = new LinkedList<>();
 
         for (VehiclePropConfig p : allProperties) {
             int prop = p.getProp();
-            int hvacPropId = 0;
+            int hvacPropId;
 
             try {
                 hvacPropId = halToHvacPropId(prop);
@@ -190,7 +261,7 @@ public class HvacHalService extends HalServiceBase {
             }
 
             if (hvacPropId != 0) {
-                CarHvacProperty hvacProp = null;
+                CarHvacProperty hvacProp;
                 int halType = p.getValueType();
                 int valZone = p.getConfigArray(0);
 
@@ -210,6 +281,25 @@ public class HvacHalService extends HalServiceBase {
                         hvacProp = new CarHvacProperty(hvacPropId, valZone, valMin, valMax, 0);
                         break;
                     }
+                    case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2:
+                    case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3:
+                    {
+                        int valMin = p.getInt32Min();
+                        int valMax = p.getInt32Max();
+                        int[] values = new int[VehiclePropValueUtil.getVectorLength(halType)];
+                        hvacProp = new CarHvacProperty(hvacPropId, valZone, valMin, valMax, values);
+                        break;
+                    }
+                    case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
+                    case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3:
+                    {
+                        float valMin = p.getFloatMin();
+                        float valMax = p.getFloatMax();
+                        float[] values = new float[VehiclePropValueUtil.getVectorLength(halType)];
+                        hvacProp = new CarHvacProperty(hvacPropId, valZone, valMin, valMax, values);
+                        break;
+                    }
+
                     default:
                         throw new IllegalArgumentException(TAG + ": halType " + halType + " not" +
                                 "handled!");
@@ -227,12 +317,12 @@ public class HvacHalService extends HalServiceBase {
 
     @Override
     public void handleHalEvents(List<VehiclePropValue> values) {
-        HvacHalListener listener = null;
+        HvacHalListener listener;
         synchronized (this) {
             listener = mListener;
             if (listener == null) {
                 if (mQueuedEvents == null) {
-                    mQueuedEvents = new LinkedList<VehiclePropValue>();
+                    mQueuedEvents = new LinkedList<>();
                 }
                 mQueuedEvents.addAll(values);
             }

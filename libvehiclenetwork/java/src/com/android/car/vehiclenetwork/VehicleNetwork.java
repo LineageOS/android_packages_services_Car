@@ -15,7 +15,11 @@
  */
 package com.android.car.vehiclenetwork;
 
-import android.annotation.Nullable;
+import static com.android.car.vehiclenetwork.VehiclePropValueUtil.getVectorLength;
+import static com.android.car.vehiclenetwork.VehiclePropValueUtil.isCustomProperty;
+import static com.android.car.vehiclenetwork.VehiclePropValueUtil.toFloatArray;
+import static com.android.car.vehiclenetwork.VehiclePropValueUtil.toIntArray;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -27,6 +31,7 @@ import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
+import com.android.car.vehiclenetwork.VehicleNetworkProto.ZonedValue;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;
@@ -69,12 +74,13 @@ public class VehicleNetwork {
 
     private static final int VNS_CONNECT_MAX_RETRY = 10;
     private static final long VNS_RETRY_WAIT_TIME_MS = 1000;
+    private static final int NO_ZONE = -1;
 
     /**
      * Factory method to create VehicleNetwork
+     *
      * @param listener listener for listening events
      * @param looper Looper to dispatch listener events
-     * @return
      */
     public static VehicleNetwork createVehicleNetwork(VehicleNetworkListener listener,
             Looper looper) {
@@ -110,6 +116,7 @@ public class VehicleNetwork {
 
     /**
      * List all properties from vehicle HAL
+     *
      * @return all properties
      */
     public VehiclePropConfigs listProperties() {
@@ -118,8 +125,9 @@ public class VehicleNetwork {
 
     /**
      * Return configuration information of single property
-     * @param property vehicle property number defined in {@link VehicleNetworkConsts}. 0 has
-     *        has special meaning of list all properties.
+     *
+     * @param property vehicle property number defined in {@link VehicleNetworkConsts}. 0 has has
+     * special meaning of list all properties.
      * @return null if given property does not exist.
      */
     public VehiclePropConfigs listProperties(int property) {
@@ -136,9 +144,9 @@ public class VehicleNetwork {
 
     /**
      * Set property which will lead into writing the value to vehicle HAL.
-     * @param value
-     * @throws IllegalArgumentException If value set has wrong value like wrong valueType,
-     *         wrong data, and etc.
+     *
+     * @throws IllegalArgumentException If value set has wrong value like wrong valueType, wrong
+     * data, and etc.
      */
     public void setProperty(VehiclePropValue value) throws IllegalArgumentException {
         VehiclePropValueParcelable parcelable = new VehiclePropValueParcelable(value);
@@ -151,8 +159,7 @@ public class VehicleNetwork {
 
     /**
      * Set integer type property
-     * @param property
-     * @param value
+     *
      * @throws IllegalArgumentException For type mismatch (=the property is not int type)
      */
     public void setIntProperty(int property, int value) throws IllegalArgumentException {
@@ -162,9 +169,6 @@ public class VehicleNetwork {
 
     /**
      * Set int vector type property. Length of passed values should match with vector length.
-     * @param property
-     * @param values
-     * @throws IllegalArgumentException
      */
     public void setIntVectorProperty(int property, int[] values) throws IllegalArgumentException {
         VehiclePropValue v = VehiclePropValueUtil.createIntVectorValue(property, values, 0);
@@ -173,9 +177,6 @@ public class VehicleNetwork {
 
     /**
      * Set long type property.
-     * @param property
-     * @param value
-     * @throws IllegalArgumentException
      */
     public void setLongProperty(int property, long value) throws IllegalArgumentException {
         VehiclePropValue v = VehiclePropValueUtil.createLongValue(property, value, 0);
@@ -184,9 +185,6 @@ public class VehicleNetwork {
 
     /**
      * Set float type property.
-     * @param property
-     * @param value
-     * @throws IllegalArgumentException
      */
     public void setFloatProperty(int property, float value) throws IllegalArgumentException {
         VehiclePropValue v = VehiclePropValueUtil.createFloatValue(property, value, 0);
@@ -195,9 +193,6 @@ public class VehicleNetwork {
 
     /**
      * Set float vector type property. Length of values should match with vector length.
-     * @param property
-     * @param values
-     * @throws IllegalArgumentException
      */
     public void setFloatVectorProperty(int property, float[] values)
             throws IllegalArgumentException {
@@ -207,9 +202,18 @@ public class VehicleNetwork {
 
     /**
      * Set zoned boolean type property
-     * @param property
-     * @param zone
-     * @param value
+     *
+     * @throws IllegalArgumentException For type mismatch (=the property is not boolean type)
+     */
+    public void setBooleanProperty(int property, boolean value)
+            throws IllegalArgumentException {
+        VehiclePropValue v = VehiclePropValueUtil.createBooleanValue(property, value, 0);
+        setProperty(v);
+    }
+
+    /**
+     * Set zoned boolean type property
+     *
      * @throws IllegalArgumentException For type mismatch (=the property is not boolean type)
      */
     public void setZonedBooleanProperty(int property, int zone, boolean value)
@@ -220,9 +224,7 @@ public class VehicleNetwork {
 
     /**
      * Set zoned float type property
-     * @param property
-     * @param zone
-     * @param value
+     *
      * @throws IllegalArgumentException For type mismatch (=the property is not float type)
      */
     public void setZonedFloatProperty(int property, int zone, float value)
@@ -233,9 +235,7 @@ public class VehicleNetwork {
 
     /**
      * Set zoned integer type property
-     * @param property
-     * @param zone
-     * @param value
+     *
      * @throws IllegalArgumentException For type mismatch (=the property is not int type)
      */
     public void setZonedIntProperty(int property, int zone, int value)
@@ -245,10 +245,28 @@ public class VehicleNetwork {
     }
 
     /**
+     * Set zoned int vector type property. Length of passed values should match with vector length.
+     */
+    public void setZonedIntVectorProperty(int property, int zone, int[] values)
+            throws IllegalArgumentException {
+        VehiclePropValue v = VehiclePropValueUtil
+                .createZonedIntVectorValue(property, zone, values, 0);
+        setProperty(v);
+    }
+
+    /**
+     * Set zoned float vector type property. Length of passed values should match with vector
+     * length.
+     */
+    public void setZonedFloatVectorProperty(int property, int zone, float[] values)
+            throws IllegalArgumentException {
+        VehiclePropValue v = VehiclePropValueUtil
+                .createZonedFloatVectorValue(property, zone, values, 0);
+        setProperty(v);
+    }
+
+    /**
      * Get property. This can be used for a property which does not require any other data.
-     * @param property
-     * @return
-     * @throws IllegalArgumentException
      */
     public VehiclePropValue getProperty(int property) throws IllegalArgumentException {
         int valueType = VehicleNetworkConsts.getVehicleValueType(property);
@@ -259,9 +277,6 @@ public class VehicleNetwork {
     /**
      * Generic get method for any type of property. Some property may require setting data portion
      * as get may return different result depending on the data set.
-     * @param value
-     * @return
-     * @throws IllegalArgumentException
      */
     public VehiclePropValue getProperty(VehiclePropValue value) throws IllegalArgumentException {
         VehiclePropValueParcelable parcelable = new VehiclePropValueParcelable(value);
@@ -277,21 +292,11 @@ public class VehicleNetwork {
     }
 
     /**
-     * get int type property
-     * @param property
-     * @return
-     * @throws IllegalArgumentException
+     * Get int type property.
      */
     public int getIntProperty(int property) throws IllegalArgumentException {
-        VehiclePropValue v = getProperty(property);
-        if (v == null) {
-            // if property is invalid, IllegalArgumentException should have been thrown
-            // from getProperty.
-            throw new IllegalStateException();
-        }
-        if (v.getValueType() != VehicleValueType.VEHICLE_VALUE_TYPE_INT32) {
-            throw new IllegalArgumentException();
-        }
+        VehiclePropValue v = getProperty(
+                property, NO_ZONE, VehicleValueType.VEHICLE_VALUE_TYPE_INT32);
         if (v.getInt32ValuesCount() != 1) {
             throw new IllegalStateException();
         }
@@ -299,50 +304,44 @@ public class VehicleNetwork {
     }
 
     /**
-     * get int vector type property. Length of values should match vector length.
-     * @param property
-     * @throws IllegalArgumentException
+     * Get zoned int type property.
+     */
+    public int getZonedIntProperty(int property, int zone) throws IllegalArgumentException {
+        VehiclePropValue v = getProperty(
+                property, zone, VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32);
+        if (v.getZonedValue().getInt32ValuesCount() != 1) {
+            throw new IllegalStateException();
+        }
+        return v.getZonedValue().getInt32Values(0);
+    }
+
+    /**
+     * Get int vector type property. Length of values should match vector length.
      */
     public int[] getIntVectorProperty(int property) throws IllegalArgumentException {
-        VehiclePropValue v = getProperty(property);
-        if (v == null) {
-            // if property is invalid, IllegalArgumentException should have been thrown
-            // from getProperty.
-            throw new IllegalStateException();
-        }
-        switch (v.getValueType()) {
-            case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2:
-            case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC3:
-            case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC4:
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
-        int[] values = new int[v.getValueType() - VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2 +
-                               2];
-        if (v.getInt32ValuesCount() != values.length) {
-            throw new IllegalStateException();
-        }
-        for (int i = 0; i < values.length; i++) {
-            values[i] = v.getInt32Values(i);
-        }
-        return values;
+        VehiclePropValue v = getProperty(
+                property, NO_ZONE, VehicleValueType.VEHICLE_VALUE_TYPE_INT32);
+        assertVectorLength(v.getInt32ValuesCount(), property, v.getValueType());
+        return toIntArray(v.getInt32ValuesList());
+    }
+
+    /**
+     * Get zoned int vector type property. Length of values should match vector length.
+     */
+    public int[] getZonedIntVectorProperty(int property, int zone)
+            throws IllegalArgumentException {
+        VehiclePropValue v = getProperty(
+                property, zone, VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32);
+        assertVectorLength(v.getZonedValue().getInt32ValuesCount(), property, v.getValueType());
+        return toIntArray(v.getZonedValue().getInt32ValuesList());
     }
 
     /**
      * Get float type property.
-     * @param property
-     * @return
-     * @throws IllegalArgumentException
      */
     public float getFloatProperty(int property) throws IllegalArgumentException {
-        VehiclePropValue v = getProperty(property);
-        if (v == null) {
-            throw new IllegalStateException();
-        }
-        if (v.getValueType() != VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT) {
-            throw new IllegalArgumentException();
-        }
+        VehiclePropValue v = getProperty(
+                property, NO_ZONE, VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT);
         if (v.getFloatValuesCount() != 1) {
             throw new IllegalStateException();
         }
@@ -351,76 +350,46 @@ public class VehicleNetwork {
 
     /**
      * Get float vector type property. Length of values should match vector's length.
-     * @param property
-     * @throws IllegalArgumentException
      */
-    public float[] getFloatVectorProperty(int property)
+    public float[] getFloatVectorProperty(int property) throws IllegalArgumentException {
+        VehiclePropValue v = getProperty(
+                property, NO_ZONE, VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT);
+        assertVectorLength(v.getFloatValuesCount(), property, v.getValueType());
+        return toFloatArray(v.getFloatValuesList());
+    }
+
+    /**
+     * Get zoned float vector type property. Length of values should match vector's length.
+     */
+    public float[] getZonedFloatVectorProperty(int property, int zone)
             throws IllegalArgumentException {
-        VehiclePropValue v = getProperty(property);
-        if (v == null) {
-            // if property is invalid, IllegalArgumentException should have been thrown
-            // from getProperty.
-            throw new IllegalStateException();
-        }
-        switch (v.getValueType()) {
-            case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC2:
-            case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC3:
-            case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC4:
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
-        float[] values = new float[v.getValueType() -
-                                   VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC2 + 2];
-        if (v.getFloatValuesCount() != values.length) {
-            throw new IllegalStateException();
-        }
-        for (int i = 0; i < values.length; i++) {
-            values[i] = v.getFloatValues(i);
-        }
-        return values;
+        VehiclePropValue v = getProperty(property, zone,
+                VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT);
+        assertVectorLength(v.getZonedValue().getFloatValuesCount(), property, v.getValueType());
+        return toFloatArray(v.getZonedValue().getFloatValuesList());
     }
 
     /**
      * Get long type property.
-     * @param property
-     * @return
-     * @throws IllegalArgumentException
      */
     public long getLongProperty(int property) throws IllegalArgumentException {
-        VehiclePropValue v = getProperty(property);
-        if (v == null) {
-            throw new IllegalStateException();
-        }
-        if (v.getValueType() != VehicleValueType.VEHICLE_VALUE_TYPE_INT64) {
-            throw new IllegalArgumentException();
-        }
+        VehiclePropValue v = getProperty(
+                property, NO_ZONE, VehicleValueType.VEHICLE_VALUE_TYPE_INT64);
         return v.getInt64Value();
     }
 
     /**
      * Get string type property.
-     * @param property
-     * @return
-     * @throws IllegalArgumentException
      */
     //TODO check UTF8 to java string conversion
     public String getStringProperty(int property) throws IllegalArgumentException {
-        VehiclePropValue v = getProperty(property);
-        if (v == null) {
-            throw new IllegalStateException();
-        }
-        if (v.getValueType() != VehicleValueType.VEHICLE_VALUE_TYPE_STRING) {
-            throw new IllegalArgumentException();
-        }
+        VehiclePropValue v = getProperty(
+                property, NO_ZONE, VehicleValueType.VEHICLE_VALUE_TYPE_STRING);
         return v.getStringValue();
     }
 
     /**
      * Subscribe given property with given sample rate.
-     * @param property
-     * @param sampleRate
-     * @throws IllegalArgumentException
      */
     public void subscribe(int property, float sampleRate) throws IllegalArgumentException {
         subscribe(property, sampleRate, 0);
@@ -428,9 +397,6 @@ public class VehicleNetwork {
 
     /**
      * Subscribe given property with given sample rate.
-     * @param property
-     * @param sampleRate
-     * @throws IllegalArgumentException
      */
     public void subscribe(int property, float sampleRate, int zones)
             throws IllegalArgumentException {
@@ -443,7 +409,6 @@ public class VehicleNetwork {
 
     /**
      * Stop subscribing the property.
-     * @param property
      */
     public void unsubscribe(int property) {
         try {
@@ -455,7 +420,6 @@ public class VehicleNetwork {
 
     /**
      * Inject given value to all clients subscribing the property. This is for testing.
-     * @param value
      */
     public synchronized void injectEvent(VehiclePropValue value) {
         try {
@@ -467,7 +431,6 @@ public class VehicleNetwork {
 
     /**
      * Start mocking of vehicle HAL. For testing only.
-     * @param mock
      */
     public synchronized void startMocking(VehicleNetworkHalMock mock) {
         mHalMock = mock;
@@ -498,7 +461,6 @@ public class VehicleNetwork {
 
     /**
      * Start mocking of vehicle HAL. For testing only.
-     * @param mock
      */
     public synchronized void startMocking(IVehicleNetworkHalMock mock) {
         mHalMock = null;
@@ -588,6 +550,7 @@ public class VehicleNetwork {
     }
 
     private class EventHandler extends Handler {
+
         private static final int MSG_EVENTS = 0;
         private static final int MSG_HAL_ERROR = 1;
         private static final int MSG_HAL_RESTART = 2;
@@ -602,8 +565,7 @@ public class VehicleNetwork {
         }
 
         private void notifyHalError(int errorCode, int property, int operation) {
-            Message msg = obtainMessage(MSG_HAL_ERROR, errorCode, property,
-                    Integer.valueOf(operation));
+            Message msg = obtainMessage(MSG_HAL_ERROR, errorCode, property, operation);
             sendMessage(msg);
         }
 
@@ -616,26 +578,27 @@ public class VehicleNetwork {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_EVENTS:
-                    handleVehicleNetworkEvents((VehiclePropValues)msg.obj);
+                    handleVehicleNetworkEvents((VehiclePropValues) msg.obj);
                     break;
                 case MSG_HAL_ERROR:
-                    handleHalError(msg.arg1, msg.arg2, (Integer)msg.obj);
+                    handleHalError(msg.arg1, msg.arg2, (Integer) msg.obj);
                     break;
                 case MSG_HAL_RESTART:
                     handleHalRestart(msg.arg1 == 1);
                     break;
                 default:
-                    Log.w(TAG, "unown message:" + msg.what, new RuntimeException());
+                    Log.w(TAG, "Unknown message:" + msg.what, new RuntimeException());
                     break;
             }
         }
     }
 
     private static class IVehicleNetworkListenerImpl extends IVehicleNetworkListener.Stub {
+
         private final WeakReference<VehicleNetwork> mVehicleNetwork;
 
         private IVehicleNetworkListenerImpl(VehicleNetwork vehicleNewotk) {
-            mVehicleNetwork = new WeakReference<VehicleNetwork>(vehicleNewotk);
+            mVehicleNetwork = new WeakReference<>(vehicleNewotk);
         }
 
         @Override
@@ -667,7 +630,7 @@ public class VehicleNetwork {
         private final WeakReference<VehicleNetwork> mVehicleNetwork;
 
         private IVehicleNetworkHalMockImpl(VehicleNetwork vehicleNewotk) {
-            mVehicleNetwork = new WeakReference<VehicleNetwork>(vehicleNewotk);
+            mVehicleNetwork = new WeakReference<>(vehicleNewotk);
         }
 
         @Override
@@ -715,6 +678,44 @@ public class VehicleNetwork {
                 return;
             }
             vehicleNetwork.getHalMock().onPropertyUnsubscribe(property);
+        }
+    }
+
+    private VehiclePropValue getProperty(int property, int zone, int customPropetyDataType) {
+        boolean isCustom = isCustomProperty(property);
+        int valueType = isCustom
+                ? customPropetyDataType
+                : VehicleNetworkConsts.getVehicleValueType(property);
+
+        VehiclePropValue.Builder valuePrototypeBuilder =
+                VehiclePropValueUtil.createBuilder(property, valueType, 0);
+
+        if (zone != NO_ZONE) {
+            valuePrototypeBuilder.setZonedValue(ZonedValue.newBuilder().
+                    setZoneOrWindow(zone).
+                    build());
+        }
+
+        VehiclePropValue v = getProperty(valuePrototypeBuilder.build());
+        if (v == null) {
+            // if property is invalid, IllegalArgumentException should have been thrown
+            // from getProperty.
+            throw new IllegalStateException();
+        }
+
+        if (!isCustom && v.getValueType() != valueType) {
+            throw new IllegalArgumentException("Unexpected type: " + v.getValueType()
+                    + ", expecting: " + valueType);
+        }
+        return v;
+    }
+
+    private void assertVectorLength(int actual, int property, int valueType) {
+        int expectedLen = getVectorLength(valueType);
+        if (expectedLen != actual) {
+            throw new IllegalStateException("Invalid array size for property: " + property
+                    + ". Expected: " + expectedLen
+                    + ", actual: " + actual);
         }
     }
 }

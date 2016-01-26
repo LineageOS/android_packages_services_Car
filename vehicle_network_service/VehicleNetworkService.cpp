@@ -438,6 +438,10 @@ bool VehicleNetworkService::isZonedProperty(vehicle_prop_config_t const * config
     case VEHICLE_VALUE_TYPE_ZONED_INT32:
     case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
     case VEHICLE_VALUE_TYPE_ZONED_BOOLEAN:
+    case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2:
+    case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3:
+    case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
+    case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3:
         return true;
     }
     return false;

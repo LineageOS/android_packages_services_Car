@@ -233,6 +233,7 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
                 return BAD_VALUE;
             }
             const ZonedValue& zonedValue = in.zoned_value();
+            out.value.zoned_int32_array.zone = zonedValue.zone_or_window();
             int expectedSize;
             if (out.value_type == VEHICLE_VALUE_TYPE_ZONED_BOOLEAN) {
                 expectedSize = 1;
@@ -247,7 +248,6 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
                         expectedSize, zonedValue.int32_values_size());
                 return BAD_VALUE;
             }
-            out.value.zoned_int32_array.zone = zonedValue.zone_or_window();
             for (int i = 0; i < expectedSize; i++) {
                 out.value.zoned_int32_array.values[i] = zonedValue.int32_values(i);
             }
@@ -263,6 +263,7 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
                 return BAD_VALUE;
             }
             const ZonedValue& zonedValue = in.zoned_value();
+            out.value.zoned_float_array.zone = zonedValue.zone_or_window();
             int expectedSize = out.value_type - VEHICLE_VALUE_TYPE_ZONED_FLOAT + 1;
             if (zonedValue.float_values_size() != expectedSize) {
                 if (canIgnoreNoData) {
@@ -272,7 +273,6 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
                                         expectedSize, zonedValue.float_values_size());
                 return BAD_VALUE;
             }
-            out.value.zoned_float_array.zone = zonedValue.zone_or_window();
             for (int i = 0; i < expectedSize; i++) {
                 out.value.zoned_float_array.values[i] = zonedValue.float_values(i);
             }
