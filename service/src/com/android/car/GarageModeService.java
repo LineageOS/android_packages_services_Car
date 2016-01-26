@@ -26,6 +26,7 @@ import android.os.ServiceManager;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.Calendar;
@@ -40,7 +41,8 @@ import java.util.Calendar;
  */
 public class GarageModeService implements CarServiceBase,
         CarPowerManagementService.PowerEventProcessingHandler,
-        CarPowerManagementService.PowerServiceEventListener{
+        CarPowerManagementService.PowerServiceEventListener,
+        DeviceIdleControllerWrapper.DeviceMaintenanceActivityListener {
     private static String TAG = "GarageModeService";
     private static String GARAGE_MODE_PREFERENCE_FILE = "com.android.car.PREFERENCE_FILE_KEY";
     private static String GARAGE_MODE_INDEX = "garage_mode_index";
@@ -49,19 +51,23 @@ public class GarageModeService implements CarServiceBase,
     private static final int MSG_WRITE_TO_PREF = 1;
 
     // TODO: move this to garage mode policy too.
-    private static final int MAINTENANCE_WINDOW = 5 * 60 * 1000; // 5 minutes
+    @VisibleForTesting
+    protected static final int MAINTENANCE_WINDOW = 5 * 60 * 1000; // 5 minutes
     // wait for 10 seconds to allow maintenance activities to start (e.g., connecting to wifi).
-    private static final int MAINTENANCE_ACTIVITY_START_GRACE_PERIOUD = 10 * 1000;
+    protected static final int MAINTENANCE_ACTIVITY_START_GRACE_PERIOUD = 10 * 1000;
 
     private final CarPowerManagementService mPowerManagementService;
     protected final Context mContext;
 
+    @VisibleForTesting
     @GuardedBy("this")
-    private boolean mInGarageMode;
+    protected boolean mInGarageMode;
+    @VisibleForTesting
     @GuardedBy("this")
-    private boolean mMaintenanceActive;
+    protected boolean mMaintenanceActive;
+    @VisibleForTesting
     @GuardedBy("this")
-    private int mGarageModeIndex;
+    protected int mGarageModeIndex;
 
     private final Object mPolicyLock = new Object();
     @GuardedBy("mPolicyLock")
@@ -69,11 +75,8 @@ public class GarageModeService implements CarServiceBase,
 
     private SharedPreferences mSharedPreferences;
 
-    private IDeviceIdleController mDeviceIdleController;
+    private DeviceIdleControllerWrapper mDeviceIdleController;
     private GarageModeHandler mHandler = new GarageModeHandler();
-
-    private MaintenanceActivityListener mMaintenanceActivityListener
-            = new MaintenanceActivityListener();
 
     private class GarageModeHandler extends Handler {
         @Override
@@ -91,9 +94,19 @@ public class GarageModeService implements CarServiceBase,
     }
 
     public GarageModeService(Context context, CarPowerManagementService powerManagementService) {
+        this(context, powerManagementService, null);
+    }
+
+    @VisibleForTesting
+    protected GarageModeService(Context context, CarPowerManagementService powerManagementService,
+            DeviceIdleControllerWrapper deviceIdleController) {
         mContext = context;
         mPowerManagementService = powerManagementService;
-        init();
+        if (deviceIdleController == null) {
+            mDeviceIdleController = new DefaultDeviceIdleController();
+        } else {
+            mDeviceIdleController = deviceIdleController;
+        }
     }
 
     @Override
@@ -105,18 +118,10 @@ public class GarageModeService implements CarServiceBase,
             readPolicyLocked();
         }
 
-        mDeviceIdleController = IDeviceIdleController.Stub.asInterface(
-                ServiceManager.getService(Context.DEVICE_IDLE_CONTROLLER));
         final int index = mSharedPreferences.getInt(GARAGE_MODE_INDEX, 0);
-
         synchronized (this) {
-            try {
-                mGarageModeIndex = index;
-                mMaintenanceActive = mDeviceIdleController.registerMaintenanceActivityListener(
-                        mMaintenanceActivityListener);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Unable to register listener with DeviceIdleController", e);
-            }
+            mMaintenanceActive = mDeviceIdleController.startTracking(this);
+            mGarageModeIndex = index;
         }
         mPowerManagementService.registerPowerEventProcessingHandler(this);
     }
@@ -124,11 +129,7 @@ public class GarageModeService implements CarServiceBase,
     @Override
     public void release() {
         Log.d(TAG, "release GarageModeService");
-        try {
-            mDeviceIdleController.unregisterMaintenanceActivityListener(mMaintenanceActivityListener);
-        } catch (RemoteException e) {
-            Log.w(TAG, "Fail to unregister listener with DeviceIdleController", e);
-        }
+        mDeviceIdleController.stopTracking();
     }
 
     @Override
@@ -211,14 +212,15 @@ public class GarageModeService implements CarServiceBase,
         editor.commit();
     }
 
-    private void onMaintenanceActivityChanged(boolean active) {
+    @Override
+    public void onMaintenanceActivityChanged(boolean active) {
         boolean shouldReportCompletion = false;
         synchronized (this) {
             Log.d(TAG, "onMaintenanceActivityChanged: " + active);
-            if (!mInGarageMode || mMaintenanceActive == active) {
+            mMaintenanceActive = active;
+            if (!mInGarageMode) {
                 return;
             }
-            mMaintenanceActive = active;
 
             if (!active) {
                 shouldReportCompletion = true;
@@ -231,13 +233,6 @@ public class GarageModeService implements CarServiceBase,
         if (shouldReportCompletion) {
             // we are in garage mode, and maintenance work has finished.
             mPowerManagementService.notifyPowerEventProcessingCompletion(this);
-        }
-    }
-
-    private final class MaintenanceActivityListener extends IMaintenanceActivityListener.Stub {
-        @Override
-        public void onMaintenanceActivityChanged(final boolean active) {
-            GarageModeService.this.onMaintenanceActivityChanged(active);
         }
     }
 
@@ -286,6 +281,45 @@ public class GarageModeService implements CarServiceBase,
 
             Log.w(TAG, "Integer.MAX number of wake ups... How long have we been sleeping? ");
             return 0;
+        }
+    }
+
+    private static class DefaultDeviceIdleController extends DeviceIdleControllerWrapper {
+        private IDeviceIdleController mDeviceIdleController;
+        private MaintenanceActivityListener mMaintenanceActivityListener
+                = new MaintenanceActivityListener();
+
+        @Override
+        public boolean startLocked() {
+            mDeviceIdleController = IDeviceIdleController.Stub.asInterface(
+                    ServiceManager.getService(Context.DEVICE_IDLE_CONTROLLER));
+            boolean active = false;
+            try {
+                active = mDeviceIdleController
+                        .registerMaintenanceActivityListener(mMaintenanceActivityListener);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Unable to register listener with DeviceIdleController", e);
+            }
+            return active;
+        }
+
+        @Override
+        public void stopTracking() {
+            try {
+                if (mDeviceIdleController != null) {
+                    mDeviceIdleController.unregisterMaintenanceActivityListener(
+                            mMaintenanceActivityListener);
+                }
+            } catch (RemoteException e) {
+                Log.e(TAG, "Fail to unregister listener.", e);
+            }
+        }
+
+        private final class MaintenanceActivityListener extends IMaintenanceActivityListener.Stub {
+            @Override
+            public void onMaintenanceActivityChanged(final boolean active) {
+                DefaultDeviceIdleController.this.setMaintenanceActivity(active);
+            }
         }
     }
 }

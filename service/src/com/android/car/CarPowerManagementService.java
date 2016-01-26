@@ -32,6 +32,7 @@ import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.hal.VehicleHal;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.Timer;
@@ -126,6 +127,21 @@ public class CarPowerManagementService implements CarServiceBase,
         mFullWakeLock = mPowerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, CarLog.TAG_POWER);
         mPartialWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 CarLog.TAG_POWER);
+    }
+
+    /**
+     * Create a dummy instance for testing purpose only.
+     */
+    @VisibleForTesting
+    protected CarPowerManagementService() {
+        mContext = null;
+        mHal = null;
+        mPowerManager = null;
+        mDisplayManager = null;
+        mHandlerThread = null;
+        mHandler = null;
+        mFullWakeLock = null;
+        mPartialWakeLock = null;
     }
 
     @Override
@@ -240,7 +256,8 @@ public class CarPowerManagementService implements CarServiceBase,
         }
     }
 
-    private void notifyPowerOn(boolean displayOn) {
+    @VisibleForTesting
+    protected void notifyPowerOn(boolean displayOn) {
         for (PowerEventProcessingHandler handler : mPowerEventProcessingHandlers) {
             handler.onPowerOn(displayOn);
         }
@@ -298,6 +315,18 @@ public class CarPowerManagementService implements CarServiceBase,
         } else {
             mHandler.handleProcessingComplete(shuttingDown);
         }
+    }
+
+    @VisibleForTesting
+    protected long notifyPrepareShutdown(boolean shuttingDown) {
+        long processingTimeMs = 0;
+        for (PowerEventProcessingHandler handler : mPowerEventProcessingHandlers) {
+            long handlerProcessingTime = handler.onPrepareShutdown(shuttingDown);
+            if (handlerProcessingTime > processingTimeMs) {
+                processingTimeMs = handlerProcessingTime;
+            }
+        }
+        return processingTimeMs;
     }
 
     private void doHandleDeepSleep() {
