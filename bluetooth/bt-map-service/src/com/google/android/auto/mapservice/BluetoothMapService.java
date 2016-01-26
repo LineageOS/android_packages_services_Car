@@ -206,9 +206,6 @@ public class BluetoothMapService extends Service {
 
                     if ((sdpRecord.getSupportedMessageTypes() & SMS_SUPPORT) != 0) {
                         service.connectToSdpRecord(sdpRecord);
-                    } else {
-                        Log.e(TAG, "Device does not support SMS. " + sdpRecord);
-                        service.disconnectInternal(true);
                     }
                     break;
 
