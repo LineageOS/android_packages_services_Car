@@ -270,6 +270,9 @@ public class VehicleNetwork {
      */
     public VehiclePropValue getProperty(int property) throws IllegalArgumentException {
         int valueType = VehicleNetworkConsts.getVehicleValueType(property);
+        if (valueType == 0) {
+            throw new IllegalArgumentException("Data type is unknown for property: " + property);
+        }
         VehiclePropValue value = VehiclePropValueUtil.createBuilder(property, valueType, 0).build();
         return getProperty(value);
     }

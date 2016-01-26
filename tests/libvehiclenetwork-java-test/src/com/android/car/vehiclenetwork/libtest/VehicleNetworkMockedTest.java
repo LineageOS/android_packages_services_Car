@@ -336,6 +336,15 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
         mVehicleNetwork.unsubscribe(PROPERTY);
     }
 
+    public void testGetPropertyFailsForCustom() {
+        try {
+            mVehicleNetwork.getProperty(CUSTOM_PROPERTY_INT32);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            // Expected.
+        }
+    }
+
     private void assertArrayEquals(int[] expected, int[] actual) {
         assertEquals(Arrays.toString(expected), Arrays.toString(actual));
     }
