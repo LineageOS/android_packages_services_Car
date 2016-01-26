@@ -82,6 +82,30 @@ public abstract class CarDrawerActivity extends CarFragmentActivity {
         return super.findViewById(mUiController.getFragmentContainerId()).findViewById(id);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mUiController.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mUiController.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mUiController.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mUiController.onStop();
+    }
+
     public int getFragmentContainerId() {
         return mUiController.getFragmentContainerId();
     }
