@@ -84,6 +84,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.REBOOT" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_ROUTING" />
+    <uses-permission android:name="android.permission.MODIFY_DAY_NIGHT_MODE" />
 
     <application android:label="Car service"
             android:allowBackup="false"

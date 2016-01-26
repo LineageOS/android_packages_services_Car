@@ -49,6 +49,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarAudioService mCarAudioService;
     private final CarHvacService mCarHvacService;
     private final CarRadioService mCarRadioService;
+    private final CarNightService mCarNightService;
     private final AppContextService mAppContextService;
     private final CarPackageManagerService mCarPackageManagerService;
     private final GarageModeService mGarageModeService;
@@ -89,6 +90,7 @@ public class ICarImpl extends ICar.Stub {
         mCarAudioService = new CarAudioService(serviceContext, mAppContextService);
         mCarHvacService = new CarHvacService(serviceContext);
         mCarRadioService = new CarRadioService(serviceContext);
+        mCarNightService = new CarNightService(serviceContext);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext);
 
         // Be careful with order. Service depending on other service should be inited later.
@@ -102,6 +104,7 @@ public class ICarImpl extends ICar.Stub {
                 mCarAudioService,
                 mCarHvacService,
                 mCarRadioService,
+                mCarNightService,
                 };
     }
 
