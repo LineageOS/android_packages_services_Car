@@ -15,11 +15,11 @@
 #
 
 #skip build in PDK
-#ifneq ($(TARGET_BUILD_PDK),true)
+ifneq ($(TARGET_BUILD_PDK),true)
 
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 # Include the sub-makefiles
 include $(call all-makefiles-under,$(LOCAL_PATH))
 
-#endif # TARGET_BUILD_PDK
+endif # TARGET_BUILD_PDK
