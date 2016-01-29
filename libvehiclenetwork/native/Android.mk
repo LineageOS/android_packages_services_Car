@@ -26,8 +26,6 @@ LOCAL_C_INCLUDES += \
     packages/services/Car/libvehiclenetwork/include
 
 LOCAL_SHARED_LIBRARIES := \
-    libandroidfw \
-    libandroid_runtime \
     liblog \
     libutils \
     libhardware \

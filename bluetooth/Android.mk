@@ -14,7 +14,13 @@
 #
 #
 
+#disble build in PDK, should add various BT java libraries to platform.zip
+#to make this work
+ifneq ($(TARGET_BUILD_PDK),true)
+
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 # Include the sub-makefiles
 include $(call all-makefiles-under,$(LOCAL_PATH))
+
+endif #TARGET_BUILD_PDK

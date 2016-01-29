@@ -14,6 +14,9 @@
 #
 #
 
+#disble build in PDK, should add prebuilts/fullsdk to make this work
+ifneq ($(TARGET_BUILD_PDK),true)
+
 # Build the Car service.
 
 LOCAL_PATH:= $(call my-dir)
@@ -50,3 +53,5 @@ LOCAL_STATIC_JAVA_LIBRARIES += libvehiclenetwork-java car-systemtest
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 include $(call all-makefiles-under,$(LOCAL_PATH))
+
+endif #TARGET_BUILD_PDK

@@ -14,6 +14,9 @@
 #
 #
 
+#disble build in PDK, should add prebuilts/fullsdk to make this work
+ifneq ($(TARGET_BUILD_PDK),true)
+
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
@@ -30,3 +33,5 @@ LOCAL_SDK_VERSION := current
 include packages/services/Car/car-libs/car.mk
 
 include $(BUILD_PACKAGE)
+
+endif #TARGET_BUILD_PDK
