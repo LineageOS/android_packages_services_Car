@@ -26,15 +26,19 @@ import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZone;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
+import com.android.car.vehiclenetwork.VehicleNetworkProto.ZonedValue;
 import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
 import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -45,6 +49,20 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
 
     private static final int CUSTOM_PROPERTY_INT32 =
             VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START;
+    private static final int CUSTOM_PROPERTY_ZONED_INT32 =
+            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 1;
+    private static final int CUSTOM_PROPERTY_ZONED_INT32_VEC2 =
+            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 2;
+    private static final int CUSTOM_PROPERTY_ZONED_INT32_VEC3 =
+            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 3;
+    private static final int CUSTOM_PROPERTY_ZONED_FLOAT_VEC2 =
+            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 4;
+    private static final int CUSTOM_PROPERTY_ZONED_FLOAT_VEC3 =
+            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 5;
+    private static final int CUSTOM_PROPERTY_FLOAT_VEC2 =
+            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 6;
+    private static final int CUSTOM_PROPERTY_INT32_VEC2 =
+            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 7;
 
     private final HandlerThread mHandlerThread = new HandlerThread(
             VehicleNetworkTest.class.getSimpleName());
@@ -66,6 +84,70 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
                         VehicleValueType.VEHICLE_VALUE_TYPE_INT32, 0x0),
                 new DefaultVehiclePropertyHandler(VehiclePropValueUtil.createIntValue(
                         CUSTOM_PROPERTY_INT32, 0, 0)));
+        mVehicleHalMock.registerProperty(
+                VehiclePropConfigUtil.createProperty(
+                        CUSTOM_PROPERTY_ZONED_INT32,
+                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
+                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
+                        VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32, 0x0),
+                new DefaultVehiclePropertyHandler(VehiclePropValueUtil.createZonedIntValue(
+                        CUSTOM_PROPERTY_ZONED_INT32, VehicleZone.VEHICLE_ZONE_ROW_2_LEFT, 0, 0)));
+        mVehicleHalMock.registerProperty(
+                VehiclePropConfigUtil.createProperty(
+                        CUSTOM_PROPERTY_ZONED_INT32_VEC2,
+                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
+                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
+                        VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2, 0x0),
+                new DefaultVehiclePropertyHandler(VehiclePropValueUtil.createZonedIntVectorValue(
+                        CUSTOM_PROPERTY_ZONED_INT32_VEC2,
+                        VehicleZone.VEHICLE_ZONE_ROW_1_LEFT,
+                        new int[2], 0)));
+        mVehicleHalMock.registerProperty(
+                VehiclePropConfigUtil.createProperty(
+                        CUSTOM_PROPERTY_INT32_VEC2,
+                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
+                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
+                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2, 0x0),
+                new DefaultVehiclePropertyHandler(VehiclePropValueUtil.createIntVectorValue(
+                        CUSTOM_PROPERTY_INT32_VEC2, new int[2], 0)));
+        mVehicleHalMock.registerProperty(
+                VehiclePropConfigUtil.createProperty(
+                        CUSTOM_PROPERTY_ZONED_INT32_VEC3,
+                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
+                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
+                        VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3, 0x0),
+                new DefaultVehiclePropertyHandler(VehiclePropValueUtil.createZonedIntVectorValue(
+                        CUSTOM_PROPERTY_ZONED_INT32_VEC3,
+                        VehicleZone.VEHICLE_ZONE_ROW_1_LEFT,
+                        new int[3], 0)));
+        mVehicleHalMock.registerProperty(
+                VehiclePropConfigUtil.createProperty(
+                        CUSTOM_PROPERTY_ZONED_FLOAT_VEC2,
+                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
+                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
+                        VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2, 0x0),
+                new DefaultVehiclePropertyHandler(VehiclePropValueUtil.createZonedFloatVectorValue(
+                        CUSTOM_PROPERTY_ZONED_FLOAT_VEC2,
+                        VehicleZone.VEHICLE_ZONE_ROW_1_LEFT,
+                        new float[2], 0)));
+        mVehicleHalMock.registerProperty(
+                VehiclePropConfigUtil.createProperty(
+                        CUSTOM_PROPERTY_FLOAT_VEC2,
+                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
+                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
+                        VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC2, 0x0),
+                new DefaultVehiclePropertyHandler(VehiclePropValueUtil.createFloatVectorValue(
+                        CUSTOM_PROPERTY_FLOAT_VEC2, new float[2], 0)));
+        mVehicleHalMock.registerProperty(
+                VehiclePropConfigUtil.createProperty(
+                        CUSTOM_PROPERTY_ZONED_FLOAT_VEC3,
+                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
+                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
+                        VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3, 0x0),
+                new DefaultVehiclePropertyHandler(VehiclePropValueUtil.createZonedFloatVectorValue(
+                        CUSTOM_PROPERTY_ZONED_FLOAT_VEC3,
+                        VehicleZone.VEHICLE_ZONE_ROW_1_LEFT,
+                        new float[3], 0)));
     }
 
     @Override
@@ -82,6 +164,137 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
         mVehicleNetwork.stopMocking();
         assertTrue(mListener.waitForHalRestartAndAssert(TIMEOUT_MS, false /*expectedInMocking*/));
         mVehicleNetwork.stopHalRestartMonitoring();
+    }
+
+    public void testCustomZonedIntProperties() {
+        final int INT_VALUE = 10;
+        final int INT_VALUE2 = 20;
+
+        mVehicleNetwork.startMocking(mVehicleHalMock);
+
+        mVehicleNetwork.setIntProperty(CUSTOM_PROPERTY_INT32, INT_VALUE);
+        assertEquals(INT_VALUE, mVehicleNetwork.getIntProperty(CUSTOM_PROPERTY_INT32));
+
+        mVehicleNetwork.setZonedIntProperty(CUSTOM_PROPERTY_ZONED_INT32,
+                VehicleZone.VEHICLE_ZONE_ROW_2_LEFT, INT_VALUE);
+        mVehicleNetwork.setZonedIntProperty(CUSTOM_PROPERTY_ZONED_INT32,
+                VehicleZone.VEHICLE_ZONE_ROW_2_RIGHT, INT_VALUE2);
+
+        assertEquals(INT_VALUE,
+                mVehicleNetwork.getZonedIntProperty(CUSTOM_PROPERTY_ZONED_INT32,
+                        VehicleZone.VEHICLE_ZONE_ROW_2_LEFT));
+        assertEquals(INT_VALUE2,
+                mVehicleNetwork.getZonedIntProperty(CUSTOM_PROPERTY_ZONED_INT32,
+                        VehicleZone.VEHICLE_ZONE_ROW_2_RIGHT));
+        assertEquals(INT_VALUE,
+                mVehicleNetwork.getZonedIntProperty(CUSTOM_PROPERTY_ZONED_INT32,
+                        VehicleZone.VEHICLE_ZONE_ROW_2_LEFT));
+    }
+
+    public void testCustomZonedIntVecProperties() {
+        final int[] ZONED_INT_VALUE_LEFT = new int[] {30, 40};
+        final int[] ZONED_INT_VALUE_RIGHT = new int[] {50, 60};
+        final int[] ZONED_INT_VALUE_VEC3 = new int[] {30, 40, 50};
+
+        mVehicleNetwork.startMocking(mVehicleHalMock);
+
+        int[] actualValue = mVehicleNetwork.getZonedIntVectorProperty(
+                CUSTOM_PROPERTY_ZONED_INT32_VEC2,
+                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT);
+        // Verify the default values before calling setProperty.
+        assertArrayEquals(new int[2], actualValue);
+        mVehicleNetwork.setZonedIntVectorProperty(CUSTOM_PROPERTY_ZONED_INT32_VEC2,
+                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT,
+                ZONED_INT_VALUE_LEFT);
+        actualValue = mVehicleNetwork.getZonedIntVectorProperty(
+                CUSTOM_PROPERTY_ZONED_INT32_VEC2,
+                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT);
+        assertArrayEquals(ZONED_INT_VALUE_LEFT, actualValue);
+
+        // Verify different zone for the same property
+        mVehicleNetwork.setZonedIntVectorProperty(CUSTOM_PROPERTY_ZONED_INT32_VEC2,
+                VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT,
+                ZONED_INT_VALUE_RIGHT);
+        actualValue = mVehicleNetwork.getZonedIntVectorProperty(
+                CUSTOM_PROPERTY_ZONED_INT32_VEC2,
+                VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT);
+        assertArrayEquals(ZONED_INT_VALUE_RIGHT, actualValue);
+
+        mVehicleNetwork.setZonedIntVectorProperty(CUSTOM_PROPERTY_ZONED_INT32_VEC3,
+                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT,
+                ZONED_INT_VALUE_VEC3);
+        actualValue = mVehicleNetwork.getZonedIntVectorProperty(
+                CUSTOM_PROPERTY_ZONED_INT32_VEC3,
+                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT);
+        assertArrayEquals(ZONED_INT_VALUE_VEC3, actualValue);
+    }
+
+    public void testCustomZonedFloatVecProperties() {
+        final float[] ZONED_FLOAT_VALUE_LEFT = new float[] {30.1f, 40.3f};
+        final float[] ZONED_FLOAT_VALUE_RIGHT = new float[] {50.5f, 60};
+        final float[] ZONED_FLOAT_VALUE_VEC3 = new float[] {30, 40.3f, 50};
+
+        mVehicleNetwork.startMocking(mVehicleHalMock);
+
+        float[] actualValue = mVehicleNetwork.getZonedFloatVectorProperty(
+                CUSTOM_PROPERTY_ZONED_FLOAT_VEC2,
+                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT);
+        // Verify the default values before calling setProperty.
+        assertArrayEquals(new float[2], actualValue);
+        mVehicleNetwork.setZonedFloatVectorProperty(CUSTOM_PROPERTY_ZONED_FLOAT_VEC2,
+                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT,
+                ZONED_FLOAT_VALUE_LEFT);
+        actualValue = mVehicleNetwork.getZonedFloatVectorProperty(
+                CUSTOM_PROPERTY_ZONED_FLOAT_VEC2,
+                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT);
+        assertArrayEquals(ZONED_FLOAT_VALUE_LEFT, actualValue);
+
+        // Verify different zone for the same property
+        mVehicleNetwork.setZonedFloatVectorProperty(CUSTOM_PROPERTY_ZONED_FLOAT_VEC2,
+                VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT,
+                ZONED_FLOAT_VALUE_RIGHT);
+        actualValue = mVehicleNetwork.getZonedFloatVectorProperty(
+                CUSTOM_PROPERTY_ZONED_FLOAT_VEC2,
+                VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT);
+        assertArrayEquals(ZONED_FLOAT_VALUE_RIGHT, actualValue);
+
+        mVehicleNetwork.setZonedFloatVectorProperty(CUSTOM_PROPERTY_ZONED_FLOAT_VEC3,
+                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT,
+                ZONED_FLOAT_VALUE_VEC3);
+        actualValue = mVehicleNetwork.getZonedFloatVectorProperty(
+                CUSTOM_PROPERTY_ZONED_FLOAT_VEC3,
+                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT);
+        assertArrayEquals(ZONED_FLOAT_VALUE_VEC3, actualValue);
+    }
+
+    public void testCustomFloatVecProperties() {
+        final float[] FLOAT_VALUE = new float[] {30.1f, 40.3f};
+
+        mVehicleNetwork.startMocking(mVehicleHalMock);
+
+        float[] actualValue = mVehicleNetwork.getFloatVectorProperty(
+                CUSTOM_PROPERTY_FLOAT_VEC2);
+        // Verify the default values before calling setProperty.
+        assertArrayEquals(new float[2], actualValue);
+        mVehicleNetwork.setFloatVectorProperty(CUSTOM_PROPERTY_FLOAT_VEC2, FLOAT_VALUE);
+        actualValue = mVehicleNetwork.getFloatVectorProperty(
+                CUSTOM_PROPERTY_FLOAT_VEC2);
+        assertArrayEquals(FLOAT_VALUE, actualValue);
+    }
+
+    public void testCustomIntVecProperties() {
+        final int[] INT32_VALUE = new int[] {30, 40};
+
+        mVehicleNetwork.startMocking(mVehicleHalMock);
+
+        int[] actualValue = mVehicleNetwork.getIntVectorProperty(
+                CUSTOM_PROPERTY_INT32_VEC2);
+        // Verify the default values before calling setProperty.
+        assertArrayEquals(new int[2], actualValue);
+        mVehicleNetwork.setIntVectorProperty(CUSTOM_PROPERTY_INT32_VEC2, INT32_VALUE);
+        actualValue = mVehicleNetwork.getIntVectorProperty(
+                CUSTOM_PROPERTY_INT32_VEC2);
+        assertArrayEquals(INT32_VALUE, actualValue);
     }
 
     public void testGlobalErrorListening() throws Exception {
@@ -110,18 +323,42 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
         mVehicleNetwork.stopMocking();
     }
 
+    public void testSubscribe() throws Exception {
+        final int PROPERTY = CUSTOM_PROPERTY_ZONED_INT32_VEC3;
+        final int ZONE = VehicleZone.VEHICLE_ZONE_ROW_1_LEFT;
+        final int[] VALUES = new int[] {10, 20, 30};
+        mVehicleNetwork.startMocking(mVehicleHalMock);
+        mVehicleNetwork.subscribe(PROPERTY, ZONE);
+        VehiclePropValue value = VehiclePropValueUtil.createZonedIntVectorValue(
+                PROPERTY, ZONE, VALUES, 0);
+        mVehicleNetwork.injectEvent(value);
+        assertTrue(mListener.waitForEvent(TIMEOUT_MS, value));
+        mVehicleNetwork.unsubscribe(PROPERTY);
+    }
+
+    private void assertArrayEquals(int[] expected, int[] actual) {
+        assertEquals(Arrays.toString(expected), Arrays.toString(actual));
+    }
+
+    private void assertArrayEquals(float[] expected, float[] actual) {
+        assertEquals(Arrays.toString(expected), Arrays.toString(actual));
+    }
+
     private class EventListener implements VehicleNetworkListener {
         boolean mInMocking;
-        private final Semaphore mRestartWait = new Semaphore(0);
-
         int mErrorCode;
         int mErrorProperty;
         int mErrorOperation;
+        VehiclePropValues mValuesReceived;
+
+        private final Semaphore mRestartWait = new Semaphore(0);
         private final Semaphore mErrorWait = new Semaphore(0);
+        private final Semaphore mEventWait = new Semaphore(0);
 
         @Override
         public void onVehicleNetworkEvents(VehiclePropValues values) {
-            // TODO Auto-generated method stub
+            mValuesReceived = values;
+            mEventWait.release();
         }
 
         @Override
@@ -155,6 +392,18 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
                 return false;
             }
             assertEquals(expectedInMocking, mInMocking);
+            return true;
+        }
+
+        public boolean waitForEvent(long timeoutMs, VehiclePropValue expected)
+                throws InterruptedException {
+            if (!mEventWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
+                Log.w(TAG, "Timed out waiting for event.");
+                return false;
+            }
+            assertEquals(1, mValuesReceived.getValuesCount());
+            assertEquals(VehiclePropValueUtil.toString(expected),
+                    VehiclePropValueUtil.toString(mValuesReceived.getValues(0)));
             return true;
         }
     }
@@ -202,7 +451,8 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
             if (handler == null) {
                 fail("onPropertyGet for unknown property " + Integer.toHexString(property));
             }
-            return handler.onPropertyGet(value);
+            VehiclePropValue propValue = handler.onPropertyGet(value);
+            return propValue;
         }
 
         @Override
@@ -229,20 +479,25 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
     }
 
     private class DefaultVehiclePropertyHandler implements VehiclePropertyHandler {
-        private VehiclePropValue mValue;
+        private Map<Integer, VehiclePropValue> mZoneValueMap = new HashMap<>();
 
         DefaultVehiclePropertyHandler(VehiclePropValue initialValue) {
-            mValue = initialValue;
+            setValue(initialValue);
         }
 
         @Override
         public void onPropertySet(VehiclePropValue value) {
-            // TODO Auto-generated method stub
+            setValue(value);
         }
 
         @Override
         public synchronized VehiclePropValue onPropertyGet(VehiclePropValue property) {
-            return mValue;
+            int zone = getZoneOrDefault(property.getZonedValue());
+            VehiclePropValue value = mZoneValueMap.get(zone);
+            if (value == null) {
+                Log.w(TAG, "Property not found: " + property.getProp() + ", zone: " + zone);
+            }
+            return value;
         }
 
         @Override
@@ -253,6 +508,15 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
         @Override
         public void onPropertyUnsubscribe(int property) {
             // TODO Auto-generated method stub
+        }
+
+        private void setValue(VehiclePropValue value) {
+            mZoneValueMap.put(getZoneOrDefault(value.getZonedValue()), VehiclePropValue.newBuilder(value).build());
+        }
+
+        private int getZoneOrDefault(ZonedValue value) {
+            return value != null ? value.getZoneOrWindow() : 0;
+
         }
     }
 }

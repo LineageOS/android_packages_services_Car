@@ -21,6 +21,9 @@ import android.os.Parcelable;
 import android.support.car.annotation.VersionDef;
 import android.support.car.os.ExtendableParcelable;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * CarHvacProperty object corresponds to a property of the car's HVAC system
  * @hide
@@ -39,13 +42,13 @@ public class CarHvacProperty extends ExtendableParcelable {
     @VersionDef(version = 1)
     private final float mFloatMin;
     @VersionDef(version = 1)
-    private float       mFloatValue;
+    private float[]     mFloatValues;
     @VersionDef(version = 1)
     private final int   mIntMax;
     @VersionDef(version = 1)
     private final int   mIntMin;
     @VersionDef(version = 1)
-    private int         mIntValue;
+    private int[]       mIntValues;
 
     public int describeContents() {
         return 0;
@@ -58,10 +61,10 @@ public class CarHvacProperty extends ExtendableParcelable {
         out.writeInt(mZone);
         out.writeFloat(mFloatMax);
         out.writeFloat(mFloatMin);
-        out.writeFloat(mFloatValue);
+        out.writeFloatArray(mFloatValues);
         out.writeInt(mIntMax);
         out.writeInt(mIntMin);
-        out.writeInt(mIntValue);
+        out.writeIntArray(mIntValues);
         completeWriting(out, startingPosition);
     }
 
@@ -80,154 +83,174 @@ public class CarHvacProperty extends ExtendableParcelable {
         super(in, VERSION);
         int lastPosition = readHeader(in);
         mPropertyId = in.readInt();
-        mType       = in.readInt();
-        mZone       = in.readInt();
-        mFloatMax   = in.readFloat();
-        mFloatMin   = in.readFloat();
-        mFloatValue = in.readFloat();
-        mIntMax     = in.readInt();
-        mIntMin     = in.readInt();
-        mIntValue   = in.readInt();
+        mType = in.readInt();
+        mZone = in.readInt();
+        mFloatMax = in.readFloat();
+        mFloatMin = in.readFloat();
+        mFloatValues = in.createFloatArray();
+        mIntMax = in.readInt();
+        mIntMin = in.readInt();
+        mIntValues = in.createIntArray();
         completeReading(in, lastPosition);
     }
 
     /**
      * Copy constructor
-     * @param that
      */
     public CarHvacProperty(CarHvacProperty that) {
         super(VERSION);
         mPropertyId = that.getPropertyId();
-        mType       = that.getType();
-        mZone       = that.getZone();
-        mFloatMax   = that.getFloatMax();
-        mFloatMin   = that.getFloatMin();
-        mFloatValue = that.getFloatValue();
-        mIntMax     = that.getIntMax();
-        mIntMin     = that.getIntMin();
-        mIntValue   = that.getIntValue();
+        mType = that.getType();
+        mZone = that.getZone();
+        mFloatMax = that.getFloatMax();
+        mFloatMin = that.getFloatMin();
+        mFloatValues = that.getFloatValues();
+        mIntMax = that.getIntMax();
+        mIntMin = that.getIntMin();
+        mIntValues =  that.getIntValues();
     }
     /**
      * Constructor for a boolean property
-     *
-     * @param propertyId
-     * @param zone
-     * @param value
      */
     public CarHvacProperty(int propertyId, int zone, boolean value) {
         super(VERSION);
         mPropertyId = propertyId;
-        mType       = CarHvacManager.PROPERTY_TYPE_BOOLEAN;
-        mZone       = zone;
-        mFloatMax   = 0;
-        mFloatMin   = 0;
-        mFloatValue = 0;
-        mIntMax     = 1;
-        mIntMin     = 0;
-        if (value == true) {
-            mIntValue = 1;
-        } else {
-            mIntValue = 0;
-        }
+        mType = CarHvacManager.PROPERTY_TYPE_BOOLEAN;
+        mZone = zone;
+        mIntMax = 1;
+        mIntMin = 0;
+        mIntValues = new int[] { value ? 1 : 0 };
+        mFloatMax = 0;
+        mFloatMin = 0;
     }
 
 
     /**
      * Constructor for a float property
-     * @param propertyId
-     * @param zone
-     * @param min
-     * @param max
-     * @param value
      */
     public CarHvacProperty(int propertyId, int zone, float min, float max, float value) {
         super(VERSION);
         mPropertyId = propertyId;
-        mType       = CarHvacManager.PROPERTY_TYPE_FLOAT;
-        mZone       = zone;
-        mFloatMax   = min;
-        mFloatMin   = max;
-        mFloatValue = value;
-        mIntMax     = 0;
-        mIntMin     = 0;
-        mIntValue   = 0;
+        mType = CarHvacManager.PROPERTY_TYPE_FLOAT;
+        mZone = zone;
+        mFloatMax = min;
+        mFloatMin = max;
+        mFloatValues = new float[] {value};
+        mIntValues = null;
+        mIntMax = 0;
+        mIntMin = 0;
     }
 
     /**
      * Constructor for an integer property
-     * @param propertyId
-     * @param zone
-     * @param min
-     * @param max
-     * @param value
      */
     public CarHvacProperty(int propertyId, int zone, int min, int max, int value) {
         super(VERSION);
         mPropertyId = propertyId;
-        mType       = CarHvacManager.PROPERTY_TYPE_INT;
-        mZone       = zone;
-        mFloatMax   = 0;
-        mFloatMin   = 0;
-        mFloatValue = 0;
-        mIntMax     = min;
-        mIntMin     = max;
-        mIntValue   = value;
+        mType = CarHvacManager.PROPERTY_TYPE_INT;
+        mZone = zone;
+        mIntMax = min;
+        mIntMin = max;
+        mIntValues = new int[] { value };
+        mFloatMax = 0;
+        mFloatMin = 0;
+    }
+
+    /**
+     * Constructor for an integer vector property
+     */
+    public CarHvacProperty(int propertyId, int zone, int min, int max, int[] values) {
+        super(VERSION);
+        mPropertyId = propertyId;
+        mType = CarHvacManager.PROPERTY_TYPE_INT_VECTOR;
+        mZone = zone;
+        mIntMax = min;
+        mIntMin = max;
+        mIntValues = Arrays.copyOf(values, values.length);
+        mFloatMax = 0;
+        mFloatMin = 0;
+    }
+
+    /**
+     * Constructor for a float vector property
+     */
+    public CarHvacProperty(int propertyId, int zone, float min, float max, float[] values) {
+        super(VERSION);
+        mPropertyId = propertyId;
+        mType = CarHvacManager.PROPERTY_TYPE_FLOAT_VECTOR;
+        mZone = zone;
+        mFloatMax = min;
+        mFloatMin = max;
+        mFloatValues = Arrays.copyOf(values, values.length);
+        mIntMax = 0;
+        mIntMin = 0;
     }
 
     // Getters.
-    public int   getPropertyId() { return mPropertyId; }
-    public int   getType()       { return mType; }
-    public int   getZone()       { return mZone; }
-    public float getFloatMax()   { return mFloatMax; }
-    public float getFloatMin()   { return mFloatMin; }
-    public float getFloatValue() { return mFloatValue; }
-    public int   getIntMax()     { return mIntMax; }
-    public int   getIntMin()     { return mIntMin; }
-    public int   getIntValue()   { return mIntValue; }
+    public int   getPropertyId()     { return mPropertyId; }
+    public int   getType()           { return mType; }
+    public int   getZone()           { return mZone; }
+    public boolean getBooleanValue() { return mIntValues[0] == 1; }
+    public float getFloatMax()       { return mFloatMax; }
+    public float getFloatMin()       { return mFloatMin; }
+    public float getFloatValue()     { return mFloatValues[0]; }
+    public float[] getFloatValues()  { return mFloatValues; }
+    public int   getIntMax()         { return mIntMax; }
+    public int   getIntMin()         { return mIntMin; }
+    public int   getIntValue()       { return mIntValues[0]; }
+    public int[] getIntValues()      { return mIntValues; }
 
     // Setters.
     public void setBooleanValue(boolean value) {
-        if (mType != CarHvacManager.PROPERTY_TYPE_BOOLEAN) {
-            throw new IllegalArgumentException();
-        }
-        if (value == true) {
-            mIntValue = 1;
-        } else {
-            mIntValue = 0;
-        }
+        assertType(CarHvacManager.PROPERTY_TYPE_BOOLEAN);
+        mIntValues[0] = value ? 1 : 0;
     }
     public void setFloatValue(float value) {
-        if (mType != CarHvacManager.PROPERTY_TYPE_FLOAT) {
-            throw new IllegalArgumentException();
-        }
-        mFloatValue = value;
+        assertType(CarHvacManager.PROPERTY_TYPE_FLOAT);
+        mFloatValues[0] = value;
     }
-    public void setIntegerValue(int value) {
-        if (mType != CarHvacManager.PROPERTY_TYPE_INT) {
-            throw new IllegalArgumentException();
-        }
-        mIntValue = value;
+    public void setIntValue(int value) {
+        assertType(CarHvacManager.PROPERTY_TYPE_INT);
+        mIntValues[0] = value;
+    }
+    public void setIntValues(int[] values) {
+        assertType(CarHvacManager.PROPERTY_TYPE_INT_VECTOR);
+        mIntValues = Arrays.copyOf(values, values.length);
+    }
+    public void setFloatValues(float[] values) {
+        assertType(CarHvacManager.PROPERTY_TYPE_INT_VECTOR);
+        mFloatValues = Arrays.copyOf(values, values.length);
     }
     public void setZone(int zone)   { mZone  = zone; }
 
-    // Printer.
+    @Override
     public String toString() {
         String myString = "mPropertyId: "  + mPropertyId + "\n" +
                           "mType:       "  + mType       + "\n" +
                           "mZone:       "  + mZone       + "\n";
         switch (mType) {
             case CarHvacManager.PROPERTY_TYPE_BOOLEAN:
-                myString += "mIntValue:   "  + mIntValue   + "\n";
+                myString += "mIntValue:   "  + mIntValues[0] + "\n";
                 break;
             case CarHvacManager.PROPERTY_TYPE_FLOAT:
                 myString += "mFloatMax:   "  + mFloatMax   + "\n" +
                             "mFloatMin:   "  + mFloatMin   + "\n" +
-                            "mFloatValue: "  + mFloatValue + "\n";
+                            "mFloatValue: "  + mFloatValues[0] + "\n";
                 break;
             case CarHvacManager.PROPERTY_TYPE_INT:
                 myString += "mIntMax:     "  + mIntMax     + "\n" +
                             "mIntMin:     "  + mIntMin     + "\n" +
-                            "mIntValue:   "  + mIntValue   + "\n";
+                            "mIntValue:   "  + mIntValues[0] + "\n";
+                break;
+            case CarHvacManager.PROPERTY_TYPE_INT_VECTOR:
+                myString += "mIntMax:     "  + mIntMax     + "\n" +
+                            "mIntMin:     "  + mIntMin     + "\n" +
+                            "mIntValues:  "  + Arrays.toString(mIntValues) + "\n";
+                break;
+            case CarHvacManager.PROPERTY_TYPE_FLOAT_VECTOR:
+                myString += "mFloatMax:     "  + mFloatMax     + "\n" +
+                            "mFloatMin:     "  + mFloatMin     + "\n" +
+                            "mFloatValues:  "  + Arrays.toString(mFloatValues) + "\n";
                 break;
             default:
                 throw new IllegalArgumentException();
@@ -236,30 +259,44 @@ public class CarHvacProperty extends ExtendableParcelable {
         return myString;
     }
 
-    // Comparator.
+    @Override
     public boolean equals(Object o) {
-        if (o instanceof CarHvacProperty) {
-            CarHvacProperty that = (CarHvacProperty) o;
-
-            if (that.getPropertyId() == mPropertyId &&
-                    that.getType() == mType &&
-                    that.getZone() == mZone) {
-                switch (mZone) {
-                    case CarHvacManager.PROPERTY_TYPE_BOOLEAN:
-                        return that.getIntValue() == mIntValue;
-                    case CarHvacManager.PROPERTY_TYPE_FLOAT:
-                        return that.getFloatMax()   == mFloatMax &&
-                               that.getFloatMin()   == mFloatMin &&
-                               that.getFloatValue() == mFloatValue;
-                    case CarHvacManager.PROPERTY_TYPE_INT:
-                        return that.getIntMax()   == mIntMax &&
-                               that.getIntMin()   == mIntMin &&
-                               that.getIntValue() == mIntValue;
-                    default:
-                        throw new IllegalArgumentException();
-                }
-            }
+        if (this == o) {
+            return true;
         }
-        return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CarHvacProperty that = (CarHvacProperty) o;
+        return mPropertyId == that.mPropertyId &&
+                mType == that.mType &&
+                mZone == that.mZone &&
+                Float.compare(that.mFloatMax, mFloatMax) == 0 &&
+                Float.compare(that.mFloatMin, mFloatMin) == 0 &&
+                mIntMax == that.mIntMax &&
+                mIntMin == that.mIntMin &&
+                Arrays.equals(mFloatValues, that.mFloatValues) &&
+                Arrays.equals(mIntValues, that.mIntValues);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                mPropertyId,
+                mType,
+                mZone,
+                mFloatMax,
+                mFloatMin,
+                mFloatValues,
+                mIntMax,
+                mIntMin,
+                mIntValues);
+    }
+
+    private void assertType(int expectedType) {
+        if (mType != expectedType) {
+            throw new IllegalArgumentException(
+                    "Expected type: " + expectedType + ", actual type: " + mType);
+        }
     }
 }

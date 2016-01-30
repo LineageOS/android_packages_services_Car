@@ -43,9 +43,11 @@ public class CarHvacManager implements CarManagerBase {
      * Define types of values that are available.  Boolean type will be overloaded as an int for
      * binder calls, and unpacked inside the HvacManager.
      */
-    public static final int PROPERTY_TYPE_BOOLEAN = 0;
-    public static final int PROPERTY_TYPE_FLOAT   = 1;
-    public static final int PROPERTY_TYPE_INT     = 2;
+    public static final int PROPERTY_TYPE_BOOLEAN      = 0;
+    public static final int PROPERTY_TYPE_FLOAT        = 1;
+    public static final int PROPERTY_TYPE_INT          = 2;
+    public static final int PROPERTY_TYPE_INT_VECTOR   = 3;
+    public static final int PROPERTY_TYPE_FLOAT_VECTOR = 4;
 
     /**
      * Global HVAC properties.  There is only a single instance in a car.
@@ -54,23 +56,28 @@ public class CarHvacManager implements CarManagerBase {
     /**
      * Mirror defrosters state, bool.
      */
-    public static final int HVAC_MIRROR_DEFROSTER_ON     = 1;
+    public static final int HVAC_MIRROR_DEFROSTER_ON     = 0x0001;
     /**
      * Air conditioner state, bool
      */
-    public static final int HVAC_AC_ON                   = 2;
+    public static final int HVAC_AC_ON                   = 0x0002;
     /**
      * HVAC is in automatic mode, bool.
      */
-    public static final int HVAC_AUTOMATIC_MODE_ON       = 3;
+    public static final int HVAC_AUTOMATIC_MODE_ON       = 0x0003;
     /**
      * Air recirculation is active, bool.
      */
-    public static final int HVAC_AIR_RECIRCULATION_ON    = 4;
+    public static final int HVAC_AIR_RECIRCULATION_ON    = 0x0004;
     /**
      * Steering wheel temp:  negative values indicate cooling, positive values indicate heat, int.
      */
-    public static final int HVAC_STEERING_WHEEL_TEMP     = 5;
+    public static final int HVAC_STEERING_WHEEL_TEMP     = 0x0005;
+
+    /**
+     * The maximum id that can be assigned to global (non-zoned) property.
+     */
+    public static final int MAX_GLOBAL_PROPETY_ID        = 0x3fff;
 
     /**
      * HVAC_ZONED_* represents properties available on a per-zone basis.  All zones in a car are
@@ -280,6 +287,10 @@ public class CarHvacManager implements CarManagerBase {
         }
     }
 
+    public static boolean isZonedProperty(int propertyId) {
+        return propertyId > MAX_GLOBAL_PROPETY_ID;
+    }
+
     private int getVersion() {
         try {
             return mService.getVersion();
@@ -394,7 +405,7 @@ public class CarHvacManager implements CarManagerBase {
         }
 
         if (carProp.getType() == PROPERTY_TYPE_BOOLEAN) {
-            return carProp.getIntValue() == 1;
+            return carProp.getBooleanValue();
         } else {
             throw new IllegalArgumentException();
         }
@@ -434,7 +445,7 @@ public class CarHvacManager implements CarManagerBase {
      * @return
      */
     public int getIntProperty(int prop, int zone) {
-        CarHvacProperty carProp = null;
+        CarHvacProperty carProp;
         if (DBG) {
             Log.d(TAG, "getIntProperty:  prop = " + prop + " zone = " + zone);
         }
@@ -491,7 +502,7 @@ public class CarHvacManager implements CarManagerBase {
             Log.d(TAG, "setIntProperty:  prop = " + prop + " zone = " + zone + " val = " + val);
         }
         try {
-            // Set floatMin and floatMax to 0, as they are ignored in set()
+            // Set intMin and intMax to 0, as they are ignored in set()
             CarHvacProperty carProp = new CarHvacProperty(prop, zone, 0, 0, val);
             mService.setProperty(carProp);
         } catch (RemoteException ex) {
