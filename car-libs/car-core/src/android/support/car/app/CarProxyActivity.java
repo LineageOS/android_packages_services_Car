@@ -191,7 +191,7 @@ public class CarProxyActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_START, null);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_START);
     }
 
     @Override
@@ -203,25 +203,25 @@ public class CarProxyActivity extends Activity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_RESTART, null);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_RESTART);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_RESUME, null);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_RESUME);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_PAUSE, null);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_PAUSE);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_STOP, null);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_STOP);
     }
 
     @Override
@@ -231,13 +231,13 @@ public class CarProxyActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_BACK_PRESSED, null);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_BACK_PRESSED);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_DESTROY, null);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_DESTROY);
     }
 
     @Override

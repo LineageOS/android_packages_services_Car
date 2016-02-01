@@ -112,7 +112,6 @@ public class CarAppBlockingPolicy extends ExtendableParcelable {
         } else {
             dest.writeByteArray(payload);
         }
-        dest.writeBlob(payload);
         payloadParcel.recycle();
         completeWriting(dest, startingPosition);
     }
