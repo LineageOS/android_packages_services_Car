@@ -63,7 +63,7 @@ public class A2dpMediaBrowserService extends MediaBrowserService {
     private static final int MSG_AVRCP_PASSTHRU = 5;
 
     private MediaSession mSession;
-    private MediaMetadata mA2dpMetadata;
+    private PlaybackState mPrevPbsWithZeroPos = null;
 
     private BluetoothAdapter mAdapter;
     private BluetoothAvrcpController mAvrcpProfile;
@@ -348,16 +348,26 @@ public class A2dpMediaBrowserService extends MediaBrowserService {
 
     private void msgTrack(PlaybackState pb, MediaMetadata mmd) {
         Log.d(TAG, "msgTrack: playback: " + pb + " mmd: " + mmd);
+        // Update the song description.
         if (mmd != null) {
             Log.d(TAG, "msgTrack() mmd " + mmd.getDescription());
             mSession.setMetadata(mmd);
+            // Song description is updated only when changed (AVRCP spec) hence update the playback
+            // to have the previous play state but zero track position.
+            if (mPrevPbsWithZeroPos != null) {
+                mSession.setPlaybackState(mPrevPbsWithZeroPos);
+            }
         }
 
         if (pb != null) {
             Log.d(TAG, "msgTrack() playbackstate " + pb);
-            PlaybackState.Builder pbb = new PlaybackState.Builder(pb);
-            pb = pbb.setActions(mTransportControlFlags).build();
-            mSession.setPlaybackState(pb);
+            PlaybackState.Builder pbb =
+                new PlaybackState.Builder(pb).setActions(mTransportControlFlags);
+            mSession.setPlaybackState(pbb.build());
+
+            // Save the current playback but with zero track position.
+            mPrevPbsWithZeroPos =
+                pbb.setState(pb.getState(), 0, pb.getPlaybackSpeed()).build();
         }
     }
 
