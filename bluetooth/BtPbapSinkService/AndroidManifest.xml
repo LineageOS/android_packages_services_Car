@@ -56,6 +56,8 @@
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
                 <!-- BOOT_COMPLETED is used to clean up untidy state from last connection. -->
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <!-- Tear down on HF teardown always -->
+                <action android:name="android.bluetooth.headsetclient.profile.action.CONNECTION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
 

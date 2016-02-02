@@ -20,6 +20,8 @@ import android.accounts.AccountManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothHeadsetClient;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.client.pbap.BluetoothPbapClient;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -102,13 +104,19 @@ public class PbapPCEClient extends Service implements PbapHandler.PbapListener {
                     (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             // Handle a device disconnecting.
             handleDisconnect(device);
-        } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+        } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action) ||
+                   BluetoothHeadsetClient.ACTION_CONNECTION_STATE_CHANGED.equals(action)) {
             int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
             if (state == BluetoothAdapter.STATE_TURNING_OFF ||
                 state == BluetoothAdapter.STATE_OFF) {
                 handleDisconnect(null);
             }
-        }else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+        } else if (BluetoothHeadsetClient.ACTION_CONNECTION_STATE_CHANGED.equals(action)) {
+            int state = intent.getIntExtra(BluetoothProfile.EXTRA_STATE, -1);
+            if (state == BluetoothProfile.STATE_DISCONNECTED) {
+                handleDisconnect(null);
+            }
+        } else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             handleBootComplete();
         }
 
@@ -197,14 +205,18 @@ public class PbapPCEClient extends Service implements PbapHandler.PbapListener {
         // left hanging (such as unclean shutdown).
         removeUncleanAccounts();
 
-        // Update the device.
-        mDevice = device;
-        mClient = new BluetoothPbapClient(mDevice, mHandler);
-        mClient.connect();
-
         // Add the account. This should give us a place to stash the data.
         addAccount(device.getAddress());
+
+        // Update the device and open the connection over pbap.
+        mDevice = device;
+        mClient = new BluetoothPbapClient(mDevice, mAccount, mHandler);
+        mClient.connect();
+
+        // Download the phonebook.
         downloadPhoneBook();
+
+        // Download the call logs.
         downloadCallLogs();
     }
 
