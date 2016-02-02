@@ -35,6 +35,7 @@ import android.support.car.os.ExtendableParcelable;
  * returned. This parameter should be used to avoid unnecessary object churn whenever possible.
  * Additionally, calling a conversion method on a CarSensorEvent object with an inappropriate type
  * will result in an {@code UnsupportedOperationException} being thrown.
+ * {@CompatibilityApi}
  */
 public class CarSensorEvent extends ExtendableParcelable {
 

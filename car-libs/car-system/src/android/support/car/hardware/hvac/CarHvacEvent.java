@@ -21,6 +21,7 @@ import android.os.Parcelable;
 import android.support.car.annotation.VersionDef;
 import android.support.car.os.ExtendableParcelable;
 
+/** {@CompatibilityApi} */
 public class CarHvacEvent extends ExtendableParcelable {
     public static final int HVAC_EVENT_PROPERTY_CHANGE = 0;
     public static final int HVAC_EVENT_ERROR = 1;

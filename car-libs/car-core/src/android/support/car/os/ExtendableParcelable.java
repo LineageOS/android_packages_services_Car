@@ -41,6 +41,7 @@ import android.support.car.annotation.VersionDef;
  *   - call {@link #writeHeader(Parcel)} before writing anything else.
  *   - call {@link #completeWriting(Parcel, int)} with second argument set to return value from
  *     {@link #writeHeader(Parcel)}.
+ * {@CompatibilityApi}
  */
 public abstract class ExtendableParcelable implements Parcelable {
     /**

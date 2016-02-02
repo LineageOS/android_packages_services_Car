@@ -16,6 +16,7 @@
 
 package android.support.car;
 
+/** @hide */
 public class CarLibLog {
     public static final String TAG_CAR = "CAR.L";
     public static final String TAG_SENSOR = "CAR.L.SENSOR";

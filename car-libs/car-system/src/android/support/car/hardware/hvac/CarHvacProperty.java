@@ -23,7 +23,7 @@ import android.support.car.os.ExtendableParcelable;
 
 /**
  * CarHvacProperty object corresponds to a property of the car's HVAC system
- * @hide
+ * {@CompatibilityApi}
  */
 public class CarHvacProperty extends ExtendableParcelable {
     private static final int VERSION = 1;
