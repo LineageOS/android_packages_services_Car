@@ -25,6 +25,7 @@ import android.support.car.os.ExtendableParcelable;
  * A CarRadioEvent object corresponds to a single radio event coming from the car.
  *
  * This works in conjuction with the callbacks already defined in {@link RadioCallback.Callback}.
+ * {@CompatibilityApi}
  */
 public class CarRadioEvent extends ExtendableParcelable {
     /**

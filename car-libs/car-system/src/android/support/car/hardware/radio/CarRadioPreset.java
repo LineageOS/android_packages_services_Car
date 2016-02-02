@@ -23,6 +23,7 @@ import android.support.car.os.ExtendableParcelable;
 
 /**
  * CarPreset object corresponds to a preset that is stored on the car's Radio unit.
+ * {@CompatibilityApi}
  */
 public class CarRadioPreset extends ExtendableParcelable {
     private static final int VERSION = 1;

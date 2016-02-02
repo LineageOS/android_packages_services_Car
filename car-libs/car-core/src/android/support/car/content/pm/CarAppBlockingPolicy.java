@@ -29,6 +29,7 @@ import java.util.Arrays;
 /**
  * Contains application blocking policy
  * @hide
+ * {@CompatibilityApi}
  */
 public class CarAppBlockingPolicy extends ExtendableParcelable {
     private static final String TAG = CarAppBlockingPolicy.class.getSimpleName();
