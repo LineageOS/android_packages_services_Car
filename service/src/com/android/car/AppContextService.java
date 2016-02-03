@@ -32,7 +32,6 @@ import com.android.car.hal.VehicleHal;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
-
 public class AppContextService extends IAppContext.Stub implements CarServiceBase,
         BinderInterfaceContainer.BinderEventHandler<IAppContextListener> {
     private static final int VERSION = 1;
@@ -67,7 +66,7 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
             ClientInfo info = (ClientInfo) mAllClients.getBinderInterface(listener);
             if (info == null) {
                 info = new ClientInfo(mAllClients, clientVersion, listener, Binder.getCallingUid(),
-                        Binder.getCallingUid(), filter);
+                        Binder.getCallingPid(), filter);
                 mAllClients.addBinderInterface(info);
             } else {
                 info.setFilter(filter);
@@ -82,7 +81,7 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
             if (info == null) {
                 return;
             }
-            resetActiveContexts(listener, info.getOwnedCotexts());
+            resetActiveContexts(listener, info.getOwnedContexts());
             mAllClients.removeBinder(listener);
         }
     }
@@ -101,7 +100,7 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
             if (info == null) {
                 return false;
             }
-            int ownedContexts = info.getOwnedCotexts();
+            int ownedContexts = info.getOwnedContexts();
             return (ownedContexts & context) == context;
         }
     }
@@ -113,14 +112,14 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
             if (info == null) {
                 throw new IllegalStateException("listener not registered");
             }
-            int alreadyOwnedContexts = info.getOwnedCotexts();
+            int alreadyOwnedContexts = info.getOwnedContexts();
             int addedContexts = 0;
             for (int c = CarAppContextManager.APP_CONTEXT_START_FLAG;
                     c <= CarAppContextManager.APP_CONTEXT_END_FLAG; c = (c << 1)) {
                 if ((c & contexts) != 0 && (c & alreadyOwnedContexts) == 0) {
                     ClientInfo ownerInfo = mContextOwners.get(c);
                     if (ownerInfo != null && ownerInfo != info) {
-                        ownerInfo.setOwnedContexts(ownerInfo.getOwnedCotexts() & ~c);
+                        ownerInfo.setOwnedContexts(ownerInfo.getOwnedContexts() & ~c);
                         mDispatchHandler.requestAppContextOwnershipLossDispatch(
                                 ownerInfo.binderInterface, c);
                         if (DBG) {
@@ -169,7 +168,7 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
                 return;
             }
             int removedContexts = 0;
-            int currentlyOwnedContexts = info.getOwnedCotexts();
+            int currentlyOwnedContexts = info.getOwnedContexts();
             for (int c = CarAppContextManager.APP_CONTEXT_START_FLAG;
                     c <= CarAppContextManager.APP_CONTEXT_END_FLAG; c = (c << 1)) {
                 if ((c & contexts) != 0 && (c & currentlyOwnedContexts) != 0) {
@@ -227,7 +226,7 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
     public void onBinderDeath(
             BinderInterfaceContainer.BinderInterface<IAppContextListener> bInterface) {
         ClientInfo info = (ClientInfo) bInterface;
-        int ownedContexts = info.getOwnedCotexts();
+        int ownedContexts = info.getOwnedContexts();
         if (ownedContexts != 0) {
             resetActiveContexts(bInterface.binderInterface, ownedContexts);
         }
@@ -247,6 +246,19 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
         }
     }
 
+    /**
+     * Returns true if process with given uid and pid owns provided context.
+     */
+    public boolean isContextOwner(int uid, int pid, int context) {
+        synchronized (this) {
+            if (mContextOwners.containsKey(context)) {
+                ClientInfo clientInfo = mContextOwners.get(context);
+                return clientInfo.uid == uid && clientInfo.pid == pid;
+            }
+        }
+        return false;
+    }
+
     private void dispatchAppContextOwnershipLoss(IAppContextListener listener, int contexts) {
         try {
             listener.onAppContextOwnershipLoss(contexts);
@@ -261,7 +273,7 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
         }
     }
 
-    private void notifiyAppContextChangeToHal(int contexts, boolean callState) {
+    private void notifyAppContextChangeToHal(int contexts, boolean callState) {
         VehicleHal.getInstance().updateAppContext(
                 (contexts & CarAppContextManager.APP_CONTEXT_NAVIGATION) != 0/*navigation*/,
                 (contexts & CarAppContextManager.APP_CONTEXT_VOICE_COMMAND) != 0/*voice*/,
@@ -298,9 +310,9 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
             mFilter = filter;
         }
 
-        private synchronized int getOwnedCotexts() {
+        private synchronized int getOwnedContexts() {
             if (DBG_EVENT) {
-                Log.i(CarLog.TAG_APP_CONTEXT, "getOwnedCotexts " +
+                Log.i(CarLog.TAG_APP_CONTEXT, "getOwnedContexts " +
                         Integer.toHexString(mOwnedContexts));
             }
             return mOwnedContexts;
@@ -358,7 +370,7 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
                     dispatchAppContextChange((IAppContextListener) msg.obj, msg.arg1);
                     break;
                 case MSG_NOTIFY_HAL:
-                    notifiyAppContextChangeToHal(msg.arg1, msg.arg2 == 1);
+                    notifyAppContextChangeToHal(msg.arg1, msg.arg2 == 1);
                     break;
             }
         }

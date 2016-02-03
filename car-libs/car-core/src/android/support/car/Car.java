@@ -20,13 +20,14 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
-import android.os.SystemClock;
+import android.support.car.content.pm.CarPackageManager;
+import android.support.car.hardware.CarSensorManager;
+import android.support.car.navigation.CarNavigationStatusManager;
 import android.util.Log;
 
 import java.lang.annotation.Retention;
@@ -37,7 +38,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -59,8 +59,14 @@ public class Car {
     /** Service name for {@link CarAppContextManager}. */
     public static final String APP_CONTEXT_SERVICE = "app_context";
 
-    /** Service name for {@link android.suport.car.content.pm.CarPackageManager} */
+    /** Service name for {@link CarPackageManager} */
     public static final String PACKAGE_SERVICE = "package";
+
+    /**
+     * Service name for {@link CarNavigationStatusManager}
+     * @hide
+     */
+    public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
 
     /** Type of car connection: car emulator, not physical connection. */
     public static final int CONNECTION_TYPE_EMULATOR        = 0;

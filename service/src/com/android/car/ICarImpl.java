@@ -53,6 +53,7 @@ public class ICarImpl extends ICar.Stub {
     private final AppContextService mAppContextService;
     private final CarPackageManagerService mCarPackageManagerService;
     private final GarageModeService mGarageModeService;
+    private final CarNavigationStatusService mCarNavigationStatusService;
 
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
@@ -92,6 +93,7 @@ public class ICarImpl extends ICar.Stub {
         mCarRadioService = new CarRadioService(serviceContext);
         mCarNightService = new CarNightService(serviceContext);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext);
+        mCarNavigationStatusService = new CarNavigationStatusService(serviceContext);
 
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
@@ -105,6 +107,7 @@ public class ICarImpl extends ICar.Stub {
                 mCarHvacService,
                 mCarRadioService,
                 mCarNightService,
+                mCarNavigationStatusService,
                 };
     }
 
@@ -188,6 +191,10 @@ public class ICarImpl extends ICar.Stub {
             case CarSystem.RADIO_SERVICE:
                 assertRadioPermission(mContext);
                 return mCarRadioService;
+
+            case Car.CAR_NAVIGATION_SERVICE:
+                return mCarNavigationStatusService;
+
             case CarSystemTest.TEST_SERVICE: {
                 assertVehicleHalMockPermission(mContext);
                 synchronized (this) {

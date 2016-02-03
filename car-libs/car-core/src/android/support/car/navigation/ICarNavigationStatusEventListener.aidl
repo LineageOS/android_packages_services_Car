@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package android.support.car.navigation;
 
-package android.support.car;
+import android.support.car.navigation.CarNavigationInstrumentCluster;
 
-/** @hide */
-public class CarLibLog {
-    public static final String TAG_CAR = "CAR.L";
-    public static final String TAG_SENSOR = TAG_CAR + ".SENSOR";
-    public static final String TAG_NAV = TAG_CAR + ".NAV";
+/**
+ * Binder callback for CarNavigationStatusEventListener.
+ * @hide
+ * {@CompatibilityApi}
+ */
+oneway interface ICarNavigationStatusEventListener {
+    void onStart(in CarNavigationInstrumentCluster instrumentCluster) = 0;
+    void onStop() = 1;
 }

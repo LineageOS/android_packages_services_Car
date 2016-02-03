@@ -23,6 +23,8 @@ import android.support.car.content.pm.ICarPackageManager;
 import android.support.car.content.pm.CarPackageManager;
 import android.support.car.hardware.CarSensorManager;
 import android.support.car.hardware.ICarSensor;
+import android.support.car.navigation.CarNavigationStatusManager;
+import android.support.car.navigation.ICarNavigationStatus;
 
 /**
  * CarServiceLoader is the abstraction for loading different types of car service.
@@ -69,6 +71,10 @@ public abstract class CarServiceLoader {
             case Car.PACKAGE_SERVICE:
                 manager = new CarPackageManager(ICarPackageManager.Stub.asInterface(binder),
                         mContext);
+                break;
+            case Car.CAR_NAVIGATION_SERVICE:
+                manager = new CarNavigationStatusManager(
+                        ICarNavigationStatus.Stub.asInterface(binder), mLooper);
                 break;
         }
         return manager;
