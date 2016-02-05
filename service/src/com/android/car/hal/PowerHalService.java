@@ -26,6 +26,7 @@ import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleApPowerStateIn
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleApPowerStateShutdownParam;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -42,6 +43,34 @@ public class PowerHalService extends HalServiceBase {
     public static final int STATE_ON_FULL = VehicleApPowerState.VEHICLE_AP_POWER_STATE_ON_FULL;
     public static final int STATE_SHUTDOWN_PREPARE =
             VehicleApPowerState.VEHICLE_AP_POWER_STATE_SHUTDOWN_PREPARE;
+
+    @VisibleForTesting
+    public static final int SET_BOOT_COMPLETE =
+            VehicleApPowerSetState.VEHICLE_AP_POWER_SET_BOOT_COMPLETE;
+    @VisibleForTesting
+    public static final int SET_DEEP_SLEEP_ENTRY =
+            VehicleApPowerSetState.VEHICLE_AP_POWER_SET_DEEP_SLEEP_ENTRY;
+    @VisibleForTesting
+    public static final int SET_DEEP_SLEEP_EXIT =
+            VehicleApPowerSetState.VEHICLE_AP_POWER_SET_DEEP_SLEEP_EXIT;
+    @VisibleForTesting
+    public static final int SET_SHUTDOWN_POSTPONE =
+            VehicleApPowerSetState.VEHICLE_AP_POWER_SET_SHUTDOWN_POSTPONE;
+    @VisibleForTesting
+    public static final int SET_SHUTDOWN_START =
+            VehicleApPowerSetState.VEHICLE_AP_POWER_SET_SHUTDOWN_START;
+    @VisibleForTesting
+    public static final int SET_DISPLAY_ON = VehicleApPowerSetState.VEHICLE_AP_POWER_SET_DISPLAY_ON;
+    @VisibleForTesting
+    public static final int SET_DISPLAY_OFF =
+            VehicleApPowerSetState.VEHICLE_AP_POWER_SET_DISPLAY_OFF;
+
+    @VisibleForTesting
+    public static final int FLAG_SHUTDOWN_PARAM_CAN_SLEEP =
+            VehicleApPowerStateShutdownParam.VEHICLE_AP_POWER_SHUTDOWN_PARAM_CAN_SLEEP;
+    @VisibleForTesting
+    public static final int FLAG_SHUTDOWN_IMMEDIATELY =
+            VehicleApPowerStateShutdownParam.VEHICLE_AP_POWER_SHUTDOWN_PARAM_SHUTDOWN_IMMEDIATELY;
 
     public interface PowerEventListener {
         /**

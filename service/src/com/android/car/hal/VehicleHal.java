@@ -35,6 +35,7 @@ import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -113,6 +114,22 @@ public class VehicleHal implements VehicleNetworkListener {
                 mSensorHal,
                 mRadioHal };
         mVehicleNetwork = VehicleNetwork.createVehicleNetwork(this, mHandlerThread.getLooper());
+    }
+
+    /** Dummy version only for testing */
+    @VisibleForTesting
+    public VehicleHal(PowerHalService powerHal, SensorHalService sensorHal, InfoHalService infoHal,
+            AudioHalService audioHal, RadioHalService radioHal, HvacHalService hvacHal,
+            VehicleNetwork vehicleNetwork) {
+        mHandlerThread = null;
+        mPowerHal = powerHal;
+        mSensorHal = sensorHal;
+        mInfoHal = infoHal;
+        mAudioHal = audioHal;
+        mRadioHal = radioHal;
+        mHvacHal = hvacHal;
+        mAllServices = null;
+        mVehicleNetwork = vehicleNetwork;
     }
 
     private void init() {
