@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.LayoutRes;
 import android.support.car.Car;
 import android.support.car.input.CarInputManager;
@@ -112,6 +113,7 @@ public abstract class CarActivity {
 
     private final Proxy mProxy;
     private final Context mContext;
+    private final Handler mHandler = new Handler();
 
     public CarActivity(Proxy proxy, Context context) {
         mProxy = proxy;
@@ -200,6 +202,14 @@ public abstract class CarActivity {
 
     public void startActivityForResult(Intent intent, int requestCode) {
         mProxy.startActivityForResult(intent, requestCode);
+    }
+
+    public void runOnUiThread(Runnable runnable) {
+        if (Thread.currentThread() == mHandler.getLooper().getThread()) {
+            runnable.run();
+        } else {
+            mHandler.post(runnable);
+        }
     }
 
     /** @hide */
