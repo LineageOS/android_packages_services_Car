@@ -23,7 +23,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.car.input.CarInputManager;
-import android.support.car.input.CarRestrictedEditText;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +30,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -175,8 +175,8 @@ public class CarProxyActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         createCarActivity();
         super.onCreate(savedInstanceState);
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_CREATE, savedInstanceState);
         mInputManager = new EmbeddedInputManager(this);
+        mCarActivity.dispatchCmd(CarActivity.CMD_ON_CREATE, savedInstanceState);
     }
 
     @Override
@@ -289,7 +289,7 @@ public class CarProxyActivity extends Activity {
         }
 
         @Override
-        public void startInput(CarRestrictedEditText view) {
+        public void startInput(EditText view) {
             view.requestFocus();
             mInputManager.showSoftInput(view, 0);
         }
@@ -319,7 +319,7 @@ public class CarProxyActivity extends Activity {
         }
 
         @Override
-        public boolean isCurrentCarEditable(CarRestrictedEditText view) {
+        public boolean isCurrentCarEditable(EditText view) {
             return mInputManager.isActive(view);
         }
     }
