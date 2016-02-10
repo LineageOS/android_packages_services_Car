@@ -95,6 +95,7 @@ public class CarNightService implements CarServiceBase {
     @Override
     public synchronized void dump(PrintWriter writer) {
         writer.println("*DAY NIGHT POLICY*");
-        writer.println("Most Recent Night setting" + mNightSetting);
+        writer.println("Mode:" + ((mNightSetting == UiModeManager.MODE_NIGHT_YES) ? "night" : "day")
+                );
     }
 }

@@ -177,6 +177,18 @@ public class SensorHalService extends SensorHalServiceBase {
         return true;
     }
 
+    public CarSensorEvent getCurrentSensorValue(int sensorType) {
+        VehiclePropConfig config;
+        synchronized (this) {
+            config = mSensorToHalProperty.get(sensorType);
+        }
+        if (config == null) {
+            return null;
+        }
+        VehiclePropValue value = mHal.getVehicleNetwork().getProperty(config.getProp());
+        return createCarSensorEvent(value);
+    }
+
     private float fixSamplingRateForProperty(VehiclePropConfig prop, int carSensorManagerRate) {
         if (prop.getChangeMode() ==  VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE) {
             return 0;
