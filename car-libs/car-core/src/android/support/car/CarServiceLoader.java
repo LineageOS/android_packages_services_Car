@@ -23,6 +23,8 @@ import android.support.car.content.pm.ICarPackageManager;
 import android.support.car.content.pm.CarPackageManager;
 import android.support.car.hardware.CarSensorManager;
 import android.support.car.hardware.ICarSensor;
+import android.support.car.media.CarAudioManager;
+import android.support.car.media.ICarAudio;
 import android.support.car.navigation.CarNavigationStatusManager;
 import android.support.car.navigation.ICarNavigationStatus;
 
@@ -58,6 +60,9 @@ public abstract class CarServiceLoader {
             IBinder binder) {
         CarManagerBase manager = null;
         switch (serviceName) {
+            case Car.AUDIO_SERVICE:
+                manager = new CarAudioManager(ICarAudio.Stub.asInterface(binder));
+                break;
             case Car.SENSOR_SERVICE:
                 manager = new CarSensorManager(mContext, ICarSensor.Stub.asInterface(binder),
                         mLooper);

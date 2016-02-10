@@ -118,7 +118,9 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG |
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG,
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SAFETY_ALERT_FLAG,
                 v.getInt32Values(
                         VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_CONTEXTS)
                         );
@@ -145,7 +147,9 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG |
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG,
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SAFETY_ALERT_FLAG,
                 v.getInt32Values(
                         VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_CONTEXTS)
                         );

@@ -21,6 +21,7 @@ import java.util.Arrays;
 import android.content.Context;
 import android.content.res.Resources;
 import android.media.AudioAttributes;
+import android.support.car.media.CarAudioManager;
 import android.util.Log;
 
 /**
@@ -28,24 +29,13 @@ import android.util.Log;
  * multiple policies and VEHICLE_PROPERTY_AUDIO_HW_VARIANT decide which one to use.
  */
 public class AudioRoutingPolicy {
-    /**
-     * Type of logical stream defined in res/values/config.xml. This definition should be
-     * in line with the file.
-     */
-    public static final int STREAM_TYPE_INVALID = -1;
-    public static final int STREAM_TYPE_CALL = 0;
-    public static final int STREAM_TYPE_MEDIA = 1;
-    public static final int STREAM_TYPE_NAV_GUIDANCE = 2;
-    public static final int STREAM_TYPE_VOICE_COMMAND = 3;
-    public static final int STREAM_TYPE_ALARM = 4;
-    public static final int STREAM_TYPE_NOTIFICATION = 5;
-    public static final int STREAM_TYPE_UNKNOWN = 6;
-    public static final int STREAM_TYPE_MAX = STREAM_TYPE_UNKNOWN;
+
+    private final int USAGE_TYPE_INVALID = -1;
 
     /** Physical stream to logical streams mapping */
     private final int[][] mLogicalStreams;
     /** Logical stream to physical stream mapping */
-    private final int[] mPhisicalStreamForLogicalStream;
+    private final int[] mPhysicalStreamForLogicalStream;
 
     public static AudioRoutingPolicy create(Context context, int policyNumber) {
         final Resources res = context.getResources();
@@ -54,21 +44,27 @@ public class AudioRoutingPolicy {
     }
 
     private static int getStreamType(String str) {
+        // no radio here as radio routing is outside android (for external module) or same as music
+        // (for android internal module)
         switch (str) {
             case "call":
-                return STREAM_TYPE_CALL;
+                return CarAudioManager.CAR_AUDIO_USAGE_VOICE_CALL;
             case "media":
-                return STREAM_TYPE_MEDIA;
+                return CarAudioManager.CAR_AUDIO_USAGE_MUSIC;
             case "nav_guidance":
-                return STREAM_TYPE_NAV_GUIDANCE;
+                return CarAudioManager.CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE;
             case "voice_command":
-                return STREAM_TYPE_VOICE_COMMAND;
+                return CarAudioManager.CAR_AUDIO_USAGE_VOICE_COMMAND;
             case "alarm":
-                return STREAM_TYPE_ALARM;
+                return CarAudioManager.CAR_AUDIO_USAGE_ALARM;
             case "notification":
-                return STREAM_TYPE_NOTIFICATION;
+                return CarAudioManager.CAR_AUDIO_USAGE_NOTIFICATION;
+            case "system":
+                return CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SOUND;
+            case "safety":
+                return CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT;
             case "unknown":
-                return STREAM_TYPE_UNKNOWN;
+                return CarAudioManager.CAR_AUDIO_USAGE_DEFAULT;
         }
         throw new IllegalArgumentException("Wrong audioRoutingPolicy config, unknown stream type:" +
                 str);
@@ -78,11 +74,11 @@ public class AudioRoutingPolicy {
         String[] streamPolicies = policy.split("#");
         final int nPhysicalStreams = streamPolicies.length;
         mLogicalStreams = new int[nPhysicalStreams][];
-        mPhisicalStreamForLogicalStream = new int[STREAM_TYPE_MAX + 1];
-        for (int i = 0; i < mPhisicalStreamForLogicalStream.length; i++) {
-            mPhisicalStreamForLogicalStream[i] = STREAM_TYPE_INVALID;
+        mPhysicalStreamForLogicalStream = new int[CarAudioManager.CAR_AUDIO_USAGE_MAX + 1];
+        for (int i = 0; i < mPhysicalStreamForLogicalStream.length; i++) {
+            mPhysicalStreamForLogicalStream[i] = USAGE_TYPE_INVALID;
         }
-        int defaultStreamType = STREAM_TYPE_INVALID;
+        int defaultStreamType = USAGE_TYPE_INVALID;
         for (String streamPolicy : streamPolicies) {
             String[] numberVsStreams = streamPolicy.split(":");
             int physicalStream = Integer.parseInt(numberVsStreams[0]);
@@ -90,23 +86,35 @@ public class AudioRoutingPolicy {
             int[] logicalStreamsInt = new int[logicalStreams.length];
             for (int i = 0; i < logicalStreams.length; i++) {
                 int logicalStreamNumber = getStreamType(logicalStreams[i]);
-                if (logicalStreamNumber == STREAM_TYPE_UNKNOWN) {
+                if (logicalStreamNumber == CarAudioManager.CAR_AUDIO_USAGE_DEFAULT) {
                     defaultStreamType = physicalStream;
                 }
                 logicalStreamsInt[i] = logicalStreamNumber;
-                mPhisicalStreamForLogicalStream[logicalStreamNumber] = physicalStream;
+                mPhysicalStreamForLogicalStream[logicalStreamNumber] = physicalStream;
             }
             Arrays.sort(logicalStreamsInt);
             mLogicalStreams[physicalStream] = logicalStreamsInt;
         }
-        if (defaultStreamType == STREAM_TYPE_INVALID) {
+        if (defaultStreamType == USAGE_TYPE_INVALID) {
             Log.e(CarLog.TAG_AUDIO, "Audio routing policy did not include unknown");
             defaultStreamType = 0;
         }
-        for (int i = 0; i < mPhisicalStreamForLogicalStream.length; i++) {
-            if (mPhisicalStreamForLogicalStream[i] == STREAM_TYPE_INVALID) {
-                Log.w(CarLog.TAG_AUDIO, "Audio routing policy did not cover logical stream " + i);
-                mPhisicalStreamForLogicalStream[i] = defaultStreamType;
+        for (int i = 0; i < mPhysicalStreamForLogicalStream.length; i++) {
+            if (mPhysicalStreamForLogicalStream[i] == USAGE_TYPE_INVALID) {
+                if (i == CarAudioManager.CAR_AUDIO_USAGE_RADIO) {
+                    // set radio routing to be the same as music. For external radio, this does not
+                    // matter. For internal one, it should be the same as music.
+                    int musicPhysicalStream =
+                            mPhysicalStreamForLogicalStream[CarAudioManager.CAR_AUDIO_USAGE_MUSIC];
+                    if (musicPhysicalStream == USAGE_TYPE_INVALID) {
+                        musicPhysicalStream = defaultStreamType;
+                    }
+                    mPhysicalStreamForLogicalStream[i] = musicPhysicalStream;
+                } else {
+                    Log.w(CarLog.TAG_AUDIO, "Audio routing policy did not cover logical stream " +
+                            i);
+                    mPhysicalStreamForLogicalStream[i] = defaultStreamType;
+                }
             }
         }
     }
@@ -120,49 +128,7 @@ public class AudioRoutingPolicy {
     }
 
     public int getPhysicalStreamForLogicalStream(int logicalStream) {
-        return mPhisicalStreamForLogicalStream[logicalStream];
-    }
-
-    public int getLogicalStreamFromAudioAttributes(AudioAttributes attrib) {
-        if (attrib == null) {
-            return STREAM_TYPE_UNKNOWN;
-        }
-        int routingLogicalStream = STREAM_TYPE_UNKNOWN;
-        switch (attrib.getUsage()) {
-            case AudioAttributes.USAGE_MEDIA:
-                routingLogicalStream = STREAM_TYPE_MEDIA;
-                break;
-            case AudioAttributes.USAGE_VOICE_COMMUNICATION:
-            case AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING:
-                routingLogicalStream = STREAM_TYPE_CALL;
-                break;
-            case AudioAttributes.USAGE_ALARM:
-                routingLogicalStream = STREAM_TYPE_ALARM;
-                break;
-            case AudioAttributes.USAGE_NOTIFICATION:
-                routingLogicalStream = STREAM_TYPE_NOTIFICATION;
-                break;
-            case AudioAttributes.USAGE_NOTIFICATION_RINGTONE:
-                routingLogicalStream = STREAM_TYPE_CALL;
-                break;
-            case AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST:
-            case AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT:
-            case AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED:
-            case AudioAttributes.USAGE_NOTIFICATION_EVENT:
-            case AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY:
-                routingLogicalStream = STREAM_TYPE_NOTIFICATION;
-                break;
-            case AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE:
-                routingLogicalStream = STREAM_TYPE_NAV_GUIDANCE;
-                break;
-            case AudioAttributes.USAGE_ASSISTANCE_SONIFICATION:
-                routingLogicalStream = STREAM_TYPE_NOTIFICATION;
-                break;
-            case AudioAttributes.USAGE_GAME:
-                routingLogicalStream = STREAM_TYPE_MEDIA;
-                break;
-        }
-        return routingLogicalStream;
+        return mPhysicalStreamForLogicalStream[logicalStream];
     }
 
     public void dump(PrintWriter writer) {
