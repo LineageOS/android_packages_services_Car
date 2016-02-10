@@ -16,7 +16,15 @@
 
 package android.support.car.media;
 
-/** {@CompatibilityApi} */
+import android.media.AudioAttributes;
+
+/**
+ * Binder interface for {@link android.support.car.media.CarAudioManager}.
+ * Check {@link android.support.car.media.CarAudioManager} APIs for expected behavior of each calls.
+ *
+ * {@CompatibilityApi}
+ */
 interface ICarAudio {
     int getVersion() = 0;
+    AudioAttributes getAudioAttributesForCarUsage(int carUsage) = 1;
 }

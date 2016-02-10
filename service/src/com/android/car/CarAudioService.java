@@ -83,12 +83,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
 
     private final AppContextService mAppContextService;
 
-    private final AudioAttributes mAttributeBottom = (new AudioAttributes.Builder()).
-            setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN).
-            setUsage(AudioAttributes.USAGE_UNKNOWN).build();
-    private final AudioAttributes mAttributeCarExternal = (new AudioAttributes.Builder()).
-            setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN).
-            setUsage(AudioAttributes.USAGE_UNKNOWN).build();
+    private final AudioAttributes mAttributeBottom =
+            CarAudioAttributesUtil.getAudioAttributesForCarUsage(
+                    CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_BOTTOM);
+    private final AudioAttributes mAttributeCarExternal =
+            CarAudioAttributesUtil.getAudioAttributesForCarUsage(
+                    CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY);
 
     public CarAudioService(Context context, AppContextService appContextService) {
         mAudioHal = VehicleHal.getInstance().getAudioHal();
@@ -105,6 +105,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
     @Override
     public int getVersion() {
         return VERSION;
+    }
+
+    @Override
+    public AudioAttributes getAudioAttributesForCarUsage(int carUsage) {
+        return CarAudioAttributesUtil.getAudioAttributesForCarUsage(carUsage);
     }
 
     @Override
@@ -162,6 +167,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
         writer.println(" mCurrentFocusState:" + mCurrentFocusState +
                 " mLastFocusRequestToCar:" + mLastFocusRequestToCar);
         writer.println(" mCallActive:" + mCallActive + " mRadioActive:" + mRadioActive);
+        mAudioRoutingPolicy.dump(writer);
     }
 
     @Override
@@ -299,7 +305,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
             if ((currentState.externalFocus &
                     (AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_PERMANENT_FLAG |
                             AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_TRANSIENT_FLAG)) == 0) {
-                // CarProcy in top, but no external focus: Drop it so that some other app
+                // CarProxy in top, but no external focus: Drop it so that some other app
                 // may pick up focus.
                 mAudioManager.abandonAudioFocus(mCarProxyAudioFocusHandler);
                 return;
@@ -344,10 +350,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
         }
         AudioAttributes attrib = info.getAttributes();
         if (info.getPackageName().equals(mContext.getPackageName()) &&
-                info.getClientId().contains(BottomAudioFocusListener.class.getName()) &&
-                attrib != null &&
-                attrib.getContentType() == mAttributeBottom.getContentType() &&
-                attrib.getUsage() == mAttributeBottom.getUsage()) {
+                CarAudioAttributesUtil.getCarUsageFromAudioAttributes(attrib) ==
+                CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_BOTTOM) {
             return true;
         }
         return false;
@@ -359,10 +363,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
         }
         AudioAttributes attrib = info.getAttributes();
         if (info.getPackageName().equals(mContext.getPackageName()) &&
-                info.getClientId().contains(CarProxyAndroidFocusListener.class.getName()) &&
                 attrib != null &&
-                attrib.getContentType() == mAttributeCarExternal.getContentType() &&
-                attrib.getUsage() == mAttributeCarExternal.getUsage()) {
+                CarAudioAttributesUtil.getCarUsageFromAudioAttributes(attrib) ==
+                CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY) {
             return true;
         }
         return false;
@@ -377,10 +380,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
             return false;
         }
         AudioAttributes attrib = info.getAttributes();
-        //TODO remove content type check?
         if (attrib != null &&
-                attrib.getContentType() == AudioAttributes.CONTENT_TYPE_MUSIC &&
-                attrib.getUsage() == CarAudioManager.AUDIO_ATTRIBUTES_USAGE_RADIO) {
+                CarAudioAttributesUtil.getCarUsageFromAudioAttributes(attrib) ==
+                CarAudioManager.CAR_AUDIO_USAGE_RADIO) {
             return true;
         }
         return false;
@@ -428,11 +430,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
         }
         mFocusHandler.cancelFocusReleaseRequest();
         AudioAttributes attrib = mTopFocusInfo.getAttributes();
-        int logicalStreamTypeForTop = mAudioRoutingPolicy.getLogicalStreamFromAudioAttributes(
-                attrib);
+        int logicalStreamTypeForTop = CarAudioAttributesUtil.getCarUsageFromAudioAttributes(attrib);
         int physicalStreamTypeForTop = mAudioRoutingPolicy.getPhysicalStreamForLogicalStream(
                 logicalStreamTypeForTop);
-        if (logicalStreamTypeForTop == AudioRoutingPolicy.STREAM_TYPE_CALL) {
+        if (logicalStreamTypeForTop == CarAudioManager.CAR_AUDIO_USAGE_VOICE_CALL) {
             if (!mCallActive) {
                 mCallActive = true;
                 mAppContextService.handleCallStateChange(mCallActive);
@@ -493,7 +494,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
             //     Most cars do not allow that, but if mixing is possible, it can take media stream.
             //     For now, assume no mixing capability.
             int radioPhysicalStream = mAudioRoutingPolicy.getPhysicalStreamForLogicalStream(
-                    AudioRoutingPolicy.STREAM_TYPE_MEDIA);
+                    CarAudioManager.CAR_AUDIO_USAGE_MUSIC);
             streamsToRequest &= ~(0x1 << radioPhysicalStream);
         } else if (streamsToRequest == 0) {
             mFocusHandler.handleFocusReleaseRequest();

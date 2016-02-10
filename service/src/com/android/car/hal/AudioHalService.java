@@ -15,6 +15,7 @@
  */
 package com.android.car.hal;
 
+import android.support.car.media.CarAudioManager;
 import android.util.Log;
 
 import com.android.car.AudioRoutingPolicy;
@@ -180,19 +181,23 @@ public class AudioHalService extends HalServiceBase {
 
     private static int logicalStreamToHalStreamType(int logicalStream) {
         switch (logicalStream) {
-            case AudioRoutingPolicy.STREAM_TYPE_CALL:
+            case CarAudioManager.CAR_AUDIO_USAGE_VOICE_CALL:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG;
-            case AudioRoutingPolicy.STREAM_TYPE_MEDIA:
+            case CarAudioManager.CAR_AUDIO_USAGE_MUSIC:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG;
-            case AudioRoutingPolicy.STREAM_TYPE_NAV_GUIDANCE:
+            case CarAudioManager.CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG;
-            case AudioRoutingPolicy.STREAM_TYPE_VOICE_COMMAND:
+            case CarAudioManager.CAR_AUDIO_USAGE_VOICE_COMMAND:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG;
-            case AudioRoutingPolicy.STREAM_TYPE_ALARM:
+            case CarAudioManager.CAR_AUDIO_USAGE_ALARM:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG;
-            case AudioRoutingPolicy.STREAM_TYPE_NOTIFICATION:
+            case CarAudioManager.CAR_AUDIO_USAGE_NOTIFICATION:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG;
-            case AudioRoutingPolicy.STREAM_TYPE_UNKNOWN:
+            case CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT:
+                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SAFETY_ALERT_FLAG;
+            case CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SOUND:
+                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND;
+            case CarAudioManager.CAR_AUDIO_USAGE_DEFAULT:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG;
             default:
                 Log.w(CarLog.TAG_AUDIO, "Unknown logical stream:" + logicalStream);

@@ -62,6 +62,8 @@ public class Car {
     /** Service name for {@link CarPackageManager} */
     public static final String PACKAGE_SERVICE = "package";
 
+    /** Service name for {@link CarAudioManager} */
+    public static final String AUDIO_SERVICE = "audio";
     /**
      * Service name for {@link CarNavigationStatusManager}
      * @hide

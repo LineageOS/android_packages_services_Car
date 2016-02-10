@@ -173,28 +173,24 @@ public class ICarImpl extends ICar.Stub {
     @Override
     public IBinder getCarService(String serviceName) {
         switch (serviceName) {
+            case Car.AUDIO_SERVICE:
+                return mCarAudioService;
             case Car.SENSOR_SERVICE:
                 return mCarSensorService;
             case Car.INFO_SERVICE:
                 return mCarInfoService;
-
             case Car.APP_CONTEXT_SERVICE:
                 return mAppContextService;
-
             case Car.PACKAGE_SERVICE:
                 return mCarPackageManagerService;
-
             case CarSystem.HVAC_SERVICE:
                 assertHvacPermission(mContext);
                 return mCarHvacService;
-
             case CarSystem.RADIO_SERVICE:
                 assertRadioPermission(mContext);
                 return mCarRadioService;
-
             case Car.CAR_NAVIGATION_SERVICE:
                 return mCarNavigationStatusService;
-
             case CarSystemTest.TEST_SERVICE: {
                 assertVehicleHalMockPermission(mContext);
                 synchronized (this) {
