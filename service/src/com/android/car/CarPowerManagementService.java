@@ -167,7 +167,7 @@ public class CarPowerManagementService implements CarServiceBase,
         mHal = null;
         mSystemInterface = null;
         mHandlerThread = null;
-        mHandler = null;
+        mHandler = new PowerHandler(Looper.getMainLooper());
     }
 
     @Override
