@@ -403,7 +403,7 @@ public class HvacHalService extends HalServiceBase {
             case CarHvacManager.HVAC_WINDOW_DEFROSTER_ON:
                 halPropId = VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DEFROSTER;
                 break;
-            case CarHvacManager.HVAC_AC_ON:
+            case CarHvacManager.HVAC_ZONED_AC_ON:
                 halPropId = VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AC_ON;
                 break;
         }
@@ -433,7 +433,7 @@ public class HvacHalService extends HalServiceBase {
                 hvacPropId = CarHvacManager.HVAC_WINDOW_DEFROSTER_ON;
                 break;
             case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AC_ON:
-                hvacPropId = CarHvacManager.HVAC_AC_ON;
+                hvacPropId = CarHvacManager.HVAC_ZONED_AC_ON;
                 break;
         }
         if (hvacPropId == 0) {
