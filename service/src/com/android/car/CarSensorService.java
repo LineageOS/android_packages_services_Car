@@ -134,22 +134,32 @@ public class CarSensorService extends ICarSensor.Stub
         mSensorLock.lock();
         try {
             mSupportedSensors = refreshSupportedSensorsLocked();
+            CarSensorEvent event = null;
             if (mUseDefaultDrivingPolicy) {
                 mDrivingStatePolicy.init();
                 mDrivingStatePolicy.registerSensorListener(this);
+            } else {
+                event = mSensorHal.getCurrentSensorValue(
+                        CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
+            }
+            if (event == null) {
+                event = DrivingStatePolicy.getDefaultValue(
+                        CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
             }
             // always populate default value
-            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
-                    DrivingStatePolicy.getDefaultValue(
-                            CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
+            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, event);
+            event = null;
             if (mUseDefaultDayNightModePolicy) {
                 mDayNightModePolicy.init();
                 mDayNightModePolicy.registerSensorListener(this);
+            } else {
+                event = mSensorHal.getCurrentSensorValue(CarSensorManager.SENSOR_TYPE_NIGHT);
+            }
+            if (event == null) {
+                event = DayNightModePolicy.getDefaultValue(CarSensorManager.SENSOR_TYPE_NIGHT);
             }
             // always populate default value
-            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_NIGHT,
-                    DayNightModePolicy.getDefaultValue(
-                            CarSensorManager.SENSOR_TYPE_NIGHT));
+            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_NIGHT, event);
         } finally {
             mSensorLock.unlock();
         }
@@ -452,7 +462,7 @@ public class CarSensorService extends ICarSensor.Stub
                 return true;
             }
         }
-        Log.w(CarLog.TAG_SENSOR, "requestSensorStart failed");
+        Log.w(CarLog.TAG_SENSOR, "requestSensorStart failed, sensor type:" + sensorType);
         return false;
     }
 

@@ -21,6 +21,7 @@ import android.os.SystemClock;
 import android.support.car.Car;
 import android.support.car.hardware.CarSensorEvent;
 import android.support.car.hardware.CarSensorManager;
+import android.util.Log;
 
 import com.android.car.hal.SensorHalServiceBase.SensorListener;
 
@@ -80,6 +81,8 @@ public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
     public synchronized boolean requestSensorStart(int sensorType, int rate) {
         mStarted = true;
         // TODO Auto-generated method stub
+        Log.w(CarLog.TAG_SENSOR,
+                "DayNightModePolicy.requestSensorStart, default policy not implemented");
         return false;
     }
 
