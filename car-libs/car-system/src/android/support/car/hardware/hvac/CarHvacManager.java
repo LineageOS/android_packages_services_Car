@@ -58,10 +58,6 @@ public class CarHvacManager implements CarManagerBase {
      */
     public static final int HVAC_MIRROR_DEFROSTER_ON     = 0x0001;
     /**
-     * Air conditioner state, bool
-     */
-    public static final int HVAC_AC_ON                   = 0x0002;
-    /**
      * HVAC is in automatic mode, bool.
      */
     public static final int HVAC_AUTOMATIC_MODE_ON       = 0x0003;
@@ -118,6 +114,10 @@ public class CarHvacManager implements CarManagerBase {
      * i.e. -3 to 3 for 3 levels of cooling and 3 levels of heating.  int.
      */
     public static final int HVAC_ZONED_SEAT_TEMP                 = 0x4008;
+    /**
+     * Air conditioner state, bool
+     */
+    public static final int HVAC_ZONED_AC_ON                   = 0x4009;
     /**
      * Defroster is based off of window position
      */
