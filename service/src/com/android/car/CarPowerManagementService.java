@@ -123,8 +123,6 @@ public class CarPowerManagementService implements CarServiceBase,
     @GuardedBy("this")
     private PowerState mCurrentState;
     @GuardedBy("this")
-    private boolean mRearviewCameraActive = false; //TODO plumb this from rearview camera HAL
-    @GuardedBy("this")
     private Timer mTimer;
     @GuardedBy("this")
     private long mProcessingStartTime;
@@ -307,13 +305,8 @@ public class CarPowerManagementService implements CarServiceBase,
                 notifyPowerOn(false);
                 break;
             case PowerHalService.STATE_ON_FULL:
-                if (isRearviewCameraActive()) {
-                    handleFullOnWithRearviewCameraActive(state);
-                    notifyPowerOn(false);
-                } else {
-                    handleFullOn(state);
-                    notifyPowerOn(true);
-                }
+                handleFullOn(state);
+                notifyPowerOn(true);
                 break;
             case PowerHalService.STATE_SHUTDOWN_PREPARE:
                 handleShutdownPrepare(state);
@@ -329,12 +322,6 @@ public class CarPowerManagementService implements CarServiceBase,
     private void handleFullOn(PowerState newState) {
         setCurrentState(newState);
         mSystemInterface.setDisplayState(true);
-    }
-
-    private void handleFullOnWithRearviewCameraActive(PowerState newState) {
-        setCurrentState(newState);
-        // just hold the wakelock but do not turn display on.
-        mSystemInterface.switchToPartialWakeLock();
     }
 
     @VisibleForTesting
@@ -531,10 +518,6 @@ public class CarPowerManagementService implements CarServiceBase,
         //TODO
     }
 
-    private synchronized boolean isRearviewCameraActive() {
-        return mRearviewCameraActive;
-    }
-
     private boolean shouldDoFakeShutdown() {
         ICarImpl carImpl = ICarImpl.getInstance(mContext);
         if (!carImpl.isInMocking()) {
@@ -619,6 +602,7 @@ public class CarPowerManagementService implements CarServiceBase,
                     break;
                 case MSG_MAIN_DISPLAY_STATE_CHANGE:
                     doHandleMainDisplayStateChange((Boolean) msg.obj);
+                    break;
                 case MSG_PROCESSING_COMPLETE:
                     doHandleProcessingComplete(msg.arg1 == 1);
                     break;
@@ -669,20 +653,18 @@ public class CarPowerManagementService implements CarServiceBase,
             }
             if (on) {
                 switchToFullWakeLock();
-                if (!isMainDisplayOn()) {
-                    mPowerManager.wakeUp(SystemClock.uptimeMillis());
-                }
+                Log.i(CarLog.TAG_POWER, "on display");
+                mPowerManager.wakeUp(SystemClock.uptimeMillis());
             } else {
                 switchToPartialWakeLock();
-                if (isMainDisplayOn()) {
-                    mPowerManager.goToSleep(SystemClock.uptimeMillis());
-                }
+                Log.i(CarLog.TAG_POWER, "off display");
+                mPowerManager.goToSleep(SystemClock.uptimeMillis());
             }
         }
 
         private boolean isMainDisplayOn() {
             Display disp = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
-            return disp.getState() != Display.STATE_OFF;
+            return disp.getState() == Display.STATE_ON;
         }
 
         @Override
