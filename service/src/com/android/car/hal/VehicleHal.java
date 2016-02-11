@@ -95,6 +95,7 @@ public class VehicleHal implements VehicleNetworkListener {
     private final HalServiceBase[] mAllServices;
     private final ArraySet<Integer> mSubscribedProperties = new ArraySet<Integer>();
     private final HashMap<Integer, VehiclePropConfig> mUnclaimedProperties = new HashMap<>();
+    private final List<VehiclePropConfig> mAllProperties = new LinkedList<>();
 
     private VehicleHal() {
         mHandlerThread = new HandlerThread("VEHICLE-HAL");
@@ -157,6 +158,7 @@ public class VehicleHal implements VehicleNetworkListener {
             for (VehiclePropConfig p: propertiesList) {
                 mUnclaimedProperties.put(p.getProp(), p);
             }
+            mAllProperties.addAll(properties.getConfigsList());
         }
     }
 
@@ -171,6 +173,7 @@ public class VehicleHal implements VehicleNetworkListener {
             }
             mSubscribedProperties.clear();
             mUnclaimedProperties.clear();
+            mAllProperties.clear();
         }
         // keep the looper thread as should be kept for the whole life cycle.
     }
@@ -317,6 +320,31 @@ public class VehicleHal implements VehicleNetworkListener {
         writer.println("**dump HAL services**");
         for (HalServiceBase service: mAllServices) {
             service.dump(writer);
+        }
+        writer.println("**All properties**");
+        for (VehiclePropConfig config : mAllProperties) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Property:" + Integer.toHexString(config.getProp()));
+            builder.append(",access:" + Integer.toHexString(config.getAccess()));
+            builder.append(",changeMode:" + Integer.toHexString(config.getChangeMode()));
+            builder.append(",valueType:" + Integer.toHexString(config.getValueType()));
+            builder.append(",permission:" + Integer.toHexString(config.getPermissionModel()));
+            builder.append(",config:" + Integer.toHexString(config.getConfigArray(0)));
+            builder.append(",fs min:" + config.getSampleRateMin());
+            builder.append(",fs max:" + config.getSampleRateMax());
+            if (config.hasFloatMin()) {
+                builder.append(",v min:" + config.getFloatMin());
+                builder.append(",v max:" + config.getFloatMax());
+            }
+            if (config.hasInt32Min()) {
+                builder.append(",v min:" + config.getInt32Min());
+                builder.append(",v max:" + config.getInt32Max());
+            }
+            if (config.hasInt64Min()) {
+                builder.append(",v min:" + config.getInt64Min());
+                builder.append(",v max:" + config.getInt64Max());
+            }
+            writer.println(builder.toString());
         }
     }
 }
