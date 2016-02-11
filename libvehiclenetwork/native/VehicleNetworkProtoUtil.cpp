@@ -342,7 +342,12 @@ status_t VehicleNetworkProtoUtil::toVehiclePropConfig(const vehicle_prop_config_
     }
     switch (in.value_type) {
         case VEHICLE_VALUE_TYPE_FLOAT:
-        case VEHICLE_VALUE_TYPE_ZONED_FLOAT: {
+        case VEHICLE_VALUE_TYPE_FLOAT_VEC2:
+        case VEHICLE_VALUE_TYPE_FLOAT_VEC3:
+        case VEHICLE_VALUE_TYPE_FLOAT_VEC4:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3: {
             out.set_float_max(in.float_max_value);
             out.set_float_min(in.float_min_value);
         } break;
@@ -351,7 +356,12 @@ status_t VehicleNetworkProtoUtil::toVehiclePropConfig(const vehicle_prop_config_
             out.set_int64_min(in.int64_min_value);
         } break;
         case VEHICLE_VALUE_TYPE_INT32:
-        case VEHICLE_VALUE_TYPE_ZONED_INT32: {
+        case VEHICLE_VALUE_TYPE_INT32_VEC2:
+        case VEHICLE_VALUE_TYPE_INT32_VEC3:
+        case VEHICLE_VALUE_TYPE_INT32_VEC4:
+        case VEHICLE_VALUE_TYPE_ZONED_INT32:
+        case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2:
+        case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3: {
             out.set_int32_max(in.int32_max_value);
             out.set_int32_min(in.int32_min_value);
         } break;
@@ -392,7 +402,12 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropConfig(const VehiclePropConfig&
     }
     switch (out.value_type) {
         case VEHICLE_VALUE_TYPE_FLOAT:
-        case VEHICLE_VALUE_TYPE_ZONED_FLOAT: {
+        case VEHICLE_VALUE_TYPE_FLOAT_VEC2:
+        case VEHICLE_VALUE_TYPE_FLOAT_VEC3:
+        case VEHICLE_VALUE_TYPE_FLOAT_VEC4:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3: {
             if (in.has_float_max() && in.has_float_min()) {
                 out.float_max_value = in.float_max();
                 out.float_min_value = in.float_min();
@@ -413,7 +428,12 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropConfig(const VehiclePropConfig&
             }
         } break;
         case VEHICLE_VALUE_TYPE_INT32:
-        case VEHICLE_VALUE_TYPE_ZONED_INT32: {
+        case VEHICLE_VALUE_TYPE_INT32_VEC2:
+        case VEHICLE_VALUE_TYPE_INT32_VEC3:
+        case VEHICLE_VALUE_TYPE_INT32_VEC4:
+        case VEHICLE_VALUE_TYPE_ZONED_INT32:
+        case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2:
+        case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3: {
             if (in.has_int32_max() && in.has_int32_min()) {
                 out.int32_max_value = in.int32_max();
                 out.int32_min_value = in.int32_min();

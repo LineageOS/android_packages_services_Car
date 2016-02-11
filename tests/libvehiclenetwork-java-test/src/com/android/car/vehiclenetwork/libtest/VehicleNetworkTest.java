@@ -223,9 +223,10 @@ public class VehicleNetworkTest extends AndroidTestCase {
                 throws InterruptedException {
             long now = SystemClock.elapsedRealtime();
             long end = now + timeoutMs;
-            while (now < end && !mEventRecord.contains(prop)) {
-                now = SystemClock.elapsedRealtime();
-                wait(end - now);
+            long timeToWait = end - now;
+            while (timeToWait > 0 && !mEventRecord.contains(prop)) {
+                wait(timeToWait);
+                timeToWait = end - SystemClock.elapsedRealtime();
             }
             return mEventRecord.contains(prop);
         }

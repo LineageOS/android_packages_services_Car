@@ -19,6 +19,7 @@
 #include <utils/Errors.h>
 #include <utils/SystemClock.h>
 
+#include "VehicleHalPropertyUtil.h"
 #include "VehicleNetworkService.h"
 
 //#define DBG_EVENT
@@ -215,8 +216,7 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
     msg.append("MockingEnabled=%d\n", mMockingEnabled ? 1 : 0);
     msg.append("*Properties\n");
     for (auto& prop : mProperties->getList()) {
-        //TODO dump more info
-        msg.appendFormat("property 0x%x\n", prop->prop);
+        VechilePropertyUtil::dumpProperty(msg, *prop);
     }
     if (mMockingEnabled) {
         msg.append("*Mocked Properties\n");

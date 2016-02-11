@@ -133,8 +133,8 @@ public class CarHvacProperty extends ExtendableParcelable {
         mPropertyId = propertyId;
         mType = CarHvacManager.PROPERTY_TYPE_FLOAT;
         mZone = zone;
-        mFloatMax = min;
-        mFloatMin = max;
+        mFloatMax = max;
+        mFloatMin = min;
         mFloatValues = new float[] {value};
         mIntValues = null;
         mIntMax = 0;
@@ -149,8 +149,8 @@ public class CarHvacProperty extends ExtendableParcelable {
         mPropertyId = propertyId;
         mType = CarHvacManager.PROPERTY_TYPE_INT;
         mZone = zone;
-        mIntMax = min;
-        mIntMin = max;
+        mIntMax = max;
+        mIntMin = min;
         mIntValues = new int[] { value };
         mFloatMax = 0;
         mFloatMin = 0;
@@ -164,8 +164,8 @@ public class CarHvacProperty extends ExtendableParcelable {
         mPropertyId = propertyId;
         mType = CarHvacManager.PROPERTY_TYPE_INT_VECTOR;
         mZone = zone;
-        mIntMax = min;
-        mIntMin = max;
+        mIntMax = max;
+        mIntMin = min;
         mIntValues = Arrays.copyOf(values, values.length);
         mFloatMax = 0;
         mFloatMin = 0;

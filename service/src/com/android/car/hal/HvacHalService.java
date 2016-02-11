@@ -379,8 +379,8 @@ public class HvacHalService extends HalServiceBase {
     public void dump(PrintWriter writer) {
         writer.println("*HVAC HAL*");
         writer.println("  Properties available:");
-        for (Integer prop : mProps.keySet()) {
-            writer.println("    " + prop);
+        for (CarHvacProperty prop : mProps.values()) {
+            writer.println("    " + prop.toString());
         }
     }
 
