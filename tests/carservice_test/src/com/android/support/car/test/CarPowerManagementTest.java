@@ -58,6 +58,15 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         super.setUp();
         mDisplayManager = (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
         mDisplayManager.registerDisplayListener(mDisplayListener, mMainHandler);
+    }
+
+    @Override
+    protected synchronized void tearDown() throws Exception {
+        super.tearDown();
+        mDisplayManager.unregisterDisplayListener(mDisplayListener);
+    }
+
+    private void setupPowerPropertyAndStart(boolean allowSleep) {
         getVehicleHalEmulator().addProperty(
                 VehiclePropConfigUtil.getBuilder(
                         VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_STATE,
@@ -65,7 +74,9 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                         VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
                         VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2,
                         VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
-                        VehicleApPowerStateConfigFlag.VEHICLE_AP_POWER_STATE_CONFIG_ENABLE_DEEP_SLEEP_FLAG
+                        allowSleep ?
+                                VehicleApPowerStateConfigFlag.VEHICLE_AP_POWER_STATE_CONFIG_ENABLE_DEEP_SLEEP_FLAG
+                                : 0
                             /*configFlags*/,
                         0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
                 mPowerStateHandler);
@@ -84,14 +95,8 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         getVehicleHalEmulator().start();
     }
 
-    @Override
-    protected synchronized void tearDown() throws Exception {
-        super.tearDown();
-        mDisplayManager.unregisterDisplayListener(mDisplayListener);
-    }
-
-
     public void testImmediateShutdown() throws Exception {
+        setupPowerPropertyAndStart(true);
         assertBootComplete();
         mPowerStateHandler.sendPowerState(
                 VehicleApPowerState.VEHICLE_AP_POWER_STATE_SHUTDOWN_PREPARE,
@@ -104,6 +109,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     }
 
     public void testDisplayOnOff() throws Exception {
+        setupPowerPropertyAndStart(true);
         assertBootComplete();
         for (int i = 0; i < 2; i++) {
             mPowerStateHandler.sendPowerState(
@@ -150,7 +156,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
     private synchronized boolean isMainDisplayOn() {
         Display disp = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
-        return disp.getState() != Display.STATE_OFF;
+        return disp.getState() == Display.STATE_ON;
     }
 
     private class PowerStatePropertyHandler implements VehicleHalPropertyHandler {
@@ -254,7 +260,8 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
         @Override
         public void onDisplayChanged(int displayId) {
-            Log.i(TAG, "onDisplayChanged, id:" + displayId);
+            Log.i(TAG, "onDisplayChanged, id:" + displayId + " main display on:" +
+                    isMainDisplayOn());
             if (displayId == Display.DEFAULT_DISPLAY) {
                 mDisplayWait.release();
             }
