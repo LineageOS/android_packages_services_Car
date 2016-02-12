@@ -19,7 +19,6 @@
 #include <memory>
 
 #include <binder/IPCThreadState.h>
-#include <private/android_filesystem_config.h>
 
 #include <utils/Log.h>
 
@@ -242,33 +241,15 @@ IMPLEMENT_META_INTERFACE(VehicleNetwork, IVehicleNetwork::SERVICE_NAME);
 
 // ----------------------------------------------------------------------
 
-static bool isSystemUser() {
-    uid_t uid =  IPCThreadState::self()->getCallingUid();
-    switch (uid) {
-        // This list will be expanded. Only those UIDs are allowed to access vehicle network
-        // for now. There can be per property based UID check built-in as well.
-        case AID_ROOT:
-        case AID_SYSTEM:
-        case AID_AUDIO:
-        case AID_MEDIA: {
-            return true;
-        } break;
-        default: {
-            ALOGE("non-system user tried access, uid %d", uid);
-        } break;
-    }
-    return false;
-}
-
 status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel* reply,
         uint32_t flags) {
-    if (!isSystemUser()) {
-        return PERMISSION_DENIED;
-    }
     status_t r;
     switch (code) {
         case LIST_PROPERTIES: {
             CHECK_INTERFACE(IVehicleNetwork, data, reply);
+            if (!isOperationAllowed(0, false)) {
+                return PERMISSION_DENIED;
+            }
             int32_t property = data.readInt32();
             sp<VehiclePropertiesHolder> holder = listProperties(property);
             if (holder.get() == NULL) { // given property not found
@@ -295,6 +276,9 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             if (r != NO_ERROR) {
                 return r;
             }
+            if (!isOperationAllowed(value.value.prop, true)) {
+                return PERMISSION_DENIED;
+            }
             r = setProperty(value.value);
             BinderUtil::fillNoResultReply(reply);
             return r;
@@ -308,6 +292,9 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
                 ALOGE("getProperty cannot read %d", r);
                 return r;
             }
+            if (!isOperationAllowed(value.value.prop, false)) {
+                return PERMISSION_DENIED;
+            }
             r = getProperty(&(value.value));
             if (r == NO_ERROR) {
                 reply->writeNoException();
@@ -320,6 +307,9 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             sp<IVehicleNetworkListener> listener =
                     interface_cast<IVehicleNetworkListener>(data.readStrongBinder());
             int32_t property = data.readInt32();
+            if (!isOperationAllowed(property, false)) {
+                return PERMISSION_DENIED;
+            }
             float sampleRate = data.readFloat();
             int32_t zones = data.readInt32();
             r = subscribe(listener, property, sampleRate, zones);
@@ -331,6 +321,9 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             sp<IVehicleNetworkListener> listener =
                     interface_cast<IVehicleNetworkListener>(data.readStrongBinder());
             int32_t property = data.readInt32();
+            if (!isOperationAllowed(property, false)) {
+                return PERMISSION_DENIED;
+            }
             unsubscribe(listener, property);
             BinderUtil::fillNoResultReply(reply);
             return NO_ERROR;
@@ -339,6 +332,9 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             CHECK_INTERFACE(IVehicleNetwork, data, reply);
             if (data.readInt32() == 0) { // java side allows passing null with this.
                 return BAD_VALUE;
+            }
+            if (!isOperationAllowed(0, true)) {
+                return PERMISSION_DENIED;
             }
             ScopedVehiclePropValue value;
             ReadableBlobHolder blob(new Parcel::ReadableBlob());
@@ -365,6 +361,9 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             return r;
         } break;
         case START_MOCKING: {
+            if (!isOperationAllowed(0, true)) {
+                return PERMISSION_DENIED;
+            }
             CHECK_INTERFACE(IVehicleNetwork, data, reply);
             sp<IVehicleNetworkHalMock> mock =
                     interface_cast<IVehicleNetworkHalMock>(data.readStrongBinder());
@@ -373,6 +372,9 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             return r;
         } break;
         case STOP_MOCKING: {
+            if (!isOperationAllowed(0, true)) {
+                return PERMISSION_DENIED;
+            }
             CHECK_INTERFACE(IVehicleNetwork, data, reply);
             sp<IVehicleNetworkHalMock> mock =
                     interface_cast<IVehicleNetworkHalMock>(data.readStrongBinder());
@@ -381,6 +383,9 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             return NO_ERROR;
         } break;
         case INJECT_HAL_ERROR: {
+            if (!isOperationAllowed(0, true)) {
+                return PERMISSION_DENIED;
+            }
             CHECK_INTERFACE(IVehicleNetwork, data, reply);
             int32_t errorCode = data.readInt32();
             int32_t property = data.readInt32();
@@ -390,6 +395,9 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             return r;
         } break;
         case START_ERROR_LISTENING: {
+            if (!isOperationAllowed(0, false)) {
+                return PERMISSION_DENIED;
+            }
             CHECK_INTERFACE(IVehicleNetwork, data, reply);
             sp<IVehicleNetworkListener> listener =
                     interface_cast<IVehicleNetworkListener>(data.readStrongBinder());
@@ -398,6 +406,9 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             return r;
         } break;
         case STOP_ERROR_LISTENING: {
+            if (!isOperationAllowed(0, false)) {
+                return PERMISSION_DENIED;
+            }
             CHECK_INTERFACE(IVehicleNetwork, data, reply);
             sp<IVehicleNetworkListener> listener =
                     interface_cast<IVehicleNetworkListener>(data.readStrongBinder());
@@ -406,6 +417,9 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             return NO_ERROR;
         } break;
         case START_HAL_RESTART_MONITORING: {
+            if (!isOperationAllowed(0, false)) {
+                return PERMISSION_DENIED;
+            }
             CHECK_INTERFACE(IVehicleNetwork, data, reply);
             sp<IVehicleNetworkListener> listener =
                     interface_cast<IVehicleNetworkListener>(data.readStrongBinder());
@@ -414,6 +428,9 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             return r;
         } break;
         case STOP_HAL_RESTART_MONITORING: {
+            if (!isOperationAllowed(0, false)) {
+                return PERMISSION_DENIED;
+            }
             CHECK_INTERFACE(IVehicleNetwork, data, reply);
             sp<IVehicleNetworkListener> listener =
                     interface_cast<IVehicleNetworkListener>(data.readStrongBinder());

@@ -81,6 +81,7 @@ class BnVehicleNetwork : public BnInterface<IVehicleNetwork> {
                                  const Parcel& data,
                                  Parcel* reply,
                                  uint32_t flags = 0);
+    virtual bool isOperationAllowed(int32_t property, bool isWrite) = 0;
 };
 
 // ----------------------------------------------------------------------------
