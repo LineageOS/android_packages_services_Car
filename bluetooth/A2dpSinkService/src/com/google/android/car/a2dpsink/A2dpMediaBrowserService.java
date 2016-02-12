@@ -281,6 +281,7 @@ public class A2dpMediaBrowserService extends MediaBrowserService {
         Log.d(TAG, "msgDeviceConnect");
         // We are connected to a new device via A2DP now.
         mA2dpDevice = device;
+        handleProfileOrDeviceConnect();
     }
 
     private void msgProfileConnect(BluetoothProfile profile) {
@@ -297,18 +298,28 @@ public class A2dpMediaBrowserService extends MediaBrowserService {
 
         if (mA2dpDevice != null && !mA2dpDevice.equals(devices.get(0))) {
             Log.e(TAG, "A2dp device : " + mA2dpDevice + " avrcp device " + devices.get(0));
+            return;
         }
         mA2dpDevice = devices.get(0);
+        handleProfileOrDeviceConnect();
+    }
 
-        PlaybackState playbackState = mAvrcpProfile.getPlaybackState(mA2dpDevice);
+    // Called when either the device or profile is connected. Note that either may be connected
+    // independent of each other. We set the initial state only if both are connected.
+    private void handleProfileOrDeviceConnect() {
+        if (mA2dpDevice == null || mAvrcpProfile == null) {
+            Log.e(TAG, "device and profile should be non-null.");
+            return;
+        }
+
+        // Set a dummy playback state so that the user can press play and start music.
         // Add actions required for playback and rebuild the object.
-        PlaybackState.Builder pbb = new PlaybackState.Builder(playbackState);
-        playbackState = pbb.setActions(mTransportControlFlags).build();
-
-        MediaMetadata mediaMetadata = mAvrcpProfile.getMetadata(mA2dpDevice);
-        Log.d(TAG, "Media metadata " + mediaMetadata + " playback state " + playbackState);
-        mSession.setMetadata(mAvrcpProfile.getMetadata(mA2dpDevice));
-        mSession.setPlaybackState(playbackState);
+        PlaybackState.Builder pbb = new PlaybackState.Builder();
+        pbb = pbb.setState(PlaybackState.STATE_STOPPED, PlaybackState.PLAYBACK_POSITION_UNKNOWN,
+                PLAYBACK_SPEED)
+                 .setActions(mTransportControlFlags);
+        mSession.setPlaybackState(pbb.build());
+        mSession.setMetadata(new MediaMetadata.Builder().build());
     }
 
     private void msgDeviceDisconnect(BluetoothDevice device) {
@@ -329,6 +340,7 @@ public class A2dpMediaBrowserService extends MediaBrowserService {
                 .setActions(mTransportControlFlags)
                 .setErrorMessage(getString(R.string.bluetooth_disconnected));
         mSession.setPlaybackState(pbb.build());
+        mSession.setMetadata(null);
     }
 
     private void msgProfileDisconnect() {
