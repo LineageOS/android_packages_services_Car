@@ -19,6 +19,10 @@
 #include <utils/Errors.h>
 #include <utils/SystemClock.h>
 
+#include <private/android_filesystem_config.h>
+
+#include <vehicle-internal.h>
+
 #include "VehicleHalPropertyUtil.h"
 #include "VehicleNetworkService.h"
 
@@ -252,6 +256,33 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
     }
     write(fd, msg.string(), msg.size());
     return NO_ERROR;
+}
+
+bool VehicleNetworkService::isOperationAllowed(int32_t property, bool isWrite) {
+    uid_t uid =  IPCThreadState::self()->getCallingUid();
+    switch (uid) {
+        // This list will be expanded. Only those UIDs are allowed to access vehicle network
+        // for now. There can be per property based UID check built-in as well.
+        case AID_ROOT:
+        case AID_SYSTEM: {
+            return true;
+        } break;
+        case AID_AUDIOSERVER: {
+            if (isWrite) {
+                if (property == VEHICLE_PROPERTY_INTERNAL_AUDIO_STREAM_STATE) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
+            }
+        } break;
+        default: {
+            ALOGE("non-system user tried access, uid %d", uid);
+        } break;
+    }
+    return false;
 }
 
 VehicleNetworkService::VehicleNetworkService()

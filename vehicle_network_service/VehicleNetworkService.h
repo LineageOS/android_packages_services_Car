@@ -309,6 +309,8 @@ public:
     bool isPropertySubsribed(int32_t property);
 
     void handleHalMockDeath(const wp<IBinder>& who);
+protected:
+    virtual bool isOperationAllowed(int32_t property, bool isWrite);
 private:
     // RefBase
     virtual void onFirstRef();
