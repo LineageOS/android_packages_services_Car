@@ -23,6 +23,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -67,6 +69,14 @@ public class CarUiController {
     private Method mOnResume;
     private Method mOnPause;
     private Method mOnStop;
+    private Method mShowSearchBox;
+    private Method mSetSearchBoxEditListener;
+    private Method mStartInput;
+    private Method mGetText;
+    private Method mStopInput;
+    private Method mStartSearchInput;
+    private Method mSetSearchBoxEndView;
+    private Method mSetSearchBoxColors;
 
     private Object mCarUiEntryClass;
 
@@ -157,6 +167,30 @@ public class CarUiController {
                         break;
                     case "onStop":
                         mOnStop = m;
+                        break;
+                    case "showSearchBox":
+                        mShowSearchBox = m;
+                        break;
+                    case "setSearchBoxEditListener":
+                        mSetSearchBoxEditListener = m;
+                        break;
+                    case "startInput":
+                        mStartInput = m;
+                        break;
+                    case "getText":
+                        mGetText = m;
+                        break;
+                    case "stopInput":
+                        mStopInput = m;
+                        break;
+                    case "startSearchInput":
+                        mStartSearchInput = m;
+                        break;
+                    case "setSearchBoxEndView":
+                        mSetSearchBoxEndView = m;
+                        break;
+                    case "setSearchBoxColors":
+                        mSetSearchBoxColors = m;
                         break;
                 }
             }
@@ -280,5 +314,39 @@ public class CarUiController {
 
     public void onStop() {
         invoke(mOnStop);
+    }
+
+    public void showSearchBox(View.OnClickListener listener) {
+        invoke(mShowSearchBox, listener);
+    }
+
+    public void setSearchBoxColors(int backgroundColor, int googleLogoColor, int textColor,
+                                   int hintTextColor) {
+        invoke(mSetSearchBoxColors, backgroundColor, googleLogoColor, textColor, hintTextColor);
+    }
+
+    public void setSearchBoxEditListener(IBinder listener) {
+        invoke(mSetSearchBoxEditListener, listener);
+    }
+
+    public Object startInput(
+            EditorInfo outAttrs, String hint, View.OnClickListener searchBoxClickListener) {
+        return invoke(mStartInput, outAttrs, hint, searchBoxClickListener);
+    }
+
+    public CharSequence getText() {
+        return (CharSequence) invoke(mGetText);
+    }
+
+    public void stopInput() {
+        invoke(mStopInput);
+    }
+
+    public EditText startSearchInput(String hint, View.OnClickListener listener) {
+        return (EditText) invoke(mStartSearchInput, hint, listener);
+    }
+
+    public void setSearchBoxEndView(View view) {
+        invoke(mSetSearchBoxEndView, view);
     }
 }

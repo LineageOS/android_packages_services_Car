@@ -15,20 +15,22 @@
  */
 package android.support.car.input;
 
+import android.widget.EditText;
+
 /**
  *  Manages use of the in-car IME. All methods should only be called on the main thread.
  *  Instances should be obtained by calling {@link android.support.car.app.CarActivity#getInputManager()}.
  */
 public abstract class CarInputManager {
     /**
-     * Starts input on the requested {@link CarRestrictedEditText}, showing the IME.
+     * Starts input on the requested {@link android.widget.EditText}, showing the IME.
      * If IME input is already occurring for another view, this call stops input on the previous
      * view and starts input on the new view.
      *
      * This method must only be called from the UI thread. Calling this method from a stopped
      * activity is an illegal operation.
      */
-    abstract public void startInput(CarRestrictedEditText view);
+    abstract public void startInput(EditText view);
 
     /**
      * Stops input, hiding the IME. This method fails silently if the calling application didn't
@@ -51,8 +53,8 @@ public abstract class CarInputManager {
     abstract public boolean isInputActive();
 
     /**
-     * Returns {@code true} if IME is active on the given {@link CarEditable}.
+     * Returns {@code true} if IME is active on the given {@link android.widget.EditText}.
      */
-    abstract public boolean isCurrentCarEditable(CarRestrictedEditText view);
+    abstract public boolean isCurrentCarEditable(EditText view);
 
 }
