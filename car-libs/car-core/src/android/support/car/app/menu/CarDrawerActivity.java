@@ -19,18 +19,29 @@ package android.support.car.app.menu;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.hardware.input.InputManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.LayoutRes;
 import android.support.car.app.CarFragmentActivity;
+import android.support.car.input.CarEditable;
+import android.support.car.input.CarEditableListener;
+import android.support.car.input.CarInputManager;
+import android.support.car.input.CarRestrictedEditText;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputConnectionWrapper;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 
 import java.lang.ref.WeakReference;
@@ -46,14 +57,39 @@ public abstract class CarDrawerActivity extends CarFragmentActivity {
     private static final String TAG = "CarDrawerActivity";
     private static final String KEY_DRAWERSHOWING =
             "android.support.car.app.CarDrawerActivity.DRAWER_SHOWING";
+    private static final String KEY_INPUTSHOWING =
+            "android.support.car.app.CarDrawerActivity.INPUT_SHOWING";
+    private static final String KEY_SEARCHBOXENABLED =
+            "android.support.car.app.CarDrawerActivity.SEARCH_BOX_ENABLED";
 
     private final Handler mHandler = new Handler();
+    private final CarUiController mUiController;
 
-    private CarUiController mUiController;
     private CarMenuCallbacks mMenuCallbacks;
     private CarMenuCallbacksBinder mBinder;
     private boolean mDrawerShowing;
+    private boolean mShowingSearchBox;
+    private boolean mSearchBoxEnabled;
     private boolean mOnCreateCalled = false;
+    private View.OnClickListener mSearchBoxOnClickListener;
+
+    private CarInputManager mInputManager;
+    private EditText mSearchBoxView;
+
+    /**
+     * Simple interface to listen for keyboard events.
+     */
+    public interface SearchBoxEditListener {
+        /**
+         * The user hit enter on the keyboard.
+         */
+        void onSearch(String text);
+
+        /**
+         * The user changed the text in the search box with the keyboard.
+         */
+        void onEdit(String text);
+    }
 
     public CarDrawerActivity(Proxy proxy, Context context) {
         super(proxy, context);
@@ -85,6 +121,7 @@ public abstract class CarDrawerActivity extends CarFragmentActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         mUiController.onStart();
     }
 
@@ -251,6 +288,7 @@ public abstract class CarDrawerActivity extends CarFragmentActivity {
         super.onCreate(savedInstanceState);
         super.setContentView(mUiController.getContentView());
         mBinder = new CarMenuCallbacksBinder(this);
+        mInputManager = getInputManager();
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -294,6 +332,109 @@ public abstract class CarDrawerActivity extends CarFragmentActivity {
 
     public void openDrawer() {
         mUiController.openDrawer();
+    }
+
+    public boolean isDrawerShowing() {
+        return mDrawerShowing;
+    }
+
+    /**
+     * Shows a small clickable {@link android.widget.EditText}.
+     *
+     * {@link View} will be {@code null} in {@link View.OnClickListener#onClick(View)}.
+     *
+     * @param listener {@link View.OnClickListener} that is called when user selects the
+     *                 {@link android.widget.EditText}.
+     */
+    public void showSearchBox(View.OnClickListener listener) {
+        if (!isDrawerShowing()) {
+            mUiController.showSearchBox(listener);
+            mShowingSearchBox = true;
+        }
+        mSearchBoxEnabled = true;
+        mSearchBoxOnClickListener = listener;
+    }
+
+    public void hideSearchBox() {
+        if (isShowingSearchBox()) {
+            stopInput();
+        }
+        mSearchBoxEnabled = false;
+    }
+
+    public boolean isShowingSearchBox() {
+        return mShowingSearchBox;
+    }
+
+    public void setSearchBoxEditListener(SearchBoxEditListener listener) {
+        mUiController.setSearchBoxEditListener(new SearchBoxEditListenerBinder(listener));
+    }
+
+    public void stopInput() {
+        // STOPSHIP: sometimes focus is lost and we are not able to hide the keyboard.
+        // properly fix this before we ship.
+        if (mSearchBoxView != null) {
+            mSearchBoxView.requestFocusFromTouch();
+        }
+        mUiController.stopInput();
+        mInputManager.stopInput();
+        mShowingSearchBox = false;
+    }
+
+    /**
+     * Start input on the search box that is provided by a car ui provider.
+     * TODO: Migrate to use the new input/search api once it becomes stable (b/27108311).
+     * @param hint Search hint
+     */
+    public void startInput(String hint) {
+        startInput(hint, mSearchBoxOnClickListener);
+    }
+
+    /**
+     * Start input on the search box that is provided by a car ui provider.
+     * TODO: Migrate to use the new input/search api once it becomes stable (b/27108311).
+     * @param hint Search hint
+     * @param onClickListener Listener for the search box clicks.
+     */
+    public void startInput(final String hint, final View.OnClickListener onClickListener) {
+        mInputManager = getInputManager();
+        EditText inputView = mUiController.startSearchInput(hint, onClickListener);
+        getInputManager().startInput(inputView);
+        mSearchBoxView = inputView;
+        mShowingSearchBox = true;
+    }
+
+    public void setSearchBoxColors(int backgroundColor, int googleLogoColor, int textColor,
+            int hintTextColor) {
+        mUiController.setSearchBoxColors(backgroundColor, googleLogoColor, textColor, hintTextColor);
+    }
+
+    public void setSearchBoxEndView(View endView) {
+        mUiController.setSearchBoxEndView(endView);
+    }
+
+    public void showToast(String text, int duration) {
+    }
+
+    private static class SearchBoxEditListenerBinder extends ISearchBoxEditListener.Stub {
+        private final SearchBoxEditListener mListener;
+
+        public SearchBoxEditListenerBinder(SearchBoxEditListener listener) {
+            if (listener == null) {
+                throw new IllegalArgumentException("Listener cannot be null");
+            }
+            mListener = listener;
+        }
+
+        @Override
+        public void onSearch(String text) {
+            mListener.onSearch(text);
+        }
+
+        @Override
+        public void onEdit(String text) {
+            mListener.onEdit(text);
+        }
     }
 
     private static class CarMenuCallbacksBinder extends ICarMenuCallbacks.Stub {
@@ -350,18 +491,32 @@ public abstract class CarDrawerActivity extends CarFragmentActivity {
 
         @Override
         public void onCarMenuClosing() throws RemoteException {
+            CarDrawerActivity activity = mActivity.get();
+            if (activity != null) {
+                if (activity.mSearchBoxEnabled) {
+                    activity.mUiController.showSearchBox(activity.mSearchBoxOnClickListener);
+                    activity.mShowingSearchBox = true;
+                }
+            }
         }
 
         @Override
         public void onCarMenuClosed() throws RemoteException {
             CarDrawerActivity activity = mActivity.get();
-            activity.mDrawerShowing = false;
+            if (activity != null) {
+                activity.mDrawerShowing = false;
+                if (activity.mSearchBoxEnabled && !activity.mShowingSearchBox) {
+                    activity.showSearchBox(activity.mSearchBoxOnClickListener);
+                }
+            }
         }
 
         @Override
         public void onCarMenuOpening() throws RemoteException {
             CarDrawerActivity activity = mActivity.get();
-            activity.mDrawerShowing = true;
+            if (activity != null) {
+                activity.stopInput();
+            }
         }
 
         @Override
@@ -370,7 +525,7 @@ public abstract class CarDrawerActivity extends CarFragmentActivity {
             if (activity != null) {
                 activity.mMenuCallbacks.onItemClicked(id);
                 // TODO: Add support for IME
-                // activity.stopInput();
+                activity.stopInput();
             }
         }
 
