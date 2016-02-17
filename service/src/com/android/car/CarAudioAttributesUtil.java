@@ -15,9 +15,9 @@
  */
 package com.android.car;
 
+import android.car.media.CarAudioManager;
 import android.media.AudioAttributes;
 import android.os.Bundle;
-import android.support.car.media.CarAudioManager;
 
 /**
  * Utility class to map car usage into AudioAttributes and the other way around.

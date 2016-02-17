@@ -15,11 +15,11 @@
  */
 package com.android.support.car.test;
 
+import android.car.test.VehicleHalEmulator.VehicleHalPropertyHandler;
 import android.content.Context;
 import android.media.AudioManager;
 import android.support.car.Car;
 import android.support.car.CarAppContextManager;
-import android.support.car.VehicleHalEmulator.VehicleHalPropertyHandler;
 import android.util.Log;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
@@ -55,7 +55,7 @@ public class AppContextTest extends MockedCarTestBase {
     }
 
     public void testCotextChange() throws Exception {
-        CarAppContextManager manager = (CarAppContextManager) getCarApi().getCarManager(
+        CarAppContextManager manager = (CarAppContextManager) getSupportCar().getCarManager(
                 Car.APP_CONTEXT_SERVICE);
         ContextChangeListerner listener = new ContextChangeListerner();
         manager.registerContextListener(listener, CarAppContextManager.APP_CONTEXT_NAVIGATION |

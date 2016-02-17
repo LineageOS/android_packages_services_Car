@@ -15,12 +15,12 @@
  */
 package com.android.support.car.test;
 
+import android.car.test.VehicleHalEmulator.VehicleHalPropertyHandler;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.SystemClock;
 import android.support.car.Car;
-import android.support.car.VehicleHalEmulator.VehicleHalPropertyHandler;
 import android.support.car.media.CarAudioManager;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
@@ -337,7 +337,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
 
         // android radio
         AudioFocusListener listenerRadio = new AudioFocusListener();
-        CarAudioManager carAudioManager = (CarAudioManager) getCarApi().getCarManager(
+        CarAudioManager carAudioManager = (CarAudioManager) getSupportCar().getCarManager(
                 Car.AUDIO_SERVICE);
         assertNotNull(carAudioManager);
         AudioAttributes radioAttributes = carAudioManager.getAudioAttributesForCarUsage(

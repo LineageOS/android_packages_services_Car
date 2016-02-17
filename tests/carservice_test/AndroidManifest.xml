@@ -20,19 +20,19 @@
         android:sharedUserId="android.uid.system" >
 
     <uses-permission android:name="android.Manifest.permission.MODIFY_AUDIO_ROUTING" />
-    <uses-permission android:name="android.support.car.permission.CAR_HVAC" />
-    <uses-permission android:name="android.support.car.permission.CAR_RADIO" />
-    <uses-permission android:name="android.support.car.permission.CONTROL_APP_BLOCKING" />
+    <uses-permission android:name="android.car.permission.CAR_HVAC" />
+    <uses-permission android:name="android.car.permission.CAR_RADIO" />
+    <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING" />
     <instrumentation android:name="android.test.InstrumentationTestRunner"
             android:targetPackage="com.android.support.car.carservicetest"
             android:label="Tests for Car APIs"/>
 
     <application android:label="CarServiceTest">
         <uses-library android:name="android.test.runner" />
-        <service android:name="com.android.support.car.test.TestAppBlockingPolicyService"
-            android:permission="android.support.car.permission.CONTROL_APP_BLOCKING">
+        <service android:name="com.android.car.test.TestAppBlockingPolicyService"
+            android:permission="android.car.permission.CONTROL_APP_BLOCKING">
             <intent-filter>
-                <action android:name="android.support.car.content.pm.CarAppBlockingPolicyService"/>
+                <action android:name="android.car.content.pm.CarAppBlockingPolicyService"/>
             </intent-filter>
         </service>
     </application>

@@ -17,6 +17,12 @@
 package com.android.car;
 
 import android.Manifest;
+import android.car.Car;
+import android.car.hardware.CarSensorEvent;
+import android.car.hardware.CarSensorManager;
+import android.car.hardware.ICarSensor;
+import android.car.hardware.ICarSensorEventListener;
+import android.car.hardware.CarSensorManager.CarSensorEventListener;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.SensorEvent;
@@ -29,12 +35,6 @@ import android.os.Message;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.support.car.Car;
-import android.support.car.hardware.CarSensorEvent;
-import android.support.car.hardware.CarSensorManager;
-import android.support.car.hardware.ICarSensor;
-import android.support.car.hardware.ICarSensorEventListener;
-import android.support.car.hardware.CarSensorManager.CarSensorEventListener;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -78,8 +78,6 @@ public class CarSensorService extends ICarSensor.Stub
      * VehicleNetworkService is already doing this, so not necessary to set it for now.
      */
     private static final boolean ENABLE_DISPATCHING_LIMIT = false;
-
-    public static final int VERSION = 1;
 
     /** {@link #mSensorLock} is not waited forever for handling disconnection */
     private static final long MAX_SENSOR_LOCK_WAIT_MS = 1000;
@@ -279,15 +277,9 @@ public class CarSensorService extends ICarSensor.Stub
         return mSupportedSensors;
     }
 
-
-    @Override
-    public int getVersion() {
-        return VERSION;
-    }
-
     @Override
     public boolean registerOrUpdateSensorListener(int sensorType, int rate,
-            int clientVersion, ICarSensorEventListener listener) {
+            ICarSensorEventListener listener) {
         boolean shouldStartSensors = false;
         SensorRecord sensorRecord = null;
         SensorClient sensorClient = null;

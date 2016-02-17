@@ -17,12 +17,12 @@
 package com.android.car;
 
 import android.app.UiModeManager;
+import android.car.Car;
+import android.car.CarNotConnectedException;
+import android.car.hardware.CarSensorEvent;
+import android.car.hardware.CarSensorManager;
+import android.car.hardware.ICarSensorEventListener;
 import android.content.Context;
-import android.support.car.Car;
-import android.support.car.CarNotConnectedException;
-import android.support.car.hardware.CarSensorEvent;
-import android.support.car.hardware.CarSensorManager;
-import android.support.car.hardware.ICarSensorEventListener;
 import android.util.Log;
 
 import java.io.PrintWriter;
@@ -32,7 +32,6 @@ import java.util.List;
 public class CarNightService implements CarServiceBase {
 
     public static final boolean DBG = true;
-    private static final int VERSION = 1;
     private int mNightSetting = UiModeManager.MODE_NIGHT_YES;
     private final Context mContext;
     private final UiModeManager mUiModeManager;
@@ -82,7 +81,7 @@ public class CarNightService implements CarServiceBase {
         mCarSensorService = (CarSensorService) ICarImpl.getInstance(mContext).getCarService(
                 Car.SENSOR_SERVICE);
         mCarSensorService.registerOrUpdateSensorListener(CarSensorManager.SENSOR_TYPE_NIGHT,
-                CarSensorManager.SENSOR_RATE_NORMAL,VERSION,mICarSensorEventListener);
+                CarSensorManager.SENSOR_RATE_NORMAL, mICarSensorEventListener);
         CarSensorEvent currentState = mCarSensorService.getLatestSensorEvent(
                 CarSensorManager.SENSOR_TYPE_NIGHT);
         handleSensorEvent(currentState);

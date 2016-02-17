@@ -23,57 +23,57 @@
     <original-package android:name="com.android.car" />
 
     <permission-group
-        android:name="android.support.car.permission.CAR_INFORMATION"
+        android:name="android.car.permission.CAR_INFORMATION"
         android:icon="@drawable/car_ic_mode"
         android:description="@string/car_permission_desc"
         android:label="@string/car_permission_label" />
 
     <permission
-        android:name="android.support.car.permission.CAR_FUEL"
-        android:permissionGroup="android.support.car.permission.CAR_INFORMATION"
+        android:name="android.car.permission.CAR_FUEL"
+        android:permissionGroup="android.car.permission.CAR_INFORMATION"
         android:protectionLevel="dangerous"
         android:label="@string/car_permission_label_fuel"
         android:description="@string/car_permission_desc_fuel" />
     <permission
-        android:name="android.support.car.permission.CAR_HVAC"
-        android:permissionGroup="android.support.car.permission.CAR_INFORMATION"
+        android:name="android.car.permission.CAR_HVAC"
+        android:permissionGroup="android.car.permission.CAR_INFORMATION"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_hvac"
         android:description="@string/car_permission_desc_hvac" />
     <permission
-        android:name="android.support.car.permission.CAR_MILEAGE"
-        android:permissionGroup="android.support.car.permission.CAR_INFORMATION"
+        android:name="android.car.permission.CAR_MILEAGE"
+        android:permissionGroup="android.car.permission.CAR_INFORMATION"
         android:protectionLevel="dangerous"
         android:label="@string/car_permission_label_mileage"
         android:description="@string/car_permission_desc_mileage" />
     <permission
-        android:name="android.support.car.permission.CAR_SPEED"
+        android:name="android.car.permission.CAR_SPEED"
         android:permissionGroup="android.permission-group.LOCATION"
         android:protectionLevel="dangerous"
         android:label="@string/car_permission_label_speed"
         android:description="@string/car_permission_desc_speed" />
     <permission
-        android:name="android.support.car.permission.CAR_VENDOR_EXTENSION"
-        android:permissionGroup="android.support.car.permission.CAR_INFORMATION"
+        android:name="android.car.permission.CAR_VENDOR_EXTENSION"
+        android:permissionGroup="android.car.permission.CAR_INFORMATION"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_vendor_extension"
         android:description="@string/car_permission_desc_vendor_extension" />
     <permission
-        android:name="android.support.car.permission.CAR_RADIO"
-        android:permissionGroup="android.support.car.permission.CAR_INFORMATION"
+        android:name="android.car.permission.CAR_RADIO"
+        android:permissionGroup="android.car.permission.CAR_INFORMATION"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_radio"
         android:description="@string/car_permission_desc_radio" />
 
     <permission
-        android:name="android.support.car.permission.CAR_MOCK_VEHICLE_HAL"
+        android:name="android.car.permission.CAR_MOCK_VEHICLE_HAL"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_mock_vehicle_hal"
         android:description="@string/car_permission_desc_mock_vehicle_hal" />
 
     <!--  may replace this with system permission if proper one is defined. -->
     <permission
-        android:name="android.support.car.permission.CONTROL_APP_BLOCKING"
+        android:name="android.car.permission.CONTROL_APP_BLOCKING"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_control_app_blocking"
         android:description="@string/car_permission_desc_control_app_blocking" />
@@ -93,7 +93,7 @@
         <service android:name=".CarService"
                 android:singleUser="true">
             <intent-filter>
-                <action android:name="android.support.car.ICar" />
+                <action android:name="android.car.ICar" />
             </intent-filter>
         </service>
         <receiver android:name=".BootReceiver">

@@ -16,7 +16,7 @@
 
 package com.android.car;
 
-import android.support.car.hardware.CarSensorEvent;
+import android.car.hardware.CarSensorEvent;
 
 //TODO add memory pool and recycling
 public class CarSensorEventFactory {

@@ -16,11 +16,10 @@
 
 package com.android.car.hal;
 
+import android.car.hardware.radio.CarRadioEvent;
+import android.car.hardware.radio.CarRadioPreset;
 import android.util.Log;
 import android.hardware.radio.RadioManager;
-
-import android.support.car.hardware.radio.CarRadioEvent;
-import android.support.car.hardware.radio.CarRadioPreset;
 
 import com.android.car.CarLog;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;

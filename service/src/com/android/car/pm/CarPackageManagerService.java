@@ -15,6 +15,12 @@
  */
 package com.android.car.pm;
 
+import android.car.Car;
+import android.car.content.pm.AppBlockingPackageInfo;
+import android.car.content.pm.CarAppBlockingPolicy;
+import android.car.content.pm.CarAppBlockingPolicyService;
+import android.car.content.pm.CarPackageManager;
+import android.car.content.pm.ICarPackageManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -27,12 +33,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.support.car.Car;
-import android.support.car.content.pm.AppBlockingPackageInfo;
-import android.support.car.content.pm.CarAppBlockingPolicy;
-import android.support.car.content.pm.CarAppBlockingPolicyService;
-import android.support.car.content.pm.CarPackageManager;
-import android.support.car.content.pm.ICarPackageManager;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
@@ -53,7 +53,6 @@ import java.util.Map.Entry;
 //TODO monitor app installing and refresh policy
 
 public class CarPackageManagerService extends ICarPackageManager.Stub implements CarServiceBase {
-    private static final int VERSION = 1;
     static final boolean DBG_POLICY_SET = true;
     static final boolean DBG_POLICY_CHECK = false;
 
@@ -86,11 +85,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mHandlerThread = new HandlerThread(CarLog.TAG_PACKAGE);
         mHandlerThread.start();
         mHandler = new PackageHandler(mHandlerThread.getLooper());
-    }
-
-    @Override
-    public int getVersion() {
-        return VERSION;
     }
 
     @Override

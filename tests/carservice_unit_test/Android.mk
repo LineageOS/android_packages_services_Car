@@ -33,8 +33,6 @@ LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_INSTRUMENTATION_FOR := CarService
 
-LOCAL_STATIC_JAVA_LIBRARIES += car-systemtest
-
-LOCAL_JAVA_LIBRARIES := android.test.runner
+LOCAL_JAVA_LIBRARIES := android.car android.test.runner
 
 include $(BUILD_PACKAGE)

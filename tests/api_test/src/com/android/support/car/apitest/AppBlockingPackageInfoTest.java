@@ -15,12 +15,12 @@
  */
 package com.android.support.car.apitest;
 
+import android.car.content.pm.AppBlockingPackageInfo;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Parcel;
-import android.support.car.content.pm.AppBlockingPackageInfo;
 import android.test.AndroidTestCase;
 import android.util.Log;
 

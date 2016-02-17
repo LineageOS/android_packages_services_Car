@@ -15,12 +15,12 @@
  */
 package com.android.support.car.test;
 
+import android.car.test.VehicleHalEmulator.VehicleHalPropertyHandler;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.support.car.VehicleHalEmulator.VehicleHalPropertyHandler;
 import android.util.Log;
 import android.view.Display;
 

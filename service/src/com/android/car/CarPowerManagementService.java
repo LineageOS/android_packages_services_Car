@@ -16,6 +16,7 @@
 package com.android.car;
 
 import android.annotation.NonNull;
+import android.car.Car;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
@@ -25,7 +26,6 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
-import android.support.car.CarSystemTest;
 import android.util.Log;
 import android.view.Display;
 
@@ -523,8 +523,7 @@ public class CarPowerManagementService implements CarServiceBase,
         if (!carImpl.isInMocking()) {
             return false;
         }
-        CarTestService testService = (CarTestService) carImpl.getCarService(
-                CarSystemTest.TEST_SERVICE);
+        CarTestService testService = (CarTestService) carImpl.getCarService(Car.TEST_SERVICE);
         return !testService.shouldDoRealShutdownInMocking();
     }
 

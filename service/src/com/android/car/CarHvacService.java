@@ -16,14 +16,14 @@
 
 package com.android.car;
 
+import android.car.Car;
+import android.car.hardware.hvac.CarHvacEvent;
+import android.car.hardware.hvac.CarHvacProperty;
+import android.car.hardware.hvac.ICarHvac;
+import android.car.hardware.hvac.ICarHvacEventListener;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.support.car.Car;
-import android.support.car.hardware.hvac.CarHvacEvent;
-import android.support.car.hardware.hvac.CarHvacProperty;
-import android.support.car.hardware.hvac.ICarHvac;
-import android.support.car.hardware.hvac.ICarHvacEventListener;
 import android.util.Log;
 
 import com.android.car.hal.VehicleHal;
@@ -37,7 +37,6 @@ public class CarHvacService extends ICarHvac.Stub
         implements CarServiceBase, HvacHalService.HvacHalListener {
     public static final boolean DBG = true;
     public static final String  TAG = CarLog.TAG_HVAC + ".CarHvacService";
-    public static final int     VERSION = 1;
 
     private HvacHalService mHvacHal;
     private final HashMap<IBinder, ICarHvacEventListener> mListenersMap =
@@ -96,12 +95,7 @@ public class CarHvacService extends ICarHvac.Stub
     }
 
     @Override
-    public int getVersion() {
-        return VERSION;
-    }
-
-    @Override
-    public synchronized void registerListener(ICarHvacEventListener listener, int version) {
+    public synchronized void registerListener(ICarHvacEventListener listener) {
         if (DBG) {
             Log.d(TAG, "registerListener");
         }

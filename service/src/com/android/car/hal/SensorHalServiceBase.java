@@ -16,7 +16,7 @@
 
 package com.android.car.hal;
 
-import android.support.car.hardware.CarSensorEvent;
+import android.car.hardware.CarSensorEvent;
 
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;

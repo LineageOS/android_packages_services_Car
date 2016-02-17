@@ -15,6 +15,9 @@
  */
 package com.android.car.pm;
 
+import android.car.content.pm.CarAppBlockingPolicy;
+import android.car.content.pm.ICarAppBlockingPolicy;
+import android.car.content.pm.ICarAppBlockingPolicySetter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -24,9 +27,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.support.car.content.pm.CarAppBlockingPolicy;
-import android.support.car.content.pm.ICarAppBlockingPolicy;
-import android.support.car.content.pm.ICarAppBlockingPolicySetter;
 import android.util.Log;
 
 import com.android.car.CarLog;
@@ -149,11 +149,6 @@ public class AppBlockingPolicyProxy implements ServiceConnection {
     }
 
     private class ICarAppBlockingPolicySetterImpl extends ICarAppBlockingPolicySetter.Stub {
-        private static final int VERSION = 1;
-        @Override
-        public int getVersion() {
-            return VERSION;
-        }
 
         @Override
         public void setAppBlockingPolicy(CarAppBlockingPolicy policy) {

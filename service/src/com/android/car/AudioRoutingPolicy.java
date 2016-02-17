@@ -15,14 +15,14 @@
  */
 package com.android.car;
 
-import java.io.PrintWriter;
-import java.util.Arrays;
-
+import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.media.AudioAttributes;
-import android.support.car.media.CarAudioManager;
 import android.util.Log;
+
+import java.io.PrintWriter;
+import java.util.Arrays;
 
 /**
  * Holds audio routing policy from config.xml. R.array.audioRoutingPolicy can contain
