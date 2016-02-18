@@ -18,9 +18,9 @@ package com.android.car.hal;
 import static com.android.car.vehiclenetwork.VehiclePropValueUtil.toFloatArray;
 import static com.android.car.vehiclenetwork.VehiclePropValueUtil.toIntArray;
 
-import android.support.car.hardware.hvac.CarHvacEvent;
-import android.support.car.hardware.hvac.CarHvacManager;
-import android.support.car.hardware.hvac.CarHvacProperty;
+import android.car.hardware.hvac.CarHvacEvent;
+import android.car.hardware.hvac.CarHvacManager;
+import android.car.hardware.hvac.CarHvacProperty;
 import android.util.Log;
 
 import com.android.car.CarLog;

@@ -16,17 +16,16 @@
 
 package com.android.car;
 
+import android.car.Car;
+import android.car.hardware.radio.CarRadioEvent;
+import android.car.hardware.radio.CarRadioPreset;
+import android.car.hardware.radio.ICarRadio;
+import android.car.hardware.radio.ICarRadioEventListener;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
-import android.support.car.Car;
-import android.support.car.CarSystem;
-import android.support.car.hardware.radio.CarRadioEvent;
-import android.support.car.hardware.radio.CarRadioPreset;
-import android.support.car.hardware.radio.ICarRadio;
-import android.support.car.hardware.radio.ICarRadioEventListener;
 import android.util.Log;
 
 import com.android.car.hal.VehicleHal;
@@ -39,7 +38,6 @@ public class CarRadioService extends ICarRadio.Stub
         implements CarServiceBase, RadioHalService.RadioListener {
     public static boolean DBG = true;
     public static String TAG = CarLog.TAG_RADIO + ".CarRadioService";
-    public static final int VERSION = 1;
 
     private RadioHalService mRadioHal;
     private final HashMap<IBinder, ICarRadioEventListener> mListenersMap =
@@ -98,17 +96,12 @@ public class CarRadioService extends ICarRadio.Stub
     }
 
     @Override
-    public int getVersion() {
-        return VERSION;
-    }
-
-    @Override
     public int getPresetCount() {
         return mRadioHal.getPresetCount();
     }
 
     @Override
-    public synchronized void registerListener(ICarRadioEventListener listener, int version) {
+    public synchronized void registerListener(ICarRadioEventListener listener) {
         if (DBG) {
             Log.d(TAG, "registerListener");
         }
@@ -209,10 +202,10 @@ public class CarRadioService extends ICarRadio.Stub
 
     private void checkRadioPremissions() {
         if (getCallingUid() != Process.SYSTEM_UID &&
-            mContext.checkCallingOrSelfPermission(CarSystem.PERMISSION_CAR_RADIO) !=
+            mContext.checkCallingOrSelfPermission(Car.PERMISSION_CAR_RADIO) !=
             PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException("requires system app or " +
-                CarSystem.PERMISSION_CAR_RADIO);
+                Car.PERMISSION_CAR_RADIO);
         }
     }
 }

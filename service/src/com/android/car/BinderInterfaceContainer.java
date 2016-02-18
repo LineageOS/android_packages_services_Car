@@ -31,14 +31,11 @@ public class BinderInterfaceContainer<T extends IInterface> {
 
     public static class BinderInterface<T extends IInterface>
             implements IBinder.DeathRecipient {
-        public final int version;
         public final T binderInterface;
         private final BinderInterfaceContainer<T> mContainer;
 
-        public BinderInterface(BinderInterfaceContainer<T> container, int version,
-                T binderInterface) {
+        public BinderInterface(BinderInterfaceContainer<T> container, T binderInterface) {
             mContainer = container;
-            this.version = version;
             this.binderInterface = binderInterface;
         }
 
@@ -60,14 +57,14 @@ public class BinderInterfaceContainer<T extends IInterface> {
         mEventHandler = eventHandler;
     }
 
-    public void addBinder(int version, T binderInterface) {
+    public void addBinder(T binderInterface) {
         IBinder binder = binderInterface.asBinder();
         synchronized (this) {
             BinderInterface<T> bInterface = mBinders.get(binder);
             if (bInterface != null) {
                 return;
             }
-            bInterface = new BinderInterface<T>(this, version, binderInterface);
+            bInterface = new BinderInterface<T>(this, binderInterface);
             try {
                 binder.linkToDeath(bInterface, 0);
             } catch (RemoteException e) {

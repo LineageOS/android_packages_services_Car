@@ -15,7 +15,7 @@
  */
 package com.android.car.hal;
 
-import android.support.car.CarInfoManager;
+import android.car.CarInfoManager;
 import android.util.Log;
 
 import com.android.car.CarLog;

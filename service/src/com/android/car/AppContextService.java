@@ -15,6 +15,9 @@
  */
 package com.android.car;
 
+import android.car.CarAppContextManager;
+import android.car.IAppContext;
+import android.car.IAppContextListener;
 import android.content.Context;
 import android.os.Binder;
 import android.os.Handler;
@@ -22,9 +25,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
-import android.support.car.CarAppContextManager;
-import android.support.car.IAppContext;
-import android.support.car.IAppContextListener;
 import android.util.Log;
 
 import com.android.car.hal.VehicleHal;
@@ -34,7 +34,6 @@ import java.util.HashMap;
 
 public class AppContextService extends IAppContext.Stub implements CarServiceBase,
         BinderInterfaceContainer.BinderEventHandler<IAppContextListener> {
-    private static final int VERSION = 1;
     private static final boolean DBG = true;
     private static final boolean DBG_EVENT = false;
 
@@ -55,17 +54,11 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
     }
 
     @Override
-    public int getVersion() {
-        return VERSION;
-    }
-
-    @Override
-    public void registerContextListener(int clientVersion, IAppContextListener listener,
-            int filter) {
+    public void registerContextListener(IAppContextListener listener, int filter) {
         synchronized (this) {
             ClientInfo info = (ClientInfo) mAllClients.getBinderInterface(listener);
             if (info == null) {
-                info = new ClientInfo(mAllClients, clientVersion, listener, Binder.getCallingUid(),
+                info = new ClientInfo(mAllClients, listener, Binder.getCallingUid(),
                         Binder.getCallingPid(), filter);
                 mAllClients.addBinderInterface(info);
             } else {
@@ -294,9 +287,9 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
         /** contexts owned by this client */
         private int mOwnedContexts;
 
-        private ClientInfo(ClientHolder holder, int clientVersion, IAppContextListener binder,
-                int uid, int pid, int filter) {
-            super(holder, clientVersion, binder);
+        private ClientInfo(ClientHolder holder, IAppContextListener binder, int uid, int pid,
+                int filter) {
+            super(holder, binder);
             this.uid = uid;
             this.pid = pid;
             this.mFilter = filter;

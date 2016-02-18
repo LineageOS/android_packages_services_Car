@@ -15,7 +15,7 @@
  */
 package com.android.car.hal;
 
-import android.support.car.media.CarAudioManager;
+import android.car.media.CarAudioManager;
 import android.util.Log;
 
 import com.android.car.AudioRoutingPolicy;

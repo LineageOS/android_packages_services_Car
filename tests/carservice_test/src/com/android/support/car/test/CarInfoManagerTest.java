@@ -41,7 +41,7 @@ public class CarInfoManagerTest extends MockedCarTestBase {
                         VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE, MAKE_NAME, 0));
         getVehicleHalEmulator().start();
         mCarInfoManager =
-                (CarInfoManager) getCarApi().getCarManager(Car.INFO_SERVICE);
+                (CarInfoManager) getSupportCar().getCarManager(Car.INFO_SERVICE);
     }
 
     public void testManufactuter() throws Exception {

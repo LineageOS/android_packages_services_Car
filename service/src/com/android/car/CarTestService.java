@@ -15,10 +15,10 @@
  */
 package com.android.car;
 
+import android.car.test.CarTestManager;
+import android.car.test.ICarTest;
 import android.content.Context;
 import android.util.Log;
-import android.support.car.CarTestManager;
-import android.support.car.ICarTest;
 
 import com.android.car.hal.VehicleHal;
 import com.android.car.vehiclenetwork.IVehicleNetworkHalMock;
@@ -33,7 +33,6 @@ import java.io.PrintWriter;
  * requires accessing that level directly.
  */
 public class CarTestService extends ICarTest.Stub implements CarServiceBase {
-    private static final int VERSION = 1;
 
     private final Context mContext;
     private final VehicleNetwork mVehicleNetwork;
@@ -63,11 +62,6 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
     public void dump(PrintWriter writer) {
         writer.println("*CarTestService*");
         writer.println(" mInMocking" + mInMocking);
-    }
-
-    @Override
-    public int getVersion() {
-        return VERSION;
     }
 
     @Override

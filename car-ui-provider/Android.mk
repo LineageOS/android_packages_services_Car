@@ -30,7 +30,7 @@ LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_SDK_VERSION := current
 
-include packages/services/Car/car-libs/car.mk
+include packages/services/Car/car-support-lib/car-support.mk
 
 include $(BUILD_PACKAGE)
 

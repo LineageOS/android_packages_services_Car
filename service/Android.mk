@@ -14,9 +14,6 @@
 #
 #
 
-#disble build in PDK, should add prebuilts/fullsdk to make this work
-ifneq ($(TARGET_BUILD_PDK),true)
-
 # Build the Car service.
 
 LOCAL_PATH:= $(call my-dir)
@@ -34,6 +31,7 @@ LOCAL_PRIVILEGED_MODULE := true
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 LOCAL_PROGUARD_ENABLED := disabled
 
+LOCAL_JAVA_LIBRARIES += android.car
 LOCAL_STATIC_JAVA_LIBRARIES += libvehiclenetwork-java car-systemtest
 
 include $(BUILD_PACKAGE)
@@ -48,10 +46,10 @@ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
 LOCAL_MODULE := car-service-lib-for-test
 
+LOCAL_JAVA_LIBRARIES += android.car
 LOCAL_STATIC_JAVA_LIBRARIES += libvehiclenetwork-java car-systemtest
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 include $(call all-makefiles-under,$(LOCAL_PATH))
 
-endif #TARGET_BUILD_PDK

@@ -18,13 +18,13 @@ package com.android.support.car.test;
 
 import android.util.Log;
 
-import android.support.car.CarSystem;
-import android.support.car.VehicleHalEmulator;
-import android.support.car.hardware.hvac.CarHvacManager;
-import android.support.car.hardware.hvac.CarHvacManager.CarHvacEventListener;
-import android.support.car.hardware.hvac.CarHvacManager.CarHvacBooleanValue;
-import android.support.car.hardware.hvac.CarHvacManager.CarHvacFloatValue;
-import android.support.car.hardware.hvac.CarHvacManager.CarHvacIntValue;
+import android.car.Car;
+import android.car.test.VehicleHalEmulator;
+import android.car.hardware.hvac.CarHvacManager;
+import android.car.hardware.hvac.CarHvacManager.CarHvacEventListener;
+import android.car.hardware.hvac.CarHvacManager.CarHvacBooleanValue;
+import android.car.hardware.hvac.CarHvacManager.CarHvacFloatValue;
+import android.car.hardware.hvac.CarHvacManager.CarHvacIntValue;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
@@ -80,7 +80,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
                         VehicleZone.VEHICLE_ZONE_ROW_1_LEFT), handler);
         getVehicleHalEmulator().start();
         mCarHvacManager =
-                (CarHvacManager) getCarApi().getCarManager(CarSystem.HVAC_SERVICE);
+                (CarHvacManager) getCar().getCarManager(Car.HVAC_SERVICE);
     }
 
     // Test a boolean property

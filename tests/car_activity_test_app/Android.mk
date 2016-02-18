@@ -16,23 +16,6 @@
 
 LOCAL_PATH:= $(call my-dir)
 
-# Add a static library target, so the src, and res can be reused by the hybrid car app
-include $(CLEAR_VARS)
-
-LOCAL_MODULE_TAGS := optional
-
-LOCAL_SRC_FILES := $(call all-java-files-under, src)
-
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-
-LOCAL_STATIC_JAVA_LIBRARIES += car-core
-
-LOCAL_MODULE := cartestapplib
-
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-##################################################
-
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
@@ -48,6 +31,6 @@ LOCAL_MODULE_PATH := $(TARGET_OUT_DATA_APPS)
 
 LOCAL_PROGUARD_ENABLED := disabled
 
-include packages/services/Car/car-libs/car.mk
+include packages/services/Car/car-support-lib/car-support.mk
 
 include $(BUILD_PACKAGE)

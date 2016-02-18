@@ -16,11 +16,11 @@
 
 package com.android.car;
 
-import android.os.UserHandle;
-import android.support.car.Car;
+import android.car.Car;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.car.hal.VehicleHal;

@@ -21,7 +21,7 @@ import java.io.PrintWriter;
 import com.android.car.hal.VehicleHal;
 
 import android.app.Service;
-import android.support.car.Car;
+import android.car.Car;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;

@@ -20,7 +20,7 @@
     <uses-sdk
         android:minSdkVersion="22"
         android:targetSdkVersion='23'/>
-	<uses-permission android:name="android.support.car.permission.CAR_SPEED" />
+	<uses-permission android:name="android.car.permission.CAR_SPEED" />
     <application android:label="CarActivityTest"
         android:icon="@drawable/ic_launcher">
         <activity android:name=".HelloCarProxyActivity"

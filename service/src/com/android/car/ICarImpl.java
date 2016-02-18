@@ -16,15 +16,13 @@
 
 package com.android.car;
 
+import android.car.Car;
+import android.car.ICar;
+import android.car.ICarConnectionListener;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.support.car.Car;
-import android.support.car.CarSystem;
-import android.support.car.CarSystemTest;
-import android.support.car.ICar;
-import android.support.car.ICarConnectionListener;
 import android.util.Log;
 
 import com.android.car.hal.VehicleHal;
@@ -35,7 +33,6 @@ import java.io.PrintWriter;
 import java.util.Collection;
 
 public class ICarImpl extends ICar.Stub {
-    private static final int VERSION = 1;
 
     @GuardedBy("ICarImpl.class")
     private static ICarImpl sInstance = null;
@@ -53,7 +50,7 @@ public class ICarImpl extends ICar.Stub {
     private final AppContextService mAppContextService;
     private final CarPackageManagerService mCarPackageManagerService;
     private final GarageModeService mGarageModeService;
-    private final CarNavigationStatusService mCarNavigationStatusService;
+    private final CarNavigationService mCarNavigationStatusService;
 
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
@@ -93,7 +90,7 @@ public class ICarImpl extends ICar.Stub {
         mCarRadioService = new CarRadioService(serviceContext);
         mCarNightService = new CarNightService(serviceContext);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext);
-        mCarNavigationStatusService = new CarNavigationStatusService(serviceContext);
+        mCarNavigationStatusService = new CarNavigationService(serviceContext);
 
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
@@ -158,16 +155,11 @@ public class ICarImpl extends ICar.Stub {
         for (BinderInterfaceContainer.BinderInterface<ICarConnectionListener> client :
                 connectionListeners) {
             try {
-                client.binderInterface.onConnected(Car.CONNECTION_TYPE_EMBEDDED);
+                client.binderInterface.onConnected();
             } catch (RemoteException e) {
                 //ignore
             }
         }
-    }
-
-    @Override
-    public int getVersion() {
-        return VERSION;
     }
 
     @Override
@@ -183,15 +175,15 @@ public class ICarImpl extends ICar.Stub {
                 return mAppContextService;
             case Car.PACKAGE_SERVICE:
                 return mCarPackageManagerService;
-            case CarSystem.HVAC_SERVICE:
+            case Car.HVAC_SERVICE:
                 assertHvacPermission(mContext);
                 return mCarHvacService;
-            case CarSystem.RADIO_SERVICE:
+            case Car.RADIO_SERVICE:
                 assertRadioPermission(mContext);
                 return mCarRadioService;
             case Car.CAR_NAVIGATION_SERVICE:
                 return mCarNavigationStatusService;
-            case CarSystemTest.TEST_SERVICE: {
+            case Car.TEST_SERVICE: {
                 assertVehicleHalMockPermission(mContext);
                 synchronized (this) {
                     if (mCarTestService == null) {
@@ -212,15 +204,10 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Override
-    public int getCarConnectionType() {
-        return Car.CONNECTION_TYPE_EMBEDDED;
-    }
-
-    @Override
-    public void registerCarConnectionListener(int clientVersion, ICarConnectionListener listener) {
-        mCarConnectionListeners.addBinder(clientVersion, listener);
+    public void registerCarConnectionListener(ICarConnectionListener listener) {
+        mCarConnectionListeners.addBinder(listener);
         try {
-            listener.onConnected(Car.CONNECTION_TYPE_EMBEDDED);
+            listener.onConnected();
         } catch (RemoteException e) {
             //ignore
         }
@@ -243,25 +230,25 @@ public class ICarImpl extends ICar.Stub {
     }
 
     public static void assertVehicleHalMockPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(CarSystemTest.PERMISSION_MOCK_VEHICLE_HAL)
+        if (context.checkCallingOrSelfPermission(Car.PERMISSION_MOCK_VEHICLE_HAL)
                 != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException("requires CAR_MOCK_VEHICLE_HAL permission");
         }
     }
 
     public static void assertHvacPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(CarSystem.PERMISSION_CAR_HVAC)
+        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_HVAC)
                 != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException(
-                    "requires " + CarSystem.PERMISSION_CAR_HVAC);
+                    "requires " + Car.PERMISSION_CAR_HVAC);
         }
     }
 
     private static void assertRadioPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(CarSystem.PERMISSION_CAR_RADIO)
+        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_RADIO)
             != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException(
-                "requires permission " + CarSystem.PERMISSION_CAR_RADIO);
+                "requires permission " + Car.PERMISSION_CAR_RADIO);
         }
     }
 

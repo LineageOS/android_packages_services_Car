@@ -15,18 +15,19 @@
  */
 package com.android.support.car.test;
 
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-
+import android.car.test.VehicleHalEmulator;
 import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.car.Car;
 import android.support.car.ServiceConnectionListener;
-import android.support.car.VehicleHalEmulator;
 import android.test.AndroidTestCase;
 import android.util.Log;
+
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Base class for testing with mocked vehicle HAL (=car).
@@ -37,10 +38,12 @@ public class MockedCarTestBase extends AndroidTestCase {
     private static final String TAG = MockedCarTestBase.class.getSimpleName();
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
 
-    private Car mCar;
+    private Car mSupportCar;
+    private android.car.Car mCar;
     private VehicleHalEmulator mVehicleHalEmulator;
 
-    private final Semaphore mConnectionWait = new Semaphore(0);
+    private final Semaphore mConnectionWaitForSupportCar = new Semaphore(0);
+    private final Semaphore mConnectionWaitForCar = new Semaphore(0);
     private final Semaphore mWaitForMain = new Semaphore(0);
     private final Handler mMainHalder = new Handler(Looper.getMainLooper());
 
@@ -61,16 +64,30 @@ public class MockedCarTestBase extends AndroidTestCase {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.i(TAG, "onServiceConnected, component" + name + " binder " + service);
-            mConnectionWait.release();
+            mConnectionWaitForSupportCar.release();
         }
     };
 
     @Override
     protected synchronized void setUp() throws Exception {
         super.setUp();
-        mCar = Car.createCar(getContext(), mConnectionListener);
+        mSupportCar = Car.createCar(getContext(), mConnectionListener);
+        mSupportCar.connect();
+        mCar = android.car.Car.createCar(getContext(), new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                mConnectionWaitForCar.release();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+            }
+        });
         mCar.connect();
         assertTrue(waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
+        assertTrue(mConnectionWaitForCar.tryAcquire(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+                );
         mVehicleHalEmulator = new VehicleHalEmulator(mCar);
     }
 
@@ -80,10 +97,15 @@ public class MockedCarTestBase extends AndroidTestCase {
         if (mVehicleHalEmulator.isStarted()) {
             mVehicleHalEmulator.stop();
         }
+        mSupportCar.disconnect();
         mCar.disconnect();
     }
 
-    protected synchronized Car getCarApi() {
+    protected synchronized Car getSupportCar() {
+        return mSupportCar;
+    }
+
+    protected synchronized android.car.Car getCar() {
         return mCar;
     }
 
@@ -107,6 +129,6 @@ public class MockedCarTestBase extends AndroidTestCase {
     }
 
     private boolean waitForConnection(long timeoutMs) throws InterruptedException {
-        return mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
+        return mConnectionWaitForSupportCar.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
     }
 }

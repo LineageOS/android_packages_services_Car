@@ -36,7 +36,7 @@ import org.xmlpull.v1.XmlPullParserException;
  */
 public class CarAppMetadataReader {
     /** Name of the meta-data attribute for the automotive application XML resource */
-    private static final String METADATA_ATTRIBUTE = "android.support.car.application";
+    private static final String METADATA_ATTRIBUTE = "android.car.application";
     /** Name of the tag to declare automotive usage */
     private static final String USES_TAG = "uses";
     /** Name of the attribute to name the usage type */

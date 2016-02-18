@@ -16,12 +16,12 @@
 
 package com.android.car;
 
+import android.car.Car;
+import android.car.hardware.CarSensorEvent;
+import android.car.hardware.CarSensorManager;
+import android.car.hardware.ICarSensorEventListener;
 import android.content.Context;
 import android.os.SystemClock;
-import android.support.car.Car;
-import android.support.car.hardware.CarSensorEvent;
-import android.support.car.hardware.CarSensorManager;
-import android.support.car.hardware.ICarSensorEventListener;
 import android.util.Log;
 
 import com.android.car.hal.SensorHalServiceBase.SensorListener;
@@ -141,7 +141,7 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
             return false;
         }
         return mSensorService.registerOrUpdateSensorListener(sensorType, rate,
-                CarSensorService.VERSION, mICarSensorEventListener);
+                mICarSensorEventListener);
     }
 
     private synchronized void handleSensorEvent(CarSensorEvent event) {

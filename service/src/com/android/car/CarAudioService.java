@@ -15,6 +15,8 @@
  */
 package com.android.car;
 
+import android.car.media.CarAudioManager;
+import android.car.media.ICarAudio;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
@@ -25,8 +27,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.support.car.media.CarAudioManager;
-import android.support.car.media.ICarAudio;
 import android.util.Log;
 
 import com.android.car.hal.AudioHalService;
@@ -45,8 +45,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
     private static final String TAG_FOCUS = CarLog.TAG_AUDIO + ".FOCUS";
 
     private static final boolean DBG = true;
-
-    private static final int VERSION = 1;
 
     private final AudioHalService mAudioHal;
     private final Context mContext;
@@ -100,11 +98,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
         mVolumeHandler = new CarAudioVolumeHandler(Looper.getMainLooper());
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         mAppContextService = appContextService;
-    }
-
-    @Override
-    public int getVersion() {
-        return VERSION;
     }
 
     @Override

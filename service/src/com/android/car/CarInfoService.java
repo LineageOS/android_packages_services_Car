@@ -15,12 +15,12 @@
  */
 package com.android.car;
 
+import android.car.CarInfoManager;
+import android.car.ICarInfo;
+import android.car.annotation.ValueTypeDef;
 import android.content.Context;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.car.CarInfoManager;
-import android.support.car.ICarInfo;
-import android.support.car.annotation.ValueTypeDef;
 
 import com.android.car.hal.InfoHalService;
 import com.android.car.hal.VehicleHal;
@@ -31,8 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CarInfoService extends ICarInfo.Stub implements CarServiceBase {
-
-    private static final int VERSION = 1;
 
     private static final HashMap<String, Class> sKeyValueTypeMap;
     static {
@@ -57,11 +55,6 @@ public class CarInfoService extends ICarInfo.Stub implements CarServiceBase {
     public CarInfoService(Context context) {
         mInfoHal = VehicleHal.getInstance().getInfoHal();
         mContext = context;
-    }
-
-    @Override
-    public int getVersion() {
-        return VERSION;
     }
 
     @Override

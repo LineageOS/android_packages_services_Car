@@ -15,14 +15,15 @@
  */
 package com.android.support.car.test;
 
+import android.car.Car;
+import android.car.CarNotConnectedException;
+import android.car.content.pm.AppBlockingPackageInfo;
+import android.car.content.pm.CarAppBlockingPolicy;
+import android.car.content.pm.CarPackageManager;
 import android.content.pm.PackageManager;
-import android.support.car.Car;
-import android.support.car.CarNotConnectedException;
-import android.support.car.content.pm.AppBlockingPackageInfo;
-import android.support.car.content.pm.CarAppBlockingPolicy;
-import android.support.car.content.pm.CarPackageManager;
 import android.util.Log;
 
+import com.android.car.test.TestAppBlockingPolicyService;
 
 public class CarPackageManagerTest extends MockedCarTestBase {
     private static final String TAG = CarPackageManagerTest.class.getSimpleName();
@@ -44,7 +45,8 @@ public class CarPackageManagerTest extends MockedCarTestBase {
     private void init(boolean policyFromService) throws Exception {
         TestAppBlockingPolicyService.controlPolicySettingFromService(policyFromService);
         getVehicleHalEmulator().start();
-        mCarPm = (CarPackageManager) getCarApi().getCarManager(Car.PACKAGE_SERVICE);
+        mCarPm = (CarPackageManager) getCar().getCarManager(Car.PACKAGE_SERVICE);
+        assertNotNull(mCarPm);
     }
 
     public void testServiceLaunched() throws Exception {
