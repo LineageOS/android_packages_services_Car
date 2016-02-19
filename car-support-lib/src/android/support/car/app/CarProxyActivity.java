@@ -17,14 +17,19 @@
 package android.support.car.app;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.car.Car;
+import android.support.car.ServiceConnectionListener;
 import android.support.car.input.CarInputManager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
@@ -32,22 +37,53 @@ import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import javax.annotation.concurrent.GuardedBy;
-
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * android Activity controlling / proxying {@link CarActivity}. Applications should have its own
  * {@link android.app.Activity} overriding only constructor.
  */
 public class CarProxyActivity extends Activity {
+    private static final String TAG = "CarProxyActivity";
+
     private final Class mCarActivityClass;
+    private final boolean mNeedConnectedCar;
+    private Car mCar;
     // no synchronization, but main thread only
     private CarActivity mCarActivity;
     // no synchronization, but main thread only
     private CarInputManager mInputManager;
+
+    private final CopyOnWriteArrayList<Pair<Integer, Object[]>> mCmds =
+            new CopyOnWriteArrayList<Pair<Integer, Object[]>>();
+    private final ServiceConnectionListener mConnectionListener= new ServiceConnectionListener() {
+
+        @Override
+        public void onServiceSuspended(int cause) {
+            Log.w(TAG, "Car service suspended: " + cause);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.w(TAG, "Car service disconnected: " + name.toString());
+        }
+
+        @Override
+        public void onServiceConnectionFailed(int cause) {
+            Log.w(TAG, "Car service connection failed: " + cause);
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            for (Pair<Integer, Object[]> cmd: mCmds) {
+                mCarActivity.dispatchCmd(cmd.first, cmd.second);
+            }
+            mCmds.clear();
+        }
+    };
 
     private final CarActivity.Proxy mCarActivityProxy = new CarActivity.Proxy() {
         @Override
@@ -142,13 +178,23 @@ public class CarProxyActivity extends Activity {
     };
 
     public CarProxyActivity(Class carActivityClass) {
+        this(carActivityClass, false);
+    }
+
+    public CarProxyActivity(Class carActivityClass, boolean needCar) {
         mCarActivityClass = carActivityClass;
+        mNeedConnectedCar = needCar;
     }
 
     private void createCarActivity() {
+        if (mNeedConnectedCar) {
+            mCar = Car.createCar(this, mConnectionListener);
+            mCar.connect();
+        }
         Constructor<?> ctor;
         try {
-            ctor = mCarActivityClass.getDeclaredConstructor(CarActivity.Proxy.class, Context.class);
+            ctor = mCarActivityClass.getDeclaredConstructor(CarActivity.Proxy.class,
+                        Context.class, Car.class);
         } catch (NoSuchMethodException e) {
             StringBuilder msg = new StringBuilder(
                     "Cannot construct given CarActivity, no constructor for ");
@@ -163,7 +209,7 @@ public class CarProxyActivity extends Activity {
             throw new RuntimeException(msg.toString(), e);
         }
         try {
-            mCarActivity = (CarActivity) ctor.newInstance(mCarActivityProxy, this);
+            mCarActivity = (CarActivity) ctor.newInstance(mCarActivityProxy, this, mCar);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new RuntimeException("Cannot construct given CarActivity, constructor failed for "
@@ -176,7 +222,7 @@ public class CarProxyActivity extends Activity {
         createCarActivity();
         super.onCreate(savedInstanceState);
         mInputManager = new EmbeddedInputManager(this);
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_CREATE, savedInstanceState);
+        handleCmd(CarActivity.CMD_ON_CREATE, savedInstanceState);
     }
 
     @Override
@@ -191,37 +237,37 @@ public class CarProxyActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_START);
+        handleCmd(CarActivity.CMD_ON_START);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_ACTIVITY_RESULT, requestCode, resultCode, data);
+        handleCmd(CarActivity.CMD_ON_ACTIVITY_RESULT, requestCode, resultCode, data);
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_RESTART);
+        handleCmd(CarActivity.CMD_ON_RESTART);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_RESUME);
+        handleCmd(CarActivity.CMD_ON_RESUME);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_PAUSE);
+        handleCmd(CarActivity.CMD_ON_PAUSE);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_STOP);
+        handleCmd(CarActivity.CMD_ON_STOP);
     }
 
     @Override
@@ -231,49 +277,49 @@ public class CarProxyActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_BACK_PRESSED);
+        handleCmd(CarActivity.CMD_ON_BACK_PRESSED);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_DESTROY);
+        handleCmd(CarActivity.CMD_ON_DESTROY);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_SAVE_INSTANCE_STATE, outState);
+        handleCmd(CarActivity.CMD_ON_SAVE_INSTANCE_STATE, outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedState) {
         super.onRestoreInstanceState(savedState);
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_RESTORE_INSTANCE_STATE, savedState);
+        handleCmd(CarActivity.CMD_ON_RESTORE_INSTANCE_STATE, savedState);
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_CONFIG_CHANGED, newConfig);
+        handleCmd(CarActivity.CMD_ON_CONFIG_CHANGED, newConfig);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] results) {
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_REQUEST_PERMISSIONS_RESULT,
+        handleCmd(CarActivity.CMD_ON_REQUEST_PERMISSIONS_RESULT,
                 new Integer(requestCode), permissions, convertArray(results));
     }
 
     @Override
     protected void onNewIntent(Intent i) {
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_NEW_INTENT, i);
+        handleCmd(CarActivity.CMD_ON_NEW_INTENT, i);
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        mCarActivity.dispatchCmd(CarActivity.CMD_ON_LOW_MEMORY);
+        handleCmd(CarActivity.CMD_ON_LOW_MEMORY);
     }
 
     private static final class EmbeddedInputManager extends CarInputManager {
@@ -324,9 +370,15 @@ public class CarProxyActivity extends Activity {
         }
     }
 
-    // TODO: eventually we should get CarActivity to directly host fragment, see b/25935686.
-    public CarActivity getCarActivity() {
-        return mCarActivity;
+    private void handleCmd(int cmd, Object... args) {
+        if (!mNeedConnectedCar || (mCar != null && mCar.isConnected())) {
+            mCarActivity.dispatchCmd(cmd, args);
+        } else {
+            // not connected yet. queue it and return.
+            Pair<Integer, Object[]> cmdToQ =
+                    new Pair<Integer, Object[]>(Integer.valueOf(cmd), args);
+            mCmds.add(cmdToQ);
+        }
     }
 
     private static Integer[] convertArray(int[] array) {
