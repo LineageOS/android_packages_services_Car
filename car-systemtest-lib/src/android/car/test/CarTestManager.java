@@ -66,7 +66,7 @@ public class CarTestManager implements CarManagerBase {
         // should not happen for embedded
     }
 
-    public synchronized void injectEvent(VehiclePropValue value) {
+    public void injectEvent(VehiclePropValue value) {
         try {
             mService.injectEvent(new VehiclePropValueParcelable(value));
         } catch (RemoteException e) {
@@ -80,24 +80,30 @@ public class CarTestManager implements CarManagerBase {
      * @param mock
      * @flags Combination of FLAG_MOCKING_*
      */
-    public synchronized void startMocking(VehicleNetworkHalMock mock, int flags) {
-        mHalMock = mock;
-        mHalMockImpl = new IVehicleNetworkHalMockImpl(this);
+    public void startMocking(VehicleNetworkHalMock mock, int flags) {
+        IVehicleNetworkHalMockImpl halMockImpl = new IVehicleNetworkHalMockImpl(this);
+        synchronized (this) {
+            mHalMock = mock;
+            mHalMockImpl = halMockImpl;
+        }
         try {
-            mService.startMocking(mHalMockImpl, flags);
+            mService.startMocking(halMockImpl, flags);
         } catch (RemoteException e) {
             handleRemoteException(e);
         }
     }
 
-    public synchronized void stopMocking() {
-        try {
-            mService.stopMocking(mHalMockImpl);
-        } catch (RemoteException e) {
-            handleRemoteException(e);
-        } finally {
+    public void stopMocking() {
+        IVehicleNetworkHalMockImpl halMockImpl;
+        synchronized (this) {
+            halMockImpl = mHalMockImpl;
             mHalMock = null;
             mHalMockImpl = null;
+        }
+        try {
+            mService.stopMocking(halMockImpl);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
         }
     }
 

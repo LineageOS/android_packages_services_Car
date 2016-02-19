@@ -21,12 +21,17 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Binder;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 /** Utility class */
-public class CarServiceUtils {
+public final class CarServiceUtils {
 
     private static final String PACKAGE_NOT_FOUND = "Package not found:";
+
+    /** do not construct. static only */
+    private CarServiceUtils() {};
 
     /**
      * Check if package name passed belongs to UID for the current binder call.
@@ -54,6 +59,83 @@ public class CarServiceUtils {
         if (uid != appInfo.uid) {
             throw new SecurityException("Wrong package name:" + packageName +
                     ", The package does not belong to caller's uid:" + uid);
+        }
+    }
+
+    /**
+     * Execute a runnable on the main thread
+     *
+     * @param action The code to run on the main thread.
+     */
+    public static void runOnMain(Runnable action) {
+        runOnLooper(Looper.getMainLooper(), action);
+    }
+
+    /**
+     * Execute a runnable in the given looper
+     * @param looper Looper to run the action.
+     * @param action The code to run.
+     */
+    public static void runOnLooper(Looper looper, Runnable action) {
+        new Handler(looper).post(action);
+    }
+
+    /**
+     * Execute a call on the application's main thread, blocking until it is
+     * complete.  Useful for doing things that are not thread-safe, such as
+     * looking at or modifying the view hierarchy.
+     *
+     * @param action The code to run on the main thread.
+     */
+    public static void runOnMainSync(Runnable action) {
+        runOnLooperSync(Looper.getMainLooper(), action);
+    }
+
+    /**
+     * Execute a call on the given Looper thread, blocking until it is
+     * complete.
+     *
+     * @param looper Looper to run the action.
+     * @param action The code to run on the main thread.
+     */
+    public static void runOnLooperSync(Looper looper, Runnable action) {
+        if (Looper.myLooper() == looper) {
+            // requested thread is the same as the current thread. call directly.
+            action.run();
+        } else {
+            Handler handler = new Handler(looper);
+            SyncRunnable sr = new SyncRunnable(action);
+            handler.post(sr);
+            sr.waitForComplete();
+        }
+    }
+
+    private static final class SyncRunnable implements Runnable {
+        private final Runnable mTarget;
+        private volatile boolean mComplete = false;
+
+        public SyncRunnable(Runnable target) {
+            mTarget = target;
+        }
+
+        @Override
+        public void run() {
+            mTarget.run();
+            synchronized (this) {
+                mComplete = true;
+                notifyAll();
+            }
+        }
+
+        public void waitForComplete() {
+            synchronized (this) {
+                while (!mComplete) {
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
         }
     }
 }
