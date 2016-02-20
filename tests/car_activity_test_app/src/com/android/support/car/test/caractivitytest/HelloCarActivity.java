@@ -70,8 +70,8 @@ public class HelloCarActivity extends CarDrawerActivity {
         }
     };
 
-    public HelloCarActivity(Proxy proxy, Context context) {
-        super(proxy, context);
+    public HelloCarActivity(Proxy proxy, Context context, Car car) {
+        super(proxy, context, car);
     }
 
     @Override
