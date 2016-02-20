@@ -113,26 +113,15 @@ public abstract class CarActivity {
 
     private final Proxy mProxy;
     private final Context mContext;
-    private final Car mCar;
     private final Handler mHandler = new Handler();
 
-    public CarActivity(Proxy proxy, Context context, Car car) {
+    public CarActivity(Proxy proxy, Context context) {
         mProxy = proxy;
         mContext = context;
-        mCar = car;
     }
 
     public Context getContext() {
         return mContext;
-    }
-
-    public Car getCar() {
-        if (mCar == null) {
-            throw new IllegalStateException("The default Car is not available. You can either " +
-                    "create a Car by yourself or indicate the need of the default Car in the " +
-                    "CarProxyActivity's constructor.");
-        }
-        return mCar;
     }
 
     public Resources getResources() {

@@ -34,8 +34,8 @@ public class TestCarActivity extends CarActivity {
     public static volatile TestAction<TestCarActivity> sStopTestAction;
     public static volatile TestAction<TestCarActivity> sDestroyTestAction;
 
-    public TestCarActivity(CarActivity.Proxy proxy, Context context, Car car) {
-        super(proxy, context, car);
+    public TestCarActivity(CarActivity.Proxy proxy, Context context) {
+        super(proxy, context);
     }
 
     @Override
