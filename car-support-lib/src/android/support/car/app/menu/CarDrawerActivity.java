@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.LayoutRes;
+import android.support.car.Car;
 import android.support.car.app.CarFragmentActivity;
 import android.support.car.input.CarEditable;
 import android.support.car.input.CarEditableListener;
@@ -91,8 +92,8 @@ public abstract class CarDrawerActivity extends CarFragmentActivity {
         void onEdit(String text);
     }
 
-    public CarDrawerActivity(Proxy proxy, Context context) {
-        super(proxy, context);
+    public CarDrawerActivity(Proxy proxy, Context context, Car car) {
+        super(proxy, context, car);
         mUiController = new CarUiController(this);
     }
 
