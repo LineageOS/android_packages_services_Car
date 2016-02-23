@@ -39,6 +39,7 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
     private final ICarImpl mICarImpl;
     private boolean mInMocking = false;
     private int mMockingFlags = 0;
+    private Exception mException = null;
 
     public CarTestService(Context context, ICarImpl carImpl) {
         mContext = context;
@@ -71,34 +72,58 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
     }
 
     @Override
-    public void startMocking(IVehicleNetworkHalMock mock, int flags) {
+    public void startMocking(final IVehicleNetworkHalMock mock, final int flags) {
         ICarImpl.assertVehicleHalMockPermission(mContext);
-        try {
-            mVehicleNetwork.startMocking(mock);
-            VehicleHal.getInstance().startMocking();
-            mICarImpl.startMocking();
-            synchronized (this) {
-                mInMocking = true;
-                mMockingFlags = flags;
+        CarServiceUtils.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mVehicleNetwork.startMocking(mock);
+                    VehicleHal.getInstance().startMocking();
+                    mICarImpl.startMocking();
+                    synchronized (this) {
+                        mInMocking = true;
+                        mMockingFlags = flags;
+                        mException = null;
+                    }
+                } catch (Exception e) {
+                    Log.w(CarLog.TAG_TEST, "startMocking failed", e);
+                    synchronized (this) {
+                        mException = e;
+                    }
+                }
+                Log.i(CarLog.TAG_TEST, "start vehicle HAL mocking, flags:0x" +
+                        Integer.toHexString(flags));
             }
-        } catch (Exception e) {
-            Log.w(CarLog.TAG_TEST, "startMocking failed", e);
-            throw e;
+        });
+        synchronized (this) {
+            if (mException != null) {
+                throw new IllegalStateException(mException);
+            }
         }
-        Log.i(CarLog.TAG_TEST, "start vehicle HAL mocking, flags:0x" + Integer.toHexString(flags));
     }
 
     @Override
-    public void stopMocking(IVehicleNetworkHalMock mock) {
+    public void stopMocking(final IVehicleNetworkHalMock mock) {
         ICarImpl.assertVehicleHalMockPermission(mContext);
-        mVehicleNetwork.stopMocking(mock);
-        VehicleHal.getInstance().stopMocking();
-        mICarImpl.stopMocking();
-        synchronized (this) {
-            mInMocking = false;
-            mMockingFlags = 0;
-        }
-        Log.i(CarLog.TAG_TEST, "stop vehicle HAL mocking");
+        CarServiceUtils.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mVehicleNetwork.stopMocking(mock);
+                    VehicleHal.getInstance().stopMocking();
+                    mICarImpl.stopMocking();
+                    synchronized (this) {
+                        mInMocking = false;
+                        mMockingFlags = 0;
+                        mException = null;
+                    }
+                    Log.i(CarLog.TAG_TEST, "stop vehicle HAL mocking");
+                } catch (Exception e) {
+                    Log.w(CarLog.TAG_TEST, "stopMocking failed", e);
+                }
+            }
+        });
     }
 
     public synchronized boolean isInMocking() {
