@@ -42,4 +42,7 @@
         <!--  call and media to physical stream 0 while all others go to physical stream 1 -->
         <item>"0:call,media,unknown#1:nav_guidance,voice_command,alarm,notification,system,safety"</item>
     </string-array>
+
+    <string name="instrumentClusterRendererPackage">android.car.cluster.demorenderer</string>
+    <string name="instrumentClusterRendererFactoryClass">android.car.cluster.demorenderer.InstrumentClusterRendererFactory</string>
 </resources>
