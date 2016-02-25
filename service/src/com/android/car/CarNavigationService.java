@@ -17,7 +17,9 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.CarAppContextManager;
+import android.car.cluster.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
+import android.car.navigation.CarNavigationManager;
 import android.car.navigation.ICarNavigation;
 import android.car.navigation.ICarNavigationEventListener;
 import android.content.Context;
@@ -32,8 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Service for talking to the instrument cluster.
- * TODO: implement HAL integration.
+ * Service that will push navigation event to navigation renderer in instrument cluster.
  */
 public class CarNavigationService extends ICarNavigation.Stub
         implements CarServiceBase {
@@ -42,19 +43,22 @@ public class CarNavigationService extends ICarNavigation.Stub
     private final List<CarNavigationEventListener> mListeners = new ArrayList<>();
 
     private CarNavigationInstrumentCluster mInstrumentClusterInfo = null;
-    private AppContextService mAppContextService;
-    private Context mContext;
+    private final AppContextService mAppContextService;
+    private final Context mContext;
+    private final boolean mRendererAvailable;
 
     public CarNavigationService(Context context) {
         mContext = context;
+        mAppContextService = (AppContextService) ICarImpl.getInstance(mContext)
+                .getCarService(Car.APP_CONTEXT_SERVICE);
+        mRendererAvailable = InstrumentClusterRendererLoader.isRendererAvailable(mContext);
     }
 
     @Override
     public void init() {
-        // TODO: retrieve cluster info from vehicle HAL.
+        Log.d(TAG, "init");
+        // TODO: we need to obtain this infromation from CarInstrumentClusterService.
         mInstrumentClusterInfo = CarNavigationInstrumentCluster.createCluster(1000);
-        mAppContextService = (AppContextService) ICarImpl.getInstance(mContext)
-                .getCarService(Car.APP_CONTEXT_SERVICE);
     }
 
     @Override
@@ -66,26 +70,45 @@ public class CarNavigationService extends ICarNavigation.Stub
 
     @Override
     public void sendNavigationStatus(int status) {
-        // TODO: propagate this event to vehicle HAL
         Log.d(TAG, "sendNavigationStatus, status: " + status);
+        if (!checkRendererAvailable()) {
+            return;
+        }
         verifyNavigationContextOwner();
+
+        if (status == CarNavigationManager.STATUS_ACTIVE) {
+            getNavRenderer().onStartNavigation();
+        } else if (status == CarNavigationManager.STATUS_INACTIVE
+                || status == CarNavigationManager.STATUS_UNAVAILABLE) {
+            getNavRenderer().onStopNavigation();
+        } else {
+            throw new IllegalArgumentException("Unknown navigation status: " + status);
+        }
     }
 
     @Override
     public void sendNavigationTurnEvent(
             int event, String road, int turnAngle, int turnNumber, Bitmap image, int turnSide) {
-        // TODO: propagate this event to vehicle HAL
         Log.d(TAG, "sendNavigationTurnEvent, event:" + event + ", turnAngle: " + turnAngle + ", "
                 + "turnNumber: " + turnNumber + ", " + "turnSide: " + turnSide);
+        if (!checkRendererAvailable()) {
+            return;
+        }
         verifyNavigationContextOwner();
+
+        getNavRenderer().onNextTurnChanged(event, road, turnAngle, turnNumber, image, turnSide);
     }
 
     @Override
     public void sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds) {
-        // TODO: propagate this event to vehicle HAL
         Log.d(TAG, "sendNavigationTurnDistanceEvent, distanceMeters:" + distanceMeters + ", "
                 + "timeSeconds: " + timeSeconds);
+        if (!checkRendererAvailable()) {
+            return;
+        }
         verifyNavigationContextOwner();
+
+        getNavRenderer().onNextTurnDistanceChanged(distanceMeters, timeSeconds);
     }
 
     @Override
@@ -185,5 +208,17 @@ public class CarNavigationService extends ICarNavigation.Stub
     @Override
     public void dump(PrintWriter writer) {
         // TODO Auto-generated method stub
+    }
+
+    private NavigationRenderer getNavRenderer() {
+        // TODO: implement InstrumentClusterService that will abstract cluster renderer.
+        return InstrumentClusterRendererLoader.getRenderer(mContext).getNavigationRenderer();
+    }
+
+    private boolean checkRendererAvailable() {
+        if (!mRendererAvailable) {
+            Log.w(TAG, "Instrument cluster renderer is not available.");
+        }
+        return mRendererAvailable;
     }
 }
