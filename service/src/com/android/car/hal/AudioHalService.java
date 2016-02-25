@@ -99,6 +99,29 @@ public class AudioHalService extends HalServiceBase {
     public static final int FOCUS_STATE_ARRAY_INDEX_STREAMS = 1;
     public static final int FOCUS_STATE_ARRAY_INDEX_EXTERNAL_FOCUS = 2;
 
+    public static final int AUDIO_CONTEXT_MUSIC_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG;
+    public static final int AUDIO_CONTEXT_NAVIGATION_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG;
+    public static final int AUDIO_CONTEXT_VOICE_COMMAND_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG;
+    public static final int AUDIO_CONTEXT_CALL_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG;
+    public static final int AUDIO_CONTEXT_ALARM_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG;
+    public static final int AUDIO_CONTEXT_NOTIFICATION_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG;
+    public static final int AUDIO_CONTEXT_UNKNOWN_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG;
+    public static final int AUDIO_CONTEXT_SAFETY_ALERT_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SAFETY_ALERT_FLAG;
+    public static final int AUDIO_CONTEXT_CD_ROM =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CD_ROM;
+    public static final int AUDIO_CONTEXT_AUX_AUDIO =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_AUX_AUDIO;
+    public static final int AUDIO_CONTEXT_SYSTEM_SOUND =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND;
+
     public interface AudioHalListener {
         /**
          * Audio focus change from car.
@@ -168,19 +191,25 @@ public class AudioHalService extends HalServiceBase {
         for (int i = 0; i < policy.getPhysicalStreamsCount(); i++) {
             policyToSet[VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_STREAM] =
                     i;
-            int streams = 0;
+            int contexts = 0;
             for (int logicalStream : policy.getLogicalStreamsForPhysicalStream(i)) {
-                streams |= logicalStreamToHalStreamType(logicalStream);
+                contexts |= logicalStreamToHalContextType(logicalStream);
             }
             policyToSet[VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_CONTEXTS]
-                    = streams;
+                    = contexts;
             vn.setIntVectorProperty(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_ROUTING_POLICY,
                     policyToSet);
         }
     }
 
-    private static int logicalStreamToHalStreamType(int logicalStream) {
+    /**
+     * Convert car audio manager stream type (usage) into audio context type.
+     */
+    public static int logicalStreamToHalContextType(int logicalStream) {
         switch (logicalStream) {
+            //TODO enable when hal is ready
+            //case CarAudioManager.CAR_AUDIO_USAGE_RADIO:
+            //    return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG;
             case CarAudioManager.CAR_AUDIO_USAGE_VOICE_CALL:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG;
             case CarAudioManager.CAR_AUDIO_USAGE_MUSIC:
@@ -205,12 +234,12 @@ public class AudioHalService extends HalServiceBase {
         }
     }
 
-    public void requestAudioFocusChange(int request, int streams) {
-        requestAudioFocusChange(request, streams, VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+    public void requestAudioFocusChange(int request, int streams, int audioContexts) {
+        requestAudioFocusChange(request, streams, VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG, audioContexts);
     }
 
-    public void requestAudioFocusChange(int request, int streams, int extFocus) {
-        int[] payload = { request, streams, extFocus };
+    public void requestAudioFocusChange(int request, int streams, int extFocus, int audioContexts) {
+        int[] payload = { request, streams, extFocus, audioContexts };
         mVehicleHal.getVehicleNetwork().setIntVectorProperty(
                 VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, payload);
     }

@@ -19,6 +19,7 @@ import android.support.car.Car;
 import android.support.car.CarInfoManager;
 import android.util.Log;
 
+import com.android.car.test.MockedCarTestBase;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
 import com.android.car.vehiclenetwork.VehiclePropValueUtil;

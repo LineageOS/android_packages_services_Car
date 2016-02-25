@@ -49,10 +49,11 @@ public:
             mAudioProperties->getList().push_back(properties + i);
         }
         mValueToGet.prop = VEHICLE_PROPERTY_AUDIO_FOCUS;
-        mValueToGet.value_type = VEHICLE_VALUE_TYPE_INT32_VEC3;
+        mValueToGet.value_type = VEHICLE_VALUE_TYPE_INT32_VEC4;
         mValueToGet.value.int32_array[0] = 0;
         mValueToGet.value.int32_array[1] = 0;
         mValueToGet.value.int32_array[2] = 0;
+        mValueToGet.value.int32_array[3] = 0;
     }
     virtual ~VehicleHalMockForAudioFocus() {};
 
@@ -90,6 +91,7 @@ public:
         mValueToGet.value.int32_array[VEHICLE_AUDIO_FOCUS_INDEX_FOCUS] = state;
         mValueToGet.value.int32_array[VEHICLE_AUDIO_FOCUS_INDEX_STREAMS] = streams;
         mValueToGet.value.int32_array[VEHICLE_AUDIO_FOCUS_INDEX_EXTERNAL_FOCUS_STATE] = extState;
+        mValueToGet.value.int32_array[VEHICLE_AUDIO_FOCUS_INDEX_AUDIO_CONTEXTS] = 0;
         mValueToGet.timestamp = elapsedRealtimeNano();
         mVN->injectEvent(mValueToGet);
     }
