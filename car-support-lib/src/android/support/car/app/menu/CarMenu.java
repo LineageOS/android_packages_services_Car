@@ -19,13 +19,10 @@ package android.support.car.app.menu;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.IntDef;
-import android.support.car.app.menu.Constants.CarMenuConstants;
+import android.support.car.app.menu.compat.CarMenuConstantsComapt.MenuItemConstants;
 import android.util.DisplayMetrics;
 import android.widget.RemoteViews;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,39 +31,6 @@ import java.util.List;
  * Use the {@link Builder} to populate the contents of the sublevel.
  */
 public class CarMenu {
-    /** @hide */
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef(flag = true,
-            value = {CarMenu.FLAG_BROWSABLE, CarMenu.FLAG_FIRSTITEM})
-    public @interface MenuItemFlags {}
-
-    /**
-     * Flag: Indicates that the item has children of its own
-     */
-    public static final int FLAG_BROWSABLE = 0x1;
-
-    /**
-     * Flag: Indicates that the menu should scroll to this item
-     */
-    public static final int FLAG_FIRSTITEM = 0x2;
-
-    /** @hide */
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef(value = {WIDGET_CHECKBOX, WIDGET_TEXT_VIEW})
-    public @interface WidgetTypes {}
-
-    /**
-     * Use a checkbox widget.
-     * For use with {@link Builder#setWidget(int)}
-     */
-    public static final int WIDGET_CHECKBOX = 0x1;
-
-    /**
-     * Use a TextView widget
-     * For use with {@link Builder#setWidget(int)}
-     */
-    public static final int WIDGET_TEXT_VIEW = 0x2;
-
     private boolean mDetachCalled;
     private boolean mSendResultCalled;
     private final DisplayMetrics mMetrics;
@@ -88,11 +52,11 @@ public class CarMenu {
         for (Item item : results) {
             ItemImpl impl = (ItemImpl) item;
             if (impl.mIcon != null) {
-                impl.mBundle.putParcelable(CarMenuConstants.KEY_LEFTICON, snapshot(impl.mIcon));
+                impl.mBundle.putParcelable(MenuItemConstants.KEY_LEFTICON, snapshot(impl.mIcon));
             }
             if (impl.mRightIcon != null) {
                 impl.mBundle.putParcelable(
-                        CarMenuConstants.KEY_RIGHTICON, snapshot(impl.mRightIcon));
+                        MenuItemConstants.KEY_RIGHTICON, snapshot(impl.mRightIcon));
             }
             resultBundle.add(impl.mBundle);
         }
@@ -165,7 +129,8 @@ public class CarMenu {
         /**
          * Gets the integer constant for the widget.
          *
-         * @return Either {@link #WIDGET_CHECKBOX} or -1, if no widget was set.
+         * @return Either {@link MenuItemConstants.WidgetTypes#WIDGET_CHECKBOX} or -1,
+         *         if no widget was set.
          */
         int getWidget();
 
@@ -198,32 +163,32 @@ public class CarMenu {
 
         @Override
         public String getId() {
-            return mBundle.getString(CarMenuConstants.KEY_ID);
+            return mBundle.getString(MenuItemConstants.KEY_ID);
         }
 
         @Override
         public String getTitle() {
-            return mBundle.getString(CarMenuConstants.KEY_TITLE);
+            return mBundle.getString(MenuItemConstants.KEY_TITLE);
         }
 
         @Override
         public String getText() {
-            return mBundle.getString(CarMenuConstants.KEY_TEXT);
+            return mBundle.getString(MenuItemConstants.KEY_TEXT);
         }
 
         @Override
         public int getWidget() {
-            return mBundle.getInt(CarMenuConstants.KEY_WIDGET, -1);
+            return mBundle.getInt(MenuItemConstants.KEY_WIDGET, -1);
         }
 
         @Override
         public boolean getWidgetState() {
-            return mBundle.getBoolean(CarMenuConstants.KEY_WIDGET_STATE);
+            return mBundle.getBoolean(MenuItemConstants.KEY_WIDGET_STATE);
         }
 
         @Override
         public int getFlags() {
-            return mBundle.getInt(CarMenuConstants.KEY_FLAGS);
+            return mBundle.getInt(MenuItemConstants.KEY_FLAGS);
         }
     }
 
@@ -246,7 +211,7 @@ public class CarMenu {
             if (id == null) {
                 throw new IllegalStateException("Cannot pass a null id to the Builder.");
             }
-            mBundle.putString(CarMenuConstants.KEY_ID, id);
+            mBundle.putString(MenuItemConstants.KEY_ID, id);
         }
 
         /**
@@ -256,7 +221,7 @@ public class CarMenu {
          * @return This to chain calls
          */
         public Builder setTitle(String title) {
-            mBundle.putString(CarMenuConstants.KEY_TITLE, title);
+            mBundle.putString(MenuItemConstants.KEY_TITLE, title);
             return this;
         }
 
@@ -267,7 +232,7 @@ public class CarMenu {
          * @return This {@link Builder} to chain calls
          */
         public Builder setText(String text) {
-            mBundle.putString(CarMenuConstants.KEY_TEXT, text);
+            mBundle.putString(MenuItemConstants.KEY_TEXT, text);
             return this;
         }
 
@@ -278,7 +243,7 @@ public class CarMenu {
          * @return This {@link Builder} to chain calls
          */
         public Builder setIcon(Bitmap bitmap) {
-            mBundle.putParcelable(CarMenuConstants.KEY_LEFTICON, bitmap);
+            mBundle.putParcelable(MenuItemConstants.KEY_LEFTICON, bitmap);
             return this;
         }
 
@@ -304,7 +269,7 @@ public class CarMenu {
          * @return This {@link Builder} to chain calls
          */
         public Builder setRightIcon(Bitmap bitmap) {
-            mBundle.putParcelable(CarMenuConstants.KEY_RIGHTICON, bitmap);
+            mBundle.putParcelable(MenuItemConstants.KEY_RIGHTICON, bitmap);
             return this;
         }
 
@@ -332,7 +297,7 @@ public class CarMenu {
          * @return This {@link Builder} to chain calls
          */
         public Builder setWidget(int widget) {
-            mBundle.putInt(CarMenuConstants.KEY_WIDGET, widget);
+            mBundle.putInt(MenuItemConstants.KEY_WIDGET, widget);
             return this;
         }
 
@@ -345,7 +310,7 @@ public class CarMenu {
          * @return This {@link Builder} to chain calls
          */
         public Builder setWidgetState(boolean on) {
-            mBundle.putBoolean(CarMenuConstants.KEY_WIDGET_STATE, on);
+            mBundle.putBoolean(MenuItemConstants.KEY_WIDGET_STATE, on);
             return this;
         }
 
@@ -358,36 +323,36 @@ public class CarMenu {
          * @return This {@link Builder} to chain calls
          */
         public Builder setIsEmptyPlaceHolder(boolean isEmptyPlaceHolder) {
-            mBundle.putBoolean(CarMenuConstants.KEY_EMPTY_PLACEHOLDER, isEmptyPlaceHolder);
+            mBundle.putBoolean(MenuItemConstants.KEY_EMPTY_PLACEHOLDER, isEmptyPlaceHolder);
             return this;
         }
 
         /**
-         * If the widget is {@link #WIDGET_TEXT_VIEW}, then this will allow setting
+         * If the widget is {@link MenuItemConstants#WIDGET_TEXT_VIEW}, then this will allow setting
          * the right text.
          *
          * @param text The text to set
          * @return this {@link Builder} to chain calls
          */
         public Builder setRightText(String text) {
-            mBundle.putString(CarMenuConstants.KEY_RIGHTTEXT, text);
+            mBundle.putString(MenuItemConstants.KEY_RIGHTTEXT, text);
             return this;
         }
 
         public Builder setRemoteViews(RemoteViews views) {
-            mBundle.putParcelable(CarMenuConstants.KEY_REMOTEVIEWS, views);
+            mBundle.putParcelable(MenuItemConstants.KEY_REMOTEVIEWS, views);
             return this;
         }
 
         /**
          * Sets additional flags for this item.
-         * {@link #FLAG_BROWSABLE} is the only one that can be currently set
+         * {@link MenuItemConstants#FLAG_BROWSABLE} is the only one that can be currently set
          *
          * @param flags flags to set
          * @return This {@link Builder} to chain calls
          */
-        public Builder setFlags(@MenuItemFlags int flags) {
-            mBundle.putInt(CarMenuConstants.KEY_FLAGS, flags);
+        public Builder setFlags(@MenuItemConstants.MenuItemFlags int flags) {
+            mBundle.putInt(MenuItemConstants.KEY_FLAGS, flags);
             return this;
         }
 

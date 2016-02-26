@@ -47,9 +47,9 @@ public abstract class CarMenuCallbacks {
      * Called when the CarMenu wants to get the root
      *
      * @param hints Hints that the Drawer can use to modify behavior. It can be null.
-     * @return The {@link Root} which contains the root id and any hints
+     * @return The {@link RootMenu} which contains the root id and any hints
      */
-    public abstract Root onGetRoot(Bundle hints);
+    public abstract RootMenu onGetRoot(Bundle hints);
 
     /**
      * Called when the CarMenu subscribes to to a certain id
