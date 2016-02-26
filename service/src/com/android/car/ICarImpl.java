@@ -90,7 +90,7 @@ public class ICarImpl extends ICar.Stub {
         mCarRadioService = new CarRadioService(serviceContext);
         mCarNightService = new CarNightService(serviceContext);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext);
-        mCarNavigationStatusService = new CarNavigationService(serviceContext);
+        mCarNavigationStatusService = new CarNavigationService(serviceContext, mAppContextService);
 
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
