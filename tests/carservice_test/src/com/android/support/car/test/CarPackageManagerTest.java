@@ -23,6 +23,7 @@ import android.car.content.pm.CarPackageManager;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
+import com.android.car.test.MockedCarTestBase;
 import com.android.car.test.TestAppBlockingPolicyService;
 
 public class CarPackageManagerTest extends MockedCarTestBase {

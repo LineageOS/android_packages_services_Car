@@ -792,8 +792,11 @@ status_t VehicleNetworkService::startMocking(const sp<IVehicleNetworkHalMock>& m
     do {
         Mutex::Autolock autoLock(mLock);
         if (mMockingEnabled) {
-            ALOGE("startMocking while already enabled");
-            return INVALID_OPERATION;
+            ALOGW("startMocking while already enabled");
+            // allow it as test can fail without clearing
+            if (mHalMock != NULL) {
+                IInterface::asBinder(mHalMock)->unlinkToDeath(mHalMockDeathHandler.get());
+            }
         }
         ALOGW("starting vehicle HAL mocking");
         sp<IBinder> ibinder = IInterface::asBinder(mock);

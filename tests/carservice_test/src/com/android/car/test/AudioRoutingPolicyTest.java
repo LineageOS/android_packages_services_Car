@@ -27,7 +27,6 @@ import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
 import com.android.car.vehiclenetwork.VehiclePropValueUtil;
-import com.android.support.car.test.MockedCarTestBase;
 
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;

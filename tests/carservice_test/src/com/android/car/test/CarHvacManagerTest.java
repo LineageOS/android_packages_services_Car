@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.support.car.test;
+package com.android.car.test;
 
 import android.util.Log;
 
