@@ -55,7 +55,7 @@ status_t VehicleNetworkAudioHelper::init() {
     mScratchValueStreamState.value_type = VEHICLE_VALUE_TYPE_INT32_VEC2;
     mScratchValueStreamState.timestamp = 0;
     mScratchValueFocus.prop = VEHICLE_PROPERTY_AUDIO_FOCUS;
-    mScratchValueFocus.value_type = VEHICLE_VALUE_TYPE_INT32_VEC3;
+    mScratchValueFocus.value_type = VEHICLE_VALUE_TYPE_INT32_VEC4;
     mScratchValueFocus.timestamp = 0;
     updatePropertiesLocked();
     return NO_ERROR;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.support.car.test;
+package com.android.car.test;
 
 import android.car.test.VehicleHalEmulator.VehicleHalPropertyHandler;
 import android.content.Context;

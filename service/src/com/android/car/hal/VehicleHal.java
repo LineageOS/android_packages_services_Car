@@ -215,26 +215,6 @@ public class VehicleHal implements VehicleNetworkListener {
         return mHvacHal;
     }
 
-    public void updateAppContext(boolean navigationActive, boolean voiceCommandActive,
-            boolean callActive) {
-        synchronized (this) {
-            VehiclePropConfig config = mUnclaimedProperties.get(
-                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_CONTEXT);
-            if (config == null) {
-                return; // not supported
-            }
-        }
-        int currentContext =
-                (navigationActive ?
-                    VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG : 0) |
-                (voiceCommandActive ?
-                        VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG : 0) |
-                (callActive ?
-                        VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG : 0);
-        mVehicleNetwork.setIntProperty(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_CONTEXT,
-                currentContext);
-    }
-
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {
         if (service != mPropertyHandlers.get(property)) {
             throw new IllegalArgumentException("not owned");

@@ -41,7 +41,6 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
     /** K: context flag, V: client owning it */
     private final HashMap<Integer, ClientInfo> mContextOwners = new HashMap<>();
     private int mActiveContexts;
-    private boolean mCallActive;
 
     private final HandlerThread mHandlerThread;
     private final DispatchHandler mDispatchHandler;
@@ -112,6 +111,8 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
                 if ((c & contexts) != 0 && (c & alreadyOwnedContexts) == 0) {
                     ClientInfo ownerInfo = mContextOwners.get(c);
                     if (ownerInfo != null && ownerInfo != info) {
+                        //TODO check if current owner is having fore-ground activity. If yes,
+                        //reject request. Always grant if requestor is fore-ground activity.
                         ownerInfo.setOwnedContexts(ownerInfo.getOwnedContexts() & ~c);
                         mDispatchHandler.requestAppContextOwnershipLossDispatch(
                                 ownerInfo.binderInterface, c);
@@ -132,7 +133,6 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
                     Log.i(CarLog.TAG_APP_CONTEXT, "setting context " +
                             Integer.toHexString(addedContexts) + "," + info.toString());
                 }
-                mDispatchHandler.requestHalNotification(mActiveContexts, mCallActive);
                 for (BinderInterfaceContainer.BinderInterface<IAppContextListener> client :
                     mAllClients.getInterfaces()) {
                     ClientInfo clientInfo = (ClientInfo) client;
@@ -176,7 +176,6 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
                     Log.i(CarLog.TAG_APP_CONTEXT, "resetting context " +
                             Integer.toHexString(removedContexts) + "," + info.toString());
                 }
-                mDispatchHandler.requestHalNotification(mActiveContexts, mCallActive);
                 for (BinderInterfaceContainer.BinderInterface<IAppContextListener> client :
                     mAllClients.getInterfaces()) {
                     ClientInfo clientInfo = (ClientInfo) client;
@@ -201,17 +200,6 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
             mAllClients.clear();
             mContextOwners.clear();
             mActiveContexts = 0;
-            mCallActive = false;
-        }
-    }
-
-    public void handleCallStateChange(boolean callActive) {
-        synchronized (this) {
-            if (callActive == mCallActive) { // no change
-                return;
-            }
-            mCallActive = callActive;
-            mDispatchHandler.requestHalNotification(mActiveContexts, mCallActive);
         }
     }
 
@@ -229,8 +217,7 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
     public void dump(PrintWriter writer) {
         writer.println("**AppContextService**");
         synchronized (this) {
-            writer.println("mActiveContexts:" + Integer.toHexString(mActiveContexts) +
-                    ",mCallState:" + mCallActive);
+            writer.println("mActiveContexts:" + Integer.toHexString(mActiveContexts));
             for (BinderInterfaceContainer.BinderInterface<IAppContextListener> client :
                 mAllClients.getInterfaces()) {
                 ClientInfo clientInfo = (ClientInfo) client;
@@ -264,13 +251,6 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
             listener.onAppContextChange(contexts);
         } catch (RemoteException e) {
         }
-    }
-
-    private void notifyAppContextChangeToHal(int contexts, boolean callState) {
-        VehicleHal.getInstance().updateAppContext(
-                (contexts & CarAppContextManager.APP_CONTEXT_NAVIGATION) != 0/*navigation*/,
-                (contexts & CarAppContextManager.APP_CONTEXT_VOICE_COMMAND) != 0/*voice*/,
-                callState /*callActive*/);
     }
 
     private static class ClientHolder extends BinderInterfaceContainer<IAppContextListener> {
@@ -331,7 +311,6 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
     private class DispatchHandler extends Handler {
         private static final int MSG_DISPATCH_OWNERSHIP_LOSS = 0;
         private static final int MSG_DISPATCH_CONTEXT_CHANGE = 1;
-        private static final int MSG_NOTIFY_HAL = 2;
 
         private DispatchHandler(Looper looper) {
             super(looper);
@@ -348,11 +327,6 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
             sendMessage(msg);
         }
 
-        private void requestHalNotification(int contexts, boolean callState) {
-            Message msg = obtainMessage(MSG_NOTIFY_HAL, contexts, callState ? 1 : 0);
-            sendMessage(msg);
-        }
-
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -361,9 +335,6 @@ public class AppContextService extends IAppContext.Stub implements CarServiceBas
                     break;
                 case MSG_DISPATCH_CONTEXT_CHANGE:
                     dispatchAppContextChange((IAppContextListener) msg.obj, msg.arg1);
-                    break;
-                case MSG_NOTIFY_HAL:
-                    notifyAppContextChangeToHal(msg.arg1, msg.arg2 == 1);
                     break;
             }
         }

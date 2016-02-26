@@ -707,8 +707,10 @@ public class VehicleNetwork {
         }
 
         if (!isCustom && v.getValueType() != valueType) {
-            throw new IllegalArgumentException("Unexpected type: " + v.getValueType()
-                    + ", expecting: " + valueType);
+            throw new IllegalArgumentException(
+                    "Unexpected type for property 0x" + Integer.toHexString(property) +
+                    " got:0x" + Integer.toHexString(v.getValueType())
+                    + ", expecting:0x" + Integer.toHexString(valueType));
         }
         return v;
     }

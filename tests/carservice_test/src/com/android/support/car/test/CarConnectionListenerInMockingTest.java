@@ -28,6 +28,8 @@ import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import com.android.car.test.MockedCarTestBase;
+
 public class CarConnectionListenerInMockingTest extends MockedCarTestBase {
 
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 1000;
