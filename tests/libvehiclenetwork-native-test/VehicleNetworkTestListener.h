@@ -61,11 +61,11 @@ public:
         mCondition.signal();
     }
 
-    virtual void onHalError(int32_t errorCode, int32_t property, int32_t operation) {
+    virtual void onHalError(int32_t /*errorCode*/, int32_t /*property*/, int32_t /*operation*/) {
         //TODO
     }
 
-    virtual void onHalRestart(bool inMocking) {
+    virtual void onHalRestart(bool /*inMocking*/) {
         //TODO cannot test this in native world without plumbing mocking
     }
 

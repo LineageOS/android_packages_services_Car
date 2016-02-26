@@ -48,7 +48,7 @@ public:
                         config.float_max_value);
             } break;
             case VEHICLE_VALUE_TYPE_INT64: {
-                msg.appendFormat(",v min:" PRId64 " max:" PRId64 "\n", config.int64_min_value,
+                msg.appendFormat(",v min:%" PRId64 " max:%" PRId64 "\n", config.int64_min_value,
                         config.int64_max_value);
             } break;
             case VEHICLE_VALUE_TYPE_INT32:

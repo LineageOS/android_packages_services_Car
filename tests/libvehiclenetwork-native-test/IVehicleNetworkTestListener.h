@@ -54,7 +54,7 @@ public:
         mHalErrorCondition.signal();
     }
 
-    virtual void onHalRestart(bool inMocking) {
+    virtual void onHalRestart(bool /*inMocking*/) {
         Mutex::Autolock autolock(mHalRestartLock);
         mHalRestartCount++;
         mHalRestartCondition.signal();
