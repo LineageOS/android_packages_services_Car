@@ -24,7 +24,7 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
-    <android.support.car.ui.provider.CarDrawerLayout
+    <android.car.ui.provider.CarDrawerLayout
         android:id="@+id/drawer_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
@@ -43,7 +43,7 @@
             android:background="@color/car_card"
             android:paddingTop="@dimen/car_drawer_header_height" >
 
-            <android.support.car.ui.provider.PagedListView
+            <android.car.ui.provider.PagedListView
                 android:id="@+id/list_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -81,7 +81,7 @@
 
             </android.support.v7.widget.CardView>
         </FrameLayout>
-    </android.support.car.ui.provider.CarDrawerLayout>
+    </android.car.ui.provider.CarDrawerLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

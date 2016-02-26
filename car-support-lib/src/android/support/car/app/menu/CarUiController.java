@@ -16,259 +16,98 @@
 
 package android.support.car.app.menu;
 
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.util.Log;
+import android.support.car.app.CarAppUtil;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
- * A controller for a {@link android.support.car.app.CarActivity} to access its car UI.
- *
- * @hide
+ * A controller for a {@link android.support.car.app.CarActivity} to manipulate its car UI, and
+ * under the hood it talks to a car ui provider.
  */
-public class CarUiController {
-    private static final String TAG = "CarUiController";
-    // TODO: load the package name and class name from resources
-    private static final String UI_ENTRY_CLASS_NAME = ".CarUiEntry";
-    private static final String CAR_UI_PROVIDER_PKG = "android.support.car.ui.provider";
+public abstract class CarUiController {
+    static final String PROJECTED_UI_CONTROLLER =
+            "com.google.android.car.ProjectedCarUiController";
 
-    private static final String PROJECTED_UI_ENTRY_CLASS_NAME = ".sdk.SdkEntry2";
-    private static final String PROJECTED_UI_PROVIDER_PKG =
-            "com.google.android.projection.gearhead";
-
-    private static final String FEATURE_AUTOMOTIVE = "android.hardware.type.automotive";
-
-    private final CarDrawerActivity mActivity;
-    // TODO: Add more UI control methods
-    private Method mGetContentViewMethod;
-    private Method mSetScrimColor;
-    private Method mSetTitle;
-    private Method mSetCarMenuBinder;
-    private Method mRestoreMenuButtonDrawable;
-    private Method mSetMenuButtonBitmap;
-    private Method mGetFragmentContainerId;
-    private Method mSetLightMode;
-    private Method mSetAutoLightDarkMode;
-    private Method mSetDarkMode;
-    private Method mSetBackground;
-    private Method mSetBackgroundResource;
-    private Method mOnSaveInstanceState;
-    private Method mOnRestoreInstanceState;
-    private Method mCloseDrawer;
-    private Method mOpenDrawer;
-    private Method mShowMenu;
-    private Method mOnStart;
-    private Method mOnResume;
-    private Method mOnPause;
-    private Method mOnStop;
-    private Method mShowSearchBox;
-    private Method mSetSearchBoxEditListener;
-    private Method mStartInput;
-    private Method mGetText;
-    private Method mStopInput;
-    private Method mStartSearchInput;
-    private Method mSetSearchBoxEndView;
-    private Method mSetSearchBoxColors;
-
-    private Object mCarUiEntryClass;
+    protected final CarDrawerActivity mActivity;
 
     public CarUiController(CarDrawerActivity activity) {
         mActivity = activity;
-        init();
+        validateCarUiPackage();
     }
 
-    public void init() {
-        try{
-            String className;
-            String pkg;
-            if (mActivity.getContext().getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
-                className = UI_ENTRY_CLASS_NAME;
-                pkg = CAR_UI_PROVIDER_PKG;
-            } else {
-                className = PROJECTED_UI_ENTRY_CLASS_NAME;
-                pkg = PROJECTED_UI_PROVIDER_PKG;
-            }
-
-            // STOPSHIP: need to verify the certificate of the CarUiProvider apk.
-            Context carUiContext = mActivity.getContext().createPackageContext(
-                    pkg,
-                    Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
-            ClassLoader classLoader = carUiContext.getClassLoader();
-            Class<?> loadedClass = classLoader.loadClass(pkg + className);
-            for (Method m : loadedClass.getDeclaredMethods()) {
-                switch(m.getName()) {
-                    case "getContentView":
-                        mGetContentViewMethod = m;
-                        break;
-                    case "setScrimColor":
-                        mSetScrimColor = m;
-                        break;
-                    case "setTitle":
-                        mSetTitle = m;
-                        break;
-                    case "setCarMenuBinder":
-                        mSetCarMenuBinder = m;
-                        break;
-                    case "restoreMenuDrawable":
-                        mRestoreMenuButtonDrawable = m;
-                        break;
-                    case "setMenuButtonBitmap":
-                        mSetMenuButtonBitmap = m;
-                        break;
-                    case "getFragmentContainerId":
-                        mGetFragmentContainerId = m;
-                        break;
-                    case "setLightMode":
-                        mSetLightMode = m;
-                        break;
-                    case "setDarkMode":
-                        mSetDarkMode = m;
-                        break;
-                    case "setAutoLightDarkMode":
-                        mSetAutoLightDarkMode = m;
-                        break;
-                    case "setBackground":
-                        mSetBackground = m;
-                        break;
-                    case "setBackgroundResource":
-                        mSetBackgroundResource = m;
-                        break;
-                    case "onSaveInstanceState":
-                        mOnSaveInstanceState = m;
-                        break;
-                    case "onRestoreInstanceState":
-                        mOnRestoreInstanceState = m;
-                        break;
-                    case "closeDrawer":
-                        mCloseDrawer = m;
-                        break;
-                    case "openDrawer":
-                        mOpenDrawer = m;
-                        break;
-                    case "showMenu":
-                        mShowMenu = m;
-                        break;
-                    case "onStart":
-                        mOnStart = m;
-                        break;
-                    case "onResume":
-                        mOnResume = m;
-                        break;
-                    case "onPause":
-                        mOnPause = m;
-                        break;
-                    case "onStop":
-                        mOnStop = m;
-                        break;
-                    case "showSearchBox":
-                        mShowSearchBox = m;
-                        break;
-                    case "setSearchBoxEditListener":
-                        mSetSearchBoxEditListener = m;
-                        break;
-                    case "startInput":
-                        mStartInput = m;
-                        break;
-                    case "getText":
-                        mGetText = m;
-                        break;
-                    case "stopInput":
-                        mStopInput = m;
-                        break;
-                    case "startSearchInput":
-                        mStartSearchInput = m;
-                        break;
-                    case "setSearchBoxEndView":
-                        mSetSearchBoxEndView = m;
-                        break;
-                    case "setSearchBoxColors":
-                        mSetSearchBoxColors = m;
-                        break;
-                }
-            }
-            mCarUiEntryClass = loadedClass.getConstructors()[0].newInstance(
-                    carUiContext, mActivity.getContext());
-        } catch (PackageManager.NameNotFoundException | ClassNotFoundException
-                | InvocationTargetException | InstantiationException
-                | IllegalAccessException e) {
-            Log.e(TAG, "Unable to load Car ui entry class.", e);
+    public static CarUiController createCarUiController(CarDrawerActivity activity) {
+        if (CarAppUtil.isEmbeddedCar(activity.getContext())) {
+            return new EmbeddedCarUiController(activity);
+        } else {
+            return getProjectedCarUiController(PROJECTED_UI_CONTROLLER, activity);
         }
     }
 
-    public int getFragmentContainerId() {
-        return (int) invoke(mGetFragmentContainerId);
-    }
-
-    public void setTitle(CharSequence title) {
-        invoke(mSetTitle, title);
-    }
-
-    public void setScrimColor(int color) {
-        invoke(mSetScrimColor, color);
-    }
-
-    public View getContentView() {
-        return (View) invoke(mGetContentViewMethod);
-    }
-
-    private Object invoke(Method m, Object... params) {
+    private static CarUiController getProjectedCarUiController(String className,
+            CarDrawerActivity activity) {
+        Class uiControllerClass = null;
         try {
-            return m.invoke(mCarUiEntryClass, params);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            Log.e(TAG, "Error invoking: " + m.getName(), e);
+            uiControllerClass = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Cannot find ProjectedCarUiController:" +
+                    className, e);
         }
-        return null;
+        Constructor<?> ctor;
+        try {
+            ctor = uiControllerClass.getDeclaredConstructor(CarDrawerActivity.class);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("Cannot construct ProjectedCarUiController," +
+                    " no constructor: " + className, e);
+        }
+        try {
+            return (CarUiController) ctor.newInstance(activity);
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            throw new IllegalArgumentException(
+                    "Cannot construct ProjectedCarUiController, constructor failed for "
+                            + uiControllerClass.getName(), e);
+        }
     }
 
-    public void registerCarMenuCallbacks(IBinder callbacks) {
-        invoke(mSetCarMenuBinder, callbacks);
-    }
+    public abstract void validateCarUiPackage();
 
-    public void restoreMenuButtonDrawable() {
-        invoke(mRestoreMenuButtonDrawable);
-    }
+    public abstract int getFragmentContainerId();
 
-    public void setMenuButtonBitmap(Bitmap bitmap) {
-        invoke(mSetMenuButtonBitmap, bitmap);
-    }
+    public abstract void setTitle(CharSequence title);
 
-    /**
-     * Set the System UI to be light.
-     */
-    public void setLightMode() {
-        invoke(mSetLightMode);
-    }
+    public abstract void setScrimColor(int color);
+
+    public abstract View getContentView();
+
+    public abstract void registerCarMenuCallbacks(CarMenuCallbacks callbacks);
+
+    public abstract void restoreMenuButtonDrawable();
+
+    public abstract void setMenuButtonBitmap(Bitmap bitmap);
+
+    public abstract void setLightMode();
 
     /**
      * Set the System UI to be dark.
      */
-    public void setDarkMode() {
-        invoke(mSetDarkMode);
-    }
+    public abstract void setDarkMode();
 
     /**
      * Set the System UI to be dark during day mode and light during night mode.
      */
-    public void setAutoLightDarkMode() {
-        invoke(mSetAutoLightDarkMode);
-    }
+    public abstract void setAutoLightDarkMode();
 
     /**
      * Sets the application background to the given {@link android.graphics.Bitmap}.
      *
      * @param bitmap to use as background.
      */
-    public void setBackground(Bitmap bitmap) {
-        invoke(mSetBackground, bitmap);
-    }
+    public abstract void setBackground(Bitmap bitmap);
 
     /**
      * Sets the background to a given resource.
@@ -276,77 +115,45 @@ public class CarUiController {
      *
      * @param resId The identifier of the resource.
      */
-    public void setBackgroundResource(int resId) {
-        invoke(mSetBackgroundResource, resId);
-    }
+    public abstract void setBackgroundResource(int resId);
 
-    public void onRestoreInstanceState(Bundle savedState) {
-        invoke(mOnRestoreInstanceState, savedState);
-    }
+    public abstract void onRestoreInstanceState(Bundle savedState);
 
-    public void onSaveInstanceState(Bundle outState) {
-        invoke(mOnSaveInstanceState, outState);
-    }
+    public abstract void onSaveInstanceState(Bundle outState);
 
-    public void closeDrawer() {
-        invoke(mCloseDrawer);
-    }
+    public abstract void closeDrawer();
 
-    public void openDrawer() {
-        invoke(mOpenDrawer);
-    }
+    public abstract void openDrawer();
 
-    public void showMenu(String id, String title) {
-        invoke(mShowMenu, id, title);
-    }
+    public abstract void showMenu(String id, String title);
 
-    public void onStart() {
-        invoke(mOnStart);
-    }
+    public abstract void onStart();
 
-    public void onResume() {
-        invoke(mOnResume);
-    }
+    public abstract void onResume();
 
-    public void onPause() {
-        invoke(mOnPause);
-    }
+    public abstract void onPause();
 
-    public void onStop() {
-        invoke(mOnStop);
-    }
+    public abstract void onStop();
 
-    public void showSearchBox(View.OnClickListener listener) {
-        invoke(mShowSearchBox, listener);
-    }
+    public abstract void showSearchBox(View.OnClickListener listener);
 
-    public void setSearchBoxColors(int backgroundColor, int googleLogoColor, int textColor,
-                                   int hintTextColor) {
-        invoke(mSetSearchBoxColors, backgroundColor, googleLogoColor, textColor, hintTextColor);
-    }
+    public abstract void setSearchBoxColors(int backgroundColor, int googleLogoColor, int textColor,
+                                            int hintTextColor);
 
-    public void setSearchBoxEditListener(IBinder listener) {
-        invoke(mSetSearchBoxEditListener, listener);
-    }
+    public abstract void setSearchBoxEditListener(SearchBoxEditListener listener);
 
-    public Object startInput(
-            EditorInfo outAttrs, String hint, View.OnClickListener searchBoxClickListener) {
-        return invoke(mStartInput, outAttrs, hint, searchBoxClickListener);
-    }
+    public abstract EditText startInput(
+            String hint, View.OnClickListener searchBoxClickListener);
 
-    public CharSequence getText() {
-        return (CharSequence) invoke(mGetText);
-    }
+    public abstract CharSequence getText();
 
-    public void stopInput() {
-        invoke(mStopInput);
-    }
+    public abstract void stopInput();
 
-    public EditText startSearchInput(String hint, View.OnClickListener listener) {
-        return (EditText) invoke(mStartSearchInput, hint, listener);
-    }
+    public abstract void setSearchBoxEndView(View view);
 
-    public void setSearchBoxEndView(View view) {
-        invoke(mSetSearchBoxEndView, view);
-    }
+    public abstract void onChildrenChanged(String parentId);
+
+    public abstract void onChildChanged(String parentId, Bundle item);
+
+    public abstract void showToast(String msg, int duration);
 }
