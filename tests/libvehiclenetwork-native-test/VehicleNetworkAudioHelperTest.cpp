@@ -77,7 +77,8 @@ public:
         return NO_ERROR;
     };
 
-    virtual status_t onPropertySubscribe(int32_t property, float sampleRate) {
+    virtual status_t onPropertySubscribe(int32_t property, float /*sampleRate*/,
+            int32_t /*zones*/) {
         ALOGI("onPropertySubscribe 0x%x", property);
         return NO_ERROR;
     };
