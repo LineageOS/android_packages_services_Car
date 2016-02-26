@@ -42,19 +42,20 @@ public:
         return mProperties;
     };
 
-    virtual status_t onPropertySet(const vehicle_prop_value_t& value) {
+    virtual status_t onPropertySet(const vehicle_prop_value_t& /*value*/) {
         return NO_ERROR;
     };
 
-    virtual status_t onPropertyGet(vehicle_prop_value_t* value) {
+    virtual status_t onPropertyGet(vehicle_prop_value_t* /*value*/) {
         return NO_ERROR;
     };
 
-    virtual status_t onPropertySubscribe(int32_t property, float sampleRate, int32_t zones) {
+    virtual status_t onPropertySubscribe(int32_t /*property*/, float /*sampleRate*/,
+            int32_t /*zones*/) {
         return NO_ERROR;
     };
 
-    virtual void onPropertyUnsubscribe(int32_t property) {
+    virtual void onPropertyUnsubscribe(int32_t /*property*/) {
     };
 
     bool isTheSameProperties(sp<VehiclePropertiesHolder>& list) {
