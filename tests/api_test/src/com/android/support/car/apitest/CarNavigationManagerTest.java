@@ -70,7 +70,7 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         assertTrue(onStartLatch.await(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         try {
-            mCarNavigationManager.sendNavigationStatus(10);
+            mCarNavigationManager.sendNavigationStatus(1);
             fail();
         } catch (IllegalStateException expected) {
             // Expected. Client should acquire context ownership for APP_CONTEXT_NAVIGATION.
@@ -92,6 +92,6 @@ public class CarNavigationManagerTest extends CarApiTestBase {
 
         // TODO: we should use mocked HAL to be able to verify this, right now just make sure that
         // it is not crashing and logcat has appropriate traces.
-        mCarNavigationManager.sendNavigationStatus(20);
+        mCarNavigationManager.sendNavigationStatus(1);
     }
 }
