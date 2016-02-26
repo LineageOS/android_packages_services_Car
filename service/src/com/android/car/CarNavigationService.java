@@ -15,7 +15,6 @@
  */
 package com.android.car;
 
-import android.car.Car;
 import android.car.CarAppContextManager;
 import android.car.cluster.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
@@ -47,10 +46,9 @@ public class CarNavigationService extends ICarNavigation.Stub
     private final Context mContext;
     private final boolean mRendererAvailable;
 
-    public CarNavigationService(Context context) {
+    public CarNavigationService(Context context, AppContextService appContextService) {
         mContext = context;
-        mAppContextService = (AppContextService) ICarImpl.getInstance(mContext)
-                .getCarService(Car.APP_CONTEXT_SERVICE);
+        mAppContextService = appContextService;
         mRendererAvailable = InstrumentClusterRendererLoader.isRendererAvailable(mContext);
     }
 
