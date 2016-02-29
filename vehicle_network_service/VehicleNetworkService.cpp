@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -254,41 +254,28 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
         msg.appendFormat("prop 0x%x: %d\n", mEventsCount.keyAt(i),
                 mEventsCount.valueAt(i));
     }
+    msg.append("*Vehicle Network Service Permissions*\n");
+    mVehiclePropertyAccessControl.dump(msg);
+
     write(fd, msg.string(), msg.size());
     return NO_ERROR;
 }
 
 bool VehicleNetworkService::isOperationAllowed(int32_t property, bool isWrite) {
-    uid_t uid =  IPCThreadState::self()->getCallingUid();
-    switch (uid) {
-        // This list will be expanded. Only those UIDs are allowed to access vehicle network
-        // for now. There can be per property based UID check built-in as well.
-        case AID_ROOT:
-        case AID_SYSTEM: {
-            return true;
-        } break;
-        case AID_AUDIOSERVER: {
-            if (isWrite) {
-                if (property == VEHICLE_PROPERTY_INTERNAL_AUDIO_STREAM_STATE) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return true;
-            }
-        } break;
-        default: {
-            ALOGE("non-system user tried access, uid %d", uid);
-        } break;
-    }
-    return false;
+    const uid_t uid = IPCThreadState::self()->getCallingUid();
+
+    return mVehiclePropertyAccessControl.testAccess(property, uid, isWrite);
 }
 
 VehicleNetworkService::VehicleNetworkService()
     : mModule(NULL),
       mMockingEnabled(false) {
     sInstance = this;
+
+   // Load vehicle network services policy file
+   if(!mVehiclePropertyAccessControl.init()) {
+     LOG_ALWAYS_FATAL("Vehicle property access policy could not be initialized.");
+   }
 }
 
 VehicleNetworkService::~VehicleNetworkService() {
