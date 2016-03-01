@@ -44,6 +44,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarSensorService mCarSensorService;
     private final CarInfoService mCarInfoService;
     private final CarAudioService mCarAudioService;
+    private final CarCameraService mCarCameraService;
     private final CarHvacService mCarHvacService;
     private final CarRadioService mCarRadioService;
     private final CarNightService mCarNightService;
@@ -88,6 +89,7 @@ public class ICarImpl extends ICar.Stub {
         mCarAudioService = new CarAudioService(serviceContext, mAppContextService);
         mCarHvacService = new CarHvacService(serviceContext);
         mCarRadioService = new CarRadioService(serviceContext);
+        mCarCameraService = new CarCameraService(serviceContext);
         mCarNightService = new CarNightService(serviceContext);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext);
         mCarNavigationStatusService = new CarNavigationService(serviceContext, mAppContextService);
@@ -102,7 +104,7 @@ public class ICarImpl extends ICar.Stub {
                 mCarSensorService,
                 mCarAudioService,
                 mCarHvacService,
-                mCarRadioService,
+                mCarRadioService, mCarCameraService,
                 mCarNightService,
                 mCarNavigationStatusService,
                 };
@@ -175,6 +177,9 @@ public class ICarImpl extends ICar.Stub {
                 return mAppContextService;
             case Car.PACKAGE_SERVICE:
                 return mCarPackageManagerService;
+            case Car.CAMERA_SERVICE:
+                assertCameraPermission(mContext);
+                return mCarCameraService;
             case Car.HVAC_SERVICE:
                 assertHvacPermission(mContext);
                 return mCarHvacService;
@@ -233,6 +238,14 @@ public class ICarImpl extends ICar.Stub {
         if (context.checkCallingOrSelfPermission(Car.PERMISSION_MOCK_VEHICLE_HAL)
                 != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException("requires CAR_MOCK_VEHICLE_HAL permission");
+        }
+    }
+
+    public static void assertCameraPermission(Context context) {
+        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException(
+                    "requires " + Car.PERMISSION_CAR_CAMERA);
         }
     }
 

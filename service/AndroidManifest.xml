@@ -27,7 +27,12 @@
         android:icon="@drawable/car_ic_mode"
         android:description="@string/car_permission_desc"
         android:label="@string/car_permission_label" />
-
+    <permission
+        android:name="android.car.permission.CAR_CAMERA"
+        android:permissionGroup="android.car.permission.CAR_INFORMATION"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_camera"
+        android:description="@string/car_permission_desc_camera" />
     <permission
         android:name="android.car.permission.CAR_FUEL"
         android:permissionGroup="android.car.permission.CAR_INFORMATION"

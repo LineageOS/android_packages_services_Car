@@ -29,6 +29,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.car.content.pm.CarPackageManager;
+import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.radio.CarRadioManager;
@@ -79,6 +80,9 @@ public class Car {
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
 
     @SystemApi
+    public static final String CAMERA_SERVICE = "camera";
+
+    @SystemApi
     public static final String RADIO_SERVICE = "radio";
 
     @SystemApi
@@ -109,6 +113,10 @@ public class Car {
     @SystemApi
     public static final String PERMISSION_CONTROL_APP_BLOCKING =
             "android.car.permission.CONTROL_APP_BLOCKING";
+
+    /** Permission necessary to access Car Camera APIs. */
+    @SystemApi
+    public static final String PERMISSION_CAR_CAMERA = "android.car.permission.CAR_CAMERA";
 
     /** Permission necessary to access Car HVAC APIs. */
     @SystemApi
@@ -469,6 +477,9 @@ public class Car {
                 break;
             case CAR_NAVIGATION_SERVICE:
                 manager = new CarNavigationManager(binder, mLooper);
+                break;
+            case CAMERA_SERVICE:
+                manager = new CarCameraManager(binder, mContext);
                 break;
             case HVAC_SERVICE:
                 manager = new CarHvacManager(binder, mContext, mLooper);
