@@ -16,7 +16,10 @@
 package android.car.media;
 
 import android.annotation.IntDef;
+import android.content.Context;
 import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.car.CarManagerBase;
@@ -82,6 +85,7 @@ public class CarAudioManager implements CarManagerBase {
     public @interface CarAudioUsage {}
 
     private final ICarAudio mService;
+    private final AudioManager mAudioManager;
 
     /**
      * Get {@link AudioAttrbutes} relevant for the given usage in car.
@@ -98,13 +102,39 @@ public class CarAudioManager implements CarManagerBase {
         }
     }
 
+    /**
+     * Request audio focus.
+     * Send a request to obtain the audio focus.
+     * @param l
+     * @param requestAttributes
+     * @param durationHint
+     * @param flags
+     */
+    public int requestAudioFocus(OnAudioFocusChangeListener l,
+                                 AudioAttributes requestAttributes,
+                                 int durationHint,
+                                 int flags) throws IllegalArgumentException {
+        return mAudioManager.requestAudioFocus(l, requestAttributes, durationHint, flags);
+    }
+
+    /**
+     * Abandon audio focus. Causes the previous focus owner, if any, to receive focus.
+     * @param l
+     * @param aa
+     * @return {@link #AUDIOFOCUS_REQUEST_FAILED} or {@link #AUDIOFOCUS_REQUEST_GRANTED}
+     */
+    public int abandonAudioFocus(OnAudioFocusChangeListener l, AudioAttributes aa) {
+        return mAudioManager.abandonAudioFocus(l, aa);
+    }
+
     @Override
     public void onCarDisconnected() {
         // TODO Auto-generated method stub
     }
 
     /** @hide */
-    public CarAudioManager(IBinder service) {
+    public CarAudioManager(IBinder service, Context context) {
         mService = ICarAudio.Stub.asInterface(service);
+        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 }

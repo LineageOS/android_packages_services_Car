@@ -16,6 +16,7 @@
 package android.support.car.media;
 
 import android.media.AudioAttributes;
+import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.os.RemoteException;
 import android.support.annotation.IntDef;
 import android.support.car.CarManagerBase;
@@ -86,4 +87,24 @@ public abstract class CarAudioManager implements CarManagerBase {
      * @return
      */
     public abstract AudioAttributes getAudioAttributesForCarUsage(@CarAudioUsage int carUsage);
+
+    /**
+     * Request audio focus.
+     * Send a request to obtain the audio focus.
+     * @param l
+     * @param requestAttributes
+     * @param durationHint
+     * @param flags
+     */
+    public abstract int requestAudioFocus(OnAudioFocusChangeListener l,
+                                          AudioAttributes requestAttributes,
+                                          int durationHint,
+                                          int flags) throws IllegalArgumentException;
+    /**
+     * Abandon audio focus. Causes the previous focus owner, if any, to receive focus.
+     * @param l
+     * @param aa
+     * @return {@link #AUDIOFOCUS_REQUEST_FAILED} or {@link #AUDIOFOCUS_REQUEST_GRANTED}
+     */
+    public abstract int abandonAudioFocus(OnAudioFocusChangeListener l, AudioAttributes aa);
 }

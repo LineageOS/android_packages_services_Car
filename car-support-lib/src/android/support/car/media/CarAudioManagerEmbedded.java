@@ -16,6 +16,7 @@
 package android.support.car.media;
 
 import android.media.AudioAttributes;
+import android.media.AudioManager.OnAudioFocusChangeListener;
 
 /**
  * @hide
@@ -31,6 +32,19 @@ public class CarAudioManagerEmbedded extends CarAudioManager {
     @Override
     public AudioAttributes getAudioAttributesForCarUsage(@CarAudioUsage int carUsage) {
         return mManager.getAudioAttributesForCarUsage(carUsage);
+    }
+
+    @Override
+    public int requestAudioFocus(OnAudioFocusChangeListener l,
+                                          AudioAttributes requestAttributes,
+                                          int durationHint,
+                                          int flags) throws IllegalArgumentException {
+        return mManager.requestAudioFocus(l, requestAttributes, durationHint, flags);
+    }
+
+    @Override
+    public int abandonAudioFocus(OnAudioFocusChangeListener l, AudioAttributes aa) {
+        return mManager.abandonAudioFocus(l, aa);
     }
 
     @Override
