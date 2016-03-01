@@ -16,6 +16,9 @@
 
 # Build the Car service.
 
+#disble build in PDK, missing aidl import breaks build
+ifneq ($(TARGET_BUILD_PDK),true)
+
 LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
@@ -53,3 +56,4 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 include $(call all-makefiles-under,$(LOCAL_PATH))
 
+endif #TARGET_BUILD_PDK
