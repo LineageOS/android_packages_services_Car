@@ -332,6 +332,8 @@ public class PowerHalService extends HalServiceBase {
 
     @Override
     public void dump(PrintWriter writer) {
-        // TODO Auto-generated method stub
+        writer.println("*Power HAL*");
+        writer.println("isPowerStateSupported:" + isPowerStateSupported() +
+                ",isDeepSleepAllowed:" + isDeepSleepAllowed());
     }
 }

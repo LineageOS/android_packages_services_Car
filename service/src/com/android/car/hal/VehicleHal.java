@@ -88,6 +88,7 @@ public class VehicleHal implements VehicleNetworkListener {
     private final RadioHalService mRadioHal;
     private final PowerHalService mPowerHal;
     private final HvacHalService mHvacHal;
+    private final InputHalService mInputHal;
 
     /** stores handler for each HAL property. Property events are sent to handler. */
     private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<HalServiceBase>();
@@ -107,13 +108,16 @@ public class VehicleHal implements VehicleNetworkListener {
         mAudioHal = new AudioHalService(this);
         mRadioHal = new RadioHalService(this);
         mHvacHal = new HvacHalService(this);
+        mInputHal = new InputHalService();
         mAllServices = new HalServiceBase[] {
                 mPowerHal,
                 mAudioHal,
                 mHvacHal,
                 mInfoHal,
                 mSensorHal,
-                mRadioHal };
+                mRadioHal,
+                mInputHal
+                };
         mVehicleNetwork = VehicleNetwork.createVehicleNetwork(this, mHandlerThread.getLooper());
     }
 
@@ -129,6 +133,7 @@ public class VehicleHal implements VehicleNetworkListener {
         mAudioHal = audioHal;
         mRadioHal = radioHal;
         mHvacHal = hvacHal;
+        mInputHal = null;
         mAllServices = null;
         mVehicleNetwork = vehicleNetwork;
     }
@@ -213,6 +218,10 @@ public class VehicleHal implements VehicleNetworkListener {
 
     public HvacHalService getHvacHal() {
         return mHvacHal;
+    }
+
+    public InputHalService getInputHal() {
+        return mInputHal;
     }
 
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {

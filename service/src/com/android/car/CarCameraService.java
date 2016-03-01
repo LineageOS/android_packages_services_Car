@@ -35,10 +35,6 @@ public class CarCameraService extends ICarCamera.Stub implements CarServiceBase 
     private long mModule;
     private final HashMap<Integer, Long> mDeviceMap;
 
-    static {
-        System.loadLibrary("jni_car_camera");
-    }
-
     public CarCameraService(Context context) {
         mContext = context;
         mDeviceMap = new HashMap<Integer, Long>();
