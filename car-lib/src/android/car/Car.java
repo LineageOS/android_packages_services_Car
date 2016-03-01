@@ -461,7 +461,7 @@ public class Car {
         CarManagerBase manager = null;
         switch (serviceName) {
             case AUDIO_SERVICE:
-                manager = new CarAudioManager(binder);
+                manager = new CarAudioManager(binder, mContext);
                 break;
             case SENSOR_SERVICE:
                 manager = new CarSensorManager(binder, mContext, mLooper);
