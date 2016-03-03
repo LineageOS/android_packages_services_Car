@@ -15,7 +15,7 @@
  */
 package android.car.cluster.demorenderer;
 
-import android.car.cluster.InstrumentClusterRenderer;
+import android.car.cluster.renderer.InstrumentClusterRenderer;
 
 /**
  * This factory class will be requested by android.car using reflection in order to get an instance

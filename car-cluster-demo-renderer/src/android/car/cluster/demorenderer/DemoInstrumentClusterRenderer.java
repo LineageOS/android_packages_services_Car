@@ -15,86 +15,47 @@
  */
 package android.car.cluster.demorenderer;
 
-import android.car.cluster.InstrumentClusterRenderer;
-import android.car.cluster.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
+import android.car.cluster.renderer.DisplayConfiguration;
+import android.car.cluster.renderer.InstrumentClusterRenderer;
+import android.car.cluster.renderer.MediaRenderer;
+import android.car.cluster.renderer.NavigationRenderer;
 import android.content.Context;
-import android.os.Looper;
-import android.util.Log;
-import android.view.Display;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import android.view.View;
 
 /**
  * Demo implementation of {@code InstrumentClusterRenderer}.
  */
 public class DemoInstrumentClusterRenderer extends InstrumentClusterRenderer {
-    private final static String TAG = DemoInstrumentClusterRenderer.class.getSimpleName();
-
-    private static int TIMEOUT_MS = 5000;
 
     private DemoInstrumentClusterView mView;
-    private DemoPresentation mPresentation;
-    private CountDownLatch mPresentationCreatedLatch = new CountDownLatch(1);
-    private Looper mUiLooper;
+    private Context mContext;
 
     @Override
-    public void onCreate(final Context context, final Display display) {
-        new Thread() {
-            @Override
-            public void run() {
-                Log.d(TAG, "UI thread started.");
-                Looper.prepare();
-                mPresentation = new DemoPresentation(context, display);
-                mView = new DemoInstrumentClusterView(mPresentation.getContext());
-                mPresentation.setContentView(mView);
-                mPresentationCreatedLatch.countDown();
-                mUiLooper = Looper.myLooper();
-                Looper.loop();
-            }
-        }.start();
-    }
-
-    private boolean waitForPresentation() {
-        try {
-            boolean ready = mPresentationCreatedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-            if (!ready) {
-                Log.w(TAG, "Presentation was not created within " + TIMEOUT_MS + "ms.",
-                        new RuntimeException() /* for stack trace */);
-            }
-            return ready;
-        } catch (InterruptedException e) {
-            Log.e(TAG, "Presentation creation interrupted.", e);
-            throw new IllegalStateException(e);
-        }
+    public void onCreate(Context context) {
+        mContext = context;
     }
 
     @Override
-    public void onStart() {
-        if (!waitForPresentation()) {
-            return;
-        }
-
-        mPresentation.show();
+    public View onCreateView(DisplayConfiguration displayConfiguration) {
+        mView = new DemoInstrumentClusterView(mContext);
+        return mView;
     }
 
     @Override
-    public void onStop() {
-        if (!waitForPresentation()) {
-            return;
-        }
+    public void onStart() { }
 
-        mPresentation.dismiss();
-    }
+    @Override
+    public void onStop() { }
 
     @Override
     protected NavigationRenderer createNavigationRenderer() {
-        if (!waitForPresentation()) {
-            return null;
-        }
+        return new DemoNavigationRenderer(mView);
+    }
 
-        return new DemoNavigationRenderer(mView, mUiLooper);
+    @Override
+    protected MediaRenderer createMediaRenderer() {
+        return new DemoMediaRenderer(mView);
     }
 
     @Override

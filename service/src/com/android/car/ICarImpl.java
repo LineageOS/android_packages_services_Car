@@ -18,19 +18,19 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.ICar;
-import android.car.ICarConnectionListener;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.util.Log;
 
+import com.android.car.cluster.CarNavigationService;
+import com.android.car.cluster.InstrumentClusterService;
+import com.android.car.cluster.MediaStatusService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
-import java.util.Collection;
 
 public class ICarImpl extends ICar.Stub {
 
@@ -59,16 +59,14 @@ public class ICarImpl extends ICar.Stub {
     private final CarNightService mCarNightService;
     private final AppContextService mAppContextService;
     private final GarageModeService mGarageModeService;
-    private final CarNavigationService mCarNavigationStatusService;
+    private final CarNavigationService mCarNavigationService;
+    private final MediaStatusService mMediaStatusService;
+    private final InstrumentClusterService mInstrumentClusterService;
 
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
     private CarTestService mCarTestService;
     private final CarServiceBase[] mAllServices;
-
-    /** Holds connection listener from client. Only necessary for mocking. */
-    private final BinderInterfaceContainer<ICarConnectionListener> mCarConnectionListeners =
-            new BinderInterfaceContainer<>(null);
 
     public synchronized static ICarImpl getInstance(Context serviceContext) {
         if (sInstance == null) {
@@ -90,7 +88,6 @@ public class ICarImpl extends ICar.Stub {
         mContext = serviceContext;
         mHal = VehicleHal.getInstance();
         mCarPowerManagementService = new CarPowerManagementService(serviceContext);
-        mCarPackageManagerService = new CarPackageManagerService(serviceContext);
         mCarInputService = new CarInputService(serviceContext);
         mGarageModeService = new GarageModeService(mContext, mCarPowerManagementService);
         mCarInfoService = new CarInfoService(serviceContext);
@@ -101,7 +98,11 @@ public class ICarImpl extends ICar.Stub {
         mCarRadioService = new CarRadioService(serviceContext);
         mCarCameraService = new CarCameraService(serviceContext);
         mCarNightService = new CarNightService(serviceContext);
-        mCarNavigationStatusService = new CarNavigationService(serviceContext, mAppContextService);
+        mCarPackageManagerService = new CarPackageManagerService(serviceContext);
+        mInstrumentClusterService = new InstrumentClusterService(serviceContext);
+        mMediaStatusService = new MediaStatusService(serviceContext, mInstrumentClusterService);
+        mCarNavigationService = new CarNavigationService(
+                serviceContext, mAppContextService, mInstrumentClusterService);
 
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
@@ -114,9 +115,12 @@ public class ICarImpl extends ICar.Stub {
                 mCarSensorService,
                 mCarAudioService,
                 mCarHvacService,
-                mCarRadioService, mCarCameraService,
+                mCarRadioService,
+                mCarCameraService,
                 mCarNightService,
-                mCarNavigationStatusService,
+                mInstrumentClusterService,
+                mCarNavigationService,
+                mMediaStatusService
                 };
     }
 
@@ -127,7 +131,6 @@ public class ICarImpl extends ICar.Stub {
     }
 
     private void release() {
-        mCarConnectionListeners.clear();
         // release done in opposite order from init
         for (int i = mAllServices.length - 1; i >= 0; i--) {
             mAllServices[i].release();
@@ -152,25 +155,6 @@ public class ICarImpl extends ICar.Stub {
         }
         for (CarServiceBase service: mAllServices) {
             service.init();
-        }
-        // send disconnect event and connect event to all clients.
-        Collection<BinderInterfaceContainer.BinderInterface<ICarConnectionListener>>
-                connectionListeners = mCarConnectionListeners.getInterfaces();
-        for (BinderInterfaceContainer.BinderInterface<ICarConnectionListener> client :
-                connectionListeners) {
-            try {
-                client.binderInterface.onDisconnected();
-            } catch (RemoteException e) {
-                //ignore
-            }
-        }
-        for (BinderInterfaceContainer.BinderInterface<ICarConnectionListener> client :
-                connectionListeners) {
-            try {
-                client.binderInterface.onConnected();
-            } catch (RemoteException e) {
-                //ignore
-            }
         }
     }
 
@@ -197,7 +181,7 @@ public class ICarImpl extends ICar.Stub {
                 assertRadioPermission(mContext);
                 return mCarRadioService;
             case Car.CAR_NAVIGATION_SERVICE:
-                return mCarNavigationStatusService;
+                return mCarNavigationService;
             case Car.TEST_SERVICE: {
                 assertVehicleHalMockPermission(mContext);
                 synchronized (this) {
@@ -213,6 +197,15 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
+    @Override
+    public int getCarConnectionType() {
+        if (!isInMocking()) {
+            return Car.CONNECTION_TYPE_EMBEDDED;
+        } else {
+            return Car.CONNECTION_TYPE_EMBEDDED_MOCKING;
+        }
+    }
+
     public CarServiceBase getCarInternalService(String serviceName) {
         switch (serviceName) {
             case INTERNAL_INPUT_SERVICE:
@@ -222,26 +215,6 @@ public class ICarImpl extends ICar.Stub {
                         serviceName);
                 return null;
         }
-    }
-
-    @Override
-    public boolean isConnectedToCar() {
-        return true; // always connected in embedded
-    }
-
-    @Override
-    public void registerCarConnectionListener(ICarConnectionListener listener) {
-        mCarConnectionListeners.addBinder(listener);
-        try {
-            listener.onConnected();
-        } catch (RemoteException e) {
-            //ignore
-        }
-    }
-
-    @Override
-    public void unregisterCarConnectionListener(ICarConnectionListener listener) {
-        mCarConnectionListeners.removeBinder(listener);
     }
 
     /**

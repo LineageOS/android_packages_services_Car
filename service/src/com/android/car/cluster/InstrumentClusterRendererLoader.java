@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.cluster;
 
-import android.car.cluster.InstrumentClusterRenderer;
+import android.car.cluster.renderer.InstrumentClusterRenderer;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.hardware.display.DisplayManager;
 import android.util.Log;
-import android.view.Display;
+
+import com.android.car.CarLog;
+import com.android.car.R;
 
 import dalvik.system.PathClassLoader;
 
@@ -36,56 +37,36 @@ public class InstrumentClusterRendererLoader {
 
     private final static String sCreateRendererMethod = "createRenderer";
 
-    private static InstrumentClusterRenderer sRenderer;
-    private static Object sync = new Object();
-
     /**
-     * Load {@link InstrumentClusterRenderer} from separate APK and cache it. Subsequent calls to
-     * this function will return cached reference to the renderer.
-     */
-    public static InstrumentClusterRenderer getRenderer(Context context) {
-        synchronized (sync) {
-            if (sRenderer == null) {
-                Display display = getInstrumentClusterDisplay(context);
-                if (display != null) {
-                    createRenderer(context, display);
-                } else {
-                    Log.e(TAG, "Instrument cluster display not found.");
-                }
-            }
-        }
-        return sRenderer;
-    }
-
-    /**
-     * Returns true if instrument cluster renderer installed and secondary display is available.
+     * Returns true if instrument cluster renderer installed.
      */
     public static boolean isRendererAvailable(Context context) {
         PackageManager packageManager = context.getPackageManager();
         try {
             packageManager.getPackageInfo(getRendererPackageName(context), 0);
-            return getInstrumentClusterDisplay(context) != null;
+            return true;
         } catch (NameNotFoundException e) {
             return false;
         }
     }
 
-    /** To prevent instantiation of a singleton class. */
-    private InstrumentClusterRendererLoader() {}
-
-    private static void createRenderer(Context context, Display display) {
-        String packageName = getRendererPackageName(context);
-
+    /** Dynamically load renderer APK and creates {@link InstrumentClusterRenderer}. */
+    public static InstrumentClusterRenderer createRenderer(Context context) {
+        final String packageName = getRendererPackageName(context);
         try {
-            sRenderer = load(context, packageName, getRendererFactoryClassName(context));
+            return load(context, packageName, getRendererFactoryClassName(context));
         } catch (Exception e) {
             Log.e(TAG, "Failed to load renderer class: " + e.getMessage(), e);
             throw new RuntimeException(e);
         }
-
-        sRenderer.onCreate(createPackageContext(context, packageName), display);
-        sRenderer.onStart();
     }
+
+    public static Context createRendererPackageContext(Context context) {
+        return createPackageContext(context, getRendererPackageName(context));
+    }
+
+    /** To prevent instantiation of a singleton class. */
+    private InstrumentClusterRendererLoader() {}
 
     /**
      * Creates package context for given package name. It is necessary to get renderer's context
@@ -93,29 +74,12 @@ public class InstrumentClusterRendererLoader {
      */
     private static Context createPackageContext(Context currentContext, String packageName) {
         try {
-            // TODO: check APK certificate.
             return currentContext.createPackageContext(packageName,
                     Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
         } catch (NameNotFoundException e) {
             Log.e(TAG, "Package not found: " + packageName, e);
             throw new IllegalStateException(e);
         }
-    }
-
-    private static Display getInstrumentClusterDisplay(Context context) {
-        DisplayManager displayManager = context.getSystemService(DisplayManager.class);
-        Display[] displays = displayManager.getDisplays();
-
-        Log.d(TAG, "There are currently " + displays.length + " displays connected.");
-        for (Display display : displays) {
-            Log.d(TAG, "  " + display);
-        }
-
-        if (displays.length > 1) {
-            // TODO: assuming that secondary display is instrument cluster. Put this into settings?
-            return displays[1];
-        }
-        return null;
     }
 
     /** Returns instrument cluster renderer or null if renderer package is not found */

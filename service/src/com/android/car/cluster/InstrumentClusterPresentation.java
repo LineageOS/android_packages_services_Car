@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.android.car.cluster;
 
-package android.car;
+import android.app.Presentation;
+import android.content.Context;
+import android.view.Display;
+import android.view.WindowManager;
 
-import android.content.Intent;
-
-import android.car.ICarConnectionListener;
-
-/** @hide */
-interface ICar {
-    IBinder getCarService(in String serviceName) = 0;
-    int getCarConnectionType() = 1;
+/**
+ * Presentation class.
+ */
+public class InstrumentClusterPresentation extends Presentation {
+    public InstrumentClusterPresentation(Context outerContext, Display display) {
+        super(outerContext, display);
+        getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+    }
 }

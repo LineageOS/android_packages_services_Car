@@ -148,10 +148,8 @@ public class CarNavigationManager implements CarManagerBase {
      *        used for event type {@link #TURN_ROUNDABOUT_ENTER_AND_EXIT}.  -1 if unused.
      * @param turnNumber turn number, counting around from the roundabout entry to the exit.  Only
      *        used for event type {@link #TURN_ROUNDABOUT_ENTER_AND_EXIT}.  -1 if unused.
-     * @param image image to be shown in the instrument cluster (PNG format).  Null if instrument
-     *        cluster type is {@link #INSTRUMENT_CLUSTER_TYPE_ENUM}, or if
-     *        the image parameters are malformed (length or width non-positive, or illegal
-     *        imageColorDepthBits) in the initial NavigationStatusService call.
+     * @param image image to be shown in the instrument cluster.  Null if instrument
+     *        cluster type doesn't support images.
      * @param turnSide turn side ({@link #TURN_SIDE_LEFT}, {@link #TURN_SIDE_RIGHT} or
      *        {@link #TURN_SIDE_UNSPECIFIED}).
      * @return true if successful.
@@ -210,7 +208,7 @@ public class CarNavigationManager implements CarManagerBase {
     }
 
     /**
-     * @param listener {@link CarNavigationStatusListener} to be registered, replacing any existing
+     * @param listener {@link CarNavigationListener} to be registered, replacing any existing
      *        listeners.
      * @throws CarNotConnectedException
      */
@@ -231,7 +229,7 @@ public class CarNavigationManager implements CarManagerBase {
     }
 
     /**
-     * Unregisters {@link CarNavigationStatusListener}.
+     * Unregisters {@link CarNavigationListener}.
      */
     public void unregisterListener() {
         try {
@@ -266,12 +264,11 @@ public class CarNavigationManager implements CarManagerBase {
         mHandler.sendMessage(mHandler.obtainMessage(STOP));
     }
 
-    private static class ICarNavigationEventListenerImpl extends
-            ICarNavigationEventListener.Stub {
+    private static class ICarNavigationEventListenerImpl extends ICarNavigationEventListener.Stub {
         private final WeakReference<CarNavigationManager> mManager;
 
         public ICarNavigationEventListenerImpl(CarNavigationManager manager) {
-            mManager = new WeakReference<CarNavigationManager>(manager);
+            mManager = new WeakReference<>(manager);
         }
 
         @Override
