@@ -69,22 +69,22 @@ public class AudioTestFragment extends Fragment {
     private ToggleButton mEnableMocking;
     private ToggleButton mRejectFocus;
 
-    private final AudioPlayer mMusicPlayer;
-    private final AudioPlayer mMusicPlayerShort;
-    private final AudioPlayer mNavGuidancePlayer;
-    private final AudioPlayer mVrPlayer;
-    private final AudioPlayer mSystemPlayer;
-    private final AudioPlayer[] mAllPlayers;
+    private AudioPlayer mMusicPlayer;
+    private AudioPlayer mMusicPlayerShort;
+    private AudioPlayer mNavGuidancePlayer;
+    private AudioPlayer mVrPlayer;
+    private AudioPlayer mSystemPlayer;
+    private AudioPlayer[] mAllPlayers;
 
-    private final Handler mHandler;
-    private final Context mContext;
+    private Handler mHandler;
+    private Context mContext;
 
-    private final Car mCar;
+    private Car mCar;
     private CarAppContextManager mAppContextManager;
     private CarEmulator mCarEmulator;
 
-    public AudioTestFragment(Context context) {
-        mContext = context;
+    private void init() {
+        mContext = getContext();
         mMusicPlayer = new AudioPlayer(mContext, R.raw.john_harrison_with_the_wichita_state_university_chamber_players_05_summer_mvt_2_adagio,
                 (new AudioAttributes.Builder()).
                     setUsage(AudioAttributes.USAGE_MEDIA).
@@ -141,6 +141,7 @@ public class AudioTestFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
         Log.i(TAG, "onCreateView");
+        init();
         View view = inflater.inflate(R.layout.audio, container, false);
         mAudioManager = (AudioManager) mContext.getSystemService(
                 Context.AUDIO_SERVICE);

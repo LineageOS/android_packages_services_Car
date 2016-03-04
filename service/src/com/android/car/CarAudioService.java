@@ -84,8 +84,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
     @GuardedBy("mLock")
     private int mCurrentAudioContexts = 0;
 
-    private final AppContextService mAppContextService;
-
     private final AudioAttributes mAttributeBottom =
             CarAudioAttributesUtil.getAudioAttributesForCarUsage(
                     CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_BOTTOM);
@@ -93,7 +91,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
             CarAudioAttributesUtil.getAudioAttributesForCarUsage(
                     CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY);
 
-    public CarAudioService(Context context, AppContextService appContextService) {
+    public CarAudioService(Context context) {
         mAudioHal = VehicleHal.getInstance().getAudioHal();
         mContext = context;
         mFocusHandlerThread = new HandlerThread(CarLog.TAG_AUDIO);
@@ -102,7 +100,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
         mFocusHandler = new CarAudioFocusChangeHandler(mFocusHandlerThread.getLooper());
         mVolumeHandler = new CarAudioVolumeHandler(Looper.getMainLooper());
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        mAppContextService = appContextService;
     }
 
     @Override

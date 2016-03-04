@@ -20,6 +20,7 @@ import com.google.android.car.kitchensink.audio.AudioTestFragment;
 import com.google.android.car.kitchensink.camera.CameraTestFragment;
 import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
+import com.google.android.car.kitchensink.input.InputTestFragment;
 import com.google.android.car.kitchensink.job.JobSchedulerFragment;
 import com.google.android.car.kitchensink.keyboard.KeyboardFragment;
 
@@ -57,6 +58,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String MENU_JOB = "job_scheduler";
     private static final String MENU_KEYBOARD = "keyboard";
     private static final String MENU_CLUSTER = "inst cluster";
+    private static final String MENU_INPUT_TEST = "input test";
 
     private Car mCarApi;
     private CarCameraManager mCameraManager;
@@ -72,6 +74,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private JobSchedulerFragment mJobFragment;
     private KeyboardFragment mKeyboardFragment;
     private InstrumentClusterFragment mInstrumentClusterFragment;
+    private InputTestFragment mInputTestFragment;
 
     private final CarSensorManager.CarSensorEventListener mListener =
             new CarSensorManager.CarSensorEventListener() {
@@ -205,7 +208,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
             if (parentId.equals(ROOT)) {
                 String[] allMenus = {
                         MENU_AUDIO, MENU_CAMERA, MENU_HVAC, MENU_JOB, MENU_KEYBOARD, MENU_CLUSTER,
-                        MENU_QUIT
+                        MENU_INPUT_TEST, MENU_QUIT
                 };
                 for (String menu : allMenus) {
                     items.add(new CarMenu.Builder(menu).setText(menu).build());
@@ -219,7 +222,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
             Log.d(TAG, "onItemClicked id=" + id);
             if (id.equals(MENU_AUDIO)) {
                 if (mAudioTestFragment == null) {
-                    mAudioTestFragment = new AudioTestFragment(getContext());
+                    mAudioTestFragment = new AudioTestFragment();
                 }
                 setContentFragment(mAudioTestFragment);
             } else if (id.equals(MENU_CAMERA)) {
@@ -257,6 +260,11 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                     mInstrumentClusterFragment.setCarAppContextManager(mCarAppContextManager);
                 }
                 setContentFragment(mInstrumentClusterFragment);
+            } else if (id.equals(MENU_INPUT_TEST)) {
+                if (mInputTestFragment == null) {
+                    mInputTestFragment = new InputTestFragment();
+                }
+                setContentFragment(mInputTestFragment);
             } else if (id.equals(MENU_QUIT)) {
                 finish();
             }

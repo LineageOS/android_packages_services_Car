@@ -37,8 +37,7 @@ LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_JAVA_LIBRARIES += android.car
 LOCAL_STATIC_JAVA_LIBRARIES += libvehiclenetwork-java car-systemtest
 
-LOCAL_REQUIRED_MODULES := libautoreceiver_jni
-LOCAL_JNI_SHARED_LIBRARIES := libjni_car_camera
+LOCAL_JNI_SHARED_LIBRARIES := libjni_car_service
 
 include $(BUILD_PACKAGE)
 

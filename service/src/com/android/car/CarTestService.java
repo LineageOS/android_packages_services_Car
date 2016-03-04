@@ -23,6 +23,7 @@ import android.util.Log;
 import com.android.car.hal.VehicleHal;
 import com.android.car.vehiclenetwork.IVehicleNetworkHalMock;
 import com.android.car.vehiclenetwork.VehicleNetwork;
+import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehiclePropValueParcelable;
 
 import java.io.PrintWriter;
@@ -124,6 +125,13 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
                 }
             }
         });
+    }
+
+    @Override
+    public boolean isPropertySupported(int property) {
+        VehiclePropConfigs configs = VehicleHal.getInstance().getVehicleNetwork().listProperties(
+                property);
+        return configs != null;
     }
 
     public synchronized boolean isInMocking() {

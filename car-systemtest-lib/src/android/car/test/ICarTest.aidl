@@ -27,4 +27,6 @@ interface ICarTest {
     void startMocking(in IVehicleNetworkHalMock mock, int flags)  = 2;
     /** Finish mocking mode. */
     void stopMocking(in IVehicleNetworkHalMock mock)              = 3;
+    /** If given property is supported or not */
+    boolean isPropertySupported(int property)                     = 4;
 }

@@ -22,8 +22,6 @@ LOCAL_SRC_FILES := $(patsubst ./%,%, $(shell cd $(LOCAL_PATH); \
     find . -name "*.cpp" -and -not -name ".*"))
 
 LOCAL_C_INCLUDES += \
-    libcore/include \
-    frameworks/base/include \
     system/core/include
 
 LOCAL_SHARED_LIBRARIES := \
@@ -35,7 +33,7 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_CFLAGS := \
     -Wno-unused-parameter \
 
-LOCAL_MODULE := libjni_car_camera
+LOCAL_MODULE := libjni_car_service
 LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_SHARED_LIBRARY)

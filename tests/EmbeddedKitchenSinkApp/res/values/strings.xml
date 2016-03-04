@@ -99,4 +99,9 @@
     <string name="cluster_turn_left">Turn left</string>
     <string name="cluster_stop">Stop Nav</string>
     <string name="cluster_nav_app_context_loss">Navigation app context lost!</string>
+
+    <!--  input test -->
+    <string name="volume_up">Volume +</string>
+    <string name="volume_down">Volume -</string>
+    <string name="voice">Voice</string>
 </resources>

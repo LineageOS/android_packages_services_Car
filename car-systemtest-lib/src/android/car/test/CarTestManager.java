@@ -66,6 +66,10 @@ public class CarTestManager implements CarManagerBase {
         // should not happen for embedded
     }
 
+    /**
+     * Inject vehicle prop value event.
+     * @param value
+     */
     public void injectEvent(VehiclePropValue value) {
         try {
             mService.injectEvent(new VehiclePropValueParcelable(value));
@@ -74,6 +78,19 @@ public class CarTestManager implements CarManagerBase {
         }
     }
 
+    /**
+     * Check if given property is supported by vehicle hal.
+     * @param property
+     * @return
+     */
+    public boolean isPropertySupported(int property) {
+        try {
+            return mService.isPropertySupported(property);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+        return false;
+    }
     /**
      * Start mocking vehicle HAL. It is somewhat strange to re-use interface in lower level
      * API, but this is only for testing, and interface is exactly the same.
@@ -93,6 +110,9 @@ public class CarTestManager implements CarManagerBase {
         }
     }
 
+    /**
+     * Stop previously started mocking.
+     */
     public void stopMocking() {
         IVehicleNetworkHalMockImpl halMockImpl;
         synchronized (this) {
