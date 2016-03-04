@@ -115,12 +115,14 @@ public class AudioHalService extends HalServiceBase {
             VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG;
     public static final int AUDIO_CONTEXT_SAFETY_ALERT_FLAG =
             VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SAFETY_ALERT_FLAG;
-    public static final int AUDIO_CONTEXT_CD_ROM =
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CD_ROM;
-    public static final int AUDIO_CONTEXT_AUX_AUDIO =
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_AUX_AUDIO;
-    public static final int AUDIO_CONTEXT_SYSTEM_SOUND =
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND;
+    public static final int AUDIO_CONTEXT_RADIO_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG;
+    public static final int AUDIO_CONTEXT_CD_ROM_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CD_ROM_FLAG;
+    public static final int AUDIO_CONTEXT_AUX_AUDIO_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_AUX_AUDIO_FLAG;
+    public static final int AUDIO_CONTEXT_SYSTEM_SOUND_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG;
 
     public interface AudioHalListener {
         /**
@@ -207,9 +209,8 @@ public class AudioHalService extends HalServiceBase {
      */
     public static int logicalStreamToHalContextType(int logicalStream) {
         switch (logicalStream) {
-            //TODO enable when hal is ready
-            //case CarAudioManager.CAR_AUDIO_USAGE_RADIO:
-            //    return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG;
+            case CarAudioManager.CAR_AUDIO_USAGE_RADIO:
+                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG;
             case CarAudioManager.CAR_AUDIO_USAGE_VOICE_CALL:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG;
             case CarAudioManager.CAR_AUDIO_USAGE_MUSIC:
@@ -225,7 +226,7 @@ public class AudioHalService extends HalServiceBase {
             case CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SAFETY_ALERT_FLAG;
             case CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SOUND:
-                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND;
+                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG;
             case CarAudioManager.CAR_AUDIO_USAGE_DEFAULT:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG;
             default:

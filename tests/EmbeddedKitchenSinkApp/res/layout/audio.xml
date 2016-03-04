@@ -187,12 +187,12 @@
             android:id="@+id/button_nav_start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/nav_focus_start" />
+            android:text="@string/nav_start" />
         <Button
             android:id="@+id/button_nav_end"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/nav_focus_end" />
+            android:text="@string/nav_end" />
         <Button
             android:id="@+id/button_vr_start"
             android:layout_width="wrap_content"
@@ -203,5 +203,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/vr_end" />
+        <Button
+            android:id="@+id/button_radio_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/radio_start" />
+        <Button
+            android:id="@+id/button_radio_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/radio_end" />
     </LinearLayout>
 </LinearLayout>

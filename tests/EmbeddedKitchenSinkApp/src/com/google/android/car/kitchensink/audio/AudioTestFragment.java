@@ -20,6 +20,7 @@ import android.car.Car;
 import android.car.CarAppContextManager;
 import android.car.CarAppContextManager.AppContextChangeListener;
 import android.car.CarNotConnectedException;
+import android.car.media.CarAudioManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -47,7 +48,7 @@ import com.google.android.car.kitchensink.R;
 import com.google.android.car.kitchensink.audio.AudioPlayer.PlayStateListener;
 
 public class AudioTestFragment extends Fragment {
-    private static final String TAG = "AudioTest";
+    private static final String TAG = "CAR.AUDIO.KS";
     private static final boolean DBG = true;
 
     private AudioManager mAudioManager;
@@ -58,10 +59,12 @@ public class AudioTestFragment extends Fragment {
     private Button mMediaPlay;
     private Button mMediaPlayOnce;
     private Button mMediaStop;
-    private Button mNavFocusStart;
-    private Button mNavFocusEnd;
-    private Button mVrFocusStart;
-    private Button mVrFocusEnd;
+    private Button mNavStart;
+    private Button mNavEnd;
+    private Button mVrStart;
+    private Button mVrEnd;
+    private Button mRadioStart;
+    private Button mRadioEnd;
     private Button mSpeakerPhoneOn;
     private Button mSpeakerPhoneOff;
     private Button mMicrophoneOn;
@@ -81,38 +84,38 @@ public class AudioTestFragment extends Fragment {
 
     private Car mCar;
     private CarAppContextManager mAppContextManager;
+    private CarAudioManager mCarAudioManager;
+    private AudioAttributes mMusicAudioAttrib;
+    private AudioAttributes mNavAudioAttrib;
+    private AudioAttributes mVrAudioAttrib;
+    private AudioAttributes mRadioAudioAttrib;
+    private AudioAttributes mSystemSoundAudioAttrib;
     private CarEmulator mCarEmulator;
+
+    private final AudioManager.OnAudioFocusChangeListener mNavFocusListener =
+            new AudioManager.OnAudioFocusChangeListener() {
+                @Override
+                public void onAudioFocusChange(int focusChange) {
+                    Log.i(TAG, "Nav focus change:" + focusChange);
+                }
+    };
+    private final AudioManager.OnAudioFocusChangeListener mVrFocusListener =
+            new AudioManager.OnAudioFocusChangeListener() {
+                @Override
+                public void onAudioFocusChange(int focusChange) {
+                    Log.i(TAG, "VR focus change:" + focusChange);
+                }
+    };
+    private final AudioManager.OnAudioFocusChangeListener mRadioFocusListener =
+            new AudioManager.OnAudioFocusChangeListener() {
+                @Override
+                public void onAudioFocusChange(int focusChange) {
+                    Log.i(TAG, "Radio focus change:" + focusChange);
+                }
+    };
 
     private void init() {
         mContext = getContext();
-        mMusicPlayer = new AudioPlayer(mContext, R.raw.john_harrison_with_the_wichita_state_university_chamber_players_05_summer_mvt_2_adagio,
-                (new AudioAttributes.Builder()).
-                    setUsage(AudioAttributes.USAGE_MEDIA).
-                    setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
-        mMusicPlayerShort = new AudioPlayer(mContext, R.raw.ring_classic_01,
-                (new AudioAttributes.Builder()).
-                setUsage(AudioAttributes.USAGE_MEDIA).
-                setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
-        mNavGuidancePlayer = new AudioPlayer(mContext, R.raw.turnright,
-                (new AudioAttributes.Builder()).
-                    setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE).
-                    setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build());
-        // no Usage for voice command yet.
-        mVrPlayer = new AudioPlayer(mContext, R.raw.one2six,
-                (new AudioAttributes.Builder()).
-                setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION).
-                setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build());
-        mSystemPlayer = new AudioPlayer(mContext, R.raw.ring_classic_01,
-                (new AudioAttributes.Builder()).
-                setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION).
-                setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build());
-        mAllPlayers = new AudioPlayer[] {
-                mMusicPlayer,
-                mMusicPlayerShort,
-                mNavGuidancePlayer,
-                mVrPlayer,
-                mSystemPlayer
-        };
         mHandler = new Handler(Looper.getMainLooper());
         mCar = Car.createCar(mContext, new ServiceConnection() {
             @Override
@@ -130,6 +133,35 @@ public class AudioTestFragment extends Fragment {
                     }
                 }, CarAppContextManager.APP_CONTEXT_NAVIGATION |
                 CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+                mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
+                mMusicAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
+                        CarAudioManager.CAR_AUDIO_USAGE_MUSIC);
+                mNavAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
+                        CarAudioManager.CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE);
+                mVrAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
+                        CarAudioManager.CAR_AUDIO_USAGE_VOICE_COMMAND);
+                mRadioAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
+                        CarAudioManager.CAR_AUDIO_USAGE_RADIO);
+                mSystemSoundAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
+                        CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SOUND);
+                mMusicPlayer = new AudioPlayer(mContext, R.raw.john_harrison_with_the_wichita_state_university_chamber_players_05_summer_mvt_2_adagio,
+                        mMusicAudioAttrib);
+                mMusicPlayerShort = new AudioPlayer(mContext, R.raw.ring_classic_01,
+                        mMusicAudioAttrib);
+                mNavGuidancePlayer = new AudioPlayer(mContext, R.raw.turnright,
+                        mNavAudioAttrib);
+                // no Usage for voice command yet.
+                mVrPlayer = new AudioPlayer(mContext, R.raw.one2six,
+                        mVrAudioAttrib);
+                mSystemPlayer = new AudioPlayer(mContext, R.raw.ring_classic_01,
+                        mSystemSoundAudioAttrib);
+                mAllPlayers = new AudioPlayer[] {
+                        mMusicPlayer,
+                        mMusicPlayerShort,
+                        mNavGuidancePlayer,
+                        mVrPlayer,
+                        mSystemPlayer
+                };
             }
             @Override
             public void onServiceDisconnected(ComponentName name) {
@@ -153,14 +185,14 @@ public class AudioTestFragment extends Fragment {
         mMediaPlay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMusicPlayer.start(false, true);
+                mMusicPlayer.start(false, true, AudioManager.AUDIOFOCUS_GAIN);
             }
         });
         mMediaPlayOnce = (Button) view.findViewById(R.id.button_media_play_once);
         mMediaPlayOnce.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMusicPlayerShort.start(true, false);
+                mMusicPlayerShort.start(true, false, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
                 // play only for 1 sec and stop
                 mHandler.postDelayed(new Runnable() {
                     @Override
@@ -190,7 +222,9 @@ public class AudioTestFragment extends Fragment {
                 if (!mNavGuidancePlayer.isPlaying()) {
                     mAppContextManager.setActiveContexts(
                             CarAppContextManager.APP_CONTEXT_NAVIGATION);
-                    mNavGuidancePlayer.start(true, false, new PlayStateListener() {
+                    mNavGuidancePlayer.start(true, false,
+                            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
+                            new PlayStateListener() {
                         @Override
                         public void onCompletion() {
                             mAppContextManager.resetActiveContexts(
@@ -213,7 +247,8 @@ public class AudioTestFragment extends Fragment {
                 mAppContextManager.setActiveContexts(
                         CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
                 if (!mVrPlayer.isPlaying()) {
-                    mVrPlayer.start(true, false, new PlayStateListener() {
+                    mVrPlayer.start(true, false, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT,
+                            new PlayStateListener() {
                         @Override
                         public void onCompletion() {
                             mAppContextManager.resetActiveContexts(
@@ -232,64 +267,50 @@ public class AudioTestFragment extends Fragment {
                 }
                 if (!mSystemPlayer.isPlaying()) {
                     // system sound played without focus
-                    mSystemPlayer.start(false, false);
+                    mSystemPlayer.start(false, false, 0);
                 }
             }
         });
-        mNavFocusStart = (Button) view.findViewById(R.id.button_nav_start);
-        mNavFocusStart.setOnClickListener(new OnClickListener() {
+        mNavStart = (Button) view.findViewById(R.id.button_nav_start);
+        mNavStart.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mAppContextManager == null) {
-                    return;
-                }
-                if (DBG) {
-                    Log.i(TAG, "Nav focus request");
-                }
-                mAppContextManager.setActiveContexts(
-                        CarAppContextManager.APP_CONTEXT_NAVIGATION);
+                handleNavStart();
             }
         });
-        mNavFocusEnd = (Button) view.findViewById(R.id.button_nav_end);
-        mNavFocusEnd.setOnClickListener(new OnClickListener() {
+        mNavEnd = (Button) view.findViewById(R.id.button_nav_end);
+        mNavEnd.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mAppContextManager == null) {
-                    return;
-                }
-                if (DBG) {
-                    Log.i(TAG, "Nav focus release");
-                }
-                mAppContextManager.resetActiveContexts(
-                        CarAppContextManager.APP_CONTEXT_NAVIGATION);
+                handleNavEnd();
             }
         });
-        mVrFocusStart = (Button) view.findViewById(R.id.button_vr_start);
-        mVrFocusStart.setOnClickListener(new OnClickListener() {
+        mVrStart = (Button) view.findViewById(R.id.button_vr_start);
+        mVrStart.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mAppContextManager == null) {
-                    return;
-                }
-                if (DBG) {
-                    Log.i(TAG, "VR request");
-                }
-                mAppContextManager.setActiveContexts(
-                        CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+                handleVrStart();
             }
         });
-        mVrFocusEnd = (Button) view.findViewById(R.id.button_vr_end);
-        mVrFocusEnd.setOnClickListener(new OnClickListener() {
+        mVrEnd = (Button) view.findViewById(R.id.button_vr_end);
+        mVrEnd.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mAppContextManager == null) {
-                    return;
-                }
-                if (DBG) {
-                    Log.i(TAG, "VR request");
-                }
-                mAppContextManager.resetActiveContexts(
-                        CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+                handleVrEnd();
+            }
+        });
+        mRadioStart = (Button) view.findViewById(R.id.button_radio_start);
+        mRadioStart.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleRadioStart();
+            }
+        });
+        mRadioEnd = (Button) view.findViewById(R.id.button_radio_end);
+        mRadioEnd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleRadioEnd();
             }
         });
         mSpeakerPhoneOn = (Button) view.findViewById(R.id.button_speaker_phone_on);
@@ -362,8 +383,8 @@ public class AudioTestFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        Log.i(TAG, "onDestroyView");
         super.onDestroyView();
+        Log.i(TAG, "onDestroyView");
         if (mCarEmulator != null) {
             mCarEmulator.setAudioFocusControl(false);
             mCarEmulator.stop();
@@ -379,6 +400,89 @@ public class AudioTestFragment extends Fragment {
             mAppContextManager.resetActiveContexts(CarAppContextManager.APP_CONTEXT_NAVIGATION |
                     CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
         }
+    }
+
+    private void handleNavStart() {
+        if (mAppContextManager == null) {
+            return;
+        }
+        if (mCarAudioManager == null) {
+            return;
+        }
+        if (DBG) {
+            Log.i(TAG, "Nav start");
+        }
+        mAppContextManager.setActiveContexts(
+                CarAppContextManager.APP_CONTEXT_NAVIGATION);
+        mCarAudioManager.requestAudioFocus(mNavFocusListener, mNavAudioAttrib,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
+    }
+
+    private void handleNavEnd() {
+        if (mAppContextManager == null) {
+            return;
+        }
+        if (mCarAudioManager == null) {
+            return;
+        }
+        if (DBG) {
+            Log.i(TAG, "Nav end");
+        }
+        mAppContextManager.resetActiveContexts(
+                CarAppContextManager.APP_CONTEXT_NAVIGATION);
+        mCarAudioManager.abandonAudioFocus(mNavFocusListener, mNavAudioAttrib);
+    }
+
+    private void handleVrStart() {
+        if (mAppContextManager == null) {
+            return;
+        }
+        if (mCarAudioManager == null) {
+            return;
+        }
+        if (DBG) {
+            Log.i(TAG, "VR start");
+        }
+        mAppContextManager.setActiveContexts(
+                CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+        mCarAudioManager.requestAudioFocus(mVrFocusListener, mVrAudioAttrib,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, 0);
+    }
+
+    private void handleVrEnd() {
+        if (mAppContextManager == null) {
+            return;
+        }
+        if (mCarAudioManager == null) {
+            return;
+        }
+        if (DBG) {
+            Log.i(TAG, "VR end");
+        }
+        mAppContextManager.resetActiveContexts(
+                CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+        mCarAudioManager.abandonAudioFocus(mVrFocusListener, mVrAudioAttrib);
+    }
+
+    private void handleRadioStart() {
+        if (mCarAudioManager == null) {
+            return;
+        }
+        if (DBG) {
+            Log.i(TAG, "Radio start");
+        }
+        mCarAudioManager.requestAudioFocus(mRadioFocusListener, mRadioAudioAttrib,
+                AudioManager.AUDIOFOCUS_GAIN, 0);
+    }
+
+    private void handleRadioEnd() {
+        if (mCarAudioManager == null) {
+            return;
+        }
+        if (DBG) {
+            Log.i(TAG, "Radio end");
+        }
+        mCarAudioManager.abandonAudioFocus(mRadioFocusListener, mRadioAudioAttrib);
     }
 
     private class FocusHandler {

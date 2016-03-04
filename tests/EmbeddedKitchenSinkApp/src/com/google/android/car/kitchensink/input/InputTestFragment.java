@@ -57,7 +57,7 @@ public class InputTestFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.input_test, container);
+        View view = inflater.inflate(R.layout.input_test, container, false);
 
         // Single touch + key event does not work as touch is happening in other window
         // at the same time. But long press will work.
@@ -105,7 +105,7 @@ public class InputTestFragment extends Fragment {
             }
         });
         mCar.connect();
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return view;
     }
 
     private void handleTouchEvent(MotionEvent event, int keyCode) {
