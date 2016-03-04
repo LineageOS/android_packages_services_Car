@@ -490,13 +490,23 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
                 break;
         }
         if (mRadioActive) {
-            extFocus = AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG;
             // TODO any need to keep media stream while radio is active?
             //     Most cars do not allow that, but if mixing is possible, it can take media stream.
             //     For now, assume no mixing capability.
             int radioPhysicalStream = mAudioRoutingPolicy.getPhysicalStreamForLogicalStream(
                     CarAudioManager.CAR_AUDIO_USAGE_MUSIC);
-            streamsToRequest &= ~(0x1 << radioPhysicalStream);
+            if (!isFocusFromRadio(mTopFocusInfo) &&
+                    (physicalStreamTypeForTop == radioPhysicalStream)) {
+                Log.i(CarLog.TAG_AUDIO, "Top stream is taking the same stream:" +
+                    physicalStreamTypeForTop + " as radio, stopping radio");
+                // stream conflict here. radio cannot be played
+                extFocus = 0;
+                mRadioActive = false;
+                audioContexts &= ~AudioHalService.AUDIO_CONTEXT_RADIO_FLAG;
+            } else {
+                extFocus = AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG;
+                streamsToRequest &= ~(0x1 << radioPhysicalStream);
+            }
         } else if (streamsToRequest == 0) {
             mCurrentAudioContexts = 0;
             mFocusHandler.handleFocusReleaseRequest();

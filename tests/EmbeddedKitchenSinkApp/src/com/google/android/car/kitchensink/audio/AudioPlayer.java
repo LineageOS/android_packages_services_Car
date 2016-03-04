@@ -95,14 +95,12 @@ public class AudioPlayer {
         mAttrib = attrib;
     }
 
-    public void start(boolean handleFocus, boolean repeat) {
+    public void start(boolean handleFocus, boolean repeat, int focusRequest) {
         mHandleFocus = handleFocus;
         mRepeat = repeat;
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         int ret = AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         if (mHandleFocus) {
-            int focusRequest = repeat ? AudioManager.AUDIOFOCUS_GAIN :
-                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
             ret = mAudioManager.requestAudioFocus(mFocusListener, mAttrib,
                     focusRequest, 0);
         }
@@ -113,9 +111,10 @@ public class AudioPlayer {
         }
     }
 
-    public void start(boolean handleFocus, boolean repeat, PlayStateListener listener) {
+    public void start(boolean handleFocus, boolean repeat, int focusRequest,
+            PlayStateListener listener) {
         mListener = listener;
-        start(handleFocus, repeat);
+        start(handleFocus, repeat, focusRequest);
     }
 
     private void doStart() {

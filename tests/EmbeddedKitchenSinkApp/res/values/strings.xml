@@ -57,10 +57,12 @@
     <string name="config_index">Config Index</string>
     <string name="choose_config">Choose config</string>
     <string name="audio_stress_title">Audio Stress Test</string>
-    <string name="nav_focus_start">Nav Focus Start</string>
-    <string name="nav_focus_end">Nav Focus End</string>
-    <string name="vr_start">VR Focus Start</string>
-    <string name="vr_end">VR Focus End</string>
+    <string name="nav_start">Nav Start</string>
+    <string name="nav_end">Nav End</string>
+    <string name="vr_start">VR Start</string>
+    <string name="vr_end">VR End</string>
+    <string name="radio_start">Radio Start</string>
+    <string name="radio_end">Radio End</string>
     <string name="speaker_phone_on">Speaker Phone On</string>
     <string name="speaker_phone_off">Speaker Phone Off</string>
     <string name="microphone_on">Mic On</string>
