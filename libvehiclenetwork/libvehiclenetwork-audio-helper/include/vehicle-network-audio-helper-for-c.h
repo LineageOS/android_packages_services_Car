@@ -43,7 +43,7 @@ enum vehicle_network_audio_helper_stream {
     VEHICLE_NETWORK_AUDIO_HELPER_STREAM_3 = 0x8,
 };
 
-#define FOCUS_WAIT_DEFAULT_TIMEOUT_NS 500000000
+#define FOCUS_WAIT_DEFAULT_TIMEOUT_NS 1000000000
 
 /**
  * Create helper instance with default timeout. Timer is reset when
