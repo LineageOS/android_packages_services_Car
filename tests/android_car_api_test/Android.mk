@@ -20,7 +20,7 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
-LOCAL_PACKAGE_NAME := CarApiTest
+LOCAL_PACKAGE_NAME := AndroidCarApiTest
 
 # for system|priviledged permission.
 LOCAL_CERTIFICATE := platform
@@ -32,7 +32,7 @@ LOCAL_MODULE_PATH := $(TARGET_OUT_DATA_APPS)
 
 LOCAL_PROGUARD_ENABLED := disabled
 
-LOCAL_STATIC_JAVA_LIBRARIES += android.support.car car-systemtest
+LOCAL_STATIC_JAVA_LIBRARIES += car-systemtest
 
 LOCAL_JAVA_LIBRARIES := android.car android.test.runner
 

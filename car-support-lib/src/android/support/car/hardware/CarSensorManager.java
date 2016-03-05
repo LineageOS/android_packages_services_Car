@@ -87,49 +87,36 @@ public abstract class CarSensorManager implements CarManagerBase {
      * {@link CarSensorEvent#GEAR_NEUTRAL} and other GEAR_*.
      */
     public static final int SENSOR_TYPE_GEAR              = 7;
-    public static final int SENSOR_TYPE_RESERVED8         = 8;
     /**
      * Day/night sensor. Sensor data is intValues[0].
      */
-    public static final int SENSOR_TYPE_NIGHT             = 9;
+    public static final int SENSOR_TYPE_NIGHT             = 8;
     /**
      * Sensor type for location. Sensor data passed in floatValues.
      */
-    public static final int SENSOR_TYPE_LOCATION          = 10;
+    public static final int SENSOR_TYPE_LOCATION          = 9;
     /**
      * Represents the current driving status of car. Different user interaction should be used
      * depending on the current driving status. Driving status is intValues[0].
      */
-    public static final int SENSOR_TYPE_DRIVING_STATUS    = 11;
+    public static final int SENSOR_TYPE_DRIVING_STATUS    = 10;
     /**
      * Environment like temperature and pressure.
      */
-    public static final int SENSOR_TYPE_ENVIRONMENT       = 12;
+    public static final int SENSOR_TYPE_ENVIRONMENT       = 11;
 
     /** @hide */
-    public static final int SENSOR_TYPE_RESERVED13        = 13;
+    public static final int SENSOR_TYPE_ACCELEROMETER     = 12;
     /** @hide */
-    public static final int SENSOR_TYPE_ACCELEROMETER     = 14;
+    public static final int SENSOR_TYPE_GPS_SATELLITE     = 13;
     /** @hide */
-    public static final int SENSOR_TYPE_RESERVED15        = 15;
-    /** @hide */
-    public static final int SENSOR_TYPE_RESERVED16        = 16;
-    /** @hide */
-    public static final int SENSOR_TYPE_GPS_SATELLITE     = 17;
-    /** @hide */
-    public static final int SENSOR_TYPE_GYROSCOPE         = 18;
-    /** @hide */
-    public static final int SENSOR_TYPE_RESERVED19        = 19;
-    /** @hide */
-    public static final int SENSOR_TYPE_RESERVED20        = 20;
-    /** @hide */
-    public static final int SENSOR_TYPE_RESERVED21        = 21;
+    public static final int SENSOR_TYPE_GYROSCOPE         = 14;
 
     /**
      * Sensor type bigger than this is invalid. Always update this after adding a new sensor.
      * @hide
      */
-    private static final int SENSOR_TYPE_MAX              = SENSOR_TYPE_RESERVED21;
+    private static final int SENSOR_TYPE_MAX              = SENSOR_TYPE_GYROSCOPE;
 
     /**
      * Sensors defined in this range [{@link #SENSOR_TYPE_VENDOR_EXTENSION_START},

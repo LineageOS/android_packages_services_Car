@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.support.car.apitest;
+package com.android.car.apitest;
 
 import android.car.content.pm.AppBlockingPackageInfo;
 import android.content.Context;
