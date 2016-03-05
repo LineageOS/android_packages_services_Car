@@ -19,8 +19,10 @@ package android.support.car;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Message;
 import android.support.car.Car;
 import android.support.car.content.pm.CarPackageManagerEmbedded;
 import android.support.car.hardware.CarSensorManagerEmbedded;
@@ -50,13 +52,15 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     };
 
     private final android.car.Car mCar;
-    private final LinkedList<CarConnectionListenerProxy> mCarConnectionListenerProxies =
+    private final LinkedList<CarConnectionListener> mCarConnectionListeners =
             new LinkedList<>();
+    private final CallbackHandler mHandler;
 
     public CarServiceLoaderEmbedded(Context context, ServiceConnectionListener listener,
             Looper looper) {
         super(context, listener, looper);
         mCar = android.car.Car.createCar(context, mServiceConnection, looper);
+        mHandler = new CallbackHandler(looper);
     }
 
     @Override
@@ -71,7 +75,8 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
 
     @Override
     public boolean isConnectedToCar() {
-        return mCar.isConnectedToCar();
+        // for embedded, connected to service means connected to car.
+        return mCar.isConnected();
     }
 
     @Override
@@ -80,42 +85,18 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     }
 
     @Override
-    public void registerCarConnectionListener(CarConnectionListener listener) {
-        CarConnectionListenerProxy newProxy = null;
+    public void registerCarConnectionListener(final CarConnectionListener listener) {
         synchronized (this) {
-            boolean alreadyRegistered = false;
-            for (CarConnectionListenerProxy proxy : mCarConnectionListenerProxies) {
-                if (proxy.isSameListener(listener)) {
-                    alreadyRegistered = true;
-                    break;
-                }
-            }
-            if (!alreadyRegistered) {
-                newProxy = new CarConnectionListenerProxy(listener);
-                mCarConnectionListenerProxies.add(newProxy);
-            }
+            mCarConnectionListeners.add(listener);
         }
-        if (newProxy != null) {
-            mCar.registerCarConnectionListener(newProxy);
-        }
+        // car service connection is checked when this is called. So just dispatch it.
+        mHandler.dispatchCarConnectionCall(listener, getCarConnectionType());
     }
 
     @Override
     public void unregisterCarConnectionListener(CarConnectionListener listener) {
-        CarConnectionListenerProxy matchingProxy = null;
         synchronized (this) {
-            for (CarConnectionListenerProxy proxy : mCarConnectionListenerProxies) {
-                if (proxy.isSameListener(listener)) {
-                    matchingProxy = proxy;
-                    break;
-                }
-            }
-            if (matchingProxy != null) {
-                mCarConnectionListenerProxies.remove(matchingProxy);
-            }
-        }
-        if (matchingProxy != null) {
-            mCar.unregisterCarConnectionListener(matchingProxy);
+            mCarConnectionListeners.remove(listener);
         }
     }
 
@@ -144,25 +125,26 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
         }
     }
 
-    private static class CarConnectionListenerProxy implements android.car.CarConnectionListener {
-        private final CarConnectionListener mListener;
+    private static class CallbackHandler extends Handler {
 
-        public CarConnectionListenerProxy(CarConnectionListener listener) {
-            mListener = listener;
+        private  static final int MSG_DISPATCH_CAR_CONNECTION = 0;
+
+        private CallbackHandler(Looper looper) {
+            super(looper);
         }
 
-        public boolean isSameListener(CarConnectionListener listener) {
-            return mListener == listener;
-        }
-
-        @Override
-        public void onConnected(int connectionType) {
-            mListener.onConnected(connectionType);
+        private void dispatchCarConnectionCall(CarConnectionListener listener, int connectionType) {
+            sendMessage(obtainMessage(MSG_DISPATCH_CAR_CONNECTION, connectionType, 0, listener));
         }
 
         @Override
-        public void onDisconnected() {
-           mListener.onDisconnected();
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_DISPATCH_CAR_CONNECTION:
+                    CarConnectionListener listener = (CarConnectionListener) msg.obj;
+                    listener.onConnected(msg.arg1);
+                    break;
+            }
         }
     }
 }

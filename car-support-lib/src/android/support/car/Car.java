@@ -82,6 +82,12 @@ public class Car {
     public static final int CONNECTION_TYPE_ADB_EMULATOR = 4;
     /** Type of car connection: platform runs directly in car. */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
+    /**
+     * Type of car connection: platform runs directly in car but with mocked vehicle hal.
+     * This will only happen in testing environment.
+     * @hide
+     */
+    public static final int CONNECTION_TYPE_EMBEDDED_MOCKING = 6;
 
     /** @hide */
     @IntDef({CONNECTION_TYPE_EMULATOR, CONNECTION_TYPE_USB, CONNECTION_TYPE_WIFI,

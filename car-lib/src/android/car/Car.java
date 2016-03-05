@@ -133,9 +133,15 @@ public class Car {
 
     /** Type of car connection: platform runs directly in car. */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
+    /**
+     * Type of car connection: platform runs directly in car but with mocked vehicle hal.
+     * This will only happen in testing environment.
+     * @hide
+     */
+    public static final int CONNECTION_TYPE_EMBEDDED_MOCKING = 6;
 
     /** @hide */
-    @IntDef({CONNECTION_TYPE_EMBEDDED})
+    @IntDef({CONNECTION_TYPE_EMBEDDED, CONNECTION_TYPE_EMBEDDED_MOCKING})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ConnectionType {}
 
@@ -192,23 +198,6 @@ public class Car {
     private final Object mCarManagerLock = new Object();
     @GuardedBy("mCarManagerLock")
     private final HashMap<String, CarManagerBase> mServiceMap = new HashMap<>();
-
-    private final ICarConnectionListenerImpl mICarConnectionListenerImpl =
-            new ICarConnectionListenerImpl(this);
-    /**
-     * CarConnectionListener which did not get connected notification yet.
-     */
-    private final HashSet<CarConnectionListener> mCarConnectionNotConnectedListeners =
-            new HashSet<>();
-    /**
-     * CarConnectionListener which got connected notification already. Only listener with
-     * connected notification will get disconnected notification when disconnect event happens.
-     */
-    private final HashSet<CarConnectionListener> mCarConnectionConnectedListeners =
-            new HashSet<>();
-    /** CarConnectionListener to get current event. */
-    private final LinkedList<CarConnectionListener> mCarConnectionListenersForEvent =
-            new LinkedList<>();
 
     /** Handler for generic event dispatching. */
     private final Handler mEventHandler;
@@ -332,14 +321,6 @@ public class Car {
     }
 
     /**
-     * Tells if connected to car. Same as isConnected. Necessary for compatibility with support lib.
-     * @return
-     */
-    public boolean isConnectedToCar() {
-        return isConnected();
-    }
-
-    /**
      * Get car specific service as in {@link Context#getSystemService(String)}. Returned
      * {@link Object} should be type-casted to the desired service.
      * For example, to get sensor service,
@@ -383,59 +364,6 @@ public class Car {
     @ConnectionType
     public int getCarConnectionType() {
         return CONNECTION_TYPE_EMBEDDED;
-    }
-
-    /**
-     * Registers a {@link CarConnectionListener}.
-     *
-     * Avoid reregistering unregistered listeners. If an unregistered listener is reregistered,
-     * it may receive duplicate calls to {@link CarConnectionListener#onConnected}.
-     *
-     * @throws IllegalStateException if service is not connected.
-     */
-    public void registerCarConnectionListener(CarConnectionListener listener)
-            throws IllegalStateException {
-        ICar service = getICarOrThrow();
-        synchronized (this) {
-            if (mCarConnectionNotConnectedListeners.size() == 0 &&
-                    mCarConnectionConnectedListeners.size() == 0) {
-                try {
-                    service.registerCarConnectionListener(mICarConnectionListenerImpl);
-                } catch (RemoteException e) {
-                    // ignore
-                }
-            }
-            mCarConnectionNotConnectedListeners.add(listener);
-        }
-        mEventHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                handleCarConnected();
-            }
-        });
-    }
-
-    /**
-     * Unregisters a {@link CarConnectionListener}.
-     *
-     * <b>Note:</b> If this method is called from a thread besides the client's looper thread,
-     * there is no guarantee that the unregistered listener will not receive callbacks after
-     * this method returns.
-     */
-    public void unregisterCarConnectionListener(CarConnectionListener listener) {
-        synchronized (this) {
-            mCarConnectionNotConnectedListeners.remove(listener);
-            mCarConnectionConnectedListeners.remove(listener);
-            if (mCarConnectionNotConnectedListeners.size() == 0 &&
-                    mCarConnectionConnectedListeners.size() == 0) {
-                try {
-                    ICar service = getICarOrThrow();
-                    service.unregisterCarConnectionListener(mICarConnectionListenerImpl);
-                } catch (IllegalStateException | RemoteException e) {
-                    // ignore
-                }
-            }
-        }
     }
 
     /**
@@ -522,67 +450,6 @@ public class Car {
                 manager.onCarDisconnected();
             }
             mServiceMap.clear();
-        }
-    }
-
-    private void handleCarConnected() {
-        synchronized (this) {
-            mCarConnectionListenersForEvent.clear();
-            mCarConnectionConnectedListeners.addAll(mCarConnectionNotConnectedListeners);
-            mCarConnectionListenersForEvent.addAll(mCarConnectionNotConnectedListeners);
-            mCarConnectionNotConnectedListeners.clear();
-        }
-        for (CarConnectionListener listener : mCarConnectionListenersForEvent) {
-            listener.onConnected(CONNECTION_TYPE_EMBEDDED);
-        }
-    }
-
-    private void handleCarDisconnected() {
-        synchronized (this) {
-            mCarConnectionListenersForEvent.clear();
-            mCarConnectionNotConnectedListeners.addAll(mCarConnectionConnectedListeners);
-            mCarConnectionListenersForEvent.addAll(mCarConnectionConnectedListeners);
-            mCarConnectionConnectedListeners.clear();
-        }
-        for (CarConnectionListener listener : mCarConnectionListenersForEvent) {
-            listener.onDisconnected();
-        }
-    }
-
-    private static class ICarConnectionListenerImpl extends ICarConnectionListener.Stub {
-
-        private final WeakReference<Car> mCar;
-
-        private ICarConnectionListenerImpl(Car car) {
-            mCar = new WeakReference<>(car);
-        }
-
-        @Override
-        public void onConnected() {
-            final Car car = mCar.get();
-            if (car == null) {
-                return;
-            }
-            car.mEventHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    car.handleCarConnected();
-                }
-            });
-        }
-
-        @Override
-        public void onDisconnected() {
-            final Car car = mCar.get();
-            if (car == null) {
-                return;
-            }
-            car.mEventHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    car.handleCarDisconnected();
-                }
-            });
         }
     }
 }
