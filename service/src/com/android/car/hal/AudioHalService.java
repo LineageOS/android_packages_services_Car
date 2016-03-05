@@ -19,6 +19,7 @@ import android.car.media.CarAudioManager;
 import android.util.Log;
 
 import com.android.car.AudioRoutingPolicy;
+import com.android.car.CarAudioAttributesUtil;
 import com.android.car.CarLog;
 import com.android.car.vehiclenetwork.VehicleNetwork;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
@@ -229,6 +230,10 @@ public class AudioHalService extends HalServiceBase {
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG;
             case CarAudioManager.CAR_AUDIO_USAGE_DEFAULT:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG;
+            case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_BOTTOM:
+            case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY:
+                // internal tag not associated with any stream
+                return 0;
             default:
                 Log.w(CarLog.TAG_AUDIO, "Unknown logical stream:" + logicalStream);
                 return 0;
