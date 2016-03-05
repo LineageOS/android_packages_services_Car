@@ -66,10 +66,6 @@ public class ICarImpl extends ICar.Stub {
     private CarTestService mCarTestService;
     private final CarServiceBase[] mAllServices;
 
-    /** Holds connection listener from client. Only necessary for mocking. */
-    private final BinderInterfaceContainer<ICarConnectionListener> mCarConnectionListeners =
-            new BinderInterfaceContainer<>(null);
-
     public synchronized static ICarImpl getInstance(Context serviceContext) {
         if (sInstance == null) {
             sInstance = new ICarImpl(serviceContext);
@@ -127,7 +123,6 @@ public class ICarImpl extends ICar.Stub {
     }
 
     private void release() {
-        mCarConnectionListeners.clear();
         // release done in opposite order from init
         for (int i = mAllServices.length - 1; i >= 0; i--) {
             mAllServices[i].release();
@@ -152,25 +147,6 @@ public class ICarImpl extends ICar.Stub {
         }
         for (CarServiceBase service: mAllServices) {
             service.init();
-        }
-        // send disconnect event and connect event to all clients.
-        Collection<BinderInterfaceContainer.BinderInterface<ICarConnectionListener>>
-                connectionListeners = mCarConnectionListeners.getInterfaces();
-        for (BinderInterfaceContainer.BinderInterface<ICarConnectionListener> client :
-                connectionListeners) {
-            try {
-                client.binderInterface.onDisconnected();
-            } catch (RemoteException e) {
-                //ignore
-            }
-        }
-        for (BinderInterfaceContainer.BinderInterface<ICarConnectionListener> client :
-                connectionListeners) {
-            try {
-                client.binderInterface.onConnected();
-            } catch (RemoteException e) {
-                //ignore
-            }
         }
     }
 
@@ -213,6 +189,15 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
+    @Override
+    public int getCarConnectionType() {
+        if (!isInMocking()) {
+            return Car.CONNECTION_TYPE_EMBEDDED;
+        } else {
+            return Car.CONNECTION_TYPE_EMBEDDED_MOCKING;
+        }
+    }
+
     public CarServiceBase getCarInternalService(String serviceName) {
         switch (serviceName) {
             case INTERNAL_INPUT_SERVICE:
@@ -222,26 +207,6 @@ public class ICarImpl extends ICar.Stub {
                         serviceName);
                 return null;
         }
-    }
-
-    @Override
-    public boolean isConnectedToCar() {
-        return true; // always connected in embedded
-    }
-
-    @Override
-    public void registerCarConnectionListener(ICarConnectionListener listener) {
-        mCarConnectionListeners.addBinder(listener);
-        try {
-            listener.onConnected();
-        } catch (RemoteException e) {
-            //ignore
-        }
-    }
-
-    @Override
-    public void unregisterCarConnectionListener(ICarConnectionListener listener) {
-        mCarConnectionListeners.removeBinder(listener);
     }
 
     /**

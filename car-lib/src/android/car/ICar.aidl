@@ -23,7 +23,5 @@ import android.car.ICarConnectionListener;
 /** @hide */
 interface ICar {
     IBinder getCarService(in String serviceName) = 0;
-    boolean isConnectedToCar() = 1;
-    void registerCarConnectionListener(in ICarConnectionListener listener) = 2;
-    void unregisterCarConnectionListener(in ICarConnectionListener listener) = 3;
+    int getCarConnectionType() = 1;
 }
