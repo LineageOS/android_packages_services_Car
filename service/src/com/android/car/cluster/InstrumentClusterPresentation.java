@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.cluster.demorenderer;
+package com.android.car.cluster;
 
-import android.car.cluster.renderer.InstrumentClusterRenderer;
+import android.app.Presentation;
+import android.content.Context;
+import android.view.Display;
+import android.view.WindowManager;
 
 /**
- * This factory class will be requested by android.car using reflection in order to get an instance
- * of {@link InstrumentClusterRenderer}.
+ * Presentation class.
  */
-@SuppressWarnings("unused")  /* Used by reflection. */
-public class InstrumentClusterRendererFactory {
-    public static InstrumentClusterRenderer createRenderer() {
-        return new DemoInstrumentClusterRenderer();
+public class InstrumentClusterPresentation extends Presentation {
+    public InstrumentClusterPresentation(Context outerContext, Display display) {
+        super(outerContext, display);
+        getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
     }
 }

@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.cluster;
+package android.car.cluster.renderer;
 
 import android.annotation.SystemApi;
-import android.graphics.Bitmap;
+import android.annotation.UiThread;
+import android.media.MediaMetadata;
+import android.media.session.PlaybackState;
 
 /**
- * Contains methods specified for Navigation App renderer in instrument cluster.
+ * Represents renderer of current media status in instrument cluster.
  *
- * TODO: Consider to add methods to report time / distance to final destination.
  * @hide
  */
 @SystemApi
-public abstract class NavigationRenderer {
-    abstract public void onStartNavigation();
-    abstract public void onStopNavigation();
-    abstract public void onNextTurnChanged(int event, String road, int turnAngle, int turnNumber,
-            Bitmap image, int turnSide);
-    abstract public void onNextTurnDistanceChanged(int distanceMeters, int timeSeconds);
+@UiThread
+public abstract class MediaRenderer {
+    public abstract void onPlaybackStateChanged(PlaybackState playbackState);
+    public abstract void onMetadataChanged(MediaMetadata metadata);
 }

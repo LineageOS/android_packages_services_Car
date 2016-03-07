@@ -20,12 +20,13 @@ import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
  * This class is responsible for drawing the whole instrument cluster.
  */
-public class DemoInstrumentClusterView extends FrameLayout{
+public class DemoInstrumentClusterView extends FrameLayout {
 
     private final String TAG = DemoInstrumentClusterView.class.getSimpleName();
 
@@ -33,6 +34,11 @@ public class DemoInstrumentClusterView extends FrameLayout{
     private TextView eventTitleView;
     private TextView distanceView;
     private View navPanel;
+    private TextView mediaArtistView;
+    private TextView mediaAlbumView;
+    private TextView mediaTrackView;
+    private ImageView mediaImageView;
+    private View mediaPanel;
 
     public DemoInstrumentClusterView(Context context) {
         super(context);
@@ -78,6 +84,27 @@ public class DemoInstrumentClusterView extends FrameLayout{
         distanceView.setText(distance);
     }
 
+    public void setMediaData(final CharSequence artist, final CharSequence album,
+            final CharSequence track, final Bitmap image) {
+        Log.d(TAG, "setMediaData" + " artist = " + artist + ", album: " + album + ", track: " +
+                track + ", bitmap: " + image);
+
+        mediaArtistView.setText(artist);
+        mediaAlbumView.setText(album);
+        mediaTrackView.setText(track);
+        mediaImageView.setImageBitmap(image);
+    }
+
+    public void showMedia() {
+        Log.d(TAG, "showMedia");
+        mediaPanel.setVisibility(VISIBLE);
+    }
+
+    public void hideMedia() {
+        Log.d(TAG, "hideMedia");
+        mediaPanel.setVisibility(INVISIBLE);
+    }
+
     private void init() {
         Log.d(TAG, "init");
         View rootView = inflate(getContext(), R.layout.instrument_cluster, null);
@@ -85,6 +112,12 @@ public class DemoInstrumentClusterView extends FrameLayout{
         eventTitleView = (TextView) rootView.findViewById(R.id.nav_event_title);
         distanceView = (TextView) rootView.findViewById(R.id.nav_distance);
         navPanel = rootView.findViewById(R.id.nav_layout);
+
+        mediaArtistView = (TextView) rootView.findViewById(R.id.media_artist);
+        mediaAlbumView = (TextView) rootView.findViewById(R.id.media_album);
+        mediaTrackView = (TextView) rootView.findViewById(R.id.media_track);
+        mediaImageView = (ImageView) rootView.findViewById(R.id.media_image);
+        mediaPanel = rootView.findViewById(R.id.media_layout);
 
         setSpeed("0");
 

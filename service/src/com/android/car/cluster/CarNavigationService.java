@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.cluster;
 
 import android.car.CarAppContextManager;
-import android.car.cluster.NavigationRenderer;
+import android.car.cluster.renderer.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.car.navigation.CarNavigationManager;
 import android.car.navigation.ICarNavigation;
@@ -25,8 +25,15 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
+
+import com.android.car.AppContextService;
+import com.android.car.CarLog;
+import com.android.car.CarServiceBase;
+import com.android.car.cluster.InstrumentClusterService.RendererInitializationListener;
+import com.android.car.cluster.renderer.ThreadSafeNavigationRenderer;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -36,20 +43,22 @@ import java.util.List;
  * Service that will push navigation event to navigation renderer in instrument cluster.
  */
 public class CarNavigationService extends ICarNavigation.Stub
-        implements CarServiceBase {
+        implements CarServiceBase, RendererInitializationListener {
     private static final String TAG = CarLog.TAG_NAV;
 
     private final List<CarNavigationEventListener> mListeners = new ArrayList<>();
-
-    private CarNavigationInstrumentCluster mInstrumentClusterInfo = null;
     private final AppContextService mAppContextService;
     private final Context mContext;
-    private final boolean mRendererAvailable;
+    private final InstrumentClusterService mInstrumentClusterService;
 
-    public CarNavigationService(Context context, AppContextService appContextService) {
+    private CarNavigationInstrumentCluster mInstrumentClusterInfo = null;
+    private volatile NavigationRenderer mNavigationRenderer;
+
+    public CarNavigationService(Context context, AppContextService appContextService,
+            InstrumentClusterService instrumentClusterService) {
         mContext = context;
         mAppContextService = appContextService;
-        mRendererAvailable = InstrumentClusterRendererLoader.isRendererAvailable(mContext);
+        mInstrumentClusterService = instrumentClusterService;
     }
 
     @Override
@@ -57,6 +66,7 @@ public class CarNavigationService extends ICarNavigation.Stub
         Log.d(TAG, "init");
         // TODO: we need to obtain this infromation from CarInstrumentClusterService.
         mInstrumentClusterInfo = CarNavigationInstrumentCluster.createCluster(1000);
+        mInstrumentClusterService.registerListener(this);
     }
 
     @Override
@@ -64,21 +74,22 @@ public class CarNavigationService extends ICarNavigation.Stub
         synchronized(mListeners) {
             mListeners.clear();
         }
+        mInstrumentClusterService.unregisterListener(this);
     }
 
     @Override
     public void sendNavigationStatus(int status) {
         Log.d(TAG, "sendNavigationStatus, status: " + status);
-        if (!checkRendererAvailable()) {
+        if (!isRendererAvailable()) {
             return;
         }
         verifyNavigationContextOwner();
 
         if (status == CarNavigationManager.STATUS_ACTIVE) {
-            getNavRenderer().onStartNavigation();
+            mNavigationRenderer.onStartNavigation();
         } else if (status == CarNavigationManager.STATUS_INACTIVE
                 || status == CarNavigationManager.STATUS_UNAVAILABLE) {
-            getNavRenderer().onStopNavigation();
+            mNavigationRenderer.onStopNavigation();
         } else {
             throw new IllegalArgumentException("Unknown navigation status: " + status);
         }
@@ -89,49 +100,47 @@ public class CarNavigationService extends ICarNavigation.Stub
             int event, String road, int turnAngle, int turnNumber, Bitmap image, int turnSide) {
         Log.d(TAG, "sendNavigationTurnEvent, event:" + event + ", turnAngle: " + turnAngle + ", "
                 + "turnNumber: " + turnNumber + ", " + "turnSide: " + turnSide);
-        if (!checkRendererAvailable()) {
+        if (!isRendererAvailable()) {
             return;
         }
         verifyNavigationContextOwner();
 
-        getNavRenderer().onNextTurnChanged(event, road, turnAngle, turnNumber, image, turnSide);
+        mNavigationRenderer.onNextTurnChanged(event, road, turnAngle, turnNumber, image, turnSide);
     }
 
     @Override
     public void sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds) {
         Log.d(TAG, "sendNavigationTurnDistanceEvent, distanceMeters:" + distanceMeters + ", "
                 + "timeSeconds: " + timeSeconds);
-        if (!checkRendererAvailable()) {
+        if (!isRendererAvailable()) {
             return;
         }
         verifyNavigationContextOwner();
 
-        getNavRenderer().onNextTurnDistanceChanged(distanceMeters, timeSeconds);
+        mNavigationRenderer.onNextTurnDistanceChanged(distanceMeters, timeSeconds);
     }
 
     @Override
     public boolean registerEventListener(ICarNavigationEventListener listener) {
+        CarNavigationEventListener eventListener;
         synchronized(mListeners) {
-            if (findClientLocked(listener) == null) {
-                CarNavigationEventListener eventListener =
-                        new CarNavigationEventListener(listener);
-                try {
-                    listener.asBinder().linkToDeath(eventListener, 0);
-                } catch (RemoteException e) {
-                    Log.w(TAG, "Adding listener failed.");
-                    return false;
-                }
-                mListeners.add(eventListener);
-
-                // The new listener needs to be told the instrument cluster parameters.
-                try {
-                    // TODO: onStart and onStop methods might be triggered from vehicle HAL as well.
-                    eventListener.listener.onInstrumentClusterStart(mInstrumentClusterInfo);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "listener.onStart failed.");
-                    return false;
-                }
+            if (findClientLocked(listener) != null) {
+                return true;
             }
+
+            eventListener = new CarNavigationEventListener(listener);
+            try {
+                listener.asBinder().linkToDeath(eventListener, 0);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Adding listener failed.", e);
+                return false;
+            }
+            mListeners.add(eventListener);
+        }
+
+        // The new listener needs to be told the instrument cluster parameters.
+        if (isRendererAvailable()) {
+            return eventListener.onInstrumentClusterStart(mInstrumentClusterInfo);
         }
         return true;
     }
@@ -188,6 +197,19 @@ public class CarNavigationService extends ICarNavigation.Stub
         return null;
     }
 
+    @Override
+    public void onRendererInitSucceeded() {
+        Log.d(TAG, "onRendererInitSucceeded");
+        mNavigationRenderer = ThreadSafeNavigationRenderer.createFor(
+                Looper.getMainLooper(),
+                mInstrumentClusterService.getNavigationRenderer());
+
+        if (isRendererAvailable()) {
+            for (CarNavigationEventListener listener : mListeners) {
+                listener.onInstrumentClusterStart(mInstrumentClusterInfo);
+            }
+        }
+    }
 
     private class CarNavigationEventListener implements IBinder.DeathRecipient {
         final ICarNavigationEventListener listener;
@@ -201,6 +223,17 @@ public class CarNavigationService extends ICarNavigation.Stub
             listener.asBinder().unlinkToDeath(this, 0);
             removeClient(this);
         }
+
+        /** Returns true if event sent successfully */
+        public boolean onInstrumentClusterStart(CarNavigationInstrumentCluster clusterInfo) {
+            try {
+                listener.onInstrumentClusterStart(clusterInfo);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Unable to call onInstrumentClusterStart for listener: " + listener, e);
+                return false;
+            }
+            return true;
+        }
     }
 
     @Override
@@ -208,15 +241,11 @@ public class CarNavigationService extends ICarNavigation.Stub
         // TODO Auto-generated method stub
     }
 
-    private NavigationRenderer getNavRenderer() {
-        // TODO: implement InstrumentClusterService that will abstract cluster renderer.
-        return InstrumentClusterRendererLoader.getRenderer(mContext).getNavigationRenderer();
-    }
-
-    private boolean checkRendererAvailable() {
-        if (!mRendererAvailable) {
+    private boolean isRendererAvailable() {
+        boolean available = mNavigationRenderer != null;
+        if (!available) {
             Log.w(TAG, "Instrument cluster renderer is not available.");
         }
-        return mRendererAvailable;
+        return available;
     }
 }

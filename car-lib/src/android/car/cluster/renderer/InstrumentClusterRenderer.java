@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.cluster;
+package android.car.cluster.renderer;
 
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.annotation.UiThread;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Context;
-import android.view.Display;
+import android.view.View;
 
 /**
  * Interface for instrument cluster rendering.
@@ -30,17 +32,21 @@ import android.view.Display;
 @SystemApi
 public abstract class InstrumentClusterRenderer {
 
-    private NavigationRenderer mNavigationRenderer;
+    @Nullable private NavigationRenderer mNavigationRenderer;
+    @Nullable private MediaRenderer mMediaRenderer;
 
     /**
      * Calls once when instrument cluster should be created.
-     * @param context
-     * @param display
      */
-    abstract public void onCreate(Context context, Display display);
+    abstract public void onCreate(Context context);
 
+    @UiThread
+    abstract public View onCreateView(DisplayConfiguration displayConfiguration);
+
+    @UiThread
     abstract public void onStart();
 
+    @UiThread
     abstract public void onStop();
 
     /**
@@ -48,12 +54,31 @@ public abstract class InstrumentClusterRenderer {
      */
     abstract public CarNavigationInstrumentCluster getNavigationProperties();
 
+    @UiThread
     abstract protected NavigationRenderer createNavigationRenderer();
 
-    public NavigationRenderer getNavigationRenderer() {
-        if (mNavigationRenderer == null) {
-            mNavigationRenderer = createNavigationRenderer();
-        }
+    @UiThread
+    abstract protected MediaRenderer createMediaRenderer();
+
+    /** The method is thread-safe, callers should cache returned object. */
+    @Nullable
+    public synchronized NavigationRenderer getNavigationRenderer() {
         return mNavigationRenderer;
+    }
+
+    /** The method is thread-safe, callers should cache returned object. */
+    @Nullable
+    public synchronized MediaRenderer getMediaRenderer() {
+        return mMediaRenderer;
+    }
+
+    /**
+     * This method is called by car service after onCreateView to initialize private members. The
+     * method should not be overridden by subclasses.
+     */
+    @UiThread
+    public synchronized final void initialize() {
+        mNavigationRenderer = createNavigationRenderer();
+        mMediaRenderer = createMediaRenderer();
     }
 }
