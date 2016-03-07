@@ -36,7 +36,6 @@ import android.car.hardware.radio.CarRadioManager;
 import android.car.media.CarAudioManager;
 import android.car.navigation.CarNavigationManager;
 import android.car.test.CarTestManagerBinderWrapper;
-import android.car.CarLibLog;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
@@ -44,8 +43,6 @@ import com.android.internal.annotations.GuardedBy;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;

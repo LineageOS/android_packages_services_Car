@@ -19,11 +19,9 @@ import static android.car.navigation.CarNavigationManager.TURN_SIDE_LEFT;
 import static android.car.navigation.CarNavigationManager.TURN_SIDE_RIGHT;
 import static android.car.navigation.CarNavigationManager.TURN_TURN;
 
-import android.car.cluster.NavigationRenderer;
+import android.car.cluster.renderer.NavigationRenderer;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.util.Pair;
 
@@ -38,7 +36,6 @@ public class DemoNavigationRenderer extends NavigationRenderer {
     private static final String TAG = DemoNavigationRenderer.class.getSimpleName();
 
     private final DemoInstrumentClusterView mView;
-    private final Handler mHandler;
     private final Context mContext;
 
     private final static Map<Pair<Integer, Integer>, Integer> sTurns;
@@ -50,30 +47,19 @@ public class DemoNavigationRenderer extends NavigationRenderer {
         // TODO: add more localized strings here.
     }
 
-    DemoNavigationRenderer(DemoInstrumentClusterView view, Looper looper) {
+    DemoNavigationRenderer(DemoInstrumentClusterView view) {
         mView = view;
-        mHandler = new Handler(looper);
         mContext = view.getContext();
     }
 
     @Override
     public void onStartNavigation() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mView.showNavigation();
-            }
-        });
+        mView.showNavigation();
     }
 
     @Override
     public void onStopNavigation() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mView.hideNavigation();
-            }
-        });
+        mView.hideNavigation();
     }
 
     @Override
@@ -83,30 +69,12 @@ public class DemoNavigationRenderer extends NavigationRenderer {
         final String localizedTitle = String.format(
                 mContext.getString(R.string.nav_event_title_format), localizedAction, road);
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mView.setNextTurn(image, localizedTitle);
-            }
-        });
+        mView.setNextTurn(image, localizedTitle);
     }
 
     @Override
     public void onNextTurnDistanceChanged(final int distanceMeters, int timeSeconds) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mView.setNextTurnDistance(toHumanReadableDistance(distanceMeters));
-            }
-        });
-    }
-
-    public void runOnUiThread(Runnable action) {
-        if (Looper.myLooper() == mHandler.getLooper()) {
-            action.run();
-        } else {
-            mHandler.post(action);
-        }
+        mView.setNextTurnDistance(toHumanReadableDistance(distanceMeters));
     }
 
     private String getLocalizedNavigationAction(int event, int turnSide) {

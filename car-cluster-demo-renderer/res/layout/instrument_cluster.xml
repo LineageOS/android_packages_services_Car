@@ -23,7 +23,7 @@
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="214dp"
-            android:layout_height="match_parent" android:layout_weight="0.14">
+            android:layout_height="match_parent">
     </LinearLayout>
     <LinearLayout
             android:orientation="vertical"
@@ -61,6 +61,35 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:id="@+id/nav_distance" android:gravity="center"
+            />
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout android:orientation="vertical" android:layout_width="wrap_content"
+                  android:layout_height="match_parent" android:layout_weight="0.63"
+                  android:layout_gravity="center_vertical" android:weightSum="1"
+                  android:layout_marginTop="0dp">
+        <LinearLayout android:orientation="vertical" android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_weight="0.63"
+                      android:layout_gravity="center_horizontal" android:weightSum="1"
+                      android:layout_marginTop="100dp"
+                      android:background="@android:color/background_dark"
+                      android:id="@+id/media_layout">
+            <ImageView android:layout_width="160dp" android:layout_height="100dp"
+                       android:id="@+id/media_image" android:layout_gravity="center_horizontal"
+                       android:background="@android:color/holo_blue_light"
+                       android:scaleType="center"/>
+            <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                      android:textAppearance="?android:attr/textAppearanceMedium"
+                      android:id="@+id/media_album" android:gravity="center"
+                      android:layout_gravity="center_horizontal" android:visibility="gone"/>
+            <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                      android:textAppearance="?android:attr/textAppearanceMedium"
+                      android:id="@+id/media_track" android:gravity="center"
+                      android:layout_gravity="center_horizontal" android:textSize="28sp"/>
+            <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                      android:textAppearance="?android:attr/textAppearanceMedium"
+                      android:id="@+id/media_artist" android:gravity="center"
+                      android:textIsSelectable="false"
             />
         </LinearLayout>
     </LinearLayout>
