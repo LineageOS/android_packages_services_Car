@@ -42,13 +42,8 @@ import java.util.List;
  *  API for monitoring car sensor data.
  */
 public class CarSensorManager implements CarManagerBase {
-    /**
-     * SENSOR_TYPE_* represents type of sensor supported from the connected car.
-     * This sensor represents the direction of the car as an angle in degree measured clockwise
-     * with 0 degree pointing to north.
-     * Sensor data in {@link CarSensorEvent} is a float (floatValues[0]).
-     */
-    public static final int SENSOR_TYPE_COMPASS           = 1;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED1           = 1;
     /**
      * This sensor represents vehicle speed in m/s.
      * Sensor data in {@link CarSensorEvent} is a float which will be >= 0.
@@ -88,55 +83,39 @@ public class CarSensorManager implements CarManagerBase {
      * {@link CarSensorEvent#GEAR_NEUTRAL} and other GEAR_*.
      */
     public static final int SENSOR_TYPE_GEAR              = 7;
-    public static final int SENSOR_TYPE_RESERVED8         = 8;
     /**
      * Day/night sensor. Sensor data is intValues[0].
      */
-    public static final int SENSOR_TYPE_NIGHT             = 9;
-    /**
-     * Sensor type for location. Sensor data passed in floatValues.
-     */
-    public static final int SENSOR_TYPE_LOCATION          = 10;
+    public static final int SENSOR_TYPE_NIGHT             = 8;
+    /** @hide */
+    public static final int SENSOR_TYPE_REVERVED9        = 9;
     /**
      * Represents the current driving status of car. Different user interaction should be used
      * depending on the current driving status. Driving status is intValues[0].
      */
-    public static final int SENSOR_TYPE_DRIVING_STATUS    = 11;
+    public static final int SENSOR_TYPE_DRIVING_STATUS    = 10;
     /**
      * Environment like temperature and pressure.
      */
-    public static final int SENSOR_TYPE_ENVIRONMENT       = 12;
-
+    public static final int SENSOR_TYPE_ENVIRONMENT       = 11;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED12        = 12;
     /** @hide */
     public static final int SENSOR_TYPE_RESERVED13        = 13;
     /** @hide */
-    public static final int SENSOR_TYPE_ACCELEROMETER     = 14;
-    /** @hide */
-    public static final int SENSOR_TYPE_RESERVED15        = 15;
-    /** @hide */
-    public static final int SENSOR_TYPE_RESERVED16        = 16;
-    /** @hide */
-    public static final int SENSOR_TYPE_GPS_SATELLITE     = 17;
-    /** @hide */
-    public static final int SENSOR_TYPE_GYROSCOPE         = 18;
-    /** @hide */
-    public static final int SENSOR_TYPE_RESERVED19        = 19;
-    /** @hide */
-    public static final int SENSOR_TYPE_RESERVED20        = 20;
-    /** @hide */
-    public static final int SENSOR_TYPE_RESERVED21        = 21;
+    public static final int SENSOR_TYPE_RESERVED14        = 14;
 
     /**
      * Sensor type bigger than this is invalid. Always update this after adding a new sensor.
      * @hide
      */
-    private static final int SENSOR_TYPE_MAX              = SENSOR_TYPE_RESERVED21;
+    private static final int SENSOR_TYPE_MAX = SENSOR_TYPE_ENVIRONMENT;
 
     /**
      * Sensors defined in this range [{@link #SENSOR_TYPE_VENDOR_EXTENSION_START},
      * {@link #SENSOR_TYPE_VENDOR_EXTENSION_END}] is for each car vendor's to use.
      * This should be only used for system app to access sensors not defined as standard types.
-     * So the sensor supproted in this range can vary depending on car models / manufacturers.
+     * So the sensor supported in this range can vary depending on car models / manufacturers.
      * 3rd party apps should not use sensors in this range as they are not compatible across
      * different cars. Additionally 3rd party apps trying to access sensor in this range will get
      * security exception as their access is restricted to system apps.
@@ -272,11 +251,9 @@ public class CarSensorManager implements CarManagerBase {
      * If the same listener is registered again for the same sensor, it will be either ignored or
      * updated depending on the rate.
      * <p>
-     * Requires {@link android.Manifest.permission#ACCESS_FINE_LOCATION} for
-     * {@link #SENSOR_TYPE_LOCATION}, {@link Car#PERMISSION_SPEED} for
-     * {@link #SENSOR_TYPE_CAR_SPEED}, {@link Car#PERMISSION_MILEAGE} for
-     * {@link #SENSOR_TYPE_ODOMETER}, or {@link Car#PERMISSION_FUEL} for
-     * {@link #SENSOR_TYPE_FUEL_LEVEL}.
+     * Requires {@link Car#PERMISSION_SPEED} for {@link #SENSOR_TYPE_CAR_SPEED},
+     *  {@link Car#PERMISSION_MILEAGE} for {@link #SENSOR_TYPE_ODOMETER},
+     *  or {@link Car#PERMISSION_FUEL} for {@link #SENSOR_TYPE_FUEL_LEVEL}.
      *
      * @param listener
      * @param sensorType sensor type to subscribe.
@@ -388,7 +365,9 @@ public class CarSensorManager implements CarManagerBase {
     }
 
     /**
-     * Get the most recent CarSensorEvent for the given type.
+     * Get the most recent CarSensorEvent for the given type. Note that latest sensor data from car
+     * will not be available if it was never subscribed before. This call will return immediately
+     * with null if there is no data available.
      * @param type A sensor to request
      * @return null if there was no sensor update since connected to the car.
      * @throws CarNotConnectedException

@@ -113,7 +113,8 @@ public class SensorHalService extends SensorHalServiceBase {
         switch (property) {
             // boolean
             case VehicleNetworkConsts.VEHICLE_PROPERTY_NIGHT_MODE:
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_PARKING_BRAKE_ON: {
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_PARKING_BRAKE_ON:
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_FUEL_LEVEL_LOW: {
                 if (DBG_EVENTS) {
                     Log.i(CarLog.TAG_SENSOR, "boolean event, property:" +
                             Integer.toHexString(property) + " value:" + v.getInt32Values(0));
@@ -241,6 +242,8 @@ public class SensorHalService extends SensorHalServiceBase {
                 return CarSensorManager.SENSOR_TYPE_PARKING_BRAKE;
             case VehicleNetworkConsts.VEHICLE_PROPERTY_DRIVING_STATUS:
                 return CarSensorManager.SENSOR_TYPE_DRIVING_STATUS;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_FUEL_LEVEL_LOW:
+                return CarSensorManager.SENSOR_TYPE_FUEL_LEVEL;
             default:
                 return SENSOR_TYPE_INVALD;
         }

@@ -47,12 +47,12 @@ public class CarSensorEvent extends ExtendableParcelable {
     public static final int INDEX_FUEL_LEVEL_IN_PERCENTILE = 0;
     /**
      * Index in {@link #floatValues} for {@link CarSensorManager#SENSOR_TYPE_FUEL_LEVEL} type of
-     * sensor. This value is fuel level in coverable distance.
+     * sensor. This value is fuel level in coverable distance. The unit is Km.
      */
     public static final int INDEX_FUEL_LEVEL_IN_DISTANCE = 1;
     /**
-     * Index in {@link #byteValues} for {@link CarSensorManager#SENSOR_TYPE_FUEL_LEVEL} type of
-     * sensor. This value is set to 0 if fuel low level warning is on.
+     * Index in {@link #intValues} for {@link CarSensorManager#SENSOR_TYPE_FUEL_LEVEL} type of
+     * sensor. This value is set to 1 if fuel low level warning is on.
      */
     public static final int INDEX_FUEL_LOW_WARNING = 0;
 
@@ -373,10 +373,10 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     public static class FuelLevelData {
         public long timeStampNs;
-        /** If unsupported by the car, this value is 0. */
+        /** Fuel level in %. If unsupported by the car, this value is -1. */
         public int level;
-        /** If unsupported by the car, this value is 0. */
-        public int range;
+        /** Fuel as possible range in Km. If unsupported by the car, this value is -1. */
+        public float range;
         /** If unsupported by the car, this value is false. */
         public boolean lowFuelWarning;
     }
@@ -395,8 +395,21 @@ public class CarSensorEvent extends ExtendableParcelable {
             data = new FuelLevelData();
         }
         data.timeStampNs = timeStampNs;
-        data.level = (int) floatValues[INDEX_FUEL_LEVEL_IN_PERCENTILE];
-        data.range = (int) floatValues[INDEX_FUEL_LEVEL_IN_DISTANCE];
+        if (floatValues == null) {
+            data.level = -1;
+            data.range = -1;
+        } else {
+            if (floatValues[INDEX_FUEL_LEVEL_IN_PERCENTILE] < 0) {
+                data.level = -1;
+            } else {
+                data.level = (int) floatValues[INDEX_FUEL_LEVEL_IN_PERCENTILE];
+            }
+            if (floatValues[INDEX_FUEL_LEVEL_IN_DISTANCE] < 0) {
+                data.range = -1;
+            } else {
+                data.range = floatValues[INDEX_FUEL_LEVEL_IN_DISTANCE];
+            }
+        }
         data.lowFuelWarning = intValues[0] == 1;
         return data;
     }
