@@ -42,6 +42,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
 
     private final Context mContext;
 
+    private KeyEventListener mVoiceAssitantKeyListener;
     private KeyEventListener mLongVoiceAssitantKeyListener;
     private long mLastVoiceKeyDownTime = 0;
 
@@ -56,10 +57,21 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     }
 
     /**
+     * Set listener for listening voice assistant key event. Setting to null stops listening.
+     * If listener is not set, default behavior will be done for short press.
+     * If listener is set, short key press will lead into calling the listener.
+     * @param listener
+     */
+    public void setVoiceAssitantKeyListener(KeyEventListener listener) {
+        synchronized (this) {
+            mVoiceAssitantKeyListener = listener;
+        }
+    }
+
+    /**
      * Set listener for listening long voice assistant key event. Setting to null stops listening.
-     * If listener is not set, default behavior will be done for both short and long press.
-     * If listener is set, short key press will still lead into default behavior but long press
-     * will lead into calling the listener.
+     * If listener is not set, default behavior will be done for long press.
+     * If listener is set, short long press will lead into calling the listener.
      * @param listener
      */
     public void setLongVoiceAssitantKeyListener(KeyEventListener listener) {
@@ -100,6 +112,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     @Override
     public void release() {
         synchronized (this) {
+            mVoiceAssitantKeyListener = null;
             mLongVoiceAssitantKeyListener = null;
             mInstumentClusterKeyListener = null;
             if (mInjectionDeviceFd != null) {
@@ -143,16 +156,21 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         } else if (action == KeyEvent.ACTION_UP) {
             // if no listener, do not handle long press
             KeyEventListener listener = null;
+            KeyEventListener shortPressListener = null;
+            KeyEventListener longPressListener = null;
             long downTime;
             synchronized (this) {
-                listener = mLongVoiceAssitantKeyListener;
+                shortPressListener = mVoiceAssitantKeyListener;
+                longPressListener = mLongVoiceAssitantKeyListener;
                 downTime = mLastVoiceKeyDownTime;
             }
-            if (listener == null) {
+            if (shortPressListener == null && longPressListener == null) {
                 launchDefaultVoiceAssitantHandler();
             } else {
                 long duration = SystemClock.elapsedRealtime() - downTime;
-                if (duration > VOICE_LONG_PRESS_TIME_MS) {
+                listener = (duration > VOICE_LONG_PRESS_TIME_MS
+                        ? longPressListener : shortPressListener);
+                if (listener != null) {
                     listener.onKeyEvent(event);
                 } else {
                     launchDefaultVoiceAssitantHandler();
