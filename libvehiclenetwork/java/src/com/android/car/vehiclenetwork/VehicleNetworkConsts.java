@@ -790,7 +790,7 @@ default: return "UNKNOWN";
 public static class VehicleGear {
 public static final int VEHICLE_GEAR_NEUTRAL = 0x0001;
 public static final int VEHICLE_GEAR_REVERSE = 0x0002;
-public static final int VEHICLE_GEAR_PARKING = 0x0004;
+public static final int VEHICLE_GEAR_PARK = 0x0004;
 public static final int VEHICLE_GEAR_DRIVE = 0x0008;
 public static final int VEHICLE_GEAR_L = 0x0010;
 public static final int VEHICLE_GEAR_1 = 0x0010;
@@ -806,7 +806,7 @@ public static String enumToString(int v) {
 switch(v) {
 case VEHICLE_GEAR_NEUTRAL: return "VEHICLE_GEAR_NEUTRAL";
 case VEHICLE_GEAR_REVERSE: return "VEHICLE_GEAR_REVERSE";
-case VEHICLE_GEAR_PARKING: return "VEHICLE_GEAR_PARKING";
+case VEHICLE_GEAR_PARK: return "VEHICLE_GEAR_PARK";
 case VEHICLE_GEAR_DRIVE: return "VEHICLE_GEAR_DRIVE";
 case VEHICLE_GEAR_L: return "VEHICLE_GEAR_L";
 case VEHICLE_GEAR_2: return "VEHICLE_GEAR_2";
