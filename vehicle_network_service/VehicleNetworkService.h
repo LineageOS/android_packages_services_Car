@@ -41,6 +41,7 @@
 #include <IVehicleNetworkListener.h>
 #include <HandlerThread.h>
 
+#include "VehiclePropertyAccessControl.h"
 
 namespace android {
 
@@ -333,6 +334,7 @@ private:
     static int eventCallback(const vehicle_prop_value_t *eventData);
     static int errorCallback(int32_t errorCode, int32_t property, int32_t operation);
 private:
+    VehiclePropertyAccessControl mVehiclePropertyAccessControl;
     static VehicleNetworkService* sInstance;
     sp<HandlerThread> mHandlerThread;
     sp<VehicleHalMessageHandler> mHandler;

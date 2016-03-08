@@ -14,24 +14,50 @@
 #
 #
 LOCAL_PATH:= $(call my-dir)
-
+##################################
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(patsubst ./%,%, $(shell cd $(LOCAL_PATH); \
     find . -name "*.cpp" -and -not -name ".*")) \
     InternalPropertyDef.c
+LOCAL_SRC_FILES := $(filter-out main_vehiclenetwork.cpp, $(LOCAL_SRC_FILES))
 
 LOCAL_C_INCLUDES += \
     libcore/include \
     frameworks/base/include \
-    packages/services/Car/libvehiclenetwork/include
+    packages/services/Car/libvehiclenetwork/include \
+    external/libxml2/include \
+    external/icu/icu4c/source/common
+
+LOCAL_MODULE := libvehiclenetworkservice
+LOCAL_MODULE_TAGS := optional
+
+include $(BUILD_STATIC_LIBRARY)
+
+##################################
+include $(CLEAR_VARS)
+
+LOCAL_SRC_FILES := \
+    main_vehiclenetwork.cpp
+
+LOCAL_C_INCLUDES += \
+    libcore/include \
+    frameworks/base/include \
+    packages/services/Car/libvehiclenetwork/include \
+    external/libxml2/include \
+    external/icu/icu4c/source/common
 
 LOCAL_SHARED_LIBRARIES := \
     libbinder \
     liblog \
     libutils \
     libhardware \
-    libvehiclenetwork-native
+    libvehiclenetwork-native \
+    libcutils \
+    libxml2
+
+LOCAL_WHOLE_STATIC_LIBRARIES := \
+    libvehiclenetworkservice
 
 LOCAL_STRIP_MODULE := keep_symbols
 
