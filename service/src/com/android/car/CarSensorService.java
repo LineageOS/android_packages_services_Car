@@ -375,13 +375,8 @@ public class CarSensorService extends ICarSensor.Stub
 
     private boolean sensorSupportRate(int sensorType) {
         switch (sensorType) {
-            case CarSensorManager.SENSOR_TYPE_COMPASS:
             case CarSensorManager.SENSOR_TYPE_CAR_SPEED:
             case CarSensorManager.SENSOR_TYPE_RPM:
-            case CarSensorManager.SENSOR_TYPE_LOCATION:
-            case CarSensorManager.SENSOR_TYPE_ACCELEROMETER:
-            case CarSensorManager.SENSOR_TYPE_GPS_SATELLITE:
-            case CarSensorManager.SENSOR_TYPE_GYROSCOPE:
                 return true;
             case CarSensorManager.SENSOR_TYPE_ODOMETER:
             case CarSensorManager.SENSOR_TYPE_FUEL_LEVEL:
@@ -415,9 +410,6 @@ public class CarSensorService extends ICarSensor.Stub
         }
         String permission = null;
         switch (sensorType) {
-            case CarSensorManager.SENSOR_TYPE_LOCATION:
-                permission = Manifest.permission.ACCESS_FINE_LOCATION;
-                break;
             case CarSensorManager.SENSOR_TYPE_CAR_SPEED:
                 permission = Car.PERMISSION_SPEED;
                 break;
@@ -958,11 +950,7 @@ public class CarSensorService extends ICarSensor.Stub
                     if (record != null && record.lastEvent != null) {
                         writer.println("sensor: " + sensor
                                 + " active: " + record.enabled);
-                        // only print sensor data which is not related with location
-                        if (sensor != CarSensorManager.SENSOR_TYPE_LOCATION &&
-                                sensor != CarSensorManager.SENSOR_TYPE_GPS_SATELLITE) {
-                            writer.println(" " + record.lastEvent.toString());
-                        }
+                        writer.println(" " + record.lastEvent.toString());
                     }
                     SensorListeners listeners = mSensorListeners.get(sensor);
                     if (listeners != null) {

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.support.car.apitest;
+package com.android.car.apitest;
 
 import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.car.Car;
-import android.support.car.ServiceConnectionListener;
-import android.support.car.hardware.CarSensorEvent;
-import android.support.car.hardware.CarSensorManager;
+import android.car.Car;
+import android.car.hardware.CarSensorEvent;
+import android.car.hardware.CarSensorManager;
 import android.test.AndroidTestCase;
 
 import java.util.concurrent.Semaphore;
@@ -37,20 +37,10 @@ public class CarSensorManagerTest extends AndroidTestCase {
     private Car mCar;
     private CarSensorManager mCarSensorManager;
 
-    private final ServiceConnectionListener mConnectionListener = new ServiceConnectionListener() {
-
-        @Override
-        public void onServiceSuspended(int cause) {
-            assertMainThread();
-        }
+    private final ServiceConnection mConnectionListener = new ServiceConnection() {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            assertMainThread();
-        }
-
-        @Override
-        public void onServiceConnectionFailed(int cause) {
             assertMainThread();
         }
 
