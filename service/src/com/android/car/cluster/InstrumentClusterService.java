@@ -87,14 +87,17 @@ public class InstrumentClusterService implements CarServiceBase {
 
             if (display != null && rendererFound) {
                 initRendererOnMainThread(display);
+                mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_TIMEOUT),
+                        RENDERER_INIT_TIMEOUT_MS);
             } else {
-                throw new RuntimeException("Failed to initialize InstrumentClusterRenderer"
+                mClusterType = InstrumentClusterType.NONE;
+                Log.w(TAG, "Failed to initialize InstrumentClusterRenderer"
                         + ", renderer found: " + rendererFound
-                        + ", secondary display: " + (display != null));
+                        + ", secondary display: " + (display != null), new RuntimeException());
+
+                return;
             }
         }
-
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_TIMEOUT), RENDERER_INIT_TIMEOUT_MS);
     }
 
     private void initRendererOnMainThread(final Display display) {
