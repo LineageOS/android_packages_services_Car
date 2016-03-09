@@ -267,7 +267,7 @@ public class HvacTestFragment extends Fragment {
     private void configureFanSpeed(View v) {
         mCurFanSpeed = mCarHvacManager.getIntProperty(
                 CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT,
-                VehicleZone.VEHICLE_ZONE_ALL);
+                VehicleZone.VEHICLE_ZONE_ROW_1_ALL);
 
         Button btnFanSpeedUp = (Button) v.findViewById(R.id.btnFanSpeedUp);
         btnFanSpeedUp.setEnabled(true);
@@ -277,7 +277,7 @@ public class HvacTestFragment extends Fragment {
                     mCurFanSpeed++;
                     mTvFanSpeed.setText(String.valueOf(mCurFanSpeed));
                     mCarHvacManager.setIntProperty(CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT,
-                            VehicleZone.VEHICLE_ZONE_ALL, mCurFanSpeed);
+                            VehicleZone.VEHICLE_ZONE_ROW_1_ALL, mCurFanSpeed);
                 }
             }
         });
@@ -290,7 +290,7 @@ public class HvacTestFragment extends Fragment {
                     mCurFanSpeed--;
                     mTvFanSpeed.setText(String.valueOf(mCurFanSpeed));
                     mCarHvacManager.setIntProperty(CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT,
-                            VehicleZone.VEHICLE_ZONE_ALL, mCurFanSpeed);
+                            VehicleZone.VEHICLE_ZONE_ROW_1_ALL, mCurFanSpeed);
                 }
             }
         });
