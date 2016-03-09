@@ -93,16 +93,23 @@ public class Car {
     @SystemApi
     public static final String TEST_SERVICE = "car-service-test";
 
-    /** permission necessary to access car's mileage information */
+    /** Permission necessary to access car's mileage information. */
     public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
 
-    /** permission necessary to access car's fuel level */
+    /** Permission necessary to access car's fuel level. */
     public static final String PERMISSION_FUEL = "android.car.permission.CAR_FUEL";
 
-    /** permission necessary to access car's speed */
+    /** Permission necessary to access car's speed. */
     public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
 
-    /** permission necessary to access car specific communication channel */
+    /**
+     * Permission necessary to use {@link CarNavigationManager}.
+     * @hide
+     */
+    public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
+            "android.car.permission.PERMISSION_CAR_NAVIGATION_MANAGER";
+
+    /** Permission necessary to access car specific communication channel. */
     @SystemApi
     public static final String PERMISSION_VENDOR_EXTENSION =
             "android.car.permission.CAR_VENDOR_EXTENSION";
@@ -119,7 +126,7 @@ public class Car {
     @SystemApi
     public static final String PERMISSION_CAR_HVAC = "android.car.permission.CAR_HVAC";
 
-    /** Permission necesary to access Car RADIO system APIs. */
+    /** Permission necessary to access Car RADIO system APIs. */
     @SystemApi
     public static final String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
 
@@ -127,7 +134,7 @@ public class Car {
     @SystemApi
     public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
 
-    /** permission necessary to mock vehicle hal for testing */
+    /** Permission necessary to mock vehicle hal for testing. */
     @SystemApi
     public static final String PERMISSION_MOCK_VEHICLE_HAL =
             "android.car.permission.CAR_MOCK_VEHICLE_HAL";

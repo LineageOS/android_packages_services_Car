@@ -95,15 +95,22 @@ public class Car {
     @Retention(RetentionPolicy.SOURCE)
     public @interface ConnectionType {}
 
-    /** permission necessary to access car's mileage information */
+    /** Permission necessary to access car's mileage information. */
     public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
-    /** permission necessary to access car's fuel level */
+    /** Permission necessary to access car's fuel level. */
     public static final String PERMISSION_FUEL = "android.car.permission.CAR_FUEL";
-    /** permission necessary to access car's speed */
+    /** Permission necessary to access car's speed. */
     public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
-    /** permission necessary to access car specific communication channel */
+    /** Permission necessary to access car specific communication channel. */
     public static final String PERMISSION_VENDOR_EXTENSION =
             "android.car.permission.CAR_VENDOR_EXTENSION";
+    /**
+     * Permission necessary to use {@link android.car.navigation.CarNavigationManager}.
+     * @hide
+     */
+    public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
+            "android.car.permission.PERMISSION_CAR_NAVIGATION_MANAGER";
+
 
     /**
      * PackageManager.FEATURE_AUTOMOTIVE from M. But redefine here to support L.

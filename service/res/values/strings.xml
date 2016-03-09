@@ -60,4 +60,9 @@
     <!-- Permission text: can emulate information from your car [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_app_blocking">Control application blocking while
         driving.</string>
+    <string name="car_permission_car_navigation_manager">Navigation Manager</string>
+    <!-- Permission text: apps can access navigation manager to report navigation data in instrument
+         cluster [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_car_navigation_manager">Report navigation data to instrument
+        cluster</string>
 </resources>
