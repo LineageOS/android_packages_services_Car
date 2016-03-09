@@ -264,7 +264,11 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
 bool VehicleNetworkService::isOperationAllowed(int32_t property, bool isWrite) {
     const uid_t uid = IPCThreadState::self()->getCallingUid();
 
-    return mVehiclePropertyAccessControl.testAccess(property, uid, isWrite);
+    bool allowed = mVehiclePropertyAccessControl.testAccess(property, uid, isWrite);
+    if (!allowed) {
+        ALOGW("Property 0x%x: access not allowed for uid %d, isWrite %d", property, uid, isWrite);
+    }
+    return allowed;
 }
 
 VehicleNetworkService::VehicleNetworkService()
