@@ -213,11 +213,11 @@ bool VehiclePropertyAccessControl::populate(xmlNode * a_node) {
                             if (re1) {
                                 if (!updateOrCreate(uid_value, property_value,
                                                     access_value)) {
-                                    ALOGE(
+                                    LOG_VERBOSE(
                                         "Property %08x was added: uid=%d access=%d\n",
                                         property_value, uid_value, access_value);
                                 } else {
-                                    ALOGE("Property %08x was updated: uid=%d access=%d\n",
+                                    LOG_VERBOSE("Property %08x was updated: uid=%d access=%d\n",
                                           property_value, uid_value, access_value);
                                 }
                             }
