@@ -67,7 +67,6 @@ public class CarHvacService extends ICarHvac.Stub
             if (DBG) {
                 Log.d(TAG, "binderDied " + mListenerBinder);
             }
-            mListenerBinder.unlinkToDeath(this, 0);
             CarHvacService.this.unregisterListenerLocked(mListenerBinder);
         }
 
@@ -87,6 +86,7 @@ public class CarHvacService extends ICarHvac.Stub
         }
         mDeathRecipientMap.clear();
         mListenersMap.clear();
+        mHvacHal.release();
     }
 
     @Override
@@ -156,7 +156,7 @@ public class CarHvacService extends ICarHvac.Stub
         }
 
         if (mListenersMap.isEmpty()) {
-            mHvacHal.release();
+            mHvacHal.setListener(null);
         }
     }
 
