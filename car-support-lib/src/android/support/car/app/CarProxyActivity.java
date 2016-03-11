@@ -77,7 +77,7 @@ public class CarProxyActivity extends Activity {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
+        public void onServiceConnected(ComponentName name) {
             for (Pair<Integer, Object[]> cmd: mCmds) {
                 mCarActivity.dispatchCmd(cmd.first, cmd.second);
             }
