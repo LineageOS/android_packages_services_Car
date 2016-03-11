@@ -321,17 +321,17 @@ public class VehicleHal implements VehicleNetworkListener {
             builder.append(",config:" + Integer.toHexString(config.getConfigArray(0)));
             builder.append(",fs min:" + config.getSampleRateMin());
             builder.append(",fs max:" + config.getSampleRateMax());
-            if (config.hasFloatMin()) {
-                builder.append(",v min:" + config.getFloatMin());
-                builder.append(",v max:" + config.getFloatMax());
+            for (int i = 0; i < config.getFloatMaxsCount(); i++) {
+                builder.append(",v min:" + config.getFloatMins(i));
+                builder.append(",v max:" + config.getFloatMaxs(i));
             }
-            if (config.hasInt32Min()) {
-                builder.append(",v min:" + config.getInt32Min());
-                builder.append(",v max:" + config.getInt32Max());
+            for (int i = 0; i < config.getInt32MaxsCount(); i++) {
+                builder.append(",v min:" + config.getInt32Mins(i));
+                builder.append(",v max:" + config.getInt32Maxs(i));
             }
-            if (config.hasInt64Min()) {
-                builder.append(",v min:" + config.getInt64Min());
-                builder.append(",v max:" + config.getInt64Max());
+            for (int i = 0; i < config.getInt64MaxsCount(); i++) {
+                builder.append(",v min:" + config.getInt64Mins(i));
+                builder.append(",v max:" + config.getInt64Maxs(i));
             }
             writer.println(builder.toString());
         }

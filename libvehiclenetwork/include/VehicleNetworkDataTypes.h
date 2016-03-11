@@ -63,6 +63,22 @@ public:
         if (config->config_string.data != NULL && config->config_string.len > 0){
             delete[] config->config_string.data;
         }
+        switch (config->prop) {
+            case VEHICLE_VALUE_TYPE_ZONED_INT32:
+            case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2:
+            case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3:
+            case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC4: {
+                delete[] config->int32_max_values;
+                delete[] config->int32_min_values;
+            } break;
+            case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
+            case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
+            case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3:
+            case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC4: {
+                delete[] config->float_max_values;
+                delete[] config->float_min_values;
+            } break;
+        }
     };
 
     static bool isTheSame(const vehicle_prop_config_t& l, const vehicle_prop_config_t& r) {

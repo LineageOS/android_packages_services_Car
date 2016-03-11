@@ -118,7 +118,7 @@ public class VehicleNetworkTest extends AndroidTestCase {
                 build();
             mVehicleNetwork.setProperty(value);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (SecurityException e) {
             // expected
         }
         VehiclePropConfigs configs = mVehicleNetwork.listProperties();
@@ -154,7 +154,7 @@ public class VehicleNetworkTest extends AndroidTestCase {
         try {
             mVehicleNetwork.subscribe(-1, 0);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (SecurityException e) {
             //expected
         }
         VehiclePropConfigs configs = mVehicleNetwork.listProperties();

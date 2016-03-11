@@ -212,21 +212,21 @@ public class CarHvacManagerTest extends MockedCarTestBase {
                 case CarHvacManager.PROPERTY_TYPE_BOOLEAN:
                     CarHvacBooleanValue boolVal = (CarHvacBooleanValue) value;
                     mEventBoolVal = boolVal.getValue();
-                    mEventZoneVal = boolVal.getZone();
+                    mEventZoneVal = boolVal.getZones();
                     Log.d(TAG, "onChangeEvent - propId = " + boolVal.getPropertyId() +
                             " bool = " + boolVal.getValue());
                     break;
                 case CarHvacManager.PROPERTY_TYPE_FLOAT:
                     CarHvacFloatValue floatVal = (CarHvacFloatValue) value;
                     mEventFloatVal = floatVal.getValue();
-                    mEventZoneVal = floatVal.getZone();
+                    mEventZoneVal = floatVal.getZones();
                     Log.d(TAG, "onChangeEvent - propId = " + floatVal.getPropertyId() +
                             " float = " + floatVal.getValue());
                     break;
                 case CarHvacManager.PROPERTY_TYPE_INT:
                     CarHvacIntValue intVal = (CarHvacIntValue) value;
                     mEventIntVal = intVal.getValue();
-                    mEventZoneVal = intVal.getZone();
+                    mEventZoneVal = intVal.getZones();
                     Log.d(TAG, "onChangeEvent - propId = " + intVal.getPropertyId() +
                             " int = " + intVal.getValue());
                     break;

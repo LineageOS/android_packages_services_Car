@@ -30,6 +30,7 @@ import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -136,17 +137,93 @@ public class CarHvacManager implements CarManagerBase {
     public static class CarHvacBaseProperty {
         protected final int mPropertyId;
         protected final int mType;
-        protected final int mZone;
+        protected final int mZones;
 
-        public CarHvacBaseProperty(int propId, int type, int zone) {
+        public CarHvacBaseProperty(int propId, int type, int zones) {
             mPropertyId = propId;
             mType       = type;
-            mZone       = zone;
+            mZones       = zones;
         }
 
-        public int getPropertyId() { return mPropertyId; }
-        public int getType()       { return mType; }
-        public int getZone()       { return mZone; }
+        public int getPropertyId() {
+            return mPropertyId;
+        }
+
+        public int getType() {
+            return mType;
+        }
+
+        /**
+         * Return bit flags of supported zones.
+         */
+        public int getZones()       { return mZones; }
+
+        /**
+         * Return an active zone for Hvac event. This will return only one zone.
+         * If there is no valid zone, this will return 0.
+         */
+        public int getZone() {
+            if (mZones == 0) {
+                return 0;
+            }
+            int flag = 0x1;
+            for (int i = 0; i < 32; i++) {
+                if ((flag & mZones) != 0) {
+                    return flag;
+                }
+                flag <<= 1;
+            }
+            return 0;
+        }
+
+        public static int zoneToIndex(int zone) {
+            if (zone == 0) {
+                return 0;
+            }
+            int flag = 0x1;
+            for (int i = 0; i < 32; i++) {
+                if ((flag & zone) != 0) {
+                    return i;
+                }
+                flag <<= 1;
+            }
+            return 0;
+        }
+
+        public static int getNumZones(int zones) {
+            int numZones = 0;
+            int flag = 0x1;
+            for (int i = 0; i < 32; i++) {
+                if ((flag & zones) != 0) {
+                    numZones++;
+                }
+                flag <<= 1;
+            }
+            return numZones;
+        }
+
+        @Override
+        public String toString() {
+            return "CarHvacBaseProperty [mPropertyId=0x" + Integer.toHexString(mPropertyId) +
+                    ", mType=0x" + Integer.toHexString(mType) +
+                    ", mZones=0x" + Integer.toHexString(mZones) + "]";
+        }
+
+        protected void assertZonedProperty() {
+            if (mPropertyId <= MAX_GLOBAL_PROPETY_ID) {
+                throw new IllegalArgumentException(
+                        "assertZonedProperty called for non-zoned property 0x" +
+                                Integer.toHexString(mPropertyId));
+            }
+        }
+
+        protected void assertNonZonedProperty() {
+            if (mPropertyId > MAX_GLOBAL_PROPETY_ID) {
+                throw new IllegalArgumentException(
+                        "assertNonZonedProperty called for zoned property 0x" +
+                        Integer.toHexString(mPropertyId));
+            }
+        }
     }
 
     public static final class CarHvacBooleanProperty extends CarHvacBaseProperty {
@@ -156,65 +233,150 @@ public class CarHvacManager implements CarManagerBase {
     }
 
     public static final class CarHvacFloatProperty extends CarHvacBaseProperty {
-        private float mMaxValue;
-        private float mMinValue;
+        private final float[] mMaxValues;
+        private final float[] mMinValues;
 
-        public CarHvacFloatProperty(int propId, int zone, float max, float min) {
-            super(propId, PROPERTY_TYPE_FLOAT, zone);
-            mMaxValue      = max;
-            mMinValue      = min;
+        public CarHvacFloatProperty(int propId, int zones, float[] maxs, float mins[]) {
+            super(propId, PROPERTY_TYPE_FLOAT, zones);
+            int expectedLength = zones == 0 ? 1 : getNumZones(zones);
+            if (maxs.length != expectedLength || mins.length != expectedLength) {
+                throw new IllegalArgumentException("Expected length:" + expectedLength +
+                        " while maxs length:" + maxs.length + " mins length:" + mins.length +
+                        " property:0x" + Integer.toHexString(propId));
+            }
+            mMaxValues      = maxs;
+            mMinValues      = mins;
         }
 
-        public float getMaxValue()      { return mMaxValue; }
-        public float getMinValue()      { return mMinValue; }
+        /**
+         * Get max value. Should be used only for non-zoned property.
+         */
+        public float getMaxValue() {
+            assertNonZonedProperty();
+            return mMaxValues[0];
+        }
+
+        /**
+         * Get min value. Should be used only for non-zoned property.
+         */
+        public float getMinValue() {
+            assertNonZonedProperty();
+            return mMinValues[0];
+        }
+
+        public float getMaxValue(int zone) {
+            assertZonedProperty();
+            return mMaxValues[zoneToIndex(zone)];
+        }
+
+        public float getMinValue(int zone) {
+            assertZonedProperty();
+            return mMinValues[zoneToIndex(zone)];
+        }
+
+        @Override
+        public String toString() {
+            return "CarHvacFloatProperty [mMaxValues=" + Arrays.toString(mMaxValues)
+                    + ", mMinValues=" + Arrays.toString(mMinValues) + " " + super.toString() + "]";
+        }
     }
 
     public static final class CarHvacIntProperty extends CarHvacBaseProperty {
-        private int mMaxValue;
-        private int mMinValue;
+        private int[] mMaxValues;
+        private int[] mMinValues;
 
-        public CarHvacIntProperty(int propId, int zone, int max, int min) {
-            super(propId, PROPERTY_TYPE_INT, zone);
-            mMaxValue      = max;
-            mMinValue      = min;
+        public CarHvacIntProperty(int propId, int zones, int[] maxs, int[] mins) {
+            super(propId, PROPERTY_TYPE_INT, zones);
+            int expectedLength = zones == 0 ? 1 : getNumZones(zones);
+            if (maxs.length != expectedLength || mins.length != expectedLength) {
+                throw new IllegalArgumentException("Expected length:" + expectedLength +
+                        " while maxs length:" + maxs.length + " mins length:" + mins.length +
+                        " property:0x" + Integer.toHexString(propId));
+            }
+            mMaxValues      = maxs;
+            mMinValues      = mins;
         }
 
-        public int getMaxValue()      { return mMaxValue; }
-        public int getMinValue()      { return mMinValue; }
+        /**
+         * Get max value. Should be used only for non-zoned property.
+         */
+        public int getMaxValue() {
+            assertNonZonedProperty();
+            return mMaxValues[0];
+        }
+
+        /**
+         * Get min value. Should be used only for non-zoned property.
+         */
+        public int getMinValue() {
+            assertNonZonedProperty();
+            return mMinValues[0];
+        }
+
+        public int getMaxValue(int zone) {
+            assertZonedProperty();
+            return mMaxValues[zoneToIndex(zone)];
+        }
+
+        public int getMinValue(int zone) {
+            assertZonedProperty();
+            return mMinValues[zoneToIndex(zone)];
+        }
+
+        @Override
+        public String toString() {
+            return "CarHvacIntProperty [mMaxValues=" + Arrays.toString(mMaxValues)
+                    + ", mMinValues=" + Arrays.toString(mMinValues) + " " + super.toString() + "]";
+        }
     }
 
     public static final class CarHvacBooleanValue extends CarHvacBaseProperty {
         private boolean mValue;
 
-        public CarHvacBooleanValue(int propId, int zone, boolean value) {
-            super(propId, PROPERTY_TYPE_BOOLEAN, zone);
+        public CarHvacBooleanValue(int propId, int zones, boolean value) {
+            super(propId, PROPERTY_TYPE_BOOLEAN, zones);
             mValue = value;
         }
 
         public boolean getValue() { return mValue; }
+
+        @Override
+        public String toString() {
+            return "CarHvacBooleanValue [mValue=" + mValue + " " + super.toString() + "]";
+        }
     }
 
 
     public static final class CarHvacFloatValue extends CarHvacBaseProperty {
         private float mValue;
 
-        public CarHvacFloatValue(int propId, int zone, float value) {
-            super(propId, PROPERTY_TYPE_FLOAT, zone);
+        public CarHvacFloatValue(int propId, int zones, float value) {
+            super(propId, PROPERTY_TYPE_FLOAT, zones);
             mValue = value;
         }
 
         public float getValue() { return mValue; }
+
+        @Override
+        public String toString() {
+            return "CarHvacFloatValue [mValue=" + mValue + " " + super.toString() + "]";
+        }
     }
 
     public static final class CarHvacIntValue extends CarHvacBaseProperty {
         private int mValue;
 
-        public CarHvacIntValue(int propId, int zone, int value) {
-            super(propId, PROPERTY_TYPE_INT, zone);
+        public CarHvacIntValue(int propId, int zones, int value) {
+            super(propId, PROPERTY_TYPE_INT, zones);
             mValue = value;
         }
 
         public int getValue() { return mValue; }
+
+        @Override
+        public String toString() {
+            return "CarHvacIntValue [mValue=" + mValue + " " + super.toString() + "]";
+        }
     }
 
     public interface CarHvacEventListener {
@@ -352,19 +514,19 @@ public class CarHvacManager implements CarManagerBase {
             switch (carProp.getType()) {
                 case PROPERTY_TYPE_BOOLEAN: {
                     CarHvacBooleanProperty newProp =
-                            new CarHvacBooleanProperty(carProp.getPropertyId(), carProp.getZone());
+                            new CarHvacBooleanProperty(carProp.getPropertyId(), carProp.getZones());
                     hvacProps.add(newProp);
                 } break;
                 case PROPERTY_TYPE_FLOAT: {
                     CarHvacFloatProperty newProp =
-                            new CarHvacFloatProperty(carProp.getPropertyId(), carProp.getZone(),
-                                    carProp.getFloatMax(), carProp.getFloatMin());
+                            new CarHvacFloatProperty(carProp.getPropertyId(), carProp.getZones(),
+                                    carProp.getFloatMaxs(), carProp.getFloatMins());
                     hvacProps.add(newProp);
                 } break;
                 case PROPERTY_TYPE_INT: {
                     CarHvacIntProperty newProp =
-                            new CarHvacIntProperty(carProp.getPropertyId(), carProp.getZone(),
-                                    carProp.getIntMax(), carProp.getIntMin());
+                            new CarHvacIntProperty(carProp.getPropertyId(), carProp.getZones(),
+                                    carProp.getIntMaxs(), carProp.getIntMins());
                     hvacProps.add(newProp);
                 } break;
             }
@@ -477,7 +639,8 @@ public class CarHvacManager implements CarManagerBase {
         }
         try {
             // Set floatMin and floatMax to 0, as they are ignored in set()
-            CarHvacProperty carProp = new CarHvacProperty(prop, zone, 0, 0, val);
+            CarHvacProperty carProp = new CarHvacProperty(prop, zone,
+                    new float[] { 0 }, new float[] { 0 }, val);
             mService.setProperty(carProp);
         } catch (RemoteException ex) {
             Log.e(TAG, "setFloatProperty failed with " + ex.toString());
@@ -490,7 +653,8 @@ public class CarHvacManager implements CarManagerBase {
         }
         try {
             // Set intMin and intMax to 0, as they are ignored in set()
-            CarHvacProperty carProp = new CarHvacProperty(prop, zone, 0, 0, val);
+            CarHvacProperty carProp = new CarHvacProperty(prop, zone,
+                    new int[] { 0 }, new int[] { 0 }, val);
             mService.setProperty(carProp);
         } catch (RemoteException ex) {
             Log.e(TAG, "setIntProperty failed with " + ex.toString());

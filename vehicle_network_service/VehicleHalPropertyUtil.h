@@ -26,6 +26,8 @@
 
 #include <utils/String8.h>
 
+#include <IVehicleNetwork.h>
+
 namespace android {
 
 class VechilePropertyUtil {
@@ -33,19 +35,45 @@ public:
     static void dumpProperty(String8& msg, const vehicle_prop_config_t& config) {
         msg.appendFormat("property 0x%x, access:0x%x, change_mode:0x%x, value_type:0x%x",
                 config.prop, config.access, config.change_mode, config.value_type);
-        msg.appendFormat(",permission:0x%x, conflg_flag:0x%x, fsmin:%f, fsmax:%f",
-                config.permission_model, config.config_flags, config.min_sample_rate,
-                config.max_sample_rate);
+        msg.appendFormat(",permission:0x%x, zones:0x%x, conflg_flag:0x%x, fsmin:%f, fsmax:%f",
+                config.permission_model, config.vehicle_zone_flags, config.config_flags,
+                config.min_sample_rate, config.max_sample_rate);
         switch (config.value_type) {
             case VEHICLE_VALUE_TYPE_FLOAT:
             case VEHICLE_VALUE_TYPE_FLOAT_VEC2:
             case VEHICLE_VALUE_TYPE_FLOAT_VEC3:
-            case VEHICLE_VALUE_TYPE_FLOAT_VEC4:
-            case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
-            case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
-            case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3: {
+            case VEHICLE_VALUE_TYPE_FLOAT_VEC4: {
                 msg.appendFormat(",v min:%f, v max:%f\n", config.float_min_value,
                         config.float_max_value);
+            } break;
+            case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
+            case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
+            case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3:
+            case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC4: {
+                if (config.float_min_values == NULL) {
+                    if (config.float_max_values == NULL) {
+                        msg.appendFormat(",v min:%f, v max:%f\n", config.float_min_value,
+                                config.float_max_value);
+                    } else {
+                        msg.appendFormat(", ERROR: float_max_values not NULL while min is NULL");
+
+                    }
+                } else {
+                    if (config.float_max_values == NULL) {
+                        msg.appendFormat(", ERROR: float_min_values not NULL while max is NULL");
+                    } else {
+                        int n = VehicleNetworkUtil::countNumberOfZones(
+                                config.vehicle_zone_flags);
+                        msg.appendFormat(", v min:");
+                        for (int i = 0; i < n; i++) {
+                            msg.appendFormat("%f,", config.float_min_values[i]);
+                        }
+                        msg.appendFormat(", v max:");
+                        for (int i = 0; i < n; i++) {
+                            msg.appendFormat("%f,", config.float_max_values[i]);
+                        }
+                    }
+                }
             } break;
             case VEHICLE_VALUE_TYPE_INT64: {
                 msg.appendFormat(",v min:%" PRId64 " max:%" PRId64 "\n", config.int64_min_value,
@@ -54,12 +82,38 @@ public:
             case VEHICLE_VALUE_TYPE_INT32:
             case VEHICLE_VALUE_TYPE_INT32_VEC2:
             case VEHICLE_VALUE_TYPE_INT32_VEC3:
-            case VEHICLE_VALUE_TYPE_INT32_VEC4:
-            case VEHICLE_VALUE_TYPE_ZONED_INT32:
-            case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2:
-            case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3: {
+            case VEHICLE_VALUE_TYPE_INT32_VEC4: {
                 msg.appendFormat(",v min:%d, v max:%d\n", config.int32_min_value,
                         config.int32_max_value);
+            } break;
+            case VEHICLE_VALUE_TYPE_ZONED_INT32:
+            case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2:
+            case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3:
+            case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC4: {
+                if (config.int32_min_values == NULL) {
+                    if (config.int32_max_values == NULL) {
+                        msg.appendFormat(",v min:%d, v max:%d\n", config.int32_min_value,
+                                config.int32_max_value);
+                    } else {
+                        msg.appendFormat(", ERROR: int32_max_values not NULL while min is NULL");
+
+                    }
+                } else {
+                    if (config.int32_max_values == NULL) {
+                        msg.appendFormat(", ERROR: int32_min_values not NULL while max is NULL");
+                    } else {
+                        int n = VehicleNetworkUtil::countNumberOfZones(
+                                config.vehicle_zone_flags);
+                        msg.appendFormat(", v min:");
+                        for (int i = 0; i < n; i++) {
+                            msg.appendFormat("%d,", config.int32_min_values[i]);
+                        }
+                        msg.appendFormat(", v max:");
+                        for (int i = 0; i < n; i++) {
+                            msg.appendFormat("%d,", config.int32_max_values[i]);
+                        }
+                    }
+                }
             } break;
             default:
                 msg.appendFormat("\n");

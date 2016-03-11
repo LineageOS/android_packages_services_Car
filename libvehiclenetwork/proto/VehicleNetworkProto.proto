@@ -24,26 +24,21 @@ message VehiclePropConfig {
     required int32 change_mode = 3;
     required int32 value_type = 4;
     required int32 permission_model = 5;
-    repeated int32 config_array = 6;
-    required float sample_rate_max = 7;
-    required float sample_rate_min = 8;
-    optional string config_string = 9;
-    optional float float_max = 10;
-    optional float float_min = 11;
-    optional int32 int32_max = 12;
-    optional int32 int32_min = 13;
-    optional int64 int64_max = 14;
-    optional int64 int64_min = 15;
+    optional int32 zones = 6;
+    repeated int32 config_array = 7;
+    required float sample_rate_max = 8;
+    required float sample_rate_min = 9;
+    optional string config_string = 10;
+    repeated float float_maxs = 11;
+    repeated float float_mins = 12;
+    repeated int32 int32_maxs = 13;
+    repeated int32 int32_mins = 14;
+    repeated int64 int64_maxs = 15;
+    repeated int64 int64_mins = 16;
 };
 
 message VehiclePropConfigs {
     repeated VehiclePropConfig configs = 1;
-};
-
-message ZonedValue {
-    required int32 zone_or_window = 1;
-    repeated int32 int32_values = 2; // also covers boolean value.
-    repeated float float_values = 3;
 };
 
 message VehiclePropValue {
@@ -52,12 +47,12 @@ message VehiclePropValue {
     required int32 value_type = 2;
     optional int64 timestamp = 3; // required for valid data from HAL, but can be skipped for set.
     // values
-    repeated int32 int32_values= 4; // this also covers boolean value.
-    optional int64 int64_value = 5;
-    repeated float float_values = 6;
-    optional string string_value = 7;
-    optional bytes bytes_value = 8;
-    optional ZonedValue zoned_value = 9;
+    optional int32 zone = 4;
+    repeated int32 int32_values= 5; // this also covers boolean value.
+    optional int64 int64_value = 6;
+    repeated float float_values = 7;
+    optional string string_value = 8;
+    optional bytes bytes_value = 9;
 };
 
 message VehiclePropValues {

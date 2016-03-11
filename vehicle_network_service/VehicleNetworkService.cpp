@@ -517,11 +517,41 @@ status_t VehicleNetworkService::getProperty(vehicle_prop_value_t *data) {
         }
         return r;
     }
-    status_t r = mDevice->get(mDevice, data);
+    /*
+     * get call can return NOT_READY error when hal has not fetched all data. In that case,
+     * keep retrying for certain time with some sleep. This will happen only at initial stage.
+     */
+    status_t r = -EAGAIN;
+    int retryCount = 0;
+    while (true) {
+        r = mDevice->get(mDevice, data);
+        if (r == NO_ERROR) {
+            break;
+        }
+        if (r != -EAGAIN) {
+            break;
+        }
+        retryCount++;
+        if (retryCount > MAX_GET_RETRY_FOR_NOT_READY) {
+            ALOGE("Vehicle hal keep retrying not ready after multiple retries");
+            break;
+        }
+        usleep(GET_WAIT_US);
+    }
     if (r != NO_ERROR) {
         ALOGW("getProperty 0x%x failed, HAL returned %d", data->prop, r);
     }
     return r;
+}
+
+void VehicleNetworkService::releaseMemoryFromGet(vehicle_prop_value_t* value) {
+    switch (value->prop) {
+    case VEHICLE_VALUE_TYPE_STRING:
+    case VEHICLE_VALUE_TYPE_BYTES: {
+        Mutex::Autolock autoLock(mLock);
+        mDevice->release_memory_from_get(mDevice, value);
+    } break;
+    }
 }
 
 status_t VehicleNetworkService::setProperty(const vehicle_prop_value_t& data) {
@@ -774,6 +804,7 @@ bool VehicleNetworkService::removePropertyFromClientLocked(sp<IBinder>& ibinder,
 }
 
 status_t VehicleNetworkService::injectEvent(const vehicle_prop_value_t& value) {
+    ALOGI("injectEvent property:0x%x", value.prop);
     return onHalEvent(&value, true);
 }
 

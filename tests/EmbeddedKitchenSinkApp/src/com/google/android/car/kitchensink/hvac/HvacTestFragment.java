@@ -62,12 +62,17 @@ public class HvacTestFragment extends Fragment {
     private float mCurDTemp = 23;
     private float mCurPTemp = 23;
     private CarHvacManager mCarHvacManager;
+    private int mZoneForAcOn;
+    private int mZoneForSetTempD;
+    private int mZoneForSetTempP;
+    private int mZoneForFanSpeed;
+    private int mZoneForFanPosition;
 
     private final CarHvacManager.CarHvacEventListener mHvacListener =
             new CarHvacManager.CarHvacEventListener () {
                 @Override
                 public void onChangeEvent(final CarHvacManager.CarHvacBaseProperty value) {
-                    int zone = value.getZone();
+                    int zones = value.getZones();
                     switch(value.getPropertyId()) {
                         case CarHvacManager.HVAC_ZONED_AC_ON:
                             mTbAc.setChecked(((CarHvacBooleanValue)value).getValue());
@@ -91,30 +96,27 @@ public class HvacTestFragment extends Fragment {
                             }
                             break;
                         case CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT:
-                            mCurFanSpeed = ((CarHvacIntValue)value).getValue();
-                            mTvFanSpeed.setText(String.valueOf(mCurFanSpeed));
+                            if ((zones & mZoneForFanSpeed) != 0) {
+                                mCurFanSpeed = ((CarHvacIntValue)value).getValue();
+                                mTvFanSpeed.setText(String.valueOf(mCurFanSpeed));
+                            }
                             break;
                         case CarHvacManager.HVAC_ZONED_TEMP_SETPOINT:
-                            switch(zone) {
-                                case VehicleZone.VEHICLE_ZONE_ROW_1_LEFT:
-                                    mCurDTemp = ((CarHvacFloatValue)value).getValue();
-                                    mTvDTemp.setText(String.valueOf(mCurDTemp));
-                                    break;
-                                case VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT:
-                                    mCurPTemp = ((CarHvacFloatValue)value).getValue();
-                                    mTvPTemp.setText(String.valueOf(mCurPTemp));
-                                    break;
-                                default:
-                                    Log.w(TAG, "Unknown zone = " + zone);
-                                    break;
+                            if ((zones & mZoneForSetTempD) != 0) {
+                                mCurDTemp = ((CarHvacFloatValue)value).getValue();
+                                mTvDTemp.setText(String.valueOf(mCurDTemp));
+                            }
+                            if ((zones & mZoneForSetTempP) != 0) {
+                                mCurPTemp = ((CarHvacFloatValue)value).getValue();
+                                mTvPTemp.setText(String.valueOf(mCurPTemp));
                             }
                             break;
                         case CarHvacManager.HVAC_WINDOW_DEFROSTER_ON:
-                            if((zone & VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD) ==
+                            if((zones & VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD) ==
                                     VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD) {
                                 mTbDefrostFront.setChecked(((CarHvacBooleanValue)value).getValue());
                             }
-                            if((zone & VehicleWindow.VEHICLE_WINDOW_REAR_WINDSHIELD) ==
+                            if((zones & VehicleWindow.VEHICLE_WINDOW_REAR_WINDSHIELD) ==
                                     VehicleWindow.VEHICLE_WINDOW_REAR_WINDSHIELD) {
                                 mTbDefrostRear.setChecked(((CarHvacBooleanValue)value).getValue());
                             }
@@ -158,41 +160,24 @@ public class HvacTestFragment extends Fragment {
             int type = prop.getType();
 
             if(DBG) {
-                switch(type) {
-                    case CarHvacManager.PROPERTY_TYPE_BOOLEAN:
-                        Log.d(TAG, "propertyId = " + propId + " type = " + type +
-                                " zone = " + prop.getZone());
-                        break;
-                    case CarHvacManager.PROPERTY_TYPE_FLOAT:
-                        CarHvacFloatProperty f = (CarHvacFloatProperty)prop;
-                        Log.d(TAG, "propertyId = " + propId + " type = " + type +
-                                " zone = " + f.getZone() + " min = " + f.getMinValue() +
-                                " max = " + f.getMaxValue());
-                        break;
-                    case CarHvacManager.PROPERTY_TYPE_INT:
-                        CarHvacIntProperty i = (CarHvacIntProperty)prop;
-                        Log.d(TAG, "propertyId = " + propId + " type = " + type +
-                                " zone = " + i.getZone() + " min = " + i.getMinValue() +
-                                " max = " + i.getMaxValue());
-                        break;
-                }
+                Log.d(TAG, prop.toString());
             }
 
             switch(propId) {
                 case CarHvacManager.HVAC_ZONED_AC_ON:
-                    configureAcOn(v);
+                    configureAcOn(v, prop);
                     break;
                 case CarHvacManager.HVAC_ZONED_FAN_POSITION:
-                    configureFanPosition(v);
+                    configureFanPosition(v, prop);
                     break;
                 case CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT:
-                    configureFanSpeed(v);
+                    configureFanSpeed(v, prop);
                     break;
                 case CarHvacManager.HVAC_ZONED_TEMP_SETPOINT:
-                    configureTempSetpoint(v);
+                    configureTempSetpoint(v, prop);
                     break;
                 case CarHvacManager.HVAC_WINDOW_DEFROSTER_ON:
-                    configureDefrosterOn(v, prop.getZone());
+                    configureDefrosterOn(v, prop.getZones());
                     break;
                 default:
                     Log.w(TAG, "propertyId " + propId + " is not handled");
@@ -219,19 +204,49 @@ public class HvacTestFragment extends Fragment {
         mCarHvacManager = hvacManager;
     }
 
-    private void configureAcOn(View v) {
+    private static int getFirstZone(int zones) {
+        if (zones == 0) {
+            return 0;
+        }
+        int flag = 0x1;
+        for (int i = 0; i < 32; i++) {
+            if ((flag & zones) != 0) {
+                return flag;
+            }
+            flag <<= 1;
+        }
+        return 0;
+    }
+
+    private static int getNextZone(int zones, int startingZone) {
+        int flag = startingZone << 1;
+        while (flag != 0x80000000) {
+            if ((flag & zones) != 0) {
+                return flag;
+            }
+            flag <<= 1;
+        }
+        if ((flag & zones) != 0) {
+            return flag;
+        }
+        return 0;
+    }
+
+    private void configureAcOn(View v, CarHvacBaseProperty prop) {
+        mZoneForAcOn = getFirstZone(prop.getZones());
         mTbAc = (ToggleButton)v.findViewById(R.id.tbAc);
         mTbAc.setEnabled(true);
         mTbAc.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // TODO handle zone properly
-                mCarHvacManager.setBooleanProperty(CarHvacManager.HVAC_ZONED_AC_ON, 0x8,
+                mCarHvacManager.setBooleanProperty(CarHvacManager.HVAC_ZONED_AC_ON, mZoneForAcOn,
                         mTbAc.isChecked());
             }
         });
     }
 
-    private void configureFanPosition(View v) {
+    private void configureFanPosition(View v, CarHvacBaseProperty prop) {
+        mZoneForFanPosition = getFirstZone(prop.getZones());
         RadioGroup rg = (RadioGroup)v.findViewById(R.id.rgFanPosition);
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -239,18 +254,18 @@ public class HvacTestFragment extends Fragment {
                 switch(checkedId) {
                     case R.id.rbPositionFace:
                         mCarHvacManager.setIntProperty(CarHvacManager.HVAC_ZONED_FAN_POSITION,
-                                VehicleZone.VEHICLE_ZONE_ROW_1_ALL,
+                                mZoneForFanPosition,
                                 VehicleHvacFanDirection.VEHICLE_HVAC_FAN_DIRECTION_FACE);
                         break;
                     case R.id.rbPositionFloor:
                         mCarHvacManager.setIntProperty(CarHvacManager.HVAC_ZONED_FAN_POSITION,
-                                VehicleZone.VEHICLE_ZONE_ROW_1_ALL,
+                                mZoneForFanPosition,
                                 VehicleHvacFanDirection.VEHICLE_HVAC_FAN_DIRECTION_FLOOR);
                         break;
                     case R.id.rbPositionFaceAndFloor:
                         mCarHvacManager.setIntProperty(CarHvacManager.HVAC_ZONED_FAN_POSITION,
-                                VehicleZone.VEHICLE_ZONE_ROW_1_ALL, VehicleHvacFanDirection.
-                                        VEHICLE_HVAC_FAN_DIRECTION_FACE_AND_FLOOR);
+                                mZoneForFanPosition,
+                                VehicleHvacFanDirection.VEHICLE_HVAC_FAN_DIRECTION_FACE_AND_FLOOR);
                         break;
                 }
             }
@@ -264,10 +279,11 @@ public class HvacTestFragment extends Fragment {
         mRbFanPositionFloor.setClickable(true);
     }
 
-    private void configureFanSpeed(View v) {
+    private void configureFanSpeed(View v, CarHvacBaseProperty prop) {
+        mZoneForFanSpeed = getFirstZone(prop.getZones());
         mCurFanSpeed = mCarHvacManager.getIntProperty(
                 CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT,
-                VehicleZone.VEHICLE_ZONE_ROW_1_ALL);
+                mZoneForFanSpeed);
 
         Button btnFanSpeedUp = (Button) v.findViewById(R.id.btnFanSpeedUp);
         btnFanSpeedUp.setEnabled(true);
@@ -277,7 +293,7 @@ public class HvacTestFragment extends Fragment {
                     mCurFanSpeed++;
                     mTvFanSpeed.setText(String.valueOf(mCurFanSpeed));
                     mCarHvacManager.setIntProperty(CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT,
-                            VehicleZone.VEHICLE_ZONE_ROW_1_ALL, mCurFanSpeed);
+                            mZoneForFanSpeed, mCurFanSpeed);
                 }
             }
         });
@@ -290,71 +306,96 @@ public class HvacTestFragment extends Fragment {
                     mCurFanSpeed--;
                     mTvFanSpeed.setText(String.valueOf(mCurFanSpeed));
                     mCarHvacManager.setIntProperty(CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT,
-                            VehicleZone.VEHICLE_ZONE_ROW_1_ALL, mCurFanSpeed);
+                            mZoneForFanSpeed, mCurFanSpeed);
                 }
             }
         });
     }
 
-    private void configureTempSetpoint(View v) {
-        mCurDTemp = mCarHvacManager.getFloatProperty(
-                CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
-                VehicleZone.VEHICLE_ZONE_ROW_1_LEFT);
-        mCurPTemp = mCarHvacManager.getFloatProperty(
-                CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
-                VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT);
-
+    private void configureTempSetpoint(View v, CarHvacBaseProperty prop) {
+        mZoneForSetTempD = 0;
+        if ((prop.getZones() & VehicleZone.VEHICLE_ZONE_ROW_1_LEFT) != 0) {
+            mZoneForSetTempD = VehicleZone.VEHICLE_ZONE_ROW_1_LEFT;
+        }
+        mZoneForSetTempP = 0;
+        if ((prop.getZones() & VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT) != 0) {
+            mZoneForSetTempP = VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT;
+        }
+        if (mZoneForSetTempD == 0) {
+            mZoneForSetTempD = getFirstZone(prop.getZones());
+        }
+        if (mZoneForSetTempP == 0) {
+            mZoneForSetTempP = getNextZone(prop.getZones(), mZoneForSetTempD);
+        }
+        int numZones = CarHvacBaseProperty.getNumZones(prop.getZones());
+        if (numZones < 2) {
+            mZoneForSetTempP = 0;
+        }
         Button btnDTempUp = (Button) v.findViewById(R.id.btnDTempUp);
-        btnDTempUp.setEnabled(true);
-        btnDTempUp.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if(mCurDTemp < 29.5) {
-                    mCurDTemp += 0.5;
-                    mTvDTemp.setText(String.valueOf(mCurDTemp));
-                    mCarHvacManager.setFloatProperty(CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
-                            VehicleZone.VEHICLE_ZONE_ROW_1_LEFT, mCurDTemp);
+        if (mZoneForSetTempD != 0) {
+            mCurDTemp = mCarHvacManager.getFloatProperty(
+                    CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
+                    mZoneForSetTempD);
+            btnDTempUp.setEnabled(true);
+            btnDTempUp.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    if(mCurDTemp < 29.5) {
+                        mCurDTemp += 0.5;
+                        mTvDTemp.setText(String.valueOf(mCurDTemp));
+                        mCarHvacManager.setFloatProperty(CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
+                                mZoneForSetTempD, mCurDTemp);
+                    }
                 }
-            }
-        });
+            });
 
-        Button btnDTempDn = (Button) v.findViewById(R.id.btnDTempDn);
-        btnDTempDn.setEnabled(true);
-        btnDTempDn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if(mCurDTemp > 15.5) {
-                    mCurDTemp -= 0.5;
-                    mTvDTemp.setText(String.valueOf(mCurDTemp));
-                    mCarHvacManager.setFloatProperty(CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
-                            VehicleZone.VEHICLE_ZONE_ROW_1_LEFT, mCurDTemp);
+            Button btnDTempDn = (Button) v.findViewById(R.id.btnDTempDn);
+            btnDTempDn.setEnabled(true);
+            btnDTempDn.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    if(mCurDTemp > 15.5) {
+                        mCurDTemp -= 0.5;
+                        mTvDTemp.setText(String.valueOf(mCurDTemp));
+                        mCarHvacManager.setFloatProperty(CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
+                                mZoneForSetTempD, mCurDTemp);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            btnDTempUp.setEnabled(false);
+        }
 
         Button btnPTempUp = (Button) v.findViewById(R.id.btnPTempUp);
-        btnPTempUp.setEnabled(true);
-        btnPTempUp.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (mCurPTemp < 29.5) {
-                    mCurPTemp += 0.5;
-                    mTvPTemp.setText(String.valueOf(mCurPTemp));
-                    mCarHvacManager.setFloatProperty(CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
-                            VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT, mCurPTemp);
+        if (mZoneForSetTempP !=0 ) {
+            mCurPTemp = mCarHvacManager.getFloatProperty(
+                    CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
+                    mZoneForSetTempP);
+            btnPTempUp.setEnabled(true);
+            btnPTempUp.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    if (mCurPTemp < 29.5) {
+                        mCurPTemp += 0.5;
+                        mTvPTemp.setText(String.valueOf(mCurPTemp));
+                        mCarHvacManager.setFloatProperty(CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
+                                mZoneForSetTempP, mCurPTemp);
+                    }
                 }
-            }
-        });
+            });
 
-        Button btnPTempDn = (Button) v.findViewById(R.id.btnPTempDn);
-        btnPTempDn.setEnabled(true);
-        btnPTempDn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (mCurPTemp > 15.5) {
-                    mCurPTemp -= 0.5;
-                    mTvPTemp.setText(String.valueOf(mCurPTemp));
-                    mCarHvacManager.setFloatProperty(CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
-                            VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT, mCurPTemp);
+            Button btnPTempDn = (Button) v.findViewById(R.id.btnPTempDn);
+            btnPTempDn.setEnabled(true);
+            btnPTempDn.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    if (mCurPTemp > 15.5) {
+                        mCurPTemp -= 0.5;
+                        mTvPTemp.setText(String.valueOf(mCurPTemp));
+                        mCarHvacManager.setFloatProperty(CarHvacManager.HVAC_ZONED_TEMP_SETPOINT,
+                                mZoneForSetTempP, mCurPTemp);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            btnPTempUp.setEnabled(false);
+        }
     }
 
     private void configureDefrosterOn(View v, int zone) {
