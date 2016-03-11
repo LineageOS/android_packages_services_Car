@@ -39,17 +39,16 @@ public:
     bool init();
     bool testAccess(int32_t property, int32_t uid, bool isWrite);
     void dump(String8& msg);
-private:
+// protected for testing
+protected:
     bool isHexNotation(std::string const& s);
-    bool propertyToInt(int32_t* const value, const xmlChar* property);
-    bool uidToInt(int32_t* const value, const xmlChar* property,
-                  const xmlChar* uid);
     bool accessToInt(int32_t* const value,const xmlChar* property,
                    const xmlChar* uid, const xmlChar* access);
     bool updateOrCreate(int32_t uid, int32_t property, int32_t access);
     bool populate(xmlNode* a_node);
     bool process(const char* policy);
-private:
+// protected for testing
+protected:
     // mVehicleAccessControlMap uses "property" as a key to map to map<int,int>*
     //
     // map<int,int> uses "uid" as a key to map to an integer that represents
