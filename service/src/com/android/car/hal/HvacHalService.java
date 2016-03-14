@@ -41,7 +41,6 @@ public class HvacHalService extends HalServiceBase {
     private static final boolean   DBG = true;
     private static final String    TAG = CarLog.TAG_HVAC + ".HvacHalService";
     private HvacHalListener        mListener;
-    private List<VehiclePropValue> mQueuedEvents;
     private final VehicleHal       mVehicleHal;
     private final HashMap<Integer, CarHvacProperty> mProps =
             new HashMap<Integer, CarHvacProperty>();
@@ -59,16 +58,8 @@ public class HvacHalService extends HalServiceBase {
     }
 
     public void setListener(HvacHalListener listener) {
-        List<VehiclePropValue> eventsToDispatch = null;
         synchronized (this) {
             mListener = listener;
-            if (mQueuedEvents != null) {
-                eventsToDispatch = mQueuedEvents;
-                mQueuedEvents = null;
-            }
-        }
-        if (eventsToDispatch != null) {
-            dispatchEventToListener(listener, eventsToDispatch);
         }
     }
 
@@ -320,12 +311,6 @@ public class HvacHalService extends HalServiceBase {
         HvacHalListener listener;
         synchronized (this) {
             listener = mListener;
-            if (listener == null) {
-                if (mQueuedEvents == null) {
-                    mQueuedEvents = new LinkedList<>();
-                }
-                mQueuedEvents.addAll(values);
-            }
         }
         if (listener != null) {
             dispatchEventToListener(listener, values);

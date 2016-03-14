@@ -306,6 +306,7 @@ public class CarHvacManager implements CarManagerBase {
             mService.registerListener(mListenerToService);
         } catch (RemoteException ex) {
             Log.e(TAG, "Could not connect: " + ex.toString());
+            mListener = null;
             throw new CarNotConnectedException(ex);
         } catch (IllegalStateException ex) {
             Car.checkCarNotConnectedExceptionFromCarService(ex);
@@ -326,7 +327,7 @@ public class CarHvacManager implements CarManagerBase {
             mService.unregisterListener(mListenerToService);
         } catch (RemoteException ex) {
             // do nothing.
-            Log.e(TAG, "Could not connect: " + ex.toString());
+            Log.e(TAG, "Could not unregister: " + ex.toString());
         }
         mListenerToService = null;
         mListener = null;
@@ -546,8 +547,9 @@ public class CarHvacManager implements CarManagerBase {
     /** @hide */
     @Override
     public void onCarDisconnected() {
-        mListener = null;
-        mListenerToService = null;
+        if (mListener != null) {
+            unregisterListener();
+        }
     }
 }
 
