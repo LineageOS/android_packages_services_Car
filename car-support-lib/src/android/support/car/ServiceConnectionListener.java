@@ -23,7 +23,7 @@ import android.os.IBinder;
  *  Listener for service connection related events.
  */
 public interface ServiceConnectionListener {
-    void onServiceConnected(ComponentName name);
+    void onServiceConnected(ComponentName name, IBinder service);
     void onServiceDisconnected(ComponentName name);
     //TODO define cause values
     void onServiceSuspended(int cause);

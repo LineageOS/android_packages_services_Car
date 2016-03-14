@@ -18,6 +18,8 @@ package android.support.car;
 
 import android.content.Context;
 import android.os.Looper;
+import android.support.car.CarConnectionListener;
+import android.support.car.ServiceConnectionListener;
 
 /**
  * CarServiceLoader is the abstraction for loading different types of car service.
@@ -38,13 +40,10 @@ public abstract class CarServiceLoader {
     public abstract void connect() throws IllegalStateException;
     public abstract void disconnect();
     public abstract boolean isConnectedToCar();
-    @Car.ConnectionType
-    public abstract int getCarConnectionType() throws CarNotConnectedException;
-    public abstract void registerCarConnectionListener(CarConnectionListener listener)
-            throws CarNotConnectedException;
+    public abstract int getCarConnectionType();
+    public abstract void registerCarConnectionListener(CarConnectionListener listener);
     public abstract void unregisterCarConnectionListener(CarConnectionListener listener);
-    public abstract Object getCarManager(String serviceName)
-            throws CarNotSupportedException, CarNotConnectedException;
+    public abstract Object getCarManager(String serviceName);
 
     protected Context getContext() {
         return mContext;

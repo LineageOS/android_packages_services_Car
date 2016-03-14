@@ -23,10 +23,12 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.support.car.Car;
 import android.support.car.content.pm.CarPackageManagerEmbedded;
 import android.support.car.hardware.CarSensorManagerEmbedded;
 import android.support.car.media.CarAudioManagerEmbedded;
 import android.support.car.navigation.CarNavigationManagerEmbedded;
+import android.support.car.CarConnectionListener;
 
 import java.util.LinkedList;
 
@@ -40,7 +42,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            getConnectionListener().onServiceConnected(name);
+            getConnectionListener().onServiceConnected(name, service);
         }
 
         @Override
@@ -78,13 +80,12 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     }
 
     @Override
-    public int getCarConnectionType() throws CarNotConnectedException {
+    public int getCarConnectionType() {
         return mCar.getCarConnectionType();
     }
 
     @Override
-    public void registerCarConnectionListener(final CarConnectionListener listener)
-            throws CarNotConnectedException {
+    public void registerCarConnectionListener(final CarConnectionListener listener) {
         synchronized (this) {
             mCarConnectionListeners.add(listener);
         }

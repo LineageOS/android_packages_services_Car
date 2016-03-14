@@ -88,7 +88,7 @@ public class CarAudioManager implements CarManagerBase {
     private final AudioManager mAudioManager;
 
     /**
-     * Get {@link AudioAttributes} relevant for the given usage in car.
+     * Get {@link AudioAttrbutes} relevant for the given usage in car.
      * @param carUsage
      * @return
      */

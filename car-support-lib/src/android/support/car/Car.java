@@ -117,7 +117,7 @@ public class Car {
      * @hide
      */
     private static final String PROJECTED_CAR_SERVICE_LOADER =
-            "com.google.android.gms.car.CarServiceLoaderGms";
+            "com.google.android.gms.car.GoogleCarServiceLoader";
 
     /**
      * CarXyzService throws IllegalStateException with this message is re-thrown as
@@ -140,11 +140,11 @@ public class Car {
 
     private final ServiceConnectionListener mServiceConnectionListener =
             new ServiceConnectionListener () {
-        public void onServiceConnected(ComponentName name) {
+        public void onServiceConnected(ComponentName name, IBinder service) {
             synchronized (Car.this) {
                 mConnectionState = STATE_CONNECTED;
             }
-            mServiceConnectionListenerClient.onServiceConnected(name);
+            mServiceConnectionListenerClient.onServiceConnected(name, service);
         }
 
         public void onServiceDisconnected(ComponentName name) {
@@ -179,7 +179,7 @@ public class Car {
     /**
      * A factory method that creates Car instance for all Car API access.
      * @param context
-     * @param serviceConnectionListener listener for monitoring service connection.
+     * @param serviceConnectionListener listner for monitoring service connection.
      * @param looper Looper to dispatch all listeners. If null, it will use main thread. Note that
      *        service connection listener will be always in main thread regardless of this Looper.
      * @return Car instance if system is in car environment and returns {@code null} otherwise.
@@ -256,7 +256,7 @@ public class Car {
     /**
      * Car constructor when CarServiceLoader is already available.
      * @param context
-     * @param serviceLoader
+     * @param service
      * @param looper
      *
      * @hide
@@ -342,8 +342,7 @@ public class Car {
      * @param serviceName Name of service that should be created like {@link #SENSOR_SERVICE}.
      * @return Matching service manager or null if there is no such service.
      */
-    public Object getCarManager(String serviceName)
-            throws CarNotSupportedException, CarNotConnectedException {
+    public Object getCarManager(String serviceName) {
         Object manager = null;
         synchronized (mCarManagerLock) {
             manager = mServiceMap.get(serviceName);
@@ -378,7 +377,7 @@ public class Car {
      * @throws IllegalStateException if service is not connected.
      */
     public void registerCarConnectionListener(CarConnectionListener listener)
-            throws IllegalStateException, CarNotConnectedException {
+            throws IllegalStateException {
         assertCarConnection();
         mCarServiceLoader.registerCarConnectionListener(listener);
     }
