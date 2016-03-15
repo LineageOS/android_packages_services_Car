@@ -13,65 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.cluster;
+package android.car.cluster.demorenderer;
 
-import android.car.cluster.renderer.MediaRenderer;
 import android.content.Context;
 import android.media.MediaMetadata;
 import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener;
 import android.media.session.PlaybackState;
-import android.os.Looper;
 import android.util.Log;
 
-import com.android.car.CarLog;
-import com.android.car.CarServiceBase;
-import com.android.car.cluster.InstrumentClusterService.RendererInitializationListener;
-import com.android.car.cluster.renderer.ThreadSafeMediaRenderer;
-
-import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
 /**
  * Reports current media status to instrument cluster renderer.
  */
-public class MediaStatusService implements CarServiceBase, RendererInitializationListener {
+public class MediaStateMonitor {
 
-    private final static String TAG = CarLog.TAG_CLUSTER
-            + "." + MediaStatusService.class.getSimpleName();
+    private final static String TAG = MediaStateMonitor.class.getSimpleName();
 
     private final Context mContext;
     private final MediaListener mMediaListener;
-    private volatile MediaRenderer mMediaRenderer;
-    private InstrumentClusterService mInstrumentClusterService;
     private MediaController mPrimaryMediaController;
     private OnActiveSessionsChangedListener mActiveSessionsChangedListener;
     private MediaSessionManager mMediaSessionManager;
+    private MediaStateListener mListener;
 
-    public MediaStatusService(Context context, InstrumentClusterService instrumentClusterService) {
+    public MediaStateMonitor(Context context, MediaStateListener listener) {
+        mListener = listener;
         mContext = context;
-        mInstrumentClusterService = instrumentClusterService;
-        instrumentClusterService.registerListener(this);
-        mMediaListener = new MediaListener(MediaStatusService.this);
-    }
-
-    @Override
-    public void init() {
-        Log.d(TAG, "init");
-
-        if (!mInstrumentClusterService.isInstrumentClusterAvailable()) {
-            Log.d(TAG, "Instrument cluster is not available.");
-            return;
-        }
-
-        mActiveSessionsChangedListener = new OnActiveSessionsChangedListener() {
-            @Override
-            public void onActiveSessionsChanged(List<MediaController> controllers) {
-                MediaStatusService.this.onActiveSessionsChanged(controllers);
-            }
-        };
+        mMediaListener = new MediaListener(this);
+        mActiveSessionsChangedListener = controllers -> onActiveSessionsChanged(controllers);
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
         mMediaSessionManager.addOnActiveSessionsChangedListener(
                 mActiveSessionsChangedListener, null);
@@ -103,7 +76,6 @@ public class MediaStatusService implements CarServiceBase, RendererInitializatio
         }
     }
 
-    @Override
     public void release() {
         releasePrimaryMediaController();
         if (mActiveSessionsChangedListener != null) {
@@ -121,61 +93,38 @@ public class MediaStatusService implements CarServiceBase, RendererInitializatio
         }
     }
 
-    @Override
-    public void dump(PrintWriter writer) {
-        // TODO
-    }
-
-    @Override
-    public void onRendererInitSucceeded() {
-        Log.d(TAG, "onRendererInitSucceeded");
-        mMediaRenderer = ThreadSafeMediaRenderer.createFor(
-                Looper.getMainLooper(),
-                mInstrumentClusterService.getMediaRenderer());
-
-        updateRendererMediaStatusIfAvailable();
-    }
-
     private void updateRendererMediaStatusIfAvailable() {
-        if (isRendererAvailable()) {
-            mMediaRenderer.onMetadataChanged(
-                    mPrimaryMediaController == null ? null : mPrimaryMediaController.getMetadata());
-            mMediaRenderer.onPlaybackStateChanged(
-                    mPrimaryMediaController == null
-                    ? null : mPrimaryMediaController.getPlaybackState());
-        }
-    }
-
-    private boolean isRendererAvailable() {
-        boolean available = mMediaRenderer != null;
-        if (!available) {
-            Log.w(TAG, "Media renderer is not available.");
-        }
-        return available;
+        mListener.onMetadataChanged(
+                mPrimaryMediaController == null ? null : mPrimaryMediaController.getMetadata());
+        mListener.onPlaybackStateChanged(
+                mPrimaryMediaController == null
+                ? null : mPrimaryMediaController.getPlaybackState());
     }
 
     private void onPlaybackStateChanged(PlaybackState state) {
-        if (isRendererAvailable()) {
-            mMediaRenderer.onPlaybackStateChanged(state);
-        }
+        mListener.onPlaybackStateChanged(state);
     }
 
     private void onMetadataChanged(MediaMetadata metadata) {
-        if (isRendererAvailable()) {
-            mMediaRenderer.onMetadataChanged(metadata);
-        }
+        mListener.onMetadataChanged(metadata);
     }
 
-    private static class MediaListener extends MediaController.Callback {
-        private final WeakReference<MediaStatusService> mServiceRef;
+    public interface MediaStateListener {
+        void onPlaybackStateChanged(PlaybackState playbackState);
+        void onMetadataChanged(MediaMetadata metadata);
+    }
 
-        MediaListener(MediaStatusService service) {
+
+    private static class MediaListener extends MediaController.Callback {
+        private final WeakReference<MediaStateMonitor> mServiceRef;
+
+        MediaListener(MediaStateMonitor service) {
             mServiceRef = new WeakReference<>(service);
         }
 
         @Override
         public void onPlaybackStateChanged(PlaybackState state) {
-            MediaStatusService service = mServiceRef.get();
+            MediaStateMonitor service = mServiceRef.get();
             if (service != null) {
                 service.onPlaybackStateChanged(state);
             }
@@ -183,7 +132,7 @@ public class MediaStatusService implements CarServiceBase, RendererInitializatio
 
         @Override
         public void onMetadataChanged(MediaMetadata metadata) {
-            MediaStatusService service = mServiceRef.get();
+            MediaStateMonitor service = mServiceRef.get();
             if (service != null) {
                 service.onMetadataChanged(metadata);
             }

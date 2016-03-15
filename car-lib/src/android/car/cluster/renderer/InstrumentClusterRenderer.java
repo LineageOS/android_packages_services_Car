@@ -33,7 +33,6 @@ import android.view.View;
 public abstract class InstrumentClusterRenderer {
 
     @Nullable private NavigationRenderer mNavigationRenderer;
-    @Nullable private MediaRenderer mMediaRenderer;
 
     /**
      * Calls once when instrument cluster should be created.
@@ -57,19 +56,10 @@ public abstract class InstrumentClusterRenderer {
     @UiThread
     abstract protected NavigationRenderer createNavigationRenderer();
 
-    @UiThread
-    abstract protected MediaRenderer createMediaRenderer();
-
     /** The method is thread-safe, callers should cache returned object. */
     @Nullable
     public synchronized NavigationRenderer getNavigationRenderer() {
         return mNavigationRenderer;
-    }
-
-    /** The method is thread-safe, callers should cache returned object. */
-    @Nullable
-    public synchronized MediaRenderer getMediaRenderer() {
-        return mMediaRenderer;
     }
 
     /**
@@ -79,6 +69,5 @@ public abstract class InstrumentClusterRenderer {
     @UiThread
     public synchronized final void initialize() {
         mNavigationRenderer = createNavigationRenderer();
-        mMediaRenderer = createMediaRenderer();
     }
 }

@@ -64,7 +64,7 @@
             />
         </LinearLayout>
     </LinearLayout>
-    <LinearLayout android:orientation="vertical" android:layout_width="wrap_content"
+    <FrameLayout android:orientation="vertical" android:layout_width="wrap_content"
                   android:layout_height="match_parent" android:layout_weight="0.63"
                   android:layout_gravity="center_vertical" android:weightSum="1"
                   android:layout_marginTop="0dp">
@@ -73,7 +73,8 @@
                       android:layout_gravity="center_horizontal" android:weightSum="1"
                       android:layout_marginTop="100dp"
                       android:background="@android:color/background_dark"
-                      android:id="@+id/media_layout">
+                      android:id="@+id/media_layout"
+                      android:visibility="gone">
             <ImageView android:layout_width="200dp" android:layout_height="200dp"
                        android:id="@+id/media_image" android:layout_gravity="center_horizontal"
                        android:background="@android:color/holo_blue_light"
@@ -97,7 +98,8 @@
                       android:layout_gravity="center_horizontal" android:weightSum="1"
                       android:layout_marginTop="100dp"
                       android:background="@android:color/background_dark"
-                      android:id="@+id/phone_layout">
+                      android:id="@+id/phone_layout"
+                      android:visibility="gone">
             <ImageView android:layout_width="200dp" android:layout_height="200dp"
                        android:id="@+id/phone_contact_photo" android:layout_gravity="center"
                        android:background="#16161e"
@@ -112,5 +114,5 @@
                       android:textIsSelectable="false"
             />
         </LinearLayout>
-    </LinearLayout>
+    </FrameLayout>
 </LinearLayout>
