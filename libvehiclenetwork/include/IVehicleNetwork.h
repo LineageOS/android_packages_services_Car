@@ -82,10 +82,30 @@ class BnVehicleNetwork : public BnInterface<IVehicleNetwork> {
                                  Parcel* reply,
                                  uint32_t flags = 0);
     virtual bool isOperationAllowed(int32_t property, bool isWrite) = 0;
+    virtual void releaseMemoryFromGet(vehicle_prop_value_t* value) = 0;
 };
 
 // ----------------------------------------------------------------------------
 
+class VehicleNetworkUtil {
+public:
+    static int countNumberOfZones(int32_t zones) {
+        if (zones == 0) { // no-zone, treat as one zone.
+            return 1;
+        }
+        int count = 0;
+        uint32_t flag = 0x1;
+        for (int i = 0; i < 32; i++) {
+            if ((flag & zones) != 0) {
+                count++;
+            }
+            flag <<= 1;
+        }
+        return count;
+    }
+};
+
+// ----------------------------------------------------------------------------
 }; // namespace android
 
 #endif /* ANDROID_IVEHICLE_NETWORK_H */

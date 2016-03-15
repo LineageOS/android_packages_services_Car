@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import java.util.List;
+
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -137,5 +139,23 @@ public final class CarServiceUtils {
                 }
             }
         }
+    }
+
+    public static float[] toFloatArray(List<Float> list) {
+        final int size = list.size();
+        final float[] array = new float[size];
+        for (int i = 0; i < size; ++i) {
+            array[i] = list.get(i);
+        }
+        return array;
+    }
+
+    public static int[] toIntArray(List<Integer> list) {
+        final int size = list.size();
+        final int[] array = new int[size];
+        for (int i = 0; i < size; ++i) {
+            array[i] = list.get(i);
+        }
+        return array;
     }
 }

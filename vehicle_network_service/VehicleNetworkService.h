@@ -295,6 +295,7 @@ public:
     virtual sp<VehiclePropertiesHolder> listProperties(int32_t property = 0);
     virtual status_t setProperty(const vehicle_prop_value_t& value);
     virtual status_t getProperty(vehicle_prop_value_t* value);
+    virtual void releaseMemoryFromGet(vehicle_prop_value_t* value);
     virtual status_t subscribe(const sp<IVehicleNetworkListener> &listener, int32_t property,
             float sampleRate, int32_t zones);
     virtual void unsubscribe(const sp<IVehicleNetworkListener> &listener, int32_t property);
@@ -334,6 +335,9 @@ private:
     static int eventCallback(const vehicle_prop_value_t *eventData);
     static int errorCallback(int32_t errorCode, int32_t property, int32_t operation);
 private:
+    static const int GET_WAIT_US = 100000;
+    static const int MAX_GET_RETRY_FOR_NOT_READY = 30;
+
     VehiclePropertyAccessControl mVehiclePropertyAccessControl;
     static VehicleNetworkService* sInstance;
     sp<HandlerThread> mHandlerThread;

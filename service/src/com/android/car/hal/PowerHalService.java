@@ -266,7 +266,7 @@ public class PowerHalService extends HalServiceBase {
         VehiclePropConfig brightnessProperty = mProperties.get(
                 VehicleNetworkConsts.VEHICLE_PROPERTY_DISPLAY_BRIGHTNESS);
         if (brightnessProperty != null) {
-            mMaxDisplayBrightness = brightnessProperty.getInt32Max();
+            mMaxDisplayBrightness = brightnessProperty.getInt32Maxs(0);
             if (mMaxDisplayBrightness <= 0) {
                 Log.w(CarLog.TAG_POWER, "Max display brightness from vehicle HAL is invald:" +
                         mMaxDisplayBrightness);

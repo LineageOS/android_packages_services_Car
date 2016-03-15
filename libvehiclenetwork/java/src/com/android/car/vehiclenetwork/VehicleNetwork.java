@@ -31,7 +31,6 @@ import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.ZonedValue;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;
@@ -312,10 +311,10 @@ public class VehicleNetwork {
     public int getZonedIntProperty(int property, int zone) throws IllegalArgumentException {
         VehiclePropValue v = getProperty(
                 property, zone, VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32);
-        if (v.getZonedValue().getInt32ValuesCount() != 1) {
+        if (v.getInt32ValuesCount() != 1) {
             throw new IllegalStateException();
         }
-        return v.getZonedValue().getInt32Values(0);
+        return v.getInt32Values(0);
     }
 
     /**
@@ -335,8 +334,8 @@ public class VehicleNetwork {
             throws IllegalArgumentException {
         VehiclePropValue v = getProperty(
                 property, zone, VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32);
-        assertVectorLength(v.getZonedValue().getInt32ValuesCount(), property, v.getValueType());
-        return toIntArray(v.getZonedValue().getInt32ValuesList());
+        assertVectorLength(v.getInt32ValuesCount(), property, v.getValueType());
+        return toIntArray(v.getInt32ValuesList());
     }
 
     /**
@@ -368,8 +367,8 @@ public class VehicleNetwork {
             throws IllegalArgumentException {
         VehiclePropValue v = getProperty(property, zone,
                 VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT);
-        assertVectorLength(v.getZonedValue().getFloatValuesCount(), property, v.getValueType());
-        return toFloatArray(v.getZonedValue().getFloatValuesList());
+        assertVectorLength(v.getFloatValuesCount(), property, v.getValueType());
+        return toFloatArray(v.getFloatValuesList());
     }
 
     /**
@@ -694,9 +693,7 @@ public class VehicleNetwork {
                 VehiclePropValueUtil.createBuilder(property, valueType, 0);
 
         if (zone != NO_ZONE) {
-            valuePrototypeBuilder.setZonedValue(ZonedValue.newBuilder().
-                    setZoneOrWindow(zone).
-                    build());
+            valuePrototypeBuilder.setZone(zone);
         }
 
         VehiclePropValue v = getProperty(valuePrototypeBuilder.build());

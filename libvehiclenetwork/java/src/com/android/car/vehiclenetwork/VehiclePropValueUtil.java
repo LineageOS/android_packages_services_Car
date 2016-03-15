@@ -17,7 +17,6 @@ package com.android.car.vehiclenetwork;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.ZonedValue;
 
 import com.google.protobuf.ByteString;
 
@@ -40,7 +39,7 @@ public final class VehiclePropValueUtil {
 
     public static VehiclePropValue createIntVectorValue(int property, int[] values,
             long timestamp) {
-        VehiclePropValue.Builder builder =createBuilder(property,
+        VehiclePropValue.Builder builder = createBuilder(property,
                 getVectorValueType(VehicleValueType.VEHICLE_VALUE_TYPE_INT32, values.length),
                 timestamp);
         for (int v : values) {
@@ -57,7 +56,7 @@ public final class VehiclePropValueUtil {
 
     public static VehiclePropValue createFloatVectorValue(int property, float[] values,
             long timestamp) {
-        VehiclePropValue.Builder builder =createBuilder(property,
+        VehiclePropValue.Builder builder = createBuilder(property,
                 getVectorValueType(VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT, values.length),
                 timestamp);
         for (float v : values) {
@@ -93,60 +92,49 @@ public final class VehiclePropValueUtil {
     public static VehiclePropValue createZonedIntValue(int property, int zone, int value,
             long timestamp) {
         return createBuilder(property, VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32, timestamp).
-                setZonedValue(ZonedValue.newBuilder().
-                        setZoneOrWindow(zone).
-                        addInt32Values(value).
-                        build()).
+                setZone(zone).
+                addInt32Values(value).
                 build();
     }
 
     public static VehiclePropValue createZonedIntVectorValue(int property, int zone, int[] values,
             long timestamp) {
-        ZonedValue.Builder zonedValueBuilder = ZonedValue.newBuilder()
-                .setZoneOrWindow(zone);
-        for (int value : values) {
-            zonedValueBuilder.addInt32Values(value);
-        }
         int valueType = getVectorValueType(
                 VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32, values.length);
-        return createBuilder(property, valueType, timestamp).
-                setZonedValue(zonedValueBuilder.build()).
-                build();
+        VehiclePropValue.Builder builder = createBuilder(property, valueType, timestamp).
+                setZone(zone);
+        for (int value : values) {
+            builder.addInt32Values(value);
+        }
+        return builder.build();
     }
 
     public static VehiclePropValue createZonedFloatVectorValue(int property, int zone,
             float[] values, long timestamp) {
-        ZonedValue.Builder zonedValueBuilder = ZonedValue.newBuilder()
-                .setZoneOrWindow(zone);
-        for (float value : values) {
-            zonedValueBuilder.addFloatValues(value);
-        }
         int valueType = getVectorValueType(
                 VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT, values.length);
-        return createBuilder(property, valueType, timestamp).
-                setZonedValue(zonedValueBuilder.build()).
-                build();
+        VehiclePropValue.Builder builder =  createBuilder(property, valueType, timestamp).
+                setZone(zone);
+        for (float value : values) {
+            builder.addFloatValues(value);
+        }
+        return builder.build();
     }
 
 
     public static VehiclePropValue createZonedBooleanValue(int property, int zone, boolean value,
             long timestamp) {
         return createBuilder(property, VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_BOOLEAN,timestamp).
-                setZonedValue(ZonedValue.
-                        newBuilder().
-                        setZoneOrWindow(zone).
-                        addInt32Values(value ? 1 : 0).
-                        build()).
+                setZone(zone).
+                addInt32Values(value ? 1 : 0).
                 build();
     }
 
     public static VehiclePropValue createZonedFloatValue(int property, int zone, float value,
             long timestamp) {
         return createBuilder(property, VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT,timestamp).
-                setZonedValue(ZonedValue.newBuilder().
-                        setZoneOrWindow(zone).
-                        addFloatValues(value).
-                        build()).
+                setZone(zone).
+                addFloatValues(value).
                 build();
     }
 
@@ -180,7 +168,8 @@ public final class VehiclePropValueUtil {
             case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC3:
             case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC4:
             case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
-            case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3: {
+            case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC4:{
                 return createFloatVectorValue(property, new float[getVectorLength(valueType)], 0);
             }
             case VehicleValueType.VEHICLE_VALUE_TYPE_INT32: {
@@ -190,7 +179,8 @@ public final class VehiclePropValueUtil {
             case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC3:
             case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC4:
             case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2:
-            case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3: {
+            case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32_VEC4: {
                 return createIntVectorValue(property, new int[getVectorLength(valueType)], 0);
             }
 
@@ -220,6 +210,8 @@ public final class VehiclePropValueUtil {
                 return 3;
             case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC4:
             case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC4:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC4:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32_VEC4:
                 return 4;
             default:
                 throw new IllegalArgumentException("Unknown value type: " + vehicleValueType);
@@ -244,23 +236,8 @@ public final class VehiclePropValueUtil {
                         + "\n")
                 .append("stringValue: " + value.getStringValue() + "\n")
                 .append("byteValue: " + Arrays.toString(value.getBytesValue().toByteArray()) + "\n")
-                .append("zonedValue: {" + toString(value.getZonedValue(), "    ") + "}")
+                .append("zone: {" + value.getZone() + "}")
                 .toString();
-    }
-
-    private static String toString(ZonedValue zonedValue, String indent) {
-        if (zonedValue == null) {
-            return "null";
-        }
-
-        return new StringBuilder()
-                .append(indent + "zoneOrWindow: " + zonedValue.getZoneOrWindow() + "\n")
-                .append(indent + "int32Values: "
-                        + Arrays.toString(toIntArray(zonedValue.getInt32ValuesList())) + "\n")
-                .append(indent + "floatValues: "
-                        + Arrays.toString(toFloatArray(zonedValue.getFloatValuesList())) + "\n")
-                .toString();
-
     }
 
     public static int[] toIntArray(List<Integer> collection) {
