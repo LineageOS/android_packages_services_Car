@@ -29,15 +29,15 @@ import java.util.Objects;
 @SystemApi
 public class CarHvacProperty implements Parcelable {
 
-    private final int   mPropertyId;
-    private final int   mType;
-    private int         mZone;
-    private final float mFloatMax;
-    private final float mFloatMin;
-    private float[]     mFloatValues;
-    private final int   mIntMax;
-    private final int   mIntMin;
-    private int[]       mIntValues;
+    private final int mPropertyId;
+    private final int mType;
+    private int mZones;
+    private final float[] mFloatMaxs;
+    private final float[] mFloatMins;
+    private float[] mFloatValues;
+    private final int[] mIntMaxs;
+    private final int[] mIntMins;
+    private int[] mIntValues;
 
     public int describeContents() {
         return 0;
@@ -46,12 +46,12 @@ public class CarHvacProperty implements Parcelable {
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(mPropertyId);
         out.writeInt(mType);
-        out.writeInt(mZone);
-        out.writeFloat(mFloatMax);
-        out.writeFloat(mFloatMin);
+        out.writeInt(mZones);
+        out.writeFloatArray(mFloatMaxs);
+        out.writeFloatArray(mFloatMins);
         out.writeFloatArray(mFloatValues);
-        out.writeInt(mIntMax);
-        out.writeInt(mIntMin);
+        out.writeIntArray(mIntMaxs);
+        out.writeIntArray(mIntMins);
         out.writeIntArray(mIntValues);
     }
 
@@ -69,12 +69,12 @@ public class CarHvacProperty implements Parcelable {
     private CarHvacProperty(Parcel in) {
         mPropertyId = in.readInt();
         mType = in.readInt();
-        mZone = in.readInt();
-        mFloatMax = in.readFloat();
-        mFloatMin = in.readFloat();
+        mZones = in.readInt();
+        mFloatMaxs = in.createFloatArray();
+        mFloatMins = in.createFloatArray();
         mFloatValues = in.createFloatArray();
-        mIntMax = in.readInt();
-        mIntMin = in.readInt();
+        mIntMaxs = in.createIntArray();
+        mIntMins = in.createIntArray();
         mIntValues = in.createIntArray();
     }
 
@@ -84,97 +84,97 @@ public class CarHvacProperty implements Parcelable {
     public CarHvacProperty(CarHvacProperty that) {
         mPropertyId = that.getPropertyId();
         mType = that.getType();
-        mZone = that.getZone();
-        mFloatMax = that.getFloatMax();
-        mFloatMin = that.getFloatMin();
+        mZones = that.getZones();
+        mFloatMaxs = that.getFloatMaxs();
+        mFloatMins = that.getFloatMins();
         mFloatValues = that.getFloatValues();
-        mIntMax = that.getIntMax();
-        mIntMin = that.getIntMin();
+        mIntMaxs = that.getIntMaxs();
+        mIntMins = that.getIntMins();
         mIntValues =  that.getIntValues();
     }
     /**
      * Constructor for a boolean property
      */
-    public CarHvacProperty(int propertyId, int zone, boolean value) {
+    public CarHvacProperty(int propertyId, int zones, boolean value) {
         mPropertyId = propertyId;
         mType = CarHvacManager.PROPERTY_TYPE_BOOLEAN;
-        mZone = zone;
-        mIntMax = 1;
-        mIntMin = 0;
+        mZones = zones;
+        mIntMaxs = new int[] { 1 };
+        mIntMins = new int[] { 0 };
         mIntValues = new int[] { value ? 1 : 0 };
-        mFloatMax = 0;
-        mFloatMin = 0;
+        mFloatMaxs = null;
+        mFloatMins = null;
     }
 
 
     /**
      * Constructor for a float property
      */
-    public CarHvacProperty(int propertyId, int zone, float min, float max, float value) {
+    public CarHvacProperty(int propertyId, int zones, float[] mins, float[] maxs, float value) {
         mPropertyId = propertyId;
         mType = CarHvacManager.PROPERTY_TYPE_FLOAT;
-        mZone = zone;
-        mFloatMax = max;
-        mFloatMin = min;
+        mZones = zones;
+        mFloatMaxs = maxs;
+        mFloatMins = mins;
         mFloatValues = new float[] {value};
         mIntValues = null;
-        mIntMax = 0;
-        mIntMin = 0;
+        mIntMaxs = null;
+        mIntMins = null;
     }
 
     /**
      * Constructor for an integer property
      */
-    public CarHvacProperty(int propertyId, int zone, int min, int max, int value) {
+    public CarHvacProperty(int propertyId, int zones, int[] mins, int[] maxs, int value) {
         mPropertyId = propertyId;
         mType = CarHvacManager.PROPERTY_TYPE_INT;
-        mZone = zone;
-        mIntMax = max;
-        mIntMin = min;
+        mZones = zones;
+        mIntMaxs = maxs;
+        mIntMins = mins;
         mIntValues = new int[] { value };
-        mFloatMax = 0;
-        mFloatMin = 0;
+        mFloatMaxs = null;
+        mFloatMins = null;
     }
 
     /**
      * Constructor for an integer vector property
      */
-    public CarHvacProperty(int propertyId, int zone, int min, int max, int[] values) {
+    public CarHvacProperty(int propertyId, int zones, int[] mins, int[] maxs, int[] values) {
         mPropertyId = propertyId;
         mType = CarHvacManager.PROPERTY_TYPE_INT_VECTOR;
-        mZone = zone;
-        mIntMax = max;
-        mIntMin = min;
+        mZones = zones;
+        mIntMaxs = maxs;
+        mIntMins = mins;
         mIntValues = Arrays.copyOf(values, values.length);
-        mFloatMax = 0;
-        mFloatMin = 0;
+        mFloatMaxs = null;
+        mFloatMins = null;
     }
 
     /**
      * Constructor for a float vector property
      */
-    public CarHvacProperty(int propertyId, int zone, float min, float max, float[] values) {
+    public CarHvacProperty(int propertyId, int zones, float[] mins, float[] maxs, float[] values) {
         mPropertyId = propertyId;
         mType = CarHvacManager.PROPERTY_TYPE_FLOAT_VECTOR;
-        mZone = zone;
-        mFloatMax = max;
-        mFloatMin = min;
+        mZones = zones;
+        mFloatMaxs = maxs;
+        mFloatMins = mins;
         mFloatValues = Arrays.copyOf(values, values.length);
-        mIntMax = 0;
-        mIntMin = 0;
+        mIntMaxs = null;
+        mIntMins = null;
     }
 
     // Getters.
     public int   getPropertyId()     { return mPropertyId; }
     public int   getType()           { return mType; }
-    public int   getZone()           { return mZone; }
+    public int   getZones()           { return mZones; }
     public boolean getBooleanValue() { return mIntValues[0] == 1; }
-    public float getFloatMax()       { return mFloatMax; }
-    public float getFloatMin()       { return mFloatMin; }
+    public float[] getFloatMaxs()       { return mFloatMaxs; }
+    public float[] getFloatMins()       { return mFloatMins; }
     public float getFloatValue()     { return mFloatValues[0]; }
     public float[] getFloatValues()  { return mFloatValues; }
-    public int   getIntMax()         { return mIntMax; }
-    public int   getIntMin()         { return mIntMin; }
+    public int[]   getIntMaxs()         { return mIntMaxs; }
+    public int[]   getIntMins()         { return mIntMins; }
     public int   getIntValue()       { return mIntValues[0]; }
     public int[] getIntValues()      { return mIntValues; }
 
@@ -199,35 +199,35 @@ public class CarHvacProperty implements Parcelable {
         assertType(CarHvacManager.PROPERTY_TYPE_INT_VECTOR);
         mFloatValues = Arrays.copyOf(values, values.length);
     }
-    public void setZone(int zone)   { mZone  = zone; }
+    public void setZones(int zones)   { mZones  = zones; }
 
     @Override
     public String toString() {
         String myString = "mPropertyId: "  + mPropertyId + "\n" +
                           "mType:       "  + mType       + "\n" +
-                          "mZone:       "  + mZone       + "\n";
+                          "mZones:       "  + mZones       + "\n";
         switch (mType) {
             case CarHvacManager.PROPERTY_TYPE_BOOLEAN:
                 myString += "mIntValue:   "  + mIntValues[0] + "\n";
                 break;
             case CarHvacManager.PROPERTY_TYPE_FLOAT:
-                myString += "mFloatMax:   "  + mFloatMax   + "\n" +
-                            "mFloatMin:   "  + mFloatMin   + "\n" +
+                myString += "mFloatMaxs:   "  + Arrays.toString(mFloatMaxs) + "\n" +
+                            "mFloatMins:   "  + Arrays.toString(mFloatMins) + "\n" +
                             "mFloatValue: "  + mFloatValues[0] + "\n";
                 break;
             case CarHvacManager.PROPERTY_TYPE_INT:
-                myString += "mIntMax:     "  + mIntMax     + "\n" +
-                            "mIntMin:     "  + mIntMin     + "\n" +
+                myString += "mIntMax:     "  + Arrays.toString(mIntMaxs) + "\n" +
+                            "mIntMin:     "  + Arrays.toString(mIntMins) + "\n" +
                             "mIntValue:   "  + mIntValues[0] + "\n";
                 break;
             case CarHvacManager.PROPERTY_TYPE_INT_VECTOR:
-                myString += "mIntMax:     "  + mIntMax     + "\n" +
-                            "mIntMin:     "  + mIntMin     + "\n" +
+                myString += "mIntMax:     "  + Arrays.toString(mIntMaxs) + "\n" +
+                            "mIntMin:     "  + Arrays.toString(mIntMins) + "\n" +
                             "mIntValues:  "  + Arrays.toString(mIntValues) + "\n";
                 break;
             case CarHvacManager.PROPERTY_TYPE_FLOAT_VECTOR:
-                myString += "mFloatMax:     "  + mFloatMax     + "\n" +
-                            "mFloatMin:     "  + mFloatMin     + "\n" +
+                myString += "mFloatMax:     "  + Arrays.toString(mFloatMaxs) + "\n" +
+                            "mFloatMin:     "  + Arrays.toString(mFloatMins) + "\n" +
                             "mFloatValues:  "  + Arrays.toString(mFloatValues) + "\n";
                 break;
             default:
@@ -238,37 +238,49 @@ public class CarHvacProperty implements Parcelable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        CarHvacProperty that = (CarHvacProperty) o;
-        return mPropertyId == that.mPropertyId &&
-                mType == that.mType &&
-                mZone == that.mZone &&
-                Float.compare(that.mFloatMax, mFloatMax) == 0 &&
-                Float.compare(that.mFloatMin, mFloatMin) == 0 &&
-                mIntMax == that.mIntMax &&
-                mIntMin == that.mIntMin &&
-                Arrays.equals(mFloatValues, that.mFloatValues) &&
-                Arrays.equals(mIntValues, that.mIntValues);
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(mFloatMaxs);
+        result = prime * result + Arrays.hashCode(mFloatMins);
+        result = prime * result + Arrays.hashCode(mFloatValues);
+        result = prime * result + Arrays.hashCode(mIntMaxs);
+        result = prime * result + Arrays.hashCode(mIntMins);
+        result = prime * result + Arrays.hashCode(mIntValues);
+        result = prime * result + mPropertyId;
+        result = prime * result + mType;
+        result = prime * result + mZones;
+        return result;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(
-                mPropertyId,
-                mType,
-                mZone,
-                mFloatMax,
-                mFloatMin,
-                mFloatValues,
-                mIntMax,
-                mIntMin,
-                mIntValues);
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CarHvacProperty other = (CarHvacProperty) obj;
+        if (!Arrays.equals(mFloatMaxs, other.mFloatMaxs))
+            return false;
+        if (!Arrays.equals(mFloatMins, other.mFloatMins))
+            return false;
+        if (!Arrays.equals(mFloatValues, other.mFloatValues))
+            return false;
+        if (!Arrays.equals(mIntMaxs, other.mIntMaxs))
+            return false;
+        if (!Arrays.equals(mIntMins, other.mIntMins))
+            return false;
+        if (!Arrays.equals(mIntValues, other.mIntValues))
+            return false;
+        if (mPropertyId != other.mPropertyId)
+            return false;
+        if (mType != other.mType)
+            return false;
+        if (mZones != other.mZones)
+            return false;
+        return true;
     }
 
     private void assertType(int expectedType) {

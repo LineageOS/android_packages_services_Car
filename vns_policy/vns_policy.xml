@@ -1,6 +1,7 @@
 <ALLOW>
   <PROPERTY name="VEHICLE_PROPERTY_INVALID" value = "0x0">
-    <UID name="AID_SYSTEM" access="r" value="1000"/>
+    <!--  Property 0 write is used to allow hal mocking -->
+    <UID name="AID_SYSTEM" access="rw" value="1000"/>
     <UID name="AID_AUDIOSERVER" access="r" value="1041"/>
   </PROPERTY>
 

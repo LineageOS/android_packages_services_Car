@@ -15,7 +15,7 @@
 #
 
 LOCAL_PATH:= $(call my-dir)
-
+##################################
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
@@ -36,3 +36,14 @@ LOCAL_STATIC_JAVA_LIBRARIES += libvehiclenetwork-java
 LOCAL_JAVA_LIBRARIES := android.test.runner
 
 include $(BUILD_PACKAGE)
+
+##################################
+include $(CLEAR_VARS)
+#vendor_vns_policy for testing purpose
+LOCAL_MODULE := vendor_vns_policy.xml
+LOCAL_SRC_FILES := $(LOCAL_MODULE)
+LOCAL_MODULE_TAGS := tests
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_PATH := $(TARGET_OUT_ETC)/vns
+include $(BUILD_PREBUILT)
+

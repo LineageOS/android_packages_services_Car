@@ -17,6 +17,7 @@
 #define LOG_TAG "VehicleNetwork"
 
 #include <memory>
+#include <string.h>
 
 #include <binder/IPCThreadState.h>
 
@@ -285,20 +286,22 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
         } break;
         case GET_PROPERTY: {
             CHECK_INTERFACE(IVehicleNetwork, data, reply);
-            ScopedVehiclePropValue value;
-            r = VehiclePropValueBinderUtil::readFromParcel(data, &value.value,
+            vehicle_prop_value_t value;
+            memset(&value, 0, sizeof(value));
+            r = VehiclePropValueBinderUtil::readFromParcel(data, &value,
                     false /* deleteMembers */, true /*canIgnoreNoData*/);
             if (r != NO_ERROR) {
                 ALOGE("getProperty cannot read %d", r);
                 return r;
             }
-            if (!isOperationAllowed(value.value.prop, false)) {
+            if (!isOperationAllowed(value.prop, false)) {
                 return PERMISSION_DENIED;
             }
-            r = getProperty(&(value.value));
+            r = getProperty(&value);
             if (r == NO_ERROR) {
                 reply->writeNoException();
-                r = VehiclePropValueBinderUtil::writeToParcel(*reply, value.value);
+                r = VehiclePropValueBinderUtil::writeToParcel(*reply, value);
+                releaseMemoryFromGet(&value);
             }
             return r;
         } break;

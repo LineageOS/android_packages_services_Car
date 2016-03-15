@@ -36,6 +36,22 @@ public class VehiclePropConfigUtil {
                 .build();
     }
 
+    public static VehiclePropConfig createZonedProperty(
+            int property, int propAccess, int changeType, int valueType, int zones,
+            int configFlags) {
+            return VehiclePropConfig.newBuilder().
+                    setProp(property).
+                    setAccess(propAccess).
+                    setChangeMode(changeType).
+                    setValueType(valueType).
+                    setPermissionModel(VehiclePermissionModel.VEHICLE_PERMISSION_NO_RESTRICTION).
+                    setZones(zones).
+                    addConfigArray(configFlags).
+                    setSampleRateMax(0).
+                    setSampleRateMin(0).
+                    build();
+    }
+
     public static VehiclePropConfig createProperty(
         int property, int propAccess, int changeType, int valueType, int configFlags) {
         return getBuilder(property,

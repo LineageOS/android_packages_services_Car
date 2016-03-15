@@ -17,7 +17,6 @@ package com.android.car.vehiclenetwork.libtest;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.ZonedValue;
 import com.google.protobuf.ByteString;
 
 public class VehicleNetworkTestUtil {
@@ -38,11 +37,9 @@ public class VehicleNetworkTestUtil {
                 break;
             case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32:
             case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_BOOLEAN:
-                builder.setZonedValue(ZonedValue.newBuilder().setZoneOrWindow(0).addInt32Values(0).
-                        build());
+                builder.setZone(0).addInt32Values(0);
             case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT:
-                builder.setZonedValue(ZonedValue.newBuilder().setZoneOrWindow(0).addFloatValues(0f).
-                        build());
+                builder.setZone(0).addFloatValues(0f);
             case VehicleValueType.VEHICLE_VALUE_TYPE_INT64:
                 builder.setInt64Value(0);
                 break;
