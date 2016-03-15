@@ -242,7 +242,7 @@ public class InstrumentClusterService implements CarServiceBase {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_TIMEOUT) {
-                throw new RuntimeException("Renderer initialization timeout.");
+                Log.e(TAG, "Renderer initialization timeout.", new RuntimeException());
             } else {
                 super.handleMessage(msg);
             }
