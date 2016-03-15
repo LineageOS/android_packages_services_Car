@@ -69,6 +69,12 @@
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_radio"
         android:description="@string/car_permission_desc_radio" />
+    <permission
+        android:name="android.car.permission.CAR_PROJECTION"
+        android:permissionGroup="android.car.permission.CAR_INFORMATION"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_projection"
+        android:description="@string/car_permission_desc_projection" />
 
     <permission
         android:name="android.car.permission.CAR_MOCK_VEHICLE_HAL"
