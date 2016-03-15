@@ -59,7 +59,7 @@ public class VehicleHalEmulator {
     }
 
     private final HashMap<Integer, VehicleHalProperty> mProperties =
-            new HashMap<Integer, VehicleHalProperty>();
+            new HashMap<>();
 
     private final CarTestManager mCarTestManager;
     private final HalMock mMock = new HalMock();
