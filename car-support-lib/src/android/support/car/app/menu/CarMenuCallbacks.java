@@ -82,6 +82,12 @@ public abstract class CarMenuCallbacks {
         mListener = listener;
     }
 
+    /**
+     * Unregister an OnChildrenChangedListener to detect when a menu has changed.
+     *
+     * @param listener listener to unregister
+     * @hide
+     */
     public void unregisterOnChildrenChangedListener(OnChildrenChangedListener listener) {
         if (listener != mListener) {
             throw new IllegalStateException(

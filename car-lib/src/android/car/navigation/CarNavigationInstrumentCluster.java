@@ -16,6 +16,7 @@
 package android.car.navigation;
 
 import android.annotation.IntDef;
+import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -26,6 +27,7 @@ import java.lang.annotation.RetentionPolicy;
  * Holds options related to navigation for the car's instrument cluster.
  * @hide
  */
+@SystemApi
 public class CarNavigationInstrumentCluster implements Parcelable {
 
     @Retention(RetentionPolicy.SOURCE)
