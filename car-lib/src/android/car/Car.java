@@ -19,6 +19,14 @@ package android.car;
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.car.content.pm.CarPackageManager;
+import android.car.hardware.CarSensorManager;
+import android.car.hardware.camera.CarCameraManager;
+import android.car.hardware.hvac.CarHvacManager;
+import android.car.hardware.radio.CarRadioManager;
+import android.car.media.CarAudioManager;
+import android.car.navigation.CarNavigationManager;
+import android.car.test.CarTestManagerBinderWrapper;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -28,24 +36,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
-import android.car.content.pm.CarPackageManager;
-import android.car.hardware.camera.CarCameraManager;
-import android.car.hardware.CarSensorManager;
-import android.car.hardware.hvac.CarHvacManager;
-import android.car.hardware.radio.CarRadioManager;
-import android.car.media.CarAudioManager;
-import android.car.navigation.CarNavigationManager;
-import android.car.test.CarTestManagerBinderWrapper;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 
 /**
  *   Top level car API.
@@ -85,6 +82,9 @@ public class Car {
     @SystemApi
     public static final String HVAC_SERVICE = "hvac";
 
+    @SystemApi
+    public static final String PROJECTION_SERVICE = "projection";
+
     /**
      * Service for testing. This is system app only feature.
      * Service name for {@link CarTestManager}, to be used in {@link #getCarManager(String)}.
@@ -122,6 +122,10 @@ public class Car {
     /** Permission necesary to access Car RADIO system APIs. */
     @SystemApi
     public static final String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
+
+    /** Permission necesary to access Car PRJECTION system APIs. */
+    @SystemApi
+    public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
 
     /** permission necessary to mock vehicle hal for testing */
     @SystemApi
@@ -408,6 +412,9 @@ public class Car {
                 break;
             case HVAC_SERVICE:
                 manager = new CarHvacManager(binder, mContext, mLooper);
+                break;
+            case PROJECTION_SERVICE:
+                manager = new CarProjectionManager(binder, mLooper);
                 break;
             case RADIO_SERVICE:
                 manager = new CarRadioManager(binder, mLooper);

@@ -53,6 +53,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarSensorService mCarSensorService;
     private final CarInfoService mCarInfoService;
     private final CarAudioService mCarAudioService;
+    private final CarProjectionService mCarProjectionService;
     private final CarCameraService mCarCameraService;
     private final CarHvacService mCarHvacService;
     private final CarRadioService mCarRadioService;
@@ -89,6 +90,7 @@ public class ICarImpl extends ICar.Stub {
         mHal = VehicleHal.getInstance();
         mCarPowerManagementService = new CarPowerManagementService(serviceContext);
         mCarInputService = new CarInputService(serviceContext);
+        mCarProjectionService = new CarProjectionService(serviceContext, mCarInputService);
         mGarageModeService = new GarageModeService(mContext, mCarPowerManagementService);
         mCarInfoService = new CarInfoService(serviceContext);
         mAppContextService = new AppContextService(serviceContext);
@@ -119,6 +121,7 @@ public class ICarImpl extends ICar.Stub {
                 mCarCameraService,
                 mCarNightService,
                 mInstrumentClusterService,
+                mCarProjectionService,
                 mCarNavigationService,
                 mMediaStatusService
                 };
@@ -182,6 +185,9 @@ public class ICarImpl extends ICar.Stub {
                 return mCarRadioService;
             case Car.CAR_NAVIGATION_SERVICE:
                 return mCarNavigationService;
+            case Car.PROJECTION_SERVICE:
+                assertProjectionPermission(mContext);
+                return mCarProjectionService;
             case Car.TEST_SERVICE: {
                 assertVehicleHalMockPermission(mContext);
                 synchronized (this) {
@@ -256,6 +262,14 @@ public class ICarImpl extends ICar.Stub {
             != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException(
                 "requires permission " + Car.PERMISSION_CAR_RADIO);
+        }
+    }
+
+    public static void assertProjectionPermission(Context context) {
+        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_PROJECTION)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException(
+                    "requires " + Car.PERMISSION_CAR_PROJECTION);
         }
     }
 
