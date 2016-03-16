@@ -119,6 +119,7 @@ public class InstrumentClusterService implements CarServiceBase {
                     renderer.initialize();
                     rootView.addView(rendererView);
                     presentation.show();
+                    renderer.onStart();
                     initUiDone(renderer);
                 } catch (Exception e) {
                     Log.e(TAG, e.getMessage(), e);

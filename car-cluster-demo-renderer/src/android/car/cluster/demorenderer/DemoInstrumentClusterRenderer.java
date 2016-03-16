@@ -15,11 +15,11 @@
  */
 package android.car.cluster.demorenderer;
 
-import android.car.navigation.CarNavigationInstrumentCluster;
 import android.car.cluster.renderer.DisplayConfiguration;
 import android.car.cluster.renderer.InstrumentClusterRenderer;
 import android.car.cluster.renderer.MediaRenderer;
 import android.car.cluster.renderer.NavigationRenderer;
+import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Context;
 import android.view.View;
 
@@ -30,6 +30,8 @@ public class DemoInstrumentClusterRenderer extends InstrumentClusterRenderer {
 
     private DemoInstrumentClusterView mView;
     private Context mContext;
+    private CallStateMonitor mPhoneStatusMonitor;
+    private DemoPhoneRenderer mPhoneRenderer;
 
     @Override
     public void onCreate(Context context) {
@@ -39,14 +41,19 @@ public class DemoInstrumentClusterRenderer extends InstrumentClusterRenderer {
     @Override
     public View onCreateView(DisplayConfiguration displayConfiguration) {
         mView = new DemoInstrumentClusterView(mContext);
+        mPhoneRenderer = new DemoPhoneRenderer(mView);
         return mView;
     }
 
     @Override
-    public void onStart() { }
+    public void onStart() {
+        mPhoneStatusMonitor = new CallStateMonitor(mContext, mPhoneRenderer);
+    }
 
     @Override
-    public void onStop() { }
+    public void onStop() {
+        mPhoneStatusMonitor.release();
+    }
 
     @Override
     protected NavigationRenderer createNavigationRenderer() {

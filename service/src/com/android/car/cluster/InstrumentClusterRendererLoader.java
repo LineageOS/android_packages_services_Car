@@ -17,6 +17,7 @@ package com.android.car.cluster;
 
 import android.car.cluster.renderer.InstrumentClusterRenderer;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
@@ -74,8 +75,8 @@ public class InstrumentClusterRendererLoader {
      */
     private static Context createPackageContext(Context currentContext, String packageName) {
         try {
-            return currentContext.createPackageContext(packageName,
-                    Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+            return new PackageContextWrapper(currentContext.createPackageContext(packageName,
+                    Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY));
         } catch (NameNotFoundException e) {
             Log.e(TAG, "Package not found: " + packageName, e);
             throw new IllegalStateException(e);
@@ -131,5 +132,20 @@ public class InstrumentClusterRendererLoader {
 
     private static String getRendererPackageName(Context context) {
         return context.getString(R.string.instrumentClusterRendererPackage);
+    }
+
+    /**
+     * The context returned by Context.createPackageContext returns null in getApplicationContext
+     * method which causes some problems later, e.g. when CursorLoader class is being used.
+     */
+    private static class PackageContextWrapper extends ContextWrapper {
+        PackageContextWrapper(Context packageContext) {
+            super(packageContext);
+        }
+
+        @Override
+        public Context getApplicationContext() {
+            return this;
+        }
     }
 }
