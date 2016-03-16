@@ -20,6 +20,7 @@ import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/** @hide */
 @SystemApi
 public class CarHvacEvent implements Parcelable {
     public static final int HVAC_EVENT_PROPERTY_CHANGE = 0;
@@ -178,4 +179,3 @@ public class CarHvacEvent implements Parcelable {
                "mZone:       " + mZone         + "\n";
     }
 }
-
