@@ -45,11 +45,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 
 /**
- *   Top level car API.
- *   This API works only for device with {@link PackageManager#FEATURE_AUTOMOTIVE} feature
- *   supported or device with Google play service.
- *   Calling this API with device with no such feature will lead into an exception.
- *
+ *   Top level car API for embedded Android Auto deployments.
+ *   This API works only for devices with {@link PackageManager#FEATURE_AUTOMOTIVE}
+ *   Calling this API on a device with no such feature will lead to an exception.
  */
 public class Car {
 
@@ -148,6 +146,7 @@ public class Car {
      */
     public static final int CONNECTION_TYPE_EMBEDDED_MOCKING = 6;
 
+
     /** @hide */
     @IntDef({CONNECTION_TYPE_EMBEDDED, CONNECTION_TYPE_EMBEDDED_MOCKING})
     @Retention(RetentionPolicy.SOURCE)
@@ -236,7 +235,7 @@ public class Car {
      * A factory method that creates Car instance for all Car API access using main thread {@code
      * Looper}.
      *
-     * @see #createCar(Context, ServiceConnectionListener, Looper)
+     * @see #createCar(Context, ServiceConnection, Looper)
      */
     public static Car createCar(Context context, ServiceConnection serviceConnectionListener) {
       return createCar(context, serviceConnectionListener, null);

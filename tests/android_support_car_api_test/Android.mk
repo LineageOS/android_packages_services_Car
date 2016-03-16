@@ -20,9 +20,9 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
-LOCAL_PACKAGE_NAME := AndroudSupportCarApiTest
+LOCAL_PACKAGE_NAME := AndroidSupportCarApiTest
 
-# for system|priviledged permission.
+# for system|privileged permission.
 LOCAL_CERTIFICATE := platform
 
 LOCAL_MODULE_TAGS := tests

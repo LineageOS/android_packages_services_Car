@@ -51,7 +51,7 @@ public class CarTest extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
+        public void onServiceConnected(ComponentName name) {
             assertMainThread();
             mConnectionWait.release();
         }
