@@ -149,6 +149,15 @@ package android.car {
     field public static final int ZONE_ROW_4_RIGHT = 16384; // 0x4000
   }
 
+  public class VehicleZoneUtil {
+    ctor public VehicleZoneUtil();
+    method public static int getFirstZone(int);
+    method public static int getNextZone(int, int);
+    method public static int getNumBerOfZones(int);
+    method public static int[] listAllZones(int);
+    method public static int zoneToIndex(int, int);
+  }
+
 }
 
 package android.car.annotation {
@@ -280,9 +289,7 @@ package android.car.cluster.renderer {
 
   public abstract class InstrumentClusterRenderer {
     ctor public InstrumentClusterRenderer();
-    method protected abstract android.car.cluster.renderer.MediaRenderer createMediaRenderer();
     method protected abstract android.car.cluster.renderer.NavigationRenderer createNavigationRenderer();
-    method public synchronized android.car.cluster.renderer.MediaRenderer getMediaRenderer();
     method public abstract android.car.navigation.CarNavigationInstrumentCluster getNavigationProperties();
     method public synchronized android.car.cluster.renderer.NavigationRenderer getNavigationRenderer();
     method public final synchronized void initialize();
@@ -290,12 +297,6 @@ package android.car.cluster.renderer {
     method public abstract android.view.View onCreateView(android.car.cluster.renderer.DisplayConfiguration);
     method public abstract void onStart();
     method public abstract void onStop();
-  }
-
-  public abstract class MediaRenderer {
-    ctor public MediaRenderer();
-    method public abstract void onMetadataChanged(android.media.MediaMetadata);
-    method public abstract void onPlaybackStateChanged(android.media.session.PlaybackState);
   }
 
   public abstract class NavigationRenderer {
@@ -602,12 +603,11 @@ package android.car.hardware.hvac {
     ctor public CarHvacManager.CarHvacBaseProperty(int, int, int);
     method protected void assertNonZonedProperty();
     method protected void assertZonedProperty();
-    method public static int getNumZones(int);
     method public int getPropertyId();
     method public int getType();
     method public int getZone();
     method public int getZones();
-    method public static int zoneToIndex(int);
+    method public boolean isZonedProperty();
     field protected final int mPropertyId;
     field protected final int mType;
     field protected final int mZones;

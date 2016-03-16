@@ -17,6 +17,7 @@
 package com.google.android.car.kitchensink.hvac;
 
 import android.car.CarNotConnectedException;
+import android.car.VehicleZoneUtil;
 import android.car.hardware.hvac.CarHvacEvent;
 import android.car.hardware.hvac.CarHvacManager.CarHvacBaseProperty;
 import android.car.hardware.hvac.CarHvacManager.CarHvacBooleanValue;
@@ -204,36 +205,8 @@ public class HvacTestFragment extends Fragment {
         mCarHvacManager = hvacManager;
     }
 
-    private static int getFirstZone(int zones) {
-        if (zones == 0) {
-            return 0;
-        }
-        int flag = 0x1;
-        for (int i = 0; i < 32; i++) {
-            if ((flag & zones) != 0) {
-                return flag;
-            }
-            flag <<= 1;
-        }
-        return 0;
-    }
-
-    private static int getNextZone(int zones, int startingZone) {
-        int flag = startingZone << 1;
-        while (flag != 0x80000000) {
-            if ((flag & zones) != 0) {
-                return flag;
-            }
-            flag <<= 1;
-        }
-        if ((flag & zones) != 0) {
-            return flag;
-        }
-        return 0;
-    }
-
     private void configureAcOn(View v, CarHvacBaseProperty prop) {
-        mZoneForAcOn = getFirstZone(prop.getZones());
+        mZoneForAcOn = VehicleZoneUtil.getFirstZone(prop.getZones());
         mTbAc = (ToggleButton)v.findViewById(R.id.tbAc);
         mTbAc.setEnabled(true);
         mTbAc.setOnClickListener(new View.OnClickListener() {
@@ -246,7 +219,7 @@ public class HvacTestFragment extends Fragment {
     }
 
     private void configureFanPosition(View v, CarHvacBaseProperty prop) {
-        mZoneForFanPosition = getFirstZone(prop.getZones());
+        mZoneForFanPosition = VehicleZoneUtil.getFirstZone(prop.getZones());
         RadioGroup rg = (RadioGroup)v.findViewById(R.id.rgFanPosition);
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -280,7 +253,7 @@ public class HvacTestFragment extends Fragment {
     }
 
     private void configureFanSpeed(View v, CarHvacBaseProperty prop) {
-        mZoneForFanSpeed = getFirstZone(prop.getZones());
+        mZoneForFanSpeed = VehicleZoneUtil.getFirstZone(prop.getZones());
         mCurFanSpeed = mCarHvacManager.getIntProperty(
                 CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT,
                 mZoneForFanSpeed);
@@ -322,12 +295,12 @@ public class HvacTestFragment extends Fragment {
             mZoneForSetTempP = VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT;
         }
         if (mZoneForSetTempD == 0) {
-            mZoneForSetTempD = getFirstZone(prop.getZones());
+            mZoneForSetTempD = VehicleZoneUtil.getFirstZone(prop.getZones());
         }
         if (mZoneForSetTempP == 0) {
-            mZoneForSetTempP = getNextZone(prop.getZones(), mZoneForSetTempD);
+            mZoneForSetTempP = VehicleZoneUtil.getNextZone(prop.getZones(), mZoneForSetTempD);
         }
-        int numZones = CarHvacBaseProperty.getNumZones(prop.getZones());
+        int numZones = VehicleZoneUtil.getNumBerOfZones(prop.getZones());
         if (numZones < 2) {
             mZoneForSetTempP = 0;
         }
