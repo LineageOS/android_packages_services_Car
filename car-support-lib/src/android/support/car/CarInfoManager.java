@@ -54,22 +54,50 @@ public abstract class CarInfoManager implements CarManagerBase {
     @ValueTypeDef(type = String.class)
     public static final String KEY_VEHICLE_ID = "vehicle-id";
 
+    /** Manufacturer of the head unit.*/
+    @ValueTypeDef(type = String.class)
+    public static final String KEY_HEAD_UNIT_MAKE = "headUnitMake";
+    /** Model of the head unit.*/
+    @ValueTypeDef(type = String.class)
+    public static final String KEY_HEAD_UNIT_MODEL = "headUnitModel";
+    /** Head Unit software build */
+    @ValueTypeDef(type = String.class)
+    public static final String KEY_HEAD_UNIT_SOFTWARE_BUILD = "headUnitSoftwareBuild";
+    /** Head Unit software version */
+    @ValueTypeDef(type = String.class)
+    public static final String KEY_HEAD_UNIT_SOFTWARE_VERSION = "headUnitSoftwareVersion";
+    /** Where is the driver's seat.  One of the DRIVER_SIDE_* constants */
+    @ValueTypeDef(type = Integer.class)
+    public static final String KEY_DRIVER_POSITION = "driverPosition";
+
+    /** Location of the driver: left */
+    public static final int DRIVER_SIDE_LEFT   = 0;
+    /** Location of the driver: right */
+    public static final int DRIVER_SIDE_RIGHT  = 1;
+    /** Location of the driver: center */
+    public static final int DRIVER_SIDE_CENTER = 2;
+
     /**
-     * Retrieve floating point information for car.
-     * @param key
-     * @return null if the key is not supported.
-     * @throws CarNotConnectedException
-     * @throws IllegalArgumentException
+     * Returns the value for the given key or null if the key is not supported.
      */
     public abstract Float getFloat(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
+    /**
+     * Returns the value for the given key or null if the key is not supported.
+     */
     public abstract Integer getInt(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
+    /**
+     * Returns the value for the given key or null if the key is not supported.
+     */
     public abstract Long getLong(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
+    /**
+     * Returns the value for the given key or null if the key is not supported.
+     */
     public abstract String getString(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
@@ -78,9 +106,6 @@ public abstract class CarInfoManager implements CarManagerBase {
      * defined only for the car vendor. Vendor extension can be used for other APIs like
      * getInt / getString, but this is for passing more complex data.
      * @param key
-     * @return
-     * @throws CarNotConnectedException
-     * @throws IllegalArgumentException
      * @hide
      */
     public abstract Bundle getBundle(String key)

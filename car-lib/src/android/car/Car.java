@@ -155,8 +155,9 @@ public class Car {
     @SystemApi
     public static final String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
 
+
     /**
-     * Permission necesary to access Car PRJECTION system APIs.
+     * Permission necessary to access Car PROJECTION system APIs.
      * @hide
      */
     @SystemApi

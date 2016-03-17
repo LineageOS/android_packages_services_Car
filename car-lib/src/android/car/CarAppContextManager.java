@@ -51,7 +51,7 @@ public class CarAppContextManager implements CarManagerBase {
         /**
          * Lost ownership for the context, which happens when other app has set the context.
          * The app losing context should stop the action associated with the context.
-         * For example, navigaiton app currently running active navigation should stop navigation
+         * For example, navigation app currently running active navigation should stop navigation
          * upon getting this for {@link CarAppContextManager#APP_CONTEXT_NAVIGATION}.
          * @param context
          */
@@ -89,14 +89,14 @@ public class CarAppContextManager implements CarManagerBase {
         mService = IAppContext.Stub.asInterface(service);
         mHandler = new Handler(looper);
         mBinderListener = new IAppContextListenerImpl(this);
-        mOwnershipListeners = new HashMap<Integer, AppContextOwnershipChangeListener>();
+        mOwnershipListeners = new HashMap<>();
     }
 
     /**
      * Register listener to monitor app context change. Only one listener can be registered and
      * registering multiple times will lead into only the last listener to be active.
      * @param listener
-     * @param contextFilter Flags of cotexts to get notification.
+     * @param contextFilter Flags of contexts to get notification.
      */
     public void registerContextListener(AppContextChangeListener listener, int contextFilter) {
         if (listener == null) {
@@ -117,7 +117,7 @@ public class CarAppContextManager implements CarManagerBase {
 
     /**
      * Unregister listener and stop listening context change events. If app has owned a context
-     * by {@link #setActiveContext(int)}, it will be reset to inactive state.
+     * by {@link #resetActiveContexts(int)}, it will be reset to inactive state.
      */
     public void unregisterContextListener() {
         synchronized(this) {

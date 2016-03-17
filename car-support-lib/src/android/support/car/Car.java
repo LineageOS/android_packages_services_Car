@@ -82,6 +82,8 @@ public class Car {
     public static final int CONNECTION_TYPE_ADB_EMULATOR = 4;
     /** Type of car connection: platform runs directly in car. */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
+    /** Unknown type.  The support lib is likely out of date.*/
+    public static final int CONNECTION_TYPE_UNKNOWN = -1;
     /**
      * Type of car connection: platform runs directly in car but with mocked vehicle hal.
      * This will only happen in testing environment.
@@ -91,7 +93,8 @@ public class Car {
 
     /** @hide */
     @IntDef({CONNECTION_TYPE_EMULATOR, CONNECTION_TYPE_USB, CONNECTION_TYPE_WIFI,
-        CONNECTION_TYPE_ON_DEVICE_EMULATOR, CONNECTION_TYPE_ADB_EMULATOR, CONNECTION_TYPE_EMBEDDED})
+        CONNECTION_TYPE_ON_DEVICE_EMULATOR, CONNECTION_TYPE_ADB_EMULATOR,
+            CONNECTION_TYPE_EMBEDDED, CONNECTION_TYPE_UNKNOWN})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ConnectionType {}
 

@@ -42,7 +42,7 @@ public abstract class CarAppContextManager implements CarManagerBase {
         /**
          * Lost ownership for the context, which happens when other app has set the context.
          * The app losing context should stop the action associated with the context.
-         * For example, navigaiton app currently running active navigation should stop navigation
+         * For example, navigation app currently running active navigation should stop navigation
          * upon getting this for {@link CarAppContextManager#APP_CONTEXT_NAVIGATION}.
          * @param context
          */
