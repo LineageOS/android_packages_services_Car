@@ -28,4 +28,14 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-unde
 
 include $(BUILD_JAVA_LIBRARY)
 
+# API Check
+# ---------------------------------------------
+car_module := $(LOCAL_MODULE)
+car_module_src_files := $(LOCAL_SRC_FILES)
+car_module_api_dir := $(LOCAL_PATH)/api
+car_module_java_libraries := framework
+car_module_include_systemapi := true
+car_module_java_packages := android.car*
+include $(CAR_API_CHECK)
+
 endif #TARGET_BUILD_PDK
