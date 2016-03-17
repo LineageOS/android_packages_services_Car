@@ -17,6 +17,7 @@
 #
 # $(car_module) - name of the car library module
 # $(car_module_api_dir) - dir to store API files
+# $(car_module_include_systemapi) - if systemApi file should be generated
 # $(car_module_java_libraries) - dependent libraries
 # $(car_module_java_packages) - list of package names containing public classes
 # $(car_module_src_files) - list of source files
@@ -62,6 +63,7 @@ include $(BUILD_DROIDDOC)
 car_stub_stamp := $(full_target)
 $(car_module_api_file) : $(full_target)
 
+ifeq ($(car_module_include_systemapi), true)
 #
 # Generate the system stub source files
 # ---------------------------------------------
@@ -100,9 +102,14 @@ include $(BUILD_DROIDDOC)
 car_system_stub_stamp := $(full_target)
 $(car_module_system_api_file) : $(full_target)
 
+endif
 #
 # Check public API
 # ---------------------------------------------
+.PHONY: $(car_module)-check-public-api
+checkapi : $(car_module)-check-public-api
+$(car_module): $(car_module)-check-public-api
+
 last_released_sdk_$(car_module) := $(lastword $(call numerically_sort, \
     $(filter-out current, \
         $(patsubst $(car_module_api_dir)/%.txt,%, $(wildcard $(car_module_api_dir)/*.txt)) \
@@ -121,7 +128,7 @@ $(eval $(call check-api, \
         -warning 7 -warning 8 -warning 9 -warning 10 -warning 11 -warning 12 \
         -warning 13 -warning 14 -warning 15 -warning 16 -warning 17 -warning 18 -hide 113, \
     cat $(api_check_last_msg_file), \
-    $(car_module), \
+    $(car_module)-check-public-api, \
     $(car_stub_stamp)))
 endif
 
@@ -137,7 +144,7 @@ $(eval $(call check-api, \
         -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 \
         -error 21 -error 23 -error 24 -error 25 -hide 113, \
     cat $(api_check_current_msg_file), \
-    $(car_module), \
+    $(car_module)-check-public-api, \
     $(car_stub_stamp)))
 
 .PHONY: update-$(car_module)-api
@@ -153,9 +160,15 @@ update-$(car_module)-api: $(car_module_api_file) | $(ACP)
 # Run this update API task on the update-car-api task
 update-car-api: update-$(car_module)-api
 
+ifeq ($(car_module_include_systemapi), true)
+
 #
 # Check system API
 # ---------------------------------------------
+.PHONY: $(car_module)-check-system-api
+checkapi : $(car_module)-check-system-api
+$(car_module): $(car_module)-check-system-api
+
 last_released_system_sdk_$(car_module) := $(lastword $(call numerically_sort, \
     $(filter-out system-current, \
         $(patsubst $(car_module_api_dir)/%.txt,%, $(wildcard $(car_module_api_dir)/system-*.txt)) \
@@ -174,7 +187,7 @@ $(eval $(call check-api, \
         -warning 7 -warning 8 -warning 9 -warning 10 -warning 11 -warning 12 \
         -warning 13 -warning 14 -warning 15 -warning 16 -warning 17 -warning 18 -hide 113, \
     cat $(api_check_last_msg_file), \
-    $(car_module), \
+    $(car_module)-check-system-api, \
     $(car_system_stub_stamp)))
 endif
 
@@ -190,7 +203,7 @@ $(eval $(call check-api, \
         -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 \
         -error 21 -error 23 -error 24 -error 25 -hide 113, \
     cat $(api_check_current_msg_file), \
-    $(car_module), \
+    $(car_module)-check-system-api, \
     $(car_stub_stamp)))
 
 .PHONY: update-$(car_module)-system-api
@@ -206,6 +219,7 @@ update-$(car_module)-system-api: $(car_module_system_api_file) | $(ACP)
 # Run this update API task on the update-car-api task
 update-car-api: update-$(car_module)-system-api
 
+endif
 #
 # Clear variables
 # ---------------------------------------------
@@ -221,3 +235,4 @@ car_module_system_api_file :=
 car_module_system_removed__file :=
 car_stub_stamp :=
 car_system_stub_stamp :=
+car_module_include_systemapi :=
