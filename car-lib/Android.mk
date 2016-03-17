@@ -34,6 +34,7 @@ car_module := $(LOCAL_MODULE)
 car_module_src_files := $(LOCAL_SRC_FILES)
 car_module_api_dir := $(LOCAL_PATH)/api
 car_module_java_libraries := framework
+car_module_include_systemapi := true
 car_module_java_packages := android.car*
 include $(CAR_API_CHECK)
 
