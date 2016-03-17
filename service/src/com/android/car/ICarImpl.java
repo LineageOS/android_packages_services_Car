@@ -25,7 +25,6 @@ import android.util.Log;
 
 import com.android.car.cluster.CarNavigationService;
 import com.android.car.cluster.InstrumentClusterService;
-import com.android.car.cluster.MediaStatusService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.internal.annotations.GuardedBy;
@@ -61,7 +60,6 @@ public class ICarImpl extends ICar.Stub {
     private final AppContextService mAppContextService;
     private final GarageModeService mGarageModeService;
     private final CarNavigationService mCarNavigationService;
-    private final MediaStatusService mMediaStatusService;
     private final InstrumentClusterService mInstrumentClusterService;
 
     /** Test only service. Populate it only when necessary. */
@@ -102,7 +100,6 @@ public class ICarImpl extends ICar.Stub {
         mCarNightService = new CarNightService(serviceContext);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext);
         mInstrumentClusterService = new InstrumentClusterService(serviceContext);
-        mMediaStatusService = new MediaStatusService(serviceContext, mInstrumentClusterService);
         mCarNavigationService = new CarNavigationService(
                 serviceContext, mAppContextService, mInstrumentClusterService);
 
@@ -123,7 +120,6 @@ public class ICarImpl extends ICar.Stub {
                 mInstrumentClusterService,
                 mCarProjectionService,
                 mCarNavigationService,
-                mMediaStatusService
                 };
     }
 

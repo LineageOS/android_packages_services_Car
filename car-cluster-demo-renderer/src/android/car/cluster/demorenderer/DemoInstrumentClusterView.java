@@ -15,6 +15,8 @@
  */
 package android.car.cluster.demorenderer;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -30,63 +32,54 @@ public class DemoInstrumentClusterView extends FrameLayout {
 
     private final String TAG = DemoInstrumentClusterView.class.getSimpleName();
 
-    private TextView speedView;
-    private TextView eventTitleView;
-    private TextView distanceView;
-    private View navPanel;
-    private TextView mediaArtistView;
-    private TextView mediaAlbumView;
-    private TextView mediaTrackView;
-    private ImageView mediaImageView;
-    private View mediaPanel;
+    private TextView mSpeedView;
+    private TextView mEventTitleView;
+    private TextView mDistanceView;
+    private View mNavPanel;
+    private TextView mMediaArtistView;
+    private TextView mMediaAlbumView;
+    private TextView mMediaTrackView;
+    private ImageView mMediaImageView;
+    private View mMediaPanel;
 
-    private View phonePanel;
-    private TextView phoneTitle;
-    private TextView phoneSubtitle;
-    private ImageView phoneImage;
+    private View mPhonePanel;
+    private TextView mPhoneTitle;
+    private TextView mPhoneSubtitle;
+    private ImageView mPhoneImage;
+
+    private final Integer mAnimationDurationMs;
 
     public DemoInstrumentClusterView(Context context) {
         super(context);
+        mAnimationDurationMs = getResources().getInteger(android.R.integer.config_longAnimTime);
         init();
     }
 
     public void setSpeed(String speed) {
         Log.d(TAG, "setSpeed, meterPerSecond: " + speed);
-        speedView.setText(speed);
-    }
-
-    public void setFuelLevel(float fuelLevel) {
-        Log.d(TAG, "setFuelLevel, fuelLevel: " + fuelLevel);
-    }
-
-    public void setFuelRangeVisible(boolean visible) {
-        Log.d(TAG, "setFuelRangeVisible, visible: " + visible);
-    }
-
-    public void setFuelRange(int rangeMeters) {
-        Log.d(TAG, "setFuelRange, rangeMeters: " + rangeMeters);
+        mSpeedView.setText(speed);
     }
 
     public void showNavigation() {
         Log.d(TAG, "showNavigation");
-        eventTitleView.setText("");
-        distanceView.setText("");
-        navPanel.setVisibility(VISIBLE);
+        mEventTitleView.setText("");
+        mDistanceView.setText("");
+        mNavPanel.setVisibility(VISIBLE);
     }
 
     public void hideNavigation() {
         Log.d(TAG, "hideNavigation");
-        navPanel.setVisibility(INVISIBLE);
+        mNavPanel.setVisibility(INVISIBLE);
     }
 
     public void setNextTurn(Bitmap image, String title) {
         Log.d(TAG, "setNextTurn, image: " + image + ", title: " + title);
-        eventTitleView.setText(title);
+        mEventTitleView.setText(title);
     }
 
     public void setNextTurnDistance(String distance) {
         Log.d(TAG, "setNextTurnDistance, distance: " + distance);
-        distanceView.setText(distance);
+        mDistanceView.setText(distance);
     }
 
     public void setMediaData(final CharSequence artist, final CharSequence album,
@@ -94,68 +87,95 @@ public class DemoInstrumentClusterView extends FrameLayout {
         Log.d(TAG, "setMediaData" + " artist = " + artist + ", album: " + album + ", track: " +
                 track + ", bitmap: " + image);
 
-        mediaArtistView.setText(artist);
-        mediaAlbumView.setText(album);
-        mediaTrackView.setText(track);
-        mediaImageView.setImageBitmap(image);
+        mMediaArtistView.setText(artist);
+        mMediaAlbumView.setText(album);
+        mMediaTrackView.setText(track);
+        mMediaImageView.setImageBitmap(image);
+    }
+
+    private void showAnimated(final View view) {
+        if (view.getVisibility() == VISIBLE && view.getAlpha() > 0) {
+            return;
+        }
+        view.setAlpha(0);
+        view.setVisibility(VISIBLE);
+        view.animate()
+                .alpha(1f)
+                .setDuration(mAnimationDurationMs)
+                .setListener(null);
+    }
+
+    private void hideAnimated(final View view) {
+        if (view.getVisibility() == GONE) {
+            return;
+        }
+        view.animate()
+                .alpha(0f)
+                .setDuration(mAnimationDurationMs)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        view.setVisibility(GONE);
+                    }
+                });
     }
 
     public void showMedia() {
         Log.d(TAG, "showMedia");
-        mediaPanel.setVisibility(VISIBLE);
+        showAnimated(mMediaPanel);
     }
 
     public void hideMedia() {
         Log.d(TAG, "hideMedia");
-        mediaPanel.setVisibility(GONE);
+        hideAnimated(mMediaPanel);
     }
 
     public void showPhone() {
         Log.d(TAG, "showPhone");
-        phoneSubtitle.setText("");
-        phoneImage.setImageResource(0); // To clear previous contact photo (if any).
-        phoneTitle.setText("");
-        phonePanel.setVisibility(VISIBLE);
+        mPhoneSubtitle.setText("");
+        mPhoneImage.setImageResource(0); // To clear previous contact photo (if any).
+        mPhoneTitle.setText("");
+        showAnimated(mPhonePanel);
     }
 
     public void hidePhone() {
         Log.d(TAG, "hidePhone");
-        phonePanel.setVisibility(GONE);
+        hideAnimated(mPhonePanel);
     }
 
     public void setPhoneTitle(String number) {
         Log.d(TAG, "setPhoneTitle, number: " + number);
-        phoneTitle.setText(number);
+        mPhoneTitle.setText(number);
     }
 
     public void setPhoneSubtitle(String contact) {
         Log.d(TAG, "setPhoneContact, contact: " + contact);
-        phoneSubtitle.setText(contact);
+        mPhoneSubtitle.setText(contact);
     }
 
     public void setPhoneImage(Bitmap photo) {
         Log.d(TAG, "setPhoneImage, photo: " + photo);
-        phoneImage.setImageBitmap(photo);
+        mPhoneImage.setImageBitmap(photo);
     }
 
     private void init() {
         Log.d(TAG, "init");
         View rootView = inflate(getContext(), R.layout.instrument_cluster, null);
-        speedView = (TextView) rootView.findViewById(R.id.speed);
-        eventTitleView = (TextView) rootView.findViewById(R.id.nav_event_title);
-        distanceView = (TextView) rootView.findViewById(R.id.nav_distance);
-        navPanel = rootView.findViewById(R.id.nav_layout);
+        mSpeedView = (TextView) rootView.findViewById(R.id.speed);
+        mEventTitleView = (TextView) rootView.findViewById(R.id.nav_event_title);
+        mDistanceView = (TextView) rootView.findViewById(R.id.nav_distance);
+        mNavPanel = rootView.findViewById(R.id.nav_layout);
 
-        mediaPanel = rootView.findViewById(R.id.media_layout);
-        mediaArtistView = (TextView) rootView.findViewById(R.id.media_artist);
-        mediaAlbumView = (TextView) rootView.findViewById(R.id.media_album);
-        mediaTrackView = (TextView) rootView.findViewById(R.id.media_track);
-        mediaImageView = (ImageView) rootView.findViewById(R.id.media_image);
+        mMediaPanel = rootView.findViewById(R.id.media_layout);
+        mMediaArtistView = (TextView) rootView.findViewById(R.id.media_artist);
+        mMediaAlbumView = (TextView) rootView.findViewById(R.id.media_album);
+        mMediaTrackView = (TextView) rootView.findViewById(R.id.media_track);
+        mMediaImageView = (ImageView) rootView.findViewById(R.id.media_image);
 
-        phonePanel = rootView.findViewById(R.id.phone_layout);
-        phoneImage = (ImageView) rootView.findViewById(R.id.phone_contact_photo);
-        phoneSubtitle = (TextView) rootView.findViewById(R.id.phone_subtitle);
-        phoneTitle = (TextView) rootView.findViewById(R.id.phone_title);
+        mPhonePanel = rootView.findViewById(R.id.phone_layout);
+        mPhoneImage = (ImageView) rootView.findViewById(R.id.phone_contact_photo);
+        mPhoneSubtitle = (TextView) rootView.findViewById(R.id.phone_subtitle);
+        mPhoneTitle = (TextView) rootView.findViewById(R.id.phone_title);
 
         setSpeed("0");
 

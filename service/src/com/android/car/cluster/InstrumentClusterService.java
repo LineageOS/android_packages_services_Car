@@ -22,7 +22,6 @@ import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.cluster.renderer.InstrumentClusterRenderer;
-import android.car.cluster.renderer.MediaRenderer;
 import android.car.cluster.renderer.NavigationRenderer;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
@@ -195,11 +194,6 @@ public class InstrumentClusterService implements CarServiceBase {
             }
         }
         return mClusterType;
-    }
-
-    @Nullable
-    public MediaRenderer getMediaRenderer() {
-        return mRenderer != null ? mRenderer.getMediaRenderer() : null;
     }
 
     @Nullable

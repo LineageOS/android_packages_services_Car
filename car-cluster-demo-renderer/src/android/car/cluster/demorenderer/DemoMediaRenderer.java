@@ -15,7 +15,7 @@
  */
 package android.car.cluster.demorenderer;
 
-import android.car.cluster.renderer.MediaRenderer;
+import android.car.cluster.demorenderer.MediaStateMonitor.MediaStateListener;
 import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.session.PlaybackState;
@@ -24,7 +24,7 @@ import android.util.Log;
 /**
  * Demo of rendering media data in instrument cluster.
  */
-public class DemoMediaRenderer extends MediaRenderer {
+public class DemoMediaRenderer implements MediaStateListener {
 
     private static final String TAG = DemoMediaRenderer.class.getSimpleName();
 

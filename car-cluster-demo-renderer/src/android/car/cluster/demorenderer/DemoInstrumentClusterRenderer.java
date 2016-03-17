@@ -17,7 +17,6 @@ package android.car.cluster.demorenderer;
 
 import android.car.cluster.renderer.DisplayConfiguration;
 import android.car.cluster.renderer.InstrumentClusterRenderer;
-import android.car.cluster.renderer.MediaRenderer;
 import android.car.cluster.renderer.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Context;
@@ -31,7 +30,9 @@ public class DemoInstrumentClusterRenderer extends InstrumentClusterRenderer {
     private DemoInstrumentClusterView mView;
     private Context mContext;
     private CallStateMonitor mPhoneStatusMonitor;
+    private MediaStateMonitor mMediaStateMonitor;
     private DemoPhoneRenderer mPhoneRenderer;
+    private DemoMediaRenderer mMediaRenderer;
 
     @Override
     public void onCreate(Context context) {
@@ -42,27 +43,34 @@ public class DemoInstrumentClusterRenderer extends InstrumentClusterRenderer {
     public View onCreateView(DisplayConfiguration displayConfiguration) {
         mView = new DemoInstrumentClusterView(mContext);
         mPhoneRenderer = new DemoPhoneRenderer(mView);
+        mMediaRenderer = new DemoMediaRenderer(mView);
         return mView;
     }
 
     @Override
     public void onStart() {
         mPhoneStatusMonitor = new CallStateMonitor(mContext, mPhoneRenderer);
+        mMediaStateMonitor = new MediaStateMonitor(mContext, mMediaRenderer);
     }
 
     @Override
     public void onStop() {
-        mPhoneStatusMonitor.release();
+        if (mPhoneStatusMonitor != null) {
+            mPhoneStatusMonitor.release();
+            mPhoneStatusMonitor = null;
+        }
+
+        if (mMediaStateMonitor != null) {
+            mMediaStateMonitor.release();
+            mMediaStateMonitor = null;
+        }
+        mPhoneRenderer = null;
+        mMediaRenderer = null;
     }
 
     @Override
     protected NavigationRenderer createNavigationRenderer() {
         return new DemoNavigationRenderer(mView);
-    }
-
-    @Override
-    protected MediaRenderer createMediaRenderer() {
-        return new DemoMediaRenderer(mView);
     }
 
     @Override
