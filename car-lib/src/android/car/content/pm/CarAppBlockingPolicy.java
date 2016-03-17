@@ -27,7 +27,6 @@ import java.util.Arrays;
 
 /**
  * Contains application blocking policy
- * @hide
  */
 @SystemApi
 public class CarAppBlockingPolicy implements Parcelable {

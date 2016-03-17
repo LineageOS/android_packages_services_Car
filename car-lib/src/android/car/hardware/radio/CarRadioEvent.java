@@ -24,7 +24,6 @@ import android.os.Parcelable;
  * A CarRadioEvent object corresponds to a single radio event coming from the car.
  *
  * This works in conjunction with the callbacks already defined in {@link RadioCallback.Callback}.
- * @hide
  */
 @SystemApi
 public class CarRadioEvent implements Parcelable {

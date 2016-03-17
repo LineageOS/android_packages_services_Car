@@ -71,27 +71,15 @@ public class Car {
      */
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
 
-    /**
-     * @hide
-     */
     @SystemApi
     public static final String CAMERA_SERVICE = "camera";
 
-    /**
-     * @hide
-     */
     @SystemApi
     public static final String RADIO_SERVICE = "radio";
 
-    /**
-     * @hide
-     */
     @SystemApi
     public static final String HVAC_SERVICE = "hvac";
 
-    /**
-     * @hide
-     */
     @SystemApi
     public static final String PROJECTION_SERVICE = "projection";
 
@@ -119,53 +107,32 @@ public class Car {
     public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
             "android.car.permission.CAR_NAVIGATION_MANAGER";
 
-    /**
-     * Permission necessary to access car specific communication channel.
-     * @hide
-     */
+    /** Permission necessary to access car specific communication channel. */
     @SystemApi
     public static final String PERMISSION_VENDOR_EXTENSION =
             "android.car.permission.CAR_VENDOR_EXTENSION";
 
-    /**
-     * @hide
-     */
     @SystemApi
     public static final String PERMISSION_CONTROL_APP_BLOCKING =
             "android.car.permission.CONTROL_APP_BLOCKING";
 
-    /**
-     * Permission necessary to access Car Camera APIs.
-     * @hide
-     */
+    /** Permission necessary to access Car Camera APIs. */
     @SystemApi
     public static final String PERMISSION_CAR_CAMERA = "android.car.permission.CAR_CAMERA";
 
-    /**
-     * Permission necessary to access Car HVAC APIs.
-     * @hide
-     */
+    /** Permission necessary to access Car HVAC APIs. */
     @SystemApi
     public static final String PERMISSION_CAR_HVAC = "android.car.permission.CAR_HVAC";
 
-    /**
-     * Permission necessary to access Car RADIO system APIs.
-     * @hide
-     */
+    /** Permission necessary to access Car RADIO system APIs. */
     @SystemApi
     public static final String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
 
-    /**
-     * Permission necesary to access Car PRJECTION system APIs.
-     * @hide
-     */
+    /** Permission necesary to access Car PRJECTION system APIs. */
     @SystemApi
     public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
 
-    /**
-     * Permission necessary to mock vehicle hal for testing.
-     * @hide
-     */
+    /** Permission necessary to mock vehicle hal for testing. */
     @SystemApi
     public static final String PERMISSION_MOCK_VEHICLE_HAL =
             "android.car.permission.CAR_MOCK_VEHICLE_HAL";

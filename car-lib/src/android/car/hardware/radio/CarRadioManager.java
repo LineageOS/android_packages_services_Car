@@ -40,7 +40,6 @@ import java.lang.ref.WeakReference;
  * features additional to the ones provided in there. It supports:
  *
  * 1. Capability to control presets.
- * @hide
  */
 @SystemApi
 public class CarRadioManager implements CarManagerBase {

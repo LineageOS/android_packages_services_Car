@@ -36,7 +36,6 @@ import java.util.List;
 
 /**
  * API for controlling HVAC system in cars
- * @hide
  */
 @SystemApi
 public class CarHvacManager implements CarManagerBase {
@@ -699,3 +698,4 @@ public class CarHvacManager implements CarManagerBase {
         }
     }
 }
+

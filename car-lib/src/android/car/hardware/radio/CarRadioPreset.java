@@ -22,7 +22,6 @@ import android.os.Parcelable;
 
 /**
  * CarPreset object corresponds to a preset that is stored on the car's Radio unit.
- * @hide
  */
 @SystemApi
 public class CarRadioPreset implements Parcelable {

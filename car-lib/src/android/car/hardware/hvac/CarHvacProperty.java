@@ -25,7 +25,6 @@ import java.util.Objects;
 
 /**
  * CarHvacProperty object corresponds to a property of the car's HVAC system
- * @hide
  */
 @SystemApi
 public class CarHvacProperty implements Parcelable {
