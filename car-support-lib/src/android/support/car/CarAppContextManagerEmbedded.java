@@ -16,8 +16,6 @@
 
 package android.support.car;
 
-import android.os.Looper;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +34,7 @@ public class CarAppContextManagerEmbedded extends CarAppContextManager {
      */
     CarAppContextManagerEmbedded(Object manager) {
         mManager = (android.car.CarAppContextManager) manager;
-        mOwnershipListeners = new HashMap<Integer, AppContextOwnershipChangeListenerProxy>();
+        mOwnershipListeners = new HashMap<>();
     }
 
     @Override

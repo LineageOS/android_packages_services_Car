@@ -79,7 +79,9 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
 
     @Override
     public int getCarConnectionType() throws CarNotConnectedException {
-        return mCar.getCarConnectionType();
+        @android.support.car.Car.ConnectionType
+        int carConnectionType = mCar.getCarConnectionType();
+        return carConnectionType;
     }
 
     @Override
