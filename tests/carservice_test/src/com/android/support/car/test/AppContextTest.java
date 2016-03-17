@@ -45,10 +45,10 @@ public class AppContextTest extends MockedCarTestBase {
         getVehicleHalEmulator().start();
     }
 
-    public void testCotextChange() throws Exception {
+    public void testContextChange() throws Exception {
         CarAppContextManager manager = (CarAppContextManager) getSupportCar().getCarManager(
                 Car.APP_CONTEXT_SERVICE);
-        ContextChangeListerner listener = new ContextChangeListerner();
+        ContextChangeListener listener = new ContextChangeListener();
         manager.registerContextListener(listener, CarAppContextManager.APP_CONTEXT_NAVIGATION |
                 CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
         manager.setActiveContexts(CarAppContextManager.APP_CONTEXT_NAVIGATION);
@@ -58,7 +58,7 @@ public class AppContextTest extends MockedCarTestBase {
         manager.unregisterContextListener();
     }
 
-    private class ContextChangeListerner implements CarAppContextManager.AppContextChangeListener {
+    private class ContextChangeListener implements CarAppContextManager.AppContextChangeListener {
         private int mLastChangeEvent;
         private final Semaphore mChangeWait = new Semaphore(0);
         private int mLastLossEvent;

@@ -35,6 +35,7 @@ import android.os.IBinder;
 import android.support.car.Car;
 import android.support.car.CarAppContextManager;
 import android.support.car.CarNotConnectedException;
+import android.support.car.CarNotSupportedException;
 import android.support.car.ServiceConnectionListener;
 import android.support.car.app.menu.CarDrawerActivity;
 import android.support.car.app.menu.CarMenu;
@@ -158,7 +159,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private final ServiceConnectionListener mServiceConnectionListener =
             new ServiceConnectionListener() {
         @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
+        public void onServiceConnected(ComponentName name) {
             Log.d(TAG, "Connected to Car Service");
             try {
                 mCameraManager = (CarCameraManager) mCarApi.getCarManager(android.car.Car
@@ -174,6 +175,8 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                         (CarAppContextManager) mCarApi.getCarManager(Car.APP_CONTEXT_SERVICE);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Car is not connected!");
+            } catch (CarNotSupportedException e) {
+                Log.e(TAG, "Car is not supported!");
             }
         }
 

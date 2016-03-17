@@ -57,7 +57,7 @@ public class CarConnectionListenerInMockingTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
+        public void onServiceConnected(ComponentName name) {
             assertMainThread();
             mConnectionWait.release();
         }

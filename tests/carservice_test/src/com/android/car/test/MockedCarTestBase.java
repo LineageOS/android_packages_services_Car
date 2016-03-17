@@ -62,8 +62,8 @@ public class MockedCarTestBase extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.i(TAG, "onServiceConnected, component" + name + " binder " + service);
+        public void onServiceConnected(ComponentName name) {
+            Log.i(TAG, "onServiceConnected, component" + name);
             mConnectionWaitForSupportCar.release();
         }
     };
