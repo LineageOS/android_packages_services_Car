@@ -25,6 +25,7 @@
     <uses-permission android:name="android.car.permission.CAR_HVAC" />
     <uses-permission android:name="android.car.permission.CAR_MOCK_VEHICLE_HAL" />
     <uses-permission android:name="android.car.permission.CAR_CAMERA" />
+    <uses-permission android:name="android.car.permission.CAR_NAVIGATION_MANAGER"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <application android:label="@string/app_title"
         android:icon="@drawable/ic_launcher">
