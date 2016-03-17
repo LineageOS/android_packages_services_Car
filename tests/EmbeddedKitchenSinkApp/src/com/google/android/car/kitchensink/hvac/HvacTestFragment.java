@@ -300,7 +300,7 @@ public class HvacTestFragment extends Fragment {
         if (mZoneForSetTempP == 0) {
             mZoneForSetTempP = VehicleZoneUtil.getNextZone(prop.getZones(), mZoneForSetTempD);
         }
-        int numZones = VehicleZoneUtil.getNumBerOfZones(prop.getZones());
+        int numZones = VehicleZoneUtil.getNumberOfZones(prop.getZones());
         if (numZones < 2) {
             mZoneForSetTempP = 0;
         }

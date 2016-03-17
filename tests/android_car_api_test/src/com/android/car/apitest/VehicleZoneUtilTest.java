@@ -23,18 +23,31 @@ public class VehicleZoneUtilTest extends AndroidTestCase {
     public void testZoneToIndex() {
         int zones = 0;
         int zone = 0;
-        assertEquals(0, VehicleZoneUtil.zoneToIndex(zones, zone));
+        try {
+            int r = VehicleZoneUtil.zoneToIndex(zones, zone);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
         zone = 0x1;
-        assertEquals(0, VehicleZoneUtil.zoneToIndex(zones, zone));
+        try {
+            int r = VehicleZoneUtil.zoneToIndex(zones, zone);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
         zones = 0xffffffff;
         zone = 0x1;
         assertEquals(0, VehicleZoneUtil.zoneToIndex(zones, zone));
         zone = 0x80000000;
         assertEquals(31, VehicleZoneUtil.zoneToIndex(zones, zone));
         zones = 0x1002;
-        assertEquals(0, VehicleZoneUtil.zoneToIndex(zones, zone));
-        zone = 0x1;
-        assertEquals(0, VehicleZoneUtil.zoneToIndex(zones, zone));
+        try {
+            int r = VehicleZoneUtil.zoneToIndex(zones, zone);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
         zone = 0x2;
         assertEquals(0, VehicleZoneUtil.zoneToIndex(zones, zone));
         zone = 0x1000;
@@ -43,13 +56,13 @@ public class VehicleZoneUtilTest extends AndroidTestCase {
 
     public void testGetNumBerOfZones() {
         int zones = 0;
-        assertEquals(0, VehicleZoneUtil.getNumBerOfZones(zones));
+        assertEquals(0, VehicleZoneUtil.getNumberOfZones(zones));
         zones = 0x1;
-        assertEquals(1, VehicleZoneUtil.getNumBerOfZones(zones));
+        assertEquals(1, VehicleZoneUtil.getNumberOfZones(zones));
         zones = 0x7;
-        assertEquals(3, VehicleZoneUtil.getNumBerOfZones(zones));
+        assertEquals(3, VehicleZoneUtil.getNumberOfZones(zones));
         zones = 0xffffffff;
-        assertEquals(32, VehicleZoneUtil.getNumBerOfZones(zones));
+        assertEquals(32, VehicleZoneUtil.getNumberOfZones(zones));
     }
 
     public void testGetFirstZone() {
@@ -66,17 +79,33 @@ public class VehicleZoneUtilTest extends AndroidTestCase {
         int startingZone = 0x1;
         assertEquals(0, VehicleZoneUtil.getNextZone(zones, startingZone));
         startingZone = 0;
-        assertEquals(0, VehicleZoneUtil.getNextZone(zones, startingZone));
+        try {
+            int r = VehicleZoneUtil.getNextZone(zones, startingZone);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
         zones = 0x1;
         startingZone = 0;
-        assertEquals(0, VehicleZoneUtil.getNextZone(zones, startingZone));
+        try {
+            int r = VehicleZoneUtil.getNextZone(zones, startingZone);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
         startingZone = 0x1;
         assertEquals(0, VehicleZoneUtil.getNextZone(zones, startingZone));
         zones = 0xff00;
         startingZone = 0x1;
-        assertEquals(0x0100, VehicleZoneUtil.getNextZone(zones, startingZone));
+        assertEquals(0x100, VehicleZoneUtil.getNextZone(zones, startingZone));
         startingZone = 0x0100;
         assertEquals(0x0200, VehicleZoneUtil.getNextZone(zones, startingZone));
+        zones = 0xf;
+        startingZone = 0x2;
+        assertEquals(0x4, VehicleZoneUtil.getNextZone(zones, startingZone));
+        zones = 0xf0000000;
+        startingZone = 0x40000000;
+        assertEquals(0x80000000, VehicleZoneUtil.getNextZone(zones, startingZone));
     }
 
     public void testGetAllZones() {

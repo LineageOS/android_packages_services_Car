@@ -221,7 +221,7 @@ public class CarHvacManager implements CarManagerBase {
 
         public CarHvacFloatProperty(int propId, int zones, float[] maxs, float mins[]) {
             super(propId, PROPERTY_TYPE_FLOAT, zones);
-            int expectedLength = zones == 0 ? 1 : VehicleZoneUtil.getNumBerOfZones(zones);
+            int expectedLength = zones == 0 ? 1 : VehicleZoneUtil.getNumberOfZones(zones);
             if (maxs.length != expectedLength || mins.length != expectedLength) {
                 throw new IllegalArgumentException("Expected length:" + expectedLength +
                         " while maxs length:" + maxs.length + " mins length:" + mins.length +
@@ -270,7 +270,7 @@ public class CarHvacManager implements CarManagerBase {
 
         public CarHvacIntProperty(int propId, int zones, int[] maxs, int[] mins) {
             super(propId, PROPERTY_TYPE_INT, zones);
-            int expectedLength = zones == 0 ? 1 : VehicleZoneUtil.getNumBerOfZones(zones);
+            int expectedLength = zones == 0 ? 1 : VehicleZoneUtil.getNumberOfZones(zones);
             if (maxs.length != expectedLength || mins.length != expectedLength) {
                 throw new IllegalArgumentException("Expected length:" + expectedLength +
                         " while maxs length:" + maxs.length + " mins length:" + mins.length +
