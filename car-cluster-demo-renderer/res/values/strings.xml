@@ -30,4 +30,7 @@
     <string name="turn_on_ramp_right">Turn right on ramp</string>
     <string name="nav_event_title_format">%1$s on %2$s</string>
     <string name="meters">meters</string>
+
+    <string name="call_state_ringing">Ringing</string>
+    <string name="call_state_active">Active</string>
 </resources>

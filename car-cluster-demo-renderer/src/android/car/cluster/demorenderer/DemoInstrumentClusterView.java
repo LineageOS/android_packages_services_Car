@@ -40,6 +40,11 @@ public class DemoInstrumentClusterView extends FrameLayout {
     private ImageView mediaImageView;
     private View mediaPanel;
 
+    private View phonePanel;
+    private TextView phoneTitle;
+    private TextView phoneSubtitle;
+    private ImageView phoneImage;
+
     public DemoInstrumentClusterView(Context context) {
         super(context);
         init();
@@ -102,7 +107,35 @@ public class DemoInstrumentClusterView extends FrameLayout {
 
     public void hideMedia() {
         Log.d(TAG, "hideMedia");
-        mediaPanel.setVisibility(INVISIBLE);
+        mediaPanel.setVisibility(GONE);
+    }
+
+    public void showPhone() {
+        Log.d(TAG, "showPhone");
+        phoneSubtitle.setText("");
+        phoneImage.setImageResource(0); // To clear previous contact photo (if any).
+        phoneTitle.setText("");
+        phonePanel.setVisibility(VISIBLE);
+    }
+
+    public void hidePhone() {
+        Log.d(TAG, "hidePhone");
+        phonePanel.setVisibility(GONE);
+    }
+
+    public void setPhoneTitle(String number) {
+        Log.d(TAG, "setPhoneTitle, number: " + number);
+        phoneTitle.setText(number);
+    }
+
+    public void setPhoneSubtitle(String contact) {
+        Log.d(TAG, "setPhoneContact, contact: " + contact);
+        phoneSubtitle.setText(contact);
+    }
+
+    public void setPhoneImage(Bitmap photo) {
+        Log.d(TAG, "setPhoneImage, photo: " + photo);
+        phoneImage.setImageBitmap(photo);
     }
 
     private void init() {
@@ -113,11 +146,16 @@ public class DemoInstrumentClusterView extends FrameLayout {
         distanceView = (TextView) rootView.findViewById(R.id.nav_distance);
         navPanel = rootView.findViewById(R.id.nav_layout);
 
+        mediaPanel = rootView.findViewById(R.id.media_layout);
         mediaArtistView = (TextView) rootView.findViewById(R.id.media_artist);
         mediaAlbumView = (TextView) rootView.findViewById(R.id.media_album);
         mediaTrackView = (TextView) rootView.findViewById(R.id.media_track);
         mediaImageView = (ImageView) rootView.findViewById(R.id.media_image);
-        mediaPanel = rootView.findViewById(R.id.media_layout);
+
+        phonePanel = rootView.findViewById(R.id.phone_layout);
+        phoneImage = (ImageView) rootView.findViewById(R.id.phone_contact_photo);
+        phoneSubtitle = (TextView) rootView.findViewById(R.id.phone_subtitle);
+        phoneTitle = (TextView) rootView.findViewById(R.id.phone_title);
 
         setSpeed("0");
 
