@@ -20,6 +20,7 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
+import android.car.VehicleZoneUtil;
 import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
@@ -155,6 +156,13 @@ public class CarHvacManager implements CarManagerBase {
         }
 
         /**
+         * Tells if the given property is zoned property or global property
+         */
+        public boolean isZonedProperty() {
+            return mPropertyId > MAX_GLOBAL_PROPETY_ID;
+        }
+
+        /**
          * Return bit flags of supported zones.
          */
         public int getZones()       { return mZones; }
@@ -177,32 +185,6 @@ public class CarHvacManager implements CarManagerBase {
             return 0;
         }
 
-        public static int zoneToIndex(int zone) {
-            if (zone == 0) {
-                return 0;
-            }
-            int flag = 0x1;
-            for (int i = 0; i < 32; i++) {
-                if ((flag & zone) != 0) {
-                    return i;
-                }
-                flag <<= 1;
-            }
-            return 0;
-        }
-
-        public static int getNumZones(int zones) {
-            int numZones = 0;
-            int flag = 0x1;
-            for (int i = 0; i < 32; i++) {
-                if ((flag & zones) != 0) {
-                    numZones++;
-                }
-                flag <<= 1;
-            }
-            return numZones;
-        }
-
         @Override
         public String toString() {
             return "CarHvacBaseProperty [mPropertyId=0x" + Integer.toHexString(mPropertyId) +
@@ -211,7 +193,7 @@ public class CarHvacManager implements CarManagerBase {
         }
 
         protected void assertZonedProperty() {
-            if (mPropertyId <= MAX_GLOBAL_PROPETY_ID) {
+            if (!isZonedProperty()) {
                 throw new IllegalArgumentException(
                         "assertZonedProperty called for non-zoned property 0x" +
                                 Integer.toHexString(mPropertyId));
@@ -219,7 +201,7 @@ public class CarHvacManager implements CarManagerBase {
         }
 
         protected void assertNonZonedProperty() {
-            if (mPropertyId > MAX_GLOBAL_PROPETY_ID) {
+            if (isZonedProperty()) {
                 throw new IllegalArgumentException(
                         "assertNonZonedProperty called for zoned property 0x" +
                         Integer.toHexString(mPropertyId));
@@ -239,7 +221,7 @@ public class CarHvacManager implements CarManagerBase {
 
         public CarHvacFloatProperty(int propId, int zones, float[] maxs, float mins[]) {
             super(propId, PROPERTY_TYPE_FLOAT, zones);
-            int expectedLength = zones == 0 ? 1 : getNumZones(zones);
+            int expectedLength = zones == 0 ? 1 : VehicleZoneUtil.getNumBerOfZones(zones);
             if (maxs.length != expectedLength || mins.length != expectedLength) {
                 throw new IllegalArgumentException("Expected length:" + expectedLength +
                         " while maxs length:" + maxs.length + " mins length:" + mins.length +
@@ -267,12 +249,12 @@ public class CarHvacManager implements CarManagerBase {
 
         public float getMaxValue(int zone) {
             assertZonedProperty();
-            return mMaxValues[zoneToIndex(zone)];
+            return mMaxValues[VehicleZoneUtil.zoneToIndex(mZones, zone)];
         }
 
         public float getMinValue(int zone) {
             assertZonedProperty();
-            return mMinValues[zoneToIndex(zone)];
+            return mMinValues[VehicleZoneUtil.zoneToIndex(mZones, zone)];
         }
 
         @Override
@@ -288,7 +270,7 @@ public class CarHvacManager implements CarManagerBase {
 
         public CarHvacIntProperty(int propId, int zones, int[] maxs, int[] mins) {
             super(propId, PROPERTY_TYPE_INT, zones);
-            int expectedLength = zones == 0 ? 1 : getNumZones(zones);
+            int expectedLength = zones == 0 ? 1 : VehicleZoneUtil.getNumBerOfZones(zones);
             if (maxs.length != expectedLength || mins.length != expectedLength) {
                 throw new IllegalArgumentException("Expected length:" + expectedLength +
                         " while maxs length:" + maxs.length + " mins length:" + mins.length +
@@ -316,12 +298,12 @@ public class CarHvacManager implements CarManagerBase {
 
         public int getMaxValue(int zone) {
             assertZonedProperty();
-            return mMaxValues[zoneToIndex(zone)];
+            return mMaxValues[VehicleZoneUtil.zoneToIndex(mZones, zone)];
         }
 
         public int getMinValue(int zone) {
             assertZonedProperty();
-            return mMinValues[zoneToIndex(zone)];
+            return mMinValues[VehicleZoneUtil.zoneToIndex(mZones, zone)];
         }
 
         @Override
