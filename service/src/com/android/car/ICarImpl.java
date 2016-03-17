@@ -180,7 +180,7 @@ public class ICarImpl extends ICar.Stub {
                 assertRadioPermission(mContext);
                 return mCarRadioService;
             case Car.CAR_NAVIGATION_SERVICE:
-                assertInstrumentClusterPermission(mContext);
+                assertNavigationManagerPermission(mContext);
                 return mCarNavigationService;
             case Car.PROJECTION_SERVICE:
                 assertProjectionPermission(mContext);
@@ -246,7 +246,7 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
-    public static void assertInstrumentClusterPermission(Context context) {
+    public static void assertNavigationManagerPermission(Context context) {
         if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_NAVIGATION_MANAGER)
                 != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException(

@@ -81,7 +81,7 @@
         android:label="@string/car_permission_label_mock_vehicle_hal"
         android:description="@string/car_permission_desc_mock_vehicle_hal" />
     <permission
-        android:name="android.car.permission.PERMISSION_CAR_NAVIGATION_MANAGER"
+        android:name="android.car.permission.CAR_NAVIGATION_MANAGER"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_car_navigation_manager"
         android:description="@string/car_permission_desc_car_navigation_manager" />

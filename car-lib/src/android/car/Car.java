@@ -117,7 +117,7 @@ public class Car {
      * @hide
      */
     public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
-            "android.car.permission.PERMISSION_CAR_NAVIGATION_MANAGER";
+            "android.car.permission.CAR_NAVIGATION_MANAGER";
 
     /**
      * Permission necessary to access car specific communication channel.
