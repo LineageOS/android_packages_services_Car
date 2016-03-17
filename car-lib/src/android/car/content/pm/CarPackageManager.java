@@ -38,7 +38,6 @@ public class CarPackageManager implements CarManagerBase {
      * Flag for {@link #setAppBlockingPolicy(String, CarAppBlockingPolicy, int)}. When this
      * flag is set, the call will be blocked until policy is set to system. This can take time
      * and the flag cannot be used in main thread.
-     * @hide
      */
     @SystemApi
     public static final int FLAG_SET_POLICY_WAIT_FOR_CHANGE = 0x1;
@@ -48,7 +47,6 @@ public class CarPackageManager implements CarManagerBase {
      * If none of {@link #FLAG_SET_POLICY_ADD} or {@link #FLAG_SET_POLICY_REMOVE} is set, existing
      * policy is replaced. Note that policy per each package is always replaced and will not be
      * added.
-     * @hide
      */
     @SystemApi
     public static final int FLAG_SET_POLICY_ADD = 0x2;
@@ -57,7 +55,6 @@ public class CarPackageManager implements CarManagerBase {
      * flag is set, passed policy is removed from existing policy set from the current package.
      * If none of {@link #FLAG_SET_POLICY_ADD} or {@link #FLAG_SET_POLICY_REMOVE} is set, existing
      * policy is replaced.
-     * @hide
      */
     @SystemApi
     public static final int FLAG_SET_POLICY_REMOVE = 0x4;
@@ -101,7 +98,6 @@ public class CarPackageManager implements CarManagerBase {
      * @throws IllegalArgumentException For wrong or invalid arguments.
      * @throws IllegalStateException If {@link #FLAG_SET_POLICY_WAIT_FOR_CHANGE} is set while
      *         called from main thread.
-     * @hide
      */
     @SystemApi
     public void setAppBlockingPolicy(String packageName, CarAppBlockingPolicy policy,

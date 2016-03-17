@@ -16,7 +16,6 @@
 
 package android.car;
 
-import android.annotation.SystemApi;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -28,9 +27,8 @@ import java.lang.ref.WeakReference;
 /**
  * CarProjectionManager allows applications implementing projection to register/unregister itself
  * with projection manager, listen for voice notification.
- * @hide
+ * @SystemApi
  */
-@SystemApi
 public class CarProjectionManager implements CarManagerBase {
     /**
      * Listener to get projected notifications.

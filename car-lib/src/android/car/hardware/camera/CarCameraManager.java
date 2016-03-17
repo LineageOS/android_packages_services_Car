@@ -26,7 +26,6 @@ import android.util.Log;
 
 /**
  * API for controlling camera system in cars
- * @hide
  */
 @SystemApi
 public class CarCameraManager implements CarManagerBase {
@@ -107,3 +106,4 @@ public class CarCameraManager implements CarManagerBase {
     public void onCarDisconnected() {
     }
 }
+
