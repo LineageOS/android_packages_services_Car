@@ -48,6 +48,8 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
 
     private KeyEventListener mInstumentClusterKeyListener;
 
+    private KeyEventListener mVolumeKeyListener;
+
     private ParcelFileDescriptor mInjectionDeviceFd;
 
     private int mKeyEventCount = 0;
@@ -83,6 +85,12 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     public void setInstrumentClusterKeyListener(KeyEventListener listener) {
         synchronized (this) {
             mInstumentClusterKeyListener = listener;
+        }
+    }
+
+    public void setVolumeKeyListener(KeyEventListener listener) {
+        synchronized (this) {
+            mVolumeKeyListener = listener;
         }
     }
 
@@ -135,6 +143,10 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOICE_ASSIST:
                 handleVoiceAssistKey(event);
+                return;
+            case KeyEvent.KEYCODE_VOLUME_UP:
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                handleVolumeKey(event);
                 return;
             default:
                 break;
@@ -190,6 +202,17 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         KeyEventListener listener = null;
         synchronized (this) {
             listener = mInstumentClusterKeyListener;
+        }
+        if (listener == null) {
+            return;
+        }
+        listener.onKeyEvent(event);
+    }
+
+    private void handleVolumeKey(KeyEvent event) {
+        KeyEventListener listener = null;
+        synchronized (this) {
+            listener = mVolumeKeyListener;
         }
         if (listener == null) {
             return;
