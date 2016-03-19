@@ -407,6 +407,16 @@ default: return "UNKNOWN";
 }
 }
 
+public static class VehicleAudioVolumeCapabilityFlag {
+public static final int VEHICLE_AUDIO_VOLUME_CAPABILITY_PERSISTENT_STORAGE = 0x1;
+public static String enumToString(int v) {
+switch(v) {
+case VEHICLE_AUDIO_VOLUME_CAPABILITY_PERSISTENT_STORAGE: return "VEHICLE_AUDIO_VOLUME_CAPABILITY_PERSISTENT_STORAGE";
+default: return "UNKNOWN";
+}
+}
+}
+
 public static class VehicleAudioVolumeState {
 public static final int VEHICLE_AUDIO_VOLUME_STATE_OK = 0;
 public static final int VEHICLE_AUDIO_VOLUME_STATE_LIMIT_REACHED = 1;

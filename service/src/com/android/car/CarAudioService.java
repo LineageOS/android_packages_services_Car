@@ -30,7 +30,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.android.car.hal.AudioHalService;
-import com.android.car.hal.AudioHalService.AudioHalListener;
+import com.android.car.hal.AudioHalService.AudioHalFocusListener;
 import com.android.car.hal.VehicleHal;
 import com.android.internal.annotations.GuardedBy;
 
@@ -38,7 +38,17 @@ import java.io.PrintWriter;
 import java.util.LinkedList;
 
 
-public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, AudioHalListener {
+public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
+        AudioHalFocusListener {
+
+    public interface AudioContextChangeListener {
+        /**
+         * Notifies the current primary audio context (app holding focus).
+         * If there is no active context, context will be 0.
+         * Will use context like CarAudioManager.CAR_AUDIO_USAGE_*
+         */
+        void onContextChange(int primaryFocusContext, int primaryFocusPhysicalStream);
+    }
 
     private static final long FOCUS_RESPONSE_WAIT_TIMEOUT_MS = 1000;
 
@@ -50,7 +60,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
     private final Context mContext;
     private final HandlerThread mFocusHandlerThread;
     private final CarAudioFocusChangeHandler mFocusHandler;
-    private final CarAudioVolumeHandler mVolumeHandler;
     private final SystemFocusListener mSystemFocusListener;
     private AudioPolicy mAudioPolicy;
     private final Object mLock = new Object();
@@ -83,6 +92,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
     private boolean mCallActive = false;
     @GuardedBy("mLock")
     private int mCurrentAudioContexts = 0;
+    @GuardedBy("mLock")
+    private int mCurrentPrimaryAudioContext = 0;
+    @GuardedBy("mLock")
+    private int mCurrentPrimaryPhysicalStream = 0;
+    @GuardedBy("mLock")
+    private AudioContextChangeListener mAudioContextChangeListener;
+    @GuardedBy("mLock")
+    private CarAudioContextChangeHandler mCarAudioContextChangeHandler;
 
     private final AudioAttributes mAttributeBottom =
             CarAudioAttributesUtil.getAudioAttributesForCarUsage(
@@ -98,7 +115,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
         mSystemFocusListener = new SystemFocusListener();
         mFocusHandlerThread.start();
         mFocusHandler = new CarAudioFocusChangeHandler(mFocusHandlerThread.getLooper());
-        mVolumeHandler = new CarAudioVolumeHandler(Looper.getMainLooper());
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
     }
 
@@ -134,7 +150,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
         if (r != 0) {
             throw new RuntimeException("registerAudioPolicy failed " + r);
         }
-        mAudioHal.setListener(this);
+        mAudioHal.setFocusListener(this);
         int audioHwVariant = mAudioHal.getHwVariant();
         mAudioRoutingPolicy = AudioRoutingPolicy.create(mContext, audioHwVariant);
         mAudioHal.setAudioRoutingPolicy(mAudioRoutingPolicy);
@@ -154,7 +170,25 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
             mTopFocusInfo = null;
             mPendingFocusChanges.clear();
             mRadioActive = false;
+            if (mCarAudioContextChangeHandler != null) {
+                mCarAudioContextChangeHandler.cancelAll();
+                mCarAudioContextChangeHandler = null;
+            }
+            mAudioContextChangeListener = null;
+            mCurrentPrimaryAudioContext = 0;
         }
+    }
+
+    public synchronized void setAudioContextChangeListener(Looper looper,
+            AudioContextChangeListener listener) {
+        if (looper == null || listener == null) {
+            throw new IllegalArgumentException("looper or listener null");
+        }
+        if (mCarAudioContextChangeHandler != null) {
+            mCarAudioContextChangeHandler.cancelAll();
+        }
+        mCarAudioContextChangeHandler = new CarAudioContextChangeHandler(looper);
+        mAudioContextChangeListener = listener;
     }
 
     @Override
@@ -164,6 +198,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
                 " mLastFocusRequestToCar:" + mLastFocusRequestToCar);
         writer.println(" mCurrentAudioContexts:0x" + Integer.toHexString(mCurrentAudioContexts));
         writer.println(" mCallActive:" + mCallActive + " mRadioActive:" + mRadioActive);
+        writer.println(" mCurrentPrimaryAudioContext:" + mCurrentPrimaryAudioContext +
+                " mCurrentPrimaryPhysicalStream:" + mCurrentPrimaryPhysicalStream);
         mAudioRoutingPolicy.dump(writer);
     }
 
@@ -175,17 +211,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
             mLock.notifyAll();
         }
         mFocusHandler.handleFocusChange();
-    }
-
-    @Override
-    public void onVolumeChange(int streamNumber, int volume, int volumeState) {
-        mVolumeHandler.handleVolumeChange(new VolumeStateChangeEvent(streamNumber, volume,
-                volumeState));
-    }
-
-    @Override
-    public void onVolumeLimitChange(int streamNumber, int volume) {
-        //TODO
     }
 
     @Override
@@ -333,10 +358,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
                 androidFocus, flags, mAudioPolicy);
     }
 
-    private void doHandleVolumeChange(VolumeStateChangeEvent event) {
-        //TODO
-    }
-
     private void doHandleStreamStatusChange(int streamNumber, int state) {
         //TODO
     }
@@ -430,6 +451,31 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
         int logicalStreamTypeForTop = CarAudioAttributesUtil.getCarUsageFromAudioAttributes(attrib);
         int physicalStreamTypeForTop = mAudioRoutingPolicy.getPhysicalStreamForLogicalStream(
                 logicalStreamTypeForTop);
+
+        // update primary context and notify if necessary
+        int primaryContext = logicalStreamTypeForTop;
+        switch (logicalStreamTypeForTop) {
+            case CarAudioAttributesUtil.CAR_AUDIO_TYPE_CARSERVICE_BOTTOM:
+            case CarAudioAttributesUtil.CAR_AUDIO_TYPE_CARSERVICE_CAR_PROXY:
+                primaryContext = 0;
+                break;
+        }
+        if (mCurrentPrimaryAudioContext != primaryContext) {
+            mCurrentPrimaryAudioContext = primaryContext;
+            if (primaryContext == CarAudioManager.CAR_AUDIO_USAGE_RADIO) {
+                // policy does not know radio. treat it same as music.
+                mCurrentPrimaryPhysicalStream =
+                        mAudioRoutingPolicy.getPhysicalStreamForLogicalStream(
+                                CarAudioManager.CAR_AUDIO_USAGE_MUSIC);
+            } else {
+                mCurrentPrimaryPhysicalStream = physicalStreamTypeForTop;
+            }
+            if (mCarAudioContextChangeHandler != null) {
+                mCarAudioContextChangeHandler.requestContextChangeNotification(
+                        mAudioContextChangeListener, primaryContext, physicalStreamTypeForTop);
+            }
+        }
+
         int audioContexts = 0;
         if (logicalStreamTypeForTop == CarAudioManager.CAR_AUDIO_USAGE_VOICE_CALL) {
             if (!mCallActive) {
@@ -440,7 +486,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
             if (mCallActive) {
                 mCallActive = false;
             }
-            audioContexts = AudioHalService.logicalStreamToHalContextType(logicalStreamTypeForTop);
+            audioContexts =
+                    AudioHalService.logicalStreamToHalContextType(logicalStreamTypeForTop);
         }
         // other apps having focus
         int focusToRequest = AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE;
@@ -748,6 +795,37 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
         }
     }
 
+    private class CarAudioContextChangeHandler extends Handler {
+        private static final int MSG_CONTEXT_CHANGE = 0;
+
+        private CarAudioContextChangeHandler(Looper looper) {
+            super(looper);
+        }
+
+        private void requestContextChangeNotification(AudioContextChangeListener listener,
+                int primaryContext, int physicalStream) {
+            Message msg = obtainMessage(MSG_CONTEXT_CHANGE, primaryContext, physicalStream,
+                    listener);
+            sendMessage(msg);
+        }
+
+        private void cancelAll() {
+            removeMessages(MSG_CONTEXT_CHANGE);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_CONTEXT_CHANGE: {
+                    AudioContextChangeListener listener = (AudioContextChangeListener) msg.obj;
+                    int context = msg.arg1;
+                    int physicalStream = msg.arg2;
+                    listener.onContextChange(context, physicalStream);
+                } break;
+            }
+        }
+    }
+
     private class CarAudioFocusChangeHandler extends Handler {
         private static final int MSG_FOCUS_CHANGE = 0;
         private static final int MSG_STREAM_STATE_CHANGE = 1;
@@ -812,40 +890,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase, A
                     doHandleFocusRelease();
                     break;
             }
-        }
-    }
-
-    private class CarAudioVolumeHandler extends Handler {
-        private static final int MSG_VOLUME_CHANGE = 0;
-
-        private CarAudioVolumeHandler(Looper looper) {
-            super(looper);
-        }
-
-        private void handleVolumeChange(VolumeStateChangeEvent event) {
-            Message msg = obtainMessage(MSG_VOLUME_CHANGE, event);
-            sendMessage(msg);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_VOLUME_CHANGE:
-                    doHandleVolumeChange((VolumeStateChangeEvent) msg.obj);
-                    break;
-            }
-        }
-    }
-
-    private static class VolumeStateChangeEvent {
-        public final int stream;
-        public final int volume;
-        public final int state;
-
-        public VolumeStateChangeEvent(int stream, int volume, int state) {
-            this.stream = stream;
-            this.volume = volume;
-            this.state = state;
         }
     }
 
