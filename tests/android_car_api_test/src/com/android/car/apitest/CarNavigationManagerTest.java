@@ -15,22 +15,23 @@
  */
 package com.android.car.apitest;
 
-import android.os.Looper;
 import android.car.Car;
 import android.car.CarAppContextManager;
 import android.car.CarAppContextManager.AppContextChangeListener;
 import android.car.navigation.CarNavigationInstrumentCluster;
-import android.car.CarNotConnectedException;
 import android.car.navigation.CarNavigationManager;
 import android.car.navigation.CarNavigationManager.CarNavigationListener;
+import android.util.Log;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Unit tests for {@link android.support.car.navigation.CarNavigationStatusManager}
+ * Unit tests for {@link CarNavigationManager}
  */
 public class CarNavigationManagerTest extends CarApiTestBase {
+
+    private static final String TAG = CarNavigationManagerTest.class.getSimpleName();
 
     private CarNavigationManager mCarNavigationManager;
     private CarAppContextManager mCarAppContextManager;
@@ -47,6 +48,11 @@ public class CarNavigationManagerTest extends CarApiTestBase {
     }
 
     public void testStart() throws Exception {
+        if (!mCarNavigationManager.isInstrumentClusterSupported()) {
+            Log.w(TAG, "Unable to run the test: instrument cluster is not supported");
+            return;
+        }
+
         final CountDownLatch onStartLatch = new CountDownLatch(1);
 
         mCarNavigationManager.registerListener(new CarNavigationListener() {
