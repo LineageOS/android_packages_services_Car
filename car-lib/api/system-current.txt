@@ -152,10 +152,10 @@ package android.car {
   public class VehicleZoneUtil {
     ctor public VehicleZoneUtil();
     method public static int getFirstZone(int);
-    method public static int getNextZone(int, int);
-    method public static int getNumBerOfZones(int);
+    method public static int getNextZone(int, int) throws java.lang.IllegalArgumentException;
+    method public static int getNumberOfZones(int);
     method public static int[] listAllZones(int);
-    method public static int zoneToIndex(int, int);
+    method public static int zoneToIndex(int, int) throws java.lang.IllegalArgumentException;
   }
 
 }
