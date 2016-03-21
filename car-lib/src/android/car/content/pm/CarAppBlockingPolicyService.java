@@ -30,6 +30,7 @@ import android.util.Log;
  * implementation. Additionally the APK should have the permission to be launched by Car Service.
  * The implementing service should declare {@link #SERVICE_INTERFACE} in its intent filter as
  * action.
+ * @hide
  */
 @SystemApi
 public abstract class CarAppBlockingPolicyService extends Service {

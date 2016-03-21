@@ -28,6 +28,7 @@ import java.util.Arrays;
 
 /**
  * Parcelable to hold information on app blocking whitelist or blacklist for a package.
+ * @hide
  */
 @SystemApi
 public class AppBlockingPackageInfo implements Parcelable {
