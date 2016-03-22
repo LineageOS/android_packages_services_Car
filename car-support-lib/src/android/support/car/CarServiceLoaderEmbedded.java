@@ -107,20 +107,20 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
         }
         // For publicly available versions, return wrapper version.
         switch (serviceName) {
-        case Car.AUDIO_SERVICE:
-            return new CarAudioManagerEmbedded(manager);
-        case Car.SENSOR_SERVICE:
-            return new CarSensorManagerEmbedded(manager);
-        case Car.INFO_SERVICE:
-            return new CarInfoManagerEmbedded(manager);
-        case Car.APP_CONTEXT_SERVICE:
-            return new CarAppContextManagerEmbedded(manager);
-        case Car.PACKAGE_SERVICE:
-            return new CarPackageManagerEmbedded(manager);
-        case Car.CAR_NAVIGATION_SERVICE:
-            return new CarNavigationManagerEmbedded(manager);
-        default:
-            return manager;
+            case Car.AUDIO_SERVICE:
+                return new CarAudioManagerEmbedded(manager);
+            case Car.SENSOR_SERVICE:
+                return new CarSensorManagerEmbedded(manager, getContext());
+            case Car.INFO_SERVICE:
+                return new CarInfoManagerEmbedded(manager);
+            case Car.APP_CONTEXT_SERVICE:
+                return new CarAppContextManagerEmbedded(manager);
+            case Car.PACKAGE_SERVICE:
+                return new CarPackageManagerEmbedded(manager);
+            case Car.CAR_NAVIGATION_SERVICE:
+                return new CarNavigationManagerEmbedded(manager);
+            default:
+                return manager;
         }
     }
 
