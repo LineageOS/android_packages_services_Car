@@ -15,12 +15,8 @@
  */
 package com.google.android.car.kitchensink.input;
 
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleHwKeyInputAction;
-import com.google.android.car.kitchensink.R;
-
 import android.annotation.Nullable;
+import android.annotation.StringRes;
 import android.car.Car;
 import android.car.test.CarTestManager;
 import android.car.test.CarTestManagerBinderWrapper;
@@ -36,8 +32,19 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.ToggleButton;
+
+import com.google.android.car.kitchensink.CarEmulator;
+import com.google.android.car.kitchensink.R;
+
+import com.android.car.vehiclenetwork.VehicleNetworkConsts;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleHwKeyInputAction;
+import com.android.car.vehiclenetwork.VehiclePropValueUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Test input event handling to system.
@@ -49,9 +56,10 @@ public class InputTestFragment extends Fragment {
 
     private Car mCar;
     private CarTestManager mTestManager;
-    private Button mVolumeUp;
-    private Button mVolumeDown;
-    private Button mVoice;
+    private ToggleButton mEnableMocking;
+    private CarEmulator mCarEmulator;
+
+    List<Button> mButtons = new ArrayList<>();
 
     @Nullable
     @Override
@@ -59,53 +67,72 @@ public class InputTestFragment extends Fragment {
             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.input_test, container, false);
 
-        // Single touch + key event does not work as touch is happening in other window
-        // at the same time. But long press will work.
-        mVolumeUp = (Button) view.findViewById(R.id.button_volume_up);
-        mVolumeUp.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                handleTouchEvent(event, KeyEvent.KEYCODE_VOLUME_UP);
-                return true;
-            }
-        });
-        mVolumeDown = (Button) view.findViewById(R.id.button_volume_down);
-        mVolumeDown.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                handleTouchEvent(event, KeyEvent.KEYCODE_VOLUME_DOWN);
-                return true;
-            }
-        });
-        mVoice = (Button) view.findViewById(R.id.button_voice);
-        mVoice.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                handleTouchEvent(event, KeyEvent.KEYCODE_VOICE_ASSIST);
-                return true;
-            }
-        });
+        Collections.addAll(mButtons,
+                createButton(R.string.volume_up, KeyEvent.KEYCODE_VOLUME_UP),
+                createButton(R.string.volume_down, KeyEvent.KEYCODE_VOLUME_DOWN),
+                createButton(R.string.voice, KeyEvent.KEYCODE_VOICE_ASSIST),
+                createButton(R.string.music, KeyEvent.KEYCODE_MUSIC));
+
+        addButtonsToPanel((ViewGroup) view.findViewById(R.id.input_buttons), mButtons);
 
         mCar = Car.createCar(getContext(), new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
+                Log.i(TAG, "onServiceConnected");
                 mTestManager = new CarTestManager(
                         (CarTestManagerBinderWrapper) mCar.getCarManager(Car.TEST_SERVICE));
-                if (!mTestManager.isPropertySupported(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT)) {
-                    Log.w(TAG, "VEHICLE_PROPERTY_HW_KEY_INPUT not supported");
-                    mVolumeUp.setEnabled(false);
-                    mVolumeDown.setEnabled(false);
-                    mVoice.setEnabled(false);
-                }
+                checkHwKeyInputSupported();
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
+                Log.i(TAG, "onServiceDisconnected");
             }
         });
         mCar.connect();
+
+        mEnableMocking = (ToggleButton) view.findViewById(R.id.button_mock_input);
+        mEnableMocking.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (mCarEmulator == null) {
+                mCarEmulator = new CarEmulator(mCar);
+            }
+            if (isChecked) {
+                mCarEmulator.start();
+            } else {
+                mCarEmulator.stop();
+                mCarEmulator = null;
+            }
+
+            checkHwKeyInputSupported();
+        });
+
         return view;
+    }
+
+    private Button createButton(@StringRes int textResId, int keyCode) {
+        Button button = new Button(getContext());
+        button.setText(getContext().getString(textResId));
+        button.setTextSize(32f);
+        // Single touch + key event does not work as touch is happening in other window
+        // at the same time. But long press will work.
+        button.setOnTouchListener((v, event) -> {
+            handleTouchEvent(event, keyCode);
+            return true;
+        });
+
+        return button;
+    }
+
+    private void checkHwKeyInputSupported() {
+        boolean hwKeyInputSupported = mTestManager.isPropertySupported(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT);
+        if (!hwKeyInputSupported) {
+            Log.w(TAG, "VEHICLE_PROPERTY_HW_KEY_INPUT not supported");
+        }
+
+        for (View v : mButtons) {
+            v.setEnabled(hwKeyInputSupported);
+        }
     }
 
     private void handleTouchEvent(MotionEvent event, int keyCode) {
@@ -132,5 +159,11 @@ public class InputTestFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         mCar.disconnect();
+    }
+
+    private static void addButtonsToPanel(ViewGroup panel, List<Button> buttons) {
+        for (Button button : buttons) {
+            panel.addView(button);
+        }
     }
 }
