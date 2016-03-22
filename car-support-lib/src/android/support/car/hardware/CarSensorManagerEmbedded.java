@@ -16,34 +16,71 @@
 
 package android.support.car.hardware;
 
+import android.content.Context;
 import android.support.car.CarNotConnectedException;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Set;
+
 /**
  *  @hide
  */
 public class CarSensorManagerEmbedded extends CarSensorManager {
+    private static final String TAG = "CarSensorsProxy";
 
     private final android.car.hardware.CarSensorManager mManager;
+    private final CarSensorsProxy mCarSensorsProxy;
     private final LinkedList<CarSensorEventListenerProxy> mListeners = new LinkedList<>();
 
-    public CarSensorManagerEmbedded(Object manager) {
+    public CarSensorManagerEmbedded(Object manager, Context context) {
         mManager = (android.car.hardware.CarSensorManager) manager;
+        mCarSensorsProxy = new CarSensorsProxy(context);
     }
 
     @Override
     public int[] getSupportedSensors() throws CarNotConnectedException {
         try {
-            return mManager.getSupportedSensors();
+            Set<Integer> sensorsSet = new HashSet<Integer>();
+            for (Integer sensor : mManager.getSupportedSensors()) {
+                sensorsSet.add(sensor);
+            }
+            for (Integer proxySensor : mCarSensorsProxy.getSupportedSensors()) {
+                sensorsSet.add(proxySensor);
+            }
+            return toIntArray(sensorsSet);
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }
     }
 
+    private static int[] toIntArray(Collection<Integer> collection) {
+        int len = collection.size();
+        int[] arr = new int[len];
+        int arrIndex = 0;
+        for (Integer item : collection) {
+            arr[arrIndex] = item;
+            arrIndex++;
+        }
+        return arr;
+    }
+
     @Override
     public boolean isSensorSupported(int sensorType) throws CarNotConnectedException {
         try {
-            return mManager.isSensorSupported(sensorType);
+            return mManager.isSensorSupported(sensorType)
+                    || mCarSensorsProxy.isSensorSupported(sensorType);
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    private boolean isSensorProxied(int sensorType) throws CarNotConnectedException {
+        try {
+            return !mManager.isSensorSupported(sensorType)
+                    && mCarSensorsProxy.isSensorSupported(sensorType);
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }
@@ -52,13 +89,17 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
     @Override
     public boolean registerListener(CarSensorEventListener listener, int sensorType,
             int rate) throws CarNotConnectedException, IllegalArgumentException {
+        if (isSensorProxied(sensorType)) {
+            return mCarSensorsProxy.registerSensorListener(listener, sensorType, rate);
+        }
         CarSensorEventListenerProxy proxy = null;
         synchronized (this) {
             proxy = findListenerLocked(listener);
             if (proxy == null) {
                 proxy = new CarSensorEventListenerProxy(listener, sensorType);
+                mListeners.add(proxy);
             } else {
-                proxy.sensors |= sensorType;
+                proxy.sensors.add(sensorType);
             }
         }
         try {
@@ -70,6 +111,7 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
 
     @Override
     public void unregisterListener(CarSensorEventListener listener) {
+        mCarSensorsProxy.unregisterSensorListener(listener);
         CarSensorEventListenerProxy proxy = null;
         synchronized (this) {
             proxy = findListenerLocked(listener);
@@ -83,14 +125,15 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
 
     @Override
     public void unregisterListener(CarSensorEventListener listener, int sensorType) {
+        mCarSensorsProxy.unregisterSensorListener(listener, sensorType);
         CarSensorEventListenerProxy proxy = null;
         synchronized (this) {
             proxy = findListenerLocked(listener);
             if (proxy == null) {
                 return;
             }
-            proxy.sensors &= ~sensorType;
-            if (proxy.sensors == 0) {
+            proxy.sensors.remove(sensorType);
+            if (proxy.sensors.isEmpty()) {
                 mListeners.remove(proxy);
             }
         }
@@ -99,6 +142,9 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
 
     @Override
     public CarSensorEvent getLatestSensorEvent(int type) throws CarNotConnectedException {
+        if (isSensorProxied(type)) {
+            return mCarSensorsProxy.getLatestSensorEvent(type);
+        }
         try {
             return convert(mManager.getLatestSensorEvent(type));
         } catch (android.car.CarNotConnectedException e) {
@@ -132,11 +178,11 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
             android.car.hardware.CarSensorManager.CarSensorEventListener {
 
         public final CarSensorEventListener listener;
-        public int sensors;
+        public final Set<Integer> sensors = new HashSet<Integer>();
 
-        public CarSensorEventListenerProxy(CarSensorEventListener listener, int sensors) {
+        CarSensorEventListenerProxy(CarSensorEventListener listener, int sensor) {
             this.listener = listener;
-            this.sensors = sensors;
+            this.sensors.add(sensor);
         }
 
         @Override
