@@ -108,7 +108,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             file = ParcelFileDescriptor.open(new File(injectionDevice),
                     ParcelFileDescriptor.MODE_READ_WRITE);
         } catch (FileNotFoundException e) {
-            Log.w(CarLog.TAG_INPUT, "cannot open device for input injection:" + injectionDevice);
+            Log.w(CarLog.TAG_INPUT, "cannot open device for input injection:" + injectionDevice, e);
             return;
         }
         synchronized (this) {
@@ -148,6 +148,9 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             case KeyEvent.KEYCODE_VOLUME_DOWN:
                 handleVolumeKey(event);
                 return;
+            case KeyEvent.KEYCODE_MUSIC:
+                handleMusicKey(event);
+                return;
             default:
                 break;
         }
@@ -155,6 +158,14 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             handleInstrumentClusterKey(event);
         } else {
             handleMainDisplayKey(event);
+        }
+    }
+
+    private void handleMusicKey(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_UP) {
+            Intent intent = Intent.makeMainSelectorActivity(
+                    Intent.ACTION_MAIN, Intent.CATEGORY_APP_MUSIC);
+            mContext.startActivityAsUser(intent, null, UserHandle.CURRENT_OR_SELF);
         }
     }
 
