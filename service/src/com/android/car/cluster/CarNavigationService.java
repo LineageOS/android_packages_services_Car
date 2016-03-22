@@ -51,7 +51,7 @@ public class CarNavigationService extends ICarNavigation.Stub
     private final Context mContext;
     private final InstrumentClusterService mInstrumentClusterService;
 
-    private CarNavigationInstrumentCluster mInstrumentClusterInfo = null;
+    private volatile CarNavigationInstrumentCluster mInstrumentClusterInfo = null;
     private volatile NavigationRenderer mNavigationRenderer;
 
     public CarNavigationService(Context context, AppContextService appContextService,
@@ -64,8 +64,6 @@ public class CarNavigationService extends ICarNavigation.Stub
     @Override
     public void init() {
         Log.d(TAG, "init");
-        // TODO: we need to obtain this infromation from CarInstrumentClusterService.
-        mInstrumentClusterInfo = CarNavigationInstrumentCluster.createCluster(1000);
         mInstrumentClusterService.registerListener(this);
     }
 
@@ -203,6 +201,9 @@ public class CarNavigationService extends ICarNavigation.Stub
         mNavigationRenderer = ThreadSafeNavigationRenderer.createFor(
                 Looper.getMainLooper(),
                 mInstrumentClusterService.getNavigationRenderer());
+
+        // TODO: we need to obtain this information from InstrumentClusterRenderer.
+        mInstrumentClusterInfo = CarNavigationInstrumentCluster.createCluster(1000);
 
         if (isRendererAvailable()) {
             for (CarNavigationEventListener listener : mListeners) {
