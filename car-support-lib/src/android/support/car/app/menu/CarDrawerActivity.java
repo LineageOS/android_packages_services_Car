@@ -290,8 +290,7 @@ public abstract class CarDrawerActivity extends CarFragmentActivity {
 
     public boolean onMenuClicked() {
         if (mMenuClickListener != null) {
-            mMenuClickListener.onClicked();
-            return true;
+            return mMenuClickListener.onClicked();
         }
         return false;
     }
