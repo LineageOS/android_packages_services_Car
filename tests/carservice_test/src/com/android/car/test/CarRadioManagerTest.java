@@ -22,6 +22,7 @@ import android.car.hardware.radio.CarRadioManager;
 import android.car.hardware.radio.CarRadioManager.CarRadioEventListener;
 import android.car.hardware.radio.CarRadioPreset;
 import android.hardware.radio.RadioManager;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
@@ -36,6 +37,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.HashMap;
 
+@MediumTest
 public class CarRadioManagerTest extends MockedCarTestBase {
 
     private static final String TAG = CarRadioManagerTest.class.getSimpleName();

@@ -17,9 +17,12 @@ package com.android.car.apitest;
 
 import android.car.VehicleZone;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 
+@SmallTest
 public class VehicleZoneTest extends AndroidTestCase {
 
     public void testMatchWithVehicleHal() {

@@ -17,9 +17,11 @@ package com.android.car.apitest;
 
 import android.car.VehicleDoor;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 
+@SmallTest
 public class VehicleDoorTest extends AndroidTestCase {
 
     public void testMatchWithVehicleHal() {

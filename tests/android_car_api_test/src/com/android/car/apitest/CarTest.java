@@ -16,18 +16,19 @@
 
 package com.android.car.apitest;
 
+import android.car.Car;
+import android.car.hardware.CarSensorManager;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Looper;
-import android.car.Car;
-import android.car.hardware.CarSensorManager;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-
+@SmallTest
 public class CarTest extends AndroidTestCase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
 

@@ -19,11 +19,11 @@ package com.android.support.car.apitest;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.car.Car;
-import android.support.car.CarNotConnectedException;
-import android.support.car.CarNotSupportedException;
 import android.support.car.app.CarActivity;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
+@MediumTest
 public class TestCarActivity extends CarActivity {
     private static final String TAG = TestCarActivity.class.getSimpleName();
 

@@ -23,10 +23,12 @@ import android.os.Looper;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@MediumTest
 public class CarPackageManagerTest extends AndroidTestCase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
 

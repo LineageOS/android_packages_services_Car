@@ -20,6 +20,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.support.car.Car;
 import android.support.car.CarAppContextManager;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import com.android.car.test.MockedCarTestBase;
@@ -35,6 +36,7 @@ import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@MediumTest
 public class AppContextTest extends MockedCarTestBase {
     private static final String TAG = AppContextTest.class.getSimpleName();
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 1000;

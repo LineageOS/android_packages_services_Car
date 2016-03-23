@@ -15,16 +15,18 @@
  */
 package com.android.car.apitest;
 
-import java.util.List;
-
 import android.car.Car;
 import android.car.VehicleZoneUtil;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.hvac.CarHvacManager.CarHvacBaseProperty;
 import android.car.hardware.hvac.CarHvacManager.CarHvacFloatProperty;
 import android.car.hardware.hvac.CarHvacManager.CarHvacIntProperty;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
+import java.util.List;
+
+@MediumTest
 public class CarHvacManagerTest extends CarApiTestBase {
     private static final String TAG = CarHvacManagerTest.class.getSimpleName();
 

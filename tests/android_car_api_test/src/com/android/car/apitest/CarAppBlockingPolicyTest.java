@@ -17,14 +17,12 @@ package com.android.car.apitest;
 
 import android.car.content.pm.AppBlockingPackageInfo;
 import android.car.content.pm.CarAppBlockingPolicy;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Parcel;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
+@SmallTest
 public class CarAppBlockingPolicyTest extends AndroidTestCase {
     private static final String TAG = AppBlockingPackageInfoTest.class.getSimpleName();
 

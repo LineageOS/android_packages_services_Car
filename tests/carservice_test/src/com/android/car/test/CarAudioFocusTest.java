@@ -22,6 +22,7 @@ import android.media.AudioManager;
 import android.os.SystemClock;
 import android.support.car.Car;
 import android.support.car.media.CarAudioManager;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
@@ -42,6 +43,7 @@ import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@MediumTest
 public class CarAudioFocusTest extends MockedCarTestBase {
 
     private static final long TIMEOUT_MS = 3000;

@@ -19,10 +19,12 @@ import android.os.Parcel;
 import android.support.car.annotation.VersionDef;
 import android.support.car.os.ExtendableParcelable;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
 import java.util.Arrays;
 
+@SmallTest
 public class ExtendableParcelableTest extends AndroidTestCase {
 
     private static final String TAG = ExtendableParcelableTest.class.getSimpleName();
