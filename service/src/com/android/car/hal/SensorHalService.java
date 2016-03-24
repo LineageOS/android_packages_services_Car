@@ -18,6 +18,7 @@ package com.android.car.hal;
 
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
+import android.os.ServiceSpecificException;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -186,8 +187,14 @@ public class SensorHalService extends SensorHalServiceBase {
         if (config == null) {
             return null;
         }
-        VehiclePropValue value = mHal.getVehicleNetwork().getProperty(config.getProp());
-        return createCarSensorEvent(value);
+        try {
+            VehiclePropValue value = mHal.getVehicleNetwork().getProperty(config.getProp());
+            return createCarSensorEvent(value);
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_SENSOR, "property not ready 0x" +
+                    Integer.toHexString(config.getProp()), e);
+            return null;
+        }
     }
 
     private float fixSamplingRateForProperty(VehiclePropConfig prop, int carSensorManagerRate) {

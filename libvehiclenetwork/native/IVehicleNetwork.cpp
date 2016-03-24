@@ -20,6 +20,7 @@
 #include <string.h>
 
 #include <binder/IPCThreadState.h>
+#include <binder/Status.h>
 
 #include <utils/Log.h>
 
@@ -127,7 +128,13 @@ public:
         }
         status = remote()->transact(GET_PROPERTY, data, &reply);
         if (status == NO_ERROR) {
-            reply.readExceptionCode(); // for compatibility with java
+            int32_t exceptionCode = reply.readExceptionCode();
+            if (exceptionCode != NO_ERROR) {
+                if (exceptionCode == binder::Status::EX_SERVICE_SPECIFIC) {
+                    return -EAGAIN;
+                }
+                return exceptionCode;
+            }
             status = VehiclePropValueBinderUtil::readFromParcel(reply, value);
         }
         return status;
@@ -302,6 +309,10 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
                 reply->writeNoException();
                 r = VehiclePropValueBinderUtil::writeToParcel(*reply, value);
                 releaseMemoryFromGet(&value);
+            } else if (r == -EAGAIN) {
+                // this should be handled specially to throw ServiceSpecificException in java.
+                reply->writeInt32(binder::Status::EX_SERVICE_SPECIFIC);
+                return NO_ERROR;
             }
             return r;
         } break;

@@ -25,6 +25,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.ServiceSpecificException;
 import android.util.Log;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
@@ -267,7 +268,8 @@ public class VehicleNetwork {
     /**
      * Get property. This can be used for a property which does not require any other data.
      */
-    public VehiclePropValue getProperty(int property) throws IllegalArgumentException {
+    public VehiclePropValue getProperty(int property) throws IllegalArgumentException,
+            ServiceSpecificException {
         int valueType = VehicleNetworkConsts.getVehicleValueType(property);
         if (valueType == 0) {
             throw new IllegalArgumentException("Data type is unknown for property: " + property);
@@ -280,7 +282,8 @@ public class VehicleNetwork {
      * Generic get method for any type of property. Some property may require setting data portion
      * as get may return different result depending on the data set.
      */
-    public VehiclePropValue getProperty(VehiclePropValue value) throws IllegalArgumentException {
+    public VehiclePropValue getProperty(VehiclePropValue value) throws IllegalArgumentException,
+            ServiceSpecificException {
         VehiclePropValueParcelable parcelable = new VehiclePropValueParcelable(value);
         try {
             VehiclePropValueParcelable resParcelable = mService.getProperty(parcelable);
@@ -296,7 +299,8 @@ public class VehicleNetwork {
     /**
      * Get int type property.
      */
-    public int getIntProperty(int property) throws IllegalArgumentException {
+    public int getIntProperty(int property) throws IllegalArgumentException,
+            ServiceSpecificException {
         VehiclePropValue v = getProperty(
                 property, NO_ZONE, VehicleValueType.VEHICLE_VALUE_TYPE_INT32);
         if (v.getInt32ValuesCount() != 1) {
@@ -308,7 +312,8 @@ public class VehicleNetwork {
     /**
      * Get zoned int type property.
      */
-    public int getZonedIntProperty(int property, int zone) throws IllegalArgumentException {
+    public int getZonedIntProperty(int property, int zone) throws IllegalArgumentException,
+            ServiceSpecificException {
         VehiclePropValue v = getProperty(
                 property, zone, VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32);
         if (v.getInt32ValuesCount() != 1) {
@@ -320,7 +325,8 @@ public class VehicleNetwork {
     /**
      * Get int vector type property. Length of values should match vector length.
      */
-    public int[] getIntVectorProperty(int property) throws IllegalArgumentException {
+    public int[] getIntVectorProperty(int property) throws IllegalArgumentException,
+            ServiceSpecificException {
         VehiclePropValue v = getProperty(
                 property, NO_ZONE, VehicleValueType.VEHICLE_VALUE_TYPE_INT32);
         assertVectorLength(v.getInt32ValuesCount(), property, v.getValueType());
@@ -331,7 +337,7 @@ public class VehicleNetwork {
      * Get zoned int vector type property. Length of values should match vector length.
      */
     public int[] getZonedIntVectorProperty(int property, int zone)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = getProperty(
                 property, zone, VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32);
         assertVectorLength(v.getInt32ValuesCount(), property, v.getValueType());
@@ -341,7 +347,8 @@ public class VehicleNetwork {
     /**
      * Get float type property.
      */
-    public float getFloatProperty(int property) throws IllegalArgumentException {
+    public float getFloatProperty(int property) throws IllegalArgumentException,
+            ServiceSpecificException {
         VehiclePropValue v = getProperty(
                 property, NO_ZONE, VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT);
         if (v.getFloatValuesCount() != 1) {
@@ -353,7 +360,8 @@ public class VehicleNetwork {
     /**
      * Get float vector type property. Length of values should match vector's length.
      */
-    public float[] getFloatVectorProperty(int property) throws IllegalArgumentException {
+    public float[] getFloatVectorProperty(int property) throws IllegalArgumentException,
+            ServiceSpecificException {
         VehiclePropValue v = getProperty(
                 property, NO_ZONE, VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT);
         assertVectorLength(v.getFloatValuesCount(), property, v.getValueType());
@@ -364,7 +372,7 @@ public class VehicleNetwork {
      * Get zoned float vector type property. Length of values should match vector's length.
      */
     public float[] getZonedFloatVectorProperty(int property, int zone)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = getProperty(property, zone,
                 VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT);
         assertVectorLength(v.getFloatValuesCount(), property, v.getValueType());
@@ -374,7 +382,8 @@ public class VehicleNetwork {
     /**
      * Get long type property.
      */
-    public long getLongProperty(int property) throws IllegalArgumentException {
+    public long getLongProperty(int property) throws IllegalArgumentException,
+            ServiceSpecificException {
         VehiclePropValue v = getProperty(
                 property, NO_ZONE, VehicleValueType.VEHICLE_VALUE_TYPE_INT64);
         return v.getInt64Value();
@@ -384,7 +393,8 @@ public class VehicleNetwork {
      * Get string type property.
      */
     //TODO check UTF8 to java string conversion
-    public String getStringProperty(int property) throws IllegalArgumentException {
+    public String getStringProperty(int property) throws IllegalArgumentException,
+            ServiceSpecificException {
         VehiclePropValue v = getProperty(
                 property, NO_ZONE, VehicleValueType.VEHICLE_VALUE_TYPE_STRING);
         return v.getStringValue();

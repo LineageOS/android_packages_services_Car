@@ -21,6 +21,7 @@ import static com.android.car.vehiclenetwork.VehiclePropValueUtil.toIntArray;
 import android.car.hardware.hvac.CarHvacEvent;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.hvac.CarHvacProperty;
+import android.os.ServiceSpecificException;
 import android.util.Log;
 
 import com.android.car.CarLog;
@@ -117,7 +118,12 @@ public class HvacHalService extends HalServiceBase {
                 throw new IllegalArgumentException("Unknown type: " + hvacProp.getType());
         }
 
-        VehiclePropValue value = mVehicleHal.getVehicleNetwork().getProperty(prototypeValue);
+        VehiclePropValue value = null;
+        try {
+            value = mVehicleHal.getVehicleNetwork().getProperty(prototypeValue);
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_HVAC, "property not ready 0x" + Integer.toHexString(halProp), e);
+        }
 
         if(value != null) {
             switch(hvacProp.getType()) {
