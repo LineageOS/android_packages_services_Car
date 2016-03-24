@@ -38,7 +38,7 @@ package android.car {
     method public void onCarDisconnected();
     method public void registerContextListener(android.car.CarAppContextManager.AppContextChangeListener, int);
     method public void resetActiveContexts(int);
-    method public void setActiveContexts(int) throws java.lang.IllegalStateException, java.lang.SecurityException;
+    method public void setActiveContexts(android.car.CarAppContextManager.AppContextOwnershipChangeListener, int) throws java.lang.SecurityException;
     method public void unregisterContextListener();
     field public static final int APP_CONTEXT_NAVIGATION = 1; // 0x1
     field public static final int APP_CONTEXT_VOICE_COMMAND = 2; // 0x2
@@ -46,6 +46,9 @@ package android.car {
 
   public static abstract interface CarAppContextManager.AppContextChangeListener {
     method public abstract void onAppContextChange(int);
+  }
+
+  public static abstract interface CarAppContextManager.AppContextOwnershipChangeListener {
     method public abstract void onAppContextOwnershipLoss(int);
   }
 

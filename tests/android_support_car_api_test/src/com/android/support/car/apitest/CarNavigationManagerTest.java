@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.support.car.Car;
 import android.support.car.CarAppContextManager;
 import android.support.car.CarAppContextManager.AppContextChangeListener;
+import android.support.car.CarAppContextManager.AppContextOwnershipChangeListener;
 import android.support.car.navigation.CarNavigationInstrumentCluster;
 import android.support.car.CarNotConnectedException;
 import android.support.car.navigation.CarNavigationManager;
@@ -81,13 +82,13 @@ public class CarNavigationManagerTest extends CarApiTestBase {
             public void onAppContextChange(int activeContexts) {
                 // Nothing to do here.
             }
-
+        }, APP_CONTEXT_NAVIGATION);
+        mCarAppContextManager.setActiveContexts(new AppContextOwnershipChangeListener() {
             @Override
             public void onAppContextOwnershipLoss(int context) {
                 // Nothing to do here.
             }
         }, APP_CONTEXT_NAVIGATION);
-        mCarAppContextManager.setActiveContexts(APP_CONTEXT_NAVIGATION);
         assertTrue(mCarAppContextManager.isOwningContext(APP_CONTEXT_NAVIGATION));
 
         // TODO: we should use mocked HAL to be able to verify this, right now just make sure that

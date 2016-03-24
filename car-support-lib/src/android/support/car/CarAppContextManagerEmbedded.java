@@ -18,6 +18,9 @@ package android.support.car;
 
 import android.os.Looper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Implementation of {@link CarAppContextManager} for embedded.
  * @hide
@@ -26,12 +29,14 @@ public class CarAppContextManagerEmbedded extends CarAppContextManager {
 
     private final android.car.CarAppContextManager mManager;
     private AppContextChangeListenerProxy mListener;
+    private final Map<Integer, AppContextOwnershipChangeListenerProxy> mOwnershipListeners;
 
     /**
      * @hide
      */
     CarAppContextManagerEmbedded(Object manager) {
         mManager = (android.car.CarAppContextManager) manager;
+        mOwnershipListeners = new HashMap<Integer, AppContextOwnershipChangeListenerProxy>();
     }
 
     @Override
@@ -65,13 +70,33 @@ public class CarAppContextManagerEmbedded extends CarAppContextManager {
     }
 
     @Override
-    public void setActiveContexts(int contexts) throws IllegalStateException, SecurityException {
-        mManager.setActiveContexts(contexts);
+    public void setActiveContexts(AppContextOwnershipChangeListener ownershipListener,
+            int contexts) throws IllegalStateException, SecurityException {
+        if (ownershipListener == null) {
+            throw new IllegalArgumentException("null listener");
+        }
+        AppContextOwnershipChangeListenerProxy proxy =
+                new AppContextOwnershipChangeListenerProxy(ownershipListener);
+        synchronized(this) {
+            for (int flag = APP_CONTEXT_START_FLAG; flag <= APP_CONTEXT_END_FLAG; flag <<= 1) {
+                if ((flag & contexts) != 0) {
+                    mOwnershipListeners.put(flag, proxy);
+                }
+            }
+        }
+        mManager.setActiveContexts(proxy, contexts);
     }
 
     @Override
     public void resetActiveContexts(int contexts) {
         mManager.resetActiveContexts(contexts);
+        synchronized (this) {
+            for (int flag = APP_CONTEXT_START_FLAG; flag <= APP_CONTEXT_END_FLAG; flag <<= 1) {
+                if ((flag & contexts) != 0) {
+                   mOwnershipListeners.remove(flag);
+                }
+            }
+        }
     }
 
     @Override
@@ -91,6 +116,16 @@ public class CarAppContextManagerEmbedded extends CarAppContextManager {
         @Override
         public void onAppContextChange(int activeContexts) {
             mListener.onAppContextChange(activeContexts);
+        }
+    }
+
+    private static class AppContextOwnershipChangeListenerProxy implements
+            android.car.CarAppContextManager.AppContextOwnershipChangeListener {
+
+        private final AppContextOwnershipChangeListener mListener;
+
+        public AppContextOwnershipChangeListenerProxy(AppContextOwnershipChangeListener listener) {
+            mListener = listener;
         }
 
         @Override
