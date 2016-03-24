@@ -17,11 +17,13 @@ package com.android.car.apitest;
 
 import android.car.Car;
 import android.car.CarAppContextManager;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@MediumTest
 public class CarAppContextManagerTest extends CarApiTestBase {
     private static final String TAG = CarAppContextManager.class.getSimpleName();
     private CarAppContextManager mManager;

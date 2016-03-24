@@ -22,6 +22,7 @@ import android.os.Looper;
 import android.support.car.Car;
 import android.support.car.CarConnectionListener;
 import android.support.car.ServiceConnectionListener;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import java.util.LinkedList;
@@ -30,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.android.car.test.MockedCarTestBase;
 
+@MediumTest
 public class CarConnectionListenerInMockingTest extends MockedCarTestBase {
 
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 1000;

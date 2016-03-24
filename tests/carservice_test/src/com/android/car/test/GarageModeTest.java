@@ -17,11 +17,13 @@ package com.android.car.test;
 
 import android.content.Context;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import com.android.car.CarPowerManagementService;
 import com.android.car.DeviceIdleControllerWrapper;
 import com.android.car.GarageModeService;
 
+@MediumTest
 public class GarageModeTest extends AndroidTestCase {
 
     public void testMaintenanceActive() throws Exception {

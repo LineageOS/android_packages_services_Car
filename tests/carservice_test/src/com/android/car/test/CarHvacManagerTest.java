@@ -16,6 +16,7 @@
 
 package com.android.car.test;
 
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import android.car.Car;
@@ -40,6 +41,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.HashMap;
 
+@MediumTest
 public class CarHvacManagerTest extends MockedCarTestBase {
     private static final String TAG = CarHvacManagerTest.class.getSimpleName();
 

@@ -21,6 +21,7 @@ import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.Display;
 
@@ -43,6 +44,7 @@ import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@MediumTest
 public class CarPowerManagementTest extends MockedCarTestBase {
 
     private static final long TIMEOUT_MS = 3000;

@@ -18,7 +18,9 @@ package com.android.support.car.apitest;
 
 import android.support.car.Car;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.MediumTest;
 
+@MediumTest
 public class CarActivityTest extends ActivityInstrumentationTestCase2<TestCarProxyActivity> {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
 

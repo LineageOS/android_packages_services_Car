@@ -28,13 +28,14 @@ import android.media.audiopolicy.AudioPolicy;
 import android.os.Handler;
 import android.os.Looper;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-
+@MediumTest
 public class AudioPolicyTest extends AndroidTestCase {
     private static final String TAG = AudioPolicyTest.class.getSimpleName();
     private static final long WAIT_TIMEOUT_MS = 1000;

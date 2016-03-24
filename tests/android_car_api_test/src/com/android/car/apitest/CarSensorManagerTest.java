@@ -24,11 +24,12 @@ import android.car.Car;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-
+@MediumTest
 public class CarSensorManagerTest extends AndroidTestCase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
 

@@ -18,6 +18,7 @@ package com.android.car.vehiclenetwork.libtest;
 import android.os.HandlerThread;
 import android.os.SystemClock;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.ArraySet;
 import android.util.Log;
 
@@ -35,6 +36,7 @@ import com.android.car.vehiclenetwork.VehicleNetworkProtoUtil;
 
 import java.util.LinkedList;
 
+@MediumTest
 public class VehicleNetworkTest extends AndroidTestCase {
     private static final String TAG = VehicleNetworkTest.class.getSimpleName();
     private static final long TIMEOUT_MS = 2000;
