@@ -21,11 +21,13 @@ import android.car.content.pm.AppBlockingPackageInfo;
 import android.car.content.pm.CarAppBlockingPolicy;
 import android.car.content.pm.CarPackageManager;
 import android.content.pm.PackageManager;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
 import com.android.car.test.MockedCarTestBase;
 import com.android.car.test.TestAppBlockingPolicyService;
 
+@SmallTest
 public class CarPackageManagerTest extends MockedCarTestBase {
     private static final String TAG = CarPackageManagerTest.class.getSimpleName();
 

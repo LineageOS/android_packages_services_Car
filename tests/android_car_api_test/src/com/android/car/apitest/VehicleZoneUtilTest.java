@@ -17,7 +17,9 @@ package com.android.car.apitest;
 
 import android.car.VehicleZoneUtil;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
+@SmallTest
 public class VehicleZoneUtilTest extends AndroidTestCase {
 
     public void testZoneToIndex() {

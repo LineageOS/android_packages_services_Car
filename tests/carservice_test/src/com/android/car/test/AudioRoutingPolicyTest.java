@@ -16,6 +16,7 @@
 package com.android.car.test;
 
 import android.car.test.VehicleHalEmulator.VehicleHalPropertyHandler;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
@@ -32,6 +33,7 @@ import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@SmallTest
 public class AudioRoutingPolicyTest extends MockedCarTestBase {
 
     private static final long TIMEOUT_MS = 3000;

@@ -21,6 +21,7 @@ import android.car.CarAppContextManager.AppContextChangeListener;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.car.navigation.CarNavigationManager;
 import android.car.navigation.CarNavigationManager.CarNavigationListener;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import java.util.concurrent.CountDownLatch;
@@ -29,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Unit tests for {@link CarNavigationManager}
  */
+@MediumTest
 public class CarNavigationManagerTest extends CarApiTestBase {
 
     private static final String TAG = CarNavigationManagerTest.class.getSimpleName();

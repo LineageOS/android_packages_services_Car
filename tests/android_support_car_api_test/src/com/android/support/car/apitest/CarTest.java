@@ -17,17 +17,17 @@
 package com.android.support.car.apitest;
 
 import android.content.ComponentName;
-import android.os.IBinder;
 import android.os.Looper;
 import android.support.car.Car;
-import android.support.car.hardware.CarSensorManager;
 import android.support.car.ServiceConnectionListener;
+import android.support.car.hardware.CarSensorManager;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-
+@MediumTest
 public class CarTest extends AndroidTestCase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
 

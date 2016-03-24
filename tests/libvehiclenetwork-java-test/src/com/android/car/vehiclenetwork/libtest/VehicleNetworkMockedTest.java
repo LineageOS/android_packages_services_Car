@@ -17,6 +17,7 @@ package com.android.car.vehiclenetwork.libtest;
 
 import android.os.HandlerThread;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import com.android.car.vehiclenetwork.VehicleNetwork;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@MediumTest
 public class VehicleNetworkMockedTest extends AndroidTestCase {
     private static final String TAG = VehicleNetworkMockedTest.class.getSimpleName();
 

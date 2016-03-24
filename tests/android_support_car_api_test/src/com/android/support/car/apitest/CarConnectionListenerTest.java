@@ -18,11 +18,13 @@ package com.android.support.car.apitest;
 
 import android.support.car.Car;
 import android.support.car.CarConnectionListener;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@MediumTest
 public class CarConnectionListenerTest extends CarApiTestBase {
     private static final String TAG = CarConnectionListenerTest.class.getSimpleName();
 
