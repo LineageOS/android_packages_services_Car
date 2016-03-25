@@ -21,6 +21,8 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.lang.ref.WeakReference;
 
 /**
@@ -31,8 +33,7 @@ import java.lang.ref.WeakReference;
  */
 public class CarAppContextManager implements CarManagerBase {
     /**
-     * Listener to get notification for app getting information on app context change or
-     * ownership loss.
+     * Listener to get notification for app getting information on app context change.
      */
     public interface AppContextChangeListener {
         /**
@@ -41,7 +42,12 @@ public class CarAppContextManager implements CarManagerBase {
          * @param activeContexts
          */
         void onAppContextChange(int activeContexts);
+    }
 
+    /**
+     * Listener to get notification for app getting information on app context ownership loss.
+     */
+    public interface AppContextOwnershipChangeListener {
         /**
          * Lost ownership for the context, which happens when other app has set the context.
          * The app losing context should stop the action associated with the context.
@@ -71,10 +77,10 @@ public class CarAppContextManager implements CarManagerBase {
     private final IAppContext mService;
     private final Handler mHandler;
     private final IAppContextListenerImpl mBinderListener;
+    private final Map<Integer, AppContextOwnershipChangeListener> mOwnershipListeners;
 
     private AppContextChangeListener mListener;
     private int mContextFilter;
-
 
     /**
      * @hide
@@ -83,6 +89,7 @@ public class CarAppContextManager implements CarManagerBase {
         mService = IAppContext.Stub.asInterface(service);
         mHandler = new Handler(looper);
         mBinderListener = new IAppContextListenerImpl(this);
+        mOwnershipListeners = new HashMap<Integer, AppContextOwnershipChangeListener>();
     }
 
     /**
@@ -92,10 +99,10 @@ public class CarAppContextManager implements CarManagerBase {
      * @param contextFilter Flags of cotexts to get notification.
      */
     public void registerContextListener(AppContextChangeListener listener, int contextFilter) {
+        if (listener == null) {
+            throw new IllegalArgumentException("null listener");
+        }
         synchronized(this) {
-            if (listener == null) {
-                throw new IllegalArgumentException("null listener");
-            }
             if (mListener == null || mContextFilter != contextFilter) {
                 try {
                     mService.registerContextListener(mBinderListener, contextFilter);
@@ -144,24 +151,31 @@ public class CarAppContextManager implements CarManagerBase {
 
     /**
      * Set the given contexts as active. By setting this, the application is becoming owner
-     * of the context, and will get {@link AppContextChangeListener#onAppContextOwnershipLoss(int)}
+     * of the context, and will get
+     * {@link AppContextOwnershipChangeListener#onAppContextOwnershipLoss(int)}
      * if ownership is given to other app by calling this. Fore-ground app will have higher priority
      * and other app cannot set the same context while owner is in fore-ground.
-     * Before calling this, {@link #registerContextListener(AppContextChangeListener, int)} should
-     * be called first. Otherwise, it will throw IllegalStateException
+     * Only one listener per context can be registered and
+     * registering multiple times will lead into only the last listener to be active.
+     * @param ownershipListener
      * @param contexts
-     * @throws IllegalStateException If listener was not registered.
      * @throws SecurityException If owner cannot be changed.
      */
-    public void setActiveContexts(int contexts) throws IllegalStateException, SecurityException {
+    public void setActiveContexts(AppContextOwnershipChangeListener ownershipListener, int contexts)
+            throws SecurityException {
+        if (ownershipListener == null) {
+            throw new IllegalArgumentException("null listener");
+        }
         synchronized (this) {
-            if (mListener == null) {
-                throw new IllegalStateException("register listerner first");
-            }
             try {
                 mService.setActiveContexts(mBinderListener, contexts);
             } catch (RemoteException e) {
                 //ignore as CarApi will handle disconnection anyway.
+            }
+            for (int flag = APP_CONTEXT_START_FLAG; flag <= APP_CONTEXT_END_FLAG; flag <<= 1) {
+                if ((flag & contexts) != 0) {
+                    mOwnershipListeners.put(flag, ownershipListener);
+                }
             }
         }
     }
@@ -176,6 +190,13 @@ public class CarAppContextManager implements CarManagerBase {
             mService.resetActiveContexts(mBinderListener, contexts);
         } catch (RemoteException e) {
             //ignore as CarApi will handle disconnection anyway.
+        }
+        synchronized (this) {
+            for (int flag = APP_CONTEXT_START_FLAG; flag <= APP_CONTEXT_END_FLAG; flag <<= 1) {
+                if ((flag & contexts) != 0) {
+                    mOwnershipListeners.remove(flag);
+                }
+            }
         }
     }
 
@@ -198,12 +219,12 @@ public class CarAppContextManager implements CarManagerBase {
     }
 
     private void handleAppContextOwnershipLoss(int context) {
-        AppContextChangeListener listener;
+        AppContextOwnershipChangeListener listener;
         synchronized (this) {
-            if (mListener == null) {
+            listener = mOwnershipListeners.get(context);
+            if (listener == null) {
                 return;
             }
-            listener = mListener;
         }
         listener.onAppContextOwnershipLoss(context);
     }
