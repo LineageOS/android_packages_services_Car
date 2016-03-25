@@ -15,6 +15,8 @@
  */
 package com.google.android.car.kitchensink.cluster;
 
+import com.google.android.car.kitchensink.R;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -29,8 +31,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-
-import com.google.android.car.kitchensink.R;
 
 /**
  * Contains functions to test instrument cluster API.
@@ -68,7 +68,7 @@ public class InstrumentClusterFragment extends Fragment {
             }
         });
 
-        return view;
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     private void turnLeft() {
