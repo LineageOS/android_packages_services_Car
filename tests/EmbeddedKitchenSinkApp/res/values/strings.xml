@@ -106,8 +106,4 @@
     <string name="volume_up">Volume +</string>
     <string name="volume_down">Volume -</string>
     <string name="voice">Voice</string>
-    <string name="mock_vehicle_hal">Mock HAL</string>
-    <string name="mock_vehicle_hal_off">Mock HAL OFF</string>
-    <string name="mock_vehicle_hal_on">Mock HAL ON</string>
-    <string name="music">Music</string>
 </resources>
