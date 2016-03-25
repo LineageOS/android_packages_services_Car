@@ -17,21 +17,23 @@
 package com.google.android.car.kitchensink;
 
 import android.car.Car;
-import android.car.test.VehicleHalEmulator;
 import android.car.test.VehicleHalEmulator.VehicleHalPropertyHandler;
+import android.car.test.VehicleHalEmulator;
 import android.os.SystemClock;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioExtFocusFlag;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusIndex;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusRequest;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusState;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioStream;
+import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
+import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePermissionModel;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
-import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 
 public class CarEmulator {
 
@@ -51,7 +53,7 @@ public class CarEmulator {
                         VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS,
                         VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
                         VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC4,
+                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC3,
                         VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
                         0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
                         mAudioFocusPropertyHandler);
@@ -64,15 +66,6 @@ public class CarEmulator {
                         VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
                         0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
                         mAudioStreamStatePropertyHandler);
-        mHalEmulator.addProperty(
-                VehiclePropConfigUtil.getBuilder(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT,
-                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ,
-                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC4,
-                        VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
-                        0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
-                null);
     }
 
     public void start() {
@@ -104,7 +97,7 @@ public class CarEmulator {
                         mCurrentFocusExtState = 0;
                         mRejectFocus = true;
                         int[] values = { mCurrentFocusState, mCurrentFocusStreams,
-                                mCurrentFocusExtState, 0 };
+                                mCurrentFocusExtState };
                         injectValue = VehiclePropValueUtil.createIntVectorValue(
                                 VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
                                 SystemClock.elapsedRealtimeNanos());
@@ -115,7 +108,7 @@ public class CarEmulator {
                         mCurrentFocusStreams = 0;
                         mCurrentFocusExtState = 0;
                         int[] values = { mCurrentFocusState, mCurrentFocusStreams,
-                                mCurrentFocusExtState, 0 };
+                                mCurrentFocusExtState };
                         injectValue = VehiclePropValueUtil.createIntVectorValue(
                                 VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
                                 SystemClock.elapsedRealtimeNanos());
@@ -134,7 +127,7 @@ public class CarEmulator {
             synchronized (this) {
                 if (mRejectFocus) {
                     int[] values = { mCurrentFocusState, mCurrentFocusStreams,
-                            mCurrentFocusExtState, 0 };
+                            mCurrentFocusExtState };
                     injectValue = VehiclePropValueUtil.createIntVectorValue(
                             VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
                             SystemClock.elapsedRealtimeNanos());
@@ -163,7 +156,7 @@ public class CarEmulator {
                     mCurrentFocusStreams = requestedStreams;
                     mCurrentFocusExtState = requestedExtFocus;
                     int[] values = { mCurrentFocusState, mCurrentFocusStreams,
-                            mCurrentFocusExtState, 0 };
+                            mCurrentFocusExtState };
                     injectValue = VehiclePropValueUtil.createIntVectorValue(
                             VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
                             SystemClock.elapsedRealtimeNanos());
@@ -177,7 +170,7 @@ public class CarEmulator {
         @Override
         public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
             int[] values = { mCurrentFocusState, mCurrentFocusStreams,
-                    mCurrentFocusExtState, 0 };
+                    mCurrentFocusExtState };
             return VehiclePropValueUtil.createIntVectorValue(
                     VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
                     SystemClock.elapsedRealtimeNanos());
