@@ -518,7 +518,7 @@ status_t VehicleNetworkService::getProperty(vehicle_prop_value_t *data) {
         return r;
     }
     /*
-     * get call can return NOT_READY error when hal has not fetched all data. In that case,
+     * get call can return -EAGAIN error when hal has not fetched all data. In that case,
      * keep retrying for certain time with some sleep. This will happen only at initial stage.
      */
     status_t r = -EAGAIN;

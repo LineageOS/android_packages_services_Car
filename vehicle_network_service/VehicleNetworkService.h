@@ -336,7 +336,7 @@ private:
     static int errorCallback(int32_t errorCode, int32_t property, int32_t operation);
 private:
     static const int GET_WAIT_US = 100000;
-    static const int MAX_GET_RETRY_FOR_NOT_READY = 30;
+    static const int MAX_GET_RETRY_FOR_NOT_READY = 50;
 
     VehiclePropertyAccessControl mVehiclePropertyAccessControl;
     static VehicleNetworkService* sInstance;

@@ -16,6 +16,7 @@
 package com.android.car.hal;
 
 import android.car.media.CarAudioManager;
+import android.os.ServiceSpecificException;
 import android.util.Log;
 
 import com.android.car.AudioRoutingPolicy;
@@ -277,8 +278,13 @@ public class AudioHalService extends HalServiceBase {
         if (!isFocusSupported()) {
             return new int[] { VEHICLE_AUDIO_FOCUS_STATE_GAIN, 0xffffffff, 0};
         }
-        return mVehicleHal.getVehicleNetwork().getIntVectorProperty(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS);
+        try {
+            return mVehicleHal.getVehicleNetwork().getIntVectorProperty(
+                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS);
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_AUDIO, "VEHICLE_PROPERTY_AUDIO_HW_VARIANT not ready", e);
+            return new int[] { VEHICLE_AUDIO_FOCUS_STATE_LOSS, 0x0, 0};
+        }
     }
 
     private boolean isPropertySupportedLocked(int property) {
@@ -298,6 +304,9 @@ public class AudioHalService extends HalServiceBase {
                     VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT);
         } catch (IllegalArgumentException e) {
             // no variant. Set to default, 0.
+            mVariant = 0;
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_AUDIO, "VEHICLE_PROPERTY_AUDIO_HW_VARIANT not ready", e);
             mVariant = 0;
         }
     }
