@@ -18,6 +18,8 @@ package com.android.car.vehiclenetwork;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 
+import java.util.Arrays;
+
 public class VehicleNetworkProtoUtil {
     public static String VehiclePropValueToString(VehiclePropValue value) {
         StringBuilder sb = new StringBuilder();
@@ -25,6 +27,8 @@ public class VehicleNetworkProtoUtil {
         sb.append(Integer.toHexString(value.getProp()));
         sb.append(" type:0x");
         sb.append(Integer.toHexString(value.getValueType()));
+        sb.append(" floatValues:" + Arrays.toString(value.getFloatValuesList().toArray()));
+        sb.append(" integerValues:" + Arrays.toString(value.getInt32ValuesList().toArray()));
         return sb.toString();
     }
 
