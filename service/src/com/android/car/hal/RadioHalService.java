@@ -18,6 +18,7 @@ package com.android.car.hal;
 
 import android.car.hardware.radio.CarRadioEvent;
 import android.car.hardware.radio.CarRadioPreset;
+import android.os.ServiceSpecificException;
 import android.util.Log;
 import android.hardware.radio.RadioManager;
 
@@ -152,7 +153,13 @@ public class RadioHalService extends HalServiceBase {
             VehiclePropValueUtil.createIntVectorValue(
                 VehicleNetworkConsts.VEHICLE_PROPERTY_RADIO_PRESET, presetArray, 0);
 
-        VehiclePropValue presetConfig = mHal.getVehicleNetwork().getProperty(presetNumberValue);
+        VehiclePropValue presetConfig;
+        try {
+            presetConfig = mHal.getVehicleNetwork().getProperty(presetNumberValue);
+        } catch (ServiceSpecificException e) {
+            Log.e(TAG, "property VEHICLE_PROPERTY_RADIO_PRESET not ready");
+            return null;
+        }
         // Sanity check the output from HAL.
         if (presetConfig.getInt32ValuesCount() != 4) {
             Log.e(TAG, "Return value does not have 4 elements: " +
