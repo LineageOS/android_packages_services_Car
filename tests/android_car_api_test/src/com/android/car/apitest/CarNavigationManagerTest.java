@@ -18,6 +18,7 @@ package com.android.car.apitest;
 import android.car.Car;
 import android.car.CarAppContextManager;
 import android.car.CarAppContextManager.AppContextChangeListener;
+import android.car.CarAppContextManager.AppContextOwnershipChangeListener;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.car.navigation.CarNavigationManager;
 import android.car.navigation.CarNavigationManager.CarNavigationListener;
@@ -87,13 +88,13 @@ public class CarNavigationManagerTest extends CarApiTestBase {
             public void onAppContextChange(int activeContexts) {
                 // Nothing to do here.
             }
-
+        }, CarAppContextManager.APP_CONTEXT_NAVIGATION);
+        mCarAppContextManager.setActiveContexts(new AppContextOwnershipChangeListener() {
             @Override
             public void onAppContextOwnershipLoss(int context) {
                 // Nothing to do here.
             }
         }, CarAppContextManager.APP_CONTEXT_NAVIGATION);
-        mCarAppContextManager.setActiveContexts(CarAppContextManager.APP_CONTEXT_NAVIGATION);
         assertTrue(mCarAppContextManager.isOwningContext(
                 CarAppContextManager.APP_CONTEXT_NAVIGATION));
 

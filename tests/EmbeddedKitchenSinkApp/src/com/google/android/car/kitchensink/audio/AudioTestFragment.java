@@ -19,6 +19,7 @@ package com.google.android.car.kitchensink.audio;
 import android.car.Car;
 import android.car.CarAppContextManager;
 import android.car.CarAppContextManager.AppContextChangeListener;
+import android.car.CarAppContextManager.AppContextOwnershipChangeListener;
 import android.car.CarNotConnectedException;
 import android.car.media.CarAudioManager;
 import android.content.ComponentName;
@@ -114,6 +115,13 @@ public class AudioTestFragment extends Fragment {
                 }
     };
 
+    private final AppContextOwnershipChangeListener mOwnershipListener =
+            new AppContextOwnershipChangeListener() {
+                @Override
+                public void onAppContextOwnershipLoss(int context) {
+                }
+    };
+
     private void init() {
         mContext = getContext();
         mHandler = new Handler(Looper.getMainLooper());
@@ -123,11 +131,6 @@ public class AudioTestFragment extends Fragment {
                 mAppContextManager =
                         (CarAppContextManager) mCar.getCarManager(Car.APP_CONTEXT_SERVICE);
                 mAppContextManager.registerContextListener(new AppContextChangeListener() {
-
-                    @Override
-                    public void onAppContextOwnershipLoss(int context) {
-                    }
-
                     @Override
                     public void onAppContextChange(int activeContexts) {
                     }
@@ -220,7 +223,7 @@ public class AudioTestFragment extends Fragment {
                     Log.i(TAG, "Nav start");
                 }
                 if (!mNavGuidancePlayer.isPlaying()) {
-                    mAppContextManager.setActiveContexts(
+                    mAppContextManager.setActiveContexts(mOwnershipListener,
                             CarAppContextManager.APP_CONTEXT_NAVIGATION);
                     mNavGuidancePlayer.start(true, false,
                             AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
@@ -244,7 +247,7 @@ public class AudioTestFragment extends Fragment {
                 if (DBG) {
                     Log.i(TAG, "VR start");
                 }
-                mAppContextManager.setActiveContexts(
+                mAppContextManager.setActiveContexts(mOwnershipListener,
                         CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
                 if (!mVrPlayer.isPlaying()) {
                     mVrPlayer.start(true, false, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT,
@@ -412,7 +415,7 @@ public class AudioTestFragment extends Fragment {
         if (DBG) {
             Log.i(TAG, "Nav start");
         }
-        mAppContextManager.setActiveContexts(
+        mAppContextManager.setActiveContexts(mOwnershipListener,
                 CarAppContextManager.APP_CONTEXT_NAVIGATION);
         mCarAudioManager.requestAudioFocus(mNavFocusListener, mNavAudioAttrib,
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
@@ -443,7 +446,7 @@ public class AudioTestFragment extends Fragment {
         if (DBG) {
             Log.i(TAG, "VR start");
         }
-        mAppContextManager.setActiveContexts(
+        mAppContextManager.setActiveContexts(mOwnershipListener,
                 CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
         mCarAudioManager.requestAudioFocus(mVrFocusListener, mVrAudioAttrib,
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, 0);

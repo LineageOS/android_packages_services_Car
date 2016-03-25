@@ -51,10 +51,11 @@ public class AppContextTest extends MockedCarTestBase {
         CarAppContextManager manager = (CarAppContextManager) getSupportCar().getCarManager(
                 Car.APP_CONTEXT_SERVICE);
         ContextChangeListener listener = new ContextChangeListener();
+        ContextOwnershipChangeListerner ownershipListener = new ContextOwnershipChangeListerner();
         manager.registerContextListener(listener, CarAppContextManager.APP_CONTEXT_NAVIGATION |
                 CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
-        manager.setActiveContexts(CarAppContextManager.APP_CONTEXT_NAVIGATION);
-        manager.setActiveContexts(CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+        manager.setActiveContexts(ownershipListener, CarAppContextManager.APP_CONTEXT_NAVIGATION);
+        manager.setActiveContexts(ownershipListener, CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
         manager.resetActiveContexts(CarAppContextManager.APP_CONTEXT_NAVIGATION);
         manager.resetActiveContexts(CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
         manager.unregisterContextListener();
@@ -63,8 +64,6 @@ public class AppContextTest extends MockedCarTestBase {
     private class ContextChangeListener implements CarAppContextManager.AppContextChangeListener {
         private int mLastChangeEvent;
         private final Semaphore mChangeWait = new Semaphore(0);
-        private int mLastLossEvent;
-        private final Semaphore mLossEventWait = new Semaphore(0);
 
         public boolean waitForContextChangeAndAssert(long timeoutMs, int expectedContexts)
                 throws Exception {
@@ -75,6 +74,19 @@ public class AppContextTest extends MockedCarTestBase {
             return true;
         }
 
+        @Override
+        public void onAppContextChange(int activeContexts) {
+            Log.i(TAG, "onAppContextChange " + Integer.toHexString(activeContexts));
+            mLastChangeEvent = activeContexts;
+            mChangeWait.release();
+        }
+    }
+
+    private class ContextOwnershipChangeListerner
+            implements CarAppContextManager.AppContextOwnershipChangeListener {
+        private int mLastLossEvent;
+        private final Semaphore mLossEventWait = new Semaphore(0);
+
         public boolean waitForOwnershipLossAndAssert(long timeoutMs, int expectedContexts)
                 throws Exception {
             if (!mLossEventWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
@@ -82,13 +94,6 @@ public class AppContextTest extends MockedCarTestBase {
             }
             assertEquals(expectedContexts, mLastLossEvent);
             return true;
-        }
-
-        @Override
-        public void onAppContextChange(int activeContexts) {
-            Log.i(TAG, "onAppContextChange " + Integer.toHexString(activeContexts));
-            mLastChangeEvent = activeContexts;
-            mChangeWait.release();
         }
 
         @Override

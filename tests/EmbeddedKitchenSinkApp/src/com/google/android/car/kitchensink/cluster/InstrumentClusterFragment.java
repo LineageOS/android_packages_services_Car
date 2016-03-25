@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.car.CarAppContextManager;
 import android.support.car.CarAppContextManager.AppContextChangeListener;
+import android.support.car.CarAppContextManager.AppContextOwnershipChangeListener;
 import android.support.car.CarNotConnectedException;
 import android.support.car.navigation.CarNavigationManager;
 import android.support.v4.app.Fragment;
@@ -86,7 +87,9 @@ public class InstrumentClusterFragment extends Fragment {
             public void onAppContextChange(int activeContexts) {
                 Log.d(TAG, "onAppContextChange, activeContexts: " + activeContexts);
             }
+        }, CarAppContextManager.APP_CONTEXT_NAVIGATION);
 
+        mCarAppContextManager.setActiveContexts(new AppContextOwnershipChangeListener() {
             @Override
             public void onAppContextOwnershipLoss(int context) {
                 Log.w(TAG, "onAppContextOwnershipLoss, context: " + context);
@@ -97,8 +100,6 @@ public class InstrumentClusterFragment extends Fragment {
                         .show();
             }
         }, CarAppContextManager.APP_CONTEXT_NAVIGATION);
-
-        mCarAppContextManager.setActiveContexts(CarAppContextManager.APP_CONTEXT_NAVIGATION);
         boolean ownsContext =
                 mCarAppContextManager.isOwningContext(CarAppContextManager.APP_CONTEXT_NAVIGATION);
         Log.d(TAG, "Owns APP_CONTEXT_NAVIGATION: " + ownsContext);

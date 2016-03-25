@@ -24,8 +24,7 @@ package android.support.car;
  */
 public abstract class CarAppContextManager implements CarManagerBase {
     /**
-     * Listener to get notification for app getting information on app context change or
-     * ownership loss.
+     * Listener to get notification for app getting information on app context change.
      */
     public interface AppContextChangeListener {
         /**
@@ -34,7 +33,12 @@ public abstract class CarAppContextManager implements CarManagerBase {
          * @param activeContexts
          */
         void onAppContextChange(int activeContexts);
+    }
 
+    /**
+     * Listener to get notification for app getting information on app context ownership loss.
+     */
+    public interface AppContextOwnershipChangeListener {
         /**
          * Lost ownership for the context, which happens when other app has set the context.
          * The app losing context should stop the action associated with the context.
@@ -100,8 +104,8 @@ public abstract class CarAppContextManager implements CarManagerBase {
      * @throws IllegalStateException If listener was not registered.
      * @throws SecurityException If owner cannot be changed.
      */
-    public abstract void setActiveContexts(int contexts)
-            throws IllegalStateException, SecurityException;
+    public abstract void setActiveContexts(AppContextOwnershipChangeListener ownershipListener,
+            int contexts) throws IllegalStateException, SecurityException;
 
     /**
      * Reset the given contexts, i.e. mark them as inactive. This also involves releasing ownership
