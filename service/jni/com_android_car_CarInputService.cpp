@@ -25,30 +25,42 @@
 #include <android/keycodes.h>
 #include <cutils/log.h>
 #include <utils/Errors.h>
-
+#include <unordered_map>
 
 namespace android {
 
 static int androidKeyCodeToLinuxKeyCode(int androidKeyCode) {
-    switch (androidKeyCode) {
-    case AKEYCODE_VOLUME_UP:
-        return KEY_VOLUMEUP;
-    case AKEYCODE_VOLUME_DOWN:
-        return KEY_VOLUMEDOWN;
-    case AKEYCODE_CALL:
-        return KEY_SEND;
-    case AKEYCODE_ENDCALL:
-        return KEY_END;
-    /* TODO add more keys like these:
-    case AKEYCODE_MEDIA_PLAY_PAUSE:
-    case AKEYCODE_MEDIA_STOP:
-    case AKEYCODE_MEDIA_NEXT:
-    case AKEYCODE_MEDIA_PREVIOUS:*/
-    case AKEYCODE_VOICE_ASSIST:
-        return KEY_MICMUTE;
-    default:
+    // Map Android Key Code to Linux Kernel codes
+    // according to frameworks/base/data/keyboards/Generic.kl
+
+    static const std::unordered_map<int, int> key_map {
+      { AKEYCODE_VOLUME_UP,          KEY_VOLUMEUP },
+      { AKEYCODE_VOLUME_DOWN,        KEY_VOLUMEDOWN },
+      { AKEYCODE_VOLUME_MUTE,        KEY_MUTE },
+      { AKEYCODE_CALL,               KEY_PHONE },
+      { AKEYCODE_ENDCALL,            KEY_END },  // Currently not supported in Generic.kl
+      { AKEYCODE_MUSIC,              KEY_SOUND },
+      { AKEYCODE_MEDIA_PLAY_PAUSE,   KEY_PLAYPAUSE },
+      { AKEYCODE_MEDIA_PLAY,         KEY_PLAY },
+      { AKEYCODE_BREAK,              KEY_PAUSE },
+      { AKEYCODE_MEDIA_STOP,         KEY_STOP },
+      { AKEYCODE_MEDIA_FAST_FORWARD, KEY_FASTFORWARD },
+      { AKEYCODE_MEDIA_REWIND,       KEY_REWIND },
+      { AKEYCODE_MEDIA_NEXT,         KEY_NEXTSONG },
+      { AKEYCODE_MEDIA_PREVIOUS,     KEY_PREVIOUSSONG },
+      { AKEYCODE_CHANNEL_UP,         KEY_CHANNELUP },
+      { AKEYCODE_CHANNEL_DOWN,       KEY_CHANNELDOWN },
+      { AKEYCODE_VOICE_ASSIST,       KEY_MICMUTE },
+      { AKEYCODE_HOME,               KEY_HOME }
+    };
+
+    std::unordered_map<int, int>::const_iterator got = key_map.find(androidKeyCode);
+
+    if (got == key_map.end()) {
         ALOGW("Unmapped android key code %d dropped", androidKeyCode);
         return 0;
+    } else {
+        return got->second;
     }
 }
 

@@ -23,10 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
@@ -184,9 +181,9 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
                         CarProjectionManager.PROJECTION_LONG_PRESS_VOICE_SEARCH);
             }
         }
-        mCarInputService.setVoiceAssitantKeyListener(listenShortPress
+        mCarInputService.setVoiceAssistantKeyListener(listenShortPress
                 ? mVoiceAssistantKeyListener : null);
-        mCarInputService.setLongVoiceAssitantKeyListener(listenLongPress
+        mCarInputService.setLongVoiceAssistantKeyListener(listenLongPress
                 ? mLongVoiceAssistantKeyListener : null);
     }
 
