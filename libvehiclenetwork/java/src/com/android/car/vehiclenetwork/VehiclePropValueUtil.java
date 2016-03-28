@@ -15,10 +15,10 @@
  */
 package com.android.car.vehiclenetwork;
 
+import com.google.protobuf.ByteString;
+
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
-
-import com.google.protobuf.ByteString;
 
 import java.util.Arrays;
 import java.util.List;
@@ -198,6 +198,13 @@ public final class VehiclePropValueUtil {
 
     public static int getVectorLength(int vehicleValueType) {
         switch (vehicleValueType) {
+            case VehicleValueType.VEHICLE_VALUE_TYPE_BOOLEAN:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_INT32:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_BOOLEAN:
+            case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT:
+                return 1;
             case VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC2:
             case VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2:
             case VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
@@ -225,6 +232,9 @@ public final class VehiclePropValueUtil {
 
     /** Converts {@link VehiclePropValue} to string just for debug purpose. */
     public static String toString(VehiclePropValue value) {
+        if (value == null) {
+            return String.valueOf(null);
+        }
         return new StringBuilder()
                 .append("prop: " + value.getProp() + "\n")
                 .append("valueType: " + value.getValueType() + "\n")
@@ -258,7 +268,7 @@ public final class VehiclePropValueUtil {
         return array;
     }
 
-    private static int getVectorValueType(int vehicleValueType, int length) {
+    public static int getVectorValueType(int vehicleValueType, int length) {
         return vehicleValueType + length - 1;
     }
 }
