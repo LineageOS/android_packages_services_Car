@@ -16,22 +16,27 @@
 
 package android.car.hardware.hvac;
 
+import static java.lang.Integer.toHexString;
+
+import android.annotation.IntDef;
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
-import android.car.VehicleZoneUtil;
+import android.car.hardware.CarPropertyConfig;
+import android.car.hardware.CarPropertyValue;
 import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.util.ArraySet;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -44,334 +49,86 @@ public class CarHvacManager implements CarManagerBase {
     public final static String TAG = "CarHvacManager";
 
     /**
-     * Define types of values that are available.  Boolean type will be overloaded as an int for
-     * binder calls, and unpacked inside the HvacManager.
+     * HVAC property IDs for get/set methods
      */
-    public static final int PROPERTY_TYPE_BOOLEAN      = 0;
-    public static final int PROPERTY_TYPE_FLOAT        = 1;
-    public static final int PROPERTY_TYPE_INT          = 2;
-    public static final int PROPERTY_TYPE_INT_VECTOR   = 3;
-    public static final int PROPERTY_TYPE_FLOAT_VECTOR = 4;
+    @IntDef({
+            HvacPropertyId.MIRROR_DEFROSTER_ON,
+            HvacPropertyId.AUTOMATIC_MODE_ON,
+            HvacPropertyId.AIR_RECIRCULATION_ON,
+            HvacPropertyId.STEERING_WHEEL_TEMP,
+            HvacPropertyId.MAX_GLOBAL_PROPERTY_ID,
+            HvacPropertyId.ZONED_TEMP_SETPOINT,
+            HvacPropertyId.ZONED_TEMP_ACTUAL,
+            HvacPropertyId.ZONED_TEMP_IS_FAHRENHEIT,
+            HvacPropertyId.ZONED_FAN_SPEED_SETPOINT,
+            HvacPropertyId.ZONED_FAN_SPEED_RPM,
+            HvacPropertyId.ZONED_FAN_POSITION_AVAILABLE,
+            HvacPropertyId.ZONED_FAN_POSITION,
+            HvacPropertyId.ZONED_SEAT_TEMP,
+            HvacPropertyId.ZONED_AC_ON,
+            HvacPropertyId.WINDOW_DEFROSTER_ON,
+    })
+    public @interface HvacPropertyId {
+        /**
+         * Global HVAC properties.  There is only a single instance in a car.
+         * Global properties are in the range of 0-0x3FFF.
+         */
+        /** Mirror defrosters state, bool. */
+        int MIRROR_DEFROSTER_ON = 0x0001;
+        /** HVAC is in automatic mode, bool. */
+        int AUTOMATIC_MODE_ON = 0x0003;
+        /** Air recirculation is active, bool. */
+        int AIR_RECIRCULATION_ON = 0x0004;
+        /** Steering wheel temp:  negative values indicate cooling, positive values indicate
+         * heat, int. */
+        int STEERING_WHEEL_TEMP = 0x0005;
 
-    /**
-     * Global HVAC properties.  There is only a single instance in a car.
-     * Global properties are in the range of 0-0x3FFF.
-     */
-    /**
-     * Mirror defrosters state, bool.
-     */
-    public static final int HVAC_MIRROR_DEFROSTER_ON     = 0x0001;
-    /**
-     * HVAC is in automatic mode, bool.
-     */
-    public static final int HVAC_AUTOMATIC_MODE_ON       = 0x0003;
-    /**
-     * Air recirculation is active, bool.
-     */
-    public static final int HVAC_AIR_RECIRCULATION_ON    = 0x0004;
-    /**
-     * Steering wheel temp:  negative values indicate cooling, positive values indicate heat, int.
-     */
-    public static final int HVAC_STEERING_WHEEL_TEMP     = 0x0005;
+        /** The maximum id that can be assigned to global (non-zoned) property. */
+        int MAX_GLOBAL_PROPERTY_ID = 0x3fff;
 
-    /**
-     * The maximum id that can be assigned to global (non-zoned) property.
-     */
-    public static final int MAX_GLOBAL_PROPERTY_ID       = 0x3fff;
-
-    /**
-     * HVAC_ZONED_* represents properties available on a per-zone basis.  All zones in a car are
-     * are not required to have the same properties.  Zone specific properties start at 0x4000 and
-     * above.
-     *
-     * Temperature setpoint desired by the user, in terms of F or C, depending on TEMP_IS_FARENHEIT.
-     * If temp is celsius, the format is 31.1 (i.e. LSB = 0.5C).  int.
-     */
-    public static final int HVAC_ZONED_TEMP_SETPOINT             = 0x4001;
-    /**
-     * Actual zone temperature is read only integer, in terms of F or C, int.
-     */
-    public static final int HVAC_ZONED_TEMP_ACTUAL               = 0x4002;
-    /**
-     * Temperature is in degrees fahrenheit if this is true, bool.
-     */
-    public static final int HVAC_ZONED_TEMP_IS_FAHRENHEIT        = 0x4003;
-    /**
-     * Fan speed setpoint is an integer from 0-n, depending on the number of fan speeds available.
-     * Selection determines the fan position, int.
-     */
-    public static final int HVAC_ZONED_FAN_SPEED_SETPOINT        = 0x4004;
-    /**
-     * Actual fan speed is a read-only value, expressed in RPM, int.
-     */
-    public static final int HVAC_ZONED_FAN_SPEED_RPM             = 0x4005;
-    /**
-     * Fan position available is a bitmask of positions available for each zone, int.
-     */
-    public static final int HVAC_ZONED_FAN_POSITION_AVAILABLE    = 0x4006;
-    /**
-     * Current fan position setting, int.
-     */
-    public static final int HVAC_ZONED_FAN_POSITION              = 0x4007;
-    /**
-     * Seat temperature is negative for cooling, positive for heating.  Temperature is a setting,
-     * i.e. -3 to 3 for 3 levels of cooling and 3 levels of heating.  int.
-     */
-    public static final int HVAC_ZONED_SEAT_TEMP                 = 0x4008;
-    /**
-     * Air conditioner state, bool
-     */
-    public static final int HVAC_ZONED_AC_ON                   = 0x4009;
-    /**
-     * Defroster is based off of window position
-     */
-    public static final int HVAC_WINDOW_DEFROSTER_ON             = 0x5001;
-
-    // Minimum supported version of the service.
-    private static final int MIN_SUPPORTED_VERSION = 1;
-
-    // Minimum supported version of the callback.
-    private static final int MIN_SUPPORTED_CALLBACK_VERSION = 1;
+        /**
+         * ZONED_* represents properties available on a per-zone basis.  All zones in a car are
+         * not required to have the same properties.  Zone specific properties start at 0x4000.
+         */
+        /** Temperature setpoint desired by the user, in terms of F or C, depending on
+         * TEMP_IS_FAHRENHEIT, int */
+        int ZONED_TEMP_SETPOINT = 0x4001;
+        /** Actual zone temperature is read only integer, in terms of F or C, int. */
+        int ZONED_TEMP_ACTUAL = 0x4002;
+        /** Temperature is in degrees fahrenheit if this is true, bool. */
+        int ZONED_TEMP_IS_FAHRENHEIT = 0x4003;
+        /** Fan speed setpoint is an integer from 0-n, depending on the number of fan speeds
+         * available. Selection determines the fan position, int. */
+        int ZONED_FAN_SPEED_SETPOINT = 0x4004;
+        /** Actual fan speed is a read-only value, expressed in RPM, int. */
+        int ZONED_FAN_SPEED_RPM = 0x4005;
+        /** Fan position available is a bitmask of positions available for each zone, int. */
+        int ZONED_FAN_POSITION_AVAILABLE = 0x4006;
+        /** Current fan position setting, int. */
+        int ZONED_FAN_POSITION = 0x4007;
+        /** Seat temperature is negative for cooling, positive for heating.  Temperature is a
+         * setting, i.e. -3 to 3 for 3 levels of cooling and 3 levels of heating.  int. */
+        int ZONED_SEAT_TEMP = 0x4008;
+        /** Air conditioner state, bool */
+        int ZONED_AC_ON = 0x4009;
+        /** Defroster is based off of window position, bool */
+        int WINDOW_DEFROSTER_ON = 0x5001;
+    }
 
     // Constants handled in the handler (see mHandler below).
     private final static int MSG_HVAC_EVENT = 0;
 
-    public static class CarHvacBaseProperty {
-        protected final int mPropertyId;
-        protected final int mType;
-        protected final int mZones;
-
-        public CarHvacBaseProperty(int propId, int type, int zones) {
-            mPropertyId = propId;
-            mType       = type;
-            mZones       = zones;
-        }
-
-        public int getPropertyId() {
-            return mPropertyId;
-        }
-
-        public int getType() {
-            return mType;
-        }
-
-        /**
-         * Tells if the given property is zoned property or global property
-         */
-        public boolean isZonedProperty() {
-            return mPropertyId > MAX_GLOBAL_PROPERTY_ID;
-        }
-
-        /**
-         * Return bit flags of supported zones.
-         */
-        public int getZones()       { return mZones; }
-
-        /**
-         * Return an active zone for Hvac event. This will return only one zone.
-         * If there is no valid zone, this will return 0.
-         */
-        public int getZone() {
-            if (mZones == 0) {
-                return 0;
-            }
-            int flag = 0x1;
-            for (int i = 0; i < 32; i++) {
-                if ((flag & mZones) != 0) {
-                    return flag;
-                }
-                flag <<= 1;
-            }
-            return 0;
-        }
-
-        @Override
-        public String toString() {
-            return "CarHvacBaseProperty [mPropertyId=0x" + Integer.toHexString(mPropertyId) +
-                    ", mType=0x" + Integer.toHexString(mType) +
-                    ", mZones=0x" + Integer.toHexString(mZones) + "]";
-        }
-
-        protected void assertZonedProperty() {
-            if (!isZonedProperty()) {
-                throw new IllegalArgumentException(
-                        "assertZonedProperty called for non-zoned property 0x" +
-                                Integer.toHexString(mPropertyId));
-            }
-        }
-
-        protected void assertNonZonedProperty() {
-            if (isZonedProperty()) {
-                throw new IllegalArgumentException(
-                        "assertNonZonedProperty called for zoned property 0x" +
-                        Integer.toHexString(mPropertyId));
-            }
-        }
-    }
-
-    public static final class CarHvacBooleanProperty extends CarHvacBaseProperty {
-        public CarHvacBooleanProperty(int propId, int zone) {
-            super(propId, PROPERTY_TYPE_BOOLEAN, zone);
-        }
-    }
-
-    public static final class CarHvacFloatProperty extends CarHvacBaseProperty {
-        private final float[] mMaxValues;
-        private final float[] mMinValues;
-
-        public CarHvacFloatProperty(int propId, int zones, float[] maxs, float mins[]) {
-            super(propId, PROPERTY_TYPE_FLOAT, zones);
-            int expectedLength = zones == 0 ? 1 : VehicleZoneUtil.getNumberOfZones(zones);
-            if (maxs.length != expectedLength || mins.length != expectedLength) {
-                throw new IllegalArgumentException("Expected length:" + expectedLength +
-                        " while maxs length:" + maxs.length + " mins length:" + mins.length +
-                        " property:0x" + Integer.toHexString(propId));
-            }
-            mMaxValues      = maxs;
-            mMinValues      = mins;
-        }
-
-        /**
-         * Get max value. Should be used only for non-zoned property.
-         */
-        public float getMaxValue() {
-            assertNonZonedProperty();
-            return mMaxValues[0];
-        }
-
-        /**
-         * Get min value. Should be used only for non-zoned property.
-         */
-        public float getMinValue() {
-            assertNonZonedProperty();
-            return mMinValues[0];
-        }
-
-        public float getMaxValue(int zone) {
-            assertZonedProperty();
-            return mMaxValues[VehicleZoneUtil.zoneToIndex(mZones, zone)];
-        }
-
-        public float getMinValue(int zone) {
-            assertZonedProperty();
-            return mMinValues[VehicleZoneUtil.zoneToIndex(mZones, zone)];
-        }
-
-        @Override
-        public String toString() {
-            return "CarHvacFloatProperty [mMaxValues=" + Arrays.toString(mMaxValues)
-                    + ", mMinValues=" + Arrays.toString(mMinValues) + " " + super.toString() + "]";
-        }
-    }
-
-    public static final class CarHvacIntProperty extends CarHvacBaseProperty {
-        private int[] mMaxValues;
-        private int[] mMinValues;
-
-        public CarHvacIntProperty(int propId, int zones, int[] maxs, int[] mins) {
-            super(propId, PROPERTY_TYPE_INT, zones);
-            int expectedLength = zones == 0 ? 1 : VehicleZoneUtil.getNumberOfZones(zones);
-            if (maxs.length != expectedLength || mins.length != expectedLength) {
-                throw new IllegalArgumentException("Expected length:" + expectedLength +
-                        " while maxs length:" + maxs.length + " mins length:" + mins.length +
-                        " property:0x" + Integer.toHexString(propId));
-            }
-            mMaxValues      = maxs;
-            mMinValues      = mins;
-        }
-
-        /**
-         * Get max value. Should be used only for non-zoned property.
-         */
-        public int getMaxValue() {
-            assertNonZonedProperty();
-            return mMaxValues[0];
-        }
-
-        /**
-         * Get min value. Should be used only for non-zoned property.
-         */
-        public int getMinValue() {
-            assertNonZonedProperty();
-            return mMinValues[0];
-        }
-
-        public int getMaxValue(int zone) {
-            assertZonedProperty();
-            return mMaxValues[VehicleZoneUtil.zoneToIndex(mZones, zone)];
-        }
-
-        public int getMinValue(int zone) {
-            assertZonedProperty();
-            return mMinValues[VehicleZoneUtil.zoneToIndex(mZones, zone)];
-        }
-
-        @Override
-        public String toString() {
-            return "CarHvacIntProperty [mMaxValues=" + Arrays.toString(mMaxValues)
-                    + ", mMinValues=" + Arrays.toString(mMinValues) + " " + super.toString() + "]";
-        }
-    }
-
-    public static final class CarHvacBooleanValue extends CarHvacBaseProperty {
-        private boolean mValue;
-
-        public CarHvacBooleanValue(int propId, int zones, boolean value) {
-            super(propId, PROPERTY_TYPE_BOOLEAN, zones);
-            mValue = value;
-        }
-
-        public boolean getValue() { return mValue; }
-
-        @Override
-        public String toString() {
-            return "CarHvacBooleanValue [mValue=" + mValue + " " + super.toString() + "]";
-        }
-    }
-
-
-    public static final class CarHvacFloatValue extends CarHvacBaseProperty {
-        private float mValue;
-
-        public CarHvacFloatValue(int propId, int zones, float value) {
-            super(propId, PROPERTY_TYPE_FLOAT, zones);
-            mValue = value;
-        }
-
-        public float getValue() { return mValue; }
-
-        @Override
-        public String toString() {
-            return "CarHvacFloatValue [mValue=" + mValue + " " + super.toString() + "]";
-        }
-    }
-
-    public static final class CarHvacIntValue extends CarHvacBaseProperty {
-        private int mValue;
-
-        public CarHvacIntValue(int propId, int zones, int value) {
-            super(propId, PROPERTY_TYPE_INT, zones);
-            mValue = value;
-        }
-
-        public int getValue() { return mValue; }
-
-        @Override
-        public String toString() {
-            return "CarHvacIntValue [mValue=" + mValue + " " + super.toString() + "]";
-        }
-    }
-
+    /** Callback functions for HVAC events */
     public interface CarHvacEventListener {
-        // Called when an HVAC property is updated
-        void onChangeEvent(final CarHvacBaseProperty value);
+        /** Called when an HVAC property is updated */
+        void onChangeEvent(final CarPropertyValue value);
 
-        // Called when an error is detected with a property
+        /** Called when an error is detected with a property */
         void onErrorEvent(final int propertyId, final int zone);
     }
 
     private final ICarHvac mService;
-    private CarHvacEventListener mListener = null;
+    private final ArraySet<CarHvacEventListener> mListeners = new ArraySet<>();
     private CarHvacEventListenerToService mListenerToService = null;
 
     private static final class EventCallbackHandler extends Handler {
@@ -419,7 +176,7 @@ public class CarHvacManager implements CarManagerBase {
     /**
      * Get an instance of the CarHvacManager.
      *
-     * Should not be obtained directly by clients, use {@link Car.getCarManager()} instead.
+     * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
      * @hide
      */
     public CarHvacManager(IBinder service, Context context, Looper looper) {
@@ -427,43 +184,38 @@ public class CarHvacManager implements CarManagerBase {
         mHandler = new EventCallbackHandler(this, looper);
     }
 
+    /** Returns true if the property is a zoned type. */
     public static boolean isZonedProperty(int propertyId) {
-        return propertyId > MAX_GLOBAL_PROPERTY_ID;
+        return propertyId > HvacPropertyId.MAX_GLOBAL_PROPERTY_ID;
     }
 
     /**
      * Register {@link CarHvacEventListener} to get HVAC property changes
      *
      * @param listener Implements onEvent() for property change updates
-     * @return
      */
     public synchronized void registerListener(CarHvacEventListener listener)
             throws CarNotConnectedException {
-        if (mListener != null) {
-            throw new IllegalStateException("Listener already registered. Did you call " +
-                "registerListener() twice?");
+        if(mListeners.isEmpty()) {
+            try {
+                mListenerToService = new CarHvacEventListenerToService(this);
+                mService.registerListener(mListenerToService);
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Could not connect: " + ex.toString());
+                throw new CarNotConnectedException(ex);
+            } catch (IllegalStateException ex) {
+                Car.checkCarNotConnectedExceptionFromCarService(ex);
+            }
         }
-
-        mListener = listener;
-        try {
-            mListenerToService = new CarHvacEventListenerToService(this);
-            mService.registerListener(mListenerToService);
-        } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: " + e.toString());
-            mListener = null;
-            throw new CarNotConnectedException(e);
-        } catch (IllegalStateException e) {
-            Car.checkCarNotConnectedExceptionFromCarService(e);
-        }
+        mListeners.add(listener);
     }
 
     /**
      * Unregister {@link CarHvacEventListener}.
-     *
-     * @param
-     * @return
+     * @param listener CarHvacEventListener to unregister
      */
-    public synchronized void unregisterListener() throws CarNotConnectedException {
+    public synchronized void unregisterListener(CarHvacEventListener listener)
+            throws CarNotConnectedException {
         if (DBG) {
             Log.d(TAG, "unregisterListener");
         }
@@ -474,8 +226,10 @@ public class CarHvacManager implements CarManagerBase {
             throw new CarNotConnectedException(e);
 
         }
-        mListenerToService = null;
-        mListener = null;
+        mListeners.remove(listener);
+        if(mListeners.isEmpty()) {
+            mListenerToService = null;
+        }
     }
 
     /**
@@ -484,204 +238,136 @@ public class CarHvacManager implements CarManagerBase {
      * @return Caller must check the property type and typecast to the appropriate subclass
      * (CarHvacBooleanProperty, CarHvacFloatProperty, CarrHvacIntProperty)
      */
-    public List<CarHvacBaseProperty> getPropertyList() throws CarNotConnectedException {
-        List<CarHvacBaseProperty> hvacProps = new ArrayList<>();
-        List<CarHvacProperty> carProps;
+    public List<CarPropertyConfig> getPropertyList()  throws CarNotConnectedException {
+        List<CarPropertyConfig> carProps;
         try {
             carProps = mService.getHvacProperties();
         } catch (RemoteException e) {
             Log.w(TAG, "Exception in getPropertyList", e);
             throw new CarNotConnectedException(e);
         }
-
-        for (CarHvacProperty carProp : carProps) {
-            switch (carProp.getType()) {
-                case PROPERTY_TYPE_BOOLEAN: {
-                    CarHvacBooleanProperty newProp =
-                            new CarHvacBooleanProperty(carProp.getPropertyId(), carProp.getZones());
-                    hvacProps.add(newProp);
-                } break;
-                case PROPERTY_TYPE_FLOAT: {
-                    CarHvacFloatProperty newProp =
-                            new CarHvacFloatProperty(carProp.getPropertyId(), carProp.getZones(),
-                                    carProp.getFloatMaxs(), carProp.getFloatMins());
-                    hvacProps.add(newProp);
-                } break;
-                case PROPERTY_TYPE_INT: {
-                    CarHvacIntProperty newProp =
-                            new CarHvacIntProperty(carProp.getPropertyId(), carProp.getZones(),
-                                    carProp.getIntMaxs(), carProp.getIntMins());
-                    hvacProps.add(newProp);
-                } break;
-            }
-        }
-        return hvacProps;
+        return carProps;
     }
 
     /**
      * Returns value of a bool property
      *
      * @param prop Property ID to get
-     * @param zone Zone of the property to get
-     * @return
+     * @param area Area of the property to get
      */
-    public boolean getBooleanProperty(int prop, int zone) throws CarNotConnectedException {
-        CarHvacProperty carProp;
-        if (DBG) {
-            Log.d(TAG, "getBooleanProperty:  prop = " + prop + " zone = " + zone);
-        }
-        try {
-            carProp = mService.getProperty(prop, zone);
-        } catch (RemoteException e) {
-            Log.e(TAG, "getProperty failed with " + e.toString());
-            throw new CarNotConnectedException(e);
-        }
-
-        if (carProp.getType() == PROPERTY_TYPE_BOOLEAN) {
-            return carProp.getBooleanValue();
-        } else {
-            throw new IllegalArgumentException();
-        }
+    public boolean getBooleanProperty(int prop, int area) throws CarNotConnectedException {
+        CarPropertyValue<Boolean> carProp = getProperty(Boolean.class, prop, area);
+        return carProp != null ? carProp.getValue() : false;
     }
 
     /**
      * Returns value of a float property
      *
      * @param prop Property ID to get
-     * @param zone Zone of the property to get
-     * @return
+     * @param area Area of the property to get
      */
-    public float getFloatProperty(int prop, int zone) throws CarNotConnectedException {
-        CarHvacProperty carProp;
-        if (DBG) {
-            Log.d(TAG, "getFloatProperty:  prop = " + prop + " zone = " + zone);
-        }
-        try {
-            carProp = mService.getProperty(prop, zone);
-        } catch (RemoteException e) {
-            Log.e(TAG, "getProperty failed with " + e.toString());
-            throw new CarNotConnectedException(e);
-        }
-
-        if (carProp.getType() == PROPERTY_TYPE_FLOAT) {
-            return carProp.getFloatValue();
-        } else {
-            throw new IllegalArgumentException();
-        }
+    public float getFloatProperty(int prop, int area) throws CarNotConnectedException {
+        CarPropertyValue<Float> carProp = getProperty(Float.class, prop, area);
+        return carProp != null ? carProp.getValue() : 0f;
     }
 
     /**
      * Returns value of a integer property
      *
      * @param prop Property ID to get
-     * @param zone Zone of the property to get
-     * @return
+     * @param area Zone of the property to get
      */
-    public int getIntProperty(int prop, int zone) throws CarNotConnectedException {
-        CarHvacProperty carProp;
-        if (DBG) {
-            Log.d(TAG, "getIntProperty:  prop = " + prop + " zone = " + zone);
-        }
-        try {
-            carProp = mService.getProperty(prop, zone);
-        } catch (RemoteException e) {
-            Log.e(TAG, "getProperty failed with " + e.toString());
-            throw new CarNotConnectedException(e);
-        }
-
-        if (carProp.getType() == PROPERTY_TYPE_INT) {
-            return carProp.getIntValue();
-        } else {
-            throw new IllegalArgumentException();
-        }
+    public int getIntProperty(int prop, int area) throws CarNotConnectedException {
+        CarPropertyValue<Integer> carProp = getProperty(Integer.class, prop, area);
+        return carProp != null ? carProp.getValue() : 0;
     }
 
+    @Nullable
+    @SuppressWarnings("unchecked")
+    private <E> CarPropertyValue<E> getProperty(Class<E> clazz, int prop, int area)
+            throws CarNotConnectedException {
+        if (DBG) {
+            Log.d(TAG, "getProperty, prop: 0x" + toHexString(prop)
+                    + ", area: 0x" + toHexString(area) + ", clazz: " + clazz);
+        }
+        try {
+            CarPropertyValue<E> hvacProperty = mService.getProperty(prop, area);
+            if (hvacProperty != null && hvacProperty.getValue() != null) {
+                Class<?> actualClass = hvacProperty.getValue().getClass();
+                if (actualClass != clazz) {
+                throw new IllegalArgumentException("Invalid property type. "
+                        + "Expected: " + clazz + ", but was: " + actualClass);
+                }
+            }
+            return hvacProperty;
+        } catch (RemoteException e) {
+            Log.e(TAG, "getProperty failed with " + e.toString()
+                    + ", propId: 0x" + toHexString(prop) + ", area: 0x" + toHexString(area), e);
+            throw new CarNotConnectedException(e);
+        }
+    }
 
     /**
      * Modifies a property.  If the property modification doesn't occur, an error event shall be
      * generated and propagated back to the application.
      *
      * @param prop Property ID to modify
-     * @param zone Zone(s) to apply the modification.  Multiple zones may be OR'd together
+     * @param area Area to apply the modification.
      * @param val Value to set
      */
-    public void setBooleanProperty(int prop, int zone, boolean val)
+    public void setBooleanProperty(int prop, int area, boolean val)
             throws CarNotConnectedException {
         if (DBG) {
-            Log.d(TAG, "setBooleanProperty:  prop = " + prop + " zone = " + zone + " val = " + val);
+            Log.d(TAG, "setBooleanProperty:  prop = " + prop + " area = " + area + " val = " + val);
         }
         try {
-            CarHvacProperty carProp = new CarHvacProperty(prop, zone, val);
-            mService.setProperty(carProp);
+            mService.setProperty(new CarPropertyValue<>(prop, area, val));
         } catch (RemoteException e) {
-            Log.e(TAG, "setBooleanProperty failed with " + e.toString());
+            Log.e(TAG, "setBooleanProperty failed with " + e.toString(), e);
             throw new CarNotConnectedException(e);
         }
     }
 
-    public void setFloatProperty(int prop, int zone, float val) throws CarNotConnectedException {
+    public void setFloatProperty(int prop, int area, float val) throws CarNotConnectedException {
         if (DBG) {
-            Log.d(TAG, "setFloatProperty:  prop = " + prop + " zone = " + zone + " val = " + val);
+            Log.d(TAG, "setFloatProperty:  prop = " + prop + " area = " + area + " val = " + val);
         }
         try {
-            // Set floatMin and floatMax to 0, as they are ignored in set()
-            CarHvacProperty carProp = new CarHvacProperty(prop, zone,
-                    new float[] { 0 }, new float[] { 0 }, val);
-            mService.setProperty(carProp);
+            mService.setProperty(new CarPropertyValue<>(prop, area, val));
         } catch (RemoteException e) {
-            Log.e(TAG, "setFloatProperty failed with " + e.toString());
+            Log.e(TAG, "setBooleanProperty failed with " + e.toString(), e);
             throw new CarNotConnectedException(e);
         }
     }
 
-    public void setIntProperty(int prop, int zone, int val) throws CarNotConnectedException {
+    public void setIntProperty(int prop, int area, int val) throws CarNotConnectedException {
         if (DBG) {
-            Log.d(TAG, "setIntProperty:  prop = " + prop + " zone = " + zone + " val = " + val);
+            Log.d(TAG, "setIntProperty:  prop = " + prop + " area = " + area + " val = " + val);
         }
         try {
-            // Set intMin and intMax to 0, as they are ignored in set()
-            CarHvacProperty carProp = new CarHvacProperty(prop, zone,
-                    new int[] { 0 }, new int[] { 0 }, val);
-            mService.setProperty(carProp);
+            mService.setProperty(new CarPropertyValue<>(prop, area, val));
         } catch (RemoteException e) {
-            Log.e(TAG, "setIntProperty failed with " + e.toString());
+            Log.e(TAG, "setIntProperty failed with " + e.toString(), e);
             throw new CarNotConnectedException(e);
         }
     }
 
     private void dispatchEventToClient(CarHvacEvent event) {
-        CarHvacEventListener listener = null;
+        Collection<CarHvacEventListener> listeners;
         synchronized (this) {
-            listener = mListener;
+            listeners = mListeners;
         }
-        if (listener != null) {
-            int propertyId = event.getPropertyId();
-            int zone = event.getZone();
-
+        if (!listeners.isEmpty()) {
+            CarPropertyValue hvacProperty = event.getCarPropertyValue();
             switch(event.getEventType()) {
                 case CarHvacEvent.HVAC_EVENT_PROPERTY_CHANGE:
-                    CarHvacBaseProperty value = null;
-                    switch(event.getPropertyType()) {
-                        case PROPERTY_TYPE_BOOLEAN: {
-                            value = new CarHvacBooleanValue(propertyId, zone,
-                                    event.getIntValue() == 1);
-                            break;
-                        }
-                        case PROPERTY_TYPE_FLOAT: {
-                            value = new CarHvacFloatValue(propertyId, zone, event.getFloatValue());
-                            break;
-                        }
-                        case PROPERTY_TYPE_INT: {
-                            value = new CarHvacIntValue(propertyId, zone, event.getIntValue());
-                            break;
-                        }
-                        default:
-                            throw new IllegalArgumentException();
+                    for (CarHvacEventListener l: listeners) {
+                        l.onChangeEvent(hvacProperty);
                     }
-                    listener.onChangeEvent(value);
-                    break;
                 case CarHvacEvent.HVAC_EVENT_ERROR:
-                    listener.onErrorEvent(propertyId, zone);
+                    for (CarHvacEventListener l: listeners) {
+                        l.onErrorEvent(hvacProperty.getPropertyId(), hvacProperty.getAreaId());
+                    }
                     break;
                 default:
                     throw new IllegalArgumentException();
@@ -698,11 +384,11 @@ public class CarHvacManager implements CarManagerBase {
     /** @hide */
     @Override
     public void onCarDisconnected() {
-        if (mListener != null) {
+        for(CarHvacEventListener l: mListeners) {
             try {
-                unregisterListener();
+                unregisterListener(l);
             } catch (CarNotConnectedException e) {
-                // ignore, as car is already disconnected.
+                // Ignore, car is disconnecting.
             }
         }
     }

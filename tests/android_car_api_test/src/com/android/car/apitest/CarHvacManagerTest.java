@@ -16,15 +16,16 @@
 package com.android.car.apitest;
 
 import android.car.Car;
-import android.car.VehicleZoneUtil;
 import android.car.hardware.hvac.CarHvacManager;
-import android.car.hardware.hvac.CarHvacManager.CarHvacBaseProperty;
-import android.car.hardware.hvac.CarHvacManager.CarHvacFloatProperty;
-import android.car.hardware.hvac.CarHvacManager.CarHvacIntProperty;
+import android.car.hardware.hvac.CarHvacManager.HvacPropertyId;
+import android.car.hardware.CarPropertyConfig;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @MediumTest
 public class CarHvacManagerTest extends CarApiTestBase {
@@ -40,140 +41,102 @@ public class CarHvacManagerTest extends CarApiTestBase {
     }
 
     public void testAllHvacProperties() throws Exception {
-        List<CarHvacBaseProperty> properties = mHvacManager.getPropertyList();
-        for (CarHvacBaseProperty property : properties) {
-            switch (property.getType()) {
-                case CarHvacManager.PROPERTY_TYPE_BOOLEAN:
-                case CarHvacManager.PROPERTY_TYPE_FLOAT:
-                case CarHvacManager.PROPERTY_TYPE_INT:
-                case CarHvacManager.PROPERTY_TYPE_INT_VECTOR:
-                case CarHvacManager.PROPERTY_TYPE_FLOAT_VECTOR:
-                    assrtTypeAndZone(property);
-                    break;
-                default:
-                    fail("Unknown property type " + property.getType());
-                    break;
+        List<CarPropertyConfig> properties = mHvacManager.getPropertyList();
+        Set<Class> supportedTypes = new HashSet<>(Arrays.asList(
+                new Class[] { Integer.class, Float.class, Boolean.class }));
+
+        for (CarPropertyConfig property : properties) {
+            if (supportedTypes.contains(property.getPropertyType())) {
+                assertTypeAndZone(property);
+            } else {
+                fail("Type is not supported for " + property);
             }
         }
     }
 
-    private void assrtTypeAndZone(CarHvacBaseProperty property) {
+    private void assertTypeAndZone(CarPropertyConfig property) {
         switch (property.getPropertyId()) {
-            case CarHvacManager.HVAC_MIRROR_DEFROSTER_ON: // non-zoned bool
-            case CarHvacManager.HVAC_AUTOMATIC_MODE_ON:
-            case CarHvacManager.HVAC_AIR_RECIRCULATION_ON:
-                assertEquals(CarHvacManager.PROPERTY_TYPE_BOOLEAN, property.getType());
-                assertFalse(property.isZonedProperty());
+            case HvacPropertyId.MIRROR_DEFROSTER_ON: // non-zoned bool
+            case HvacPropertyId.AUTOMATIC_MODE_ON:
+            case HvacPropertyId.AIR_RECIRCULATION_ON:
+                assertEquals(Boolean.class, property.getPropertyType());
+                assertTrue(property.isGlobalProperty());
                 break;
-            case CarHvacManager.HVAC_STEERING_WHEEL_TEMP: // non-zoned int
-                assertEquals(CarHvacManager.PROPERTY_TYPE_INT, property.getType());
-                assertFalse(property.isZonedProperty());
-                checkIntMinMax((CarHvacIntProperty) property);
+            case HvacPropertyId.STEERING_WHEEL_TEMP: // non-zoned int
+                assertEquals(Integer.class, property.getPropertyType());
+                assertTrue(property.isGlobalProperty());
+                checkIntMinMax(property);
                 break;
-            case CarHvacManager.HVAC_ZONED_TEMP_SETPOINT: // zoned float
-            case CarHvacManager.HVAC_ZONED_TEMP_ACTUAL:
-                assertEquals(CarHvacManager.PROPERTY_TYPE_FLOAT, property.getType());
-                assertTrue(property.isZonedProperty());
-                checkFloatMinMax((CarHvacFloatProperty) property);
+            case HvacPropertyId.ZONED_TEMP_SETPOINT: // zoned float
+            case HvacPropertyId.ZONED_TEMP_ACTUAL:
+                assertEquals(Float.class, property.getPropertyType());
+                assertFalse(property.isGlobalProperty());
+                checkFloatMinMax(property);
                 break;
-            case CarHvacManager.HVAC_ZONED_TEMP_IS_FAHRENHEIT: // zoned boolean
-            case CarHvacManager.HVAC_ZONED_AC_ON:
-            case CarHvacManager.HVAC_WINDOW_DEFROSTER_ON:
-                assertEquals(CarHvacManager.PROPERTY_TYPE_BOOLEAN, property.getType());
-                assertTrue(property.isZonedProperty());
+            case HvacPropertyId.ZONED_TEMP_IS_FAHRENHEIT: // zoned boolean
+            case HvacPropertyId.ZONED_AC_ON:
+            case HvacPropertyId.WINDOW_DEFROSTER_ON:
+                assertEquals(Boolean.class, property.getPropertyType());
+                assertFalse(property.isGlobalProperty());
                 break;
-            case CarHvacManager.HVAC_ZONED_FAN_SPEED_SETPOINT: // zoned int
-            case CarHvacManager.HVAC_ZONED_FAN_SPEED_RPM:
-            case CarHvacManager.HVAC_ZONED_FAN_POSITION_AVAILABLE:
-            case CarHvacManager.HVAC_ZONED_FAN_POSITION:
-            case CarHvacManager.HVAC_ZONED_SEAT_TEMP:
-                assertEquals(CarHvacManager.PROPERTY_TYPE_INT, property.getType());
-                assertTrue(property.isZonedProperty());
-                checkIntMinMax((CarHvacIntProperty) property);
+            case HvacPropertyId.ZONED_FAN_SPEED_SETPOINT: // zoned int
+            case HvacPropertyId.ZONED_FAN_SPEED_RPM:
+            case HvacPropertyId.ZONED_FAN_POSITION_AVAILABLE:
+            case HvacPropertyId.ZONED_FAN_POSITION:
+            case HvacPropertyId.ZONED_SEAT_TEMP:
+                assertEquals(Integer.class, property.getPropertyType());
+                assertFalse(property.isGlobalProperty());
+                checkIntMinMax(property);
                 break;
         }
     }
 
-    private void checkIntMinMax(CarHvacIntProperty property) {
-        Log.i(TAG, "checkIntMinMax propery:" + property);
-        if (property.isZonedProperty()) {
-            assertTrue(property.getZones() != 0);
-            for (int zone : VehicleZoneUtil.listAllZones(property.getZones())) {
-                int min = property.getMinValue(zone);
-                int max = property.getMaxValue(zone);
+    private void checkIntMinMax(CarPropertyConfig<Integer> property) {
+        Log.i(TAG, "checkIntMinMax property:" + property);
+        if (!property.isGlobalProperty()) {
+            int[] areaIds = property.getAreaIds();
+            assertTrue(areaIds.length > 0);
+            assertEquals(areaIds.length, property.getAreaCount());
+
+            for (int areId : areaIds) {
+                assertTrue(property.hasArea(areId));
+                int min = property.getMinValue(areId);
+                int max = property.getMaxValue(areId);
                 assertTrue(min <= max);
-            }
-            try {
-                int min = property.getMinValue();
-                fail();
-            } catch (IllegalArgumentException e) {
-                // expected
-            }
-            try {
-                int max = property.getMaxValue();
-                fail();
-            } catch (IllegalArgumentException e) {
-                // expected
             }
         } else {
             int min = property.getMinValue();
             int max = property.getMaxValue();
             assertTrue(min <= max);
             for (int i = 0; i < 32; i++) {
-                try {
-                    min = property.getMinValue(0x1 << i);
-                    fail();
-                } catch (IllegalArgumentException e) {
-                    // expected
-                }
-                try {
-                    max = property.getMaxValue(0x1 << i);
-                    fail();
-                } catch (IllegalArgumentException e) {
-                    // expected
-                }
+                assertFalse(property.hasArea(0x1 << i));
+                assertNull(property.getMinValue(0x1 << i));
+                assertNull(property.getMaxValue(0x1 << i));
             }
         }
     }
 
-    private void checkFloatMinMax(CarHvacFloatProperty property) {
-        Log.i(TAG, "checkFloatMinMax propery:" + property);
-        if (property.isZonedProperty()) {
-            assertTrue(property.getZones() != 0);
-            for (int zone : VehicleZoneUtil.listAllZones(property.getZones())) {
-                float min = property.getMinValue(zone);
-                float max = property.getMaxValue(zone);
+    private void checkFloatMinMax(CarPropertyConfig<Float> property) {
+        Log.i(TAG, "checkFloatMinMax property:" + property);
+        if (!property.isGlobalProperty()) {
+            int[] areaIds = property.getAreaIds();
+            assertTrue(areaIds.length > 0);
+            assertEquals(areaIds.length, property.getAreaCount());
+
+            for (int areId : areaIds) {
+                assertTrue(property.hasArea(areId));
+                float min = property.getMinValue(areId);
+                float max = property.getMaxValue(areId);
                 assertTrue(min <= max);
-            }
-            try {
-                float min = property.getMinValue();
-                fail();
-            } catch (IllegalArgumentException e) {
-                // expected
-            }
-            try {
-                float max = property.getMaxValue();
-                fail();
-            } catch (IllegalArgumentException e) {
-                // expected
             }
         } else {
             float min = property.getMinValue();
             float max = property.getMaxValue();
             assertTrue(min <= max);
             for (int i = 0; i < 32; i++) {
-                try {
-                    min = property.getMinValue(0x1 << i);
-                    fail();
-                } catch (IllegalArgumentException e) {
-                    // expected
-                }
-                try {
-                    max = property.getMaxValue(0x1 << i);
-                    fail();
-                } catch (IllegalArgumentException e) {
-                    // expected
-                }
+                assertFalse(property.hasArea(0x1 << i));
+                assertNull(property.getMinValue(0x1 << i));
+                assertNull(property.getMaxValue(0x1 << i));
             }
         }
     }

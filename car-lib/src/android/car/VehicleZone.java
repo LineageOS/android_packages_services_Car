@@ -16,10 +16,11 @@
 package android.car;
 
 import android.annotation.SystemApi;
+import android.car.hardware.CarPropertyValue;
 
 /**
  * VehicleZone is an abstraction for an area in a car. Some car APIs like
- * {@link android.car.hardware.hvac.CarHvacProperty} needs to handle zone and values defined
+ * {@link CarPropertyValue} needs to handle zone and values defined
  * here should be used.
  * @hide
  */

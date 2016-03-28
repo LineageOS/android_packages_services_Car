@@ -16,10 +16,11 @@
 package android.car;
 
 import android.annotation.SystemApi;
+import android.car.hardware.CarPropertyValue;
 
 /**
  * VehicleSeat is an abstraction for a seat in a car. Some car APIs like
- * {@link android.car.hardware.hvac.CarHvacProperty} may provide control per seat and
+ * {@link CarPropertyValue} may provide control per seat and
  * values defined here should be used to distinguish different seats.
  * @hide
  */
