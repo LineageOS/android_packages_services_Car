@@ -16,12 +16,11 @@
 
 package android.car.hardware.hvac;
 
-import android.annotation.SystemApi;
+import android.car.hardware.CarPropertyValue;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 /** @hide */
-@SystemApi
 public class CarHvacEvent implements Parcelable {
     public static final int HVAC_EVENT_PROPERTY_CHANGE = 0;
     public static final int HVAC_EVENT_ERROR = 1;
@@ -30,26 +29,7 @@ public class CarHvacEvent implements Parcelable {
      * EventType of this message
      */
     private final int mEventType;
-    /**
-     * PropertyId is defined in {@link CarHvacProperty} and refers only to HVAC properties
-     */
-    private final int mPropertyId;
-    /**
-     * Type denotes whether the property is a bool or integer.
-     */
-    private final int mDataType;
-    /**
-     * Float value of the property
-     */
-    private final float mFloatValue;
-    /**
-     * Integer value of the property
-     */
-    private final int mIntValue;
-    /**
-     * Affected zone(s) for the property.  Zone is a bitmask as defined in {@link CarHvacProperty}
-     */
-    private final int mZone;
+    private final CarPropertyValue<?> mCarPropertyValue;
 
     // Getters.
 
@@ -59,29 +39,9 @@ public class CarHvacEvent implements Parcelable {
     public int getEventType() { return mEventType; }
 
     /**
-     * @return Property ID of the event
+     * Returns {@link CarPropertyValue} associated with this event.
      */
-    public int getPropertyId() { return mPropertyId; }
-
-    /**
-     * @return Property Type (boolean or integer)
-     */
-    public int getPropertyType() { return mDataType; }
-
-    /**
-     * @return Float property Value
-     */
-    public float getFloatValue() { return mFloatValue; }
-
-    /**
-     * @return Int or bool property Value
-     */
-    public int getIntValue() { return mIntValue; }
-
-    /**
-     * @return Affected zone(s) for this property
-     */
-    public int getZone() { return mZone; }
+    public CarPropertyValue<?> getCarPropertyValue() { return mCarPropertyValue; }
 
     @Override
     public int describeContents() {
@@ -91,11 +51,7 @@ public class CarHvacEvent implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mEventType);
-        dest.writeInt(mPropertyId);
-        dest.writeInt(mDataType);
-        dest.writeFloat(mFloatValue);
-        dest.writeInt(mIntValue);
-        dest.writeInt(mZone);
+        dest.writeParcelable(mCarPropertyValue, flags);
     }
 
     public static final Parcelable.Creator<CarHvacEvent> CREATOR
@@ -110,72 +66,23 @@ public class CarHvacEvent implements Parcelable {
     };
 
     /**
-     * Constructor for boolean type
-     * @param eventType
-     * @param propertyId
-     * @param zone
-     * @param value
+     * Constructor for {@link CarHvacEvent}.
      */
-    public CarHvacEvent(int eventType, int propertyId, int zone, boolean value) {
+    public CarHvacEvent(int eventType, CarPropertyValue<?> carHvacProperty) {
         mEventType  = eventType;
-        mPropertyId = propertyId;
-        mDataType   = CarHvacManager.PROPERTY_TYPE_BOOLEAN;
-        mFloatValue = 0;
-        if (value) {
-            mIntValue = 1;
-        } else {
-            mIntValue = 0;
-        }
-        mZone       = zone;
-    }
-
-    /**
-     * Constructor for float event
-     * @param eventType
-     * @param propertyId
-     * @param zone
-     * @param value
-     */
-    public CarHvacEvent(int eventType, int propertyId, int zone, float value) {
-        mEventType  = eventType;
-        mPropertyId = propertyId;
-        mDataType   = CarHvacManager.PROPERTY_TYPE_FLOAT;
-        mFloatValue = value;
-        mIntValue   = 0;
-        mZone       = zone;
-    }
-
-    /**
-     * Constructor for integer event
-     * @param eventType
-     * @param propertyId
-     * @param zone
-     * @param value
-     */
-    public CarHvacEvent(int eventType, int propertyId, int zone, int value) {
-        mEventType  = eventType;
-        mPropertyId = propertyId;
-        mDataType   = CarHvacManager.PROPERTY_TYPE_INT;
-        mFloatValue = 0;
-        mIntValue   = value;
-        mZone       = zone;
+        mCarPropertyValue = carHvacProperty;
     }
 
     private CarHvacEvent(Parcel in) {
         mEventType  = in.readInt();
-        mPropertyId = in.readInt();
-        mDataType   = in.readInt();
-        mFloatValue = in.readFloat();
-        mIntValue   = in.readInt();
-        mZone       = in.readInt();
+        mCarPropertyValue = in.readParcelable(CarPropertyValue.class.getClassLoader());
     }
 
+    @Override
     public String toString() {
-        return "mEventType:  " + mEventType    + "\n" +
-               "mPropertyId: " + mPropertyId   + "\n" +
-               "mDataType:   " + mDataType     + "\n" +
-               "mFloatValue: " + mFloatValue   + "\n" +
-               "mIntValue:   " + mIntValue + "\n" +
-               "mZone:       " + mZone         + "\n";
+        return "CarHvacEvent{" +
+                "mEventType=" + mEventType +
+                ", mCarPropertyValue=" + mCarPropertyValue +
+                '}';
     }
 }
