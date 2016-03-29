@@ -468,10 +468,10 @@ default: return "UNKNOWN";
 }
 
 public static class VehicleAudioHwVariantConfigFlag {
-public static final int VEHICLE_AUDIO_HW_VARIANT_FLAG_PASS_RADIO_AUDIO_FOCUS_FLAG = 0x1;
+public static final int VEHICLE_AUDIO_HW_VARIANT_FLAG_INTERNAL_RADIO_FLAG = 0x1;
 public static String enumToString(int v) {
 switch(v) {
-case VEHICLE_AUDIO_HW_VARIANT_FLAG_PASS_RADIO_AUDIO_FOCUS_FLAG: return "VEHICLE_AUDIO_HW_VARIANT_FLAG_PASS_RADIO_AUDIO_FOCUS_FLAG";
+case VEHICLE_AUDIO_HW_VARIANT_FLAG_INTERNAL_RADIO_FLAG: return "VEHICLE_AUDIO_HW_VARIANT_FLAG_INTERNAL_RADIO_FLAG";
 default: return "UNKNOWN";
 }
 }

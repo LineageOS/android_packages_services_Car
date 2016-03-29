@@ -18,6 +18,7 @@ package com.android.car;
 import android.car.media.CarAudioManager;
 import android.car.media.ICarAudio;
 import android.content.Context;
+import android.content.res.Resources;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
@@ -50,7 +51,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         void onContextChange(int primaryFocusContext, int primaryFocusPhysicalStream);
     }
 
-    private static final long FOCUS_RESPONSE_WAIT_TIMEOUT_MS = 1000;
+    private final long mFocusResponseWaitTimeoutMs;
 
     private static final String TAG_FOCUS = CarLog.TAG_AUDIO + ".FOCUS";
 
@@ -61,8 +62,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     private final HandlerThread mFocusHandlerThread;
     private final CarAudioFocusChangeHandler mFocusHandler;
     private final SystemFocusListener mSystemFocusListener;
-    private AudioPolicy mAudioPolicy;
+
     private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private AudioPolicy mAudioPolicy;
     @GuardedBy("mLock")
     private FocusState mCurrentFocusState = FocusState.STATE_LOSS;
     /** Focus state received, but not handled yet. Once handled, this will be set to null. */
@@ -100,6 +103,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     private AudioContextChangeListener mAudioContextChangeListener;
     @GuardedBy("mLock")
     private CarAudioContextChangeHandler mCarAudioContextChangeHandler;
+    @GuardedBy("mLock")
+    private boolean mIsRadioExternal;
 
     private final AudioAttributes mAttributeBottom =
             CarAudioAttributesUtil.getAudioAttributesForCarUsage(
@@ -116,6 +121,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         mFocusHandlerThread.start();
         mFocusHandler = new CarAudioFocusChangeHandler(mFocusHandlerThread.getLooper());
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        Resources res = context.getResources();
+        mFocusResponseWaitTimeoutMs = (long) res.getInteger(R.integer.audioFocusWaitTimeoutMs);
+
     }
 
     @Override
@@ -131,7 +139,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         if (isFocusSuported) {
             builder.setAudioPolicyFocusListener(mSystemFocusListener);
         }
-        mAudioPolicy = builder.build();
+        synchronized (mLock) {
+            mAudioPolicy = builder.build();
+        }
         if (isFocusSuported) {
             FocusState currentState = FocusState.create(mAudioHal.getCurrentFocusState());
             int r = mAudioManager.requestAudioFocus(mBottomAudioFocusHandler, mAttributeBottom,
@@ -152,7 +162,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         }
         mAudioHal.setFocusListener(this);
         int audioHwVariant = mAudioHal.getHwVariant();
-        mAudioRoutingPolicy = AudioRoutingPolicy.create(mContext, audioHwVariant);
+        synchronized (mLock) {
+            mAudioRoutingPolicy = AudioRoutingPolicy.create(mContext, audioHwVariant);
+            mIsRadioExternal = mAudioHal.isRadioExternal();
+        }
         mAudioHal.setAudioRoutingPolicy(mAudioRoutingPolicy);
         //TODO set routing policy with new AudioPolicy API. This will control which logical stream
         //     goes to which physical stream.
@@ -200,6 +213,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         writer.println(" mCallActive:" + mCallActive + " mRadioActive:" + mRadioActive);
         writer.println(" mCurrentPrimaryAudioContext:" + mCurrentPrimaryAudioContext +
                 " mCurrentPrimaryPhysicalStream:" + mCurrentPrimaryPhysicalStream);
+        writer.println(" mIsRadioExternal:" + mIsRadioExternal);
         mAudioRoutingPolicy.dump(writer);
     }
 
@@ -389,8 +403,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         return false;
     }
 
-    private boolean isFocusFromRadio(AudioFocusInfo info) {
-        if (!mAudioHal.isRadioExternal()) {
+    private boolean isFocusFromExternalRadio(AudioFocusInfo info) {
+        if (!mIsRadioExternal) {
             // if radio is not external, no special handling of radio is necessary.
             return false;
         }
@@ -455,21 +469,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         // update primary context and notify if necessary
         int primaryContext = logicalStreamTypeForTop;
         switch (logicalStreamTypeForTop) {
-            case CarAudioAttributesUtil.CAR_AUDIO_TYPE_CARSERVICE_BOTTOM:
-            case CarAudioAttributesUtil.CAR_AUDIO_TYPE_CARSERVICE_CAR_PROXY:
+            case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_BOTTOM:
+            case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY:
                 primaryContext = 0;
                 break;
         }
         if (mCurrentPrimaryAudioContext != primaryContext) {
             mCurrentPrimaryAudioContext = primaryContext;
-            if (primaryContext == CarAudioManager.CAR_AUDIO_USAGE_RADIO) {
-                // policy does not know radio. treat it same as music.
-                mCurrentPrimaryPhysicalStream =
-                        mAudioRoutingPolicy.getPhysicalStreamForLogicalStream(
-                                CarAudioManager.CAR_AUDIO_USAGE_MUSIC);
-            } else {
-                mCurrentPrimaryPhysicalStream = physicalStreamTypeForTop;
-            }
+             mCurrentPrimaryPhysicalStream = physicalStreamTypeForTop;
             if (mCarAudioContextChangeHandler != null) {
                 mCarAudioContextChangeHandler.requestContextChangeNotification(
                         mAudioContextChangeListener, primaryContext, physicalStreamTypeForTop);
@@ -495,10 +502,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         int streamsToRequest = 0x1 << physicalStreamTypeForTop;
         switch (mTopFocusInfo.getGainRequest()) {
             case AudioManager.AUDIOFOCUS_GAIN:
-                if (isFocusFromRadio(mTopFocusInfo)) {
+                if (isFocusFromExternalRadio(mTopFocusInfo)) {
                     mRadioActive = true;
-                    // audio context sending is only for audio from android.
-                    audioContexts = 0;
                 } else {
                     mRadioActive = false;
                 }
@@ -541,9 +546,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             //     Most cars do not allow that, but if mixing is possible, it can take media stream.
             //     For now, assume no mixing capability.
             int radioPhysicalStream = mAudioRoutingPolicy.getPhysicalStreamForLogicalStream(
-                    CarAudioManager.CAR_AUDIO_USAGE_MUSIC);
-            if (!isFocusFromRadio(mTopFocusInfo) &&
-                    (physicalStreamTypeForTop == radioPhysicalStream)) {
+                    CarAudioManager.CAR_AUDIO_USAGE_RADIO);
+            if (!isFocusFromExternalRadio(mTopFocusInfo) &&
+                    (physicalStreamTypeForTop == radioPhysicalStream) && mIsRadioExternal) {
                 Log.i(CarLog.TAG_AUDIO, "Top stream is taking the same stream:" +
                     physicalStreamTypeForTop + " as radio, stopping radio");
                 // stream conflict here. radio cannot be played
@@ -589,7 +594,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             mAudioHal.requestAudioFocusChange(focusToRequest, streamsToRequest, extFocus,
                     audioContexts);
             try {
-                mLock.wait(FOCUS_RESPONSE_WAIT_TIMEOUT_MS);
+                mLock.wait(mFocusResponseWaitTimeoutMs);
             } catch (InterruptedException e) {
                 //ignore
             }
@@ -704,7 +709,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 mAudioHal.requestAudioFocusChange(
                         AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, 0, 0);
                 try {
-                    mLock.wait(FOCUS_RESPONSE_WAIT_TIMEOUT_MS);
+                    mLock.wait(mFocusResponseWaitTimeoutMs);
                 } catch (InterruptedException e) {
                     //ignore
                 }

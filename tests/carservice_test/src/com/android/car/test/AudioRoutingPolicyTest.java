@@ -117,6 +117,7 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG |
@@ -138,6 +139,7 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
         assertEquals(
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG,
                 v.getInt32Values(
                         VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_CONTEXTS)

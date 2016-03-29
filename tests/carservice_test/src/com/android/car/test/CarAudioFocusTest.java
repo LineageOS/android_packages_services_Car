@@ -361,8 +361,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
         assertEquals(0, request[1]);
         assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
                 request[2]);
-        // no android side context for radio
-        assertEquals(0, request[3]);
+        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG, request[3]);
         mAudioFocusPropertyHandler.sendAudioFocusState(
                 VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
                 0,
@@ -382,7 +381,8 @@ public class CarAudioFocusTest extends MockedCarTestBase {
         assertEquals(0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM1, request[1]);
         assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
                 request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG |
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG, request[3]);
         mAudioFocusPropertyHandler.sendAudioFocusState(
                 VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
                 0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM1,
@@ -396,7 +396,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
         assertEquals(0, request[1]);
         assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
                 request[2]);
-        assertEquals(0, request[3]);
+        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG, request[3]);
         mAudioFocusPropertyHandler.sendAudioFocusState(
                 VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
                 0,
