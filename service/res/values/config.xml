@@ -38,10 +38,13 @@
 		 vehicle HAL.-->
     <string-array translatable="false" name="audioRoutingPolicy">
         <!--  alll logical streams into single physical stream 0. -->
-        <item>"0:call,media,nav_guidance,voice_command,alarm,notification,system,safety,unknown"</item>
+        <item>"0:call,media,radio,nav_guidance,voice_command,alarm,notification,system,safety,unknown"</item>
         <!--  call and media to physical stream 0 while all others go to physical stream 1 -->
-        <item>"0:call,media,unknown#1:nav_guidance,voice_command,alarm,notification,system,safety"</item>
+        <item>"0:call,media,radio,unknown#1:nav_guidance,voice_command,alarm,notification,system,safety"</item>
     </string-array>
+    <!-- Timeout value in Ms for audio focus wait. Audio focus request not responsed within
+         this value will be treated as timeout and audio focus will be reset to LOSS state. -->
+    <integer name="audioFocusWaitTimeoutMs">1000</integer>
 
     <!-- This is kernel device node to allow input event injection for key inputs coming
          from vehicle hal -->

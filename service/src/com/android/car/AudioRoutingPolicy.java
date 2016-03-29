@@ -44,13 +44,13 @@ public class AudioRoutingPolicy {
     }
 
     private static int getStreamType(String str) {
-        // no radio here as radio routing is outside android (for external module) or same as music
-        // (for android internal module)
         switch (str) {
             case "call":
                 return CarAudioManager.CAR_AUDIO_USAGE_VOICE_CALL;
             case "media":
                 return CarAudioManager.CAR_AUDIO_USAGE_MUSIC;
+            case "radio":
+                return CarAudioManager.CAR_AUDIO_USAGE_RADIO;
             case "nav_guidance":
                 return CarAudioManager.CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE;
             case "voice_command":
@@ -101,20 +101,8 @@ public class AudioRoutingPolicy {
         }
         for (int i = 0; i < mPhysicalStreamForLogicalStream.length; i++) {
             if (mPhysicalStreamForLogicalStream[i] == USAGE_TYPE_INVALID) {
-                if (i == CarAudioManager.CAR_AUDIO_USAGE_RADIO) {
-                    // set radio routing to be the same as music. For external radio, this does not
-                    // matter. For internal one, it should be the same as music.
-                    int musicPhysicalStream =
-                            mPhysicalStreamForLogicalStream[CarAudioManager.CAR_AUDIO_USAGE_MUSIC];
-                    if (musicPhysicalStream == USAGE_TYPE_INVALID) {
-                        musicPhysicalStream = defaultStreamType;
-                    }
-                    mPhysicalStreamForLogicalStream[i] = musicPhysicalStream;
-                } else {
-                    Log.w(CarLog.TAG_AUDIO, "Audio routing policy did not cover logical stream " +
-                            i);
-                    mPhysicalStreamForLogicalStream[i] = defaultStreamType;
-                }
+                Log.w(CarLog.TAG_AUDIO, "Audio routing policy did not cover logical stream " + i);
+                mPhysicalStreamForLogicalStream[i] = defaultStreamType;
             }
         }
     }

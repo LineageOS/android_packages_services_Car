@@ -260,7 +260,7 @@ public class AudioHalService extends HalServiceBase {
             return true;
         }
         return (config.getConfigArray(0) &
-                VehicleAudioHwVariantConfigFlag.VEHICLE_AUDIO_HW_VARIANT_FLAG_PASS_RADIO_AUDIO_FOCUS_FLAG)
+                VehicleAudioHwVariantConfigFlag.VEHICLE_AUDIO_HW_VARIANT_FLAG_INTERNAL_RADIO_FLAG)
                 == 0;
     }
 
