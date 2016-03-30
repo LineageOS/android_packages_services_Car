@@ -19,6 +19,40 @@ ifneq ($(TARGET_BUILD_PDK),true)
 
 LOCAL_PATH:= $(call my-dir)
 
+#Build prebuilt android.support.car library
+include $(CLEAR_VARS)
+
+LOCAL_AAPT_FLAGS := --auto-add-overlay \
+    --extra-packages android.support.v7.appcompat \
+    --extra-packages android.support.v7.recyclerview \
+    --extra-packages android.support.v7.cardview
+
+LOCAL_MODULE := android.support.car-prebuilt
+
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_RESOURCE_DIR += frameworks/support/v7/appcompat/res
+LOCAL_RESOURCE_DIR += frameworks/support/v7/recyclerview/res
+LOCAL_RESOURCE_DIR += frameworks/support/v7/cardview/res
+LOCAL_SDK_VERSION := current
+
+LOCAL_MANIFEST_FILE := AndroidManifest.xml
+
+LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
+
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
+                               android-support-v7-appcompat \
+                               android-support-v7-recyclerview \
+                               android-support-v7-cardview \
+                               jsr305
+
+LOCAL_JAVA_LIBRARIES += android.car
+
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+ifeq ($(BOARD_IS_AUTOMOTIVE), true)
+$(call dist-for-goals,dist_files,$(built_aar):android.support.car.aar)
+endif
+
 # Build the resources.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android.support.car-res

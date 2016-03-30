@@ -28,6 +28,10 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-unde
 
 include $(BUILD_JAVA_LIBRARY)
 
+ifeq ($(BOARD_IS_AUTOMOTIVE), true)
+$(call dist-for-goals,dist_files,$(LOCAL_BUILT_MODULE):$(LOCAL_MODULE).jar)
+endif
+
 # API Check
 # ---------------------------------------------
 car_module := $(LOCAL_MODULE)
