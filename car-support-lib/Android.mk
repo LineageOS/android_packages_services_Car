@@ -99,7 +99,7 @@ car_module := $(LOCAL_MODULE)
 car_module_src_files := $(LOCAL_SRC_FILES)
 car_module_api_dir := $(LOCAL_PATH)/api
 car_module_java_libraries := $(LOCAL_JAVA_LIBRARIES) $(LOCAL_STATIC_JAVA_LIBRARIES) framework
-car_module_java_packages := android.support.car.*
+car_module_java_packages := android.support.car*
 include $(CAR_API_CHECK)
 
 endif #TARGET_BUILD_PDK
