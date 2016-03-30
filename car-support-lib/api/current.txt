@@ -1,3 +1,94 @@
+package android.support.car {
+
+  public class Car {
+    method public void connect() throws java.lang.IllegalStateException;
+    method public static android.support.car.Car createCar(android.content.Context, android.support.car.ServiceConnectionListener, android.os.Looper);
+    method public static android.support.car.Car createCar(android.content.Context, android.support.car.ServiceConnectionListener);
+    method public void disconnect();
+    method public int getCarConnectionType() throws android.support.car.CarNotConnectedException;
+    method public java.lang.Object getCarManager(java.lang.String) throws android.support.car.CarNotConnectedException, android.support.car.CarNotSupportedException;
+    method public boolean isConnected();
+    method public boolean isConnectedToCar();
+    method public boolean isConnecting();
+    method public void registerCarConnectionListener(android.support.car.CarConnectionListener) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException;
+    method public void unregisterCarConnectionListener(android.support.car.CarConnectionListener);
+    field public static final java.lang.String APP_CONTEXT_SERVICE = "app_context";
+    field public static final java.lang.String AUDIO_SERVICE = "audio";
+    field public static final int CONNECTION_TYPE_ADB_EMULATOR = 4; // 0x4
+    field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
+    field public static final int CONNECTION_TYPE_EMULATOR = 0; // 0x0
+    field public static final int CONNECTION_TYPE_ON_DEVICE_EMULATOR = 3; // 0x3
+    field public static final int CONNECTION_TYPE_USB = 1; // 0x1
+    field public static final int CONNECTION_TYPE_WIFI = 2; // 0x2
+    field public static final java.lang.String INFO_SERVICE = "info";
+    field public static final java.lang.String PACKAGE_SERVICE = "package";
+    field public static final java.lang.String PERMISSION_FUEL = "android.car.permission.CAR_FUEL";
+    field public static final java.lang.String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
+    field public static final java.lang.String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
+    field public static final java.lang.String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
+    field public static final java.lang.String SENSOR_SERVICE = "sensor";
+  }
+
+  public abstract class CarAppContextManager {
+    ctor public CarAppContextManager();
+    method public abstract int getActiveAppContexts();
+    method public abstract boolean isOwningContext(int);
+    method public abstract void registerContextListener(android.support.car.CarAppContextManager.AppContextChangeListener, int);
+    method public abstract void resetActiveContexts(int);
+    method public abstract void setActiveContexts(android.support.car.CarAppContextManager.AppContextOwnershipChangeListener, int) throws java.lang.IllegalStateException, java.lang.SecurityException;
+    method public abstract void unregisterContextListener();
+    field public static final int APP_CONTEXT_NAVIGATION = 1; // 0x1
+    field public static final int APP_CONTEXT_VOICE_COMMAND = 2; // 0x2
+  }
+
+  public static abstract interface CarAppContextManager.AppContextChangeListener {
+    method public abstract void onAppContextChange(int);
+  }
+
+  public static abstract interface CarAppContextManager.AppContextOwnershipChangeListener {
+    method public abstract void onAppContextOwnershipLoss(int);
+  }
+
+  public abstract interface CarConnectionListener {
+    method public abstract void onConnected(int);
+    method public abstract void onDisconnected();
+  }
+
+  public abstract class CarInfoManager {
+    ctor public CarInfoManager();
+    method public abstract java.lang.Float getFloat(java.lang.String) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    method public abstract java.lang.Integer getInt(java.lang.String) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    method public abstract java.lang.Long getLong(java.lang.String) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    method public abstract java.lang.String getString(java.lang.String) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    field public static final java.lang.String KEY_MANUFACTURER = "manufacturer";
+    field public static final java.lang.String KEY_MODEL = "model";
+    field public static final java.lang.String KEY_MODEL_YEAR = "model-year";
+    field public static final java.lang.String KEY_VEHICLE_ID = "vehicle-id";
+  }
+
+  public class CarNotConnectedException extends java.lang.Exception {
+    ctor public CarNotConnectedException();
+    ctor public CarNotConnectedException(java.lang.String);
+    ctor public CarNotConnectedException(java.lang.String, java.lang.Throwable);
+    ctor public CarNotConnectedException(java.lang.Exception);
+  }
+
+  public class CarNotSupportedException extends java.lang.Exception {
+    ctor public CarNotSupportedException();
+    ctor public CarNotSupportedException(java.lang.String);
+    ctor public CarNotSupportedException(java.lang.String, java.lang.Throwable);
+    ctor public CarNotSupportedException(java.lang.Exception);
+  }
+
+  public abstract interface ServiceConnectionListener {
+    method public abstract void onServiceConnected(android.content.ComponentName);
+    method public abstract void onServiceConnectionFailed(int);
+    method public abstract void onServiceDisconnected(android.content.ComponentName);
+    method public abstract void onServiceSuspended(int);
+  }
+
+}
+
 package android.support.car.annotation {
 
   public abstract class ValueTypeDef implements java.lang.annotation.Annotation {
