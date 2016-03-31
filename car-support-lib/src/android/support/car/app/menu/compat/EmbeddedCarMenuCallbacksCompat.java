@@ -29,15 +29,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.concurrent.GuardedBy;
-
 public class EmbeddedCarMenuCallbacksCompat extends android.car.app.menu.CarMenuCallbacks {
 
     private final CarMenuCallbacks mCallbacks;
     private final CarDrawerActivity mActivity;
 
     // Map of subscribed ids to their respective callbacks.
-    @GuardedBy("this")
+    // @GuardedBy("this")
     private final Map<String, List<SubscriptionCallbacks>> mSubscriptionMap =
             new HashMap<String, List<SubscriptionCallbacks>>();
 
