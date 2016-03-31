@@ -76,7 +76,7 @@ public class CarHvacManagerTest extends CarApiTestBase {
                 assertTrue(property.isZonedProperty());
                 checkFloatMinMax((CarHvacFloatProperty) property);
                 break;
-            case CarHvacManager.HVAC_ZONED_TEMP_IS_FARENHEIT: // zoned boolean
+            case CarHvacManager.HVAC_ZONED_TEMP_IS_FAHRENHEIT: // zoned boolean
             case CarHvacManager.HVAC_ZONED_AC_ON:
             case CarHvacManager.HVAC_WINDOW_DEFROSTER_ON:
                 assertEquals(CarHvacManager.PROPERTY_TYPE_BOOLEAN, property.getType());
