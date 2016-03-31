@@ -39,8 +39,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import javax.annotation.concurrent.GuardedBy;
-
 /**
  *   Top level car API.
  *   This API works only for device with {@link PackageManager#FEATURE_AUTOMOTIVE} feature
@@ -145,7 +143,7 @@ public class Car {
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
-    @GuardedBy("this")
+    // @GuardedBy("this")
     private int mConnectionState;
 
     private final ServiceConnectionListener mServiceConnectionListener =
@@ -179,7 +177,7 @@ public class Car {
 
     private final ServiceConnectionListener mServiceConnectionListenerClient;
     private final Object mCarManagerLock = new Object();
-    @GuardedBy("mCarManagerLock")
+    //@GuardedBy("mCarManagerLock")
     private final HashMap<String, CarManagerBase> mServiceMap = new HashMap<>();
     private final CarServiceLoader mCarServiceLoader;
 
