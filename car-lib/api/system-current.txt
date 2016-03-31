@@ -591,9 +591,9 @@ package android.car.hardware.hvac {
     field public static final int HVAC_ZONED_FAN_SPEED_SETPOINT = 16388; // 0x4004
     field public static final int HVAC_ZONED_SEAT_TEMP = 16392; // 0x4008
     field public static final int HVAC_ZONED_TEMP_ACTUAL = 16386; // 0x4002
-    field public static final int HVAC_ZONED_TEMP_IS_FARENHEIT = 16387; // 0x4003
+    field public static final int HVAC_ZONED_TEMP_IS_FAHRENHEIT = 16387; // 0x4003
     field public static final int HVAC_ZONED_TEMP_SETPOINT = 16385; // 0x4001
-    field public static final int MAX_GLOBAL_PROPETY_ID = 16383; // 0x3fff
+    field public static final int MAX_GLOBAL_PROPERTY_ID = 16383; // 0x3fff
     field public static final int PROPERTY_TYPE_BOOLEAN = 0; // 0x0
     field public static final int PROPERTY_TYPE_FLOAT = 1; // 0x1
     field public static final int PROPERTY_TYPE_FLOAT_VECTOR = 4; // 0x4
@@ -705,7 +705,7 @@ package android.car.hardware.radio {
     method public int getPresetCount();
     method public synchronized void registerListener(android.car.hardware.radio.CarRadioManager.CarRadioEventListener) throws android.car.CarNotConnectedException;
     method public boolean setPreset(android.car.hardware.radio.CarRadioPreset) throws java.lang.IllegalArgumentException;
-    method public synchronized void unregisterListner();
+    method public synchronized void unregisterListener();
     field public static final boolean DBG = true;
     field public static final java.lang.String TAG = "CarRadioManager";
   }
