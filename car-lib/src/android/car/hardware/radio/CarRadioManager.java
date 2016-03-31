@@ -56,7 +56,6 @@ public class CarRadioManager implements CarManagerBase {
     private CarRadioEventListener mListener = null;
     @GuardedBy("this")
     private CarRadioEventListenerToService mListenerToService = null;
-    private int mServiceVersion;
     private static final class EventCallbackHandler extends Handler {
         WeakReference<CarRadioManager> mMgr;
 
@@ -133,7 +132,7 @@ public class CarRadioManager implements CarManagerBase {
     public synchronized void registerListener(CarRadioEventListener listener)
             throws CarNotConnectedException {
         if (mListener != null) {
-            throw new IllegalStateException("Listner already registered. Did you call " +
+            throw new IllegalStateException("Listener already registered. Did you call " +
                 "registerListener() twice?");
         }
 
@@ -153,9 +152,9 @@ public class CarRadioManager implements CarManagerBase {
     /**
      * Unregister {@link CarRadioEventListener}.
      */
-    public synchronized void unregisterListner() {
+    public synchronized void unregisterListener() {
         if (DBG) {
-            Log.d(TAG, "unregisterListenr");
+            Log.d(TAG, "unregisterListener");
         }
         try {
             mService.unregisterListener(mListenerToService);
@@ -196,8 +195,8 @@ public class CarRadioManager implements CarManagerBase {
     /**
      * Set the preset value to a specific radio preset.
      *
-     * In order to ensure that the preset value indeed get updated, wait for event on the listner
-     * registered via registerListner().
+     * In order to ensure that the preset value indeed get updated, wait for event on the listener
+     * registered via registerListener().
      *
      * @return: {@link boolean} value which returns true if the request succeeded and false
      * otherwise. Common reasons for the failure could be:
@@ -206,19 +205,16 @@ public class CarRadioManager implements CarManagerBase {
      * request succeeded.
      */
     public boolean setPreset(CarRadioPreset preset) throws IllegalArgumentException {
-        boolean status = false;
         try {
-            status = mService.setPreset(preset);
-
+            return mService.setPreset(preset);
         } catch (RemoteException ex) {
             // do nothing.
             return false;
         }
-        return status;
     }
 
     private void dispatchEventToClient(CarRadioEvent event) {
-        CarRadioEventListener listener = null;
+        CarRadioEventListener listener;
         synchronized (this) {
             listener = mListener;
         }

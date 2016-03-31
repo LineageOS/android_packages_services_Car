@@ -77,7 +77,7 @@ public class CarHvacManager implements CarManagerBase {
     /**
      * The maximum id that can be assigned to global (non-zoned) property.
      */
-    public static final int MAX_GLOBAL_PROPETY_ID        = 0x3fff;
+    public static final int MAX_GLOBAL_PROPERTY_ID       = 0x3fff;
 
     /**
      * HVAC_ZONED_* represents properties available on a per-zone basis.  All zones in a car are
@@ -93,9 +93,9 @@ public class CarHvacManager implements CarManagerBase {
      */
     public static final int HVAC_ZONED_TEMP_ACTUAL               = 0x4002;
     /**
-     * Temperature is in degrees farenheit if this is true, bool.
+     * Temperature is in degrees fahrenheit if this is true, bool.
      */
-    public static final int HVAC_ZONED_TEMP_IS_FARENHEIT         = 0x4003;
+    public static final int HVAC_ZONED_TEMP_IS_FAHRENHEIT        = 0x4003;
     /**
      * Fan speed setpoint is an integer from 0-n, depending on the number of fan speeds available.
      * Selection determines the fan position, int.
@@ -159,7 +159,7 @@ public class CarHvacManager implements CarManagerBase {
          * Tells if the given property is zoned property or global property
          */
         public boolean isZonedProperty() {
-            return mPropertyId > MAX_GLOBAL_PROPETY_ID;
+            return mPropertyId > MAX_GLOBAL_PROPERTY_ID;
         }
 
         /**
@@ -371,7 +371,6 @@ public class CarHvacManager implements CarManagerBase {
     }
 
     private final ICarHvac mService;
-    private final Object mLock = new Object();
     private CarHvacEventListener mListener = null;
     private CarHvacEventListenerToService mListenerToService = null;
 
@@ -380,7 +379,7 @@ public class CarHvacManager implements CarManagerBase {
 
         EventCallbackHandler(CarHvacManager mgr, Looper looper) {
             super(looper);
-            mMgr = new WeakReference<CarHvacManager>(mgr);
+            mMgr = new WeakReference<>(mgr);
         }
 
         @Override
@@ -405,7 +404,7 @@ public class CarHvacManager implements CarManagerBase {
         private final WeakReference<CarHvacManager> mManager;
 
         public CarHvacEventListenerToService(CarHvacManager manager) {
-            mManager = new WeakReference<CarHvacManager>(manager);
+            mManager = new WeakReference<>(manager);
         }
 
         @Override
@@ -429,7 +428,7 @@ public class CarHvacManager implements CarManagerBase {
     }
 
     public static boolean isZonedProperty(int propertyId) {
-        return propertyId > MAX_GLOBAL_PROPETY_ID;
+        return propertyId > MAX_GLOBAL_PROPERTY_ID;
     }
 
     /**
@@ -441,7 +440,7 @@ public class CarHvacManager implements CarManagerBase {
     public synchronized void registerListener(CarHvacEventListener listener)
             throws CarNotConnectedException {
         if (mListener != null) {
-            throw new IllegalStateException("Listner already registered. Did you call " +
+            throw new IllegalStateException("Listener already registered. Did you call " +
                 "registerListener() twice?");
         }
 
@@ -485,8 +484,8 @@ public class CarHvacManager implements CarManagerBase {
      * (CarHvacBooleanProperty, CarHvacFloatProperty, CarrHvacIntProperty)
      */
     public List<CarHvacBaseProperty> getPropertyList() {
-        List<CarHvacBaseProperty> hvacProps = new ArrayList<CarHvacBaseProperty>();
-        List<CarHvacProperty> carProps = null;
+        List<CarHvacBaseProperty> hvacProps = new ArrayList<>();
+        List<CarHvacProperty> carProps;
         try {
             carProps = mService.getHvacProperties();
         } catch (RemoteException e) {
@@ -526,7 +525,7 @@ public class CarHvacManager implements CarManagerBase {
      * @return
      */
     public boolean getBooleanProperty(int prop, int zone) {
-        CarHvacProperty carProp = null;
+        CarHvacProperty carProp;
         if (DBG) {
             Log.d(TAG, "getBooleanProperty:  prop = " + prop + " zone = " + zone);
         }
@@ -552,7 +551,7 @@ public class CarHvacManager implements CarManagerBase {
      * @return
      */
     public float getFloatProperty(int prop, int zone) {
-        CarHvacProperty carProp = null;
+        CarHvacProperty carProp;
         if (DBG) {
             Log.d(TAG, "getFloatProperty:  prop = " + prop + " zone = " + zone);
         }
