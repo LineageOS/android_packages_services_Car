@@ -15,13 +15,18 @@
  */
 package com.android.car;
 
+import android.car.VehicleZoneUtil;
 import android.car.media.CarAudioManager;
 import android.car.media.ICarAudio;
 import android.content.Context;
 import android.content.res.Resources;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
+import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.audiopolicy.AudioMix;
+import android.media.audiopolicy.AudioMixingRule;
 import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioPolicy.AudioPolicyFocusListener;
 import android.os.Handler;
@@ -57,6 +62,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     private static final String TAG_FOCUS = CarLog.TAG_AUDIO + ".FOCUS";
 
     private static final boolean DBG = true;
+    private static final boolean DBG_DYNAMIC_AUDIO_ROUTING = true;
 
     private final AudioHalService mAudioHal;
     private final Context mContext;
@@ -110,6 +116,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     @GuardedBy("mLock")
     private int mNumConsecutiveHalFailures;
 
+    private final boolean mUseDynamicRouting;
+
     private final AudioAttributes mAttributeBottom =
             CarAudioAttributesUtil.getAudioAttributesForCarUsage(
                     CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_BOTTOM);
@@ -130,6 +138,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         mFocusResponseWaitTimeoutMs = (long) res.getInteger(R.integer.audioFocusWaitTimeoutMs);
         mNumConsecutiveHalFailuresForCanError =
                 (int) res.getInteger(R.integer.consecutiveHalFailures);
+        mUseDynamicRouting = res.getBoolean(R.bool.audioUseDynamicRouting);
     }
 
     @Override
@@ -141,14 +150,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     public void init() {
         AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
         builder.setLooper(Looper.getMainLooper());
-        boolean isFocusSuported = mAudioHal.isFocusSupported();
-        if (isFocusSuported) {
+        boolean isFocusSupported = mAudioHal.isFocusSupported();
+        if (isFocusSupported) {
             builder.setAudioPolicyFocusListener(mSystemFocusListener);
-        }
-        synchronized (mLock) {
-            mAudioPolicy = builder.build();
-        }
-        if (isFocusSuported) {
             FocusState currentState = FocusState.create(mAudioHal.getCurrentFocusState());
             int r = mAudioManager.requestAudioFocus(mBottomAudioFocusHandler, mAttributeBottom,
                     AudioManager.AUDIOFOCUS_GAIN, AudioManager.AUDIOFOCUS_FLAG_DELAY_OK);
@@ -162,27 +166,146 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 mCurrentAudioContexts = 0;
             }
         }
-        int r = mAudioManager.registerAudioPolicy(mAudioPolicy);
-        if (r != 0) {
-            throw new RuntimeException("registerAudioPolicy failed " + r);
+        int audioHwVariant = mAudioHal.getHwVariant();
+        AudioRoutingPolicy audioRoutingPolicy = AudioRoutingPolicy.create(mContext, audioHwVariant);
+        if (mUseDynamicRouting) {
+            setupDynamicRoutng(audioRoutingPolicy, builder);
+        }
+        AudioPolicy audioPolicy = null;
+        if (isFocusSupported || mUseDynamicRouting) {
+            audioPolicy = builder.build();
+            int r = mAudioManager.registerAudioPolicy(audioPolicy);
+            if (r != 0) {
+                throw new RuntimeException("registerAudioPolicy failed " + r);
+            }
         }
         mAudioHal.setFocusListener(this);
-        int audioHwVariant = mAudioHal.getHwVariant();
+        mAudioHal.setAudioRoutingPolicy(audioRoutingPolicy);
         synchronized (mLock) {
-            mAudioRoutingPolicy = AudioRoutingPolicy.create(mContext, audioHwVariant);
+            if (audioPolicy != null) {
+                mAudioPolicy = audioPolicy;
+            }
+            mAudioRoutingPolicy = audioRoutingPolicy;
             mIsRadioExternal = mAudioHal.isRadioExternal();
         }
-        mAudioHal.setAudioRoutingPolicy(mAudioRoutingPolicy);
-        //TODO set routing policy with new AudioPolicy API. This will control which logical stream
-        //     goes to which physical stream.
+    }
+
+    private void setupDynamicRoutng(AudioRoutingPolicy audioRoutingPolicy,
+            AudioPolicy.Builder audioPolicyBuilder) {
+        AudioDeviceInfo[] deviceInfos = mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+        if (deviceInfos.length == 0) {
+            Log.e(CarLog.TAG_AUDIO, "setupDynamicRoutng, no output device available, ignore");
+            return;
+        }
+        int numPhysicalStreams = audioRoutingPolicy.getPhysicalStreamsCount();
+        AudioDeviceInfo[] devicesToRoute = new AudioDeviceInfo[numPhysicalStreams];
+        for (AudioDeviceInfo info : deviceInfos) {
+            if (DBG_DYNAMIC_AUDIO_ROUTING) {
+                Log.v(CarLog.TAG_AUDIO, String.format(
+                        "output device=%s id=%d name=%s addr=%s type=%s",
+                        info.toString(), info.getId(), info.getProductName(), info.getAddress(),
+                        info.getType()));
+            }
+            if (info.getType() == AudioDeviceInfo.TYPE_BUS) {
+                int addressNumeric = parseDeviceAddress(info.getAddress());
+                if (addressNumeric >= 0 && addressNumeric < numPhysicalStreams) {
+                    devicesToRoute[addressNumeric] = info;
+                    Log.i(CarLog.TAG_AUDIO, String.format(
+                            "valid bus found, devie=%s id=%d name=%s addr=%s",
+                            info.toString(), info.getId(), info.getProductName(), info.getAddress())
+                            );
+                }
+            }
+        }
+        for (int i = 0; i < numPhysicalStreams; i++) {
+            AudioDeviceInfo info = devicesToRoute[i];
+            if (info == null) {
+                Log.e(CarLog.TAG_AUDIO, "setupDynamicRoutng, cannot find device for address " + i);
+                return;
+            }
+            int sampleRate = getMaxSampleRate(info);
+            int channels = getMaxChannles(info);
+            AudioFormat mixFormat = new AudioFormat.Builder()
+                .setSampleRate(sampleRate)
+                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                .setChannelMask(channels)
+                .build();
+            Log.i(CarLog.TAG_AUDIO, String.format(
+                    "Physical stream %d, sampleRate:%d, channles:0x%s", i, sampleRate,
+                    Integer.toHexString(channels)));
+            int[] logicalStreams = audioRoutingPolicy.getLogicalStreamsForPhysicalStream(i);
+            AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
+            for (int logicalStream : logicalStreams) {
+                mixingRuleBuilder.addRule(
+                        CarAudioAttributesUtil.getAudioAttributesForCarUsage(logicalStream),
+                        AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
+            }
+            AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
+                .setFormat(mixFormat)
+                .setDevice(info)
+                .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
+                .build();
+            audioPolicyBuilder.addMix(audioMix);
+        }
+    }
+
+    /**
+     * Parse device address. Expected format is BUS%d_%s, address, usage hint
+     * @return valid address (from 0 to positive) or -1 for invalid address.
+     */
+    private int parseDeviceAddress(String address) {
+        String[] words = address.split("_");
+        int addressParsed = -1;
+        if (words[0].startsWith("BUS")) {
+            try {
+                addressParsed = Integer.parseInt(words[0].substring(3));
+            } catch (NumberFormatException e) {
+                //ignore
+            }
+        }
+        if (addressParsed < 0) {
+            return -1;
+        }
+        return addressParsed;
+    }
+
+    private int getMaxSampleRate(AudioDeviceInfo info) {
+        int[] sampleRates = info.getSampleRates();
+        if (sampleRates == null || sampleRates.length == 0) {
+            return 48000;
+        }
+        int sampleRate = sampleRates[0];
+        for (int i = 1; i < sampleRates.length; i++) {
+            if (sampleRates[i] > sampleRate) {
+                sampleRate = sampleRates[i];
+            }
+        }
+        return sampleRate;
+    }
+
+    private int getMaxChannles(AudioDeviceInfo info) {
+        int[] channelMasks = info.getChannelMasks();
+        if (channelMasks == null) {
+            return AudioFormat.CHANNEL_OUT_STEREO;
+        }
+        int channels = AudioFormat.CHANNEL_OUT_MONO;
+        int numChannels = 1;
+        for (int i = 0; i < channelMasks.length; i++) {
+            int currentNumChannles = VehicleZoneUtil.getNumberOfZones(channelMasks[i]);
+            if (currentNumChannles > numChannels) {
+                numChannels = currentNumChannles;
+                channels = channelMasks[i];
+            }
+        }
+        return channels;
     }
 
     @Override
     public void release() {
-        mAudioManager.unregisterAudioPolicyAsync(mAudioPolicy);
+        mFocusHandler.cancelAll();
         mAudioManager.abandonAudioFocus(mBottomAudioFocusHandler);
         mAudioManager.abandonAudioFocus(mCarProxyAudioFocusHandler);
-        mFocusHandler.cancelAll();
+        AudioPolicy audioPolicy;
         synchronized (mLock) {
             mCurrentFocusState = FocusState.STATE_LOSS;
             mLastFocusRequestToCar = null;
@@ -195,6 +318,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             }
             mAudioContextChangeListener = null;
             mCurrentPrimaryAudioContext = 0;
+            audioPolicy = mAudioPolicy;
+            mAudioPolicy = null;
+        }
+        if (audioPolicy != null) {
+            mAudioManager.unregisterAudioPolicyAsync(audioPolicy);
         }
     }
 
