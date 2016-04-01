@@ -18,9 +18,15 @@ package com.google.android.car.kitchensink.keyboard;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.car.Car;
+import android.support.car.CarNotConnectedException;
+import android.support.car.CarNotSupportedException;
 import android.support.car.app.menu.CarDrawerActivity;
 import android.support.car.app.menu.SearchBoxEditListener;
+import android.support.car.hardware.CarSensorEvent;
+import android.support.car.hardware.CarSensorManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,16 +36,19 @@ import android.widget.TextView;
 import com.google.android.car.kitchensink.R;
 
 public class KeyboardFragment extends Fragment {
+    private static final String TAG = "KitchenSinkKeyboard";
     public static final int CARD = 0xfffafafa;
     public static final int TEXT_PRIMARY_DAY = 0xde000000;
     public static final int TEXT_SECONDARY_DAY = 0x8a000000;
 
+    private TextView mDrivingStatus;
     private Button mImeButton;
     private Button mCloseImeButton;
     private Button mShowHideInputButton;
     private CarDrawerActivity mActivity;
     private TextView mOnSearchText;
     private TextView mOnEditText;
+    private CarSensorManager mSensorManager;
 
     private final Handler mHandler = new Handler();
 
@@ -81,9 +90,52 @@ public class KeyboardFragment extends Fragment {
         mOnEditText = (TextView) v.findViewById(R.id.edit_text);
         resetInput();
         mActivity.setSearchBoxEndView(View.inflate(getContext(), R.layout.keyboard_end_view, null));
-
+        mDrivingStatus = (TextView) v.findViewById(R.id.driving_status);
         return v;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        try {
+            mSensorManager = (CarSensorManager)
+                    mActivity.getCar().getCarManager(Car.SENSOR_SERVICE);
+            mSensorManager.registerListener(mCarSensorListener,
+                    CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
+                    CarSensorManager.SENSOR_RATE_FASTEST);
+        } catch (CarNotSupportedException | CarNotConnectedException e) {
+            Log.e(TAG, "Car not connected or not supported", e);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mSensorManager != null) {
+            mSensorManager.unregisterListener(mCarSensorListener);
+        }
+    }
+
+    private final CarSensorManager.CarSensorEventListener mCarSensorListener =
+            new CarSensorManager.CarSensorEventListener() {
+                @Override
+                public void onSensorChanged(CarSensorEvent event) {
+                    if (event.sensorType != CarSensorManager.SENSOR_TYPE_DRIVING_STATUS) {
+                        return;
+                    }
+                    int drivingStatus = event.getDrivingStatusData(null).status;
+
+                    boolean keyboardEnabled =
+                            (drivingStatus & CarSensorEvent.DRIVE_STATUS_NO_KEYBOARD_INPUT) == 0;
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mDrivingStatus.setText("Driving status: " + drivingStatus
+                                    + " Keyboard " + (keyboardEnabled ? "enabled" : "disabled"));
+                        }
+                    });
+                }
+            };
 
     private void resetInput() {
         mActivity.showSearchBox(new View.OnClickListener() {
