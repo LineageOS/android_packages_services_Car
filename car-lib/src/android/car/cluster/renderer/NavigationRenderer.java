@@ -17,6 +17,7 @@ package android.car.cluster.renderer;
 
 import android.annotation.SystemApi;
 import android.annotation.UiThread;
+import android.car.navigation.CarNavigationInstrumentCluster;
 import android.graphics.Bitmap;
 
 /**
@@ -28,6 +29,11 @@ import android.graphics.Bitmap;
 @SystemApi
 @UiThread
 public abstract class NavigationRenderer {
+    /**
+     * Returns properties of instrument cluster for navigation.
+     */
+    abstract public CarNavigationInstrumentCluster getNavigationProperties();
+
     abstract public void onStartNavigation();
     abstract public void onStopNavigation();
     abstract public void onNextTurnChanged(int event, String road, int turnAngle, int turnNumber,

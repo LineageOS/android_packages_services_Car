@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.cluster.renderer;
+package android.car.cluster.demorenderer;
 
 import android.annotation.Nullable;
 import android.car.cluster.renderer.NavigationRenderer;
+import android.car.navigation.CarNavigationInstrumentCluster;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+
+import java.util.concurrent.CountDownLatch;
 
 /**
  * A wrapper over {@link NavigationRenderer} that runs all its methods in the context of provided
@@ -29,6 +32,7 @@ import android.os.Message;
 public class ThreadSafeNavigationRenderer extends NavigationRenderer {
 
     private final Handler mHandler;
+    private final NavigationRenderer mRenderer;
 
     private final static int MSG_NAV_START = 1;
     private final static int MSG_NAV_STOP = 2;
@@ -42,7 +46,18 @@ public class ThreadSafeNavigationRenderer extends NavigationRenderer {
     }
 
     private ThreadSafeNavigationRenderer(Looper looper, NavigationRenderer renderer) {
+        mRenderer = renderer;
         mHandler = new NavigationRendererHandler(looper, renderer);
+    }
+
+    @Override
+    public CarNavigationInstrumentCluster getNavigationProperties() {
+        return runAndWaitResult(mHandler, new RunnableWithResult<CarNavigationInstrumentCluster>() {
+            @Override
+            protected CarNavigationInstrumentCluster createResult() {
+                return mRenderer.getNavigationProperties();
+            }
+        });
     }
 
     @Override
@@ -98,6 +113,20 @@ public class ThreadSafeNavigationRenderer extends NavigationRenderer {
         }
     }
 
+    private static <E> E runAndWaitResult(Handler handler, RunnableWithResult<E> runnable) {
+        CountDownLatch latch = new CountDownLatch(1);
+        handler.post(() -> {
+            runnable.run();
+            latch.countDown();
+        });
+        try {
+            latch.wait();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return runnable.getResult();
+    }
+
     private static class NextTurn {
         private final int event;
         private final String road;
@@ -114,6 +143,21 @@ public class ThreadSafeNavigationRenderer extends NavigationRenderer {
             this.turnNumber = turnNumber;
             this.bitmap = bitmap;
             this.turnSide = turnSide;
+        }
+    }
+
+    public abstract class RunnableWithResult<T> implements Runnable {
+        private volatile T result;
+
+        protected abstract T createResult();
+
+        @Override
+        public void run() {
+            result = createResult();
+        }
+
+        public T getResult() {
+            return result;
         }
     }
 }

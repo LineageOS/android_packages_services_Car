@@ -102,7 +102,7 @@ public class ICarImpl extends ICar.Stub {
         mCarPackageManagerService = new CarPackageManagerService(serviceContext);
         mInstrumentClusterService = new InstrumentClusterService(serviceContext);
         mCarNavigationService = new CarNavigationService(
-                serviceContext, mAppContextService, mInstrumentClusterService);
+                mAppContextService, mInstrumentClusterService);
         mSystemStateControllerService = new SystemStateControllerService(serviceContext,
                 mCarPowerManagementService);
 

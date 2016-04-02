@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.car.CarLog;
@@ -34,7 +35,7 @@ import java.lang.reflect.Method;
  * library.
  */
 public class InstrumentClusterRendererLoader {
-    private final static String TAG = CarLog.TAG_SERVICE;
+    private final static String TAG = CarLog.TAG_CLUSTER;
 
     private final static String sCreateRendererMethod = "createRenderer";
 
@@ -42,11 +43,18 @@ public class InstrumentClusterRendererLoader {
      * Returns true if instrument cluster renderer installed.
      */
     public static boolean isRendererAvailable(Context context) {
+        String packageName = getRendererPackageName(context);
+        if (TextUtils.isEmpty(packageName)) {
+            Log.d(TAG, "Instrument cluster renderer was not configured.");
+            return false;
+        }
+
         PackageManager packageManager = context.getPackageManager();
         try {
-            packageManager.getPackageInfo(getRendererPackageName(context), 0);
+            packageManager.getPackageInfo(packageName, 0);
             return true;
         } catch (NameNotFoundException e) {
+            Log.e(TAG, "Package not found: " + packageName);
             return false;
         }
     }

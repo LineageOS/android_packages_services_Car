@@ -57,6 +57,6 @@
          from vehicle hal -->
     <string name="inputInjectionDeviceNode">/dev/input/event2</string>
 
-    <string name="instrumentClusterRendererPackage">android.car.cluster.demorenderer</string>
-    <string name="instrumentClusterRendererFactoryClass">android.car.cluster.demorenderer.InstrumentClusterRendererFactory</string>
+    <string name="instrumentClusterRendererPackage">android.car.cluster.loggingrenderer</string>
+    <string name="instrumentClusterRendererFactoryClass">android.car.cluster.loggingrenderer.InstrumentClusterRendererFactory</string>
 </resources>

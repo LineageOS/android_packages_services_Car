@@ -293,17 +293,16 @@ package android.car.cluster.renderer {
   public abstract class InstrumentClusterRenderer {
     ctor public InstrumentClusterRenderer();
     method protected abstract android.car.cluster.renderer.NavigationRenderer createNavigationRenderer();
-    method public abstract android.car.navigation.CarNavigationInstrumentCluster getNavigationProperties();
     method public synchronized android.car.cluster.renderer.NavigationRenderer getNavigationRenderer();
     method public final synchronized void initialize();
     method public abstract void onCreate(android.content.Context);
-    method public abstract android.view.View onCreateView(android.car.cluster.renderer.DisplayConfiguration);
     method public abstract void onStart();
     method public abstract void onStop();
   }
 
   public abstract class NavigationRenderer {
     ctor public NavigationRenderer();
+    method public abstract android.car.navigation.CarNavigationInstrumentCluster getNavigationProperties();
     method public abstract void onNextTurnChanged(int, java.lang.String, int, int, android.graphics.Bitmap, int);
     method public abstract void onNextTurnDistanceChanged(int, int);
     method public abstract void onStartNavigation();
