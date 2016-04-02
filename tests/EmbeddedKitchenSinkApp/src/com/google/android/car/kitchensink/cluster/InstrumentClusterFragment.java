@@ -27,7 +27,6 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import com.google.android.car.kitchensink.R;
@@ -53,20 +52,10 @@ public class InstrumentClusterFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.instrument_cluster, container);
+        View view = inflater.inflate(R.layout.instrument_cluster, container, false);
 
-        view.findViewById(R.id.cluster_start_button).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                initCluster();
-            }
-        });
-        view.findViewById(R.id.cluster_turn_left_button).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                turnLeft();
-            }
-        });
+        view.findViewById(R.id.cluster_start_button).setOnClickListener(v -> initCluster());
+        view.findViewById(R.id.cluster_turn_left_button).setOnClickListener(v -> turnLeft());
 
         return view;
     }

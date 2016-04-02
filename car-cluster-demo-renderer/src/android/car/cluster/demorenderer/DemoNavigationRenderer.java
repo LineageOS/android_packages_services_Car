@@ -20,6 +20,7 @@ import static android.car.navigation.CarNavigationManager.TURN_SIDE_RIGHT;
 import static android.car.navigation.CarNavigationManager.TURN_TURN;
 
 import android.car.cluster.renderer.NavigationRenderer;
+import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -50,6 +51,12 @@ public class DemoNavigationRenderer extends NavigationRenderer {
     DemoNavigationRenderer(DemoInstrumentClusterView view) {
         mView = view;
         mContext = view.getContext();
+    }
+
+    @Override
+    public CarNavigationInstrumentCluster getNavigationProperties() {
+        // TODO
+        return null;
     }
 
     @Override
