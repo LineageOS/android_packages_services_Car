@@ -71,8 +71,12 @@ public class VehicleHalEmulator {
      * @param car
      */
     public VehicleHalEmulator(Car car) {
-        mCarTestManager = new CarTestManager(
-                (CarTestManagerBinderWrapper) car.getCarManager(Car.TEST_SERVICE));
+        try {
+            mCarTestManager = new CarTestManager(
+                    (CarTestManagerBinderWrapper) car.getCarManager(Car.TEST_SERVICE));
+        } catch (CarNotConnectedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

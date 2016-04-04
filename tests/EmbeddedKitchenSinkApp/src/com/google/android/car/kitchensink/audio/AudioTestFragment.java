@@ -128,15 +128,27 @@ public class AudioTestFragment extends Fragment {
         mCar = Car.createCar(mContext, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                mAppContextManager =
-                        (CarAppContextManager) mCar.getCarManager(Car.APP_CONTEXT_SERVICE);
-                mAppContextManager.registerContextListener(new AppContextChangeListener() {
-                    @Override
-                    public void onAppContextChange(int activeContexts) {
-                    }
-                }, CarAppContextManager.APP_CONTEXT_NAVIGATION |
-                CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
-                mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
+                try {
+                    mAppContextManager =
+                            (CarAppContextManager) mCar.getCarManager(Car.APP_CONTEXT_SERVICE);
+                } catch (CarNotConnectedException e) {
+                    throw new RuntimeException("Failed to create app context manager", e);
+                }
+                try {
+                    mAppContextManager.registerContextListener(new AppContextChangeListener() {
+                        @Override
+                        public void onAppContextChange(int activeContexts) {
+                        }
+                    }, CarAppContextManager.APP_CONTEXT_NAVIGATION |
+                     CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Failed to register context listener", e);
+                }
+                try {
+                    mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
+                } catch (CarNotConnectedException e) {
+                    throw new RuntimeException("Failed to create audio manager", e);
+                }
                 mMusicAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
                         CarAudioManager.CAR_AUDIO_USAGE_MUSIC);
                 mNavAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
@@ -147,6 +159,7 @@ public class AudioTestFragment extends Fragment {
                         CarAudioManager.CAR_AUDIO_USAGE_RADIO);
                 mSystemSoundAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
                         CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SOUND);
+
                 mMusicPlayer = new AudioPlayer(mContext, R.raw.john_harrison_with_the_wichita_state_university_chamber_players_05_summer_mvt_2_adagio,
                         mMusicAudioAttrib);
                 mMusicPlayerShort = new AudioPlayer(mContext, R.raw.ring_classic_01,
@@ -169,7 +182,7 @@ public class AudioTestFragment extends Fragment {
             @Override
             public void onServiceDisconnected(ComponentName name) {
             }
-        }, Looper.getMainLooper());
+            }, Looper.getMainLooper());
         mCar.connect();
     }
 
@@ -223,15 +236,23 @@ public class AudioTestFragment extends Fragment {
                     Log.i(TAG, "Nav start");
                 }
                 if (!mNavGuidancePlayer.isPlaying()) {
-                    mAppContextManager.setActiveContexts(mOwnershipListener,
-                            CarAppContextManager.APP_CONTEXT_NAVIGATION);
+                    try {
+                        mAppContextManager.setActiveContexts(mOwnershipListener,
+                                CarAppContextManager.APP_CONTEXT_NAVIGATION);
+                    } catch (CarNotConnectedException e) {
+                        Log.e(TAG, "Failed to set active context", e);
+                    }
                     mNavGuidancePlayer.start(true, false,
                             AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
                             new PlayStateListener() {
                         @Override
                         public void onCompletion() {
-                            mAppContextManager.resetActiveContexts(
-                                    CarAppContextManager.APP_CONTEXT_NAVIGATION);
+                            try {
+                                mAppContextManager.resetActiveContexts(
+                                        CarAppContextManager.APP_CONTEXT_NAVIGATION);
+                            } catch (CarNotConnectedException e) {
+                                Log.e(TAG, "Failed to reset active context", e);
+                            }
                         }
                     });
                 }
@@ -247,15 +268,23 @@ public class AudioTestFragment extends Fragment {
                 if (DBG) {
                     Log.i(TAG, "VR start");
                 }
-                mAppContextManager.setActiveContexts(mOwnershipListener,
-                        CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+                try {
+                    mAppContextManager.setActiveContexts(mOwnershipListener,
+                            CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Failed to set active context", e);
+                }
                 if (!mVrPlayer.isPlaying()) {
                     mVrPlayer.start(true, false, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT,
                             new PlayStateListener() {
                         @Override
                         public void onCompletion() {
-                            mAppContextManager.resetActiveContexts(
-                                    CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+                            try {
+                                mAppContextManager.resetActiveContexts(
+                                        CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+                            } catch (CarNotConnectedException e) {
+                                Log.e(TAG, "Failed to reset active context", e);
+                            }
                         }
                     });
                 }
@@ -400,8 +429,12 @@ public class AudioTestFragment extends Fragment {
             mAudioFocusHandler = null;
         }
         if (mAppContextManager != null) {
-            mAppContextManager.resetActiveContexts(CarAppContextManager.APP_CONTEXT_NAVIGATION |
-                    CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+            try {
+                mAppContextManager.resetActiveContexts(CarAppContextManager.APP_CONTEXT_NAVIGATION |
+                        CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+            } catch (CarNotConnectedException e) {
+                Log.e(TAG, "Failed to reset active context", e);
+            }
         }
     }
 
@@ -415,8 +448,12 @@ public class AudioTestFragment extends Fragment {
         if (DBG) {
             Log.i(TAG, "Nav start");
         }
-        mAppContextManager.setActiveContexts(mOwnershipListener,
-                CarAppContextManager.APP_CONTEXT_NAVIGATION);
+        try {
+            mAppContextManager.setActiveContexts(mOwnershipListener,
+                    CarAppContextManager.APP_CONTEXT_NAVIGATION);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to set active context", e);
+        }
         mCarAudioManager.requestAudioFocus(mNavFocusListener, mNavAudioAttrib,
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
     }
@@ -431,8 +468,12 @@ public class AudioTestFragment extends Fragment {
         if (DBG) {
             Log.i(TAG, "Nav end");
         }
-        mAppContextManager.resetActiveContexts(
-                CarAppContextManager.APP_CONTEXT_NAVIGATION);
+        try {
+            mAppContextManager.resetActiveContexts(
+                    CarAppContextManager.APP_CONTEXT_NAVIGATION);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to reset active context", e);
+        }
         mCarAudioManager.abandonAudioFocus(mNavFocusListener, mNavAudioAttrib);
     }
 
@@ -446,8 +487,12 @@ public class AudioTestFragment extends Fragment {
         if (DBG) {
             Log.i(TAG, "VR start");
         }
-        mAppContextManager.setActiveContexts(mOwnershipListener,
-                CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+        try {
+            mAppContextManager.setActiveContexts(mOwnershipListener,
+                    CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to set active context", e);
+        }
         mCarAudioManager.requestAudioFocus(mVrFocusListener, mVrAudioAttrib,
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, 0);
     }
@@ -462,8 +507,12 @@ public class AudioTestFragment extends Fragment {
         if (DBG) {
             Log.i(TAG, "VR end");
         }
-        mAppContextManager.resetActiveContexts(
-                CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+        try {
+            mAppContextManager.resetActiveContexts(
+                    CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to reset active context", e);
+        }
         mCarAudioManager.abandonAudioFocus(mVrFocusListener, mVrAudioAttrib);
     }
 

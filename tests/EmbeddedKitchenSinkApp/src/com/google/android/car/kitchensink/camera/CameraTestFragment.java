@@ -16,20 +16,18 @@
 
 package com.google.android.car.kitchensink.camera;
 
-import android.os.Bundle;
 import android.car.CarNotConnectedException;
 import android.car.hardware.camera.CarCamera;
-import android.car.hardware.camera.CarCameraState;
 import android.car.hardware.camera.CarCameraManager;
+import android.car.hardware.camera.CarCameraState;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -67,19 +65,27 @@ public class CameraTestFragment extends Fragment {
         Button btn = (Button) v.findViewById(R.id.btnGetCap);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                int cap = mRvcCamera.getCapabilities();
-                mTvCap.setText(String.valueOf(cap));
+                try {
+                    int cap = mRvcCamera.getCapabilities();
+                    mTvCap.setText(String.valueOf(cap));
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Failed to get camera capabilities", e);
+                }
             }
         });
 
         btn = (Button) v.findViewById(R.id.btnGetRvcCrop);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Rect rect = mRvcCamera.getCameraCrop();
-                if(rect != null) {
-                    mTvRvcCrop.setText(rect.toString());
-                } else {
-                    mTvRvcCrop.setText("null");
+                try {
+                    Rect rect = mRvcCamera.getCameraCrop();
+                    if(rect != null) {
+                        mTvRvcCrop.setText(rect.toString());
+                    } else {
+                        mTvRvcCrop.setText("null");
+                    }
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Failed to get camera crop", e);
                 }
             }
         });
@@ -87,11 +93,15 @@ public class CameraTestFragment extends Fragment {
         btn = (Button) v.findViewById(R.id.btnGetRvcPos);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Rect rect = mRvcCamera.getCameraPosition();
-                if(rect != null) {
-                    mTvRvcPos.setText(String.valueOf(rect));
-                } else {
-                    mTvRvcPos.setText("null");
+                try {
+                    Rect rect = mRvcCamera.getCameraPosition();
+                    if(rect != null) {
+                        mTvRvcPos.setText(String.valueOf(rect));
+                    } else {
+                        mTvRvcPos.setText("null");
+                    }
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Failed to get camere position", e);
                 }
             }
         });
@@ -99,11 +109,15 @@ public class CameraTestFragment extends Fragment {
         btn = (Button) v.findViewById(R.id.btnGetCameraState);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                CarCameraState state = mRvcCamera.getCameraState();
-                if(state != null) {
-                    mTvCameraState.setText(state.toString());
-                } else {
-                    mTvCameraState.setText("null");
+                try {
+                    CarCameraState state = mRvcCamera.getCameraState();
+                    if(state != null) {
+                        mTvCameraState.setText(state.toString());
+                    } else {
+                        mTvCameraState.setText("null");
+                    }
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Failed to get camere state", e);
                 }
             }
         });
@@ -112,7 +126,11 @@ public class CameraTestFragment extends Fragment {
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Rect rect = new Rect(160, 240, 560, 480);
-                mRvcCamera.setCameraCrop(rect);
+                try {
+                    mRvcCamera.setCameraCrop(rect);
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Failed to set camera crop", e);
+                }
             }
         });
 
@@ -120,7 +138,11 @@ public class CameraTestFragment extends Fragment {
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Rect rect = new Rect(0, 0, 720, 480);
-                mRvcCamera.setCameraCrop(rect);
+                try {
+                    mRvcCamera.setCameraCrop(rect);
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Failed to set camera crop", e);
+                }
             }
         });
 
@@ -128,7 +150,11 @@ public class CameraTestFragment extends Fragment {
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Rect rect = new Rect(300, 0, 800, 480);
-                mRvcCamera.setCameraPosition(rect);
+                try {
+                    mRvcCamera.setCameraPosition(rect);
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Failed to set camera position", e);
+                }
             }
         });
 
@@ -136,7 +162,11 @@ public class CameraTestFragment extends Fragment {
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Rect rect = new Rect(500, 0, 800, 480);
-                mRvcCamera.setCameraPosition(rect);
+                try {
+                    mRvcCamera.setCameraPosition(rect);
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Failed to set camera position", e);
+                }
             }
         });
 
@@ -144,7 +174,11 @@ public class CameraTestFragment extends Fragment {
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Rect rect = new Rect(300, 0, 500, 300);
-                mRvcCamera.setCameraPosition(rect);
+                try {
+                    mRvcCamera.setCameraPosition(rect);
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Failed to set camera position", e);
+                }
             }
         });
 
@@ -152,7 +186,11 @@ public class CameraTestFragment extends Fragment {
         toggleBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 CarCameraState state = new CarCameraState(false, toggleBtn.isChecked());
-                mRvcCamera.setCameraState(state);
+                try {
+                    mRvcCamera.setCameraState(state);
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Failed to set camera state", e);
+                }
             }
         });
 
@@ -167,4 +205,3 @@ public class CameraTestFragment extends Fragment {
         mCarCameraManager = cameraManager;
     }
 }
-

@@ -21,9 +21,9 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
-import java.lang.ref.WeakReference;
 
 /**
  * CarAppContextManager allows applications to set and listen for the current application context
@@ -97,8 +97,10 @@ public class CarAppContextManager implements CarManagerBase {
      * registering multiple times will lead into only the last listener to be active.
      * @param listener
      * @param contextFilter Flags of cotexts to get notification.
+     * @throws CarNotConnectedException
      */
-    public void registerContextListener(AppContextChangeListener listener, int contextFilter) {
+    public void registerContextListener(AppContextChangeListener listener, int contextFilter)
+            throws CarNotConnectedException {
         if (listener == null) {
             throw new IllegalArgumentException("null listener");
         }
@@ -107,7 +109,7 @@ public class CarAppContextManager implements CarManagerBase {
                 try {
                     mService.registerContextListener(mBinderListener, contextFilter);
                 } catch (RemoteException e) {
-                    //ignore as CarApi will handle disconnection anyway.
+                    throw new CarNotConnectedException(e);
                 }
             }
             mListener = listener;
@@ -118,35 +120,34 @@ public class CarAppContextManager implements CarManagerBase {
     /**
      * Unregister listener and stop listening context change events. If app has owned a context
      * by {@link #setActiveContext(int)}, it will be reset to inactive state.
+     * @throws CarNotConnectedException
      */
-    public void unregisterContextListener() {
+    public void unregisterContextListener() throws CarNotConnectedException {
         synchronized(this) {
             try {
                 mService.unregisterContextListener(mBinderListener);
             } catch (RemoteException e) {
-                //ignore as CarApi will handle disconnection anyway.
+                throw new CarNotConnectedException(e);
             }
             mListener = null;
             mContextFilter = 0;
         }
     }
 
-    public int getActiveAppContexts() {
+    public int getActiveAppContexts() throws CarNotConnectedException {
         try {
             return mService.getActiveAppContexts();
         } catch (RemoteException e) {
-            //ignore as CarApi will handle disconnection anyway.
+            throw new CarNotConnectedException(e);
         }
-        return 0;
     }
 
-    public boolean isOwningContext(int context) {
+    public boolean isOwningContext(int context) throws CarNotConnectedException {
         try {
             return mService.isOwningContext(mBinderListener, context);
         } catch (RemoteException e) {
-            //ignore as CarApi will handle disconnection anyway.
+            throw new CarNotConnectedException(e);
         }
-        return false;
     }
 
     /**
@@ -159,10 +160,11 @@ public class CarAppContextManager implements CarManagerBase {
      * registering multiple times will lead into only the last listener to be active.
      * @param ownershipListener
      * @param contexts
+     * @throws CarNotConnectedException
      * @throws SecurityException If owner cannot be changed.
      */
     public void setActiveContexts(AppContextOwnershipChangeListener ownershipListener, int contexts)
-            throws SecurityException {
+            throws SecurityException, CarNotConnectedException {
         if (ownershipListener == null) {
             throw new IllegalArgumentException("null listener");
         }
@@ -170,7 +172,7 @@ public class CarAppContextManager implements CarManagerBase {
             try {
                 mService.setActiveContexts(mBinderListener, contexts);
             } catch (RemoteException e) {
-                //ignore as CarApi will handle disconnection anyway.
+                throw new CarNotConnectedException(e);
             }
             for (int flag = APP_CONTEXT_START_FLAG; flag <= APP_CONTEXT_END_FLAG; flag <<= 1) {
                 if ((flag & contexts) != 0) {
@@ -184,12 +186,13 @@ public class CarAppContextManager implements CarManagerBase {
      * Reset the given contexts, i.e. mark them as inactive. This also involves releasing ownership
      * for the context.
      * @param contexts
+     * @throws CarNotConnectedException
      */
-    public void resetActiveContexts(int contexts) {
+    public void resetActiveContexts(int contexts) throws CarNotConnectedException {
         try {
             mService.resetActiveContexts(mBinderListener, contexts);
         } catch (RemoteException e) {
-            //ignore as CarApi will handle disconnection anyway.
+            throw new CarNotConnectedException(e);
         }
         synchronized (this) {
             for (int flag = APP_CONTEXT_START_FLAG; flag <= APP_CONTEXT_END_FLAG; flag <<= 1) {

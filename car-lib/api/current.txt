@@ -6,7 +6,7 @@ package android.car {
     method public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection);
     method public void disconnect();
     method public int getCarConnectionType();
-    method public java.lang.Object getCarManager(java.lang.String);
+    method public java.lang.Object getCarManager(java.lang.String) throws android.car.CarNotConnectedException;
     method public boolean isConnected();
     method public boolean isConnecting();
     field public static final java.lang.String APP_CONTEXT_SERVICE = "app_context";
@@ -21,13 +21,13 @@ package android.car {
   }
 
   public class CarAppContextManager {
-    method public int getActiveAppContexts();
-    method public boolean isOwningContext(int);
+    method public int getActiveAppContexts() throws android.car.CarNotConnectedException;
+    method public boolean isOwningContext(int) throws android.car.CarNotConnectedException;
     method public void onCarDisconnected();
-    method public void registerContextListener(android.car.CarAppContextManager.AppContextChangeListener, int);
-    method public void resetActiveContexts(int);
-    method public void setActiveContexts(android.car.CarAppContextManager.AppContextOwnershipChangeListener, int) throws java.lang.SecurityException;
-    method public void unregisterContextListener();
+    method public void registerContextListener(android.car.CarAppContextManager.AppContextChangeListener, int) throws android.car.CarNotConnectedException;
+    method public void resetActiveContexts(int) throws android.car.CarNotConnectedException;
+    method public void setActiveContexts(android.car.CarAppContextManager.AppContextOwnershipChangeListener, int) throws android.car.CarNotConnectedException, java.lang.SecurityException;
+    method public void unregisterContextListener() throws android.car.CarNotConnectedException;
     field public static final int APP_CONTEXT_NAVIGATION = 1; // 0x1
     field public static final int APP_CONTEXT_VOICE_COMMAND = 2; // 0x2
   }
@@ -301,8 +301,8 @@ package android.car.hardware {
     method public boolean isSensorSupported(int) throws android.car.CarNotConnectedException;
     method public static boolean isSensorSupported(int[], int);
     method public boolean registerListener(android.car.hardware.CarSensorManager.CarSensorEventListener, int, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public void unregisterListener(android.car.hardware.CarSensorManager.CarSensorEventListener);
-    method public void unregisterListener(android.car.hardware.CarSensorManager.CarSensorEventListener, int);
+    method public void unregisterListener(android.car.hardware.CarSensorManager.CarSensorEventListener) throws android.car.CarNotConnectedException;
+    method public void unregisterListener(android.car.hardware.CarSensorManager.CarSensorEventListener, int) throws android.car.CarNotConnectedException;
     field public static final int SENSOR_RATE_FAST = 1; // 0x1
     field public static final int SENSOR_RATE_FASTEST = 0; // 0x0
     field public static final int SENSOR_RATE_NORMAL = 3; // 0x3
