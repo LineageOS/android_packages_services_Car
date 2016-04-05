@@ -17,27 +17,22 @@
 package android.support.car;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
-import android.os.RemoteException;
 import android.support.car.content.pm.CarPackageManager;
 import android.support.car.hardware.CarSensorManager;
 import android.support.car.navigation.CarNavigationManager;
-import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 
 /**
  *   Top level car API.
@@ -147,33 +142,33 @@ public class Car {
     private int mConnectionState;
 
     private final ServiceConnectionListener mServiceConnectionListener =
-            new ServiceConnectionListener () {
-        public void onServiceConnected(ComponentName name) {
-            synchronized (Car.this) {
-                mConnectionState = STATE_CONNECTED;
-            }
-            mServiceConnectionListenerClient.onServiceConnected(name);
-        }
-
-        public void onServiceDisconnected(ComponentName name) {
-            synchronized (Car.this) {
-                if (mConnectionState  == STATE_DISCONNECTED) {
-                    return;
+            new ServiceConnectionListener() {
+                public void onServiceConnected(ComponentName name) {
+                    synchronized (Car.this) {
+                        mConnectionState = STATE_CONNECTED;
+                    }
+                    mServiceConnectionListenerClient.onServiceConnected(name);
                 }
-                mConnectionState = STATE_DISCONNECTED;
-            }
-            mServiceConnectionListenerClient.onServiceDisconnected(name);
-            connect();
-        }
 
-        public void onServiceSuspended(int cause) {
-            mServiceConnectionListenerClient.onServiceSuspended(cause);
-        }
+                public void onServiceDisconnected(ComponentName name) {
+                    synchronized (Car.this) {
+                        if (mConnectionState == STATE_DISCONNECTED) {
+                            return;
+                        }
+                        mConnectionState = STATE_DISCONNECTED;
+                    }
+                    mServiceConnectionListenerClient.onServiceDisconnected(name);
+                    connect();
+                }
 
-        public void onServiceConnectionFailed(int cause) {
-            mServiceConnectionListenerClient.onServiceConnectionFailed(cause);
-        }
-    };
+                public void onServiceSuspended(int cause) {
+                    mServiceConnectionListenerClient.onServiceSuspended(cause);
+                }
+
+                public void onServiceConnectionFailed(int cause) {
+                    mServiceConnectionListenerClient.onServiceConnectionFailed(cause);
+                }
+            };
 
     private final ServiceConnectionListener mServiceConnectionListenerClient;
     private final Object mCarManagerLock = new Object();
@@ -263,22 +258,22 @@ public class Car {
 
     /**
      * Car constructor when CarServiceLoader is already available.
-     * @param context
-     * @param serviceLoader
-     * @param looper
+     * @param serviceLoader must be non-null and connected or {@link CarNotConnectedException} will
+     * be thrown.
      *
      * @hide
      */
-    public Car(Context context, CarServiceLoader serviceLoader, @Nullable Looper looper) {
-        mContext = context;
-        if (looper == null) {
-            mLooper = Looper.getMainLooper();
-        } else {
-            mLooper = looper;
+    public Car(@NonNull CarServiceLoader serviceLoader)
+            throws CarNotConnectedException {
+        if(!serviceLoader.isConnectedToCar()){
+            throw new CarNotConnectedException();
         }
+        mCarServiceLoader = serviceLoader;
+        mLooper = serviceLoader.getLooper();
+        mContext = serviceLoader.getContext();
+
         mEventHandler = new Handler(mLooper);
         mConnectionState = STATE_CONNECTED;
-        mCarServiceLoader = serviceLoader;
         mServiceConnectionListenerClient = null;
     }
 

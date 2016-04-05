@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.car.Car;
 import android.support.car.ServiceConnectionListener;
 import android.support.car.input.CarInputManager;
@@ -58,7 +57,7 @@ public class CarProxyActivity extends Activity {
     private CarInputManager mInputManager;
 
     private final CopyOnWriteArrayList<Pair<Integer, Object[]>> mCmds =
-            new CopyOnWriteArrayList<Pair<Integer, Object[]>>();
+            new CopyOnWriteArrayList<>();
     private final ServiceConnectionListener mConnectionListener= new ServiceConnectionListener() {
 
         @Override
@@ -375,8 +374,7 @@ public class CarProxyActivity extends Activity {
             mCarActivity.dispatchCmd(cmd, args);
         } else {
             // not connected yet. queue it and return.
-            Pair<Integer, Object[]> cmdToQ =
-                    new Pair<Integer, Object[]>(Integer.valueOf(cmd), args);
+            Pair<Integer, Object[]> cmdToQ = new Pair<>(Integer.valueOf(cmd), args);
             mCmds.add(cmdToQ);
         }
     }
