@@ -16,14 +16,6 @@
 
 package com.google.android.car.kitchensink;
 
-import com.google.android.car.kitchensink.audio.AudioTestFragment;
-import com.google.android.car.kitchensink.camera.CameraTestFragment;
-import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
-import com.google.android.car.kitchensink.hvac.HvacTestFragment;
-import com.google.android.car.kitchensink.input.InputTestFragment;
-import com.google.android.car.kitchensink.job.JobSchedulerFragment;
-import com.google.android.car.kitchensink.keyboard.KeyboardFragment;
-
 import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.content.ComponentName;
@@ -31,7 +23,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.car.Car;
 import android.support.car.CarAppContextManager;
 import android.support.car.CarNotConnectedException;
@@ -45,6 +36,15 @@ import android.support.car.hardware.CarSensorEvent;
 import android.support.car.hardware.CarSensorManager;
 import android.support.car.navigation.CarNavigationManager;
 import android.util.Log;
+
+import com.google.android.car.kitchensink.audio.AudioTestFragment;
+import com.google.android.car.kitchensink.camera.CameraTestFragment;
+import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
+import com.google.android.car.kitchensink.hvac.HvacTestFragment;
+import com.google.android.car.kitchensink.input.InputTestFragment;
+import com.google.android.car.kitchensink.job.JobSchedulerFragment;
+import com.google.android.car.kitchensink.keyboard.KeyboardFragment;
+import com.google.android.car.kitchensink.radio.RadioTestFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +60,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String MENU_KEYBOARD = "keyboard";
     private static final String MENU_CLUSTER = "inst cluster";
     private static final String MENU_INPUT_TEST = "input test";
+    private static final String MENU_RADIO = "radio";
 
     private Car mCarApi;
     private CarCameraManager mCameraManager;
@@ -70,6 +71,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
 
 
     private AudioTestFragment mAudioTestFragment;
+    private RadioTestFragment mRadioTestFragment;
     private CameraTestFragment mCameraTestFragment;
     private HvacTestFragment mHvacTestFragment;
     private JobSchedulerFragment mJobFragment;
@@ -210,8 +212,8 @@ public class KitchenSinkActivity extends CarDrawerActivity {
             List<CarMenu.Item> items = new ArrayList<>();
             if (parentId.equals(ROOT)) {
                 String[] allMenus = {
-                        MENU_AUDIO, MENU_CAMERA, MENU_HVAC, MENU_JOB, MENU_KEYBOARD, MENU_CLUSTER,
-                        MENU_INPUT_TEST, MENU_QUIT
+                        MENU_AUDIO, MENU_RADIO, MENU_CAMERA, MENU_HVAC, MENU_JOB, MENU_KEYBOARD,
+                        MENU_CLUSTER, MENU_INPUT_TEST, MENU_QUIT
                 };
                 for (String menu : allMenus) {
                     items.add(new CarMenu.Builder(menu).setText(menu).build());
@@ -228,6 +230,11 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                     mAudioTestFragment = new AudioTestFragment();
                 }
                 setContentFragment(mAudioTestFragment);
+            } else if (id.equals(MENU_RADIO)) {
+                if (mRadioTestFragment == null) {
+                    mRadioTestFragment = new RadioTestFragment();
+                }
+                setContentFragment(mRadioTestFragment);
             } else if (id.equals(MENU_CAMERA)) {
                 if (mCameraManager != null) {
                     if (mCameraTestFragment == null) {
