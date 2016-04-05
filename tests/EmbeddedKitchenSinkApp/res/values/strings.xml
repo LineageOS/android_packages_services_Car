@@ -110,4 +110,20 @@
     <string name="mock_vehicle_hal_off">Mock HAL OFF</string>
     <string name="mock_vehicle_hal_on">Mock HAL ON</string>
     <string name="music">Music</string>
+
+    <!-- radio test -->
+    <string name="radio_open">Open</string>
+    <string name="radio_close">Close</string>
+    <string name="radio_get_focus">Get Audio focus</string>
+    <string name="radio_release_focus">Release Audio focus</string>
+    <string name="radio_next">Next</string>
+    <string name="radio_prev">Previous</string>
+    <string name="radio_scan_cancel">Cancel scan</string>
+    <string name="radio_am">AM</string>
+    <string name="radio_fm">FM</string>
+    <string name="radio_station_info">Station info: %1$s</string>
+    <string name="radio_channel_info">Channel info: %1$s kHz</string>
+    <string name="radio_song_info">Song info: %1$s</string>
+    <string name="radio_artist_info">Artist info: %1$s</string>
+    <string name="radio_na">N/A</string>
 </resources>
