@@ -16,8 +16,6 @@
 
 package android.support.car;
 
-import android.os.Looper;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +38,8 @@ public class CarAppContextManagerEmbedded extends CarAppContextManager {
     }
 
     @Override
-    public void registerContextListener(AppContextChangeListener listener, int contextFilter) {
+    public void registerContextListener(AppContextChangeListener listener, int contextFilter)
+            throws CarNotConnectedException {
         if (listener == null) {
             throw new IllegalArgumentException("null listener");
         }
@@ -48,30 +47,48 @@ public class CarAppContextManagerEmbedded extends CarAppContextManager {
         synchronized(this) {
             mListener = proxy;
         }
-        mManager.registerContextListener(proxy, contextFilter);
+        try {
+            mManager.registerContextListener(proxy, contextFilter);
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
     }
 
     @Override
-    public void unregisterContextListener() {
+    public void unregisterContextListener() throws CarNotConnectedException {
         synchronized(this) {
             mListener = null;
         }
-        mManager.unregisterContextListener();
+        try {
+            mManager.unregisterContextListener();
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
+
     }
 
     @Override
-    public int getActiveAppContexts() {
-        return mManager.getActiveAppContexts();
+    public int getActiveAppContexts() throws CarNotConnectedException {
+        try {
+            return mManager.getActiveAppContexts();
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
     }
 
     @Override
-    public boolean isOwningContext(int context) {
-        return mManager.isOwningContext(context);
+    public boolean isOwningContext(int context) throws CarNotConnectedException {
+        try {
+            return mManager.isOwningContext(context);
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
     }
 
     @Override
     public void setActiveContexts(AppContextOwnershipChangeListener ownershipListener,
-            int contexts) throws IllegalStateException, SecurityException {
+            int contexts) throws IllegalStateException, SecurityException,
+            CarNotConnectedException {
         if (ownershipListener == null) {
             throw new IllegalArgumentException("null listener");
         }
@@ -84,12 +101,20 @@ public class CarAppContextManagerEmbedded extends CarAppContextManager {
                 }
             }
         }
-        mManager.setActiveContexts(proxy, contexts);
+        try{
+            mManager.setActiveContexts(proxy, contexts);
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
     }
 
     @Override
-    public void resetActiveContexts(int contexts) {
-        mManager.resetActiveContexts(contexts);
+    public void resetActiveContexts(int contexts) throws CarNotConnectedException {
+        try {
+            mManager.resetActiveContexts(contexts);
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
         synchronized (this) {
             for (int flag = APP_CONTEXT_START_FLAG; flag <= APP_CONTEXT_END_FLAG; flag <<= 1) {
                 if ((flag & contexts) != 0) {

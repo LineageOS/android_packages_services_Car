@@ -100,8 +100,14 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     }
 
     @Override
-    public Object getCarManager(String serviceName) {
-        Object manager = mCar.getCarManager(serviceName);
+    public Object getCarManager(String serviceName) throws CarNotConnectedException {
+        Object manager;
+        try {
+            manager = mCar.getCarManager(serviceName);
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
+
         if (manager == null) {
             return null;
         }
