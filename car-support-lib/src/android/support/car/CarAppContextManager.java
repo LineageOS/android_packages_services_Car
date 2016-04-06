@@ -70,28 +70,32 @@ public abstract class CarAppContextManager implements CarManagerBase {
      * registering multiple times will lead into only the last listener to be active.
      * @param listener
      * @param contextFilter Flags of contexts to get notification.
+     * @throws CarNotConnectedException
      */
     public abstract void registerContextListener(AppContextChangeListener listener,
-            int contextFilter);
+            int contextFilter) throws CarNotConnectedException;
 
     /**
      * Unregister listener and stop listening context change events. If app has owned a context
      * by {@link #setActiveContext(int)}, it will be reset to inactive state.
+     * @throws CarNotConnectedException
      */
-    public abstract void unregisterContextListener();
+    public abstract void unregisterContextListener() throws CarNotConnectedException;
 
     /**
      * Retrieve currently active contexts.
      * @return
+     * @throws CarNotConnectedException
      */
-    public abstract int getActiveAppContexts();
+    public abstract int getActiveAppContexts() throws CarNotConnectedException;
 
     /**
      * Check if the current process is owning the given context.
      * @param context
      * @return
+     * @throws CarNotConnectedException
      */
-    public abstract boolean isOwningContext(int context);
+    public abstract boolean isOwningContext(int context) throws CarNotConnectedException;
 
     /**
      * Set the given contexts as active. By setting this, the application is becoming owner
@@ -103,14 +107,16 @@ public abstract class CarAppContextManager implements CarManagerBase {
      * @param contexts
      * @throws IllegalStateException If listener was not registered.
      * @throws SecurityException If owner cannot be changed.
+     * @throws CarNotConnectedException
      */
     public abstract void setActiveContexts(AppContextOwnershipChangeListener ownershipListener,
-            int contexts) throws IllegalStateException, SecurityException;
+            int contexts) throws IllegalStateException, SecurityException, CarNotConnectedException;
 
     /**
      * Reset the given contexts, i.e. mark them as inactive. This also involves releasing ownership
      * for the context.
      * @param contexts
+     * @throws CarNotConnectedException
      */
-    public abstract void resetActiveContexts(int contexts);
+    public abstract void resetActiveContexts(int contexts) throws CarNotConnectedException;
 }

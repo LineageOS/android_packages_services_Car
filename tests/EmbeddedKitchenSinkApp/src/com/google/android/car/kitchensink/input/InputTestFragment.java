@@ -18,6 +18,7 @@ package com.google.android.car.kitchensink.input;
 import android.annotation.Nullable;
 import android.annotation.StringRes;
 import android.car.Car;
+import android.car.CarNotConnectedException;
 import android.car.test.CarTestManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.content.ComponentName;
@@ -31,6 +32,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ToggleButton;
@@ -45,6 +47,12 @@ import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import com.android.car.vehiclenetwork.VehicleNetworkConsts;
+import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleHwKeyInputAction;
+import com.android.car.vehiclenetwork.VehiclePropValueUtil;
+
+import com.google.android.car.kitchensink.R;
 
 /**
  * Test input event handling to system.
@@ -79,8 +87,12 @@ public class InputTestFragment extends Fragment {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 Log.i(TAG, "onServiceConnected");
-                mTestManager = new CarTestManager(
-                        (CarTestManagerBinderWrapper) mCar.getCarManager(Car.TEST_SERVICE));
+                try {
+                    mTestManager = new CarTestManager(
+                            (CarTestManagerBinderWrapper) mCar.getCarManager(Car.TEST_SERVICE));
+                } catch (CarNotConnectedException e) {
+                    throw new RuntimeException("Failed to create test service manager", e);
+                }
                 checkHwKeyInputSupported();
             }
 

@@ -448,12 +448,12 @@ public class CarHvacManager implements CarManagerBase {
         try {
             mListenerToService = new CarHvacEventListenerToService(this);
             mService.registerListener(mListenerToService);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Could not connect: " + ex.toString());
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not connect: " + e.toString());
             mListener = null;
-            throw new CarNotConnectedException(ex);
-        } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
+            throw new CarNotConnectedException(e);
+        } catch (IllegalStateException e) {
+            Car.checkCarNotConnectedExceptionFromCarService(e);
         }
     }
 
@@ -463,15 +463,16 @@ public class CarHvacManager implements CarManagerBase {
      * @param
      * @return
      */
-    public synchronized void unregisterListener() {
+    public synchronized void unregisterListener() throws CarNotConnectedException {
         if (DBG) {
             Log.d(TAG, "unregisterListener");
         }
         try {
             mService.unregisterListener(mListenerToService);
-        } catch (RemoteException ex) {
-            // do nothing.
-            Log.e(TAG, "Could not unregister: " + ex.toString());
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not unregister: " + e.toString());
+            throw new CarNotConnectedException(e);
+
         }
         mListenerToService = null;
         mListener = null;
@@ -483,14 +484,14 @@ public class CarHvacManager implements CarManagerBase {
      * @return Caller must check the property type and typecast to the appropriate subclass
      * (CarHvacBooleanProperty, CarHvacFloatProperty, CarrHvacIntProperty)
      */
-    public List<CarHvacBaseProperty> getPropertyList() {
+    public List<CarHvacBaseProperty> getPropertyList() throws CarNotConnectedException {
         List<CarHvacBaseProperty> hvacProps = new ArrayList<>();
         List<CarHvacProperty> carProps;
         try {
             carProps = mService.getHvacProperties();
         } catch (RemoteException e) {
             Log.w(TAG, "Exception in getPropertyList", e);
-            return null;
+            throw new CarNotConnectedException(e);
         }
 
         for (CarHvacProperty carProp : carProps) {
@@ -524,16 +525,16 @@ public class CarHvacManager implements CarManagerBase {
      * @param zone Zone of the property to get
      * @return
      */
-    public boolean getBooleanProperty(int prop, int zone) {
+    public boolean getBooleanProperty(int prop, int zone) throws CarNotConnectedException {
         CarHvacProperty carProp;
         if (DBG) {
             Log.d(TAG, "getBooleanProperty:  prop = " + prop + " zone = " + zone);
         }
         try {
             carProp = mService.getProperty(prop, zone);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "getProperty failed with " + ex.toString());
-            return false;
+        } catch (RemoteException e) {
+            Log.e(TAG, "getProperty failed with " + e.toString());
+            throw new CarNotConnectedException(e);
         }
 
         if (carProp.getType() == PROPERTY_TYPE_BOOLEAN) {
@@ -550,16 +551,16 @@ public class CarHvacManager implements CarManagerBase {
      * @param zone Zone of the property to get
      * @return
      */
-    public float getFloatProperty(int prop, int zone) {
+    public float getFloatProperty(int prop, int zone) throws CarNotConnectedException {
         CarHvacProperty carProp;
         if (DBG) {
             Log.d(TAG, "getFloatProperty:  prop = " + prop + " zone = " + zone);
         }
         try {
             carProp = mService.getProperty(prop, zone);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "getProperty failed with " + ex.toString());
-            return 0;
+        } catch (RemoteException e) {
+            Log.e(TAG, "getProperty failed with " + e.toString());
+            throw new CarNotConnectedException(e);
         }
 
         if (carProp.getType() == PROPERTY_TYPE_FLOAT) {
@@ -576,16 +577,16 @@ public class CarHvacManager implements CarManagerBase {
      * @param zone Zone of the property to get
      * @return
      */
-    public int getIntProperty(int prop, int zone) {
+    public int getIntProperty(int prop, int zone) throws CarNotConnectedException {
         CarHvacProperty carProp;
         if (DBG) {
             Log.d(TAG, "getIntProperty:  prop = " + prop + " zone = " + zone);
         }
         try {
             carProp = mService.getProperty(prop, zone);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "getProperty failed with " + ex.toString());
-            return 0;
+        } catch (RemoteException e) {
+            Log.e(TAG, "getProperty failed with " + e.toString());
+            throw new CarNotConnectedException(e);
         }
 
         if (carProp.getType() == PROPERTY_TYPE_INT) {
@@ -604,19 +605,21 @@ public class CarHvacManager implements CarManagerBase {
      * @param zone Zone(s) to apply the modification.  Multiple zones may be OR'd together
      * @param val Value to set
      */
-    public void setBooleanProperty(int prop, int zone, boolean val) {
+    public void setBooleanProperty(int prop, int zone, boolean val)
+            throws CarNotConnectedException {
         if (DBG) {
             Log.d(TAG, "setBooleanProperty:  prop = " + prop + " zone = " + zone + " val = " + val);
         }
         try {
             CarHvacProperty carProp = new CarHvacProperty(prop, zone, val);
             mService.setProperty(carProp);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "setBooleanProperty failed with " + ex.toString());
+        } catch (RemoteException e) {
+            Log.e(TAG, "setBooleanProperty failed with " + e.toString());
+            throw new CarNotConnectedException(e);
         }
     }
 
-    public void setFloatProperty(int prop, int zone, float val) {
+    public void setFloatProperty(int prop, int zone, float val) throws CarNotConnectedException {
         if (DBG) {
             Log.d(TAG, "setFloatProperty:  prop = " + prop + " zone = " + zone + " val = " + val);
         }
@@ -625,12 +628,13 @@ public class CarHvacManager implements CarManagerBase {
             CarHvacProperty carProp = new CarHvacProperty(prop, zone,
                     new float[] { 0 }, new float[] { 0 }, val);
             mService.setProperty(carProp);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "setFloatProperty failed with " + ex.toString());
+        } catch (RemoteException e) {
+            Log.e(TAG, "setFloatProperty failed with " + e.toString());
+            throw new CarNotConnectedException(e);
         }
     }
 
-    public void setIntProperty(int prop, int zone, int val) {
+    public void setIntProperty(int prop, int zone, int val) throws CarNotConnectedException {
         if (DBG) {
             Log.d(TAG, "setIntProperty:  prop = " + prop + " zone = " + zone + " val = " + val);
         }
@@ -639,8 +643,9 @@ public class CarHvacManager implements CarManagerBase {
             CarHvacProperty carProp = new CarHvacProperty(prop, zone,
                     new int[] { 0 }, new int[] { 0 }, val);
             mService.setProperty(carProp);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "setIntProperty failed with " + ex.toString());
+        } catch (RemoteException e) {
+            Log.e(TAG, "setIntProperty failed with " + e.toString());
+            throw new CarNotConnectedException(e);
         }
     }
 
@@ -694,7 +699,11 @@ public class CarHvacManager implements CarManagerBase {
     @Override
     public void onCarDisconnected() {
         if (mListener != null) {
-            unregisterListener();
+            try {
+                unregisterListener();
+            } catch (CarNotConnectedException e) {
+                // ignore, as car is already disconnected.
+            }
         }
     }
 }

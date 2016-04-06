@@ -25,11 +25,11 @@ import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.os.Handler;
+import android.os.Handler.Callback;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
-import android.os.Handler.Callback;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
@@ -197,7 +197,7 @@ public class CarSensorManager implements CarManagerBase {
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            //ignore
+            throw new CarNotConnectedException(e);
         }
         return new int[0];
     }
@@ -302,8 +302,10 @@ public class CarSensorManager implements CarManagerBase {
      * Stop getting sensor update for the given listener. If there are multiple registrations for
      * this listener, all listening will be stopped.
      * @param listener
+     * @throws CarNotConnectedException
      */
-    public void unregisterListener(CarSensorEventListener listener) {
+    public void unregisterListener(CarSensorEventListener listener)
+            throws CarNotConnectedException {
         //TODO: removing listener should reset update rate
         synchronized(mActiveSensorListeners) {
             Iterator<Integer> sensorIterator = mActiveSensorListeners.keySet().iterator();
@@ -319,15 +321,17 @@ public class CarSensorManager implements CarManagerBase {
      * for other sensors, those subscriptions will not be affected.
      * @param listener
      * @param sensorType
+     * @throws CarNotConnectedException
      */
-    public void unregisterListener(CarSensorEventListener listener, int sensorType) {
+    public void unregisterListener(CarSensorEventListener listener, int sensorType)
+            throws CarNotConnectedException {
         synchronized(mActiveSensorListeners) {
             doUnregisterListenerLocked(listener, sensorType, null);
         }
     }
 
     private void doUnregisterListenerLocked(CarSensorEventListener listener, Integer sensor,
-            Iterator<Integer> sensorIterator) {
+            Iterator<Integer> sensorIterator) throws CarNotConnectedException {
         CarSensorListeners listeners = mActiveSensorListeners.get(sensor);
         if (listeners != null) {
             if (listeners.contains(listener)) {
@@ -338,7 +342,7 @@ public class CarSensorManager implements CarManagerBase {
                     mService.unregisterSensorListener(sensor.intValue(),
                             mCarSensorEventListenerToService);
                 } catch (RemoteException e) {
-                    // ignore
+                    throw new CarNotConnectedException(e);
                 }
                 if (sensorIterator == null) {
                     mActiveSensorListeners.remove(sensor);
@@ -359,7 +363,7 @@ public class CarSensorManager implements CarManagerBase {
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            return false;
+            throw new CarNotConnectedException(e);
         }
         return true;
     }

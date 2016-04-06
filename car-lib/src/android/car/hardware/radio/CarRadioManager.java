@@ -20,7 +20,6 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
-import android.content.Context;
 import android.hardware.radio.RadioManager;
 import android.os.Handler;
 import android.os.IBinder;
@@ -113,7 +112,7 @@ public class CarRadioManager implements CarManagerBase {
      * Should not be obtained directly by clients, use {@link Car.getCarManager()} instead.
      * @hide
      */
-    public CarRadioManager(IBinder service, Looper looper) {
+    public CarRadioManager(IBinder service, Looper looper) throws CarNotConnectedException {
         mService = ICarRadio.Stub.asInterface(service);
         mHandler = new EventCallbackHandler(this, looper);
 
@@ -121,8 +120,8 @@ public class CarRadioManager implements CarManagerBase {
         try {
             mCount = mService.getPresetCount();
         } catch (RemoteException ex) {
-            // Do nothing.
             Log.e(TAG, "Could not connect: " + ex.toString());
+            throw new CarNotConnectedException(ex);
         }
     }
 
@@ -152,15 +151,15 @@ public class CarRadioManager implements CarManagerBase {
     /**
      * Unregister {@link CarRadioEventListener}.
      */
-    public synchronized void unregisterListener() {
+    public synchronized void unregisterListener() throws CarNotConnectedException {
         if (DBG) {
             Log.d(TAG, "unregisterListener");
         }
         try {
             mService.unregisterListener(mListenerToService);
         } catch (RemoteException ex) {
-            // do nothing.
             Log.e(TAG, "Could not connect: " + ex.toString());
+            throw new CarNotConnectedException(ex);
         }
         mListenerToService = null;
         mListener = null;
@@ -179,7 +178,7 @@ public class CarRadioManager implements CarManagerBase {
      * Get preset value for a specific radio preset.
      * @return: a {@link CarRadioPreset} object, {@link null} if the call failed.
      */
-    public CarRadioPreset getPreset(int presetNumber) {
+    public CarRadioPreset getPreset(int presetNumber) throws CarNotConnectedException {
         if (DBG) {
             Log.d(TAG, "getPreset");
         }
@@ -188,7 +187,7 @@ public class CarRadioManager implements CarManagerBase {
             return preset;
         } catch (RemoteException ex) {
             Log.e(TAG, "getPreset failed with " + ex.toString());
-            return null;
+            throw new CarNotConnectedException(ex);
         }
     }
 
@@ -204,13 +203,13 @@ public class CarRadioManager implements CarManagerBase {
      * b) Listener is not set correctly, since otherwise the user of this API cannot confirm if the
      * request succeeded.
      */
-    public boolean setPreset(CarRadioPreset preset) throws IllegalArgumentException {
+    public boolean setPreset(CarRadioPreset preset) throws IllegalArgumentException,
+            CarNotConnectedException {
         try {
             return mService.setPreset(preset);
         } catch (RemoteException ex) {
-            // do nothing.
-            return false;
-        }
+            throw new CarNotConnectedException(ex);
+         }
     }
 
     private void dispatchEventToClient(CarRadioEvent event) {

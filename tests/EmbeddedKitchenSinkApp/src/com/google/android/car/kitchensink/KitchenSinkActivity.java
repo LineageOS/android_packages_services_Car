@@ -16,14 +16,6 @@
 
 package com.google.android.car.kitchensink;
 
-import com.google.android.car.kitchensink.audio.AudioTestFragment;
-import com.google.android.car.kitchensink.camera.CameraTestFragment;
-import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
-import com.google.android.car.kitchensink.hvac.HvacTestFragment;
-import com.google.android.car.kitchensink.input.InputTestFragment;
-import com.google.android.car.kitchensink.job.JobSchedulerFragment;
-import com.google.android.car.kitchensink.keyboard.KeyboardFragment;
-
 import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.content.ComponentName;
@@ -31,7 +23,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.car.Car;
 import android.support.car.CarAppContextManager;
 import android.support.car.CarNotConnectedException;
@@ -45,6 +36,14 @@ import android.support.car.hardware.CarSensorEvent;
 import android.support.car.hardware.CarSensorManager;
 import android.support.car.navigation.CarNavigationManager;
 import android.util.Log;
+
+import com.google.android.car.kitchensink.audio.AudioTestFragment;
+import com.google.android.car.kitchensink.camera.CameraTestFragment;
+import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
+import com.google.android.car.kitchensink.hvac.HvacTestFragment;
+import com.google.android.car.kitchensink.input.InputTestFragment;
+import com.google.android.car.kitchensink.job.JobSchedulerFragment;
+import com.google.android.car.kitchensink.keyboard.KeyboardFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,7 +143,11 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (mCarSensorManager != null) {
-            mCarSensorManager.unregisterListener(mListener);
+            try {
+                mCarSensorManager.unregisterListener(mListener);
+            } catch (CarNotConnectedException e) {
+                Log.e(TAG, "Failed to unregister car seonsor listener", e);
+            }
         }
         if (mCarApi != null) {
             mCarApi.disconnect();
@@ -174,9 +177,9 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 mCarAppContextManager =
                         (CarAppContextManager) mCarApi.getCarManager(Car.APP_CONTEXT_SERVICE);
             } catch (CarNotConnectedException e) {
-                Log.e(TAG, "Car is not connected!");
+                Log.e(TAG, "Car is not connected!", e);
             } catch (CarNotSupportedException e) {
-                Log.e(TAG, "Car is not supported!");
+                Log.e(TAG, "Car is not supported!", e);
             }
         }
 

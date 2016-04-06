@@ -17,25 +17,11 @@
 package android.support.car.hardware;
 
 import android.Manifest;
-import android.support.annotation.RequiresPermission;
-import android.content.Context;
-import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
-import android.os.RemoteException;
-import android.os.Handler.Callback;
+import android.support.annotation.RequiresPermission;
 import android.support.car.Car;
-import android.support.car.CarApiUtil;
-import android.support.car.CarLibLog;
 import android.support.car.CarManagerBase;
 import android.support.car.CarNotConnectedException;
-import android.util.Log;
-
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  *  API for monitoring car sensor data.
@@ -214,7 +200,8 @@ public abstract class CarSensorManager implements CarManagerBase {
      * this listener, all listening will be stopped.
      * @param listener
      */
-    public abstract  void unregisterListener(CarSensorEventListener listener);
+    public abstract  void unregisterListener(CarSensorEventListener listener)
+            throws CarNotConnectedException;
 
     /**
      * Stop getting sensor update for the given listener and sensor. If the same listener is used
@@ -222,7 +209,8 @@ public abstract class CarSensorManager implements CarManagerBase {
      * @param listener
      * @param sensorType
      */
-    public abstract  void unregisterListener(CarSensorEventListener listener, int sensorType);
+    public abstract  void unregisterListener(CarSensorEventListener listener, int sensorType)
+            throws CarNotConnectedException;
 
     /**
      * Get the most recent CarSensorEvent for the given type.
