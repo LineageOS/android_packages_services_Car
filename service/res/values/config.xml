@@ -46,6 +46,9 @@
          this value will be treated as timeout and audio focus will be reset to LOSS state. -->
     <integer name="audioFocusWaitTimeoutMs">1000</integer>
 
+    <!-- Number of audio focus timeouts that indicate vehicle CAN bus failure. -->
+    <integer name="consecutiveHalFailures">3</integer>
+
     <!-- This is kernel device node to allow input event injection for key inputs coming
          from vehicle hal -->
     <string name="inputInjectionDeviceNode">/dev/input/event2</string>

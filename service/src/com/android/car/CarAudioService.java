@@ -38,7 +38,6 @@ import com.android.internal.annotations.GuardedBy;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 
-
 public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         AudioHalFocusListener {
 
@@ -52,6 +51,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     }
 
     private final long mFocusResponseWaitTimeoutMs;
+
+    private final int mNumConsecutiveHalFailuresForCanError;
 
     private static final String TAG_FOCUS = CarLog.TAG_AUDIO + ".FOCUS";
 
@@ -83,6 +84,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
 
     private AudioRoutingPolicy mAudioRoutingPolicy;
     private final AudioManager mAudioManager;
+    private final CanBusErrorNotifier mCanBusErrorNotifier;
     private final BottomAudioFocusListener mBottomAudioFocusHandler =
             new BottomAudioFocusListener();
     private final CarProxyAndroidFocusListener mCarProxyAudioFocusHandler =
@@ -105,6 +107,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     private CarAudioContextChangeHandler mCarAudioContextChangeHandler;
     @GuardedBy("mLock")
     private boolean mIsRadioExternal;
+    @GuardedBy("mLock")
+    private int mNumConsecutiveHalFailures;
 
     private final AudioAttributes mAttributeBottom =
             CarAudioAttributesUtil.getAudioAttributesForCarUsage(
@@ -121,9 +125,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         mFocusHandlerThread.start();
         mFocusHandler = new CarAudioFocusChangeHandler(mFocusHandlerThread.getLooper());
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        mCanBusErrorNotifier = new CanBusErrorNotifier(context);
         Resources res = context.getResources();
         mFocusResponseWaitTimeoutMs = (long) res.getInteger(R.integer.audioFocusWaitTimeoutMs);
-
+        mNumConsecutiveHalFailuresForCanError =
+                (int) res.getInteger(R.integer.consecutiveHalFailures);
     }
 
     @Override
@@ -214,6 +220,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         writer.println(" mCurrentPrimaryAudioContext:" + mCurrentPrimaryAudioContext +
                 " mCurrentPrimaryPhysicalStream:" + mCurrentPrimaryPhysicalStream);
         writer.println(" mIsRadioExternal:" + mIsRadioExternal);
+        writer.println(" mNumConsecutiveHalFailures:" + mNumConsecutiveHalFailures);
         mAudioRoutingPolicy.dump(writer);
     }
 
@@ -682,12 +689,18 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                             dumpAudioFocusInfo(newTopInfo) + " currentState:" + mCurrentFocusState);
                 }
             }
-            if (focusRequested && mFocusReceived == null) {
-                Log.w(TAG_FOCUS, "focus response timed out, request sent" +
-                        mLastFocusRequestToCar);
-                // no response. so reset to loss.
-                mFocusReceived = FocusState.STATE_LOSS;
-                mCurrentAudioContexts = 0;
+            if (focusRequested) {
+                if (mFocusReceived == null) {
+                    Log.w(TAG_FOCUS, "focus response timed out, request sent"
+                            + mLastFocusRequestToCar);
+                    // no response. so reset to loss.
+                    mFocusReceived = FocusState.STATE_LOSS;
+                    mCurrentAudioContexts = 0;
+                    mNumConsecutiveHalFailures++;
+                } else {
+                    mNumConsecutiveHalFailures = 0;
+                }
+                checkCanStatus();
             }
         }
         // handle it if there was response or force handle it for timeout.
@@ -721,6 +734,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         if (sent) {
             doHandleCarFocusChange();
         }
+    }
+
+    private void checkCanStatus() {
+        // If CAN bus recovers, message will be removed.
+        mCanBusErrorNotifier.setCanBusFailure(
+                mNumConsecutiveHalFailures >= mNumConsecutiveHalFailuresForCanError);
     }
 
     private static boolean isAudioAttributesSame(AudioAttributes one, AudioAttributes two) {
