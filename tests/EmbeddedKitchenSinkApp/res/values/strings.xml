@@ -119,6 +119,7 @@
     <string name="radio_next">Next</string>
     <string name="radio_prev">Previous</string>
     <string name="radio_scan_cancel">Cancel scan</string>
+    <string name="radio_get_program_info">getProgramInformation</string>
     <string name="radio_am">AM</string>
     <string name="radio_fm">FM</string>
     <string name="radio_station_info">Station info: %1$s</string>
