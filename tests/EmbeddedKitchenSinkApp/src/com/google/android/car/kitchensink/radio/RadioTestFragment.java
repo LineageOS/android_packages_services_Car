@@ -114,6 +114,7 @@ public class RadioTestFragment extends Fragment {
     private Button mRadioNext;
     private Button mRadioPrev;
     private Button mRadioScanCancel;
+    private Button mRadioGetProgramInfo;
     private ToggleButton mRadioBand;
     private TextView mStationInfo;
     private TextView mChannelInfo;
@@ -160,6 +161,7 @@ public class RadioTestFragment extends Fragment {
         mRadioNext = (Button) view.findViewById(R.id.button_radio_next);
         mRadioPrev = (Button) view.findViewById(R.id.button_radio_prev);
         mRadioScanCancel = (Button) view.findViewById(R.id.button_radio_scan_cancel);
+        mRadioGetProgramInfo = (Button) view.findViewById(R.id.button_radio_get_program_info);
         mRadioBand = (ToggleButton) view.findViewById(R.id.button_band_selection);
 
         mStationInfo = (TextView) view.findViewById(R.id.radio_station_info);
@@ -329,6 +331,19 @@ public class RadioTestFragment extends Fragment {
                 updateStates();
             }
         });
+        mRadioGetProgramInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (DBG) {
+                    Log.i(TAG, "getProgramInformation");
+                }
+                if (mRadioTuner != null) {
+                    RadioManager.ProgramInfo[] programInfos = new RadioManager.ProgramInfo[1];
+                    mRadioTuner.getProgramInformation(programInfos);
+                    addLog(Log.INFO, "mRadioTuner.getProgramInformation() =>" + programInfos[0]);
+                }
+            }
+        });
         mRadioBand.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -339,7 +354,8 @@ public class RadioTestFragment extends Fragment {
                     mRadioTuner.close();
                     mRadioTuner = null;
                     mRadioTuner = mRadioManager.openTuner(mModules.get(0).getId(),
-                            mRadioBand.isChecked() ? mFmConfig : mAmConfig, true, mRadioCallback , null);
+                            mRadioBand.isChecked() ? mFmConfig : mAmConfig,
+                            true, mRadioCallback , null);
                 }
                 resetMessages();
                 updateMessages();
@@ -389,7 +405,8 @@ public class RadioTestFragment extends Fragment {
             mRadioTuner.close();
             mRadioTuner = null;
         }
-        mRadioTuner = mRadioManager.openTuner(mModules.get(0).getId(), mRadioBand.isChecked() ? mFmConfig : mAmConfig,
+        mRadioTuner = mRadioManager.openTuner(mModules.get(0).getId(),
+                mRadioBand.isChecked() ? mFmConfig : mAmConfig,
                 true, mRadioCallback /* callback */, null /* handler */);
     }
 
