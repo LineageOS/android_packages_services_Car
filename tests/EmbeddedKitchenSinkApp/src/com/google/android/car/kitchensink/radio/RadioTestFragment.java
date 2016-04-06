@@ -18,6 +18,7 @@ package com.google.android.car.kitchensink.radio;
 
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.CarNotConnectedException;
 import android.car.media.CarAudioManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -190,9 +191,13 @@ public class RadioTestFragment extends Fragment {
         mCar = Car.createCar(getContext(), new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
-                mRadioAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
-                        CarAudioManager.CAR_AUDIO_USAGE_RADIO);
+                try {
+                    mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
+                    mRadioAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
+                            CarAudioManager.CAR_AUDIO_USAGE_RADIO);
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Car not connected", e);
+                }
             }
 
             @Override
@@ -417,4 +422,3 @@ public class RadioTestFragment extends Fragment {
         }
     }
 }
-

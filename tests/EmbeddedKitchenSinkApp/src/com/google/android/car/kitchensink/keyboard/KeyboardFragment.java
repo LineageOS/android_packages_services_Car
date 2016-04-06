@@ -112,7 +112,11 @@ public class KeyboardFragment extends Fragment {
     public void onPause() {
         super.onPause();
         if (mSensorManager != null) {
-            mSensorManager.unregisterListener(mCarSensorListener);
+            try {
+                mSensorManager.unregisterListener(mCarSensorListener);
+            } catch (CarNotConnectedException e) {
+                Log.e(TAG, "Car not connected", e);
+            }
         }
     }
 
