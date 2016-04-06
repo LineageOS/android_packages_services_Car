@@ -17,6 +17,7 @@
 package android.car.hardware.camera;
 
 import android.annotation.SystemApi;
+import android.car.CarNotConnectedException;
 import android.graphics.Rect;
 import android.os.RemoteException;
 import android.util.Log;
@@ -36,48 +37,43 @@ public class CarCamera {
         mCameraType = cameraType;
     }
 
-    public int getCapabilities() {
-        int capabilities;
+    public int getCapabilities() throws CarNotConnectedException {
         try {
-            capabilities = mService.getCapabilities(mCameraType);
+            return mService.getCapabilities(mCameraType);
         } catch (RemoteException e) {
             Log.e(TAG, "Exception in getCapabilities", e);
-            capabilities = 0;
+            throw new CarNotConnectedException(e);
         }
-        return capabilities;
     }
 
-    public Rect getCameraCrop() {
-        Rect rect;
+    public Rect getCameraCrop() throws CarNotConnectedException {
         try {
-            rect = mService.getCameraCrop(mCameraType);
+            return mService.getCameraCrop(mCameraType);
         } catch (RemoteException e) {
             Log.e(TAG, "Exception in getCameraCrop", e);
-            rect = null;
+            throw new CarNotConnectedException(e);
         }
-        return rect;
     }
 
-    public void setCameraCrop(Rect rect) {
+    public void setCameraCrop(Rect rect) throws CarNotConnectedException {
         try {
             mService.setCameraCrop(mCameraType, rect);
         } catch (RemoteException e) {
             Log.e(TAG, "Exception in setCameraCrop", e);
+            throw new CarNotConnectedException(e);
         }
     }
 
-    public Rect getCameraPosition() {
-        Rect rect;
+    public Rect getCameraPosition() throws CarNotConnectedException {
         try {
-            rect = mService.getCameraPosition(mCameraType);
+            return mService.getCameraPosition(mCameraType);
         } catch (RemoteException e) {
             Log.e(TAG, "Exception in getCameraPosition", e);
-            rect = null;
+            throw new CarNotConnectedException(e);
         }
-        return rect;
     }
 
-    public void setCameraPosition(Rect rect) {
+    public void setCameraPosition(Rect rect) throws CarNotConnectedException {
         try {
             mService.setCameraPosition(mCameraType, rect);
         } catch (RemoteException e) {
@@ -85,22 +81,21 @@ public class CarCamera {
         }
     }
 
-    public CarCameraState getCameraState() {
-        CarCameraState state;
+    public CarCameraState getCameraState() throws CarNotConnectedException {
         try {
-            state = mService.getCameraState(mCameraType);
+            return mService.getCameraState(mCameraType);
         } catch (RemoteException e) {
             Log.e(TAG, "Exception in getCameraState", e);
-            state = null;
+            throw new CarNotConnectedException(e);
         }
-        return state;
     }
 
-    public void setCameraState(CarCameraState state) {
+    public void setCameraState(CarCameraState state) throws CarNotConnectedException {
         try {
             mService.setCameraState(mCameraType, state);
         } catch (RemoteException e) {
             Log.e(TAG, "Exception in setCameraState", e);
+            throw new CarNotConnectedException(e);
         }
     }
 }

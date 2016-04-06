@@ -110,7 +110,8 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
     }
 
     @Override
-    public void unregisterListener(CarSensorEventListener listener) {
+    public void unregisterListener(CarSensorEventListener listener)
+            throws CarNotConnectedException {
         mCarSensorsProxy.unregisterSensorListener(listener);
         CarSensorEventListenerProxy proxy = null;
         synchronized (this) {
@@ -120,11 +121,16 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
             }
             mListeners.remove(proxy);
         }
-        mManager.unregisterListener(proxy);
+        try {
+            mManager.unregisterListener(proxy);
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
     }
 
     @Override
-    public void unregisterListener(CarSensorEventListener listener, int sensorType) {
+    public void unregisterListener(CarSensorEventListener listener, int sensorType)
+            throws CarNotConnectedException {
         mCarSensorsProxy.unregisterSensorListener(listener, sensorType);
         CarSensorEventListenerProxy proxy = null;
         synchronized (this) {
@@ -137,7 +143,11 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
                 mListeners.remove(proxy);
             }
         }
-        mManager.unregisterListener(proxy, sensorType);
+        try {
+            mManager.unregisterListener(proxy, sensorType);
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
     }
 
     @Override

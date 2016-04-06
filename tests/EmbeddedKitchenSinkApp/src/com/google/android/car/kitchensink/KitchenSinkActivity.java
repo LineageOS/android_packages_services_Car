@@ -146,7 +146,11 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (mCarSensorManager != null) {
-            mCarSensorManager.unregisterListener(mListener);
+            try {
+                mCarSensorManager.unregisterListener(mListener);
+            } catch (CarNotConnectedException e) {
+                Log.e(TAG, "Failed to unregister car seonsor listener", e);
+            }
         }
         if (mCarApi != null) {
             mCarApi.disconnect();
@@ -176,9 +180,9 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 mCarAppContextManager =
                         (CarAppContextManager) mCarApi.getCarManager(Car.APP_CONTEXT_SERVICE);
             } catch (CarNotConnectedException e) {
-                Log.e(TAG, "Car is not connected!");
+                Log.e(TAG, "Car is not connected!", e);
             } catch (CarNotSupportedException e) {
-                Log.e(TAG, "Car is not supported!");
+                Log.e(TAG, "Car is not supported!", e);
             }
         }
 

@@ -74,8 +74,10 @@ public class CarProjectionManager implements CarManagerBase {
      * registering multiple times will lead into only the last listener to be active.
      * @param listener
      * @param voiceSearchFilter Flags of voice search requests to get notification.
+     * @throws CarNotConnectedException
      */
-    public void regsiterProjectionListener(CarProjectionListener listener, int voiceSearchFilter) {
+    public void regsiterProjectionListener(CarProjectionListener listener, int voiceSearchFilter)
+            throws CarNotConnectedException {
         if (listener == null) {
             throw new IllegalArgumentException("null listener");
         }
@@ -84,7 +86,7 @@ public class CarProjectionManager implements CarManagerBase {
                 try {
                     mService.regsiterProjectionListener(mBinderListener, voiceSearchFilter);
                 } catch (RemoteException e) {
-                    //ignore as CarApi will handle disconnection anyway.
+                    throw new CarNotConnectedException(e);
                 }
             }
             mListener = listener;
@@ -94,13 +96,14 @@ public class CarProjectionManager implements CarManagerBase {
 
     /**
      * Unregister listener and stop listening projection events.
+     * @throws CarNotConnectedException
      */
-    public void unregsiterProjectionListener() {
+    public void unregsiterProjectionListener() throws CarNotConnectedException {
         synchronized (this) {
             try {
                 mService.unregsiterProjectionListener(mBinderListener);
             } catch (RemoteException e) {
-                //ignore as CarApi will handle disconnection anyway.
+                throw new CarNotConnectedException(e);
             }
             mListener = null;
             mVoiceSearchFilter = 0;
@@ -110,8 +113,10 @@ public class CarProjectionManager implements CarManagerBase {
     /**
      * Registers projection runner on projection start with projection service
      * to create reverse binding.
+     * @param serviceIntent
+     * @throws CarNotConnectedException
      */
-    public void registerProjectionRunner(Intent serviceIntent) {
+    public void registerProjectionRunner(Intent serviceIntent) throws CarNotConnectedException {
         if (serviceIntent == null) {
             throw new IllegalArgumentException("null serviceIntent");
         }
@@ -119,7 +124,7 @@ public class CarProjectionManager implements CarManagerBase {
             try {
                 mService.registerProjectionRunner(serviceIntent);
             } catch (RemoteException e) {
-                //ignore as CarApi will handle disconnection anyway.
+                throw new CarNotConnectedException(e);
             }
         }
     }
@@ -127,8 +132,10 @@ public class CarProjectionManager implements CarManagerBase {
     /**
      * Unregisters projection runner on projection stop with projection service to create
      * reverse binding.
+     * @param serviceIntent
+     * @throws CarNotConnectedException
      */
-    public void unregisterProjectionRunner(Intent serviceIntent) {
+    public void unregisterProjectionRunner(Intent serviceIntent) throws CarNotConnectedException {
         if (serviceIntent == null) {
             throw new IllegalArgumentException("null serviceIntent");
         }
@@ -136,7 +143,7 @@ public class CarProjectionManager implements CarManagerBase {
             try {
                 mService.unregisterProjectionRunner(serviceIntent);
             } catch (RemoteException e) {
-                //ignore as CarApi will handle disconnection anyway.
+                throw new CarNotConnectedException(e);
             }
         }
     }

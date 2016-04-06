@@ -21,9 +21,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-
 /**
  * Utility to retrieve various static information from car. For given string keys, there can be
  * different types of values and right query API like {@link #getFloat(String)} for float
@@ -92,7 +89,7 @@ public class CarInfoManager implements CarManagerBase {
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            //ignore as CarApi will handle disconnection anyway.
+            throw new CarNotConnectedException(e);
         }
         return null;
     }
@@ -106,7 +103,7 @@ public class CarInfoManager implements CarManagerBase {
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            //ignore as CarApi will handle disconnection anyway.
+            throw new CarNotConnectedException(e);
         }
         return null;
     }
@@ -120,7 +117,7 @@ public class CarInfoManager implements CarManagerBase {
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            //ignore as CarApi will handle disconnection anyway.
+            throw new CarNotConnectedException(e);
         }
         return null;
     }
@@ -131,7 +128,7 @@ public class CarInfoManager implements CarManagerBase {
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            //ignore as CarApi will handle disconnection anyway.
+            throw new CarNotConnectedException(e);
         }
         return null;
     }
@@ -152,7 +149,7 @@ public class CarInfoManager implements CarManagerBase {
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            //ignore as CarApi will handle disconnection anyway.
+            throw new CarNotConnectedException(e);
         }
         return null;
     }

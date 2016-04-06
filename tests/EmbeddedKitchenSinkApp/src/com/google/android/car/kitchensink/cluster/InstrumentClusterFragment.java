@@ -15,8 +15,6 @@
  */
 package com.google.android.car.kitchensink.cluster;
 
-import com.google.android.car.kitchensink.R;
-
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -31,6 +29,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+
+import com.google.android.car.kitchensink.R;
 
 /**
  * Contains functions to test instrument cluster API.
@@ -82,35 +82,48 @@ public class InstrumentClusterFragment extends Fragment {
     }
 
     private void initCluster() {
-        mCarAppContextManager.registerContextListener(new AppContextChangeListener() {
-            @Override
-            public void onAppContextChange(int activeContexts) {
-                Log.d(TAG, "onAppContextChange, activeContexts: " + activeContexts);
-            }
-        }, CarAppContextManager.APP_CONTEXT_NAVIGATION);
+        try {
+            mCarAppContextManager.registerContextListener(new AppContextChangeListener() {
+                @Override
+                public void onAppContextChange(int activeContexts) {
+                    Log.d(TAG, "onAppContextChange, activeContexts: " + activeContexts);
+                }
+            }, CarAppContextManager.APP_CONTEXT_NAVIGATION);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to register context listener", e);
+        }
 
-        mCarAppContextManager.setActiveContexts(new AppContextOwnershipChangeListener() {
-            @Override
-            public void onAppContextOwnershipLoss(int context) {
-                Log.w(TAG, "onAppContextOwnershipLoss, context: " + context);
+        try {
+            mCarAppContextManager.setActiveContexts(new AppContextOwnershipChangeListener() {
+                @Override
+                public void onAppContextOwnershipLoss(int context) {
+                    Log.w(TAG, "onAppContextOwnershipLoss, context: " + context);
+                    new AlertDialog.Builder(getContext())
+                            .setTitle(getContext().getApplicationInfo().name)
+                            .setMessage(R.string.cluster_nav_app_context_loss)
+                            .show();
+                }
+            }, CarAppContextManager.APP_CONTEXT_NAVIGATION);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to set active context", e);
+        }
 
-                new AlertDialog.Builder(getContext())
-                        .setTitle(getContext().getApplicationInfo().name)
-                        .setMessage(R.string.cluster_nav_app_context_loss)
-                        .show();
+        try {
+            boolean ownsContext =
+                    mCarAppContextManager.isOwningContext(
+                            CarAppContextManager.APP_CONTEXT_NAVIGATION);
+            Log.d(TAG, "Owns APP_CONTEXT_NAVIGATION: " + ownsContext);
+            if (!ownsContext) {
+                throw new RuntimeException("Context was not acquired.");
             }
-        }, CarAppContextManager.APP_CONTEXT_NAVIGATION);
-        boolean ownsContext =
-                mCarAppContextManager.isOwningContext(CarAppContextManager.APP_CONTEXT_NAVIGATION);
-        Log.d(TAG, "Owns APP_CONTEXT_NAVIGATION: " + ownsContext);
-        if (!ownsContext) {
-            throw new RuntimeException("Context was not acquired.");
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to get owned context", e);
         }
 
         try {
             mCarNavigationManager.sendNavigationStatus(CarNavigationManager.STATUS_ACTIVE);
         } catch (CarNotConnectedException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to set navigation status", e);
         }
     }
 }

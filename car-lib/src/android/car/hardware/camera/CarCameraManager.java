@@ -19,6 +19,7 @@ package android.car.hardware.camera;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -51,13 +52,14 @@ public class CarCameraManager implements CarManagerBase {
      * Should not be obtained directly by clients, use {@link Car.getCarManager()} instead.
      * @hide
      */
-    public CarCameraManager(IBinder service, Context context) {
+    public CarCameraManager(IBinder service, Context context) throws CarNotConnectedException{
         mService = ICarCamera.Stub.asInterface(service);
         try {
             mCameraList = mService.getCameraList();
         } catch (RemoteException e) {
             Log.e(TAG, "Exception in getCameraList", e);
             mCameraList = null;
+            throw new CarNotConnectedException(e);
         }
     }
 
@@ -73,14 +75,15 @@ public class CarCameraManager implements CarManagerBase {
      *
      * @param cameraType Camera type to query capabilites
      * @return Bitmask of camera capabilities available for this device
+     * @throws CarNotConnectedException
      */
-    public int getCameraCapabilities(int cameraType) {
+    public int getCameraCapabilities(int cameraType) throws CarNotConnectedException {
         int capabilities;
         try {
             capabilities = mService.getCapabilities(cameraType);
         } catch (RemoteException e) {
             Log.e(TAG, "Exception in getCameraCapabilities", e);
-            capabilities = 0;
+            throw new CarNotConnectedException(e);
         }
         return capabilities;
     }
