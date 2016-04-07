@@ -106,6 +106,21 @@ public:
 };
 
 // ----------------------------------------------------------------------------
+class EventInfo {
+public:
+    int64_t lastTimestamp;
+    int eventCount;
+    EventInfo()
+        : lastTimestamp(0),
+          eventCount(0) {};
+    EventInfo(int64_t aLastTimestamp, int aEventCount)
+        : lastTimestamp(aLastTimestamp),
+          eventCount(aEventCount) {};
+    EventInfo(const EventInfo& info)
+        : lastTimestamp(info.lastTimestamp),
+          eventCount(info.eventCount) {};
+};
+// ----------------------------------------------------------------------------
 
 class HalClient : public virtual RefBase {
 public:
@@ -350,7 +365,7 @@ private:
     // client subscribing properties
     KeyedVector<int32_t, sp<HalClientSpVector> > mPropertyToClientsMap;
     KeyedVector<int32_t, SubscriptionInfo> mSubscriptionInfos;
-    KeyedVector<int32_t, int> mEventsCount;
+    KeyedVector<int32_t, EventInfo> mEventInfos;
     PropertyValueCache mCache;
     bool mMockingEnabled;
     sp<IVehicleNetworkHalMock> mHalMock;
