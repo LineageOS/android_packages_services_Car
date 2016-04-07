@@ -249,10 +249,11 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
         msg.appendFormat("prop 0x%x, sample rate %f Hz, zones 0x%x\n", mSubscriptionInfos.keyAt(i),
                 info.sampleRate, info.zones);
     }
-    msg.append("*Event counts per property*\n");
-    for (size_t i = 0; i < mEventsCount.size(); i++) {
-        msg.appendFormat("prop 0x%x: %d\n", mEventsCount.keyAt(i),
-                mEventsCount.valueAt(i));
+    msg.appendFormat("*Event info per property, now %" PRId64 " *\n", elapsedRealtimeNano());
+    for (size_t i = 0; i < mEventInfos.size(); i++) {
+        const EventInfo& info = mEventInfos.valueAt(i);
+        msg.appendFormat("prop 0x%x, event counts:%d, last timestamp: %" PRId64 "\n",
+                mEventInfos.keyAt(i), info.eventCount, info.lastTimestamp);
     }
     msg.append("*Vehicle Network Service Permissions*\n");
     mVehiclePropertyAccessControl.dump(msg);
@@ -873,7 +874,7 @@ void VehicleNetworkService::handleHalRestartAndGetClientsToDispatchLocked(
     // all subscriptions are invalid
     mPropertyToClientsMap.clear();
     mSubscriptionInfos.clear();
-    mEventsCount.clear();
+    mEventInfos.clear();
     List<sp<HalClient> > clientsToRemove;
     for (size_t i = 0; i < mBinderToClientMap.size(); i++) {
         sp<HalClient> client = mBinderToClientMap.valueAt(i);
@@ -965,13 +966,14 @@ status_t VehicleNetworkService::onHalEvent(const vehicle_prop_value_t* eventData
                 return NO_ERROR;
             }
         }
-        ssize_t index = mEventsCount.indexOfKey(eventData->prop);
+        ssize_t index = mEventInfos.indexOfKey(eventData->prop);
         if (index < 0) {
-            mEventsCount.add(eventData->prop, 1);
+            EventInfo info(eventData->timestamp, 1);
+            mEventInfos.add(eventData->prop, info);
         } else {
-            int count = mEventsCount.valueAt(index);
-            count++;
-            mEventsCount.add(eventData->prop, count);
+            EventInfo& info = mEventInfos.editValueAt(index);
+            info.eventCount++;
+            info.lastTimestamp = eventData->timestamp;
         }
         handler = mHandler;
     } while (false);
