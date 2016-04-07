@@ -42,11 +42,11 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
 
     private final Context mContext;
 
-    private KeyEventListener mVoiceAssitantKeyListener;
-    private KeyEventListener mLongVoiceAssitantKeyListener;
+    private KeyEventListener mVoiceAssistantKeyListener;
+    private KeyEventListener mLongVoiceAssistantKeyListener;
     private long mLastVoiceKeyDownTime = 0;
 
-    private KeyEventListener mInstumentClusterKeyListener;
+    private KeyEventListener mInstrumentClusterKeyListener;
 
     private KeyEventListener mVolumeKeyListener;
 
@@ -64,9 +64,9 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
      * If listener is set, short key press will lead into calling the listener.
      * @param listener
      */
-    public void setVoiceAssitantKeyListener(KeyEventListener listener) {
+    public void setVoiceAssistantKeyListener(KeyEventListener listener) {
         synchronized (this) {
-            mVoiceAssitantKeyListener = listener;
+            mVoiceAssistantKeyListener = listener;
         }
     }
 
@@ -76,15 +76,15 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
      * If listener is set, short long press will lead into calling the listener.
      * @param listener
      */
-    public void setLongVoiceAssitantKeyListener(KeyEventListener listener) {
+    public void setLongVoiceAssistantKeyListener(KeyEventListener listener) {
         synchronized (this) {
-            mLongVoiceAssitantKeyListener = listener;
+            mLongVoiceAssistantKeyListener = listener;
         }
     }
 
     public void setInstrumentClusterKeyListener(KeyEventListener listener) {
         synchronized (this) {
-            mInstumentClusterKeyListener = listener;
+            mInstrumentClusterKeyListener = listener;
         }
     }
 
@@ -120,9 +120,9 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     @Override
     public void release() {
         synchronized (this) {
-            mVoiceAssitantKeyListener = null;
-            mLongVoiceAssitantKeyListener = null;
-            mInstumentClusterKeyListener = null;
+            mVoiceAssistantKeyListener = null;
+            mLongVoiceAssistantKeyListener = null;
+            mInstrumentClusterKeyListener = null;
             if (mInjectionDeviceFd != null) {
                 try {
                     mInjectionDeviceFd.close();
@@ -183,12 +183,12 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             KeyEventListener longPressListener = null;
             long downTime;
             synchronized (this) {
-                shortPressListener = mVoiceAssitantKeyListener;
-                longPressListener = mLongVoiceAssitantKeyListener;
+                shortPressListener = mVoiceAssistantKeyListener;
+                longPressListener = mLongVoiceAssistantKeyListener;
                 downTime = mLastVoiceKeyDownTime;
             }
             if (shortPressListener == null && longPressListener == null) {
-                launchDefaultVoiceAssitantHandler();
+                launchDefaultVoiceAssistantHandler();
             } else {
                 long duration = SystemClock.elapsedRealtime() - downTime;
                 listener = (duration > VOICE_LONG_PRESS_TIME_MS
@@ -196,13 +196,13 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
                 if (listener != null) {
                     listener.onKeyEvent(event);
                 } else {
-                    launchDefaultVoiceAssitantHandler();
+                    launchDefaultVoiceAssistantHandler();
                 }
             }
         }
     }
 
-    private void launchDefaultVoiceAssitantHandler() {
+    private void launchDefaultVoiceAssistantHandler() {
         Log.i(CarLog.TAG_INPUT, "voice key, launch default intent");
         Intent voiceIntent =
                 new Intent(RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE);
@@ -212,7 +212,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     private void handleInstrumentClusterKey(KeyEvent event) {
         KeyEventListener listener = null;
         synchronized (this) {
-            listener = mInstumentClusterKeyListener;
+            listener = mInstrumentClusterKeyListener;
         }
         if (listener == null) {
             return;

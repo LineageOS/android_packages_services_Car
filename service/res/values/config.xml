@@ -33,7 +33,7 @@
          There is no "radio" as radio routing is outside android (for external module) or same as
          music (for android internal module)
 		 OEM can put multiple policies as item and VEHICLE_PROPERTY_AUDIO_HW_VARIANT in vehicle HAL
-		 can decide which policy to use for the given H/W. This allows OEMs to support multuple
+		 can decide which policy to use for the given H/W. This allows OEMs to support multiple
 		 audio policy from single android S/W by detecting system's audio capability in
 		 vehicle HAL.-->
     <string-array translatable="false" name="audioRoutingPolicy">

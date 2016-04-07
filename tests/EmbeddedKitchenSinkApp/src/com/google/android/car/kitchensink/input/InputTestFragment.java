@@ -36,6 +36,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ToggleButton;
+import android.widget.LinearLayout;
 
 import com.google.android.car.kitchensink.CarEmulator;
 import com.google.android.car.kitchensink.R;
@@ -62,12 +63,14 @@ public class InputTestFragment extends Fragment {
 
     private static final String TAG = "CAR.INPUT.KS";
 
+    private static final Button BREAK_LINE = null;
+
     private Car mCar;
     private CarTestManager mTestManager;
     private ToggleButton mEnableMocking;
     private CarEmulator mCarEmulator;
 
-    List<Button> mButtons = new ArrayList<>();
+    private final List<View> mButtons = new ArrayList<>();
 
     @Nullable
     @Override
@@ -76,12 +79,26 @@ public class InputTestFragment extends Fragment {
         View view = inflater.inflate(R.layout.input_test, container, false);
 
         Collections.addAll(mButtons,
+                BREAK_LINE,
+                createButton(R.string.home, KeyEvent.KEYCODE_HOME),
                 createButton(R.string.volume_up, KeyEvent.KEYCODE_VOLUME_UP),
                 createButton(R.string.volume_down, KeyEvent.KEYCODE_VOLUME_DOWN),
+                createButton(R.string.volume_mute, KeyEvent.KEYCODE_VOLUME_MUTE),
                 createButton(R.string.voice, KeyEvent.KEYCODE_VOICE_ASSIST),
-                createButton(R.string.music, KeyEvent.KEYCODE_MUSIC));
+                BREAK_LINE,
+                createButton(R.string.music, KeyEvent.KEYCODE_MUSIC),
+                createButton(R.string.music_play, KeyEvent.KEYCODE_MEDIA_PLAY),
+                createButton(R.string.music_stop, KeyEvent.KEYCODE_MEDIA_STOP),
+                createButton(R.string.next_song, KeyEvent.KEYCODE_MEDIA_NEXT),
+                createButton(R.string.prev_song, KeyEvent.KEYCODE_MEDIA_PREVIOUS),
+                createButton(R.string.tune_right, KeyEvent.KEYCODE_CHANNEL_UP),
+                createButton(R.string.tune_left, KeyEvent.KEYCODE_CHANNEL_DOWN),
+                BREAK_LINE,
+                createButton(R.string.call_send, KeyEvent.KEYCODE_CALL),
+                createButton(R.string.call_end, KeyEvent.KEYCODE_ENDCALL)
+                );
 
-        addButtonsToPanel((ViewGroup) view.findViewById(R.id.input_buttons), mButtons);
+        addButtonsToPanel((LinearLayout) view.findViewById(R.id.input_buttons), mButtons);
 
         mCar = Car.createCar(getContext(), new ServiceConnection() {
             @Override
@@ -98,7 +115,6 @@ public class InputTestFragment extends Fragment {
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                Log.i(TAG, "onServiceDisconnected");
             }
         });
         mCar.connect();
@@ -143,7 +159,9 @@ public class InputTestFragment extends Fragment {
         }
 
         for (View v : mButtons) {
-            v.setEnabled(hwKeyInputSupported);
+            if (v != null) {
+                v.setEnabled(hwKeyInputSupported);
+            }
         }
     }
 
@@ -160,7 +178,7 @@ public class InputTestFragment extends Fragment {
         }
         if (shouldInject) {
             int[] values = { isDown ? VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_DOWN :
-                VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_UP, keyCode, 0, 0 };
+                    VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_UP, keyCode, 0, 0 };
             long now = SystemClock.elapsedRealtimeNanos();
             mTestManager.injectEvent(VehiclePropValueUtil.createIntVectorValue(
                     VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT, values, now));
@@ -173,9 +191,16 @@ public class InputTestFragment extends Fragment {
         mCar.disconnect();
     }
 
-    private static void addButtonsToPanel(ViewGroup panel, List<Button> buttons) {
-        for (Button button : buttons) {
-            panel.addView(button);
+    private void addButtonsToPanel(LinearLayout root, List<View> buttons) {
+        LinearLayout panel = null;
+        for (View button : buttons) {
+            if (button == BREAK_LINE) {
+                panel = new LinearLayout(getContext());
+                panel.setOrientation(LinearLayout.HORIZONTAL);
+                root.addView(panel);
+            } else {
+                panel.addView(button);
+            }
         }
     }
 }
