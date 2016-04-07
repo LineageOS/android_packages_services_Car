@@ -256,8 +256,9 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
     }
     msg.append("*Vehicle Network Service Permissions*\n");
     mVehiclePropertyAccessControl.dump(msg);
-
+    msg.append("*Vehicle HAL dump*\n");
     write(fd, msg.string(), msg.size());
+    mDevice->dump(mDevice, fd);
     return NO_ERROR;
 }
 
