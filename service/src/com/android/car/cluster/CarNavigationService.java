@@ -21,19 +21,15 @@ import android.car.navigation.CarNavigationInstrumentCluster;
 import android.car.navigation.CarNavigationManager;
 import android.car.navigation.ICarNavigation;
 import android.car.navigation.ICarNavigationEventListener;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.car.AppContextService;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
-import com.android.car.cluster.InstrumentClusterService.RendererInitializationListener;
-import com.android.car.cluster.renderer.ThreadSafeNavigationRenderer;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -42,21 +38,18 @@ import java.util.List;
 /**
  * Service that will push navigation event to navigation renderer in instrument cluster.
  */
-public class CarNavigationService extends ICarNavigation.Stub
-        implements CarServiceBase, RendererInitializationListener {
+public class CarNavigationService extends ICarNavigation.Stub implements CarServiceBase {
     private static final String TAG = CarLog.TAG_NAV;
 
     private final List<CarNavigationEventListener> mListeners = new ArrayList<>();
     private final AppContextService mAppContextService;
-    private final Context mContext;
     private final InstrumentClusterService mInstrumentClusterService;
 
     private volatile CarNavigationInstrumentCluster mInstrumentClusterInfo = null;
     private volatile NavigationRenderer mNavigationRenderer;
 
-    public CarNavigationService(Context context, AppContextService appContextService,
+    public CarNavigationService(AppContextService appContextService,
             InstrumentClusterService instrumentClusterService) {
-        mContext = context;
         mAppContextService = appContextService;
         mInstrumentClusterService = instrumentClusterService;
     }
@@ -64,7 +57,8 @@ public class CarNavigationService extends ICarNavigation.Stub
     @Override
     public void init() {
         Log.d(TAG, "init");
-        mInstrumentClusterService.registerListener(this);
+        mNavigationRenderer = mInstrumentClusterService.getNavigationRenderer();
+        mInstrumentClusterInfo = mNavigationRenderer.getNavigationProperties();
     }
 
     @Override
@@ -72,7 +66,6 @@ public class CarNavigationService extends ICarNavigation.Stub
         synchronized(mListeners) {
             mListeners.clear();
         }
-        mInstrumentClusterService.unregisterListener(this);
     }
 
     @Override
@@ -193,23 +186,6 @@ public class CarNavigationService extends ICarNavigation.Stub
             }
         }
         return null;
-    }
-
-    @Override
-    public void onRendererInitSucceeded() {
-        Log.d(TAG, "onRendererInitSucceeded");
-        mNavigationRenderer = ThreadSafeNavigationRenderer.createFor(
-                Looper.getMainLooper(),
-                mInstrumentClusterService.getNavigationRenderer());
-
-        // TODO: we need to obtain this information from InstrumentClusterRenderer.
-        mInstrumentClusterInfo = CarNavigationInstrumentCluster.createCluster(1000);
-
-        if (isRendererAvailable()) {
-            for (CarNavigationEventListener listener : mListeners) {
-                listener.onInstrumentClusterStart(mInstrumentClusterInfo);
-            }
-        }
     }
 
     private class CarNavigationEventListener implements IBinder.DeathRecipient {

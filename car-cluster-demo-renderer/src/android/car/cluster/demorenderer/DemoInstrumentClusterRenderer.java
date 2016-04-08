@@ -15,17 +15,25 @@
  */
 package android.car.cluster.demorenderer;
 
-import android.car.cluster.renderer.DisplayConfiguration;
+import android.app.Presentation;
 import android.car.cluster.renderer.InstrumentClusterRenderer;
 import android.car.cluster.renderer.NavigationRenderer;
-import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Context;
+import android.hardware.display.DisplayManager;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * Demo implementation of {@code InstrumentClusterRenderer}.
  */
 public class DemoInstrumentClusterRenderer extends InstrumentClusterRenderer {
+
+    private final static String TAG = DemoInstrumentClusterRenderer.class.getSimpleName();
 
     private DemoInstrumentClusterView mView;
     private Context mContext;
@@ -33,14 +41,35 @@ public class DemoInstrumentClusterRenderer extends InstrumentClusterRenderer {
     private MediaStateMonitor mMediaStateMonitor;
     private DemoPhoneRenderer mPhoneRenderer;
     private DemoMediaRenderer mMediaRenderer;
+    private Presentation mPresentation;
 
     @Override
     public void onCreate(Context context) {
         mContext = context;
+
+        final Display display = getInstrumentClusterDisplay(context);
+
+        if (display != null) {
+            runOnMainThread(() -> {
+                Log.d(TAG, "Initializing renderer in main thread.");
+                try {
+                    mPresentation = new InstrumentClusterPresentation(mContext, display);
+
+                    ViewGroup rootView = (ViewGroup) LayoutInflater.from(mContext).inflate(
+                            R.layout.instrument_cluster, null);
+
+                    mPresentation.setContentView(rootView);
+                    View rendererView = createView();
+                    rootView.addView(rendererView);
+                } catch (Exception e) {
+                    Log.e(TAG, e.getMessage(), e);
+                    throw e;
+                }
+            });
+        }
     }
 
-    @Override
-    public View onCreateView(DisplayConfiguration displayConfiguration) {
+    private View createView() {
         mView = new DemoInstrumentClusterView(mContext);
         mPhoneRenderer = new DemoPhoneRenderer(mView);
         mMediaRenderer = new DemoMediaRenderer(mView);
@@ -49,33 +78,55 @@ public class DemoInstrumentClusterRenderer extends InstrumentClusterRenderer {
 
     @Override
     public void onStart() {
-        mPhoneStatusMonitor = new CallStateMonitor(mContext, mPhoneRenderer);
-        mMediaStateMonitor = new MediaStateMonitor(mContext, mMediaRenderer);
+        runOnMainThread(() -> {
+            Log.d(TAG, "onStart");
+            mPhoneStatusMonitor = new CallStateMonitor(mContext, mPhoneRenderer);
+            mMediaStateMonitor = new MediaStateMonitor(mContext, mMediaRenderer);
+            mPresentation.show();
+        });
     }
 
     @Override
     public void onStop() {
-        if (mPhoneStatusMonitor != null) {
-            mPhoneStatusMonitor.release();
-            mPhoneStatusMonitor = null;
-        }
+        runOnMainThread(() -> {
+            if (mPhoneStatusMonitor != null) {
+                mPhoneStatusMonitor.release();
+                mPhoneStatusMonitor = null;
+            }
 
-        if (mMediaStateMonitor != null) {
-            mMediaStateMonitor.release();
-            mMediaStateMonitor = null;
-        }
-        mPhoneRenderer = null;
-        mMediaRenderer = null;
+            if (mMediaStateMonitor != null) {
+                mMediaStateMonitor.release();
+                mMediaStateMonitor = null;
+            }
+            mPhoneRenderer = null;
+            mMediaRenderer = null;
+        });
     }
 
     @Override
     protected NavigationRenderer createNavigationRenderer() {
-        return new DemoNavigationRenderer(mView);
+        return ThreadSafeNavigationRenderer.createFor(
+                Looper.getMainLooper(),
+                new DemoNavigationRenderer(mView));
     }
 
-    @Override
-    public CarNavigationInstrumentCluster getNavigationProperties() {
-        // TODO
+    private static Display getInstrumentClusterDisplay(Context context) {
+        DisplayManager displayManager = context.getSystemService(DisplayManager.class);
+        Display[] displays = displayManager.getDisplays();
+
+        Log.d(TAG, "There are currently " + displays.length + " displays connected.");
+        for (Display display : displays) {
+            Log.d(TAG, "  " + display);
+        }
+
+        if (displays.length > 1) {
+            // TODO: assuming that secondary display is instrument cluster. Put this into settings?
+            return displays[1];
+        }
         return null;
+    }
+
+    private static void runOnMainThread(Runnable runnable) {
+        new Handler(Looper.getMainLooper()).post(runnable);
     }
 }
