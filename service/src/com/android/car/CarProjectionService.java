@@ -44,16 +44,18 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     private final CarInputService.KeyEventListener mVoiceAssistantKeyListener =
             new CarInputService.KeyEventListener() {
                 @Override
-                public void onKeyEvent(KeyEvent event) {
+                public boolean onKeyEvent(KeyEvent event) {
                     handleVoiceAssitantRequest(false);
+                    return true;
                 }
             };
 
     private final CarInputService.KeyEventListener mLongVoiceAssistantKeyListener =
             new CarInputService.KeyEventListener() {
                 @Override
-                public void onKeyEvent(KeyEvent event) {
+                public boolean onKeyEvent(KeyEvent event) {
                     handleVoiceAssitantRequest(true);
+                    return true;
                 }
             };
 

@@ -88,6 +88,12 @@
         android:label="@string/car_permission_label_control_app_blocking"
         android:description="@string/car_permission_desc_control_app_blocking" />
 
+    <permission
+        android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_audio_volume"
+        android:description="@string/car_permission_desc_audio_volume" />
+
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <uses-permission android:name="android.permission.DEVICE_POWER" />

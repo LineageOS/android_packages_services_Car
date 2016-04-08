@@ -35,7 +35,7 @@ import java.io.PrintWriter;
 public class CarInputService implements CarServiceBase, InputHalService.InputListener {
 
     public interface KeyEventListener {
-        void onKeyEvent(KeyEvent event);
+        boolean onKeyEvent(KeyEvent event);
     }
 
     private static final long VOICE_LONG_PRESS_TIME_MS = 1000;
@@ -210,14 +210,13 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     }
 
     private void handleVolumeKey(KeyEvent event) {
-        KeyEventListener listener = null;
+        KeyEventListener listener;
         synchronized (this) {
             listener = mVolumeKeyListener;
         }
-        if (listener == null) {
-            return;
+        if (listener != null) {
+            listener.onKeyEvent(event);
         }
-        listener.onKeyEvent(event);
     }
 
     private void handleMainDisplayKey(KeyEvent event) {
