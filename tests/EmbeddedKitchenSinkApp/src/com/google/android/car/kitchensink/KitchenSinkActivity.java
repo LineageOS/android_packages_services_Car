@@ -46,6 +46,7 @@ import com.google.android.car.kitchensink.job.JobSchedulerFragment;
 import com.google.android.car.kitchensink.keyboard.KeyboardFragment;
 import com.google.android.car.kitchensink.radio.RadioTestFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
+import com.google.android.car.kitchensink.volume.VolumeTestFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String MENU_INPUT_TEST = "input test";
     private static final String MENU_RADIO = "radio";
     private static final String MENU_SENSORS = "sensors";
+    private static final String MENU_VOLUME_TEST = "volume test";
 
     private Car mCarApi;
     private CarCameraManager mCameraManager;
@@ -81,6 +83,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private KeyboardFragment mKeyboardFragment;
     private InstrumentClusterFragment mInstrumentClusterFragment;
     private InputTestFragment mInputTestFragment;
+    private VolumeTestFragment mVolumeTestFragment;
 
     private final CarSensorManager.CarSensorEventListener mListener =
             new CarSensorManager.CarSensorEventListener() {
@@ -220,7 +223,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
             if (parentId.equals(ROOT)) {
                 String[] allMenus = {
                         MENU_AUDIO, MENU_RADIO, MENU_CAMERA, MENU_HVAC, MENU_JOB, MENU_KEYBOARD,
-                        MENU_CLUSTER, MENU_INPUT_TEST, MENU_SENSORS, MENU_QUIT
+                        MENU_CLUSTER, MENU_INPUT_TEST, MENU_SENSORS, MENU_VOLUME_TEST, MENU_QUIT
                 };
                 for (String menu : allMenus) {
                     items.add(new CarMenu.Builder(menu).setText(menu).build());
@@ -287,6 +290,11 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                     mInputTestFragment = new InputTestFragment();
                 }
                 setContentFragment(mInputTestFragment);
+            } else if (id.equals(MENU_VOLUME_TEST)) {
+                if (mVolumeTestFragment == null) {
+                    mVolumeTestFragment = new VolumeTestFragment();
+                }
+                setContentFragment(mVolumeTestFragment);
             } else if (id.equals(MENU_QUIT)) {
                 finish();
             }

@@ -21,6 +21,9 @@ import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Utility class to help creating VehiclePropConfig.
  */
@@ -66,6 +69,14 @@ public class VehiclePropConfigUtil {
     public static VehiclePropConfig.Builder getBuilder(int property, int access, int changeMode,
             int type, int permissionModel, int configFlags, float sampleRateMax,
             float sampleRateMin) {
+        List<Integer> emptyList = new ArrayList<Integer>();
+        return getBuilder(property, access, changeMode, type, permissionModel, configFlags,
+                sampleRateMax, sampleRateMin, emptyList, emptyList);
+    }
+
+    public static VehiclePropConfig.Builder getBuilder(int property, int access, int changeMode,
+            int type, int permissionModel, int configFlags, float sampleRateMax,
+            float sampleRateMin, List<Integer> int32Maxs, List<Integer> int32Mins) {
         return VehiclePropConfig.newBuilder().
                 setProp(property).
                 setAccess(access).
@@ -74,6 +85,8 @@ public class VehiclePropConfigUtil {
                 setPermissionModel(permissionModel).
                 addConfigArray(configFlags).
                 setSampleRateMax(sampleRateMax).
-                setSampleRateMin(sampleRateMin);
+                setSampleRateMin(sampleRateMin)
+                .addAllInt32Maxs(int32Maxs)
+                .addAllInt32Mins(int32Mins);
     }
 }
