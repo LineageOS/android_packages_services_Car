@@ -45,6 +45,7 @@ import com.google.android.car.kitchensink.input.InputTestFragment;
 import com.google.android.car.kitchensink.job.JobSchedulerFragment;
 import com.google.android.car.kitchensink.keyboard.KeyboardFragment;
 import com.google.android.car.kitchensink.radio.RadioTestFragment;
+import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +62,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String MENU_CLUSTER = "inst cluster";
     private static final String MENU_INPUT_TEST = "input test";
     private static final String MENU_RADIO = "radio";
+    private static final String MENU_SENSORS = "sensors";
 
     private Car mCarApi;
     private CarCameraManager mCameraManager;
@@ -72,6 +74,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
 
     private AudioTestFragment mAudioTestFragment;
     private RadioTestFragment mRadioTestFragment;
+    private SensorsTestFragment mSensorsTestFragment;
     private CameraTestFragment mCameraTestFragment;
     private HvacTestFragment mHvacTestFragment;
     private JobSchedulerFragment mJobFragment;
@@ -217,7 +220,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
             if (parentId.equals(ROOT)) {
                 String[] allMenus = {
                         MENU_AUDIO, MENU_RADIO, MENU_CAMERA, MENU_HVAC, MENU_JOB, MENU_KEYBOARD,
-                        MENU_CLUSTER, MENU_INPUT_TEST, MENU_QUIT
+                        MENU_CLUSTER, MENU_INPUT_TEST, MENU_SENSORS, MENU_QUIT
                 };
                 for (String menu : allMenus) {
                     items.add(new CarMenu.Builder(menu).setText(menu).build());
@@ -239,6 +242,11 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                     mRadioTestFragment = new RadioTestFragment();
                 }
                 setContentFragment(mRadioTestFragment);
+            } else if (id.equals(MENU_SENSORS)) {
+                if (mSensorsTestFragment == null) {
+                    mSensorsTestFragment = new SensorsTestFragment();
+                }
+                setContentFragment(mSensorsTestFragment);
             } else if (id.equals(MENU_CAMERA)) {
                 if (mCameraManager != null) {
                     if (mCameraTestFragment == null) {
