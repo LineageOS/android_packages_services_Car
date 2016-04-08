@@ -17,6 +17,7 @@
 package android.car.media;
 
 import android.media.AudioAttributes;
+import android.media.IVolumeController;
 
 /**
  * Binder interface for {@link android.car.media.CarAudioManager}.
@@ -26,4 +27,9 @@ import android.media.AudioAttributes;
  */
 interface ICarAudio {
     AudioAttributes getAudioAttributesForCarUsage(int carUsage) = 0;
+    void setStreamVolume(int streamType, int index, int flags) = 1;
+    void setVolumeController(IVolumeController controller) = 2;
+    int getStreamMaxVolume(int streamType) = 3;
+    int getStreamMinVolume(int streamType) = 4;
+    int getStreamVolume(int streamType) = 5;
 }

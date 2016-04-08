@@ -113,6 +113,12 @@ public class Car {
     public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
 
     /**
+     * Permission necessary to change car audio volume through {@link CarAudioManager}.
+     */
+    public static final String PERMISSION_CAR_CONTROL_AUDIO_VOLUME =
+            "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
+
+    /**
      * Permission necessary to use {@link CarNavigationManager}.
      * @hide
      */

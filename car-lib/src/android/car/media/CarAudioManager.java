@@ -16,13 +16,18 @@
 package android.car.media;
 
 import android.annotation.IntDef;
+import android.annotation.SystemApi;
+import android.car.CarLibLog;
+import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.media.IVolumeController;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.car.CarManagerBase;
+import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -125,6 +130,103 @@ public class CarAudioManager implements CarManagerBase {
      */
     public int abandonAudioFocus(OnAudioFocusChangeListener l, AudioAttributes aa) {
         return mAudioManager.abandonAudioFocus(l, aa);
+    }
+
+    /**
+     * Sets the volume index for a particular stream.
+     *
+     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
+     * @param streamType The stream whose volume index should be set.
+     * @param index The volume index to set. See
+     *            {@link #getStreamMaxVolume(int)} for the largest valid value.
+     * @param flags One or more flags (e.g., {@link android.media.AudioManager#FLAG_SHOW_UI},
+     *              {@link android.media.AudioManager#FLAG_PLAY_SOUND})
+     */
+    @SystemApi
+    public void setStreamVolume(int streamType, int index, int flags)
+            throws CarNotConnectedException {
+        try {
+            mService.setStreamVolume(streamType, index, flags);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "setStreamVolume failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Registers a global volume controller interface.
+     *
+     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
+     * @hide
+     */
+    @SystemApi
+    public void setVolumeController(IVolumeController controller)
+            throws CarNotConnectedException {
+        try {
+            mService.setVolumeController(controller);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "setVolumeController failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Returns the maximum volume index for a particular stream.
+     *
+     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
+     * @param stream The stream type whose maximum volume index is returned.
+     * @return The maximum valid volume index for the stream.
+     */
+    @SystemApi
+    public int getStreamMaxVolume(int stream) throws CarNotConnectedException {
+        try {
+            return mService.getStreamMaxVolume(stream);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "getStreamMaxVolume failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Returns the minimum volume index for a particular stream.
+     *
+     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
+     * @param stream The stream type whose maximum volume index is returned.
+     * @return The maximum valid volume index for the stream.
+     */
+    @SystemApi
+    public int getStreamMinVolume(int stream) throws CarNotConnectedException {
+        try {
+            return mService.getStreamMinVolume(stream);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "getStreamMaxVolume failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Returns the current volume index for a particular stream.
+     *
+     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
+     * @param stream The stream type whose volume index is returned.
+     * @return The current volume index for the stream.
+     *
+     * @see #getStreamMaxVolume(int)
+     * @see #setStreamVolume(int, int, int)
+     */
+    @SystemApi
+    public int getStreamVolume(int stream) throws CarNotConnectedException {
+        try {
+            return mService.getStreamVolume(stream);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "getStreamVolume failed", e);
+            throw new CarNotConnectedException(e);
+        }
     }
 
     @Override

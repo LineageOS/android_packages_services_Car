@@ -15,9 +15,11 @@
  */
 package com.android.car.hal;
 
+import android.car.VehicleZoneUtil;
 import android.car.media.CarAudioManager;
 import android.os.ServiceSpecificException;
 import android.util.Log;
+import android.util.Pair;
 
 import com.android.car.AudioRoutingPolicy;
 import com.android.car.CarAudioAttributesUtil;
@@ -39,6 +41,7 @@ import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioVolumeLim
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
+import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -46,7 +49,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class AudioHalService extends HalServiceBase {
-
     public static final int VEHICLE_AUDIO_FOCUS_REQUEST_INVALID = -1;
     public static final int VEHICLE_AUDIO_FOCUS_REQUEST_GAIN =
             VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN;
@@ -205,6 +207,44 @@ public class AudioHalService extends HalServiceBase {
     }
 
     /**
+     * Returns the volume limits of a stream in the form <min, max>.
+     */
+    public Pair<Integer, Integer> getStreamVolumeLimit(int stream) {
+        if (!isPropertySupportedLocked(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME)) {
+            throw new IllegalStateException("VEHICLE_PROPERTY_AUDIO_VOLUME not supported");
+        }
+        int supportedContext = getSupportedAudioVolumeContexts();
+        VehiclePropConfig config = mProperties.get(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME);
+        List<Integer> maxs = config.getInt32MaxsList();
+        List<Integer> mins = config.getInt32MinsList();
+
+        if (maxs.size() != mins.size()) {
+            Log.e(CarLog.TAG_AUDIO, "Invalid volume prop config");
+            return null;
+        }
+
+        Pair<Integer, Integer> result = null;
+        if (supportedContext != 0) {
+            int index = VehicleZoneUtil.zoneToIndex(supportedContext, stream);
+            if (index < maxs.size()) {
+                result = new Pair<>(mins.get(index), maxs.get(index));
+            }
+        } else {
+            if (stream < maxs.size()) {
+                result = new Pair<>(mins.get(stream), maxs.get(stream));
+            }
+        }
+
+        if (result == null) {
+            Log.e(CarLog.TAG_AUDIO, "No min/max volume found in vehicle" +
+                    " prop config for stream: " + stream);
+        }
+
+        return result;
+    }
+
+    /**
      * Convert car audio manager stream type (usage) into audio context type.
      */
     public static int logicalStreamToHalContextType(int logicalStream) {
@@ -247,6 +287,37 @@ public class AudioHalService extends HalServiceBase {
         int[] payload = { request, streams, extFocus, audioContexts };
         mVehicleHal.getVehicleNetwork().setIntVectorProperty(
                 VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, payload);
+    }
+
+    public void setStreamVolume(int streamType, int index) {
+        int[] payload = {streamType, index, 0};
+        mVehicleHal.getVehicleNetwork().setIntVectorProperty(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME, payload);
+    }
+
+    public int getStreamVolume(int stream) {
+        int[] volume = {stream, 0, 0};
+        VehiclePropValue streamVolume =
+                VehiclePropValueUtil.createIntVectorValue(
+                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME, volume, 0);
+        VehiclePropValue value = mVehicleHal.getVehicleNetwork().getProperty(streamVolume);
+
+        if (value.getInt32ValuesCount() != 3) {
+            Log.e(CarLog.TAG_AUDIO, "returned value not valid");
+            throw new IllegalStateException("Invalid preset returned from service: "
+                    + value.getInt32ValuesList());
+        }
+
+        int retStreamNum = value.getInt32Values(0);
+        int retVolume = value.getInt32Values(1);
+        int retVolumeState = value.getInt32Values(2);
+
+        if (retStreamNum != stream) {
+            Log.e(CarLog.TAG_AUDIO, "Stream number is not the same: "
+                    + stream + " vs " + retStreamNum);
+            throw new IllegalStateException("Stream number is not the same");
+        }
+        return retVolume;
     }
 
     public synchronized int getHwVariant() {

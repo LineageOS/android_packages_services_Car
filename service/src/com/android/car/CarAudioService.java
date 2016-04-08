@@ -15,10 +15,13 @@
  */
 package com.android.car;
 
+import android.car.Car;
 import android.car.VehicleZoneUtil;
+import android.app.AppGlobals;
 import android.car.media.CarAudioManager;
 import android.car.media.ICarAudio;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
@@ -27,12 +30,15 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioMixingRule;
+import android.media.IVolumeController;
 import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioPolicy.AudioPolicyFocusListener;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.car.hal.AudioHalService;
@@ -69,7 +75,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     private final HandlerThread mFocusHandlerThread;
     private final CarAudioFocusChangeHandler mFocusHandler;
     private final SystemFocusListener mSystemFocusListener;
-
+    private final CarVolumeService mVolumeService;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private AudioPolicy mAudioPolicy;
@@ -125,7 +131,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             CarAudioAttributesUtil.getAudioAttributesForCarUsage(
                     CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY);
 
-    public CarAudioService(Context context) {
+    public CarAudioService(Context context, CarInputService inputService) {
         mAudioHal = VehicleHal.getInstance().getAudioHal();
         mContext = context;
         mFocusHandlerThread = new HandlerThread(CarLog.TAG_AUDIO);
@@ -139,6 +145,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         mNumConsecutiveHalFailuresForCanError =
                 (int) res.getInteger(R.integer.consecutiveHalFailures);
         mUseDynamicRouting = res.getBoolean(R.bool.audioUseDynamicRouting);
+        mVolumeService = new CarVolumeService(mContext, this, mAudioHal, inputService);
     }
 
     @Override
@@ -188,6 +195,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             mAudioRoutingPolicy = audioRoutingPolicy;
             mIsRadioExternal = mAudioHal.isRadioExternal();
         }
+        mVolumeService.init();
     }
 
     private void setupDynamicRoutng(AudioRoutingPolicy audioRoutingPolicy,
@@ -365,6 +373,48 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     @Override
     public void onStreamStatusChange(int state, int streamNumber) {
         mFocusHandler.handleStreamStateChange(state, streamNumber);
+    }
+
+    @Override
+    public void setStreamVolume(int streamType, int index, int flags) {
+        enforceAudioVolumePermission();
+        mVolumeService.setStreamVolume(streamType, index, flags);
+    }
+
+    @Override
+    public void setVolumeController(IVolumeController controller) {
+        enforceAudioVolumePermission();
+        mVolumeService.setVolumeController(controller);
+    }
+
+    @Override
+    public int getStreamMaxVolume(int streamType) {
+        enforceAudioVolumePermission();
+        return mVolumeService.getStreamMaxVolume(streamType);
+    }
+
+    @Override
+    public int getStreamMinVolume(int streamType) {
+        enforceAudioVolumePermission();
+        return mVolumeService.getStreamMinVolume(streamType);
+    }
+
+    @Override
+    public int getStreamVolume(int streamType) {
+        enforceAudioVolumePermission();
+        return mVolumeService.getStreamVolume(streamType);
+    }
+
+    public AudioRoutingPolicy getAudioRoutingPolicy() {
+        return mAudioRoutingPolicy;
+    }
+
+    private void enforceAudioVolumePermission() {
+        if (mContext.checkCallingOrSelfPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException(
+                    "requires permission " + Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        }
     }
 
     private void doHandleCarFocusChange() {
