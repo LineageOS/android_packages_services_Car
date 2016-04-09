@@ -407,9 +407,6 @@ public class CarPowerManagementService implements CarServiceBase,
             listener.onSleepEntry();
         }
         int wakeupTimeSec = getWakeupTime();
-        for (PowerEventProcessingHandlerWrapper wrapper : mPowerEventProcessingHandlers) {
-            wrapper.resetPowerOnSent();
-        }
         mHal.sendSleepEntry();
         synchronized (this) {
             mLastSleepEntryTime = SystemClock.elapsedRealtime();
@@ -440,7 +437,7 @@ public class CarPowerManagementService implements CarServiceBase,
     private void doHandleNotifyPowerOn() {
         boolean displayOn = false;
         synchronized (this) {
-            if (mCurrentState != null && mCurrentState.state == PowerHalService.SET_DISPLAY_ON) {
+            if (mCurrentState != null && mCurrentState.state == PowerHalService.STATE_ON_FULL) {
                 displayOn = true;
             }
         }
@@ -784,6 +781,7 @@ public class CarPowerManagementService implements CarServiceBase,
         private long mProcessingTime = 0;
         private boolean mProcessingDone = true;
         private boolean mPowerOnSent = false;
+        private int mLastDisplayState = -1;
 
         public PowerEventProcessingHandlerWrapper(PowerEventProcessingHandler handler) {
             this.handler = handler;
@@ -807,20 +805,18 @@ public class CarPowerManagementService implements CarServiceBase,
         }
 
         public void callOnPowerOn(boolean displayOn) {
+            int newDisplayState = displayOn ? 1 : 0;
             boolean shouldCall = false;
             synchronized (this) {
-                if (!mPowerOnSent) {
+                if (!mPowerOnSent || (mLastDisplayState != newDisplayState)) {
                     shouldCall = true;
                     mPowerOnSent = true;
+                    mLastDisplayState = newDisplayState;
                 }
             }
             if (shouldCall) {
                 handler.onPowerOn(displayOn);
             }
-        }
-
-        public synchronized void resetPowerOnSent() {
-            mPowerOnSent = false;
         }
 
         @Override
