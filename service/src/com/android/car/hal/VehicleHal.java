@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -97,6 +98,8 @@ public class VehicleHal implements VehicleNetworkListener {
     private final ArraySet<Integer> mSubscribedProperties = new ArraySet<Integer>();
     private final HashMap<Integer, VehiclePropConfig> mUnclaimedProperties = new HashMap<>();
     private final List<VehiclePropConfig> mAllProperties = new LinkedList<>();
+
+    private final HashMap<Integer, VehiclePropertyEventInfo> mEventLog = new HashMap<>();
 
     private VehicleHal() {
         mHandlerThread = new HandlerThread("VEHICLE-HAL");
@@ -282,6 +285,13 @@ public class VehicleHal implements VehicleNetworkListener {
                 HalServiceBase service = mPropertyHandlers.get(v.getProp());
                 service.getDispatchList().add(v);
                 mServicesToDispatch.add(service);
+                VehiclePropertyEventInfo info = mEventLog.get(v.getProp());
+                if (info == null) {
+                    info = new VehiclePropertyEventInfo(v);
+                    mEventLog.put(v.getProp(), info);
+                } else {
+                    info.addNewEvent(v);
+                }
             }
         }
         for (HalServiceBase s : mServicesToDispatch) {
@@ -313,12 +323,12 @@ public class VehicleHal implements VehicleNetworkListener {
         writer.println("**All properties**");
         for (VehiclePropConfig config : mAllProperties) {
             StringBuilder builder = new StringBuilder();
-            builder.append("Property:" + Integer.toHexString(config.getProp()));
-            builder.append(",access:" + Integer.toHexString(config.getAccess()));
-            builder.append(",changeMode:" + Integer.toHexString(config.getChangeMode()));
-            builder.append(",valueType:" + Integer.toHexString(config.getValueType()));
-            builder.append(",permission:" + Integer.toHexString(config.getPermissionModel()));
-            builder.append(",config:" + Integer.toHexString(config.getConfigArray(0)));
+            builder.append("Property:0x" + Integer.toHexString(config.getProp()));
+            builder.append(",access:0x" + Integer.toHexString(config.getAccess()));
+            builder.append(",changeMode:0x" + Integer.toHexString(config.getChangeMode()));
+            builder.append(",valueType:0x" + Integer.toHexString(config.getValueType()));
+            builder.append(",permission:0x" + Integer.toHexString(config.getPermissionModel()));
+            builder.append(",config:0x" + Integer.toHexString(config.getConfigArray(0)));
             builder.append(",fs min:" + config.getSampleRateMin());
             builder.append(",fs max:" + config.getSampleRateMax());
             for (int i = 0; i < config.getFloatMaxsCount(); i++) {
@@ -334,6 +344,56 @@ public class VehicleHal implements VehicleNetworkListener {
                 builder.append(",v max:" + config.getInt64Maxs(i));
             }
             writer.println(builder.toString());
+        }
+        writer.println(String.format("**All Events, now ns:%d**",
+                SystemClock.elapsedRealtimeNanos()));
+        for (VehiclePropertyEventInfo info : mEventLog.values()) {
+            writer.println(String.format("event count:%d, lastEvent:%s",
+                    info.eventCount, dumpVehiclePropValue(info.lastEvent)));
+        }
+    }
+
+    public static String dumpVehiclePropValue(VehiclePropValue value) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Property:0x" + Integer.toHexString(value.getProp()));
+        sb.append(",timestamp:" + value.getTimestamp());
+        sb.append(",value type:0x" + Integer.toHexString(value.getValueType()));
+        sb.append(",zone:0x" + Integer.toHexString(value.getZone()));
+        if (value.getInt32ValuesCount() > 0) {
+            sb.append(",int32 values:");
+            for (int i = 0; i < value.getInt32ValuesCount(); i++) {
+                sb.append("," + value.getInt32Values(i));
+            }
+        }
+        if (value.hasInt64Value()) {
+            sb.append(",int64 value:" + value.getInt64Value());
+        }
+        if (value.getFloatValuesCount() > 0) {
+            sb.append(",float values:");
+            for (int i = 0; i < value.getFloatValuesCount(); i++) {
+                sb.append("," + value.getFloatValues(i));
+            }
+        }
+        if (value.hasStringValue()) {
+            sb.append(",string value:" + value.getStringValue());
+        }
+        if (value.hasBytesValue()) {
+            sb.append(",bytes value:" + value.getBytesValue());
+        }
+        return sb.toString();
+    }
+    private static class VehiclePropertyEventInfo {
+        private int eventCount;
+        private VehiclePropValue lastEvent;
+
+        private VehiclePropertyEventInfo(VehiclePropValue event) {
+            eventCount = 1;
+            lastEvent = event;
+        }
+
+        private void addNewEvent(VehiclePropValue event) {
+            eventCount++;
+            lastEvent = event;
         }
     }
 }
