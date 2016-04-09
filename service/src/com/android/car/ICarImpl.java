@@ -61,6 +61,7 @@ public class ICarImpl extends ICar.Stub {
     private final GarageModeService mGarageModeService;
     private final CarNavigationService mCarNavigationService;
     private final InstrumentClusterService mInstrumentClusterService;
+    private final SystemStateControllerService mSystemStateControllerService;
 
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
@@ -102,6 +103,8 @@ public class ICarImpl extends ICar.Stub {
         mInstrumentClusterService = new InstrumentClusterService(serviceContext);
         mCarNavigationService = new CarNavigationService(
                 serviceContext, mAppContextService, mInstrumentClusterService);
+        mSystemStateControllerService = new SystemStateControllerService(serviceContext,
+                mCarPowerManagementService);
 
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
@@ -120,6 +123,7 @@ public class ICarImpl extends ICar.Stub {
                 mInstrumentClusterService,
                 mCarProjectionService,
                 mCarNavigationService,
+                mSystemStateControllerService
                 };
     }
 

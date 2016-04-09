@@ -34,4 +34,5 @@ public class CarLog {
     public static final String TAG_PROJECTION = "CAR.PROJECTION";
     public static final String TAG_CLUSTER = "CAR.CLUSTER";
     public static final String TAG_CAN_BUS = "CAR.CAN_BUS";
+    public static final String TAG_SYS = "CAR.SYS";
 }
