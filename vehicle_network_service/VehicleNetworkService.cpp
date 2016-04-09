@@ -151,6 +151,11 @@ void VehicleHalMessageHandler::handleMessage(const Message& message) {
     }
 }
 
+void VehicleHalMessageHandler::dump(String8& msg) {
+    msg.appendFormat("mFreeListIndex:%d, mLastDispatchTime:%" PRId64 "\n",
+                     mFreeListIndex, mLastDispatchTime);
+}
+
 // ----------------------------------------------------------------------------
 
 void MockDeathHandler::binderDied(const wp<IBinder>& who) {
@@ -218,6 +223,8 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
         return NO_ERROR;
     }
     msg.append("MockingEnabled=%d\n", mMockingEnabled ? 1 : 0);
+    msg.appendFormat("*Handler, now in ms:%" PRId64 "\n", elapsedRealtime());
+    mHandler->dump(msg);
     msg.append("*Properties\n");
     for (auto& prop : mProperties->getList()) {
         VechilePropertyUtil::dumpProperty(msg, *prop);
@@ -231,8 +238,7 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
     }
     msg.append("*Active clients*\n");
     for (size_t i = 0; i < mBinderToClientMap.size(); i++) {
-        msg.appendFormat("pid %d uid %d\n", mBinderToClientMap.valueAt(i)->getPid(),
-                mBinderToClientMap.valueAt(i)->getUid());
+        mBinderToClientMap.valueAt(i)->dump(msg);
     }
     msg.append("*Active clients per property*\n");
     for (size_t i = 0; i < mPropertyToClientsMap.size(); i++) {
@@ -249,12 +255,14 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
         msg.appendFormat("prop 0x%x, sample rate %f Hz, zones 0x%x\n", mSubscriptionInfos.keyAt(i),
                 info.sampleRate, info.zones);
     }
-    msg.appendFormat("*Event info per property, now %" PRId64 " *\n", elapsedRealtimeNano());
+    msg.appendFormat("*Event info per property, now in ns:%" PRId64 " *\n", elapsedRealtimeNano());
     for (size_t i = 0; i < mEventInfos.size(); i++) {
         const EventInfo& info = mEventInfos.valueAt(i);
         msg.appendFormat("prop 0x%x, event counts:%d, last timestamp: %" PRId64 "\n",
                 mEventInfos.keyAt(i), info.eventCount, info.lastTimestamp);
     }
+    msg.appendFormat(" Events dropped while in mocking:%d, last dropped time %" PRId64 "\n",
+                     mDroppedEventsWhileInMocking, mLastEventDropTimeWhileInMocking);
     msg.append("*Vehicle Network Service Permissions*\n");
     mVehiclePropertyAccessControl.dump(msg);
     msg.append("*Vehicle HAL dump*\n");
@@ -275,7 +283,9 @@ bool VehicleNetworkService::isOperationAllowed(int32_t property, bool isWrite) {
 
 VehicleNetworkService::VehicleNetworkService()
     : mModule(NULL),
-      mMockingEnabled(false) {
+      mMockingEnabled(false),
+      mDroppedEventsWhileInMocking(0),
+      mLastEventDropTimeWhileInMocking(0) {
     sInstance = this;
 
    // Load vehicle network services policy file
@@ -963,6 +973,8 @@ status_t VehicleNetworkService::onHalEvent(const vehicle_prop_value_t* eventData
         if (!isInjection) {
             if (mMockingEnabled) {
                 // drop real HAL event if mocking is enabled
+                mDroppedEventsWhileInMocking++;
+                mLastEventDropTimeWhileInMocking = elapsedRealtimeNano();
                 return NO_ERROR;
             }
         }
@@ -1030,9 +1042,10 @@ void VehicleNetworkService::dispatchHalEvents(List<vehicle_prop_value_t*>& event
     } while (false);
     EVENT_LOG("dispatchHalEvents num events %d, active clients:%d", events.size(),
             activeClients.size());
+    int64_t now = elapsedRealtimeNano();
     for (size_t i = 0; i < activeClients.size(); i++) {
         sp<HalClient> client = activeClients.editItemAt(i);
-        client->dispatchEvents();
+        client->dispatchEvents(now);
     }
     activeClients.clear();
 }

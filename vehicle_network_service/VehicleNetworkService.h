@@ -18,6 +18,7 @@
 #define CAR_VEHICLE_NETWORK_SERVICE_H_
 
 #include <stdint.h>
+#include <inttypes.h>
 #include <sys/types.h>
 
 #include <memory>
@@ -74,6 +75,7 @@ public:
     void handleHalEvent(vehicle_prop_value_t *eventData);
     void handleHalError(VehicleHalError* error);
     void handleMockStart();
+    void dump(String8& msg);
 
 private:
     void handleMessage(const Message& message);
@@ -129,7 +131,10 @@ public:
         mPid(pid),
         mUid(uid),
         mMonitoringHalRestart(false),
-        mMonitoringHalError(false) {
+        mMonitoringHalError(false),
+        mLastDispatchedEventCounts(0),
+        mTotalDispatchedEvents(0),
+        mLastDispatchTime(0) {
     }
 
     ~HalClient() {
@@ -219,11 +224,14 @@ public:
     }
 
     // no lock here as this should be called only from single event looper thread
-    status_t dispatchEvents(){
+    status_t dispatchEvents(const int64_t& timestamp){
         ALOGV("dispatchEvents, num Events:%d", mEvents.size());
         sp<VehiclePropValueListHolder> events(new VehiclePropValueListHolder(&mEvents,
                 false /*deleteInDestructor */));
         ASSERT_OR_HANDLE_NO_MEMORY(events.get(), return NO_MEMORY);
+        mLastDispatchTime = timestamp;
+        mLastDispatchedEventCounts = mEvents.size();
+        mTotalDispatchedEvents += mLastDispatchedEventCounts;
         mListener->onEvents(events);
         mEvents.clear();
         return NO_ERROR;
@@ -237,6 +245,12 @@ public:
         mListener->onHalRestart(inMocking);
     }
 
+    void dump(String8& msg) {
+        msg.appendFormat("pid:%d, uid:%d, mLastDispatchedEventCounts:%d, mTotalDispatchedEvents:%d"
+                ", mLastDispatchTime:%" PRId64 "\n",
+                mPid, mUid, mLastDispatchedEventCounts, mTotalDispatchedEvents, mLastDispatchTime);
+    }
+
 private:
     mutable Mutex mLock;
     const sp<IVehicleNetworkListener> mListener;
@@ -246,6 +260,9 @@ private:
     List<vehicle_prop_value_t*> mEvents;
     bool mMonitoringHalRestart;
     bool mMonitoringHalError;
+    int mLastDispatchedEventCounts;
+    int mTotalDispatchedEvents;
+    int64_t mLastDispatchTime;
 };
 
 class HalClientSpVector : public SortedVector<sp<HalClient> >, public RefBase {
@@ -368,6 +385,8 @@ private:
     KeyedVector<int32_t, EventInfo> mEventInfos;
     PropertyValueCache mCache;
     bool mMockingEnabled;
+    int mDroppedEventsWhileInMocking;
+    int64_t mLastEventDropTimeWhileInMocking;
     sp<IVehicleNetworkHalMock> mHalMock;
     sp<VehiclePropertiesHolder> mPropertiesForMocking;
     sp<MockDeathHandler> mHalMockDeathHandler;
