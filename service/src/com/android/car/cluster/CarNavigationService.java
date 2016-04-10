@@ -58,7 +58,8 @@ public class CarNavigationService extends ICarNavigation.Stub implements CarServ
     public void init() {
         Log.d(TAG, "init");
         mNavigationRenderer = mInstrumentClusterService.getNavigationRenderer();
-        mInstrumentClusterInfo = mNavigationRenderer.getNavigationProperties();
+        mInstrumentClusterInfo = mNavigationRenderer != null
+                ? mNavigationRenderer.getNavigationProperties() : null;
     }
 
     @Override
@@ -219,7 +220,7 @@ public class CarNavigationService extends ICarNavigation.Stub implements CarServ
     }
 
     private boolean isRendererAvailable() {
-        boolean available = mNavigationRenderer != null;
+        boolean available = mNavigationRenderer != null && mInstrumentClusterInfo != null;
         if (!available) {
             Log.w(TAG, "Instrument cluster renderer is not available.");
         }
