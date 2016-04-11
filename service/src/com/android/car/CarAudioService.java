@@ -473,14 +473,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             shouldRequestProxyFocus = true;
         }
         if (isFocusFromCarProxy(topInfo)) {
-            if ((currentState.externalFocus &
-                    (AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_PERMANENT_FLAG |
-                            AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_TRANSIENT_FLAG)) == 0) {
-                // CarProxy in top, but no external focus: Drop it so that some other app
-                // may pick up focus.
-                mAudioManager.abandonAudioFocus(mCarProxyAudioFocusHandler);
-                return;
-            }
+            // already car proxy is top. Nothing to do.
+            return;
         } else if (!isFocusFromCarServiceBottom(topInfo)) {
             shouldRequestProxyFocus = true;
         }

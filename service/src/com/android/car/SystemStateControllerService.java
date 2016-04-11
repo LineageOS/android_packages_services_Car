@@ -31,12 +31,14 @@ public class SystemStateControllerService implements CarServiceBase,
 
     private final CarPowerManagementService mCarPowerManagementService;
     private final MediaSilencer mMediaSilencer;
+    private final ICarImpl mICarImpl;
 
     public SystemStateControllerService(Context context,
-            CarPowerManagementService carPowerManagementSercvice) {
+            CarPowerManagementService carPowerManagementSercvice, ICarImpl carImpl) {
         mCarPowerManagementService = carPowerManagementSercvice;
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mMediaSilencer = new MediaSilencer(audioManager);
+        mICarImpl = carImpl;
     }
 
     @Override
@@ -49,10 +51,14 @@ public class SystemStateControllerService implements CarServiceBase,
     public void onPowerOn(boolean displayOn) {
         if (displayOn) {
             Log.i(CarLog.TAG_SYS, "MediaSilencer unmute");
-            mMediaSilencer.unmuteMedia();
+            if (!mICarImpl.isInMocking()) {
+                mMediaSilencer.unmuteMedia();
+            }
         } else {
             Log.i(CarLog.TAG_SYS, "MediaSilencer mute");
-            mMediaSilencer.muteMedia();
+            if (!mICarImpl.isInMocking()) { // do not do this in mocking as it can affect test.
+                mMediaSilencer.muteMedia();
+            }
         }
     }
 
