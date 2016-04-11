@@ -109,6 +109,8 @@ public class RadioTestFragment extends Fragment {
 
     private Button mOpenRadio;
     private Button mCloseRadio;
+    private Button mGetRadioFocus;
+    private Button mReleaseRadioFocus;
     private Button mGetFocus;
     private Button mReleaseFocus;
     private Button mRadioNext;
@@ -126,8 +128,8 @@ public class RadioTestFragment extends Fragment {
     private CarAudioManager mCarAudioManager;
     private AudioAttributes mRadioAudioAttrib;
     private AudioManager mAudioManager;
-    private boolean hasSecondaryFocus;
-    private boolean isScanning;
+    private boolean mHasRadioFocus;
+    private boolean mHasSecondaryFocus;
     private RadioTuner mRadioTuner;
     private RadioManager mRadioManager;
     private RadioManager.FmBandDescriptor mFmDescriptor;
@@ -156,6 +158,8 @@ public class RadioTestFragment extends Fragment {
 
         mOpenRadio = (Button) view.findViewById(R.id.button_open_radio);
         mCloseRadio = (Button) view.findViewById(R.id.button_close_radio);
+        mGetRadioFocus = (Button) view.findViewById(R.id.button_get_radio_focus);
+        mReleaseRadioFocus = (Button) view.findViewById(R.id.button_release_radio_focus);
         mGetFocus = (Button) view.findViewById(R.id.button_get_focus_in_radio);
         mReleaseFocus = (Button) view.findViewById(R.id.button_release_focus_in_radio);
         mRadioNext = (Button) view.findViewById(R.id.button_radio_next);
@@ -272,6 +276,29 @@ public class RadioTestFragment extends Fragment {
                 updateStates();
             }
         });
+        mGetRadioFocus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (DBG) {
+                    Log.i(TAG, "Get radio focus");
+                }
+                mCarAudioManager.requestAudioFocus(mRadioFocusListener, mRadioAudioAttrib,
+                        AudioManager.AUDIOFOCUS_GAIN, 0);
+                mHasRadioFocus = true;
+                updateStates();
+            }
+        });
+        mReleaseRadioFocus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (DBG) {
+                    Log.i(TAG, "Release radio focus");
+                }
+                mCarAudioManager.abandonAudioFocus(mRadioFocusListener, mRadioAudioAttrib);
+                mHasRadioFocus = false;
+                updateStates();
+            }
+        });
         mGetFocus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -280,7 +307,7 @@ public class RadioTestFragment extends Fragment {
                 }
                 mAudioManager.requestAudioFocus(mSecondaryFocusListener,
                         AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-                hasSecondaryFocus = true;
+                mHasSecondaryFocus = true;
                 updateStates();
             }
         });
@@ -291,7 +318,7 @@ public class RadioTestFragment extends Fragment {
                     Log.i(TAG, "Release secondary focus");
                 }
                 mAudioManager.abandonAudioFocus(mSecondaryFocusListener);
-                hasSecondaryFocus = false;
+                mHasSecondaryFocus = false;
                 updateStates();
             }
         });
@@ -348,7 +375,7 @@ public class RadioTestFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (DBG) {
-                    Log.i(TAG, "Changing ratio band");
+                    Log.i(TAG, "Changing radio band");
                 }
                 if (mRadioTuner != null) {
                     mRadioTuner.close();
@@ -367,8 +394,10 @@ public class RadioTestFragment extends Fragment {
     private void updateStates() {
         mOpenRadio.setEnabled(mRadioTuner == null);
         mCloseRadio.setEnabled(mRadioTuner != null);
-        mGetFocus.setEnabled(!hasSecondaryFocus);
-        mReleaseFocus.setEnabled(hasSecondaryFocus);
+        mGetRadioFocus.setEnabled(!mHasRadioFocus);
+        mReleaseRadioFocus.setEnabled(mHasRadioFocus);
+        mGetFocus.setEnabled(!mHasSecondaryFocus);
+        mReleaseFocus.setEnabled(mHasSecondaryFocus);
         mRadioNext.setEnabled(mRadioTuner != null);
         mRadioPrev.setEnabled(mRadioTuner != null);
         mRadioBand.setEnabled(mRadioTuner != null);
@@ -399,9 +428,8 @@ public class RadioTestFragment extends Fragment {
         if (DBG) {
             Log.i(TAG, "Radio start");
         }
-        mCarAudioManager.requestAudioFocus(mRadioFocusListener, mRadioAudioAttrib,
-                AudioManager.AUDIOFOCUS_GAIN, 0);
         if (mRadioTuner != null) {
+            Log.w(TAG, "Radio tuner already open");
             mRadioTuner.close();
             mRadioTuner = null;
         }
@@ -417,7 +445,6 @@ public class RadioTestFragment extends Fragment {
         if (DBG) {
             Log.i(TAG, "Radio end");
         }
-        mCarAudioManager.abandonAudioFocus(mRadioFocusListener, mRadioAudioAttrib);
         mRadioTuner.close();
         mRadioTuner = null;
     }

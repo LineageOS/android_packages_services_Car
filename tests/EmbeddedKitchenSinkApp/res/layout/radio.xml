@@ -20,7 +20,7 @@
     <!--  dummy one for top area -->
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="70dp"
             android:orientation="vertical"
             android:layout_weight="1" />
     <LinearLayout
@@ -38,6 +38,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/radio_close" />
+    </LinearLayout>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_weight="1" >
+        <Button
+                android:id="@+id/button_get_radio_focus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_get_radio_focus" />
+        <Button
+                android:id="@+id/button_release_radio_focus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_release_radio_focus" />
     </LinearLayout>
     <LinearLayout
             android:layout_width="match_parent"

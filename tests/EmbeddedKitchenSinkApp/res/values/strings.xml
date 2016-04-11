@@ -124,6 +124,8 @@
     <!-- radio test -->
     <string name="radio_open">Open</string>
     <string name="radio_close">Close</string>
+    <string name="radio_get_radio_focus">Get Radio focus</string>
+    <string name="radio_release_radio_focus">Release Radio focus</string>
     <string name="radio_get_focus">Get Audio focus</string>
     <string name="radio_release_focus">Release Audio focus</string>
     <string name="radio_next">Next</string>
