@@ -91,6 +91,15 @@ package android.car {
     method public abstract void onVoiceAssistantRequest(boolean);
   }
 
+  public class VehicleAreaType {
+    ctor public VehicleAreaType();
+    field public static final int VEHICLE_AREA_TYPE_DOOR = 4; // 0x4
+    field public static final int VEHICLE_AREA_TYPE_NONE = 0; // 0x0
+    field public static final int VEHICLE_AREA_TYPE_SEAT = 3; // 0x3
+    field public static final int VEHICLE_AREA_TYPE_WINDOW = 2; // 0x2
+    field public static final int VEHICLE_AREA_TYPE_ZONE = 1; // 0x1
+  }
+
   public class VehicleDoor {
     ctor public VehicleDoor();
     field public static final int DOOR_HOOD = 268435456; // 0x10000000
@@ -381,8 +390,6 @@ package android.car.hardware {
   }
 
   public static class CarPropertyConfig.AreaConfig implements android.os.Parcelable {
-    ctor public CarPropertyConfig.AreaConfig(int, T, T);
-    ctor public CarPropertyConfig.AreaConfig(android.os.Parcel);
     method public int describeContents();
     method public T getMaxValue();
     method public T getMinValue();
@@ -541,14 +548,6 @@ package android.car.hardware {
     method public abstract void onSensorChanged(android.car.hardware.CarSensorEvent);
   }
 
-  public abstract interface VehicleAreaType {
-    field public static final int VEHICLE_AREA_TYPE_DOOR = 4; // 0x4
-    field public static final int VEHICLE_AREA_TYPE_NONE = 0; // 0x0
-    field public static final int VEHICLE_AREA_TYPE_SEAT = 3; // 0x3
-    field public static final int VEHICLE_AREA_TYPE_WINDOW = 2; // 0x2
-    field public static final int VEHICLE_AREA_TYPE_ZONE = 1; // 0x1
-  }
-
 }
 
 package android.car.hardware.camera {
@@ -608,6 +607,18 @@ package android.car.hardware.camera {
 package android.car.hardware.hvac {
 
   public class CarHvacManager {
+    method public boolean getBooleanProperty(int, int) throws android.car.CarNotConnectedException;
+    method public float getFloatProperty(int, int) throws android.car.CarNotConnectedException;
+    method public int getIntProperty(int, int) throws android.car.CarNotConnectedException;
+    method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList() throws android.car.CarNotConnectedException;
+    method public static boolean isZonedProperty(int);
+    method public synchronized void registerListener(android.car.hardware.hvac.CarHvacManager.CarHvacEventListener) throws android.car.CarNotConnectedException;
+    method public void setBooleanProperty(int, int, boolean) throws android.car.CarNotConnectedException;
+    method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
+    method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
+    method public synchronized void unregisterListener(android.car.hardware.hvac.CarHvacManager.CarHvacEventListener) throws android.car.CarNotConnectedException;
+    field public static final boolean DBG = true;
+    field public static final java.lang.String TAG = "CarHvacManager";
   }
 
   public static abstract interface CarHvacManager.CarHvacEventListener {
