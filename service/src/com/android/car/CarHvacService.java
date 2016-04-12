@@ -18,7 +18,8 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.hardware.hvac.CarHvacEvent;
-import android.car.hardware.hvac.CarHvacProperty;
+import android.car.hardware.CarPropertyConfig;
+import android.car.hardware.CarPropertyValue;
 import android.car.hardware.hvac.ICarHvac;
 import android.car.hardware.hvac.ICarHvacEventListener;
 import android.content.Context;
@@ -26,12 +27,13 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.android.car.hal.VehicleHal;
 import com.android.car.hal.HvacHalService;
+import com.android.car.hal.VehicleHal;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CarHvacService extends ICarHvac.Stub
         implements CarServiceBase, HvacHalService.HvacHalListener {
@@ -39,10 +41,8 @@ public class CarHvacService extends ICarHvac.Stub
     public static final String  TAG = CarLog.TAG_HVAC + ".CarHvacService";
 
     private HvacHalService mHvacHal;
-    private final HashMap<IBinder, ICarHvacEventListener> mListenersMap =
-            new HashMap<IBinder, ICarHvacEventListener>();
-    private final HashMap<IBinder, HvacDeathRecipient> mDeathRecipientMap =
-            new HashMap<IBinder, HvacDeathRecipient>();
+    private final Map<IBinder, ICarHvacEventListener> mListenersMap = new HashMap<>();
+    private final Map<IBinder, HvacDeathRecipient> mDeathRecipientMap = new HashMap<>();
     private final Context mContext;
 
     public CarHvacService(Context context) {
@@ -86,7 +86,6 @@ public class CarHvacService extends ICarHvac.Stub
         }
         mDeathRecipientMap.clear();
         mListenersMap.clear();
-        mHvacHal.release();
     }
 
     @Override
@@ -161,19 +160,19 @@ public class CarHvacService extends ICarHvac.Stub
     }
 
     @Override
-    public synchronized List<CarHvacProperty> getHvacProperties() {
+    public synchronized List<CarPropertyConfig> getHvacProperties() {
         ICarImpl.assertHvacPermission(mContext);
         return mHvacHal.getHvacProperties();
     }
 
     @Override
-    public synchronized CarHvacProperty getProperty(int prop, int zone) {
+    public synchronized CarPropertyValue getProperty(int prop, int zone) {
         ICarImpl.assertHvacPermission(mContext);
         return mHvacHal.getHvacProperty(prop, zone);
     }
 
     @Override
-    public synchronized void setProperty(CarHvacProperty prop) {
+    public synchronized void setProperty(CarPropertyValue prop) {
         ICarImpl.assertHvacPermission(mContext);
         mHvacHal.setHvacProperty(prop);
     }
