@@ -60,6 +60,8 @@ public class AudioTestFragment extends Fragment {
     private Button mMediaPlay;
     private Button mMediaPlayOnce;
     private Button mMediaStop;
+    private Button mWavPlay;
+    private Button mWavStop;
     private Button mNavStart;
     private Button mNavEnd;
     private Button mVrStart;
@@ -78,6 +80,7 @@ public class AudioTestFragment extends Fragment {
     private AudioPlayer mNavGuidancePlayer;
     private AudioPlayer mVrPlayer;
     private AudioPlayer mSystemPlayer;
+    private AudioPlayer mWavPlayer;
     private AudioPlayer[] mAllPlayers;
 
     private Handler mHandler;
@@ -171,12 +174,15 @@ public class AudioTestFragment extends Fragment {
                         mVrAudioAttrib);
                 mSystemPlayer = new AudioPlayer(mContext, R.raw.ring_classic_01,
                         mSystemSoundAudioAttrib);
+                mWavPlayer = new AudioPlayer(mContext, R.raw.free_flight,
+                        mMusicAudioAttrib);
                 mAllPlayers = new AudioPlayer[] {
                         mMusicPlayer,
                         mMusicPlayerShort,
                         mNavGuidancePlayer,
                         mVrPlayer,
-                        mSystemPlayer
+                        mSystemPlayer,
+                        mWavPlayer
                 };
             }
             @Override
@@ -223,6 +229,20 @@ public class AudioTestFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mMusicPlayer.stop();
+            }
+        });
+        mWavPlay = (Button) view.findViewById(R.id.button_wav_play_start);
+        mWavPlay.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mWavPlayer.start(true, true, AudioManager.AUDIOFOCUS_GAIN);
+            }
+        });
+        mWavStop = (Button) view.findViewById(R.id.button_wav_play_stop);
+        mWavStop.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mWavPlayer.stop();
             }
         });
         mNavPlayOnce = (Button) view.findViewById(R.id.button_nav_play_once);

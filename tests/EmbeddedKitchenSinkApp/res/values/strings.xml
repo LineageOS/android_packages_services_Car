@@ -44,6 +44,8 @@
     <string name="play">Play</string>
     <string name="play_pcm_once">Play Once</string>
     <string name="stop">Stop</string>
+    <string name="play_wav">Play WAV</string>
+    <string name="stop_wav">Stop WAV</string>
     <string name="audio_focus">Audio Focus</string>
     <string name="focus_gain">Gain</string>
     <string name="focus_gain_transient_duck">Gain,Transient,Duck</string>

@@ -170,6 +170,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/microphone_off" />
+        <Button
+            android:id="@+id/button_wav_play_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/play_wav" />
+        <Button
+            android:id="@+id/button_wav_play_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/stop_wav" />
     </LinearLayout>
 
     <TextView
