@@ -16,10 +16,7 @@
 
 package com.android.car.hal;
 
-import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -28,13 +25,13 @@ import com.android.car.CarLog;
 import com.android.car.vehiclenetwork.VehicleNetwork;
 import com.android.car.vehiclenetwork.VehicleNetwork.VehicleNetworkListener;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
+import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;

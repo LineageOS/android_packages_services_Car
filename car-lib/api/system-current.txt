@@ -360,6 +360,55 @@ package android.car.content.pm {
 
 package android.car.hardware {
 
+  public class CarPropertyConfig implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getAreaCount();
+    method public int[] getAreaIds();
+    method public int getAreaType();
+    method public int getFirstAndOnlyAreaId();
+    method public T getMaxValue(int);
+    method public T getMaxValue();
+    method public T getMinValue(int);
+    method public T getMinValue();
+    method public int getPropertyId();
+    method public java.lang.Class<T> getPropertyType();
+    method public boolean hasArea(int);
+    method public boolean isGlobalProperty();
+    method public static android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(java.lang.Class<T>, int, int, int);
+    method public static android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(java.lang.Class<T>, int, int);
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.hardware.CarPropertyConfig> CREATOR;
+  }
+
+  public static class CarPropertyConfig.AreaConfig implements android.os.Parcelable {
+    ctor public CarPropertyConfig.AreaConfig(int, T, T);
+    ctor public CarPropertyConfig.AreaConfig(android.os.Parcel);
+    method public int describeContents();
+    method public T getMaxValue();
+    method public T getMinValue();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.hardware.CarPropertyConfig.AreaConfig<java.lang.Object>> CREATOR;
+  }
+
+  public static class CarPropertyConfig.Builder {
+    method public android.car.hardware.CarPropertyConfig.Builder<T> addArea(int);
+    method public android.car.hardware.CarPropertyConfig.Builder<T> addAreaConfig(int, T, T);
+    method public android.car.hardware.CarPropertyConfig.Builder<T> addAreas(int[]);
+    method public android.car.hardware.CarPropertyConfig<T> build();
+  }
+
+  public class CarPropertyValue implements android.os.Parcelable {
+    ctor public CarPropertyValue(int, T);
+    ctor public CarPropertyValue(int, int, T);
+    ctor public CarPropertyValue(android.os.Parcel);
+    method public int describeContents();
+    method public int getAreaId();
+    method public int getPropertyId();
+    method public T getValue();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.hardware.CarPropertyValue> CREATOR;
+  }
+
   public class CarSensorEvent implements android.os.Parcelable {
     ctor public CarSensorEvent(android.os.Parcel);
     ctor public CarSensorEvent(int, long, int, int);
@@ -492,6 +541,14 @@ package android.car.hardware {
     method public abstract void onSensorChanged(android.car.hardware.CarSensorEvent);
   }
 
+  public abstract interface VehicleAreaType {
+    field public static final int VEHICLE_AREA_TYPE_DOOR = 4; // 0x4
+    field public static final int VEHICLE_AREA_TYPE_NONE = 0; // 0x0
+    field public static final int VEHICLE_AREA_TYPE_SEAT = 3; // 0x3
+    field public static final int VEHICLE_AREA_TYPE_WINDOW = 2; // 0x2
+    field public static final int VEHICLE_AREA_TYPE_ZONE = 1; // 0x1
+  }
+
 }
 
 package android.car.hardware.camera {
@@ -550,140 +607,30 @@ package android.car.hardware.camera {
 
 package android.car.hardware.hvac {
 
-  public class CarHvacEvent implements android.os.Parcelable {
-    ctor public CarHvacEvent(int, int, int, boolean);
-    ctor public CarHvacEvent(int, int, int, float);
-    ctor public CarHvacEvent(int, int, int, int);
-    method public int describeContents();
-    method public int getEventType();
-    method public float getFloatValue();
-    method public int getIntValue();
-    method public int getPropertyId();
-    method public int getPropertyType();
-    method public int getZone();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.hardware.hvac.CarHvacEvent> CREATOR;
-    field public static final int HVAC_EVENT_ERROR = 1; // 0x1
-    field public static final int HVAC_EVENT_PROPERTY_CHANGE = 0; // 0x0
-  }
-
   public class CarHvacManager {
-    method public boolean getBooleanProperty(int, int) throws android.car.CarNotConnectedException;
-    method public float getFloatProperty(int, int) throws android.car.CarNotConnectedException;
-    method public int getIntProperty(int, int) throws android.car.CarNotConnectedException;
-    method public java.util.List<android.car.hardware.hvac.CarHvacManager.CarHvacBaseProperty> getPropertyList() throws android.car.CarNotConnectedException;
-    method public static boolean isZonedProperty(int);
-    method public synchronized void registerListener(android.car.hardware.hvac.CarHvacManager.CarHvacEventListener) throws android.car.CarNotConnectedException;
-    method public void setBooleanProperty(int, int, boolean) throws android.car.CarNotConnectedException;
-    method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
-    method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
-    method public synchronized void unregisterListener() throws android.car.CarNotConnectedException;
-    field public static final boolean DBG = true;
-    field public static final int HVAC_AIR_RECIRCULATION_ON = 4; // 0x4
-    field public static final int HVAC_AUTOMATIC_MODE_ON = 3; // 0x3
-    field public static final int HVAC_MIRROR_DEFROSTER_ON = 1; // 0x1
-    field public static final int HVAC_STEERING_WHEEL_TEMP = 5; // 0x5
-    field public static final int HVAC_WINDOW_DEFROSTER_ON = 20481; // 0x5001
-    field public static final int HVAC_ZONED_AC_ON = 16393; // 0x4009
-    field public static final int HVAC_ZONED_FAN_POSITION = 16391; // 0x4007
-    field public static final int HVAC_ZONED_FAN_POSITION_AVAILABLE = 16390; // 0x4006
-    field public static final int HVAC_ZONED_FAN_SPEED_RPM = 16389; // 0x4005
-    field public static final int HVAC_ZONED_FAN_SPEED_SETPOINT = 16388; // 0x4004
-    field public static final int HVAC_ZONED_SEAT_TEMP = 16392; // 0x4008
-    field public static final int HVAC_ZONED_TEMP_ACTUAL = 16386; // 0x4002
-    field public static final int HVAC_ZONED_TEMP_IS_FAHRENHEIT = 16387; // 0x4003
-    field public static final int HVAC_ZONED_TEMP_SETPOINT = 16385; // 0x4001
-    field public static final int MAX_GLOBAL_PROPERTY_ID = 16383; // 0x3fff
-    field public static final int PROPERTY_TYPE_BOOLEAN = 0; // 0x0
-    field public static final int PROPERTY_TYPE_FLOAT = 1; // 0x1
-    field public static final int PROPERTY_TYPE_FLOAT_VECTOR = 4; // 0x4
-    field public static final int PROPERTY_TYPE_INT = 2; // 0x2
-    field public static final int PROPERTY_TYPE_INT_VECTOR = 3; // 0x3
-    field public static final java.lang.String TAG = "CarHvacManager";
-  }
-
-  public static class CarHvacManager.CarHvacBaseProperty {
-    ctor public CarHvacManager.CarHvacBaseProperty(int, int, int);
-    method protected void assertNonZonedProperty();
-    method protected void assertZonedProperty();
-    method public int getPropertyId();
-    method public int getType();
-    method public int getZone();
-    method public int getZones();
-    method public boolean isZonedProperty();
-    field protected final int mPropertyId;
-    field protected final int mType;
-    field protected final int mZones;
-  }
-
-  public static final class CarHvacManager.CarHvacBooleanProperty extends android.car.hardware.hvac.CarHvacManager.CarHvacBaseProperty {
-    ctor public CarHvacManager.CarHvacBooleanProperty(int, int);
-  }
-
-  public static final class CarHvacManager.CarHvacBooleanValue extends android.car.hardware.hvac.CarHvacManager.CarHvacBaseProperty {
-    ctor public CarHvacManager.CarHvacBooleanValue(int, int, boolean);
-    method public boolean getValue();
   }
 
   public static abstract interface CarHvacManager.CarHvacEventListener {
-    method public abstract void onChangeEvent(android.car.hardware.hvac.CarHvacManager.CarHvacBaseProperty);
+    method public abstract void onChangeEvent(android.car.hardware.CarPropertyValue);
     method public abstract void onErrorEvent(int, int);
   }
 
-  public static final class CarHvacManager.CarHvacFloatProperty extends android.car.hardware.hvac.CarHvacManager.CarHvacBaseProperty {
-    ctor public CarHvacManager.CarHvacFloatProperty(int, int, float[], float[]);
-    method public float getMaxValue();
-    method public float getMaxValue(int);
-    method public float getMinValue();
-    method public float getMinValue(int);
-  }
-
-  public static final class CarHvacManager.CarHvacFloatValue extends android.car.hardware.hvac.CarHvacManager.CarHvacBaseProperty {
-    ctor public CarHvacManager.CarHvacFloatValue(int, int, float);
-    method public float getValue();
-  }
-
-  public static final class CarHvacManager.CarHvacIntProperty extends android.car.hardware.hvac.CarHvacManager.CarHvacBaseProperty {
-    ctor public CarHvacManager.CarHvacIntProperty(int, int, int[], int[]);
-    method public int getMaxValue();
-    method public int getMaxValue(int);
-    method public int getMinValue();
-    method public int getMinValue(int);
-  }
-
-  public static final class CarHvacManager.CarHvacIntValue extends android.car.hardware.hvac.CarHvacManager.CarHvacBaseProperty {
-    ctor public CarHvacManager.CarHvacIntValue(int, int, int);
-    method public int getValue();
-  }
-
-  public class CarHvacProperty implements android.os.Parcelable {
-    ctor public CarHvacProperty(android.car.hardware.hvac.CarHvacProperty);
-    ctor public CarHvacProperty(int, int, boolean);
-    ctor public CarHvacProperty(int, int, float[], float[], float);
-    ctor public CarHvacProperty(int, int, int[], int[], int);
-    ctor public CarHvacProperty(int, int, int[], int[], int[]);
-    ctor public CarHvacProperty(int, int, float[], float[], float[]);
-    method public int describeContents();
-    method public boolean getBooleanValue();
-    method public float[] getFloatMaxs();
-    method public float[] getFloatMins();
-    method public float getFloatValue();
-    method public float[] getFloatValues();
-    method public int[] getIntMaxs();
-    method public int[] getIntMins();
-    method public int getIntValue();
-    method public int[] getIntValues();
-    method public int getPropertyId();
-    method public int getType();
-    method public int getZones();
-    method public void setBooleanValue(boolean);
-    method public void setFloatValue(float);
-    method public void setFloatValues(float[]);
-    method public void setIntValue(int);
-    method public void setIntValues(int[]);
-    method public void setZones(int);
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.hardware.hvac.CarHvacProperty> CREATOR;
+  public static abstract class CarHvacManager.HvacPropertyId implements java.lang.annotation.Annotation {
+    field public static final int AIR_RECIRCULATION_ON = 4; // 0x4
+    field public static final int AUTOMATIC_MODE_ON = 3; // 0x3
+    field public static final int MAX_GLOBAL_PROPERTY_ID = 16383; // 0x3fff
+    field public static final int MIRROR_DEFROSTER_ON = 1; // 0x1
+    field public static final int STEERING_WHEEL_TEMP = 5; // 0x5
+    field public static final int WINDOW_DEFROSTER_ON = 20481; // 0x5001
+    field public static final int ZONED_AC_ON = 16393; // 0x4009
+    field public static final int ZONED_FAN_POSITION = 16391; // 0x4007
+    field public static final int ZONED_FAN_POSITION_AVAILABLE = 16390; // 0x4006
+    field public static final int ZONED_FAN_SPEED_RPM = 16389; // 0x4005
+    field public static final int ZONED_FAN_SPEED_SETPOINT = 16388; // 0x4004
+    field public static final int ZONED_SEAT_TEMP = 16392; // 0x4008
+    field public static final int ZONED_TEMP_ACTUAL = 16386; // 0x4002
+    field public static final int ZONED_TEMP_IS_FAHRENHEIT = 16387; // 0x4003
+    field public static final int ZONED_TEMP_SETPOINT = 16385; // 0x4001
   }
 
 }
