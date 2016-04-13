@@ -469,7 +469,7 @@ public class CarDrawerLayout extends ViewGroup {
     public void setLightMode() {
         mStartingViewColor = getResources().getColor(R.color.car_title_light);
         mEndingViewColor = getResources().getColor(R.color.car_tint);
-        resetViewFaders();
+        updateViewFaders();
     }
 
     /**
@@ -479,7 +479,7 @@ public class CarDrawerLayout extends ViewGroup {
     public void setDarkMode() {
         mStartingViewColor = getResources().getColor(R.color.car_title_dark);
         mEndingViewColor = getResources().getColor(R.color.car_tint);
-        resetViewFaders();
+        updateViewFaders();
     }
 
     /**
@@ -489,7 +489,7 @@ public class CarDrawerLayout extends ViewGroup {
     public void setAutoDayNightMode() {
         mStartingViewColor = getResources().getColor(R.color.car_title);
         mEndingViewColor = getResources().getColor(R.color.car_tint);
-        resetViewFaders();
+        updateViewFaders();
     }
 
     private void resetViewFaders() {
