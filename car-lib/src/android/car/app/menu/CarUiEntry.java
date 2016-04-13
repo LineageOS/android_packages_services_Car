@@ -64,11 +64,6 @@ public abstract class CarUiEntry {
     abstract public void setBackground(Bitmap bitmap);
 
     /**
-     * Set the background image resource.
-     */
-    abstract public void setBackgroundResource(int resId);
-
-    /**
      * Replace the menu button with the given bitmap.
      */
     abstract public void setMenuButtonBitmap(Bitmap bitmap);

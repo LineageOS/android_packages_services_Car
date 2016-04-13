@@ -72,11 +72,13 @@ public class EmbeddedCarUiController extends CarUiController {
                 throw new SecurityException("CarUiProvider is not a system app!");
             }
 
+            // Do not change the order of the two packages as it need to be in sync with
+            // the error message.
             int signatureMatchResult =
                     packageManager.checkSignatures(CAR_SERVICE_PKG, CAR_UI_PROVIDER_PKG);
             if (signatureMatchResult != PackageManager.SIGNATURE_MATCH) {
-                throw new SecurityException("The signature of car ui provider does not match the" +
-                        "signature of the car service!");
+                throw new SecurityException("CarUiProvider and CarService signature check" +
+                        " failed. " + getSignatureFailureMessage(signatureMatchResult));
             }
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException("Cannot find CarUiProvider" + CAR_UI_PROVIDER_PKG, e);
@@ -137,11 +139,6 @@ public class EmbeddedCarUiController extends CarUiController {
     @Override
     public void setBackground(Bitmap bitmap) {
         mCarUiEntry.setBackground(bitmap);
-    }
-
-    @Override
-    public void setBackgroundResource(int resId) {
-        mCarUiEntry.setBackgroundResource(resId);
     }
 
     @Override
@@ -237,5 +234,25 @@ public class EmbeddedCarUiController extends CarUiController {
     @Override
     public void showToast(String msg, int duration) {
         mCarUiEntry.showToast(msg, duration);
+    }
+
+    /**
+     * Return more informative error message from the PackageManager's signature check result.
+     */
+    private static final String getSignatureFailureMessage(int code) {
+        switch (code) {
+            case PackageManager.SIGNATURE_NEITHER_SIGNED:
+                return "Both CarService and CarUiProvider are not signed";
+            case PackageManager.SIGNATURE_FIRST_NOT_SIGNED:
+                return "CarService not signed";
+            case PackageManager.SIGNATURE_SECOND_NOT_SIGNED:
+                return "CarUiProvider not signed";
+            case PackageManager.SIGNATURE_NO_MATCH:
+                return "Signatures do not match";
+            case PackageManager.SIGNATURE_UNKNOWN_PACKAGE:
+                return "CarService not found";
+            default:
+                return "Unknown error code";
+        }
     }
 }
