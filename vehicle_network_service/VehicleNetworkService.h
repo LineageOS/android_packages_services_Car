@@ -354,6 +354,7 @@ private:
     bool isGettableLocked(int32_t property);
     bool isSettableLocked(int32_t property, int32_t valueType);
     bool isSubscribableLocked(int32_t property);
+    status_t getProperty(vehicle_prop_value_t *data, bool retry);
     static bool isZonedProperty(vehicle_prop_config_t const * config);
     sp<HalClient> findClientLocked(sp<IBinder>& ibinder);
     sp<HalClient> findOrCreateClientLocked(sp<IBinder>& ibinder,
@@ -363,6 +364,11 @@ private:
     bool removePropertyFromClientLocked(sp<IBinder>& ibinder, sp<HalClient>& client,
             int32_t property);
     void handleHalRestartAndGetClientsToDispatchLocked(List<sp<HalClient> >& clientsToDispatch);
+    status_t notifyClientWithCurrentValue(bool isMocking, const vehicle_prop_config_t *config,
+                                          int32_t zones);
+    status_t notifyClientWithCurrentValue(bool isMocking, int32_t prop, int32_t valueType,
+                                          int32_t zone);
+
 
     static int eventCallback(const vehicle_prop_value_t *eventData);
     static int errorCallback(int32_t errorCode, int32_t property, int32_t operation);

@@ -613,12 +613,14 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
     bool shouldSubscribe = false;
     bool inMock = false;
     int32_t newZones = zones;
+    vehicle_prop_config_t const * config = NULL;
+    sp<HalClient> client;
     do {
         Mutex::Autolock autoLock(mLock);
         if (!isSubscribableLocked(prop)) {
             return BAD_VALUE;
         }
-        vehicle_prop_config_t const * config = findConfigLocked(prop);
+        config = findConfigLocked(prop);
         if (config->change_mode == VEHICLE_PROP_CHANGE_MODE_ON_CHANGE) {
             if (sampleRate != 0) {
                 ALOGW("Sample rate set to non-zeo for on change type. Ignore it");
@@ -647,7 +649,7 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
         }
         sp<IBinder> ibinder = IInterface::asBinder(listener);
         LOG_VERBOSE("subscribe, binder 0x%x prop 0x%x", ibinder.get(), prop);
-        sp<HalClient> client = findOrCreateClientLocked(ibinder, listener);
+        client = findOrCreateClientLocked(ibinder, listener);
         if (client.get() == NULL) {
             ALOGE("subscribe, no memory, cannot create HalClient");
             return NO_MEMORY;
@@ -685,22 +687,73 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
         }
     } while (false);
     if (shouldSubscribe) {
-        status_t r;
         if (inMock) {
-            r = mHalMock->onPropertySubscribe(prop, sampleRate, newZones);
+            status_t r = mHalMock->onPropertySubscribe(prop, sampleRate, newZones);
             if (r != NO_ERROR) {
                 ALOGW("subscribe 0x%x failed, mock returned %d", prop, r);
+                return r;
             }
         } else {
             LOG_VERBOSE("subscribe to HAL, prop 0x%x sample rate:%f zones:0x%x", prop, sampleRate,
                     newZones);
-            r = mDevice->subscribe(mDevice, prop, sampleRate, newZones);
+            status_t r = mDevice->subscribe(mDevice, prop, sampleRate, newZones);
             if (r != NO_ERROR) {
                 ALOGW("subscribe 0x%x failed, HAL returned %d", prop, r);
+                return r;
             }
         }
-        return r;
     }
+    if (config->change_mode == VEHICLE_PROP_CHANGE_MODE_ON_CHANGE) {
+        status_t r = notifyClientWithCurrentValue(inMock, config, zones);
+        if (r != NO_ERROR) {
+            return r;
+        }
+    }
+    return NO_ERROR;
+}
+
+status_t VehicleNetworkService::notifyClientWithCurrentValue(bool isMocking,
+        const vehicle_prop_config_t *config, int32_t zones) {
+    status_t r;
+    int32_t prop = config->prop;
+    int32_t valueType = config->value_type;
+    if (isZonedProperty(config)) {
+        int32_t requestedZones = (zones == 0) ? config->vehicle_zone_flags : zones;
+        for (int i = 0, zone = 1; i < 32; i++, zone <<= 1) {
+            if ((zone & requestedZones) == zone) {
+                    r = notifyClientWithCurrentValue(isMocking, prop, valueType, zone);
+                    if (r != NO_ERROR) {
+                        return r;
+                    }
+                }
+            }
+        } else {
+            r = notifyClientWithCurrentValue(isMocking, prop, valueType, 0 /*no zones*/);
+            if (r != NO_ERROR) {
+                return r;
+            }
+        }
+    return NO_ERROR;
+}
+
+status_t VehicleNetworkService::notifyClientWithCurrentValue(bool isMocking,
+    int32_t prop, int32_t valueType, int32_t zone) {
+    vehicle_prop_value_t value;
+    value.prop = prop;
+    value.value_type = valueType;
+    value.zone = zone;
+    status_t r = isMocking ? mHalMock->onPropertyGet(&value) : mDevice->get(mDevice, &value);
+    if (r != NO_ERROR) {
+        if (r == -EAGAIN) {
+            LOG_VERBOSE("value is not ready:0x%x, mock:%d", prop, isMocking)
+            return NO_ERROR;
+        } else {
+            ALOGW("failed to get current value prop:0x%x, mock:%d, error:%d", prop, isMocking, r);
+            return r;
+        }
+    }
+
+    onHalEvent(&value, false);
     return NO_ERROR;
 }
 
