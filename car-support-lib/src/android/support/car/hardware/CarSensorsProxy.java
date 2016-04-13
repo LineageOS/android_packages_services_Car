@@ -245,6 +245,9 @@ class CarSensorsProxy {
             }
             mListenersMultiMap.get(sensorType).add(listener);
         }
+
+        pushSensorChanges(sensorType);
+
         if (sensorSetChanged) {
             updateSensorListeners();
         }
