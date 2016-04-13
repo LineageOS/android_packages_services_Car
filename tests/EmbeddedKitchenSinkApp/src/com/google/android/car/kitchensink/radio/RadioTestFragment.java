@@ -378,11 +378,7 @@ public class RadioTestFragment extends Fragment {
                     Log.i(TAG, "Changing radio band");
                 }
                 if (mRadioTuner != null) {
-                    mRadioTuner.close();
-                    mRadioTuner = null;
-                    mRadioTuner = mRadioManager.openTuner(mModules.get(0).getId(),
-                            mRadioBand.isChecked() ? mFmConfig : mAmConfig,
-                            true, mRadioCallback , null);
+                    mRadioTuner.setConfiguration(mRadioBand.isChecked() ? mFmConfig : mAmConfig);
                 }
                 resetMessages();
                 updateMessages();
