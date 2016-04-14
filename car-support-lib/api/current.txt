@@ -222,7 +222,6 @@ package android.support.car.app.menu {
     method public void restoreSearchBox();
     method public void setAutoLightDarkMode();
     method public void setBackground(android.graphics.Bitmap);
-    method public void setBackgroundResource(int);
     method public void setCarMenuCallbacks(android.support.car.app.menu.CarMenuCallbacks);
     method public void setContentFragment(android.support.v4.app.Fragment);
     method public void setDarkMode();
@@ -315,7 +314,6 @@ package android.support.car.app.menu {
     method public abstract void restoreMenuButtonDrawable();
     method public abstract void setAutoLightDarkMode();
     method public abstract void setBackground(android.graphics.Bitmap);
-    method public abstract void setBackgroundResource(int);
     method public abstract void setDarkMode();
     method public abstract void setLightMode();
     method public abstract void setMenuButtonBitmap(android.graphics.Bitmap);

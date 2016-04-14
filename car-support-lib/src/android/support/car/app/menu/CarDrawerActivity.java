@@ -262,16 +262,6 @@ public abstract class CarDrawerActivity extends CarFragmentActivity {
     }
 
     /**
-     * Sets the background to a given resource.
-     * The resource should refer to a Drawable object or 0 to remove the background.
-     *
-     * @param resId The identifier of the resource.
-     */
-    public void setBackgroundResource(int resId) {
-        mUiController.setBackgroundResource(resId);
-    }
-
-    /**
      * Sets the color of the scrim to the right of the car menu drawer.
      */
     public void setScrimColor(int color) {
