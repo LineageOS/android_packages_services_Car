@@ -23,7 +23,7 @@ LOCAL_AAPT_FLAGS += --auto-add-overlay
 endif
 
 # Include car ui library, if not already included
-ifeq (,$(findstring car,$(LOCAL_STATIC_JAVA_LIBRARIES)))
+ifeq (,$(findstring android.support.car, $(LOCAL_STATIC_JAVA_LIBRARIES)))
 LOCAL_RESOURCE_DIR += \
     packages/services/Car/car-support-lib/res
 LOCAL_AAPT_FLAGS += --extra-packages android.support.car.ui
