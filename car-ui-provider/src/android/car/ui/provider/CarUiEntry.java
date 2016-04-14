@@ -191,12 +191,6 @@ public class CarUiEntry extends android.car.app.menu.CarUiEntry {
     }
 
     @Override
-    public void setBackgroundResource(int resId) {
-        ImageView bg = (ImageView) mContentView.findViewById(R.id.background);
-        bg.setBackgroundResource(resId);
-    }
-
-    @Override
     public void hideMenuButton() {
         mMenuButton.setVisibility(View.GONE);
     }

@@ -109,14 +109,6 @@ public abstract class CarUiController {
      */
     public abstract void setBackground(Bitmap bitmap);
 
-    /**
-     * Sets the background to a given resource.
-     * The resource should refer to a Drawable object or 0 to remove the background.
-     *
-     * @param resId The identifier of the resource.
-     */
-    public abstract void setBackgroundResource(int resId);
-
     public abstract void onRestoreInstanceState(Bundle savedState);
 
     public abstract void onSaveInstanceState(Bundle outState);

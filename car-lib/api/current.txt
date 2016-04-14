@@ -137,7 +137,6 @@ package android.car.app.menu {
     method public abstract void restoreMenuDrawable();
     method public abstract void setAutoLightDarkMode();
     method public abstract void setBackground(android.graphics.Bitmap);
-    method public abstract void setBackgroundResource(int);
     method public abstract void setCarMenuCallbacks(android.car.app.menu.CarMenuCallbacks);
     method public abstract void setDarkMode();
     method public abstract void setLightMode();
