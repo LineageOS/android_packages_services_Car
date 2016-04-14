@@ -32,7 +32,7 @@ PRODUCT_PACKAGES += \
     screenrecord
 
 # This is for testing
-PRODUCT_PACKAGES +=
+PRODUCT_PACKAGES += \
     EmbeddedKitchenSinkApp
 
 PRODUCT_COPY_FILES := \
