@@ -24,6 +24,7 @@ import android.app.Service;
 import android.car.Car;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.SystemProperties;
 import android.util.Log;
 
 public class CarService extends Service {
@@ -35,6 +36,7 @@ public class CarService extends Service {
     public void onCreate() {
         Log.i(CarLog.TAG_SERVICE, "Service onCreate");
         mICarImpl = ICarImpl.getInstance(this);
+        SystemProperties.set("boot.car_service_created", "1");
         super.onCreate();
     }
 
