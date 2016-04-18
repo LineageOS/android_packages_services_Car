@@ -32,6 +32,8 @@ LOCAL_SHARED_LIBRARIES := \
     libbinder \
     libprotobuf-cpp-lite
 
+LOCAL_EXPORT_SHARED_LIBRARY_HEADERS := libbinder
+
 LOCAL_STATIC_LIBRARIES := \
     libvehiclenetworkproto-native
 
