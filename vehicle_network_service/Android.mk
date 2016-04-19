@@ -29,6 +29,9 @@ LOCAL_C_INCLUDES += \
     external/libxml2/include \
     external/icu/icu4c/source/common
 
+LOCAL_SHARED_LIBRARIES := \
+    libbinder
+
 LOCAL_MODULE := libvehiclenetworkservice
 LOCAL_MODULE_TAGS := optional
 
