@@ -177,6 +177,7 @@ public class CarPowerManagementService implements CarServiceBase,
             onApPowerStateChange(currentState);
         } else {
             Log.w(CarLog.TAG_POWER, "Vehicle hal does not support power state yet.");
+            onApPowerStateChange(new PowerState(PowerHalService.STATE_ON_FULL, 0));
             mSystemInterface.switchToFullWakeLock();
         }
         mSystemInterface.startDisplayStateMonitoring(this);
