@@ -646,7 +646,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 logicalStreamTypeForTop);
 
         // update primary context and notify if necessary
-        int primaryContext = logicalStreamTypeForTop;
+        int primaryContext = AudioHalService.logicalStreamToHalContextType(logicalStreamTypeForTop);
         switch (logicalStreamTypeForTop) {
             case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_BOTTOM:
             case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY:
