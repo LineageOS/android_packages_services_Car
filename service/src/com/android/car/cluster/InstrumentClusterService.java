@@ -54,7 +54,9 @@ public class InstrumentClusterService implements CarServiceBase {
 
         if (rendererFound) {
             mRenderer = InstrumentClusterRendererLoader.createRenderer(mContext);
-            mRenderer.onCreate(mContext);
+            Context packageContext = InstrumentClusterRendererLoader
+                    .createRendererPackageContext(mContext);
+            mRenderer.onCreate(packageContext);
             mRenderer.initialize();
             mRenderer.onStart();
         }
