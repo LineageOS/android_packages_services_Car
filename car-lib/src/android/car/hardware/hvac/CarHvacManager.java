@@ -53,8 +53,6 @@ public class CarHvacManager implements CarManagerBase {
      */
     @IntDef({
             HvacPropertyId.MIRROR_DEFROSTER_ON,
-            HvacPropertyId.AUTOMATIC_MODE_ON,
-            HvacPropertyId.AIR_RECIRCULATION_ON,
             HvacPropertyId.STEERING_WHEEL_TEMP,
             HvacPropertyId.MAX_GLOBAL_PROPERTY_ID,
             HvacPropertyId.ZONED_TEMP_SETPOINT,
@@ -66,6 +64,8 @@ public class CarHvacManager implements CarManagerBase {
             HvacPropertyId.ZONED_FAN_POSITION,
             HvacPropertyId.ZONED_SEAT_TEMP,
             HvacPropertyId.ZONED_AC_ON,
+            HvacPropertyId.ZONED_AUTOMATIC_MODE_ON,
+            HvacPropertyId.ZONED_AIR_RECIRCULATION_ON,
             HvacPropertyId.WINDOW_DEFROSTER_ON,
     })
     public @interface HvacPropertyId {
@@ -75,13 +75,9 @@ public class CarHvacManager implements CarManagerBase {
          */
         /** Mirror defrosters state, bool. */
         int MIRROR_DEFROSTER_ON = 0x0001;
-        /** HVAC is in automatic mode, bool. */
-        int AUTOMATIC_MODE_ON = 0x0003;
-        /** Air recirculation is active, bool. */
-        int AIR_RECIRCULATION_ON = 0x0004;
         /** Steering wheel temp:  negative values indicate cooling, positive values indicate
          * heat, int. */
-        int STEERING_WHEEL_TEMP = 0x0005;
+        int STEERING_WHEEL_TEMP = 0x0002;
 
         /** The maximum id that can be assigned to global (non-zoned) property. */
         int MAX_GLOBAL_PROPERTY_ID = 0x3fff;
@@ -111,6 +107,10 @@ public class CarHvacManager implements CarManagerBase {
         int ZONED_SEAT_TEMP = 0x4008;
         /** Air conditioner state, bool */
         int ZONED_AC_ON = 0x4009;
+        /** HVAC is in automatic mode, bool. */
+        int ZONED_AUTOMATIC_MODE_ON = 0x400A;
+        /** Air recirculation is active, bool. */
+        int ZONED_AIR_RECIRCULATION_ON = 0x400B;
         /** Defroster is based off of window position, bool */
         int WINDOW_DEFROSTER_ON = 0x5001;
     }

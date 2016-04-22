@@ -57,8 +57,6 @@ public class CarHvacManagerTest extends CarApiTestBase {
     private void assertTypeAndZone(CarPropertyConfig property) {
         switch (property.getPropertyId()) {
             case HvacPropertyId.MIRROR_DEFROSTER_ON: // non-zoned bool
-            case HvacPropertyId.AUTOMATIC_MODE_ON:
-            case HvacPropertyId.AIR_RECIRCULATION_ON:
                 assertEquals(Boolean.class, property.getPropertyType());
                 assertTrue(property.isGlobalProperty());
                 break;
@@ -76,6 +74,8 @@ public class CarHvacManagerTest extends CarApiTestBase {
             case HvacPropertyId.ZONED_TEMP_IS_FAHRENHEIT: // zoned boolean
             case HvacPropertyId.ZONED_AC_ON:
             case HvacPropertyId.WINDOW_DEFROSTER_ON:
+            case HvacPropertyId.ZONED_AUTOMATIC_MODE_ON:
+            case HvacPropertyId.ZONED_AIR_RECIRCULATION_ON:
                 assertEquals(Boolean.class, property.getPropertyType());
                 assertFalse(property.isGlobalProperty());
                 break;
