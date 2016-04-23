@@ -626,13 +626,13 @@ package android.car.hardware.hvac {
   }
 
   public static abstract class CarHvacManager.HvacPropertyId implements java.lang.annotation.Annotation {
-    field public static final int AIR_RECIRCULATION_ON = 4; // 0x4
-    field public static final int AUTOMATIC_MODE_ON = 3; // 0x3
     field public static final int MAX_GLOBAL_PROPERTY_ID = 16383; // 0x3fff
     field public static final int MIRROR_DEFROSTER_ON = 1; // 0x1
-    field public static final int STEERING_WHEEL_TEMP = 5; // 0x5
+    field public static final int STEERING_WHEEL_TEMP = 2; // 0x2
     field public static final int WINDOW_DEFROSTER_ON = 20481; // 0x5001
     field public static final int ZONED_AC_ON = 16393; // 0x4009
+    field public static final int ZONED_AIR_RECIRCULATION_ON = 16395; // 0x400b
+    field public static final int ZONED_AUTOMATIC_MODE_ON = 16394; // 0x400a
     field public static final int ZONED_FAN_POSITION = 16391; // 0x4007
     field public static final int ZONED_FAN_POSITION_AVAILABLE = 16390; // 0x4006
     field public static final int ZONED_FAN_SPEED_RPM = 16389; // 0x4005
