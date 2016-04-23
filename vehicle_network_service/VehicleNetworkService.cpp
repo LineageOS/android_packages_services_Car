@@ -745,7 +745,7 @@ status_t VehicleNetworkService::notifyClientWithCurrentValue(bool isMocking,
     status_t r = isMocking ? mHalMock->onPropertyGet(&value) : mDevice->get(mDevice, &value);
     if (r != NO_ERROR) {
         if (r == -EAGAIN) {
-            LOG_VERBOSE("value is not ready:0x%x, mock:%d", prop, isMocking)
+            LOG_VERBOSE("value is not ready:0x%x, mock:%d", prop, isMocking);
             return NO_ERROR;
         } else {
             ALOGW("failed to get current value prop:0x%x, mock:%d, error:%d", prop, isMocking, r);
