@@ -210,6 +210,8 @@ public class HvacHalService extends HalServiceBase {
                 return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DEFROSTER;
             case HvacPropertyId.ZONED_AC_ON:
                 return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AC_ON;
+            case HvacPropertyId.ZONED_AIR_RECIRCULATION_ON:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_RECIRC_ON;
             default:
                 throw new IllegalArgumentException("hvacPropId " + hvacPropId + " is not supported");
         }
@@ -230,6 +232,8 @@ public class HvacHalService extends HalServiceBase {
                 return HvacPropertyId.WINDOW_DEFROSTER_ON;
             case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AC_ON:
                 return HvacPropertyId.ZONED_AC_ON;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_RECIRC_ON:
+                return HvacPropertyId.ZONED_AIR_RECIRCULATION_ON;
             default:
                 throw new IllegalArgumentException("halPropId " + halPropId + " is not supported");
         }
