@@ -15,6 +15,7 @@
  */
 package com.android.car.hal;
 
+import android.os.ServiceSpecificException;
 import android.util.Log;
 
 import com.android.car.CarLog;
@@ -173,52 +174,48 @@ public class PowerHalService extends HalServiceBase {
 
     public void sendBootComplete() {
         Log.i(CarLog.TAG_POWER, "send boot complete");
-        int[] values = { VehicleApPowerSetState.VEHICLE_AP_POWER_SET_BOOT_COMPLETE, 0 };
-        mHal.getVehicleNetwork().setIntVectorProperty(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_STATE, values);
+        setPowerState(VehicleApPowerSetState.VEHICLE_AP_POWER_SET_BOOT_COMPLETE, 0);
     }
 
     public void sendSleepEntry() {
         Log.i(CarLog.TAG_POWER, "send sleep entry");
-        int[] values = { VehicleApPowerSetState.VEHICLE_AP_POWER_SET_DEEP_SLEEP_ENTRY, 0 };
-        mHal.getVehicleNetwork().setIntVectorProperty(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_STATE, values);
+        setPowerState(VehicleApPowerSetState.VEHICLE_AP_POWER_SET_DEEP_SLEEP_ENTRY, 0);
     }
 
     public void sendSleepExit() {
         Log.i(CarLog.TAG_POWER, "send sleep exit");
-        int[] values = { VehicleApPowerSetState.VEHICLE_AP_POWER_SET_DEEP_SLEEP_EXIT, 0 };
-        mHal.getVehicleNetwork().setIntVectorProperty(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_STATE, values);
+        setPowerState(VehicleApPowerSetState.VEHICLE_AP_POWER_SET_DEEP_SLEEP_EXIT, 0);
     }
 
     public void sendShutdownPostpone(int postponeTimeMs) {
         Log.i(CarLog.TAG_POWER, "send shutdown postpone, time:" + postponeTimeMs);
-        int[] values = { VehicleApPowerSetState.VEHICLE_AP_POWER_SET_SHUTDOWN_POSTPONE,
-                postponeTimeMs };
-        mHal.getVehicleNetwork().setIntVectorProperty(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_STATE, values);
+        setPowerState(VehicleApPowerSetState.VEHICLE_AP_POWER_SET_SHUTDOWN_POSTPONE,
+                postponeTimeMs);
     }
 
     public void sendShutdownStart(int wakeupTimeSec) {
         Log.i(CarLog.TAG_POWER, "send shutdown start");
-        int[] values = { VehicleApPowerSetState.VEHICLE_AP_POWER_SET_SHUTDOWN_START, 0 };
-        mHal.getVehicleNetwork().setIntVectorProperty(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_STATE, values);
+        setPowerState(VehicleApPowerSetState.VEHICLE_AP_POWER_SET_SHUTDOWN_START, 0);
     }
 
     public void sendDisplayOn() {
         Log.i(CarLog.TAG_POWER, "send display on");
-        int[] values = { VehicleApPowerSetState.VEHICLE_AP_POWER_SET_DISPLAY_ON, 0 };
-        mHal.getVehicleNetwork().setIntVectorProperty(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_STATE, values);
+        setPowerState(VehicleApPowerSetState.VEHICLE_AP_POWER_SET_DISPLAY_ON, 0);
     }
 
     public void sendDisplayOff() {
         Log.i(CarLog.TAG_POWER, "send display off");
-        int[] values = { VehicleApPowerSetState.VEHICLE_AP_POWER_SET_DISPLAY_OFF, 0 };
-        mHal.getVehicleNetwork().setIntVectorProperty(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_STATE, values);
+        setPowerState(VehicleApPowerSetState.VEHICLE_AP_POWER_SET_DISPLAY_OFF, 0);
+    }
+
+    private void setPowerState(int state, int additionalParam) {
+        int[] values = { state, additionalParam };
+        try {
+            mHal.getVehicleNetwork().setIntVectorProperty(
+                    VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_STATE, values);
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_POWER, "cannot set to AP_POWER_STATE", e);
+        }
     }
 
     public PowerState getCurrentPowerState() {

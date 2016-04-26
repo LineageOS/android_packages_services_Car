@@ -367,8 +367,8 @@ private:
     static int eventCallback(const vehicle_prop_value_t *eventData);
     static int errorCallback(int32_t errorCode, int32_t property, int32_t operation);
 private:
-    static const int GET_WAIT_US = 100000;
-    static const int MAX_GET_RETRY_FOR_NOT_READY = 50;
+    static const int GET_SET_WAIT_TIME_US = 100000;
+    static const int MAX_GET_SET_RETRY_NUMBER_FOR_NOT_READY = 20;
 
     VehiclePropertyAccessControl mVehiclePropertyAccessControl;
     static VehicleNetworkService* sInstance;

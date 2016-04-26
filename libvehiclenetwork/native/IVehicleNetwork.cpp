@@ -112,6 +112,17 @@ public:
             return status;
         }
         status = remote()->transact(SET_PROPERTY, data, &reply);
+        if (status == NO_ERROR) {
+            int32_t exceptionCode = reply.readExceptionCode();
+            if (exceptionCode != NO_ERROR) {
+                if (exceptionCode == binder::Status::EX_SERVICE_SPECIFIC) {
+                    return -EAGAIN;
+                } else if (exceptionCode == binder::Status::EX_ILLEGAL_STATE) {
+                    return -ESHUTDOWN;
+                }
+                return exceptionCode;
+            }
+        }
         return status;
     }
 
@@ -288,7 +299,17 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
                 return PERMISSION_DENIED;
             }
             r = setProperty(value.value);
-            BinderUtil::fillNoResultReply(reply);
+            if (r == NO_ERROR) {
+                reply->writeNoException();
+            } else if (r == -EAGAIN) {
+                // this should be handled specially to throw ServiceSpecificException in java.
+                reply->writeInt32(binder::Status::EX_SERVICE_SPECIFIC);
+                return NO_ERROR;
+            } else if (r == -ESHUTDOWN) {
+                // this should be handled specially to throw IllegalStateException in java.
+                reply->writeInt32(binder::Status::EX_ILLEGAL_STATE);
+                return NO_ERROR;
+            }
             return r;
         } break;
         case GET_PROPERTY: {

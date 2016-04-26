@@ -148,7 +148,8 @@ public class VehicleNetwork {
      * @throws IllegalArgumentException If value set has wrong value like wrong valueType, wrong
      * data, and etc.
      */
-    public void setProperty(VehiclePropValue value) throws IllegalArgumentException {
+    public void setProperty(VehiclePropValue value)
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValueParcelable parcelable = new VehiclePropValueParcelable(value);
         try {
             mService.setProperty(parcelable);
@@ -162,7 +163,8 @@ public class VehicleNetwork {
      *
      * @throws IllegalArgumentException For type mismatch (=the property is not int type)
      */
-    public void setIntProperty(int property, int value) throws IllegalArgumentException {
+    public void setIntProperty(int property, int value)
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = VehiclePropValueUtil.createIntValue(property, value, 0);
         setProperty(v);
     }
@@ -170,7 +172,8 @@ public class VehicleNetwork {
     /**
      * Set int vector type property. Length of passed values should match with vector length.
      */
-    public void setIntVectorProperty(int property, int[] values) throws IllegalArgumentException {
+    public void setIntVectorProperty(int property, int[] values)
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = VehiclePropValueUtil.createIntVectorValue(property, values, 0);
         setProperty(v);
     }
@@ -178,7 +181,8 @@ public class VehicleNetwork {
     /**
      * Set long type property.
      */
-    public void setLongProperty(int property, long value) throws IllegalArgumentException {
+    public void setLongProperty(int property, long value)
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = VehiclePropValueUtil.createLongValue(property, value, 0);
         setProperty(v);
     }
@@ -186,7 +190,8 @@ public class VehicleNetwork {
     /**
      * Set float type property.
      */
-    public void setFloatProperty(int property, float value) throws IllegalArgumentException {
+    public void setFloatProperty(int property, float value)
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = VehiclePropValueUtil.createFloatValue(property, value, 0);
         setProperty(v);
     }
@@ -195,7 +200,7 @@ public class VehicleNetwork {
      * Set float vector type property. Length of values should match with vector length.
      */
     public void setFloatVectorProperty(int property, float[] values)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = VehiclePropValueUtil.createFloatVectorValue(property, values, 0);
         setProperty(v);
     }
@@ -206,7 +211,7 @@ public class VehicleNetwork {
      * @throws IllegalArgumentException For type mismatch (=the property is not boolean type)
      */
     public void setBooleanProperty(int property, boolean value)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = VehiclePropValueUtil.createBooleanValue(property, value, 0);
         setProperty(v);
     }
@@ -217,7 +222,7 @@ public class VehicleNetwork {
      * @throws IllegalArgumentException For type mismatch (=the property is not boolean type)
      */
     public void setZonedBooleanProperty(int property, int zone, boolean value)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = VehiclePropValueUtil.createZonedBooleanValue(property, zone, value, 0);
         setProperty(v);
     }
@@ -228,7 +233,7 @@ public class VehicleNetwork {
      * @throws IllegalArgumentException For type mismatch (=the property is not float type)
      */
     public void setZonedFloatProperty(int property, int zone, float value)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = VehiclePropValueUtil.createZonedFloatValue(property, zone, value, 0);
         setProperty(v);
     }
@@ -239,7 +244,7 @@ public class VehicleNetwork {
      * @throws IllegalArgumentException For type mismatch (=the property is not int type)
      */
     public void setZonedIntProperty(int property, int zone, int value)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = VehiclePropValueUtil.createZonedIntValue(property, zone, value, 0);
         setProperty(v);
     }
@@ -248,7 +253,7 @@ public class VehicleNetwork {
      * Set zoned int vector type property. Length of passed values should match with vector length.
      */
     public void setZonedIntVectorProperty(int property, int zone, int[] values)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = VehiclePropValueUtil
                 .createZonedIntVectorValue(property, zone, values, 0);
         setProperty(v);
@@ -259,7 +264,7 @@ public class VehicleNetwork {
      * length.
      */
     public void setZonedFloatVectorProperty(int property, int zone, float[] values)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue v = VehiclePropValueUtil
                 .createZonedFloatVectorValue(property, zone, values, 0);
         setProperty(v);
