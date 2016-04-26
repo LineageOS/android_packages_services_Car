@@ -86,7 +86,7 @@ public class HvacHalService extends HalServiceBase {
 
             value = mVehicleHal.getVehicleNetwork().getProperty(valueRequest);
         } catch (ServiceSpecificException e) {
-            Log.e(CarLog.TAG_HVAC, "property not ready 0x" + toHexString(halProp), e);
+            Log.e(CarLog.TAG_HVAC, "get, property not ready 0x" + toHexString(halProp), e);
         }
 
         return value == null ? null : toCarPropertyValue(value, hvacPropertyId);
@@ -94,7 +94,12 @@ public class HvacHalService extends HalServiceBase {
 
     public void setHvacProperty(CarPropertyValue prop) {
         VehiclePropValue halProp = toVehiclePropValue(prop, hvacToHalPropId(prop.getPropertyId()));
-        mVehicleHal.getVehicleNetwork().setProperty(halProp);
+        try {
+            mVehicleHal.getVehicleNetwork().setProperty(halProp);
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_HVAC, "set, property not ready 0x" + toHexString(halProp.getProp()), e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

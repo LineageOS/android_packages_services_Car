@@ -544,11 +544,11 @@ status_t VehicleNetworkService::getProperty(vehicle_prop_value_t *data) {
             break;
         }
         retryCount++;
-        if (retryCount > MAX_GET_RETRY_FOR_NOT_READY) {
-            ALOGE("Vehicle hal keep retrying not ready after multiple retries");
+        if (retryCount > MAX_GET_SET_RETRY_NUMBER_FOR_NOT_READY) {
+            ALOGE("Vehicle hal get, not ready after multiple retries");
             break;
         }
-        usleep(GET_WAIT_US);
+        usleep(GET_SET_WAIT_TIME_US);
     }
     if (r != NO_ERROR) {
         ALOGW("getProperty 0x%x failed, HAL returned %d", data->prop, r);
@@ -599,9 +599,28 @@ status_t VehicleNetworkService::setProperty(const vehicle_prop_value_t& data) {
     if (inMocking) {
         return NO_ERROR;
     }
-    //TODO add value check requires auto generated code to return value range for enum types
     // set done outside lock to allow concurrent access
-    status_t r = mDevice->set(mDevice, &data);
+    /*
+     * set call can return -EAGAIN error when hal has not fetched all data. In that case,
+     * keep retrying for certain time with some sleep. This will happen only at initial stage.
+     */
+    status_t r = -EAGAIN;
+    int retryCount = 0;
+    while (true) {
+        r = mDevice->set(mDevice, &data);
+        if (r == NO_ERROR) {
+            break;
+        }
+        if (r != -EAGAIN) {
+            break;
+        }
+        retryCount++;
+        if (retryCount > MAX_GET_SET_RETRY_NUMBER_FOR_NOT_READY) {
+            ALOGE("Vehicle hal set, not ready after multiple retries");
+            break;
+        }
+        usleep(GET_SET_WAIT_TIME_US);
+    }
     if (r != NO_ERROR) {
         ALOGW("setProperty 0x%x failed, HAL returned %d", data.prop, r);
     }

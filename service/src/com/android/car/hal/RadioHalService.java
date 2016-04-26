@@ -206,7 +206,12 @@ public class RadioHalService extends HalServiceBase {
             .addInt32Values(preset.getChannel())
             .addInt32Values(preset.getSubChannel())
             .build();
-        mHal.getVehicleNetwork().setProperty(setPresetValue);
+        try {
+            mHal.getVehicleNetwork().setProperty(setPresetValue);
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_POWER, "cannot set to RADIO_PRESET", e);
+            return false;
+        }
         return true;
     }
 

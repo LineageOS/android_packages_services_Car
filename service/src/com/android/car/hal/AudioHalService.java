@@ -201,8 +201,12 @@ public class AudioHalService extends HalServiceBase {
             }
             policyToSet[VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_CONTEXTS]
                     = contexts;
-            vn.setIntVectorProperty(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_ROUTING_POLICY,
-                    policyToSet);
+            try {
+                vn.setIntVectorProperty(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_ROUTING_POLICY,
+                        policyToSet);
+            } catch (ServiceSpecificException e) {
+                Log.e(CarLog.TAG_AUDIO, "Cannot write to VEHICLE_PROPERTY_AUDIO_ROUTING_POLICY", e);
+            }
         }
     }
 
@@ -285,14 +289,24 @@ public class AudioHalService extends HalServiceBase {
 
     public void requestAudioFocusChange(int request, int streams, int extFocus, int audioContexts) {
         int[] payload = { request, streams, extFocus, audioContexts };
-        mVehicleHal.getVehicleNetwork().setIntVectorProperty(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, payload);
+        try {
+            mVehicleHal.getVehicleNetwork().setIntVectorProperty(
+                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, payload);
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_AUDIO, "Cannot write to VEHICLE_PROPERTY_AUDIO_FOCUS", e);
+            // focus timeout will reset it anyway
+        }
     }
 
     public void setStreamVolume(int streamType, int index) {
         int[] payload = {streamType, index, 0};
-        mVehicleHal.getVehicleNetwork().setIntVectorProperty(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME, payload);
+        try {
+            mVehicleHal.getVehicleNetwork().setIntVectorProperty(
+                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME, payload);
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_AUDIO, "Cannot write to VEHICLE_PROPERTY_AUDIO_VOLUME", e);
+            //TODO should reset volume
+        }
     }
 
     public int getStreamVolume(int stream) {
