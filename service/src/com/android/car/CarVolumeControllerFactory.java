@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import java.util.HashMap;
+
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.IAudioService;
@@ -289,8 +291,17 @@ public class CarVolumeControllerFactory {
             } else {
                 // TODO: read the Android side volume from Settings and pass it to the audio module
                 // Here we just set it to the physical stream volume temporarily.
+                // when vhal does not work, get call can take long. For that case,
+                // for the same physical streams, cache initial get results
+                HashMap<Integer, Integer> volumesPerCarStream = new HashMap<>();
                 for (int i : VolumeUtils.LOGICAL_STREAMS) {
-                    mCurrentLogicalVolume.put(i, mHal.getStreamVolume(logicalStreamToCarStream(i)));
+                    int carStream = logicalStreamToCarStream(i);
+                    Integer volume = volumesPerCarStream.get(carStream);
+                    if (volume == null) {
+                        volume = Integer.valueOf(mHal.getStreamVolume(carStream));
+                        volumesPerCarStream.put(carStream, volume);
+                    }
+                    mCurrentLogicalVolume.put(i, volume);
                 }
             }
         }

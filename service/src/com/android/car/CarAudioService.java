@@ -863,7 +863,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             }
             if (focusRequested) {
                 if (mFocusReceived == null) {
-                    Log.w(TAG_FOCUS, "focus response timed out, request sent"
+                    Log.w(TAG_FOCUS, "focus response timed out, request sent "
                             + mLastFocusRequestToCar);
                     // no response. so reset to loss.
                     mFocusReceived = FocusState.STATE_LOSS;
@@ -925,6 +925,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     }
 
     private static String dumpAudioFocusInfo(AudioFocusInfo info) {
+        if (info == null) {
+            return "null";
+        }
         StringBuilder builder = new StringBuilder();
         builder.append("afi package:" + info.getPackageName());
         builder.append("client id:" + info.getClientId());

@@ -59,7 +59,7 @@ public class CarVolumeService {
         mInputService = inputService;
     }
 
-    public void init() {
+    public synchronized void init() {
         mCarVolumeController = CarVolumeControllerFactory.createCarVolumeController(mContext,
                 mAudioService, mAudioHal, mInputService);
 
@@ -68,23 +68,27 @@ public class CarVolumeService {
     }
 
     public void setStreamVolume(int streamType, int index, int flags) {
-        mCarVolumeController.setStreamVolume(streamType, index, flags);
+        getController().setStreamVolume(streamType, index, flags);
     }
 
     public void setVolumeController(IVolumeController controller) {
-        mCarVolumeController.setVolumeController(controller);
+        getController().setVolumeController(controller);
     }
 
     public int getStreamMaxVolume(int stream) {
-        return mCarVolumeController.getStreamMaxVolume(stream);
+        return getController().getStreamMaxVolume(stream);
     }
 
     public int getStreamMinVolume(int stream) {
-        return mCarVolumeController.getStreamMinVolume(stream);
+        return getController().getStreamMinVolume(stream);
     }
 
     public int getStreamVolume(int stream) {
-        return mCarVolumeController.getStreamVolume(stream);
+        return getController().getStreamVolume(stream);
+    }
+
+    private synchronized CarVolumeController getController() {
+        return mCarVolumeController;
     }
 
     /**
