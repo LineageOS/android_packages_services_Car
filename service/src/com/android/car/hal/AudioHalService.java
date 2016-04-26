@@ -300,7 +300,13 @@ public class AudioHalService extends HalServiceBase {
         VehiclePropValue streamVolume =
                 VehiclePropValueUtil.createIntVectorValue(
                         VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME, volume, 0);
-        VehiclePropValue value = mVehicleHal.getVehicleNetwork().getProperty(streamVolume);
+        VehiclePropValue value;
+        try {
+            value = mVehicleHal.getVehicleNetwork().getProperty(streamVolume);
+        }  catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_AUDIO, "AUDIO_VOLUME not ready", e);
+            return 0;
+        }
 
         if (value.getInt32ValuesCount() != 3) {
             Log.e(CarLog.TAG_AUDIO, "returned value not valid");

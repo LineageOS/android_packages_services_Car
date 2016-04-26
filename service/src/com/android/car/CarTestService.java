@@ -79,18 +79,19 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
             @Override
             public void run() {
                 try {
-                    mVehicleNetwork.startMocking(mock);
-                    VehicleHal.getInstance().startMocking();
-                    mICarImpl.startMocking();
                     synchronized (this) {
                         mInMocking = true;
                         mMockingFlags = flags;
                         mException = null;
                     }
+                    mVehicleNetwork.startMocking(mock);
+                    mICarImpl.startMocking();
                 } catch (Exception e) {
                     Log.w(CarLog.TAG_TEST, "startMocking failed", e);
                     synchronized (this) {
                         mException = e;
+                        mInMocking = false;
+                        mMockingFlags = 0;
                     }
                 }
                 Log.i(CarLog.TAG_TEST, "start vehicle HAL mocking, flags:0x" +
@@ -112,7 +113,6 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
             public void run() {
                 try {
                     mVehicleNetwork.stopMocking(mock);
-                    VehicleHal.getInstance().stopMocking();
                     mICarImpl.stopMocking();
                     synchronized (this) {
                         mInMocking = false;
