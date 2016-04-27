@@ -38,11 +38,6 @@ public abstract class SensorHalServiceBase  extends HalServiceBase {
      */
     public interface SensorListener {
         /**
-         * Sensor Hal is ready and is fully accessible.
-         * This will be called after {@link SensorHalServiceBase#init()}.
-         */
-        void onSensorHalReady(SensorHalServiceBase hal);
-        /**
          * Sensor events are available.
          * @param events
          */

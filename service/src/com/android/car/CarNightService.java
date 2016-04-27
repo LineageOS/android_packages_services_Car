@@ -31,7 +31,7 @@ import java.util.List;
 
 public class CarNightService implements CarServiceBase {
 
-    public static final boolean DBG = true;
+    public static final boolean DBG = false;
     private int mNightSetting = UiModeManager.MODE_NIGHT_YES;
     private final Context mContext;
     private final UiModeManager mUiModeManager;
