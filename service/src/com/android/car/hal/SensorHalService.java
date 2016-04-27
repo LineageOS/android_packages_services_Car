@@ -55,7 +55,6 @@ public class SensorHalService extends SensorHalServiceBase {
 
     @Override
     public synchronized void init() {
-        //TODO
         mIsReady = true;
     }
 
@@ -149,9 +148,6 @@ public class SensorHalService extends SensorHalServiceBase {
     @Override
     public synchronized void registerSensorListener(SensorHalServiceBase.SensorListener listener) {
         mSensorListener = listener;
-        if (mIsReady) {
-            listener.onSensorHalReady(this);
-        }
     }
 
     @Override
@@ -185,6 +181,8 @@ public class SensorHalService extends SensorHalServiceBase {
             config = mSensorToHalProperty.get(sensorType);
         }
         if (config == null) {
+            Log.e(CarLog.TAG_SENSOR, "sensor type not available 0x" +
+                    Integer.toHexString(sensorType));
             return null;
         }
         try {

@@ -136,7 +136,6 @@ public class HvacHalService extends HalServiceBase {
             try {
                 hvacPropId = halToHvacPropId(p.getProp());
             } catch (IllegalArgumentException e) {
-                Log.i(TAG, "Property not supported by HVAC: 0x" + toHexString(p.getProp()));
                 continue;
             }
             CarPropertyConfig hvacConfig = CarPropertyUtils.toCarPropertyConfig(p, hvacPropId);

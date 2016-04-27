@@ -103,9 +103,6 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
     @Override
     public synchronized void registerSensorListener(SensorListener listener) {
         mSensorListener = listener;
-        if (mIsReady) {
-            mSensorListener.onSensorHalReady(this);
-        }
     }
 
     @Override

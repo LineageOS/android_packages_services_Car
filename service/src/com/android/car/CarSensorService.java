@@ -127,10 +127,10 @@ public class CarSensorService extends ICarSensor.Stub
 
     @Override
     public void init() {
-        // Watch out the order. registerSensorListener can lead into onSensorHalReady call.
-        // So it should be done last.
         mSensorLock.lock();
         try {
+            mSensorHal.registerSensorListener(this);
+            mCarProvidedSensors = mSensorHal.getSupportedSensors();
             mSupportedSensors = refreshSupportedSensorsLocked();
             CarSensorEvent event = null;
             if (mUseDefaultDrivingPolicy) {
@@ -139,10 +139,15 @@ public class CarSensorService extends ICarSensor.Stub
             } else {
                 event = mSensorHal.getCurrentSensorValue(
                         CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
+                Log.i(CarLog.TAG_SENSOR, "initial driving status:" + ((event == null)?
+                        "not ready" : " 0x" + Integer.toHexString(event.intValues[0])));
             }
             if (event == null) {
                 event = DrivingStatePolicy.getDefaultValue(
                         CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
+                if (!mUseDefaultDrivingPolicy) {
+                    Log.w(CarLog.TAG_SENSOR, "Default driving status set as sensor not ready");
+                }
             }
             // always populate default value
             addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, event);
@@ -152,16 +157,21 @@ public class CarSensorService extends ICarSensor.Stub
                 mDayNightModePolicy.registerSensorListener(this);
             } else {
                 event = mSensorHal.getCurrentSensorValue(CarSensorManager.SENSOR_TYPE_NIGHT);
+                Log.i(CarLog.TAG_SENSOR, "initial daynight:" + ((event == null)?
+                        "not ready" : + event.intValues[0]));
             }
             if (event == null) {
                 event = DayNightModePolicy.getDefaultValue(CarSensorManager.SENSOR_TYPE_NIGHT);
+                if (!mUseDefaultDayNightModePolicy) {
+                    Log.w(CarLog.TAG_SENSOR, "Default daynight set as sensor not ready");
+                }
             }
             // always populate default value
             addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_NIGHT, event);
+            notifyDefaultPoliciesLocked();
         } finally {
             mSensorLock.unlock();
         }
-        mSensorHal.registerSensorListener(this);
     }
 
     private void addNewSensorRecordLocked(int type, CarSensorEvent event) {
@@ -209,26 +219,12 @@ public class CarSensorService extends ICarSensor.Stub
         }
     }
 
-    @Override
-    public void onSensorHalReady(SensorHalServiceBase hal) {
-        if (hal == mSensorHal) {
-            mCarProvidedSensors = mSensorHal.getSupportedSensors();
-            if (Log.isLoggable(CarLog.TAG_SENSOR, Log.VERBOSE)) {
-                Log.v(CarLog.TAG_SENSOR, "sensor Hal ready, available sensors:" +
-                        Arrays.toString(mCarProvidedSensors));
-            }
-            mSensorLock.lock();
-            try {
-                mSupportedSensors = refreshSupportedSensorsLocked();
-                if (mUseDefaultDrivingPolicy) {
-                    mDrivingStatePolicy.onSensorServiceReady();
-                }
-                if (mUseDefaultDayNightModePolicy) {
-                    mDayNightModePolicy.onSensorServiceReady();
-                }
-            } finally {
-                mSensorLock.unlock();
-            }
+    private void notifyDefaultPoliciesLocked() {
+        if (mUseDefaultDrivingPolicy) {
+            mDrivingStatePolicy.onSensorServiceReady();
+        }
+        if (mUseDefaultDayNightModePolicy) {
+            mDayNightModePolicy.onSensorServiceReady();
         }
     }
 
@@ -995,6 +991,8 @@ public class CarSensorService extends ICarSensor.Stub
         }  catch  (ConcurrentModificationException e) {
             writer.println("concurrent modification happened");
         }
+        writer.println("mUseDefaultDrivingPolicy:" + mUseDefaultDrivingPolicy +
+                ",mUseDefaultDayNightModePolicy" + mUseDefaultDayNightModePolicy);
         writer.println("**driving policy**");
         if (mUseDefaultDrivingPolicy) {
             mDrivingStatePolicy.dump(writer);
