@@ -156,6 +156,8 @@ public class ICarImpl extends ICar.Stub {
         for (int i = mAllServices.length - 1; i >= 0; i--) {
             mAllServices[i].release();
         }
+        VehicleHal.getInstance().release();
+        VehicleHal.getInstance().init();
         for (CarServiceBase service: mAllServices) {
             service.init();
         }

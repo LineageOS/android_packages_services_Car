@@ -197,6 +197,15 @@ public class VehicleHalEmulator {
                     // invalid property or not a property
                     continue;
                 }
+                // black list of properties which should not be into default property
+                // as default value does not work.
+                switch (property) {
+                    case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME:
+                    case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS:
+                    case VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_STATE:
+                    case VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_BOOTUP_REASON:
+                        continue;
+                }
                 int changeMode = VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_STATIC;
                 int[] changeModes = VehicleNetworkConsts.getVehicleChangeMode(property);
                 if (changeModes != null) {

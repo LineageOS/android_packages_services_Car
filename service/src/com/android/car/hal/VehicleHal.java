@@ -140,7 +140,7 @@ public class VehicleHal implements VehicleNetworkListener {
         mVehicleNetwork = vehicleNetwork;
     }
 
-    private void init() {
+    public void init() {
         VehiclePropConfigs properties = mVehicleNetwork.listProperties();
         // needs copy as getConfigsList gives unmodifiable one.
         List<VehiclePropConfig> propertiesList =
@@ -169,7 +169,7 @@ public class VehicleHal implements VehicleNetworkListener {
         }
     }
 
-    private void release() {
+    public void release() {
         // release in reverse order from init
         for (int i = mAllServices.length - 1; i >= 0; i--) {
             mAllServices[i].release();
@@ -183,19 +183,6 @@ public class VehicleHal implements VehicleNetworkListener {
             mAllProperties.clear();
         }
         // keep the looper thread as should be kept for the whole life cycle.
-    }
-
-    public void startMocking() {
-        reinitHals();
-    }
-
-    public void stopMocking() {
-        reinitHals();
-    }
-
-    private void reinitHals() {
-        release();
-        init();
     }
 
     public SensorHalService getSensorHal() {
