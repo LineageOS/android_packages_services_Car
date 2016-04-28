@@ -16,8 +16,6 @@
 
 package com.android.car;
 
-import java.util.HashMap;
-
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.IAudioService;
@@ -36,6 +34,9 @@ import android.view.KeyEvent;
 import com.android.car.CarVolumeService.CarVolumeController;
 import com.android.car.hal.AudioHalService;
 import com.android.internal.annotations.GuardedBy;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A factory class to create {@link com.android.car.CarVolumeService.CarVolumeController} based
@@ -293,7 +294,7 @@ public class CarVolumeControllerFactory {
                 // Here we just set it to the physical stream volume temporarily.
                 // when vhal does not work, get call can take long. For that case,
                 // for the same physical streams, cache initial get results
-                HashMap<Integer, Integer> volumesPerCarStream = new HashMap<>();
+                Map<Integer, Integer> volumesPerCarStream = new HashMap<>();
                 for (int i : VolumeUtils.LOGICAL_STREAMS) {
                     int carStream = logicalStreamToCarStream(i);
                     Integer volume = volumesPerCarStream.get(carStream);
