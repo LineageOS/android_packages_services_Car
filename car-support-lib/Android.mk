@@ -45,6 +45,9 @@ LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
                                android-support-v7-cardview
 
 LOCAL_JAVA_LIBRARIES += android.car
+# Specify 1.7 for backwards compatibility.  
+# Otherwise the lib won't be usable on pre-N devices
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7 
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -70,6 +73,7 @@ LOCAL_AAPT_FLAGS := --auto-add-overlay \
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_MANIFEST_FILE := AndroidManifest.xml
 
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Build support library.
@@ -89,6 +93,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
 LOCAL_JAVA_LIBRARIES += android.car \
                         android.support.car-res
 
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # API Check
