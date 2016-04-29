@@ -26,6 +26,7 @@ import android.os.Message;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.telecom.TelecomManager;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -40,6 +41,8 @@ import com.android.internal.annotations.GuardedBy;
  * on car properties.
  */
 public class CarVolumeControllerFactory {
+    // STOPSHIP if true.
+    private static final boolean DBG = true;
 
     public static CarVolumeController createCarVolumeController(Context context,
             CarAudioService audioService, AudioHalService audioHal, CarInputService inputService) {
@@ -50,6 +53,30 @@ public class CarVolumeControllerFactory {
             return new SimpleCarVolumeController(context);
         }
         return new CarExternalVolumeController(context, audioService, audioHal, inputService);
+    }
+
+    public static boolean interceptVolKeyBeforeDispatching(Context context) {
+        Log.d(CarLog.TAG_AUDIO, "interceptVolKeyBeforeDispatching");
+
+        TelecomManager telecomManager = (TelecomManager)
+                context.getSystemService(Context.TELECOM_SERVICE);
+        if (telecomManager != null && telecomManager.isRinging()) {
+            // If an incoming call is ringing, either VOLUME key means
+            // "silence ringer".  This is consistent with current android phone's behavior
+            Log.i(CarLog.TAG_AUDIO, "interceptKeyBeforeQueueing:"
+                    + " VOLUME key-down while ringing: Silence ringer!");
+
+            // Silence the ringer.  (It's safe to call this
+            // even if the ringer has already been silenced.)
+            telecomManager.silenceRinger();
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isVolumeKey(KeyEvent event) {
+        return event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN
+                || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP;
     }
 
     /**
@@ -71,6 +98,9 @@ public class CarVolumeControllerFactory {
 
         @Override
         public void setStreamVolume(int stream, int index, int flags) {
+            if (DBG) {
+                Log.d(CarLog.TAG_AUDIO, "setStreamVolume " + stream + " " + index + " " + flags);
+            }
             mAudioManager.setStreamVolume(stream, index, flags);
         }
 
@@ -96,12 +126,16 @@ public class CarVolumeControllerFactory {
 
         @Override
         public boolean onKeyEvent(KeyEvent event) {
+            if (!isVolumeKey(event)) {
+                return false;
+            }
             handleVolumeKeyDefault(event);
             return true;
         }
 
         private void handleVolumeKeyDefault(KeyEvent event) {
-            if (event.getAction() != KeyEvent.ACTION_DOWN) {
+            if (event.getAction() != KeyEvent.ACTION_DOWN
+                    || interceptVolKeyBeforeDispatching(mContext)) {
                 return;
             }
 
@@ -415,10 +449,13 @@ public class CarVolumeControllerFactory {
 
         @Override
         public boolean onKeyEvent(KeyEvent event) {
+            if (!isVolumeKey(event)) {
+                return false;
+            }
             int logicalStream = VolumeUtils.carContextToAndroidStream(mCurrentContext);
             final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
             // TODO: properly handle long press on volume key
-            if (!down) {
+            if (!down || interceptVolKeyBeforeDispatching(mContext)) {
                 return true;
             }
 
