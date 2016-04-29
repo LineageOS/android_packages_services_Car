@@ -17,10 +17,13 @@ package com.android.car;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.provider.CallLog.Calls;
 import android.speech.RecognizerIntent;
+import android.telecom.TelecomManager;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -38,13 +41,16 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         boolean onKeyEvent(KeyEvent event);
     }
 
-    private static final long VOICE_LONG_PRESS_TIME_MS = 1000;
+    private static final long LONG_PRESS_TIME_MS = 1000;
 
     private final Context mContext;
+    private final TelecomManager mTelecomManager;
 
     private KeyEventListener mVoiceAssistantKeyListener;
     private KeyEventListener mLongVoiceAssistantKeyListener;
     private long mLastVoiceKeyDownTime = 0;
+
+    private long mLastCallKeyDownTime = 0;
 
     private KeyEventListener mInstrumentClusterKeyListener;
 
@@ -56,6 +62,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
 
     public CarInputService(Context context) {
         mContext = context;
+        mTelecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
     }
 
     /**
@@ -144,6 +151,9 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             case KeyEvent.KEYCODE_VOICE_ASSIST:
                 handleVoiceAssistKey(event);
                 return;
+            case KeyEvent.KEYCODE_CALL:
+                handleCallKey(event);
+                return;
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_DOWN:
                 handleVolumeKey(event);
@@ -191,7 +201,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
                 launchDefaultVoiceAssistantHandler();
             } else {
                 long duration = SystemClock.elapsedRealtime() - downTime;
-                listener = (duration > VOICE_LONG_PRESS_TIME_MS
+                listener = (duration > LONG_PRESS_TIME_MS
                         ? longPressListener : shortPressListener);
                 if (listener != null) {
                     listener.onKeyEvent(event);
@@ -199,6 +209,53 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
                     launchDefaultVoiceAssistantHandler();
                 }
             }
+        }
+    }
+
+    private void handleCallKey(KeyEvent event) {
+        int action = event.getAction();
+        if (action == KeyEvent.ACTION_DOWN) {
+            // Only handle if it's ringing when button down.
+            if (mTelecomManager != null && mTelecomManager.isRinging()) {
+                Log.i(CarLog.TAG_INPUT, "call key while rinning. Answer the call!");
+                mTelecomManager.acceptRingingCall();
+                return;
+            }
+
+            long now = SystemClock.elapsedRealtime();
+            synchronized (this) {
+                mLastCallKeyDownTime = now;
+            }
+        } else if (action == KeyEvent.ACTION_UP) {
+            long downTime;
+            synchronized (this) {
+                downTime = mLastCallKeyDownTime;
+            }
+            long duration = SystemClock.elapsedRealtime() - downTime;
+            if (duration > LONG_PRESS_TIME_MS) {
+                dialLastCallHandler();
+            } else {
+                launchDialerHandler();
+            }
+        }
+    }
+
+    private void launchDialerHandler() {
+        Log.i(CarLog.TAG_INPUT, "call key, launch dialer intent");
+        Intent dialerIntent = new Intent(Intent.ACTION_DIAL);
+        mContext.startActivityAsUser(dialerIntent, null, UserHandle.CURRENT_OR_SELF);
+    }
+
+    private void dialLastCallHandler() {
+        Log.i(CarLog.TAG_INPUT, "call key, dialing last call");
+
+        String lastNumber = Calls.getLastOutgoingCall(mContext);
+        Log.d(CarLog.TAG_INPUT, "Last number dialed: " + lastNumber);
+        if (lastNumber != null && !lastNumber.isEmpty()) {
+            Intent callLastNumberIntent = new Intent(Intent.ACTION_CALL)
+                    .setData(Uri.fromParts("tel", lastNumber, null))
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivityAsUser(callLastNumberIntent, null, UserHandle.CURRENT_OR_SELF);
         }
     }
 
