@@ -66,6 +66,8 @@ public class CarHvacManager implements CarManagerBase {
             HvacPropertyId.ZONED_AC_ON,
             HvacPropertyId.ZONED_AUTOMATIC_MODE_ON,
             HvacPropertyId.ZONED_AIR_RECIRCULATION_ON,
+            HvacPropertyId.ZONED_MAX_AC_ON,
+            HvacPropertyId.ZONED_DUAL_ZONE_ON,
             HvacPropertyId.WINDOW_DEFROSTER_ON,
     })
     public @interface HvacPropertyId {
@@ -111,6 +113,10 @@ public class CarHvacManager implements CarManagerBase {
         int ZONED_AUTOMATIC_MODE_ON = 0x400A;
         /** Air recirculation is active, bool. */
         int ZONED_AIR_RECIRCULATION_ON = 0x400B;
+        /** Max AC is active, bool. */
+        int ZONED_MAX_AC_ON = 0x400C;
+        /** Dual zone is enabled, bool. */
+        int ZONED_DUAL_ZONE_ON = 0x400D;
         /** Defroster is based off of window position, bool */
         int WINDOW_DEFROSTER_ON = 0x5001;
     }
