@@ -109,6 +109,10 @@
     <UID name="AID_SYSTEM" access="rw" value="1000"/>
   </PROPERTY>
 
+  <PROPERTY name="VEHICLE_PROPERTY_HVAC_AUTO_ON" value = "0x0000050A">
+    <UID name="AID_SYSTEM" access="rw" value="1000"/>
+  </PROPERTY>
+
   <PROPERTY name="VEHICLE_PROPERTY_ENV_OUTSIDE_TEMPERATURE" value = "0x00000703">
     <UID name="AID_SYSTEM" access="r" value="1000"/>
   </PROPERTY>
