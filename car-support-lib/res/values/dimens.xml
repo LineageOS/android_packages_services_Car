@@ -83,4 +83,7 @@
     <dimen name="car_card_margin">96dp</dimen>
     <dimen name="car_drawer_margin_right">96dp</dimen>
     <dimen name="rail_height">80dp</dimen>
+
+    <dimen name="key_line1">112dp</dimen>
+    <dimen name="key_line2">228dp</dimen>
 </resources>
