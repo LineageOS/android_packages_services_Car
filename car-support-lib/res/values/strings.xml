@@ -28,4 +28,6 @@
     <string name="unavailable_category_second_part">for safety reasons</string>
 
     <string name="truncated_list">Can\'t show more items\nfor safety reasons</string>
+
+    <string name="car_font" translatable="false">sans-serif-condensed</string>
 </resources>
