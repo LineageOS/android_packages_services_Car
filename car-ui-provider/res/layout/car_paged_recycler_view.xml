@@ -27,20 +27,11 @@
         android:paddingTop="16dp"
         android:visibility="invisible" />
 
-    <android.car.ui.provider.MaxWidthLayout
-        android:id="@+id/max_width_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/key_line1"
-        android:clipChildren="false"
-        app:carMaxWidth="@dimen/car_card_max_width" >
-
         <android.car.ui.provider.CarRecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="@dimen/key_line1"
             android:clipChildren="false" />
-    </android.car.ui.provider.MaxWidthLayout>
 
 </merge>
