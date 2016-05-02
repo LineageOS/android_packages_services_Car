@@ -108,8 +108,9 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application android:label="Car service"
-            android:allowBackup="false"
-	    android:persistent="true">
+                 android:allowBackup="false"
+                 android:persistent="true"
+                 android:process="android.car.service">
 
         <service android:name=".CarService"
                 android:singleUser="true">
