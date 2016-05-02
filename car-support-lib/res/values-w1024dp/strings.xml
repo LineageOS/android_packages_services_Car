@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-  http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,14 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <style name="CarDrawerArrowDrawable" >
-        <item name="carArrowColor">@android:color/white</item>
-        <item name="carArrowSpinBars">true</item>
-        <item name="carArrowThickness">4dp</item>
-        <item name="carArrowDrawableSize">@dimen/car_drawer_header_menu_button_size</item>
-        <item name="carArrowTopBottomBarSize">26dp</item>
-        <item name="carArrowBarSize">45dp</item>
-        <item name="carArrowMiddleBarSize">38dp</item>
-        <item name="carArrowGapBetweenBars">10dp</item>
-    </style>
+    <string name="car_font" translatable="false">sans-serif</string>
 </resources>
