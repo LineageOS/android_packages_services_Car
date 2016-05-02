@@ -56,7 +56,7 @@ const char IVehicleNetwork::SERVICE_NAME[] = "com.android.car.vehiclenetwork.IVe
 
 class BpVehicleNetwork : public BpInterface<IVehicleNetwork> {
 public:
-    BpVehicleNetwork(const sp<IBinder> & impl)
+    explicit BpVehicleNetwork(const sp<IBinder> & impl)
         : BpInterface<IVehicleNetwork>(impl) {
     }
 

@@ -49,7 +49,7 @@ const char IVehicleNetworkHalMock::SERVICE_NAME[] =
 
 class BpVehicleNetworkHalMock : public BpInterface<IVehicleNetworkHalMock> {
 public:
-    BpVehicleNetworkHalMock(const sp<IBinder> & impl)
+    explicit BpVehicleNetworkHalMock(const sp<IBinder> & impl)
         : BpInterface<IVehicleNetworkHalMock>(impl) {
     }
 

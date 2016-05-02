@@ -40,7 +40,7 @@ enum {
 class BpVehicleNetworkListener : public BpInterface<IVehicleNetworkListener>
 {
 public:
-    BpVehicleNetworkListener(const sp<IBinder> & impl)
+    explicit BpVehicleNetworkListener(const sp<IBinder> & impl)
         : BpInterface<IVehicleNetworkListener>(impl) {
     }
 

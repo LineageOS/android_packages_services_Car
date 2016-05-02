@@ -41,7 +41,7 @@ int getNumTestPropertiesForAudio();
 
 class VehicleHalMockForAudioFocus : public VehicleHalMock {
 public:
-    VehicleHalMockForAudioFocus(sp<VehicleNetwork>& vn)
+    explicit VehicleHalMockForAudioFocus(sp<VehicleNetwork>& vn)
         : mVN(vn) {
         mAudioProperties = new VehiclePropertiesHolder(false /* deleteConfigsInDestructor */);
         vehicle_prop_config_t const * properties = getTestPropertiesForAudio();
