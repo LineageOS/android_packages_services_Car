@@ -18,16 +18,25 @@
     <!-- hvac -->
     <string name="hvac_acOff">AC OFF</string>
     <string name="hvac_acOn">AC ON</string>
+    <string name="hvac_autoOff">Auto OFF</string>
+    <string name="hvac_autoOn">Auto ON</string>
     <string name="hvac_defrostFrontOff">Front Defrost OFF</string>
     <string name="hvac_defrostFrontOn">Front Defrost ON</string>
     <string name="hvac_defrostRearOff">Rear Defrost OFF</string>
     <string name="hvac_defrostRearOn">Rear Defrost ON</string>
+    <string name="hvac_dualOff">Dual OFF</string>
+    <string name="hvac_dualOn">Dual ON</string>
+    <string name="hvac_maxAcOff">Max AC OFF</string>
+    <string name="hvac_maxAcOn">Max AC ON</string>
     <string name="hvac_positionFace">Face</string>
     <string name="hvac_positionFloor">Floor</string>
-    <string name="hvac_positionFaceAndFloor">Face and Floor</string>
-    <string name="hvac_directionFaceAndDefrost">Face and Defrost</string>
+    <string name="hvac_positionFaceAndFloor">Face+Floor</string>
+    <string name="hvac_positionDefrost">Defrost</string>
+    <string name="hvac_positionDefrostAndFloor">Def+Floor</string>
     <string name="hvac_fanSpeedDn">Fan Speed Down</string>
     <string name="hvac_fanSpeedUp">Fan Speed Up</string>
+    <string name="hvac_recircOff">Recirc OFF</string>
+    <string name="hvac_recircOn">Recirc ON</string>
     <string name="hvac_tempDn">Temp Down</string>
     <string name="hvac_tempUp">Temp Up</string>
     <!-- camera -->
