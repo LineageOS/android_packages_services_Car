@@ -69,6 +69,5 @@ limitations under the License.
         android:id="@+id/right_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginRight="@dimen/car_list_item_right_icon_margin" />
+        android:layout_gravity="center_vertical" />
 </LinearLayout>

@@ -24,10 +24,14 @@ limitations under the License.
     <dimen name="car_list_item_icon_right_margin">38dp</dimen>
 
     <dimen name="car_title_size">32dp</dimen>
-    <dimen name="car_body_1_size">48dp</dimen>
+    <dimen name="car_body_1_size">40dp</dimen>
     <dimen name="car_body_2_size">32dp</dimen>
 
+    <dimen name="car_card_margin">228dp</dimen>
+
     <dimen name="car_list_item_icon_size">124dp</dimen>
+    <dimen name="car_list_item_small_icon_size">56dp</dimen>
+    <dimen name="car_list_item_right_icon_size">56dp</dimen>
 
     <dimen name="car_list_item_height">128dp</dimen>
     <dimen name="car_list_item_height_small">128dp</dimen>

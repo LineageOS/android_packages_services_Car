@@ -58,6 +58,7 @@
     <dimen name="car_list_item_icon_size_small">32dp</dimen>
     <dimen name="car_list_item_small_icon_size">56dp</dimen>
     <dimen name="car_list_item_right_icon_margin">20dp</dimen>
+    <dimen name="car_list_item_right_icon_size">56dp</dimen>
     <dimen name="car_list_unavailable_category_item_height">108dp</dimen>
     <dimen name="car_list_truncated_list_card_height">108dp</dimen>
     <dimen name="car_list_truncated_list_card_elevation">8dp</dimen>
