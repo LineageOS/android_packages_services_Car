@@ -22,6 +22,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -31,6 +32,8 @@ import java.util.List;
 public class TouchPointView extends View {
     @SuppressWarnings("unused")
     private static final String TAG = TouchPointView.class.getSimpleName();
+
+    private static final boolean LOG_ONLY = true;
 
     private final int[] mColors = {
             Color.RED,
@@ -58,6 +61,10 @@ public class TouchPointView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (LOG_ONLY) {
+            logTouchEvents(event);
+            return true;
+        }
         mFingers.clear();
         if (event.getActionMasked() == MotionEvent.ACTION_UP) {
             invalidate();
@@ -76,8 +83,27 @@ public class TouchPointView extends View {
         return true;
     }
 
+    private void logTouchEvents(MotionEvent event) {
+        if (event.getActionMasked() != MotionEvent.ACTION_UP) {
+            return;
+        }
+
+        for (int i = 0; i < event.getPointerCount(); i++) {
+            int pointerId = event.getPointerId(i);
+            int pointerIndex = event.findPointerIndex(pointerId);
+            long downTime = event.getDownTime();
+            long eventTime = event.getEventTime();
+            Log.d(TAG, "TouchUp [x=" + event.getX(pointerIndex) + ", y=" + event.getY(pointerIndex) +
+                  " , pointerId=" + pointerId + ", pointerIndex=" + pointerIndex + ", duration=" +
+                  (eventTime - downTime) + "]");
+        }
+    }
+
     @Override
     public void onDraw(Canvas canvas) {
+        if (LOG_ONLY) {
+            return;
+        }
         int radius = canvas.getWidth() / 20;
         for (int i = 0; i < mFingers.size(); i++) {
             Finger finger = mFingers.get(i);
