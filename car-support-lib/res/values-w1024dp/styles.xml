@@ -17,11 +17,11 @@ limitations under the License.
     <style name="CarDrawerArrowDrawable" >
         <item name="carArrowColor">@android:color/white</item>
         <item name="carArrowSpinBars">true</item>
-        <item name="carArrowThickness">4dp</item>
+        <item name="carArrowThickness">2.5dp</item>
         <item name="carArrowDrawableSize">@dimen/car_drawer_header_menu_button_size</item>
-        <item name="carArrowTopBottomBarSize">26dp</item>
-        <item name="carArrowBarSize">45dp</item>
-        <item name="carArrowMiddleBarSize">38dp</item>
-        <item name="carArrowGapBetweenBars">10dp</item>
+        <item name="carArrowTopBottomBarSize">36dp</item>
+        <item name="carArrowBarSize">56dp</item>
+        <item name="carArrowMiddleBarSize">52dp</item>
+        <item name="carArrowGapBetweenBars">16dp</item>
     </style>
 </resources>

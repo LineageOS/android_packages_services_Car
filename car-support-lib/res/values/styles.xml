@@ -15,7 +15,7 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android" >
     <style name="CarHeadline1" >
-        <item name="android:fontFamily">@string/car_font</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_headline_1_size</item>
         <item name="android:textColor">@color/car_headline1</item>
@@ -30,7 +30,7 @@
     </style>
 
     <style name="CarHeadline2" >
-        <item name="android:fontFamily">@string/car_font</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_headline_2_size</item>
         <item name="android:textColor">@color/car_headline1</item>
@@ -46,7 +46,7 @@
     </style>
 
     <style name="CarTitle" >
-        <item name="android:fontFamily">@string/car_font</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_title_size</item>
         <item name="android:textColor">@color/car_title</item>
@@ -62,7 +62,7 @@
     </style>
 
     <style name="CarBody1" >
-        <item name="android:fontFamily">@string/car_font</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_body_1_size</item>
         <item name="android:textColor">@color/car_body1</item>
@@ -78,7 +78,7 @@
     </style>
 
     <style name="CarBody2" >
-        <item name="android:fontFamily">@string/car_font</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_body_2_size</item>
         <item name="android:textColor">@color/car_body2</item>
@@ -90,7 +90,7 @@
     </style>
 
     <style name="CarCaption" >
-        <item name="android:fontFamily">@string/car_font</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_caption_size</item>
         <item name="android:textColor">@color/car_caption</item>
@@ -105,7 +105,7 @@
     </style>
 
     <style name="CarMicro" >
-        <item name="android:fontFamily">@string/car_font</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_micro_size</item>
         <item name="android:textColor">@color/car_micro</item>
@@ -131,7 +131,7 @@
     </style>
 
     <style name="Toast" >
-        <item name="android:fontFamily">@string/car_font</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_title_size</item>
         <item name="android:textColor">@color/car_grey_100</item>
@@ -139,14 +139,14 @@
     </style>
 
     <style name="CarUnavailableCategory" >
-        <item name="android:fontFamily">@string/car_font</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_body_2_size</item>
         <item name="android:textColor">@color/car_unavailable_category</item>
     </style>
 
     <style name="CarTruncatedList" >
-        <item name="android:fontFamily">@string/car_font</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_body_2_size</item>
         <item name="android:textColor">@color/car_grey_50</item>
