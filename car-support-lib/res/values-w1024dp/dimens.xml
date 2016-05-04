@@ -29,7 +29,7 @@ limitations under the License.
 
     <dimen name="car_card_margin">228dp</dimen>
 
-    <dimen name="car_list_item_icon_size">124dp</dimen>
+    <dimen name="car_list_item_icon_size">108dp</dimen>
     <dimen name="car_list_item_small_icon_size">56dp</dimen>
     <dimen name="car_list_item_right_icon_size">56dp</dimen>
 
