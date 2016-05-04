@@ -28,6 +28,7 @@ import android.util.Log;
 import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
+import com.android.car.vehiclenetwork.VehicleNetwork;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
@@ -206,6 +207,8 @@ public class HvacHalService extends HalServiceBase {
                 return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_SPEED;
             case HvacPropertyId.ZONED_FAN_POSITION:
                 return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION;
+            case HvacPropertyId.OUTSIDE_AIR_TEMP:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_ENV_OUTSIDE_TEMPERATURE;
             case HvacPropertyId.ZONED_TEMP_ACTUAL:
                 return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_CURRENT;
             case HvacPropertyId.ZONED_TEMP_SETPOINT:
@@ -222,6 +225,8 @@ public class HvacHalService extends HalServiceBase {
                 return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_AC_ON;
             case HvacPropertyId.ZONED_DUAL_ZONE_ON:
                 return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DUAL_ON;
+            case HvacPropertyId.ZONED_MAX_DEFROST_ON:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_DEFROST_ON;
             default:
                 throw new IllegalArgumentException("hvacPropId " + hvacPropId + " is not supported");
         }
@@ -234,6 +239,8 @@ public class HvacHalService extends HalServiceBase {
                 return HvacPropertyId.ZONED_FAN_SPEED_SETPOINT;
             case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION:
                 return HvacPropertyId.ZONED_FAN_POSITION;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_ENV_OUTSIDE_TEMPERATURE:
+                return HvacPropertyId.OUTSIDE_AIR_TEMP;
             case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_CURRENT:
                 return HvacPropertyId.ZONED_TEMP_ACTUAL;
             case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET:
@@ -250,6 +257,8 @@ public class HvacHalService extends HalServiceBase {
                 return HvacPropertyId.ZONED_MAX_AC_ON;
             case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DUAL_ON:
                 return HvacPropertyId.ZONED_DUAL_ZONE_ON;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_DEFROST_ON:
+                return HvacPropertyId.ZONED_MAX_DEFROST_ON;
             default:
                 throw new IllegalArgumentException("halPropId " + halPropId + " is not supported");
         }

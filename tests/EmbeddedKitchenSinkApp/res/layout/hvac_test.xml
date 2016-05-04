@@ -31,6 +31,29 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_width = "wrap_content">
+            <TextView
+                android:gravity="bottom"
+                android:id="@+id/tvOutsideTempLabel"
+                android:layout_height="120dp"
+                android:layout_width ="250dp"
+                android:layout_weight="1"
+                android:text="@string/hvac_outsideTempLabel"
+                android:textSize="@dimen/hvacTextSize"/>
+
+            <TextView
+                android:gravity="center"
+                android:id="@+id/tvOutsideTemp"
+                android:layout_height="50dp"
+                android:layout_width ="250dp"
+                android:layout_weight="1"
+                android:textSize="@dimen/hvacTextSize"/>
+        </LinearLayout>
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_width = "wrap_content">
 
             <Button
                 android:clickable="false"
@@ -38,14 +61,14 @@
                 android:layout_height="@dimen/hvacBtnHeight"
                 android:layout_width ="250dp"
                 android:text="@string/hvac_tempUp"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
 
             <TextView
                 android:gravity="center"
                 android:id="@+id/tvDTemp"
                 android:layout_height="50dp"
                 android:layout_width ="250dp"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
 
             <Button
                 android:clickable="false"
@@ -53,7 +76,7 @@
                 android:layout_height="@dimen/hvacBtnHeight"
                 android:layout_width ="250dp"
                 android:text="@string/hvac_tempDn"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
         </LinearLayout>
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -69,14 +92,14 @@
                 android:layout_height="@dimen/hvacBtnHeight"
                 android:layout_width ="250dp"
                 android:text="@string/hvac_fanSpeedUp"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
 
             <TextView
                 android:gravity="center"
                 android:id="@+id/tvFanSpeed"
                 android:layout_height="50dp"
                 android:layout_width ="250dp"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
 
             <Button
                 android:clickable="false"
@@ -84,7 +107,7 @@
                 android:layout_height="@dimen/hvacBtnHeight"
                 android:layout_width ="250dp"
                 android:text="@string/hvac_fanSpeedDn"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
         </LinearLayout>
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -100,14 +123,14 @@
                 android:layout_height="@dimen/hvacBtnHeight"
                 android:layout_width ="250dp"
                 android:text="@string/hvac_tempUp"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
 
             <TextView
                 android:gravity="center"
                 android:id="@+id/tvPTemp"
                 android:layout_height="50dp"
                 android:layout_width ="250dp"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
 
             <Button
                 android:clickable="false"
@@ -115,7 +138,7 @@
                 android:layout_height="@dimen/hvacBtnHeight"
                 android:layout_width ="250dp"
                 android:text="@string/hvac_tempDn"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
         </LinearLayout>
     </LinearLayout>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -134,27 +157,27 @@
                 android:clickable="false"
                 android:id="@+id/rbPositionFace"
                 android:text="@string/hvac_positionFace"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
             <RadioButton
                 android:clickable="false"
                 android:id="@+id/rbPositionFloor"
                 android:text="@string/hvac_positionFloor"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
             <RadioButton
                 android:clickable="false"
                 android:id="@+id/rbPositionFaceAndFloor"
                 android:text="@string/hvac_positionFaceAndFloor"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
             <RadioButton
                 android:clickable="false"
                 android:id="@+id/rbPositionDefrost"
                 android:text="@string/hvac_positionDefrost"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
             <RadioButton
                 android:clickable="false"
                 android:id="@+id/rbPositionDefrostAndFloor"
                 android:text="@string/hvac_positionDefrostAndFloor"
-                android:textSize="32sp"/>
+                android:textSize="@dimen/hvacTextSize"/>
         </RadioGroup>
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -176,17 +199,27 @@
                     android:layout_width ="0dp"
                     android:textOff="@string/hvac_defrostFrontOff"
                     android:textOn="@string/hvac_defrostFrontOn"
-                    android:textSize="32sp"/>
+                    android:textSize="@dimen/hvacTextSize"/>
 
                 <ToggleButton
                     android:clickable="false"
-                    android:id="@+id/tbAc"
+                    android:id="@+id/tbMaxAc"
                     android:layout_height="@dimen/hvacBtnHeight"
                     android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:textOff="@string/hvac_acOff"
-                    android:textOn="@string/hvac_acOn"
-                    android:textSize="32sp"/>
+                    android:layout_width ="0dp"
+                    android:textOff="@string/hvac_maxAcOff"
+                    android:textOn="@string/hvac_maxAcOn"
+                    android:textSize="@dimen/hvacTextSize"/>
+
+                <ToggleButton
+                    android:clickable="false"
+                    android:id="@+id/tbMaxDefrost"
+                    android:layout_height="@dimen/hvacBtnHeight"
+                    android:layout_weight="1"
+                    android:layout_width ="0dp"
+                    android:textOff="@string/hvac_maxDefrostOff"
+                    android:textOn="@string/hvac_maxDefrostOn"
+                    android:textSize="@dimen/hvacTextSize"/>
 
                 <ToggleButton
                     android:clickable="false"
@@ -196,7 +229,7 @@
                     android:layout_width ="0dp"
                     android:textOff="@string/hvac_defrostRearOff"
                     android:textOn="@string/hvac_defrostRearOn"
-                    android:textSize="32sp"/>
+                    android:textSize="@dimen/hvacTextSize"/>
             </LinearLayout>
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_height="wrap_content"
@@ -212,7 +245,17 @@
                     android:layout_width ="0dp"
                     android:textOff="@string/hvac_autoOff"
                     android:textOn="@string/hvac_autoOn"
-                    android:textSize="32sp"/>
+                    android:textSize="@dimen/hvacTextSize"/>
+
+                <ToggleButton
+                    android:clickable="false"
+                    android:id="@+id/tbAc"
+                    android:layout_height="@dimen/hvacBtnHeight"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:textOff="@string/hvac_acOff"
+                    android:textOn="@string/hvac_acOn"
+                    android:textSize="@dimen/hvacTextSize"/>
 
                 <ToggleButton
                     android:clickable="false"
@@ -222,17 +265,7 @@
                     android:layout_width ="0dp"
                     android:textOff="@string/hvac_dualOff"
                     android:textOn="@string/hvac_dualOn"
-                    android:textSize="32sp"/>
-
-                <ToggleButton
-                    android:clickable="false"
-                    android:id="@+id/tbMaxAc"
-                    android:layout_height="@dimen/hvacBtnHeight"
-                    android:layout_weight="1"
-                    android:layout_width ="0dp"
-                    android:textOff="@string/hvac_maxAcOff"
-                    android:textOn="@string/hvac_maxAcOn"
-                    android:textSize="32sp"/>
+                    android:textSize="@dimen/hvacTextSize"/>
 
                 <ToggleButton
                     android:clickable="false"
@@ -242,7 +275,7 @@
                     android:layout_width ="0dp"
                     android:textOff="@string/hvac_recircOff"
                     android:textOn="@string/hvac_recircOn"
-                    android:textSize="32sp"/>
+                    android:textSize="@dimen/hvacTextSize"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
