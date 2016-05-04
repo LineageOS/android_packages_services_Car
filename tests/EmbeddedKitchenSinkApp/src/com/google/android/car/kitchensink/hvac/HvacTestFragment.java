@@ -349,8 +349,8 @@ public class HvacTestFragment extends Fragment {
     }
 
     private void configureFanSpeed(View v, CarPropertyConfig prop) {
-        mMinFanSpeed = 0;
-        mMaxFanSpeed = 7;
+        mMinFanSpeed = ((Integer)prop.getMinValue()).intValue();
+        mMaxFanSpeed = ((Integer)prop.getMaxValue()).intValue();
         mZoneForFanSpeed = prop.getFirstAndOnlyAreaId();
         try {
             mCurFanSpeed = mCarHvacManager.getIntProperty(
@@ -392,8 +392,8 @@ public class HvacTestFragment extends Fragment {
     }
 
     private void configureTempSetpoint(View v, CarPropertyConfig prop) {
-        mMinTemp = 59;
-        mMaxTemp = 85;
+        mMinTemp = ((Float)prop.getMinValue()).floatValue();
+        mMaxTemp = ((Float)prop.getMaxValue()).floatValue();
 
         if (mMaxTemp > 50) {
             // Assume it's Fahrenheit
