@@ -17,4 +17,5 @@
     <dimen name="car_drawer_header_height">96dp</dimen>
     <dimen name="car_drawer_header_menu_button_size">96dp</dimen>
     <dimen name="car_drawer_button_margin">0dp</dimen>
+    <dimen name="car_drawer_button_margin_right">0dp</dimen>
 </resources>

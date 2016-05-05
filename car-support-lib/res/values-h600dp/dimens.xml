@@ -21,7 +21,7 @@ limitations under the License.
      for all screen sizes -->
     <dimen name="car_list_item_right_icon_margin">112dp</dimen>
 
-    <dimen name="car_list_item_icon_right_margin">38dp</dimen>
+    <dimen name="car_list_item_icon_right_margin">60dp</dimen>
 
     <dimen name="car_title_size">32dp</dimen>
     <dimen name="car_body_1_size">40dp</dimen>
