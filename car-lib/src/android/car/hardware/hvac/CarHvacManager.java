@@ -54,6 +54,7 @@ public class CarHvacManager implements CarManagerBase {
     @IntDef({
             HvacPropertyId.MIRROR_DEFROSTER_ON,
             HvacPropertyId.STEERING_WHEEL_TEMP,
+            HvacPropertyId.OUTSIDE_AIR_TEMP,
             HvacPropertyId.MAX_GLOBAL_PROPERTY_ID,
             HvacPropertyId.ZONED_TEMP_SETPOINT,
             HvacPropertyId.ZONED_TEMP_ACTUAL,
@@ -68,6 +69,7 @@ public class CarHvacManager implements CarManagerBase {
             HvacPropertyId.ZONED_AIR_RECIRCULATION_ON,
             HvacPropertyId.ZONED_MAX_AC_ON,
             HvacPropertyId.ZONED_DUAL_ZONE_ON,
+            HvacPropertyId.ZONED_MAX_DEFROST_ON,
             HvacPropertyId.WINDOW_DEFROSTER_ON,
     })
     public @interface HvacPropertyId {
@@ -80,6 +82,8 @@ public class CarHvacManager implements CarManagerBase {
         /** Steering wheel temp:  negative values indicate cooling, positive values indicate
          * heat, int. */
         int STEERING_WHEEL_TEMP = 0x0002;
+        /** Outside air temperature, float. */
+        int OUTSIDE_AIR_TEMP = 0x0003;
 
         /** The maximum id that can be assigned to global (non-zoned) property. */
         int MAX_GLOBAL_PROPERTY_ID = 0x3fff;
@@ -117,6 +121,8 @@ public class CarHvacManager implements CarManagerBase {
         int ZONED_MAX_AC_ON = 0x400C;
         /** Dual zone is enabled, bool. */
         int ZONED_DUAL_ZONE_ON = 0x400D;
+        /** Max Defrost is active, bool. */
+        int ZONED_MAX_DEFROST_ON = 0x400E;
         /** Defroster is based off of window position, bool */
         int WINDOW_DEFROSTER_ON = 0x5001;
     }

@@ -28,6 +28,9 @@
     <string name="hvac_dualOn">Dual ON</string>
     <string name="hvac_maxAcOff">Max AC OFF</string>
     <string name="hvac_maxAcOn">Max AC ON</string>
+    <string name="hvac_maxDefrostOff">Max DEF OFF</string>
+    <string name="hvac_maxDefrostOn">Max DEF ON</string>
+    <string name="hvac_outsideTempLabel">Outside Temp:</string>
     <string name="hvac_positionFace">Face</string>
     <string name="hvac_positionFloor">Floor</string>
     <string name="hvac_positionFaceAndFloor">Face+Floor</string>

@@ -58,10 +58,12 @@ public class HvacTestFragment extends Fragment {
     private ToggleButton mTbDefrostRear;
     private ToggleButton mTbDual;
     private ToggleButton mTbMaxAc;
+    private ToggleButton mTbMaxDefrost;
     private ToggleButton mTbRecirc;
     private TextView mTvFanSpeed;
     private TextView mTvDTemp;
     private TextView mTvPTemp;
+    private TextView mTvOutsideTemp;
     private int mCurFanSpeed;
     private int mMinFanSpeed;
     private int mMaxFanSpeed;
@@ -83,6 +85,9 @@ public class HvacTestFragment extends Fragment {
                 public void onChangeEvent(final CarPropertyValue value) {
                     int zones = value.getAreaId();
                     switch(value.getPropertyId()) {
+                        case HvacPropertyId.OUTSIDE_AIR_TEMP:
+                            mTvOutsideTemp.setText(String.valueOf(value.getValue()));
+                            break;
                         case HvacPropertyId.ZONED_DUAL_ZONE_ON:
                             mTbDual.setChecked((boolean)value.getValue());
                             break;
@@ -139,6 +144,9 @@ public class HvacTestFragment extends Fragment {
                                 mCurPTemp = (float)value.getValue();
                                 mTvPTemp.setText(String.valueOf(mCurPTemp));
                             }
+                            break;
+                        case HvacPropertyId.ZONED_MAX_DEFROST_ON:
+                            mTbMaxDefrost.setChecked((boolean)value.getValue());
                             break;
                         case HvacPropertyId.WINDOW_DEFROSTER_ON:
                             if((zones & VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD) ==
@@ -203,6 +211,9 @@ public class HvacTestFragment extends Fragment {
             }
 
             switch(propId) {
+                case HvacPropertyId.OUTSIDE_AIR_TEMP:
+                    configureOutsideTemp(v, prop);
+                    break;
                 case HvacPropertyId.ZONED_DUAL_ZONE_ON:
                     configureDualOn(v, prop);
                     break;
@@ -227,6 +238,9 @@ public class HvacTestFragment extends Fragment {
                 case HvacPropertyId.ZONED_MAX_AC_ON:
                     configureMaxAcOn(v, prop);
                     break;
+                case HvacPropertyId.ZONED_MAX_DEFROST_ON:
+                    configureMaxDefrostOn(v, prop);
+                    break;
                 case HvacPropertyId.WINDOW_DEFROSTER_ON:
                     configureDefrosterOn(v, prop);
                     break;
@@ -242,6 +256,8 @@ public class HvacTestFragment extends Fragment {
         mTvDTemp.setText(String.valueOf(mCurDTemp));
         mTvPTemp = (TextView) v.findViewById(R.id.tvPTemp);
         mTvPTemp.setText(String.valueOf(mCurPTemp));
+        mTvOutsideTemp = (TextView) v.findViewById(R.id.tvOutsideTemp);
+        mTvOutsideTemp.setText("N/A");
 
         if(DBG) {
             Log.d(TAG, "Starting HvacTestFragment");
@@ -253,6 +269,10 @@ public class HvacTestFragment extends Fragment {
     public void setHvacManager(CarHvacManager hvacManager) {
         Log.d(TAG, "setHvacManager()");
         mCarHvacManager = hvacManager;
+    }
+
+    private void configureOutsideTemp(View v, CarPropertyConfig prop) {
+        // Do nothing
     }
 
     private void configureDualOn(View v, CarPropertyConfig prop) {
@@ -569,6 +589,22 @@ public class HvacTestFragment extends Fragment {
             try {
                 mCarHvacManager.setBooleanProperty(HvacPropertyId.ZONED_MAX_AC_ON,temp,
                         mTbMaxAc.isChecked());
+            } catch (CarNotConnectedException e) {
+                Log.e(TAG, "Failed to set HVAC boolean property", e);
+            }
+        });
+    }
+
+    private void configureMaxDefrostOn(View v, CarPropertyConfig prop) {
+        int temp = prop.getFirstAndOnlyAreaId();
+        mTbMaxDefrost = (ToggleButton)v.findViewById(R.id.tbMaxDefrost);
+        mTbMaxDefrost.setEnabled(true);
+
+        mTbMaxDefrost.setOnClickListener(view -> {
+            // TODO handle zone properly
+            try {
+                mCarHvacManager.setBooleanProperty(HvacPropertyId.ZONED_MAX_DEFROST_ON,temp,
+                        mTbMaxDefrost.isChecked());
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Failed to set HVAC boolean property", e);
             }
