@@ -40,6 +40,7 @@ import android.util.Log;
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
 import com.google.android.car.kitchensink.camera.CameraTestFragment;
 import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
+import com.google.android.car.kitchensink.cube.CubesTestFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
 import com.google.android.car.kitchensink.input.InputTestFragment;
 import com.google.android.car.kitchensink.job.JobSchedulerFragment;
@@ -67,6 +68,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String MENU_SENSORS = "sensors";
     private static final String MENU_VOLUME_TEST = "volume test";
     private static final String MENU_TOUCH_TEST = "touch test";
+    private static final String MENU_CUBES_TEST = "cubes test";
 
     private Car mCarApi;
     private CarCameraManager mCameraManager;
@@ -87,6 +89,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private InputTestFragment mInputTestFragment;
     private VolumeTestFragment mVolumeTestFragment;
     private TouchTestFragment mTouchTestFragment;
+    private CubesTestFragment mCubesTestFragment;
 
     private final CarSensorManager.CarSensorEventListener mListener =
             new CarSensorManager.CarSensorEventListener() {
@@ -227,7 +230,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 String[] allMenus = {
                         MENU_AUDIO, MENU_RADIO, MENU_CAMERA, MENU_HVAC, MENU_JOB, MENU_KEYBOARD,
                         MENU_CLUSTER, MENU_INPUT_TEST, MENU_SENSORS, MENU_VOLUME_TEST,
-                        MENU_TOUCH_TEST, MENU_QUIT
+                        MENU_TOUCH_TEST, MENU_CUBES_TEST, MENU_QUIT
                 };
                 for (String menu : allMenus) {
                     items.add(new CarMenu.Builder(menu).setText(menu).build());
@@ -304,6 +307,11 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                     mTouchTestFragment = new TouchTestFragment();
                 }
                 setContentFragment(mTouchTestFragment);
+            } else if (id.equals(MENU_CUBES_TEST)) {
+                if (mCubesTestFragment == null) {
+                    mCubesTestFragment = new CubesTestFragment();
+                }
+                setContentFragment(mCubesTestFragment);
             } else if (id.equals(MENU_QUIT)) {
                 finish();
             }
