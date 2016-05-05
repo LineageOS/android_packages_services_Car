@@ -97,10 +97,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     private AudioRoutingPolicy mAudioRoutingPolicy;
     private final AudioManager mAudioManager;
     private final CanBusErrorNotifier mCanBusErrorNotifier;
-    private final BottomAudioFocusListener mBottomAudioFocusHandler =
+    private final BottomAudioFocusListener mBottomAudioFocusListener =
             new BottomAudioFocusListener();
-    private final CarProxyAndroidFocusListener mCarProxyAudioFocusHandler =
+    private final CarProxyAndroidFocusListener mCarProxyAudioFocusListener =
             new CarProxyAndroidFocusListener();
+    private final MediaMuteAudioFocusListener mMediaMuteAudioFocusListener =
+            new MediaMuteAudioFocusListener();
+
     @GuardedBy("mLock")
     private int mBottomFocusState;
     @GuardedBy("mLock")
@@ -161,7 +164,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         if (isFocusSupported) {
             builder.setAudioPolicyFocusListener(mSystemFocusListener);
             FocusState currentState = FocusState.create(mAudioHal.getCurrentFocusState());
-            int r = mAudioManager.requestAudioFocus(mBottomAudioFocusHandler, mAttributeBottom,
+            int r = mAudioManager.requestAudioFocus(mBottomAudioFocusListener, mAttributeBottom,
                     AudioManager.AUDIOFOCUS_GAIN, AudioManager.AUDIOFOCUS_FLAG_DELAY_OK);
             synchronized (mLock) {
                 if (r == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
@@ -176,7 +179,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         int audioHwVariant = mAudioHal.getHwVariant();
         AudioRoutingPolicy audioRoutingPolicy = AudioRoutingPolicy.create(mContext, audioHwVariant);
         if (mUseDynamicRouting) {
-            setupDynamicRoutng(audioRoutingPolicy, builder);
+            setupDynamicRouting(audioRoutingPolicy, builder);
         }
         AudioPolicy audioPolicy = null;
         if (isFocusSupported || mUseDynamicRouting) {
@@ -198,11 +201,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         mVolumeService.init();
     }
 
-    private void setupDynamicRoutng(AudioRoutingPolicy audioRoutingPolicy,
+    private void setupDynamicRouting(AudioRoutingPolicy audioRoutingPolicy,
             AudioPolicy.Builder audioPolicyBuilder) {
         AudioDeviceInfo[] deviceInfos = mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
         if (deviceInfos.length == 0) {
-            Log.e(CarLog.TAG_AUDIO, "setupDynamicRoutng, no output device available, ignore");
+            Log.e(CarLog.TAG_AUDIO, "setupDynamicRouting, no output device available, ignore");
             return;
         }
         int numPhysicalStreams = audioRoutingPolicy.getPhysicalStreamsCount();
@@ -228,7 +231,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         for (int i = 0; i < numPhysicalStreams; i++) {
             AudioDeviceInfo info = devicesToRoute[i];
             if (info == null) {
-                Log.e(CarLog.TAG_AUDIO, "setupDynamicRoutng, cannot find device for address " + i);
+                Log.e(CarLog.TAG_AUDIO, "setupDynamicRouting, cannot find device for address " + i);
                 return;
             }
             int sampleRate = getMaxSampleRate(info);
@@ -311,8 +314,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     @Override
     public void release() {
         mFocusHandler.cancelAll();
-        mAudioManager.abandonAudioFocus(mBottomAudioFocusHandler);
-        mAudioManager.abandonAudioFocus(mCarProxyAudioFocusHandler);
+        mAudioManager.abandonAudioFocus(mBottomAudioFocusListener);
+        mAudioManager.abandonAudioFocus(mCarProxyAudioFocusListener);
         AudioPolicy audioPolicy;
         synchronized (mLock) {
             mCurrentFocusState = FocusState.STATE_LOSS;
@@ -357,6 +360,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 " mCurrentPrimaryPhysicalStream:" + mCurrentPrimaryPhysicalStream);
         writer.println(" mIsRadioExternal:" + mIsRadioExternal);
         writer.println(" mNumConsecutiveHalFailures:" + mNumConsecutiveHalFailures);
+        writer.println(" media muted:" + mMediaMuteAudioFocusListener.isMuted());
+        writer.println(" mAudioPolicy:" + mAudioPolicy);
         mAudioRoutingPolicy.dump(writer);
     }
 
@@ -403,6 +408,39 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     public int getStreamVolume(int streamType) {
         enforceAudioVolumePermission();
         return mVolumeService.getStreamVolume(streamType);
+    }
+
+    @Override
+    public boolean isMediaMuted() {
+        return mMediaMuteAudioFocusListener.isMuted();
+    }
+
+    @Override
+    public boolean setMediaMute(boolean mute) {
+        enforceAudioVolumePermission();
+        boolean currentState = isMediaMuted();
+        if (mute == currentState) {
+            return currentState;
+        }
+        if (mute) {
+            return mMediaMuteAudioFocusListener.mute();
+        } else {
+            return mMediaMuteAudioFocusListener.unMute();
+        }
+    }
+
+    /**
+     * API for system to control mute with lock.
+     * @param mute
+     * @return the current mute state
+     */
+    public void muteMediaWithLock(boolean lock) {
+        mMediaMuteAudioFocusListener.mute(lock);
+    }
+
+    public void unMuteMedia() {
+        // unmute always done with lock
+        mMediaMuteAudioFocusListener.unMute(true);
     }
 
     public AudioRoutingPolicy getAudioRoutingPolicy() {
@@ -464,6 +502,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 newFocusState = AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS;
                 mRadioActive = false;
             }
+            if (newFocusState == AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS ||
+                    newFocusState == AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT ||
+                    newFocusState ==
+                        AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_EXLCUSIVE) {
+                // clear second one as there can be no such item in these LOSS.
+                mSecondFocusInfo = null;
+            }
         }
         switch (newFocusState) {
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN:
@@ -493,7 +538,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                     " while bottom listener is top");
             mFocusHandler.handleFocusReleaseRequest();
         } else {
-            mAudioManager.abandonAudioFocus(mCarProxyAudioFocusHandler);
+            mAudioManager.abandonAudioFocus(mCarProxyAudioFocusListener);
         }
     }
 
@@ -502,7 +547,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         if ((currentState.externalFocus &
                 (AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_PERMANENT_FLAG |
                         AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_TRANSIENT_FLAG)) == 0) {
-            mAudioManager.abandonAudioFocus(mCarProxyAudioFocusHandler);
+            mAudioManager.abandonAudioFocus(mCarProxyAudioFocusListener);
         } else {
             if (isFocusFromCarServiceBottom(topInfo) || isFocusFromCarProxy(topInfo)) {
                 Log.w(TAG_FOCUS, "focus gain transient from car:" + currentState +
@@ -547,7 +592,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     }
 
     private void requestCarProxyFocus(int androidFocus, int flags) {
-        mAudioManager.requestAudioFocus(mCarProxyAudioFocusHandler, mAttributeCarExternal,
+        mAudioManager.requestAudioFocus(mCarProxyAudioFocusListener, mAttributeCarExternal,
                 androidFocus, flags, mAudioPolicy);
     }
 
@@ -643,11 +688,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         AudioAttributes attrib = mTopFocusInfo.getAttributes();
         int logicalStreamTypeForTop = CarAudioAttributesUtil.getCarUsageFromAudioAttributes(attrib);
         int physicalStreamTypeForTop = mAudioRoutingPolicy.getPhysicalStreamForLogicalStream(
-                logicalStreamTypeForTop);
+                (logicalStreamTypeForTop < CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_BOTTOM)
+                ? logicalStreamTypeForTop : CarAudioManager.CAR_AUDIO_USAGE_MUSIC);
 
+        boolean muteMedia = false;
         // update primary context and notify if necessary
         int primaryContext = AudioHalService.logicalStreamToHalContextType(logicalStreamTypeForTop);
         switch (logicalStreamTypeForTop) {
+            case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_MEDIA_MUTE:
+                muteMedia = true;
+                // remaining parts the same with other cases. fall through.
             case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_BOTTOM:
             case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY:
                 primaryContext = 0;
@@ -672,8 +722,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             if (mCallActive) {
                 mCallActive = false;
             }
-            audioContexts =
-                    AudioHalService.logicalStreamToHalContextType(logicalStreamTypeForTop);
+            audioContexts = primaryContext;
         }
         // other apps having focus
         int focusToRequest = AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE;
@@ -695,9 +744,25 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 focusToRequest = AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT;
                 break;
             case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
-                audioContexts |= getAudioContext(mSecondFocusInfo);
                 focusToRequest =
                     AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK;
+                if (mSecondFocusInfo == null) {
+                    break;
+                }
+                AudioAttributes secondAttrib = mSecondFocusInfo.getAttributes();
+                if (secondAttrib == null) {
+                    break;
+                }
+                int logicalStreamTypeForSecond =
+                        CarAudioAttributesUtil.getCarUsageFromAudioAttributes(secondAttrib);
+                if (logicalStreamTypeForSecond ==
+                        CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_MEDIA_MUTE) {
+                    muteMedia = true;
+                    break;
+                }
+                int secondContext = AudioHalService.logicalStreamToHalContextType(
+                        logicalStreamTypeForSecond);
+                audioContexts |= secondContext;
                 switch (mCurrentFocusState.focusState) {
                     case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN:
                         streamsToRequest |= mCurrentFocusState.streams;
@@ -720,7 +785,15 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 streamsToRequest = 0;
                 break;
         }
-        if (mRadioActive) {
+        if (muteMedia) {
+            mRadioActive = false;
+            audioContexts &= ~(AudioHalService.AUDIO_CONTEXT_RADIO_FLAG |
+                    AudioHalService.AUDIO_CONTEXT_MUSIC_FLAG);
+            extFocus = AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG;
+            int radioPhysicalStream = mAudioRoutingPolicy.getPhysicalStreamForLogicalStream(
+                    CarAudioManager.CAR_AUDIO_USAGE_RADIO);
+            streamsToRequest &= ~(0x1 << radioPhysicalStream);
+        } else if (mRadioActive) {
             // TODO any need to keep media stream while radio is active?
             //     Most cars do not allow that, but if mixing is possible, it can take media stream.
             //     For now, assume no mixing capability.
@@ -747,18 +820,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 audioContexts);
     }
 
-    private static int getAudioContext(AudioFocusInfo info) {
-        if (info == null) {
-            return 0;
-        }
-        AudioAttributes attrib = info.getAttributes();
-        if (attrib == null) {
-            return AudioHalService.AUDIO_CONTEXT_UNKNOWN_FLAG;
-        }
-        return AudioHalService.logicalStreamToHalContextType(
-                CarAudioAttributesUtil.getCarUsageFromAudioAttributes(attrib));
-    }
-
     private boolean sendFocusRequestToCarIfNecessaryLocked(int focusToRequest,
             int streamsToRequest, int extFocus, int audioContexts) {
         if (needsToSendFocusRequestLocked(focusToRequest, streamsToRequest, extFocus,
@@ -770,8 +831,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 Log.d(TAG_FOCUS, "focus request to car:" + mLastFocusRequestToCar + " context:0x" +
                         Integer.toHexString(audioContexts));
             }
-            mAudioHal.requestAudioFocusChange(focusToRequest, streamsToRequest, extFocus,
-                    audioContexts);
+            try {
+                mAudioHal.requestAudioFocusChange(focusToRequest, streamsToRequest, extFocus,
+                        audioContexts);
+            } catch (IllegalArgumentException e) {
+                // can happen when mocking ends. ignore. timeout will handle it properly.
+            }
             try {
                 mLock.wait(mFocusResponseWaitTimeoutMs);
             } catch (InterruptedException e) {
@@ -891,8 +956,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 }
                 mLastFocusRequestToCar = FocusRequest.STATE_RELEASE;
                 sent = true;
-                mAudioHal.requestAudioFocusChange(
-                        AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, 0, 0);
+                try {
+                    mAudioHal.requestAudioFocusChange(
+                            AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, 0, 0);
+                } catch (IllegalArgumentException e) {
+                    // can happen when mocking ends. ignore. timeout will handle it properly.
+                }
                 try {
                     mLock.wait(mFocusResponseWaitTimeoutMs);
                 } catch (InterruptedException e) {
@@ -991,6 +1060,98 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             synchronized (mLock) {
                 mBottomFocusState = focusChange;
             }
+        }
+    }
+
+    private class MediaMuteAudioFocusListener implements AudioManager.OnAudioFocusChangeListener {
+
+        private final AudioAttributes mMuteAudioAttrib =
+                CarAudioAttributesUtil.getAudioAttributesForCarUsage(
+                        CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_MEDIA_MUTE);
+
+        /** not muted */
+        private final static int MUTE_STATE_UNMUTED = 0;
+        /** muted. other app requesting focus GAIN will unmute it */
+        private final static int MUTE_STATE_MUTED = 1;
+        /** locked. only system can unlock and send it to muted or unmuted state */
+        private final static int MUTE_STATE_LOCKED = 2;
+
+        private int mMuteState = MUTE_STATE_UNMUTED;
+
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+                // mute does not persist when there is other media kind app taking focus
+                unMute();
+            }
+        }
+
+        public boolean mute() {
+            return mute(false);
+        }
+
+        /**
+         * Mute with optional lock
+         * @param lock Take focus with lock. Normal apps cannot take focus. Setting this will
+         *             essentially mute all audio.
+         * @return Final mute state
+         */
+        public synchronized boolean mute(boolean lock) {
+            int result = AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+            boolean lockRequested = false;
+            if (lock) {
+                AudioPolicy audioPolicy = null;
+                synchronized (CarAudioService.this) {
+                    audioPolicy = mAudioPolicy;
+                }
+                if (audioPolicy != null) {
+                    result =  mAudioManager.requestAudioFocus(this, mMuteAudioAttrib,
+                            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT,
+                            AudioManager.AUDIOFOCUS_FLAG_LOCK |
+                            AudioManager.AUDIOFOCUS_FLAG_DELAY_OK,
+                            audioPolicy);
+                    lockRequested = true;
+                }
+            }
+            if (!lockRequested) {
+                result = mAudioManager.requestAudioFocus(this, mMuteAudioAttrib,
+                        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT,
+                        AudioManager.AUDIOFOCUS_FLAG_DELAY_OK);
+            }
+            if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED ||
+                    result == AudioManager.AUDIOFOCUS_REQUEST_DELAYED) {
+                if (lockRequested) {
+                    mMuteState = MUTE_STATE_LOCKED;
+                } else {
+                    mMuteState = MUTE_STATE_MUTED;
+                }
+            } else {
+                mMuteState = MUTE_STATE_UNMUTED;
+            }
+            return mMuteState != MUTE_STATE_UNMUTED;
+        }
+
+        public boolean unMute() {
+            return unMute(false);
+        }
+
+        /**
+         * Unmute. If locked, unmute will only succeed when unlock is set to true.
+         * @param unlock
+         * @return Final mute state
+         */
+        public synchronized boolean unMute(boolean unlock) {
+            if (!unlock && mMuteState == MUTE_STATE_LOCKED) {
+                // cannot unlock
+                return true;
+            }
+            mMuteState = MUTE_STATE_UNMUTED;
+            mAudioManager.abandonAudioFocus(this);
+            return false;
+        }
+
+        public synchronized boolean isMuted() {
+            return mMuteState != MUTE_STATE_UNMUTED;
         }
     }
 

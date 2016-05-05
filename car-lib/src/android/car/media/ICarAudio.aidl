@@ -32,4 +32,6 @@ interface ICarAudio {
     int getStreamMaxVolume(int streamType) = 3;
     int getStreamMinVolume(int streamType) = 4;
     int getStreamVolume(int streamType) = 5;
+    boolean isMediaMuted() = 6;
+    boolean setMediaMute(boolean mute) = 7;
 }

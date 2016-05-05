@@ -229,6 +229,46 @@ public class CarAudioManager implements CarManagerBase {
         }
     }
 
+    /**
+     * Check if media audio is muted or not. This will include music and radio. Any application
+     * taking audio focus for media stream will get it out of mute state.
+     *
+     * @return true if media is muted.
+     * @throws CarNotConnectedException
+     * @hide
+     */
+    @SystemApi
+    public boolean isMediaMuted() throws CarNotConnectedException {
+        try {
+            return mService.isMediaMuted();
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "isMediaMuted failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Mute or unmute media stream including radio. This can involve audio focus change to stop
+     * whatever app holding audio focus now. If requester is currently holding audio focus,
+     * it will get LOSS_TRANSIENT focus loss.
+     * This API requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
+     * @param mute
+     * @return Mute state of system after the request. Note that mute request can fail if there
+     *         is higher priority audio already being played like phone call.
+     * @throws CarNotConnectedException
+     * @hide
+     */
+    @SystemApi
+    public boolean setMediaMute(boolean mute) throws CarNotConnectedException {
+        try {
+            return mService.setMediaMute(mute);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "setMediaMute failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
     @Override
     public void onCarDisconnected() {
         // TODO Auto-generated method stub

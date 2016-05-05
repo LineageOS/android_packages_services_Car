@@ -15,14 +15,15 @@
  */
 package com.android.car.test;
 
+import android.car.Car;
+import android.car.media.CarAudioManager;
 import android.car.test.VehicleHalEmulator.VehicleHalPropertyHandler;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.SystemClock;
-import android.support.car.Car;
-import android.support.car.media.CarAudioManager;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.util.Log;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
@@ -45,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 
 @MediumTest
 public class CarAudioFocusTest extends MockedCarTestBase {
+    private static final String TAG = CarAudioFocusTest.class.getSimpleName();
 
     private static final long TIMEOUT_MS = 3000;
 
@@ -327,7 +329,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
 
         // android radio
         AudioFocusListener listenerRadio = new AudioFocusListener();
-        CarAudioManager carAudioManager = (CarAudioManager) getSupportCar().getCarManager(
+        CarAudioManager carAudioManager = (CarAudioManager) getCar().getCarManager(
                 Car.AUDIO_SERVICE);
         assertNotNull(carAudioManager);
         AudioAttributes radioAttributes = carAudioManager.getAudioAttributesForCarUsage(
@@ -454,6 +456,113 @@ public class CarAudioFocusTest extends MockedCarTestBase {
                 VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS,
                 request[1],
                 VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+    }
+
+    public void testRadioMute() throws Exception {
+        testMediaMute(CarAudioManager.CAR_AUDIO_USAGE_RADIO,
+                0,
+                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG);
+    }
+
+    public void testMusicMute() throws Exception {
+        testMediaMute(CarAudioManager.CAR_AUDIO_USAGE_MUSIC,
+                0x1,
+                0,
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG);
+    }
+
+    private void testMediaMute(int mediaUsage, int primaryStream, int extFocusFlag,
+            int mediaContext) throws Exception {
+        // android radio
+        AudioFocusListener listenerMedia = new AudioFocusListener();
+        CarAudioManager carAudioManager = (CarAudioManager) getCar().getCarManager(
+                Car.AUDIO_SERVICE);
+        assertNotNull(carAudioManager);
+        AudioAttributes radioAttributes = carAudioManager.getAudioAttributesForCarUsage(mediaUsage);
+        Log.i(TAG, "request media Focus");
+        int res = mAudioManager.requestAudioFocus(listenerMedia,
+                radioAttributes, AudioManager.AUDIOFOCUS_GAIN, 0);
+        assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
+        int[] request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
+        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
+        assertEquals(primaryStream, request[1]);
+        assertEquals(extFocusFlag, request[2]);
+        assertEquals(mediaContext, request[3]);
+        mAudioFocusPropertyHandler.sendAudioFocusState(
+                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                primaryStream,
+                extFocusFlag);
+        // now mute it.
+        assertFalse(carAudioManager.isMediaMuted());
+        Log.i(TAG, "mute media");
+        assertTrue(carAudioManager.setMediaMute(true));
+        request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
+        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT,
+                request[0]);
+        assertEquals(0, request[1]);
+        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG,
+                request[2]);
+        assertEquals(0, request[3]);
+        mAudioFocusPropertyHandler.sendAudioFocusState(
+                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                0,
+                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG);
+        assertTrue(carAudioManager.isMediaMuted());
+        // nav guidance on top of it
+        AudioFocusListener listenerNav = new AudioFocusListener();
+        AudioAttributes navAttrib = (new AudioAttributes.Builder()).
+                setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).
+                setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE).
+                build();
+        Log.i(TAG, "request nav Focus");
+        res = mAudioManager.requestAudioFocus(listenerNav, navAttrib,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
+        request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
+        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK,
+                request[0]);
+        assertEquals(0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM1, request[1]);
+        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG,
+                request[2]);
+        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG, request[3]);
+        assertTrue(carAudioManager.isMediaMuted());
+        mAudioFocusPropertyHandler.sendAudioFocusState(
+                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM1,
+                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG);
+        assertTrue(carAudioManager.isMediaMuted());
+        // nav guidance ends
+        mAudioManager.abandonAudioFocus(listenerNav);
+        request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
+        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT,
+                request[0]);
+        assertEquals(0, request[1]);
+        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG,
+                request[2]);
+        assertEquals(0, request[3]);
+        assertTrue(carAudioManager.isMediaMuted());
+        mAudioFocusPropertyHandler.sendAudioFocusState(
+                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                0,
+                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG);
+        // now unmute it. radio should resume.
+        assertTrue(carAudioManager.isMediaMuted());
+        assertFalse(carAudioManager.setMediaMute(false));
+        assertFalse(carAudioManager.isMediaMuted());
+        request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
+        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
+        assertEquals(primaryStream, request[1]);
+        assertEquals(extFocusFlag,
+                request[2]);
+        assertEquals(mediaContext, request[3]);
+        assertFalse(carAudioManager.isMediaMuted());
+        mAudioFocusPropertyHandler.sendAudioFocusState(
+                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                primaryStream,
+                extFocusFlag);
+        assertFalse(carAudioManager.isMediaMuted());
+        // release focus
+        mAudioManager.abandonAudioFocus(listenerMedia);
     }
 
     private class AudioFocusListener implements AudioManager.OnAudioFocusChangeListener {

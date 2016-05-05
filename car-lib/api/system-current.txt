@@ -696,8 +696,10 @@ package android.car.media {
     method public int getStreamMaxVolume(int) throws android.car.CarNotConnectedException;
     method public int getStreamMinVolume(int) throws android.car.CarNotConnectedException;
     method public int getStreamVolume(int) throws android.car.CarNotConnectedException;
+    method public boolean isMediaMuted() throws android.car.CarNotConnectedException;
     method public void onCarDisconnected();
     method public int requestAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes, int, int) throws java.lang.IllegalArgumentException;
+    method public boolean setMediaMute(boolean) throws android.car.CarNotConnectedException;
     method public void setStreamVolume(int, int, int) throws android.car.CarNotConnectedException;
     method public void setVolumeController(android.media.IVolumeController) throws android.car.CarNotConnectedException;
     field public static final int CAR_AUDIO_USAGE_ALARM = 6; // 0x6

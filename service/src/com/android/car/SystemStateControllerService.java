@@ -15,10 +15,8 @@
  */
 package com.android.car;
 
-import android.car.media.CarAudioManager;
 import android.content.Context;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
+import android.content.res.Resources;
 import android.util.Log;
 
 import com.android.car.CarPowerManagementService.PowerEventProcessingHandler;
@@ -30,15 +28,18 @@ public class SystemStateControllerService implements CarServiceBase,
     PowerServiceEventListener, PowerEventProcessingHandler {
 
     private final CarPowerManagementService mCarPowerManagementService;
-    private final MediaSilencer mMediaSilencer;
+    private final CarAudioService mCarAudioService;
     private final ICarImpl mICarImpl;
+    private final boolean mLockWhenMuting;
 
     public SystemStateControllerService(Context context,
-            CarPowerManagementService carPowerManagementSercvice, ICarImpl carImpl) {
+            CarPowerManagementService carPowerManagementSercvice,
+            CarAudioService carAudioService, ICarImpl carImpl) {
         mCarPowerManagementService = carPowerManagementSercvice;
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        mMediaSilencer = new MediaSilencer(audioManager);
+        mCarAudioService = carAudioService;
         mICarImpl = carImpl;
+        Resources res = context.getResources();
+        mLockWhenMuting = res.getBoolean(R.bool.displayOffMuteLockAllAudio);
     }
 
     @Override
@@ -50,14 +51,15 @@ public class SystemStateControllerService implements CarServiceBase,
     @Override
     public void onPowerOn(boolean displayOn) {
         if (displayOn) {
-            Log.i(CarLog.TAG_SYS, "MediaSilencer unmute");
             if (!mICarImpl.isInMocking()) {
-                mMediaSilencer.unmuteMedia();
+                Log.i(CarLog.TAG_SYS, "Media unmute");
+                mCarAudioService.unMuteMedia();
             }
         } else {
-            Log.i(CarLog.TAG_SYS, "MediaSilencer mute");
             if (!mICarImpl.isInMocking()) { // do not do this in mocking as it can affect test.
-                mMediaSilencer.muteMedia();
+                Log.i(CarLog.TAG_SYS, "Media mute");
+                mCarAudioService.muteMediaWithLock(mLockWhenMuting);
+                //TODO store last context and resume or silence radio on display on
             }
         }
     }
@@ -94,50 +96,5 @@ public class SystemStateControllerService implements CarServiceBase,
 
     @Override
     public void dump(PrintWriter writer) {
-        writer.println("Media silence, ismuted:" + mMediaSilencer.isMuted());
-    }
-
-    private class MediaSilencer implements AudioManager.OnAudioFocusChangeListener {
-
-        private final AudioManager mAudioManager;
-        private final AudioAttributes mAttribMusic;
-        private boolean mMuteMedia;
-
-        private MediaSilencer(AudioManager audioManager) {
-            mAudioManager = audioManager;
-            mAttribMusic = CarAudioAttributesUtil.getAudioAttributesForCarUsage(
-                    CarAudioManager.CAR_AUDIO_USAGE_MUSIC);
-        }
-
-        private synchronized void muteMedia() {
-            mMuteMedia = true;
-            //TODO replace this into real mute request
-            mAudioManager.requestAudioFocus(this, mAttribMusic, AudioManager.AUDIOFOCUS_GAIN,
-                    AudioManager.AUDIOFOCUS_FLAG_DELAY_OK);
-        }
-
-        private synchronized void unmuteMedia() {
-            mMuteMedia = false;
-            mAudioManager.abandonAudioFocus(this);
-        }
-
-        private synchronized boolean isMuted() {
-            return mMuteMedia;
-        }
-
-        @Override
-        public synchronized void onAudioFocusChange(int focusChange) {
-            if (mMuteMedia) {
-                if (focusChange == AudioManager.AUDIOFOCUS_LOSS ||
-                        focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ||
-                        focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
-                    Log.w(CarLog.TAG_SYS, "MediaSilencer got audio focus change:" + focusChange);
-                    mAudioManager.requestAudioFocus(this, mAttribMusic,
-                            AudioManager.AUDIOFOCUS_GAIN, AudioManager.AUDIOFOCUS_FLAG_DELAY_OK);
-                }
-            } else {
-                mAudioManager.abandonAudioFocus(this);
-            }
-        }
     }
 }
