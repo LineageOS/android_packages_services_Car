@@ -87,6 +87,8 @@ public class CarSensorService extends ICarSensor.Stub
     /** hold clients callback  */
     @GuardedBy("mSensorLock")
     private final LinkedList<SensorClient> mClients = new LinkedList<SensorClient>();
+    /** should be used only as temp data for event dispatching */
+    private final LinkedList<SensorClient> mClientDispatchList = new LinkedList<>();
     /** key: sensor type. */
     @GuardedBy("mSensorLock")
     private final SparseArray<SensorListeners> mSensorListeners = new SparseArray<>();
@@ -248,10 +250,12 @@ public class CarSensorService extends ICarSensor.Stub
                 }
             }
         }
-        for (SensorClient client: mClients) {
+        mClientDispatchList.addAll(mClients);
+        mSensorLock.unlock();
+        for (SensorClient client: mClientDispatchList) {
             client.dispatchSensorUpdate();
         }
-        mSensorLock.unlock();
+        mClientDispatchList.clear();
     }
 
     /**
