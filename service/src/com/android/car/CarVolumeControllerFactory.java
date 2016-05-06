@@ -203,19 +203,18 @@ public class CarVolumeControllerFactory {
 
         @GuardedBy("this")
         private int mCurrentContext = CarVolumeService.DEFAULT_CAR_AUDIO_CONTEXT;
-        // current logical volume, the key is android stream type
+        // current logical volume, the key is car audio context
         @GuardedBy("this")
-        private final SparseArray<Integer> mCurrentLogicalVolume =
-                new SparseArray<>(VolumeUtils.LOGICAL_STREAMS.length);
-        // stream volume limit, the key is android stream type
+        private final SparseArray<Integer> mCurrentCarContextVolume =
+                new SparseArray<>(VolumeUtils.CAR_AUDIO_CONTEXT.length);
+        // stream volume limit, the key is car audio context type
         @GuardedBy("this")
-        private final SparseArray<Integer> mLogicalStreamVolumeMax =
-                new SparseArray<>(VolumeUtils.LOGICAL_STREAMS.length);
-        // stream volume limit, the key is android stream type
+        private final SparseArray<Integer> mCarContextVolumeMax =
+                new SparseArray<>(VolumeUtils.CAR_AUDIO_CONTEXT.length);
+        // stream volume limit, the key is car audio context type
         @GuardedBy("this")
-        private final SparseArray<Integer> mLogicalStreamVolumeMin =
-                new SparseArray<>(VolumeUtils.LOGICAL_STREAMS.length);
-
+        private final SparseArray<Integer> mCarContextVolumeMin =
+                new SparseArray<>(VolumeUtils.CAR_AUDIO_CONTEXT.length);
         @GuardedBy("this")
         private final RemoteCallbackList<IVolumeController> mVolumeControllers =
                 new RemoteCallbackList<>();
@@ -223,21 +222,17 @@ public class CarVolumeControllerFactory {
         private final Handler mHandler = new VolumeHandler();
 
         /**
-         * Convert an android logical stream to the car stream.
+         * Convert an car context to the car stream.
          *
          * @return If car supports audio context, then it returns the car audio context. Otherwise,
          *      it returns the physical stream that maps to this logical stream.
          */
-        private int logicalStreamToCarStream(int logicalAndroidStream) {
+        private int carContextToCarStream(int carContext) {
             if (mSupportedAudioContext == 0) {
                 int physicalStream = mPolicy.getPhysicalStreamForLogicalStream(
-                        CarVolumeService.androidStreamToCarUsage(logicalAndroidStream));
+                        AudioHalService.carContextToCarUsage(carContext));
                 return physicalStream;
             } else {
-                int carContext = VolumeUtils.androidStreamToCarContext(logicalAndroidStream);
-                if ((carContext & mSupportedAudioContext) == 0) {
-                    carContext = CarVolumeService.DEFAULT_CAR_AUDIO_CONTEXT;
-                }
                 return carContext;
             }
         }
@@ -302,8 +297,8 @@ public class CarVolumeControllerFactory {
         }
 
         private void initVolumeLimitLocked() {
-            for (int i : VolumeUtils.LOGICAL_STREAMS) {
-                int carStream = logicalStreamToCarStream(i);
+            for (int i : VolumeUtils.CAR_AUDIO_CONTEXT) {
+                int carStream = carContextToCarStream(i);
                 Pair<Integer, Integer> volumeMinMax = mHal.getStreamVolumeLimit(carStream);
                 int max;
                 int min;
@@ -315,8 +310,8 @@ public class CarVolumeControllerFactory {
                     min = volumeMinMax.first >=0 ? volumeMinMax.first : 0;
                 }
                 // get default stream volume limit first.
-                mLogicalStreamVolumeMax.put(i, max);
-                mLogicalStreamVolumeMin.put(i, min);
+                mCarContextVolumeMax.put(i, max);
+                mCarContextVolumeMin.put(i, min);
             }
         }
 
@@ -329,14 +324,17 @@ public class CarVolumeControllerFactory {
                 // when vhal does not work, get call can take long. For that case,
                 // for the same physical streams, cache initial get results
                 Map<Integer, Integer> volumesPerCarStream = new HashMap<>();
-                for (int i : VolumeUtils.LOGICAL_STREAMS) {
-                    int carStream = logicalStreamToCarStream(i);
+                for (int i : VolumeUtils.CAR_AUDIO_CONTEXT) {
+                    int carStream = carContextToCarStream(i);
                     Integer volume = volumesPerCarStream.get(carStream);
                     if (volume == null) {
                         volume = Integer.valueOf(mHal.getStreamVolume(carStream));
                         volumesPerCarStream.put(carStream, volume);
                     }
-                    mCurrentLogicalVolume.put(i, volume);
+                    mCurrentCarContextVolume.put(i, volume);
+                    if (DBG) {
+                        Log.d(TAG, " init volume, car audio context: " + i + " volume: " + volume);
+                    }
                 }
             }
         }
@@ -344,19 +342,34 @@ public class CarVolumeControllerFactory {
         @Override
         public void setStreamVolume(int stream, int index, int flags) {
             synchronized (this) {
-                setStreamVolumeInternalLocked(stream, index, flags);
+                int carContext;
+                // Currently car context and android logical stream are not
+                // one-to-one mapping. In this API, Android side asks us to change a logical stream
+                // volume. If the current car audio context maps to this logical stream, then we
+                // change the volume for the current car audio context. Otherwise, we change the
+                // volume for the primary mapped car audio context.
+                if (VolumeUtils.carContextToAndroidStream(mCurrentContext) == stream) {
+                    carContext = mCurrentContext;
+                } else {
+                    carContext = VolumeUtils.androidStreamToCarContext(stream);
+                }
+                if (DBG) {
+                    Log.d(TAG, "Receive setStreamVolume logical stream: " + stream + " index: "
+                            + index + " flags: " + flags + " maps to car context: " + carContext);
+                }
+                setStreamVolumeInternalLocked(carContext, index, flags);
             }
         }
 
-        private void setStreamVolumeInternalLocked(int stream, int index, int flags) {
-            if (mLogicalStreamVolumeMax.get(stream) == null) {
-                Log.e(TAG, "Stream type not supported " + stream);
+        private void setStreamVolumeInternalLocked(int carContext, int index, int flags) {
+            if (mCarContextVolumeMax.get(carContext) == null) {
+                Log.e(TAG, "Stream type not supported " + carContext);
                 return;
             }
-            int limit = mLogicalStreamVolumeMax.get(stream);
+            int limit = mCarContextVolumeMax.get(carContext);
             if (index > limit) {
-                Log.e(TAG, "Volume exceeds volume limit. stream: " + stream + " index: " + index
-                        + " limit: " + limit);
+                Log.w(TAG, "Volume exceeds volume limit. context: " + carContext
+                        + " index: " + index + " limit: " + limit);
                 index = limit;
             }
 
@@ -364,31 +377,35 @@ public class CarVolumeControllerFactory {
                 index = 0;
             }
 
-            if (mCurrentLogicalVolume.get(stream) == index) {
+            if (mCurrentCarContextVolume.get(carContext) == index) {
                 return;
             }
 
-            int carStream = logicalStreamToCarStream(stream);
-            int carContext = VolumeUtils.androidStreamToCarContext(stream);
-
+            int carStream = carContextToCarStream(carContext);
+            if (DBG) {
+                Log.d(TAG, "Change car stream volume, stream: " + carStream + " volume:" + index);
+            }
             // For single channel, only adjust the volume when the audio context is the current one.
             if (mCurrentContext == carContext) {
+                if (DBG) {
+                    Log.d(TAG, "Sending volume change to HAL");
+                }
                 mHandler.sendMessage(mHandler.obtainMessage(MSG_UPDATE_HAL, carStream, index));
             }
             // Record the current volume internally.
-            mCurrentLogicalVolume.put(stream, index);
-            mHandler.sendMessage(mHandler.obtainMessage(MSG_UPDATE_VOLUME, stream,
+            mCurrentCarContextVolume.put(carContext, index);
+            mHandler.sendMessage(mHandler.obtainMessage(MSG_UPDATE_VOLUME,
+                    VolumeUtils.carContextToAndroidStream(carContext),
                     getVolumeUpdateFlag()));
         }
 
         @Override
         public int getStreamVolume(int stream) {
             synchronized (this) {
-                if (mCurrentLogicalVolume.get(stream) == null) {
-                    Log.d(TAG, "Invalid stream type " + stream);
-                    return 0;
+                if (VolumeUtils.carContextToAndroidStream(mCurrentContext) == stream) {
+                    return mCurrentCarContextVolume.get(mCurrentContext);
                 }
-                return mCurrentLogicalVolume.get(stream);
+                return mCurrentCarContextVolume.get(VolumeUtils.androidStreamToCarContext(stream));
             }
         }
 
@@ -403,11 +420,15 @@ public class CarVolumeControllerFactory {
         public void onVolumeChange(int carStream, int volume, int volumeState) {
             int flag = getVolumeUpdateFlag();
             synchronized (this) {
+                if (DBG) {
+                    Log.d(TAG, "onVolumeChange carStream:" + carStream + " volume: " + volume
+                            + "volumeState: " + volumeState);
+                }
                 // Assume single channel here.
                 int currentLogicalStream = VolumeUtils.carContextToAndroidStream(mCurrentContext);
-                int currentCarStream = logicalStreamToCarStream(currentLogicalStream);
+                int currentCarStream = carContextToCarStream(mCurrentContext);
                 if (currentCarStream == carStream) {
-                    mCurrentLogicalVolume.put(currentLogicalStream, volume);
+                    mCurrentCarContextVolume.put(mCurrentContext, volume);
                     mHandler.sendMessage(
                             mHandler.obtainMessage(MSG_UPDATE_VOLUME, currentLogicalStream, flag));
                 } else {
@@ -440,22 +461,22 @@ public class CarVolumeControllerFactory {
         @Override
         public int getStreamMaxVolume(int stream) {
             synchronized (this) {
-                if (mLogicalStreamVolumeMax.get(stream) == null) {
-                    Log.e(TAG, "Stream type not supported " + stream);
-                    return 0;
+                if (VolumeUtils.carContextToAndroidStream(mCurrentContext) == stream) {
+                    return mCarContextVolumeMax.get(mCurrentContext);
+                } else {
+                    return mCarContextVolumeMax.get(VolumeUtils.androidStreamToCarContext(stream));
                 }
-                return mLogicalStreamVolumeMax.get(stream);
             }
         }
 
         @Override
         public int getStreamMinVolume(int stream) {
             synchronized (this) {
-                if (mLogicalStreamVolumeMin.get(stream) == null) {
-                    Log.e(TAG, "Stream type not supported " + stream);
-                    return 0;
+                if (VolumeUtils.carContextToAndroidStream(mCurrentContext) == stream) {
+                    return mCarContextVolumeMin.get(mCurrentContext);
+                } else {
+                    return mCarContextVolumeMin.get(VolumeUtils.androidStreamToCarContext(stream));
                 }
-                return mLogicalStreamVolumeMin.get(stream);
             }
         }
 
@@ -464,22 +485,24 @@ public class CarVolumeControllerFactory {
             if (!isVolumeKey(event)) {
                 return false;
             }
-            int logicalStream = VolumeUtils.carContextToAndroidStream(mCurrentContext);
             final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
+            if (DBG) {
+                Log.d(TAG, "Receive volume keyevent " + event.toString());
+            }
             // TODO: properly handle long press on volume key
             if (!down || interceptVolKeyBeforeDispatching(mContext)) {
                 return true;
             }
 
             synchronized (this) {
-                int currentVolume = mCurrentLogicalVolume.get(logicalStream);
+                int currentVolume = mCurrentCarContextVolume.get(mCurrentContext);
                 switch (event.getKeyCode()) {
                     case KeyEvent.KEYCODE_VOLUME_UP:
-                        setStreamVolumeInternalLocked(logicalStream, currentVolume + 1,
+                        setStreamVolumeInternalLocked(mCurrentContext, currentVolume + 1,
                                 getVolumeUpdateFlag());
                         break;
                     case KeyEvent.KEYCODE_VOLUME_DOWN:
-                        setStreamVolumeInternalLocked(logicalStream, currentVolume - 1,
+                        setStreamVolumeInternalLocked(mCurrentContext, currentVolume - 1,
                                 getVolumeUpdateFlag());
                         break;
                 }
@@ -490,22 +513,35 @@ public class CarVolumeControllerFactory {
         @Override
         public void onContextChange(int primaryFocusContext, int primaryFocusPhysicalStream) {
             synchronized (this) {
+                if(DBG) {
+                    Log.d(TAG, "Audio context changed from " + mCurrentContext + " to: "
+                            + primaryFocusContext + " physical: " + primaryFocusPhysicalStream);
+                }
                 if (primaryFocusContext == mCurrentContext) {
                     return;
                 }
                 mCurrentContext = primaryFocusContext;
-
-                int currentVolume = mCurrentLogicalVolume.get(
-                        VolumeUtils.carContextToAndroidStream(primaryFocusContext));
-                if (mSupportedAudioContext == 0) {
-                    // Car does not support audio context, we need to reset the volume
-                    updateHalVolumeLocked(primaryFocusPhysicalStream, currentVolume);
-                } else {
-                    // car supports context, but does not have memory.
-                    if (!mHasExternalMemory) {
-                        updateHalVolumeLocked(primaryFocusContext, currentVolume);
+                // if car supports audio context and has external memory, then we don't need to do
+                // anything.
+                if(mSupportedAudioContext != 0 && mHasExternalMemory) {
+                    if (DBG) {
+                        Log.d(TAG, "Car support audio context and has external memory," +
+                                " no volume change needed from car service");
                     }
+                    return;
                 }
+
+                // Otherwise, we need to tell Hal what the correct volume is for the new context.
+                int currentVolume = mCurrentCarContextVolume.get(primaryFocusContext);
+
+                int carStreamNumber = mSupportedAudioContext == 0 ? primaryFocusPhysicalStream :
+                        primaryFocusContext;
+                if (DBG) {
+                    Log.d(TAG, "Change volume from: "
+                            + mCurrentCarContextVolume.get(mCurrentContext)
+                            + " to: "+ currentVolume);
+                }
+                updateHalVolumeLocked(carStreamNumber, currentVolume);
             }
         }
     }
