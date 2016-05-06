@@ -38,6 +38,6 @@ public class BootReceiver extends BroadcastReceiver {
         Intent carServiceintent = new Intent();
         carServiceintent.setPackage(context.getPackageName());
         carServiceintent.setAction(Car.CAR_SERVICE_INTERFACE_NAME);
-        context.startServiceAsUser(carServiceintent, new UserHandle(0));
+        context.startServiceAsUser(carServiceintent, UserHandle.SYSTEM);
     }
 }

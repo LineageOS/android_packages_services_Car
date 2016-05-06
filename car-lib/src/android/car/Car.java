@@ -36,6 +36,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
@@ -198,7 +199,12 @@ public class Car {
 
     private static final String CAR_SERVICE_PACKAGE = "com.android.car";
 
+    private static final String CAR_SERVICE_CLASS = "com.android.car.CarService";
+
     private static final String CAR_TEST_MANAGER_CLASS = "android.car.CarTestManager";
+
+    private static final long CAR_SERVICE_BIND_RETRY_INTERVAL_MS = 500;
+    private static final long CAR_SERVICE_BIND_MAX_RETRY = 20;
 
     private final Context mContext;
     private final Looper mLooper;
@@ -209,6 +215,23 @@ public class Car {
     private static final int STATE_CONNECTED = 2;
     @GuardedBy("this")
     private int mConnectionState;
+    @GuardedBy("this")
+    private int mConnectionRetryCount;
+
+    private final Runnable mConnectionRetryRunnable = new Runnable() {
+        @Override
+        public void run() {
+            startCarService();
+        }
+    };
+
+    private final Runnable mConnectionRetryFailedRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mServiceConnectionListener.onServiceDisconnected(new ComponentName(CAR_SERVICE_PACKAGE,
+                    CAR_SERVICE_CLASS));
+        }
+    };
 
     private final ServiceConnection mServiceConnectionListener =
             new ServiceConnection () {
@@ -241,6 +264,8 @@ public class Car {
 
     /** Handler for generic event dispatching. */
     private final Handler mEventHandler;
+
+    private final Handler mMainThreadEvetHandler;
 
     /**
      * A factory method that creates Car instance for all Car API access.
@@ -284,6 +309,11 @@ public class Car {
             mLooper = looper;
         }
         mEventHandler = new Handler(mLooper);
+        if (mLooper == Looper.getMainLooper()) {
+            mMainThreadEvetHandler = mEventHandler;
+        } else {
+            mMainThreadEvetHandler = new Handler(Looper.getMainLooper());
+        }
     }
 
     /**
@@ -302,6 +332,11 @@ public class Car {
             mLooper = looper;
         }
         mEventHandler = new Handler(mLooper);
+        if (mLooper == Looper.getMainLooper()) {
+            mMainThreadEvetHandler = mEventHandler;
+        } else {
+            mMainThreadEvetHandler = new Handler(Looper.getMainLooper());
+        }
         mService = service;
         mConnectionState = STATE_CONNECTED;
         mServiceConnectionListenerClient = null;
@@ -332,6 +367,9 @@ public class Car {
             if (mConnectionState == STATE_DISCONNECTED) {
                 return;
             }
+            mEventHandler.removeCallbacks(mConnectionRetryRunnable);
+            mMainThreadEvetHandler.removeCallbacks(mConnectionRetryFailedRunnable);
+            mConnectionRetryCount = 0;
             tearDownCarManagers();
             mService = null;
             mConnectionState = STATE_DISCONNECTED;
@@ -473,8 +511,20 @@ public class Car {
         Intent intent = new Intent();
         intent.setPackage(CAR_SERVICE_PACKAGE);
         intent.setAction(Car.CAR_SERVICE_INTERFACE_NAME);
-        mContext.startService(intent);
-        mContext.bindService(intent, mServiceConnectionListener, 0);
+        boolean bound = mContext.bindServiceAsUser(intent, mServiceConnectionListener,
+                Context.BIND_AUTO_CREATE, UserHandle.CURRENT_OR_SELF);
+        if (!bound) {
+            mConnectionRetryCount++;
+            if (mConnectionRetryCount > CAR_SERVICE_BIND_MAX_RETRY) {
+                Log.w(CarLibLog.TAG_CAR, "cannot bind to car service after max retry");
+                mMainThreadEvetHandler.post(mConnectionRetryFailedRunnable);
+            } else {
+                mEventHandler.postDelayed(mConnectionRetryRunnable,
+                        CAR_SERVICE_BIND_RETRY_INTERVAL_MS);
+            }
+        } else {
+            mConnectionRetryCount = 0;
+        }
     }
 
     private synchronized ICar getICarOrThrow() throws IllegalStateException {
