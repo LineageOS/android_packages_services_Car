@@ -21,6 +21,7 @@
 #include "protos.pb.h"
 #include "time.h"
 #include <unordered_map>
+#include <inttypes.h>
 #include <dirent.h>
 
 namespace android {
@@ -131,9 +132,9 @@ int ReadStat(char *filename, AppSample *sample) {
     /* Scan rest of string. */
     sscanf(close_paren + 1,
            " %*c " "%*d %*d %*d %*d %*d %*d %*d %*d %*d %*d "
-                   "%llu" /*SCNu64*/
-                   "%llu" /*SCNu64*/ "%*d %*d %*d %*d %*d %*d %*d %*d "
-                   "%llu" /*SCNu64*/ "%*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d",
+                   "%" PRIu64 /*SCNu64*/
+                   "%" PRIu64 /*SCNu64*/ "%*d %*d %*d %*d %*d %*d %*d %*d "
+                   "%" PRIu64 /*SCNu64*/ "%*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d",
            &utime,
            &stime,
            &rss);
@@ -162,7 +163,7 @@ int ReadCmdline(char *filename, AppData *app) {
 };
 
 void ReadProcData(std::unordered_map<int, AppData*>& pidDataMap, DataContainer& dataContainer,
-                  time_t currentTimeUtc) {
+                  time_t currentTimeUtc, time_t currentUptime) {
     DIR *procDir;
     struct dirent *pidDir;
     pid_t pid;
@@ -191,6 +192,7 @@ void ReadProcData(std::unordered_map<int, AppData*>& pidDataMap, DataContainer& 
         }
         AppSample *sample = data->add_samples();
         sample->set_timestamp(currentTimeUtc);
+        sample->set_uptime(currentUptime);
 
         sprintf(filename, PID_STAT_FILE, pid);
         ReadStat(filename, sample);
@@ -216,6 +218,13 @@ time_t GetUptime() {
     return static_cast<time_t>(strtod(uptime_str.c_str(), NULL));
 }
 
+struct Stats {
+    int uptime;
+    float cpu;
+    uint64_t rbytes;
+    uint64_t wbytes;
+};
+
 void PrintPids(DataContainer& data, std::unordered_map<int, uint64_t>& cpuDataMap) {
     printf("rchar: number of bytes the process read, using any read-like system call "
                    "(from files, pipes, tty...).\n");
@@ -227,13 +236,19 @@ void PrintPids(DataContainer& data, std::unordered_map<int, uint64_t>& cpuDataMa
                    "(assuming they will go to disk later).\n\n");
 
     std::unique_ptr<AppSample> bootZeroSample(new AppSample());
+    std::map<int, Stats> statsMap;
+    // Init stats map
+    Stats emptyStat {0, 0., 0, 0};
+    for (auto it = cpuDataMap.begin(); it != cpuDataMap.end(); it++) {
+        statsMap[it->first] = emptyStat;
+    }
     for (int i = 0; i < data.app_size(); i++) {
         const AppData appData = data.app(i);
         printf("\n-----------------------------------------------------------------------------\n");
         printf("PID:\t%u\n", appData.pid());
         printf("Name:\t%s\n", appData.name().c_str());
         printf("ThName:\t%s\n", appData.tname().c_str());
-        printf("%-32s%-13s%-13s%-13s%-13s%-13s%-13s%-13s\n", "Time interval", "rchar", "wchar",
+        printf("%-15s%-13s%-13s%-13s%-13s%-13s%-13s%-13s\n", "Uptime inter.", "rchar", "wchar",
                "syscr", "syscw", "rbytes", "wbytes", "cpu%");
         const AppSample *olderSample = NULL;
         const AppSample *newerSample = NULL;
@@ -256,22 +271,16 @@ void PrintPids(DataContainer& data, std::unordered_map<int, uint64_t>& cpuDataMa
                 cpuLoad = (newerSample->utime() - olderSample->utime() +
                            newerSample->stime() - olderSample->stime()) * 100. / cpuDelta;
             }
+            Stats& stats = statsMap[newerSample->timestamp()];
+            stats.uptime = newerSample->uptime();
+            stats.cpu += cpuLoad;
+            stats.rbytes += (newerSample->readbytes() - olderSample->readbytes());
+            stats.wbytes += (newerSample->writebytes() - olderSample->writebytes());
 
-            char old_date[15];
-            if (isFirstSample) {
-                strncpy(old_date, "boot\0", 5);
-            } else {
-                time_t oldTimestamp = (time_t) olderSample->timestamp();
-                struct tm *tmOld = localtime(&oldTimestamp);
-                strftime(old_date, sizeof(old_date), "%m-%d %H:%M:%S", tmOld);
-            }
-            time_t newTimestamp = (time_t) newerSample->timestamp();
-            struct tm *tmNew = localtime(&newTimestamp);
-            char new_date[15];
-            strftime(new_date, sizeof(new_date), "%m-%d %H:%M:%S", tmNew);
-            printf("%-14s - %-14s %-13lld%-13lld%-13lld%-13lld%-13lld%-13lld%-9.2f\n",
-                   old_date,
-                   new_date,
+            printf("%5" PRId64 " - %-5" PRId64 "  %-13" PRId64 "%-13" PRId64 "%-13" PRId64 "%-13" PRId64 "%-13"
+                   PRId64 "%-13" PRId64 "%-9.2f\n",
+                   olderSample->uptime(),
+                   newerSample->uptime(),
                    newerSample->rchar() - olderSample->rchar(),
                    newerSample->wchar() - olderSample->wchar(),
                    newerSample->syscr() - olderSample->syscr(),
@@ -282,7 +291,7 @@ void PrintPids(DataContainer& data, std::unordered_map<int, uint64_t>& cpuDataMa
             isFirstSample = false;
         }
         printf("-----------------------------------------------------------------------------\n");
-        printf("%-32s%-13lld%-13lld%-13lld%-13lld%-13lld%-13lld\n",
+        printf("%-15s%-13" PRId64 "%-13" PRId64 "%-13" PRId64 "%-13" PRId64 "%-13" PRId64 "%-13" PRId64 "\n",
                "Total",
                newerSample->rchar(),
                newerSample->wchar(),
@@ -290,6 +299,19 @@ void PrintPids(DataContainer& data, std::unordered_map<int, uint64_t>& cpuDataMa
                newerSample->syscw(),
                newerSample->readbytes(),
                newerSample->writebytes());
+    }
+    printf("\nAggregations\n%-10s%-13s%-13s%-13s\n",
+           "Total",
+           "rbytes",
+           "wbytes",
+           "cpu%");
+
+    for (auto it = statsMap.begin(); it != statsMap.end(); it++) {
+        printf("%-10u%-13" PRIu64 "%-13" PRIu64 "%-9.2f\n",
+               it->second.uptime,
+               it->second.rbytes,
+               it->second.wbytes,
+               it->second.cpu);
     }
 }
 
@@ -309,10 +331,12 @@ void BootioCollector::StartDataCollection(int timeout, int samples) {
     std::unique_ptr <DataContainer> data(new DataContainer());
     while (remaining > 0) {
         time_t currentTimeUtc = time(nullptr);
+        time_t currentUptime = android::GetUptime();
         CpuData *cpu = data->add_cpu();
         cpu->set_timestamp(currentTimeUtc);
+        cpu->set_uptime(currentUptime);
         android::PopulateCpu(*cpu);
-        android::ReadProcData(pidDataMap, *data.get(), currentTimeUtc);
+        android::ReadProcData(pidDataMap, *data.get(), currentTimeUtc, currentUptime);
         remaining--;
         if (remaining == 0) {
             continue;
