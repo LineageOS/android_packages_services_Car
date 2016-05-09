@@ -15,10 +15,12 @@
  */
 package android.support.car.media;
 
+import android.Manifest;
 import android.media.AudioAttributes;
+import android.media.AudioFormat;
 import android.media.AudioManager.OnAudioFocusChangeListener;
-import android.os.RemoteException;
 import android.support.annotation.IntDef;
+import android.support.annotation.RequiresPermission;
 import android.support.car.CarManagerBase;
 
 import java.lang.annotation.Retention;
@@ -107,4 +109,37 @@ public abstract class CarAudioManager implements CarManagerBase {
      * @return {@link #AUDIOFOCUS_REQUEST_FAILED} or {@link #AUDIOFOCUS_REQUEST_GRANTED}
      */
     public abstract int abandonAudioFocus(OnAudioFocusChangeListener l, AudioAttributes aa);
+
+    /**
+     * Get {@link AudioFormat} for audio record.
+     * @return {@link AudioFormat} for audio record.
+     */
+    public abstract AudioFormat getAudioRecordAudioFormat();
+
+    /**
+     * Get minimum buffer size for {@link CarAudioRecord}.
+     * @return buffer size in bytes.
+     */
+    public abstract int getAudioRecordMinBufferSize();
+
+    /**
+     * Get maximum buffer size for {@link CarAudioRecord}.
+     * @return buffer size in bytes.
+     */
+    public abstract int getAudioRecordMaxBufferSize();
+
+    /**
+     * Create a {@link CarAudioRecord} for the current {@link CarAudioManager}. There can be
+     * multiple instances of {@link CarAudioRecord}.
+     * This requires {@link android.Manifest.permission#RECORD_AUDIO} permission.
+     * @param bufferSize It should be a multiple of minimum buffer size acquired from
+     *        {@link #getAudioRecordMinBufferSize()}. This cannot exceed
+     *        {@link #getAudioRecordMaxBufferSize()}.
+     * @return {@link CarAudioRecord} instance for the given stream.
+     * @throws IllegalArgumentException if passed parameter like bufferSize is wrong.
+     * @throws SecurityException if client does not have
+     *         {@link android.Manifest.permission#RECORD_AUDIO} permission.
+     */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    public abstract CarAudioRecord createCarAudioRecord(int bufferSize) throws SecurityException;
 }
