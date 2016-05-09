@@ -23,13 +23,14 @@ message DataContainer {
 
 message CpuData {
     required int64 timestamp = 1;
-    required int64 utime = 2;
-    required int64 ntime = 3;
-    required int64 stime = 4;
-    required int64 itime = 5;
-    required int64 iowtime = 6;
-    required int64 irqtime = 7;
-    required int64 sirqtime = 8;
+    required int64 uptime = 2;
+    required int64 utime = 3;
+    required int64 ntime = 4;
+    required int64 stime = 5;
+    required int64 itime = 6;
+    required int64 iowtime = 7;
+    required int64 irqtime = 9;
+    required int64 sirqtime = 10;
 }
 
 message AppData {
@@ -41,13 +42,14 @@ message AppData {
 
 message AppSample {
     required int64 timestamp = 1;
-    required int64 rchar = 2;
-    required int64 wchar = 3;
-    required int64 syscr = 4;
-    required int64 syscw = 5;
-    required int64 readbytes = 6;
-    required int64 writebytes = 7;
-    required int64 utime = 8;
-    required int64 stime = 9;
-    required int64 rss = 10;
+    required int64 uptime = 2;
+    required int64 rchar = 3;
+    required int64 wchar = 4;
+    required int64 syscr = 5;
+    required int64 syscw = 6;
+    required int64 readbytes = 7;
+    required int64 writebytes = 8;
+    required int64 utime = 9;
+    required int64 stime = 10;
+    required int64 rss = 11;
 };
