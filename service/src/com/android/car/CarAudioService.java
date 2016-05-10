@@ -703,13 +703,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 primaryContext = 0;
                 break;
         }
+        // save the current context now but it is sent to context change listener after focus
+        // response from car
         if (mCurrentPrimaryAudioContext != primaryContext) {
             mCurrentPrimaryAudioContext = primaryContext;
              mCurrentPrimaryPhysicalStream = physicalStreamTypeForTop;
-            if (mCarAudioContextChangeHandler != null) {
-                mCarAudioContextChangeHandler.requestContextChangeNotification(
-                        mAudioContextChangeListener, primaryContext, physicalStreamTypeForTop);
-            }
         }
 
         int audioContexts = 0;
@@ -934,8 +932,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                     mFocusReceived = FocusState.STATE_LOSS;
                     mCurrentAudioContexts = 0;
                     mNumConsecutiveHalFailures++;
+                    mCurrentPrimaryAudioContext = 0;
+                    mCurrentPrimaryPhysicalStream = 0;
                 } else {
                     mNumConsecutiveHalFailures = 0;
+                }
+                // send context change after getting focus response.
+                if (mCarAudioContextChangeHandler != null) {
+                    mCarAudioContextChangeHandler.requestContextChangeNotification(
+                            mAudioContextChangeListener, mCurrentPrimaryAudioContext,
+                            mCurrentPrimaryPhysicalStream);
                 }
                 checkCanStatus();
             }
@@ -966,6 +972,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                     mLock.wait(mFocusResponseWaitTimeoutMs);
                 } catch (InterruptedException e) {
                     //ignore
+                }
+                mCurrentPrimaryAudioContext = 0;
+                mCurrentPrimaryPhysicalStream = 0;
+                if (mCarAudioContextChangeHandler != null) {
+                    mCarAudioContextChangeHandler.requestContextChangeNotification(
+                            mAudioContextChangeListener, mCurrentPrimaryAudioContext,
+                            mCurrentPrimaryPhysicalStream);
                 }
             } else if (DBG) {
                 Log.d(TAG_FOCUS, "doHandleFocusRelease: do not send, already loss");
