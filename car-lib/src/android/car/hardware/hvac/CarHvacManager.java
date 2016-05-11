@@ -376,6 +376,7 @@ public class CarHvacManager implements CarManagerBase {
                     for (CarHvacEventListener l: listeners) {
                         l.onChangeEvent(hvacProperty);
                     }
+                    break;
                 case CarHvacEvent.HVAC_EVENT_ERROR:
                     for (CarHvacEventListener l: listeners) {
                         l.onErrorEvent(hvacProperty.getPropertyId(), hvacProperty.getAreaId());
