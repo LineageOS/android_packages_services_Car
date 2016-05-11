@@ -517,7 +517,10 @@ public class CarVolumeControllerFactory {
                     Log.d(TAG, "Audio context changed from " + mCurrentContext + " to: "
                             + primaryFocusContext + " physical: " + primaryFocusPhysicalStream);
                 }
-                if (primaryFocusContext == mCurrentContext) {
+                // if primaryFocusContext is 0, it means nothing is playing or holding focus,
+                // we will keep the last focus context and if the user changes the volume
+                // it will go to the last audio context.
+                if (primaryFocusContext == mCurrentContext || primaryFocusContext == 0) {
                     return;
                 }
                 mCurrentContext = primaryFocusContext;
