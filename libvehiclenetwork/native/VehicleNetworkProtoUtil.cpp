@@ -303,19 +303,19 @@ status_t VehicleNetworkProtoUtil::toVehiclePropConfig(const vehicle_prop_config_
     } else {
         out.clear_config_string();
     }
+    int numZones = VehicleNetworkUtil::countNumberOfZones(in.vehicle_zone_flags);
+    if (numZones == 0) {
+        numZones = 1;
+    }
     switch (in.value_type) {
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC4:
         case VEHICLE_VALUE_TYPE_FLOAT:
         case VEHICLE_VALUE_TYPE_FLOAT_VEC2:
         case VEHICLE_VALUE_TYPE_FLOAT_VEC3:
         case VEHICLE_VALUE_TYPE_FLOAT_VEC4: {
-            out.add_float_maxs(in.float_max_value);
-            out.add_float_mins(in.float_min_value);
-        } break;
-        case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
-        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
-        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3:
-        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC4: {
-            int numZones = VehicleNetworkUtil::countNumberOfZones(in.vehicle_zone_flags);
             if (in.float_min_values == NULL) {
                 if (in.float_max_values == NULL) {
                     // all the same min/max
@@ -342,21 +342,39 @@ status_t VehicleNetworkProtoUtil::toVehiclePropConfig(const vehicle_prop_config_
             }
         } break;
         case VEHICLE_VALUE_TYPE_INT64: {
-            out.add_int64_maxs(in.int64_max_value);
-            out.add_int64_mins(in.int64_min_value);
-        } break;
-        case VEHICLE_VALUE_TYPE_INT32:
-        case VEHICLE_VALUE_TYPE_INT32_VEC2:
-        case VEHICLE_VALUE_TYPE_INT32_VEC3:
-        case VEHICLE_VALUE_TYPE_INT32_VEC4:  {
-            out.add_int32_maxs(in.int32_max_value);
-            out.add_int32_mins(in.int32_min_value);
+            if (in.int64_min_values == NULL) {
+                if (in.int64_max_values == NULL) {
+                    // all the same min/max
+                    for (int i = 0; i < numZones; i++) {
+                        out.add_int64_maxs(in.int64_max_value);
+                        out.add_int64_mins(in.int64_min_value);
+                    }
+                } else { // invalid combination
+                    ALOGW("Zoned property 0x%x, min_values NULL while max_values not NULL",
+                            in.prop);
+                    return BAD_VALUE;
+                }
+            } else {
+                if (in.int64_max_values != NULL) {
+                    for (int i = 0; i < numZones; i++) {
+                        out.add_int64_maxs(in.int64_max_values[i]);
+                        out.add_int64_mins(in.int64_min_values[i]);
+                    }
+                } else { // invalid combination
+                    ALOGW("Zoned property 0x%x, max_values NULL while min_values not NULL",
+                            in.prop);
+                    return BAD_VALUE;
+                }
+            }
         } break;
         case VEHICLE_VALUE_TYPE_ZONED_INT32:
         case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2:
         case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3:
-        case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC4: {
-            int numZones = VehicleNetworkUtil::countNumberOfZones(in.vehicle_zone_flags);
+        case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC4:
+        case VEHICLE_VALUE_TYPE_INT32:
+        case VEHICLE_VALUE_TYPE_INT32_VEC2:
+        case VEHICLE_VALUE_TYPE_INT32_VEC3:
+        case VEHICLE_VALUE_TYPE_INT32_VEC4: {
             if (in.int32_min_values == NULL) {
                 if (in.int32_max_values == NULL) {
                     // all the same min/max
@@ -418,25 +436,19 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropConfig(const VehiclePropConfig&
         out.config_string.data = NULL;
         out.config_string.len = 0;
     }
+    int numZones = VehicleNetworkUtil::countNumberOfZones(out.vehicle_zone_flags);
+    if (numZones == 0) {
+        numZones = 1;
+    }
     switch (out.value_type) {
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3:
+        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC4:
         case VEHICLE_VALUE_TYPE_FLOAT:
         case VEHICLE_VALUE_TYPE_FLOAT_VEC2:
         case VEHICLE_VALUE_TYPE_FLOAT_VEC3:
         case VEHICLE_VALUE_TYPE_FLOAT_VEC4: {
-            if ((in.float_maxs_size() == 1) && (in.float_mins_size() == 1)) {
-                out.float_max_value = in.float_maxs(0);
-                out.float_min_value = in.float_mins(0);
-            } else {
-                ALOGW("no float max/min for property 0x%x", out.prop);
-                out.float_max_value = 0;
-                out.float_min_value = 0;
-            }
-        } break;
-        case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
-        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC2:
-        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC3:
-        case VEHICLE_VALUE_TYPE_ZONED_FLOAT_VEC4: {
-            int numZones = VehicleNetworkUtil::countNumberOfZones(out.vehicle_zone_flags);
             int maxSize = in.float_maxs_size();
             int minSize = in.float_mins_size();
             if (maxSize != minSize) {
@@ -454,50 +466,64 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropConfig(const VehiclePropConfig&
                 out.float_min_value = in.float_mins(0);
                 out.float_max_values = NULL;
                 out.float_min_values = NULL;
-            } else if (numZones > 1){
-                if (numZones != maxSize) {
+            } else {
+                if ((numZones > 1) && (numZones != maxSize)) {
                     ALOGW("Zoned property 0x%x, config maxSize %d num Zones %d", out.prop, maxSize,
                                             numZones);
                     return BAD_VALUE;
                 }
-                out.float_max_values = new float[numZones];
+                out.float_max_values = new float[maxSize];
                 ASSERT_OR_HANDLE_NO_MEMORY(out.float_max_values, return NO_MEMORY);
-                out.float_min_values = new float[numZones];
+                out.float_min_values = new float[maxSize];
                 ASSERT_OR_HANDLE_NO_MEMORY(out.float_min_values, return NO_MEMORY);
-                for (int i = 0; i < numZones; i++) {
+                for (int i = 0; i < maxSize; i++) {
                     out.float_max_values[i] = in.float_maxs(i);
                     out.float_min_values[i] = in.float_mins(i);
                 }
             }
         } break;
         case VEHICLE_VALUE_TYPE_INT64: {
-            if ((in.int64_maxs_size() == 1) && (in.int64_mins_size() == 1)) {
-                out.int64_max_value = in.int64_maxs(0);
-                out.int64_min_value = in.int64_mins(0);
-            } else {
-                ALOGW("no int64 max/min for property 0x%x", out.prop);
+            int maxSize = in.int64_maxs_size();
+            int minSize = in.int64_mins_size();
+            if (maxSize != minSize) {
+                ALOGW("Zoned property 0x%x, config maxSize %d minSize %d", out.prop, maxSize,
+                        minSize);
+                return BAD_VALUE;
+            }
+            if (maxSize == 0) {
                 out.int64_max_value = 0;
                 out.int64_min_value = 0;
-            }
-        } break;
-        case VEHICLE_VALUE_TYPE_INT32:
-        case VEHICLE_VALUE_TYPE_INT32_VEC2:
-        case VEHICLE_VALUE_TYPE_INT32_VEC3:
-        case VEHICLE_VALUE_TYPE_INT32_VEC4: {
-            if ((in.int32_maxs_size() == 1) && (in.int32_mins_size() == 1)) {
-                out.int32_max_value = in.int32_maxs(0);
-                out.int32_min_value = in.int32_mins(0);
+                out.int64_max_values = NULL;
+                out.int64_min_values = NULL;
+            } else if (maxSize == 1) { // one for all
+                out.int64_max_value = in.int64_maxs(0);
+                out.int64_min_value = in.int64_mins(0);
+                out.int64_max_values = NULL;
+                out.int64_min_values = NULL;
             } else {
-                ALOGW("no int32 max/min for property 0x%x", out.prop);
-                out.int32_max_value = 0;
-                out.int32_min_value = 0;
+                if ((numZones > 1) && (numZones != maxSize)) {
+                    ALOGW("Zoned property 0x%x, config maxSize %d num Zones %d", out.prop, maxSize,
+                            numZones);
+                    return BAD_VALUE;
+                }
+                out.int64_max_values = new int64_t[maxSize];
+                ASSERT_OR_HANDLE_NO_MEMORY(out.int64_max_values, return NO_MEMORY);
+                out.int64_min_values = new int64_t[maxSize];
+                ASSERT_OR_HANDLE_NO_MEMORY(out.int64_min_values, return NO_MEMORY);
+                for (int i = 0; i < maxSize; i++) {
+                    out.int64_max_values[i] = in.int64_maxs(i);
+                    out.int64_min_values[i] = in.int64_mins(i);
+                }
             }
         } break;
         case VEHICLE_VALUE_TYPE_ZONED_INT32:
         case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2:
         case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3:
-        case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC4: {
-            int numZones = VehicleNetworkUtil::countNumberOfZones(out.vehicle_zone_flags);
+        case VEHICLE_VALUE_TYPE_ZONED_INT32_VEC4:
+        case VEHICLE_VALUE_TYPE_INT32:
+        case VEHICLE_VALUE_TYPE_INT32_VEC2:
+        case VEHICLE_VALUE_TYPE_INT32_VEC3:
+        case VEHICLE_VALUE_TYPE_INT32_VEC4: {
             int maxSize = in.int32_maxs_size();
             int minSize = in.int32_mins_size();
             if (maxSize != minSize) {
@@ -515,17 +541,17 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropConfig(const VehiclePropConfig&
                 out.int32_min_value = in.int32_mins(0);
                 out.int32_max_values = NULL;
                 out.int32_min_values = NULL;
-            } else if (numZones > 1){
-                if (numZones != maxSize) {
+            } else {
+                if ((numZones > 1) && (numZones != maxSize)) {
                     ALOGW("Zoned property 0x%x, config maxSize %d num Zones %d", out.prop, maxSize,
                                             numZones);
                     return BAD_VALUE;
                 }
-                out.int32_max_values = new int32_t[numZones];
+                out.int32_max_values = new int32_t[maxSize];
                 ASSERT_OR_HANDLE_NO_MEMORY(out.int32_max_values, return NO_MEMORY);
-                out.int32_min_values = new int32_t[numZones];
+                out.int32_min_values = new int32_t[maxSize];
                 ASSERT_OR_HANDLE_NO_MEMORY(out.int32_min_values, return NO_MEMORY);
-                for (int i = 0; i < numZones; i++) {
+                for (int i = 0; i < maxSize; i++) {
                     out.int32_max_values[i] = in.int32_maxs(i);
                     out.int32_min_values[i] = in.int32_mins(i);
                 }
