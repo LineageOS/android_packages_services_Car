@@ -186,7 +186,7 @@ public class HvacHalService extends HalServiceBase {
 
             listener.onPropertyChange(event);
             if (DBG) {
-                Log.d(TAG, "handleHalEvents event: " + event);
+                Log.d(TAG, "dispatchEventToListener event: " + event);
             }
         }
     }
