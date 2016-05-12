@@ -75,7 +75,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
     };
 
     private final FocusPropertyHandler mAudioFocusPropertyHandler =
-            new FocusPropertyHandler();
+            new FocusPropertyHandler(this);
 
     private final VehicleHalPropertyHandler mAppContextPropertyHandler =
             new VehicleHalPropertyHandler() {
@@ -565,7 +565,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
         mAudioManager.abandonAudioFocus(listenerMedia);
     }
 
-    private class AudioFocusListener implements AudioManager.OnAudioFocusChangeListener {
+    protected static class AudioFocusListener implements AudioManager.OnAudioFocusChangeListener {
         private final Semaphore mFocusChangeWait = new Semaphore(0);
         private int mLastFocusChange;
 
@@ -591,7 +591,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
         }
     }
 
-    private class FocusPropertyHandler implements VehicleHalPropertyHandler {
+    protected static class FocusPropertyHandler implements VehicleHalPropertyHandler {
 
         private int mState = VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS;
         private int mStreams = 0;
@@ -600,8 +600,13 @@ public class CarAudioFocusTest extends MockedCarTestBase {
         private int mRequestedStreams;
         private int mRequestedExtFocus;
         private int mRequestedAudioContexts;
+        private final MockedCarTestBase mCarTest;
 
         private final Semaphore mSetWaitSemaphore = new Semaphore(0);
+
+        public FocusPropertyHandler(MockedCarTestBase carTest) {
+            mCarTest = carTest;
+        }
 
         public void sendAudioFocusState(int state, int streams, int extFocus) {
             synchronized (this) {
@@ -610,7 +615,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
                 mExtFocus = extFocus;
             }
             int[] values = { state, streams, extFocus, 0 };
-            getVehicleHalEmulator().injectEvent(VehiclePropValueUtil.createIntVectorValue(
+            mCarTest.getVehicleHalEmulator().injectEvent(VehiclePropValueUtil.createIntVectorValue(
                     VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
                     SystemClock.elapsedRealtimeNanos()));
         }
