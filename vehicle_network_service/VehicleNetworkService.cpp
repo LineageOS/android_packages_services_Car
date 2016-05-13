@@ -461,6 +461,11 @@ bool VehicleNetworkService::isSubscribableLocked(int32_t property) {
         ALOGI("cannot subscribe, property 0x%x is static", property);
         return false;
     }
+    //TODO extend VNS to support event notification for set from android
+    if (config->change_mode == VEHICLE_PROP_CHANGE_MODE_POLL) {
+            ALOGI("cannot subscribe, property 0x%x is poll only", property);
+            return false;
+    }
     return true;
 }
 
@@ -627,6 +632,15 @@ status_t VehicleNetworkService::setProperty(const vehicle_prop_value_t& data) {
     return r;
 }
 
+bool isSampleRateFixed(int32_t changeMode) {
+    switch (changeMode) {
+    case VEHICLE_PROP_CHANGE_MODE_ON_CHANGE:
+    case VEHICLE_PROP_CHANGE_MODE_ON_SET:
+        return true;
+    }
+    return false;
+}
+
 status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &listener, int32_t prop,
         float sampleRate, int32_t zones) {
     bool shouldSubscribe = false;
@@ -640,7 +654,7 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
             return BAD_VALUE;
         }
         config = findConfigLocked(prop);
-        if (config->change_mode == VEHICLE_PROP_CHANGE_MODE_ON_CHANGE) {
+        if (isSampleRateFixed(config->change_mode)) {
             if (sampleRate != 0) {
                 ALOGW("Sample rate set to non-zeo for on change type. Ignore it");
                 sampleRate = 0;
@@ -722,7 +736,7 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
             }
         }
     }
-    if (config->change_mode == VEHICLE_PROP_CHANGE_MODE_ON_CHANGE) {
+    if (isSampleRateFixed(config->change_mode)) {
         status_t r = notifyClientWithCurrentValue(inMock, config, zones);
         if (r != NO_ERROR) {
             return r;

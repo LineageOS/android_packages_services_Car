@@ -196,8 +196,10 @@ public class SensorHalService extends SensorHalServiceBase {
     }
 
     private float fixSamplingRateForProperty(VehiclePropConfig prop, int carSensorManagerRate) {
-        if (prop.getChangeMode() ==  VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE) {
-            return 0;
+        switch (prop.getChangeMode()) {
+            case VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE:
+            case VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_SET:
+                return 0;
         }
         float rate = 1.0f;
         switch (carSensorManagerRate) {
