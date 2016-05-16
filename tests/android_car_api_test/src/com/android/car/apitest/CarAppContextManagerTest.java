@@ -39,7 +39,7 @@ public class CarAppContextManagerTest extends CarApiTestBase {
         try {
             mManager.setActiveContexts(null, CarAppContextManager.APP_CONTEXT_NAVIGATION);
             fail();
-        } catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
             // expected
         }
     }
