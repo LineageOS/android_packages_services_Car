@@ -382,6 +382,11 @@ void VehicleNetworkService::onFirstRef() {
             *this));
     ASSERT_ALWAYS_ON_NO_MEMORY(handler.get());
     mHandler = handler;
+
+    // populate empty list before hal init.
+    mProperties = new VehiclePropertiesHolder(false /* deleteConfigsInDestructor */);
+    ASSERT_ALWAYS_ON_NO_MEMORY(mProperties);
+
     r = mDevice->init(mDevice, eventCallback, errorCallback);
     if (r != NO_ERROR) {
         ALOGE("HAL init failed:%d", r);
@@ -389,8 +394,6 @@ void VehicleNetworkService::onFirstRef() {
     }
     int numConfigs = 0;
     vehicle_prop_config_t const* configs = mDevice->list_properties(mDevice, &numConfigs);
-    mProperties = new VehiclePropertiesHolder(false /* deleteConfigsInDestructor */);
-    ASSERT_ALWAYS_ON_NO_MEMORY(mProperties);
     for (int i = 0; i < numConfigs; i++) {
         mProperties->getList().push_back(&configs[i]);
     }
