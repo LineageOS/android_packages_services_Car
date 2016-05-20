@@ -83,27 +83,41 @@ public class CarSensorManager implements CarManagerBase {
      * {@link CarSensorEvent#GEAR_NEUTRAL} and other GEAR_*.
      */
     public static final int SENSOR_TYPE_GEAR              = 7;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED8        = 8;
     /**
      * Day/night sensor. Sensor data is intValues[0].
      */
-    public static final int SENSOR_TYPE_NIGHT             = 8;
+    public static final int SENSOR_TYPE_NIGHT             = 9;
     /** @hide */
-    public static final int SENSOR_TYPE_REVERVED9        = 9;
+    public static final int SENSOR_TYPE_RESERVED10         = 10;
     /**
      * Represents the current driving status of car. Different user interaction should be used
      * depending on the current driving status. Driving status is intValues[0].
      */
-    public static final int SENSOR_TYPE_DRIVING_STATUS    = 10;
+    public static final int SENSOR_TYPE_DRIVING_STATUS    = 11;
     /**
      * Environment like temperature and pressure.
      */
-    public static final int SENSOR_TYPE_ENVIRONMENT       = 11;
-    /** @hide */
-    public static final int SENSOR_TYPE_RESERVED12        = 12;
+    public static final int SENSOR_TYPE_ENVIRONMENT       = 12;
     /** @hide */
     public static final int SENSOR_TYPE_RESERVED13        = 13;
     /** @hide */
     public static final int SENSOR_TYPE_RESERVED14        = 14;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED15        = 15;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED16        = 16;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED17        = 17;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED18        = 18;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED19        = 19;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED20        = 20;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED21        = 21;
 
     /**
      * Sensor type bigger than this is invalid. Always update this after adding a new sensor.
