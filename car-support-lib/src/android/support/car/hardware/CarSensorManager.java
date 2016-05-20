@@ -28,81 +28,91 @@ import android.support.car.CarNotConnectedException;
  */
 public abstract class CarSensorManager implements CarManagerBase {
     /**
-     * SENSOR_TYPE_* represents type of sensor supported from the connected car.
-     * This sensor represents the direction of the car as an angle in degree measured clockwise
-     * with 0 degree pointing to north.
-     * Sensor data in {@link CarSensorEvent} is a float (floatValues[0]).
+     * SENSOR_TYPE_* represents type of sensor supported from the connected car. This sensor
+     * represents the direction of the car as an angle in degree measured clockwise with 0 degree
+     * pointing to north. Sensor data in {@link CarSensorEvent} is a float (floatValues[0]).
      */
-    public static final int SENSOR_TYPE_COMPASS           = 1;
+    public static final int SENSOR_TYPE_COMPASS = 1;
     /**
-     * This sensor represents vehicle speed in m/s.
-     * Sensor data in {@link CarSensorEvent} is a float which will be >= 0.
-     * This requires {@link Car#PERMISSION_SPEED} permission.
+     * This sensor represents vehicle speed in m/s. Sensor data in {@link CarSensorEvent} is a float
+     * which will be >= 0. This requires {@link Car#PERMISSION_SPEED} permission.
      */
-    public static final int SENSOR_TYPE_CAR_SPEED         = 2;
+    public static final int SENSOR_TYPE_CAR_SPEED = 2;
     /**
      * Represents engine RPM of the car. Sensor data in {@link CarSensorEvent} is a float.
      */
-    public static final int SENSOR_TYPE_RPM               = 3;
+    public static final int SENSOR_TYPE_RPM = 3;
     /**
-     * Total travel distance of the car in Kilometer. Sensor data is a float.
-     * This requires {@link Car#PERMISSION_MILEAGE} permission.
+     * Total travel distance of the car in Kilometer. Sensor data is a float. This requires {@link
+     * Car#PERMISSION_MILEAGE} permission.
      */
-    public static final int SENSOR_TYPE_ODOMETER          = 4;
+    public static final int SENSOR_TYPE_ODOMETER = 4;
     /**
-     * Indicates fuel level of the car.
-     * In {@link CarSensorEvent}, floatValues[{@link CarSensorEvent#INDEX_FUEL_LEVEL_IN_PERCENTILE}]
-     * represents fuel level in percentile (0 to 100) while
-     * floatValues[{@link CarSensorEvent#INDEX_FUEL_LEVEL_IN_DISTANCE}] represents estimated range
-     * in Kilometer with the remaining fuel.
-     * Note that the gas mileage used for the estimation may not represent the current driving
-     * condition.
-     * This requires {@link Car#PERMISSION_FUEL} permission.
+     * Indicates fuel level of the car. In {@link CarSensorEvent}, floatValues[{@link
+     * CarSensorEvent#INDEX_FUEL_LEVEL_IN_PERCENTILE}] represents fuel level in percentile (0 to
+     * 100) while floatValues[{@link CarSensorEvent#INDEX_FUEL_LEVEL_IN_DISTANCE}] represents
+     * estimated range in Kilometer with the remaining fuel. Note that the gas mileage used for the
+     * estimation may not represent the current driving condition. This requires {@link
+     * Car#PERMISSION_FUEL} permission.
      */
-    public static final int SENSOR_TYPE_FUEL_LEVEL        = 5;
+    public static final int SENSOR_TYPE_FUEL_LEVEL = 5;
     /**
      * Represents the current status of parking brake. Sensor data in {@link CarSensorEvent} is an
-     * intValues[0]. Value of 1 represents parking brake applied while 0 means the other way
-     * around. For this sensor, rate in {@link #registerListener(CarSensorEventListener, int, int)}
-     * will be ignored and all changes will be notified.
+     * intValues[0]. Value of 1 represents parking brake applied while 0 means the other way around.
+     * For this sensor, rate in {@link #registerListener(CarSensorEventListener, int, int)} will be
+     * ignored and all changes will be notified.
      */
-    public static final int SENSOR_TYPE_PARKING_BRAKE     = 6;
+    public static final int SENSOR_TYPE_PARKING_BRAKE = 6;
     /**
-     * This represents the current position of transmission gear. Sensor data in
-     * {@link CarSensorEvent} is an intValues[0]. For the meaning of the value, check
-     * {@link CarSensorEvent#GEAR_NEUTRAL} and other GEAR_*.
+     * This represents the current position of transmission gear. Sensor data in {@link
+     * CarSensorEvent} is an intValues[0]. For the meaning of the value, check {@link
+     * CarSensorEvent#GEAR_NEUTRAL} and other GEAR_*.
      */
-    public static final int SENSOR_TYPE_GEAR              = 7;
+    public static final int SENSOR_TYPE_GEAR = 7;
+
+    /**@hide*/
+    public static final int SENSOR_TYPE_RESERVED8 = 8;
+
     /**
      * Day/night sensor. Sensor data is intValues[0].
      */
-    public static final int SENSOR_TYPE_NIGHT             = 8;
+    public static final int SENSOR_TYPE_NIGHT = 9;
     /**
      * Sensor type for location. Sensor data passed in floatValues.
      */
-    public static final int SENSOR_TYPE_LOCATION          = 9;
+    public static final int SENSOR_TYPE_LOCATION = 10;
     /**
      * Represents the current driving status of car. Different user interaction should be used
      * depending on the current driving status. Driving status is intValues[0].
      */
-    public static final int SENSOR_TYPE_DRIVING_STATUS    = 10;
+    public static final int SENSOR_TYPE_DRIVING_STATUS = 11;
     /**
      * Environment like temperature and pressure.
      */
-    public static final int SENSOR_TYPE_ENVIRONMENT       = 11;
-
+    public static final int SENSOR_TYPE_ENVIRONMENT = 12;
     /** @hide */
-    public static final int SENSOR_TYPE_ACCELEROMETER     = 12;
+    public static final int SENSOR_TYPE_RESERVED13 = 13;
     /** @hide */
-    public static final int SENSOR_TYPE_GPS_SATELLITE     = 13;
+    public static final int SENSOR_TYPE_ACCELEROMETER = 14;
     /** @hide */
-    public static final int SENSOR_TYPE_GYROSCOPE         = 14;
+    public static final int SENSOR_TYPE_RESERVED15 = 15;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED16 = 16;
+    /** @hide */
+    public static final int SENSOR_TYPE_GPS_SATELLITE = 17;
+    /** @hide */
+    public static final int SENSOR_TYPE_GYROSCOPE = 18;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED19 = 19;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED20 = 20;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED21 = 21;
 
     /**
      * Sensor type bigger than this is invalid. Always update this after adding a new sensor.
-     * @hide
      */
-    private static final int SENSOR_TYPE_MAX              = SENSOR_TYPE_GYROSCOPE;
+    private static final int SENSOR_TYPE_MAX = SENSOR_TYPE_RESERVED21;
 
     /**
      * Sensors defined in this range [{@link #SENSOR_TYPE_VENDOR_EXTENSION_START},
