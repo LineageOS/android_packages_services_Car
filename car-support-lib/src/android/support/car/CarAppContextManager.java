@@ -21,6 +21,7 @@ package android.support.car;
  * like active navigation or active voice command. Usually only one instance of such application
  * should run in the system, and other app setting the flag for the matching app should
  * lead into other app to stop.
+ * @hide
  */
 public abstract class CarAppContextManager implements CarManagerBase {
     /**
