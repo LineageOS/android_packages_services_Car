@@ -30,6 +30,7 @@ import java.util.Map;
  * like active navigation or active voice command. Usually only one instance of such application
  * should run in the system, and other app setting the flag for the matching app should
  * lead into other app to stop.
+ * @hide
  */
 public class CarAppContextManager implements CarManagerBase {
     /**
