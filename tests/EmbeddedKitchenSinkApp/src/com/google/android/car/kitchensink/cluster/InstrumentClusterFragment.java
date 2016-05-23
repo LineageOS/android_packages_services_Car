@@ -57,7 +57,7 @@ public class InstrumentClusterFragment extends Fragment {
         view.findViewById(R.id.cluster_start_button).setOnClickListener(v -> initCluster());
         view.findViewById(R.id.cluster_turn_left_button).setOnClickListener(v -> turnLeft());
 
-        return view;
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     private void turnLeft() {

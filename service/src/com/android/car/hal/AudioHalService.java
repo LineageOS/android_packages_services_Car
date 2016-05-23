@@ -98,6 +98,8 @@ public class AudioHalService extends HalServiceBase {
             VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_TRANSIENT_FLAG;
     public static final int VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG =
             VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG;
+    public static final int VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG =
+            VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG;
 
     public static final int STREAM_NUM_DEFAULT = 0;
 
@@ -275,10 +277,46 @@ public class AudioHalService extends HalServiceBase {
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG;
             case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_BOTTOM:
             case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY:
+            case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_MEDIA_MUTE:
                 // internal tag not associated with any stream
                 return 0;
             default:
                 Log.w(CarLog.TAG_AUDIO, "Unknown logical stream:" + logicalStream);
+                return 0;
+        }
+    }
+
+    /**
+     * Converts car audio context type to car stream usage.
+     */
+    public static int carContextToCarUsage(int carContext) {
+        switch (carContext) {
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_MUSIC;
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE;
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_ALARM;
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_VOICE_COMMAND;
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_AUX_AUDIO_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_MUSIC;
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_VOICE_CALL;
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CD_ROM_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_MUSIC;
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_NOTIFICATION;
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_RADIO;
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SAFETY_ALERT_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT;
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SOUND;
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_DEFAULT;
+            default:
+                Log.w(CarLog.TAG_AUDIO, "Unknown car context:" + carContext);
                 return 0;
         }
     }

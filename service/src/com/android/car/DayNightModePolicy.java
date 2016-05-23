@@ -16,14 +16,10 @@
 
 package com.android.car;
 
-import android.car.Car;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
 import android.content.Context;
-import android.os.SystemClock;
 import android.util.Log;
-
-import com.android.car.hal.SensorHalServiceBase.SensorListener;
 
 import java.io.PrintWriter;
 
@@ -50,7 +46,10 @@ public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
     }
 
     public static CarSensorEvent getDefaultValue(int sensorType) {
-        return createEvent(true /* isNight */);
+        // There's a race condition and timestamp from vehicle HAL could be slightly less
+        // then current call to SystemClock.elapsedRealtimeNanos() will return.
+        // We want vehicle HAL value always override this default value so we set timestamp to 0.
+        return createEvent(true /* isNight */, 0 /* timestamp */);
     }
 
     @Override
@@ -88,9 +87,9 @@ public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
         // TODO Auto-generated method stub
     }
 
-    private static CarSensorEvent createEvent(boolean isNight) {
+    private static CarSensorEvent createEvent(boolean isNight, long timestamp) {
         CarSensorEvent event = new CarSensorEvent(CarSensorManager.SENSOR_TYPE_NIGHT,
-                SystemClock.elapsedRealtimeNanos(), 0, 1);
+                timestamp, 0, 1);
         event.intValues[0] = isNight ? 1 : 0;
         return event;
     }

@@ -26,15 +26,18 @@ public class CarAudioAttributesUtil {
 
     public static final int CAR_AUDIO_USAGE_CARSERVICE_BOTTOM = 100;
     public static final int CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY = 101;
+    public static final int CAR_AUDIO_USAGE_CARSERVICE_MEDIA_MUTE = 102;
 
     /** Bundle key for storing media type */
     public static final String KEY_CAR_AUDIO_TYPE = "car_audio_type";
-    public static final int CAR_AUDIO_TYPE_DEFAULT = 0;
-    public static final int CAR_AUDIO_TYPE_VOICE_COMMAND = 1;
-    public static final int CAR_AUDIO_TYPE_SAFETY_ALERT = 2;
-    public static final int CAR_AUDIO_TYPE_RADIO = 3;
-    public static final int CAR_AUDIO_TYPE_CARSERVICE_BOTTOM = 4;
-    public static final int CAR_AUDIO_TYPE_CARSERVICE_CAR_PROXY = 5;
+
+    private static final int CAR_AUDIO_TYPE_DEFAULT = 0;
+    private static final int CAR_AUDIO_TYPE_VOICE_COMMAND = 1;
+    private static final int CAR_AUDIO_TYPE_SAFETY_ALERT = 2;
+    private static final int CAR_AUDIO_TYPE_RADIO = 3;
+    private static final int CAR_AUDIO_TYPE_CARSERVICE_BOTTOM = 4;
+    private static final int CAR_AUDIO_TYPE_CARSERVICE_CAR_PROXY = 5;
+    private static final int CAR_AUDIO_TYPE_CARSERVICE_MEDIA_MUTE = 6;
 
     public static AudioAttributes getAudioAttributesForCarUsage(int carUsage) {
         switch (carUsage) {
@@ -74,6 +77,10 @@ public class CarAudioAttributesUtil {
             case CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY:
                 return createCustomAudioAttributes(CAR_AUDIO_TYPE_CARSERVICE_CAR_PROXY,
                         AudioAttributes.CONTENT_TYPE_UNKNOWN,
+                        AudioAttributes.USAGE_UNKNOWN);
+            case CAR_AUDIO_USAGE_CARSERVICE_MEDIA_MUTE:
+                return createCustomAudioAttributes(CAR_AUDIO_TYPE_CARSERVICE_MEDIA_MUTE,
+                        AudioAttributes.CONTENT_TYPE_MUSIC,
                         AudioAttributes.USAGE_UNKNOWN);
             case CarAudioManager.CAR_AUDIO_USAGE_DEFAULT:
             default:
@@ -115,13 +122,18 @@ public class CarAudioAttributesUtil {
             case AudioAttributes.USAGE_ASSISTANCE_SONIFICATION:
                 return CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SOUND;
             case AudioAttributes.USAGE_UNKNOWN:
-            default:
-                if (type == CAR_AUDIO_TYPE_CARSERVICE_BOTTOM) {
-                    return CAR_AUDIO_USAGE_CARSERVICE_BOTTOM;
-                } else if (type == CAR_AUDIO_TYPE_CARSERVICE_CAR_PROXY) {
-                    return CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY;
+            default: {
+                switch (type) {
+                    case CAR_AUDIO_TYPE_CARSERVICE_BOTTOM:
+                        return CAR_AUDIO_USAGE_CARSERVICE_BOTTOM;
+                    case CAR_AUDIO_TYPE_CARSERVICE_CAR_PROXY:
+                        return CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY;
+                    case CAR_AUDIO_TYPE_CARSERVICE_MEDIA_MUTE:
+                        return CAR_AUDIO_USAGE_CARSERVICE_MEDIA_MUTE;
+                    default:
+                        return CarAudioManager.CAR_AUDIO_USAGE_DEFAULT;
                 }
-                return CarAudioManager.CAR_AUDIO_USAGE_DEFAULT;
+            }
         }
     }
 

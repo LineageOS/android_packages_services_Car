@@ -50,7 +50,7 @@
                 android:id="@+id/list_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingEnd="32dp" />
+                 />
 
             <ProgressBar
                 android:id="@+id/progress"
@@ -98,6 +98,7 @@
             android:scaleType="center"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="@dimen/car_drawer_button_margin"
+            android:layout_marginRight="@dimen/car_drawer_button_margin_right"
             />
         <FrameLayout
             android:id="@+id/car_drawer_title_container"

@@ -24,8 +24,6 @@ import android.content.Context;
 import android.os.SystemClock;
 import android.util.Log;
 
-import com.android.car.hal.SensorHalServiceBase.SensorListener;
-
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -97,7 +95,10 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
                     sensorType);
             return null;
         }
-        return createEvent(CarSensorEvent.DRIVE_STATUS_FULLY_RESTRICTED);
+        // There's a race condition and timestamp from vehicle HAL could be slightly less
+        // then current call to SystemClock.elapsedRealtimeNanos() will return.
+        // We want vehicle HAL value always override this default value so we set timestamp to 0.
+        return createEvent(CarSensorEvent.DRIVE_STATUS_FULLY_RESTRICTED, 0 /* timestamp */);
     }
 
     @Override
@@ -199,8 +200,15 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
     }
 
     private static CarSensorEvent createEvent(int drivingState) {
-        CarSensorEvent event = new CarSensorEvent(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
-                SystemClock.elapsedRealtimeNanos(), 0, 1);
+        return createEvent(drivingState, SystemClock.elapsedRealtimeNanos());
+    }
+
+    private static CarSensorEvent createEvent(int drivingState, long timestamp) {
+        CarSensorEvent event = new CarSensorEvent(
+                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
+                timestamp,
+                0 /* float values */,
+                1 /* int values */);
         event.intValues[0] = drivingState;
         return event;
     }

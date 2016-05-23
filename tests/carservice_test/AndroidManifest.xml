@@ -23,6 +23,7 @@
     <uses-permission android:name="android.car.permission.CAR_HVAC" />
     <uses-permission android:name="android.car.permission.CAR_RADIO" />
     <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING" />
+    <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME" />
     <instrumentation android:name="android.test.InstrumentationTestRunner"
             android:targetPackage="com.android.support.car.carservicetest"
             android:label="Tests for Car APIs"/>

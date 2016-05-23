@@ -89,7 +89,11 @@ public class CarRadioManagerTest extends MockedCarTestBase {
             value.getInt32ValuesList().toArray(valueList);
 
             // Get the actual preset.
-            if (valueList[0] < 1 || valueList[0] > NUM_PRESETS) return null;
+            if (valueList[0] < 1 || valueList[0] > NUM_PRESETS) {
+                // VNS will call getProperty method when subscribe is called, just return an empty
+                // value.
+                return value;
+            }
             CarRadioPreset preset = mRadioPresets.get(valueList[0]);
             VehiclePropValue v =
                 VehiclePropValueUtil.createIntVectorValue(
@@ -171,9 +175,9 @@ public class CarRadioManagerTest extends MockedCarTestBase {
     }
 
     public void testSubscribe() throws Exception {
-        EventListener l = new EventListener();
+        EventListener listener = new EventListener();
         assertEquals("Lock should be freed by now.", 0, mAvailable.availablePermits());
-        mCarRadioManager.registerListener(l);
+        mCarRadioManager.registerListener(listener);
 
         // Wait for acquire to be available again, fail if timeout.
         boolean success = mAvailable.tryAcquire(5L, TimeUnit.SECONDS);

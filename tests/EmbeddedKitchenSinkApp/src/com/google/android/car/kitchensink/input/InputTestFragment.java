@@ -35,10 +35,8 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ToggleButton;
 import android.widget.LinearLayout;
 
-import com.google.android.car.kitchensink.CarEmulator;
 import com.google.android.car.kitchensink.R;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
@@ -67,9 +65,6 @@ public class InputTestFragment extends Fragment {
 
     private Car mCar;
     private CarTestManager mTestManager;
-    private ToggleButton mEnableMocking;
-    private CarEmulator mCarEmulator;
-
     private final List<View> mButtons = new ArrayList<>();
 
     @Nullable
@@ -103,14 +98,23 @@ public class InputTestFragment extends Fragment {
         mCar = Car.createCar(getContext(), new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                Log.i(TAG, "onServiceConnected");
                 try {
                     mTestManager = new CarTestManager(
                             (CarTestManagerBinderWrapper) mCar.getCarManager(Car.TEST_SERVICE));
                 } catch (CarNotConnectedException e) {
                     throw new RuntimeException("Failed to create test service manager", e);
                 }
-                checkHwKeyInputSupported();
+                boolean hwKeySupported = mTestManager.isPropertySupported(
+                        VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT);
+                if (!hwKeySupported) {
+                    Log.w(TAG, "VEHICLE_PROPERTY_HW_KEY_INPUT not supported");
+                }
+
+                for (View v : mButtons) {
+                    if (v != null) {
+                        v.setEnabled(hwKeySupported);
+                    }
+                }
             }
 
             @Override
@@ -118,22 +122,6 @@ public class InputTestFragment extends Fragment {
             }
         });
         mCar.connect();
-
-        mEnableMocking = (ToggleButton) view.findViewById(R.id.button_mock_input);
-        mEnableMocking.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (mCarEmulator == null) {
-                mCarEmulator = new CarEmulator(mCar);
-            }
-            if (isChecked) {
-                mCarEmulator.start();
-            } else {
-                mCarEmulator.stop();
-                mCarEmulator = null;
-            }
-
-            checkHwKeyInputSupported();
-        });
-
         return view;
     }
 
@@ -178,7 +166,7 @@ public class InputTestFragment extends Fragment {
         }
         if (shouldInject) {
             int[] values = { isDown ? VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_DOWN :
-                    VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_UP, keyCode, 0, 0 };
+                VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_UP, keyCode, 0, 0 };
             long now = SystemClock.elapsedRealtimeNanos();
             mTestManager.injectEvent(VehiclePropValueUtil.createIntVectorValue(
                     VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT, values, now));

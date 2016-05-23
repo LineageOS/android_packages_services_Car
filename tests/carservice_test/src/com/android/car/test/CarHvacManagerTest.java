@@ -189,7 +189,9 @@ public class CarHvacManagerTest extends MockedCarTestBase {
 
         @Override
         public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            return mMap.get(value.getProp());
+            VehiclePropValue currentValue = mMap.get(value.getProp());
+            // VNS will call getProperty method when subscribe is called, just return empty value.
+            return currentValue != null ? currentValue : value;
         }
 
         @Override

@@ -20,8 +20,8 @@ limitations under the License.
         <item name="carArrowThickness">4dp</item>
         <item name="carArrowDrawableSize">@dimen/car_drawer_header_menu_button_size</item>
         <item name="carArrowTopBottomBarSize">26dp</item>
-        <item name="carArrowBarSize">45dp</item>
-        <item name="carArrowMiddleBarSize">38dp</item>
-        <item name="carArrowGapBetweenBars">10dp</item>
+        <item name="carArrowBarSize">42dp</item>
+        <item name="carArrowMiddleBarSize">35dp</item>
+        <item name="carArrowGapBetweenBars">7dp</item>
     </style>
 </resources>
