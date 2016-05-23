@@ -17,9 +17,9 @@
 package com.google.android.car.kitchensink.audio;
 
 import android.car.Car;
-import android.car.CarAppContextManager;
-import android.car.CarAppContextManager.AppContextChangeListener;
-import android.car.CarAppContextManager.AppContextOwnershipChangeListener;
+import android.car.CarAppFocusManager;
+import android.car.CarAppFocusManager.AppFocusChangeListener;
+import android.car.CarAppFocusManager.AppFocusOwnershipChangeListener;
 import android.car.CarNotConnectedException;
 import android.car.media.CarAudioManager;
 import android.content.ComponentName;
@@ -88,7 +88,7 @@ public class AudioTestFragment extends Fragment {
     private Context mContext;
 
     private Car mCar;
-    private CarAppContextManager mAppContextManager;
+    private CarAppFocusManager mAppFocusManager;
     private CarAudioManager mCarAudioManager;
     private AudioAttributes mMusicAudioAttrib;
     private AudioAttributes mNavAudioAttrib;
@@ -119,10 +119,10 @@ public class AudioTestFragment extends Fragment {
                 }
     };
 
-    private final AppContextOwnershipChangeListener mOwnershipListener =
-            new AppContextOwnershipChangeListener() {
+    private final AppFocusOwnershipChangeListener mOwnershipListener =
+            new AppFocusOwnershipChangeListener() {
                 @Override
-                public void onAppContextOwnershipLoss(int context) {
+                public void onAppFocusOwnershipLoss(int focus) {
                 }
     };
 
@@ -133,20 +133,23 @@ public class AudioTestFragment extends Fragment {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 try {
-                    mAppContextManager =
-                            (CarAppContextManager) mCar.getCarManager(Car.APP_CONTEXT_SERVICE);
+                    mAppFocusManager =
+                            (CarAppFocusManager) mCar.getCarManager(Car.APP_FOCUS_SERVICE);
                 } catch (CarNotConnectedException e) {
-                    throw new RuntimeException("Failed to create app context manager", e);
+                    throw new RuntimeException("Failed to create app focus manager", e);
                 }
                 try {
-                    mAppContextManager.registerContextListener(new AppContextChangeListener() {
+                    AppFocusChangeListener listener = new AppFocusChangeListener() {
                         @Override
-                        public void onAppContextChange(int activeContexts) {
+                        public void onAppFocusChange(int appType, boolean active) {
                         }
-                    }, CarAppContextManager.APP_CONTEXT_NAVIGATION |
-                     CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+                    };
+                    mAppFocusManager.registerFocusListener(listener,
+                            CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+                    mAppFocusManager.registerFocusListener(listener,
+                            CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
                 } catch (CarNotConnectedException e) {
-                    Log.e(TAG, "Failed to register context listener", e);
+                    Log.e(TAG, "Failed to register focus listener", e);
                 }
                 try {
                     mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
@@ -250,7 +253,7 @@ public class AudioTestFragment extends Fragment {
         mNavPlayOnce.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mAppContextManager == null) {
+                if (mAppFocusManager == null) {
                     return;
                 }
                 if (DBG) {
@@ -258,10 +261,10 @@ public class AudioTestFragment extends Fragment {
                 }
                 if (!mNavGuidancePlayer.isPlaying()) {
                     try {
-                        mAppContextManager.setActiveContexts(mOwnershipListener,
-                                CarAppContextManager.APP_CONTEXT_NAVIGATION);
+                        mAppFocusManager.requestAppFocus(mOwnershipListener,
+                                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
                     } catch (CarNotConnectedException e) {
-                        Log.e(TAG, "Failed to set active context", e);
+                        Log.e(TAG, "Failed to set active focus", e);
                     }
                     mNavGuidancePlayer.start(true, false,
                             AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
@@ -269,10 +272,10 @@ public class AudioTestFragment extends Fragment {
                         @Override
                         public void onCompletion() {
                             try {
-                                mAppContextManager.resetActiveContexts(
-                                        CarAppContextManager.APP_CONTEXT_NAVIGATION);
+                                mAppFocusManager.abandonAppFocus(mOwnershipListener,
+                                        CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
                             } catch (CarNotConnectedException e) {
-                                Log.e(TAG, "Failed to reset active context", e);
+                                Log.e(TAG, "Failed to reset active focus", e);
                             }
                         }
                     });
@@ -283,17 +286,17 @@ public class AudioTestFragment extends Fragment {
         mVrPlayOnce.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mAppContextManager == null) {
+                if (mAppFocusManager == null) {
                     return;
                 }
                 if (DBG) {
                     Log.i(TAG, "VR start");
                 }
                 try {
-                    mAppContextManager.setActiveContexts(mOwnershipListener,
-                            CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+                    mAppFocusManager.requestAppFocus(mOwnershipListener,
+                            CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
                 } catch (CarNotConnectedException e) {
-                    Log.e(TAG, "Failed to set active context", e);
+                    Log.e(TAG, "Failed to set active focus", e);
                 }
                 if (!mVrPlayer.isPlaying()) {
                     mVrPlayer.start(true, false, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT,
@@ -301,10 +304,10 @@ public class AudioTestFragment extends Fragment {
                         @Override
                         public void onCompletion() {
                             try {
-                                mAppContextManager.resetActiveContexts(
-                                        CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+                                mAppFocusManager.abandonAppFocus(mOwnershipListener,
+                                        CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
                             } catch (CarNotConnectedException e) {
-                                Log.e(TAG, "Failed to reset active context", e);
+                                Log.e(TAG, "Failed to reset active focus", e);
                             }
                         }
                     });
@@ -464,18 +467,17 @@ public class AudioTestFragment extends Fragment {
             mAudioFocusHandler.release();
             mAudioFocusHandler = null;
         }
-        if (mAppContextManager != null) {
+        if (mAppFocusManager != null) {
             try {
-                mAppContextManager.resetActiveContexts(CarAppContextManager.APP_CONTEXT_NAVIGATION |
-                        CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+                mAppFocusManager.abandonAppFocus(mOwnershipListener);
             } catch (CarNotConnectedException e) {
-                Log.e(TAG, "Failed to reset active context", e);
+                Log.e(TAG, "Failed to reset active focus", e);
             }
         }
     }
 
     private void handleNavStart() {
-        if (mAppContextManager == null) {
+        if (mAppFocusManager == null) {
             return;
         }
         if (mCarAudioManager == null) {
@@ -485,17 +487,17 @@ public class AudioTestFragment extends Fragment {
             Log.i(TAG, "Nav start");
         }
         try {
-            mAppContextManager.setActiveContexts(mOwnershipListener,
-                    CarAppContextManager.APP_CONTEXT_NAVIGATION);
+            mAppFocusManager.requestAppFocus(mOwnershipListener,
+                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to set active context", e);
+            Log.e(TAG, "Failed to set active focus", e);
         }
         mCarAudioManager.requestAudioFocus(mNavFocusListener, mNavAudioAttrib,
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
     }
 
     private void handleNavEnd() {
-        if (mAppContextManager == null) {
+        if (mAppFocusManager == null) {
             return;
         }
         if (mCarAudioManager == null) {
@@ -505,16 +507,16 @@ public class AudioTestFragment extends Fragment {
             Log.i(TAG, "Nav end");
         }
         try {
-            mAppContextManager.resetActiveContexts(
-                    CarAppContextManager.APP_CONTEXT_NAVIGATION);
+            mAppFocusManager.abandonAppFocus(mOwnershipListener,
+                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to reset active context", e);
+            Log.e(TAG, "Failed to reset active focus", e);
         }
         mCarAudioManager.abandonAudioFocus(mNavFocusListener, mNavAudioAttrib);
     }
 
     private void handleVrStart() {
-        if (mAppContextManager == null) {
+        if (mAppFocusManager == null) {
             return;
         }
         if (mCarAudioManager == null) {
@@ -524,17 +526,17 @@ public class AudioTestFragment extends Fragment {
             Log.i(TAG, "VR start");
         }
         try {
-            mAppContextManager.setActiveContexts(mOwnershipListener,
-                    CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+            mAppFocusManager.requestAppFocus(mOwnershipListener,
+                    CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
         } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to set active context", e);
+            Log.e(TAG, "Failed to set active focus", e);
         }
         mCarAudioManager.requestAudioFocus(mVrFocusListener, mVrAudioAttrib,
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, 0);
     }
 
     private void handleVrEnd() {
-        if (mAppContextManager == null) {
+        if (mAppFocusManager == null) {
             return;
         }
         if (mCarAudioManager == null) {
@@ -544,10 +546,10 @@ public class AudioTestFragment extends Fragment {
             Log.i(TAG, "VR end");
         }
         try {
-            mAppContextManager.resetActiveContexts(
-                    CarAppContextManager.APP_CONTEXT_VOICE_COMMAND);
+            mAppFocusManager.abandonAppFocus(mOwnershipListener,
+                    CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
         } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to reset active context", e);
+            Log.e(TAG, "Failed to reset active focus", e);
         }
         mCarAudioManager.abandonAudioFocus(mVrFocusListener, mVrAudioAttrib);
     }

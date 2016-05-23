@@ -16,17 +16,7 @@
 
 package android.car;
 
-import android.car.IAppContextListener;
-
 /** @hide */
-interface IAppContext {
-    void registerContextListener(IAppContextListener listener, int filter) = 0;
-    void unregisterContextListener(IAppContextListener listener) = 1;
-    int getActiveAppContexts() = 2;
-    /** listener used as a token */
-    boolean isOwningContext(IAppContextListener listener, int context) = 3;
-    /** listener used as a token */
-    void setActiveContexts(IAppContextListener listener, int contexts) = 4;
-    /** listener used as a token */
-    void resetActiveContexts(IAppContextListener listener, int contexts) = 5;
+oneway interface IAppFocusOwnershipListener {
+    void onAppFocusOwnershipLoss(int appType) = 0;
 }

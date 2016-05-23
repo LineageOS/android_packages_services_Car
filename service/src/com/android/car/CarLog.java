@@ -17,7 +17,7 @@
 package com.android.car;
 
 public class CarLog {
-    public static final String TAG_APP_CONTEXT = "CAR.APP_CONTEXT";
+    public static final String TAG_APP_FOCUS = "CAR.APP_FOCUS";
     public static final String TAG_AUDIO = "CAR.AUDIO";
     public static final String TAG_CAMERA = "CAR.CAMERA";
     public static final String TAG_HAL = "CAR.HAL";

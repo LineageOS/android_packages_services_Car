@@ -15,12 +15,12 @@
  */
 package com.android.support.car.apitest;
 
-import static android.support.car.CarAppContextManager.APP_CONTEXT_NAVIGATION;
+import static android.support.car.CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION;
 
 import android.support.car.Car;
-import android.support.car.CarAppContextManager;
-import android.support.car.CarAppContextManager.AppContextChangeListener;
-import android.support.car.CarAppContextManager.AppContextOwnershipChangeListener;
+import android.support.car.CarAppFocusManager;
+import android.support.car.CarAppFocusManager.AppFocusChangeListener;
+import android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener;
 import android.support.car.navigation.CarNavigationInstrumentCluster;
 import android.support.car.navigation.CarNavigationStatusManager;
 import android.support.car.navigation.CarNavigationStatusManager.CarNavigationListener;
@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class CarNavigationStatusManagerTest extends CarApiTestBase {
 
     private CarNavigationStatusManager mCarNavigationStatusManager;
-    private CarAppContextManager mCarAppContextManager;
+    private CarAppFocusManager mCarAppFocusManager;
 
     @Override
     protected void setUp() throws Exception {
@@ -42,9 +42,9 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
         mCarNavigationStatusManager =
                 (CarNavigationStatusManager) getCar().getCarManager(Car.CAR_NAVIGATION_SERVICE);
         assertNotNull(mCarNavigationStatusManager);
-        mCarAppContextManager =
-                (CarAppContextManager) getCar().getCarManager(Car.APP_CONTEXT_SERVICE);
-        assertNotNull(mCarAppContextManager);
+        mCarAppFocusManager =
+                (CarAppFocusManager) getCar().getCarManager(Car.APP_FOCUS_SERVICE);
+        assertNotNull(mCarAppFocusManager);
     }
 
     public void testStart() throws Exception {
@@ -72,22 +72,23 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
             mCarNavigationStatusManager.sendNavigationStatus(1);
             fail();
         } catch (IllegalStateException expected) {
-            // Expected. Client should acquire context ownership for APP_CONTEXT_NAVIGATION.
+            // Expected. Client should acquire focus ownership for APP_FOCUS_TYPE_NAVIGATION.
         }
 
-        mCarAppContextManager.registerContextListener(new AppContextChangeListener() {
+        mCarAppFocusManager.registerFocusListener(new AppFocusChangeListener() {
             @Override
-            public void onAppContextChange(int activeContexts) {
+            public void onAppFocusChange(int appType, boolean active) {
                 // Nothing to do here.
             }
-        }, APP_CONTEXT_NAVIGATION);
-        mCarAppContextManager.setActiveContexts(new AppContextOwnershipChangeListener() {
+        }, APP_FOCUS_TYPE_NAVIGATION);
+        AppFocusOwnershipChangeListener ownershipListener = new AppFocusOwnershipChangeListener() {
             @Override
-            public void onAppContextOwnershipLoss(int context) {
+            public void onAppFocusOwnershipLoss(int focus) {
                 // Nothing to do here.
             }
-        }, APP_CONTEXT_NAVIGATION);
-        assertTrue(mCarAppContextManager.isOwningContext(APP_CONTEXT_NAVIGATION));
+        };
+        mCarAppFocusManager.requestAppFocus(ownershipListener, APP_FOCUS_TYPE_NAVIGATION);
+        assertTrue(mCarAppFocusManager.isOwningFocus(ownershipListener, APP_FOCUS_TYPE_NAVIGATION));
 
         // TODO: we should use mocked HAL to be able to verify this, right now just make sure that
         // it is not crashing and logcat has appropriate traces.

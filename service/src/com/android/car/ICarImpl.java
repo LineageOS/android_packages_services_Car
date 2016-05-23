@@ -57,7 +57,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarHvacService mCarHvacService;
     private final CarRadioService mCarRadioService;
     private final CarNightService mCarNightService;
-    private final AppContextService mAppContextService;
+    private final AppFocusService mAppFocusService;
     private final GarageModeService mGarageModeService;
     private final CarNavigationService mCarNavigationService;
     private final InstrumentClusterService mInstrumentClusterService;
@@ -92,7 +92,7 @@ public class ICarImpl extends ICar.Stub {
         mCarProjectionService = new CarProjectionService(serviceContext, mCarInputService);
         mGarageModeService = new GarageModeService(mContext, mCarPowerManagementService);
         mCarInfoService = new CarInfoService(serviceContext);
-        mAppContextService = new AppContextService(serviceContext);
+        mAppFocusService = new AppFocusService(serviceContext);
         mCarSensorService = new CarSensorService(serviceContext);
         mCarAudioService = new CarAudioService(serviceContext, mCarInputService);
         mCarHvacService = new CarHvacService(serviceContext);
@@ -102,7 +102,7 @@ public class ICarImpl extends ICar.Stub {
         mCarPackageManagerService = new CarPackageManagerService(serviceContext);
         mInstrumentClusterService = new InstrumentClusterService(serviceContext);
         mCarNavigationService = new CarNavigationService(
-                mAppContextService, mInstrumentClusterService);
+                mAppFocusService, mInstrumentClusterService);
         mSystemStateControllerService = new SystemStateControllerService(serviceContext,
                 mCarPowerManagementService, mCarAudioService, this);
 
@@ -113,7 +113,7 @@ public class ICarImpl extends ICar.Stub {
                 mCarInputService,
                 mGarageModeService,
                 mCarInfoService,
-                mAppContextService,
+                mAppFocusService,
                 mCarSensorService,
                 mCarAudioService,
                 mCarHvacService,
@@ -172,8 +172,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarSensorService;
             case Car.INFO_SERVICE:
                 return mCarInfoService;
-            case Car.APP_CONTEXT_SERVICE:
-                return mAppContextService;
+            case Car.APP_FOCUS_SERVICE:
+                return mAppFocusService;
             case Car.PACKAGE_SERVICE:
                 return mCarPackageManagerService;
             case Car.CAMERA_SERVICE:

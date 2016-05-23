@@ -59,7 +59,7 @@ public class Car {
     public static final String INFO_SERVICE = "info";
 
     /** Service name for {@link CarAppContextManager}. */
-    public static final String APP_CONTEXT_SERVICE = "app_context";
+    public static final String APP_FOCUS_SERVICE = "app_focus";
 
     /** Service name for {@link CarPackageManager} */
     public static final String PACKAGE_SERVICE = "package";
@@ -484,8 +484,8 @@ public class Car {
             case INFO_SERVICE:
                 manager = new CarInfoManager(binder);
                 break;
-            case APP_CONTEXT_SERVICE:
-                manager = new CarAppContextManager(binder, mLooper);
+            case APP_FOCUS_SERVICE:
+                manager = new CarAppFocusManager(binder, mLooper);
                 break;
             case PACKAGE_SERVICE:
                 manager = new CarPackageManager(binder, mContext);

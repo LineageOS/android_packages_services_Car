@@ -24,7 +24,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.car.Car;
-import android.support.car.CarAppContextManager;
+import android.support.car.CarAppFocusManager;
 import android.support.car.CarNotConnectedException;
 import android.support.car.CarNotSupportedException;
 import android.support.car.ServiceConnectionListener;
@@ -75,8 +75,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private CarHvacManager mHvacManager;
     private CarSensorManager mCarSensorManager;
     private CarNavigationStatusManager mCarNavigationStatusManager;
-    private CarAppContextManager mCarAppContextManager;
-
+    private CarAppFocusManager mCarAppFocusManager;
 
     private AudioTestFragment mAudioTestFragment;
     private RadioTestFragment mRadioTestFragment;
@@ -189,8 +188,8 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 mCarSensorManager.registerListener(mListener,
                         CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
                         CarSensorManager.SENSOR_RATE_NORMAL);
-                mCarAppContextManager =
-                        (CarAppContextManager) mCarApi.getCarManager(Car.APP_CONTEXT_SERVICE);
+                mCarAppFocusManager =
+                        (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Car is not connected!", e);
             } catch (CarNotSupportedException e) {
@@ -290,7 +289,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                     mInstrumentClusterFragment = new InstrumentClusterFragment();
                     mInstrumentClusterFragment.setCarNavigationStatusManager(
                             mCarNavigationStatusManager);
-                    mInstrumentClusterFragment.setCarAppContextManager(mCarAppContextManager);
+                    mInstrumentClusterFragment.setCarAppFocusManager(mCarAppFocusManager);
                 }
                 setContentFragment(mInstrumentClusterFragment);
             } else if (id.equals(MENU_INPUT_TEST)) {

@@ -18,9 +18,9 @@ package com.google.android.car.kitchensink.cluster;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.car.CarAppContextManager;
-import android.support.car.CarAppContextManager.AppContextChangeListener;
-import android.support.car.CarAppContextManager.AppContextOwnershipChangeListener;
+import android.support.car.CarAppFocusManager;
+import android.support.car.CarAppFocusManager.AppFocusChangeListener;
+import android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener;
 import android.support.car.CarNotConnectedException;
 import android.support.car.navigation.CarNavigationStatusManager;
 import android.support.v4.app.Fragment;
@@ -38,15 +38,15 @@ public class InstrumentClusterFragment extends Fragment {
     private static final String TAG = InstrumentClusterFragment.class.getSimpleName();
 
     private CarNavigationStatusManager mCarNavigationStatusManager;
-    private CarAppContextManager mCarAppContextManager;
+    private CarAppFocusManager mCarAppFocusManager;
 
     public void setCarNavigationStatusManager(
             CarNavigationStatusManager carNavigationStatusManager) {
         mCarNavigationStatusManager = carNavigationStatusManager;
     }
 
-    public void setCarAppContextManager(CarAppContextManager carAppContextManager) {
-        mCarAppContextManager = carAppContextManager;
+    public void setCarAppFocusManager(CarAppFocusManager carAppFocusManager) {
+        mCarAppFocusManager = carAppFocusManager;
     }
 
     @Nullable
@@ -75,41 +75,42 @@ public class InstrumentClusterFragment extends Fragment {
 
     private void initCluster() {
         try {
-            mCarAppContextManager.registerContextListener(new AppContextChangeListener() {
+            mCarAppFocusManager.registerFocusListener(new AppFocusChangeListener() {
                 @Override
-                public void onAppContextChange(int activeContexts) {
-                    Log.d(TAG, "onAppContextChange, activeContexts: " + activeContexts);
+                public void onAppFocusChange(int appType, boolean active) {
+                    Log.d(TAG, "onAppFocusChange, appType: " + appType + " active: " + active);
                 }
-            }, CarAppContextManager.APP_CONTEXT_NAVIGATION);
+            }, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to register context listener", e);
+            Log.e(TAG, "Failed to register focus listener", e);
+        }
+
+        AppFocusOwnershipChangeListener focusListener = new AppFocusOwnershipChangeListener() {
+            @Override
+            public void onAppFocusOwnershipLoss(int focus) {
+                Log.w(TAG, "onAppFocusOwnershipLoss, focus: " + focus);
+                new AlertDialog.Builder(getContext())
+                        .setTitle(getContext().getApplicationInfo().name)
+                        .setMessage(R.string.cluster_nav_app_context_loss)
+                        .show();
+            }
+        };
+        try {
+            mCarAppFocusManager.requestAppFocus(focusListener,
+                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to set active focus", e);
         }
 
         try {
-            mCarAppContextManager.setActiveContexts(new AppContextOwnershipChangeListener() {
-                @Override
-                public void onAppContextOwnershipLoss(int context) {
-                    Log.w(TAG, "onAppContextOwnershipLoss, context: " + context);
-                    new AlertDialog.Builder(getContext())
-                            .setTitle(getContext().getApplicationInfo().name)
-                            .setMessage(R.string.cluster_nav_app_context_loss)
-                            .show();
-                }
-            }, CarAppContextManager.APP_CONTEXT_NAVIGATION);
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to set active context", e);
-        }
-
-        try {
-            boolean ownsContext =
-                    mCarAppContextManager.isOwningContext(
-                            CarAppContextManager.APP_CONTEXT_NAVIGATION);
-            Log.d(TAG, "Owns APP_CONTEXT_NAVIGATION: " + ownsContext);
-            if (!ownsContext) {
-                throw new RuntimeException("Context was not acquired.");
+            boolean ownsFocus = mCarAppFocusManager.isOwningFocus(focusListener,
+                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+            Log.d(TAG, "Owns APP_FOCUS_TYPE_NAVIGATION: " + ownsFocus);
+            if (!ownsFocus) {
+                throw new RuntimeException("Focus was not acquired.");
             }
         } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to get owned context", e);
+            Log.e(TAG, "Failed to get owned focus", e);
         }
 
         try {
