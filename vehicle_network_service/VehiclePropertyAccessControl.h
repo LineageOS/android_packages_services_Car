@@ -21,6 +21,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <map>
+#include <set>
 #include <string>
 #include <private/android_filesystem_config.h>
 #include <vehicle-internal.h>
@@ -38,6 +39,7 @@ public:
     ~VehiclePropertyAccessControl();
     bool init();
     bool testAccess(int32_t property, int32_t uid, bool isWrite);
+    bool isAutoGetEnabled(int32_t property);
     void dump(String8& msg);
 // protected for testing
 protected:
@@ -56,6 +58,7 @@ protected:
     //
     // So "property" is used to find "uid" and "uid" is used to find "access".
     std::map<int32_t, std::map<int32_t, int32_t>*> mVehicleAccessControlMap;
+    std::set<int32_t> mPropertiesWithNoAutoGet;
 };
 
 };

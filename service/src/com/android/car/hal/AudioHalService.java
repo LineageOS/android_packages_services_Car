@@ -435,6 +435,20 @@ public class AudioHalService extends HalServiceBase {
         return isPropertySupportedLocked(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME_LIMIT);
     }
 
+    public synchronized boolean isAudioVolumeMasterOnly() {
+        if (!isPropertySupportedLocked(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME)) {
+            throw new IllegalStateException("VEHICLE_PROPERTY_AUDIO_VOLUME not supported");
+        }
+        VehiclePropConfig config = mProperties.get(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME);
+        if ((config.getConfigArray(1) &
+                VehicleAudioVolumeCapabilityFlag.VEHICLE_AUDIO_VOLUME_CAPABILITY_MASTER_VOLUME_ONLY)
+                != 0) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Get the current audio focus state.
      * @return 0: focusState, 1: streams, 2: externalFocus

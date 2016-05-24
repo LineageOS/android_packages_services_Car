@@ -130,11 +130,11 @@
     <UID name="AID_AUDIOSERVER" access="r" value="1041"/>
   </PROPERTY>
 
-  <PROPERTY name="VEHICLE_PROPERTY_AUDIO_VOLUME" value = "0x00000901">
+  <PROPERTY name="VEHICLE_PROPERTY_AUDIO_VOLUME" value = "0x00000901" no_auto_get="true">
     <UID name="AID_SYSTEM" access="rw" value="1000"/>
   </PROPERTY>
 
-  <PROPERTY name="VEHICLE_PROPERTY_AUDIO_VOLUME_LIMIT" value = "0x00000902">
+  <PROPERTY name="VEHICLE_PROPERTY_AUDIO_VOLUME_LIMIT" value = "0x00000902" no_auto_get="true">
     <UID name="AID_SYSTEM" access="rw" value="1000"/>
   </PROPERTY>
 
