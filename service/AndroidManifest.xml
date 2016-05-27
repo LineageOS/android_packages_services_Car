@@ -94,6 +94,12 @@
         android:label="@string/car_permission_label_audio_volume"
         android:description="@string/car_permission_desc_audio_volume" />
 
+    <permission
+            android:name="android.car.permission.BIND_INSTRUMENT_CLUSTER_RENDERER_SERVICE"
+            android:protectionLevel="signature"
+            android:label="@string/car_permission_label_bind_instrument_cluster_rendering"
+            android:description="@string/car_permission_desc_bind_instrument_cluster_rendering"/>
+
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <uses-permission android:name="android.permission.DEVICE_POWER" />
@@ -110,8 +116,7 @@
     <application android:label="Car service"
                  android:directBootAware="true"
                  android:allowBackup="false"
-                 android:persistent="true"
-                 android:process="android.car.service">
+                 android:persistent="true">
 
         <service android:name=".CarService"
                 android:singleUser="true">

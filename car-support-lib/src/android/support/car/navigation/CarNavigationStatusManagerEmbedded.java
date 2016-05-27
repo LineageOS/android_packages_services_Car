@@ -25,7 +25,6 @@ import android.support.car.CarNotSupportedException;
 public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusManager {
 
     private final android.car.navigation.CarNavigationManager mManager;
-    private CarNavigationListenerProxy mListener;
 
     public CarNavigationStatusManagerEmbedded(Object manager)
             throws CarNotSupportedException, CarNotConnectedException {
@@ -79,16 +78,18 @@ public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusMa
         //nothing to do
     }
 
+    /**
+     * In this implementation we just immediately call {@code listener#onInstrumentClusterStart} as
+     * we expect instrument cluster to be working all the time.
+     *
+     * @throws CarNotConnectedException
+     */
     @Override
     public void registerListener(CarNavigationListener listener)
             throws CarNotConnectedException {
-        CarNavigationListenerProxy proxy = null;
-        synchronized (this) {
-            proxy = new CarNavigationListenerProxy(listener);
-            mListener = proxy;
-        }
+
         try {
-            mManager.registerListener(proxy);
+            listener.onInstrumentClusterStart(convert(mManager.getInstrumentClusterInfo()));
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }
@@ -96,10 +97,7 @@ public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusMa
 
     @Override
     public void unregisterListener() {
-        synchronized (this) {
-            mListener = null;
-        }
-        mManager.unregisterListener();
+        // Nothing to do.
     }
 
     private static CarNavigationInstrumentCluster convert(
@@ -109,26 +107,5 @@ public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusMa
         }
         return new CarNavigationInstrumentCluster(ic.getMinIntervalMs(), ic.getType(),
                 ic.getImageWidth(), ic.getImageHeight(), ic.getImageColorDepthBits());
-    }
-
-    private static class CarNavigationListenerProxy implements
-            android.car.navigation.CarNavigationManager.CarNavigationListener {
-
-        private final CarNavigationListener mListener;
-
-        private CarNavigationListenerProxy(CarNavigationListener listener) {
-            mListener = listener;
-        }
-
-        @Override
-        public void onInstrumentClusterStart(
-                android.car.navigation.CarNavigationInstrumentCluster instrumentCluster) {
-            mListener.onInstrumentClusterStart(convert(instrumentCluster));
-        }
-
-        @Override
-        public void onInstrumentClusterStop() {
-            mListener.onInstrumentClusterStop();
-        }
     }
 }

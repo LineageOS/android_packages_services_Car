@@ -34,7 +34,6 @@ import android.support.car.app.menu.CarMenuCallbacks;
 import android.support.car.app.menu.RootMenu;
 import android.support.car.hardware.CarSensorEvent;
 import android.support.car.hardware.CarSensorManager;
-import android.support.car.navigation.CarNavigationStatusManager;
 import android.util.Log;
 
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
@@ -74,7 +73,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private CarCameraManager mCameraManager;
     private CarHvacManager mHvacManager;
     private CarSensorManager mCarSensorManager;
-    private CarNavigationStatusManager mCarNavigationStatusManager;
     private CarAppFocusManager mCarAppFocusManager;
 
     private AudioTestFragment mAudioTestFragment;
@@ -182,8 +180,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 mCameraManager = (CarCameraManager) mCarApi.getCarManager(android.car.Car
                         .CAMERA_SERVICE);
                 mHvacManager = (CarHvacManager) mCarApi.getCarManager(android.car.Car.HVAC_SERVICE);
-                mCarNavigationStatusManager = (CarNavigationStatusManager) mCarApi.getCarManager(
-                        android.car.Car.CAR_NAVIGATION_SERVICE);
                 mCarSensorManager = (CarSensorManager) mCarApi.getCarManager(Car.SENSOR_SERVICE);
                 mCarSensorManager.registerListener(mListener,
                         CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
@@ -287,9 +283,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
             } else if (id.equals(MENU_CLUSTER)) {
                 if (mInstrumentClusterFragment == null) {
                     mInstrumentClusterFragment = new InstrumentClusterFragment();
-                    mInstrumentClusterFragment.setCarNavigationStatusManager(
-                            mCarNavigationStatusManager);
-                    mInstrumentClusterFragment.setCarAppFocusManager(mCarAppFocusManager);
                 }
                 setContentFragment(mInstrumentClusterFragment);
             } else if (id.equals(MENU_INPUT_TEST)) {

@@ -16,12 +16,16 @@
 package com.google.android.car.kitchensink.cluster;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
 import android.support.car.CarAppFocusManager.AppFocusChangeListener;
 import android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener;
 import android.support.car.CarNotConnectedException;
+import android.support.car.CarNotSupportedException;
+import android.support.car.ServiceConnectionListener;
 import android.support.car.navigation.CarNavigationStatusManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -39,14 +43,49 @@ public class InstrumentClusterFragment extends Fragment {
 
     private CarNavigationStatusManager mCarNavigationStatusManager;
     private CarAppFocusManager mCarAppFocusManager;
+    private Car mCarApi;
 
-    public void setCarNavigationStatusManager(
-            CarNavigationStatusManager carNavigationStatusManager) {
-        mCarNavigationStatusManager = carNavigationStatusManager;
-    }
+    private final ServiceConnectionListener mServiceConnectionListener =
+            new ServiceConnectionListener() {
+                @Override
+                public void onServiceConnected(ComponentName name) {
+                    Log.d(TAG, "Connected to Car Service");
+                    try {
+                        mCarNavigationStatusManager = (CarNavigationStatusManager) mCarApi.getCarManager(
+                                android.car.Car.CAR_NAVIGATION_SERVICE);
+                        mCarAppFocusManager =
+                                (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
+                    } catch (CarNotConnectedException e) {
+                        Log.e(TAG, "Car is not connected!", e);
+                    } catch (CarNotSupportedException e) {
+                        Log.e(TAG, "Car is not supported!", e);
+                    }
+                }
 
-    public void setCarAppFocusManager(CarAppFocusManager carAppFocusManager) {
-        mCarAppFocusManager = carAppFocusManager;
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                    Log.d(TAG, "Disconnect from Car Service");
+                }
+
+                @Override
+                public void onServiceSuspended(int cause) {
+                    Log.d(TAG, "Car Service connection suspended");
+                }
+
+                @Override
+                public void onServiceConnectionFailed(int cause) {
+                    Log.d(TAG, "Car Service connection failed");
+                }
+            };
+
+    private void initCarApi() {
+        if (mCarApi != null && mCarApi.isConnected()) {
+            mCarApi.disconnect();
+            mCarApi = null;
+        }
+
+        mCarApi = Car.createCar(getContext(), mServiceConnectionListener);
+        mCarApi.connect();
     }
 
     @Nullable
@@ -58,7 +97,14 @@ public class InstrumentClusterFragment extends Fragment {
         view.findViewById(R.id.cluster_start_button).setOnClickListener(v -> initCluster());
         view.findViewById(R.id.cluster_turn_left_button).setOnClickListener(v -> turnLeft());
 
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return view;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        initCarApi();
+
+        super.onCreate(savedInstanceState);
     }
 
     private void turnLeft() {
@@ -70,6 +116,7 @@ public class InstrumentClusterFragment extends Fragment {
                     CarNavigationStatusManager.DISTANCE_METERS);
         } catch (CarNotConnectedException e) {
             e.printStackTrace();
+            initCarApi();  // This might happen due to inst cluster renderer crash.
         }
     }
 
@@ -117,7 +164,8 @@ public class InstrumentClusterFragment extends Fragment {
             mCarNavigationStatusManager
                     .sendNavigationStatus(CarNavigationStatusManager.STATUS_ACTIVE);
         } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to set navigation status", e);
+            Log.e(TAG, "Failed to set navigation status, reconnecting to the car", e);
+            initCarApi();  // This might happen due to inst cluster renderer crash.
         }
     }
 }

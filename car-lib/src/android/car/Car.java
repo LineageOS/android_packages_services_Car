@@ -415,7 +415,7 @@ public class Car {
      * @throws CarNotConnectedException
      */
     public Object getCarManager(String serviceName) throws CarNotConnectedException {
-        CarManagerBase manager = null;
+        CarManagerBase manager;
         ICar service = getICarOrThrow();
         synchronized (mCarManagerLock) {
             manager = mServiceMap.get(serviceName);
@@ -431,7 +431,7 @@ public class Car {
                     if (manager == null) {
                         Log.w(CarLibLog.TAG_CAR,
                                 "getCarManager could not create manager for service:" +
-                                serviceName);
+                                        serviceName);
                         return null;
                     }
                     mServiceMap.put(serviceName, manager);
@@ -491,7 +491,7 @@ public class Car {
                 manager = new CarPackageManager(binder, mContext);
                 break;
             case CAR_NAVIGATION_SERVICE:
-                manager = new CarNavigationManager(binder, mLooper);
+                manager = new CarNavigationManager(binder);
                 break;
             case CAMERA_SERVICE:
                 manager = new CarCameraManager(binder, mContext);

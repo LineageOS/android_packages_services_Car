@@ -15,37 +15,21 @@
  */
 package android.car.cluster.loggingrenderer;
 
-import android.car.cluster.renderer.InstrumentClusterRenderer;
+import android.car.cluster.renderer.InstrumentClusterRenderingService;
 import android.car.cluster.renderer.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
 /**
- * Dummy implementation of {@code InstrumentClusterRenderer} that just traces all interaction.
+ * Dummy implementation of {@link LoggingClusterRenderingService} to log all interaction.
  */
-public class LoggingInstrumentClusterRenderer extends InstrumentClusterRenderer {
+public class LoggingClusterRenderingService extends InstrumentClusterRenderingService {
 
-    private final static String TAG = LoggingInstrumentClusterRenderer.class.getSimpleName();
-
-    @Override
-    public void onCreate(Context context) {
-        Log.i(TAG, "onCreate, context: " + context);
-    }
+    private static final String TAG = LoggingClusterRenderingService.class.getSimpleName();
 
     @Override
-    public void onStart() {
-        Log.i(TAG, "onStart");
-    }
-
-    @Override
-    public void onStop() {
-        Log.i(TAG, "onStop");
-    }
-
-    @Override
-    protected NavigationRenderer createNavigationRenderer() {
+    protected NavigationRenderer getNavigationRenderer() {
         NavigationRenderer navigationRenderer = new NavigationRenderer() {
             @Override
             public CarNavigationInstrumentCluster getNavigationProperties() {

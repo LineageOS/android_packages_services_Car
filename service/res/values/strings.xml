@@ -69,6 +69,8 @@
          cluster [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_navigation_manager">Report navigation data to instrument
         cluster</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering">Instrument Cluster Rendering</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering">Receive instrument cluster data</string>
 
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->

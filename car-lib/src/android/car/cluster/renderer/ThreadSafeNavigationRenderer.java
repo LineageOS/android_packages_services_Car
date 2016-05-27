@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.cluster.demorenderer;
+package android.car.cluster.renderer;
 
 import android.annotation.Nullable;
-import android.car.cluster.renderer.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
 
 /**
  * A wrapper over {@link NavigationRenderer} that runs all its methods in the context of provided
  * looper. It is guaranteed that all calls will be invoked in order they were called.
  */
-public class ThreadSafeNavigationRenderer extends NavigationRenderer {
+/* package */ class ThreadSafeNavigationRenderer extends NavigationRenderer {
 
     private final Handler mHandler;
     private final NavigationRenderer mRenderer;
@@ -41,7 +41,7 @@ public class ThreadSafeNavigationRenderer extends NavigationRenderer {
 
     /** Creates thread-safe {@link NavigationRenderer}. Returns null if renderer == null */
     @Nullable
-    public static NavigationRenderer createFor(Looper looper, NavigationRenderer renderer) {
+    static NavigationRenderer createFor(Looper looper, NavigationRenderer renderer) {
         return renderer == null ? null : new ThreadSafeNavigationRenderer(looper, renderer);
     }
 
@@ -52,12 +52,17 @@ public class ThreadSafeNavigationRenderer extends NavigationRenderer {
 
     @Override
     public CarNavigationInstrumentCluster getNavigationProperties() {
-        return runAndWaitResult(mHandler, new RunnableWithResult<CarNavigationInstrumentCluster>() {
-            @Override
-            protected CarNavigationInstrumentCluster createResult() {
-                return mRenderer.getNavigationProperties();
-            }
-        });
+        if (mHandler.getLooper() == Looper.myLooper()) {
+            return mRenderer.getNavigationProperties();
+        } else {
+            return runAndWaitResult(mHandler,
+                    new RunnableWithResult<CarNavigationInstrumentCluster>() {
+                        @Override
+                        protected CarNavigationInstrumentCluster createResult() {
+                            return mRenderer.getNavigationProperties();
+                        }
+                    });
+        }
     }
 
     @Override
@@ -114,13 +119,13 @@ public class ThreadSafeNavigationRenderer extends NavigationRenderer {
     }
 
     private static <E> E runAndWaitResult(Handler handler, RunnableWithResult<E> runnable) {
-        CountDownLatch latch = new CountDownLatch(1);
+        final CountDownLatch latch = new CountDownLatch(1);
         handler.post(() -> {
             runnable.run();
             latch.countDown();
         });
         try {
-            latch.wait();
+            latch.await();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -146,7 +151,7 @@ public class ThreadSafeNavigationRenderer extends NavigationRenderer {
         }
     }
 
-    public abstract class RunnableWithResult<T> implements Runnable {
+    private static abstract class RunnableWithResult<T> implements Runnable {
         private volatile T result;
 
         protected abstract T createResult();
@@ -159,5 +164,25 @@ public class ThreadSafeNavigationRenderer extends NavigationRenderer {
         public T getResult() {
             return result;
         }
+    }
+
+    private static abstract class RendererHandler<T> extends Handler {
+
+        private final WeakReference<T> mRendererRef;
+
+        RendererHandler(Looper looper, T renderer) {
+            super(looper);
+            mRendererRef = new WeakReference<>(renderer);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            T renderer = mRendererRef.get();
+            if (renderer != null) {
+                handleMessage(msg, renderer);
+            }
+        }
+
+        public abstract void handleMessage(Message msg, T renderer);
     }
 }

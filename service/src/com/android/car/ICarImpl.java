@@ -18,12 +18,12 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.ICar;
+import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.android.car.cluster.CarNavigationService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
@@ -59,7 +59,6 @@ public class ICarImpl extends ICar.Stub {
     private final CarNightService mCarNightService;
     private final AppFocusService mAppFocusService;
     private final GarageModeService mGarageModeService;
-    private final CarNavigationService mCarNavigationService;
     private final InstrumentClusterService mInstrumentClusterService;
     private final SystemStateControllerService mSystemStateControllerService;
 
@@ -100,9 +99,8 @@ public class ICarImpl extends ICar.Stub {
         mCarCameraService = new CarCameraService(serviceContext);
         mCarNightService = new CarNightService(serviceContext);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext);
-        mInstrumentClusterService = new InstrumentClusterService(serviceContext);
-        mCarNavigationService = new CarNavigationService(
-                mAppFocusService, mInstrumentClusterService);
+        mInstrumentClusterService = new InstrumentClusterService(serviceContext,
+                mAppFocusService);
         mSystemStateControllerService = new SystemStateControllerService(serviceContext,
                 mCarPowerManagementService, mCarAudioService, this);
 
@@ -122,7 +120,6 @@ public class ICarImpl extends ICar.Stub {
                 mCarNightService,
                 mInstrumentClusterService,
                 mCarProjectionService,
-                mCarNavigationService,
                 mSystemStateControllerService
                 };
     }
@@ -187,7 +184,9 @@ public class ICarImpl extends ICar.Stub {
                 return mCarRadioService;
             case Car.CAR_NAVIGATION_SERVICE:
                 assertNavigationManagerPermission(mContext);
-                return mCarNavigationService;
+                IInstrumentClusterNavigation navService =
+                        mInstrumentClusterService.getNavigationService();
+                return navService == null ? null : navService.asBinder();
             case Car.PROJECTION_SERVICE:
                 assertProjectionPermission(mContext);
                 return mCarProjectionService;

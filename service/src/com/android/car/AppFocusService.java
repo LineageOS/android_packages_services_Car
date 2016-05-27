@@ -31,7 +31,9 @@ import android.util.Log;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * App focus service ensures only one instance of application type is active at a time.
@@ -48,15 +50,10 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     private final Set<Integer> mActiveAppTypes = new HashSet<>();
     private final HandlerThread mHandlerThread;
     private final DispatchHandler mDispatchHandler;
+    private final CopyOnWriteArrayList<FocusOwnershipListener> mFocusOwnershipListeners =
+            new CopyOnWriteArrayList<>();
     private final BinderInterfaceContainer.BinderEventHandler<IAppFocusListener>
-            mAllBinderEventHandler =
-            new BinderInterfaceContainer.BinderEventHandler<IAppFocusListener>() {
-        @Override
-        public void onBinderDeath(
-                BinderInterfaceContainer.BinderInterface<IAppFocusListener> bInterface) {
-            // nothing to do.
-        }
-    };
+            mAllBinderEventHandler = bInterface -> { /* nothing to do.*/ };
 
     public AppFocusService(Context context) {
         mAllChangeClients = new ClientHolder(mAllBinderEventHandler);
@@ -128,7 +125,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                 OwnershipClientInfo ownerInfo = mFocusOwners.get(appType);
                 if (ownerInfo != null && ownerInfo != info) {
                     //TODO check if current owner is having fore-ground activity. If yes,
-                    //reject request. Always grant if requestor is fore-ground activity.
+                    //reject request. Always grant if requester is fore-ground activity.
                     ownerInfo.removeOwnedAppType(appType);
                     mDispatchHandler.requestAppFocusOwnershipLossDispatch(
                             ownerInfo.binderInterface, appType);
@@ -137,7 +134,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                                 + appType + "," + ownerInfo.toString());
                     }
                 }
-                mFocusOwners.put(appType, info);
+                updateFocusOwner(appType, info);
             }
             info.addOwnedAppType(appType);
             if (mActiveAppTypes.add(appType)) {
@@ -195,7 +192,6 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                 }
             }
         }
-        return;
     }
 
     @Override
@@ -246,6 +242,52 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
             }
         }
         return false;
+    }
+
+    /**
+     * Defines callback functions that will be called when ownership has been changed.
+     */
+    public interface FocusOwnershipListener {
+        void onOwnershipAcquired(int context, int uid, int pid);
+    }
+
+    /**
+     * Registers listener.
+     *
+     * If any focus already acquired it will trigger
+     * {@link FocusOwnershipListener#onOwnershipAcquired} call immediately in the same thread.
+     */
+    public void registerContextOwnerChangedListener(FocusOwnershipListener listener) {
+        mFocusOwnershipListeners.add(listener);
+
+        HashSet<Map.Entry<Integer, OwnershipClientInfo>> owners;
+        synchronized (this) {
+            owners = new HashSet<>(mFocusOwners.entrySet());
+        }
+
+        for (Map.Entry<Integer, OwnershipClientInfo> entry : owners) {
+            OwnershipClientInfo clientInfo = entry.getValue();
+            listener.onOwnershipAcquired(entry.getKey(), clientInfo.getUid(), clientInfo.getPid());
+        }
+    }
+
+    /**
+     * Unregisters provided listener.
+     */
+    public void unregisterContextOwnerChangedListener(FocusOwnershipListener listener) {
+        mFocusOwnershipListeners.remove(listener);
+    }
+
+    private void updateFocusOwner(int appType, OwnershipClientInfo owner) {
+        synchronized (this) {
+            mFocusOwners.put(appType, owner);
+        }
+
+        CarServiceUtils.runOnMain(() -> {
+            for (FocusOwnershipListener listener : mFocusOwnershipListeners) {
+                listener.onOwnershipAcquired(appType, owner.getUid(), owner.getPid());
+            }
+        });
     }
 
     private void dispatchAppFocusOwnershipLoss(IAppFocusOwnershipListener listener, int appType) {
@@ -301,10 +343,6 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
             return mAppTypes.remove(appType);
         }
 
-        private synchronized void clearAppTypes() {
-            mAppTypes.clear();
-        }
-
         @Override
         public String toString() {
             synchronized (this) {
@@ -348,11 +386,11 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
             return mOwnedAppTypes.remove(appType);
         }
 
-        public int getUid() {
+        int getUid() {
             return mUid;
         }
 
-        public int getPid() {
+        int getPid() {
             return mPid;
         }
 

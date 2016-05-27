@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.cluster.demorenderer;
+package android.car.cluster.renderer;
 
-import android.app.Presentation;
-import android.content.Context;
-import android.view.Display;
-import android.view.WindowManager;
+import android.car.cluster.renderer.IInstrumentClusterNavigation;
 
 /**
- * Presentation class.
+ * Binder API for Instrument Cluster.
+ *
+ * @hide
  */
-public class InstrumentClusterPresentation extends Presentation {
-    public InstrumentClusterPresentation(Context outerContext, Display display) {
-        super(outerContext, display);
-        getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-    }
+interface IInstrumentCluster {
+    /** Returns {@link IInstrumentClusterNavigation} that will be passed to the Nav app */
+    IInstrumentClusterNavigation getNavigationService();
+
+    /** Supplies Instrument Cluster Renderer with current owner of Navigation app context */
+    void setNavigationContextOwner(int uid, int pid);
 }

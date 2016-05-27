@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.cluster;
+package android.car.cluster.renderer;
 
-import android.app.Presentation;
-import android.content.Context;
-import android.view.Display;
-import android.view.WindowManager;
+import android.graphics.Bitmap;
+import android.car.navigation.CarNavigationInstrumentCluster;
 
 /**
- * Presentation class.
+ * Binder API for Instrument Cluster Navigation.
+ *
+ * @hide
  */
-public class InstrumentClusterPresentation extends Presentation {
-    public InstrumentClusterPresentation(Context outerContext, Display display) {
-        super(outerContext, display);
-        getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-    }
+interface IInstrumentClusterNavigation {
+    void onStartNavigation();
+    void onStopNavigation();
+    void onNextManeuverChanged(
+        int event, String road, int turnAngle, int turnNumber, in Bitmap image, int turnSide);
+    void onNextManeuverDistanceChanged(int distanceMeters, int timeSeconds);
+    CarNavigationInstrumentCluster getInstrumentClusterInfo();
 }

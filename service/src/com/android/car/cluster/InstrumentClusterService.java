@@ -15,15 +15,26 @@
  */
 package com.android.car.cluster;
 
-import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.cluster.renderer.InstrumentClusterRenderer;
-import android.car.cluster.renderer.NavigationRenderer;
+import android.car.CarAppFocusManager;
+import android.car.cluster.renderer.IInstrumentCluster;
+import android.car.cluster.renderer.IInstrumentClusterNavigation;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.os.RemoteException;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 
+import com.android.car.AppFocusService;
+import com.android.car.AppFocusService.FocusOwnershipListener;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceUtils;
+import com.android.car.R;
 
 import java.io.PrintWriter;
 
@@ -33,54 +44,121 @@ import java.io.PrintWriter;
  * @hide
  */
 @SystemApi
-public class InstrumentClusterService implements CarServiceBase {
+public class InstrumentClusterService implements CarServiceBase,
+        FocusOwnershipListener {
 
-    private static final String TAG = CarLog.TAG_CLUSTER + "."
-            + InstrumentClusterService.class.getSimpleName();
+    private static final String TAG = CarLog.TAG_CLUSTER;
 
     private final Context mContext;
+    private final AppFocusService mAppFocusService;
 
-    private InstrumentClusterRenderer mRenderer;
+    private Pair<Integer, Integer> mNavContextOwner;
 
-    public InstrumentClusterService(Context context) {
+    private IInstrumentCluster mRendererService;
+    private boolean mRendererBound = false;
+
+    private final ServiceConnection mRendererServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            Log.d(TAG, "onServiceConnected, name: " + name + ", binder: " + binder);
+            mRendererService = IInstrumentCluster.Stub.asInterface(binder);
+
+            if (mNavContextOwner != null) {
+                notifyNavContextOwnerChanged(mNavContextOwner.first, mNavContextOwner.second);
+            }
+
+            try {
+                binder.linkToDeath(() -> CarServiceUtils.runOnMainSync(() -> {
+                    Log.w(TAG, "Instrument cluster renderer died, trying to rebind");
+                    mRendererService = null;
+                    // Try to rebind with instrument cluster.
+                    mRendererBound = bindInstrumentClusterRendererService();
+                }), 0);
+            } catch (RemoteException e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG, "onServiceDisconnected, name: " + name);
+        }
+    };
+
+    public InstrumentClusterService(Context context, AppFocusService appFocusService) {
         mContext = context;
+        mAppFocusService = appFocusService;
     }
 
     @Override
     public void init() {
         Log.d(TAG, "init");
 
-        boolean rendererFound = InstrumentClusterRendererLoader.isRendererAvailable(mContext);
-
-        if (rendererFound) {
-            mRenderer = InstrumentClusterRendererLoader.createRenderer(mContext);
-            Context packageContext = InstrumentClusterRendererLoader
-                    .createRendererPackageContext(mContext);
-            mRenderer.onCreate(packageContext);
-            mRenderer.initialize();
-            mRenderer.onStart();
-        }
+        mAppFocusService.registerContextOwnerChangedListener(this);
+        mRendererBound = bindInstrumentClusterRendererService();
     }
 
     @Override
     public void release() {
         Log.d(TAG, "release");
-        if (mRenderer != null) {
-            mRenderer.onStop();
-            mRenderer = null;
+
+        mAppFocusService.unregisterContextOwnerChangedListener(this);
+        if (mRendererBound) {
+            mContext.unbindService(mRendererServiceConnection);
+            mRendererBound = false;
         }
     }
 
     @Override
     public void dump(PrintWriter writer) {
         writer.println("**" + getClass().getSimpleName() + "**");
-        writer.println("InstrumentClusterRenderer: " + mRenderer);
-        writer.println("NavigationRenderer: "
-                + (mRenderer != null ? mRenderer.getNavigationRenderer() : null));
+        writer.println("bound with renderer: " + mRendererBound);
+        writer.println("renderer service: " + mRendererService);
     }
 
-    @Nullable
-    public NavigationRenderer getNavigationRenderer() {
-        return mRenderer != null ? mRenderer.getNavigationRenderer() : null;
+    @Override
+    public void onOwnershipAcquired(int context, int uid, int pid) {
+        if (context != CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION) {
+            return;
+        }
+
+        mNavContextOwner = new Pair<>(uid, pid);
+
+        notifyNavContextOwnerChanged(uid, pid);
+    }
+
+    private void notifyNavContextOwnerChanged(int uid, int pid) {
+        if (mRendererService != null) {
+            try {
+                mRendererService.setNavigationContextOwner(uid, pid);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Failed to call setNavigationContextOwner", e);
+            }
+        }
+    }
+
+    private boolean bindInstrumentClusterRendererService() {
+        String rendererService = mContext.getString(R.string.instrumentClusterRendererService);
+        if (TextUtils.isEmpty(rendererService)) {
+            Log.i(TAG, "Instrument cluster renderer was not configured");
+            return false;
+        }
+
+        Log.d(TAG, "bindInstrumentClusterRendererService, component: " + rendererService);
+
+        Intent intent = new Intent();
+        intent.setComponent(ComponentName.unflattenFromString(rendererService));
+        // Explicitly start service as we do not use BIND_AUTO_CREATE flag to handle renderer crash.
+        mContext.startService(intent);
+        return mContext.bindService(intent, mRendererServiceConnection, Context.BIND_IMPORTANT);
+    }
+
+    public IInstrumentClusterNavigation getNavigationService() {
+        try {
+            return mRendererService == null ? null : mRendererService.getNavigationService();
+        } catch (RemoteException e) {
+            Log.e(TAG, "getNavigationServiceBinder" , e);
+            return null;
+        }
     }
 }

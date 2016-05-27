@@ -19,33 +19,17 @@ import android.car.CarApiUtil;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
+import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Handler.Callback;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
-
-import java.lang.ref.WeakReference;
 
 /**
  * API for providing navigation status for instrument cluster.
  * @hide
  */
 public class CarNavigationManager implements CarManagerBase {
-
-    /**
-     * Listener navigation related events.
-     * Callbacks are called in the Looper context.
-     */
-    public interface CarNavigationListener {
-        /** Instrument Cluster started in navigation mode */
-        void onInstrumentClusterStart(CarNavigationInstrumentCluster instrumentCluster);
-        /** Instrument cluster ended */
-        void onInstrumentClusterStop();
-    }
 
     /** Navigation status */
     public static final int STATUS_UNAVAILABLE = 0;
@@ -80,38 +64,15 @@ public class CarNavigationManager implements CarManagerBase {
 
     private static final String TAG = CarLibLog.TAG_NAV;
 
-    private final ICarNavigation mService;
-    private ICarNavigationEventListenerImpl mICarNavigationEventListenerImpl;
-    private CarNavigationListener mCarNavigationListener;
-    private CarNavigationInstrumentCluster mInstrumentCluster;
-    private final Handler mHandler;
-    private final Callback mHandlerCallback = new Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            Log.d(TAG, "handleMessage, listener: " + mCarNavigationListener + ", msg.what: " +
-                    msg.what);
-            if (mCarNavigationListener != null) {
-                switch (msg.what) {
-                    case START:
-                        Log.d(TAG, "mCarNavigationListener.onInstrumentClusterStart()");
-                        mCarNavigationListener.onInstrumentClusterStart(mInstrumentCluster);
-                        break;
-                    case STOP:
-                        mCarNavigationListener.onInstrumentClusterStop();
-                        break;
-                }
-            }
-            return true;
-        }
-    };
+    private final IInstrumentClusterNavigation mService;
+
 
     /**
      * Only for CarServiceLoader
      * @hide
      */
-    public CarNavigationManager(IBinder service, Looper looper) {
-        mHandler = new Handler(looper, mHandlerCallback);
-        mService = ICarNavigation.Stub.asInterface(service);
+    public CarNavigationManager(IBinder service) {
+        mService = IInstrumentClusterNavigation.Stub.asInterface(service);
     }
 
     /**
@@ -121,7 +82,11 @@ public class CarNavigationManager implements CarManagerBase {
      */
     public boolean sendNavigationStatus(int status) throws CarNotConnectedException {
         try {
-            mService.sendNavigationStatus(status);
+            if (status == STATUS_ACTIVE) {
+                mService.onStartNavigation();
+            } else {
+                mService.onStopNavigation();
+            }
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
@@ -159,7 +124,7 @@ public class CarNavigationManager implements CarManagerBase {
     public boolean sendNavigationTurnEvent(int event, String road, int turnAngle, int turnNumber,
             Bitmap image, int turnSide) throws CarNotConnectedException {
         try {
-            mService.sendNavigationTurnEvent(event, road, turnAngle, turnNumber, image, turnSide);
+            mService.onNextManeuverChanged(event, road, turnAngle, turnNumber, image, turnSide);
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
@@ -180,7 +145,7 @@ public class CarNavigationManager implements CarManagerBase {
     public boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds)
             throws CarNotConnectedException {
         try {
-            mService.sendNavigationTurnDistanceEvent(distanceMeters, timeSeconds);
+            mService.onNextManeuverDistanceChanged(distanceMeters, timeSeconds);
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
@@ -191,56 +156,23 @@ public class CarNavigationManager implements CarManagerBase {
     }
 
     public boolean isInstrumentClusterSupported() throws CarNotConnectedException {
-        try {
-            return mService.isInstrumentClusterSupported();
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
-        } catch (RemoteException e) {
-            handleCarServiceRemoteExceptionAndThrow(e);
-        }
-        return false;
+        return mService != null;
     }
 
     @Override
     public void onCarDisconnected() {
         Log.d(TAG, "onCarDisconnected");
-        unregisterListener();
     }
 
-    /**
-     * @param listener {@link CarNavigationListener} to be registered, replacing any existing
-     *        listeners.
-     * @throws CarNotConnectedException
-     */
-    public void registerListener(CarNavigationListener listener)
+    /** Returns navigation features of instrument cluster */
+    public CarNavigationInstrumentCluster getInstrumentClusterInfo()
             throws CarNotConnectedException {
-        mCarNavigationListener = listener;
-        if (mICarNavigationEventListenerImpl == null) {
-            mICarNavigationEventListenerImpl =
-                    new ICarNavigationEventListenerImpl(this);
-            try {
-                mService.registerEventListener(mICarNavigationEventListenerImpl);
-            } catch (IllegalStateException e) {
-                CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
-            } catch (RemoteException e) {
-                handleCarServiceRemoteExceptionAndThrow(e);
-            }
-        }
-    }
-
-    /**
-     * Unregisters {@link CarNavigationListener}.
-     */
-    public void unregisterListener() {
         try {
-            mService.unregisterEventListener(mICarNavigationEventListenerImpl);
-        } catch (IllegalStateException e) {
-            // ignore
+            return mService.getInstrumentClusterInfo();
         } catch (RemoteException e) {
-            // do not throw exception as this can happen during tearing down.
-            handleCarServiceRemoteException(e);
+            handleCarServiceRemoteExceptionAndThrow(e);
         }
-        mCarNavigationListener = null;
+        return null;
     }
 
     private void handleCarServiceRemoteExceptionAndThrow(RemoteException e)
@@ -252,39 +184,5 @@ public class CarNavigationManager implements CarManagerBase {
     private void handleCarServiceRemoteException(RemoteException e) {
         Log.w(TAG, "RemoteException from car service:" + e.getMessage());
         // nothing to do for now
-    }
-
-    private void handleOnStart(CarNavigationInstrumentCluster instrumentCluster) {
-        Log.d(TAG, "onStart(" + instrumentCluster + ")");
-        mInstrumentCluster = new CarNavigationInstrumentCluster(instrumentCluster);
-        mHandler.sendMessage(mHandler.obtainMessage(START));
-    }
-
-    private void handleOnStop() {
-        mHandler.sendMessage(mHandler.obtainMessage(STOP));
-    }
-
-    private static class ICarNavigationEventListenerImpl extends ICarNavigationEventListener.Stub {
-        private final WeakReference<CarNavigationManager> mManager;
-
-        public ICarNavigationEventListenerImpl(CarNavigationManager manager) {
-            mManager = new WeakReference<>(manager);
-        }
-
-        @Override
-        public void onInstrumentClusterStart(CarNavigationInstrumentCluster instrumentClusterInfo) {
-            CarNavigationManager manager = mManager.get();
-            if (manager != null) {
-                manager.handleOnStart(instrumentClusterInfo);
-            }
-        }
-
-        @Override
-        public void onInstrumentClusterStop() {
-            CarNavigationManager manager = mManager.get();
-            if (manager != null) {
-                manager.handleOnStop();
-            }
-        }
     }
 }
