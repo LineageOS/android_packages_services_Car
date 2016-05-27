@@ -22,7 +22,7 @@ import android.support.car.CarAppContextManager;
 import android.support.car.CarAppContextManager.AppContextChangeListener;
 import android.support.car.CarAppContextManager.AppContextOwnershipChangeListener;
 import android.support.car.CarNotConnectedException;
-import android.support.car.navigation.CarNavigationManager;
+import android.support.car.navigation.CarNavigationStatusManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,11 +37,12 @@ import com.google.android.car.kitchensink.R;
 public class InstrumentClusterFragment extends Fragment {
     private static final String TAG = InstrumentClusterFragment.class.getSimpleName();
 
-    private CarNavigationManager mCarNavigationManager;
+    private CarNavigationStatusManager mCarNavigationStatusManager;
     private CarAppContextManager mCarAppContextManager;
 
-    public void setCarNavigationManager(CarNavigationManager carNavigationManager) {
-        mCarNavigationManager = carNavigationManager;
+    public void setCarNavigationStatusManager(
+            CarNavigationStatusManager carNavigationStatusManager) {
+        mCarNavigationStatusManager = carNavigationStatusManager;
     }
 
     public void setCarAppContextManager(CarAppContextManager carAppContextManager) {
@@ -62,9 +63,11 @@ public class InstrumentClusterFragment extends Fragment {
 
     private void turnLeft() {
         try {
-            mCarNavigationManager.sendNavigationTurnEvent(CarNavigationManager.TURN_TURN,
-                    "Huff Ave", 90, -1, null, CarNavigationManager.TURN_SIDE_LEFT);
-            mCarNavigationManager.sendNavigationTurnDistanceEvent(500, 10);
+            mCarNavigationStatusManager
+                    .sendNavigationTurnEvent(CarNavigationStatusManager.TURN_TURN, "Huff Ave", 90,
+                            -1, null, CarNavigationStatusManager.TURN_SIDE_LEFT);
+            mCarNavigationStatusManager.sendNavigationTurnDistanceEvent(500, 10, 500,
+                    CarNavigationStatusManager.DISTANCE_METERS);
         } catch (CarNotConnectedException e) {
             e.printStackTrace();
         }
@@ -110,7 +113,8 @@ public class InstrumentClusterFragment extends Fragment {
         }
 
         try {
-            mCarNavigationManager.sendNavigationStatus(CarNavigationManager.STATUS_ACTIVE);
+            mCarNavigationStatusManager
+                    .sendNavigationStatus(CarNavigationStatusManager.STATUS_ACTIVE);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to set navigation status", e);
         }

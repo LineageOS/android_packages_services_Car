@@ -26,7 +26,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.car.content.pm.CarPackageManager;
 import android.support.car.hardware.CarSensorManager;
-import android.support.car.navigation.CarNavigationManager;
+import android.support.car.navigation.CarNavigationStatusManager;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -58,7 +58,7 @@ public class Car {
     /** Service name for {@link CarAudioManager} */
     public static final String AUDIO_SERVICE = "audio";
     /**
-     * Service name for {@link CarNavigationManager}
+     * Service name for {@link CarNavigationStatusManager}
      * @hide
      */
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";

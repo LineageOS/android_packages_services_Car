@@ -23,7 +23,7 @@ import android.support.car.CarNotConnectedException;
  * API for providing navigation status for instrument cluster.
  * @hide
  */
-public abstract class CarNavigationManager implements CarManagerBase {
+public interface CarNavigationStatusManager extends CarManagerBase {
 
     /**
      * Listener navigation related events.
@@ -64,12 +64,27 @@ public abstract class CarNavigationManager implements CarManagerBase {
     public static final int TURN_SIDE_RIGHT = 2;
     public static final int TURN_SIDE_UNSPECIFIED = 3;
 
+
+    /**
+     * Distance units for use in {@link #sendNavigationTurnDistanceEvent(int, int, int, int)}.
+     * DISTANCE_KILOMETERS_P1 and DISTANCE_MILES_P1 are the same as their respective
+     * units, except they require that the head unit display at least 1 digit after the
+     * decimal (e.g. 2.0).
+     */
+    public static final int DISTANCE_METERS = 1;
+    public static final int DISTANCE_KILOMETERS = 2;
+    public static final int DISTANCE_KILOMETERS_P1 = 3;
+    public static final int DISTANCE_MILES = 4;
+    public static final int DISTANCE_MILES_P1 = 5;
+    public static final int DISTANCE_FEET = 6;
+    public static final int DISTANCE_YARDS = 7;
+
     /**
      * @param status new instrument cluster navigation status.
      * @return true if successful.
      * @throws CarNotConnectedException
      */
-    public abstract boolean sendNavigationStatus(int status) throws CarNotConnectedException;
+    boolean sendNavigationStatus(int status) throws CarNotConnectedException;
 
     /**
      * Sends a Navigation Next Step event to the car.
@@ -88,9 +103,9 @@ public abstract class CarNavigationManager implements CarManagerBase {
      *        used for event type {@link #TURN_ROUNDABOUT_ENTER_AND_EXIT}.  -1 if unused.
      * @param turnNumber turn number, counting around from the roundabout entry to the exit.  Only
      *        used for event type {@link #TURN_ROUNDABOUT_ENTER_AND_EXIT}.  -1 if unused.
-     * @param image image to be shown in the instrument cluster (PNG format).  Null if instrument
-     *        cluster type is {@link #INSTRUMENT_CLUSTER_TYPE_ENUM}, or if
-     *        the image parameters are malformed (length or width non-positive, or illegal
+     * @param image image to be shown in the instrument cluster.  Null if instrument
+     *        cluster type is {@link CarNavigationInstrumentCluster.ClusterType#IMAGE_CODES_ONLY},
+     *        or if the image parameters are malformed (length or width non-positive, or illegal
      *        imageColorDepthBits) in the initial NavigationStatusService call.
      * @param turnSide turn side ({@link #TURN_SIDE_LEFT}, {@link #TURN_SIDE_RIGHT} or
      *        {@link #TURN_SIDE_UNSPECIFIED}).
@@ -98,32 +113,34 @@ public abstract class CarNavigationManager implements CarManagerBase {
      * @throws CarNotConnectedException
      *
      */
-    public abstract boolean sendNavigationTurnEvent(int event, String road, int turnAngle,
+    boolean sendNavigationTurnEvent(int event, String road, int turnAngle,
             int turnNumber, Bitmap image, int turnSide) throws CarNotConnectedException;
 
     /**
      * Sends a Navigation Next Step Distance event to the car.
      *
-     * @param distanceMeters Distance to next event in meters.
-     * @param timeSeconds Time to next event in seconds.
+     * @param distanceMeters distance to next event in meters.
+     * @param timeSeconds time to next event in seconds.
+     * @param displayDistanceMillis distance to the next event formatted as it will be displayed
+     * by the calling app, in milli-units. For example, 1.25 should be supplied as 1250
+     * @param displayDistanceUnit the unit type to use on of the DISTANCE_* types defined in this
+     * file.
      * @return true if successful.
      * @throws CarNotConnectedException
      */
-    public abstract boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds)
-            throws CarNotConnectedException;
-
-    public abstract boolean isInstrumentClusterSupported() throws CarNotConnectedException;
+    boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
+            int displayDistanceMillis, int displayDistanceUnit) throws CarNotConnectedException;
 
     /**
      * @param listener {@link CarNavigationListener} to be registered, replacing any existing
      *        listeners.
      * @throws CarNotConnectedException
      */
-    public abstract void registerListener(CarNavigationListener listener)
+    void registerListener(CarNavigationListener listener)
             throws CarNotConnectedException;
 
     /**
      * Unregisters {@link CarNavigationListener}.
      */
-    public abstract void unregisterListener();
+    void unregisterListener();
 }

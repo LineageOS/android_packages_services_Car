@@ -17,15 +17,13 @@ package com.android.support.car.apitest;
 
 import static android.support.car.CarAppContextManager.APP_CONTEXT_NAVIGATION;
 
-import android.os.Looper;
 import android.support.car.Car;
 import android.support.car.CarAppContextManager;
 import android.support.car.CarAppContextManager.AppContextChangeListener;
 import android.support.car.CarAppContextManager.AppContextOwnershipChangeListener;
 import android.support.car.navigation.CarNavigationInstrumentCluster;
-import android.support.car.CarNotConnectedException;
-import android.support.car.navigation.CarNavigationManager;
-import android.support.car.navigation.CarNavigationManager.CarNavigationListener;
+import android.support.car.navigation.CarNavigationStatusManager;
+import android.support.car.navigation.CarNavigationStatusManager.CarNavigationListener;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -33,17 +31,17 @@ import java.util.concurrent.TimeUnit;
 /**
  * Unit tests for {@link android.support.car.navigation.CarNavigationStatusManager}
  */
-public class CarNavigationManagerTest extends CarApiTestBase {
+public class CarNavigationStatusManagerTest extends CarApiTestBase {
 
-    private CarNavigationManager mCarNavigationManager;
+    private CarNavigationStatusManager mCarNavigationStatusManager;
     private CarAppContextManager mCarAppContextManager;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mCarNavigationManager =
-                (CarNavigationManager) getCar().getCarManager(Car.CAR_NAVIGATION_SERVICE);
-        assertNotNull(mCarNavigationManager);
+        mCarNavigationStatusManager =
+                (CarNavigationStatusManager) getCar().getCarManager(Car.CAR_NAVIGATION_SERVICE);
+        assertNotNull(mCarNavigationStatusManager);
         mCarAppContextManager =
                 (CarAppContextManager) getCar().getCarManager(Car.APP_CONTEXT_SERVICE);
         assertNotNull(mCarAppContextManager);
@@ -52,7 +50,7 @@ public class CarNavigationManagerTest extends CarApiTestBase {
     public void testStart() throws Exception {
         final CountDownLatch onStartLatch = new CountDownLatch(1);
 
-        mCarNavigationManager.registerListener(new CarNavigationListener() {
+        mCarNavigationStatusManager.registerListener(new CarNavigationListener() {
             @Override
             public void onInstrumentClusterStart(CarNavigationInstrumentCluster instrumentCluster) {
                 // TODO: we should use VehicleHalMock once we implement HAL support in
@@ -71,7 +69,7 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         assertTrue(onStartLatch.await(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         try {
-            mCarNavigationManager.sendNavigationStatus(1);
+            mCarNavigationStatusManager.sendNavigationStatus(1);
             fail();
         } catch (IllegalStateException expected) {
             // Expected. Client should acquire context ownership for APP_CONTEXT_NAVIGATION.
@@ -93,6 +91,6 @@ public class CarNavigationManagerTest extends CarApiTestBase {
 
         // TODO: we should use mocked HAL to be able to verify this, right now just make sure that
         // it is not crashing and logcat has appropriate traces.
-        mCarNavigationManager.sendNavigationStatus(1);
+        mCarNavigationStatusManager.sendNavigationStatus(1);
     }
 }
