@@ -78,4 +78,9 @@
     <!-- Notification text: Notification description shown to the user when vehicle CAN bus fails -->
     <string name="car_can_bus_failure_desc">CAN bus does not respond. Unplug and plug back headunit
         box and restart the car</string>
+
+    <!--  Blocking activity: Message to show to user when an application is not allowed. [CHAR LIMIT=NONE] -->
+    <string name="activity_blocked_string">The application is not allowed while driving.</string>
+    <!--  Blocking activity: Message on exit button. [CHAR LIMIT=NONE] -->
+    <string name="exit_now">Exit</string>
 </resources>

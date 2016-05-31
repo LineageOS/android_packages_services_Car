@@ -34,6 +34,8 @@ import java.io.PrintWriter;
 public class ICarImpl extends ICar.Stub {
 
     public static final String INTERNAL_INPUT_SERVICE =  "internal_input";
+    public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
+            "system_activity_monitoring";
 
     // load jni for all services here
     static {
@@ -46,6 +48,7 @@ public class ICarImpl extends ICar.Stub {
     private final Context mContext;
     private final VehicleHal mHal;
 
+    private final SystemActivityMonitoringService mSystemActivityMonitoringService;
     private final CarPowerManagementService mCarPowerManagementService;
     private final CarPackageManagerService mCarPackageManagerService;
     private final CarInputService mCarInputService;
@@ -86,19 +89,21 @@ public class ICarImpl extends ICar.Stub {
     public ICarImpl(Context serviceContext) {
         mContext = serviceContext;
         mHal = VehicleHal.getInstance();
+        mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(serviceContext);
+        mCarSensorService = new CarSensorService(serviceContext);
+        mCarPackageManagerService = new CarPackageManagerService(serviceContext, mCarSensorService,
+                mSystemActivityMonitoringService);
         mCarInputService = new CarInputService(serviceContext);
         mCarProjectionService = new CarProjectionService(serviceContext, mCarInputService);
         mGarageModeService = new GarageModeService(mContext, mCarPowerManagementService);
         mCarInfoService = new CarInfoService(serviceContext);
         mAppFocusService = new AppFocusService(serviceContext);
-        mCarSensorService = new CarSensorService(serviceContext);
         mCarAudioService = new CarAudioService(serviceContext, mCarInputService);
         mCarHvacService = new CarHvacService(serviceContext);
         mCarRadioService = new CarRadioService(serviceContext);
         mCarCameraService = new CarCameraService(serviceContext);
         mCarNightService = new CarNightService(serviceContext);
-        mCarPackageManagerService = new CarPackageManagerService(serviceContext);
         mInstrumentClusterService = new InstrumentClusterService(serviceContext,
                 mAppFocusService);
         mSystemStateControllerService = new SystemStateControllerService(serviceContext,
@@ -106,13 +111,14 @@ public class ICarImpl extends ICar.Stub {
 
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
+                mSystemActivityMonitoringService,
                 mCarPowerManagementService,
+                mCarSensorService,
                 mCarPackageManagerService,
                 mCarInputService,
                 mGarageModeService,
                 mCarInfoService,
                 mAppFocusService,
-                mCarSensorService,
                 mCarAudioService,
                 mCarHvacService,
                 mCarRadioService,
@@ -218,6 +224,8 @@ public class ICarImpl extends ICar.Stub {
         switch (serviceName) {
             case INTERNAL_INPUT_SERVICE:
                 return mCarInputService;
+            case INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE:
+                return mSystemActivityMonitoringService;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarInternalService for unknown service:" +
                         serviceName);

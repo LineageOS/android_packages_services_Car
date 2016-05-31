@@ -366,6 +366,7 @@ package android.car.content.pm {
 
   public class CarPackageManager {
     method public boolean isActivityAllowedWhileDriving(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
+    method public boolean isActivityBackedBySafeActivity(android.content.ComponentName) throws android.car.CarNotConnectedException;
     method public boolean isServiceAllowedWhileDriving(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
     method public void setAppBlockingPolicy(java.lang.String, android.car.content.pm.CarAppBlockingPolicy, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException, java.lang.SecurityException;
     field public static final int FLAG_SET_POLICY_ADD = 2; // 0x2
