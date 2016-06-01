@@ -17,17 +17,26 @@ package android.support.car.navigation;
 
 import android.graphics.Bitmap;
 import android.support.car.CarNotConnectedException;
+import android.support.car.CarNotSupportedException;
 
 /**
  * @hide
  */
-public class CarNavigationManagerEmbedded extends CarNavigationManager {
+public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusManager {
 
     private final android.car.navigation.CarNavigationManager mManager;
     private CarNavigationListenerProxy mListener;
 
-    public CarNavigationManagerEmbedded(Object manager) {
+    public CarNavigationStatusManagerEmbedded(Object manager)
+            throws CarNotSupportedException, CarNotConnectedException {
         mManager = (android.car.navigation.CarNavigationManager) manager;
+        try {
+            if (!mManager.isInstrumentClusterSupported()){
+                throw new CarNotSupportedException();
+            }
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
     }
 
     /**
@@ -56,19 +65,10 @@ public class CarNavigationManagerEmbedded extends CarNavigationManager {
     }
 
     @Override
-    public boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds)
-            throws CarNotConnectedException {
+    public boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
+            int displayDistanceMillis, int displayDistanceUnit) throws CarNotConnectedException {
         try {
             return mManager.sendNavigationTurnDistanceEvent(distanceMeters, timeSeconds);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    @Override
-    public boolean isInstrumentClusterSupported() throws CarNotConnectedException {
-        try {
-            return mManager.isInstrumentClusterSupported();
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }
