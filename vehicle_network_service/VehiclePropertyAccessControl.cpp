@@ -171,6 +171,14 @@ bool VehiclePropertyAccessControl::populate(xmlNode * a_node) {
                 property_value = std::stoul(tmp_str, nullptr, 10);
             }
 
+            // property with this set to true will not call get when it is subscribed.
+            property_value_str = xmlGetProp(cur_node, (const xmlChar*)"no_auto_get");
+            if (property_value_str) {
+                if (xmlStrcmp(property_value_str, (const xmlChar*)"true")==0) {
+                    mPropertiesWithNoAutoGet.insert(property_value);
+                }
+            }
+
             // Loop over all UID tags
             for (child = cur_node->children; child; child = child->next) {
                 if ((xmlStrcmp(child->name, (const xmlChar*)"UID")==0) &&
@@ -352,6 +360,10 @@ bool VehiclePropertyAccessControl::testAccess(int32_t property, int32_t uid,
             return false;
         }
     }
+}
+
+bool VehiclePropertyAccessControl::isAutoGetEnabled(int32_t property) {
+    return mPropertiesWithNoAutoGet.count(property) == 0;
 }
 
 };

@@ -200,6 +200,7 @@ public class CarVolumeControllerFactory {
         private int mSupportedAudioContext;
 
         private boolean mHasExternalMemory;
+        private boolean mMasterVolumeOnly;
 
         @GuardedBy("this")
         private int mCurrentContext = CarVolumeService.DEFAULT_CAR_AUDIO_CONTEXT;
@@ -266,6 +267,11 @@ public class CarVolumeControllerFactory {
                     case MSG_UPDATE_HAL:
                         stream = msg.arg1;
                         volume = msg.arg2;
+                        synchronized (CarExternalVolumeController.this) {
+                            if (mMasterVolumeOnly) {
+                                stream = 0;
+                            }
+                        }
                         mHal.setStreamVolume(stream, volume);
                         break;
                     default:
@@ -287,6 +293,7 @@ public class CarVolumeControllerFactory {
         void init() {
             mSupportedAudioContext = mHal.getSupportedAudioVolumeContexts();
             mHasExternalMemory = mHal.isExternalAudioVolumePersistent();
+            mMasterVolumeOnly = mHal.isAudioVolumeMasterOnly();
             synchronized (this) {
                 initVolumeLimitLocked();
                 initCurrentVolumeLocked();
@@ -328,7 +335,8 @@ public class CarVolumeControllerFactory {
                     int carStream = carContextToCarStream(i);
                     Integer volume = volumesPerCarStream.get(carStream);
                     if (volume == null) {
-                        volume = Integer.valueOf(mHal.getStreamVolume(carStream));
+                        volume = Integer.valueOf(mHal.getStreamVolume(mMasterVolumeOnly ? 0 :
+                            carStream));
                         volumesPerCarStream.put(carStream, volume);
                     }
                     mCurrentCarContextVolume.put(i, volume);
@@ -422,11 +430,14 @@ public class CarVolumeControllerFactory {
             synchronized (this) {
                 if (DBG) {
                     Log.d(TAG, "onVolumeChange carStream:" + carStream + " volume: " + volume
-                            + "volumeState: " + volumeState);
+                            + " volumeState: " + volumeState);
                 }
                 // Assume single channel here.
                 int currentLogicalStream = VolumeUtils.carContextToAndroidStream(mCurrentContext);
                 int currentCarStream = carContextToCarStream(mCurrentContext);
+                if (mMasterVolumeOnly) { //for master volume only H/W, always assume current stream
+                    carStream = currentCarStream;
+                }
                 if (currentCarStream == carStream) {
                     mCurrentCarContextVolume.put(mCurrentContext, volume);
                     mHandler.sendMessage(
@@ -537,7 +548,7 @@ public class CarVolumeControllerFactory {
                 // Otherwise, we need to tell Hal what the correct volume is for the new context.
                 int currentVolume = mCurrentCarContextVolume.get(primaryFocusContext);
 
-                int carStreamNumber = mSupportedAudioContext == 0 ? primaryFocusPhysicalStream :
+                int carStreamNumber = (mSupportedAudioContext == 0) ? primaryFocusPhysicalStream :
                         primaryFocusContext;
                 if (DBG) {
                     Log.d(TAG, "Change volume from: "

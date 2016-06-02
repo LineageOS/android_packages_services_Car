@@ -651,6 +651,7 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
     int32_t newZones = zones;
     vehicle_prop_config_t const * config = NULL;
     sp<HalClient> client;
+    bool autoGetEnabled = false;
     do {
         Mutex::Autolock autoLock(mLock);
         if (!isSubscribableLocked(prop)) {
@@ -712,6 +713,7 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
         }
         client->setSubscriptionInfo(prop, sampleRate, zones);
         if (shouldSubscribe) {
+            autoGetEnabled = mVehiclePropertyAccessControl.isAutoGetEnabled(prop);
             inMock = mMockingEnabled;
             SubscriptionInfo info(sampleRate, newZones);
             mSubscriptionInfos.add(prop, info);
@@ -739,7 +741,7 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
             }
         }
     }
-    if (isSampleRateFixed(config->change_mode)) {
+    if (autoGetEnabled && isSampleRateFixed(config->change_mode)) {
         status_t r = notifyClientWithCurrentValue(inMock, config, zones);
         if (r != NO_ERROR) {
             return r;
@@ -775,6 +777,7 @@ status_t VehicleNetworkService::notifyClientWithCurrentValue(bool isMocking,
 status_t VehicleNetworkService::notifyClientWithCurrentValue(bool isMocking,
     int32_t prop, int32_t valueType, int32_t zone) {
     vehicle_prop_value_t value;
+    memset(&value, 0, sizeof(value));
     value.prop = prop;
     value.value_type = valueType;
     value.zone = zone;
