@@ -12,7 +12,7 @@ package android.support.car {
     method public boolean isConnecting();
     method public void registerCarConnectionListener(android.support.car.CarConnectionListener) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException;
     method public void unregisterCarConnectionListener(android.support.car.CarConnectionListener);
-    field public static final java.lang.String APP_CONTEXT_SERVICE = "app_context";
+    field public static final java.lang.String APP_FOCUS_SERVICE = "app_focus";
     field public static final java.lang.String AUDIO_SERVICE = "audio";
     field public static final int CONNECTION_TYPE_ADB_EMULATOR = 4; // 0x4
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
@@ -28,6 +28,30 @@ package android.support.car {
     field public static final java.lang.String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
     field public static final java.lang.String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
     field public static final java.lang.String SENSOR_SERVICE = "sensor";
+  }
+
+  public abstract class CarAppFocusManager {
+    ctor public CarAppFocusManager();
+    method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.support.car.CarNotConnectedException;
+    method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener) throws android.support.car.CarNotConnectedException;
+    method public abstract int[] getActiveAppTypes() throws android.support.car.CarNotConnectedException;
+    method public abstract boolean isOwningFocus(android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.support.car.CarNotConnectedException;
+    method public abstract void registerFocusListener(android.support.car.CarAppFocusManager.AppFocusChangeListener, int) throws android.support.car.CarNotConnectedException;
+    method public abstract int requestAppFocus(android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException, java.lang.SecurityException;
+    method public abstract void unregisterFocusListener(android.support.car.CarAppFocusManager.AppFocusChangeListener, int) throws android.support.car.CarNotConnectedException;
+    method public abstract void unregisterFocusListener(android.support.car.CarAppFocusManager.AppFocusChangeListener) throws android.support.car.CarNotConnectedException;
+    field public static final int APP_FOCUS_REQUEST_FAILED = 0; // 0x0
+    field public static final int APP_FOCUS_REQUEST_GRANTED = 1; // 0x1
+    field public static final int APP_FOCUS_TYPE_NAVIGATION = 1; // 0x1
+    field public static final int APP_FOCUS_TYPE_VOICE_COMMAND = 2; // 0x2
+  }
+
+  public static abstract interface CarAppFocusManager.AppFocusChangeListener {
+    method public abstract void onAppFocusChange(int, boolean);
+  }
+
+  public static abstract interface CarAppFocusManager.AppFocusOwnershipChangeListener {
+    method public abstract void onAppFocusOwnershipLoss(int);
   }
 
   public abstract interface CarConnectionListener {

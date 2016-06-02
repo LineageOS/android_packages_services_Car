@@ -16,8 +16,18 @@
 
 package android.car;
 
+import android.car.IAppFocusListener;
+import android.car.IAppFocusOwnershipListener;
+
 /** @hide */
-oneway interface IAppContextListener {
-    void onAppContextChange(int activeContexts) = 0;
-    void onAppContextOwnershipLoss(int context) = 1;
+interface IAppFocus {
+    void registerFocusListener(IAppFocusListener listener, int appType) = 0;
+    void unregisterFocusListener(IAppFocusListener listener, int appType) = 1;
+    int[] getActiveAppTypes() = 2;
+    /** listener used as a token */
+    boolean isOwningFocus(IAppFocusOwnershipListener listener, int appType) = 3;
+    /** listener used as a token */
+    int requestAppFocus(IAppFocusOwnershipListener listener, int appType) = 4;
+    /** listener used as a token */
+    void abandonAppFocus(IAppFocusOwnershipListener listener, int appType) = 5;
 }

@@ -15,7 +15,7 @@
  */
 package com.android.car.cluster;
 
-import android.car.CarAppContextManager;
+import android.car.CarAppFocusManager;
 import android.car.cluster.renderer.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.car.navigation.CarNavigationManager;
@@ -27,7 +27,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.android.car.AppContextService;
+import com.android.car.AppFocusService;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 
@@ -42,15 +42,15 @@ public class CarNavigationService extends ICarNavigation.Stub implements CarServ
     private static final String TAG = CarLog.TAG_NAV;
 
     private final List<CarNavigationEventListener> mListeners = new ArrayList<>();
-    private final AppContextService mAppContextService;
+    private final AppFocusService mAppFocusService;
     private final InstrumentClusterService mInstrumentClusterService;
 
     private volatile CarNavigationInstrumentCluster mInstrumentClusterInfo = null;
     private volatile NavigationRenderer mNavigationRenderer;
 
-    public CarNavigationService(AppContextService appContextService,
+    public CarNavigationService(AppFocusService appFocusService,
             InstrumentClusterService instrumentClusterService) {
-        mAppContextService = appContextService;
+        mAppFocusService = appFocusService;
         mInstrumentClusterService = instrumentClusterService;
     }
 
@@ -75,7 +75,7 @@ public class CarNavigationService extends ICarNavigation.Stub implements CarServ
         if (!isRendererAvailable()) {
             return;
         }
-        verifyNavigationContextOwner();
+        verifyNavigationFocusOwner();
 
         if (status == CarNavigationManager.STATUS_ACTIVE) {
             mNavigationRenderer.onStartNavigation();
@@ -95,7 +95,7 @@ public class CarNavigationService extends ICarNavigation.Stub implements CarServ
         if (!isRendererAvailable()) {
             return;
         }
-        verifyNavigationContextOwner();
+        verifyNavigationFocusOwner();
 
         mNavigationRenderer.onNextTurnChanged(event, road, turnAngle, turnNumber, image, turnSide);
     }
@@ -107,7 +107,7 @@ public class CarNavigationService extends ICarNavigation.Stub implements CarServ
         if (!isRendererAvailable()) {
             return;
         }
-        verifyNavigationContextOwner();
+        verifyNavigationFocusOwner();
 
         mNavigationRenderer.onNextTurnDistanceChanged(distanceMeters, timeSeconds);
     }
@@ -156,13 +156,13 @@ public class CarNavigationService extends ICarNavigation.Stub implements CarServ
         return mInstrumentClusterInfo != null;
     }
 
-    private void verifyNavigationContextOwner() {
-        if (!mAppContextService.isContextOwner(
+    private void verifyNavigationFocusOwner() {
+        if (!mAppFocusService.isFocusOwner(
                 Binder.getCallingUid(),
                 Binder.getCallingPid(),
-                CarAppContextManager.APP_CONTEXT_NAVIGATION)) {
+                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION)) {
             throw new IllegalStateException(
-                    "Client is not an owner of APP_CONTEXT_NAVIGATION.");
+                    "Client is not an owner of APP_FOCUS_NAVIGATION.");
         }
     }
 
