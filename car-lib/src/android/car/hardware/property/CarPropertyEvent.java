@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package android.car.hardware.hvac;
+package android.car.hardware.property;
 
 import android.car.hardware.CarPropertyValue;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 /** @hide */
-public class CarHvacEvent implements Parcelable {
-    public static final int HVAC_EVENT_PROPERTY_CHANGE = 0;
-    public static final int HVAC_EVENT_ERROR = 1;
+public class CarPropertyEvent implements Parcelable {
+    public static final int PROPERTY_EVENT_PROPERTY_CHANGE = 0;
+    public static final int PROPERTY_EVENT_ERROR = 1;
 
     /**
      * EventType of this message
@@ -54,33 +54,33 @@ public class CarHvacEvent implements Parcelable {
         dest.writeParcelable(mCarPropertyValue, flags);
     }
 
-    public static final Parcelable.Creator<CarHvacEvent> CREATOR
-            = new Parcelable.Creator<CarHvacEvent>() {
-        public CarHvacEvent createFromParcel(Parcel in) {
-            return new CarHvacEvent(in);
+    public static final Parcelable.Creator<CarPropertyEvent> CREATOR
+            = new Parcelable.Creator<CarPropertyEvent>() {
+        public CarPropertyEvent createFromParcel(Parcel in) {
+            return new CarPropertyEvent(in);
         }
 
-        public CarHvacEvent[] newArray(int size) {
-            return new CarHvacEvent[size];
+        public CarPropertyEvent[] newArray(int size) {
+            return new CarPropertyEvent[size];
         }
     };
 
     /**
-     * Constructor for {@link CarHvacEvent}.
+     * Constructor for {@link CarPropertyEvent}.
      */
-    public CarHvacEvent(int eventType, CarPropertyValue<?> carHvacProperty) {
+    public CarPropertyEvent(int eventType, CarPropertyValue<?> carPropertyValue) {
         mEventType  = eventType;
-        mCarPropertyValue = carHvacProperty;
+        mCarPropertyValue = carPropertyValue;
     }
 
-    private CarHvacEvent(Parcel in) {
+    private CarPropertyEvent(Parcel in) {
         mEventType  = in.readInt();
         mCarPropertyValue = in.readParcelable(CarPropertyValue.class.getClassLoader());
     }
 
     @Override
     public String toString() {
-        return "CarHvacEvent{" +
+        return "CarPropertyEvent{" +
                 "mEventType=" + mEventType +
                 ", mCarPropertyValue=" + mCarPropertyValue +
                 '}';

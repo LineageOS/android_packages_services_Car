@@ -31,6 +31,7 @@ public class CarLog {
     public static final String TAG_PACKAGE = "CAR.PACKAGE";
     public static final String TAG_POWER = "CAR.POWER";
     public static final String TAG_PROJECTION = "CAR.PROJECTION";
+    public static final String TAG_PROPERTY = "CAR.PROPERTY";
     public static final String TAG_RADIO = "CAR.RADIO";
     public static final String TAG_SENSOR = "CAR.SENSOR";
     public static final String TAG_SERVICE = "CAR.SERVICE";

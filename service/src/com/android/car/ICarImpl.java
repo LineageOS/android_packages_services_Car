@@ -245,49 +245,32 @@ public class ICarImpl extends ICar.Stub {
     }
 
     public static void assertVehicleHalMockPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(Car.PERMISSION_MOCK_VEHICLE_HAL)
-                != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException("requires CAR_MOCK_VEHICLE_HAL permission");
-        }
+        assertPermission(context, Car.PERMISSION_MOCK_VEHICLE_HAL);
     }
 
     public static void assertCameraPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException(
-                    "requires " + Car.PERMISSION_CAR_CAMERA);
-        }
+        assertPermission(context, Car.PERMISSION_CAR_CAMERA);
     }
 
     public static void assertNavigationManagerPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_NAVIGATION_MANAGER)
-                != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException(
-                    "requires " + Car.PERMISSION_CAR_NAVIGATION_MANAGER);
-        }
+        assertPermission(context, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
     }
 
     public static void assertHvacPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_HVAC)
-                != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException(
-                    "requires " + Car.PERMISSION_CAR_HVAC);
-        }
+        assertPermission(context, Car.PERMISSION_CAR_HVAC);
     }
 
     private static void assertRadioPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_RADIO)
-            != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException(
-                "requires permission " + Car.PERMISSION_CAR_RADIO);
-        }
+        assertPermission(context, Car.PERMISSION_CAR_RADIO);
     }
 
     public static void assertProjectionPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_PROJECTION)
-                != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException(
-                    "requires " + Car.PERMISSION_CAR_PROJECTION);
+        assertPermission(context, Car.PERMISSION_CAR_PROJECTION);
+    }
+
+    public static void assertPermission(Context context, String permission) {
+        if (context.checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException("requires " + permission);
         }
     }
 
