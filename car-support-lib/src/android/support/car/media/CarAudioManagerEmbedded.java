@@ -19,6 +19,7 @@ import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.AudioRecord;
+import android.support.car.CarNotConnectedException;
 
 /**
  * @hide
@@ -80,6 +81,24 @@ public class CarAudioManagerEmbedded extends CarAudioManager {
             throw new IllegalArgumentException("Bad bufferSize value");
         }
         return new CarAudioRecordEmbedded(AUDIO_RECORD_FORMAT, bufferSize);
+    }
+
+    @Override
+    public boolean isMediaMuted() throws CarNotConnectedException {
+        try {
+            return mManager.isMediaMuted();
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    @Override
+    public boolean setMediaMute(boolean mute) throws CarNotConnectedException {
+        try {
+            return mManager.setMediaMute(mute);
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
     }
 
     @Override
