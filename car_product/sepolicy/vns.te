@@ -2,6 +2,10 @@
 type vns, domain;
 type vns_exec, exec_type, file_type;
 
+allow vns system_app:binder { call };
+allow vns car_service:service_manager { add };
+allow vns priv_app:binder { call };
+
 init_daemon_domain(vns)
 
 binder_use(vns);
