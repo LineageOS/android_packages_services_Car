@@ -15,6 +15,8 @@
  */
 package android.support.car.media;
 
+import android.support.car.CarNotConnectedException;
+
 /**
  * CarAudioRecord allows apps to use microphone.
  */
@@ -28,7 +30,7 @@ public interface CarAudioRecord {
     /**
      * Start audio recording.
      */
-    void startRecording();
+    void startRecording() throws CarNotConnectedException;
 
     /**
      * Stop audio recording. Calling stop multiple times will be a safe operation.
@@ -60,5 +62,5 @@ public interface CarAudioRecord {
      * @throws IllegalStateException if audio recording was not started.
      */
     int read(byte[] audioData, int offsetInBytes, int sizeInBytes)
-            throws IllegalStateException;
+            throws IllegalStateException, CarNotConnectedException;
 }
