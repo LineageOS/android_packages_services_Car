@@ -1,3 +1,1 @@
-vehicle_network                 u:object_r:vehicle_network_service:s0
-
 com.android.car.vehiclenetwork.IVehicleNetwork u:object_r:car_service:s0

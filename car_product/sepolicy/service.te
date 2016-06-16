@@ -1,3 +1,1 @@
-type vehicle_network_service, domain, app_api_service, system_server_service, service_manager_type;
-
 type car_service, service_manager_type;
