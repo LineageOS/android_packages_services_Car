@@ -26,7 +26,6 @@ PRODUCT_PACKAGES += \
     BasicDreams \
     CaptivePortalLogin \
     CertInstaller \
-    DeskClock \
     DocumentsUI \
     DownloadProviderUi \
     FusedLocation \
