@@ -16,20 +16,25 @@
 package android.car.cluster.renderer;
 
 import android.annotation.CallSuper;
+import android.annotation.MainThread;
 import android.annotation.SystemApi;
 import android.app.Service;
 import android.car.CarLibLog;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.Pair;
+import android.view.KeyEvent;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.lang.ref.WeakReference;
 
 /**
  * A service that used for interaction between Car Service and Instrument Cluster. Car Service may
@@ -69,7 +74,13 @@ public abstract class InstrumentClusterRenderingService extends Service {
     }
 
     /** Returns {@link NavigationRenderer} or null if it's not supported. */
+    @MainThread
     protected abstract NavigationRenderer getNavigationRenderer();
+
+    /** Called when key event that was addressed to instrument cluster display has been received. */
+    @MainThread
+    protected void onKeyEvent(KeyEvent keyEvent) {
+    }
 
     @Override
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
@@ -82,12 +93,14 @@ public abstract class InstrumentClusterRenderingService extends Service {
     private class RendererBinder extends IInstrumentCluster.Stub {
 
         private final NavigationRenderer mNavigationRenderer;
+        private final UiHandler mUiHandler;
 
         private volatile NavigationBinder mNavigationBinder;
         private volatile Pair<Integer, Integer> mNavContextOwner;
 
         RendererBinder(NavigationRenderer navigationRenderer) {
             mNavigationRenderer = navigationRenderer;
+            mUiHandler = new UiHandler(InstrumentClusterRenderingService.this);
         }
 
         @Override
@@ -108,6 +121,11 @@ public abstract class InstrumentClusterRenderingService extends Service {
             if (mNavigationBinder != null) {
                 mNavigationBinder.setNavigationContextOwner(uid, pid);
             }
+        }
+
+        @Override
+        public void onKeyEvent(KeyEvent keyEvent) throws RemoteException {
+            mUiHandler.doKeyEvent(keyEvent);
         }
     }
 
@@ -168,6 +186,33 @@ public abstract class InstrumentClusterRenderingService extends Service {
                 throw new IllegalStateException("Client (uid:" + uid + ", pid: " + pid + ") is"
                         + "not an owner of APP_CONTEXT_NAVIGATION");
             }
+        }
+    }
+
+    private static class UiHandler extends Handler {
+        private static int KEY_EVENT = 0;
+        private final WeakReference<InstrumentClusterRenderingService> mRefService;
+
+        UiHandler(InstrumentClusterRenderingService service) {
+            mRefService = new WeakReference<>(service);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            InstrumentClusterRenderingService service = mRefService.get();
+            if (service == null) {
+                return;
+            }
+
+            if (msg.what == KEY_EVENT) {
+                service.onKeyEvent((KeyEvent) msg.obj);
+            } else {
+                throw new IllegalArgumentException("Unexpected message: " + msg);
+            }
+        }
+
+        void doKeyEvent(KeyEvent event) {
+            sendMessage(obtainMessage(KEY_EVENT, event));
         }
     }
 }
