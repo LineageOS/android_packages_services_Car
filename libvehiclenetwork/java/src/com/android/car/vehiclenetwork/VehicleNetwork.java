@@ -216,6 +216,12 @@ public class VehicleNetwork {
         setProperty(v);
     }
 
+    public void setStringProperty(int property, String value)
+            throws IllegalArgumentException, ServiceSpecificException {
+        VehiclePropValue v = VehiclePropValueUtil.createStringValue(property, value, 0);
+        setProperty(v);
+    }
+
     /**
      * Set zoned boolean type property
      *

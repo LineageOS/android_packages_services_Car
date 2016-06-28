@@ -47,6 +47,8 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class AudioHalService extends HalServiceBase {
     public static final int VEHICLE_AUDIO_FOCUS_REQUEST_INVALID = -1;
@@ -131,6 +133,8 @@ public class AudioHalService extends HalServiceBase {
             VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_AUX_AUDIO_FLAG;
     public static final int AUDIO_CONTEXT_SYSTEM_SOUND_FLAG =
             VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG;
+    public static final int AUDIO_CONTEXT_EXT_SOURCE_FLAG =
+            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_EXT_SOURCE_FLAG;
 
     public interface AudioHalFocusListener {
         /**
@@ -164,6 +168,8 @@ public class AudioHalService extends HalServiceBase {
          */
         void onVolumeLimitChange(int streamNumber, int volume);
     }
+
+    private static final boolean DBG = true;
 
     private final VehicleHal mVehicleHal;
     private AudioHalFocusListener mFocusListener;
@@ -215,7 +221,7 @@ public class AudioHalService extends HalServiceBase {
     /**
      * Returns the volume limits of a stream in the form <min, max>.
      */
-    public Pair<Integer, Integer> getStreamVolumeLimit(int stream) {
+    public synchronized Pair<Integer, Integer> getStreamVolumeLimit(int stream) {
         if (!isPropertySupportedLocked(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME)) {
             throw new IllegalStateException("VEHICLE_PROPERTY_AUDIO_VOLUME not supported");
         }
@@ -254,6 +260,10 @@ public class AudioHalService extends HalServiceBase {
      * Convert car audio manager stream type (usage) into audio context type.
      */
     public static int logicalStreamToHalContextType(int logicalStream) {
+        return logicalStreamWithExtTypeToHalContextType(logicalStream, null);
+    }
+
+    public static int logicalStreamWithExtTypeToHalContextType(int logicalStream, String extType) {
         switch (logicalStream) {
             case CarAudioManager.CAR_AUDIO_USAGE_RADIO:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG;
@@ -275,6 +285,24 @@ public class AudioHalService extends HalServiceBase {
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG;
             case CarAudioManager.CAR_AUDIO_USAGE_DEFAULT:
                 return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG;
+            case CarAudioManager.CAR_AUDIO_USAGE_EXTERNAL_AUDIO_SOURCE:
+                if (extType != null) {
+                    switch (extType) {
+                    case CarAudioManager.CAR_EXTERNAL_SOURCE_TYPE_CD_DVD:
+                        return AudioHalService.AUDIO_CONTEXT_CD_ROM_FLAG;
+                    case CarAudioManager.CAR_EXTERNAL_SOURCE_TYPE_AUX_IN0:
+                    case CarAudioManager.CAR_EXTERNAL_SOURCE_TYPE_AUX_IN1:
+                        return AudioHalService.AUDIO_CONTEXT_AUX_AUDIO_FLAG;
+                    default:
+                        if (extType.startsWith("RADIO_")) {
+                            return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG;
+                        } else {
+                            return AudioHalService.AUDIO_CONTEXT_EXT_SOURCE_FLAG;
+                        }
+                    }
+                } else { // no external source specified. fall back to radio
+                    return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG;
+                }
             case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_BOTTOM:
             case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY:
             case CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_MEDIA_MUTE:
@@ -300,11 +328,11 @@ public class AudioHalService extends HalServiceBase {
             case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG:
                 return CarAudioManager.CAR_AUDIO_USAGE_VOICE_COMMAND;
             case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_AUX_AUDIO_FLAG:
-                return CarAudioManager.CAR_AUDIO_USAGE_MUSIC;
+                return CarAudioManager.CAR_AUDIO_USAGE_EXTERNAL_AUDIO_SOURCE;
             case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG:
                 return CarAudioManager.CAR_AUDIO_USAGE_VOICE_CALL;
             case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CD_ROM_FLAG:
-                return CarAudioManager.CAR_AUDIO_USAGE_MUSIC;
+                return CarAudioManager.CAR_AUDIO_USAGE_EXTERNAL_AUDIO_SOURCE;
             case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG:
                 return CarAudioManager.CAR_AUDIO_USAGE_NOTIFICATION;
             case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG:
@@ -315,6 +343,8 @@ public class AudioHalService extends HalServiceBase {
                 return CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SOUND;
             case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG:
                 return CarAudioManager.CAR_AUDIO_USAGE_DEFAULT;
+            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_EXT_SOURCE_FLAG:
+                return CarAudioManager.CAR_AUDIO_USAGE_EXTERNAL_AUDIO_SOURCE;
             default:
                 Log.w(CarLog.TAG_AUDIO, "Unknown car context:" + carContext);
                 return 0;
@@ -466,6 +496,87 @@ public class AudioHalService extends HalServiceBase {
         }
     }
 
+    public static class ExtRoutingSourceInfo {
+        /** Represents an external route which will not disable any physical stream in android side.
+         */
+        public static final int NO_DISABLED_PHYSICAL_STREAM = -1;
+
+        /** Bit position of this source in vhal */
+        public final int bitPosition;
+        /**
+         * Physical stream replaced by this routing. will be {@link #NO_DISABLED_PHYSICAL_STREAM}
+         * if no physical stream for android is replaced by this routing.
+         */
+        public final int physicalStreamNumber;
+
+        public ExtRoutingSourceInfo(int bitPosition, int physycalStreamNumber) {
+            this.bitPosition = bitPosition;
+            this.physicalStreamNumber = physycalStreamNumber;
+        }
+
+        @Override
+        public String toString() {
+            return "[bitPosition=" + bitPosition + ", physycalStreamNumber="
+                    + physicalStreamNumber + "]";
+        }
+    }
+
+    /**
+     * Get external audio routing types from AUDIO_EXT_ROUTING_HINT property.
+     *
+     * @return null if AUDIO_EXT_ROUTING_HINT is not supported.
+     */
+    public Map<String, ExtRoutingSourceInfo> getExternalAudioRoutingTypes() {
+        VehiclePropConfig config;
+        synchronized (this) {
+            if (!isPropertySupportedLocked(
+                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_HINT)) {
+                return null;
+            }
+            config = mProperties.get(
+                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_HINT);
+        }
+        if (!config.hasConfigString()) {
+            Log.w(CarLog.TAG_HAL, "AUDIO_EXT_ROUTING_HINT with empty config string");
+            return null;
+        }
+        Map<String, ExtRoutingSourceInfo> routingTypes = new HashMap<>();
+        String configString = config.getConfigString();
+        if (DBG) {
+            Log.i(CarLog.TAG_HAL, "AUDIO_EXT_ROUTING_HINT config string:" + configString);
+        }
+        String[] routes = configString.split(",");
+        for (String routeString : routes) {
+            String[] tokens = routeString.split(":");
+            int bitPosition = 0;
+            String name = null;
+            int physicalStreamNumber = ExtRoutingSourceInfo.NO_DISABLED_PHYSICAL_STREAM;
+            if (tokens.length == 2) {
+                bitPosition = Integer.parseInt(tokens[0]);
+                name = tokens[1];
+            } else if (tokens.length == 3) {
+                bitPosition = Integer.parseInt(tokens[0]);
+                name = tokens[1];
+                physicalStreamNumber = Integer.parseInt(tokens[2]);
+            } else {
+                Log.w(CarLog.TAG_AUDIO, "VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_HINT has wrong entry:" +
+                        routeString);
+                continue;
+            }
+            routingTypes.put(name, new ExtRoutingSourceInfo(bitPosition, physicalStreamNumber));
+        }
+        return routingTypes;
+    }
+
+    public void setExternalRoutingSource(int[] externalRoutings) {
+        try {
+            mVehicleHal.getVehicleNetwork().setIntVectorProperty(
+                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_HINT, externalRoutings);
+        } catch (ServiceSpecificException e) {
+            Log.e(CarLog.TAG_AUDIO, "Cannot write to VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_HINT", e);
+        }
+    }
+
     private boolean isPropertySupportedLocked(int property) {
         VehiclePropConfig config = mProperties.get(property);
         return config != null;
@@ -509,6 +620,7 @@ public class AudioHalService extends HalServiceBase {
                 case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME:
                 case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME_LIMIT:
                 case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT:
+                case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_HINT:
                 case VehicleNetworkConsts.VEHICLE_PROPERTY_INTERNAL_AUDIO_STREAM_STATE:
                     mProperties.put(p.getProp(), p);
                     break;

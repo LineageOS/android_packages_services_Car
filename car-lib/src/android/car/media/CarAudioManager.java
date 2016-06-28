@@ -77,17 +77,47 @@ public class CarAudioManager implements CarManagerBase {
      * Audio usage for playing safety alert.
      */
     public static final int CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT = 9;
+    /**
+     * Audio usage for external audio usage.
+     * @hide
+     */
+    public static final int CAR_AUDIO_USAGE_EXTERNAL_AUDIO_SOURCE = 10;
 
     /** @hide */
-    public static final int CAR_AUDIO_USAGE_MAX = CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT;
+    public static final int CAR_AUDIO_USAGE_MAX = CAR_AUDIO_USAGE_EXTERNAL_AUDIO_SOURCE;
 
     /** @hide */
     @IntDef({CAR_AUDIO_USAGE_DEFAULT, CAR_AUDIO_USAGE_MUSIC, CAR_AUDIO_USAGE_RADIO,
         CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE, CAR_AUDIO_USAGE_VOICE_CALL,
         CAR_AUDIO_USAGE_VOICE_COMMAND, CAR_AUDIO_USAGE_ALARM, CAR_AUDIO_USAGE_NOTIFICATION,
-        CAR_AUDIO_USAGE_SYSTEM_SOUND, CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT})
+        CAR_AUDIO_USAGE_SYSTEM_SOUND, CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT,
+        CAR_AUDIO_USAGE_EXTERNAL_AUDIO_SOURCE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarAudioUsage {}
+
+    /** @hide */
+    public static final String CAR_RADIO_TYPE_AM_FM = "RADIO_AM_FM";
+    /** @hide */
+    public static final String CAR_RADIO_TYPE_AM_FM_HD = "RADIO_AM_FM_HD";
+    /** @hide */
+    public static final String CAR_RADIO_TYPE_DAB = "RADIO_DAB";
+    /** @hide */
+    public static final String CAR_RADIO_TYPE_SATELLITE = "RADIO_SATELLITE";
+
+    /** @hide */
+    public static final String CAR_EXTERNAL_SOURCE_TYPE_CD_DVD = "CD_DVD";
+    /** @hide */
+    public static final String CAR_EXTERNAL_SOURCE_TYPE_AUX_IN0 = "AUX_IN0";
+    /** @hide */
+    public static final String CAR_EXTERNAL_SOURCE_TYPE_AUX_IN1 = "AUX_IN1";
+    /** @hide */
+    public static final String CAR_EXTERNAL_SOURCE_TYPE_EXT_NAV_GUIDANCE = "EXT_NAV_GUIDANCE";
+    /** @hide */
+    public static final String CAR_EXTERNAL_SOURCE_TYPE_EXT_VOICE_CALL = "EXT_VOICE_CALL";
+    /** @hide */
+    public static final String CAR_EXTERNAL_SOURCE_TYPE_EXT_VOICE_COMMAND = "EXT_VOICE_COMMAND";
+    /** @hide */
+    public static final String CAR_EXTERNAL_SOURCE_TYPE_EXT_SAFETY_ALERT = "EXT_SAFETY_ALERT";
 
     private final ICarAudio mService;
     private final AudioManager mAudioManager;
@@ -101,9 +131,79 @@ public class CarAudioManager implements CarManagerBase {
         try {
             return mService.getAudioAttributesForCarUsage(carUsage);
         } catch (RemoteException e) {
-            AudioAttributes.Builder builder = new AudioAttributes.Builder();
-            return builder.setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN).
-                    setUsage(AudioAttributes.USAGE_UNKNOWN).build();
+            return createAudioAttributes(AudioAttributes.CONTENT_TYPE_UNKNOWN,
+                    AudioAttributes.USAGE_UNKNOWN);
+        }
+    }
+
+    /**
+     * Get AudioAttributes for radio. This is necessary when there are multiple types of radio
+     * in system.
+     *
+     * @param radioType String specifying the desired radio type. Should use only what is listed in
+     *        {@link #getSupportedRadioTypes()}.
+     * @return
+     * @throws IllegalArgumentException If not supported type is passed.
+     *
+     * @hide
+     */
+    public AudioAttributes getAudioAttributesForRadio(String radioType)
+            throws IllegalArgumentException {
+        try {
+            return mService.getAudioAttributesForRadio(radioType);
+        } catch (RemoteException e) {
+            return createAudioAttributes(AudioAttributes.CONTENT_TYPE_UNKNOWN,
+                    AudioAttributes.USAGE_UNKNOWN);
+        }
+    }
+
+    /**
+     * Get AudioAttributes for external audio source.
+     *
+     * @param externalSourceType String specifying the desired source type. Should use only what is
+     *        listed in {@link #getSupportedExternalSourceTypes()}.
+     * @return
+     * @throws IllegalArgumentException If not supported type is passed.
+     *
+     * @hide
+     */
+    public AudioAttributes getAudioAttributesForExternalSource(String externalSourceType)
+            throws IllegalArgumentException {
+        try {
+            return mService.getAudioAttributesForExternalSource(externalSourceType);
+        } catch (RemoteException e) {
+            return createAudioAttributes(AudioAttributes.CONTENT_TYPE_UNKNOWN,
+                    AudioAttributes.USAGE_UNKNOWN);
+        }
+    }
+
+    /**
+     * List all supported external audio sources.
+     *
+     * @return
+     *
+     * @hide
+     */
+    public String[] getSupportedExternalSourceTypes() {
+        try {
+            return mService.getSupportedExternalSourceTypes();
+        } catch (RemoteException e) {
+            return null;
+        }
+    }
+
+    /**
+     * List all supported radio sources.
+     *
+     * @return
+     *
+     * @hide
+     */
+    public String[] getSupportedRadioTypes() {
+        try {
+            return mService.getSupportedRadioTypes();
+        } catch (RemoteException e) {
+            return null;
         }
     }
 
@@ -271,12 +371,16 @@ public class CarAudioManager implements CarManagerBase {
 
     @Override
     public void onCarDisconnected() {
-        // TODO Auto-generated method stub
     }
 
     /** @hide */
     public CarAudioManager(IBinder service, Context context) {
         mService = ICarAudio.Stub.asInterface(service);
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    }
+
+    private AudioAttributes createAudioAttributes(int contentType, int usage) {
+        AudioAttributes.Builder builder = new AudioAttributes.Builder();
+        return builder.setContentType(contentType).setUsage(usage).build();
     }
 }

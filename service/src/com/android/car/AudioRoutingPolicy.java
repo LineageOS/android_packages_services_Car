@@ -40,6 +40,11 @@ public class AudioRoutingPolicy {
     public static AudioRoutingPolicy create(Context context, int policyNumber) {
         final Resources res = context.getResources();
         String[] policies = res.getStringArray(R.array.audioRoutingPolicy);
+        if (policyNumber > (policies.length - 1)) {
+            Log.e(CarLog.TAG_AUDIO, "AudioRoutingPolicy.create got wrong policy number:" +
+                    policyNumber + ", num of avaiable policies:" + policies.length);
+            policyNumber = 0;
+        }
         return new AudioRoutingPolicy(policies[policyNumber]);
     }
 

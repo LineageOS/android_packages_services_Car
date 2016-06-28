@@ -26,6 +26,7 @@ import android.support.car.ServiceConnectionListener;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -67,6 +68,20 @@ public class MockedCarTestBase extends AndroidTestCase {
             mConnectionWaitForSupportCar.release();
         }
     };
+
+    public static <T> void assertArrayEquals(T[] expected, T[] actual) {
+        if (!Arrays.equals(expected, actual)) {
+            fail("expected:<" + Arrays.toString(expected) +
+                "> but was:<" + Arrays.toString(actual) + ">");
+        }
+    }
+
+    public static void assertArrayEquals(int[] expected, int[] actual) {
+        if (!Arrays.equals(expected, actual)) {
+            fail("expected:<" + Arrays.toString(expected) +
+                "> but was:<" + Arrays.toString(actual) + ">");
+        }
+    }
 
     @Override
     protected synchronized void setUp() throws Exception {

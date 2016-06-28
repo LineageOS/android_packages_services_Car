@@ -146,6 +146,10 @@
     <UID name="AID_SYSTEM" access="r" value="1000"/>
   </PROPERTY>
 
+  <PROPERTY name="VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_HINT" value = "0x00000905">
+    <UID name="AID_SYSTEM" access="rw" value="1000"/>
+  </PROPERTY>
+
   <PROPERTY name="VEHICLE_PROPERTY_AP_POWER_STATE" value = "0x00000A00">
     <UID name="AID_SYSTEM" access="rw" value="1000"/>
   </PROPERTY>
