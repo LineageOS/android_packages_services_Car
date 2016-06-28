@@ -28,9 +28,12 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
+import android.view.KeyEvent;
 
 import com.android.car.AppFocusService;
 import com.android.car.AppFocusService.FocusOwnershipListener;
+import com.android.car.CarInputService;
+import com.android.car.CarInputService.KeyEventListener;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
@@ -45,12 +48,14 @@ import java.io.PrintWriter;
  */
 @SystemApi
 public class InstrumentClusterService implements CarServiceBase,
-        FocusOwnershipListener {
+        FocusOwnershipListener, KeyEventListener {
 
     private static final String TAG = CarLog.TAG_CLUSTER;
+    private static final Boolean DBG = true;
 
     private final Context mContext;
     private final AppFocusService mAppFocusService;
+    private final CarInputService mCarInputService;
 
     private Pair<Integer, Integer> mNavContextOwner;
 
@@ -60,7 +65,9 @@ public class InstrumentClusterService implements CarServiceBase,
     private final ServiceConnection mRendererServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            Log.d(TAG, "onServiceConnected, name: " + name + ", binder: " + binder);
+            if (DBG) {
+                Log.d(TAG, "onServiceConnected, name: " + name + ", binder: " + binder);
+            }
             mRendererService = IInstrumentCluster.Stub.asInterface(binder);
 
             if (mNavContextOwner != null) {
@@ -85,22 +92,29 @@ public class InstrumentClusterService implements CarServiceBase,
         }
     };
 
-    public InstrumentClusterService(Context context, AppFocusService appFocusService) {
+    public InstrumentClusterService(Context context, AppFocusService appFocusService,
+            CarInputService carInputService) {
         mContext = context;
         mAppFocusService = appFocusService;
+        mCarInputService = carInputService;
     }
 
     @Override
     public void init() {
-        Log.d(TAG, "init");
+        if (DBG) {
+            Log.d(TAG, "init");
+        }
 
-        mAppFocusService.registerContextOwnerChangedListener(this);
+        mAppFocusService.registerContextOwnerChangedListener(this /* FocusOwnershipListener */);
+        mCarInputService.setInstrumentClusterKeyListener(this /* KeyEventListener */);
         mRendererBound = bindInstrumentClusterRendererService();
     }
 
     @Override
     public void release() {
-        Log.d(TAG, "release");
+        if (DBG) {
+            Log.d(TAG, "release");
+        }
 
         mAppFocusService.unregisterContextOwnerChangedListener(this);
         if (mRendererBound) {
@@ -160,5 +174,20 @@ public class InstrumentClusterService implements CarServiceBase,
             Log.e(TAG, "getNavigationServiceBinder" , e);
             return null;
         }
+    }
+
+    @Override
+    public boolean onKeyEvent(KeyEvent event) {
+        if (DBG) {
+            Log.d(TAG, "InstrumentClusterService#onKeyEvent: " + event);
+        }
+        if (mRendererService != null) {
+            try {
+                mRendererService.onKeyEvent(event);
+            } catch (RemoteException e) {
+                Log.e(TAG, "onKeyEvent", e);
+            }
+        }
+        return true;
     }
 }
