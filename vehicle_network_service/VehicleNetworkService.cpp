@@ -1160,7 +1160,7 @@ void VehicleNetworkService::dispatchHalError(VehicleHalError* error) {
             }
         }
     } while (false);
-    ALOGI("dispatchHalError error:%d, property:0x%x, operation:%d, num clients to dispatch:%d",
+    ALOGI("dispatchHalError error:%d, property:0x%x, operation:%d, num clients to dispatch:%zu",
             error->errorCode, error->property, error->operation, clientsToDispatch.size());
     for (auto& client : clientsToDispatch) {
         client->dispatchHalError(error->errorCode, error->property, error->operation);

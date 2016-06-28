@@ -35,6 +35,8 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_MODULE := libvehiclenetworkservice
 LOCAL_MODULE_TAGS := optional
 
+LOCAL_CFLAGS  += -Werror
+
 include $(BUILD_STATIC_LIBRARY)
 
 ##################################
@@ -66,5 +68,7 @@ LOCAL_STRIP_MODULE := keep_symbols
 
 LOCAL_MODULE := vehicle_network_service
 LOCAL_MODULE_TAGS := optional
+
+LOCAL_CFLAGS  += -Werror
 
 include $(BUILD_EXECUTABLE)

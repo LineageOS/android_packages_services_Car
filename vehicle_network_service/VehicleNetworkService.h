@@ -225,7 +225,7 @@ public:
 
     // no lock here as this should be called only from single event looper thread
     status_t dispatchEvents(const int64_t& timestamp){
-        ALOGV("dispatchEvents, num Events:%d", mEvents.size());
+        ALOGV("dispatchEvents, num Events:%zu", mEvents.size());
         sp<VehiclePropValueListHolder> events(new VehiclePropValueListHolder(&mEvents,
                 false /*deleteInDestructor */));
         ASSERT_OR_HANDLE_NO_MEMORY(events.get(), return NO_MEMORY);
