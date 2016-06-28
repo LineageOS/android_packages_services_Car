@@ -40,4 +40,6 @@ LOCAL_STRIP_MODULE := keep_symbols
 LOCAL_MODULE := libvehiclenetwork-native
 LOCAL_MODULE_TAGS := optional
 
+LOCAL_CFLAGS += -Werror
+
 include $(BUILD_SHARED_LIBRARY)
