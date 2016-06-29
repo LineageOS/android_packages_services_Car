@@ -34,7 +34,6 @@ package android.support.car {
     ctor public CarAppFocusManager();
     method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.support.car.CarNotConnectedException;
     method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener) throws android.support.car.CarNotConnectedException;
-    method public abstract int[] getActiveAppTypes() throws android.support.car.CarNotConnectedException;
     method public abstract boolean isOwningFocus(android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.support.car.CarNotConnectedException;
     method public abstract void registerFocusListener(android.support.car.CarAppFocusManager.AppFocusChangeListener, int) throws android.support.car.CarNotConnectedException;
     method public abstract int requestAppFocus(android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException, java.lang.SecurityException;

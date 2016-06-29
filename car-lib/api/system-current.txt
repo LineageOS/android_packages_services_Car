@@ -37,7 +37,6 @@ package android.car {
   public final class CarAppFocusManager {
     method public void abandonAppFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.car.CarNotConnectedException;
     method public void abandonAppFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener) throws android.car.CarNotConnectedException;
-    method public int[] getActiveAppTypes() throws android.car.CarNotConnectedException;
     method public boolean isOwningFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.car.CarNotConnectedException;
     method public void registerFocusListener(android.car.CarAppFocusManager.AppFocusChangeListener, int) throws android.car.CarNotConnectedException;
     method public int requestAppFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.car.CarNotConnectedException, java.lang.SecurityException;

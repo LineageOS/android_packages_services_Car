@@ -181,6 +181,7 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * Returns application types currently active in the system.
      * @throws CarNotConnectedException
+     * @hide
      */
     public int[] getActiveAppTypes() throws CarNotConnectedException {
         try {
@@ -193,7 +194,7 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * Checks if listener is associated with active a focus
      * @param listener
-     * @param focus
+     * @param appType
      * @throws CarNotConnectedException
      */
     public boolean isOwningFocus(AppFocusOwnershipChangeListener listener, int appType)
