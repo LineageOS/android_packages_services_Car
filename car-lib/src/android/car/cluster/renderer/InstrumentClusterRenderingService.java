@@ -86,8 +86,15 @@ public abstract class InstrumentClusterRenderingService extends Service {
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         writer.println("**" + getClass().getSimpleName() + "**");
         writer.println("renderer binder: " + mRendererBinder);
-        writer.println("navigation renderer: "
-                + (mRendererBinder != null ? mRendererBinder.mNavigationRenderer : null));
+        if (mRendererBinder != null) {
+            writer.println("navigation renderer: " + mRendererBinder.mNavigationRenderer);
+            String owner = "none";
+            if (mRendererBinder.mNavContextOwner != null) {
+                owner = "[uid: " + mRendererBinder.mNavContextOwner.first
+                        + ", pid: " + mRendererBinder.mNavContextOwner.second + "]";
+            }
+            writer.println("navigation focus owner: " + owner);
+        }
     }
 
     private class RendererBinder extends IInstrumentCluster.Stub {
@@ -182,7 +189,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
             int pid = getCallingPid();
 
             Pair<Integer, Integer> owner = mNavContextOwner;
-            if (owner.first != uid || owner.second != pid) {
+            if (owner == null || owner.first != uid || owner.second != pid) {
                 throw new IllegalStateException("Client (uid:" + uid + ", pid: " + pid + ") is"
                         + "not an owner of APP_CONTEXT_NAVIGATION");
             }

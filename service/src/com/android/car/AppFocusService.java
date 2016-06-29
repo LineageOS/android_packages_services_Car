@@ -182,6 +182,9 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                     Log.i(CarLog.TAG_APP_FOCUS, "abandoning focus " + appType
                             + "," + info.toString());
                 }
+                for (FocusOwnershipListener ownershipListener : mFocusOwnershipListeners) {
+                    ownershipListener.onFocusAbandoned(appType, info.mUid, info.mPid);
+                }
                 for (BinderInterfaceContainer.BinderInterface<IAppFocusListener> client :
                         mAllChangeClients.getInterfaces()) {
                     ClientInfo clientInfo = (ClientInfo) client;
@@ -248,14 +251,15 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
      * Defines callback functions that will be called when ownership has been changed.
      */
     public interface FocusOwnershipListener {
-        void onOwnershipAcquired(int context, int uid, int pid);
+        void onFocusAcquired(int appType, int uid, int pid);
+        void onFocusAbandoned(int appType, int uid, int pid);
     }
 
     /**
      * Registers listener.
      *
      * If any focus already acquired it will trigger
-     * {@link FocusOwnershipListener#onOwnershipAcquired} call immediately in the same thread.
+     * {@link FocusOwnershipListener#onFocusAcquired} call immediately in the same thread.
      */
     public void registerContextOwnerChangedListener(FocusOwnershipListener listener) {
         mFocusOwnershipListeners.add(listener);
@@ -267,7 +271,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
         for (Map.Entry<Integer, OwnershipClientInfo> entry : owners) {
             OwnershipClientInfo clientInfo = entry.getValue();
-            listener.onOwnershipAcquired(entry.getKey(), clientInfo.getUid(), clientInfo.getPid());
+            listener.onFocusAcquired(entry.getKey(), clientInfo.getUid(), clientInfo.getPid());
         }
     }
 
@@ -285,7 +289,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
         CarServiceUtils.runOnMain(() -> {
             for (FocusOwnershipListener listener : mFocusOwnershipListeners) {
-                listener.onOwnershipAcquired(appType, owner.getUid(), owner.getPid());
+                listener.onFocusAcquired(appType, owner.getUid(), owner.getPid());
             }
         });
     }
