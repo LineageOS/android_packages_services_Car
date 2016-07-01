@@ -131,14 +131,27 @@ public class InstrumentClusterService implements CarServiceBase,
     }
 
     @Override
-    public void onOwnershipAcquired(int context, int uid, int pid) {
-        if (context != CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION) {
+    public void onFocusAcquired(int appType, int uid, int pid) {
+        if (appType != CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION) {
             return;
         }
 
         mNavContextOwner = new Pair<>(uid, pid);
 
         notifyNavContextOwnerChanged(uid, pid);
+    }
+
+    @Override
+    public void onFocusAbandoned(int appType, int uid, int pid) {
+        if (appType != CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION) {
+            return;
+        }
+
+        if (mNavContextOwner != null
+                && mNavContextOwner.first == uid
+                && mNavContextOwner.second == pid) {
+            notifyNavContextOwnerChanged(0, 0);  // Reset focus ownership
+        }
     }
 
     private void notifyNavContextOwnerChanged(int uid, int pid) {
