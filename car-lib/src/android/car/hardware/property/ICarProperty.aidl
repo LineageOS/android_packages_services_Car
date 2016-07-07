@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package android.car.hardware.hvac;
+package android.car.hardware.property;
 
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
-import android.car.hardware.hvac.ICarHvacEventListener;
+import android.car.hardware.property.ICarPropertyEventListener;
 
-/** @hide */
-interface ICarHvac {
+/**
+ * @hide
+ */
+interface ICarProperty {
 
-    void registerListener(in ICarHvacEventListener listener) = 0;
+    void registerListener(in ICarPropertyEventListener listener) = 0;
 
-    void unregisterListener(in ICarHvacEventListener listener) = 1;
+    void unregisterListener(in ICarPropertyEventListener listener) = 1;
 
-    List<CarPropertyConfig> getHvacProperties() = 2;
+    List<CarPropertyConfig> getPropertyList() = 2;
 
     CarPropertyValue getProperty(int prop, int zone) = 3;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,20 @@
  * limitations under the License.
  */
 
-package android.car.hardware.hvac;
+package android.car.hardware.property;
 
-parcelable CarHvacEvent;
+import android.car.hardware.property.CarPropertyEvent;
+
+/**
+ * Binder callback for CarPropertyEventListener.
+ * This is generated per each CarClient.
+ * @hide
+ */
+oneway interface ICarPropertyEventListener {
+    /**
+     * Called when an event is triggered in response to one of the calls (such as on tune) or
+     * asynchronously (such as on announcement).
+     */
+    void onEvent(in CarPropertyEvent event) = 0;
+}
 

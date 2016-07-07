@@ -627,8 +627,6 @@ package android.car.hardware.hvac {
     method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
     method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
     method public synchronized void unregisterListener(android.car.hardware.hvac.CarHvacManager.CarHvacEventListener) throws android.car.CarNotConnectedException;
-    field public static final boolean DBG = true;
-    field public static final java.lang.String TAG = "CarHvacManager";
   }
 
   public static abstract interface CarHvacManager.CarHvacEventListener {
