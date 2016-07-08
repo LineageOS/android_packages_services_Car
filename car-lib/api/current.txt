@@ -19,6 +19,7 @@ package android.car {
     field public static final java.lang.String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     field public static final java.lang.String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
     field public static final java.lang.String SENSOR_SERVICE = "sensor";
+    field public static final int VERSION = 1; // 0x1
   }
 
   public final class CarAppFocusManager {

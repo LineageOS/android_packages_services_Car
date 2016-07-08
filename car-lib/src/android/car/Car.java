@@ -52,6 +52,11 @@ import java.util.HashMap;
  */
 public class Car {
 
+    /**
+     * Represent the version of Car API.
+     */
+    public static final int VERSION = 1;
+
     /** Service name for {@link CarSensorManager}, to be used in {@link #getCarManager(String)}. */
     public static final String SENSOR_SERVICE = "sensor";
 
