@@ -55,10 +55,10 @@ public class CarHvacManager implements CarManagerBase {
             HvacPropertyId.MIRROR_DEFROSTER_ON,
             HvacPropertyId.STEERING_WHEEL_TEMP,
             HvacPropertyId.OUTSIDE_AIR_TEMP,
+            HvacPropertyId.TEMPERATURE_UNITS,
             HvacPropertyId.MAX_GLOBAL_PROPERTY_ID,
             HvacPropertyId.ZONED_TEMP_SETPOINT,
             HvacPropertyId.ZONED_TEMP_ACTUAL,
-            HvacPropertyId.ZONED_TEMP_IS_FAHRENHEIT,
             HvacPropertyId.ZONED_FAN_SPEED_SETPOINT,
             HvacPropertyId.ZONED_FAN_SPEED_RPM,
             HvacPropertyId.ZONED_FAN_POSITION_AVAILABLE,
@@ -70,6 +70,7 @@ public class CarHvacManager implements CarManagerBase {
             HvacPropertyId.ZONED_MAX_AC_ON,
             HvacPropertyId.ZONED_DUAL_ZONE_ON,
             HvacPropertyId.ZONED_MAX_DEFROST_ON,
+            HvacPropertyId.ZONED_HVAC_POWER_ON,
             HvacPropertyId.WINDOW_DEFROSTER_ON,
     })
     public @interface HvacPropertyId {
@@ -84,6 +85,12 @@ public class CarHvacManager implements CarManagerBase {
         int STEERING_WHEEL_TEMP = 0x0002;
         /** Outside air temperature, float. */
         int OUTSIDE_AIR_TEMP = 0x0003;
+        /** Temperature units being used, int
+         *  0x30 = Celsius
+         *  0x31 = Fahrenheit
+         */
+        int TEMPERATURE_UNITS = 0x0004;
+
 
         /** The maximum id that can be assigned to global (non-zoned) property. */
         int MAX_GLOBAL_PROPERTY_ID = 0x3fff;
@@ -92,13 +99,18 @@ public class CarHvacManager implements CarManagerBase {
          * ZONED_* represents properties available on a per-zone basis.  All zones in a car are
          * not required to have the same properties.  Zone specific properties start at 0x4000.
          */
-        /** Temperature setpoint desired by the user, in terms of F or C, depending on
-         * TEMP_IS_FAHRENHEIT, int */
+        /** Temperature setpoint desired by the user, int
+         *  Temperature units are determined by TEMPERTURE_UNITS property
+         */
         int ZONED_TEMP_SETPOINT = 0x4001;
         /** Actual zone temperature is read only integer, in terms of F or C, int. */
         int ZONED_TEMP_ACTUAL = 0x4002;
-        /** Temperature is in degrees fahrenheit if this is true, bool. */
-        int ZONED_TEMP_IS_FAHRENHEIT = 0x4003;
+        /** HVAC system powered on / off, bool
+         *  In many vehicles, if the HVAC system is powered off, the SET and GET command will
+         *  throw an IllegalStateException.  To correct this, need to turn on the HVAC module first
+         *  before manipulating a parameter.
+         */
+        int ZONED_HVAC_POWER_ON = 0x4003;
         /** Fan speed setpoint is an integer from 0-n, depending on the number of fan speeds
          * available. Selection determines the fan position, int. */
         int ZONED_FAN_SPEED_SETPOINT = 0x4004;

@@ -61,23 +61,21 @@ public class CarHvacManagerTest extends CarApiTestBase {
                 assertTrue(property.isGlobalProperty());
                 break;
             case HvacPropertyId.STEERING_WHEEL_TEMP: // non-zoned int
+            case HvacPropertyId.TEMPERATURE_UNITS:
                 assertEquals(Integer.class, property.getPropertyType());
                 assertTrue(property.isGlobalProperty());
                 checkIntMinMax(property);
+                break;
+            case HvacPropertyId.OUTSIDE_AIR_TEMP:
+                assertEquals(Float.class, property.getPropertyType());
+                assertTrue(property.isGlobalProperty());
+                checkFloatMinMax(property);
                 break;
             case HvacPropertyId.ZONED_TEMP_SETPOINT: // zoned float
             case HvacPropertyId.ZONED_TEMP_ACTUAL:
                 assertEquals(Float.class, property.getPropertyType());
                 assertFalse(property.isGlobalProperty());
                 checkFloatMinMax(property);
-                break;
-            case HvacPropertyId.ZONED_TEMP_IS_FAHRENHEIT: // zoned boolean
-            case HvacPropertyId.ZONED_AC_ON:
-            case HvacPropertyId.WINDOW_DEFROSTER_ON:
-            case HvacPropertyId.ZONED_AUTOMATIC_MODE_ON:
-            case HvacPropertyId.ZONED_AIR_RECIRCULATION_ON:
-                assertEquals(Boolean.class, property.getPropertyType());
-                assertFalse(property.isGlobalProperty());
                 break;
             case HvacPropertyId.ZONED_FAN_SPEED_SETPOINT: // zoned int
             case HvacPropertyId.ZONED_FAN_SPEED_RPM:
@@ -87,6 +85,17 @@ public class CarHvacManagerTest extends CarApiTestBase {
                 assertEquals(Integer.class, property.getPropertyType());
                 assertFalse(property.isGlobalProperty());
                 checkIntMinMax(property);
+                break;
+            case HvacPropertyId.ZONED_AC_ON: // zoned boolean
+            case HvacPropertyId.ZONED_AUTOMATIC_MODE_ON:
+            case HvacPropertyId.ZONED_AIR_RECIRCULATION_ON:
+            case HvacPropertyId.ZONED_MAX_AC_ON:
+            case HvacPropertyId.ZONED_DUAL_ZONE_ON:
+            case HvacPropertyId.ZONED_MAX_DEFROST_ON:
+            case HvacPropertyId.ZONED_HVAC_POWER_ON:
+            case HvacPropertyId.WINDOW_DEFROSTER_ON:
+                assertEquals(Boolean.class, property.getPropertyType());
+                assertFalse(property.isGlobalProperty());
                 break;
         }
     }

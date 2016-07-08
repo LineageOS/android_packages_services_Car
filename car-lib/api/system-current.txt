@@ -639,6 +639,7 @@ package android.car.hardware.hvac {
     field public static final int MIRROR_DEFROSTER_ON = 1; // 0x1
     field public static final int OUTSIDE_AIR_TEMP = 3; // 0x3
     field public static final int STEERING_WHEEL_TEMP = 2; // 0x2
+    field public static final int TEMPERATURE_UNITS = 4; // 0x4
     field public static final int WINDOW_DEFROSTER_ON = 20481; // 0x5001
     field public static final int ZONED_AC_ON = 16393; // 0x4009
     field public static final int ZONED_AIR_RECIRCULATION_ON = 16395; // 0x400b
@@ -648,11 +649,11 @@ package android.car.hardware.hvac {
     field public static final int ZONED_FAN_POSITION_AVAILABLE = 16390; // 0x4006
     field public static final int ZONED_FAN_SPEED_RPM = 16389; // 0x4005
     field public static final int ZONED_FAN_SPEED_SETPOINT = 16388; // 0x4004
+    field public static final int ZONED_HVAC_POWER_ON = 16387; // 0x4003
     field public static final int ZONED_MAX_AC_ON = 16396; // 0x400c
     field public static final int ZONED_MAX_DEFROST_ON = 16398; // 0x400e
     field public static final int ZONED_SEAT_TEMP = 16392; // 0x4008
     field public static final int ZONED_TEMP_ACTUAL = 16386; // 0x4002
-    field public static final int ZONED_TEMP_IS_FAHRENHEIT = 16387; // 0x4003
     field public static final int ZONED_TEMP_SETPOINT = 16385; // 0x4001
   }
 

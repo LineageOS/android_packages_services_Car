@@ -31,18 +31,28 @@ public class HvacHalService extends PropertyHalServiceBase {
     @Override
     protected int managerToHalPropId(int hvacPropId) {
         switch (hvacPropId) {
-            case HvacPropertyId.ZONED_FAN_SPEED_SETPOINT:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_SPEED;
-            case HvacPropertyId.ZONED_FAN_POSITION:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION;
+            case HvacPropertyId.MIRROR_DEFROSTER_ON:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_SIDE_MIRROR_HEAT;
+            case HvacPropertyId.STEERING_WHEEL_TEMP:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_STEERING_WHEEL_TEMP;
             case HvacPropertyId.OUTSIDE_AIR_TEMP:
                 return VehicleNetworkConsts.VEHICLE_PROPERTY_ENV_OUTSIDE_TEMPERATURE;
-            case HvacPropertyId.ZONED_TEMP_ACTUAL:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_CURRENT;
+            case HvacPropertyId.TEMPERATURE_UNITS:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_UNITS;
             case HvacPropertyId.ZONED_TEMP_SETPOINT:
                 return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET;
-            case HvacPropertyId.WINDOW_DEFROSTER_ON:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DEFROSTER;
+            case HvacPropertyId.ZONED_TEMP_ACTUAL:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_CURRENT;
+            case HvacPropertyId.ZONED_FAN_SPEED_SETPOINT:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_SPEED;
+            case HvacPropertyId.ZONED_FAN_SPEED_RPM:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_ACTUAL_FAN_SPEED_RPM;
+            case HvacPropertyId.ZONED_FAN_POSITION_AVAILABLE:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION_AVAILABLE;
+            case HvacPropertyId.ZONED_FAN_POSITION:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION;
+            case HvacPropertyId.ZONED_SEAT_TEMP:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_SEAT_TEMPERATURE;
             case HvacPropertyId.ZONED_AC_ON:
                 return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AC_ON;
             case HvacPropertyId.ZONED_AUTOMATIC_MODE_ON:
@@ -55,6 +65,10 @@ public class HvacHalService extends PropertyHalServiceBase {
                 return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DUAL_ON;
             case HvacPropertyId.ZONED_MAX_DEFROST_ON:
                 return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_DEFROST_ON;
+            case HvacPropertyId.ZONED_HVAC_POWER_ON:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_POWER_ON;
+            case HvacPropertyId.WINDOW_DEFROSTER_ON:
+                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DEFROSTER;
             default:
                 throw new IllegalArgumentException("hvacPropId " + hvacPropId + " not supported");
         }
@@ -64,18 +78,28 @@ public class HvacHalService extends PropertyHalServiceBase {
     @Override
     protected int halToManagerPropId(int halPropId) {
         switch (halPropId) {
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_SPEED:
-                return HvacPropertyId.ZONED_FAN_SPEED_SETPOINT;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION:
-                return HvacPropertyId.ZONED_FAN_POSITION;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_SIDE_MIRROR_HEAT:
+                return HvacPropertyId.MIRROR_DEFROSTER_ON;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_STEERING_WHEEL_TEMP:
+                return HvacPropertyId.STEERING_WHEEL_TEMP;
             case VehicleNetworkConsts.VEHICLE_PROPERTY_ENV_OUTSIDE_TEMPERATURE:
                 return HvacPropertyId.OUTSIDE_AIR_TEMP;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_CURRENT:
-                return HvacPropertyId.ZONED_TEMP_ACTUAL;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_UNITS:
+                return HvacPropertyId.TEMPERATURE_UNITS;
             case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET:
                 return HvacPropertyId.ZONED_TEMP_SETPOINT;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DEFROSTER:
-                return HvacPropertyId.WINDOW_DEFROSTER_ON;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_CURRENT:
+                return HvacPropertyId.ZONED_TEMP_ACTUAL;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_SPEED:
+                return HvacPropertyId.ZONED_FAN_SPEED_SETPOINT;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_ACTUAL_FAN_SPEED_RPM:
+                return HvacPropertyId.ZONED_FAN_SPEED_RPM;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION_AVAILABLE:
+                return HvacPropertyId.ZONED_FAN_POSITION_AVAILABLE;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION:
+                return HvacPropertyId.ZONED_FAN_POSITION;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_SEAT_TEMPERATURE:
+                return HvacPropertyId.ZONED_SEAT_TEMP;
             case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AC_ON:
                 return HvacPropertyId.ZONED_AC_ON;
             case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AUTO_ON:
@@ -88,6 +112,10 @@ public class HvacHalService extends PropertyHalServiceBase {
                 return HvacPropertyId.ZONED_DUAL_ZONE_ON;
             case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_DEFROST_ON:
                 return HvacPropertyId.ZONED_MAX_DEFROST_ON;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_POWER_ON:
+                return HvacPropertyId.ZONED_HVAC_POWER_ON;
+            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DEFROSTER:
+                return HvacPropertyId.WINDOW_DEFROSTER_ON;
             default:
                 throw new IllegalArgumentException("halPropId " + halPropId + " not supported");
         }
