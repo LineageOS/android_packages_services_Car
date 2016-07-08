@@ -453,6 +453,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 }
             }
         }
+        writer.println("** Dump CarVolumeService**");
+        mVolumeService.dump(writer);
     }
 
     @Override

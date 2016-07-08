@@ -36,6 +36,7 @@ import com.android.car.CarVolumeService.CarVolumeController;
 import com.android.car.hal.AudioHalService;
 import com.android.internal.annotations.GuardedBy;
 
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -134,6 +135,12 @@ public class CarVolumeControllerFactory {
             }
             handleVolumeKeyDefault(event);
             return true;
+        }
+
+        @Override
+        public void dump(PrintWriter writer) {
+            writer.println("Volume controller:" + SimpleCarVolumeController.class.getSimpleName());
+            // nothing else to dump
         }
 
         private void handleVolumeKeyDefault(KeyEvent event) {
@@ -556,6 +563,33 @@ public class CarVolumeControllerFactory {
                             + " to: "+ currentVolume);
                 }
                 updateHalVolumeLocked(carStreamNumber, currentVolume);
+            }
+        }
+
+        @Override
+        public void dump(PrintWriter writer) {
+            writer.println("Volume controller:" +
+                    CarExternalVolumeController.class.getSimpleName());
+            synchronized (this) {
+                writer.println("mSupportedAudioContext:0x" +
+                        Integer.toHexString(mSupportedAudioContext) +
+                        ",mHasExternalMemory:" + mHasExternalMemory +
+                        ",mMasterVolumeOnly:" + mMasterVolumeOnly);
+                writer.println("mCurrentContext:0x" + Integer.toHexString(mCurrentContext));
+                writer.println("mCurrentCarContextVolume:");
+                dumpVolumes(writer, mCurrentCarContextVolume);
+                writer.println("mCarContextVolumeMax:");
+                dumpVolumes(writer, mCarContextVolumeMax);
+                writer.println("mCarContextVolumeMin:");
+                dumpVolumes(writer, mCarContextVolumeMin);
+                writer.println("Number of volume controllers:" +
+                        mVolumeControllers.getRegisteredCallbackCount());
+            }
+        }
+
+        private void dumpVolumes(PrintWriter writer, SparseArray<Integer> array) {
+            for (int i = 0; i < array.size(); i++) {
+                writer.println("0x" + Integer.toHexString(array.keyAt(i)) + ":" + array.valueAt(i));
             }
         }
     }
