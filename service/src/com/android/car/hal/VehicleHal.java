@@ -85,6 +85,7 @@ public class VehicleHal implements VehicleNetworkListener {
     private final SensorHalService mSensorHal;
     private final InfoHalService mInfoHal;
     private final AudioHalService mAudioHal;
+    private final CabinHalService mCabinHal;
     private final RadioHalService mRadioHal;
     private final PowerHalService mPowerHal;
     private final HvacHalService mHvacHal;
@@ -108,12 +109,14 @@ public class VehicleHal implements VehicleNetworkListener {
         mSensorHal = new SensorHalService(this);
         mInfoHal = new InfoHalService(this);
         mAudioHal = new AudioHalService(this);
+        mCabinHal = new CabinHalService(this);
         mRadioHal = new RadioHalService(this);
         mHvacHal = new HvacHalService(this);
         mInputHal = new InputHalService();
         mAllServices = new HalServiceBase[] {
                 mPowerHal,
                 mAudioHal,
+                mCabinHal,
                 mHvacHal,
                 mInfoHal,
                 mSensorHal,
@@ -126,13 +129,14 @@ public class VehicleHal implements VehicleNetworkListener {
     /** Dummy version only for testing */
     @VisibleForTesting
     public VehicleHal(PowerHalService powerHal, SensorHalService sensorHal, InfoHalService infoHal,
-            AudioHalService audioHal, RadioHalService radioHal, HvacHalService hvacHal,
-            VehicleNetwork vehicleNetwork) {
+            AudioHalService audioHal, CabinHalService cabinHal, RadioHalService radioHal,
+            HvacHalService hvacHal, VehicleNetwork vehicleNetwork) {
         mHandlerThread = null;
         mPowerHal = powerHal;
         mSensorHal = sensorHal;
         mInfoHal = infoHal;
         mAudioHal = audioHal;
+        mCabinHal = cabinHal;
         mRadioHal = radioHal;
         mHvacHal = hvacHal;
         mInputHal = null;
@@ -195,6 +199,10 @@ public class VehicleHal implements VehicleNetworkListener {
 
     public AudioHalService getAudioHal() {
         return mAudioHal;
+    }
+
+    public CabinHalService getCabinHal() {
+        return mCabinHal;
     }
 
     public RadioHalService getRadioHal() {

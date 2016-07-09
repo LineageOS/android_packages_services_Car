@@ -21,6 +21,7 @@ import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.content.pm.CarPackageManager;
 import android.car.hardware.CarSensorManager;
+import android.car.hardware.cabin.CarCabinManager;
 import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.radio.CarRadioManager;
@@ -76,6 +77,12 @@ public class Car {
      * @hide
      */
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    public static final String CABIN_SERVICE = "cabin";
 
     /**
      * @hide
@@ -145,6 +152,13 @@ public class Car {
     @SystemApi
     public static final String PERMISSION_CONTROL_APP_BLOCKING =
             "android.car.permission.CONTROL_APP_BLOCKING";
+
+    /**
+     * Permission necessary to access Car Cabin APIs.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CAR_CABIN = "android.car.permission.CAR_CABIN";
 
     /**
      * Permission necessary to access Car Camera APIs.
@@ -497,6 +511,9 @@ public class Car {
                 break;
             case CAR_NAVIGATION_SERVICE:
                 manager = new CarNavigationManager(binder);
+                break;
+            case CABIN_SERVICE:
+                manager = new CarCabinManager(binder, mContext, mLooper);
                 break;
             case CAMERA_SERVICE:
                 manager = new CarCameraManager(binder, mContext);

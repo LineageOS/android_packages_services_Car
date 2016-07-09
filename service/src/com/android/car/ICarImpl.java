@@ -56,6 +56,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarInfoService mCarInfoService;
     private final CarAudioService mCarAudioService;
     private final CarProjectionService mCarProjectionService;
+    private final CarCabinService mCarCabinService;
     private final CarCameraService mCarCameraService;
     private final CarHvacService mCarHvacService;
     private final CarRadioService mCarRadioService;
@@ -100,6 +101,7 @@ public class ICarImpl extends ICar.Stub {
         mCarInfoService = new CarInfoService(serviceContext);
         mAppFocusService = new AppFocusService(serviceContext, mSystemActivityMonitoringService);
         mCarAudioService = new CarAudioService(serviceContext, mCarInputService);
+        mCarCabinService = new CarCabinService(serviceContext);
         mCarHvacService = new CarHvacService(serviceContext);
         mCarRadioService = new CarRadioService(serviceContext);
         mCarCameraService = new CarCameraService(serviceContext);
@@ -120,6 +122,7 @@ public class ICarImpl extends ICar.Stub {
                 mCarInfoService,
                 mAppFocusService,
                 mCarAudioService,
+                mCarCabinService,
                 mCarHvacService,
                 mCarRadioService,
                 mCarCameraService,
@@ -179,6 +182,9 @@ public class ICarImpl extends ICar.Stub {
                 return mAppFocusService;
             case Car.PACKAGE_SERVICE:
                 return mCarPackageManagerService;
+            case Car.CABIN_SERVICE:
+                assertCabinPermission(mContext);
+                return mCarCabinService;
             case Car.CAMERA_SERVICE:
                 assertCameraPermission(mContext);
                 return mCarCameraService;
@@ -246,6 +252,10 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertVehicleHalMockPermission(Context context) {
         assertPermission(context, Car.PERMISSION_MOCK_VEHICLE_HAL);
+    }
+
+    public static void assertCabinPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_CABIN);
     }
 
     public static void assertCameraPermission(Context context) {

@@ -11,11 +11,13 @@ package android.car {
     method public boolean isConnecting();
     field public static final java.lang.String APP_FOCUS_SERVICE = "app_focus";
     field public static final java.lang.String AUDIO_SERVICE = "audio";
+    field public static final java.lang.String CABIN_SERVICE = "cabin";
     field public static final java.lang.String CAMERA_SERVICE = "camera";
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
     field public static final java.lang.String HVAC_SERVICE = "hvac";
     field public static final java.lang.String INFO_SERVICE = "info";
     field public static final java.lang.String PACKAGE_SERVICE = "package";
+    field public static final java.lang.String PERMISSION_CAR_CABIN = "android.car.permission.CAR_CABIN";
     field public static final java.lang.String PERMISSION_CAR_CAMERA = "android.car.permission.CAR_CAMERA";
     field public static final java.lang.String PERMISSION_CAR_CONTROL_AUDIO_VOLUME = "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
     field public static final java.lang.String PERMISSION_CAR_HVAC = "android.car.permission.CAR_HVAC";
@@ -114,6 +116,13 @@ package android.car {
     field public static final int DOOR_ROW_2_RIGHT = 64; // 0x40
     field public static final int DOOR_ROW_3_LEFT = 256; // 0x100
     field public static final int DOOR_ROW_3_RIGHT = 1024; // 0x400
+  }
+
+  public class VehicleMirror {
+    ctor public VehicleMirror();
+    field public static final int MIRROR_DRIVER_CENTER = 4; // 0x4
+    field public static final int MIRROR_DRIVER_LEFT = 1; // 0x1
+    field public static final int MIRROR_DRIVER_RIGHT = 2; // 0x2
   }
 
   public class VehicleSeat {
@@ -556,6 +565,72 @@ package android.car.hardware {
 
   public static abstract interface CarSensorManager.CarSensorEventListener {
     method public abstract void onSensorChanged(android.car.hardware.CarSensorEvent);
+  }
+
+}
+
+package android.car.hardware.cabin {
+
+  public class CarCabinManager {
+    method public boolean getBooleanProperty(int, int) throws android.car.CarNotConnectedException;
+    method public float getFloatProperty(int, int) throws android.car.CarNotConnectedException;
+    method public int getIntProperty(int, int) throws android.car.CarNotConnectedException;
+    method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList() throws android.car.CarNotConnectedException;
+    method public static boolean isZonedProperty(int);
+    method public synchronized void registerListener(android.car.hardware.cabin.CarCabinManager.CarCabinEventListener) throws android.car.CarNotConnectedException;
+    method public void setBooleanProperty(int, int, boolean) throws android.car.CarNotConnectedException;
+    method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
+    method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
+    method public synchronized void unregisterListener(android.car.hardware.cabin.CarCabinManager.CarCabinEventListener) throws android.car.CarNotConnectedException;
+  }
+
+  public static abstract class CarCabinManager.CabinPropertyId implements java.lang.annotation.Annotation {
+    field public static final int DOOR_LOCK = 3; // 0x3
+    field public static final int DOOR_MOVE = 2; // 0x2
+    field public static final int DOOR_POS = 1; // 0x1
+    field public static final int MIRROR_FOLD = 4102; // 0x1006
+    field public static final int MIRROR_LOCK = 4101; // 0x1005
+    field public static final int MIRROR_Y_MOVE = 4100; // 0x1004
+    field public static final int MIRROR_Y_POS = 4099; // 0x1003
+    field public static final int MIRROR_Z_MOVE = 4098; // 0x1002
+    field public static final int MIRROR_Z_POS = 4097; // 0x1001
+    field public static final int SEAT_BACKREST_ANGLE_1_MOVE = 8201; // 0x2009
+    field public static final int SEAT_BACKREST_ANGLE_1_POS = 8200; // 0x2008
+    field public static final int SEAT_BACKREST_ANGLE_2_MOVE = 8203; // 0x200b
+    field public static final int SEAT_BACKREST_ANGLE_2_POS = 8202; // 0x200a
+    field public static final int SEAT_BELT_BUCKLED = 8195; // 0x2003
+    field public static final int SEAT_BELT_HEIGHT_MOVE = 8197; // 0x2005
+    field public static final int SEAT_BELT_HEIGHT_POS = 8196; // 0x2004
+    field public static final int SEAT_DEPTH_MOVE = 8207; // 0x200f
+    field public static final int SEAT_DEPTH_POS = 8206; // 0x200e
+    field public static final int SEAT_FORE_AFT_MOVE = 8199; // 0x2007
+    field public static final int SEAT_FORE_AFT_POS = 8198; // 0x2006
+    field public static final int SEAT_HEADREST_ANGLE_MOVE = 8217; // 0x2019
+    field public static final int SEAT_HEADREST_ANGLE_POS = 8216; // 0x2018
+    field public static final int SEAT_HEADREST_FORE_AFT_MOVE = 8219; // 0x201b
+    field public static final int SEAT_HEADREST_FORE_AFT_POS = 8218; // 0x201a
+    field public static final int SEAT_HEADREST_HEIGHT_MOVE = 8215; // 0x2017
+    field public static final int SEAT_HEADREST_HEIGHT_POS = 8214; // 0x2016
+    field public static final int SEAT_HEIGHT_MOVE = 8205; // 0x200d
+    field public static final int SEAT_HEIGHT_POS = 8204; // 0x200c
+    field public static final int SEAT_LUMBAR_FORE_AFT_MOVE = 8211; // 0x2013
+    field public static final int SEAT_LUMBAR_FORE_AFT_POS = 8210; // 0x2012
+    field public static final int SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 8213; // 0x2015
+    field public static final int SEAT_LUMBAR_SIDE_SUPPORT_POS = 8212; // 0x2014
+    field public static final int SEAT_MEMORY_SELECT = 8193; // 0x2001
+    field public static final int SEAT_MEMORY_SET = 8194; // 0x2002
+    field public static final int SEAT_TILT_MOVE = 8209; // 0x2011
+    field public static final int SEAT_TILT_POS = 8208; // 0x2010
+    field public static final int WINDOW_LOCK = 12293; // 0x3005
+    field public static final int WINDOW_MOVE = 12290; // 0x3002
+    field public static final int WINDOW_POS = 12289; // 0x3001
+    field public static final int WINDOW_VENT_MOVE = 12292; // 0x3004
+    field public static final int WINDOW_VENT_POS = 12291; // 0x3003
+  }
+
+  public static abstract interface CarCabinManager.CarCabinEventListener {
+    method public abstract void onChangeEvent(android.car.hardware.CarPropertyValue);
+    method public abstract void onErrorEvent(int, int);
   }
 
 }
