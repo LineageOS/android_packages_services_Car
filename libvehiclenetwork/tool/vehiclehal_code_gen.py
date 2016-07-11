@@ -50,9 +50,10 @@ JAVA_TRAIL = \
 }
 """
 
-RE_PROPERTY_PATTERN = r'/\*\*(.*?)\*/\n\#define\s+VEHICLE_PROPERTY_(\S+)\s+(\S+)'
+RE_PROPERTY_PATTERN = r'/\*\*(.*?)\*/\n\#define\s+VEHICLE_PROPERTY_(\S+)\s+(\(0x\S+\))'
 RE_ENUM_PATTERN = r'enum\s+(\S+)\s+\{\S*(.*?)\}'
 RE_ENUM_ENTRY_PATTERN = r'(\S+)\s*=\s*(.*?)[,\n]'
+RE_AUDIO_EXT_ROUTING_PATTERN = r'\n\#define\s+VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_SOURCE_(\S+)\s+\"(\S+)\"'
 
 class PropertyInfo(object):
   def __init__(self, value, name):
@@ -188,6 +189,10 @@ def printEnums(enums):
   for e in enums:
     printEnum(e)
 
+def printExtAudioRoutingSources(audio_ext_routing):
+  for r in audio_ext_routing:
+    print "public static final String VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_SOURCE_" + r + ' = "' + r + '";'
+
 def main(argv):
   vehicle_h_path = os.path.dirname(os.path.abspath(__file__)) + "/../../../../../hardware/libhardware/include/hardware/vehicle.h"
   #print vehicle_h_path
@@ -245,10 +250,26 @@ def main(argv):
     enums.append(info)
   #for e in enums:
   #  print e
+
+  audio_ext_routing = []
+  audio_ext_routing_re = re.compile(RE_AUDIO_EXT_ROUTING_PATTERN, re.MULTILINE | re.DOTALL)
+  for match in audio_ext_routing_re.finditer(text):
+    #print match
+    name = match.group(1)
+    value = match.group(2)
+    if name != value:
+      print "Warning, AUDIO_EXT_ROUTING_SOURCE_" + name + " does not match " + value
+    else:
+      audio_ext_routing.append(name)
+
   print JAVA_HEADER
   printProperties(props)
+  print "\n\n"
+  printExtAudioRoutingSources(audio_ext_routing)
+  print "\n\n"
   printEnums(enums)
   print JAVA_TRAIL
+
 if __name__ == '__main__':
   main(sys.argv)
 

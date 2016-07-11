@@ -202,6 +202,7 @@ public class VehicleHalEmulator {
                 switch (property) {
                     case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME:
                     case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS:
+                    case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_HINT:
                     case VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_STATE:
                     case VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_BOOTUP_REASON:
                         continue;

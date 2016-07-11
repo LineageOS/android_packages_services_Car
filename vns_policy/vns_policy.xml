@@ -130,11 +130,11 @@
     <UID name="AID_AUDIOSERVER" access="r" value="1041"/>
   </PROPERTY>
 
-  <PROPERTY name="VEHICLE_PROPERTY_AUDIO_VOLUME" value = "0x00000901">
+  <PROPERTY name="VEHICLE_PROPERTY_AUDIO_VOLUME" value = "0x00000901" no_auto_get="true">
     <UID name="AID_SYSTEM" access="rw" value="1000"/>
   </PROPERTY>
 
-  <PROPERTY name="VEHICLE_PROPERTY_AUDIO_VOLUME_LIMIT" value = "0x00000902">
+  <PROPERTY name="VEHICLE_PROPERTY_AUDIO_VOLUME_LIMIT" value = "0x00000902" no_auto_get="true">
     <UID name="AID_SYSTEM" access="rw" value="1000"/>
   </PROPERTY>
 
@@ -144,6 +144,10 @@
 
   <PROPERTY name="VEHICLE_PROPERTY_AUDIO_HW_VARIANT" value = "0x00000904">
     <UID name="AID_SYSTEM" access="r" value="1000"/>
+  </PROPERTY>
+
+  <PROPERTY name="VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_HINT" value = "0x00000905">
+    <UID name="AID_SYSTEM" access="rw" value="1000"/>
   </PROPERTY>
 
   <PROPERTY name="VEHICLE_PROPERTY_AP_POWER_STATE" value = "0x00000A00">

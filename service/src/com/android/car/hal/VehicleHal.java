@@ -247,9 +247,9 @@ public class VehicleHal implements VehicleNetworkListener {
     }
 
     public static boolean isPropertySubscribable(VehiclePropConfig config) {
-        if (config.hasAccess() & VehiclePropAccess.VEHICLE_PROP_ACCESS_READ == 0 ||
-                config.getChangeMode() ==
-                VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_STATIC) {
+        if ((config.getAccess() & VehiclePropAccess.VEHICLE_PROP_ACCESS_READ) == 0 ||
+                (config.getChangeMode() ==
+                VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_STATIC)) {
             return false;
         }
         return true;

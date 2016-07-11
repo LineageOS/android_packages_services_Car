@@ -16,17 +16,17 @@
 
 package android.support.car;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.car.content.pm.CarPackageManager;
 import android.support.car.hardware.CarSensorManager;
-import android.support.car.navigation.CarNavigationManager;
+import android.support.car.navigation.CarNavigationStatusManager;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -49,8 +49,8 @@ public class Car {
     /** Service name for {@link CarInfoManager}, to be used in {@link #getCarManager(String)}. */
     public static final String INFO_SERVICE = "info";
 
-    /** Service name for {@link CarAppContextManager}. */
-    public static final String APP_CONTEXT_SERVICE = "app_context";
+    /** Service name for {@link CarAppFocusManager}. */
+    public static final String APP_FOCUS_SERVICE = "app_focus";
 
     /** Service name for {@link CarPackageManager} */
     public static final String PACKAGE_SERVICE = "package";
@@ -58,7 +58,7 @@ public class Car {
     /** Service name for {@link CarAudioManager} */
     public static final String AUDIO_SERVICE = "audio";
     /**
-     * Service name for {@link CarNavigationManager}
+     * Service name for {@link CarNavigationStatusManager}
      * @hide
      */
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";

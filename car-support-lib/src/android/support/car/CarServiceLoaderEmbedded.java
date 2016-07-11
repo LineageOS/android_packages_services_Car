@@ -26,7 +26,7 @@ import android.os.Message;
 import android.support.car.content.pm.CarPackageManagerEmbedded;
 import android.support.car.hardware.CarSensorManagerEmbedded;
 import android.support.car.media.CarAudioManagerEmbedded;
-import android.support.car.navigation.CarNavigationManagerEmbedded;
+import android.support.car.navigation.CarNavigationStatusManagerEmbedded;
 
 import java.util.LinkedList;
 
@@ -121,12 +121,16 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
                 return new CarSensorManagerEmbedded(manager, getContext());
             case Car.INFO_SERVICE:
                 return new CarInfoManagerEmbedded(manager);
-            case Car.APP_CONTEXT_SERVICE:
-                return new CarAppContextManagerEmbedded(manager);
+            case Car.APP_FOCUS_SERVICE:
+                return new CarAppFocusManagerEmbedded(manager);
             case Car.PACKAGE_SERVICE:
                 return new CarPackageManagerEmbedded(manager);
             case Car.CAR_NAVIGATION_SERVICE:
-                return new CarNavigationManagerEmbedded(manager);
+                try {
+                    return new CarNavigationStatusManagerEmbedded(manager);
+                } catch (CarNotSupportedException e) {
+                    return null;
+                }
             default:
                 return manager;
         }

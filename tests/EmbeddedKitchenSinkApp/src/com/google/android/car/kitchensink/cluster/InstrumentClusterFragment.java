@@ -16,13 +16,17 @@
 package com.google.android.car.kitchensink.cluster;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.car.CarAppContextManager;
-import android.support.car.CarAppContextManager.AppContextChangeListener;
-import android.support.car.CarAppContextManager.AppContextOwnershipChangeListener;
+import android.support.car.Car;
+import android.support.car.CarAppFocusManager;
+import android.support.car.CarAppFocusManager.AppFocusChangeListener;
+import android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener;
 import android.support.car.CarNotConnectedException;
-import android.support.car.navigation.CarNavigationManager;
+import android.support.car.CarNotSupportedException;
+import android.support.car.ServiceConnectionListener;
+import android.support.car.navigation.CarNavigationStatusManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,15 +41,51 @@ import com.google.android.car.kitchensink.R;
 public class InstrumentClusterFragment extends Fragment {
     private static final String TAG = InstrumentClusterFragment.class.getSimpleName();
 
-    private CarNavigationManager mCarNavigationManager;
-    private CarAppContextManager mCarAppContextManager;
+    private CarNavigationStatusManager mCarNavigationStatusManager;
+    private CarAppFocusManager mCarAppFocusManager;
+    private Car mCarApi;
 
-    public void setCarNavigationManager(CarNavigationManager carNavigationManager) {
-        mCarNavigationManager = carNavigationManager;
-    }
+    private final ServiceConnectionListener mServiceConnectionListener =
+            new ServiceConnectionListener() {
+                @Override
+                public void onServiceConnected(ComponentName name) {
+                    Log.d(TAG, "Connected to Car Service");
+                    try {
+                        mCarNavigationStatusManager = (CarNavigationStatusManager) mCarApi.getCarManager(
+                                android.car.Car.CAR_NAVIGATION_SERVICE);
+                        mCarAppFocusManager =
+                                (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
+                    } catch (CarNotConnectedException e) {
+                        Log.e(TAG, "Car is not connected!", e);
+                    } catch (CarNotSupportedException e) {
+                        Log.e(TAG, "Car is not supported!", e);
+                    }
+                }
 
-    public void setCarAppContextManager(CarAppContextManager carAppContextManager) {
-        mCarAppContextManager = carAppContextManager;
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                    Log.d(TAG, "Disconnect from Car Service");
+                }
+
+                @Override
+                public void onServiceSuspended(int cause) {
+                    Log.d(TAG, "Car Service connection suspended");
+                }
+
+                @Override
+                public void onServiceConnectionFailed(int cause) {
+                    Log.d(TAG, "Car Service connection failed");
+                }
+            };
+
+    private void initCarApi() {
+        if (mCarApi != null && mCarApi.isConnected()) {
+            mCarApi.disconnect();
+            mCarApi = null;
+        }
+
+        mCarApi = Car.createCar(getContext(), mServiceConnectionListener);
+        mCarApi.connect();
     }
 
     @Nullable
@@ -57,62 +97,75 @@ public class InstrumentClusterFragment extends Fragment {
         view.findViewById(R.id.cluster_start_button).setOnClickListener(v -> initCluster());
         view.findViewById(R.id.cluster_turn_left_button).setOnClickListener(v -> turnLeft());
 
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return view;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        initCarApi();
+
+        super.onCreate(savedInstanceState);
     }
 
     private void turnLeft() {
         try {
-            mCarNavigationManager.sendNavigationTurnEvent(CarNavigationManager.TURN_TURN,
-                    "Huff Ave", 90, -1, null, CarNavigationManager.TURN_SIDE_LEFT);
-            mCarNavigationManager.sendNavigationTurnDistanceEvent(500, 10);
+            mCarNavigationStatusManager
+                    .sendNavigationTurnEvent(CarNavigationStatusManager.TURN_TURN, "Huff Ave", 90,
+                            -1, null, CarNavigationStatusManager.TURN_SIDE_LEFT);
+            mCarNavigationStatusManager.sendNavigationTurnDistanceEvent(500, 10, 500,
+                    CarNavigationStatusManager.DISTANCE_METERS);
         } catch (CarNotConnectedException e) {
             e.printStackTrace();
+            initCarApi();  // This might happen due to inst cluster renderer crash.
         }
     }
 
     private void initCluster() {
         try {
-            mCarAppContextManager.registerContextListener(new AppContextChangeListener() {
+            mCarAppFocusManager.registerFocusListener(new AppFocusChangeListener() {
                 @Override
-                public void onAppContextChange(int activeContexts) {
-                    Log.d(TAG, "onAppContextChange, activeContexts: " + activeContexts);
+                public void onAppFocusChange(int appType, boolean active) {
+                    Log.d(TAG, "onAppFocusChange, appType: " + appType + " active: " + active);
                 }
-            }, CarAppContextManager.APP_CONTEXT_NAVIGATION);
+            }, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to register context listener", e);
+            Log.e(TAG, "Failed to register focus listener", e);
+        }
+
+        AppFocusOwnershipChangeListener focusListener = new AppFocusOwnershipChangeListener() {
+            @Override
+            public void onAppFocusOwnershipLoss(int focus) {
+                Log.w(TAG, "onAppFocusOwnershipLoss, focus: " + focus);
+                new AlertDialog.Builder(getContext())
+                        .setTitle(getContext().getApplicationInfo().name)
+                        .setMessage(R.string.cluster_nav_app_context_loss)
+                        .show();
+            }
+        };
+        try {
+            mCarAppFocusManager.requestAppFocus(focusListener,
+                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to set active focus", e);
         }
 
         try {
-            mCarAppContextManager.setActiveContexts(new AppContextOwnershipChangeListener() {
-                @Override
-                public void onAppContextOwnershipLoss(int context) {
-                    Log.w(TAG, "onAppContextOwnershipLoss, context: " + context);
-                    new AlertDialog.Builder(getContext())
-                            .setTitle(getContext().getApplicationInfo().name)
-                            .setMessage(R.string.cluster_nav_app_context_loss)
-                            .show();
-                }
-            }, CarAppContextManager.APP_CONTEXT_NAVIGATION);
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to set active context", e);
-        }
-
-        try {
-            boolean ownsContext =
-                    mCarAppContextManager.isOwningContext(
-                            CarAppContextManager.APP_CONTEXT_NAVIGATION);
-            Log.d(TAG, "Owns APP_CONTEXT_NAVIGATION: " + ownsContext);
-            if (!ownsContext) {
-                throw new RuntimeException("Context was not acquired.");
+            boolean ownsFocus = mCarAppFocusManager.isOwningFocus(focusListener,
+                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+            Log.d(TAG, "Owns APP_FOCUS_TYPE_NAVIGATION: " + ownsFocus);
+            if (!ownsFocus) {
+                throw new RuntimeException("Focus was not acquired.");
             }
         } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to get owned context", e);
+            Log.e(TAG, "Failed to get owned focus", e);
         }
 
         try {
-            mCarNavigationManager.sendNavigationStatus(CarNavigationManager.STATUS_ACTIVE);
+            mCarNavigationStatusManager
+                    .sendNavigationStatus(CarNavigationStatusManager.STATUS_ACTIVE);
         } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to set navigation status", e);
+            Log.e(TAG, "Failed to set navigation status, reconnecting to the car", e);
+            initCarApi();  // This might happen due to inst cluster renderer crash.
         }
     }
 }

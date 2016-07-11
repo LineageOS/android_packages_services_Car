@@ -17,5 +17,10 @@
       package="android.car.cluster.loggingrenderer"
       android:versionCode="1"
       android:versionName="1.0">
-    <application android:label="@string/app_name" android:icon="@drawable/ic_launcher"/>
+    <application android:label="@string/app_name" android:icon="@drawable/ic_launcher">
+        <service android:name=".LoggingClusterRenderingService"
+                 android:exported="false"
+                 android:permission="android.car.permission.BIND_INSTRUMENT_CLUSTER_RENDERER_SERVICE"
+        />
+    </application>
 </manifest>

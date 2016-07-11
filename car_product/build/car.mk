@@ -18,7 +18,6 @@
 
 PRODUCT_PACKAGES += \
     Bluetooth \
-    BluetoothMidiService \
     bt-map-service \
     OneTimeInitializer \
     Provision \

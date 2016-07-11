@@ -34,4 +34,8 @@ interface ICarAudio {
     int getStreamVolume(int streamType) = 5;
     boolean isMediaMuted() = 6;
     boolean setMediaMute(boolean mute) = 7;
+    AudioAttributes getAudioAttributesForRadio(in String radioType) = 8;
+    AudioAttributes getAudioAttributesForExternalSource(in String externalSourceType) = 9;
+    String[] getSupportedExternalSourceTypes() = 10;
+    String[] getSupportedRadioTypes() = 11;
 }

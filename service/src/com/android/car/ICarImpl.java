@@ -18,12 +18,12 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.ICar;
+import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.android.car.cluster.CarNavigationService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
@@ -34,6 +34,8 @@ import java.io.PrintWriter;
 public class ICarImpl extends ICar.Stub {
 
     public static final String INTERNAL_INPUT_SERVICE =  "internal_input";
+    public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
+            "system_activity_monitoring";
 
     // load jni for all services here
     static {
@@ -46,6 +48,7 @@ public class ICarImpl extends ICar.Stub {
     private final Context mContext;
     private final VehicleHal mHal;
 
+    private final SystemActivityMonitoringService mSystemActivityMonitoringService;
     private final CarPowerManagementService mCarPowerManagementService;
     private final CarPackageManagerService mCarPackageManagerService;
     private final CarInputService mCarInputService;
@@ -57,9 +60,8 @@ public class ICarImpl extends ICar.Stub {
     private final CarHvacService mCarHvacService;
     private final CarRadioService mCarRadioService;
     private final CarNightService mCarNightService;
-    private final AppContextService mAppContextService;
+    private final AppFocusService mAppFocusService;
     private final GarageModeService mGarageModeService;
-    private final CarNavigationService mCarNavigationService;
     private final InstrumentClusterService mInstrumentClusterService;
     private final SystemStateControllerService mSystemStateControllerService;
 
@@ -87,34 +89,36 @@ public class ICarImpl extends ICar.Stub {
     public ICarImpl(Context serviceContext) {
         mContext = serviceContext;
         mHal = VehicleHal.getInstance();
+        mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(serviceContext);
+        mCarSensorService = new CarSensorService(serviceContext);
+        mCarPackageManagerService = new CarPackageManagerService(serviceContext, mCarSensorService,
+                mSystemActivityMonitoringService);
         mCarInputService = new CarInputService(serviceContext);
         mCarProjectionService = new CarProjectionService(serviceContext, mCarInputService);
         mGarageModeService = new GarageModeService(mContext, mCarPowerManagementService);
         mCarInfoService = new CarInfoService(serviceContext);
-        mAppContextService = new AppContextService(serviceContext);
-        mCarSensorService = new CarSensorService(serviceContext);
+        mAppFocusService = new AppFocusService(serviceContext);
         mCarAudioService = new CarAudioService(serviceContext, mCarInputService);
         mCarHvacService = new CarHvacService(serviceContext);
         mCarRadioService = new CarRadioService(serviceContext);
         mCarCameraService = new CarCameraService(serviceContext);
         mCarNightService = new CarNightService(serviceContext);
-        mCarPackageManagerService = new CarPackageManagerService(serviceContext);
-        mInstrumentClusterService = new InstrumentClusterService(serviceContext);
-        mCarNavigationService = new CarNavigationService(
-                mAppContextService, mInstrumentClusterService);
+        mInstrumentClusterService = new InstrumentClusterService(serviceContext,
+                mAppFocusService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(serviceContext,
                 mCarPowerManagementService, mCarAudioService, this);
 
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
+                mSystemActivityMonitoringService,
                 mCarPowerManagementService,
+                mCarSensorService,
                 mCarPackageManagerService,
                 mCarInputService,
                 mGarageModeService,
                 mCarInfoService,
-                mAppContextService,
-                mCarSensorService,
+                mAppFocusService,
                 mCarAudioService,
                 mCarHvacService,
                 mCarRadioService,
@@ -122,7 +126,6 @@ public class ICarImpl extends ICar.Stub {
                 mCarNightService,
                 mInstrumentClusterService,
                 mCarProjectionService,
-                mCarNavigationService,
                 mSystemStateControllerService
                 };
     }
@@ -172,8 +175,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarSensorService;
             case Car.INFO_SERVICE:
                 return mCarInfoService;
-            case Car.APP_CONTEXT_SERVICE:
-                return mAppContextService;
+            case Car.APP_FOCUS_SERVICE:
+                return mAppFocusService;
             case Car.PACKAGE_SERVICE:
                 return mCarPackageManagerService;
             case Car.CAMERA_SERVICE:
@@ -187,7 +190,9 @@ public class ICarImpl extends ICar.Stub {
                 return mCarRadioService;
             case Car.CAR_NAVIGATION_SERVICE:
                 assertNavigationManagerPermission(mContext);
-                return mCarNavigationService;
+                IInstrumentClusterNavigation navService =
+                        mInstrumentClusterService.getNavigationService();
+                return navService == null ? null : navService.asBinder();
             case Car.PROJECTION_SERVICE:
                 assertProjectionPermission(mContext);
                 return mCarProjectionService;
@@ -219,6 +224,8 @@ public class ICarImpl extends ICar.Stub {
         switch (serviceName) {
             case INTERNAL_INPUT_SERVICE:
                 return mCarInputService;
+            case INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE:
+                return mSystemActivityMonitoringService;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarInternalService for unknown service:" +
                         serviceName);
@@ -238,49 +245,32 @@ public class ICarImpl extends ICar.Stub {
     }
 
     public static void assertVehicleHalMockPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(Car.PERMISSION_MOCK_VEHICLE_HAL)
-                != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException("requires CAR_MOCK_VEHICLE_HAL permission");
-        }
+        assertPermission(context, Car.PERMISSION_MOCK_VEHICLE_HAL);
     }
 
     public static void assertCameraPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException(
-                    "requires " + Car.PERMISSION_CAR_CAMERA);
-        }
+        assertPermission(context, Car.PERMISSION_CAR_CAMERA);
     }
 
     public static void assertNavigationManagerPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_NAVIGATION_MANAGER)
-                != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException(
-                    "requires " + Car.PERMISSION_CAR_NAVIGATION_MANAGER);
-        }
+        assertPermission(context, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
     }
 
     public static void assertHvacPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_HVAC)
-                != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException(
-                    "requires " + Car.PERMISSION_CAR_HVAC);
-        }
+        assertPermission(context, Car.PERMISSION_CAR_HVAC);
     }
 
     private static void assertRadioPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_RADIO)
-            != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException(
-                "requires permission " + Car.PERMISSION_CAR_RADIO);
-        }
+        assertPermission(context, Car.PERMISSION_CAR_RADIO);
     }
 
     public static void assertProjectionPermission(Context context) {
-        if (context.checkCallingOrSelfPermission(Car.PERMISSION_CAR_PROJECTION)
-                != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException(
-                    "requires " + Car.PERMISSION_CAR_PROJECTION);
+        assertPermission(context, Car.PERMISSION_CAR_PROJECTION);
+    }
+
+    public static void assertPermission(Context context, String permission) {
+        if (context.checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException("requires " + permission);
         }
     }
 

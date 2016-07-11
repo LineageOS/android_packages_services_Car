@@ -9,7 +9,7 @@ package android.car {
     method public java.lang.Object getCarManager(java.lang.String) throws android.car.CarNotConnectedException;
     method public boolean isConnected();
     method public boolean isConnecting();
-    field public static final java.lang.String APP_CONTEXT_SERVICE = "app_context";
+    field public static final java.lang.String APP_FOCUS_SERVICE = "app_focus";
     field public static final java.lang.String AUDIO_SERVICE = "audio";
     field public static final java.lang.String CAMERA_SERVICE = "camera";
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
@@ -31,6 +31,30 @@ package android.car {
     field public static final java.lang.String RADIO_SERVICE = "radio";
     field public static final java.lang.String SENSOR_SERVICE = "sensor";
     field public static final java.lang.String TEST_SERVICE = "car-service-test";
+    field public static final int VERSION = 1; // 0x1
+  }
+
+  public final class CarAppFocusManager {
+    method public void abandonAppFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.car.CarNotConnectedException;
+    method public void abandonAppFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener) throws android.car.CarNotConnectedException;
+    method public int[] getActiveAppTypes() throws android.car.CarNotConnectedException;
+    method public boolean isOwningFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.car.CarNotConnectedException;
+    method public void registerFocusListener(android.car.CarAppFocusManager.AppFocusChangeListener, int) throws android.car.CarNotConnectedException;
+    method public int requestAppFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.car.CarNotConnectedException, java.lang.SecurityException;
+    method public void unregisterFocusListener(android.car.CarAppFocusManager.AppFocusChangeListener, int) throws android.car.CarNotConnectedException;
+    method public void unregisterFocusListener(android.car.CarAppFocusManager.AppFocusChangeListener) throws android.car.CarNotConnectedException;
+    field public static final int APP_FOCUS_REQUEST_FAILED = 0; // 0x0
+    field public static final int APP_FOCUS_REQUEST_GRANTED = 1; // 0x1
+    field public static final int APP_FOCUS_TYPE_NAVIGATION = 1; // 0x1
+    field public static final int APP_FOCUS_TYPE_VOICE_COMMAND = 2; // 0x2
+  }
+
+  public static abstract interface CarAppFocusManager.AppFocusChangeListener {
+    method public abstract void onAppFocusChange(int, boolean);
+  }
+
+  public static abstract interface CarAppFocusManager.AppFocusOwnershipChangeListener {
+    method public abstract void onAppFocusOwnershipLoss(int);
   }
 
   public class CarInfoManager {
@@ -289,6 +313,13 @@ package android.car.cluster.renderer {
     method public abstract void onStop();
   }
 
+  public abstract class InstrumentClusterRenderingService extends android.app.Service {
+    ctor public InstrumentClusterRenderingService();
+    method protected abstract android.car.cluster.renderer.NavigationRenderer getNavigationRenderer();
+    method public android.os.IBinder onBind(android.content.Intent);
+    method protected void onKeyEvent(android.view.KeyEvent);
+  }
+
   public abstract class NavigationRenderer {
     ctor public NavigationRenderer();
     method public abstract android.car.navigation.CarNavigationInstrumentCluster getNavigationProperties();
@@ -337,6 +368,7 @@ package android.car.content.pm {
 
   public class CarPackageManager {
     method public boolean isActivityAllowedWhileDriving(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
+    method public boolean isActivityBackedBySafeActivity(android.content.ComponentName) throws android.car.CarNotConnectedException;
     method public boolean isServiceAllowedWhileDriving(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
     method public void setAppBlockingPolicy(java.lang.String, android.car.content.pm.CarAppBlockingPolicy, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException, java.lang.SecurityException;
     field public static final int FLAG_SET_POLICY_ADD = 2; // 0x2
@@ -596,8 +628,6 @@ package android.car.hardware.hvac {
     method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
     method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
     method public synchronized void unregisterListener(android.car.hardware.hvac.CarHvacManager.CarHvacEventListener) throws android.car.CarNotConnectedException;
-    field public static final boolean DBG = true;
-    field public static final java.lang.String TAG = "CarHvacManager";
   }
 
   public static abstract interface CarHvacManager.CarHvacEventListener {

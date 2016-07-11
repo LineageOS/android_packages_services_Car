@@ -23,6 +23,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.RequiresPermission;
 import android.support.car.CarManagerBase;
 import android.support.car.CarNotConnectedException;
+import android.support.car.CarNotSupportedException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -119,30 +120,37 @@ public abstract class CarAudioManager implements CarManagerBase {
 
     /**
      * Get minimum buffer size for {@link CarAudioRecord}.
+     *
      * @return buffer size in bytes.
      */
-    public abstract int getAudioRecordMinBufferSize();
+    public abstract int getAudioRecordMinBufferSize()
+            throws CarNotConnectedException, CarNotSupportedException;
 
     /**
      * Get maximum buffer size for {@link CarAudioRecord}.
+     *
      * @return buffer size in bytes.
      */
-    public abstract int getAudioRecordMaxBufferSize();
+    public abstract int getAudioRecordMaxBufferSize()
+            throws CarNotConnectedException, CarNotSupportedException;
 
     /**
      * Create a {@link CarAudioRecord} for the current {@link CarAudioManager}. There can be
-     * multiple instances of {@link CarAudioRecord}.
-     * This requires {@link android.Manifest.permission#RECORD_AUDIO} permission.
-     * @param bufferSize It should be a multiple of minimum buffer size acquired from
-     *        {@link #getAudioRecordMinBufferSize()}. This cannot exceed
-     *        {@link #getAudioRecordMaxBufferSize()}.
+     * multiple instances of {@link CarAudioRecord}. This requires {@link
+     * android.Manifest.permission#RECORD_AUDIO} permission.
+     *
+     * @param bufferSize It should be a multiple of minimum buffer size acquired from {@link
+     * #getAudioRecordMinBufferSize()}. This cannot exceed {@link #getAudioRecordMaxBufferSize()}.
+     *
      * @return {@link CarAudioRecord} instance for the given stream.
      * @throws IllegalArgumentException if passed parameter like bufferSize is wrong.
      * @throws SecurityException if client does not have
-     *         {@link android.Manifest.permission#RECORD_AUDIO} permission.
+     * {@link android.Manifest.permission#RECORD_AUDIO}
+     * permission.
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    public abstract CarAudioRecord createCarAudioRecord(int bufferSize) throws SecurityException;
+    public abstract CarAudioRecord createCarAudioRecord(int bufferSize)
+            throws SecurityException, CarNotConnectedException, CarNotSupportedException;
 
     /**
      * Check if media audio is muted or not. This will include music and radio. Any application

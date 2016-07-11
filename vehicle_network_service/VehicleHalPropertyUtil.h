@@ -30,13 +30,25 @@
 
 namespace android {
 
+#ifndef MIN
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#endif
+
 class VechilePropertyUtil {
 public:
     static void dumpProperty(String8& msg, const vehicle_prop_config_t& config) {
         msg.appendFormat("property 0x%x, access:0x%x, change_mode:0x%x, value_type:0x%x",
                 config.prop, config.access, config.change_mode, config.value_type);
-        msg.appendFormat(",permission:0x%x, zones:0x%x, conflg_flag:0x%x, fsmin:%f, fsmax:%f",
+        char configString[100];
+        if (config.config_string.len > 0 && config.config_string.data != NULL) {
+            int stringLen = MIN(config.config_string.len, (int32_t) sizeof(configString) - 1);
+            memcpy(configString, config.config_string.data, stringLen);
+            configString[stringLen] = 0;
+        }
+        msg.appendFormat(",permission:0x%x, zones:0x%x, conflg_flag:0x%x, config_string:%s, " \
+                "fsmin:%f, fsmax:%f",
                 config.permission_model, config.vehicle_zone_flags, config.config_flags,
+                (config.config_string.len > 0) ? configString : "N/A",
                 config.min_sample_rate, config.max_sample_rate);
         switch (config.value_type) {
             case VEHICLE_VALUE_TYPE_FLOAT:

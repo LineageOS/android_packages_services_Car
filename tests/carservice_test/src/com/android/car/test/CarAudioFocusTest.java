@@ -77,34 +77,6 @@ public class CarAudioFocusTest extends MockedCarTestBase {
     private final FocusPropertyHandler mAudioFocusPropertyHandler =
             new FocusPropertyHandler(this);
 
-    private final VehicleHalPropertyHandler mAppContextPropertyHandler =
-            new VehicleHalPropertyHandler() {
-
-        @Override
-        public void onPropertySet(VehiclePropValue value) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public void onPropertySubscribe(int property, float sampleRate, int zones) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onPropertyUnsubscribe(int property) {
-            // TODO Auto-generated method stub
-
-        }
-    };
-
     private final Semaphore mWaitSemaphore = new Semaphore(0);
     private final LinkedList<VehiclePropValue> mEvents = new LinkedList<VehiclePropValue>();
     private AudioManager mAudioManager;

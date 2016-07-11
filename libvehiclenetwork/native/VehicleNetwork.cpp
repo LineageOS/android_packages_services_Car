@@ -15,6 +15,7 @@
  */
 #define LOG_TAG "VehicleNetwork.Lib"
 
+#include <assert.h>
 #include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
 #include <utils/threads.h>
@@ -130,18 +131,29 @@ void VehicleNetworkEventMessageHandler::handleMessage(const Message& message) {
 
 // ----------------------------------------------------------------------------
 
+static const int MAX_SERVICE_RETRY = 4;
+
 sp<VehicleNetwork> VehicleNetwork::createVehicleNetwork(sp<VehicleNetworkListener>& listener) {
-    sp<IBinder> binder = defaultServiceManager()->getService(
-            String16(IVehicleNetwork::SERVICE_NAME));
-    sp<VehicleNetwork> vn;
-    if (binder != NULL) {
-        sp<IVehicleNetwork> ivn(interface_cast<IVehicleNetwork>(binder));
-        vn = new VehicleNetwork(ivn, listener);
-        if (vn != NULL) {
-            // in case thread pool is not started, start it.
-            ProcessState::self()->startThreadPool();
+    sp<IBinder> binder;
+    int retry = 0;
+    while (true) {
+        binder = defaultServiceManager()->getService(String16(IVehicleNetwork::SERVICE_NAME));
+        if (binder.get() != NULL) {
+            break;
+        }
+        retry++;
+        if (retry > MAX_SERVICE_RETRY) {
+            ALOGE("cannot get VNS, will crash");
+            break;
         }
     }
+    ASSERT_ALWAYS_ON_NO_MEMORY(binder.get());
+    sp<IVehicleNetwork> ivn(interface_cast<IVehicleNetwork>(binder));
+    sp<VehicleNetwork> vn;
+    vn = new VehicleNetwork(ivn, listener);
+    ASSERT_ALWAYS_ON_NO_MEMORY(vn.get());
+    // in case thread pool is not started, start it.
+    ProcessState::self()->startThreadPool();
     return vn;
 }
 

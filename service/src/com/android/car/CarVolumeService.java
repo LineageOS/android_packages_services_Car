@@ -24,6 +24,8 @@ import android.view.KeyEvent;
 import com.android.car.hal.AudioHalService;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
 
+import java.io.PrintWriter;
+
 /**
  * Handles car volume controls.
  *
@@ -87,6 +89,10 @@ public class CarVolumeService {
         return getController().getStreamVolume(stream);
     }
 
+    public void dump(PrintWriter writer) {
+        mCarVolumeController.dump(writer);
+    }
+
     private synchronized CarVolumeController getController() {
         return mCarVolumeController;
     }
@@ -102,5 +108,6 @@ public class CarVolumeService {
         abstract public int getStreamMaxVolume(int stream);
         abstract public int getStreamMinVolume(int stream);
         abstract public int getStreamVolume(int stream);
+        abstract public void dump(PrintWriter writer);
     }
 }
