@@ -43,6 +43,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     private static final boolean DBG = true;
     private static final boolean DBG_EVENT = false;
 
+    private final SystemActivityMonitoringService mSystemActivityMonitoringService;
     private final ClientHolder mAllChangeClients;
     private final OwnershipClientHolder mAllOwnershipClients;
     /** K: appType, V: client owning it */
@@ -55,7 +56,9 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     private final BinderInterfaceContainer.BinderEventHandler<IAppFocusListener>
             mAllBinderEventHandler = bInterface -> { /* nothing to do.*/ };
 
-    public AppFocusService(Context context) {
+    public AppFocusService(Context context,
+            SystemActivityMonitoringService systemActivityMonitoringService) {
+        mSystemActivityMonitoringService = systemActivityMonitoringService;
         mAllChangeClients = new ClientHolder(mAllBinderEventHandler);
         mAllOwnershipClients = new OwnershipClientHolder(this);
         mHandlerThread = new HandlerThread(AppFocusService.class.getSimpleName());
@@ -124,8 +127,16 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
             if (!alreadyOwnedAppTypes.contains(appType)) {
                 OwnershipClientInfo ownerInfo = mFocusOwners.get(appType);
                 if (ownerInfo != null && ownerInfo != info) {
-                    //TODO check if current owner is having fore-ground activity. If yes,
-                    //reject request. Always grant if requester is fore-ground activity.
+                    if (mSystemActivityMonitoringService.isInForeground(
+                                ownerInfo.getPid(), ownerInfo.getUid()) &&
+                        !mSystemActivityMonitoringService.isInForeground(
+                                info.getPid(), info.getUid())) {
+                        Log.w(CarLog.TAG_APP_FOCUS, "Focus request failed for non-foreground app("
+                              + "pid=" + info.getPid() + ", uid=" + info.getUid() + ")."
+                              + "Foreground app (pid=" + ownerInfo.getPid() + ", uid="
+                              + ownerInfo.getUid() + ") owns it.");
+                        return CarAppFocusManager.APP_FOCUS_REQUEST_FAILED;
+                    }
                     ownerInfo.removeOwnedAppType(appType);
                     mDispatchHandler.requestAppFocusOwnershipLossDispatch(
                             ownerInfo.binderInterface, appType);
