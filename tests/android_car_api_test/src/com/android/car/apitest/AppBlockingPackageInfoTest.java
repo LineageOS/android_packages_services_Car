@@ -56,7 +56,7 @@ public class AppBlockingPackageInfoTest extends AndroidTestCase {
     }
 
     public static final AppBlockingPackageInfo createInfoSelf(Context context) {
-        final String packageName = "com.android.support.car.apitest";
+        final String packageName = "com.android.car.apitest";
         PackageManager pm = context.getPackageManager();
         Signature[] signatures;
         try {

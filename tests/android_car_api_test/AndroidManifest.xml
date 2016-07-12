@@ -16,11 +16,11 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
-        package="com.android.support.car.apitest"
+        package="com.android.car.apitest"
         android:sharedUserId="android.uid.system" >
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
-            android:targetPackage="com.android.support.car.apitest"
+            android:targetPackage="com.android.car.apitest"
             android:label="Tests for Car APIs"/>
 
     <application android:label="CarApiTest">

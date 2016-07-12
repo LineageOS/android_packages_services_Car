@@ -39,15 +39,15 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         super.setUp();
         mCarNavigationManager =
                 (CarNavigationManager) getCar().getCarManager(Car.CAR_NAVIGATION_SERVICE);
-        assertNotNull(mCarNavigationManager);
         mCarAppFocusManager =
                 (CarAppFocusManager) getCar().getCarManager(Car.APP_FOCUS_SERVICE);
         assertNotNull(mCarAppFocusManager);
     }
 
     public void testStart() throws Exception {
-        if (!mCarNavigationManager.isInstrumentClusterSupported()) {
-            Log.w(TAG, "Unable to run the test: instrument cluster is not supported");
+        if (mCarNavigationManager == null) {
+            Log.w(TAG, "Unable to run the test: "
+                    + "car navigation manager was not created succesfully.");
             return;
         }
 
