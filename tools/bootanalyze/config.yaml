@@ -1,0 +1,29 @@
+#YAML
+stop_event: Starting phase 1000
+events:
+  kernel: Linux version
+  android_init_1st_stage: init first stage started
+  android_init_2st_stage: init second stage started
+  ueventd: Starting service 'ueventd'
+  system_mounted: target=/system
+  data_mounted: target=/data
+  servicemanager_start_by_init: Starting service 'servicemanager'
+  zygote_start_by_init: Starting service 'zygote'
+  zygoteInit: START com.android.internal.os.ZygoteInit
+  zygote_preload__start: Zygote\s*:\s*begin preload
+  zygote_preload_classes_start: Zygote\s*:\s*Preloading classes...
+  zygote_preload_res_start: Zygote\s*:\s*Preloading resources...
+  zygote_preload_end: Zygote\s*:\s*end preload
+  zygote_create_system_server: Zygote\s*:\s*System server process [0-9]* has been created
+  vns_start_by_init: Starting service 'vns'
+  SystemServer_start: Entered the Android system server!
+  system_server_ready: Enabled StrictMode for system server main
+  PackageManagerInit_start: StartPackageManagerService
+  PackageManagerInit_ready: StartOtaDexOptService
+  BluetoothService_start: Starting com.android.server.BluetoothService
+  SystemUi_start: for service com.android.systemui/.
+  LauncherReady: Em.Overview:\s*onResume
+  CarService_start: for service com.android.car/.CarService
+  ThermalEngine: Starting service 'thermal-engine'
+  BootAnimEnd: init:\sService 'bootanim'
+  BootComplete: Starting phase 1000
