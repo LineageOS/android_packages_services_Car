@@ -118,12 +118,19 @@ import java.util.concurrent.CountDownLatch;
         }
     }
 
-    private static <E> E runAndWaitResult(Handler handler, RunnableWithResult<E> runnable) {
+    private static <E> E runAndWaitResult(Handler handler, final RunnableWithResult<E> runnable) {
         final CountDownLatch latch = new CountDownLatch(1);
-        handler.post(() -> {
-            runnable.run();
-            latch.countDown();
-        });
+
+        Runnable wrappedRunnable = new Runnable() {
+            @Override
+            public void run() {
+                runnable.run();
+                latch.countDown();
+            }
+        };
+
+        handler.post(wrappedRunnable);
+
         try {
             latch.await();
         } catch (InterruptedException e) {

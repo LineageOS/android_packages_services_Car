@@ -42,4 +42,13 @@ car_module_include_systemapi := true
 car_module_java_packages := android.car*
 include $(CAR_API_CHECK)
 
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := android.car7
+LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+
+include $(BUILD_JAVA_LIBRARY)
+$(call dist-for-goals,dist_files,$(full_classes_jar):$(LOCAL_MODULE).jar)
+
 endif #TARGET_BUILD_PDK
