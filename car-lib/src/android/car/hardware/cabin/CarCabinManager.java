@@ -17,14 +17,12 @@
 package android.car.hardware.cabin;
 
 import android.annotation.IntDef;
-import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
-import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManagerBase;
 import android.car.hardware.property.CarPropertyManagerBase.CarPropertyEventListener;
 import android.content.Context;
@@ -375,7 +373,7 @@ public class CarCabinManager implements CarManagerBase {
      * @hide
      */
     public CarCabinManager(IBinder service, Context context, Looper looper) {
-        mMgr = new CarPropertyManagerBase(service, context, looper, DBG, TAG);
+        mMgr = new CarPropertyManagerBase(service, looper, DBG, TAG);
     }
 
     /** Returns true if the property is a zoned type. */
@@ -397,7 +395,7 @@ public class CarCabinManager implements CarManagerBase {
             CarNotConnectedException {
         mListeners.remove(listener);
         if (mListeners.isEmpty()) {
-            mMgr.unregisterListener(mListenerToBase);
+            mMgr.unregisterListener();
             mListenerToBase = null;
         }
     }

@@ -65,6 +65,7 @@ public class ICarImpl extends ICar.Stub {
     private final GarageModeService mGarageModeService;
     private final InstrumentClusterService mInstrumentClusterService;
     private final SystemStateControllerService mSystemStateControllerService;
+    private final CarVendorExtensionService mCarVendorExtensionService;
 
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
@@ -110,6 +111,7 @@ public class ICarImpl extends ICar.Stub {
                 mAppFocusService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(serviceContext,
                 mCarPowerManagementService, mCarAudioService, this);
+        mCarVendorExtensionService = new CarVendorExtensionService(serviceContext);
 
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
@@ -129,7 +131,8 @@ public class ICarImpl extends ICar.Stub {
                 mCarNightService,
                 mInstrumentClusterService,
                 mCarProjectionService,
-                mSystemStateControllerService
+                mSystemStateControllerService,
+                mCarVendorExtensionService
                 };
     }
 
@@ -202,6 +205,9 @@ public class ICarImpl extends ICar.Stub {
             case Car.PROJECTION_SERVICE:
                 assertProjectionPermission(mContext);
                 return mCarProjectionService;
+            case Car.VENDOR_EXTENSION_SERVICE:
+                assertVendorExtensionPermission(mContext);
+                return mCarVendorExtensionService;
             case Car.TEST_SERVICE: {
                 assertVehicleHalMockPermission(mContext);
                 synchronized (this) {
@@ -276,6 +282,10 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertProjectionPermission(Context context) {
         assertPermission(context, Car.PERMISSION_CAR_PROJECTION);
+    }
+
+    public static void assertVendorExtensionPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_VENDOR_EXTENSION);
     }
 
     public static void assertPermission(Context context, String permission) {

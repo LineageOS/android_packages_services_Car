@@ -18,11 +18,18 @@ package com.android.car;
 
 import android.car.Car;
 import android.content.Context;
+
 import com.android.car.hal.VehicleHal;
 
-public class CarHvacService extends CarPropertyServiceBase {
-    public CarHvacService(Context context) {
-        super(context, VehicleHal.getInstance().getHvacHal(), Car.PERMISSION_CAR_HVAC, true,
-                CarLog.TAG_HVAC);
+/**
+ * Service responsible for handling custom properties that were defined in vehicle HAL by OEMs.
+ */
+public class CarVendorExtensionService extends CarPropertyServiceBase {
+
+    private final static boolean DEBUG = true;
+
+    public CarVendorExtensionService(Context context) {
+        super(context, VehicleHal.getInstance().getVendorExtensionHal(),
+                Car.PERMISSION_VENDOR_EXTENSION, DEBUG, CarLog.TAG_VENDOR_EXT);
     }
 }

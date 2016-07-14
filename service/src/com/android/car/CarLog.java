@@ -26,6 +26,7 @@ public class CarLog {
     public static final String TAG_CLUSTER = "CAR.CLUSTER";
     public static final String TAG_HAL = "CAR.HAL";
     public static final String TAG_HVAC = "CAR.HVAC";
+    public static final String TAG_VENDOR_EXT = "CAR.VENDOR_EXT";
     public static final String TAG_INFO = "CAR.INFO";
     public static final String TAG_INPUT = "CAR.INPUT";
     public static final String TAG_NAV = "CAR.NAV";

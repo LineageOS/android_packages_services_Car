@@ -22,6 +22,7 @@ import android.annotation.SystemApi;
 import android.car.content.pm.CarPackageManager;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.cabin.CarCabinManager;
+import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.radio.CarRadioManager;
@@ -107,6 +108,12 @@ public class Car {
      */
     @SystemApi
     public static final String PROJECTION_SERVICE = "projection";
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    public static final String VENDOR_EXTENSION_SERVICE = "vendor_extension";
 
     /**
      * Service for testing. This is system app only feature.
@@ -526,6 +533,9 @@ public class Car {
                 break;
             case RADIO_SERVICE:
                 manager = new CarRadioManager(binder, mLooper);
+                break;
+            case VENDOR_EXTENSION_SERVICE:
+                manager = new CarVendorExtensionManager(binder, mLooper);
                 break;
             case TEST_SERVICE:
                 /* CarTestManager exist in static library. So instead of constructing it here,

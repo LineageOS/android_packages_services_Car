@@ -23,6 +23,131 @@ public class CabinHalService extends PropertyHalServiceBase {
     private static final boolean DBG = true;
     private static final String TAG = "CAR.CABIN.HAL";
 
+    private final ManagerToHalPropIdMap mMgrHalPropIdMap = ManagerToHalPropIdMap.create(new int[] {
+            CabinPropertyId.DOOR_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_POS,
+
+            CabinPropertyId.DOOR_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_MOVE,
+
+            CabinPropertyId.DOOR_LOCK,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_LOCK,
+
+            CabinPropertyId.MIRROR_Z_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Z_POS,
+
+            CabinPropertyId.MIRROR_Z_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Z_MOVE,
+
+            CabinPropertyId.MIRROR_Y_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Y_POS,
+
+            CabinPropertyId.MIRROR_Y_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Y_MOVE,
+
+            CabinPropertyId.MIRROR_LOCK,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_LOCK,
+
+            CabinPropertyId.MIRROR_FOLD,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_FOLD,
+
+            CabinPropertyId.SEAT_MEMORY_SELECT,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_MEMORY_SELECT,
+
+            CabinPropertyId.SEAT_MEMORY_SET,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_MEMORY_SET,
+
+            CabinPropertyId.SEAT_BELT_BUCKLED,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BELT_BUCKLED,
+
+            CabinPropertyId.SEAT_BELT_HEIGHT_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BELT_HEIGHT_POS,
+
+            CabinPropertyId.SEAT_BELT_HEIGHT_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BELT_HEIGHT_MOVE,
+
+            CabinPropertyId.SEAT_FORE_AFT_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_FORE_AFT_POS,
+
+            CabinPropertyId.SEAT_FORE_AFT_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_FORE_AFT_MOVE,
+
+            CabinPropertyId.SEAT_BACKREST_ANGLE_1_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_1_POS,
+
+            CabinPropertyId.SEAT_BACKREST_ANGLE_1_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_1_MOVE,
+
+            CabinPropertyId.SEAT_BACKREST_ANGLE_2_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_2_POS,
+
+            CabinPropertyId.SEAT_BACKREST_ANGLE_2_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_2_MOVE,
+
+            CabinPropertyId.SEAT_HEIGHT_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEIGHT_POS,
+
+            CabinPropertyId.SEAT_HEIGHT_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEIGHT_MOVE,
+
+            CabinPropertyId.SEAT_DEPTH_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_DEPTH_POS,
+
+            CabinPropertyId.SEAT_DEPTH_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_DEPTH_MOVE,
+
+            CabinPropertyId.SEAT_TILT_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_TILT_POS,
+
+            CabinPropertyId.SEAT_TILT_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_TILT_MOVE,
+
+            CabinPropertyId.SEAT_LUMBAR_FORE_AFT_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_FORE_AFT_POS,
+
+            CabinPropertyId.SEAT_LUMBAR_FORE_AFT_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_FORE_AFT_MOVE,
+
+            CabinPropertyId.SEAT_LUMBAR_SIDE_SUPPORT_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_SIDE_SUPPORT_POS,
+
+            CabinPropertyId.SEAT_LUMBAR_SIDE_SUPPORT_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_SIDE_SUPPORT_MOVE,
+
+            CabinPropertyId.SEAT_HEADREST_HEIGHT_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_HEIGHT_POS,
+
+            CabinPropertyId.SEAT_HEADREST_HEIGHT_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_HEIGHT_MOVE,
+
+            CabinPropertyId.SEAT_HEADREST_ANGLE_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_ANGLE_POS,
+
+            CabinPropertyId.SEAT_HEADREST_ANGLE_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_ANGLE_MOVE,
+
+            CabinPropertyId.SEAT_HEADREST_FORE_AFT_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_FORE_AFT_POS,
+
+            CabinPropertyId.SEAT_HEADREST_FORE_AFT_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_FORE_AFT_MOVE,
+
+            CabinPropertyId.WINDOW_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_POS,
+
+            CabinPropertyId.WINDOW_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_MOVE,
+
+            CabinPropertyId.WINDOW_VENT_POS,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_VENT_POS,
+
+            CabinPropertyId.WINDOW_VENT_MOVE,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_VENT_MOVE,
+
+            CabinPropertyId.WINDOW_LOCK,
+            VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_LOCK
+    });
+
     public CabinHalService(VehicleHal vehicleHal) {
         super(vehicleHal, TAG, DBG);
     }
@@ -30,182 +155,12 @@ public class CabinHalService extends PropertyHalServiceBase {
     // Convert the Cabin public API property ID to HAL property ID
     @Override
     protected int managerToHalPropId(int propId) {
-        switch (propId) {
-            case CabinPropertyId.DOOR_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_POS;
-            case CabinPropertyId.DOOR_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_MOVE;
-            case CabinPropertyId.DOOR_LOCK:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_LOCK;
-            case CabinPropertyId.MIRROR_Z_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Z_POS;
-            case CabinPropertyId.MIRROR_Z_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Z_MOVE;
-            case CabinPropertyId.MIRROR_Y_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Y_POS;
-            case CabinPropertyId.MIRROR_Y_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Y_MOVE;
-            case CabinPropertyId.MIRROR_LOCK:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_LOCK;
-            case CabinPropertyId.MIRROR_FOLD:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_FOLD;
-            case CabinPropertyId.SEAT_MEMORY_SELECT:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_MEMORY_SELECT;
-            case CabinPropertyId.SEAT_MEMORY_SET:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_MEMORY_SET;
-            case CabinPropertyId.SEAT_BELT_BUCKLED:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BELT_BUCKLED;
-            case CabinPropertyId.SEAT_BELT_HEIGHT_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BELT_HEIGHT_POS;
-            case CabinPropertyId.SEAT_BELT_HEIGHT_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BELT_HEIGHT_MOVE;
-            case CabinPropertyId.SEAT_FORE_AFT_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_FORE_AFT_POS;
-            case CabinPropertyId.SEAT_FORE_AFT_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_FORE_AFT_MOVE;
-            case CabinPropertyId.SEAT_BACKREST_ANGLE_1_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_1_POS;
-            case CabinPropertyId.SEAT_BACKREST_ANGLE_1_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_1_MOVE;
-            case CabinPropertyId.SEAT_BACKREST_ANGLE_2_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_2_POS;
-            case CabinPropertyId.SEAT_BACKREST_ANGLE_2_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_2_MOVE;
-            case CabinPropertyId.SEAT_HEIGHT_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEIGHT_POS;
-            case CabinPropertyId.SEAT_HEIGHT_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEIGHT_MOVE;
-            case CabinPropertyId.SEAT_DEPTH_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_DEPTH_POS;
-            case CabinPropertyId.SEAT_DEPTH_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_DEPTH_MOVE;
-            case CabinPropertyId.SEAT_TILT_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_TILT_POS;
-            case CabinPropertyId.SEAT_TILT_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_TILT_MOVE;
-            case CabinPropertyId.SEAT_LUMBAR_FORE_AFT_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_FORE_AFT_POS;
-            case CabinPropertyId.SEAT_LUMBAR_FORE_AFT_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_FORE_AFT_MOVE;
-            case CabinPropertyId.SEAT_LUMBAR_SIDE_SUPPORT_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_SIDE_SUPPORT_POS;
-            case CabinPropertyId.SEAT_LUMBAR_SIDE_SUPPORT_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_SIDE_SUPPORT_MOVE;
-            case CabinPropertyId.SEAT_HEADREST_HEIGHT_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_HEIGHT_POS;
-            case CabinPropertyId.SEAT_HEADREST_HEIGHT_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_HEIGHT_MOVE;
-            case CabinPropertyId.SEAT_HEADREST_ANGLE_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_ANGLE_POS;
-            case CabinPropertyId.SEAT_HEADREST_ANGLE_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_ANGLE_MOVE;
-            case CabinPropertyId.SEAT_HEADREST_FORE_AFT_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_FORE_AFT_POS;
-            case CabinPropertyId.SEAT_HEADREST_FORE_AFT_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_FORE_AFT_MOVE;
-            case CabinPropertyId.WINDOW_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_POS;
-            case CabinPropertyId.WINDOW_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_MOVE;
-            case CabinPropertyId.WINDOW_VENT_POS:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_VENT_POS;
-            case CabinPropertyId.WINDOW_VENT_MOVE:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_VENT_MOVE;
-            case CabinPropertyId.WINDOW_LOCK:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_LOCK;
-            default:
-                throw new IllegalArgumentException("propId " + propId + " not supported");
-        }
+        return mMgrHalPropIdMap.getHalPropId(propId);
     }
 
     // Convert he HAL specific property ID to Cabin public API
     @Override
     protected int halToManagerPropId(int halPropId) {
-        switch (halPropId) {
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_POS:
-                return CabinPropertyId.DOOR_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_MOVE:
-                return CabinPropertyId.DOOR_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_LOCK:
-                return CabinPropertyId.DOOR_LOCK;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Z_POS:
-                return CabinPropertyId.MIRROR_Z_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Z_MOVE:
-                return CabinPropertyId.MIRROR_Z_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Y_POS:
-                return CabinPropertyId.MIRROR_Y_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Y_MOVE:
-                return CabinPropertyId.MIRROR_Y_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_LOCK:
-                return CabinPropertyId.MIRROR_LOCK;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_FOLD:
-                return CabinPropertyId.MIRROR_FOLD;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_MEMORY_SELECT:
-                return CabinPropertyId.SEAT_MEMORY_SELECT;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_MEMORY_SET:
-                return CabinPropertyId.SEAT_MEMORY_SET;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BELT_BUCKLED:
-                return CabinPropertyId.SEAT_BELT_BUCKLED;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BELT_HEIGHT_POS:
-                return CabinPropertyId.SEAT_BELT_HEIGHT_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BELT_HEIGHT_MOVE:
-                return CabinPropertyId.SEAT_BELT_HEIGHT_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_FORE_AFT_POS:
-                return CabinPropertyId.SEAT_FORE_AFT_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_FORE_AFT_MOVE:
-                return CabinPropertyId.SEAT_FORE_AFT_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_1_POS:
-                return CabinPropertyId.SEAT_BACKREST_ANGLE_1_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_1_MOVE:
-                return CabinPropertyId.SEAT_BACKREST_ANGLE_1_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_2_POS:
-                return CabinPropertyId.SEAT_BACKREST_ANGLE_2_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_2_MOVE:
-                return CabinPropertyId.SEAT_BACKREST_ANGLE_2_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEIGHT_POS:
-                return CabinPropertyId.SEAT_HEIGHT_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEIGHT_MOVE:
-                return CabinPropertyId.SEAT_HEIGHT_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_DEPTH_POS:
-                return CabinPropertyId.SEAT_DEPTH_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_DEPTH_MOVE:
-                return CabinPropertyId.SEAT_DEPTH_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_TILT_POS:
-                return CabinPropertyId.SEAT_TILT_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_TILT_MOVE:
-                return CabinPropertyId.SEAT_TILT_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_FORE_AFT_POS:
-                return CabinPropertyId.SEAT_LUMBAR_FORE_AFT_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_FORE_AFT_MOVE:
-                return CabinPropertyId.SEAT_LUMBAR_FORE_AFT_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_SIDE_SUPPORT_POS:
-                return CabinPropertyId.SEAT_LUMBAR_SIDE_SUPPORT_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_SIDE_SUPPORT_MOVE:
-                return CabinPropertyId.SEAT_LUMBAR_SIDE_SUPPORT_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_HEIGHT_POS:
-                return CabinPropertyId.SEAT_HEADREST_HEIGHT_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_HEIGHT_MOVE:
-                return CabinPropertyId.SEAT_HEADREST_HEIGHT_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_ANGLE_POS:
-                return CabinPropertyId.SEAT_HEADREST_ANGLE_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_ANGLE_MOVE:
-                return CabinPropertyId.SEAT_HEADREST_ANGLE_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_FORE_AFT_POS:
-                return CabinPropertyId.SEAT_HEADREST_FORE_AFT_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_FORE_AFT_MOVE:
-                return CabinPropertyId.SEAT_HEADREST_FORE_AFT_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_POS:
-                return CabinPropertyId.WINDOW_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_MOVE:
-                return CabinPropertyId.WINDOW_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_VENT_POS:
-                return CabinPropertyId.WINDOW_VENT_POS;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_VENT_MOVE:
-                return CabinPropertyId.WINDOW_VENT_MOVE;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_LOCK:
-                return CabinPropertyId.WINDOW_LOCK;
-            default:
-                throw new IllegalArgumentException("halPropId " + halPropId + " not supported");
-        }
+        return mMgrHalPropIdMap.getManagerPropId(halPropId);
     }
 }

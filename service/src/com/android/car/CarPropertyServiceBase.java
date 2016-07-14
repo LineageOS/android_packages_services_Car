@@ -30,25 +30,28 @@ import android.util.Log;
 import com.android.car.hal.PropertyHalServiceBase;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class implements the binder interface for ICarProperty.aidl to make it easier to create
- * multiple managers that deal with Vehicle Properties.  To create a new service, simply extend
+ * multiple managers that deal with Vehicle Properties. To create a new service, simply extend
  * this class and call the super() constructor with the appropriate arguments for the new service.
- * CarHvacService.java shows the basic usage.
+ * {@link CarHvacService} shows the basic usage.
  */
 public class CarPropertyServiceBase extends ICarProperty.Stub
         implements CarServiceBase, PropertyHalServiceBase.PropertyHalListener {
     private final Context mContext;
     private final boolean mDbg;
-    private final Map<IBinder, PropertyDeathRecipient> mDeathRecipientMap = new HashMap<>();
+    private final Map<IBinder, PropertyDeathRecipient> mDeathRecipientMap =
+            new ConcurrentHashMap<>();
     private final PropertyHalServiceBase mHal;
-    private final Map<IBinder, ICarPropertyEventListener> mListenersMap = new HashMap<>();
+    private final Map<IBinder, ICarPropertyEventListener> mListenersMap = new ConcurrentHashMap<>();
     private final String mPermission;
     private final String mTag;
+
+    private final Object mLock = new Object();
 
     public CarPropertyServiceBase(Context context, PropertyHalServiceBase hal, String permission,
             boolean dbg, String tag) {
@@ -84,11 +87,11 @@ public class CarPropertyServiceBase extends ICarProperty.Stub
     }
 
     @Override
-    public synchronized void init() {
+    public void init() {
     }
 
     @Override
-    public synchronized void release() {
+    public void release() {
         for (PropertyDeathRecipient recipient : mDeathRecipientMap.values()) {
             recipient.release();
         }
@@ -102,7 +105,7 @@ public class CarPropertyServiceBase extends ICarProperty.Stub
     }
 
     @Override
-    public synchronized void registerListener(ICarPropertyEventListener listener) {
+    public void registerListener(ICarPropertyEventListener listener) {
         if (mDbg) {
             Log.d(mTag, "registerListener");
         }
@@ -113,29 +116,32 @@ public class CarPropertyServiceBase extends ICarProperty.Stub
         }
 
         IBinder listenerBinder = listener.asBinder();
-        if (mListenersMap.containsKey(listenerBinder)) {
-            // Already registered, nothing to do.
-            return;
-        }
 
-        PropertyDeathRecipient deathRecipient = new PropertyDeathRecipient(listenerBinder);
-        try {
-            listenerBinder.linkToDeath(deathRecipient, 0);
-        } catch (RemoteException e) {
-            Log.e(mTag, "Failed to link death for recipient. " + e);
-            throw new IllegalStateException(Car.CAR_NOT_CONNECTED_EXCEPTION_MSG);
-        }
-        mDeathRecipientMap.put(listenerBinder, deathRecipient);
+        synchronized (mLock) {
+            if (mListenersMap.containsKey(listenerBinder)) {
+                // Already registered, nothing to do.
+                return;
+            }
 
-        if (mListenersMap.isEmpty()) {
-            mHal.setListener(this);
-        }
+            PropertyDeathRecipient deathRecipient = new PropertyDeathRecipient(listenerBinder);
+            try {
+                listenerBinder.linkToDeath(deathRecipient, 0);
+            } catch (RemoteException e) {
+                Log.e(mTag, "Failed to link death for recipient. " + e);
+                throw new IllegalStateException(Car.CAR_NOT_CONNECTED_EXCEPTION_MSG);
+            }
+            mDeathRecipientMap.put(listenerBinder, deathRecipient);
 
-        mListenersMap.put(listenerBinder, listener);
+            if (mListenersMap.isEmpty()) {
+                mHal.setListener(this);
+            }
+
+            mListenersMap.put(listenerBinder, listener);
+        }
     }
 
     @Override
-    public synchronized void unregisterListener(ICarPropertyEventListener listener) {
+    public void unregisterListener(ICarPropertyEventListener listener) {
         if (mDbg) {
             Log.d(mTag, "unregisterListener");
         }
@@ -146,10 +152,12 @@ public class CarPropertyServiceBase extends ICarProperty.Stub
         }
 
         IBinder listenerBinder = listener.asBinder();
-        if (!mListenersMap.containsKey(listenerBinder)) {
-            Log.e(mTag, "unregisterListener: Listener was not previously registered.");
+        synchronized (mLock) {
+            if (!mListenersMap.containsKey(listenerBinder)) {
+                Log.e(mTag, "unregisterListener: Listener was not previously registered.");
+            }
+            unregisterListenerLocked(listenerBinder);
         }
-        unregisterListenerLocked(listenerBinder);
     }
 
     // Removes the listenerBinder from the current state.
@@ -168,26 +176,26 @@ public class CarPropertyServiceBase extends ICarProperty.Stub
     }
 
     @Override
-    public synchronized List<CarPropertyConfig> getPropertyList() {
+    public List<CarPropertyConfig> getPropertyList() {
         ICarImpl.assertPermission(mContext, mPermission);
         return mHal.getPropertyList();
     }
 
     @Override
-    public synchronized CarPropertyValue getProperty(int prop, int zone) {
+    public CarPropertyValue getProperty(int prop, int zone) {
         ICarImpl.assertPermission(mContext, mPermission);
         return mHal.getProperty(prop, zone);
     }
 
     @Override
-    public synchronized void setProperty(CarPropertyValue prop) {
+    public void setProperty(CarPropertyValue prop) {
         ICarImpl.assertPermission(mContext, mPermission);
         mHal.setProperty(prop);
     }
 
     // Implement PropertyHalListener interface
     @Override
-    public synchronized void onPropertyChange(CarPropertyEvent event) {
+    public void onPropertyChange(CarPropertyEvent event) {
         for (ICarPropertyEventListener l : mListenersMap.values()) {
             try {
                 l.onEvent(event);
@@ -200,7 +208,7 @@ public class CarPropertyServiceBase extends ICarProperty.Stub
     }
 
     @Override
-    public synchronized void onError(int zone, int property) {
+    public void onError(int zone, int property) {
         // TODO:
     }
 }

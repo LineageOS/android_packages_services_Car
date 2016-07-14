@@ -17,8 +17,6 @@
 package com.android.car.hal;
 
 import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
 import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.Log;
@@ -34,7 +32,6 @@ import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
@@ -90,6 +87,7 @@ public class VehicleHal implements VehicleNetworkListener {
     private final PowerHalService mPowerHal;
     private final HvacHalService mHvacHal;
     private final InputHalService mInputHal;
+    private final VendorExtensionHalService mVendorExtensionHal;
 
     /** stores handler for each HAL property. Property events are sent to handler. */
     private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<HalServiceBase>();
@@ -113,6 +111,7 @@ public class VehicleHal implements VehicleNetworkListener {
         mRadioHal = new RadioHalService(this);
         mHvacHal = new HvacHalService(this);
         mInputHal = new InputHalService();
+        mVendorExtensionHal = new VendorExtensionHalService(this);
         mAllServices = new HalServiceBase[] {
                 mPowerHal,
                 mAudioHal,
@@ -121,7 +120,8 @@ public class VehicleHal implements VehicleNetworkListener {
                 mInfoHal,
                 mSensorHal,
                 mRadioHal,
-                mInputHal
+                mInputHal,
+                mVendorExtensionHal
                 };
         mVehicleNetwork = VehicleNetwork.createVehicleNetwork(this, mHandlerThread.getLooper());
     }
@@ -140,6 +140,7 @@ public class VehicleHal implements VehicleNetworkListener {
         mRadioHal = radioHal;
         mHvacHal = hvacHal;
         mInputHal = null;
+        mVendorExtensionHal = null;
         mAllServices = null;
         mVehicleNetwork = vehicleNetwork;
     }
@@ -219,6 +220,10 @@ public class VehicleHal implements VehicleNetworkListener {
 
     public InputHalService getInputHal() {
         return mInputHal;
+    }
+
+    public VendorExtensionHalService getVendorExtensionHal() {
+        return mVendorExtensionHal;
     }
 
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {

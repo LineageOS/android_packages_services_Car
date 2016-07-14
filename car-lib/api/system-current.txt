@@ -33,6 +33,7 @@ package android.car {
     field public static final java.lang.String RADIO_SERVICE = "radio";
     field public static final java.lang.String SENSOR_SERVICE = "sensor";
     field public static final java.lang.String TEST_SERVICE = "car-service-test";
+    field public static final java.lang.String VENDOR_EXTENSION_SERVICE = "vendor_extension";
     field public static final int VERSION = 1; // 0x1
   }
 
@@ -565,6 +566,21 @@ package android.car.hardware {
 
   public static abstract interface CarSensorManager.CarSensorEventListener {
     method public abstract void onSensorChanged(android.car.hardware.CarSensorEvent);
+  }
+
+  public class CarVendorExtensionManager {
+    method public E getGlobalProperty(java.lang.Class<E>, int) throws android.car.CarNotConnectedException;
+    method public java.util.List<android.car.hardware.CarPropertyConfig> getProperties() throws android.car.CarNotConnectedException;
+    method public E getProperty(java.lang.Class<E>, int, int) throws android.car.CarNotConnectedException;
+    method public void registerListener(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionListener) throws android.car.CarNotConnectedException;
+    method public void setGlobalProperty(java.lang.Class<E>, int, E) throws android.car.CarNotConnectedException;
+    method public void setProperty(java.lang.Class<E>, int, int, E) throws android.car.CarNotConnectedException;
+    method public void unregisterListener(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionListener) throws android.car.CarNotConnectedException;
+  }
+
+  public static abstract interface CarVendorExtensionManager.CarVendorExtensionListener {
+    method public abstract void onChangeEvent(android.car.hardware.CarPropertyValue);
+    method public abstract void onErrorEvent(int, int);
   }
 
 }

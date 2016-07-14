@@ -23,18 +23,16 @@ import android.car.Car;
 import android.car.CarNotConnectedException;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
-import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
-import android.util.ArraySet;
-import android.util.EventLog;
 import android.util.Log;
 
+import com.android.internal.annotations.GuardedBy;
+
 import java.lang.ref.WeakReference;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -44,10 +42,15 @@ import java.util.List;
 public class CarPropertyManagerBase {
     private final boolean mDbg;
     private final Handler mHandler;
-    private final ArraySet<CarPropertyEventListener> mListeners = new ArraySet<>();
-    private CarPropertyEventListenerToService mListenerToService = null;
     private final ICarProperty mService;
     private final String mTag;
+
+    @GuardedBy("mLock")
+    private ICarPropertyEventListener mListenerToService;
+    @GuardedBy("mLock")
+    private CarPropertyEventListener mListener;
+
+    private final Object mLock = new Object();
 
     /** Callback functions for property events */
     public interface CarPropertyEventListener {
@@ -85,27 +88,10 @@ public class CarPropertyManagerBase {
         }
     }
 
-    private static class CarPropertyEventListenerToService extends ICarPropertyEventListener.Stub {
-        private final WeakReference<CarPropertyManagerBase> mManager;
-
-        public CarPropertyEventListenerToService(
-                CarPropertyManagerBase manager) {
-            mManager = new WeakReference<>(manager);
-        }
-
-        @Override
-        public void onEvent(CarPropertyEvent event) {
-            CarPropertyManagerBase manager = mManager.get();
-            if (manager != null) {
-                manager.handleEvent(event);
-            }
-        }
-    }
-
     /**
      * Get an instance of the CarPropertyManagerBase.
      */
-    public CarPropertyManagerBase(IBinder service, Context context, Looper looper, boolean dbg,
+    public CarPropertyManagerBase(IBinder service, Looper looper, boolean dbg,
             String tag) {
         mDbg = dbg;
         mTag = tag;
@@ -113,45 +99,52 @@ public class CarPropertyManagerBase {
         mHandler = new EventCallbackHandler(this, looper);
     }
 
-    /**
-     * Register {@link CarPropertyEventListener} to get property changes
-     *
-     * @param listener Implements onEvent() for property change updates
-     */
-    public synchronized void registerListener(CarPropertyEventListener listener)
+    public void registerListener(CarPropertyEventListener listener)
             throws CarNotConnectedException {
-        if(mListeners.isEmpty()) {
-            try {
-                mListenerToService = new CarPropertyEventListenerToService(this);
-                mService.registerListener(mListenerToService);
-            } catch (RemoteException ex) {
-                Log.e(mTag, "Could not connect: ", ex);
-                throw new CarNotConnectedException(ex);
-            } catch (IllegalStateException ex) {
-                Car.checkCarNotConnectedExceptionFromCarService(ex);
+        synchronized (mLock) {
+            if (mListener != null) {
+                throw new IllegalStateException("Listener is already registered.");
             }
+
+            mListener = listener;
+            mListenerToService = new ICarPropertyEventListener.Stub() {
+                @Override
+                public void onEvent(CarPropertyEvent event) throws RemoteException {
+                    handleEvent(event);
+                }
+            };
         }
-        mListeners.add(listener);
+
+        try {
+            mService.registerListener(mListenerToService);
+        } catch (RemoteException ex) {
+            Log.e(mTag, "Could not connect: ", ex);
+            throw new CarNotConnectedException(ex);
+        } catch (IllegalStateException ex) {
+            Car.checkCarNotConnectedExceptionFromCarService(ex);
+        }
     }
 
-    /**
-     * Unregister {@link CarPropertyEventListener}.
-     * @param listener CarPropertyEventListener to unregister
-     */
-    public synchronized void unregisterListener(CarPropertyEventListener listener)
-            throws CarNotConnectedException {
-        if (mDbg) {
-            Log.d(mTag, "unregisterListener");
-        }
-        mListeners.remove(listener);
-        if(mListeners.isEmpty()) {
-            try {
-                mService.unregisterListener(mListenerToService);
-            } catch (RemoteException ex) {
-                Log.e(mTag, "Could not unregister: ", ex);
-                throw new CarNotConnectedException(ex);
-            }
+    public void unregisterListener() throws CarNotConnectedException {
+        ICarPropertyEventListener listenerToService;
+        synchronized (mLock) {
+            listenerToService = mListenerToService;
+            mListener = null;
             mListenerToService = null;
+        }
+
+        if (listenerToService == null) {
+            Log.w(mTag, "unregisterListener: listener was not registered");
+            return;
+        }
+
+        try {
+            mService.unregisterListener(listenerToService);
+        } catch (RemoteException ex) {
+            Log.e(mTag, "Failed to unregister listener", ex);
+            throw new CarNotConnectedException(ex);
+        } catch (IllegalStateException ex) {
+            Car.checkCarNotConnectedExceptionFromCarService(ex);
         }
     }
 
@@ -205,11 +198,11 @@ public class CarPropertyManagerBase {
 
     @Nullable
     @SuppressWarnings("unchecked")
-    private <E> CarPropertyValue<E> getProperty(Class<E> clazz, int propId, int area)
+    public <E> CarPropertyValue<E> getProperty(Class<E> clazz, int propId, int area)
             throws CarNotConnectedException {
         if (mDbg) {
             Log.d(mTag, "getProperty, propId: 0x" + toHexString(propId)
-                    + ", area: 0x" + toHexString(area) + ", clazz: " + clazz);
+                    + ", area: 0x" + toHexString(area) + ", class: " + clazz);
         }
         try {
             CarPropertyValue<E> propVal = mService.getProperty(propId, area);
@@ -224,6 +217,20 @@ public class CarPropertyManagerBase {
         } catch (RemoteException e) {
             Log.e(mTag, "getProperty failed with " + e.toString()
                     + ", propId: 0x" + toHexString(propId) + ", area: 0x" + toHexString(area), e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    public <E> void setProperty(Class<E> clazz, int propId, int area, E val)
+            throws CarNotConnectedException {
+        if (mDbg) {
+            Log.d(mTag, "setProperty, propId: 0x" + toHexString(propId)
+                    + ", area: 0x" + toHexString(area) + ", class: " + clazz + ", val: " + val);
+        }
+        try {
+            mService.setProperty(new CarPropertyValue<>(propId, area, val));
+        } catch (RemoteException e) {
+            Log.e(mTag, "setProperty failed with " + e.toString(), e);
             throw new CarNotConnectedException(e);
         }
     }
@@ -273,29 +280,27 @@ public class CarPropertyManagerBase {
         }
     }
 
-    private synchronized void dispatchEventToClient(CarPropertyEvent event) {
-        Collection<CarPropertyEventListener> listeners;
-        synchronized (this) {
-            listeners = new ArraySet<>(mListeners);
+    private void dispatchEventToClient(CarPropertyEvent event) {
+        CarPropertyEventListener listener;
+        synchronized (mLock) {
+            listener = mListener;
         }
-        if (!listeners.isEmpty()) {
-            CarPropertyValue propVal = event.getCarPropertyValue();
-            switch(event.getEventType()) {
-                case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE:
-                    for (CarPropertyEventListener l: listeners) {
-                        l.onChangeEvent(propVal);
-                    }
-                    break;
-                case CarPropertyEvent.PROPERTY_EVENT_ERROR:
-                    for (CarPropertyEventListener l: listeners) {
-                        l.onErrorEvent(propVal.getPropertyId(), propVal.getAreaId());
-                    }
-                    break;
-                default:
-                    throw new IllegalArgumentException();
-            }
-        } else {
+
+        if (listener == null) {
             Log.e(mTag, "Listener died, not dispatching event.");
+            return;
+        }
+
+        CarPropertyValue propVal = event.getCarPropertyValue();
+        switch(event.getEventType()) {
+            case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE:
+                listener.onChangeEvent(propVal);
+                break;
+            case CarPropertyEvent.PROPERTY_EVENT_ERROR:
+                listener.onErrorEvent(propVal.getPropertyId(), propVal.getAreaId());
+                break;
+            default:
+                throw new IllegalArgumentException();
         }
     }
 
@@ -304,12 +309,17 @@ public class CarPropertyManagerBase {
     }
 
     public void onCarDisconnected() {
-        for(CarPropertyEventListener l: mListeners) {
-            try {
-                unregisterListener(l);
-            } catch (CarNotConnectedException e) {
-                // Ignore, car is disconnecting.
+        try {
+            ICarPropertyEventListener listenerToService;
+            synchronized (mLock) {
+                listenerToService = mListenerToService;
             }
+
+            if (listenerToService != null) {
+                unregisterListener();
+            }
+        } catch (CarNotConnectedException e) {
+            // Ignore, car is disconnecting.
         }
     }
 }
