@@ -245,39 +245,15 @@ public class CarPropertyManagerBase {
      */
     public void setBooleanProperty(int prop, int area, boolean val)
             throws CarNotConnectedException {
-        if (mDbg) {
-            Log.d(mTag, "setBooleanProperty:  prop = " + prop + " area = " + area + " val = " + val);
-        }
-        try {
-            mService.setProperty(new CarPropertyValue<>(prop, area, val));
-        } catch (RemoteException e) {
-            Log.e(mTag, "setBooleanProperty failed with " + e.toString(), e);
-            throw new CarNotConnectedException(e);
-        }
+        setProperty(Boolean.class, prop, area, val);
     }
 
     public void setFloatProperty(int prop, int area, float val) throws CarNotConnectedException {
-        if (mDbg) {
-            Log.d(mTag, "setFloatProperty:  prop = " + prop + " area = " + area + " val = " + val);
-        }
-        try {
-            mService.setProperty(new CarPropertyValue<>(prop, area, val));
-        } catch (RemoteException e) {
-            Log.e(mTag, "setBooleanProperty failed with " + e.toString(), e);
-            throw new CarNotConnectedException(e);
-        }
+        setProperty(Float.class, prop, area, val);
     }
 
     public void setIntProperty(int prop, int area, int val) throws CarNotConnectedException {
-        if (mDbg) {
-            Log.d(mTag, "setIntProperty:  prop = " + prop + " area = " + area + " val = " + val);
-        }
-        try {
-            mService.setProperty(new CarPropertyValue<>(prop, area, val));
-        } catch (RemoteException e) {
-            Log.e(mTag, "setIntProperty failed with " + e.toString(), e);
-            throw new CarNotConnectedException(e);
-        }
+        setProperty(Integer.class, prop, area, val);
     }
 
     private void dispatchEventToClient(CarPropertyEvent event) {

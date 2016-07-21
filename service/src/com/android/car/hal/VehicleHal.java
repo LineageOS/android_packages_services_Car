@@ -35,6 +35,7 @@ import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -94,9 +95,7 @@ public class VehicleHal implements VehicleNetworkListener {
     /** This is for iterating all HalServices with fixed order. */
     private final HalServiceBase[] mAllServices;
     private final ArraySet<Integer> mSubscribedProperties = new ArraySet<Integer>();
-    private final HashMap<Integer, VehiclePropConfig> mUnclaimedProperties = new HashMap<>();
-    private final List<VehiclePropConfig> mAllProperties = new LinkedList<>();
-
+    private final HashMap<Integer, VehiclePropConfig> mAllProperties = new HashMap<>();
     private final HashMap<Integer, VehiclePropertyEventInfo> mEventLog = new HashMap<>();
 
     private VehicleHal() {
@@ -150,6 +149,14 @@ public class VehicleHal implements VehicleNetworkListener {
         // needs copy as getConfigsList gives unmodifiable one.
         List<VehiclePropConfig> propertiesList =
                 new LinkedList<VehiclePropConfig>(properties.getConfigsList());
+
+        synchronized (this) {
+            // Create map of all properties
+            for (VehiclePropConfig p : propertiesList) {
+                mAllProperties.put(p.getProp(), p);
+            }
+        }
+
         for (HalServiceBase service: mAllServices) {
             List<VehiclePropConfig> taken = service.takeSupportedProperties(propertiesList);
             if (taken == null) {
@@ -166,12 +173,6 @@ public class VehicleHal implements VehicleNetworkListener {
             propertiesList.removeAll(taken);
             service.init();
         }
-        synchronized (this) {
-            for (VehiclePropConfig p: propertiesList) {
-                mUnclaimedProperties.put(p.getProp(), p);
-            }
-            mAllProperties.addAll(properties.getConfigsList());
-        }
     }
 
     public void release() {
@@ -184,7 +185,6 @@ public class VehicleHal implements VehicleNetworkListener {
                 mVehicleNetwork.unsubscribe(p);
             }
             mSubscribedProperties.clear();
-            mUnclaimedProperties.clear();
             mAllProperties.clear();
         }
         // keep the looper thread as should be kept for the whole life cycle.
@@ -240,19 +240,42 @@ public class VehicleHal implements VehicleNetworkListener {
      */
     public void subscribeProperty(HalServiceBase service, int property,
             float samplingRateHz) throws IllegalArgumentException {
+        VehiclePropConfig config;
         synchronized (this) {
-            assertServiceOwnerLocked(service, property);
-            mSubscribedProperties.add(property);
+            config = mAllProperties.get(property);
         }
-        mVehicleNetwork.subscribe(property, samplingRateHz);
+
+        if (config == null) {
+            throw new IllegalArgumentException("subscribe error: config is null for property " +
+                    property);
+        } else if (isPropertySubscribable(config)) {
+            synchronized (this) {
+                assertServiceOwnerLocked(service, property);
+                mSubscribedProperties.add(property);
+            }
+            mVehicleNetwork.subscribe(property, samplingRateHz);
+        } else {
+            Log.e(CarLog.TAG_HAL, "Cannot subscribe to property: " + property);
+        }
     }
 
     public void unsubscribeProperty(HalServiceBase service, int property) {
+        VehiclePropConfig config;
         synchronized (this) {
-            assertServiceOwnerLocked(service, property);
-            mSubscribedProperties.remove(property);
+            config = mAllProperties.get(property);
         }
-        mVehicleNetwork.unsubscribe(property);
+
+        if (config == null) {
+            Log.e(CarLog.TAG_HAL, "unsubscribeProperty: property " + property + " does not exist");
+        } else if (isPropertySubscribable(config)) {
+            synchronized (this) {
+                assertServiceOwnerLocked(service, property);
+                mSubscribedProperties.remove(property);
+            }
+            mVehicleNetwork.unsubscribe(property);
+        } else {
+            Log.e(CarLog.TAG_HAL, "Cannot unsubscribe property: " + property);
+        }
     }
 
     public VehicleNetwork getVehicleNetwork() {
@@ -319,8 +342,14 @@ public class VehicleHal implements VehicleNetworkListener {
         for (HalServiceBase service: mAllServices) {
             service.dump(writer);
         }
+
+        List<VehiclePropConfig> configList;
+        synchronized (this) {
+            configList = new ArrayList<>(mAllProperties.values());
+        }
+
         writer.println("**All properties**");
-        for (VehiclePropConfig config : mAllProperties) {
+        for (VehiclePropConfig config : configList) {
             StringBuilder builder = new StringBuilder();
             builder.append("Property:0x" + Integer.toHexString(config.getProp()));
             builder.append(",access:0x" + Integer.toHexString(config.getAccess()));

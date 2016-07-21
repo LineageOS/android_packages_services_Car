@@ -133,7 +133,7 @@
   </PROPERTY>
 
   <PROPERTY name="VEHICLE_PROPERTY_HVAC_SEAT_TEMPERATURE" value="0x0000050B">
-    <UID name="AID_SYSTEM" access="w" value="1000"/>
+    <UID name="AID_SYSTEM" access="rw" value="1000"/>
   </PROPERTY>
 
   <PROPERTY name="VEHICLE_PROPERTY_HVAC_SIDE_MIRROR_HEAT" value="0x0000050C">
