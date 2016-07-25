@@ -16,6 +16,7 @@
 package com.android.car.hal;
 
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_BOOLEAN;
+import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_BYTES;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC2;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_FLOAT_VEC3;
@@ -37,10 +38,12 @@ import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueTy
 import static com.android.car.vehiclenetwork.VehiclePropValueUtil.getVectorValueType;
 import static java.lang.Integer.toHexString;
 
-import android.car.VehicleZoneUtil;
 import android.car.VehicleAreaType;
+import android.car.VehicleZoneUtil;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+
+import com.google.protobuf.ByteString;
 
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
@@ -66,6 +69,13 @@ import java.util.List;
             return new CarPropertyValue<>(propertyId, areaId, halValue.getStringValue());
         } else if (Long.class == clazz) {
             return new CarPropertyValue<>(propertyId, areaId, halValue.getInt64Value());
+        } else if (Byte[].class == clazz) {
+            byte[] halData = halValue.getBytesValue().toByteArray();
+            Byte[] data = new Byte[halData.length];
+            for (int i = 0; i < halData.length; i++) {
+                data[i] = halData[i];
+            }
+            return new CarPropertyValue<>(propertyId, areaId, data);
         } else /* All list properties */ {
             Object[] values = getRawValueList(clazz, halValue).toArray();
             return new CarPropertyValue<>(propertyId, areaId,
@@ -113,6 +123,14 @@ import java.util.List;
         } else if (o instanceof String) {
             halType = VEHICLE_VALUE_TYPE_STRING;
             builder.setStringValue((String) o);
+        } else if (o instanceof Byte[]) {
+            halType = VEHICLE_VALUE_TYPE_BYTES;  // TODO: We don't have zoned type in vehicle.h
+            Byte[] bytes = (Byte[]) o;
+            byte[] buffer = new byte[bytes.length];
+            for (int i = 0; i < bytes.length; i++) {
+                buffer[i] = bytes[i];
+            }
+            builder.setBytesValue(ByteString.copyFrom(buffer));
         } else {
             throw new IllegalArgumentException("Unexpected type in: " + hvacProp);
         }
@@ -131,7 +149,7 @@ import java.util.List;
                 ? VehicleAreaType.VEHICLE_AREA_TYPE_NONE : VehicleAreaType.VEHICLE_AREA_TYPE_ZONE;
 
         Class<?> clazz = getJavaClass(p.getValueType());
-        if (clazz == Boolean.class) {
+        if (clazz == Boolean.class || clazz == Byte[].class || clazz == String.class) {
             return CarPropertyConfig
                     .newBuilder(clazz, propertyId, areaType, /* capacity */ 1)
                     .addAreas(areas)
@@ -185,6 +203,8 @@ import java.util.List;
                 return Float[].class;
             case VEHICLE_VALUE_TYPE_STRING:
                 return String.class;
+            case VEHICLE_VALUE_TYPE_BYTES:
+                return Byte[].class;
             default:
                 throw new IllegalArgumentException("Unexpected type: " + toHexString(halType));
         }

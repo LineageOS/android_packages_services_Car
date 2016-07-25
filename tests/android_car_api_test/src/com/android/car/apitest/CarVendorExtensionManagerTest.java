@@ -19,10 +19,13 @@ package com.android.car.apitest;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePermissionModel.VEHICLE_PERMISSION_NO_RESTRICTION;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE;
+import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_BYTES;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_INT32;
+import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_STRING;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZone.VEHICLE_ZONE_ROW_1_LEFT;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT;
+import static com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue.newBuilder;
 import static java.util.Collections.singletonList;
 
 import android.car.Car;
@@ -30,16 +33,20 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarVendorExtensionManager;
 import android.car.test.CarTestManager;
 import android.car.test.CarTestManagerBinderWrapper;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.google.android.collect.Lists;
+import com.google.protobuf.ByteString;
 
 import com.android.car.vehiclenetwork.VehicleNetwork.VehicleNetworkHalMock;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
+import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -47,10 +54,18 @@ import java.util.List;
  */
 public class CarVendorExtensionManagerTest extends CarApiTestBase {
 
+    private static final String TAG = CarVendorExtensionManager.class.getSimpleName();
+
     private static final int CUSTOM_GLOBAL_INT_PROP_ID =
             VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START;
     private static final int CUSTOM_ZONED_FLOAT_PROP_ID =
             VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 1;
+    private static final int CUSTOM_BYTES_PROP_ID_1 =
+            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 2;
+    private static final int CUSTOM_BYTES_PROP_ID_2 =
+            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 3;
+    private static final int CUSTOM_STRING_PROP_ID =
+            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 4;
 
     private static final float EPS = 1e-9f;
 
@@ -87,6 +102,37 @@ public class CarVendorExtensionManagerTest extends CarApiTestBase {
                     .setSampleRateMax(0f)
                     .addAllFloatMins(Lists.newArrayList(MIN_PROP_FLOAT, MIN_PROP_FLOAT))
                     .addAllFloatMaxs(Lists.newArrayList(MAX_PROP_FLOAT, MAX_PROP_FLOAT))
+                    .build())
+            .addConfigs(VehiclePropConfig.newBuilder()
+                    .setProp(CUSTOM_BYTES_PROP_ID_1)
+                    .setAccess(VEHICLE_PROP_ACCESS_READ_WRITE)
+                    .setChangeMode(VEHICLE_PROP_CHANGE_MODE_ON_CHANGE)
+                    .setValueType(VEHICLE_VALUE_TYPE_BYTES)
+                    .setPermissionModel(VEHICLE_PERMISSION_NO_RESTRICTION)
+                    .setZones(VEHICLE_ZONE_ROW_1_LEFT | VEHICLE_ZONE_ROW_1_RIGHT)
+                    .addConfigArray(0)
+                    .setSampleRateMin(0f)
+                    .setSampleRateMax(0f)
+                    .build())
+            .addConfigs(VehiclePropConfig.newBuilder()
+                    .setProp(CUSTOM_BYTES_PROP_ID_2)
+                    .setAccess(VEHICLE_PROP_ACCESS_READ_WRITE)
+                    .setChangeMode(VEHICLE_PROP_CHANGE_MODE_ON_CHANGE)
+                    .setValueType(VEHICLE_VALUE_TYPE_BYTES)
+                    .setPermissionModel(VEHICLE_PERMISSION_NO_RESTRICTION)
+                    .addConfigArray(0)
+                    .setSampleRateMin(0f)
+                    .setSampleRateMax(0f)
+                    .build())
+            .addConfigs(VehiclePropConfig.newBuilder()
+                    .setProp(CUSTOM_STRING_PROP_ID)
+                    .setAccess(VEHICLE_PROP_ACCESS_READ_WRITE)
+                    .setChangeMode(VEHICLE_PROP_CHANGE_MODE_ON_CHANGE)
+                    .setValueType(VEHICLE_VALUE_TYPE_STRING)
+                    .setPermissionModel(VEHICLE_PERMISSION_NO_RESTRICTION)
+                    .addConfigArray(0)
+                    .setSampleRateMin(0f)
+                    .setSampleRateMax(0f)
                     .build())
             .build();
 
@@ -143,8 +189,41 @@ public class CarVendorExtensionManagerTest extends CarApiTestBase {
         assertEquals(value, actualValue, EPS);
     }
 
+    public void testByteArrayProperty() throws Exception {
+        final Byte[] expectedData = new Byte[] { 1, 2, 3, 4, -1, 127, -127, 0 };
+
+        // Write to CUSTOM_BYTES_PROP_ID_1 and read this value from CUSTOM_BYTES_PROP_ID_2
+        mManager.setGlobalProperty(
+                Byte[].class,
+                CUSTOM_BYTES_PROP_ID_1,
+                expectedData);
+
+        Byte[] actualData = mManager.getGlobalProperty(
+                Byte[].class,
+                CUSTOM_BYTES_PROP_ID_2);
+
+        assertEquals(Arrays.toString(expectedData), Arrays.toString(actualData));
+    }
+
+    public void testStringProperty() throws Exception {
+        final String expectedString = "εὕρηκα!";  // Test some utf as well.
+
+        mManager.setGlobalProperty(
+                String.class,
+                CUSTOM_STRING_PROP_ID,
+                expectedString);
+
+        String actualString = mManager.getGlobalProperty(
+                String.class,
+                CUSTOM_STRING_PROP_ID);
+
+        assertEquals(expectedString, actualString);
+    }
+
     private static class MockedVehicleHal implements VehicleNetworkHalMock {
         private final SparseArray<VehiclePropValue> mValues = new SparseArray<>();
+
+        private byte[] mBytes = null;
 
         @Override
         public VehiclePropConfigs onListProperties() {
@@ -153,13 +232,41 @@ public class CarVendorExtensionManagerTest extends CarApiTestBase {
 
         @Override
         public void onPropertySet(VehiclePropValue value) {
-            mValues.put(value.getProp(), VehiclePropValue.newBuilder(value).build());
+            if (value.getProp() == CUSTOM_BYTES_PROP_ID_1) {
+                mBytes = value.getBytesValue().toByteArray();
+            }
+
+            mValues.put(value.getProp(), newBuilder(value).build());
         }
 
         @Override
         public VehiclePropValue onPropertyGet(VehiclePropValue value) {
+            Log.d(TAG, "onPropertyGet: 0x" + Integer.toHexString(value.getProp()) + ", "
+                    + VehiclePropValueUtil.toString(value));
+
+            if (value.getProp() == CUSTOM_BYTES_PROP_ID_2 && mBytes != null) {
+                Log.d(TAG, "Returning byte array property, value: " + Arrays.toString(mBytes));
+                return VehiclePropValue
+                        .newBuilder(value)
+                        .setBytesValue(ByteString.copyFrom(mBytes))
+                        .build();
+            }
+
             VehiclePropValue existingValue = mValues.get(value.getProp());
-            return existingValue != null ? existingValue : value;
+            if (existingValue != null) {
+                return existingValue;
+            }
+
+            int type = value.getValueType();
+
+            // VehicleNetwork will fail if we do not set empty data for these properties.
+            if (type == VEHICLE_VALUE_TYPE_BYTES && !value.hasBytesValue()) {
+                return VehiclePropValue.newBuilder(value).setBytesValue(ByteString.EMPTY).build();
+            } else if (type == VEHICLE_VALUE_TYPE_STRING && !value.hasStringValue()) {
+                return VehiclePropValue.newBuilder(value).setStringValue("").build();
+            } else {
+                return value;
+            }
         }
 
         @Override

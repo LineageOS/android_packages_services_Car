@@ -15,6 +15,8 @@
  */
 package com.android.car.vehiclenetwork;
 
+import static java.lang.Integer.toHexString;
+
 import com.google.protobuf.ByteString;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
@@ -235,19 +237,15 @@ public final class VehiclePropValueUtil {
         if (value == null) {
             return String.valueOf(null);
         }
-        return new StringBuilder()
-                .append("prop: " + value.getProp() + "\n")
-                .append("valueType: " + value.getValueType() + "\n")
-                .append("timestamp: " + value.getTimestamp() + "\n")
-                .append("int32Values: " + Arrays.toString(toIntArray(value.getInt32ValuesList()))
-                        + "\n")
-                .append("int64Value: " + value.getInt64Value() + "\n")
-                .append("floatValues: " + Arrays.toString(toFloatArray(value.getFloatValuesList()))
-                        + "\n")
-                .append("stringValue: " + value.getStringValue() + "\n")
-                .append("byteValue: " + Arrays.toString(value.getBytesValue().toByteArray()) + "\n")
-                .append("zone: {" + value.getZone() + "}")
-                .toString();
+        return value.getClass().getSimpleName() + " { prop: 0x" + toHexString(value.getProp()) +
+                ", valueType: 0x" + toHexString(value.getValueType()) +
+                ", timestamp: " + value.getTimestamp() +
+                ", int32Values: " + Arrays.toString(toIntArray(value.getInt32ValuesList())) +
+                ", int64Value: " + value.getInt64Value() +
+                ", floatValues: " + Arrays.toString(toFloatArray(value.getFloatValuesList())) +
+                ", stringValue: " + value.getStringValue() +
+                ", byteValue: " + Arrays.toString(value.getBytesValue().toByteArray()) +
+                ", zone: {" + value.getZone() + "} }";
     }
 
     public static int[] toIntArray(List<Integer> collection) {
