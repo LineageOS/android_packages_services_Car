@@ -228,7 +228,8 @@ public class VehicleHal implements VehicleNetworkListener {
 
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {
         if (service != mPropertyHandlers.get(property)) {
-            throw new IllegalArgumentException("not owned");
+            throw new IllegalArgumentException("Property 0x" + Integer.toHexString(property)
+                    + " is not owned by service: " + service);
         }
     }
 
