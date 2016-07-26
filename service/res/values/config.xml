@@ -56,10 +56,6 @@
          and other sounds can be still played. -->
     <bool name="displayOffMuteLockAllAudio">true</bool>
 
-    <!-- This is kernel device node to allow input event injection for key inputs coming
-         from vehicle hal -->
-    <string name="inputInjectionDeviceNode">/dev/input/event2</string>
-
     <string name="instrumentClusterRendererService">android.car.cluster.loggingrenderer/.LoggingClusterRenderingService</string>
 
     <!--  Whether to enable Avtivity blocking for safety. When Activity blocking is enabled,

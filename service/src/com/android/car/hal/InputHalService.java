@@ -15,7 +15,10 @@
  */
 package com.android.car.hal;
 
+import android.os.SystemClock;
 import android.util.Log;
+import android.util.SparseLongArray;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 
 import com.android.car.CarLog;
@@ -43,6 +46,7 @@ public class InputHalService extends HalServiceBase {
 
     private boolean mKeyInputSupported = false;
     private InputListener mListener;
+    private final SparseLongArray mKeyDownTimes = new SparseLongArray();
 
     public void setInputListener(InputListener listener) {
         synchronized (this) {
@@ -111,9 +115,36 @@ public class InputHalService extends HalServiceBase {
                 Log.i(CarLog.TAG_INPUT, "hal event code:" + code + ",action:" + action +
                         ",display:" + display);
             }
-            KeyEvent event = new KeyEvent(action, code);
-            listener.onKeyEvent(event, display);
+
+            dispatchKeyEvent(listener, action, code, display);
         }
+    }
+
+    private void dispatchKeyEvent(InputListener listener, int action, int code, int display) {
+        long eventTime = SystemClock.uptimeMillis();
+
+        if (action == KeyEvent.ACTION_DOWN) {
+            mKeyDownTimes.put(code, eventTime);
+        }
+
+        long downTime = action == KeyEvent.ACTION_UP
+                ? mKeyDownTimes.get(code, eventTime) : eventTime;
+
+        KeyEvent event = KeyEvent.obtain(
+                downTime,
+                eventTime,
+                action,
+                code,
+                0 /* repeat */,
+                0 /* meta state */,
+                0 /* deviceId*/,
+                0 /* scancode */,
+                0 /* flags */,
+                InputDevice.SOURCE_CLASS_BUTTON,
+                null /* characters */);
+
+        listener.onKeyEvent(event, display);
+        event.recycle();
     }
 
     @Override
