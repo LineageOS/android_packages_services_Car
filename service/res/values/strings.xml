@@ -72,6 +72,11 @@
     <string name="car_permission_label_bind_instrument_cluster_rendering">Instrument Cluster Rendering</string>
     <string name="car_permission_desc_bind_instrument_cluster_rendering">Receive instrument cluster data</string>
 
+    <!-- Permission text: apps can handle input events [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_bind_input_service">Car Input Service</string>
+    <!-- Permission text: apps can handle input events [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_bind_input_service">Handle input events</string>
+
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->
     <string name="car_can_bus_failure">CAN bus failed</string>

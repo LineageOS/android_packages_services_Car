@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package android.car.input;
 
-package android.car;
+import android.view.KeyEvent;
 
-/** @hide */
-public class CarLibLog {
-    public static final String TAG_CAR = "CAR.L";
-    public static final String TAG_CLUSTER = TAG_CAR + ".CLUSTER";
-    public static final String TAG_INPUT = TAG_CAR + ".INPUT";
-    public static final String TAG_NAV = TAG_CAR + ".NAV";
-    public static final String TAG_SENSOR = TAG_CAR + ".SENSOR";
+/**
+ * Binder API for Input Service.
+ *
+ * @hide
+ */
+oneway interface ICarInputListener {
+    /** Called when key event has been received. */
+    void onKeyEvent(in KeyEvent keyEvent, int targetDisplay) = 1;
 }
