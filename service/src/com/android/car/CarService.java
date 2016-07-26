@@ -15,17 +15,18 @@
  */
 package com.android.car;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
-
-import com.android.car.hal.VehicleHal;
-
 import android.app.Service;
-import android.car.Car;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemProperties;
 import android.util.Log;
+
+import com.android.car.hal.VehicleHal;
+
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 
 public class CarService extends Service {
 
@@ -60,10 +61,21 @@ public class CarService extends Service {
 
     @Override
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
-        writer.println("*dump car service*");
-        writer.println("*dump HAL*");
-        VehicleHal.getInstance().dump(writer);
-        writer.println("*dump services*");
-        ICarImpl.getInstance(this).dump(writer);
+        if (checkCallingOrSelfPermission(android.Manifest.permission.DUMP)
+                != PackageManager.PERMISSION_GRANTED) {
+            writer.println("Permission Denial: can't dump CarService from from pid="
+                    + Binder.getCallingPid() + ", uid=" + Binder.getCallingUid()
+                    + " without permission " + android.Manifest.permission.DUMP);
+            return;
+        }
+        if (args == null || args.length == 0) {
+            writer.println("*dump car service*");
+            writer.println("*dump HAL*");
+            VehicleHal.getInstance().dump(writer);
+            writer.println("*dump services*");
+            ICarImpl.getInstance(this).dump(writer);
+        } else {
+            ICarImpl.getInstance(this).execShellCmd(args, writer);
+        }
     }
 }

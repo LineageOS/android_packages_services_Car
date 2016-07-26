@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import android.app.UiModeManager;
 import android.car.Car;
 import android.car.ICar;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
@@ -302,6 +303,75 @@ public class ICarImpl extends ICar.Stub {
         CarTestService testService = mCarTestService;
         if (testService != null) {
             testService.dump(writer);
+        }
+    }
+
+    void execShellCmd(String[] args, PrintWriter writer) {
+        new CarShellCommand().exec(args, writer);
+    }
+
+    private class CarShellCommand {
+        private static final String COMMAND_HELP = "-h";
+        private static final String COMMAND_DAY_NIGHT_MODE = "day-night-mode";
+        private static final String PARAM_DAY_MODE = "day";
+        private static final String PARAM_NIGHT_MODE = "night";
+        private static final String PARAM_SENSOR_MODE = "sensor";
+
+        private void dumpHelp(PrintWriter pw) {
+            pw.println("Car service commands:");
+            pw.println("\t-h");
+            pw.println("\t  Print this help text.");
+            pw.println("\tday-night-mode [day|night|sensor]");
+            pw.println("\t  Force into day/night mode or restore to auto.");
+        }
+
+        public void exec(String[] args, PrintWriter writer) {
+            String arg = args[0];
+            switch (arg) {
+                case COMMAND_HELP:
+                    dumpHelp(writer);
+                    break;
+                case COMMAND_DAY_NIGHT_MODE:
+                    String value = args.length < 1 ? "" : args[1];
+                    forceDayNightMode(value, writer);
+                    break;
+                default:
+                    writer.println("Unknown command.");
+                    dumpHelp(writer);
+            }
+        }
+
+        private void forceDayNightMode(String arg, PrintWriter writer) {
+            int mode;
+            switch (arg) {
+                case PARAM_DAY_MODE:
+                    mode = CarNightService.FORCED_DAY_MODE;
+                    break;
+                case PARAM_NIGHT_MODE:
+                    mode = CarNightService.FORCED_NIGHT_MODE;
+                    break;
+                case PARAM_SENSOR_MODE:
+                    mode = CarNightService.FORCED_SENSOR_MODE;
+                    break;
+                default:
+                    writer.println("Unknown value. Valid argument: " + PARAM_DAY_MODE + "|"
+                            + PARAM_NIGHT_MODE + "|" + PARAM_SENSOR_MODE);
+                    return;
+            }
+            int current = mCarNightService.forceDayNightMode(mode);
+            String currentMode = null;
+            switch (current) {
+                case UiModeManager.MODE_NIGHT_AUTO:
+                    currentMode = PARAM_SENSOR_MODE;
+                    break;
+                case UiModeManager.MODE_NIGHT_YES:
+                    currentMode = PARAM_NIGHT_MODE;
+                    break;
+                case UiModeManager.MODE_NIGHT_NO:
+                    currentMode = PARAM_DAY_MODE;
+                    break;
+            }
+            writer.println("DayNightMode changed to: " + currentMode);
         }
     }
 }
