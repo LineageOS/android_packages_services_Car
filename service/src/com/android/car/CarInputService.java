@@ -15,10 +15,12 @@
  */
 package com.android.car;
 
+import static android.hardware.input.InputManager.INJECT_INPUT_EVENT_MODE_ASYNC;
+
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.input.InputManager;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.CallLog.Calls;
@@ -30,9 +32,6 @@ import android.view.KeyEvent;
 import com.android.car.hal.InputHalService;
 import com.android.car.hal.VehicleHal;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 
 public class CarInputService implements CarServiceBase, InputHalService.InputListener {
@@ -45,6 +44,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
 
     private final Context mContext;
     private final TelecomManager mTelecomManager;
+    private final InputManager mInputManager;
 
     private KeyEventListener mVoiceAssistantKeyListener;
     private KeyEventListener mLongVoiceAssistantKeyListener;
@@ -56,13 +56,12 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
 
     private KeyEventListener mVolumeKeyListener;
 
-    private ParcelFileDescriptor mInjectionDeviceFd;
-
     private int mKeyEventCount = 0;
 
     public CarInputService(Context context) {
         mContext = context;
-        mTelecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
+        mTelecomManager = context.getSystemService(TelecomManager.class);
+        mInputManager = context.getSystemService(InputManager.class);
     }
 
     /**
@@ -108,19 +107,8 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             Log.w(CarLog.TAG_INPUT, "Hal does not support key input.");
             return;
         }
-        String injectionDevice = mContext.getResources().getString(
-                R.string.inputInjectionDeviceNode);
-        ParcelFileDescriptor file = null;
-        try {
-            file = ParcelFileDescriptor.open(new File(injectionDevice),
-                    ParcelFileDescriptor.MODE_READ_WRITE);
-        } catch (FileNotFoundException e) {
-            Log.w(CarLog.TAG_INPUT, "cannot open device for input injection:" + injectionDevice);
-            return;
-        }
-        synchronized (this) {
-            mInjectionDeviceFd = file;
-        }
+
+
         hal.setInputListener(this);
     }
 
@@ -130,13 +118,6 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             mVoiceAssistantKeyListener = null;
             mLongVoiceAssistantKeyListener = null;
             mInstrumentClusterKeyListener = null;
-            if (mInjectionDeviceFd != null) {
-                try {
-                    mInjectionDeviceFd.close();
-                } catch (IOException e) {
-                }
-            }
-            mInjectionDeviceFd = null;
             mKeyEventCount = 0;
         }
     }
@@ -277,26 +258,13 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     }
 
     private void handleMainDisplayKey(KeyEvent event) {
-        int fd;
-        synchronized (this) {
-            fd = mInjectionDeviceFd.getFd();
-        }
-        int action = event.getAction();
-        boolean isDown = (action == KeyEvent.ACTION_DOWN);
-        int keyCode = event.getKeyCode();
-        int r = nativeInjectKeyEvent(fd, keyCode, isDown);
-        if (r != 0) {
-            Log.e(CarLog.TAG_INPUT, "cannot inject key event, failed with:" + r);
-        }
+        mInputManager.injectInputEvent(event, INJECT_INPUT_EVENT_MODE_ASYNC);
     }
 
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*Input Service*");
-        writer.println("mInjectionDeviceFd:" + mInjectionDeviceFd);
         writer.println("mLastVoiceKeyDownTime:" + mLastVoiceKeyDownTime +
                 ",mKeyEventCount:" + mKeyEventCount);
     }
-
-    private native int nativeInjectKeyEvent(int fd, int keyCode, boolean isDown);
 }

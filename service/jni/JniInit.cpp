@@ -21,7 +21,6 @@
 
 namespace android {
 extern int register_com_android_car_CarCameraService(JNIEnv *env);
-extern int register_com_android_car_CarInputService(JNIEnv *env);
 };
 
 extern "C" jint JNI_OnLoad(JavaVM* vm, void* /* reserved */) {
@@ -37,11 +36,6 @@ extern "C" jint JNI_OnLoad(JavaVM* vm, void* /* reserved */) {
     int r = android::register_com_android_car_CarCameraService(env);
     if (r != 0) {
         ALOGE("register_com_android_car_CarCameraService failed %d", r);
-        return JNI_ERR;
-    }
-    r = android::register_com_android_car_CarInputService(env);
-    if (r != 0) {
-        ALOGE("register_com_android_car_CarInputService failed %d", r);
         return JNI_ERR;
     }
     return JNI_VERSION_1_6;
