@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.apitest;
+package android.car.apitest;
 
 import android.car.hardware.CarPropertyConfig;
 import android.graphics.Point;
@@ -139,4 +139,3 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
         assertEquals(10, configRead.getMaxValue().x);
     }
 }
-

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.apitest;
+package android.car.apitest;
 
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePermissionModel.VEHICLE_PERMISSION_NO_RESTRICTION;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE;

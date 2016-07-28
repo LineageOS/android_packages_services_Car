@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.apitest;
+package android.car.apitest;
 
 import android.car.Car;
 import android.car.hardware.CarSensorManager;

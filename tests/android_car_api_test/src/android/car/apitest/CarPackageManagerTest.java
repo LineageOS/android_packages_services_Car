@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.car.apitest;
+package android.car.apitest;
 
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Looper;
 import android.car.Car;
-import android.car.hardware.CarSensorEvent;
-import android.car.hardware.CarSensorManager;
+import android.car.content.pm.CarPackageManager;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
@@ -30,26 +29,27 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @MediumTest
-public class CarSensorManagerTest extends AndroidTestCase {
+public class CarPackageManagerTest extends AndroidTestCase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
 
     private final Semaphore mConnectionWait = new Semaphore(0);
 
     private Car mCar;
-    private CarSensorManager mCarSensorManager;
+    private CarPackageManager mCarPackageManager;
 
     private final ServiceConnection mConnectionListener = new ServiceConnection() {
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            assertMainThread();
-        }
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             assertMainThread();
             mConnectionWait.release();
         }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            assertMainThread();
+        }
+
     };
 
     private void assertMainThread() {
@@ -65,8 +65,8 @@ public class CarSensorManagerTest extends AndroidTestCase {
         mCar = Car.createCar(getContext(), mConnectionListener);
         mCar.connect();
         waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
-        mCarSensorManager =
-                (CarSensorManager) mCar.getCarManager(Car.SENSOR_SERVICE);
+        mCarPackageManager = (CarPackageManager) mCar.getCarManager(Car.PACKAGE_SERVICE);
+        assertNotNull(mCarPackageManager);
     }
 
     @Override
@@ -75,23 +75,7 @@ public class CarSensorManagerTest extends AndroidTestCase {
         mCar.disconnect();
     }
 
-    public void testDrivingPolicy() throws Exception {
-        int[] supportedSensors = mCarSensorManager.getSupportedSensors();
-        assertNotNull(supportedSensors);
-        boolean found = false;
-        for (int sensor: supportedSensors) {
-            if (sensor == CarSensorManager.SENSOR_TYPE_DRIVING_STATUS) {
-                found = true;
-                break;
-            }
-        }
-        assertTrue(found);
-        assertTrue(mCarSensorManager.isSensorSupported(
-                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
-        assertTrue(CarSensorManager.isSensorSupported(supportedSensors,
-                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
-        CarSensorEvent lastEvent = mCarSensorManager.getLatestSensorEvent(
-                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
-        assertNotNull(lastEvent);
+    public void testCreate() throws Exception {
+        //nothing to do for now
     }
 }
