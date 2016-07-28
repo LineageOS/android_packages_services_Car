@@ -90,6 +90,7 @@ public class ActivityBlockingActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         mHandler.removeCallbacks(mFinishRunnable);
+        mCar.disconnect();
     }
 
     private void handleFinish() {

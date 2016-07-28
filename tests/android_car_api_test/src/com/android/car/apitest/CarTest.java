@@ -61,8 +61,8 @@ public class CarTest extends AndroidTestCase {
         assertFalse(car.isConnected());
         assertFalse(car.isConnecting());
         car.connect();
-        //TODO fix race here
-        assertTrue(car.isConnecting());
+        // TODO fix race here
+        // assertTrue(car.isConnecting()); // This makes test flaky.
         waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         assertTrue(car.isConnected());
         assertFalse(car.isConnecting());

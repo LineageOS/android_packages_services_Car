@@ -137,7 +137,7 @@ public class CarVendorExtensionManagerTest extends CarApiTestBase {
             .build();
 
     private CarVendorExtensionManager mManager;
-
+    private CarTestManager mCarTestManager;
 
     @Override
     protected void setUp() throws Exception {
@@ -146,11 +146,17 @@ public class CarVendorExtensionManagerTest extends CarApiTestBase {
         CarTestManagerBinderWrapper testManagerWrapper =
                 (CarTestManagerBinderWrapper) getCar().getCarManager(Car.TEST_SERVICE);
 
-        CarTestManager carTestManager = new CarTestManager(testManagerWrapper);
-        carTestManager.startMocking(mVehicleHal, 0);
+        mCarTestManager = new CarTestManager(testManagerWrapper);
+        mCarTestManager.startMocking(mVehicleHal, 0);
 
         mManager = (CarVendorExtensionManager) getCar().getCarManager(Car.VENDOR_EXTENSION_SERVICE);
         assertNotNull(mManager);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        mCarTestManager.stopMocking();
     }
 
     public void testPropertyList() throws Exception {

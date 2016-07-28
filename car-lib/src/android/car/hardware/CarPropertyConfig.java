@@ -84,7 +84,7 @@ public class CarPropertyConfig<T> implements Parcelable {
     }
 
     public boolean hasArea(int areaId) {
-        return mSupportedAreas.indexOfKey(areaId) != -1;
+        return mSupportedAreas.indexOfKey(areaId) >= 0;
     }
 
     @Nullable
