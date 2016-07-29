@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.apitest;
+package android.car.apitest;
 
 import android.car.content.pm.AppBlockingPackageInfo;
 import android.content.Context;
@@ -50,13 +50,13 @@ public class AppBlockingPackageInfoTest extends AndroidTestCase {
     }
 
     public static AppBlockingPackageInfo createInfoCarService(Context context) {
-        final String packageName = "com.android.car";
+        final String packageName = "android.car";
         return new AppBlockingPackageInfo(packageName, 0, 0, AppBlockingPackageInfo.FLAG_SYSTEM_APP,
                 null, null);
     }
 
     public static final AppBlockingPackageInfo createInfoSelf(Context context) {
-        final String packageName = "com.android.car.apitest";
+        final String packageName = "android.car.apitest";
         PackageManager pm = context.getPackageManager();
         Signature[] signatures;
         try {
