@@ -274,9 +274,9 @@ public class CarSensorService extends ICarSensor.Stub
 
     @Override
     public int[] getSupportedSensors() {
-        tryHoldSensorLock();
+        mSensorLock.lock();
         int[] supportedSensors = mSupportedSensors;
-        releaseSensorLockSafely();
+        mSensorLock.unlock();
         return supportedSensors;
     }
 
