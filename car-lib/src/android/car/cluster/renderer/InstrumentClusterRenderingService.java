@@ -173,10 +173,11 @@ public abstract class InstrumentClusterRenderingService extends Service {
         }
 
         @Override
-        public void onNextManeuverDistanceChanged(int distanceMeters, int timeSeconds)
-                throws RemoteException {
+        public void onNextManeuverDistanceChanged(int distanceMeters, int timeSeconds,
+                int displayDistanceMillis, int displayDistanceUnit) throws RemoteException {
             assertContextOwnership();
-            mNavigationRenderer.onNextTurnDistanceChanged(distanceMeters, timeSeconds);
+            mNavigationRenderer.onNextTurnDistanceChanged(distanceMeters, timeSeconds,
+                    displayDistanceMillis, displayDistanceUnit);
         }
 
         @Override

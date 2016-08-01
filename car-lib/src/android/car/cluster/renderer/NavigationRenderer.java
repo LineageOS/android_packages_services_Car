@@ -38,5 +38,6 @@ public abstract class NavigationRenderer {
     abstract public void onStopNavigation();
     abstract public void onNextTurnChanged(int event, String road, int turnAngle, int turnNumber,
             Bitmap image, int turnSide);
-    abstract public void onNextTurnDistanceChanged(int distanceMeters, int timeSeconds);
+    abstract public void onNextTurnDistanceChanged(int distanceMeters, int timeSeconds,
+            int displayDistanceMillis, int displayDistanceUnit);
 }

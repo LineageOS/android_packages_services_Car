@@ -32,6 +32,7 @@
     <string name="nav_distance_units_meters">m</string>
     <string name="nav_distance_units_kilometers">km</string>
     <string name="nav_distance_units_miles">mi</string>
+    <string name="nav_distance_units_yards">yd</string>
 
     <string name="incoming_message">Incoming message</string>
 
