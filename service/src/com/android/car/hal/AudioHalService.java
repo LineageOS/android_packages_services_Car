@@ -58,6 +58,8 @@ public class AudioHalService extends HalServiceBase {
             VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT;
     public static final int VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK =
             VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK;
+    public static final int VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_NO_DUCK =
+            VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_NO_DUCK;
     public static final int VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE =
             VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE;
 
@@ -147,10 +149,10 @@ public class AudioHalService extends HalServiceBase {
         void onFocusChange(int focusState, int streams, int externalFocus);
         /**
          * Stream state change (start / stop) from android
-         * @param streamNumber
-         * @param state
+         * @param streamNumber stream number like 0, 1, ...
+         * @param streamActive Whether the stream is active or not.
          */
-        void onStreamStatusChange(int streamNumber, int state);
+        void onStreamStatusChange(int streamNumber, boolean streamActive);
     }
 
     public interface AudioHalVolumeListener {
@@ -662,7 +664,8 @@ public class AudioHalService extends HalServiceBase {
                     int streamNum = v.getInt32Values(
                             VehicleAudioStreamStateIndex.VEHICLE_AUDIO_STREAM_STATE_INDEX_STREAM);
                     if (focusListener != null) {
-                        focusListener.onStreamStatusChange(streamNum, state);
+                        focusListener.onStreamStatusChange(streamNum, state ==
+                                VehicleAudioStreamState.VEHICLE_AUDIO_STREAM_STATE_STARTED);
                     }
                 } break;
                 case VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME: {

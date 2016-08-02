@@ -114,7 +114,7 @@ public class CarAudioFocusTest extends MockedCarTestBase {
                 VehiclePropConfigUtil.createStaticStringProperty(
                         VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT),
                 VehiclePropValueUtil.createIntValue(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT, 1, 0));
+                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT, -1, 0));
         getVehicleHalEmulator().start();
     }
 
@@ -431,20 +431,20 @@ public class CarAudioFocusTest extends MockedCarTestBase {
     }
 
     public void testRadioMute() throws Exception {
-        testMediaMute(CarAudioManager.CAR_AUDIO_USAGE_RADIO,
+        doTestMediaMute(CarAudioManager.CAR_AUDIO_USAGE_RADIO,
                 0,
                 VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG);
     }
 
     public void testMusicMute() throws Exception {
-        testMediaMute(CarAudioManager.CAR_AUDIO_USAGE_MUSIC,
+        doTestMediaMute(CarAudioManager.CAR_AUDIO_USAGE_MUSIC,
                 0x1,
                 0,
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG);
     }
 
-    private void testMediaMute(int mediaUsage, int primaryStream, int extFocusFlag,
+    private void doTestMediaMute(int mediaUsage, int primaryStream, int extFocusFlag,
             int mediaContext) throws Exception {
         // android radio
         AudioFocusListener listenerMedia = new AudioFocusListener();
