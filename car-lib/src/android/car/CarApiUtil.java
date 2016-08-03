@@ -16,6 +16,8 @@
 
 package android.car;
 
+import android.car.settings.CarSettings;
+
 /**
  * Internal helper utilities
  * @hide
@@ -79,4 +81,42 @@ public final class CarApiUtil {
 
     /** do not use */
     private CarApiUtil() {};
+
+    /**
+     * Return an integer array of {hour, minute} from the String presentation of the garage mode
+     * time.
+     *
+     * @hide
+     */
+    public static int[] decodeGarageTimeSetting(String time) {
+        int[] result = CarSettings.DEFAULT_GARAGE_MODE_WAKE_UP_TIME;
+        if (time == null) {
+            return result;
+        }
+
+        String[] tokens = time.split(":");
+        if (tokens.length != 2) {
+            return result;
+        }
+        try {
+            result[0] = Integer.valueOf(tokens[0]);
+            result[1] = Integer.valueOf(tokens[1]);
+        } catch (NumberFormatException e) {
+            return CarSettings.DEFAULT_GARAGE_MODE_WAKE_UP_TIME;
+        }
+        if (result[0] >= 0 && result[0] <= 23 && result[1] >= 0 && result[1] <= 59) {
+            return result;
+        } else {
+            return CarSettings.DEFAULT_GARAGE_MODE_WAKE_UP_TIME;
+        }
+    }
+
+    /**
+     * Return a String presentation of the garage mode "hour:minute".
+     *
+     * @hide
+     */
+    public static String encodeGarageTimeSetting(int hour, int min) {
+        return hour + ":" + min;
+    }
 }

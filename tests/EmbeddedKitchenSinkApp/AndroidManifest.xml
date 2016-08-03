@@ -32,6 +32,8 @@
     <uses-permission android:name="android.car.permission.CAR_NAVIGATION_MANAGER"/>
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <application android:label="@string/app_title"
         android:icon="@drawable/ic_launcher">
 
@@ -52,6 +54,13 @@
         <service android:name=".job.DishService"
             android:permission="android.permission.BIND_JOB_SERVICE">
         </service>
+
+        <activity android:name=".setting.CarServiceSettingsActivity"
+            android:label="@string/car_settings">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
 
     </application>
 </manifest>

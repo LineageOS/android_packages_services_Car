@@ -353,3 +353,18 @@ package android.car.media {
 
 }
 
+package android.car.settings {
+
+  public class CarSettings {
+    ctor public CarSettings();
+  }
+
+  public static final class CarSettings.Global {
+    ctor public CarSettings.Global();
+    field public static final java.lang.String KEY_GARAGE_MODE_ENABLED = "android.car.GARAGE_MODE_ENABLED";
+    field public static final java.lang.String KEY_GARAGE_MODE_MAINTENANCE_WINDOW = "android.car.GARAGE_MODE_MAINTENANCE_WINDOW";
+    field public static final java.lang.String KEY_GARAGE_MODE_WAKE_UP_TIME = "android.car.GARAGE_MODE_WAKE_UP_TIME";
+  }
+
+}
+
