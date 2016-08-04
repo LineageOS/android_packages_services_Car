@@ -64,10 +64,10 @@ package android.car {
     method public java.lang.Integer getInt(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public java.lang.Long getLong(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public java.lang.String getString(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    field public static final java.lang.String KEY_MANUFACTURER = "manufacturer";
-    field public static final java.lang.String KEY_MODEL = "model";
-    field public static final java.lang.String KEY_MODEL_YEAR = "model-year";
-    field public static final java.lang.String KEY_VEHICLE_ID = "vehicle-id";
+    field public static final java.lang.String KEY_MANUFACTURER = "android.car.manufacturer";
+    field public static final java.lang.String KEY_MODEL = "android.car.model";
+    field public static final java.lang.String KEY_MODEL_YEAR = "android.car.model-year";
+    field public static final java.lang.String KEY_VEHICLE_ID = "android.car.vehicle-id";
   }
 
   public class CarNotConnectedException extends java.lang.Exception {

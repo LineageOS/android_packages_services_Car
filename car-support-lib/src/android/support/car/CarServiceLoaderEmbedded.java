@@ -27,7 +27,6 @@ import android.support.car.content.pm.CarPackageManagerEmbedded;
 import android.support.car.hardware.CarSensorManagerEmbedded;
 import android.support.car.media.CarAudioManagerEmbedded;
 import android.support.car.navigation.CarNavigationStatusManagerEmbedded;
-
 import java.util.LinkedList;
 
 /**
@@ -50,11 +49,11 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     };
 
     private final android.car.Car mCar;
-    private final LinkedList<CarConnectionListener> mCarConnectionListeners =
+    private final LinkedList<CarConnectionCallbacks> mCarConnectionCallbackses =
             new LinkedList<>();
     private final CallbackHandler mHandler;
 
-    public CarServiceLoaderEmbedded(Context context, ServiceConnectionListener listener,
+    public CarServiceLoaderEmbedded(Context context, ServiceConnectionCallbacks listener,
             Looper looper) {
         super(context, listener, looper);
         mCar = android.car.Car.createCar(context, mServiceConnection, looper);
@@ -85,19 +84,19 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     }
 
     @Override
-    public void registerCarConnectionListener(final CarConnectionListener listener)
+    public void registerCarConnectionListener(final CarConnectionCallbacks listener)
             throws CarNotConnectedException {
         synchronized (this) {
-            mCarConnectionListeners.add(listener);
+            mCarConnectionCallbackses.add(listener);
         }
         // car service connection is checked when this is called. So just dispatch it.
         mHandler.dispatchCarConnectionCall(listener, getCarConnectionType());
     }
 
     @Override
-    public void unregisterCarConnectionListener(CarConnectionListener listener) {
+    public void unregisterCarConnectionListener(CarConnectionCallbacks listener) {
         synchronized (this) {
-            mCarConnectionListeners.remove(listener);
+            mCarConnectionCallbackses.remove(listener);
         }
     }
 
@@ -140,7 +139,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
             super(looper);
         }
 
-        private void dispatchCarConnectionCall(CarConnectionListener listener, int connectionType) {
+        private void dispatchCarConnectionCall(CarConnectionCallbacks listener, int connectionType) {
             sendMessage(obtainMessage(MSG_DISPATCH_CAR_CONNECTION, connectionType, 0, listener));
         }
 
@@ -148,7 +147,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_DISPATCH_CAR_CONNECTION:
-                    CarConnectionListener listener = (CarConnectionListener) msg.obj;
+                    CarConnectionCallbacks listener = (CarConnectionCallbacks) msg.obj;
                     listener.onConnected(msg.arg1);
                     break;
             }

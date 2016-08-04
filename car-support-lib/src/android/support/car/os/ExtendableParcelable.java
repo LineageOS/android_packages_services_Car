@@ -54,8 +54,6 @@ public abstract class ExtendableParcelable implements Parcelable {
 
     /**
      * Constructor for reading parcel. Always call this first before reading anything else.
-     * @param in
-     * @param maxVersion
      */
     protected ExtendableParcelable(Parcel in, int version) {
         int writerVersion = in.readInt();
@@ -68,7 +66,6 @@ public abstract class ExtendableParcelable implements Parcelable {
 
     /**
      * Constructor for writer side. Version should be always set.
-     * @param version
      */
     protected ExtendableParcelable(int version) {
         this.version = version;
@@ -79,7 +76,6 @@ public abstract class ExtendableParcelable implements Parcelable {
      * before reading any Parcel. After all reading is done, {@link #completeReading(Parcel, int)}
      * should be called.
      *
-     * @param in
      * @return last position. This should be passed to {@link #completeReading(Parcel, int)}.
      */
     protected int readHeader(Parcel in) {
@@ -106,7 +102,6 @@ public abstract class ExtendableParcelable implements Parcelable {
      *   ...
      *   completeWrite(dest, pos);
      *
-     * @param dest
      * @return startingPosition which should be passed when calling completeWrite.
      */
     protected int writeHeader(Parcel dest) {
@@ -120,7 +115,6 @@ public abstract class ExtendableParcelable implements Parcelable {
     /**
      * Complete writing the current Parcelable. No more write to Parcel should be done after
      * this call.
-     * @param dest
      * @param startingPosition startingPosition returned from writeHeader
      */
     protected void completeWriting(Parcel dest, int startingPosition) {

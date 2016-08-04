@@ -34,23 +34,23 @@ public class CarInfoManager implements CarManagerBase {
      * Manufacturer of the car.
      */
     @ValueTypeDef(type = String.class)
-    public static final String KEY_MANUFACTURER = "manufacturer";
+    public static final String KEY_MANUFACTURER = "android.car.manufacturer";
     /**
      * Model name of the car. This information may not necessarily allow distinguishing different
      * car models as the same name may be used for different cars depending on manufacturers.
      */
     @ValueTypeDef(type = String.class)
-    public static final String KEY_MODEL = "model";
+    public static final String KEY_MODEL = "android.car.model";
     /**
      * Model year of the car in AC.
      */
     @ValueTypeDef(type = Integer.class)
-    public static final String KEY_MODEL_YEAR = "model-year";
+    public static final String KEY_MODEL_YEAR = "android.car.model-year";
     /**
      * Unique identifier for the car. This is not VIN, and id is persistent until user resets it.
      */
     @ValueTypeDef(type = String.class)
-    public static final String KEY_VEHICLE_ID = "vehicle-id";
+    public static final String KEY_VEHICLE_ID = "android.car.vehicle-id";
 
     //TODO
     //@ValueTypeDef(type = Integer.class)

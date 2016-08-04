@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.support.car.app.menu.compat.CarMenuConstantsComapt.MenuItemConstants;
 import android.util.DisplayMetrics;
 import android.widget.RemoteViews;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -22,7 +22,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionListener;
+import android.support.car.ServiceConnectionCallbacks;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
@@ -48,7 +48,7 @@ public class MockedCarTestBase extends AndroidTestCase {
     private final Semaphore mWaitForMain = new Semaphore(0);
     private final Handler mMainHalder = new Handler(Looper.getMainLooper());
 
-    private final ServiceConnectionListener mConnectionListener = new ServiceConnectionListener() {
+    private final ServiceConnectionCallbacks mConnectionCallbacks = new ServiceConnectionCallbacks() {
 
         @Override
         public void onServiceSuspended(int cause) {
@@ -86,7 +86,7 @@ public class MockedCarTestBase extends AndroidTestCase {
     @Override
     protected synchronized void setUp() throws Exception {
         super.setUp();
-        mSupportCar = Car.createCar(getContext(), mConnectionListener);
+        mSupportCar = Car.createCar(getContext(), mConnectionCallbacks);
         mSupportCar.connect();
         mCar = android.car.Car.createCar(getContext(), new ServiceConnection() {
 

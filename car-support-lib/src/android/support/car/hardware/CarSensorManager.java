@@ -17,14 +17,17 @@
 package android.support.car.hardware;
 
 import android.Manifest;
-import android.os.Looper;
 import android.support.annotation.RequiresPermission;
 import android.support.car.Car;
 import android.support.car.CarManagerBase;
 import android.support.car.CarNotConnectedException;
 
 /**
- *  API for monitoring car sensor data.
+ *  API for monitoring car sensor data.  Applications register listeners to this manager to
+ *  subscribe to individual sensor streams using the SENSOR_TYPE_* constants as the keys.  Data
+ *  points are returned as {@link CarSensorEvent} objects which have translations for  many
+ *  built-in data types.  For Vendor extension streams you'll need to interpret that data based on
+ *  their provided documentation.
  */
 public abstract class CarSensorManager implements CarManagerBase {
     /**
@@ -36,15 +39,18 @@ public abstract class CarSensorManager implements CarManagerBase {
     /**
      * This sensor represents vehicle speed in m/s. Sensor data in {@link CarSensorEvent} is a float
      * which will be >= 0. This requires {@link Car#PERMISSION_SPEED} permission.
+     * @hide
      */
     public static final int SENSOR_TYPE_CAR_SPEED = 2;
     /**
      * Represents engine RPM of the car. Sensor data in {@link CarSensorEvent} is a float.
+     * @hide
      */
     public static final int SENSOR_TYPE_RPM = 3;
     /**
      * Total travel distance of the car in Kilometer. Sensor data is a float. This requires {@link
      * Car#PERMISSION_MILEAGE} permission.
+     * @hide
      */
     public static final int SENSOR_TYPE_ODOMETER = 4;
     /**
@@ -54,6 +60,7 @@ public abstract class CarSensorManager implements CarManagerBase {
      * estimated range in Kilometer with the remaining fuel. Note that the gas mileage used for the
      * estimation may not represent the current driving condition. This requires {@link
      * Car#PERMISSION_FUEL} permission.
+     * @hide
      */
     public static final int SENSOR_TYPE_FUEL_LEVEL = 5;
     /**
@@ -67,6 +74,7 @@ public abstract class CarSensorManager implements CarManagerBase {
      * This represents the current position of transmission gear. Sensor data in {@link
      * CarSensorEvent} is an intValues[0]. For the meaning of the value, check {@link
      * CarSensorEvent#GEAR_NEUTRAL} and other GEAR_*.
+     * @hide
      */
     public static final int SENSOR_TYPE_GEAR = 7;
 
@@ -79,6 +87,7 @@ public abstract class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_NIGHT = 9;
     /**
      * Sensor type for location. Sensor data passed in floatValues.
+     * @hide
      */
     public static final int SENSOR_TYPE_LOCATION = 10;
     /**
@@ -88,6 +97,7 @@ public abstract class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_DRIVING_STATUS = 11;
     /**
      * Environment like temperature and pressure.
+     * @hide
      */
     public static final int SENSOR_TYPE_ENVIRONMENT = 12;
     /** @hide */
@@ -108,11 +118,6 @@ public abstract class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_RESERVED20 = 20;
     /** @hide */
     public static final int SENSOR_TYPE_RESERVED21 = 21;
-
-    /**
-     * Sensor type bigger than this is invalid. Always update this after adding a new sensor.
-     */
-    private static final int SENSOR_TYPE_MAX = SENSOR_TYPE_RESERVED21;
 
     /**
      * Sensors defined in this range [{@link #SENSOR_TYPE_VENDOR_EXTENSION_START},
@@ -164,9 +169,6 @@ public abstract class CarSensorManager implements CarManagerBase {
 
     /**
      * Check if given sensorList is including the sensorType.
-     * @param sensorList
-     * @param sensorType
-     * @return
      */
     public static boolean isSensorSupported(int[] sensorList, int sensorType) {
         for (int sensorSupported: sensorList) {
@@ -189,7 +191,6 @@ public abstract class CarSensorManager implements CarManagerBase {
      * {@link #SENSOR_TYPE_ODOMETER}, or {@link Car#PERMISSION_FUEL} for
      * {@link #SENSOR_TYPE_FUEL_LEVEL}.
      *
-     * @param listener
      * @param sensorType sensor type to subscribe.
      * @param rate how fast the sensor events are delivered. It should be one of
      *        {@link #SENSOR_RATE_FASTEST} or {@link #SENSOR_RATE_NORMAL}. Rate may not be respected
@@ -208,7 +209,6 @@ public abstract class CarSensorManager implements CarManagerBase {
     /**
      * Stop getting sensor update for the given listener. If there are multiple registrations for
      * this listener, all listening will be stopped.
-     * @param listener
      */
     public abstract  void unregisterListener(CarSensorEventListener listener)
             throws CarNotConnectedException;
@@ -216,8 +216,6 @@ public abstract class CarSensorManager implements CarManagerBase {
     /**
      * Stop getting sensor update for the given listener and sensor. If the same listener is used
      * for other sensors, those subscriptions will not be affected.
-     * @param listener
-     * @param sensorType
      */
     public abstract  void unregisterListener(CarSensorEventListener listener, int sensorType)
             throws CarNotConnectedException;

@@ -18,10 +18,8 @@ package android.support.car.hardware;
 
 import android.content.Context;
 import android.support.car.CarNotConnectedException;
-
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Set;
 

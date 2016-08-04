@@ -16,18 +16,19 @@
 
 package android.support.car;
 
+import android.content.ComponentName;
+import android.content.ServiceConnection;
+
 /**
- * Listener for monitoring car's connection status.
- * Callbacks are called from the looper specified when constructing {@link Car}.
+ * Allows apps to know when the {@link Car} service has been connected or disconnected.  This
+ * allows application to know when and if these services are available.  This is analogous to the
+ * {@link ServiceConnection} class but for {@link Car}.
  */
-public interface CarConnectionListener {
-    /**
-     * Car has been connected. Does not guarantee that the car is still connected whilst this
-     * callback is running, so {@link CarNotConnectedException}s may still be thrown from
-     * {@link Car} method calls.
-     * @param connectionType Type of car connected.
-     */
-    void onConnected(@Car.ConnectionType int connectionType);
-    /** Car disconnected */
-    void onDisconnected();
+public interface ServiceConnectionCallbacks {
+    void onServiceConnected(ComponentName name);
+    void onServiceDisconnected(ComponentName name);
+    //TODO define cause values
+    void onServiceSuspended(int cause);
+    //TODO define cause values
+    void onServiceConnectionFailed(int cause);
 }

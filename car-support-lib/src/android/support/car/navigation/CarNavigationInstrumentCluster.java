@@ -20,7 +20,6 @@ import android.os.Parcelable;
 import android.support.annotation.IntDef;
 import android.support.car.annotation.VersionDef;
 import android.support.car.os.ExtendableParcelable;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -62,10 +61,12 @@ public class CarNavigationInstrumentCluster extends ExtendableParcelable {
 
     public static final Parcelable.Creator<CarNavigationInstrumentCluster> CREATOR
             = new Parcelable.Creator<CarNavigationInstrumentCluster>() {
+        @Override
         public CarNavigationInstrumentCluster createFromParcel(Parcel in) {
             return new CarNavigationInstrumentCluster(in);
         }
 
+        @Override
         public CarNavigationInstrumentCluster[] newArray(int size) {
             return new CarNavigationInstrumentCluster[size];
         }

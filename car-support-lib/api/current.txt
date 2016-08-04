@@ -2,20 +2,22 @@ package android.support.car {
 
   public class Car {
     method public void connect() throws java.lang.IllegalStateException;
-    method public static android.support.car.Car createCar(android.content.Context, android.support.car.ServiceConnectionListener, android.os.Looper);
-    method public static android.support.car.Car createCar(android.content.Context, android.support.car.ServiceConnectionListener);
+    method public static android.support.car.Car createCar(android.content.Context, android.support.car.ServiceConnectionCallbacks, android.os.Looper);
+    method public static android.support.car.Car createCar(android.content.Context, android.support.car.ServiceConnectionCallbacks);
     method public void disconnect();
     method public int getCarConnectionType() throws android.support.car.CarNotConnectedException;
-    method public java.lang.Object getCarManager(java.lang.String) throws android.support.car.CarNotConnectedException, android.support.car.CarNotSupportedException;
+    method public java.lang.Object getCarManager(java.lang.String) throws android.support.car.CarNotConnectedException;
     method public boolean isConnected();
     method public boolean isConnectedToCar();
     method public boolean isConnecting();
-    method public void registerCarConnectionListener(android.support.car.CarConnectionListener) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException;
-    method public void unregisterCarConnectionListener(android.support.car.CarConnectionListener);
+    method public void registerCarConnectionListener(android.support.car.CarConnectionCallbacks) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException;
+    method public void unregisterCarConnectionListener(android.support.car.CarConnectionCallbacks);
     field public static final java.lang.String APP_FOCUS_SERVICE = "app_focus";
     field public static final java.lang.String AUDIO_SERVICE = "audio";
+    field public static final java.lang.String CAR_NAVIGATION_SERVICE = "car_navigation_service";
     field public static final int CONNECTION_TYPE_ADB_EMULATOR = 4; // 0x4
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
+    field public static final int CONNECTION_TYPE_EMBEDDED_MOCKING = 6; // 0x6
     field public static final int CONNECTION_TYPE_EMULATOR = 0; // 0x0
     field public static final int CONNECTION_TYPE_ON_DEVICE_EMULATOR = 3; // 0x3
     field public static final int CONNECTION_TYPE_UNKNOWN = -1; // 0xffffffff
@@ -23,9 +25,7 @@ package android.support.car {
     field public static final int CONNECTION_TYPE_WIFI = 2; // 0x2
     field public static final java.lang.String INFO_SERVICE = "info";
     field public static final java.lang.String PACKAGE_SERVICE = "package";
-    field public static final java.lang.String PERMISSION_FUEL = "android.car.permission.CAR_FUEL";
-    field public static final java.lang.String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
-    field public static final java.lang.String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
+    field public static final java.lang.String PERMISSION_CAR_NAVIGATION_MANAGER = "android.car.permission.PERMISSION_CAR_NAVIGATION_MANAGER";
     field public static final java.lang.String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
     field public static final java.lang.String SENSOR_SERVICE = "sensor";
   }
@@ -42,7 +42,6 @@ package android.support.car {
     field public static final int APP_FOCUS_REQUEST_FAILED = 0; // 0x0
     field public static final int APP_FOCUS_REQUEST_GRANTED = 1; // 0x1
     field public static final int APP_FOCUS_TYPE_NAVIGATION = 1; // 0x1
-    field public static final int APP_FOCUS_TYPE_VOICE_COMMAND = 2; // 0x2
   }
 
   public static abstract interface CarAppFocusManager.AppFocusChangeListener {
@@ -53,7 +52,8 @@ package android.support.car {
     method public abstract void onAppFocusOwnershipLoss(int);
   }
 
-  public abstract interface CarConnectionListener {
+  public abstract class CarConnectionCallbacks {
+    ctor public CarConnectionCallbacks();
     method public abstract void onConnected(int);
     method public abstract void onDisconnected();
   }
@@ -67,15 +67,15 @@ package android.support.car {
     field public static final int DRIVER_SIDE_CENTER = 2; // 0x2
     field public static final int DRIVER_SIDE_LEFT = 0; // 0x0
     field public static final int DRIVER_SIDE_RIGHT = 1; // 0x1
-    field public static final java.lang.String KEY_DRIVER_POSITION = "driverPosition";
-    field public static final java.lang.String KEY_HEAD_UNIT_MAKE = "headUnitMake";
-    field public static final java.lang.String KEY_HEAD_UNIT_MODEL = "headUnitModel";
-    field public static final java.lang.String KEY_HEAD_UNIT_SOFTWARE_BUILD = "headUnitSoftwareBuild";
-    field public static final java.lang.String KEY_HEAD_UNIT_SOFTWARE_VERSION = "headUnitSoftwareVersion";
-    field public static final java.lang.String KEY_MANUFACTURER = "manufacturer";
-    field public static final java.lang.String KEY_MODEL = "model";
-    field public static final java.lang.String KEY_MODEL_YEAR = "model-year";
-    field public static final java.lang.String KEY_VEHICLE_ID = "vehicle-id";
+    field public static final java.lang.String KEY_DRIVER_POSITION = "android.car.driverPosition";
+    field public static final java.lang.String KEY_HEAD_UNIT_MAKE = "android.car.headUnitMake";
+    field public static final java.lang.String KEY_HEAD_UNIT_MODEL = "android.car.headUnitModel";
+    field public static final java.lang.String KEY_HEAD_UNIT_SOFTWARE_BUILD = "android.car.headUnitSoftwareBuild";
+    field public static final java.lang.String KEY_HEAD_UNIT_SOFTWARE_VERSION = "android.car.headUnitSoftwareVersion";
+    field public static final java.lang.String KEY_MANUFACTURER = "android.car.manufacturer";
+    field public static final java.lang.String KEY_MODEL = "android.car.model";
+    field public static final java.lang.String KEY_MODEL_YEAR = "android.car.model-year";
+    field public static final java.lang.String KEY_VEHICLE_ID = "android.car.vehicle-id";
   }
 
   public class CarNotConnectedException extends java.lang.Exception {
@@ -92,7 +92,7 @@ package android.support.car {
     ctor public CarNotSupportedException(java.lang.Exception);
   }
 
-  public abstract interface ServiceConnectionListener {
+  public abstract interface ServiceConnectionCallbacks {
     method public abstract void onServiceConnected(android.content.ComponentName);
     method public abstract void onServiceConnectionFailed(int);
     method public abstract void onServiceDisconnected(android.content.ComponentName);
@@ -202,8 +202,8 @@ package android.support.car.app {
   }
 
   public class CarProxyActivity extends android.app.Activity {
-    ctor public CarProxyActivity(java.lang.Class);
-    ctor public CarProxyActivity(java.lang.Class, boolean);
+    ctor public CarProxyActivity(java.lang.Class<? extends android.support.car.app.CarActivity>);
+    ctor public CarProxyActivity(java.lang.Class<? extends android.support.car.app.CarActivity>, boolean);
   }
 
 }
@@ -409,36 +409,16 @@ package android.support.car.app.menu.compat {
 
 }
 
-package android.support.car.content.pm {
-
-  public abstract class CarPackageManager {
-    ctor public CarPackageManager();
-    method public abstract boolean isActivityAllowedWhileDriving(java.lang.String, java.lang.String) throws android.support.car.CarNotConnectedException;
-    method public abstract boolean isServiceAllowedWhileDriving(java.lang.String, java.lang.String) throws android.support.car.CarNotConnectedException;
-  }
-
-}
-
 package android.support.car.hardware {
 
   public class CarSensorEvent extends android.support.car.os.ExtendableParcelable {
     ctor public CarSensorEvent(android.os.Parcel);
     ctor public CarSensorEvent(int, long, int, int);
     method public int describeContents();
-    method public android.support.car.hardware.CarSensorEvent.AccelerometerData getAccelerometerData(android.support.car.hardware.CarSensorEvent.AccelerometerData);
-    method public android.support.car.hardware.CarSensorEvent.CarSpeedData getCarSpeedData(android.support.car.hardware.CarSensorEvent.CarSpeedData);
     method public android.support.car.hardware.CarSensorEvent.CompassData getCompassData(android.support.car.hardware.CarSensorEvent.CompassData);
     method public android.support.car.hardware.CarSensorEvent.DrivingStatusData getDrivingStatusData(android.support.car.hardware.CarSensorEvent.DrivingStatusData);
-    method public android.support.car.hardware.CarSensorEvent.EnvironmentData getEnvironmentData(android.support.car.hardware.CarSensorEvent.EnvironmentData);
-    method public android.support.car.hardware.CarSensorEvent.FuelLevelData getFuelLevelData(android.support.car.hardware.CarSensorEvent.FuelLevelData);
-    method public android.support.car.hardware.CarSensorEvent.GearData getGearData(android.support.car.hardware.CarSensorEvent.GearData);
-    method public android.support.car.hardware.CarSensorEvent.GpsSatelliteData getGpsSatelliteData(android.support.car.hardware.CarSensorEvent.GpsSatelliteData, boolean);
-    method public android.support.car.hardware.CarSensorEvent.GyroscopeData getGyroscopeData(android.support.car.hardware.CarSensorEvent.GyroscopeData);
-    method public android.location.Location getLocation(android.location.Location);
     method public android.support.car.hardware.CarSensorEvent.NightData getNightData(android.support.car.hardware.CarSensorEvent.NightData);
-    method public android.support.car.hardware.CarSensorEvent.OdometerData getOdometerData(android.support.car.hardware.CarSensorEvent.OdometerData);
     method public android.support.car.hardware.CarSensorEvent.ParkingBrakeData getParkingBrakeData(android.support.car.hardware.CarSensorEvent.ParkingBrakeData);
-    method public android.support.car.hardware.CarSensorEvent.RpmData getRpmData(android.support.car.hardware.CarSensorEvent.RpmData);
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.support.car.hardware.CarSensorEvent> CREATOR;
     field public static final int DRIVE_STATUS_FULLY_RESTRICTED = 31; // 0x1f
@@ -448,70 +428,12 @@ package android.support.car.hardware {
     field public static final int DRIVE_STATUS_NO_VIDEO = 1; // 0x1
     field public static final int DRIVE_STATUS_NO_VOICE_INPUT = 4; // 0x4
     field public static final int DRIVE_STATUS_UNRESTRICTED = 0; // 0x0
-    field public static final int GEAR_DRIVE = 100; // 0x64
-    field public static final int GEAR_EIGHTH = 8; // 0x8
-    field public static final int GEAR_FIFTH = 5; // 0x5
-    field public static final int GEAR_FIRST = 1; // 0x1
-    field public static final int GEAR_FOURTH = 4; // 0x4
-    field public static final int GEAR_NEUTRAL = 0; // 0x0
-    field public static final int GEAR_NINTH = 9; // 0x9
-    field public static final int GEAR_PARK = 101; // 0x65
-    field public static final int GEAR_REVERSE = 102; // 0x66
-    field public static final int GEAR_SECOND = 2; // 0x2
-    field public static final int GEAR_SEVENTH = 7; // 0x7
-    field public static final int GEAR_SIXTH = 6; // 0x6
-    field public static final int GEAR_TENTH = 10; // 0xa
-    field public static final int GEAR_THIRD = 3; // 0x3
-    field public static final int INDEX_ACCELEROMETER_X = 0; // 0x0
-    field public static final int INDEX_ACCELEROMETER_Y = 1; // 0x1
-    field public static final int INDEX_ACCELEROMETER_Z = 2; // 0x2
     field public static final int INDEX_COMPASS_BEARING = 0; // 0x0
     field public static final int INDEX_COMPASS_PITCH = 1; // 0x1
     field public static final int INDEX_COMPASS_ROLL = 2; // 0x2
-    field public static final int INDEX_ENVIRONMENT_PRESSURE = 1; // 0x1
-    field public static final int INDEX_ENVIRONMENT_TEMPERATURE = 0; // 0x0
-    field public static final int INDEX_FUEL_LEVEL_IN_DISTANCE = 1; // 0x1
-    field public static final int INDEX_FUEL_LEVEL_IN_PERCENTILE = 0; // 0x0
-    field public static final int INDEX_FUEL_LOW_WARNING = 0; // 0x0
-    field public static final int INDEX_GPS_SATELLITE_ARRAY_FLOAT_INTERVAL = 4; // 0x4
-    field public static final int INDEX_GPS_SATELLITE_ARRAY_FLOAT_OFFSET = 0; // 0x0
-    field public static final int INDEX_GPS_SATELLITE_ARRAY_INT_INTERVAL = 1; // 0x1
-    field public static final int INDEX_GPS_SATELLITE_ARRAY_INT_OFFSET = 2; // 0x2
-    field public static final int INDEX_GPS_SATELLITE_AZIMUTH_OFFSET = 2; // 0x2
-    field public static final int INDEX_GPS_SATELLITE_ELEVATION_OFFSET = 3; // 0x3
-    field public static final int INDEX_GPS_SATELLITE_NUMBER_IN_USE = 0; // 0x0
-    field public static final int INDEX_GPS_SATELLITE_NUMBER_IN_VIEW = 1; // 0x1
-    field public static final int INDEX_GPS_SATELLITE_PRN_OFFSET = 0; // 0x0
-    field public static final int INDEX_GPS_SATELLITE_SNR_OFFSET = 1; // 0x1
-    field public static final int INDEX_GYROSCOPE_X = 0; // 0x0
-    field public static final int INDEX_GYROSCOPE_Y = 1; // 0x1
-    field public static final int INDEX_GYROSCOPE_Z = 2; // 0x2
-    field public static final int INDEX_LOCATION_ACCURACY = 2; // 0x2
-    field public static final int INDEX_LOCATION_ALTITUDE = 3; // 0x3
-    field public static final int INDEX_LOCATION_BEARING = 5; // 0x5
-    field public static final int INDEX_LOCATION_LATITUDE = 0; // 0x0
-    field public static final int INDEX_LOCATION_LATITUDE_INTS = 1; // 0x1
-    field public static final int INDEX_LOCATION_LONGITUDE = 1; // 0x1
-    field public static final int INDEX_LOCATION_LONGITUDE_INTS = 2; // 0x2
-    field public static final int INDEX_LOCATION_MAX = 5; // 0x5
-    field public static final int INDEX_LOCATION_SPEED = 4; // 0x4
     field public final float[] floatValues;
     field public final int[] intValues;
     field public int sensorType;
-    field public long timeStampNs;
-  }
-
-  public static class CarSensorEvent.AccelerometerData {
-    ctor public CarSensorEvent.AccelerometerData();
-    field public long timeStampNs;
-    field public float x;
-    field public float y;
-    field public float z;
-  }
-
-  public static class CarSensorEvent.CarSpeedData {
-    ctor public CarSensorEvent.CarSpeedData();
-    field public float carSpeed;
     field public long timeStampNs;
   }
 
@@ -529,68 +451,15 @@ package android.support.car.hardware {
     field public long timeStampNs;
   }
 
-  public static class CarSensorEvent.EnvironmentData {
-    ctor public CarSensorEvent.EnvironmentData();
-    field public float pressure;
-    field public float temperature;
-    field public long timeStampNs;
-  }
-
-  public static class CarSensorEvent.FuelLevelData {
-    ctor public CarSensorEvent.FuelLevelData();
-    field public int level;
-    field public boolean lowFuelWarning;
-    field public float range;
-    field public long timeStampNs;
-  }
-
-  public static class CarSensorEvent.GearData {
-    ctor public CarSensorEvent.GearData();
-    field public int gear;
-    field public long timeStampNs;
-  }
-
-  public static class CarSensorEvent.GpsSatelliteData {
-    ctor public CarSensorEvent.GpsSatelliteData();
-    field public float[] azimuth;
-    field public float[] elevation;
-    field public int numberInUse;
-    field public int numberInView;
-    field public int[] prn;
-    field public float[] snr;
-    field public long timeStampNs;
-    field public boolean[] usedInFix;
-  }
-
-  public static class CarSensorEvent.GyroscopeData {
-    ctor public CarSensorEvent.GyroscopeData();
-    field public long timeStampNs;
-    field public float x;
-    field public float y;
-    field public float z;
-  }
-
   public static class CarSensorEvent.NightData {
     ctor public CarSensorEvent.NightData();
     field public boolean isNightMode;
     field public long timeStampNs;
   }
 
-  public static class CarSensorEvent.OdometerData {
-    ctor public CarSensorEvent.OdometerData();
-    field public float kms;
-    field public long timeStampNs;
-  }
-
   public static class CarSensorEvent.ParkingBrakeData {
     ctor public CarSensorEvent.ParkingBrakeData();
     field public boolean isEngaged;
-    field public long timeStampNs;
-  }
-
-  public static class CarSensorEvent.RpmData {
-    ctor public CarSensorEvent.RpmData();
-    field public float rpm;
     field public long timeStampNs;
   }
 
@@ -607,17 +476,10 @@ package android.support.car.hardware {
     field public static final int SENSOR_RATE_FASTEST = 0; // 0x0
     field public static final int SENSOR_RATE_NORMAL = 3; // 0x3
     field public static final int SENSOR_RATE_UI = 2; // 0x2
-    field public static final int SENSOR_TYPE_CAR_SPEED = 2; // 0x2
     field public static final int SENSOR_TYPE_COMPASS = 1; // 0x1
     field public static final int SENSOR_TYPE_DRIVING_STATUS = 11; // 0xb
-    field public static final int SENSOR_TYPE_ENVIRONMENT = 12; // 0xc
-    field public static final int SENSOR_TYPE_FUEL_LEVEL = 5; // 0x5
-    field public static final int SENSOR_TYPE_GEAR = 7; // 0x7
-    field public static final int SENSOR_TYPE_LOCATION = 10; // 0xa
     field public static final int SENSOR_TYPE_NIGHT = 9; // 0x9
-    field public static final int SENSOR_TYPE_ODOMETER = 4; // 0x4
     field public static final int SENSOR_TYPE_PARKING_BRAKE = 6; // 0x6
-    field public static final int SENSOR_TYPE_RPM = 3; // 0x3
     field public static final int SENSOR_TYPE_VENDOR_EXTENSION_END = 1879048191; // 0x6fffffff
   }
 
@@ -676,13 +538,12 @@ package android.support.car.media {
     method public abstract int getAudioRecordMaxBufferSize() throws android.support.car.CarNotConnectedException, android.support.car.CarNotSupportedException;
     method public abstract int getAudioRecordMinBufferSize() throws android.support.car.CarNotConnectedException, android.support.car.CarNotSupportedException;
     method public abstract boolean isMediaMuted() throws android.support.car.CarNotConnectedException;
-    method public abstract int requestAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes, int, int) throws java.lang.IllegalArgumentException;
+    method public abstract int requestAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes, int) throws java.lang.IllegalArgumentException;
     field public static final int CAR_AUDIO_USAGE_ALARM = 6; // 0x6
     field public static final int CAR_AUDIO_USAGE_DEFAULT = 0; // 0x0
     field public static final int CAR_AUDIO_USAGE_MUSIC = 1; // 0x1
     field public static final int CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE = 3; // 0x3
     field public static final int CAR_AUDIO_USAGE_NOTIFICATION = 7; // 0x7
-    field public static final int CAR_AUDIO_USAGE_RADIO = 2; // 0x2
     field public static final int CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT = 9; // 0x9
     field public static final int CAR_AUDIO_USAGE_SYSTEM_SOUND = 8; // 0x8
     field public static final int CAR_AUDIO_USAGE_VOICE_CALL = 4; // 0x4
@@ -700,15 +561,67 @@ package android.support.car.media {
     method public abstract void stop();
   }
 
-  public class CarAudioRecordEmbedded implements android.support.car.media.CarAudioRecord {
-    method public int getAudioSessionId();
-    method public int getBufferSize();
-    method public int getRecordingState();
-    method public int getState();
-    method public int read(byte[], int, int) throws java.lang.IllegalStateException;
-    method public void release();
-    method public void startRecording();
-    method public void stop();
+}
+
+package android.support.car.navigation {
+
+  public class CarNavigationInstrumentCluster extends android.support.car.os.ExtendableParcelable {
+    ctor public CarNavigationInstrumentCluster(android.support.car.navigation.CarNavigationInstrumentCluster);
+    method public static android.support.car.navigation.CarNavigationInstrumentCluster createCluster(int);
+    method public static android.support.car.navigation.CarNavigationInstrumentCluster createCustomImageCluster(int, int, int, int);
+    method public int describeContents();
+    method public int getImageColorDepthBits();
+    method public int getImageHeight();
+    method public int getImageWidth();
+    method public int getMinIntervalMs();
+    method public int getType();
+    method public boolean supportsCustomImages();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.support.car.navigation.CarNavigationInstrumentCluster> CREATOR;
+  }
+
+  public abstract interface CarNavigationStatusManager {
+    method public abstract void registerListener(android.support.car.navigation.CarNavigationStatusManager.CarNavigationListener) throws android.support.car.CarNotConnectedException;
+    method public abstract boolean sendNavigationStatus(int) throws android.support.car.CarNotConnectedException;
+    method public abstract boolean sendNavigationTurnDistanceEvent(int, int, int, int) throws android.support.car.CarNotConnectedException;
+    method public abstract boolean sendNavigationTurnEvent(int, java.lang.String, int, int, int) throws android.support.car.CarNotConnectedException;
+    method public abstract void unregisterListener();
+    field public static final int DISTANCE_FEET = 6; // 0x6
+    field public static final int DISTANCE_KILOMETERS = 2; // 0x2
+    field public static final int DISTANCE_KILOMETERS_P1 = 3; // 0x3
+    field public static final int DISTANCE_METERS = 1; // 0x1
+    field public static final int DISTANCE_MILES = 4; // 0x4
+    field public static final int DISTANCE_MILES_P1 = 5; // 0x5
+    field public static final int DISTANCE_YARDS = 7; // 0x7
+    field public static final int STATUS_ACTIVE = 1; // 0x1
+    field public static final int STATUS_INACTIVE = 2; // 0x2
+    field public static final int STATUS_UNAVAILABLE = 0; // 0x0
+    field public static final int TURN_DEPART = 1; // 0x1
+    field public static final int TURN_DESTINATION = 19; // 0x13
+    field public static final int TURN_FERRY_BOAT = 16; // 0x10
+    field public static final int TURN_FERRY_TRAIN = 17; // 0x11
+    field public static final int TURN_FORK = 9; // 0x9
+    field public static final int TURN_MERGE = 10; // 0xa
+    field public static final int TURN_NAME_CHANGE = 2; // 0x2
+    field public static final int TURN_OFF_RAMP = 8; // 0x8
+    field public static final int TURN_ON_RAMP = 7; // 0x7
+    field public static final int TURN_ROUNDABOUT_ENTER = 11; // 0xb
+    field public static final int TURN_ROUNDABOUT_ENTER_AND_EXIT = 13; // 0xd
+    field public static final int TURN_ROUNDABOUT_EXIT = 12; // 0xc
+    field public static final int TURN_SHARP_TURN = 5; // 0x5
+    field public static final int TURN_SIDE_LEFT = 1; // 0x1
+    field public static final int TURN_SIDE_RIGHT = 2; // 0x2
+    field public static final int TURN_SIDE_UNSPECIFIED = 3; // 0x3
+    field public static final int TURN_SLIGHT_TURN = 3; // 0x3
+    field public static final int TURN_STRAIGHT = 14; // 0xe
+    field public static final int TURN_TURN = 4; // 0x4
+    field public static final int TURN_UNKNOWN = 0; // 0x0
+    field public static final int TURN_U_TURN = 6; // 0x6
+  }
+
+  public static abstract interface CarNavigationStatusManager.CarNavigationListener {
+    method public abstract void onInstrumentClusterStart(android.support.car.navigation.CarNavigationInstrumentCluster);
+    method public abstract void onInstrumentClusterStop();
   }
 
 }

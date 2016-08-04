@@ -17,7 +17,7 @@
 package com.android.support.car.apitest;
 
 import android.support.car.Car;
-import android.support.car.CarConnectionListener;
+import android.support.car.CarConnectionCallbacks;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
@@ -25,21 +25,21 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @MediumTest
-public class CarConnectionListenerTest extends CarApiTestBase {
-    private static final String TAG = CarConnectionListenerTest.class.getSimpleName();
+public class CarConnectionCallbacksTest extends CarApiTestBase {
+    private static final String TAG = CarConnectionCallbacksTest.class.getSimpleName();
 
     public void testRegisterUnregister() throws Exception {
-        CarConnectionListerImpl listener = new CarConnectionListerImpl();
+        CarConnectionCallbacksImpl listener = new CarConnectionCallbacksImpl();
         getCar().registerCarConnectionListener(listener);
         assertTrue(listener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
         getCar().unregisterCarConnectionListener(listener);
     }
 
     public void testMultiple() throws Exception {
-        CarConnectionListerImpl listener1 = new CarConnectionListerImpl();
+        CarConnectionCallbacksImpl listener1 = new CarConnectionCallbacksImpl();
         getCar().registerCarConnectionListener(listener1);
         assertTrue(listener1.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
-        CarConnectionListerImpl listener2 = new CarConnectionListerImpl();
+        CarConnectionCallbacksImpl listener2 = new CarConnectionCallbacksImpl();
         getCar().registerCarConnectionListener(listener2);
         assertTrue(listener2.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
         assertFalse(listener1.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
@@ -47,7 +47,7 @@ public class CarConnectionListenerTest extends CarApiTestBase {
         getCar().unregisterCarConnectionListener(listener1);
     }
 
-    private class CarConnectionListerImpl implements CarConnectionListener {
+    private class CarConnectionCallbacksImpl extends CarConnectionCallbacks {
         int mConnectionType;
         boolean mIsConnected = false;
         private Semaphore mWaitSemaphore = new Semaphore(0);

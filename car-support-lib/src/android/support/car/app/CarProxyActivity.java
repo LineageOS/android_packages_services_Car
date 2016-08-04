@@ -24,7 +24,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionListener;
+import android.support.car.ServiceConnectionCallbacks;
 import android.support.car.input.CarInputManager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -35,7 +35,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -48,7 +47,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class CarProxyActivity extends Activity {
     private static final String TAG = "CarProxyActivity";
 
-    private final Class mCarActivityClass;
+    private final Class<? extends CarActivity> mCarActivityClass;
     private final boolean mNeedConnectedCar;
     private Car mCar;
     // no synchronization, but main thread only
@@ -58,7 +57,7 @@ public class CarProxyActivity extends Activity {
 
     private final CopyOnWriteArrayList<Pair<Integer, Object[]>> mCmds =
             new CopyOnWriteArrayList<>();
-    private final ServiceConnectionListener mConnectionListener= new ServiceConnectionListener() {
+    private final ServiceConnectionCallbacks mConnectionListener= new ServiceConnectionCallbacks() {
 
         @Override
         public void onServiceSuspended(int cause) {
@@ -176,11 +175,11 @@ public class CarProxyActivity extends Activity {
         }
     };
 
-    public CarProxyActivity(Class carActivityClass) {
+    public CarProxyActivity(Class<? extends CarActivity> carActivityClass) {
         this(carActivityClass, false);
     }
 
-    public CarProxyActivity(Class carActivityClass, boolean needCar) {
+    public CarProxyActivity(Class<? extends CarActivity> carActivityClass, boolean needCar) {
         mCarActivityClass = carActivityClass;
         mNeedConnectedCar = needCar;
     }
@@ -190,7 +189,7 @@ public class CarProxyActivity extends Activity {
             mCar = Car.createCar(this, mConnectionListener);
             mCar.connect();
         }
-        Constructor<?> ctor;
+        Constructor<? extends CarActivity> ctor;
         try {
             ctor = mCarActivityClass.getDeclaredConstructor(CarActivity.Proxy.class,
                         Context.class, Car.class);
@@ -208,7 +207,7 @@ public class CarProxyActivity extends Activity {
             throw new RuntimeException(msg.toString(), e);
         }
         try {
-            mCarActivity = (CarActivity) ctor.newInstance(mCarActivityProxy, this, mCar);
+            mCarActivity = ctor.newInstance(mCarActivityProxy, this, mCar);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new RuntimeException("Cannot construct given CarActivity, constructor failed for "
@@ -308,10 +307,9 @@ public class CarProxyActivity extends Activity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            int[] results) {
-        handleCmd(CarActivity.CMD_ON_REQUEST_PERMISSIONS_RESULT,
-                new Integer(requestCode), permissions, convertArray(results));
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+        handleCmd(CarActivity.CMD_ON_REQUEST_PERMISSIONS_RESULT, requestCode, permissions,
+                convertArray(results));
     }
 
     @Override
@@ -332,7 +330,7 @@ public class CarProxyActivity extends Activity {
         private final WeakReference<CarProxyActivity> mActivity;
 
         public EmbeddedInputManager(CarProxyActivity activity) {
-            mActivity = new WeakReference<CarProxyActivity>(activity);
+            mActivity = new WeakReference<>(activity);
             mInputManager = (InputMethodManager) mActivity.get()
                     .getSystemService(Context.INPUT_METHOD_SERVICE);
         }

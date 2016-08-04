@@ -23,7 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.car.app.menu.CarDrawerActivity;
 import android.support.car.app.menu.CarMenu;
 import android.support.car.app.menu.CarMenuCallbacks;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

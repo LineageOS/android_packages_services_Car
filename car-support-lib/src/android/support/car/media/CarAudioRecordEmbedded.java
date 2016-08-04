@@ -20,6 +20,7 @@ import android.media.AudioRecord;
 
 /**
  * CarAudioRecordEmbedded allows apps to use microphone.
+ * @hide
  */
 public class CarAudioRecordEmbedded implements CarAudioRecord {
 

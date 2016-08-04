@@ -15,6 +15,7 @@
  */
 package android.support.car.media;
 
+import android.media.AudioRecord;
 import android.support.car.CarNotConnectedException;
 
 /**
@@ -43,13 +44,13 @@ public interface CarAudioRecord {
      */
     void release();
 
-    /** Check {@link AudioRecord#getRecordingState() }. */
+    /** See {@link AudioRecord#getRecordingState() }. */
     int getRecordingState();
 
-    /** Check {@link AudioRecord#getState() }. */
+    /** See {@link AudioRecord#getState() }. */
     int getState();
 
-    /** Check {@link AudioRecord#getAudioSessionId() }. */
+    /** See {@link AudioRecord#getAudioSessionId() }. */
     int getAudioSessionId();
 
     /**

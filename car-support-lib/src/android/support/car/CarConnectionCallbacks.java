@@ -16,17 +16,18 @@
 
 package android.support.car;
 
-import android.content.ComponentName;
-import android.os.IBinder;
-
 /**
- *  Listener for service connection related events.
+ * Listener for monitoring car's connection status.
+ * Callbacks are called from the looper specified when constructing {@link Car}.
  */
-public interface ServiceConnectionListener {
-    void onServiceConnected(ComponentName name);
-    void onServiceDisconnected(ComponentName name);
-    //TODO define cause values
-    void onServiceSuspended(int cause);
-    //TODO define cause values
-    void onServiceConnectionFailed(int cause);
+public abstract class CarConnectionCallbacks {
+    /**
+     * Called when the Car has been connected. Does not guarantee that the car is still connected
+     * while this callback is running, so {@link CarNotConnectedException}s may still be
+     * thrown from {@link Car} method calls.
+     * @param connectionType Type of car connected.
+     */
+    public abstract void onConnected(@Car.ConnectionType int connectionType);
+    /** Car disconnected */
+    public abstract void onDisconnected();
 }

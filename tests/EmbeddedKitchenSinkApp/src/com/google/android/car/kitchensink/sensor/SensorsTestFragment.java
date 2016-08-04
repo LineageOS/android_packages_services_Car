@@ -137,7 +137,7 @@ public class SensorsTestFragment extends Fragment {
                 mSensorManager.registerListener(mCarSensorListener, sensor,
                         CarSensorManager.SENSOR_RATE_NORMAL);
             }
-        } catch (CarNotSupportedException | CarNotConnectedException e) {
+        } catch (CarNotConnectedException e) {
             Log.e(TAG, "Car not connected or not supported", e);
         }
     }

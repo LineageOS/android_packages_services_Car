@@ -18,16 +18,15 @@ package android.support.car;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.car.app.CarActivity;
 import android.support.car.content.pm.CarPackageManager;
 import android.support.car.hardware.CarSensorManager;
+import android.support.car.media.CarAudioManager;
 import android.support.car.navigation.CarNavigationStatusManager;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
@@ -35,74 +34,107 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 /**
- *   Top level car API.
- *   This API works only for device with {@link PackageManager#FEATURE_AUTOMOTIVE} feature
- *   supported or device with Google play service.
- *   Calling this API with device with no such feature will lead into an exception.
- *
+ * Top level car API.
+ * <p/>
+ * Provides access to all of the car services and data available in the platform.  Developers may
+ * create their own instance of {@link Car} or using the {@link CarActivity#getCar()} method if
+ * using a CarActivity.
  */
 public class Car {
 
-    /** Service name for {@link CarSensorManager}, to be used in {@link #getCarManager(String)}. */
+    /**
+     * Service name for {@link CarSensorManager}, to be used in {@link #getCarManager(String)}.
+     */
     public static final String SENSOR_SERVICE = "sensor";
 
-    /** Service name for {@link CarInfoManager}, to be used in {@link #getCarManager(String)}. */
+    /**
+     * Service name for {@link CarInfoManager}, to be used in {@link #getCarManager(String)}.
+     */
     public static final String INFO_SERVICE = "info";
 
-    /** Service name for {@link CarAppFocusManager}. */
+    /**
+     * Service name for {@link CarAppFocusManager}.
+     */
     public static final String APP_FOCUS_SERVICE = "app_focus";
 
-    /** Service name for {@link CarPackageManager} */
+    /**
+     * Service name for {@link CarPackageManager}
+     */
     public static final String PACKAGE_SERVICE = "package";
 
-    /** Service name for {@link CarAudioManager} */
+    /**
+     * Service name for {@link CarAudioManager}
+     */
     public static final String AUDIO_SERVICE = "audio";
     /**
      * Service name for {@link CarNavigationStatusManager}
-     * @hide
      */
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
 
-    /** Type of car connection: car emulator, not physical connection. */
-    public static final int CONNECTION_TYPE_EMULATOR        = 0;
-    /** Type of car connection: connected to a car via USB. */
-    public static final int CONNECTION_TYPE_USB             = 1;
-    /** Type of car connection: connected to a car via WIFI. */
-    public static final int CONNECTION_TYPE_WIFI            = 2;
-    /** Type of car connection: on-device car emulator, for development (e.g. Local Head Unit). */
+    /**
+     * Type of car connection: car emulator, not physical connection.
+     */
+    public static final int CONNECTION_TYPE_EMULATOR = 0;
+    /**
+     * Type of car connection: connected to a car via USB.
+     */
+    public static final int CONNECTION_TYPE_USB = 1;
+    /**
+     * Type of car connection: connected to a car via WIFI.
+     */
+    public static final int CONNECTION_TYPE_WIFI = 2;
+    /**
+     * Type of car connection: on-device car emulator, for development (e.g. Local Head Unit).
+     */
     public static final int CONNECTION_TYPE_ON_DEVICE_EMULATOR = 3;
-    /** Type of car connection: car emulator, connected over ADB (e.g. Desktop Head Unit). */
+    /**
+     * Type of car connection: car emulator, connected over ADB (e.g. Desktop Head Unit).
+     */
     public static final int CONNECTION_TYPE_ADB_EMULATOR = 4;
-    /** Type of car connection: platform runs directly in car. */
+    /**
+     * Type of car connection: platform runs directly in car.
+     */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
-    /** Unknown type.  The support lib is likely out of date.*/
+    /**
+     * Unknown type.  The support lib is likely out of date.
+     */
     public static final int CONNECTION_TYPE_UNKNOWN = -1;
     /**
-     * Type of car connection: platform runs directly in car but with mocked vehicle hal.
-     * This will only happen in testing environment.
-     * @hide
+     * Type of car connection: platform runs directly in car but with mocked vehicle hal. This will
+     * only happen in testing environment.
      */
     public static final int CONNECTION_TYPE_EMBEDDED_MOCKING = 6;
 
     /** @hide */
     @IntDef({CONNECTION_TYPE_EMULATOR, CONNECTION_TYPE_USB, CONNECTION_TYPE_WIFI,
-        CONNECTION_TYPE_ON_DEVICE_EMULATOR, CONNECTION_TYPE_ADB_EMULATOR,
+            CONNECTION_TYPE_ON_DEVICE_EMULATOR, CONNECTION_TYPE_ADB_EMULATOR,
             CONNECTION_TYPE_EMBEDDED, CONNECTION_TYPE_UNKNOWN})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ConnectionType {}
+    public @interface ConnectionType {
+    }
 
-    /** Permission necessary to access car's mileage information. */
+    /**
+     * Permission necessary to access car's mileage information.
+     * @hide
+     */
     public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
-    /** Permission necessary to access car's fuel level. */
+    /**
+     * Permission necessary to access car's fuel level.
+     * @hide
+     */
     public static final String PERMISSION_FUEL = "android.car.permission.CAR_FUEL";
-    /** Permission necessary to access car's speed. */
+    /**
+     * Permission necessary to access car's speed.
+     * @hide
+     */
     public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
-    /** Permission necessary to access car specific communication channel. */
+    /**
+     * Permission necessary to access car specific communication channel.
+     */
     public static final String PERMISSION_VENDOR_EXTENSION =
             "android.car.permission.CAR_VENDOR_EXTENSION";
     /**
      * Permission necessary to use {@link android.car.navigation.CarNavigationManager}.
-     * @hide
      */
     public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
             "android.car.permission.PERMISSION_CAR_NAVIGATION_MANAGER";
@@ -110,28 +142,15 @@ public class Car {
 
     /**
      * PackageManager.FEATURE_AUTOMOTIVE from M. But redefine here to support L.
-     * @hide
      */
     private static final String FEATURE_AUTOMOTIVE = "android.hardware.type.automotive";
 
     /**
      * {@link CarServiceLoader} implementation for projected mode. Only available when projected
      * client library is linked.
-     * @hide
      */
     private static final String PROJECTED_CAR_SERVICE_LOADER =
             "com.google.android.gms.car.CarServiceLoaderGms";
-
-    /**
-     * CarXyzService throws IllegalStateException with this message is re-thrown as
-     * {@link CarNotConnectedException}.
-     *
-     * @hide
-     */
-    public static final String CAR_NOT_CONNECTED_EXCEPTION_MSG = "CarNotConnected";
-
-    /** @hide */
-    public static final String CAR_SERVICE_INTERFACE_NAME = "android.car.ICar";
 
     private final Context mContext;
     private final Looper mLooper;
@@ -141,15 +160,17 @@ public class Car {
     // @GuardedBy("this")
     private int mConnectionState;
 
-    private final ServiceConnectionListener mServiceConnectionListener =
-            new ServiceConnectionListener() {
+    private final ServiceConnectionCallbacks mServiceConnectionCallbacks =
+            new ServiceConnectionCallbacks() {
+                @Override
                 public void onServiceConnected(ComponentName name) {
                     synchronized (Car.this) {
                         mConnectionState = STATE_CONNECTED;
                     }
-                    mServiceConnectionListenerClient.onServiceConnected(name);
+                    mServiceConnectionCallbacksClient.onServiceConnected(name);
                 }
 
+                @Override
                 public void onServiceDisconnected(ComponentName name) {
                     synchronized (Car.this) {
                         if (mConnectionState == STATE_DISCONNECTED) {
@@ -157,130 +178,131 @@ public class Car {
                         }
                         mConnectionState = STATE_DISCONNECTED;
                     }
-                    mServiceConnectionListenerClient.onServiceDisconnected(name);
+                    mServiceConnectionCallbacksClient.onServiceDisconnected(name);
                     connect();
                 }
 
+                @Override
                 public void onServiceSuspended(int cause) {
-                    mServiceConnectionListenerClient.onServiceSuspended(cause);
+                    mServiceConnectionCallbacksClient.onServiceSuspended(cause);
                 }
 
+                @Override
                 public void onServiceConnectionFailed(int cause) {
-                    mServiceConnectionListenerClient.onServiceConnectionFailed(cause);
+                    mServiceConnectionCallbacksClient.onServiceConnectionFailed(cause);
                 }
             };
 
-    private final ServiceConnectionListener mServiceConnectionListenerClient;
+    private final ServiceConnectionCallbacks mServiceConnectionCallbacksClient;
     private final Object mCarManagerLock = new Object();
     //@GuardedBy("mCarManagerLock")
     private final HashMap<String, CarManagerBase> mServiceMap = new HashMap<>();
     private final CarServiceLoader mCarServiceLoader;
 
-    /** Handler for generic event dispatching. */
-    private final Handler mEventHandler;
 
     /**
-     * A factory method that creates Car instance for all Car API access.
-     * @param context
-     * @param serviceConnectionListener listener for monitoring service connection.
+     * A factory method that creates a Car instance with the given {@code Looper}.
+     *
+     * @param context The current app context.
+     * @param serviceConnectionCallbacks Receives information as the car service is started and
+     * stopped.
      * @param looper Looper to dispatch all listeners. If null, it will use main thread. Note that
-     *        service connection listener will be always in main thread regardless of this Looper.
+     * service connection listener will be always in main thread regardless of this Looper.
      * @return Car instance if system is in car environment and returns {@code null} otherwise.
      */
     public static Car createCar(Context context,
-            ServiceConnectionListener serviceConnectionListener, @Nullable Looper looper) {
+            ServiceConnectionCallbacks serviceConnectionCallbacks, @Nullable Looper looper) {
         try {
-          return new Car(context, serviceConnectionListener, looper);
+            return new Car(context, serviceConnectionCallbacks, looper);
         } catch (IllegalArgumentException e) {
-          // Expected when car service loader is not available.
+            // Expected when car service loader is not available.
         }
         return null;
     }
 
     /**
-     * A factory method that creates Car instance for all Car API access using main thread {@code
-     * Looper}.
+     * A factory method that creates Car instance using the main thread {@link Looper}.
      *
-     * @see #createCar(Context, ServiceConnectionListener, Looper)
+     * @see #createCar(Context, ServiceConnectionCallbacks, Looper)
      */
     public static Car createCar(Context context,
-            ServiceConnectionListener serviceConnectionListener) {
-      return createCar(context, serviceConnectionListener, null);
+            ServiceConnectionCallbacks serviceConnectionCallbacks) {
+        return createCar(context, serviceConnectionCallbacks, null);
     }
 
-    private Car(Context context, ServiceConnectionListener serviceConnectionListener,
+    private Car(Context context, ServiceConnectionCallbacks serviceConnectionCallbacks,
             @Nullable Looper looper) {
         mContext = context;
-        mServiceConnectionListenerClient = serviceConnectionListener;
+        mServiceConnectionCallbacksClient = serviceConnectionCallbacks;
         if (looper == null) {
             mLooper = Looper.getMainLooper();
         } else {
             mLooper = looper;
         }
-        mEventHandler = new Handler(mLooper);
+
         if (mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
-            mCarServiceLoader = new CarServiceLoaderEmbedded(context, mServiceConnectionListener,
-                    mLooper);
+            mCarServiceLoader =
+                    new CarServiceLoaderEmbedded(context, mServiceConnectionCallbacks, mLooper);
         } else {
             mCarServiceLoader = loadCarServiceLoader(PROJECTED_CAR_SERVICE_LOADER, context,
-                    mServiceConnectionListener, mLooper);
+                    mServiceConnectionCallbacks, mLooper);
         }
     }
 
-    private CarServiceLoader loadCarServiceLoader(String carServiceLoaderClassName,
-            Context context, ServiceConnectionListener serviceConnectionListener, Looper looper)
-                    throws IllegalArgumentException {
-        Class carServiceLoaderClass = null;
+    private CarServiceLoader loadCarServiceLoader(String carServiceLoaderClassName, Context context,
+            ServiceConnectionCallbacks serviceConnectionCallbacks, Looper looper)
+            throws IllegalArgumentException {
+        Class<? extends CarServiceLoader> carServiceLoaderClass = null;
         try {
-            carServiceLoaderClass = Class.forName(carServiceLoaderClassName);
+            carServiceLoaderClass =
+                    Class.forName(carServiceLoaderClassName).asSubclass(CarServiceLoader.class);
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Cannot find CarServiceLoader implementation:" +
-                    carServiceLoaderClassName, e);
+            throw new IllegalArgumentException(
+                    "Cannot find CarServiceLoader implementation:" + carServiceLoaderClassName, e);
         }
-        Constructor<?> ctor;
+        Constructor<? extends CarServiceLoader> ctor;
         try {
-            ctor = carServiceLoaderClass.getDeclaredConstructor(Context.class,
-                    ServiceConnectionListener.class, Looper.class);
+            ctor = carServiceLoaderClass
+                    .getDeclaredConstructor(Context.class, ServiceConnectionCallbacks.class,
+                            Looper.class);
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Cannot construct CarServiceLoader, no constructor: "
                     + carServiceLoaderClassName, e);
         }
         try {
-            return (CarServiceLoader) ctor.newInstance(context,
-                    serviceConnectionListener, looper);
+            return ctor.newInstance(context, serviceConnectionCallbacks, looper);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new IllegalArgumentException(
                     "Cannot construct CarServiceLoader, constructor failed for "
-                    + carServiceLoaderClass.getName(), e);
+                            + carServiceLoaderClass.getName(), e);
         }
     }
 
     /**
      * Car constructor when CarServiceLoader is already available.
+     *
      * @param serviceLoader must be non-null and connected or {@link CarNotConnectedException} will
      * be thrown.
-     *
      * @hide
      */
-    public Car(@NonNull CarServiceLoader serviceLoader)
-            throws CarNotConnectedException {
-        if(!serviceLoader.isConnectedToCar()){
+    public Car(@NonNull CarServiceLoader serviceLoader) throws CarNotConnectedException {
+        if (!serviceLoader.isConnectedToCar()) {
             throw new CarNotConnectedException();
         }
         mCarServiceLoader = serviceLoader;
         mLooper = serviceLoader.getLooper();
         mContext = serviceLoader.getContext();
 
-        mEventHandler = new Handler(mLooper);
         mConnectionState = STATE_CONNECTED;
-        mServiceConnectionListenerClient = null;
+        mServiceConnectionCallbacksClient = null;
     }
 
     /**
      * Connect to car service. This can be called while it is disconnected.
-     * @throws IllegalStateException If connection is still on-going from previous
-     *         connect call or it is already connected
+     *
+     * @throws IllegalStateException If connection is still on-going from previous connect call or
+     * it is already connected
      */
     public void connect() throws IllegalStateException {
         synchronized (this) {
@@ -294,8 +316,8 @@ public class Car {
 
     /**
      * Disconnect from car service. This can be called while disconnected. Once disconnect is
-     * called, all Car*Managers from this instance becomes invalid, and
-     * {@link Car#getCarManager(String)} will return different instance if it is connected again.
+     * called, all Car*Managers from this instance becomes invalid, and {@link
+     * Car#getCarManager(String)} will return different instance if it is connected again.
      */
     public void disconnect() {
         synchronized (this) {
@@ -309,9 +331,8 @@ public class Car {
     }
 
     /**
-     * Tells if it is connected to the service or not. This will return false if it is still
+     * Tells if this object is connected to the service or not. Will return false if it is still
      * connecting.
-     * @return
      */
     public boolean isConnected() {
         synchronized (this) {
@@ -321,7 +342,6 @@ public class Car {
 
     /**
      * Tells if this instance is already connecting to car service or not.
-     * @return
      */
     public boolean isConnecting() {
         synchronized (this) {
@@ -338,15 +358,17 @@ public class Car {
     }
 
     /**
-     * Get car specific service as in {@link Context#getSystemService(String)}. Returned
-     * {@link Object} should be type-casted to the desired service.
-     * For example, to get sensor service,
-     * SensorManagerService sensorManagerService = car.getCarManager(Car.SENSOR_SERVICE);
-     * @param serviceName Name of service that should be created like {@link #SENSOR_SERVICE}.
-     * @return Matching service manager or null if there is no such service.
+     * Get a car specific manager. This is modeled after {@link Context#getSystemService(String)}.
+     * The returned {@link Object} should be type-casted to the desired manager. For example,
+     * to get sensor service you'd do the following:
+     * <pre>{@code CarSensorManager sensorManager =
+     *     (CarSensorManager) car.getCarManager(Car.SENSOR_SERVICE);}</pre>
+     *
+     * @param serviceName Name of service that should be created, e.g. {@link #SENSOR_SERVICE}.
+     * @return The requested service manager or null if there is no such service.
      */
     public Object getCarManager(String serviceName)
-            throws CarNotSupportedException, CarNotConnectedException {
+            throws CarNotConnectedException {
         Object manager = null;
         synchronized (mCarManagerLock) {
             manager = mServiceMap.get(serviceName);
@@ -364,7 +386,7 @@ public class Car {
 
     /**
      * Return the type of currently connected car.
-     * @return
+     *
      * @throws CarNotConnectedException
      */
     @ConnectionType
@@ -373,47 +395,28 @@ public class Car {
     }
 
     /**
-     * Registers a {@link CarConnectionListener}.
-     *
-     * Avoid reregistering unregistered listeners. If an unregistered listener is reregistered,
-     * it may receive duplicate calls to {@link CarConnectionListener#onConnected}.
+     * Registers a {@link CarConnectionCallbacks}.
+     * <p/>
+     * Avoid reregistering listeners. If a listener is reregistered, it may receive duplicate
+     * calls to {@link CarConnectionCallbacks#onConnected}.
      *
      * @throws IllegalStateException if service is not connected.
      */
-    public void registerCarConnectionListener(CarConnectionListener listener)
+    public void registerCarConnectionListener(CarConnectionCallbacks listener)
             throws IllegalStateException, CarNotConnectedException {
         assertCarConnection();
         mCarServiceLoader.registerCarConnectionListener(listener);
     }
 
     /**
-     * Unregisters a {@link CarConnectionListener}.
-     *
-     * <b>Note:</b> If this method is called from a thread besides the client's looper thread,
-     * there is no guarantee that the unregistered listener will not receive callbacks after
-     * this method returns.
+     * Unregisters a {@link CarConnectionCallbacks}.
+     * <p/>
+     * <b>Note:</b> If this method is called from a thread besides the client's looper thread, there
+     * is no guarantee that the unregistered listener will not receive callbacks after this method
+     * returns.
      */
-    public void unregisterCarConnectionListener(CarConnectionListener listener) {
+    public void unregisterCarConnectionListener(CarConnectionCallbacks listener) {
         mCarServiceLoader.unregisterCarConnectionListener(listener);
-    }
-
-    /**
-     * IllegalStateException from XyzCarService with special message is re-thrown as a different
-     * exception. If the IllegalStateException is not understood then this message will throw the
-     * original exception.
-     *
-     * @param e exception from XyzCarService.
-     * @throws CarNotConnectedException
-     * @hide
-     */
-    public static void checkCarNotConnectedExceptionFromCarService(
-            IllegalStateException e) throws CarNotConnectedException, IllegalStateException {
-        String message = e.getMessage();
-        if (message.equals(CAR_NOT_CONNECTED_EXCEPTION_MSG)) {
-            throw new CarNotConnectedException();
-        } else {
-            throw e;
-        }
     }
 
     private synchronized void assertCarConnection() throws IllegalStateException {
@@ -424,7 +427,7 @@ public class Car {
 
     private void tearDownCarManagers() {
         synchronized (mCarManagerLock) {
-            for (CarManagerBase manager: mServiceMap.values()) {
+            for (CarManagerBase manager : mServiceMap.values()) {
                 manager.onCarDisconnected();
             }
             mServiceMap.clear();

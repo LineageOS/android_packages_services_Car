@@ -45,6 +45,12 @@ public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusMa
 
     @Override
     public boolean sendNavigationTurnEvent(int event, String road, int turnAngle, int turnNumber,
+            int turnSide) throws CarNotConnectedException {
+        return sendNavigationTurnEvent(event, road, turnAngle, turnNumber, null, turnSide);
+    }
+
+    @Override
+    public boolean sendNavigationTurnEvent(int event, String road, int turnAngle, int turnNumber,
             Bitmap image, int turnSide) throws CarNotConnectedException {
         try {
             return mManager.sendNavigationTurnEvent(event, road, turnAngle, turnNumber, image,

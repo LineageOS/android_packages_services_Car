@@ -27,8 +27,7 @@ import android.os.Bundle;
 import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
 import android.support.car.CarNotConnectedException;
-import android.support.car.CarNotSupportedException;
-import android.support.car.ServiceConnectionListener;
+import android.support.car.ServiceConnectionCallbacks;
 import android.support.car.app.menu.CarDrawerActivity;
 import android.support.car.app.menu.CarMenu;
 import android.support.car.app.menu.CarMenuCallbacks;
@@ -122,7 +121,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
 
         // Connection to Car Service does not work for non-automotive yet.
         if (getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
-            mCarApi = Car.createCar(getContext(), mServiceConnectionListener);
+            mCarApi = Car.createCar(getContext(), mServiceConnectionCallbacks);
             mCarApi.connect();
         }
         Log.i(TAG, "onCreate");
@@ -184,8 +183,8 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 .commit();
     }
 
-    private final ServiceConnectionListener mServiceConnectionListener =
-            new ServiceConnectionListener() {
+    private final ServiceConnectionCallbacks mServiceConnectionCallbacks =
+            new ServiceConnectionCallbacks() {
         @Override
         public void onServiceConnected(ComponentName name) {
             Log.d(TAG, "Connected to Car Service");
@@ -201,8 +200,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                         (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Car is not connected!", e);
-            } catch (CarNotSupportedException e) {
-                Log.e(TAG, "Car is not supported!", e);
             }
         }
 

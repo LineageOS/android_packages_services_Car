@@ -18,9 +18,8 @@ package android.support.car;
 
 /**
  * CarAppFocusManager allows applications to set and listen for the current application focus
- * like active navigation or active voice command. Usually only one instance of such application
- * should run in the system, and other app setting the flag for the matching app should
- * lead into other app to stop.
+ * like active navigation. Usually only one instance of such application should run in the system,
+ * and other app setting the flag for the matching app should lead into other app to stop.
  */
 public abstract class CarAppFocusManager implements CarManagerBase {
     /**
@@ -56,6 +55,7 @@ public abstract class CarAppFocusManager implements CarManagerBase {
     public static final int APP_FOCUS_TYPE_NAVIGATION = 1;
     /**
      * Represents voice command focus.
+     * @hide
      */
     public static final int APP_FOCUS_TYPE_VOICE_COMMAND = 2;
     /**
@@ -138,7 +138,7 @@ public abstract class CarAppFocusManager implements CarManagerBase {
             int appType) throws CarNotConnectedException;
 
     /**
-     * Abandon all focuses, i.e. mark thme as inactive.
+     * Abandon all focuses, i.e. mark them as inactive.
      * @param ownershipListener Ownership listener to abandon focus for. Cannot be null.
      * @throws CarNotConnectedException
      */

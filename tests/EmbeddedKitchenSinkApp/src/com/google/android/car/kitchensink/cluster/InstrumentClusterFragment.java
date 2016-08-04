@@ -25,7 +25,7 @@ import android.support.car.CarAppFocusManager.AppFocusChangeListener;
 import android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener;
 import android.support.car.CarNotConnectedException;
 import android.support.car.CarNotSupportedException;
-import android.support.car.ServiceConnectionListener;
+import android.support.car.ServiceConnectionCallbacks;
 import android.support.car.navigation.CarNavigationStatusManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -45,8 +45,8 @@ public class InstrumentClusterFragment extends Fragment {
     private CarAppFocusManager mCarAppFocusManager;
     private Car mCarApi;
 
-    private final ServiceConnectionListener mServiceConnectionListener =
-            new ServiceConnectionListener() {
+    private final ServiceConnectionCallbacks mServiceConnectionCallbacks =
+            new ServiceConnectionCallbacks() {
                 @Override
                 public void onServiceConnected(ComponentName name) {
                     Log.d(TAG, "Connected to Car Service");
@@ -57,8 +57,6 @@ public class InstrumentClusterFragment extends Fragment {
                                 (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
                     } catch (CarNotConnectedException e) {
                         Log.e(TAG, "Car is not connected!", e);
-                    } catch (CarNotSupportedException e) {
-                        Log.e(TAG, "Car is not supported!", e);
                     }
                 }
 
@@ -84,7 +82,7 @@ public class InstrumentClusterFragment extends Fragment {
             mCarApi = null;
         }
 
-        mCarApi = Car.createCar(getContext(), mServiceConnectionListener);
+        mCarApi = Car.createCar(getContext(), mServiceConnectionCallbacks);
         mCarApi.connect();
     }
 

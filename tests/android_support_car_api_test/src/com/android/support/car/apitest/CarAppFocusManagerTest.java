@@ -70,11 +70,11 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
     }
 
     public void testFocusChange() throws Exception {
-        DefaultServiceConnectionListener connectionListener =
-                new DefaultServiceConnectionListener();
-        Car car2 = Car.createCar(getContext(), connectionListener, null);
+        DefaultServiceConnectionCallbacks ConnectionCallbacks =
+                new DefaultServiceConnectionCallbacks();
+        Car car2 = Car.createCar(getContext(), ConnectionCallbacks, null);
         car2.connect();
-        connectionListener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
+        ConnectionCallbacks.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         CarAppFocusManager manager2 = (CarAppFocusManager)
                 car2.getCarManager(Car.APP_FOCUS_SERVICE);
         assertNotNull(manager2);
@@ -167,11 +167,11 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
     }
 
     public void testFilter() throws Exception {
-        DefaultServiceConnectionListener connectionListener =
-                new DefaultServiceConnectionListener();
-        Car car2 = Car.createCar(getContext(), connectionListener);
+        DefaultServiceConnectionCallbacks ConnectionCallbacks =
+                new DefaultServiceConnectionCallbacks();
+        Car car2 = Car.createCar(getContext(), ConnectionCallbacks);
         car2.connect();
-        connectionListener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
+        ConnectionCallbacks.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         CarAppFocusManager manager2 = (CarAppFocusManager)
                 car2.getCarManager(Car.APP_FOCUS_SERVICE);
         assertNotNull(manager2);

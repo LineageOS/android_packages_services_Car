@@ -20,7 +20,7 @@ import android.content.ComponentName;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionListener;
+import android.support.car.ServiceConnectionCallbacks;
 import android.support.car.hardware.CarSensorEvent;
 import android.support.car.hardware.CarSensorManager;
 import android.test.AndroidTestCase;
@@ -42,7 +42,7 @@ public class CarSensorManagerTest extends AndroidTestCase {
     private Car mCar;
     private CarSensorManager mCarSensorManager;
 
-    private final ServiceConnectionListener mConnectionListener = new ServiceConnectionListener() {
+    private final ServiceConnectionCallbacks mConnectionCallbacks = new ServiceConnectionCallbacks() {
 
         @Override
         public void onServiceSuspended(int cause) {
@@ -76,7 +76,7 @@ public class CarSensorManagerTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mCar = Car.createCar(getContext(), mConnectionListener);
+        mCar = Car.createCar(getContext(), mConnectionCallbacks);
         mCar.connect();
         waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         mCarSensorManager =

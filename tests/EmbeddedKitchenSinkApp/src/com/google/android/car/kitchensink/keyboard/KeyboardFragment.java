@@ -20,7 +20,6 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.car.Car;
 import android.support.car.CarNotConnectedException;
-import android.support.car.CarNotSupportedException;
 import android.support.car.app.menu.CarDrawerActivity;
 import android.support.car.app.menu.SearchBoxEditListener;
 import android.support.car.hardware.CarSensorEvent;
@@ -103,7 +102,7 @@ public class KeyboardFragment extends Fragment {
             mSensorManager.registerListener(mCarSensorListener,
                     CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
                     CarSensorManager.SENSOR_RATE_FASTEST);
-        } catch (CarNotSupportedException | CarNotConnectedException e) {
+        } catch (CarNotConnectedException e) {
             Log.e(TAG, "Car not connected or not supported", e);
         }
     }

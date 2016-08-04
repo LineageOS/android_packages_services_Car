@@ -28,5 +28,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValueTypeDef {
-    Class type() default Object.class;
+    Class<?> type() default Object.class;
 }
