@@ -47,6 +47,8 @@ public class CarVolumeService {
 
     private CarVolumeController mCarVolumeController;
 
+    private IVolumeController mIVolumeController;
+
     public static int androidStreamToCarUsage(int logicalAndroidStream) {
         return CarAudioAttributesUtil.getCarUsageFromAudioAttributes(
                 new AudioAttributes.Builder()
@@ -66,6 +68,9 @@ public class CarVolumeService {
                 mAudioService, mAudioHal, mInputService);
 
         mCarVolumeController.init();
+        if (mIVolumeController != null) {
+            mCarVolumeController.setVolumeController(mIVolumeController);
+        }
         mInputService.setVolumeKeyListener(mCarVolumeController);
     }
 
@@ -73,7 +78,8 @@ public class CarVolumeService {
         getController().setStreamVolume(streamType, index, flags);
     }
 
-    public void setVolumeController(IVolumeController controller) {
+    public synchronized void setVolumeController(IVolumeController controller) {
+        mIVolumeController = controller;
         getController().setVolumeController(controller);
     }
 
