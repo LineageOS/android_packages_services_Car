@@ -98,14 +98,14 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
         checkPolicy0();
     }
 
-    public void testHwVariant1() throws Exception {
+    public void testHwVariantForTest() throws Exception {
         getVehicleHalEmulator().addStaticProperty(
                 VehiclePropConfigUtil.createStaticStringProperty(
                         VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT),
                 VehiclePropValueUtil.createIntValue(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT, 1, 0));
+                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT, -1, 0));
         getVehicleHalEmulator().start();
-        checkPolicy1();
+        checkPolicyForTest();
     }
 
     private void checkPolicy0() throws Exception {
@@ -113,7 +113,10 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
         VehiclePropValue v = mEvents.get(0);
         assertEquals(0, v.getInt32Values(
                 VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_STREAM));
-        assertEquals(
+        int contexts = v.getInt32Values(
+                VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_CONTEXTS);
+        // check if all contexts are allowed ones.
+        assertTrue((contexts & ~(
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG |
@@ -123,13 +126,10 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG |
                 VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG |
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SAFETY_ALERT_FLAG,
-                v.getInt32Values(
-                        VehicleAudioRoutingPolicyIndex.VEHICLE_AUDIO_ROUTING_POLICY_INDEX_CONTEXTS)
-                        );
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SAFETY_ALERT_FLAG)) == 0);
     }
 
-    private void checkPolicy1() throws Exception {
+    private void checkPolicyForTest() throws Exception {
         // write happens twice.
         assertTrue(mWaitSemaphore.tryAcquire(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mWaitSemaphore.tryAcquire(TIMEOUT_MS, TimeUnit.MILLISECONDS));
