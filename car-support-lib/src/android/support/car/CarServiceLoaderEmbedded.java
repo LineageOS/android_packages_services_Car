@@ -126,11 +126,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
             case Car.PACKAGE_SERVICE:
                 return new CarPackageManagerEmbedded(manager);
             case Car.CAR_NAVIGATION_SERVICE:
-                try {
-                    return new CarNavigationStatusManagerEmbedded(manager);
-                } catch (CarNotSupportedException e) {
-                    return null;
-                }
+                return new CarNavigationStatusManagerEmbedded(manager);
             default:
                 return manager;
         }

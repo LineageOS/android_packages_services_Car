@@ -21,6 +21,7 @@ import android.annotation.Nullable;
 import android.app.Presentation;
 import android.car.cluster.renderer.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
+import android.car.navigation.CarNavigationManager.DisplayDistanceUnit;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -41,13 +42,18 @@ import android.os.UserHandle;
 import android.provider.Settings;
 import android.telecom.Call;
 import android.telecom.GatewayInfo;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Display;
 
 import com.android.car.cluster.sample.MediaStateMonitor.MediaStateListener;
 import com.android.car.cluster.sample.cards.MediaCard;
 import com.android.car.cluster.sample.cards.NavCard;
 
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -62,6 +68,7 @@ import java.util.TimerTask;
 
     private final Context mContext;
     private final NavigationRenderer mNavigationRenderer;
+    private final SparseArray<String> mDistanceUnitNames = new SparseArray<>();
 
     private ClusterView mClusterView;
     private MediaStateMonitor mMediaStateMonitor;
@@ -89,6 +96,8 @@ import java.util.TimerTask;
         if (display == null) {
             return;
         }
+
+        initDistanceUnitNames(mContext);
 
         mClusterView = new ClusterView(mContext);
         Presentation presentation = new InstrumentClusterPresentation(mContext, display);
@@ -201,6 +210,23 @@ import java.util.TimerTask;
         }
 
         return number;
+    }
+
+    private void initDistanceUnitNames(Context context) {
+        mDistanceUnitNames.put(DisplayDistanceUnit.METERS,
+                context.getString(R.string.nav_distance_units_meters));
+        mDistanceUnitNames.put(DisplayDistanceUnit.KILOMETERS,
+                context.getString(R.string.nav_distance_units_kilometers));
+        mDistanceUnitNames.put(DisplayDistanceUnit.KILOMETERS_P1,
+                context.getString(R.string.nav_distance_units_kilometers));
+        mDistanceUnitNames.put(DisplayDistanceUnit.FEET,
+                context.getString(R.string.nav_distance_units_ft));
+        mDistanceUnitNames.put(DisplayDistanceUnit.MILES,
+                context.getString(R.string.nav_distance_units_miles));
+        mDistanceUnitNames.put(DisplayDistanceUnit.MILES_P1,
+                context.getString(R.string.nav_distance_units_miles));
+        mDistanceUnitNames.put(DisplayDistanceUnit.YARDS,
+                context.getString(R.string.nav_distance_units_yards));
     }
 
     private void onCallStateChanged(Call call, int state) {
@@ -574,20 +600,30 @@ import java.util.TimerTask;
         }
 
         @Override
-        public void onNextTurnDistanceChanged(int meters, int timeSeconds) {
+        public void onNextTurnDistanceChanged(int meters, int timeSeconds,
+                int displayDistanceMillis, @DisplayDistanceUnit int displayDistanceUnit) {
             if (DEBUG) {
                 Log.d(TAG, "onNextTurnDistanceChanged, distanceMeters: " + meters
-                        + ", timeSeconds: " + timeSeconds);
+                        + ", timeSeconds: " + timeSeconds
+                        + ", displayDistanceMillis: " + displayDistanceMillis
+                        + ", displayDistanceUnit: " + displayDistanceUnit);
             }
 
-            if (DistanceUtils.showDistanceInFeet(meters)) {
-                mNavCard.setDistanceToNextManeuver(DistanceUtils.metersToFeetFormatted(meters),
-                        mResources.getString(R.string.nav_distance_units_ft));
+            boolean requiresDigitAfterDecimal =
+                    displayDistanceUnit == DisplayDistanceUnit.KILOMETERS_P1
+                    || displayDistanceUnit == DisplayDistanceUnit.MILES_P1;
 
-            } else {  // Miles
-                mNavCard.setDistanceToNextManeuver(DistanceUtils.metersToMilesFormatted(meters),
-                        mResources.getString(R.string.nav_distance_units_miles));
-            }
+            int remainder = displayDistanceMillis % 1000;
+            String decimalPart = (requiresDigitAfterDecimal || remainder != 0)
+                    ? String.format("%c%d",
+                                    DecimalFormatSymbols.getInstance().getDecimalSeparator(),
+                                    remainder)
+                    : "";
+
+            String distanceToDisplay = (displayDistanceMillis / 1000) + decimalPart;
+            String unitsToDisplay = mController.mDistanceUnitNames.get(displayDistanceUnit);
+
+            mNavCard.setDistanceToNextManeuver(distanceToDisplay, unitsToDisplay);
         }
     }
 

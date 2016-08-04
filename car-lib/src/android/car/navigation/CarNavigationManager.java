@@ -15,6 +15,7 @@
  */
 package android.car.navigation;
 
+import android.annotation.IntDef;
 import android.car.CarApiUtil;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
@@ -24,6 +25,9 @@ import android.graphics.Bitmap;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * API for providing navigation status for instrument cluster.
@@ -61,6 +65,32 @@ public class CarNavigationManager implements CarManagerBase {
 
     private static final int START = 1;
     private static final int STOP = 2;
+
+    /**
+     * Distance units for use in {@link #sendNavigationTurnDistanceEvent(int, int, int, int)}.
+     * DISTANCE_KILOMETERS_P1 and DISTANCE_MILES_P1 are the same as their respective
+     * units, except they require that the head unit display at least 1 digit after the
+     * decimal (e.g. 2.0).
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+            DisplayDistanceUnit.METERS,
+            DisplayDistanceUnit.KILOMETERS,
+            DisplayDistanceUnit.KILOMETERS_P1,
+            DisplayDistanceUnit.MILES,
+            DisplayDistanceUnit.MILES_P1,
+            DisplayDistanceUnit.FEET,
+            DisplayDistanceUnit.YARDS
+    })
+    public @interface DisplayDistanceUnit {
+        int METERS = 1;
+        int KILOMETERS = 2;
+        int KILOMETERS_P1 = 3;
+        int MILES = 4;
+        int MILES_P1 = 5;
+        int FEET = 6;
+        int YARDS = 7;
+    }
 
     private static final String TAG = CarLibLog.TAG_NAV;
 
@@ -139,13 +169,21 @@ public class CarNavigationManager implements CarManagerBase {
      *
      * @param distanceMeters Distance to next event in meters.
      * @param timeSeconds Time to next event in seconds.
+     * @param displayDistanceMillis Distance to the next event. This is exactly the same distance
+     * that navigation app is displaying. Use it when you want to display distance, it has
+     * appropriate rounding function and units are in sync with navigation app. This parameter is
+     * in {@code displayDistanceUnit * 1000}.
+     * @param displayDistanceUnit units for {@param displayDistanceMillis} param.
+     * See {@link DisplayDistanceUnit} for acceptable values.
      * @return true if successful.
      * @throws CarNotConnectedException
      */
-    public boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds)
+    public boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
+            int displayDistanceMillis, @DisplayDistanceUnit int displayDistanceUnit)
             throws CarNotConnectedException {
         try {
-            mService.onNextManeuverDistanceChanged(distanceMeters, timeSeconds);
+            mService.onNextManeuverDistanceChanged(distanceMeters, timeSeconds,
+                    displayDistanceMillis, displayDistanceUnit);
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
@@ -153,10 +191,6 @@ public class CarNavigationManager implements CarManagerBase {
             return false;
         }
         return true;
-    }
-
-    public boolean isInstrumentClusterSupported() throws CarNotConnectedException {
-        return mService != null;
     }
 
     @Override

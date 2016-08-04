@@ -333,7 +333,7 @@ package android.car.cluster.renderer {
     ctor public NavigationRenderer();
     method public abstract android.car.navigation.CarNavigationInstrumentCluster getNavigationProperties();
     method public abstract void onNextTurnChanged(int, java.lang.String, int, int, android.graphics.Bitmap, int);
-    method public abstract void onNextTurnDistanceChanged(int, int);
+    method public abstract void onNextTurnDistanceChanged(int, int, int, int);
     method public abstract void onStartNavigation();
     method public abstract void onStopNavigation();
   }
