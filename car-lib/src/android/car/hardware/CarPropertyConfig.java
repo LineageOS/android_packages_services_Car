@@ -119,7 +119,7 @@ public class CarPropertyConfig<T> implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mPropertyId);
-        dest.writeSerializable(mType);
+        dest.writeString(mType.getName());
         dest.writeInt(mAreaType);
         dest.writeInt(mSupportedAreas.size());
         for (int i = 0; i < mSupportedAreas.size(); i++) {
@@ -131,7 +131,12 @@ public class CarPropertyConfig<T> implements Parcelable {
     @SuppressWarnings("unchecked")
     private CarPropertyConfig(Parcel in) {
         mPropertyId = in.readInt();
-        mType = (Class<T>) in.readSerializable();
+        String className = in.readString();
+        try {
+            mType = (Class<T>) Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Class not found: " + className);
+        }
         mAreaType = in.readInt();
         int areaSize = in.readInt();
         mSupportedAreas = new SparseArray<>(areaSize);
