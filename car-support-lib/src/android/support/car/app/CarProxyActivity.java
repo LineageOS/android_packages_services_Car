@@ -283,6 +283,10 @@ public class CarProxyActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         handleCmd(CarActivity.CMD_ON_DESTROY);
+        if (mCar != null) {
+            mCar.disconnect();
+            mCar = null;
+        }
     }
 
     @Override
