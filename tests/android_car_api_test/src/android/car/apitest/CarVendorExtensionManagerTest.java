@@ -33,6 +33,7 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarVendorExtensionManager;
 import android.car.test.CarTestManager;
 import android.car.test.CarTestManagerBinderWrapper;
+import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -46,8 +47,11 @@ import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 
+import org.junit.Assert;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Tests for {@link CarVendorExtensionManager}
@@ -68,6 +72,7 @@ public class CarVendorExtensionManagerTest extends CarApiTestBase {
             VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 4;
 
     private static final float EPS = 1e-9f;
+    private static final int MILLION = 1000 * 1000;
 
     private static final int MIN_PROP_INT32 = 0x0000005;
     private static final int MAX_PROP_INT32 = 0xDeadBee;
@@ -196,19 +201,56 @@ public class CarVendorExtensionManagerTest extends CarApiTestBase {
     }
 
     public void testByteArrayProperty() throws Exception {
-        final Byte[] expectedData = new Byte[] { 1, 2, 3, 4, -1, 127, -127, 0 };
+        final byte[] expectedData = new byte[] { 1, 2, 3, 4, -1, 127, -127, 0 };
 
         // Write to CUSTOM_BYTES_PROP_ID_1 and read this value from CUSTOM_BYTES_PROP_ID_2
         mManager.setGlobalProperty(
-                Byte[].class,
+                byte[].class,
                 CUSTOM_BYTES_PROP_ID_1,
                 expectedData);
 
-        Byte[] actualData = mManager.getGlobalProperty(
-                Byte[].class,
+        byte[] actualData = mManager.getGlobalProperty(
+                byte[].class,
                 CUSTOM_BYTES_PROP_ID_2);
 
         assertEquals(Arrays.toString(expectedData), Arrays.toString(actualData));
+    }
+
+    public void testLargeByteArrayProperty() throws Exception {
+        // Allocate array of byte which is greater than binder transaction buffer limitation.
+        byte[] expectedData = new byte[3 * MILLION];
+
+        new Random(SystemClock.elapsedRealtimeNanos())
+            .nextBytes(expectedData);
+
+        // Write to CUSTOM_BYTES_PROP_ID_1 and read this value from CUSTOM_BYTES_PROP_ID_2
+        mManager.setGlobalProperty(
+                byte[].class,
+                CUSTOM_BYTES_PROP_ID_1,
+                expectedData);
+
+        byte[] actualData = mManager.getGlobalProperty(
+                byte[].class,
+                CUSTOM_BYTES_PROP_ID_2);
+
+        Assert.assertArrayEquals(expectedData, actualData);
+    }
+
+    public void testLargeStringProperty() throws Exception {
+        // Allocate string which is greater than binder transaction buffer limitation.
+        String expectedString = generateRandomString(2 * MILLION,
+                "abcdefghijKLMNεὕρηκα!@#$%^&*()[]{}:\"\t\n\r!'");
+
+        mManager.setGlobalProperty(
+                String.class,
+                CUSTOM_STRING_PROP_ID,
+                expectedString);
+
+        String actualString = mManager.getGlobalProperty(
+                String.class,
+                CUSTOM_STRING_PROP_ID);
+
+        assertEquals(expectedString, actualString);
     }
 
     public void testStringProperty() throws Exception {
@@ -224,6 +266,16 @@ public class CarVendorExtensionManagerTest extends CarApiTestBase {
                 CUSTOM_STRING_PROP_ID);
 
         assertEquals(expectedString, actualString);
+    }
+
+    private static String generateRandomString(int length, String allowedSymbols) {
+        Random r = new Random(SystemClock.elapsedRealtimeNanos());
+        StringBuilder sb = new StringBuilder(length);
+        char[] chars = allowedSymbols.toCharArray();
+        for (int i = 0; i < length; i++) {
+            sb.append(chars[r.nextInt(chars.length)]);
+        }
+        return sb.toString();
     }
 
     private static class MockedVehicleHal implements VehicleNetworkHalMock {
