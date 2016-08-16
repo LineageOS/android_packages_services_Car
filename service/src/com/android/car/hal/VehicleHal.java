@@ -352,14 +352,14 @@ public class VehicleHal implements VehicleNetworkListener {
         writer.println("**All properties**");
         for (VehiclePropConfig config : configList) {
             StringBuilder builder = new StringBuilder();
-            builder.append("Property:0x" + Integer.toHexString(config.getProp()));
+            builder.append("Property:0x").append(Integer.toHexString(config.getProp()));
             builder.append(",access:0x" + Integer.toHexString(config.getAccess()));
             builder.append(",changeMode:0x" + Integer.toHexString(config.getChangeMode()));
             builder.append(",valueType:0x" + Integer.toHexString(config.getValueType()));
             builder.append(",permission:0x" + Integer.toHexString(config.getPermissionModel()));
             builder.append(",config:0x" + Integer.toHexString(config.getConfigArray(0)));
             builder.append(",fs min:" + config.getSampleRateMin());
-            builder.append(",fs max:" + config.getSampleRateMax());
+            builder.append(",fs max:").append(config.getSampleRateMax());
             for (int i = 0; i < config.getFloatMaxsCount(); i++) {
                 builder.append(",v min:" + config.getFloatMins(i));
                 builder.append(",v max:" + config.getFloatMaxs(i));
@@ -379,6 +379,13 @@ public class VehicleHal implements VehicleNetworkListener {
         for (VehiclePropertyEventInfo info : mEventLog.values()) {
             writer.println(String.format("event count:%d, lastEvent:%s",
                     info.eventCount, dumpVehiclePropValue(info.lastEvent)));
+        }
+
+        writer.println("**Property handlers**");
+        for (int i = 0; i < mPropertyHandlers.size(); i++) {
+            int propId = mPropertyHandlers.keyAt(i);
+            HalServiceBase service = mPropertyHandlers.valueAt(i);
+            writer.println(String.format("Prop: 0x%08X, service: %s", propId, service));
         }
     }
 
