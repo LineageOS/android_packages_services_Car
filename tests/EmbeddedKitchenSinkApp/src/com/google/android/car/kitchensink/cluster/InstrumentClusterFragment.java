@@ -24,8 +24,7 @@ import android.support.car.CarAppFocusManager;
 import android.support.car.CarAppFocusManager.AppFocusChangeListener;
 import android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener;
 import android.support.car.CarNotConnectedException;
-import android.support.car.CarNotSupportedException;
-import android.support.car.ServiceConnectionCallbacks;
+import android.support.car.ServiceConnectionCallback;
 import android.support.car.navigation.CarNavigationStatusManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -45,8 +44,8 @@ public class InstrumentClusterFragment extends Fragment {
     private CarAppFocusManager mCarAppFocusManager;
     private Car mCarApi;
 
-    private final ServiceConnectionCallbacks mServiceConnectionCallbacks =
-            new ServiceConnectionCallbacks() {
+    private final ServiceConnectionCallback mServiceConnectionCallback =
+            new ServiceConnectionCallback() {
                 @Override
                 public void onServiceConnected(ComponentName name) {
                     Log.d(TAG, "Connected to Car Service");
@@ -82,7 +81,7 @@ public class InstrumentClusterFragment extends Fragment {
             mCarApi = null;
         }
 
-        mCarApi = Car.createCar(getContext(), mServiceConnectionCallbacks);
+        mCarApi = Car.createCar(getContext(), mServiceConnectionCallback);
         mCarApi.connect();
     }
 
@@ -120,12 +119,13 @@ public class InstrumentClusterFragment extends Fragment {
 
     private void initCluster() {
         try {
-            mCarAppFocusManager.registerFocusListener(new AppFocusChangeListener() {
+            mCarAppFocusManager.addFocusListener(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
+                    new AppFocusChangeListener() {
                 @Override
                 public void onAppFocusChange(int appType, boolean active) {
                     Log.d(TAG, "onAppFocusChange, appType: " + appType + " active: " + active);
                 }
-            }, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+            });
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to register focus listener", e);
         }
@@ -141,8 +141,8 @@ public class InstrumentClusterFragment extends Fragment {
             }
         };
         try {
-            mCarAppFocusManager.requestAppFocus(focusListener,
-                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+            mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
+                    focusListener);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to set active focus", e);
         }

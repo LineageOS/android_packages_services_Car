@@ -19,7 +19,7 @@ package com.android.support.car.apitest;
 import android.content.ComponentName;
 import android.os.Looper;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionCallbacks;
+import android.support.car.ServiceConnectionCallback;
 import android.support.car.hardware.CarSensorManager;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -33,7 +33,7 @@ public class CarTest extends AndroidTestCase {
 
     private final Semaphore mConnectionWait = new Semaphore(0);
 
-    private final ServiceConnectionCallbacks mConnectionCallbacks = new ServiceConnectionCallbacks() {
+    private final ServiceConnectionCallback mConnectionCallbacks = new ServiceConnectionCallback() {
 
         @Override
         public void onServiceSuspended(int cause) {

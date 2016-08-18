@@ -71,7 +71,7 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     /** Sensor type for this event like {@link CarSensorManager#SENSOR_TYPE_CAR_SPEED}. */
     @VersionDef(version = 1)
-    public int sensorType;
+    public final int sensorType;
 
     /**
      * When this data was acquired in car or received from car. It is elapsed real-time of data
@@ -160,32 +160,32 @@ public class CarSensorEvent extends ExtendableParcelable {
     }
 
     public static class CompassData {
-        public long timeStampNs;
+        public CompassData(long timeStampNs, float bearing, float pitch, float roll) {
+            this.timeStampNs = timeStampNs;
+            this.bearing = bearing;
+            this.pitch = pitch;
+            this.roll = roll;
+        }
+
+        public final long timeStampNs;
         /** If unsupported by the car, this value is NaN. */
-        public float bearing;
+        public final float bearing;
         /** If unsupported by the car, this value is NaN. */
-        public float pitch;
+        public final float pitch;
         /** If unsupported by the car, this value is NaN. */
-        public float roll;
+        public final float roll;
     }
 
     /**
-     * Convenience method for obtaining a {@link CompassData} object from a CarSensorEvent
-     * object with type {@link CarSensorManager#SENSOR_TYPE_COMPASS}.
+     * Convenience method for obtaining a {@link CompassData} object from a CarSensorEvent object
+     * with type {@link CarSensorManager#SENSOR_TYPE_COMPASS}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @return a CompassData object corresponding to the data contained in the CarSensorEvent.
      */
-    public CompassData getCompassData(CompassData data) {
+    public CompassData getCompassData() {
         checkType(CarSensorManager.SENSOR_TYPE_COMPASS);
-        if (data == null) {
-            data = new CompassData();
-        }
-        data.bearing = floatValues[INDEX_COMPASS_BEARING];
-        data.pitch = floatValues[INDEX_COMPASS_PITCH];
-        data.roll = floatValues[INDEX_COMPASS_ROLL];
-        return data;
+        return new CompassData(0, floatValues[INDEX_COMPASS_BEARING],
+                floatValues[INDEX_COMPASS_PITCH], floatValues[INDEX_COMPASS_ROLL]);
     }
 
     public static class ParkingBrakeData {

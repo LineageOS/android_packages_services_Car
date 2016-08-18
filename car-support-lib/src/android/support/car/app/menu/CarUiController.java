@@ -27,6 +27,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * A controller for a {@link android.support.car.app.CarActivity} to manipulate its car UI, and
  * under the hood it talks to a car ui provider.
+ * @hide
  */
 public abstract class CarUiController {
     static final String PROJECTED_UI_CONTROLLER =

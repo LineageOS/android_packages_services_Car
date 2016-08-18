@@ -50,6 +50,8 @@ import java.util.List;
  * <p/>
  * This is mostly a copy of {@link android.support.v4.app.FragmentActivity} retro fitted for use
  * with {@link android.support.car.app.CarActivity}.
+ *
+ * @hide
  */
 public class CarFragmentActivity extends CarActivity implements
         CarActivity.RequestPermissionsRequestCodeValidator {

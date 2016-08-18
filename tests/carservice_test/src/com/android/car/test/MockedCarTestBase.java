@@ -22,7 +22,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionCallbacks;
+import android.support.car.ServiceConnectionCallback;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
@@ -48,7 +48,7 @@ public class MockedCarTestBase extends AndroidTestCase {
     private final Semaphore mWaitForMain = new Semaphore(0);
     private final Handler mMainHalder = new Handler(Looper.getMainLooper());
 
-    private final ServiceConnectionCallbacks mConnectionCallbacks = new ServiceConnectionCallbacks() {
+    private final ServiceConnectionCallback mConnectionCallbacks = new ServiceConnectionCallback() {
 
         @Override
         public void onServiceSuspended(int cause) {

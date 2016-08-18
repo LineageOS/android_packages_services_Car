@@ -304,7 +304,7 @@ public class SensorsTestFragment extends Fragment {
         String pitch = mNaString;
         String roll = mNaString;
         if (event != null) {
-            CarSensorEvent.CompassData compass = event.getCompassData(null);
+            CarSensorEvent.CompassData compass = event.getCompassData();
             bear = Float.isNaN(compass.bearing) ? bear : String.valueOf(compass.bearing);
             pitch = Float.isNaN(compass.pitch) ? pitch : String.valueOf(compass.pitch);
             roll = Float.isNaN(compass.roll) ? roll : String.valueOf(compass.roll);

@@ -26,10 +26,10 @@ import android.os.Looper;
 public abstract class CarServiceLoader {
 
     private final Context mContext;
-    private final ServiceConnectionCallbacks mListener;
+    private final ServiceConnectionCallback mListener;
     private final Looper mLooper;
 
-    public CarServiceLoader(Context context, ServiceConnectionCallbacks listener, Looper looper) {
+    public CarServiceLoader(Context context, ServiceConnectionCallback listener, Looper looper) {
         mContext = context;
         mListener = listener;
         mLooper = looper;
@@ -40,9 +40,9 @@ public abstract class CarServiceLoader {
     public abstract boolean isConnectedToCar();
     @Car.ConnectionType
     public abstract int getCarConnectionType() throws CarNotConnectedException;
-    public abstract void registerCarConnectionListener(CarConnectionCallbacks listener)
+    public abstract void registerCarConnectionListener(CarConnectionCallback listener)
             throws CarNotConnectedException;
-    public abstract void unregisterCarConnectionListener(CarConnectionCallbacks listener);
+    public abstract void unregisterCarConnectionListener(CarConnectionCallback listener);
 
     /**
      * Retrieves a manager object for a specified Car*Manager.
@@ -58,7 +58,7 @@ public abstract class CarServiceLoader {
         return mContext;
     }
 
-    protected ServiceConnectionCallbacks getConnectionListener() {
+    protected ServiceConnectionCallback getConnectionListener() {
         return mListener;
     }
 

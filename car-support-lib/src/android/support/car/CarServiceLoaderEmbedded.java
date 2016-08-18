@@ -49,11 +49,11 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     };
 
     private final android.car.Car mCar;
-    private final LinkedList<CarConnectionCallbacks> mCarConnectionCallbackses =
+    private final LinkedList<CarConnectionCallback> mCarConnectionCallbackses =
             new LinkedList<>();
     private final CallbackHandler mHandler;
 
-    public CarServiceLoaderEmbedded(Context context, ServiceConnectionCallbacks listener,
+    public CarServiceLoaderEmbedded(Context context, ServiceConnectionCallback listener,
             Looper looper) {
         super(context, listener, looper);
         mCar = android.car.Car.createCar(context, mServiceConnection, looper);
@@ -84,7 +84,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     }
 
     @Override
-    public void registerCarConnectionListener(final CarConnectionCallbacks listener)
+    public void registerCarConnectionListener(final CarConnectionCallback listener)
             throws CarNotConnectedException {
         synchronized (this) {
             mCarConnectionCallbackses.add(listener);
@@ -94,7 +94,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     }
 
     @Override
-    public void unregisterCarConnectionListener(CarConnectionCallbacks listener) {
+    public void unregisterCarConnectionListener(CarConnectionCallback listener) {
         synchronized (this) {
             mCarConnectionCallbackses.remove(listener);
         }
@@ -139,7 +139,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
             super(looper);
         }
 
-        private void dispatchCarConnectionCall(CarConnectionCallbacks listener, int connectionType) {
+        private void dispatchCarConnectionCall(CarConnectionCallback listener, int connectionType) {
             sendMessage(obtainMessage(MSG_DISPATCH_CAR_CONNECTION, connectionType, 0, listener));
         }
 
@@ -147,7 +147,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_DISPATCH_CAR_CONNECTION:
-                    CarConnectionCallbacks listener = (CarConnectionCallbacks) msg.obj;
+                    CarConnectionCallback listener = (CarConnectionCallback) msg.obj;
                     listener.onConnected(msg.arg1);
                     break;
             }

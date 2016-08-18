@@ -28,6 +28,7 @@ import java.util.List;
 /**
  * CarMenu is used to pass back the menu items of a sublevel to the CarMenu subscriber.
  * Use the {@link Builder} to populate the contents of the sublevel.
+ * @hide
  */
 public class CarMenu {
     private boolean mDetachCalled;

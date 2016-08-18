@@ -24,7 +24,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionCallbacks;
+import android.support.car.ServiceConnectionCallback;
 import android.support.car.input.CarInputManager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -43,6 +43,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * android Activity controlling / proxying {@link CarActivity}. Applications should have its own
  * {@link android.app.Activity} overriding only constructor.
+ *
+ * @hide
  */
 public class CarProxyActivity extends Activity {
     private static final String TAG = "CarProxyActivity";
@@ -57,7 +59,7 @@ public class CarProxyActivity extends Activity {
 
     private final CopyOnWriteArrayList<Pair<Integer, Object[]>> mCmds =
             new CopyOnWriteArrayList<>();
-    private final ServiceConnectionCallbacks mConnectionListener= new ServiceConnectionCallbacks() {
+    private final ServiceConnectionCallback mConnectionListener= new ServiceConnectionCallback() {
 
         @Override
         public void onServiceSuspended(int cause) {

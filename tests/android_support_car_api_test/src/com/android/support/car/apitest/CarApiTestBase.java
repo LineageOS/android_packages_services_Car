@@ -17,10 +17,9 @@
 package com.android.support.car.apitest;
 
 import android.content.ComponentName;
-import android.os.IBinder;
 import android.os.Looper;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionCallbacks;
+import android.support.car.ServiceConnectionCallback;
 import android.test.AndroidTestCase;
 
 import java.util.concurrent.Semaphore;
@@ -31,8 +30,8 @@ public class CarApiTestBase extends AndroidTestCase {
 
     private Car mCar;
 
-    private final DefaultServiceConnectionCallbacks mConnectionCallbacks =
-            new DefaultServiceConnectionCallbacks();
+    private final DefaultServiceConnectionCallback mConnectionCallbacks =
+            new DefaultServiceConnectionCallback();
 
     protected void assertMainThread() {
         assertTrue(Looper.getMainLooper().isCurrentThread());
@@ -56,7 +55,7 @@ public class CarApiTestBase extends AndroidTestCase {
         return mCar;
     }
 
-    protected class DefaultServiceConnectionCallbacks implements ServiceConnectionCallbacks {
+    protected class DefaultServiceConnectionCallback extends ServiceConnectionCallback {
         private final Semaphore mConnectionWait = new Semaphore(0);
 
         public void waitForConnection(long timeoutMs) throws InterruptedException {

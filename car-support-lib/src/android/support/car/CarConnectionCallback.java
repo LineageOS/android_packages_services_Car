@@ -20,7 +20,7 @@ package android.support.car;
  * Listener for monitoring car's connection status.
  * Callbacks are called from the looper specified when constructing {@link Car}.
  */
-public abstract class CarConnectionCallbacks {
+public abstract class CarConnectionCallback {
     /**
      * Called when the Car has been connected. Does not guarantee that the car is still connected
      * while this callback is running, so {@link CarNotConnectedException}s may still be

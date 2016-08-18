@@ -40,7 +40,7 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
     }
 
     @Override
-    public void registerFocusListener(AppFocusChangeListener listener, int appType)
+    public void addFocusListener(int appType, AppFocusChangeListener listener)
             throws CarNotConnectedException {
         if (listener == null) {
             throw new IllegalArgumentException("null listener");
@@ -61,7 +61,7 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
     }
 
     @Override
-    public void unregisterFocusListener(AppFocusChangeListener listener, int appType)
+    public void removeFocusListener(int appType, AppFocusChangeListener listener)
             throws CarNotConnectedException {
         AppFocusChangeListenerProxy proxy;
         synchronized (this) {
@@ -78,7 +78,7 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
     }
 
     @Override
-    public void unregisterFocusListener(AppFocusChangeListener listener)
+    public void removeFocusListener(AppFocusChangeListener listener)
             throws CarNotConnectedException {
         AppFocusChangeListenerProxy proxy;
         synchronized (this) {
@@ -112,7 +112,7 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
     }
 
     @Override
-    public int requestAppFocus(AppFocusOwnershipChangeListener ownershipListener, int appType)
+    public int requestAppFocus(int appType, AppFocusOwnershipChangeListener ownershipListener)
             throws IllegalStateException, SecurityException, CarNotConnectedException {
         if (ownershipListener == null) {
             throw new IllegalArgumentException("null listener");

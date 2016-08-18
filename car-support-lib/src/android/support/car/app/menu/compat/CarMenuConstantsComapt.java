@@ -21,6 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Contains keys to the metadata of car menu, such as id, title, icon, etc.
+ * @hide
  */
 public class CarMenuConstantsComapt {
     public static class MenuItemConstants {

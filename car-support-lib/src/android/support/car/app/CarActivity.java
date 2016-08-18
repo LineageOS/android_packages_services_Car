@@ -59,6 +59,8 @@ import android.view.Window;
  * <p/>
  * This class has the look and feel of {@link Activity} however, it does not extend {@link Activity}
  * or {@link Context}. Applications should use {@link #getContext()} to access the {@link Context}.
+ *
+ * @hide
  */
 public abstract class CarActivity {
     private static final String TAG = "CarActivity";

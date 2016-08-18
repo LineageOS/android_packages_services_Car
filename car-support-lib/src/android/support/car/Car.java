@@ -160,14 +160,14 @@ public class Car {
     // @GuardedBy("this")
     private int mConnectionState;
 
-    private final ServiceConnectionCallbacks mServiceConnectionCallbacks =
-            new ServiceConnectionCallbacks() {
+    private final ServiceConnectionCallback mServiceConnectionCallback =
+            new ServiceConnectionCallback() {
                 @Override
                 public void onServiceConnected(ComponentName name) {
                     synchronized (Car.this) {
                         mConnectionState = STATE_CONNECTED;
                     }
-                    mServiceConnectionCallbacksClient.onServiceConnected(name);
+                    mServiceConnectionCallbackClient.onServiceConnected(name);
                 }
 
                 @Override
@@ -178,22 +178,22 @@ public class Car {
                         }
                         mConnectionState = STATE_DISCONNECTED;
                     }
-                    mServiceConnectionCallbacksClient.onServiceDisconnected(name);
+                    mServiceConnectionCallbackClient.onServiceDisconnected(name);
                     connect();
                 }
 
                 @Override
                 public void onServiceSuspended(int cause) {
-                    mServiceConnectionCallbacksClient.onServiceSuspended(cause);
+                    mServiceConnectionCallbackClient.onServiceSuspended(cause);
                 }
 
                 @Override
                 public void onServiceConnectionFailed(int cause) {
-                    mServiceConnectionCallbacksClient.onServiceConnectionFailed(cause);
+                    mServiceConnectionCallbackClient.onServiceConnectionFailed(cause);
                 }
             };
 
-    private final ServiceConnectionCallbacks mServiceConnectionCallbacksClient;
+    private final ServiceConnectionCallback mServiceConnectionCallbackClient;
     private final Object mCarManagerLock = new Object();
     //@GuardedBy("mCarManagerLock")
     private final HashMap<String, CarManagerBase> mServiceMap = new HashMap<>();
@@ -204,16 +204,16 @@ public class Car {
      * A factory method that creates a Car instance with the given {@code Looper}.
      *
      * @param context The current app context.
-     * @param serviceConnectionCallbacks Receives information as the car service is started and
+     * @param serviceConnectionCallback Receives information as the car service is started and
      * stopped.
      * @param looper Looper to dispatch all listeners. If null, it will use main thread. Note that
      * service connection listener will be always in main thread regardless of this Looper.
      * @return Car instance if system is in car environment and returns {@code null} otherwise.
      */
     public static Car createCar(Context context,
-            ServiceConnectionCallbacks serviceConnectionCallbacks, @Nullable Looper looper) {
+            ServiceConnectionCallback serviceConnectionCallback, @Nullable Looper looper) {
         try {
-            return new Car(context, serviceConnectionCallbacks, looper);
+            return new Car(context, serviceConnectionCallback, looper);
         } catch (IllegalArgumentException e) {
             // Expected when car service loader is not available.
         }
@@ -223,17 +223,17 @@ public class Car {
     /**
      * A factory method that creates Car instance using the main thread {@link Looper}.
      *
-     * @see #createCar(Context, ServiceConnectionCallbacks, Looper)
+     * @see #createCar(Context, ServiceConnectionCallback, Looper)
      */
     public static Car createCar(Context context,
-            ServiceConnectionCallbacks serviceConnectionCallbacks) {
-        return createCar(context, serviceConnectionCallbacks, null);
+            ServiceConnectionCallback serviceConnectionCallback) {
+        return createCar(context, serviceConnectionCallback, null);
     }
 
-    private Car(Context context, ServiceConnectionCallbacks serviceConnectionCallbacks,
+    private Car(Context context, ServiceConnectionCallback serviceConnectionCallback,
             @Nullable Looper looper) {
         mContext = context;
-        mServiceConnectionCallbacksClient = serviceConnectionCallbacks;
+        mServiceConnectionCallbackClient = serviceConnectionCallback;
         if (looper == null) {
             mLooper = Looper.getMainLooper();
         } else {
@@ -242,15 +242,15 @@ public class Car {
 
         if (mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
             mCarServiceLoader =
-                    new CarServiceLoaderEmbedded(context, mServiceConnectionCallbacks, mLooper);
+                    new CarServiceLoaderEmbedded(context, mServiceConnectionCallback, mLooper);
         } else {
             mCarServiceLoader = loadCarServiceLoader(PROJECTED_CAR_SERVICE_LOADER, context,
-                    mServiceConnectionCallbacks, mLooper);
+                    mServiceConnectionCallback, mLooper);
         }
     }
 
     private CarServiceLoader loadCarServiceLoader(String carServiceLoaderClassName, Context context,
-            ServiceConnectionCallbacks serviceConnectionCallbacks, Looper looper)
+            ServiceConnectionCallback serviceConnectionCallback, Looper looper)
             throws IllegalArgumentException {
         Class<? extends CarServiceLoader> carServiceLoaderClass = null;
         try {
@@ -263,14 +263,14 @@ public class Car {
         Constructor<? extends CarServiceLoader> ctor;
         try {
             ctor = carServiceLoaderClass
-                    .getDeclaredConstructor(Context.class, ServiceConnectionCallbacks.class,
+                    .getDeclaredConstructor(Context.class, ServiceConnectionCallback.class,
                             Looper.class);
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Cannot construct CarServiceLoader, no constructor: "
                     + carServiceLoaderClassName, e);
         }
         try {
-            return ctor.newInstance(context, serviceConnectionCallbacks, looper);
+            return ctor.newInstance(context, serviceConnectionCallback, looper);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new IllegalArgumentException(
@@ -295,7 +295,7 @@ public class Car {
         mContext = serviceLoader.getContext();
 
         mConnectionState = STATE_CONNECTED;
-        mServiceConnectionCallbacksClient = null;
+        mServiceConnectionCallbackClient = null;
     }
 
     /**
@@ -395,27 +395,27 @@ public class Car {
     }
 
     /**
-     * Registers a {@link CarConnectionCallbacks}.
+     * Registers a {@link CarConnectionCallback}.
      * <p/>
-     * Avoid reregistering listeners. If a listener is reregistered, it may receive duplicate
-     * calls to {@link CarConnectionCallbacks#onConnected}.
+     * Avoid reregistering callbacks. If a callback is reregistered, it may receive duplicate
+     * calls to {@link CarConnectionCallback#onConnected}.
      *
      * @throws IllegalStateException if service is not connected.
      */
-    public void registerCarConnectionListener(CarConnectionCallbacks listener)
+    public void registerCarConnectionCallbacks(CarConnectionCallback listener)
             throws IllegalStateException, CarNotConnectedException {
         assertCarConnection();
         mCarServiceLoader.registerCarConnectionListener(listener);
     }
 
     /**
-     * Unregisters a {@link CarConnectionCallbacks}.
+     * Unregisters a {@link CarConnectionCallback}.
      * <p/>
      * <b>Note:</b> If this method is called from a thread besides the client's looper thread, there
      * is no guarantee that the unregistered listener will not receive callbacks after this method
      * returns.
      */
-    public void unregisterCarConnectionListener(CarConnectionCallbacks listener) {
+    public void unregisterCarConnectionCallbacks(CarConnectionCallback listener) {
         mCarServiceLoader.unregisterCarConnectionListener(listener);
     }
 

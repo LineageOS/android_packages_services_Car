@@ -77,20 +77,20 @@ public abstract class CarAppFocusManager implements CarManagerBase {
      * Register listener to monitor app focus change.
      * Multiple listeners can be registered for a single focus and the same listener can be used
      * for multiple focuses.
-     * @param listener Listener to register for focus events.
      * @param appType Application type to get notification for.
+     * @param listener Listener to register for focus events.
      * @throws CarNotConnectedException
      */
-    public abstract void registerFocusListener(AppFocusChangeListener listener, int appType)
+    public abstract void addFocusListener(int appType, AppFocusChangeListener listener)
             throws CarNotConnectedException;
 
     /**
      * Unregister listener for app type and stop listening focus change events.
-     * @param listener Listener to unregister from focus events.
      * @param appType Application type to get notification for.
+     * @param listener Listener to unregister from focus events.
      * @throws CarNotConnectedException
      */
-    public abstract void unregisterFocusListener(AppFocusChangeListener listener, int appType)
+    public abstract void removeFocusListener(int appType, AppFocusChangeListener listener)
             throws CarNotConnectedException;
 
     /**
@@ -98,7 +98,7 @@ public abstract class CarAppFocusManager implements CarManagerBase {
      * @param listener Listener to unregister from focus events.
      * @throws CarNotConnectedException
      */
-    public abstract void unregisterFocusListener(AppFocusChangeListener listener)
+    public abstract void removeFocusListener(AppFocusChangeListener listener)
             throws CarNotConnectedException;
 
     /**
@@ -112,21 +112,22 @@ public abstract class CarAppFocusManager implements CarManagerBase {
             throws CarNotConnectedException;
 
     /**
-     * Requests application focus.
-     * By requesting this, the app gains the focus for this appType.
-     * {@link AppFocusOwnershipChangeListener#onAppFocusOwnershipLoss(int)} will be sent to
-     * the app that currently holds focus.
-     * Fore-ground app will have higher priority and other app cannot set the same focus while
-     * owner is in fore-ground.
-     * @param ownershipListener Ownership listener to request app focus for. Cannot be null.
+     * Requests application focus. By requesting this, the app gains the focus for this appType.
+     * {@link AppFocusOwnershipChangeListener#onAppFocusOwnershipLoss(int)} will be sent to the app
+     * that currently holds focus. Fore-ground app will have higher priority and other app cannot
+     * set the same focus while owner is in fore-ground.
+     *
      * @param appType Application type to request focus for.
+     * @param ownershipListener Ownership listener to request app focus for. Cannot be null.
+     *
      * @return {@link #APP_FOCUS_REQUEST_FAILED} or {@link #APP_FOCUS_REQUEST_GRANTED}
      * @throws IllegalStateException If listener was not registered.
      * @throws SecurityException If owner cannot be changed.
      * @throws CarNotConnectedException
      */
-    public abstract int requestAppFocus(AppFocusOwnershipChangeListener ownershipListener,
-            int appType) throws IllegalStateException, SecurityException, CarNotConnectedException;
+    public abstract int requestAppFocus(int appType,
+            AppFocusOwnershipChangeListener ownershipListener)
+            throws IllegalStateException, SecurityException, CarNotConnectedException;
 
     /**
      * Abandon the given focus, i.e. mark it as inactive.

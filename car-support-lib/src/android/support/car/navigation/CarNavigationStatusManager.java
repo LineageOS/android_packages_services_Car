@@ -29,7 +29,7 @@ import android.support.car.CarNotConnectedException;
  * cluster through this manager.
  * <p/>
  * Navigation applications should first call
- * {@link CarAppFocusManager#requestAppFocus(CarAppFocusManager.AppFocusOwnershipChangeListener, int)}
+ * {@link CarAppFocusManager#requestAppFocus(int, CarAppFocusManager.AppFocusOwnershipChangeListener)}
  * and request {@link CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.  Once Nav Focus is granted
  * they can request this manager via  {@link Car#getCarManager(String)}.  If the car does not have
  * an instrument cluster a null value will be returned.

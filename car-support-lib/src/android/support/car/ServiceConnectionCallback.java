@@ -24,11 +24,11 @@ import android.content.ServiceConnection;
  * allows application to know when and if these services are available.  This is analogous to the
  * {@link ServiceConnection} class but for {@link Car}.
  */
-public interface ServiceConnectionCallbacks {
-    void onServiceConnected(ComponentName name);
-    void onServiceDisconnected(ComponentName name);
+public abstract class ServiceConnectionCallback {
+    public abstract void onServiceConnected(ComponentName name);
+    public abstract void onServiceDisconnected(ComponentName name);
     //TODO define cause values
-    void onServiceSuspended(int cause);
+    public abstract void onServiceSuspended(int cause);
     //TODO define cause values
-    void onServiceConnectionFailed(int cause);
+    public abstract void onServiceConnectionFailed(int cause);
 }
