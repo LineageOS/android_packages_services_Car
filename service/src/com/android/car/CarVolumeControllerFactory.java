@@ -26,7 +26,9 @@ import android.os.Message;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.provider.Settings;
 import android.telecom.TelecomManager;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -245,6 +247,13 @@ public class CarVolumeControllerFactory {
             }
         }
 
+        private void writeVolumeToSettings(int carContext, int volume) {
+            String key = VolumeUtils.CAR_AUDIO_CONTEXT_SETTINGS.get(carContext);
+            if (key != null) {
+                Settings.Global.putInt(mContext.getContentResolver(), key, volume);
+            }
+        }
+
         /**
          * All updates to external components should be posted to this handler to avoid holding
          * the internal lock while sending updates.
@@ -333,12 +342,27 @@ public class CarVolumeControllerFactory {
             if (mHasExternalMemory) {
                 // TODO: read per context volume from audio hal
             } else {
-                // TODO: read the Android side volume from Settings and pass it to the audio module
-                // Here we just set it to the physical stream volume temporarily.
                 // when vhal does not work, get call can take long. For that case,
                 // for the same physical streams, cache initial get results
-                Map<Integer, Integer> volumesPerCarStream = new HashMap<>();
+                Map<Integer, Integer> volumesPerCarStream =
+                        new ArrayMap<>(VolumeUtils.CAR_AUDIO_CONTEXT.length);
                 for (int i : VolumeUtils.CAR_AUDIO_CONTEXT) {
+                    String key = VolumeUtils.CAR_AUDIO_CONTEXT_SETTINGS.get(i);
+                    if (key != null) {
+                        int vol = Settings.Global.getInt(mContext.getContentResolver(), key, -1);
+                        if (vol >= 0) {
+                            // Read valid volume for this car context from settings and continue;
+                            mCurrentCarContextVolume.put(i, vol);
+                            if (DBG) {
+                                Log.d(TAG, "init volume from settings, car audio context: "
+                                        + i + " volume: " + vol);
+                            }
+                            continue;
+                        }
+                    }
+
+                    // There is no settings for this car context. Use the current physical car
+                    // stream volume as initial value instead, and put the volume into settings.
                     int carStream = carContextToCarStream(i);
                     Integer volume = volumesPerCarStream.get(carStream);
                     if (volume == null) {
@@ -347,8 +371,10 @@ public class CarVolumeControllerFactory {
                         volumesPerCarStream.put(carStream, volume);
                     }
                     mCurrentCarContextVolume.put(i, volume);
+                    writeVolumeToSettings(i, volume);
                     if (DBG) {
-                        Log.d(TAG, " init volume, car audio context: " + i + " volume: " + volume);
+                        Log.d(TAG, "init volume from physical stream," +
+                                " car audio context: " + i + " volume: " + volume);
                     }
                 }
             }
@@ -409,6 +435,7 @@ public class CarVolumeControllerFactory {
             }
             // Record the current volume internally.
             mCurrentCarContextVolume.put(carContext, index);
+            writeVolumeToSettings(mCurrentContext, index);
             mHandler.sendMessage(mHandler.obtainMessage(MSG_UPDATE_VOLUME,
                     VolumeUtils.carContextToAndroidStream(carContext),
                     getVolumeUpdateFlag()));
@@ -447,6 +474,7 @@ public class CarVolumeControllerFactory {
                 }
                 if (currentCarStream == carStream) {
                     mCurrentCarContextVolume.put(mCurrentContext, volume);
+                    writeVolumeToSettings(mCurrentContext, volume);
                     mHandler.sendMessage(
                             mHandler.obtainMessage(MSG_UPDATE_VOLUME, currentLogicalStream, flag));
                 } else {
@@ -541,6 +569,7 @@ public class CarVolumeControllerFactory {
                 if (primaryFocusContext == mCurrentContext || primaryFocusContext == 0) {
                     return;
                 }
+                int oldContext = mCurrentContext;
                 mCurrentContext = primaryFocusContext;
                 // if car supports audio context and has external memory, then we don't need to do
                 // anything.
@@ -559,7 +588,7 @@ public class CarVolumeControllerFactory {
                         primaryFocusContext;
                 if (DBG) {
                     Log.d(TAG, "Change volume from: "
-                            + mCurrentCarContextVolume.get(mCurrentContext)
+                            + mCurrentCarContextVolume.get(oldContext)
                             + " to: "+ currentVolume);
                 }
                 updateHalVolumeLocked(carStreamNumber, currentVolume);
