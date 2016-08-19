@@ -35,7 +35,7 @@ import java.io.PrintWriter;
  * Car projection service allows to bound to projected app to boost it prioirity.
  * It also enables proejcted applications to handle voice action requests.
  */
-class CarProjectionService extends ICarProjection.Stub implements CarServiceBase,
+public class CarProjectionService extends ICarProjection.Stub implements CarServiceBase,
         BinderInterfaceContainer.BinderEventHandler<ICarProjectionListener> {
     private final ListenerHolder mAllListeners;
     private final CarInputService mCarInputService;

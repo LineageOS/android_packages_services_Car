@@ -1,3 +1,8 @@
+service vms /system/bin/vehicle_monitor_service
+   class core
+   user root
+   group root
+   critical
 
 service vns /system/bin/vehicle_network_service
    class core
@@ -7,3 +12,4 @@ service vns /system/bin/vehicle_network_service
 
 on boot
     start vns
+    start vms
