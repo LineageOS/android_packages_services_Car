@@ -403,6 +403,9 @@ public class CarPowerManagementService implements CarServiceBase,
     }
 
     private void doHandleDeepSleep() {
+        // keep holding partial wakelock to prevent entering sleep before enterDeepSleep call
+        // enterDeepSleep should force sleep entry even if wake lock is kept.
+        mSystemInterface.switchToPartialWakeLock();
         mHandler.cancelProcessingComplete();
         for (PowerServiceEventListener listener : mListeners) {
             listener.onSleepEntry();
@@ -415,8 +418,6 @@ public class CarPowerManagementService implements CarServiceBase,
         if (!shouldDoFakeShutdown()) { // if it is mocked, do not enter sleep.
             mSystemInterface.enterDeepSleep(wakeupTimeSec);
         }
-        mSystemInterface.releaseAllWakeLocks();
-        mSystemInterface.switchToPartialWakeLock();
         mHal.sendSleepExit();
         for (PowerServiceEventListener listener : mListeners) {
             listener.onSleepExit();
@@ -671,7 +672,10 @@ public class CarPowerManagementService implements CarServiceBase,
 
         @Override
         public void enterDeepSleep(int wakeupTimeSec) {
-            //TODO
+            //TODO set wake up time
+            mPowerManager.goToSleep(SystemClock.uptimeMillis(),
+                    PowerManager.GO_TO_SLEEP_REASON_DEVICE_ADMIN,
+                    PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
         }
 
         @Override

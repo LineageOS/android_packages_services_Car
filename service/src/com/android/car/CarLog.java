@@ -20,11 +20,13 @@ public class CarLog {
     public static final String TAG_AM = "CAR.AM";
     public static final String TAG_APP_FOCUS = "CAR.APP_FOCUS";
     public static final String TAG_AUDIO = "CAR.AUDIO";
+    public static final String TAG_CABIN = "CAR.CABIN";
     public static final String TAG_CAMERA = "CAR.CAMERA";
     public static final String TAG_CAN_BUS = "CAR.CAN_BUS";
     public static final String TAG_CLUSTER = "CAR.CLUSTER";
     public static final String TAG_HAL = "CAR.HAL";
     public static final String TAG_HVAC = "CAR.HVAC";
+    public static final String TAG_VENDOR_EXT = "CAR.VENDOR_EXT";
     public static final String TAG_INFO = "CAR.INFO";
     public static final String TAG_INPUT = "CAR.INPUT";
     public static final String TAG_NAV = "CAR.NAV";

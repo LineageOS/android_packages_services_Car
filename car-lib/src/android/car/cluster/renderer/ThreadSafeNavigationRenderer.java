@@ -83,9 +83,11 @@ import java.util.concurrent.CountDownLatch;
     }
 
     @Override
-    public void onNextTurnDistanceChanged(int distanceMeters, int timeSeconds) {
-        mHandler.sendMessage(mHandler.obtainMessage(
-                    MSG_NAV_NEXT_TURN_DISTANCE, distanceMeters, timeSeconds));
+    public void onNextTurnDistanceChanged(int distanceMeters, int timeSeconds,
+            int displayDistanceMillis, int displayDistanceUnit) {
+        ManeuverDistance distance = new ManeuverDistance(distanceMeters, timeSeconds,
+                displayDistanceMillis, displayDistanceUnit);
+        mHandler.sendMessage(mHandler.obtainMessage(MSG_NAV_NEXT_TURN_DISTANCE, distance));
     }
 
     private static class NavigationRendererHandler extends RendererHandler<NavigationRenderer> {
@@ -96,7 +98,6 @@ import java.util.concurrent.CountDownLatch;
 
         @Override
         public void handleMessage(Message msg, NavigationRenderer renderer) {
-
             switch (msg.what) {
                 case MSG_NAV_START:
                     renderer.onStartNavigation();
@@ -110,7 +111,9 @@ import java.util.concurrent.CountDownLatch;
                             nt.bitmap, nt.turnSide);
                     break;
                 case MSG_NAV_NEXT_TURN_DISTANCE:
-                    renderer.onNextTurnDistanceChanged(msg.arg1, msg.arg2);
+                    ManeuverDistance d = (ManeuverDistance) msg.obj;
+                    renderer.onNextTurnDistanceChanged(
+                            d.meters, d.seconds, d.displayDistanceMillis, d.displayDistanceUnit);
                     break;
                 default:
                     throw new IllegalArgumentException("Msg: " + msg.what);
@@ -118,12 +121,19 @@ import java.util.concurrent.CountDownLatch;
         }
     }
 
-    private static <E> E runAndWaitResult(Handler handler, RunnableWithResult<E> runnable) {
+    private static <E> E runAndWaitResult(Handler handler, final RunnableWithResult<E> runnable) {
         final CountDownLatch latch = new CountDownLatch(1);
-        handler.post(() -> {
-            runnable.run();
-            latch.countDown();
-        });
+
+        Runnable wrappedRunnable = new Runnable() {
+            @Override
+            public void run() {
+                runnable.run();
+                latch.countDown();
+            }
+        };
+
+        handler.post(wrappedRunnable);
+
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -184,5 +194,20 @@ import java.util.concurrent.CountDownLatch;
         }
 
         public abstract void handleMessage(Message msg, T renderer);
+    }
+
+    private static class ManeuverDistance {
+        final int meters;
+        final int seconds;
+        final int displayDistanceMillis;
+        final int displayDistanceUnit;
+
+        ManeuverDistance(int meters, int seconds, int displayDistanceMillis,
+                int displayDistanceUnit) {
+            this.meters = meters;
+            this.seconds = seconds;
+            this.displayDistanceMillis = displayDistanceMillis;
+            this.displayDistanceUnit = displayDistanceUnit;
+        }
     }
 }

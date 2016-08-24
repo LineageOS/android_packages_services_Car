@@ -17,8 +17,6 @@
 package com.android.car.hal;
 
 import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
 import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.Log;
@@ -34,10 +32,10 @@ import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -85,19 +83,19 @@ public class VehicleHal implements VehicleNetworkListener {
     private final SensorHalService mSensorHal;
     private final InfoHalService mInfoHal;
     private final AudioHalService mAudioHal;
+    private final CabinHalService mCabinHal;
     private final RadioHalService mRadioHal;
     private final PowerHalService mPowerHal;
     private final HvacHalService mHvacHal;
     private final InputHalService mInputHal;
+    private final VendorExtensionHalService mVendorExtensionHal;
 
     /** stores handler for each HAL property. Property events are sent to handler. */
     private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<HalServiceBase>();
     /** This is for iterating all HalServices with fixed order. */
     private final HalServiceBase[] mAllServices;
     private final ArraySet<Integer> mSubscribedProperties = new ArraySet<Integer>();
-    private final HashMap<Integer, VehiclePropConfig> mUnclaimedProperties = new HashMap<>();
-    private final List<VehiclePropConfig> mAllProperties = new LinkedList<>();
-
+    private final HashMap<Integer, VehiclePropConfig> mAllProperties = new HashMap<>();
     private final HashMap<Integer, VehiclePropertyEventInfo> mEventLog = new HashMap<>();
 
     private VehicleHal() {
@@ -108,17 +106,21 @@ public class VehicleHal implements VehicleNetworkListener {
         mSensorHal = new SensorHalService(this);
         mInfoHal = new InfoHalService(this);
         mAudioHal = new AudioHalService(this);
+        mCabinHal = new CabinHalService(this);
         mRadioHal = new RadioHalService(this);
         mHvacHal = new HvacHalService(this);
         mInputHal = new InputHalService();
+        mVendorExtensionHal = new VendorExtensionHalService(this);
         mAllServices = new HalServiceBase[] {
                 mPowerHal,
                 mAudioHal,
+                mCabinHal,
                 mHvacHal,
                 mInfoHal,
                 mSensorHal,
                 mRadioHal,
-                mInputHal
+                mInputHal,
+                mVendorExtensionHal
                 };
         mVehicleNetwork = VehicleNetwork.createVehicleNetwork(this, mHandlerThread.getLooper());
     }
@@ -126,16 +128,18 @@ public class VehicleHal implements VehicleNetworkListener {
     /** Dummy version only for testing */
     @VisibleForTesting
     public VehicleHal(PowerHalService powerHal, SensorHalService sensorHal, InfoHalService infoHal,
-            AudioHalService audioHal, RadioHalService radioHal, HvacHalService hvacHal,
-            VehicleNetwork vehicleNetwork) {
+            AudioHalService audioHal, CabinHalService cabinHal, RadioHalService radioHal,
+            HvacHalService hvacHal, VehicleNetwork vehicleNetwork) {
         mHandlerThread = null;
         mPowerHal = powerHal;
         mSensorHal = sensorHal;
         mInfoHal = infoHal;
         mAudioHal = audioHal;
+        mCabinHal = cabinHal;
         mRadioHal = radioHal;
         mHvacHal = hvacHal;
         mInputHal = null;
+        mVendorExtensionHal = null;
         mAllServices = null;
         mVehicleNetwork = vehicleNetwork;
     }
@@ -145,6 +149,14 @@ public class VehicleHal implements VehicleNetworkListener {
         // needs copy as getConfigsList gives unmodifiable one.
         List<VehiclePropConfig> propertiesList =
                 new LinkedList<VehiclePropConfig>(properties.getConfigsList());
+
+        synchronized (this) {
+            // Create map of all properties
+            for (VehiclePropConfig p : propertiesList) {
+                mAllProperties.put(p.getProp(), p);
+            }
+        }
+
         for (HalServiceBase service: mAllServices) {
             List<VehiclePropConfig> taken = service.takeSupportedProperties(propertiesList);
             if (taken == null) {
@@ -161,12 +173,6 @@ public class VehicleHal implements VehicleNetworkListener {
             propertiesList.removeAll(taken);
             service.init();
         }
-        synchronized (this) {
-            for (VehiclePropConfig p: propertiesList) {
-                mUnclaimedProperties.put(p.getProp(), p);
-            }
-            mAllProperties.addAll(properties.getConfigsList());
-        }
     }
 
     public void release() {
@@ -179,7 +185,6 @@ public class VehicleHal implements VehicleNetworkListener {
                 mVehicleNetwork.unsubscribe(p);
             }
             mSubscribedProperties.clear();
-            mUnclaimedProperties.clear();
             mAllProperties.clear();
         }
         // keep the looper thread as should be kept for the whole life cycle.
@@ -195,6 +200,10 @@ public class VehicleHal implements VehicleNetworkListener {
 
     public AudioHalService getAudioHal() {
         return mAudioHal;
+    }
+
+    public CabinHalService getCabinHal() {
+        return mCabinHal;
     }
 
     public RadioHalService getRadioHal() {
@@ -213,9 +222,14 @@ public class VehicleHal implements VehicleNetworkListener {
         return mInputHal;
     }
 
+    public VendorExtensionHalService getVendorExtensionHal() {
+        return mVendorExtensionHal;
+    }
+
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {
         if (service != mPropertyHandlers.get(property)) {
-            throw new IllegalArgumentException("not owned");
+            throw new IllegalArgumentException("Property 0x" + Integer.toHexString(property)
+                    + " is not owned by service: " + service);
         }
     }
 
@@ -227,19 +241,42 @@ public class VehicleHal implements VehicleNetworkListener {
      */
     public void subscribeProperty(HalServiceBase service, int property,
             float samplingRateHz) throws IllegalArgumentException {
+        VehiclePropConfig config;
         synchronized (this) {
-            assertServiceOwnerLocked(service, property);
-            mSubscribedProperties.add(property);
+            config = mAllProperties.get(property);
         }
-        mVehicleNetwork.subscribe(property, samplingRateHz);
+
+        if (config == null) {
+            throw new IllegalArgumentException("subscribe error: config is null for property " +
+                    property);
+        } else if (isPropertySubscribable(config)) {
+            synchronized (this) {
+                assertServiceOwnerLocked(service, property);
+                mSubscribedProperties.add(property);
+            }
+            mVehicleNetwork.subscribe(property, samplingRateHz);
+        } else {
+            Log.e(CarLog.TAG_HAL, "Cannot subscribe to property: " + property);
+        }
     }
 
     public void unsubscribeProperty(HalServiceBase service, int property) {
+        VehiclePropConfig config;
         synchronized (this) {
-            assertServiceOwnerLocked(service, property);
-            mSubscribedProperties.remove(property);
+            config = mAllProperties.get(property);
         }
-        mVehicleNetwork.unsubscribe(property);
+
+        if (config == null) {
+            Log.e(CarLog.TAG_HAL, "unsubscribeProperty: property " + property + " does not exist");
+        } else if (isPropertySubscribable(config)) {
+            synchronized (this) {
+                assertServiceOwnerLocked(service, property);
+                mSubscribedProperties.remove(property);
+            }
+            mVehicleNetwork.unsubscribe(property);
+        } else {
+            Log.e(CarLog.TAG_HAL, "Cannot unsubscribe property: " + property);
+        }
     }
 
     public VehicleNetwork getVehicleNetwork() {
@@ -306,17 +343,23 @@ public class VehicleHal implements VehicleNetworkListener {
         for (HalServiceBase service: mAllServices) {
             service.dump(writer);
         }
+
+        List<VehiclePropConfig> configList;
+        synchronized (this) {
+            configList = new ArrayList<>(mAllProperties.values());
+        }
+
         writer.println("**All properties**");
-        for (VehiclePropConfig config : mAllProperties) {
+        for (VehiclePropConfig config : configList) {
             StringBuilder builder = new StringBuilder();
-            builder.append("Property:0x" + Integer.toHexString(config.getProp()));
+            builder.append("Property:0x").append(Integer.toHexString(config.getProp()));
             builder.append(",access:0x" + Integer.toHexString(config.getAccess()));
             builder.append(",changeMode:0x" + Integer.toHexString(config.getChangeMode()));
             builder.append(",valueType:0x" + Integer.toHexString(config.getValueType()));
             builder.append(",permission:0x" + Integer.toHexString(config.getPermissionModel()));
             builder.append(",config:0x" + Integer.toHexString(config.getConfigArray(0)));
             builder.append(",fs min:" + config.getSampleRateMin());
-            builder.append(",fs max:" + config.getSampleRateMax());
+            builder.append(",fs max:").append(config.getSampleRateMax());
             for (int i = 0; i < config.getFloatMaxsCount(); i++) {
                 builder.append(",v min:" + config.getFloatMins(i));
                 builder.append(",v max:" + config.getFloatMaxs(i));
@@ -336,6 +379,13 @@ public class VehicleHal implements VehicleNetworkListener {
         for (VehiclePropertyEventInfo info : mEventLog.values()) {
             writer.println(String.format("event count:%d, lastEvent:%s",
                     info.eventCount, dumpVehiclePropValue(info.lastEvent)));
+        }
+
+        writer.println("**Property handlers**");
+        for (int i = 0; i < mPropertyHandlers.size(); i++) {
+            int propId = mPropertyHandlers.keyAt(i);
+            HalServiceBase service = mPropertyHandlers.valueAt(i);
+            writer.println(String.format("Prop: 0x%08X, service: %s", propId, service));
         }
     }
 

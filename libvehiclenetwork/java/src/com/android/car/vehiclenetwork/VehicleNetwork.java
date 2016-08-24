@@ -86,9 +86,12 @@ public class VehicleNetwork {
             Looper looper) {
         int retryCount = 0;
         IVehicleNetwork service = null;
-        while (service == null) {
+        while (true) {
             service = IVehicleNetwork.Stub.asInterface(ServiceManager.getService(
                     IVehicleNetwork.class.getCanonicalName()));
+            if (service != null) {
+                break;
+            }
             retryCount++;
             if (retryCount > VNS_CONNECT_MAX_RETRY) {
                 break;

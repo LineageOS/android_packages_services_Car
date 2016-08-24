@@ -60,9 +60,12 @@ public class LoggingClusterRenderingService extends InstrumentClusterRenderingSe
             }
 
             @Override
-            public void onNextTurnDistanceChanged(int distanceMeters, int timeSeconds) {
+            public void onNextTurnDistanceChanged(int distanceMeters, int timeSeconds,
+                    int displayDistanceMillis, int displayDistanceUnit) {
                 Log.i(TAG, "onNextTurnDistanceChanged, distanceMeters: " + distanceMeters
-                        + ", timeSeconds: " + timeSeconds);
+                        + ", timeSeconds: " + timeSeconds
+                        + ", displayDistanceMillis: " + displayDistanceMillis
+                        + ", displayDistanceUnit: " + displayDistanceUnit);
             }
         };
 

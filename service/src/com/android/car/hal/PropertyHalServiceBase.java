@@ -29,6 +29,7 @@ import android.util.SparseIntArray;
 import com.android.car.CarLog;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
+import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -44,18 +45,23 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class PropertyHalServiceBase extends HalServiceBase {
     private final boolean mDbg;
     private final SparseIntArray mHalPropToValueType = new SparseIntArray();
-    private PropertyHalListener mListener;
     private final ConcurrentHashMap<Integer, CarPropertyConfig<?>> mProps =
             new ConcurrentHashMap<>();
     private final String mTag;
     private final VehicleHal mVehicleHal;
+
+    @GuardedBy("mLock")
+    private PropertyHalListener mListener;
+    private final Object mLock = new Object();
+
+    protected final static int NOT_SUPPORTED_PROPERTY = -1;
 
     public interface PropertyHalListener {
         void onPropertyChange(CarPropertyEvent event);
         void onError(int zone, int property);
     }
 
-    public PropertyHalServiceBase(VehicleHal vehicleHal, String tag, boolean dbg) {
+    protected PropertyHalServiceBase(VehicleHal vehicleHal, String tag, boolean dbg) {
         mVehicleHal = vehicleHal;
         mTag = "PropertyHalServiceBase." + tag;
         mDbg = dbg;
@@ -66,7 +72,7 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
     }
 
     public void setListener(PropertyHalListener listener) {
-        synchronized (this) {
+        synchronized (mLock) {
             mListener = listener;
         }
     }
@@ -77,6 +83,9 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
 
     public CarPropertyValue getProperty(int mgrPropId, int areaId) {
         int halPropId = managerToHalPropId(mgrPropId);
+        if (halPropId == NOT_SUPPORTED_PROPERTY) {
+            throw new IllegalArgumentException("Invalid property Id : 0x" + toHexString(mgrPropId));
+        }
 
         VehiclePropValue value = null;
         try {
@@ -96,6 +105,10 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
 
     public void setProperty(CarPropertyValue prop) {
         int halPropId = managerToHalPropId(prop.getPropertyId());
+        if (halPropId == NOT_SUPPORTED_PROPERTY) {
+            throw new IllegalArgumentException("Invalid property Id : 0x"
+                    + toHexString(prop.getPropertyId()));
+        }
         VehiclePropValue halProp = toVehiclePropValue(prop, halPropId);
         try {
             mVehicleHal.getVehicleNetwork().setProperty(halProp);
@@ -129,7 +142,7 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
         // Clear the property list
         mProps.clear();
 
-        synchronized (this) {
+        synchronized (mLock) {
             mListener = null;
         }
     }
@@ -140,20 +153,12 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
         List<VehiclePropConfig> taken = new LinkedList<>();
 
         for (VehiclePropConfig p : allProperties) {
-            int mgrPropId;
-            int halPropId;
+            int mgrPropId = halToManagerPropId(p.getProp());
 
-            try {
-                // See if the property is handled by this HAL
-                mgrPropId = halToManagerPropId(p.getProp());
-                halPropId = managerToHalPropId(mgrPropId);
-                if (halPropId != p.getProp()) {
-                    throw new IllegalArgumentException("propId " + p.getProp() + " becomes " +
-                            halPropId);
-                }
-            } catch (IllegalArgumentException e) {
-                continue;
+            if (mgrPropId == NOT_SUPPORTED_PROPERTY) {
+                continue;  // The property is not handled by this HAL.
             }
+
             CarPropertyConfig config = CarPropertyUtils.toCarPropertyConfig(p, mgrPropId);
 
             taken.add(p);
@@ -161,7 +166,7 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
             mHalPropToValueType.put(p.getProp(), p.getValueType());
 
             if (mDbg) {
-                Log.d(mTag, "takeSupportedProperties:  " + toHexString(p.getProp()));
+                Log.d(mTag, "takeSupportedProperties: " + toHexString(p.getProp()));
             }
         }
         return taken;
@@ -176,12 +181,10 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
         if (listener != null) {
             for (VehiclePropValue v : values) {
                 int prop = v.getProp();
-                int mgrPropId;
+                int mgrPropId = halToManagerPropId(prop);
 
-                try {
-                    mgrPropId = halToManagerPropId(prop);
-                } catch (IllegalArgumentException ex) {
-                    Log.e(mTag, "Property is not supported: 0x" + toHexString(prop), ex);
+                if (mgrPropId == NOT_SUPPORTED_PROPERTY) {
+                    Log.e(mTag, "Property is not supported: 0x" + toHexString(prop));
                     continue;
                 }
 
@@ -208,12 +211,62 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
     }
 
     /**
-     * Convert manager property ID to Vehicle HAL property ID
+     * Converts manager property ID to Vehicle HAL property ID.
+     * If property is not supported, it will return {@link #NOT_SUPPORTED_PROPERTY}.
      */
     abstract protected int managerToHalPropId(int managerPropId);
 
     /**
-     * Convert Vehicle HAL property ID to manager property ID
+     * Converts Vehicle HAL property ID to manager property ID.
+     * If property is not supported, it will return {@link #NOT_SUPPORTED_PROPERTY}.
      */
     abstract protected int halToManagerPropId(int halPropId);
+
+    /**
+     * Helper class that maintains bi-directional mapping between manager's property
+     * Id (public or system API) and vehicle HAL property Id.
+     *
+     * <p>This class is supposed to be immutable. Use {@link #create(int[])} factory method to
+     * instantiate this class.
+     */
+    static class ManagerToHalPropIdMap {
+        private final SparseIntArray mMap;
+        private final SparseIntArray mInverseMap;
+
+        /**
+         * Creates {@link ManagerToHalPropIdMap} for provided [manager prop Id, hal prop Id] pairs.
+         *
+         * <p> The input array should have an odd number of elements.
+         */
+        static ManagerToHalPropIdMap create(int[] mgrToHalPropIds) {
+            int inputLength = mgrToHalPropIds.length;
+            if (inputLength % 2 != 0) {
+                throw new IllegalArgumentException("Odd number of key-value elements");
+            }
+
+            ManagerToHalPropIdMap biMap = new ManagerToHalPropIdMap(inputLength / 2);
+            for (int i = 0; i < mgrToHalPropIds.length; i += 2) {
+                biMap.put(mgrToHalPropIds[i], mgrToHalPropIds[i + 1]);
+            }
+            return biMap;
+        }
+
+        private ManagerToHalPropIdMap(int initialCapacity) {
+            mMap = new SparseIntArray(initialCapacity);
+            mInverseMap = new SparseIntArray(initialCapacity);
+        }
+
+        private void put(int managerPropId, int halPropId) {
+            mMap.put(managerPropId, halPropId);
+            mInverseMap.put(halPropId, managerPropId);
+        }
+
+        int getHalPropId(int managerPropId) {
+            return mMap.get(managerPropId, NOT_SUPPORTED_PROPERTY);
+        }
+
+        int getManagerPropId(int halPropId) {
+            return mInverseMap.get(halPropId, NOT_SUPPORTED_PROPERTY);
+        }
+    }
 }

@@ -15,6 +15,8 @@
  */
 package com.android.car;
 
+import static android.hardware.input.InputManager.INJECT_INPUT_EVENT_MODE_ASYNC;
+
 import android.car.input.CarInputHandlingService;
 import android.car.input.CarInputHandlingService.InputFilter;
 import android.car.input.ICarInputListener;
@@ -22,6 +24,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.hardware.input.InputManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -41,9 +44,6 @@ import android.view.KeyEvent;
 import com.android.car.hal.InputHalService;
 import com.android.car.hal.VehicleHal;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,6 +61,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
 
     private final Context mContext;
     private final TelecomManager mTelecomManager;
+    private final InputManager mInputManager;
 
     private KeyEventListener mVoiceAssistantKeyListener;
     private KeyEventListener mLongVoiceAssistantKeyListener;
@@ -71,8 +72,6 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     private KeyEventListener mInstrumentClusterKeyListener;
 
     private KeyEventListener mVolumeKeyListener;
-
-    private ParcelFileDescriptor mInjectionDeviceFd;
 
     private ICarInputListener mCarInputListener;
     private boolean mCarInputListenerBound = false;
@@ -128,7 +127,8 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
 
     public CarInputService(Context context) {
         mContext = context;
-        mTelecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
+        mTelecomManager = context.getSystemService(TelecomManager.class);
+        mInputManager = context.getSystemService(InputManager.class);
     }
 
     private synchronized void setHandledKeys(InputFilter[] handledKeys) {
@@ -186,19 +186,8 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             Log.w(CarLog.TAG_INPUT, "Hal does not support key input.");
             return;
         }
-        String injectionDevice = mContext.getResources().getString(
-                R.string.inputInjectionDeviceNode);
-        ParcelFileDescriptor file = null;
-        try {
-            file = ParcelFileDescriptor.open(new File(injectionDevice),
-                    ParcelFileDescriptor.MODE_READ_WRITE);
-        } catch (FileNotFoundException e) {
-            Log.w(CarLog.TAG_INPUT, "cannot open device for input injection:" + injectionDevice);
-            return;
-        }
-        synchronized (this) {
-            mInjectionDeviceFd = file;
-        }
+
+
         hal.setInputListener(this);
         mCarInputListenerBound = bindCarInputService();
     }
@@ -209,13 +198,6 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
             mVoiceAssistantKeyListener = null;
             mLongVoiceAssistantKeyListener = null;
             mInstrumentClusterKeyListener = null;
-            if (mInjectionDeviceFd != null) {
-                try {
-                    mInjectionDeviceFd.close();
-                } catch (IOException e) {
-                }
-            }
-            mInjectionDeviceFd = null;
             mKeyEventCount = 0;
             if (mCarInputListenerBound) {
                 mContext.unbindService(mInputServiceConnection);
@@ -388,23 +370,12 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     }
 
     private void handleMainDisplayKey(KeyEvent event) {
-        int fd;
-        synchronized (this) {
-            fd = mInjectionDeviceFd.getFd();
-        }
-        int action = event.getAction();
-        boolean isDown = (action == KeyEvent.ACTION_DOWN);
-        int keyCode = event.getKeyCode();
-        int r = nativeInjectKeyEvent(fd, keyCode, isDown);
-        if (r != 0) {
-            Log.e(CarLog.TAG_INPUT, "cannot inject key event, failed with:" + r);
-        }
+        mInputManager.injectInputEvent(event, INJECT_INPUT_EVENT_MODE_ASYNC);
     }
 
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*Input Service*");
-        writer.println("mInjectionDeviceFd:" + mInjectionDeviceFd);
         writer.println("mCarInputListenerBound:" + mCarInputListenerBound);
         writer.println("mCarInputListener:" + mCarInputListener);
         writer.println("mLastVoiceKeyDownTime:" + mLastVoiceKeyDownTime +
@@ -429,6 +400,4 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         mContext.startService(intent);
         return mContext.bindService(intent, mInputServiceConnection, Context.BIND_IMPORTANT);
     }
-
-    private native int nativeInjectKeyEvent(int fd, int keyCode, boolean isDown);
 }

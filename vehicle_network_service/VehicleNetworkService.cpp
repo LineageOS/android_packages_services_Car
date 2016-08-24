@@ -565,7 +565,7 @@ status_t VehicleNetworkService::getProperty(vehicle_prop_value_t *data) {
 }
 
 void VehicleNetworkService::releaseMemoryFromGet(vehicle_prop_value_t* value) {
-    switch (value->prop) {
+    switch (value->value_type) {
     case VEHICLE_VALUE_TYPE_STRING:
     case VEHICLE_VALUE_TYPE_BYTES: {
         Mutex::Autolock autoLock(mLock);

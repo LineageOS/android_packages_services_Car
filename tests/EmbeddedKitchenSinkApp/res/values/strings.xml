@@ -179,4 +179,25 @@
     <string name="volume_up_logical">Vol +</string>
     <string name="volume_down_logical">Vol -</string>
     <string name="refresh_volume">Refresh volumes</string>
+
+    <!--Car Service Settings-->
+    <string name="garage_title">Garage Mode</string>
+    <string name="garage_description">Customize your system maintenance</string>
+    <string name="regular_wake_up">Maintenance time</string>
+    <string name="garage_switch">Enable garage maintenance</string>
+    <string name="garage_enabled">Garage maintenance on</string>
+    <string name="garage_disabled">Garage maintenance off</string>
+    <string name="garage_limit">Maximum garage maintenance window</string>
+    <string name="car_settings">Car Settings</string>
+    <string-array name="garage_limit_keys">
+        <item>5 Minutes</item>
+        <item>10 Minutes</item>
+        <item>15 Minutes</item>
+    </string-array>
+    <string-array name="garage_limit_values"  translatable="false">
+        <item>"5"</item>
+        <item>"10"</item>
+        <item>"15"</item>
+    </string-array>
+    <string name="garage_time_limit_summary">%d minutes</string>
 </resources>

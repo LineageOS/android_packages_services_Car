@@ -18,7 +18,6 @@ package com.android.car;
 
 import android.car.Car;
 import android.content.Context;
-import com.android.car.CarLog;
 import com.android.car.hal.VehicleHal;
 
 public class CarHvacService extends CarPropertyServiceBase {

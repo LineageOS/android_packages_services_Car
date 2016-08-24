@@ -23,6 +23,65 @@ public class HvacHalService extends PropertyHalServiceBase {
     private static final boolean DBG = true;
     private static final String TAG = "HvacHalService";
 
+    private final ManagerToHalPropIdMap mMgrHalPropIdMap = ManagerToHalPropIdMap.create(new int[] {
+           HvacPropertyId.MIRROR_DEFROSTER_ON,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_SIDE_MIRROR_HEAT,
+
+           HvacPropertyId.STEERING_WHEEL_TEMP,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_STEERING_WHEEL_TEMP,
+
+           HvacPropertyId.OUTSIDE_AIR_TEMP,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_ENV_OUTSIDE_TEMPERATURE,
+
+           HvacPropertyId.TEMPERATURE_UNITS,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_UNITS,
+
+           HvacPropertyId.ZONED_TEMP_SETPOINT,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET,
+
+           HvacPropertyId.ZONED_TEMP_ACTUAL,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_CURRENT,
+
+           HvacPropertyId.ZONED_FAN_SPEED_SETPOINT,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_SPEED,
+
+           HvacPropertyId.ZONED_FAN_SPEED_RPM,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_ACTUAL_FAN_SPEED_RPM,
+
+           HvacPropertyId.ZONED_FAN_POSITION_AVAILABLE,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION_AVAILABLE,
+
+           HvacPropertyId.ZONED_FAN_POSITION,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION,
+
+           HvacPropertyId.ZONED_SEAT_TEMP,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_SEAT_TEMPERATURE,
+
+           HvacPropertyId.ZONED_AC_ON,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AC_ON,
+
+           HvacPropertyId.ZONED_AUTOMATIC_MODE_ON,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AUTO_ON,
+
+           HvacPropertyId.ZONED_AIR_RECIRCULATION_ON,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_RECIRC_ON,
+
+           HvacPropertyId.ZONED_MAX_AC_ON,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_AC_ON,
+
+           HvacPropertyId.ZONED_DUAL_ZONE_ON,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DUAL_ON,
+
+           HvacPropertyId.ZONED_MAX_DEFROST_ON,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_DEFROST_ON,
+
+           HvacPropertyId.ZONED_HVAC_POWER_ON,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_POWER_ON,
+
+           HvacPropertyId.WINDOW_DEFROSTER_ON,
+           VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DEFROSTER
+    });
+
     public HvacHalService(VehicleHal vehicleHal) {
         super(vehicleHal, TAG, DBG);
     }
@@ -30,66 +89,12 @@ public class HvacHalService extends PropertyHalServiceBase {
     // Convert the HVAC public API property ID to HAL property ID
     @Override
     protected int managerToHalPropId(int hvacPropId) {
-        switch (hvacPropId) {
-            case HvacPropertyId.ZONED_FAN_SPEED_SETPOINT:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_SPEED;
-            case HvacPropertyId.ZONED_FAN_POSITION:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION;
-            case HvacPropertyId.OUTSIDE_AIR_TEMP:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_ENV_OUTSIDE_TEMPERATURE;
-            case HvacPropertyId.ZONED_TEMP_ACTUAL:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_CURRENT;
-            case HvacPropertyId.ZONED_TEMP_SETPOINT:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET;
-            case HvacPropertyId.WINDOW_DEFROSTER_ON:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DEFROSTER;
-            case HvacPropertyId.ZONED_AC_ON:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AC_ON;
-            case HvacPropertyId.ZONED_AUTOMATIC_MODE_ON:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AUTO_ON;
-            case HvacPropertyId.ZONED_AIR_RECIRCULATION_ON:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_RECIRC_ON;
-            case HvacPropertyId.ZONED_MAX_AC_ON:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_AC_ON;
-            case HvacPropertyId.ZONED_DUAL_ZONE_ON:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DUAL_ON;
-            case HvacPropertyId.ZONED_MAX_DEFROST_ON:
-                return VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_DEFROST_ON;
-            default:
-                throw new IllegalArgumentException("hvacPropId " + hvacPropId + " not supported");
-        }
+        return mMgrHalPropIdMap.getHalPropId(hvacPropId);
     }
 
     // Convert he HAL specific property ID to HVAC public API
     @Override
     protected int halToManagerPropId(int halPropId) {
-        switch (halPropId) {
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_SPEED:
-                return HvacPropertyId.ZONED_FAN_SPEED_SETPOINT;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION:
-                return HvacPropertyId.ZONED_FAN_POSITION;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_ENV_OUTSIDE_TEMPERATURE:
-                return HvacPropertyId.OUTSIDE_AIR_TEMP;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_CURRENT:
-                return HvacPropertyId.ZONED_TEMP_ACTUAL;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET:
-                return HvacPropertyId.ZONED_TEMP_SETPOINT;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DEFROSTER:
-                return HvacPropertyId.WINDOW_DEFROSTER_ON;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AC_ON:
-                return HvacPropertyId.ZONED_AC_ON;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AUTO_ON:
-                return HvacPropertyId.ZONED_AUTOMATIC_MODE_ON;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_RECIRC_ON:
-                return HvacPropertyId.ZONED_AIR_RECIRCULATION_ON;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_AC_ON:
-                return HvacPropertyId.ZONED_MAX_AC_ON;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DUAL_ON:
-                return HvacPropertyId.ZONED_DUAL_ZONE_ON;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_DEFROST_ON:
-                return HvacPropertyId.ZONED_MAX_DEFROST_ON;
-            default:
-                throw new IllegalArgumentException("halPropId " + halPropId + " not supported");
-        }
+        return mMgrHalPropIdMap.getManagerPropId(halPropId);
     }
 }

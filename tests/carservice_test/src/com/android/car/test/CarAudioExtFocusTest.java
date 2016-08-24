@@ -125,7 +125,7 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 VehiclePropConfigUtil.createStaticStringProperty(
                         VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT),
                 VehiclePropValueUtil.createIntValue(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT, 1, 0));
+                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT, -1, 0));
         getVehicleHalEmulator().addProperty(
                 VehiclePropConfigUtil.getBuilder(
                         VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_HINT,

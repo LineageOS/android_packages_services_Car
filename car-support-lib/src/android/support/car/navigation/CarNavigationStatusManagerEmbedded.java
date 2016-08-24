@@ -17,7 +17,6 @@ package android.support.car.navigation;
 
 import android.graphics.Bitmap;
 import android.support.car.CarNotConnectedException;
-import android.support.car.CarNotSupportedException;
 
 /**
  * @hide
@@ -26,16 +25,8 @@ public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusMa
 
     private final android.car.navigation.CarNavigationManager mManager;
 
-    public CarNavigationStatusManagerEmbedded(Object manager)
-            throws CarNotSupportedException, CarNotConnectedException {
+    public CarNavigationStatusManagerEmbedded(Object manager) {
         mManager = (android.car.navigation.CarNavigationManager) manager;
-        try {
-            if (!mManager.isInstrumentClusterSupported()){
-                throw new CarNotSupportedException();
-            }
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
     }
 
     /**
@@ -67,7 +58,8 @@ public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusMa
     public boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
             int displayDistanceMillis, int displayDistanceUnit) throws CarNotConnectedException {
         try {
-            return mManager.sendNavigationTurnDistanceEvent(distanceMeters, timeSeconds);
+            return mManager.sendNavigationTurnDistanceEvent(distanceMeters, timeSeconds,
+                    displayDistanceMillis, displayDistanceUnit);
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }

@@ -18,6 +18,7 @@ package com.android.car;
 import android.car.test.CarTestManager;
 import android.car.test.ICarTest;
 import android.content.Context;
+import android.os.IBinder;
 import android.util.Log;
 
 import com.android.car.hal.VehicleHal;
@@ -27,6 +28,7 @@ import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
 import com.android.car.vehiclenetwork.VehiclePropValueParcelable;
 
 import java.io.PrintWriter;
+import java.util.NoSuchElementException;
 
 /**
  * Service to allow testing / mocking vehicle HAL.
@@ -41,6 +43,8 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
     private boolean mInMocking = false;
     private int mMockingFlags = 0;
     private Exception mException = null;
+    private IVehicleNetworkHalMock mMock = null;
+    private final MockDeathRecipient mDeathRecipient = new MockDeathRecipient();
 
     public CarTestService(Context context, ICarImpl carImpl) {
         mContext = context;
@@ -63,7 +67,7 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*CarTestService*");
-        writer.println(" mInMocking" + mInMocking);
+        writer.println(" mInMocking:" + mInMocking);
     }
 
     @Override
@@ -83,7 +87,18 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
                         mInMocking = true;
                         mMockingFlags = flags;
                         mException = null;
+                        if (mMock != null) {
+                            Log.w(CarLog.TAG_TEST,
+                                    "New mocking started while previous one is not stopped");
+                            try {
+                                mMock.asBinder().unlinkToDeath(mDeathRecipient, 0);
+                            } catch (NoSuchElementException e) {
+                                //ignore
+                            }
+                        }
+                        mMock = mock;
                     }
+                    mock.asBinder().linkToDeath(mDeathRecipient, 0);
                     mVehicleNetwork.startMocking(mock);
                     mICarImpl.startMocking();
                 } catch (Exception e) {
@@ -112,12 +127,26 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
             @Override
             public void run() {
                 try {
+                    synchronized (this) {
+                        if (!mInMocking) {
+                            throw new IllegalStateException("not in mocking");
+                        }
+                        if (mMock.asBinder() != mock.asBinder()) {
+                            throw new IllegalArgumentException("Try to stop mocking not owned");
+                        }
+                        try {
+                            mMock.asBinder().unlinkToDeath(mDeathRecipient, 0);
+                        } catch (NoSuchElementException e) {
+                            //ignore
+                        }
+                    }
                     mVehicleNetwork.stopMocking(mock);
                     mICarImpl.stopMocking();
                     synchronized (this) {
                         mInMocking = false;
                         mMockingFlags = 0;
                         mException = null;
+                        mMock = null;
                     }
                     Log.i(CarLog.TAG_TEST, "stop vehicle HAL mocking");
                 } catch (Exception e) {
@@ -140,5 +169,22 @@ public class CarTestService extends ICarTest.Stub implements CarServiceBase {
 
     public synchronized boolean shouldDoRealShutdownInMocking() {
         return (mMockingFlags & CarTestManager.FLAG_MOCKING_REAL_SHUTDOWN) != 0;
+    }
+
+    private class MockDeathRecipient implements IBinder.DeathRecipient {
+        @Override
+        public void binderDied() {
+            CarServiceUtils.runOnMainSync(() -> {
+               try {
+                   IVehicleNetworkHalMock mock;
+                   synchronized (this) {
+                       mock = mMock;
+                   }
+                   stopMocking(mock);
+               } catch (Exception e) {
+                   //ignore
+               }
+            });
+        }
     }
 }

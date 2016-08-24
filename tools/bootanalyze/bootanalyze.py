@@ -19,156 +19,130 @@
 bootanalyze read logcat and dmesg loga and determines key points for boot.
 """
 
+import yaml
+import argparse
 import re
 import os
+import subprocess
 import time
 import datetime
 import sys
 import operator
 
-SOURCE_DMESG = "dmesg"
-SOURCE_LOGCAT = "logcat"
-SOURCE_BOOTSTAT = "bootstat"
-
 TIME_DMESG = "\[\s*(\d+\.\d+)\]"
 TIME_LOGCAT = "^\d\d-\d\d\s+\d\d:\d\d:\d\d\.\d\d\d"
 
-EVENTS = {
-  'kernel': [SOURCE_DMESG, '"Linux version"'],
-  'Android init 1st stage': [SOURCE_DMESG, '"init first stage started"'],
-  'Android init 2st stage': [SOURCE_DMESG, '"init second stage started"'],
-  'ueventd': [SOURCE_DMESG, '"Starting service \'ueventd\'"'],
-  '/system mounted': [SOURCE_DMESG, '"target=/system"'],
-  '/data mounted': [SOURCE_DMESG, '"target=/data"'],
-  'servicemanager_start_by_init': [SOURCE_DMESG,
-                                   '"Starting service \'servicemanager\'"'],
-  'zygote_start_by_init': [SOURCE_DMESG, '"Starting service \'zygote\'"'],
-  'zygoteInit': [SOURCE_LOGCAT, '"START com.android.internal.os.ZygoteInit"'],
-  'zygote_preload_classes_start': [SOURCE_LOGCAT,
-                                   '"Zygote\s*:\s*begin preload"'],
-  'zygote_preload_classes_end': [SOURCE_LOGCAT,
-                                   '"Zygote\s*:\s*end preload"'],
-  'zygote_create_system_server': [SOURCE_LOGCAT,
-                                '"Zygote\s*:\s*System server process [0-9]* ' +
-                                'has been created"'],
-  'vns_start_by_init': [SOURCE_DMESG, '"Starting service \'vns\'"'],
-  'SystemServer_start': [SOURCE_LOGCAT,
-                    '"Entered the Android system server!"'],
-  'system_server_ready': [SOURCE_LOGCAT,
-                    '"Enabled StrictMode for system server main"'],
-  'PackageManagerInit_start': [SOURCE_LOGCAT,
-                    '"StartPackageManagerService"'],
-  'PackageManagerInit_ready': [SOURCE_LOGCAT,
-                    '"StartOtaDexOptService"'],
-  'BluetoothService_start': [SOURCE_LOGCAT,
-                       '"Starting com.android.server.BluetoothService"'],
-  'SystemUi_start': [SOURCE_LOGCAT,
-               '"for service com.android.systemui/."'],
-  'LauncherReady': [SOURCE_LOGCAT,
-                    '"Em.Overview:\s*onResume"'],
-  'CarService_start': [SOURCE_LOGCAT,
-                 '"for service com.android.car/.CarService"'],
-  'BootComplete': [SOURCE_LOGCAT, '"Starting phase 1000"'],
-  'BootComplete Broadcast': [SOURCE_LOGCAT, '"Collecting bootstat data"']
-}
-
 def main():
-  printInit()
-  res = {}
-  currentDate, uptime = getDateAndUptime()
-  #offset = datetimeToUnixTime(currentDate) - float(uptime)
-  offset = getOffset(currentDate)
+  args = init_arguments()
 
-  for event, pattern in EVENTS.iteritems():
-    printProgress()
-    timePoint = getEvent(pattern[0], pattern[1], currentDate)
-    if timePoint is None:
-      continue
+  if args.reboot:
+    reboot()
 
-    if pattern[0] == SOURCE_LOGCAT:
-      timePoint = timePoint - offset
+  cfg = yaml.load(args.config)
 
-    res[event] = timePoint
+  search_events = {key: re.compile(pattern)
+                   for key, pattern in cfg['events'].iteritems()}
 
-  print "Done"
+  if 'stop_event' not in cfg:
+    raise Exception('Logcat stop_event is missing in config');
 
-  for item in sorted(res.items(), key=operator.itemgetter(1)):
-    print item[0], item[1]
+  logcat_events = collect_events(
+    search_events, 'adb logcat -b all', cfg['stop_event'])
 
-def printInit():
-  sys.stdout.write("Getting boot time data for ")
-  sys.stdout.write(getVersion())
-  sys.stdout.write(".")
-  sys.stdout.flush()
+  dmesg_events = collect_events(search_events, 'adb shell dmesg')
 
-def printProgress():
-  sys.stdout.write(".")
-  sys.stdout.flush()
+  logcat_event_time = extract_time(
+    logcat_events, TIME_LOGCAT, logcat_time_func(2016));
+  logcat_original_time = extract_time(
+    logcat_events, TIME_LOGCAT, str);
+  dmesg_event_time = extract_time(
+    dmesg_events, TIME_DMESG, float);
 
-def getEvent(source, pattern, offsetDate):
-  if source == SOURCE_DMESG:
-    return getDmesgEvent(pattern)
-  elif source == SOURCE_LOGCAT:
-    return getLogcatEvent(pattern, offsetDate)
-  elif source == SOURCE_BOOTSTAT:
-    return getBootStatEvent(pattern)
+  events = {}
+  diff_time = 0
+  max_time = 0
+  events_to_correct = []
+  replaced_from_dmesg = set()
+  for k, v in logcat_event_time.iteritems():
+    events[k] = v
+    if k in dmesg_event_time:
+      if dmesg_event_time[k] > max_time:
+        max_time = dmesg_event_time[k]
+        diff_time = v - max_time
+      events[k] = dmesg_event_time[k]
+      replaced_from_dmesg.add(k)
+    else:
+      events_to_correct.append(k)
+
+  for k in events_to_correct:
+    if events[k] - diff_time > 0:
+      events[k] = events[k] - diff_time
+
+  for item in sorted(events.items(), key=operator.itemgetter(1)):
+    print '{0:30}: {1:<7.5} {2:1} ({3})'.format(
+      item[0], item[1], '*' if item[0] in replaced_from_dmesg else '',
+      logcat_original_time[item[0]])
+
+  print '\n', '* - event time was obtained from dmesg log'
+
+def init_arguments():
+  parser = argparse.ArgumentParser(description='Measures boot time.')
+  parser.add_argument('-r', '--reboot', dest='reboot',
+                      action='store_true',
+                      help='adb reboot device for measurement', )
+  parser.add_argument('-c', '--config', dest='config',
+                      default='config.yaml', type=argparse.FileType('r'),
+                      help='config file for the tool', )
+  return parser.parse_args()
+
+def collect_events(search_events, command, stop_event=None):
+  events = {}
+  process = subprocess.Popen(command, shell=True,
+                             stdout=subprocess.PIPE);
+  out = process.stdout
+  data_available = stop_event is None
+  for line in out:
+    if not data_available:
+      print "Collecting data samples. Please wait...\n"
+      data_available = True
+    event = get_boot_event(line, search_events);
+    if event:
+      events[event] = line
+    if stop_event and stop_event in line:
+      break;
+  process.terminate()
+  return events
+
+def get_boot_event(line, events):
+  for event_key, event_pattern in events.iteritems():
+    if event_pattern.search(line):
+      return event_key
   return None
 
-def getLogcatEvent(pattern, offsetDate, source=""):
-  command = "adb logcat -d " + source + "| grep " + pattern;
-  fd = os.popen(command)
-  for line in fd:
-    found = re.findall(TIME_LOGCAT, line)
+def extract_time(events, pattern, date_transform_function):
+  result = {}
+  for event, data in events.iteritems():
+    found = re.findall(pattern, data)
     if len(found) > 0:
-      ndate = datetime.datetime.strptime(str(offsetDate.year) + '-' +
-                                 found[0], '%Y-%m-%d %H:%M:%S.%f')
-      return datetimeToUnixTime(ndate)
-  return None
+      result[event] = date_transform_function(found[0])
+    else:
+      print "Failed to find time for event: ", event, data
+  return result
 
-def datetimeToUnixTime(ndate):
+def reboot():
+  print 'Rebooting the device'
+  subprocess.Popen('adb reboot', shell=True).wait()
+
+def logcat_time_func(offset_year):
+  def f(date_str):
+    ndate = datetime.datetime.strptime(str(offset_year) + '-' +
+                                 date_str, '%Y-%m-%d %H:%M:%S.%f')
+    return datetime_to_unix_time(ndate)
+  return f
+
+
+def datetime_to_unix_time(ndate):
   return time.mktime(ndate.timetuple()) + ndate.microsecond/1000000.0
-
-def getDmesgEvent(pattern):
-  command = "adb shell dmesg | grep " + pattern;
-  fd = os.popen(command)
-  for line in fd:
-    found = re.findall(TIME_DMESG, line)
-    if len(found) > 0:
-      return float(found[0])
-  return None
-
-def getBootStatEvent(pattern):
-  command = "adb shell bootstat -p | grep " + pattern;
-  fd = os.popen(command)
-  for line in fd:
-    return float(line.split()[1])
-  return None
-
-def getDateAndUptime():
-  command = "adb shell \"date +%D-%T;cat /proc/uptime\"";
-  fd = os.popen(command)
-  lnumber = 1;
-  ndate = None
-  uptime = None
-  for line in fd:
-    if lnumber == 1:
-      ndate = datetime.datetime.strptime(line.strip(), '%m/%d/%y-%H:%M:%S')
-    elif lnumber == 2:
-      uptime = line.split()[0]
-    lnumber += 1
-  return ndate, uptime
-
-def getVersion():
-  command = "adb shell getprop ro.build.fingerprint"
-  fd = os.popen(command)
-  for line in fd:
-    return line
-
-def getOffset(currentDate):
-  dmesgTime = getDmesgEvent('"Starting service \'thermal-engine\'"')
-  logcatTime = getLogcatEvent('"Starting service \'thermal-engine\'"',
-                              currentDate, source="-b all")
-  return logcatTime - dmesgTime
 
 if __name__ == '__main__':
   main()

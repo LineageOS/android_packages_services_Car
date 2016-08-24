@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import android.car.settings.CarSettings;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.util.Log;
@@ -54,6 +55,39 @@ public class VolumeUtils {
             VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG,
             VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG
     };
+
+    public static final SparseArray<String> CAR_AUDIO_CONTEXT_SETTINGS = new SparseArray<>();
+    static {
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG,
+                CarSettings.Global.KEY_VOLUME_MUSIC);
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG,
+                CarSettings.Global.KEY_VOLUME_MUSIC);
+        CAR_AUDIO_CONTEXT_SETTINGS.put(
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG,
+                CarSettings.Global.KEY_VOLUME_NAVIGATION);
+        CAR_AUDIO_CONTEXT_SETTINGS.put(
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG,
+                CarSettings.Global.KEY_VOLUME_VOICE_COMMAND);
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG,
+                CarSettings.Global.KEY_VOLUME_CALL);
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG,
+                CarSettings.Global.KEY_VOLUME_ALARM);
+        CAR_AUDIO_CONTEXT_SETTINGS.put(
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG,
+                CarSettings.Global.KEY_VOLUME_NOTIFICATION);
+        CAR_AUDIO_CONTEXT_SETTINGS.put(
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SAFETY_ALERT_FLAG,
+                CarSettings.Global.KEY_VOLUME_SAFETY_ALERT);
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CD_ROM_FLAG,
+                CarSettings.Global.KEY_VOLUME_CD_ROM);
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_AUX_AUDIO_FLAG,
+                CarSettings.Global.KEY_VOLUME_AUX);
+        CAR_AUDIO_CONTEXT_SETTINGS.put(
+                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG,
+                CarSettings.Global.KEY_VOLUME_SYSTEM_SOUND);
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG,
+                CarSettings.Global.KEY_VOLUME_RADIO);
+    }
 
     public static String streamToName(int stream) {
         switch (stream) {

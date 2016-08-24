@@ -19,9 +19,14 @@
     <string name="car_permission_label">Car information</string>
     <!-- Permission text: can access your car's information [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc">Access your car\'s information.</string>
+    <!-- Permission text: apps can control car cabin [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_cabin">Car Cabin</string>
+    <!-- Permission text: apps can control car cabin [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_cabin">Access your car\'s accessories, including doors,
+        mirrors, seats, and windows.</string>
     <!-- Permission text: apps can control car camera [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_camera">Car Camera</string>
-    <!-- Permission text: apps can control car amera [CHAR LIMIT=NONE] -->
+    <!-- Permission text: apps can control car camera [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_camera">Access your car\'s camera(s).</string>
     <!-- Permission text: can access your car's fuel level [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_fuel">Car fuel level</string>

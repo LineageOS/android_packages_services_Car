@@ -77,6 +77,7 @@ LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Build support library.
+# ---------------------------------------------
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := android.support.car
@@ -104,5 +105,34 @@ car_module_api_dir := $(LOCAL_PATH)/api
 car_module_java_libraries := $(LOCAL_JAVA_LIBRARIES) $(LOCAL_STATIC_JAVA_LIBRARIES) framework
 car_module_java_packages := android.support.car*
 include $(CAR_API_CHECK)
+
+# Generate offline docs
+#---------------------------------------------
+include $(CLEAR_VARS)
+
+LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
+
+LOCAL_DROIDDOC_SOURCE_PATH := $(LOCAL_PATH)/src
+
+LOCAL_JAVA_LIBRARIES := \
+    android.car \
+    android.support.car-res \
+    android-support-v4 \
+    android-support-v7-appcompat \
+    android-support-v7-recyclerview \
+    android-support-v7-cardview
+
+LOCAL_MODULE := android.support.car
+LOCAL_MODULE_TAGS := optional
+
+LOCAL_MODULE_CLASS := JAVA_LIBRARIES
+LOCAL_IS_HOST_MODULE := false
+
+LOCAL_ADDITIONAL_JAVA_DIR := $(call intermediates-dir-for,$(LOCAL_MODULE_CLASS),android.support.car,,COMMON)
+
+LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
+
+include $(BUILD_DROIDDOC)
+
 
 endif #TARGET_BUILD_PDK

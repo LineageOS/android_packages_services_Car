@@ -95,15 +95,6 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
     }
 
     @Override
-    public int[] getActiveAppTypes() throws CarNotConnectedException {
-        try {
-            return mManager.getActiveAppTypes();
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    @Override
     public boolean isOwningFocus(AppFocusOwnershipChangeListener listener, int appType)
             throws CarNotConnectedException {
         AppFocusOwnershipChangeListenerProxy proxy;

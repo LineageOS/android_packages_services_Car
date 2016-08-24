@@ -20,6 +20,7 @@ import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ import com.google.android.car.kitchensink.job.JobSchedulerFragment;
 import com.google.android.car.kitchensink.keyboard.KeyboardFragment;
 import com.google.android.car.kitchensink.radio.RadioTestFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
+import com.google.android.car.kitchensink.setting.CarServiceSettingsActivity;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
 
@@ -68,6 +70,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String MENU_VOLUME_TEST = "volume test";
     private static final String MENU_TOUCH_TEST = "touch test";
     private static final String MENU_CUBES_TEST = "cubes test";
+    private static final String MENU_CAR_SETTINGS = "car service settings";
 
     private Car mCarApi;
     private CarCameraManager mCameraManager;
@@ -225,7 +228,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 String[] allMenus = {
                         MENU_AUDIO, MENU_RADIO, MENU_CAMERA, MENU_HVAC, MENU_JOB, MENU_KEYBOARD,
                         MENU_CLUSTER, MENU_INPUT_TEST, MENU_SENSORS, MENU_VOLUME_TEST,
-                        MENU_TOUCH_TEST, MENU_CUBES_TEST, MENU_QUIT
+                        MENU_TOUCH_TEST, MENU_CUBES_TEST, MENU_CAR_SETTINGS, MENU_QUIT
                 };
                 for (String menu : allMenus) {
                     items.add(new CarMenu.Builder(menu).setText(menu).build());
@@ -305,6 +308,9 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                     mCubesTestFragment = new CubesTestFragment();
                 }
                 setContentFragment(mCubesTestFragment);
+            } else if (id.equals(MENU_CAR_SETTINGS)) {
+                Intent intent = new Intent(getContext(), CarServiceSettingsActivity.class);
+                getContext().startActivity(intent);
             } else if (id.equals(MENU_QUIT)) {
                 finish();
             }

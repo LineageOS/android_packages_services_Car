@@ -102,13 +102,6 @@ public abstract class CarAppFocusManager implements CarManagerBase {
             throws CarNotConnectedException;
 
     /**
-     * Retrieve currently active application types.
-     * @return Currently active application types.
-     * @throws CarNotConnectedException
-     */
-    public abstract int[] getActiveAppTypes() throws CarNotConnectedException;
-
-    /**
      * Check if the current process owns the given focus.
      * @param listener Listener that was used to request ownership.
      * @param appType Application type.

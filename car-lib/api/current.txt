@@ -25,7 +25,6 @@ package android.car {
   public final class CarAppFocusManager {
     method public void abandonAppFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.car.CarNotConnectedException;
     method public void abandonAppFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener) throws android.car.CarNotConnectedException;
-    method public int[] getActiveAppTypes() throws android.car.CarNotConnectedException;
     method public boolean isOwningFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.car.CarNotConnectedException;
     method public void registerFocusListener(android.car.CarAppFocusManager.AppFocusChangeListener, int) throws android.car.CarNotConnectedException;
     method public int requestAppFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.car.CarNotConnectedException, java.lang.SecurityException;
@@ -350,6 +349,21 @@ package android.car.media {
     field public static final int CAR_AUDIO_USAGE_SYSTEM_SOUND = 8; // 0x8
     field public static final int CAR_AUDIO_USAGE_VOICE_CALL = 4; // 0x4
     field public static final int CAR_AUDIO_USAGE_VOICE_COMMAND = 5; // 0x5
+  }
+
+}
+
+package android.car.settings {
+
+  public class CarSettings {
+    ctor public CarSettings();
+  }
+
+  public static final class CarSettings.Global {
+    ctor public CarSettings.Global();
+    field public static final java.lang.String KEY_GARAGE_MODE_ENABLED = "android.car.GARAGE_MODE_ENABLED";
+    field public static final java.lang.String KEY_GARAGE_MODE_MAINTENANCE_WINDOW = "android.car.GARAGE_MODE_MAINTENANCE_WINDOW";
+    field public static final java.lang.String KEY_GARAGE_MODE_WAKE_UP_TIME = "android.car.GARAGE_MODE_WAKE_UP_TIME";
   }
 
 }

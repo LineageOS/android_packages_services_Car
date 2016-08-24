@@ -21,6 +21,8 @@ import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.content.pm.CarPackageManager;
 import android.car.hardware.CarSensorManager;
+import android.car.hardware.cabin.CarCabinManager;
+import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.radio.CarRadioManager;
@@ -81,6 +83,12 @@ public class Car {
      * @hide
      */
     @SystemApi
+    public static final String CABIN_SERVICE = "cabin";
+
+    /**
+     * @hide
+     */
+    @SystemApi
     public static final String CAMERA_SERVICE = "camera";
 
     /**
@@ -100,6 +108,12 @@ public class Car {
      */
     @SystemApi
     public static final String PROJECTION_SERVICE = "projection";
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    public static final String VENDOR_EXTENSION_SERVICE = "vendor_extension";
 
     /**
      * Service for testing. This is system app only feature.
@@ -145,6 +159,13 @@ public class Car {
     @SystemApi
     public static final String PERMISSION_CONTROL_APP_BLOCKING =
             "android.car.permission.CONTROL_APP_BLOCKING";
+
+    /**
+     * Permission necessary to access Car Cabin APIs.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CAR_CABIN = "android.car.permission.CAR_CABIN";
 
     /**
      * Permission necessary to access Car Camera APIs.
@@ -498,6 +519,9 @@ public class Car {
             case CAR_NAVIGATION_SERVICE:
                 manager = new CarNavigationManager(binder);
                 break;
+            case CABIN_SERVICE:
+                manager = new CarCabinManager(binder, mContext, mLooper);
+                break;
             case CAMERA_SERVICE:
                 manager = new CarCameraManager(binder, mContext);
                 break;
@@ -509,6 +533,9 @@ public class Car {
                 break;
             case RADIO_SERVICE:
                 manager = new CarRadioManager(binder, mLooper);
+                break;
+            case VENDOR_EXTENSION_SERVICE:
+                manager = new CarVendorExtensionManager(binder, mLooper);
                 break;
             case TEST_SERVICE:
                 /* CarTestManager exist in static library. So instead of constructing it here,

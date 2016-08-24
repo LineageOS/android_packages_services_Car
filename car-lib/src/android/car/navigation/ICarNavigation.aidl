@@ -24,12 +24,10 @@ import android.car.navigation.ICarNavigationEventListener;
  * @hide
  */
 interface ICarNavigation {
-    void sendNavigationStatus(int status) = 0;
+    void sendNavigationStatus(int status);
     void sendNavigationTurnEvent(
-        int event, String road, int turnAngle, int turnNumber, in Bitmap image, int turnSide) = 1;
-    void sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds) = 2;
-    boolean isInstrumentClusterSupported() = 3;
-    CarNavigationInstrumentCluster getInstrumentClusterInfo() = 4;
-    boolean registerEventListener(ICarNavigationEventListener listener) = 5;
-    boolean unregisterEventListener(ICarNavigationEventListener listener) = 6;
+        int event, String road, int turnAngle, int turnNumber, in Bitmap image, int turnSide);
+    void sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds);
+    boolean registerEventListener(ICarNavigationEventListener listener);
+    boolean unregisterEventListener(ICarNavigationEventListener listener);
 }

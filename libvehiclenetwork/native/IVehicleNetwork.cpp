@@ -143,6 +143,8 @@ public:
             if (exceptionCode != NO_ERROR) {
                 if (exceptionCode == binder::Status::EX_SERVICE_SPECIFIC) {
                     return -EAGAIN;
+                } else if (exceptionCode == binder::Status::EX_ILLEGAL_STATE) {
+                    return -ESHUTDOWN;
                 }
                 return exceptionCode;
             }
@@ -327,6 +329,27 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             }
             r = getProperty(&value);
             if (r == NO_ERROR) {
+                // If int32 or float value is out of range, throw an exception:
+                switch (value.value_type) {
+                case VEHICLE_VALUE_TYPE_INT32:
+                case VEHICLE_VALUE_TYPE_ZONED_INT32:
+                    // TODO:  Handle array types as well?
+                    if (value.value.int32_value == VEHICLE_INT_OUT_OF_RANGE_OFF) {
+                        // this should be handled specially to throw IllegalStateException in java.
+                        reply->writeInt32(binder::Status::EX_ILLEGAL_STATE);
+                        return NO_ERROR;
+                    }
+                    break;
+                case VEHICLE_VALUE_TYPE_FLOAT:
+                case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
+                    // TODO:  Handle array types as well?
+                    if (value.value.float_value == VEHICLE_FLOAT_OUT_OF_RANGE_OFF) {
+                        // this should be handled specially to throw IllegalStateException in java.
+                        reply->writeInt32(binder::Status::EX_ILLEGAL_STATE);
+                        return NO_ERROR;
+                    }
+                    break;
+                }
                 reply->writeNoException();
                 r = VehiclePropValueBinderUtil::writeToParcel(*reply, value);
                 releaseMemoryFromGet(&value);
