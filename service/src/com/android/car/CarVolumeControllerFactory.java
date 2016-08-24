@@ -39,7 +39,6 @@ import com.android.car.hal.AudioHalService;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -196,9 +195,16 @@ public class CarVolumeControllerFactory {
     public static class CarExternalVolumeController extends CarVolumeController
             implements CarInputService.KeyEventListener, AudioHalService.AudioHalVolumeListener,
             CarAudioService.AudioContextChangeListener {
-        private static final String TAG = CarLog.TAG_AUDIO + "ExtVolCtrl";
+        private static final String TAG = CarLog.TAG_AUDIO + ".VolCtrl";
         private static final int MSG_UPDATE_VOLUME = 0;
         private static final int MSG_UPDATE_HAL = 1;
+        private static final int MSG_SUPPRESS_UI_FOR_VOLUME = 2;
+        private static final int MSG_VOLUME_UI_RESTORE = 3;
+
+        // within 5 seconds after a UI invisible volume change (e.g., due to audio context change,
+        // or explicitly flag), we will not show UI in respond to that particular volume changes
+        // events from HAL (context and volume index must match).
+        private static final int HIDE_VOLUME_UI_MILLISECONDS = 5 * 1000; // 5 seconds
 
         private final Context mContext;
         private final AudioRoutingPolicy mPolicy;
@@ -228,6 +234,10 @@ public class CarVolumeControllerFactory {
         @GuardedBy("this")
         private final RemoteCallbackList<IVolumeController> mVolumeControllers =
                 new RemoteCallbackList<>();
+        @GuardedBy("this")
+        private int[] mSuppressUiForVolume = new int[2];
+        @GuardedBy("this")
+        private boolean mShouldSuppress = false;
 
         private final Handler mHandler = new VolumeHandler();
 
@@ -265,14 +275,35 @@ public class CarVolumeControllerFactory {
                 int volume;
                 switch (msg.what) {
                     case MSG_UPDATE_VOLUME:
+                        // arg1 is car context
                         stream = msg.arg1;
+                        volume = (int) msg.obj;
                         int flag = msg.arg2;
+                        synchronized (CarExternalVolumeController.this) {
+                            // the suppressed stream is sending us update....
+                            if (mShouldSuppress && stream == mSuppressUiForVolume[0]) {
+                                // the volume matches, we want to suppress it
+                                if (volume == mSuppressUiForVolume[1]) {
+                                    if (DBG) {
+                                        Log.d(TAG, "Suppress Volume UI for stream "
+                                                + stream + " volume: " + volume);
+                                    }
+                                    flag &= ~AudioManager.FLAG_SHOW_UI;
+                                }
+                                // No matter if the volume matches or not, we will stop suppressing
+                                // UI for this stream now. After an audio context switch, user may
+                                // quickly turn the nob, -1 and +1, it ends the same volume,
+                                // but we should show the UI for both.
+                                removeMessages(MSG_VOLUME_UI_RESTORE);
+                                mShouldSuppress = false;
+                            }
+                        }
                         final int size = mVolumeControllers.beginBroadcast();
                         try {
                             for (int i = 0; i < size; i++) {
                                 try {
-                                    mVolumeControllers.getBroadcastItem(i)
-                                            .volumeChanged(stream, flag);
+                                    mVolumeControllers.getBroadcastItem(i).volumeChanged(
+                                            VolumeUtils.carContextToAndroidStream(stream), flag);
                                 } catch (RemoteException ignored) {
                                 }
                             }
@@ -289,6 +320,27 @@ public class CarVolumeControllerFactory {
                             }
                         }
                         mHal.setStreamVolume(stream, volume);
+                        break;
+                    case MSG_SUPPRESS_UI_FOR_VOLUME:
+                        if (DBG) {
+                            Log.d(TAG, "Suppress stream volume " + msg.arg1 + " " + msg.arg2);
+                        }
+                        synchronized (CarExternalVolumeController.this) {
+                            mShouldSuppress = true;
+                            mSuppressUiForVolume[0] = msg.arg1;
+                            mSuppressUiForVolume[1] = msg.arg2;
+                        }
+                        removeMessages(MSG_VOLUME_UI_RESTORE);
+                        sendMessageDelayed(obtainMessage(MSG_VOLUME_UI_RESTORE),
+                                HIDE_VOLUME_UI_MILLISECONDS);
+                        break;
+                    case MSG_VOLUME_UI_RESTORE:
+                        if (DBG) {
+                            Log.d(TAG, "Volume Ui suppress expired");
+                        }
+                        synchronized (CarExternalVolumeController.this) {
+                            mShouldSuppress = false;
+                        }
                         break;
                     default:
                         break;
@@ -432,13 +484,21 @@ public class CarVolumeControllerFactory {
                     Log.d(TAG, "Sending volume change to HAL");
                 }
                 mHandler.sendMessage(mHandler.obtainMessage(MSG_UPDATE_HAL, carStream, index));
+                if ((flags & AudioManager.FLAG_SHOW_UI) != 0) {
+                    if (mShouldSuppress && mSuppressUiForVolume[0] == carContext) {
+                        // In this case, the caller explicitly says "Show_UI" for the same context.
+                        // We will respect the flag, and let the UI show.
+                        mShouldSuppress = false;
+                        mHandler.removeMessages(MSG_VOLUME_UI_RESTORE);
+                    }
+                } else {
+                    mHandler.sendMessage(mHandler.obtainMessage(MSG_SUPPRESS_UI_FOR_VOLUME,
+                            carContext, index));
+                }
             }
             // Record the current volume internally.
             mCurrentCarContextVolume.put(carContext, index);
             writeVolumeToSettings(mCurrentContext, index);
-            mHandler.sendMessage(mHandler.obtainMessage(MSG_UPDATE_VOLUME,
-                    VolumeUtils.carContextToAndroidStream(carContext),
-                    getVolumeUpdateFlag()));
         }
 
         @Override
@@ -460,14 +520,15 @@ public class CarVolumeControllerFactory {
 
         @Override
         public void onVolumeChange(int carStream, int volume, int volumeState) {
-            int flag = getVolumeUpdateFlag();
             synchronized (this) {
+                int flag = getVolumeUpdateFlag(true);
                 if (DBG) {
                     Log.d(TAG, "onVolumeChange carStream:" + carStream + " volume: " + volume
-                            + " volumeState: " + volumeState);
+                            + " volumeState: " + volumeState
+                            + " suppressUI? " + mShouldSuppress
+                            + " stream: " + mSuppressUiForVolume[0]
+                            + " volume: " + mSuppressUiForVolume[1]);
                 }
-                // Assume single channel here.
-                int currentLogicalStream = VolumeUtils.carContextToAndroidStream(mCurrentContext);
                 int currentCarStream = carContextToCarStream(mCurrentContext);
                 if (mMasterVolumeOnly) { //for master volume only H/W, always assume current stream
                     carStream = currentCarStream;
@@ -476,7 +537,8 @@ public class CarVolumeControllerFactory {
                     mCurrentCarContextVolume.put(mCurrentContext, volume);
                     writeVolumeToSettings(mCurrentContext, volume);
                     mHandler.sendMessage(
-                            mHandler.obtainMessage(MSG_UPDATE_VOLUME, currentLogicalStream, flag));
+                            mHandler.obtainMessage(MSG_UPDATE_VOLUME, mCurrentContext, flag,
+                                    new Integer(volume)));
                 } else {
                     // Hal is telling us a car stream volume has changed, but it is not the current
                     // stream.
@@ -486,13 +548,8 @@ public class CarVolumeControllerFactory {
             }
         }
 
-        private int getVolumeUpdateFlag() {
-            // TODO: Apply appropriate flags.
-            return AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND;
-        }
-
-        private void updateHalVolumeLocked(final int carStream, final int index) {
-            mHandler.sendMessage(mHandler.obtainMessage(MSG_UPDATE_HAL, carStream, index));
+        private int getVolumeUpdateFlag(boolean showUi) {
+            return showUi? AudioManager.FLAG_SHOW_UI : 0;
         }
 
         @Override
@@ -545,11 +602,11 @@ public class CarVolumeControllerFactory {
                 switch (event.getKeyCode()) {
                     case KeyEvent.KEYCODE_VOLUME_UP:
                         setStreamVolumeInternalLocked(mCurrentContext, currentVolume + 1,
-                                getVolumeUpdateFlag());
+                                getVolumeUpdateFlag(true));
                         break;
                     case KeyEvent.KEYCODE_VOLUME_DOWN:
                         setStreamVolumeInternalLocked(mCurrentContext, currentVolume - 1,
-                                getVolumeUpdateFlag());
+                                getVolumeUpdateFlag(true));
                         break;
                 }
             }
@@ -591,7 +648,10 @@ public class CarVolumeControllerFactory {
                             + mCurrentCarContextVolume.get(oldContext)
                             + " to: "+ currentVolume);
                 }
-                updateHalVolumeLocked(carStreamNumber, currentVolume);
+                mHandler.sendMessage(mHandler.obtainMessage(MSG_UPDATE_HAL, carStreamNumber,
+                        currentVolume));
+                mHandler.sendMessage(mHandler.obtainMessage(MSG_SUPPRESS_UI_FOR_VOLUME,
+                        mCurrentContext, currentVolume));
             }
         }
 
