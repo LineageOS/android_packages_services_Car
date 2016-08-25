@@ -81,6 +81,7 @@ public class EmbeddedCarMenuCallbacksCompat extends android.car.app.menu.CarMenu
     public void onCarMenuClosed() {
         mActivity.setDrawerShowing(false);
         mActivity.restoreSearchBox();
+        mCallbacks.onCarMenuClosed();
     }
 
     @Override
@@ -103,11 +104,13 @@ public class EmbeddedCarMenuCallbacksCompat extends android.car.app.menu.CarMenu
     @Override
     public void onCarMenuOpening() {
         mActivity.stopInput();
+        mCallbacks.onCarMenuOpening();
     }
 
     @Override
     public void onCarMenuClosing() {
         mActivity.restoreSearchBox();
+        mCallbacks.onCarMenuClosing();
     }
 
     public void onChildrenChanged(final String parentId) {
