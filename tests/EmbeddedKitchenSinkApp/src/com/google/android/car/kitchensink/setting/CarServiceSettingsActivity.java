@@ -26,6 +26,7 @@ import com.google.android.car.kitchensink.R;
 import java.util.List;
 
 public class CarServiceSettingsActivity extends PreferenceActivity {
+    private static final String TAG = CarServiceSettingsActivity.class.getSimpleName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,10 @@ public class CarServiceSettingsActivity extends PreferenceActivity {
 
     @Override
     protected boolean isValidFragment(String fragmentName) {
-        if (GarageModeSettingsFragment.class.getName().equals(fragmentName)) return true;
+        if (GarageModeSettingsFragment.class.getName().equals(fragmentName)
+                || UsbManagerFragment.class.getName().equals(fragmentName)) {
+            return true;
+        }
         return false;
     }
 }
