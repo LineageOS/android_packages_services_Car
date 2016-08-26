@@ -66,7 +66,7 @@ public abstract class CarSensorManager implements CarManagerBase {
     /**
      * Represents the current status of parking brake. Sensor data in {@link CarSensorEvent} is an
      * intValues[0]. Value of 1 represents parking brake applied while 0 means the other way around.
-     * For this sensor, rate in {@link #registerListener(CarSensorEventListener, int, int)} will be
+     * For this sensor, rate in {@link #addListener(CarSensorEventListener, int, int)} will be
      * ignored and all changes will be notified.
      */
     public static final int SENSOR_TYPE_PARKING_BRAKE = 6;
@@ -203,21 +203,21 @@ public abstract class CarSensorManager implements CarManagerBase {
      */
     @RequiresPermission(anyOf={Manifest.permission.ACCESS_FINE_LOCATION, Car.PERMISSION_SPEED,
             Car.PERMISSION_MILEAGE, Car.PERMISSION_FUEL}, conditional=true)
-    public abstract boolean registerListener(CarSensorEventListener listener, int sensorType,
+    public abstract boolean addListener(CarSensorEventListener listener, int sensorType,
             int rate) throws CarNotConnectedException, IllegalArgumentException;
 
     /**
      * Stop getting sensor update for the given listener. If there are multiple registrations for
      * this listener, all listening will be stopped.
      */
-    public abstract  void unregisterListener(CarSensorEventListener listener)
+    public abstract  void removeListener(CarSensorEventListener listener)
             throws CarNotConnectedException;
 
     /**
      * Stop getting sensor update for the given listener and sensor. If the same listener is used
      * for other sensors, those subscriptions will not be affected.
      */
-    public abstract  void unregisterListener(CarSensorEventListener listener, int sensorType)
+    public abstract  void removeListener(CarSensorEventListener listener, int sensorType)
             throws CarNotConnectedException;
 
     /**

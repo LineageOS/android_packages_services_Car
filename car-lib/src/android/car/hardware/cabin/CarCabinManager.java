@@ -26,6 +26,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManagerBase;
 import android.car.hardware.property.CarPropertyManagerBase.CarPropertyEventListener;
 import android.content.Context;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.ArraySet;
@@ -372,8 +373,8 @@ public class CarCabinManager implements CarManagerBase {
      * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
      * @hide
      */
-    public CarCabinManager(IBinder service, Context context, Looper looper) {
-        mMgr = new CarPropertyManagerBase(service, looper, DBG, TAG);
+    public CarCabinManager(IBinder service, Context context, Handler handler) {
+        mMgr = new CarPropertyManagerBase(service, handler, DBG, TAG);
     }
 
     /** Returns true if the property is a zoned type. */

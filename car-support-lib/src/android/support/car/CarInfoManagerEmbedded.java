@@ -30,7 +30,7 @@ public class CarInfoManagerEmbedded extends CarInfoManager {
     }
 
     @Override
-    public Float getFloat(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public float getFloat(String key) throws CarNotConnectedException, IllegalArgumentException {
         try {
             return mManager.getFloat(key);
         } catch (android.car.CarNotConnectedException e) {
@@ -39,7 +39,7 @@ public class CarInfoManagerEmbedded extends CarInfoManager {
     }
 
     @Override
-    public Integer getInt(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public int getInt(String key) throws CarNotConnectedException, IllegalArgumentException {
         try {
             return mManager.getInt(key);
         } catch (android.car.CarNotConnectedException e) {
@@ -48,7 +48,7 @@ public class CarInfoManagerEmbedded extends CarInfoManager {
     }
 
     @Override
-    public Long getLong(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public long getLong(String key) throws CarNotConnectedException, IllegalArgumentException {
         try {
             return mManager.getLong(key);
         } catch (android.car.CarNotConnectedException e) {

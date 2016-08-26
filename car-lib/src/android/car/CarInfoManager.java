@@ -80,7 +80,7 @@ public class CarInfoManager implements CarManagerBase {
      * @throws CarNotConnectedException
      * @throws IllegalArgumentException
      */
-    public Float getFloat(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public float getFloat(String key) throws CarNotConnectedException, IllegalArgumentException {
         try {
             float[] v = mService.getFloat(key);
             if (v != null) {
@@ -91,10 +91,10 @@ public class CarInfoManager implements CarManagerBase {
         } catch (RemoteException e) {
             throw new CarNotConnectedException(e);
         }
-        return null;
+        return Float.NaN;
     }
 
-    public Integer getInt(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public int getInt(String key) throws CarNotConnectedException, IllegalArgumentException {
         try {
             int[] v = mService.getInt(key);
             if (v != null) {
@@ -105,10 +105,10 @@ public class CarInfoManager implements CarManagerBase {
         } catch (RemoteException e) {
             throw new CarNotConnectedException(e);
         }
-        return null;
+        return Integer.MIN_VALUE;
     }
 
-    public Long getLong(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public long getLong(String key) throws CarNotConnectedException, IllegalArgumentException {
         try {
             long[] v = mService.getLong(key);
             if (v != null) {
@@ -119,7 +119,7 @@ public class CarInfoManager implements CarManagerBase {
         } catch (RemoteException e) {
             throw new CarNotConnectedException(e);
         }
-        return null;
+        return Long.MIN_VALUE;
     }
 
     public String getString(String key) throws CarNotConnectedException, IllegalArgumentException {

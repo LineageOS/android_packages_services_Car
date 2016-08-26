@@ -83,7 +83,7 @@ public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusMa
      * @throws CarNotConnectedException
      */
     @Override
-    public void registerListener(CarNavigationListener listener)
+    public void addListener(CarNavigationListener listener)
             throws CarNotConnectedException {
 
         try {
@@ -94,7 +94,7 @@ public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusMa
     }
 
     @Override
-    public void unregisterListener() {
+    public void removeListener() {
         // Nothing to do.
     }
 

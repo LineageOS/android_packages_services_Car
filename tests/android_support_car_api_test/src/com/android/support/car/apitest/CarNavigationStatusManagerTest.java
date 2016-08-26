@@ -50,7 +50,7 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
     public void testStart() throws Exception {
         final CountDownLatch onStartLatch = new CountDownLatch(1);
 
-        mCarNavigationStatusManager.registerListener(new CarNavigationListener() {
+        mCarNavigationStatusManager.addListener(new CarNavigationListener() {
             @Override
             public void onInstrumentClusterStart(CarNavigationInstrumentCluster instrumentCluster) {
                 // TODO: we should use VehicleHalMock once we implement HAL support in
@@ -88,7 +88,7 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
             }
         };
         mCarAppFocusManager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, ownershipListener);
-        assertTrue(mCarAppFocusManager.isOwningFocus(ownershipListener, APP_FOCUS_TYPE_NAVIGATION));
+        assertTrue(mCarAppFocusManager.isOwningFocus(APP_FOCUS_TYPE_NAVIGATION, ownershipListener));
 
         // TODO: we should use mocked HAL to be able to verify this, right now just make sure that
         // it is not crashing and logcat has appropriate traces.

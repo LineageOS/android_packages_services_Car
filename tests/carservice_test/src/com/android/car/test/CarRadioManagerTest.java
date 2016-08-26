@@ -181,7 +181,7 @@ public class CarRadioManagerTest extends MockedCarTestBase {
 
         // Wait for acquire to be available again, fail if timeout.
         boolean success = mAvailable.tryAcquire(5L, TimeUnit.SECONDS);
-        assertEquals("registerListener timeout", true, success);
+        assertEquals("addListener timeout", true, success);
 
         // Inject an event and wait for its callback in onPropertySet.
         CarRadioPreset preset = new CarRadioPreset(2, RadioManager.BAND_AM, 4321, -1);

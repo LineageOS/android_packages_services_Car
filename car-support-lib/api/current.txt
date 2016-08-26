@@ -2,7 +2,7 @@ package android.support.car {
 
   public class Car {
     method public void connect() throws java.lang.IllegalStateException;
-    method public static android.support.car.Car createCar(android.content.Context, android.support.car.ServiceConnectionCallback, android.os.Looper);
+    method public static android.support.car.Car createCar(android.content.Context, android.support.car.ServiceConnectionCallback, android.os.Handler);
     method public static android.support.car.Car createCar(android.content.Context, android.support.car.ServiceConnectionCallback);
     method public void disconnect();
     method public int getCarConnectionType() throws android.support.car.CarNotConnectedException;
@@ -35,7 +35,7 @@ package android.support.car {
     method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.support.car.CarNotConnectedException;
     method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener) throws android.support.car.CarNotConnectedException;
     method public abstract void addFocusListener(int, android.support.car.CarAppFocusManager.AppFocusChangeListener) throws android.support.car.CarNotConnectedException;
-    method public abstract boolean isOwningFocus(android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.support.car.CarNotConnectedException;
+    method public abstract boolean isOwningFocus(int, android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener) throws android.support.car.CarNotConnectedException;
     method public abstract void removeFocusListener(int, android.support.car.CarAppFocusManager.AppFocusChangeListener) throws android.support.car.CarNotConnectedException;
     method public abstract void removeFocusListener(android.support.car.CarAppFocusManager.AppFocusChangeListener) throws android.support.car.CarNotConnectedException;
     method public abstract int requestAppFocus(int, android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException, java.lang.SecurityException;
@@ -60,9 +60,9 @@ package android.support.car {
 
   public abstract class CarInfoManager {
     ctor public CarInfoManager();
-    method public abstract java.lang.Float getFloat(java.lang.String) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public abstract java.lang.Integer getInt(java.lang.String) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public abstract java.lang.Long getLong(java.lang.String) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    method public abstract float getFloat(java.lang.String) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    method public abstract int getInt(java.lang.String) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    method public abstract long getLong(java.lang.String) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public abstract java.lang.String getString(java.lang.String) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     field public static final int DRIVER_SIDE_CENTER = 2; // 0x2
     field public static final int DRIVER_SIDE_LEFT = 0; // 0x0
@@ -118,10 +118,14 @@ package android.support.car.hardware {
     ctor public CarSensorEvent(android.os.Parcel);
     ctor public CarSensorEvent(int, long, int, int);
     method public int describeContents();
+    method public android.support.car.hardware.CarSensorEvent.AccelerometerData getAccelerometerData();
     method public android.support.car.hardware.CarSensorEvent.CompassData getCompassData();
-    method public android.support.car.hardware.CarSensorEvent.DrivingStatusData getDrivingStatusData(android.support.car.hardware.CarSensorEvent.DrivingStatusData);
-    method public android.support.car.hardware.CarSensorEvent.NightData getNightData(android.support.car.hardware.CarSensorEvent.NightData);
-    method public android.support.car.hardware.CarSensorEvent.ParkingBrakeData getParkingBrakeData(android.support.car.hardware.CarSensorEvent.ParkingBrakeData);
+    method public android.support.car.hardware.CarSensorEvent.DrivingStatusData getDrivingStatusData();
+    method public android.support.car.hardware.CarSensorEvent.FuelLevelData getFuelLevelData();
+    method public android.support.car.hardware.CarSensorEvent.GyroscopeData getGyroscopeData();
+    method public android.support.car.hardware.CarSensorEvent.NightData getNightData();
+    method public android.support.car.hardware.CarSensorEvent.ParkingBrakeData getParkingBrakeData();
+    method public android.support.car.hardware.CarSensorEvent.RpmData getRpmData();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.support.car.hardware.CarSensorEvent> CREATOR;
     field public static final int DRIVE_STATUS_FULLY_RESTRICTED = 31; // 0x1f
@@ -137,7 +141,15 @@ package android.support.car.hardware {
     field public final float[] floatValues;
     field public final int[] intValues;
     field public final int sensorType;
-    field public long timeStampNs;
+    field public final long timeStampNs;
+  }
+
+  public static class CarSensorEvent.AccelerometerData {
+    ctor public CarSensorEvent.AccelerometerData(long, float, float, float);
+    field public final long timeStampNs;
+    field public final float x;
+    field public final float y;
+    field public final float z;
   }
 
   public static class CarSensorEvent.CompassData {
@@ -149,32 +161,54 @@ package android.support.car.hardware {
   }
 
   public static class CarSensorEvent.DrivingStatusData {
-    ctor public CarSensorEvent.DrivingStatusData();
-    field public int status;
-    field public long timeStampNs;
+    ctor public CarSensorEvent.DrivingStatusData(long, int);
+    field public final int status;
+    field public final long timeStampNs;
+  }
+
+  public static class CarSensorEvent.FuelLevelData {
+    ctor public CarSensorEvent.FuelLevelData(long, int, float, boolean);
+    field public final int level;
+    field public final boolean lowFuelWarning;
+    field public final float range;
+    field public final long timeStampNs;
+  }
+
+  public static class CarSensorEvent.GyroscopeData {
+    ctor public CarSensorEvent.GyroscopeData(long, float, float, float);
+    field public final long timeStampNs;
+    field public final float x;
+    field public final float y;
+    field public final float z;
   }
 
   public static class CarSensorEvent.NightData {
-    ctor public CarSensorEvent.NightData();
-    field public boolean isNightMode;
-    field public long timeStampNs;
+    ctor public CarSensorEvent.NightData(long, boolean);
+    field public final boolean isNightMode;
+    field public final long timeStampNs;
   }
 
   public static class CarSensorEvent.ParkingBrakeData {
-    ctor public CarSensorEvent.ParkingBrakeData();
-    field public boolean isEngaged;
-    field public long timeStampNs;
+    ctor public CarSensorEvent.ParkingBrakeData(long, boolean);
+    field public final boolean isEngaged;
+    field public final long timeStampNs;
+  }
+
+  public static class CarSensorEvent.RpmData {
+    ctor public CarSensorEvent.RpmData(long, float);
+    field public final float rpm;
+    field public final long timeStampNs;
   }
 
   public abstract class CarSensorManager {
     ctor public CarSensorManager();
+    method public abstract boolean addListener(android.support.car.hardware.CarSensorManager.CarSensorEventListener, int, int) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public abstract android.support.car.hardware.CarSensorEvent getLatestSensorEvent(int) throws android.support.car.CarNotConnectedException;
     method public abstract int[] getSupportedSensors() throws android.support.car.CarNotConnectedException;
     method public abstract boolean isSensorSupported(int) throws android.support.car.CarNotConnectedException;
     method public static boolean isSensorSupported(int[], int);
-    method public abstract boolean registerListener(android.support.car.hardware.CarSensorManager.CarSensorEventListener, int, int) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public abstract void unregisterListener(android.support.car.hardware.CarSensorManager.CarSensorEventListener) throws android.support.car.CarNotConnectedException;
-    method public abstract void unregisterListener(android.support.car.hardware.CarSensorManager.CarSensorEventListener, int) throws android.support.car.CarNotConnectedException;
+    method public abstract void removeListener(android.support.car.hardware.CarSensorManager.CarSensorEventListener) throws android.support.car.CarNotConnectedException;
+    method public abstract void removeListener(android.support.car.hardware.CarSensorManager.CarSensorEventListener, int) throws android.support.car.CarNotConnectedException;
     field public static final int SENSOR_RATE_FAST = 1; // 0x1
     field public static final int SENSOR_RATE_FASTEST = 0; // 0x0
     field public static final int SENSOR_RATE_NORMAL = 3; // 0x3
@@ -275,11 +309,11 @@ package android.support.car.navigation {
   }
 
   public abstract interface CarNavigationStatusManager {
-    method public abstract void registerListener(android.support.car.navigation.CarNavigationStatusManager.CarNavigationListener) throws android.support.car.CarNotConnectedException;
+    method public abstract void addListener(android.support.car.navigation.CarNavigationStatusManager.CarNavigationListener) throws android.support.car.CarNotConnectedException;
+    method public abstract void removeListener();
     method public abstract boolean sendNavigationStatus(int) throws android.support.car.CarNotConnectedException;
     method public abstract boolean sendNavigationTurnDistanceEvent(int, int, int, int) throws android.support.car.CarNotConnectedException;
     method public abstract boolean sendNavigationTurnEvent(int, java.lang.String, int, int, int) throws android.support.car.CarNotConnectedException;
-    method public abstract void unregisterListener();
     field public static final int DISTANCE_FEET = 6; // 0x6
     field public static final int DISTANCE_KILOMETERS = 2; // 0x2
     field public static final int DISTANCE_KILOMETERS_P1 = 3; // 0x3
@@ -325,10 +359,10 @@ package android.support.car.os {
   public abstract class ExtendableParcelable implements android.os.Parcelable {
     ctor protected ExtendableParcelable(android.os.Parcel, int);
     ctor protected ExtendableParcelable(int);
-    method protected void completeReading(android.os.Parcel, int);
-    method protected void completeWriting(android.os.Parcel, int);
-    method protected int readHeader(android.os.Parcel);
-    method protected int writeHeader(android.os.Parcel);
+    method public void completeReading(android.os.Parcel, int);
+    method public void completeWriting(android.os.Parcel, int);
+    method public int readHeader(android.os.Parcel);
+    method public int writeHeader(android.os.Parcel);
     field public final int version;
   }
 

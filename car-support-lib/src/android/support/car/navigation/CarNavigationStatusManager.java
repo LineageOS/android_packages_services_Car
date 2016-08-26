@@ -180,10 +180,10 @@ public interface CarNavigationStatusManager extends CarManagerBase {
      * listeners.
      * @throws CarNotConnectedException
      */
-    void registerListener(CarNavigationListener listener) throws CarNotConnectedException;
+    void addListener(CarNavigationListener listener) throws CarNotConnectedException;
 
     /**
      * Unregisters {@link CarNavigationListener}.
      */
-    void unregisterListener();
+    void removeListener();
 }

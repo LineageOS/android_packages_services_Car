@@ -18,6 +18,7 @@ package android.support.car;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
@@ -153,7 +154,7 @@ public class Car {
             "com.google.android.gms.car.CarServiceLoaderGms";
 
     private final Context mContext;
-    private final Looper mLooper;
+    private final Handler mEventHandler;
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
@@ -206,14 +207,15 @@ public class Car {
      * @param context The current app context.
      * @param serviceConnectionCallback Receives information as the car service is started and
      * stopped.
-     * @param looper Looper to dispatch all listeners. If null, it will use main thread. Note that
-     * service connection listener will be always in main thread regardless of this Looper.
+     * @param handler the handler on which the callback should execute, or null to execute on the
+     * service's main thread. Note: the service connection listener will be always on the main
+     * thread regardless of the handler given.
      * @return Car instance if system is in car environment and returns {@code null} otherwise.
      */
     public static Car createCar(Context context,
-            ServiceConnectionCallback serviceConnectionCallback, @Nullable Looper looper) {
+            ServiceConnectionCallback serviceConnectionCallback, @Nullable Handler handler) {
         try {
-            return new Car(context, serviceConnectionCallback, looper);
+            return new Car(context, serviceConnectionCallback, handler);
         } catch (IllegalArgumentException e) {
             // Expected when car service loader is not available.
         }
@@ -221,9 +223,9 @@ public class Car {
     }
 
     /**
-     * A factory method that creates Car instance using the main thread {@link Looper}.
+     * A factory method that creates Car instance using the main thread {@link Handler}.
      *
-     * @see #createCar(Context, ServiceConnectionCallback, Looper)
+     * @see #createCar(Context, ServiceConnectionCallback, Handler)
      */
     public static Car createCar(Context context,
             ServiceConnectionCallback serviceConnectionCallback) {
@@ -231,26 +233,31 @@ public class Car {
     }
 
     private Car(Context context, ServiceConnectionCallback serviceConnectionCallback,
-            @Nullable Looper looper) {
+            @Nullable Handler handler) {
         mContext = context;
         mServiceConnectionCallbackClient = serviceConnectionCallback;
-        if (looper == null) {
-            mLooper = Looper.getMainLooper();
-        } else {
-            mLooper = looper;
+        if (handler == null) {
+            Looper looper = Looper.myLooper();
+
+            if(looper == null){
+                looper = Looper.getMainLooper();
+            }
+            handler = new Handler(looper);
         }
+        mEventHandler = handler;
 
         if (mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
             mCarServiceLoader =
-                    new CarServiceLoaderEmbedded(context, mServiceConnectionCallback, mLooper);
+                    new CarServiceLoaderEmbedded(context, mServiceConnectionCallback,
+                            mEventHandler);
         } else {
             mCarServiceLoader = loadCarServiceLoader(PROJECTED_CAR_SERVICE_LOADER, context,
-                    mServiceConnectionCallback, mLooper);
+                    mServiceConnectionCallback, mEventHandler);
         }
     }
 
     private CarServiceLoader loadCarServiceLoader(String carServiceLoaderClassName, Context context,
-            ServiceConnectionCallback serviceConnectionCallback, Looper looper)
+            ServiceConnectionCallback serviceConnectionCallback, Handler eventHandler)
             throws IllegalArgumentException {
         Class<? extends CarServiceLoader> carServiceLoaderClass = null;
         try {
@@ -270,7 +277,7 @@ public class Car {
                     + carServiceLoaderClassName, e);
         }
         try {
-            return ctor.newInstance(context, serviceConnectionCallback, looper);
+            return ctor.newInstance(context, serviceConnectionCallback, eventHandler);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new IllegalArgumentException(
@@ -291,7 +298,7 @@ public class Car {
             throw new CarNotConnectedException();
         }
         mCarServiceLoader = serviceLoader;
-        mLooper = serviceLoader.getLooper();
+        mEventHandler = serviceLoader.getEventHandler();
         mContext = serviceLoader.getContext();
 
         mConnectionState = STATE_CONNECTED;

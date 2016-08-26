@@ -24,7 +24,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.car.CarNotConnectedException;
-import android.support.car.CarNotSupportedException;
 import android.support.car.app.menu.CarDrawerActivity;
 import android.support.car.hardware.CarSensorEvent;
 import android.support.car.hardware.CarSensorManager;
@@ -116,7 +115,7 @@ public class SensorsTestFragment extends Fragment {
         super.onPause();
         if (mSensorManager != null) {
             try {
-                mSensorManager.unregisterListener(mCarSensorListener);
+                mSensorManager.removeListener(mCarSensorListener);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Car not connected", e);
             }
@@ -134,7 +133,7 @@ public class SensorsTestFragment extends Fragment {
                     && !mActivePermissions.contains(Manifest.permission.ACCESS_FINE_LOCATION)) {
                     continue;
                 }
-                mSensorManager.registerListener(mCarSensorListener, sensor,
+                mSensorManager.addListener(mCarSensorListener, sensor,
                         CarSensorManager.SENSOR_RATE_NORMAL);
             }
         } catch (CarNotConnectedException e) {
@@ -200,24 +199,24 @@ public class SensorsTestFragment extends Fragment {
                     case CarSensorManager.SENSOR_TYPE_CAR_SPEED:
                         summary.add(getContext().getString(R.string.sensor_speed,
                                 getTimestamp(event),
-                                event == null ? mNaString : event.getCarSpeedData(null).carSpeed));
+                                event == null ? mNaString : event.getCarSpeedData().carSpeed));
                         break;
                     case CarSensorManager.SENSOR_TYPE_RPM:
                         summary.add(getContext().getString(R.string.sensor_rpm,
                                 getTimestamp(event),
-                                event == null ? mNaString : event.getRpmData(null).rpm));
+                                event == null ? mNaString : event.getRpmData().rpm));
                         break;
                     case CarSensorManager.SENSOR_TYPE_ODOMETER:
                         summary.add(getContext().getString(R.string.sensor_odometer,
                                 getTimestamp(event),
-                                event == null ? mNaString : event.getOdometerData(null).kms));
+                                event == null ? mNaString : event.getOdometerData().kms));
                         break;
                     case CarSensorManager.SENSOR_TYPE_FUEL_LEVEL:
                         String level = mNaString;
                         String range = mNaString;
                         String lowFuelWarning = mNaString;
                         if (event != null) {
-                            CarSensorEvent.FuelLevelData fuelData = event.getFuelLevelData(null);
+                            CarSensorEvent.FuelLevelData fuelData = event.getFuelLevelData();
                             level = fuelData.level == -1 ? level : String.valueOf(fuelData.level);
                             range = fuelData.range == -1 ? range : String.valueOf(fuelData.range);
                             lowFuelWarning = String.valueOf(fuelData.lowFuelWarning);
@@ -229,17 +228,17 @@ public class SensorsTestFragment extends Fragment {
                         summary.add(getContext().getString(R.string.sensor_parking_break,
                                 getTimestamp(event),
                                 event == null ? mNaString :
-                                event.getParkingBrakeData(null).isEngaged));
+                                event.getParkingBrakeData().isEngaged));
                         break;
                     case CarSensorManager.SENSOR_TYPE_GEAR:
                         summary.add(getContext().getString(R.string.sensor_gear,
                                 getTimestamp(event),
-                                event == null ? mNaString : event.getGearData(null).gear));
+                                event == null ? mNaString : event.getGearData().gear));
                         break;
                     case CarSensorManager.SENSOR_TYPE_NIGHT:
                         summary.add(getContext().getString(R.string.sensor_night,
                                 getTimestamp(event),
-                                event == null ? mNaString : event.getNightData(null).isNightMode));
+                                event == null ? mNaString : event.getNightData().isNightMode));
                         break;
                     case CarSensorManager.SENSOR_TYPE_LOCATION:
                         summary.add(getLocationString(event));
@@ -249,7 +248,7 @@ public class SensorsTestFragment extends Fragment {
                         String binDrivingStatus = mNaString;
                         if (event != null) {
                             CarSensorEvent.DrivingStatusData drivingStatusData =
-                                    event.getDrivingStatusData(null);
+                                    event.getDrivingStatusData();
                             drivingStatus = String.valueOf(drivingStatusData.status);
                             binDrivingStatus = Integer.toBinaryString(drivingStatusData.status);
                         }
@@ -260,7 +259,7 @@ public class SensorsTestFragment extends Fragment {
                         String temperature = mNaString;
                         String pressure = mNaString;
                         if (event != null) {
-                            CarSensorEvent.EnvironmentData env = event.getEnvironmentData(null);
+                            CarSensorEvent.EnvironmentData env = event.getEnvironmentData();
                             temperature = Float.isNaN(env.temperature) ? temperature :
                                     String.valueOf(env.temperature);
                             pressure = Float.isNaN(env.pressure) ? pressure :
@@ -273,7 +272,7 @@ public class SensorsTestFragment extends Fragment {
                         summary.add(getAccelerometerString(event));
                         break;
                     case CarSensorManager.SENSOR_TYPE_GPS_SATELLITE:
-                        summary.add(getGpsSatteliteString(event));
+                        summary.add(getGpsSatelliteString(event));
                         break;
                     case CarSensorManager.SENSOR_TYPE_GYROSCOPE:
                         summary.add(getGyroscopeString(event));
@@ -318,7 +317,7 @@ public class SensorsTestFragment extends Fragment {
         String y = mNaString;
         String z = mNaString;
         if (event != null) {
-            CarSensorEvent.GyroscopeData gyro = event.getGyroscopeData(null);
+            CarSensorEvent.GyroscopeData gyro = event.getGyroscopeData();
             x = Float.isNaN(gyro.x) ? x : String.valueOf(gyro.x);
             y = Float.isNaN(gyro.y) ? y : String.valueOf(gyro.y);
             z = Float.isNaN(gyro.z) ? z : String.valueOf(gyro.z);
@@ -332,7 +331,7 @@ public class SensorsTestFragment extends Fragment {
         String y = mNaString;
         String z = mNaString;
         if (event != null) {
-            CarSensorEvent.AccelerometerData gyro = event.getAccelerometerData(null);
+            CarSensorEvent.AccelerometerData gyro = event.getAccelerometerData();
             x = Float.isNaN(gyro.x) ? x : String.valueOf(gyro.x);
             y = Float.isNaN(gyro.y) ? y : String.valueOf(gyro.y);
             z = Float.isNaN(gyro.z) ? z : String.valueOf(gyro.z);
@@ -361,12 +360,12 @@ public class SensorsTestFragment extends Fragment {
                 getTimestamp(event), lat, lon, accuracy, alt, speed, bearing);
     }
 
-    private String getGpsSatteliteString(CarSensorEvent event) {
+    private String getGpsSatelliteString(CarSensorEvent event) {
         String inUse = mNaString;
         String inView = mNaString;
         String perSattelite = "";
         if (event != null) {
-            CarSensorEvent.GpsSatelliteData gpsData = event.getGpsSatelliteData(null, true);
+            CarSensorEvent.GpsSatelliteData gpsData = event.getGpsSatelliteData(true);
             inUse = gpsData.numberInUse != -1 ? String.valueOf(gpsData.numberInUse) : inUse;
             inView = gpsData.numberInView != -1 ? String.valueOf(gpsData.numberInView) : inView;
             List<String> perSatteliteList = new ArrayList<>();

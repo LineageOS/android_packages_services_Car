@@ -90,22 +90,21 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         manager2.addFocusListener(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, change2);
 
         mManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner);
-        assertTrue(mManager.isOwningFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
-        assertFalse(mManager.isOwningFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND));
-        assertFalse(manager2.isOwningFocus(owner2, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
-        assertFalse(manager2.isOwningFocus(owner2,
-                CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND));
+        assertTrue(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner));
+        assertFalse(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner));
+        assertFalse(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner2));
+        assertFalse(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner2));
+
         assertTrue(change2.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, true));
         assertTrue(change.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, true));
 
         mManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner);
-        assertTrue(mManager.isOwningFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
-        assertTrue(mManager.isOwningFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND));
-        assertFalse(manager2.isOwningFocus(owner2, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
-        assertFalse(manager2.isOwningFocus(owner2,
-                CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND));
+        assertTrue(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner));
+        assertTrue(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner));
+        assertFalse(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner2));
+        assertFalse(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner2));
         assertTrue(change2.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, true));
         assertTrue(change.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
@@ -121,11 +120,10 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
                 CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, true));
 
         manager2.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner2);
-        assertFalse(mManager.isOwningFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
-        assertTrue(mManager.isOwningFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND));
-        assertTrue(manager2.isOwningFocus(owner2, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
-        assertFalse(manager2.isOwningFocus(owner2,
-              CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND));
+        assertFalse(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner));
+        assertTrue(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner));
+        assertTrue(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner2));
+        assertFalse(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner2));
         assertTrue(owner.waitForOwnershipLossAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
 
@@ -133,20 +131,18 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         change.reset();
         change2.reset();
         mManager.abandonAppFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-        assertFalse(mManager.isOwningFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
-        assertTrue(mManager.isOwningFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND));
-        assertTrue(manager2.isOwningFocus(owner2, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
-        assertFalse(manager2.isOwningFocus(owner2,
-                CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND));
+        assertFalse(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner));
+        assertTrue(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner));
+        assertTrue(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner2));
+        assertFalse(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner2));
 
         change.reset();
         change2.reset();
         mManager.abandonAppFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
-        assertFalse(mManager.isOwningFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
-        assertFalse(mManager.isOwningFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND));
-        assertTrue(manager2.isOwningFocus(owner2, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
-        assertFalse(manager2.isOwningFocus(owner2,
-                CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND));
+        assertFalse(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner));
+        assertFalse(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner));
+        assertTrue(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner2));
+        assertFalse(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner2));
         assertTrue(change2.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, false));
         assertTrue(change.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
@@ -155,11 +151,10 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         change.reset();
         change2.reset();
         manager2.abandonAppFocus(owner2, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-        assertFalse(mManager.isOwningFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
-        assertFalse(mManager.isOwningFocus(owner, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND));
-        assertFalse(manager2.isOwningFocus(owner2, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
-        assertFalse(manager2.isOwningFocus(owner2,
-                CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND));
+        assertFalse(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner));
+        assertFalse(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner));
+        assertFalse(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner2));
+        assertFalse(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner2));
         assertTrue(change.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, false));
         mManager.removeFocusListener(change);

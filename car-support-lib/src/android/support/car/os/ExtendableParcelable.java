@@ -78,7 +78,7 @@ public abstract class ExtendableParcelable implements Parcelable {
      *
      * @return last position. This should be passed to {@link #completeReading(Parcel, int)}.
      */
-    protected int readHeader(Parcel in) {
+    public int readHeader(Parcel in) {
         int payloadLength = in.readInt();
         int startingPosition = in.dataPosition();
         return startingPosition + payloadLength;
@@ -90,7 +90,7 @@ public abstract class ExtendableParcelable implements Parcelable {
      * @param lastPosition Last position of of this Parcelable in the passed Parcel.
      *                     The value is passed from {@link #readHeader(Parcel)}.
      */
-    protected void completeReading(Parcel in, int lastPosition) {
+    public void completeReading(Parcel in, int lastPosition) {
         in.setDataPosition(lastPosition);
     }
 
@@ -104,7 +104,7 @@ public abstract class ExtendableParcelable implements Parcelable {
      *
      * @return startingPosition which should be passed when calling completeWrite.
      */
-    protected int writeHeader(Parcel dest) {
+    public int writeHeader(Parcel dest) {
         dest.writeInt(version);
         // temporary value for playload length. will be replaced in completeWrite
         dest.writeInt(0);
@@ -117,7 +117,7 @@ public abstract class ExtendableParcelable implements Parcelable {
      * this call.
      * @param startingPosition startingPosition returned from writeHeader
      */
-    protected void completeWriting(Parcel dest, int startingPosition) {
+    public void completeWriting(Parcel dest, int startingPosition) {
         int currentPosition = dest.dataPosition();
         dest.setDataPosition(startingPosition - 4);
         int payloadLength = currentPosition - startingPosition;

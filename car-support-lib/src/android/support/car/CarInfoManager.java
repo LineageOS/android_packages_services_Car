@@ -74,21 +74,21 @@ public abstract class CarInfoManager implements CarManagerBase {
     public static final int DRIVER_SIDE_CENTER = 2;
 
     /**
-     * Returns the value for the given key or null if the key is not supported.
+     * Returns the value for the given key or {@link Float#NaN} if the key is not supported.
      */
-    public abstract Float getFloat(String key)
+    public abstract float getFloat(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
     /**
-     * Returns the value for the given key or null if the key is not supported.
+     * Returns the value for the given key or {@link Integer#MIN_VALUE} if the key is not supported.
      */
-    public abstract Integer getInt(String key)
+    public abstract int getInt(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
     /**
-     * Returns the value for the given key or null if the key is not supported.
+     * Returns the value for the given key or {@link Long#MIN_VALUE} if the key is not supported.
      */
-    public abstract Long getLong(String key)
+    public abstract long getLong(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
     /**

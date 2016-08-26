@@ -148,8 +148,8 @@ public class InstrumentClusterFragment extends Fragment {
         }
 
         try {
-            boolean ownsFocus = mCarAppFocusManager.isOwningFocus(focusListener,
-                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+            boolean ownsFocus = mCarAppFocusManager.isOwningFocus(
+                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, focusListener);
             Log.d(TAG, "Owns APP_FOCUS_TYPE_NAVIGATION: " + ownsFocus);
             if (!ownsFocus) {
                 throw new RuntimeException("Focus was not acquired.");

@@ -54,10 +54,10 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     private final CallbackHandler mHandler;
 
     public CarServiceLoaderEmbedded(Context context, ServiceConnectionCallback listener,
-            Looper looper) {
-        super(context, listener, looper);
-        mCar = android.car.Car.createCar(context, mServiceConnection, looper);
-        mHandler = new CallbackHandler(looper);
+            Handler handler) {
+        super(context, listener, handler);
+        mCar = android.car.Car.createCar(context, mServiceConnection, handler);
+        mHandler = new CallbackHandler(handler.getLooper());
     }
 
     @Override

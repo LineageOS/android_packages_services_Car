@@ -162,7 +162,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         super.onDestroy();
         if (mCarSensorManager != null) {
             try {
-                mCarSensorManager.unregisterListener(mListener);
+                mCarSensorManager.removeListener(mListener);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Failed to unregister car seonsor listener", e);
             }
@@ -193,7 +193,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                         .CAMERA_SERVICE);
                 mHvacManager = (CarHvacManager) mCarApi.getCarManager(android.car.Car.HVAC_SERVICE);
                 mCarSensorManager = (CarSensorManager) mCarApi.getCarManager(Car.SENSOR_SERVICE);
-                mCarSensorManager.registerListener(mListener,
+                mCarSensorManager.addListener(mListener,
                         CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
                         CarSensorManager.SENSOR_RATE_NORMAL);
                 mCarAppFocusManager =

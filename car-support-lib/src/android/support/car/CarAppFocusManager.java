@@ -103,12 +103,12 @@ public abstract class CarAppFocusManager implements CarManagerBase {
 
     /**
      * Check if the current process owns the given focus.
-     * @param listener Listener that was used to request ownership.
      * @param appType Application type.
+     * @param listener Listener that was used to request ownership.
      * @return True if current listener owns focus for application type.
      * @throws CarNotConnectedException
      */
-    public abstract boolean isOwningFocus(AppFocusOwnershipChangeListener listener, int appType)
+    public abstract boolean isOwningFocus(int appType, AppFocusOwnershipChangeListener listener)
             throws CarNotConnectedException;
 
     /**

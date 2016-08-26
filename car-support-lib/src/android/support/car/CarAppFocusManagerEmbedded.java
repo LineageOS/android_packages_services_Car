@@ -95,7 +95,7 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
     }
 
     @Override
-    public boolean isOwningFocus(AppFocusOwnershipChangeListener listener, int appType)
+    public boolean isOwningFocus(int appType, AppFocusOwnershipChangeListener listener)
             throws CarNotConnectedException {
         AppFocusOwnershipChangeListenerProxy proxy;
         synchronized (this) {
@@ -126,7 +126,7 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
             }
         }
         try {
-            return mManager.requestAppFocus(proxy, appType);
+            return mManager.requestAppFocus(appType, proxy);
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }

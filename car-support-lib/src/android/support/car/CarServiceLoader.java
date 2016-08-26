@@ -17,6 +17,7 @@
 package android.support.car;
 
 import android.content.Context;
+import android.os.Handler;
 import android.os.Looper;
 
 /**
@@ -27,12 +28,12 @@ public abstract class CarServiceLoader {
 
     private final Context mContext;
     private final ServiceConnectionCallback mListener;
-    private final Looper mLooper;
+    private final Handler mEventHandler;
 
-    public CarServiceLoader(Context context, ServiceConnectionCallback listener, Looper looper) {
+    public CarServiceLoader(Context context, ServiceConnectionCallback listener, Handler handler) {
         mContext = context;
         mListener = listener;
-        mLooper = looper;
+        mEventHandler = handler;
     }
 
     public abstract void connect() throws IllegalStateException;
@@ -62,7 +63,7 @@ public abstract class CarServiceLoader {
         return mListener;
     }
 
-    protected Looper getLooper() {
-        return mLooper;
+    protected Handler getEventHandler() {
+        return mEventHandler;
     }
 }

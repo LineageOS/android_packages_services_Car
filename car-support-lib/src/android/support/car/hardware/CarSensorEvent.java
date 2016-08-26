@@ -78,7 +78,7 @@ public class CarSensorEvent extends ExtendableParcelable {
      * reception from car in nanoseconds since system boot.
      */
     @VersionDef(version = 1)
-    public long timeStampNs;
+    public final long timeStampNs;
     /**
      * array holding float type of sensor data. If the sensor has single value, only floatValues[0]
      * should be used. */
@@ -160,13 +160,6 @@ public class CarSensorEvent extends ExtendableParcelable {
     }
 
     public static class CompassData {
-        public CompassData(long timeStampNs, float bearing, float pitch, float roll) {
-            this.timeStampNs = timeStampNs;
-            this.bearing = bearing;
-            this.pitch = pitch;
-            this.roll = roll;
-        }
-
         public final long timeStampNs;
         /** If unsupported by the car, this value is NaN. */
         public final float bearing;
@@ -174,6 +167,13 @@ public class CarSensorEvent extends ExtendableParcelable {
         public final float pitch;
         /** If unsupported by the car, this value is NaN. */
         public final float roll;
+
+        public CompassData(long timeStampNs, float bearing, float pitch, float roll) {
+            this.timeStampNs = timeStampNs;
+            this.bearing = bearing;
+            this.pitch = pitch;
+            this.roll = roll;
+        }
     }
 
     /**
@@ -189,71 +189,66 @@ public class CarSensorEvent extends ExtendableParcelable {
     }
 
     public static class ParkingBrakeData {
-        public long timeStampNs;
-        public boolean isEngaged;
+        public final long timeStampNs;
+        public final boolean isEngaged;
+
+        public ParkingBrakeData(long timeStampNs, boolean isEngaged) {
+            this.timeStampNs = timeStampNs;
+            this.isEngaged = isEngaged;
+        }
     }
 
     /**
      * Convenience method for obtaining a {@link ParkingBrakeData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_PARKING_BRAKE}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @return a ParkingBreakData object corresponding to the data contained in the CarSensorEvent.
      */
-    public ParkingBrakeData getParkingBrakeData(ParkingBrakeData data) {
+    public ParkingBrakeData getParkingBrakeData() {
         checkType(CarSensorManager.SENSOR_TYPE_PARKING_BRAKE);
-        if (data == null) {
-            data = new ParkingBrakeData();
-        }
-        data.timeStampNs = timeStampNs;
-        data.isEngaged = intValues[0] == 1;
-        return data;
+        return new ParkingBrakeData(timeStampNs, (intValues[0] == 1));
     }
 
     public static class NightData {
-        public long timeStampNs;
-        public boolean isNightMode;
+        public final long timeStampNs;
+        public final boolean isNightMode;
+
+        public NightData(long timeStampNs, boolean isNightMode) {
+            this.timeStampNs = timeStampNs;
+            this.isNightMode = isNightMode;
+        }
     }
 
     /**
-     * Convenience method for obtaining a {@link NightData} object from a CarSensorEvent
-     * object with type {@link CarSensorManager#SENSOR_TYPE_NIGHT}.
+     * Convenience method for obtaining a {@link NightData} object from a CarSensorEvent object with
+     * type {@link CarSensorManager#SENSOR_TYPE_NIGHT}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @return a NightData object corresponding to the data contained in the CarSensorEvent.
      */
-    public NightData getNightData(NightData data) {
+    public NightData getNightData() {
         checkType(CarSensorManager.SENSOR_TYPE_NIGHT);
-        if (data == null) {
-            data = new NightData();
-        }
-        data.timeStampNs = timeStampNs;
-        data.isNightMode = intValues[0] == 1;
-        return data;
+        return new NightData(timeStampNs, (intValues[0] == 1));
     }
 
     public static class DrivingStatusData {
-        public long timeStampNs;
-        public int status;
+        public final long timeStampNs;
+        public final int status;
+
+        public DrivingStatusData(long timeStampNs, int status) {
+            this.timeStampNs = timeStampNs;
+            this.status = status;
+        }
     }
 
     /**
      * Convenience method for obtaining a {@link DrivingStatusData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_DRIVING_STATUS}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @return a DrivingStatusData object corresponding to the data contained in the CarSensorEvent.
      */
-    public DrivingStatusData getDrivingStatusData(DrivingStatusData data) {
+    public DrivingStatusData getDrivingStatusData() {
         checkType(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
-        if (data == null) {
-            data = new DrivingStatusData();
-        }
-        data.status = intValues[0];
-        return data;
+        return new DrivingStatusData(timeStampNs, intValues[0]);
     }
 
 
@@ -417,176 +412,164 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     /** @hide */
     public static class EnvironmentData {
-        public long timeStampNs;
+        public final long timeStampNs;
         /** If unsupported by the car, this value is NaN. */
-        public float temperature;
+        public final float temperature;
         /** If unsupported by the car, this value is NaN. */
-        public float pressure;
+        public final float pressure;
+
+        public EnvironmentData(long timeStampNs, float temperature, float pressure) {
+            this.timeStampNs = timeStampNs;
+            this.temperature = temperature;
+            this.pressure = pressure;
+        }
     }
 
     /**
      * Convenience method for obtaining an {@link EnvironmentData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_ENVIRONMENT}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @return an EnvironmentData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
-    public EnvironmentData getEnvironmentData(EnvironmentData data) {
+    public EnvironmentData getEnvironmentData() {
         checkType(CarSensorManager.SENSOR_TYPE_ENVIRONMENT);
-        if (data == null) {
-            data = new EnvironmentData();
-        }
-        data.timeStampNs = timeStampNs;
-        data.temperature = floatValues[INDEX_ENVIRONMENT_TEMPERATURE];
-        data.pressure = floatValues[INDEX_ENVIRONMENT_PRESSURE];
-        return data;
+
+        float temperature = floatValues[INDEX_ENVIRONMENT_TEMPERATURE];
+        float pressure = floatValues[INDEX_ENVIRONMENT_PRESSURE];
+        return new EnvironmentData(timeStampNs, temperature, pressure);
     }
 
     /** @hide */
     public static class GearData {
-        public long timeStampNs;
-        public int gear;
+        public final long timeStampNs;
+        public final int gear;
+
+        public GearData(long timeStampNs, int gear) {
+            this.timeStampNs = timeStampNs;
+            this.gear = gear;
+        }
     }
 
     /**
      * Convenience method for obtaining a {@link GearData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_GEAR}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @return a GearData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
-    public GearData getGearData(GearData data) {
+    public GearData getGearData() {
         checkType(CarSensorManager.SENSOR_TYPE_GEAR);
-        if (data == null) {
-            data = new GearData();
-        }
-        data.timeStampNs = timeStampNs;
-        data.gear = intValues[0];
-        return data;
+        return new GearData(timeStampNs,intValues[0] );
     }
 
     /** @hide */
     public static class FuelLevelData {
-        public long timeStampNs;
+        public final long timeStampNs;
         /** Fuel level in %. If unsupported by the car, this value is -1. */
-        public int level;
+        public final int level;
         /** Fuel as possible range in Km. If unsupported by the car, this value is -1. */
-        public float range;
+        public final float range;
         /** If unsupported by the car, this value is false. */
-        public boolean lowFuelWarning;
+        public final boolean lowFuelWarning;
+
+        public FuelLevelData(long timeStampNs, int level, float range, boolean lowFuelWarning) {
+            this.timeStampNs = timeStampNs;
+            this.level = level;
+            this.range = range;
+            this.lowFuelWarning = lowFuelWarning;
+        }
     }
 
     /**
-     * Convenience method for obtaining a {@link FuelLevelData} object from a CarSensorEvent
-     * object with type {@link CarSensorManager#SENSOR_TYPE_FUEL_LEVEL}.
+     * Convenience method for obtaining a {@link FuelLevelData} object from a CarSensorEvent object
+     * with type {@link CarSensorManager#SENSOR_TYPE_FUEL_LEVEL}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @return a FuelLevel object corresponding to the data contained in the CarSensorEvent.
-     * @hide
      */
-    public FuelLevelData getFuelLevelData(FuelLevelData data) {
+    public FuelLevelData getFuelLevelData() {
         checkType(CarSensorManager.SENSOR_TYPE_FUEL_LEVEL);
-        if (data == null) {
-            data = new FuelLevelData();
-        }
-        data.timeStampNs = timeStampNs;
-        if (floatValues == null) {
-            data.level = -1;
-            data.range = -1;
-        } else {
-            if (floatValues[INDEX_FUEL_LEVEL_IN_PERCENTILE] < 0) {
-                data.level = -1;
-            } else {
-                data.level = (int) floatValues[INDEX_FUEL_LEVEL_IN_PERCENTILE];
+        int level = -1;
+        float range = -1;
+        if (floatValues != null) {
+            if (floatValues[INDEX_FUEL_LEVEL_IN_PERCENTILE] >= 0) {
+                level = (int) floatValues[INDEX_FUEL_LEVEL_IN_PERCENTILE];
             }
-            if (floatValues[INDEX_FUEL_LEVEL_IN_DISTANCE] < 0) {
-                data.range = -1;
-            } else {
-                data.range = floatValues[INDEX_FUEL_LEVEL_IN_DISTANCE];
+
+            if (floatValues[INDEX_FUEL_LEVEL_IN_DISTANCE] >= 0) {
+                range = floatValues[INDEX_FUEL_LEVEL_IN_DISTANCE];
             }
         }
-        data.lowFuelWarning = intValues[0] == 1;
-        return data;
+        boolean lowFuelWarning = (intValues[0] == 1);
+        return new FuelLevelData(timeStampNs, level, range, lowFuelWarning);
     }
 
     /** @hide */
     public static class OdometerData {
-        public long timeStampNs;
-        public float kms;
+        public final long timeStampNs;
+        public final float kms;
+
+        public OdometerData(long timeStampNs, float kms) {
+            this.timeStampNs = timeStampNs;
+            this.kms = kms;
+        }
     }
 
     /**
      * Convenience method for obtaining an {@link OdometerData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_ODOMETER}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @return an OdometerData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
-    public OdometerData getOdometerData(OdometerData data) {
+    public OdometerData getOdometerData() {
         checkType(CarSensorManager.SENSOR_TYPE_ODOMETER);
-        if (data == null) {
-            data = new OdometerData();
-        }
-        data.timeStampNs = timeStampNs;
-        data.kms = floatValues[0];
-        return data;
+            return new OdometerData(timeStampNs,floatValues[0]);
     }
 
     /** @hide */
     public static class RpmData {
-        public long timeStampNs;
-        public float rpm;
+        public final long timeStampNs;
+        public final float rpm;
+
+        public RpmData(long timeStampNs, float rpm) {
+            this.timeStampNs = timeStampNs;
+            this.rpm = rpm;
+        }
     }
 
     /**
-     * Convenience method for obtaining a {@link RpmData} object from a CarSensorEvent
-     * object with type {@link CarSensorManager#SENSOR_TYPE_RPM}.
+     * Convenience method for obtaining a {@link RpmData} object from a CarSensorEvent object with
+     * type {@link CarSensorManager#SENSOR_TYPE_RPM}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @return a RpmData object corresponding to the data contained in the CarSensorEvent.
-     * @hide
      */
-    public RpmData getRpmData(RpmData data) {
+    public RpmData getRpmData() {
         checkType(CarSensorManager.SENSOR_TYPE_RPM);
-        if (data == null) {
-            data = new RpmData();
-        }
-        data.timeStampNs = timeStampNs;
-        data.rpm = floatValues[0];
-        return data;
+        return new RpmData(timeStampNs, floatValues[0]);
     }
 
     /** @hide */
     public static class CarSpeedData {
         public long timeStampNs;
         public float carSpeed;
+
+        public CarSpeedData(long timeStampNs, float carSpeed) {
+            this.timeStampNs = timeStampNs;
+            this.carSpeed = carSpeed;
+        }
     }
 
     /**
      * Convenience method for obtaining a {@link CarSpeedData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_CAR_SPEED}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @return a CarSpeedData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
-    public CarSpeedData getCarSpeedData(CarSpeedData data) {
+    public CarSpeedData getCarSpeedData() {
         checkType(CarSensorManager.SENSOR_TYPE_CAR_SPEED);
-        if (data == null) {
-            data = new CarSpeedData();
-        }
-        data.timeStampNs = timeStampNs;
-        data.carSpeed = floatValues[0];
-        return data;
+        return new CarSpeedData(timeStampNs, floatValues[0]);
     }
 
     /**
@@ -638,64 +621,66 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     /** @hide */
     public static class AccelerometerData  {
-        public long timeStampNs;
+        public final long timeStampNs;
         /** If unsupported by the car, this value is NaN. */
-        public float x;
+        public final float x;
         /** If unsupported by the car, this value is NaN. */
-        public float y;
+        public final float y;
         /** If unsupported by the car, this value is NaN. */
-        public float z;
+        public final float z;
+
+        public AccelerometerData(long timeStampNs, float x, float y, float z) {
+            this.timeStampNs = timeStampNs;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
     }
 
     /**
      * Convenience method for obtaining an {@link AccelerometerData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_ACCELEROMETER}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @return a AccelerometerData object corresponding to the data contained in the CarSensorEvent.
-     * @hide
      */
-    public AccelerometerData getAccelerometerData(AccelerometerData data) {
+    public AccelerometerData getAccelerometerData() {
         checkType(CarSensorManager.SENSOR_TYPE_ACCELEROMETER);
-        if (data == null) {
-            data = new AccelerometerData();
-        }
-        data.x = floatValues[INDEX_ACCELEROMETER_X];
-        data.y = floatValues[INDEX_ACCELEROMETER_Y];
-        data.z = floatValues[INDEX_ACCELEROMETER_Z];
-        return data;
+        float x = floatValues[INDEX_ACCELEROMETER_X];
+        float y = floatValues[INDEX_ACCELEROMETER_Y];
+        float z = floatValues[INDEX_ACCELEROMETER_Z];
+        return new AccelerometerData(timeStampNs, x, y, z);
     }
 
     /** @hide */
     public static class GyroscopeData {
-        public long timeStampNs;
+        public final long timeStampNs;
         /** If unsupported by the car, this value is NaN. */
-        public float x;
+        public final float x;
         /** If unsupported by the car, this value is NaN. */
-        public float y;
+        public final float y;
         /** If unsupported by the car, this value is NaN. */
-        public float z;
+        public final float z;
+
+        public GyroscopeData(long timeStampNs, float x, float y, float z) {
+            this.timeStampNs = timeStampNs;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
     }
 
     /**
-     * Convenience method for obtaining a {@link GyroscopeData} object from a CarSensorEvent
-     * object with type {@link CarSensorManager#SENSOR_TYPE_GYROSCOPE}.
+     * Convenience method for obtaining a {@link GyroscopeData} object from a CarSensorEvent object
+     * with type {@link CarSensorManager#SENSOR_TYPE_GYROSCOPE}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @return a GyroscopeData object corresponding to the data contained in the CarSensorEvent.
-     * @hide
      */
-    public GyroscopeData getGyroscopeData(GyroscopeData data) {
+    public GyroscopeData getGyroscopeData() {
         checkType(CarSensorManager.SENSOR_TYPE_GYROSCOPE);
-        if (data == null) {
-            data = new GyroscopeData();
-        }
-        data.x = floatValues[INDEX_GYROSCOPE_X];
-        data.y = floatValues[INDEX_GYROSCOPE_Y];
-        data.z = floatValues[INDEX_GYROSCOPE_Z];
-        return data;
+        float x = floatValues[INDEX_GYROSCOPE_X];
+        float y = floatValues[INDEX_GYROSCOPE_Y];
+        float z = floatValues[INDEX_GYROSCOPE_Z];
+        return new GyroscopeData(timeStampNs, x, y, z);
     }
 
     // android.location.GpsSatellite doesn't have a public constructor, so that can't be used.
@@ -705,88 +690,103 @@ public class CarSensorEvent extends ExtendableParcelable {
      * @hide
      */
     public static class GpsSatelliteData {
-        public long timeStampNs;
+        public final long timeStampNs;
         /**
          * Number of satellites used in GPS fix or -1 of unavailable.
          */
-        public int numberInUse = -1;
+        public final int numberInUse;
         /**
          * Number of satellites in view or -1 of unavailable.
          */
-        public int numberInView = -1;
+        public final int numberInView;
         /**
          * Per-satellite flag if this satellite was used for GPS fix.
          * Can be null if per-satellite data is unavailable.
          */
-        public boolean[] usedInFix = null;
+        public final boolean[] usedInFix ;
         /**
          * Per-satellite pseudo-random id.
          * Can be null if per-satellite data is unavailable.
          */
-        public int[] prn = null;
+        public final int[] prn ;
         /**
          * Per-satellite signal to noise ratio.
          * Can be null if per-satellite data is unavailable.
          */
-        public float[] snr = null;
+        public final float[] snr ;
         /**
          * Per-satellite azimuth.
          * Can be null if per-satellite data is unavailable.
          */
-        public float[] azimuth = null;
+        public final float[] azimuth ;
         /**
          * Per-satellite elevation.
          * Can be null if per-satellite data is unavailable.
          */
-        public float[] elevation = null;
+        public final float[] elevation ;
+
+        public GpsSatelliteData(long timeStampNs, int numberInUse, int numberInView,
+                boolean[] usedInFix, int[] prn, float[] snr, float[] azimuth, float[] elevation) {
+            this.timeStampNs = timeStampNs;
+            this.numberInUse = numberInUse;
+            this.numberInView = numberInView;
+            this.usedInFix = usedInFix;
+            this.prn = prn;
+            this.snr = snr;
+            this.azimuth = azimuth;
+            this.elevation = elevation;
+        }
     }
+
+    private final int intOffset = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_INT_OFFSET;
+    private final int intInterval = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_INT_INTERVAL;
+    private final int floatOffset = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_FLOAT_OFFSET;
+    private final int floatInterval = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_FLOAT_INTERVAL;
 
     /**
      * Convenience method for obtaining a {@link GpsSatelliteData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_GPS_SATELLITE} with optional per-satellite info.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
      * @param withPerSatellite whether to include per-satellite data.
      * @return a GpsSatelliteData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
-    public GpsSatelliteData getGpsSatelliteData(GpsSatelliteData data,
-            boolean withPerSatellite) {
+    public GpsSatelliteData getGpsSatelliteData(boolean withPerSatellite) {
         checkType(CarSensorManager.SENSOR_TYPE_GPS_SATELLITE);
-        if (data == null) {
-            data = new GpsSatelliteData();
-        }
-        final int intOffset = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_INT_OFFSET;
-        final int intInterval = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_INT_INTERVAL;
-        final int floatOffset = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_FLOAT_OFFSET;
-        final int floatInterval = CarSensorEvent.INDEX_GPS_SATELLITE_ARRAY_FLOAT_INTERVAL;
-        final int numberOfSats = (floatValues.length - floatOffset) / floatInterval;
 
-        data.numberInUse = intValues[CarSensorEvent.INDEX_GPS_SATELLITE_NUMBER_IN_USE];
-        data.numberInView = intValues[CarSensorEvent.INDEX_GPS_SATELLITE_NUMBER_IN_VIEW];
-        if (withPerSatellite && data.numberInView >= 0) {
-            data.usedInFix = new boolean[numberOfSats];
-            data.prn = new int[numberOfSats];
-            data.snr = new float[numberOfSats];
-            data.azimuth = new float[numberOfSats];
-            data.elevation = new float[numberOfSats];
+        //init all vars
+        int numberInUse = intValues[CarSensorEvent.INDEX_GPS_SATELLITE_NUMBER_IN_USE];
+        int numberInView = intValues[CarSensorEvent.INDEX_GPS_SATELLITE_NUMBER_IN_VIEW];
+        boolean[] usedInFix = null;
+        int[] prn = null;
+        float[] snr = null;
+        float[] azimuth = null;
+        float[] elevation = null;
+
+        if (withPerSatellite && numberInView >= 0) {
+            final int numberOfSats = (floatValues.length - floatOffset) / floatInterval;
+            usedInFix = new boolean[numberOfSats];
+            prn = new int[numberOfSats];
+            snr = new float[numberOfSats];
+            azimuth = new float[numberOfSats];
+            elevation = new float[numberOfSats];
 
             for (int i = 0; i < numberOfSats; ++i) {
                 int iInt = intOffset + intInterval * i;
                 int iFloat = floatOffset + floatInterval * i;
-                data.usedInFix[i] = intValues[iInt] != 0;
-                data.prn[i] = Math.round(
+                usedInFix[i] = intValues[iInt] != 0;
+                prn[i] = Math.round(
                         floatValues[iFloat + CarSensorEvent.INDEX_GPS_SATELLITE_PRN_OFFSET]);
-                data.snr[i] =
+                snr[i] =
                         floatValues[iFloat + CarSensorEvent.INDEX_GPS_SATELLITE_SNR_OFFSET];
-                data.azimuth[i] = floatValues[iFloat
+                azimuth[i] = floatValues[iFloat
                         + CarSensorEvent.INDEX_GPS_SATELLITE_AZIMUTH_OFFSET];
-                data.elevation[i] = floatValues[iFloat
+                elevation[i] = floatValues[iFloat
                         + CarSensorEvent.INDEX_GPS_SATELLITE_ELEVATION_OFFSET];
             }
         }
-        return data;
+        return new GpsSatelliteData(timeStampNs, numberInUse, numberInView, usedInFix, prn, snr,
+                azimuth, elevation);
     }
 
     /** @hide */
