@@ -34,8 +34,10 @@ LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_DEX_PREOPT := false
 
-LOCAL_STATIC_JAVA_LIBRARIES += car-systemtest android.support.car
+LOCAL_STATIC_JAVA_LIBRARIES += car-systemtest
 
 LOCAL_JAVA_LIBRARIES += android.car
+
+include packages/services/Car/car-support-lib/car-support.mk
 
 include $(BUILD_PACKAGE)

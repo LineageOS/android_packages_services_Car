@@ -17,6 +17,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="100dp"
+    android:layout_marginTop="50dp"
     android:orientation="vertical" >
+
+    <FrameLayout
+        android:id="@+id/contents"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/car_drawer_header_height"
+        android:layout_marginLeft="@dimen/key_line1" />
 </LinearLayout>
