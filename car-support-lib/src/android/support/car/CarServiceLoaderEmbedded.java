@@ -39,12 +39,12 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            getConnectionListener().onServiceConnected(name);
+            getConnectionListener().onServiceConnected();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            getConnectionListener().onServiceDisconnected(name);
+            getConnectionListener().onServiceDisconnected();
         }
     };
 
@@ -84,7 +84,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     }
 
     @Override
-    public void registerCarConnectionListener(final CarConnectionCallback listener)
+    public void registerCarConnectionCallback(final CarConnectionCallback listener)
             throws CarNotConnectedException {
         synchronized (this) {
             mCarConnectionCallbackses.add(listener);
@@ -94,7 +94,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     }
 
     @Override
-    public void unregisterCarConnectionListener(CarConnectionCallback listener) {
+    public void unregisterCarConnectionCallback(CarConnectionCallback listener) {
         synchronized (this) {
             mCarConnectionCallbackses.remove(listener);
         }

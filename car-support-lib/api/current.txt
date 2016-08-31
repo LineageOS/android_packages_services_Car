@@ -14,7 +14,6 @@ package android.support.car {
     method public void unregisterCarConnectionCallbacks(android.support.car.CarConnectionCallback);
     field public static final java.lang.String APP_FOCUS_SERVICE = "app_focus";
     field public static final java.lang.String AUDIO_SERVICE = "audio";
-    field public static final java.lang.String CAR_NAVIGATION_SERVICE = "car_navigation_service";
     field public static final int CONNECTION_TYPE_ADB_EMULATOR = 4; // 0x4
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
     field public static final int CONNECTION_TYPE_EMBEDDED_MOCKING = 6; // 0x6
@@ -24,6 +23,7 @@ package android.support.car {
     field public static final int CONNECTION_TYPE_USB = 1; // 0x1
     field public static final int CONNECTION_TYPE_WIFI = 2; // 0x2
     field public static final java.lang.String INFO_SERVICE = "info";
+    field public static final java.lang.String NAVIGATION_STATUS_SERVICE = "car_navigation_service";
     field public static final java.lang.String PACKAGE_SERVICE = "package";
     field public static final java.lang.String PERMISSION_CAR_NAVIGATION_MANAGER = "android.car.permission.PERMISSION_CAR_NAVIGATION_MANAGER";
     field public static final java.lang.String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
@@ -94,9 +94,9 @@ package android.support.car {
 
   public abstract class ServiceConnectionCallback {
     ctor public ServiceConnectionCallback();
-    method public abstract void onServiceConnected(android.content.ComponentName);
+    method public abstract void onServiceConnected();
     method public abstract void onServiceConnectionFailed(int);
-    method public abstract void onServiceDisconnected(android.content.ComponentName);
+    method public abstract void onServiceDisconnected();
     method public abstract void onServiceSuspended(int);
   }
 
@@ -162,6 +162,12 @@ package android.support.car.hardware {
 
   public static class CarSensorEvent.DrivingStatusData {
     ctor public CarSensorEvent.DrivingStatusData(long, int);
+    method public boolean isConfigurationRestricted();
+    method public boolean isFullyRestricted();
+    method public boolean isKeyboardRestricted();
+    method public boolean isMessageLengthRestricted();
+    method public boolean isVideoRestricted();
+    method public boolean isVoiceRestricted();
     field public final int status;
     field public final long timeStampNs;
   }
@@ -206,13 +212,10 @@ package android.support.car.hardware {
     method public abstract android.support.car.hardware.CarSensorEvent getLatestSensorEvent(int) throws android.support.car.CarNotConnectedException;
     method public abstract int[] getSupportedSensors() throws android.support.car.CarNotConnectedException;
     method public abstract boolean isSensorSupported(int) throws android.support.car.CarNotConnectedException;
-    method public static boolean isSensorSupported(int[], int);
     method public abstract void removeListener(android.support.car.hardware.CarSensorManager.CarSensorEventListener) throws android.support.car.CarNotConnectedException;
     method public abstract void removeListener(android.support.car.hardware.CarSensorManager.CarSensorEventListener, int) throws android.support.car.CarNotConnectedException;
-    field public static final int SENSOR_RATE_FAST = 1; // 0x1
     field public static final int SENSOR_RATE_FASTEST = 0; // 0x0
     field public static final int SENSOR_RATE_NORMAL = 3; // 0x3
-    field public static final int SENSOR_RATE_UI = 2; // 0x2
     field public static final int SENSOR_TYPE_COMPASS = 1; // 0x1
     field public static final int SENSOR_TYPE_DRIVING_STATUS = 11; // 0xb
     field public static final int SENSOR_TYPE_NIGHT = 9; // 0x9
@@ -222,35 +225,6 @@ package android.support.car.hardware {
 
   public static abstract interface CarSensorManager.CarSensorEventListener {
     method public abstract void onSensorChanged(android.support.car.hardware.CarSensorEvent);
-  }
-
-}
-
-package android.support.car.input {
-
-  public abstract interface CarEditable {
-    method public abstract android.view.inputmethod.InputConnection onCreateInputConnection(android.view.inputmethod.EditorInfo);
-    method public abstract void setCarEditableListener(android.support.car.input.CarEditableListener);
-    method public abstract void setInputEnabled(boolean);
-  }
-
-  public abstract interface CarEditableListener {
-    method public abstract void onUpdateSelection(int, int, int, int);
-  }
-
-  public class CarRestrictedEditText extends android.widget.EditText implements android.support.car.input.CarEditable {
-    ctor public CarRestrictedEditText(android.content.Context, android.util.AttributeSet);
-    method public void setCarEditableListener(android.support.car.input.CarEditableListener);
-    method public void setInputEnabled(boolean);
-    method public void setKeyListener(android.support.car.input.CarRestrictedEditText.KeyListener);
-  }
-
-  public static abstract interface CarRestrictedEditText.KeyListener {
-    method public abstract void onCloseKeyboard();
-    method public abstract void onCommitText(java.lang.String);
-    method public abstract void onDelete();
-    method public abstract void onKeyDown(int);
-    method public abstract void onKeyUp(int);
   }
 
 }
@@ -306,6 +280,11 @@ package android.support.car.navigation {
     method public boolean supportsCustomImages();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.support.car.navigation.CarNavigationInstrumentCluster> CREATOR;
+  }
+
+  public static abstract class CarNavigationInstrumentCluster.ClusterType implements java.lang.annotation.Annotation {
+    field public static final int CUSTOM_IMAGES_SUPPORTED = 1; // 0x1
+    field public static final int IMAGE_CODES_ONLY = 2; // 0x2
   }
 
   public abstract interface CarNavigationStatusManager {
@@ -364,16 +343,6 @@ package android.support.car.os {
     method public int readHeader(android.os.Parcel);
     method public int writeHeader(android.os.Parcel);
     field public final int version;
-  }
-
-}
-
-package android.support.car.ui {
-
-  public class MaxWidthLayout extends android.widget.FrameLayout {
-    ctor public MaxWidthLayout(android.content.Context);
-    ctor public MaxWidthLayout(android.content.Context, android.util.AttributeSet);
-    ctor public MaxWidthLayout(android.content.Context, android.util.AttributeSet, int);
   }
 
 }

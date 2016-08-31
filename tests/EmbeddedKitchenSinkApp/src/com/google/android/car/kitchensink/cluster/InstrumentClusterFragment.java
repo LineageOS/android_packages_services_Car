@@ -47,7 +47,7 @@ public class InstrumentClusterFragment extends Fragment {
     private final ServiceConnectionCallback mServiceConnectionCallback =
             new ServiceConnectionCallback() {
                 @Override
-                public void onServiceConnected(ComponentName name) {
+                public void onServiceConnected() {
                     Log.d(TAG, "Connected to Car Service");
                     try {
                         mCarNavigationStatusManager = (CarNavigationStatusManager) mCarApi.getCarManager(
@@ -60,7 +60,7 @@ public class InstrumentClusterFragment extends Fragment {
                 }
 
                 @Override
-                public void onServiceDisconnected(ComponentName name) {
+                public void onServiceDisconnected() {
                     Log.d(TAG, "Disconnect from Car Service");
                 }
 

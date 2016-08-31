@@ -41,7 +41,8 @@ public class CarSensorManagerTest extends AndroidTestCase {
     private Car mCar;
     private CarSensorManager mCarSensorManager;
 
-    private final ServiceConnectionCallback mConnectionCallbacks = new ServiceConnectionCallback() {
+    private final ServiceConnectionCallback mConnectionCallbacks =
+            new ServiceConnectionCallback() {
 
         @Override
         public void onServiceSuspended(int cause) {
@@ -49,7 +50,7 @@ public class CarSensorManagerTest extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
+        public void onServiceDisconnected() {
             assertMainThread();
         }
 
@@ -59,7 +60,7 @@ public class CarSensorManagerTest extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name) {
+        public void onServiceConnected() {
             assertMainThread();
             mConnectionWait.release();
         }
@@ -100,8 +101,6 @@ public class CarSensorManagerTest extends AndroidTestCase {
         }
         assertTrue(found);
         assertTrue(mCarSensorManager.isSensorSupported(
-                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
-        assertTrue(CarSensorManager.isSensorSupported(supportedSensors,
                 CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
         CarSensorEvent lastEvent = mCarSensorManager.getLatestSensorEvent(
                 CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);

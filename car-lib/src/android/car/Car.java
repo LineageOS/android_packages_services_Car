@@ -344,11 +344,7 @@ public class Car {
 
 
     /**
-     * Car constructor when ICar binder is already available.
-     * @param context
-     * @param service
-     * @param handler
-     *
+     * Car constructor when ICar binder is already available.     *
      * @hide
      */
     public Car(Context context, ICar service, @Nullable Handler handler) {

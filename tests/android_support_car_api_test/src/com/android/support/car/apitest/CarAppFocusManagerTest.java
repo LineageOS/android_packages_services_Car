@@ -70,11 +70,11 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
     }
 
     public void testFocusChange() throws Exception {
-        DefaultServiceConnectionCallback ConnectionCallbacks =
+        DefaultServiceConnectionCallback connectionCallbacks =
                 new DefaultServiceConnectionCallback();
-        Car car2 = Car.createCar(getContext(), ConnectionCallbacks, null);
+        Car car2 = Car.createCar(getContext(), connectionCallbacks, null);
         car2.connect();
-        ConnectionCallbacks.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
+        connectionCallbacks.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         CarAppFocusManager manager2 = (CarAppFocusManager)
                 car2.getCarManager(Car.APP_FOCUS_SERVICE);
         assertNotNull(manager2);
@@ -104,7 +104,8 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         assertTrue(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner));
         assertTrue(mManager.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner));
         assertFalse(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, owner2));
-        assertFalse(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, owner2));
+        assertFalse(manager2.isOwningFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND,
+                owner2));
         assertTrue(change2.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, true));
         assertTrue(change.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
@@ -162,11 +163,11 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
     }
 
     public void testFilter() throws Exception {
-        DefaultServiceConnectionCallback ConnectionCallbacks =
+        DefaultServiceConnectionCallback connectionCallbacks =
                 new DefaultServiceConnectionCallback();
-        Car car2 = Car.createCar(getContext(), ConnectionCallbacks);
+        Car car2 = Car.createCar(getContext(), connectionCallbacks);
         car2.connect();
-        ConnectionCallbacks.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
+        connectionCallbacks.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         CarAppFocusManager manager2 = (CarAppFocusManager)
                 car2.getCarManager(Car.APP_FOCUS_SERVICE);
         assertNotNull(manager2);

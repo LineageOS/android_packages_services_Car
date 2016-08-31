@@ -25,6 +25,7 @@ public interface CarAudioRecord {
     /**
      * Get buffer size which was specified in
      * {@link CarAudioManager#createCarAudioRecord(int)}
+     * @return buffer size in bytes.
      */
     int getBufferSize();
 

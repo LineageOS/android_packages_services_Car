@@ -36,7 +36,8 @@ public class CarPackageManagerTest extends AndroidTestCase {
     private Car mCar;
     private CarPackageManager mCarPackageManager;
 
-    private final ServiceConnectionCallback mConnectionCallbacks = new ServiceConnectionCallback() {
+    private final ServiceConnectionCallback mConnectionCallbacks =
+            new ServiceConnectionCallback() {
 
         @Override
         public void onServiceSuspended(int cause) {
@@ -44,7 +45,7 @@ public class CarPackageManagerTest extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
+        public void onServiceDisconnected() {
             assertMainThread();
         }
 
@@ -54,7 +55,7 @@ public class CarPackageManagerTest extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name) {
+        public void onServiceConnected() {
             assertMainThread();
             mConnectionWait.release();
         }
@@ -63,6 +64,7 @@ public class CarPackageManagerTest extends AndroidTestCase {
     private void assertMainThread() {
         assertTrue(Looper.getMainLooper().isCurrentThread());
     }
+
     private void waitForConnection(long timeoutMs) throws InterruptedException {
         mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
     }

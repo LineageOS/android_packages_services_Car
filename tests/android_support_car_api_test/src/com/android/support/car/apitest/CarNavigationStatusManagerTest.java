@@ -75,12 +75,13 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
             // Expected. Client should acquire focus ownership for APP_FOCUS_TYPE_NAVIGATION.
         }
 
-        mCarAppFocusManager.addFocusListener(APP_FOCUS_TYPE_NAVIGATION, new AppFocusChangeListener() {
-            @Override
-            public void onAppFocusChange(int appType, boolean active) {
-                // Nothing to do here.
-            }
-        });
+        mCarAppFocusManager
+                .addFocusListener(APP_FOCUS_TYPE_NAVIGATION, new AppFocusChangeListener() {
+                    @Override
+                    public void onAppFocusChange(int appType, boolean active) {
+                        // Nothing to do here.
+                    }
+                });
         AppFocusOwnershipChangeListener ownershipListener = new AppFocusOwnershipChangeListener() {
             @Override
             public void onAppFocusOwnershipLoss(int focus) {

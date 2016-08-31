@@ -99,22 +99,23 @@ public abstract class CarAudioManager implements CarManagerBase {
     /**
      * Request audio focus. Send a request to obtain the audio focus
      *
-     * @param l the listener to be notified of audio focus changes
+     * @param listener the listener to be notified of audio focus changes
      * @param requestAttributes Should be obtained from {@link #getAudioAttributesForCarUsage(int)}
-     * @param durationHint int: use {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT} to indicate this
-     * focus request is temporary, and focus will be abandonned shortly. Examples of transient
+     * @param durationHint use {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT} to indicate this
+     * focus request is temporary, and focus will be abandoned shortly. Examples of transient
      * requests are for the playback of driving directions, or notifications sounds. Use {@link
      * AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK} to indicate also that it's ok for the
      * previous focus owner to keep playing if it ducks its audio output. Alternatively use {@link
      * AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE} for a temporary request that benefits from
-     * the system not playing disruptive sounds like notifications,  for usecases such as voice memo
+     * the system not playing disruptive sounds like notifications,  for use cases such as voice
+     * memo
      * recording, or speech recognition. Use {@link AudioManager#AUDIOFOCUS_GAIN} for a focus
      * request of unknown duration such as the playback of a song or a video.
      * @return {@link AudioManager#AUDIOFOCUS_REQUEST_FAILED}, or
      * {@link AudioManager#AUDIOFOCUS_REQUEST_GRANTED}
      * @throws IllegalArgumentException
      */
-    public abstract int requestAudioFocus(OnAudioFocusChangeListener l,
+    public abstract int requestAudioFocus(OnAudioFocusChangeListener listener,
             AudioAttributes requestAttributes,
             int durationHint) throws IllegalArgumentException;
 
@@ -123,19 +124,19 @@ public abstract class CarAudioManager implements CarManagerBase {
      * {@link AudioManager#requestAudioFocus(OnAudioFocusChangeListener, AudioAttributes, int, int)}
      * @hide
      */
-    public abstract int requestAudioFocus(OnAudioFocusChangeListener l,
+    public abstract int requestAudioFocus(OnAudioFocusChangeListener listener,
             AudioAttributes requestAttributes,
             int durationHint,
             int flags) throws IllegalArgumentException;
     /**
      * Abandon audio focus. Causes the previous focus owner, if any, to receive focus.
-     * @param l the listener with which focus was requested.
+     * @param listener the listener with which focus was requested.
      * @param aa
      * @return
      * {@link AudioManager#AUDIOFOCUS_REQUEST_FAILED} or
      * {@link AudioManager#AUDIOFOCUS_REQUEST_GRANTED}
      */
-    public abstract int abandonAudioFocus(OnAudioFocusChangeListener l, AudioAttributes aa);
+    public abstract int abandonAudioFocus(OnAudioFocusChangeListener listener, AudioAttributes aa);
 
     /**
      * Get {@link AudioFormat} for audio record.

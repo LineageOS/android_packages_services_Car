@@ -25,7 +25,6 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Holds options related to navigation for the car's instrument cluster.
- * @hide
  */
 public class CarNavigationInstrumentCluster extends ExtendableParcelable {
 

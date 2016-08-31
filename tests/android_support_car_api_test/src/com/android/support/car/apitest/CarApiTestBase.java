@@ -68,7 +68,7 @@ public class CarApiTestBase extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
+        public void onServiceDisconnected() {
             assertMainThread();
         }
 
@@ -78,7 +78,7 @@ public class CarApiTestBase extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name) {
+        public void onServiceConnected() {
             assertMainThread();
             mConnectionWait.release();
         }

@@ -67,8 +67,8 @@ public class CarProxyActivity extends Activity {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.w(TAG, "Car service disconnected: " + name.toString());
+        public void onServiceDisconnected() {
+            Log.w(TAG, "Car service disconnected");
         }
 
         @Override
@@ -77,7 +77,7 @@ public class CarProxyActivity extends Activity {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name) {
+        public void onServiceConnected() {
             for (Pair<Integer, Object[]> cmd: mCmds) {
                 mCarActivity.dispatchCmd(cmd.first, cmd.second);
             }

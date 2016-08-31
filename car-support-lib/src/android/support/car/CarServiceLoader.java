@@ -41,9 +41,9 @@ public abstract class CarServiceLoader {
     public abstract boolean isConnectedToCar();
     @Car.ConnectionType
     public abstract int getCarConnectionType() throws CarNotConnectedException;
-    public abstract void registerCarConnectionListener(CarConnectionCallback listener)
+    public abstract void registerCarConnectionCallback(CarConnectionCallback listener)
             throws CarNotConnectedException;
-    public abstract void unregisterCarConnectionListener(CarConnectionCallback listener);
+    public abstract void unregisterCarConnectionCallback(CarConnectionCallback listener);
 
     /**
      * Retrieves a manager object for a specified Car*Manager.

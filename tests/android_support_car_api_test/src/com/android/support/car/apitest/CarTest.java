@@ -33,7 +33,8 @@ public class CarTest extends AndroidTestCase {
 
     private final Semaphore mConnectionWait = new Semaphore(0);
 
-    private final ServiceConnectionCallback mConnectionCallbacks = new ServiceConnectionCallback() {
+    private final ServiceConnectionCallback mConnectionCallbacks =
+            new ServiceConnectionCallback() {
 
         @Override
         public void onServiceSuspended(int cause) {
@@ -41,7 +42,7 @@ public class CarTest extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
+        public void onServiceDisconnected() {
             assertMainThread();
         }
 
@@ -51,7 +52,7 @@ public class CarTest extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name) {
+        public void onServiceConnected( ) {
             assertMainThread();
             mConnectionWait.release();
         }

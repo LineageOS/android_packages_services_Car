@@ -22,13 +22,30 @@ import android.content.ServiceConnection;
 /**
  * Allows apps to know when the {@link Car} service has been connected or disconnected.  This
  * allows application to know when and if these services are available.  This is analogous to the
- * {@link ServiceConnection} class but for {@link Car}.
+ * {@link ServiceConnection} class but for {@link Car}.  All calls are made from the main thread.
  */
 public abstract class ServiceConnectionCallback {
-    public abstract void onServiceConnected(ComponentName name);
-    public abstract void onServiceDisconnected(ComponentName name);
-    //TODO define cause values
+    /**
+     * Called when the Car Service is available and all APIs are available.
+     */
+    public abstract void onServiceConnected();
+
+    /**
+     * Car service disconnected due to reason like car service crash or user disconnection.
+     * The client should re-connect to car service and all previously created Car*Managers
+     * are invalid after disconnection.
+     */
+    public abstract void onServiceDisconnected();
+
+    /**
+     * Car service is temporarily suspended for reasons such as an update.
+     * @param cause The reason for the suspension.  Currently unused.
+     */
     public abstract void onServiceSuspended(int cause);
-    //TODO define cause values
+
+    /**
+     * The connection failed.  Client may retry.
+     * @param cause The reason for the failure.  Currently unused.
+     */
     public abstract void onServiceConnectionFailed(int cause);
 }

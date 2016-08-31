@@ -60,10 +60,18 @@ public class CarSensorEvent extends ExtendableParcelable {
             DRIVE_STATUS_LIMIT_MESSAGE_LEN;
     /**
      * Indices for {@link CarSensorManager#SENSOR_TYPE_COMPASS} in floatValues.
-     * Angles are in degrees. Pitch or/and roll can be NaN if it is not available.
+     * Angles are in degrees. Can be NaN if it is not available.
      */
     public static final int INDEX_COMPASS_BEARING = 0;
+    /**
+     * Indices for {@link CarSensorManager#SENSOR_TYPE_COMPASS} in floatValues.
+     * Angles are in degrees. Can be NaN if it is not available.
+     */
     public static final int INDEX_COMPASS_PITCH   = 1;
+    /**
+     * Indices for {@link CarSensorManager#SENSOR_TYPE_COMPASS} in floatValues.
+     * Angles are in degrees. Can be NaN if it is not available.
+     */
     public static final int INDEX_COMPASS_ROLL    = 2;
 
 
@@ -88,6 +96,11 @@ public class CarSensorEvent extends ExtendableParcelable {
     @VersionDef(version = 1)
     public final int[] intValues;
 
+    /**
+     * Constructs a {@link CarSensorEvent} from a {@link Parcel}.  Handled by
+     * CarSensorManager implementations.  App developers need not worry about constructing these
+     * objects.
+     */
     public CarSensorEvent(Parcel in) {
         super(in, VERSION);
         int lastPosition = readHeader(in);
@@ -122,18 +135,21 @@ public class CarSensorEvent extends ExtendableParcelable {
     }
 
     public static final Parcelable.Creator<CarSensorEvent> CREATOR
-    = new Parcelable.Creator<CarSensorEvent>() {
-        @Override
+            = new Parcelable.Creator<CarSensorEvent>() {
         public CarSensorEvent createFromParcel(Parcel in) {
             return new CarSensorEvent(in);
         }
 
-        @Override
         public CarSensorEvent[] newArray(int size) {
             return new CarSensorEvent[size];
         }
     };
 
+    /**
+     * Constructs a {@link CarSensorEvent} from integer values.  Handled by
+     * CarSensorManager implementations.  App developers need not worry about constructing these
+     * objects.
+     */
     public CarSensorEvent(int sensorType, long timeStampNs, int floatValueSize, int intValueSize) {
         super(VERSION);
         this.sensorType = sensorType;
@@ -159,13 +175,17 @@ public class CarSensorEvent extends ExtendableParcelable {
                 "Invalid sensor type: expected %d, got %d", type, sensorType));
     }
 
+    /**
+     * Holds data about the car's compass readings.
+     */
     public static class CompassData {
+        /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
-        /** If unsupported by the car, this value is NaN. */
+        /** The bearing in degrees. If unsupported by the car, this value is NaN. */
         public final float bearing;
-        /** If unsupported by the car, this value is NaN. */
+        /** The pitch in degrees. Nose down is positive.  If unsupported by the car, this value is NaN. */
         public final float pitch;
-        /** If unsupported by the car, this value is NaN. */
+        /** The roll in degrees. Right door down is positive.  If unsupported by the car, this value is NaN. */
         public final float roll;
 
         public CompassData(long timeStampNs, float bearing, float pitch, float roll) {
@@ -188,8 +208,13 @@ public class CarSensorEvent extends ExtendableParcelable {
                 floatValues[INDEX_COMPASS_PITCH], floatValues[INDEX_COMPASS_ROLL]);
     }
 
+    /**
+     * Tells whether or not the parking brake is engaged.
+     */
     public static class ParkingBrakeData {
+        /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
+        /** True if the parking brake is engaged. */
         public final boolean isEngaged;
 
         public ParkingBrakeData(long timeStampNs, boolean isEngaged) {
@@ -209,8 +234,14 @@ public class CarSensorEvent extends ExtendableParcelable {
         return new ParkingBrakeData(timeStampNs, (intValues[0] == 1));
     }
 
+    /**
+     * Indicates if the system is in "night mode."  This is generally a state where the screen is
+     * darkened  or showing a darker pallet.
+     */
     public static class NightData {
+        /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
+        /** True if the system is in night mode. */
         public final boolean isNightMode;
 
         public NightData(long timeStampNs, boolean isNightMode) {
@@ -230,13 +261,67 @@ public class CarSensorEvent extends ExtendableParcelable {
         return new NightData(timeStampNs, (intValues[0] == 1));
     }
 
+    /**
+     * Indicates what restrictions are in effect based on the status of the vehicle.
+     */
     public static class DrivingStatusData {
+        /**
+         * The time in nanoseconds since system boot.
+         */
         public final long timeStampNs;
+        /**
+         * A bitmask with the following field values:  {@link #DRIVE_STATUS_NO_VIDEO},
+         * {@link #DRIVE_STATUS_NO_KEYBOARD_INPUT}, {@link #DRIVE_STATUS_NO_VOICE_INPUT},
+         * {@link #DRIVE_STATUS_NO_CONFIG}, {@link #DRIVE_STATUS_LIMIT_MESSAGE_LEN}. You may read
+         * this or use the convenience methods.
+         */
         public final int status;
 
         public DrivingStatusData(long timeStampNs, int status) {
             this.timeStampNs = timeStampNs;
             this.status = status;
+        }
+
+        /**
+         * @return True if the keyboard is not allowed at this time.
+         */
+        public boolean isKeyboardRestricted() {
+            return DRIVE_STATUS_NO_KEYBOARD_INPUT == (status & DRIVE_STATUS_NO_KEYBOARD_INPUT);
+        }
+
+        /**
+         * @return True if voice commands are not allowed at this time.
+         */
+        public boolean isVoiceRestricted() {
+            return DRIVE_STATUS_NO_VOICE_INPUT == (status & DRIVE_STATUS_NO_VOICE_INPUT);
+        }
+
+        /**
+         * @return True if video is not allowed at this time.
+         */
+        public boolean isVideoRestricted() {
+            return DRIVE_STATUS_NO_VIDEO == (status & DRIVE_STATUS_NO_VIDEO);
+        }
+
+        /**
+         * @return True if configuration should not be performed at this time.
+         */
+        public boolean isConfigurationRestricted() {
+            return DRIVE_STATUS_NO_CONFIG == (status & DRIVE_STATUS_NO_CONFIG);
+        }
+
+        /**
+         * @return True if message length should be limited at this time.
+         */
+        public boolean isMessageLengthRestricted() {
+            return DRIVE_STATUS_LIMIT_MESSAGE_LEN == (status & DRIVE_STATUS_LIMIT_MESSAGE_LEN);
+        }
+
+        /**
+         * @return True if all restrictions are in place at this time.
+         */
+        public boolean isFullyRestricted() {
+            return DRIVE_STATUS_FULLY_RESTRICTED == (status & DRIVE_STATUS_FULLY_RESTRICTED);
         }
     }
 
@@ -412,6 +497,7 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     /** @hide */
     public static class EnvironmentData {
+        /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
         /** If unsupported by the car, this value is NaN. */
         public final float temperature;
@@ -442,6 +528,7 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     /** @hide */
     public static class GearData {
+        /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
         public final int gear;
 
@@ -465,6 +552,7 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     /** @hide */
     public static class FuelLevelData {
+        /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
         /** Fuel level in %. If unsupported by the car, this value is -1. */
         public final int level;
@@ -506,6 +594,7 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     /** @hide */
     public static class OdometerData {
+        /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
         public final float kms;
 
@@ -529,6 +618,7 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     /** @hide */
     public static class RpmData {
+        /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
         public final float rpm;
 
@@ -551,8 +641,9 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     /** @hide */
     public static class CarSpeedData {
-        public long timeStampNs;
-        public float carSpeed;
+        /** The time in nanoseconds since system boot. */
+        public final long timeStampNs;
+        public final float carSpeed;
 
         public CarSpeedData(long timeStampNs, float carSpeed) {
             this.timeStampNs = timeStampNs;
@@ -621,6 +712,7 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     /** @hide */
     public static class AccelerometerData  {
+        /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
         /** If unsupported by the car, this value is NaN. */
         public final float x;
@@ -653,6 +745,7 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     /** @hide */
     public static class GyroscopeData {
+        /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
         /** If unsupported by the car, this value is NaN. */
         public final float x;
@@ -690,6 +783,7 @@ public class CarSensorEvent extends ExtendableParcelable {
      * @hide
      */
     public static class GpsSatelliteData {
+        /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
         /**
          * Number of satellites used in GPS fix or -1 of unavailable.

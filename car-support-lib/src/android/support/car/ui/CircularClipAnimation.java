@@ -39,7 +39,8 @@ import java.util.List;
  * This a modified version of GoogleSearch/com.google.android.shared.ui/CircularClipAnimation
  * @hide
  */
-public class CircularClipAnimation implements ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener {
+public class CircularClipAnimation
+        implements ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener {
     private static final boolean DBG = true;
     private static final String TAG = "CircularClipAnimation";
 

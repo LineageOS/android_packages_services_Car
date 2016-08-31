@@ -186,7 +186,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private final ServiceConnectionCallback mServiceConnectionCallback =
             new ServiceConnectionCallback() {
         @Override
-        public void onServiceConnected(ComponentName name) {
+        public void onServiceConnected() {
             Log.d(TAG, "Connected to Car Service");
             try {
                 mCameraManager = (CarCameraManager) mCarApi.getCarManager(android.car.Car
@@ -204,7 +204,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
+        public void onServiceDisconnected() {
             Log.d(TAG, "Disconnect from Car Service");
         }
 

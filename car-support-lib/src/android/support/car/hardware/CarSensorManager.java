@@ -123,7 +123,7 @@ public abstract class CarSensorManager implements CarManagerBase {
      * Sensors defined in this range [{@link #SENSOR_TYPE_VENDOR_EXTENSION_START},
      * {@link #SENSOR_TYPE_VENDOR_EXTENSION_END}] is for each car vendor's to use.
      * This should be only used for system app to access sensors not defined as standard types.
-     * So the sensor supproted in this range can vary depending on car models / manufacturers.
+     * So the sensor supported in this range can vary depending on car models / manufacturers.
      * 3rd party apps should not use sensors in this range as they are not compatible across
      * different cars. Additionally 3rd party apps trying to access sensor in this range will get
      * security exception as their access is restricted to system apps.
@@ -135,7 +135,9 @@ public abstract class CarSensorManager implements CarManagerBase {
 
     /** Read sensor in default normal rate set for each sensors. This is default rate. */
     public static final int SENSOR_RATE_NORMAL  = 3;
+    /**@hide*/
     public static final int SENSOR_RATE_UI = 2;
+    /**@hide*/
     public static final int SENSOR_RATE_FAST = 1;
     /** Read sensor at the maximum rate. Actual rate will be different depending on the sensor. */
     public static final int SENSOR_RATE_FASTEST = 0;
@@ -168,18 +170,6 @@ public abstract class CarSensorManager implements CarManagerBase {
     public abstract boolean isSensorSupported(int sensorType) throws CarNotConnectedException;
 
     /**
-     * Check if given sensorList is including the sensorType.
-     */
-    public static boolean isSensorSupported(int[] sensorList, int sensorType) {
-        for (int sensorSupported: sensorList) {
-            if (sensorType == sensorSupported) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Register {@link CarSensorEventListener} to get repeated sensor updates. Multiple listeners
      * can be registered for a single sensor or the same listener can be used for different sensors.
      * If the same listener is registered again for the same sensor, it will be either ignored or
@@ -209,6 +199,7 @@ public abstract class CarSensorManager implements CarManagerBase {
     /**
      * Stop getting sensor update for the given listener. If there are multiple registrations for
      * this listener, all listening will be stopped.
+     * @param listener The listener to remove.
      */
     public abstract  void removeListener(CarSensorEventListener listener)
             throws CarNotConnectedException;
@@ -216,6 +207,8 @@ public abstract class CarSensorManager implements CarManagerBase {
     /**
      * Stop getting sensor update for the given listener and sensor. If the same listener is used
      * for other sensors, those subscriptions will not be affected.
+     * @param listener The listener to remove.
+     * @param sensorType The type to stop receiving notifications for.
      */
     public abstract  void removeListener(CarSensorEventListener listener, int sensorType)
             throws CarNotConnectedException;

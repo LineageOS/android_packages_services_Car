@@ -69,8 +69,13 @@ public class Car {
     public static final String AUDIO_SERVICE = "audio";
     /**
      * Service name for {@link CarNavigationStatusManager}
+     * @hide
      */
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
+    /**
+     * Service name for {@link CarNavigationStatusManager}
+     */
+    public static final String NAVIGATION_STATUS_SERVICE = "car_navigation_service";
 
     /**
      * Type of car connection: car emulator, not physical connection.
@@ -164,22 +169,22 @@ public class Car {
     private final ServiceConnectionCallback mServiceConnectionCallback =
             new ServiceConnectionCallback() {
                 @Override
-                public void onServiceConnected(ComponentName name) {
+                public void onServiceConnected() {
                     synchronized (Car.this) {
                         mConnectionState = STATE_CONNECTED;
                     }
-                    mServiceConnectionCallbackClient.onServiceConnected(name);
+                    mServiceConnectionCallbackClient.onServiceConnected();
                 }
 
                 @Override
-                public void onServiceDisconnected(ComponentName name) {
+                public void onServiceDisconnected() {
                     synchronized (Car.this) {
                         if (mConnectionState == STATE_DISCONNECTED) {
                             return;
                         }
                         mConnectionState = STATE_DISCONNECTED;
                     }
-                    mServiceConnectionCallbackClient.onServiceDisconnected(name);
+                    mServiceConnectionCallbackClient.onServiceDisconnected();
                     connect();
                 }
 
@@ -338,8 +343,8 @@ public class Car {
     }
 
     /**
-     * Tells if this object is connected to the service or not. Will return false if it is still
-     * connecting.
+     * @return {@code true} if this object is connected to the service {@code false} if not. Will
+     * return {@code false} if it is still connecting.
      */
     public boolean isConnected() {
         synchronized (this) {
@@ -348,7 +353,7 @@ public class Car {
     }
 
     /**
-     * Tells if this instance is already connecting to car service or not.
+     * @return {@code true} if this object is still in the process of connecting to the service.
      */
     public boolean isConnecting() {
         synchronized (this) {
@@ -357,8 +362,8 @@ public class Car {
     }
 
     /**
-     * Tells if car is connected to car or not. In some car environments, being connected to service
-     * does not necessarily mean being connected to car.
+     * @return {@code true} if car is connected to the car service. In some car environments, being
+     * connected to service does not necessarily mean being connected to car.
      */
     public boolean isConnectedToCar() {
         return mCarServiceLoader.isConnectedToCar();
@@ -394,6 +399,10 @@ public class Car {
     /**
      * Return the type of currently connected car.
      *
+     * @return One of {@link #CONNECTION_TYPE_USB}, {@link #CONNECTION_TYPE_WIFI},
+     * {@link #CONNECTION_TYPE_EMBEDDED}, {@link #CONNECTION_TYPE_ON_DEVICE_EMULATOR},
+     * {@link #CONNECTION_TYPE_ADB_EMULATOR}, {@link #CONNECTION_TYPE_EMBEDDED_MOCKING},
+     * {@link #CONNECTION_TYPE_UNKNOWN}
      * @throws CarNotConnectedException
      */
     @ConnectionType
@@ -406,13 +415,14 @@ public class Car {
      * <p/>
      * Avoid reregistering callbacks. If a callback is reregistered, it may receive duplicate
      * calls to {@link CarConnectionCallback#onConnected}.
+     * @param listener The listener to register.
      *
      * @throws IllegalStateException if service is not connected.
      */
     public void registerCarConnectionCallbacks(CarConnectionCallback listener)
             throws IllegalStateException, CarNotConnectedException {
         assertCarConnection();
-        mCarServiceLoader.registerCarConnectionListener(listener);
+        mCarServiceLoader.registerCarConnectionCallback(listener);
     }
 
     /**
@@ -421,9 +431,10 @@ public class Car {
      * <b>Note:</b> If this method is called from a thread besides the client's looper thread, there
      * is no guarantee that the unregistered listener will not receive callbacks after this method
      * returns.
+     * @param listener The listener to unregister.
      */
     public void unregisterCarConnectionCallbacks(CarConnectionCallback listener) {
-        mCarServiceLoader.unregisterCarConnectionListener(listener);
+        mCarServiceLoader.unregisterCarConnectionCallback(listener);
     }
 
     private synchronized void assertCarConnection() throws IllegalStateException {

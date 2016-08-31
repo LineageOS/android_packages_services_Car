@@ -74,34 +74,49 @@ public abstract class CarInfoManager implements CarManagerBase {
     public static final int DRIVER_SIDE_CENTER = 2;
 
     /**
-     * Returns the value for the given key or {@link Float#NaN} if the key is not supported.
+     * Returns the value for the given key.
+     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
+     * extensions.
+     * @return The value or {@link Float#NaN} if the key is not supported or populated.
      */
     public abstract float getFloat(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
     /**
-     * Returns the value for the given key or {@link Integer#MIN_VALUE} if the key is not supported.
+     * Returns the value for the given key.
+     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
+     * extensions.
+     * @return The value or {@link Integer#MIN_VALUE} if the key is not supported or populated.
      */
     public abstract int getInt(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
     /**
-     * Returns the value for the given key or {@link Long#MIN_VALUE} if the key is not supported.
+     * Returns the value for the given key.
+     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
+     * extensions.
+     * @return The value or {@link Long#MIN_VALUE} if the key is not supported or populated.
      */
     public abstract long getLong(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
     /**
-     * Returns the value for the given key or null if the key is not supported.
+     * Returns the value for the given key.
+     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
+     * extensions.
+     * @return The value or {@code null} if the key is not supported or populated.
      */
     public abstract String getString(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
     /**
-     * get Bundle for the given key. This is intended for passing vendor specific data for key
-     * defined only for the car vendor. Vendor extension can be used for other APIs like
-     * getInt / getString, but this is for passing more complex data.
-     * @param key
+     * Retrieves a {@link Bundle} for the given key. This is intended for passing vendor specific
+     * data specified by car manufacturers. Vendor extension can use other APIs like
+     * {@link #getString(String)}, but this is for passing more complex data.
+     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
+     * extensions.
+     * @return The specified {@link Bundle} or {@code null} if the key is not supported or
+     * populated.
      * @hide
      */
     public abstract Bundle getBundle(String key)

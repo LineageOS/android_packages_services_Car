@@ -49,7 +49,7 @@ import java.util.List;
  * Base class for CarActivities that want to use the support-based Fragment and Loader APIs.
  * <p/>
  * This is mostly a copy of {@link android.support.v4.app.FragmentActivity} retro fitted for use
- * with {@link android.support.car.app.CarActivity}.
+ * with {@link CarActivity}.
  *
  * @hide
  */

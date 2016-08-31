@@ -54,6 +54,9 @@ public abstract class ExtendableParcelable implements Parcelable {
 
     /**
      * Constructor for reading parcel. Always call this first before reading anything else.
+     *
+     * @param in the {@link Parcel} to read from.
+     * @param version the max supported version. The lowest common denominator will be used.
      */
     protected ExtendableParcelable(Parcel in, int version) {
         int writerVersion = in.readInt();
@@ -72,10 +75,11 @@ public abstract class ExtendableParcelable implements Parcelable {
     }
 
     /**
-     * Read header of Parcelable from Pacel. This should be done after super(Parcel, int) and
+     * Read header of Parcelable from Parcel. This should be done after super(Parcel, int) and
      * before reading any Parcel. After all reading is done, {@link #completeReading(Parcel, int)}
      * should be called.
      *
+     * @param in the {@link Parcel} to read.
      * @return last position. This should be passed to {@link #completeReading(Parcel, int)}.
      */
     public int readHeader(Parcel in) {
@@ -86,7 +90,7 @@ public abstract class ExtendableParcelable implements Parcelable {
 
     /**
      * Complete reading and safely throw away any unread data.
-     * @param in
+     * @param in The {@link Parcel} to read.
      * @param lastPosition Last position of of this Parcelable in the passed Parcel.
      *                     The value is passed from {@link #readHeader(Parcel)}.
      */
@@ -102,11 +106,12 @@ public abstract class ExtendableParcelable implements Parcelable {
      *   ...
      *   completeWrite(dest, pos);
      *
+     * @param dest the {@link Parcel} to write to.
      * @return startingPosition which should be passed when calling completeWrite.
      */
     public int writeHeader(Parcel dest) {
         dest.writeInt(version);
-        // temporary value for playload length. will be replaced in completeWrite
+        // temporary value for payload length. will be replaced in completeWrite
         dest.writeInt(0);
         // previous int is 4 bytes before this.
         return dest.dataPosition();
@@ -115,6 +120,7 @@ public abstract class ExtendableParcelable implements Parcelable {
     /**
      * Complete writing the current Parcelable. No more write to Parcel should be done after
      * this call.
+     * @param dest the {@link Parcel} to write to.
      * @param startingPosition startingPosition returned from writeHeader
      */
     public void completeWriting(Parcel dest, int startingPosition) {
