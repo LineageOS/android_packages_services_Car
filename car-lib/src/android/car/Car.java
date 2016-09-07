@@ -336,7 +336,7 @@ public class Car {
             @Nullable Handler handler) {
         mContext = context;
         mEventHandler = determineEventHandler(handler);
-        mMainThreadEventHandler = determineMainThreadEventHandler(handler);
+        mMainThreadEventHandler = determineMainThreadEventHandler(mEventHandler);
 
         mService = null;
         mServiceConnectionListenerClient = serviceConnectionListener;
