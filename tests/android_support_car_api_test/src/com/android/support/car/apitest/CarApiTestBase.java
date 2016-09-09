@@ -17,10 +17,9 @@
 package com.android.support.car.apitest;
 
 import android.content.ComponentName;
-import android.os.IBinder;
 import android.os.Looper;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionListener;
+import android.support.car.ServiceConnectionCallback;
 import android.test.AndroidTestCase;
 
 import java.util.concurrent.Semaphore;
@@ -31,8 +30,8 @@ public class CarApiTestBase extends AndroidTestCase {
 
     private Car mCar;
 
-    private final DefaultServiceConnectionListener mConnectionListener =
-            new DefaultServiceConnectionListener();
+    private final DefaultServiceConnectionCallback mConnectionCallbacks =
+            new DefaultServiceConnectionCallback();
 
     protected void assertMainThread() {
         assertTrue(Looper.getMainLooper().isCurrentThread());
@@ -41,9 +40,9 @@ public class CarApiTestBase extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mCar = Car.createCar(getContext(), mConnectionListener);
+        mCar = Car.createCar(getContext(), mConnectionCallbacks);
         mCar.connect();
-        mConnectionListener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
+        mConnectionCallbacks.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
     }
 
     @Override
@@ -56,7 +55,7 @@ public class CarApiTestBase extends AndroidTestCase {
         return mCar;
     }
 
-    protected class DefaultServiceConnectionListener implements ServiceConnectionListener {
+    protected class DefaultServiceConnectionCallback extends ServiceConnectionCallback {
         private final Semaphore mConnectionWait = new Semaphore(0);
 
         public void waitForConnection(long timeoutMs) throws InterruptedException {
@@ -69,7 +68,7 @@ public class CarApiTestBase extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
+        public void onServiceDisconnected() {
             assertMainThread();
         }
 
@@ -79,7 +78,7 @@ public class CarApiTestBase extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name) {
+        public void onServiceConnected() {
             assertMainThread();
             mConnectionWait.release();
         }

@@ -186,9 +186,9 @@ public class CarSensorManager implements CarManagerBase {
 
 
     /** @hide */
-    public CarSensorManager(IBinder service, Context context, Looper looper) {
+    public CarSensorManager(IBinder service, Context context, Handler handler) {
         mService = ICarSensor.Stub.asInterface(service);
-        mHandler = new Handler(looper, mHandlerCallback);
+        mHandler = new Handler(handler.getLooper(), mHandlerCallback);
     }
 
     /** @hide */

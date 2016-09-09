@@ -50,6 +50,7 @@ import java.util.ArrayList;
  * </ol>
  *
  * This LayoutManger should be used with {@link CarRecyclerView}.
+ * @hide
  */
 public class CarLayoutManager extends RecyclerView.LayoutManager {
     private static final String TAG = "CarLayoutManager";

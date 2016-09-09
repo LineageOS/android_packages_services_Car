@@ -19,7 +19,7 @@ package com.android.support.car.apitest;
 import android.content.ComponentName;
 import android.os.Looper;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionListener;
+import android.support.car.ServiceConnectionCallback;
 import android.support.car.content.pm.CarPackageManager;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -36,7 +36,8 @@ public class CarPackageManagerTest extends AndroidTestCase {
     private Car mCar;
     private CarPackageManager mCarPackageManager;
 
-    private final ServiceConnectionListener mConnectionListener = new ServiceConnectionListener() {
+    private final ServiceConnectionCallback mConnectionCallbacks =
+            new ServiceConnectionCallback() {
 
         @Override
         public void onServiceSuspended(int cause) {
@@ -44,7 +45,7 @@ public class CarPackageManagerTest extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
+        public void onServiceDisconnected() {
             assertMainThread();
         }
 
@@ -54,7 +55,7 @@ public class CarPackageManagerTest extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name) {
+        public void onServiceConnected() {
             assertMainThread();
             mConnectionWait.release();
         }
@@ -63,6 +64,7 @@ public class CarPackageManagerTest extends AndroidTestCase {
     private void assertMainThread() {
         assertTrue(Looper.getMainLooper().isCurrentThread());
     }
+
     private void waitForConnection(long timeoutMs) throws InterruptedException {
         mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
     }
@@ -70,7 +72,7 @@ public class CarPackageManagerTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mCar = Car.createCar(getContext(), mConnectionListener);
+        mCar = Car.createCar(getContext(), mConnectionCallbacks);
         mCar.connect();
         waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         mCarPackageManager = (CarPackageManager) mCar.getCarManager(Car.PACKAGE_SERVICE);

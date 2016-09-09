@@ -50,7 +50,7 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
     public void testStart() throws Exception {
         final CountDownLatch onStartLatch = new CountDownLatch(1);
 
-        mCarNavigationStatusManager.registerListener(new CarNavigationListener() {
+        mCarNavigationStatusManager.addListener(new CarNavigationListener() {
             @Override
             public void onInstrumentClusterStart(CarNavigationInstrumentCluster instrumentCluster) {
                 // TODO: we should use VehicleHalMock once we implement HAL support in
@@ -75,20 +75,21 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
             // Expected. Client should acquire focus ownership for APP_FOCUS_TYPE_NAVIGATION.
         }
 
-        mCarAppFocusManager.registerFocusListener(new AppFocusChangeListener() {
-            @Override
-            public void onAppFocusChange(int appType, boolean active) {
-                // Nothing to do here.
-            }
-        }, APP_FOCUS_TYPE_NAVIGATION);
+        mCarAppFocusManager
+                .addFocusListener(APP_FOCUS_TYPE_NAVIGATION, new AppFocusChangeListener() {
+                    @Override
+                    public void onAppFocusChange(int appType, boolean active) {
+                        // Nothing to do here.
+                    }
+                });
         AppFocusOwnershipChangeListener ownershipListener = new AppFocusOwnershipChangeListener() {
             @Override
             public void onAppFocusOwnershipLoss(int focus) {
                 // Nothing to do here.
             }
         };
-        mCarAppFocusManager.requestAppFocus(ownershipListener, APP_FOCUS_TYPE_NAVIGATION);
-        assertTrue(mCarAppFocusManager.isOwningFocus(ownershipListener, APP_FOCUS_TYPE_NAVIGATION));
+        mCarAppFocusManager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, ownershipListener);
+        assertTrue(mCarAppFocusManager.isOwningFocus(APP_FOCUS_TYPE_NAVIGATION, ownershipListener));
 
         // TODO: we should use mocked HAL to be able to verify this, right now just make sure that
         // it is not crashing and logcat has appropriate traces.

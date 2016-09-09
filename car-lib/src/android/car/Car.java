@@ -65,7 +65,7 @@ public class Car {
     /** Service name for {@link CarInfoManager}, to be used in {@link #getCarManager(String)}. */
     public static final String INFO_SERVICE = "info";
 
-    /** Service name for {@link CarAppContextManager}. */
+    /** Service name for {@link CarAppFocusManager}. */
     public static final String APP_FOCUS_SERVICE = "app_focus";
 
     /** Service name for {@link CarPackageManager} */
@@ -240,7 +240,6 @@ public class Car {
     private static final long CAR_SERVICE_BIND_MAX_RETRY = 20;
 
     private final Context mContext;
-    private final Looper mLooper;
     @GuardedBy("this")
     private ICar mService;
     private static final int STATE_DISCONNECTED = 0;
@@ -298,24 +297,25 @@ public class Car {
     /** Handler for generic event dispatching. */
     private final Handler mEventHandler;
 
-    private final Handler mMainThreadEvetHandler;
+    private final Handler mMainThreadEventHandler;
 
     /**
      * A factory method that creates Car instance for all Car API access.
      * @param context
      * @param serviceConnectionListener listener for monitoring service connection.
-     * @param looper Looper to dispatch all listeners. If null, it will use main thread. Note that
-     *        service connection listener will be always in main thread regardless of this Looper.
+     * @param handler the handler on which the callback should execute, or null to execute on the
+     * service's main thread. Note: the service connection listener will be always on the main
+     * thread regardless of the handler given.
      * @return Car instance if system is in car environment and returns {@code null} otherwise.
      */
     public static Car createCar(Context context, ServiceConnection serviceConnectionListener,
-            @Nullable Looper looper) {
+            @Nullable Handler handler) {
         if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
             Log.e(CarLibLog.TAG_CAR, "FEATURE_AUTOMOTIVE not declared while android.car is used");
             return null;
         }
         try {
-          return new Car(context, serviceConnectionListener, looper);
+          return new Car(context, serviceConnectionListener, handler);
         } catch (IllegalArgumentException e) {
           // Expected when car service loader is not available.
         }
@@ -326,53 +326,52 @@ public class Car {
      * A factory method that creates Car instance for all Car API access using main thread {@code
      * Looper}.
      *
-     * @see #createCar(Context, ServiceConnection, Looper)
+     * @see #createCar(Context, ServiceConnection, Handler)
      */
     public static Car createCar(Context context, ServiceConnection serviceConnectionListener) {
       return createCar(context, serviceConnectionListener, null);
     }
 
     private Car(Context context, ServiceConnection serviceConnectionListener,
-            @Nullable Looper looper) {
+            @Nullable Handler handler) {
         mContext = context;
+        mEventHandler = determineEventHandler(handler);
+        mMainThreadEventHandler = determineMainThreadEventHandler(mEventHandler);
+
+        mService = null;
         mServiceConnectionListenerClient = serviceConnectionListener;
-        if (looper == null) {
-            mLooper = Looper.getMainLooper();
-        } else {
-            mLooper = looper;
-        }
-        mEventHandler = new Handler(mLooper);
-        if (mLooper == Looper.getMainLooper()) {
-            mMainThreadEvetHandler = mEventHandler;
-        } else {
-            mMainThreadEvetHandler = new Handler(Looper.getMainLooper());
-        }
     }
 
+
     /**
-     * Car constructor when ICar binder is already available.
-     * @param context
-     * @param service
-     * @param looper
-     *
+     * Car constructor when ICar binder is already available.     *
      * @hide
      */
-    public Car(Context context, ICar service, @Nullable Looper looper) {
+    public Car(Context context, ICar service, @Nullable Handler handler) {
         mContext = context;
-        if (looper == null) {
-            mLooper = Looper.getMainLooper();
-        } else {
-            mLooper = looper;
-        }
-        mEventHandler = new Handler(mLooper);
-        if (mLooper == Looper.getMainLooper()) {
-            mMainThreadEvetHandler = mEventHandler;
-        } else {
-            mMainThreadEvetHandler = new Handler(Looper.getMainLooper());
-        }
+        mEventHandler = determineEventHandler(handler);
+        mMainThreadEventHandler = determineMainThreadEventHandler(handler);
+
         mService = service;
         mConnectionState = STATE_CONNECTED;
         mServiceConnectionListenerClient = null;
+    }
+
+    private static Handler determineMainThreadEventHandler(Handler eventHandler) {
+        Looper mainLooper = Looper.getMainLooper();
+        return (eventHandler.getLooper() == mainLooper) ? eventHandler : new Handler(mainLooper);
+    }
+
+    private static Handler determineEventHandler(@Nullable Handler handler) {
+        if (handler == null) {
+            Looper looper = Looper.myLooper();
+
+            if(looper == null){
+                looper = Looper.getMainLooper();
+            }
+            handler = new Handler(looper);
+        }
+        return handler;
     }
 
     /**
@@ -401,7 +400,7 @@ public class Car {
                 return;
             }
             mEventHandler.removeCallbacks(mConnectionRetryRunnable);
-            mMainThreadEvetHandler.removeCallbacks(mConnectionRetryFailedRunnable);
+            mMainThreadEventHandler.removeCallbacks(mConnectionRetryFailedRunnable);
             mConnectionRetryCount = 0;
             tearDownCarManagers();
             mService = null;
@@ -505,13 +504,13 @@ public class Car {
                 manager = new CarAudioManager(binder, mContext);
                 break;
             case SENSOR_SERVICE:
-                manager = new CarSensorManager(binder, mContext, mLooper);
+                manager = new CarSensorManager(binder, mContext, mEventHandler);
                 break;
             case INFO_SERVICE:
                 manager = new CarInfoManager(binder);
                 break;
             case APP_FOCUS_SERVICE:
-                manager = new CarAppFocusManager(binder, mLooper);
+                manager = new CarAppFocusManager(binder, mEventHandler);
                 break;
             case PACKAGE_SERVICE:
                 manager = new CarPackageManager(binder, mContext);
@@ -520,22 +519,22 @@ public class Car {
                 manager = new CarNavigationManager(binder);
                 break;
             case CABIN_SERVICE:
-                manager = new CarCabinManager(binder, mContext, mLooper);
+                manager = new CarCabinManager(binder, mContext, mEventHandler);
                 break;
             case CAMERA_SERVICE:
                 manager = new CarCameraManager(binder, mContext);
                 break;
             case HVAC_SERVICE:
-                manager = new CarHvacManager(binder, mContext, mLooper);
+                manager = new CarHvacManager(binder, mContext, mEventHandler);
                 break;
             case PROJECTION_SERVICE:
-                manager = new CarProjectionManager(binder, mLooper);
+                manager = new CarProjectionManager(binder, mEventHandler);
                 break;
             case RADIO_SERVICE:
-                manager = new CarRadioManager(binder, mLooper);
+                manager = new CarRadioManager(binder, mEventHandler);
                 break;
             case VENDOR_EXTENSION_SERVICE:
-                manager = new CarVendorExtensionManager(binder, mLooper);
+                manager = new CarVendorExtensionManager(binder, mEventHandler);
                 break;
             case TEST_SERVICE:
                 /* CarTestManager exist in static library. So instead of constructing it here,
@@ -556,7 +555,7 @@ public class Car {
             mConnectionRetryCount++;
             if (mConnectionRetryCount > CAR_SERVICE_BIND_MAX_RETRY) {
                 Log.w(CarLibLog.TAG_CAR, "cannot bind to car service after max retry");
-                mMainThreadEvetHandler.post(mConnectionRetryFailedRunnable);
+                mMainThreadEventHandler.post(mConnectionRetryFailedRunnable);
             } else {
                 mEventHandler.postDelayed(mConnectionRetryRunnable,
                         CAR_SERVICE_BIND_RETRY_INTERVAL_MS);

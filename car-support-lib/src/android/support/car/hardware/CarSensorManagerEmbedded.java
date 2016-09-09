@@ -18,10 +18,8 @@ package android.support.car.hardware;
 
 import android.content.Context;
 import android.support.car.CarNotConnectedException;
-
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -87,7 +85,7 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
     }
 
     @Override
-    public boolean registerListener(CarSensorEventListener listener, int sensorType,
+    public boolean addListener(CarSensorEventListener listener, int sensorType,
             int rate) throws CarNotConnectedException, IllegalArgumentException {
         if (isSensorProxied(sensorType)) {
             return mCarSensorsProxy.registerSensorListener(listener, sensorType, rate);
@@ -110,7 +108,7 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
     }
 
     @Override
-    public void unregisterListener(CarSensorEventListener listener)
+    public void removeListener(CarSensorEventListener listener)
             throws CarNotConnectedException {
         mCarSensorsProxy.unregisterSensorListener(listener);
         CarSensorEventListenerProxy proxy = null;
@@ -129,7 +127,7 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
     }
 
     @Override
-    public void unregisterListener(CarSensorEventListener listener, int sensorType)
+    public void removeListener(CarSensorEventListener listener, int sensorType)
             throws CarNotConnectedException {
         mCarSensorsProxy.unregisterSensorListener(listener, sensorType);
         CarSensorEventListenerProxy proxy = null;

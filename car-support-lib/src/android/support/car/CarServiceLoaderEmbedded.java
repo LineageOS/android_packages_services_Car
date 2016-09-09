@@ -27,7 +27,6 @@ import android.support.car.content.pm.CarPackageManagerEmbedded;
 import android.support.car.hardware.CarSensorManagerEmbedded;
 import android.support.car.media.CarAudioManagerEmbedded;
 import android.support.car.navigation.CarNavigationStatusManagerEmbedded;
-
 import java.util.LinkedList;
 
 /**
@@ -40,25 +39,25 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            getConnectionListener().onServiceConnected(name);
+            getConnectionListener().onServiceConnected();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            getConnectionListener().onServiceDisconnected(name);
+            getConnectionListener().onServiceDisconnected();
         }
     };
 
     private final android.car.Car mCar;
-    private final LinkedList<CarConnectionListener> mCarConnectionListeners =
+    private final LinkedList<CarConnectionCallback> mCarConnectionCallbackses =
             new LinkedList<>();
     private final CallbackHandler mHandler;
 
-    public CarServiceLoaderEmbedded(Context context, ServiceConnectionListener listener,
-            Looper looper) {
-        super(context, listener, looper);
-        mCar = android.car.Car.createCar(context, mServiceConnection, looper);
-        mHandler = new CallbackHandler(looper);
+    public CarServiceLoaderEmbedded(Context context, ServiceConnectionCallback listener,
+            Handler handler) {
+        super(context, listener, handler);
+        mCar = android.car.Car.createCar(context, mServiceConnection, handler);
+        mHandler = new CallbackHandler(handler.getLooper());
     }
 
     @Override
@@ -85,19 +84,19 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     }
 
     @Override
-    public void registerCarConnectionListener(final CarConnectionListener listener)
+    public void registerCarConnectionCallback(final CarConnectionCallback listener)
             throws CarNotConnectedException {
         synchronized (this) {
-            mCarConnectionListeners.add(listener);
+            mCarConnectionCallbackses.add(listener);
         }
         // car service connection is checked when this is called. So just dispatch it.
         mHandler.dispatchCarConnectionCall(listener, getCarConnectionType());
     }
 
     @Override
-    public void unregisterCarConnectionListener(CarConnectionListener listener) {
+    public void unregisterCarConnectionCallback(CarConnectionCallback listener) {
         synchronized (this) {
-            mCarConnectionListeners.remove(listener);
+            mCarConnectionCallbackses.remove(listener);
         }
     }
 
@@ -140,7 +139,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
             super(looper);
         }
 
-        private void dispatchCarConnectionCall(CarConnectionListener listener, int connectionType) {
+        private void dispatchCarConnectionCall(CarConnectionCallback listener, int connectionType) {
             sendMessage(obtainMessage(MSG_DISPATCH_CAR_CONNECTION, connectionType, 0, listener));
         }
 
@@ -148,7 +147,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_DISPATCH_CAR_CONNECTION:
-                    CarConnectionListener listener = (CarConnectionListener) msg.obj;
+                    CarConnectionCallback listener = (CarConnectionCallback) msg.obj;
                     listener.onConnected(msg.arg1);
                     break;
             }

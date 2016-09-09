@@ -200,4 +200,8 @@
         <item>"15"</item>
     </string-array>
     <string name="garage_time_limit_summary">%d minutes</string>
+
+    <string name="portrait_activity">Portrait Activity</string>
+    <string name="landscpae_activity">Landscape Activity</string>
+    <string name="finish">Finish</string>
 </resources>

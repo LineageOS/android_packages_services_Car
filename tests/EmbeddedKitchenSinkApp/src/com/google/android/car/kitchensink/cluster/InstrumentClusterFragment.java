@@ -24,8 +24,7 @@ import android.support.car.CarAppFocusManager;
 import android.support.car.CarAppFocusManager.AppFocusChangeListener;
 import android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener;
 import android.support.car.CarNotConnectedException;
-import android.support.car.CarNotSupportedException;
-import android.support.car.ServiceConnectionListener;
+import android.support.car.ServiceConnectionCallback;
 import android.support.car.navigation.CarNavigationStatusManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -45,10 +44,10 @@ public class InstrumentClusterFragment extends Fragment {
     private CarAppFocusManager mCarAppFocusManager;
     private Car mCarApi;
 
-    private final ServiceConnectionListener mServiceConnectionListener =
-            new ServiceConnectionListener() {
+    private final ServiceConnectionCallback mServiceConnectionCallback =
+            new ServiceConnectionCallback() {
                 @Override
-                public void onServiceConnected(ComponentName name) {
+                public void onServiceConnected() {
                     Log.d(TAG, "Connected to Car Service");
                     try {
                         mCarNavigationStatusManager = (CarNavigationStatusManager) mCarApi.getCarManager(
@@ -57,13 +56,11 @@ public class InstrumentClusterFragment extends Fragment {
                                 (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
                     } catch (CarNotConnectedException e) {
                         Log.e(TAG, "Car is not connected!", e);
-                    } catch (CarNotSupportedException e) {
-                        Log.e(TAG, "Car is not supported!", e);
                     }
                 }
 
                 @Override
-                public void onServiceDisconnected(ComponentName name) {
+                public void onServiceDisconnected() {
                     Log.d(TAG, "Disconnect from Car Service");
                 }
 
@@ -84,7 +81,7 @@ public class InstrumentClusterFragment extends Fragment {
             mCarApi = null;
         }
 
-        mCarApi = Car.createCar(getContext(), mServiceConnectionListener);
+        mCarApi = Car.createCar(getContext(), mServiceConnectionCallback);
         mCarApi.connect();
     }
 
@@ -122,12 +119,13 @@ public class InstrumentClusterFragment extends Fragment {
 
     private void initCluster() {
         try {
-            mCarAppFocusManager.registerFocusListener(new AppFocusChangeListener() {
+            mCarAppFocusManager.addFocusListener(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
+                    new AppFocusChangeListener() {
                 @Override
                 public void onAppFocusChange(int appType, boolean active) {
                     Log.d(TAG, "onAppFocusChange, appType: " + appType + " active: " + active);
                 }
-            }, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+            });
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to register focus listener", e);
         }
@@ -143,15 +141,15 @@ public class InstrumentClusterFragment extends Fragment {
             }
         };
         try {
-            mCarAppFocusManager.requestAppFocus(focusListener,
-                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+            mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
+                    focusListener);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to set active focus", e);
         }
 
         try {
-            boolean ownsFocus = mCarAppFocusManager.isOwningFocus(focusListener,
-                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+            boolean ownsFocus = mCarAppFocusManager.isOwningFocus(
+                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, focusListener);
             Log.d(TAG, "Owns APP_FOCUS_TYPE_NAVIGATION: " + ownsFocus);
             if (!ownsFocus) {
                 throw new RuntimeException("Focus was not acquired.");

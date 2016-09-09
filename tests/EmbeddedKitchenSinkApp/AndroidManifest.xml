@@ -62,5 +62,20 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".orientation.LandscapeActivity"
+            android:label="@string/landscpae_activity"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".orientation.PortraitActivity"
+            android:label="@string/portrait_activity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

@@ -20,7 +20,6 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.car.Car;
 import android.support.car.CarNotConnectedException;
-import android.support.car.CarNotSupportedException;
 import android.support.car.app.menu.CarDrawerActivity;
 import android.support.car.app.menu.SearchBoxEditListener;
 import android.support.car.hardware.CarSensorEvent;
@@ -100,10 +99,10 @@ public class KeyboardFragment extends Fragment {
         try {
             mSensorManager = (CarSensorManager)
                     mActivity.getCar().getCarManager(Car.SENSOR_SERVICE);
-            mSensorManager.registerListener(mCarSensorListener,
+            mSensorManager.addListener(mCarSensorListener,
                     CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
                     CarSensorManager.SENSOR_RATE_FASTEST);
-        } catch (CarNotSupportedException | CarNotConnectedException e) {
+        } catch (CarNotConnectedException e) {
             Log.e(TAG, "Car not connected or not supported", e);
         }
     }
@@ -113,7 +112,7 @@ public class KeyboardFragment extends Fragment {
         super.onPause();
         if (mSensorManager != null) {
             try {
-                mSensorManager.unregisterListener(mCarSensorListener);
+                mSensorManager.removeListener(mCarSensorListener);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Car not connected", e);
             }
@@ -127,7 +126,7 @@ public class KeyboardFragment extends Fragment {
                     if (event.sensorType != CarSensorManager.SENSOR_TYPE_DRIVING_STATUS) {
                         return;
                     }
-                    int drivingStatus = event.getDrivingStatusData(null).status;
+                    int drivingStatus = event.getDrivingStatusData().status;
 
                     boolean keyboardEnabled =
                             (drivingStatus & CarSensorEvent.DRIVE_STATUS_NO_KEYBOARD_INPUT) == 0;

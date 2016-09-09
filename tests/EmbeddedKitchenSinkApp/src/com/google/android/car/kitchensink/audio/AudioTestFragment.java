@@ -192,7 +192,7 @@ public class AudioTestFragment extends Fragment {
             @Override
             public void onServiceDisconnected(ComponentName name) {
             }
-            }, Looper.getMainLooper());
+            });
         mCar.connect();
     }
 
@@ -261,8 +261,8 @@ public class AudioTestFragment extends Fragment {
                 }
                 if (!mNavGuidancePlayer.isPlaying()) {
                     try {
-                        mAppFocusManager.requestAppFocus(mOwnershipListener,
-                                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+                        mAppFocusManager.requestAppFocus(
+                                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, mOwnershipListener);
                     } catch (CarNotConnectedException e) {
                         Log.e(TAG, "Failed to set active focus", e);
                     }
@@ -293,8 +293,8 @@ public class AudioTestFragment extends Fragment {
                     Log.i(TAG, "VR start");
                 }
                 try {
-                    mAppFocusManager.requestAppFocus(mOwnershipListener,
-                            CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
+                    mAppFocusManager.requestAppFocus(
+                            CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, mOwnershipListener);
                 } catch (CarNotConnectedException e) {
                     Log.e(TAG, "Failed to set active focus", e);
                 }
@@ -487,8 +487,8 @@ public class AudioTestFragment extends Fragment {
             Log.i(TAG, "Nav start");
         }
         try {
-            mAppFocusManager.requestAppFocus(mOwnershipListener,
-                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+            mAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
+                    mOwnershipListener);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to set active focus", e);
         }
@@ -526,8 +526,8 @@ public class AudioTestFragment extends Fragment {
             Log.i(TAG, "VR start");
         }
         try {
-            mAppFocusManager.requestAppFocus(mOwnershipListener,
-                    CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
+            mAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND,
+                    mOwnershipListener);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to set active focus", e);
         }
