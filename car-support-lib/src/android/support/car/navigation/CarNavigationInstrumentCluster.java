@@ -38,7 +38,7 @@ public class CarNavigationInstrumentCluster extends ExtendableParcelable {
     public @interface ClusterType {
         /** Navigation Next Turn messages contain an image, as well as an enum. */
         int CUSTOM_IMAGES_SUPPORTED = 1;
-        /** Navigation Next Turn messages only contain an enum. */
+        /** Navigation Next Turn messages contain only an enum. */
         int IMAGE_CODES_ONLY = 2;
     }
 
@@ -104,7 +104,7 @@ public class CarNavigationInstrumentCluster extends ExtendableParcelable {
         return mImageHeight;
     }
 
-    /** If instrument cluster is image, number of bits of colour depth it supports (8, 16 or 32). */
+    /** If instrument cluster is image, number of bits of colour depth it supports (8, 16, or 32). */
     public int getImageColorDepthBits() {
         return mImageColorDepthBits;
     }
@@ -163,7 +163,7 @@ public class CarNavigationInstrumentCluster extends ExtendableParcelable {
         completeReading(in, lastPosition);
     }
 
-    /** Converts to string for debug purpose */
+    /** Converts to string for debug purpose. */
     @Override
     public String toString() {
         return CarNavigationInstrumentCluster.class.getSimpleName() + "{ " +

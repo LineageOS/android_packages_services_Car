@@ -17,17 +17,17 @@
 package android.support.car;
 
 /**
- * Listener for monitoring car's connection status.
+ * Listener for monitoring car connection status.
  * Callbacks are called from the looper specified when constructing {@link Car}.
  */
 public abstract class CarConnectionCallback {
     /**
-     * Called when the Car has been connected. Does not guarantee that the car is still connected
+     * Called when the Car has been connected. Does not guarantee the car is still connected
      * while this callback is running, so {@link CarNotConnectedException}s may still be
      * thrown from {@link Car} method calls.
      * @param connectionType Type of car connected.
      */
     public abstract void onConnected(@Car.ConnectionType int connectionType);
-    /** Car disconnected */
+    /** Called when the Car has been disconnected. */
     public abstract void onDisconnected();
 }

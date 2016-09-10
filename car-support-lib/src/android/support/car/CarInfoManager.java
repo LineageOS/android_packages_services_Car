@@ -20,11 +20,11 @@ import android.os.Bundle;
 import android.support.car.annotation.ValueTypeDef;
 
 /**
- * Utility to retrieve various static information from a car. For given string keys, there can be
- * different types of values and right query API like {@link #getFloat(String)} for float
- * type, and {@link #getInt(String)} for int type, should be used. Passing a key string to wrong
- * API will lead into {@link IllegalArgumentException}. All get* apis return null if requested
- * property is not supported by the car. So caller should always check for null result.
+ * Utility to retrieve static information from a car. String keys require different types of
+ * values, so be sure to query using the correct API (such as {@link #getFloat(String)} for float
+ * type and {@link #getInt(String)} for int type). Passing a key string to the wrong
+ * API causes an {@link IllegalArgumentException}. Get* APIs return null if the requested
+ * property is not supported by the car.
  */
 public abstract class CarInfoManager implements CarManagerBase {
 
@@ -34,8 +34,8 @@ public abstract class CarInfoManager implements CarManagerBase {
     @ValueTypeDef(type = String.class)
     public static final String KEY_MANUFACTURER = "android.car.manufacturer";
     /**
-     * Model name of the car. This information may not necessarily allow distinguishing different
-     * car models as the same name may be used for different cars depending on manufacturers.
+     * Model name of the car. This information may not distinguish between different
+     * car models as some manufacturers use the same name for different cars.
      */
     @ValueTypeDef(type = String.class)
     public static final String KEY_MODEL = "android.car.model";
@@ -45,7 +45,7 @@ public abstract class CarInfoManager implements CarManagerBase {
     @ValueTypeDef(type = Integer.class)
     public static final String KEY_MODEL_YEAR = "android.car.model-year";
     /**
-     * Unique identifier for the car. This is not VIN, and id is persistent until user resets it.
+     * Unique identifier for the car, persistent until reset by the user. This is not the VIN.
      */
     @ValueTypeDef(type = String.class)
     public static final String KEY_VEHICLE_ID = "android.car.vehicle-id";
@@ -56,26 +56,26 @@ public abstract class CarInfoManager implements CarManagerBase {
     /** Model of the head unit.*/
     @ValueTypeDef(type = String.class)
     public static final String KEY_HEAD_UNIT_MODEL = "android.car.headUnitModel";
-    /** Head Unit software build */
+    /** Software build of the head unit. */
     @ValueTypeDef(type = String.class)
     public static final String KEY_HEAD_UNIT_SOFTWARE_BUILD = "android.car.headUnitSoftwareBuild";
-    /** Head Unit software version */
+    /** Software version of the head unit. */
     @ValueTypeDef(type = String.class)
     public static final String KEY_HEAD_UNIT_SOFTWARE_VERSION = "android.car.headUnitSoftwareVersion";
-    /** Where is the driver's seat.  One of the DRIVER_SIDE_* constants */
+    /** Location of driver's seat (one of the DRIVER_SIDE_* constants). */
     @ValueTypeDef(type = Integer.class)
     public static final String KEY_DRIVER_POSITION = "android.car.driverPosition";
 
-    /** Location of the driver: left */
+    /** Location of the driver: left. */
     public static final int DRIVER_SIDE_LEFT   = 0;
-    /** Location of the driver: right */
+    /** Location of the driver: right. */
     public static final int DRIVER_SIDE_RIGHT  = 1;
-    /** Location of the driver: center */
+    /** Location of the driver: center. */
     public static final int DRIVER_SIDE_CENTER = 2;
 
     /**
-     * Returns the value for the given key.
-     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
+     * Return the value for the given key.
+     * @param key One of the KEY_* constants defined in this API or provided by manufacturer
      * extensions.
      * @return The value or {@link Float#NaN} if the key is not supported or populated.
      */
@@ -83,26 +83,28 @@ public abstract class CarInfoManager implements CarManagerBase {
             throws CarNotConnectedException, IllegalArgumentException;
 
     /**
-     * Returns the value for the given key.
-     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
+     * Return the value for the given key.
+     * @param key One of the KEY_* constants defined in this API or provided by manufacturer
      * extensions.
-     * @return The value or {@link Integer#MIN_VALUE} if the key is not supported or populated.
+     * @return The value or {@link Integer#MIN_VALUE} if the key is not supported or
+     * populated.
      */
     public abstract int getInt(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
     /**
-     * Returns the value for the given key.
-     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
+     * Return the value for the given key.
+     * @param key One of the KEY_* constants defined in this API or provided by manufacturer
      * extensions.
-     * @return The value or {@link Long#MIN_VALUE} if the key is not supported or populated.
+     * @return The value or {@link Long#MIN_VALUE} if the key is not supported or
+     * populated.
      */
     public abstract long getLong(String key)
             throws CarNotConnectedException, IllegalArgumentException;
 
     /**
-     * Returns the value for the given key.
-     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
+     * Return the value for the given key.
+     * @param key One of the KEY_* constants defined in this API or provided by manufacturer
      * extensions.
      * @return The value or {@code null} if the key is not supported or populated.
      */
@@ -110,10 +112,10 @@ public abstract class CarInfoManager implements CarManagerBase {
             throws CarNotConnectedException, IllegalArgumentException;
 
     /**
-     * Retrieves a {@link Bundle} for the given key. This is intended for passing vendor specific
-     * data specified by car manufacturers. Vendor extension can use other APIs like
-     * {@link #getString(String)}, but this is for passing more complex data.
-     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
+     * Retrieve a {@link Bundle} for the given key. Intended for passing vendor-specific
+     * data defined by car manufacturers. Vendor extensions can use other APIs (such as
+     * {@link #getString(String)}), but this API is for passing complex data.
+     * @param key One of the KEY_* constants defined in this API or provided by manufacturer
      * extensions.
      * @return The specified {@link Bundle} or {@code null} if the key is not supported or
      * populated.
