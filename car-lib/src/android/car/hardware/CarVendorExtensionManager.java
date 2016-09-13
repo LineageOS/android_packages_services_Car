@@ -22,6 +22,7 @@ import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.car.hardware.property.CarPropertyManagerBase;
 import android.car.hardware.property.CarPropertyManagerBase.CarPropertyEventListener;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.ArraySet;
@@ -54,8 +55,8 @@ public class CarVendorExtensionManager implements CarManagerBase {
      * <p>Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
      * @hide
      */
-    public CarVendorExtensionManager(IBinder service, Looper looper) {
-        mPropertyManager = new CarPropertyManagerBase(service, looper, DBG, TAG);
+    public CarVendorExtensionManager(IBinder service, Handler handler) {
+        mPropertyManager = new CarPropertyManagerBase(service, handler, DBG, TAG);
     }
 
     /**

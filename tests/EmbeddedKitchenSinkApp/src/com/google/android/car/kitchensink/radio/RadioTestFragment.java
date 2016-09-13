@@ -209,7 +209,7 @@ public class RadioTestFragment extends Fragment {
             @Override
             public void onServiceDisconnected(ComponentName name) {
             }
-        }, Looper.getMainLooper());
+        });
         mCar.connect();
         mAudioManager = (AudioManager) getContext().getSystemService(
                 Context.AUDIO_SERVICE);

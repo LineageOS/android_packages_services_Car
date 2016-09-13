@@ -70,8 +70,8 @@ public class CarNavigationManagerTest extends CarApiTestBase {
                 // Nothing to do here.
             }
         };
-        mCarAppFocusManager.requestAppFocus(ownershipListener,
-                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+        mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
+                ownershipListener);
         assertTrue(mCarAppFocusManager.isOwningFocus(ownershipListener,
                 CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
 

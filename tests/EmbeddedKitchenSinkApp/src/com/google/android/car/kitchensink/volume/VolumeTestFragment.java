@@ -180,7 +180,7 @@ public class VolumeTestFragment extends Fragment{
             @Override
             public void onServiceDisconnected(ComponentName name) {
             }
-        }, Looper.getMainLooper());
+        });
         mCar.connect();
         mVolumeUp = (Button) v.findViewById(R.id.volume_up);
         mVolumeDown = (Button) v.findViewById(R.id.volume_down);

@@ -63,9 +63,9 @@ public class CarProjectionManager implements CarManagerBase {
     /**
      * @hide
      */
-    CarProjectionManager(IBinder service, Looper looper) {
+    CarProjectionManager(IBinder service, Handler handler) {
         mService = ICarProjection.Stub.asInterface(service);
-        mHandler = new Handler(looper);
+        mHandler = handler;
         mBinderListener = new ICarProjectionListenerImpl(this);
     }
 

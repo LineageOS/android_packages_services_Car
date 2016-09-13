@@ -18,7 +18,7 @@ package android.support.car;
 
 
 /**
- * Exception thrown when car is not supporting the requested operation.
+ * Exception thrown when car does not support the requested operation.
  */
 public class CarNotSupportedException extends Exception {
     private static final long serialVersionUID = -8120487541467522808L;

@@ -94,9 +94,9 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * @hide
      */
-    CarAppFocusManager(IBinder service, Looper looper) {
+    CarAppFocusManager(IBinder service, Handler handler) {
         mService = IAppFocus.Stub.asInterface(service);
-        mHandler = new Handler(looper);
+        mHandler = handler;
     }
 
     /**
@@ -219,13 +219,13 @@ public final class CarAppFocusManager implements CarManagerBase {
      * {@link AppFocusOwnershipChangeListener#onAppFocusOwnershipLoss(int)}
      * if ownership is given to other app by calling this. Fore-ground app will have higher priority
      * and other app cannot set the same focus while owner is in fore-ground.
-     * @param ownershipListener
      * @param appType
+     * @param ownershipListener
      * @return {@link #APP_FOCUS_REQUEST_FAILED} or {@link #APP_FOCUS_REQUEST_GRANTED}
      * @throws CarNotConnectedException
      * @throws SecurityException If owner cannot be changed.
      */
-    public int requestAppFocus(AppFocusOwnershipChangeListener ownershipListener, int appType)
+    public int requestAppFocus(int appType, AppFocusOwnershipChangeListener ownershipListener)
             throws SecurityException, CarNotConnectedException {
         if (ownershipListener == null) {
             throw new IllegalArgumentException("null listener");

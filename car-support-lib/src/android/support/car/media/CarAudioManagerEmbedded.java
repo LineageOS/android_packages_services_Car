@@ -46,16 +46,23 @@ public class CarAudioManagerEmbedded extends CarAudioManager {
     }
 
     @Override
-    public int requestAudioFocus(OnAudioFocusChangeListener l,
-                                          AudioAttributes requestAttributes,
-                                          int durationHint,
-                                          int flags) throws IllegalArgumentException {
-        return mManager.requestAudioFocus(l, requestAttributes, durationHint, flags);
+    public int requestAudioFocus(OnAudioFocusChangeListener listener,
+            AudioAttributes requestAttributes,
+            int durationHint,
+            int flags) throws IllegalArgumentException {
+        return mManager.requestAudioFocus(listener, requestAttributes, durationHint, flags);
     }
 
     @Override
-    public int abandonAudioFocus(OnAudioFocusChangeListener l, AudioAttributes aa) {
-        return mManager.abandonAudioFocus(l, aa);
+    public int requestAudioFocus(OnAudioFocusChangeListener listener,
+            AudioAttributes requestAttributes,
+            int durationHint) throws IllegalArgumentException {
+        return mManager.requestAudioFocus(listener, requestAttributes, durationHint, 0 /*flags*/);
+    }
+
+    @Override
+    public int abandonAudioFocus(OnAudioFocusChangeListener listener, AudioAttributes aa) {
+        return mManager.abandonAudioFocus(listener, aa);
     }
 
     @Override

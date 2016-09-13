@@ -91,12 +91,12 @@ public class CarPropertyManagerBase {
     /**
      * Get an instance of the CarPropertyManagerBase.
      */
-    public CarPropertyManagerBase(IBinder service, Looper looper, boolean dbg,
+    public CarPropertyManagerBase(IBinder service, Handler handler, boolean dbg,
             String tag) {
         mDbg = dbg;
         mTag = tag;
         mService = ICarProperty.Stub.asInterface(service);
-        mHandler = new EventCallbackHandler(this, looper);
+        mHandler = new EventCallbackHandler(this, handler.getLooper());
     }
 
     public void registerListener(CarPropertyEventListener listener)

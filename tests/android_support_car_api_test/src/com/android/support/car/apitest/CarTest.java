@@ -19,7 +19,7 @@ package com.android.support.car.apitest;
 import android.content.ComponentName;
 import android.os.Looper;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionListener;
+import android.support.car.ServiceConnectionCallback;
 import android.support.car.hardware.CarSensorManager;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -33,7 +33,8 @@ public class CarTest extends AndroidTestCase {
 
     private final Semaphore mConnectionWait = new Semaphore(0);
 
-    private final ServiceConnectionListener mConnectionListener = new ServiceConnectionListener() {
+    private final ServiceConnectionCallback mConnectionCallbacks =
+            new ServiceConnectionCallback() {
 
         @Override
         public void onServiceSuspended(int cause) {
@@ -41,7 +42,7 @@ public class CarTest extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
+        public void onServiceDisconnected() {
             assertMainThread();
         }
 
@@ -51,7 +52,7 @@ public class CarTest extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name) {
+        public void onServiceConnected( ) {
             assertMainThread();
             mConnectionWait.release();
         }
@@ -66,7 +67,7 @@ public class CarTest extends AndroidTestCase {
     }
 
     public void testCarConnection() throws Exception {
-        Car car = Car.createCar(getContext(), mConnectionListener);
+        Car car = Car.createCar(getContext(), mConnectionCallbacks);
         assertFalse(car.isConnected());
         assertFalse(car.isConnecting());
         car.connect();
@@ -91,7 +92,7 @@ public class CarTest extends AndroidTestCase {
     }
 
     public void testDoubleConnect() throws Exception {
-        Car car = Car.createCar(getContext(), mConnectionListener);
+        Car car = Car.createCar(getContext(), mConnectionCallbacks);
         assertFalse(car.isConnected());
         assertFalse(car.isConnecting());
         car.connect();

@@ -28,6 +28,8 @@ import android.widget.ImageView;
 
 /**
  * A custom view to provide list scroll behaviour -- up/down buttons and scroll indicator.
+ *
+ * @hide
  */
 public class PagedScrollBarView extends FrameLayout
         implements View.OnClickListener, View.OnLongClickListener {

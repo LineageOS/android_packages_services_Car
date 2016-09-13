@@ -17,6 +17,7 @@
 package android.support.car;
 
 import android.content.Context;
+import android.os.Handler;
 import android.os.Looper;
 
 /**
@@ -26,13 +27,13 @@ import android.os.Looper;
 public abstract class CarServiceLoader {
 
     private final Context mContext;
-    private final ServiceConnectionListener mListener;
-    private final Looper mLooper;
+    private final ServiceConnectionCallback mListener;
+    private final Handler mEventHandler;
 
-    public CarServiceLoader(Context context, ServiceConnectionListener listener, Looper looper) {
+    public CarServiceLoader(Context context, ServiceConnectionCallback listener, Handler handler) {
         mContext = context;
         mListener = listener;
-        mLooper = looper;
+        mEventHandler = handler;
     }
 
     public abstract void connect() throws IllegalStateException;
@@ -40,21 +41,29 @@ public abstract class CarServiceLoader {
     public abstract boolean isConnectedToCar();
     @Car.ConnectionType
     public abstract int getCarConnectionType() throws CarNotConnectedException;
-    public abstract void registerCarConnectionListener(CarConnectionListener listener)
+    public abstract void registerCarConnectionCallback(CarConnectionCallback listener)
             throws CarNotConnectedException;
-    public abstract void unregisterCarConnectionListener(CarConnectionListener listener);
-    public abstract Object getCarManager(String serviceName)
-            throws CarNotSupportedException, CarNotConnectedException;
+    public abstract void unregisterCarConnectionCallback(CarConnectionCallback listener);
+
+    /**
+     * Retrieves a manager object for a specified Car*Manager.
+     * @param serviceName One of the android.car.Car#*_SERVICE constants.
+     * @return An instance of the request manager.  Null if the manager is not supported on the
+     * current vehicle.
+     * @throws CarNotConnectedException Thrown when the device is not connected to a car data
+     * source.
+     */
+    public abstract Object getCarManager(String serviceName) throws CarNotConnectedException;
 
     protected Context getContext() {
         return mContext;
     }
 
-    protected ServiceConnectionListener getConnectionListener() {
+    protected ServiceConnectionCallback getConnectionListener() {
         return mListener;
     }
 
-    protected Looper getLooper() {
-        return mLooper;
+    protected Handler getEventHandler() {
+        return mEventHandler;
     }
 }

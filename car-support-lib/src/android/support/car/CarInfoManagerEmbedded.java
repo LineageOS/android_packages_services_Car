@@ -17,11 +17,6 @@
 package android.support.car;
 
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.support.car.annotation.ValueTypeDef;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
 
 /** @hide */
 public class CarInfoManagerEmbedded extends CarInfoManager {
@@ -35,7 +30,7 @@ public class CarInfoManagerEmbedded extends CarInfoManager {
     }
 
     @Override
-    public Float getFloat(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public float getFloat(String key) throws CarNotConnectedException, IllegalArgumentException {
         try {
             return mManager.getFloat(key);
         } catch (android.car.CarNotConnectedException e) {
@@ -44,7 +39,7 @@ public class CarInfoManagerEmbedded extends CarInfoManager {
     }
 
     @Override
-    public Integer getInt(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public int getInt(String key) throws CarNotConnectedException, IllegalArgumentException {
         try {
             return mManager.getInt(key);
         } catch (android.car.CarNotConnectedException e) {
@@ -53,7 +48,7 @@ public class CarInfoManagerEmbedded extends CarInfoManager {
     }
 
     @Override
-    public Long getLong(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public long getLong(String key) throws CarNotConnectedException, IllegalArgumentException {
         try {
             return mManager.getLong(key);
         } catch (android.car.CarNotConnectedException e) {
@@ -74,10 +69,6 @@ public class CarInfoManagerEmbedded extends CarInfoManager {
      * get Bundle for the given key. This is intended for passing vendor specific data for key
      * defined only for the car vendor. Vendor extension can be used for other APIs like
      * getInt / getString, but this is for passing more complex data.
-     * @param key
-     * @return
-     * @throws CarNotConnectedException
-     * @throws IllegalArgumentException
      * @hide
      */
     @Override

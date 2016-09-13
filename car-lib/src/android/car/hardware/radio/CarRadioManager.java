@@ -109,12 +109,12 @@ public class CarRadioManager implements CarManagerBase {
     /**
      * Get an instance of the CarRadioManager.
      *
-     * Should not be obtained directly by clients, use {@link Car.getCarManager()} instead.
+     * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
      * @hide
      */
-    public CarRadioManager(IBinder service, Looper looper) throws CarNotConnectedException {
+    public CarRadioManager(IBinder service, Handler handler) throws CarNotConnectedException {
         mService = ICarRadio.Stub.asInterface(service);
-        mHandler = new EventCallbackHandler(this, looper);
+        mHandler = new EventCallbackHandler(this, handler.getLooper());
 
         // Populate the fixed values.
         try {

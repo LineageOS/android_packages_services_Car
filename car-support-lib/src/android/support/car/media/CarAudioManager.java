@@ -18,6 +18,7 @@ package android.support.car.media;
 import android.Manifest;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.support.annotation.IntDef;
 import android.support.annotation.RequiresPermission;
@@ -29,7 +30,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * APIs for handling car specific audio stuffs.
+ * APIs for handling car specific audio use cases.  <p/>
+ * This class provides a set of CAR_AUDIO_USAGE_* constants that can be used to route audio by
+ * use case to the car.  This is important beyond the normal {@link AudioManager} class methods
+ * because it handles multi channel audio.  This includes use cases such are only routing call
+ * audio to the driver and not through all speakers.
  */
 public abstract class CarAudioManager implements CarManagerBase {
 
@@ -43,6 +48,7 @@ public abstract class CarAudioManager implements CarManagerBase {
     public static final int CAR_AUDIO_USAGE_MUSIC = 1;
     /**
      * Audio usage for H/W radio.
+     * @hide
      */
     public static final int CAR_AUDIO_USAGE_RADIO = 2;
     /**
@@ -86,31 +92,51 @@ public abstract class CarAudioManager implements CarManagerBase {
     public @interface CarAudioUsage {}
 
     /**
-     * Get {@link AudioAttrbutes} relevant for the given usage in car.
-     * @param carUsage
-     * @return
+     * Returns {@link AudioAttributes} relevant for the given usage in car.
      */
     public abstract AudioAttributes getAudioAttributesForCarUsage(@CarAudioUsage int carUsage);
 
     /**
-     * Request audio focus.
-     * Send a request to obtain the audio focus.
-     * @param l
-     * @param requestAttributes
-     * @param durationHint
-     * @param flags
+     * Request audio focus. Send a request to obtain the audio focus
+     *
+     * @param listener the listener to be notified of audio focus changes
+     * @param requestAttributes Should be obtained from {@link #getAudioAttributesForCarUsage(int)}
+     * @param durationHint use {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT} to indicate this
+     * focus request is temporary, and focus will be abandoned shortly. Examples of transient
+     * requests are for the playback of driving directions, or notifications sounds. Use {@link
+     * AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK} to indicate also that it's ok for the
+     * previous focus owner to keep playing if it ducks its audio output. Alternatively use {@link
+     * AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE} for a temporary request that benefits from
+     * the system not playing disruptive sounds like notifications,  for use cases such as voice
+     * memo
+     * recording, or speech recognition. Use {@link AudioManager#AUDIOFOCUS_GAIN} for a focus
+     * request of unknown duration such as the playback of a song or a video.
+     * @return {@link AudioManager#AUDIOFOCUS_REQUEST_FAILED}, or
+     * {@link AudioManager#AUDIOFOCUS_REQUEST_GRANTED}
+     * @throws IllegalArgumentException
      */
-    public abstract int requestAudioFocus(OnAudioFocusChangeListener l,
-                                          AudioAttributes requestAttributes,
-                                          int durationHint,
-                                          int flags) throws IllegalArgumentException;
+    public abstract int requestAudioFocus(OnAudioFocusChangeListener listener,
+            AudioAttributes requestAttributes,
+            int durationHint) throws IllegalArgumentException;
+
+    /**
+     * See
+     * {@link AudioManager#requestAudioFocus(OnAudioFocusChangeListener, AudioAttributes, int, int)}
+     * @hide
+     */
+    public abstract int requestAudioFocus(OnAudioFocusChangeListener listener,
+            AudioAttributes requestAttributes,
+            int durationHint,
+            int flags) throws IllegalArgumentException;
     /**
      * Abandon audio focus. Causes the previous focus owner, if any, to receive focus.
-     * @param l
+     * @param listener the listener with which focus was requested.
      * @param aa
-     * @return {@link #AUDIOFOCUS_REQUEST_FAILED} or {@link #AUDIOFOCUS_REQUEST_GRANTED}
+     * @return
+     * {@link AudioManager#AUDIOFOCUS_REQUEST_FAILED} or
+     * {@link AudioManager#AUDIOFOCUS_REQUEST_GRANTED}
      */
-    public abstract int abandonAudioFocus(OnAudioFocusChangeListener l, AudioAttributes aa);
+    public abstract int abandonAudioFocus(OnAudioFocusChangeListener listener, AudioAttributes aa);
 
     /**
      * Get {@link AudioFormat} for audio record.
@@ -164,7 +190,8 @@ public abstract class CarAudioManager implements CarManagerBase {
      * Mute or unmute media stream including radio. This can involve audio focus change to stop
      * whatever app holding audio focus now. If requester is currently holding audio focus,
      * it will get LOSS_TRANSIENT focus loss.
-     * This API requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     * This API requires {@link PERMISSION_CAR_CONTROL_AUDIO_VOLUME}
+     * permission.
      *
      * @param mute {@code true} if media stream should be muted.
      * @return Mute state of system after the request. Note that mute request can fail if there

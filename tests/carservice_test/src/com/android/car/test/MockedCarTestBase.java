@@ -22,7 +22,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionListener;
+import android.support.car.ServiceConnectionCallback;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
@@ -46,16 +46,17 @@ public class MockedCarTestBase extends AndroidTestCase {
     private final Semaphore mConnectionWaitForSupportCar = new Semaphore(0);
     private final Semaphore mConnectionWaitForCar = new Semaphore(0);
     private final Semaphore mWaitForMain = new Semaphore(0);
-    private final Handler mMainHalder = new Handler(Looper.getMainLooper());
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
-    private final ServiceConnectionListener mConnectionListener = new ServiceConnectionListener() {
+    private final ServiceConnectionCallback mConnectionCallbacks =
+            new ServiceConnectionCallback() {
 
         @Override
         public void onServiceSuspended(int cause) {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
+        public void onServiceDisconnected() {
         }
 
         @Override
@@ -63,8 +64,8 @@ public class MockedCarTestBase extends AndroidTestCase {
         }
 
         @Override
-        public void onServiceConnected(ComponentName name) {
-            Log.i(TAG, "onServiceConnected, component" + name);
+        public void onServiceConnected() {
+            Log.i(TAG, "onServiceConnected, service is connected");
             mConnectionWaitForSupportCar.release();
         }
     };
@@ -86,7 +87,7 @@ public class MockedCarTestBase extends AndroidTestCase {
     @Override
     protected synchronized void setUp() throws Exception {
         super.setUp();
-        mSupportCar = Car.createCar(getContext(), mConnectionListener);
+        mSupportCar = Car.createCar(getContext(), mConnectionCallbacks);
         mSupportCar.connect();
         mCar = android.car.Car.createCar(getContext(), new ServiceConnection() {
 
@@ -125,11 +126,11 @@ public class MockedCarTestBase extends AndroidTestCase {
     }
 
     protected void runOnMain(final Runnable r) {
-        mMainHalder.post(r);
+        mMainHandler.post(r);
     }
 
     protected void runOnMainSync(final Runnable r) throws Exception {
-        mMainHalder.post(new Runnable() {
+        mMainHandler.post(new Runnable() {
             @Override
             public void run() {
                 r.run();

@@ -2,7 +2,7 @@ package android.car {
 
   public class Car {
     method public void connect() throws java.lang.IllegalStateException;
-    method public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection, android.os.Looper);
+    method public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection, android.os.Handler);
     method public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection);
     method public void disconnect();
     method public int getCarConnectionType();
@@ -42,7 +42,7 @@ package android.car {
     method public void abandonAppFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener) throws android.car.CarNotConnectedException;
     method public boolean isOwningFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.car.CarNotConnectedException;
     method public void registerFocusListener(android.car.CarAppFocusManager.AppFocusChangeListener, int) throws android.car.CarNotConnectedException;
-    method public int requestAppFocus(android.car.CarAppFocusManager.AppFocusOwnershipChangeListener, int) throws android.car.CarNotConnectedException, java.lang.SecurityException;
+    method public int requestAppFocus(int, android.car.CarAppFocusManager.AppFocusOwnershipChangeListener) throws android.car.CarNotConnectedException, java.lang.SecurityException;
     method public void unregisterFocusListener(android.car.CarAppFocusManager.AppFocusChangeListener, int) throws android.car.CarNotConnectedException;
     method public void unregisterFocusListener(android.car.CarAppFocusManager.AppFocusChangeListener) throws android.car.CarNotConnectedException;
     field public static final int APP_FOCUS_REQUEST_FAILED = 0; // 0x0
@@ -60,14 +60,14 @@ package android.car {
   }
 
   public class CarInfoManager {
-    method public java.lang.Float getFloat(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public java.lang.Integer getInt(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public java.lang.Long getLong(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    method public float getFloat(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    method public int getInt(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    method public long getLong(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public java.lang.String getString(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    field public static final java.lang.String KEY_MANUFACTURER = "manufacturer";
-    field public static final java.lang.String KEY_MODEL = "model";
-    field public static final java.lang.String KEY_MODEL_YEAR = "model-year";
-    field public static final java.lang.String KEY_VEHICLE_ID = "vehicle-id";
+    field public static final java.lang.String KEY_MANUFACTURER = "android.car.manufacturer";
+    field public static final java.lang.String KEY_MODEL = "android.car.model";
+    field public static final java.lang.String KEY_MODEL_YEAR = "android.car.model-year";
+    field public static final java.lang.String KEY_VEHICLE_ID = "android.car.vehicle-id";
   }
 
   public class CarNotConnectedException extends java.lang.Exception {

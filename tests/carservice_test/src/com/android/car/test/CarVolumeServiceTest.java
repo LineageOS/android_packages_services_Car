@@ -22,6 +22,8 @@ import android.car.test.VehicleHalEmulator;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.IVolumeController;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Pair;
 import android.util.SparseIntArray;
@@ -33,6 +35,7 @@ import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusStat
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
 import com.android.car.vehiclenetwork.VehiclePropValueUtil;
+import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +110,52 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
         }
     }
 
+    public void testSuppressVolumeUI() {
+        try {
+            VolumeController volumeController = new VolumeController();
+            mCarAudioManager.setVolumeController(volumeController);
+
+            // first give focus to system sound
+            CarAudioFocusTest.AudioFocusListener listenerMusic =
+                    new CarAudioFocusTest.AudioFocusListener();
+            int res = mAudioManager.requestAudioFocus(listenerMusic,
+                    AudioManager.STREAM_SYSTEM,
+                    AudioManager.AUDIOFOCUS_GAIN);
+            assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
+            int[] request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
+            mAudioFocusPropertyHandler.sendAudioFocusState(
+                    VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                    request[1],
+                    VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+
+            // focus gives to Alarm, there should be a audio context change.
+            CarAudioFocusTest.AudioFocusListener listenerAlarm = new
+                    CarAudioFocusTest.AudioFocusListener();
+            AudioAttributes callAttrib = (new AudioAttributes.Builder()).
+                    setUsage(AudioAttributes.USAGE_ALARM).
+                    build();
+            mAudioManager.requestAudioFocus(listenerAlarm, callAttrib,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
+            request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
+            mAudioFocusPropertyHandler.sendAudioFocusState(
+                    VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN, request[1],
+                    VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+            // should not show UI
+            volumeChangeVerificationPoll(AudioManager.STREAM_ALARM, false, volumeController);
+
+            int alarmVol = mCarAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
+            // set alarm volume with show_ui flag and a different volume
+            mCarAudioManager.setStreamVolume(AudioManager.STREAM_ALARM,
+                    (alarmVol + 1) % mCarAudioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM),
+                    AudioManager.FLAG_SHOW_UI);
+            // should show ui
+            volumeChangeVerificationPoll(AudioManager.STREAM_ALARM, true, volumeController);
+            mAudioManager.abandonAudioFocus(listenerAlarm);
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
+
     public void testVolumeKeys() throws Exception {
         try {
             int musicVol = 10;
@@ -175,6 +224,28 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
             }
             assertEquals(isVolExpected, true);
         } catch (InterruptedException | CarNotConnectedException e) {
+            fail(e.toString());
+        }
+    }
+
+    private void volumeChangeVerificationPoll(int stream, boolean showUI,
+            VolumeController controller) {
+        boolean isVolExpected = false;
+        int timeElapsedMs = 0;
+        try {
+            while (!isVolExpected && timeElapsedMs <= TIMEOUT_MS) {
+                Thread.sleep(POLL_INTERVAL_MS);
+                Pair<Integer, Integer> volChange = controller.getLastVolumeChanges();
+                if (volChange.first == stream
+                        && (((volChange.second.intValue() & AudioManager.FLAG_SHOW_UI) != 0)
+                        == showUI)) {
+                    isVolExpected = true;
+                    break;
+                }
+                timeElapsedMs += POLL_INTERVAL_MS;
+            }
+            assertEquals(true, isVolExpected);
+        } catch (Exception e) {
             fail(e.toString());
         }
     }
@@ -370,5 +441,39 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
                 SystemClock.elapsedRealtimeNanos());
 
         getVehicleHalEmulator().injectEvent(injectValue);
+    }
+
+    private static class VolumeController extends IVolumeController.Stub {
+        @GuardedBy("this")
+        private int mLastStreamChanged = -1;
+
+        @GuardedBy("this")
+        private int mLastFlags = -1;
+
+        public synchronized Pair<Integer, Integer> getLastVolumeChanges() {
+            return new Pair<>(mLastStreamChanged, mLastFlags);
+        }
+
+        @Override
+        public void displaySafeVolumeWarning(int flags) throws RemoteException {}
+
+        @Override
+        public void volumeChanged(int streamType, int flags) throws RemoteException {
+            synchronized (this) {
+                mLastStreamChanged = streamType;
+                mLastFlags = flags;
+            }
+        }
+
+        @Override
+        public void masterMuteChanged(int flags) throws RemoteException {}
+
+        @Override
+        public void setLayoutDirection(int layoutDirection) throws RemoteException {
+        }
+
+        @Override
+        public void dismiss() throws RemoteException {
+        }
     }
 }

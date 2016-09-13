@@ -27,14 +27,14 @@ import android.os.Bundle;
 import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
 import android.support.car.CarNotConnectedException;
-import android.support.car.CarNotSupportedException;
-import android.support.car.ServiceConnectionListener;
+import android.support.car.ServiceConnectionCallback;
 import android.support.car.app.menu.CarDrawerActivity;
 import android.support.car.app.menu.CarMenu;
 import android.support.car.app.menu.CarMenuCallbacks;
 import android.support.car.app.menu.RootMenu;
 import android.support.car.hardware.CarSensorEvent;
 import android.support.car.hardware.CarSensorManager;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
@@ -45,6 +45,7 @@ import com.google.android.car.kitchensink.hvac.HvacTestFragment;
 import com.google.android.car.kitchensink.input.InputTestFragment;
 import com.google.android.car.kitchensink.job.JobSchedulerFragment;
 import com.google.android.car.kitchensink.keyboard.KeyboardFragment;
+import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.radio.RadioTestFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
 import com.google.android.car.kitchensink.setting.CarServiceSettingsActivity;
@@ -71,6 +72,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String MENU_TOUCH_TEST = "touch test";
     private static final String MENU_CUBES_TEST = "cubes test";
     private static final String MENU_CAR_SETTINGS = "car service settings";
+    private static final String MENU_ORIENTATION = "orientation test";
 
     private Car mCarApi;
     private CarCameraManager mCameraManager;
@@ -90,6 +92,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private VolumeTestFragment mVolumeTestFragment;
     private TouchTestFragment mTouchTestFragment;
     private CubesTestFragment mCubesTestFragment;
+    private OrientationTestFragment mOrientationFragment;
 
     private final CarSensorManager.CarSensorEventListener mListener =
             new CarSensorManager.CarSensorEventListener() {
@@ -118,7 +121,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
 
         // Connection to Car Service does not work for non-automotive yet.
         if (getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
-            mCarApi = Car.createCar(getContext(), mServiceConnectionListener);
+            mCarApi = Car.createCar(getContext(), mServiceConnectionCallback);
             mCarApi.connect();
         }
         Log.i(TAG, "onCreate");
@@ -159,7 +162,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         super.onDestroy();
         if (mCarSensorManager != null) {
             try {
-                mCarSensorManager.unregisterListener(mListener);
+                mCarSensorManager.removeListener(mListener);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Failed to unregister car seonsor listener", e);
             }
@@ -174,30 +177,34 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         setTitle(getContext().getString(R.string.app_title));
     }
 
-    private final ServiceConnectionListener mServiceConnectionListener =
-            new ServiceConnectionListener() {
+    private void showFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.contents, fragment)
+                .commit();
+    }
+
+    private final ServiceConnectionCallback mServiceConnectionCallback =
+            new ServiceConnectionCallback() {
         @Override
-        public void onServiceConnected(ComponentName name) {
+        public void onServiceConnected() {
             Log.d(TAG, "Connected to Car Service");
             try {
                 mCameraManager = (CarCameraManager) mCarApi.getCarManager(android.car.Car
                         .CAMERA_SERVICE);
                 mHvacManager = (CarHvacManager) mCarApi.getCarManager(android.car.Car.HVAC_SERVICE);
                 mCarSensorManager = (CarSensorManager) mCarApi.getCarManager(Car.SENSOR_SERVICE);
-                mCarSensorManager.registerListener(mListener,
+                mCarSensorManager.addListener(mListener,
                         CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
                         CarSensorManager.SENSOR_RATE_NORMAL);
                 mCarAppFocusManager =
                         (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Car is not connected!", e);
-            } catch (CarNotSupportedException e) {
-                Log.e(TAG, "Car is not supported!", e);
             }
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
+        public void onServiceDisconnected() {
             Log.d(TAG, "Disconnect from Car Service");
         }
 
@@ -228,7 +235,8 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 String[] allMenus = {
                         MENU_AUDIO, MENU_RADIO, MENU_CAMERA, MENU_HVAC, MENU_JOB, MENU_KEYBOARD,
                         MENU_CLUSTER, MENU_INPUT_TEST, MENU_SENSORS, MENU_VOLUME_TEST,
-                        MENU_TOUCH_TEST, MENU_CUBES_TEST, MENU_CAR_SETTINGS, MENU_QUIT
+                        MENU_TOUCH_TEST, MENU_CUBES_TEST, MENU_CAR_SETTINGS, MENU_ORIENTATION,
+                        MENU_QUIT
                 };
                 for (String menu : allMenus) {
                     items.add(new CarMenu.Builder(menu).setText(menu).build());
@@ -244,17 +252,17 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 if (mAudioTestFragment == null) {
                     mAudioTestFragment = new AudioTestFragment();
                 }
-                setContentFragment(mAudioTestFragment);
+                showFragment(mAudioTestFragment);
             } else if (id.equals(MENU_RADIO)) {
                 if (mRadioTestFragment == null) {
                     mRadioTestFragment = new RadioTestFragment();
                 }
-                setContentFragment(mRadioTestFragment);
+                showFragment(mRadioTestFragment);
             } else if (id.equals(MENU_SENSORS)) {
                 if (mSensorsTestFragment == null) {
                     mSensorsTestFragment = new SensorsTestFragment();
                 }
-                setContentFragment(mSensorsTestFragment);
+                showFragment(mSensorsTestFragment);
             } else if (id.equals(MENU_CAMERA)) {
                 if (mCameraManager != null) {
                     if (mCameraTestFragment == null) {
@@ -262,7 +270,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                         mCameraTestFragment.setCameraManager(mCameraManager);
                     }
                     // Don't allow camera fragment to start if we don't have a manager.
-                    setContentFragment(mCameraTestFragment);
+                    showFragment(mCameraTestFragment);
                 }
             } else if (id.equals(MENU_HVAC)) {
                 if (mHvacManager != null) {
@@ -271,46 +279,51 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                         mHvacTestFragment.setHvacManager(mHvacManager);
                     }
                     // Don't allow HVAC fragment to start if we don't have a manager.
-                    setContentFragment(mHvacTestFragment);
+                    showFragment(mHvacTestFragment);
                 }
             } else if (id.equals(MENU_JOB)) {
                 if (mJobFragment == null) {
                     mJobFragment = new JobSchedulerFragment();
                 }
-                setContentFragment(mJobFragment);
+                showFragment(mJobFragment);
             } else if (id.equals(MENU_KEYBOARD)) {
                 if (mKeyboardFragment == null) {
                     mKeyboardFragment = new KeyboardFragment();
                 }
-                setContentFragment(mKeyboardFragment);
+                showFragment(mKeyboardFragment);
             } else if (id.equals(MENU_CLUSTER)) {
                 if (mInstrumentClusterFragment == null) {
                     mInstrumentClusterFragment = new InstrumentClusterFragment();
                 }
-                setContentFragment(mInstrumentClusterFragment);
+                showFragment(mInstrumentClusterFragment);
             } else if (id.equals(MENU_INPUT_TEST)) {
                 if (mInputTestFragment == null) {
                     mInputTestFragment = new InputTestFragment();
                 }
-                setContentFragment(mInputTestFragment);
+                showFragment(mInputTestFragment);
             } else if (id.equals(MENU_VOLUME_TEST)) {
                 if (mVolumeTestFragment == null) {
                     mVolumeTestFragment = new VolumeTestFragment();
                 }
-                setContentFragment(mVolumeTestFragment);
+                showFragment(mVolumeTestFragment);
             } else if (id.equals(MENU_TOUCH_TEST)) {
                 if (mTouchTestFragment == null) {
                     mTouchTestFragment = new TouchTestFragment();
                 }
-                setContentFragment(mTouchTestFragment);
+                showFragment(mTouchTestFragment);
             } else if (id.equals(MENU_CUBES_TEST)) {
                 if (mCubesTestFragment == null) {
                     mCubesTestFragment = new CubesTestFragment();
                 }
-                setContentFragment(mCubesTestFragment);
+                showFragment(mCubesTestFragment);
             } else if (id.equals(MENU_CAR_SETTINGS)) {
                 Intent intent = new Intent(getContext(), CarServiceSettingsActivity.class);
                 getContext().startActivity(intent);
+            } else if (id.equals(MENU_ORIENTATION)) {
+                if (mOrientationFragment == null) {
+                    mOrientationFragment = new OrientationTestFragment();
+                }
+                showFragment(mOrientationFragment);
             } else if (id.equals(MENU_QUIT)) {
                 finish();
             }

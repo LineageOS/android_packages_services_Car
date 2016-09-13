@@ -41,12 +41,12 @@ public class AppFocusTest extends MockedCarTestBase {
                 Car.APP_FOCUS_SERVICE);
         FocusChangeListener listener = new FocusChangeListener();
         FocusOwnershipChangeListerner ownershipListener = new FocusOwnershipChangeListerner();
-        manager.registerFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-        manager.registerFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
-        manager.requestAppFocus(ownershipListener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+        manager.addFocusListener(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, listener);
+        manager.addFocusListener(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, listener);
+        manager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, ownershipListener);
         listener.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, true);
-        manager.requestAppFocus(ownershipListener, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
+        manager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, ownershipListener);
         listener.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, true);
         manager.abandonAppFocus(ownershipListener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
@@ -55,7 +55,7 @@ public class AppFocusTest extends MockedCarTestBase {
         manager.abandonAppFocus(ownershipListener, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
         listener.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, false);
-        manager.unregisterFocusListener(listener);
+        manager.removeFocusListener(listener);
     }
 
     private class FocusChangeListener implements CarAppFocusManager.AppFocusChangeListener {
