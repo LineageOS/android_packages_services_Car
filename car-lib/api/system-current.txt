@@ -98,8 +98,7 @@ package android.car {
     method public abstract void onVoiceAssistantRequest(boolean);
   }
 
-  public class VehicleAreaType {
-    ctor public VehicleAreaType();
+  public final class VehicleAreaType {
     field public static final int VEHICLE_AREA_TYPE_DOOR = 4; // 0x4
     field public static final int VEHICLE_AREA_TYPE_NONE = 0; // 0x0
     field public static final int VEHICLE_AREA_TYPE_SEAT = 3; // 0x3
@@ -107,8 +106,7 @@ package android.car {
     field public static final int VEHICLE_AREA_TYPE_ZONE = 1; // 0x1
   }
 
-  public class VehicleDoor {
-    ctor public VehicleDoor();
+  public final class VehicleDoor {
     field public static final int DOOR_HOOD = 268435456; // 0x10000000
     field public static final int DOOR_REAR = 536870912; // 0x20000000
     field public static final int DOOR_ROW_1_LEFT = 1; // 0x1
@@ -119,15 +117,13 @@ package android.car {
     field public static final int DOOR_ROW_3_RIGHT = 1024; // 0x400
   }
 
-  public class VehicleMirror {
-    ctor public VehicleMirror();
+  public final class VehicleMirror {
     field public static final int MIRROR_DRIVER_CENTER = 4; // 0x4
     field public static final int MIRROR_DRIVER_LEFT = 1; // 0x1
     field public static final int MIRROR_DRIVER_RIGHT = 2; // 0x2
   }
 
-  public class VehicleSeat {
-    ctor public VehicleSeat();
+  public final class VehicleSeat {
     field public static final int SEAT_DRIVER_LHD = 1; // 0x1
     field public static final int SEAT_DRIVER_RHD = 2; // 0x2
     field public static final int SEAT_ROW_1_PASSENGER_CENTER = 32; // 0x20
@@ -141,8 +137,7 @@ package android.car {
     field public static final int SEAT_ROW_3_PASSENGER_RIGHT = 16384; // 0x4000
   }
 
-  public class VehicleWindow {
-    ctor public VehicleWindow();
+  public final class VehicleWindow {
     field public static final int WINDOW_FRONT_WINDSHIELD = 1; // 0x1
     field public static final int WINDOW_REAR_WINDSHIELD = 2; // 0x2
     field public static final int WINDOW_ROOF_TOP = 4; // 0x4
@@ -154,8 +149,7 @@ package android.car {
     field public static final int WINDOW_ROW_3_RIGHT = 8192; // 0x2000
   }
 
-  public class VehicleZone {
-    ctor public VehicleZone();
+  public final class VehicleZone {
     field public static final int ZONE_ALL = -2147483648; // 0x80000000
     field public static final int ZONE_ROW_1_ALL = 8; // 0x8
     field public static final int ZONE_ROW_1_CENTER = 2; // 0x2
@@ -175,8 +169,7 @@ package android.car {
     field public static final int ZONE_ROW_4_RIGHT = 16384; // 0x4000
   }
 
-  public class VehicleZoneUtil {
-    ctor public VehicleZoneUtil();
+  public final class VehicleZoneUtil {
     method public static int getFirstZone(int);
     method public static int getNextZone(int, int) throws java.lang.IllegalArgumentException;
     method public static int getNumberOfZones(int);

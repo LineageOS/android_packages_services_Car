@@ -25,7 +25,7 @@ import android.annotation.SystemApi;
  * @hide
  */
 @SystemApi
-public class VehicleAreaType {
+public final class VehicleAreaType {
     /** Used for global properties */
     public static final int VEHICLE_AREA_TYPE_NONE = 0;
 
@@ -33,4 +33,6 @@ public class VehicleAreaType {
     public static final int VEHICLE_AREA_TYPE_WINDOW = 2;
     public static final int VEHICLE_AREA_TYPE_SEAT = 3;
     public static final int VEHICLE_AREA_TYPE_DOOR = 4;
+
+    private VehicleAreaType() {}
 }

@@ -22,7 +22,7 @@ import android.annotation.SystemApi;
  * @hide
  */
 @SystemApi
-public class VehicleZoneUtil {
+public final class VehicleZoneUtil {
 
     /**
      * Change zone flag into index with available zones.
@@ -129,4 +129,6 @@ public class VehicleZoneUtil {
         }
         return list;
     }
+
+    private VehicleZoneUtil() {}
 }
