@@ -23,7 +23,6 @@ LOCAL_SRC_FILES := $(patsubst ./%,%, $(shell cd $(LOCAL_PATH); \
 LOCAL_SRC_FILES := $(filter-out main_vehiclenetwork.cpp, $(LOCAL_SRC_FILES))
 
 LOCAL_C_INCLUDES += \
-    libcore/include \
     frameworks/base/include \
     packages/services/Car/libvehiclenetwork/include \
     external/libxml2/include \
@@ -44,7 +43,6 @@ LOCAL_SRC_FILES := \
     main_vehiclenetwork.cpp
 
 LOCAL_C_INCLUDES += \
-    libcore/include \
     frameworks/base/include \
     packages/services/Car/libvehiclenetwork/include \
     external/libxml2/include \
