@@ -21,7 +21,6 @@ LOCAL_SRC_FILES := $(patsubst ./%,%, $(shell cd $(LOCAL_PATH); \
     find . -name "*.cpp" -and -not -name ".*"))
 
 LOCAL_C_INCLUDES += \
-    libcore/include \
     frameworks/base/include \
     packages/services/Car/libvehiclenetwork/include
 
