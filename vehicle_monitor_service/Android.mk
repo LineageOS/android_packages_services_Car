@@ -23,7 +23,6 @@ LOCAL_SRC_FILES := $(patsubst ./%,%, $(shell cd $(LOCAL_PATH); \
 LOCAL_SRC_FILES := $(filter-out main_vehiclemonitor.cpp, $(LOCAL_SRC_FILES))
 
 LOCAL_C_INCLUDES += \
-    libcore/include \
     frameworks/base/include \
     packages/services/Car/libvehiclemonitor/include
 
@@ -44,7 +43,6 @@ LOCAL_SRC_FILES := \
     main_vehiclemonitor.cpp
 
 LOCAL_C_INCLUDES += \
-    libcore/include \
     frameworks/base/include \
     packages/services/Car/libvehiclemonitor/include
 
