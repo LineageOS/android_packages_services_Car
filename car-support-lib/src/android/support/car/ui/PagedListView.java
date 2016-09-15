@@ -85,6 +85,8 @@ public class PagedListView extends FrameLayout {
      * </pre>
      */
     public interface ItemCap {
+        public static final int UNLIMITED = -1;
+
         /**
          * Sets the maximum number of items available in the adapter. A value less than '0'
          * means the list should not be capped.
