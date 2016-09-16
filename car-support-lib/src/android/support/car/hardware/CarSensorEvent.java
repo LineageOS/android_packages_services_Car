@@ -25,15 +25,13 @@ import android.support.car.annotation.VersionDef;
 import android.support.car.os.ExtendableParcelable;
 
 /**
- * A CarSensorEvent object corresponds to a single sensor event coming from the car. The sensor
- * data is stored in a sensor-type specific format in the object's float and byte arrays.
- *
- * To aid unmarshalling the object's data arrays, this class provides static nested classes and
- * conversion methods, for example {@link DrivingStatusData} and {@link #getDrivingStatusData}. The
- * conversion methods each have an optional data parameter which, if not null, will be used and
- * returned. This parameter should be used to avoid unnecessary object churn whenever possible.
+ * A CarSensorEvent object corresponds to a single sensor event coming from the car. Sensor
+ * data is stored in a sensor type-specific format in the object's float and byte arrays.
+ * </p>
+ * To aid in unmarshalling the object's data arrays, this class provides static nested classes and
+ * conversion methods (such as {@link DrivingStatusData} and {@link #getDrivingStatusData}).
  * Additionally, calling a conversion method on a CarSensorEvent object with an inappropriate type
- * will result in an {@code UnsupportedOperationException} being thrown.
+ * results in an {@code UnsupportedOperationException} being thrown.
  */
 public class CarSensorEvent extends ExtendableParcelable {
 
@@ -50,55 +48,55 @@ public class CarSensorEvent extends ExtendableParcelable {
     public static final int DRIVE_STATUS_NO_KEYBOARD_INPUT = 0x2;
     /** No voice input allowed. */
     public static final int DRIVE_STATUS_NO_VOICE_INPUT = 0x4;
-    /** No setup / configuration allowed. */
+    /** No setup/configuration allowed. */
     public static final int DRIVE_STATUS_NO_CONFIG = 0x8;
     /** Limit displayed message length. */
     public static final int DRIVE_STATUS_LIMIT_MESSAGE_LEN = 0x10;
-    /** represents case where all of the above items are restricted */
+    /** All driving restrictions enabled. */
     public static final int DRIVE_STATUS_FULLY_RESTRICTED = DRIVE_STATUS_NO_VIDEO |
             DRIVE_STATUS_NO_KEYBOARD_INPUT | DRIVE_STATUS_NO_VOICE_INPUT | DRIVE_STATUS_NO_CONFIG |
             DRIVE_STATUS_LIMIT_MESSAGE_LEN;
     /**
      * Indices for {@link CarSensorManager#SENSOR_TYPE_COMPASS} in floatValues.
-     * Angles are in degrees. Can be NaN if it is not available.
+     * Angles are in degrees. Can be NaN if not available.
      */
     public static final int INDEX_COMPASS_BEARING = 0;
     /**
      * Indices for {@link CarSensorManager#SENSOR_TYPE_COMPASS} in floatValues.
-     * Angles are in degrees. Can be NaN if it is not available.
+     * Angles are in degrees. Can be NaN if not available.
      */
     public static final int INDEX_COMPASS_PITCH   = 1;
     /**
      * Indices for {@link CarSensorManager#SENSOR_TYPE_COMPASS} in floatValues.
-     * Angles are in degrees. Can be NaN if it is not available.
+     * Angles are in degrees. Can be NaN if not available.
      */
     public static final int INDEX_COMPASS_ROLL    = 2;
 
 
     private static final long MILLI_IN_NANOS = 1000000L;
 
-    /** Sensor type for this event like {@link CarSensorManager#SENSOR_TYPE_CAR_SPEED}. */
+    /** Sensor type for this event, such as {@link CarSensorManager#SENSOR_TYPE_CAR_SPEED}. */
     @VersionDef(version = 1)
     public final int sensorType;
 
     /**
-     * When this data was acquired in car or received from car. It is elapsed real-time of data
-     * reception from car in nanoseconds since system boot.
+     * When this data was acquired in car or received from car. It is the elapsed time of data
+     * reception from the car in nanoseconds since system boot.
      */
     @VersionDef(version = 1)
     public final long timeStampNs;
     /**
-     * array holding float type of sensor data. If the sensor has single value, only floatValues[0]
+     * Array holding float type of sensor data. If the sensor has single value, only floatValues[0]
      * should be used. */
     @VersionDef(version = 1)
     public final float[] floatValues;
-    /** array holding int type of sensor data */
+    /** Array holding int type of sensor data. */
     @VersionDef(version = 1)
     public final int[] intValues;
 
     /**
-     * Constructs a {@link CarSensorEvent} from a {@link Parcel}.  Handled by
-     * CarSensorManager implementations.  App developers need not worry about constructing these
+     * Constructs a {@link CarSensorEvent} from a {@link Parcel}. Handled by
+     * CarSensorManager implementations. App developers need not worry about constructing these
      * objects.
      */
     public CarSensorEvent(Parcel in) {
@@ -146,8 +144,8 @@ public class CarSensorEvent extends ExtendableParcelable {
     };
 
     /**
-     * Constructs a {@link CarSensorEvent} from integer values.  Handled by
-     * CarSensorManager implementations.  App developers need not worry about constructing these
+     * Constructs a {@link CarSensorEvent} from integer values. Handled by
+     * CarSensorManager implementations. App developers need not worry about constructing these
      * objects.
      */
     public CarSensorEvent(int sensorType, long timeStampNs, int floatValueSize, int intValueSize) {
@@ -183,9 +181,9 @@ public class CarSensorEvent extends ExtendableParcelable {
         public final long timeStampNs;
         /** The bearing in degrees. If unsupported by the car, this value is NaN. */
         public final float bearing;
-        /** The pitch in degrees. Nose down is positive.  If unsupported by the car, this value is NaN. */
+        /** The pitch in degrees. Nose down is positive. If unsupported by the car, this value is NaN. */
         public final float pitch;
-        /** The roll in degrees. Right door down is positive.  If unsupported by the car, this value is NaN. */
+        /** The roll in degrees. Right door down is positive. If unsupported by the car, this value is NaN. */
         public final float roll;
 
         public CompassData(long timeStampNs, float bearing, float pitch, float roll) {
@@ -200,7 +198,7 @@ public class CarSensorEvent extends ExtendableParcelable {
      * Convenience method for obtaining a {@link CompassData} object from a CarSensorEvent object
      * with type {@link CarSensorManager#SENSOR_TYPE_COMPASS}.
      *
-     * @return a CompassData object corresponding to the data contained in the CarSensorEvent.
+     * @return A CompassData object corresponding to the data contained in the CarSensorEvent.
      */
     public CompassData getCompassData() {
         checkType(CarSensorManager.SENSOR_TYPE_COMPASS);
@@ -209,12 +207,12 @@ public class CarSensorEvent extends ExtendableParcelable {
     }
 
     /**
-     * Tells whether or not the parking brake is engaged.
+     * Indicates the state of the parking brake (engaged or not).
      */
     public static class ParkingBrakeData {
         /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
-        /** True if the parking brake is engaged. */
+        /** Returns {@code true} if the parking brake is engaged. */
         public final boolean isEngaged;
 
         public ParkingBrakeData(long timeStampNs, boolean isEngaged) {
@@ -227,7 +225,7 @@ public class CarSensorEvent extends ExtendableParcelable {
      * Convenience method for obtaining a {@link ParkingBrakeData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_PARKING_BRAKE}.
      *
-     * @return a ParkingBreakData object corresponding to the data contained in the CarSensorEvent.
+     * @return A ParkingBreakData object corresponding to the data contained in the CarSensorEvent.
      */
     public ParkingBrakeData getParkingBrakeData() {
         checkType(CarSensorManager.SENSOR_TYPE_PARKING_BRAKE);
@@ -235,13 +233,13 @@ public class CarSensorEvent extends ExtendableParcelable {
     }
 
     /**
-     * Indicates if the system is in "night mode."  This is generally a state where the screen is
-     * darkened  or showing a darker pallet.
+     * Indicates if the system is in night mode (a state in which the screen is
+     * darkened or displays a darker color pallete).
      */
     public static class NightData {
         /** The time in nanoseconds since system boot. */
         public final long timeStampNs;
-        /** True if the system is in night mode. */
+        /** Returns {@code true} if the system is in night mode. */
         public final boolean isNightMode;
 
         public NightData(long timeStampNs, boolean isNightMode) {
@@ -251,10 +249,10 @@ public class CarSensorEvent extends ExtendableParcelable {
     }
 
     /**
-     * Convenience method for obtaining a {@link NightData} object from a CarSensorEvent object with
-     * type {@link CarSensorManager#SENSOR_TYPE_NIGHT}.
+     * Convenience method for obtaining a {@link NightData} object from a CarSensorEvent object
+     * with type {@link CarSensorManager#SENSOR_TYPE_NIGHT}.
      *
-     * @return a NightData object corresponding to the data contained in the CarSensorEvent.
+     * @return A NightData object corresponding to the data contained in the CarSensorEvent.
      */
     public NightData getNightData() {
         checkType(CarSensorManager.SENSOR_TYPE_NIGHT);
@@ -262,7 +260,7 @@ public class CarSensorEvent extends ExtendableParcelable {
     }
 
     /**
-     * Indicates what restrictions are in effect based on the status of the vehicle.
+     * Indicates the restrictions in effect based on the status of the vehicle.
      */
     public static class DrivingStatusData {
         /**
@@ -270,7 +268,7 @@ public class CarSensorEvent extends ExtendableParcelable {
          */
         public final long timeStampNs;
         /**
-         * A bitmask with the following field values:  {@link #DRIVE_STATUS_NO_VIDEO},
+         * A bitmask with the following field values: {@link #DRIVE_STATUS_NO_VIDEO},
          * {@link #DRIVE_STATUS_NO_KEYBOARD_INPUT}, {@link #DRIVE_STATUS_NO_VOICE_INPUT},
          * {@link #DRIVE_STATUS_NO_CONFIG}, {@link #DRIVE_STATUS_LIMIT_MESSAGE_LEN}. You may read
          * this or use the convenience methods.
@@ -283,42 +281,42 @@ public class CarSensorEvent extends ExtendableParcelable {
         }
 
         /**
-         * @return True if the keyboard is not allowed at this time.
+         * @return Returns {@code true} if the keyboard is not allowed at this time.
          */
         public boolean isKeyboardRestricted() {
             return DRIVE_STATUS_NO_KEYBOARD_INPUT == (status & DRIVE_STATUS_NO_KEYBOARD_INPUT);
         }
 
         /**
-         * @return True if voice commands are not allowed at this time.
+         * @return Returns {@code true} if voice commands are not allowed at this time.
          */
         public boolean isVoiceRestricted() {
             return DRIVE_STATUS_NO_VOICE_INPUT == (status & DRIVE_STATUS_NO_VOICE_INPUT);
         }
 
         /**
-         * @return True if video is not allowed at this time.
+         * @return Returns {@code true} if video is not allowed at this time.
          */
         public boolean isVideoRestricted() {
             return DRIVE_STATUS_NO_VIDEO == (status & DRIVE_STATUS_NO_VIDEO);
         }
 
         /**
-         * @return True if configuration should not be performed at this time.
+         * @return Returns {@code true} if configuration should not be performed at this time.
          */
         public boolean isConfigurationRestricted() {
             return DRIVE_STATUS_NO_CONFIG == (status & DRIVE_STATUS_NO_CONFIG);
         }
 
         /**
-         * @return True if message length should be limited at this time.
+         * @return Returns {@code true} if message length should be limited at this time.
          */
         public boolean isMessageLengthRestricted() {
             return DRIVE_STATUS_LIMIT_MESSAGE_LEN == (status & DRIVE_STATUS_LIMIT_MESSAGE_LEN);
         }
 
         /**
-         * @return True if all restrictions are in place at this time.
+         * @return Returns {@code true} if all restrictions are in place at this time.
          */
         public boolean isFullyRestricted() {
             return DRIVE_STATUS_FULLY_RESTRICTED == (status & DRIVE_STATUS_FULLY_RESTRICTED);
@@ -329,7 +327,8 @@ public class CarSensorEvent extends ExtendableParcelable {
      * Convenience method for obtaining a {@link DrivingStatusData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_DRIVING_STATUS}.
      *
-     * @return a DrivingStatusData object corresponding to the data contained in the CarSensorEvent.
+     * @return A DrivingStatusData object corresponding to the data contained in the
+     * CarSensorEvent.
      */
     public DrivingStatusData getDrivingStatusData() {
         checkType(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
@@ -573,7 +572,7 @@ public class CarSensorEvent extends ExtendableParcelable {
      * Convenience method for obtaining a {@link FuelLevelData} object from a CarSensorEvent object
      * with type {@link CarSensorManager#SENSOR_TYPE_FUEL_LEVEL}.
      *
-     * @return a FuelLevel object corresponding to the data contained in the CarSensorEvent.
+     * @return A FuelLevel object corresponding to the data contained in the CarSensorEvent.
      */
     public FuelLevelData getFuelLevelData() {
         checkType(CarSensorManager.SENSOR_TYPE_FUEL_LEVEL);
@@ -632,7 +631,7 @@ public class CarSensorEvent extends ExtendableParcelable {
      * Convenience method for obtaining a {@link RpmData} object from a CarSensorEvent object with
      * type {@link CarSensorManager#SENSOR_TYPE_RPM}.
      *
-     * @return a RpmData object corresponding to the data contained in the CarSensorEvent.
+     * @return An RpmData object corresponding to the data contained in the CarSensorEvent.
      */
     public RpmData getRpmData() {
         checkType(CarSensorManager.SENSOR_TYPE_RPM);
@@ -733,7 +732,7 @@ public class CarSensorEvent extends ExtendableParcelable {
      * Convenience method for obtaining an {@link AccelerometerData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_ACCELEROMETER}.
      *
-     * @return a AccelerometerData object corresponding to the data contained in the CarSensorEvent.
+     * @return An AccelerometerData object corresponding to the data contained in the CarSensorEvent.
      */
     public AccelerometerData getAccelerometerData() {
         checkType(CarSensorManager.SENSOR_TYPE_ACCELEROMETER);
@@ -766,7 +765,7 @@ public class CarSensorEvent extends ExtendableParcelable {
      * Convenience method for obtaining a {@link GyroscopeData} object from a CarSensorEvent object
      * with type {@link CarSensorManager#SENSOR_TYPE_GYROSCOPE}.
      *
-     * @return a GyroscopeData object corresponding to the data contained in the CarSensorEvent.
+     * @return A GyroscopeData object corresponding to the data contained in the CarSensorEvent.
      */
     public GyroscopeData getGyroscopeData() {
         checkType(CarSensorManager.SENSOR_TYPE_GYROSCOPE);
