@@ -15,20 +15,17 @@
  */
 package android.support.car.navigation;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.IntDef;
 import android.support.car.annotation.VersionDef;
-import android.support.car.os.ExtendableParcelable;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * Holds options related to navigation for the car's instrument cluster.
  */
-public class CarNavigationInstrumentCluster extends ExtendableParcelable {
+public class CarNavigationInstrumentCluster {
 
-    private static final int VERSION = 1;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
@@ -58,18 +55,6 @@ public class CarNavigationInstrumentCluster extends ExtendableParcelable {
     @VersionDef(version = 1)
     private int mImageColorDepthBits;
 
-    public static final Parcelable.Creator<CarNavigationInstrumentCluster> CREATOR
-            = new Parcelable.Creator<CarNavigationInstrumentCluster>() {
-        @Override
-        public CarNavigationInstrumentCluster createFromParcel(Parcel in) {
-            return new CarNavigationInstrumentCluster(in);
-        }
-
-        @Override
-        public CarNavigationInstrumentCluster[] newArray(int size) {
-            return new CarNavigationInstrumentCluster[size];
-        }
-    };
 
     public static CarNavigationInstrumentCluster createCluster(int minIntervalMs) {
         return new CarNavigationInstrumentCluster(minIntervalMs, ClusterType.IMAGE_CODES_ONLY,
@@ -128,7 +113,6 @@ public class CarNavigationInstrumentCluster extends ExtendableParcelable {
             int imageWidth,
             int imageHeight,
             int imageColorDepthBits) {
-        super(VERSION);
         this.mMinIntervalMs = minIntervalMs;
         this.mType = type;
         this.mImageWidth = imageWidth;
@@ -136,32 +120,6 @@ public class CarNavigationInstrumentCluster extends ExtendableParcelable {
         this.mImageColorDepthBits = imageColorDepthBits;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        int startingPosition = writeHeader(dest);
-        dest.writeInt(mMinIntervalMs);
-        dest.writeInt(mType);
-        dest.writeInt(mImageWidth);
-        dest.writeInt(mImageHeight);
-        dest.writeInt(mImageColorDepthBits);
-        completeWriting(dest, startingPosition);
-    }
-
-    private CarNavigationInstrumentCluster(Parcel in) {
-        super(in, VERSION);
-        int lastPosition = readHeader(in);
-        mMinIntervalMs = in.readInt();
-        mType = in.readInt();
-        mImageWidth = in.readInt();
-        mImageHeight = in.readInt();
-        mImageColorDepthBits = in.readInt();
-        completeReading(in, lastPosition);
-    }
 
     /** Converts to string for debug purpose. */
     @Override

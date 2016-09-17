@@ -18,11 +18,8 @@ package android.support.car.hardware;
 
 import android.location.GpsSatellite;
 import android.location.Location;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.car.annotation.VersionDef;
-import android.support.car.os.ExtendableParcelable;
 
 /**
  * A CarSensorEvent object corresponds to a single sensor event coming from the car. Sensor
@@ -33,9 +30,7 @@ import android.support.car.os.ExtendableParcelable;
  * Additionally, calling a conversion method on a CarSensorEvent object with an inappropriate type
  * results in an {@code UnsupportedOperationException} being thrown.
  */
-public class CarSensorEvent extends ExtendableParcelable {
-
-    private static final int VERSION = 1;
+public class CarSensorEvent {
 
     /**
      * Bitmask of driving restrictions.
@@ -95,61 +90,11 @@ public class CarSensorEvent extends ExtendableParcelable {
     public final int[] intValues;
 
     /**
-     * Constructs a {@link CarSensorEvent} from a {@link Parcel}. Handled by
-     * CarSensorManager implementations. App developers need not worry about constructing these
-     * objects.
-     */
-    public CarSensorEvent(Parcel in) {
-        super(in, VERSION);
-        int lastPosition = readHeader(in);
-        sensorType = in.readInt();
-        timeStampNs = in.readLong();
-        int len = in.readInt();
-        floatValues = new float[len];
-        in.readFloatArray(floatValues);
-        len = in.readInt();
-        intValues = new int[len];
-        in.readIntArray(intValues);
-        // version 1 up to here
-        completeReading(in, lastPosition);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        int startingPosition = writeHeader(dest);
-        dest.writeInt(sensorType);
-        dest.writeLong(timeStampNs);
-        dest.writeInt(floatValues.length);
-        dest.writeFloatArray(floatValues);
-        dest.writeInt(intValues.length);
-        dest.writeIntArray(intValues);
-        // version 1 up to here
-        completeWriting(dest, startingPosition);
-    }
-
-    public static final Parcelable.Creator<CarSensorEvent> CREATOR
-            = new Parcelable.Creator<CarSensorEvent>() {
-        public CarSensorEvent createFromParcel(Parcel in) {
-            return new CarSensorEvent(in);
-        }
-
-        public CarSensorEvent[] newArray(int size) {
-            return new CarSensorEvent[size];
-        }
-    };
-
-    /**
      * Constructs a {@link CarSensorEvent} from integer values. Handled by
      * CarSensorManager implementations. App developers need not worry about constructing these
      * objects.
      */
     public CarSensorEvent(int sensorType, long timeStampNs, int floatValueSize, int intValueSize) {
-        super(VERSION);
         this.sensorType = sensorType;
         this.timeStampNs = timeStampNs;
         floatValues = new float[floatValueSize];
@@ -158,7 +103,6 @@ public class CarSensorEvent extends ExtendableParcelable {
 
     /** @hide */
     CarSensorEvent(int sensorType, long timeStampNs, float[] floatValues, int[] intValues) {
-        super(VERSION);
         this.sensorType = sensorType;
         this.timeStampNs = timeStampNs;
         this.floatValues = floatValues;

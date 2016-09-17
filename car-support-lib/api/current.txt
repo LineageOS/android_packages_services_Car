@@ -114,10 +114,8 @@ package android.support.car.annotation {
 
 package android.support.car.hardware {
 
-  public class CarSensorEvent extends android.support.car.os.ExtendableParcelable {
-    ctor public CarSensorEvent(android.os.Parcel);
+  public class CarSensorEvent {
     ctor public CarSensorEvent(int, long, int, int);
-    method public int describeContents();
     method public android.support.car.hardware.CarSensorEvent.AccelerometerData getAccelerometerData();
     method public android.support.car.hardware.CarSensorEvent.CompassData getCompassData();
     method public android.support.car.hardware.CarSensorEvent.DrivingStatusData getDrivingStatusData();
@@ -126,8 +124,6 @@ package android.support.car.hardware {
     method public android.support.car.hardware.CarSensorEvent.NightData getNightData();
     method public android.support.car.hardware.CarSensorEvent.ParkingBrakeData getParkingBrakeData();
     method public android.support.car.hardware.CarSensorEvent.RpmData getRpmData();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.support.car.hardware.CarSensorEvent> CREATOR;
     field public static final int DRIVE_STATUS_FULLY_RESTRICTED = 31; // 0x1f
     field public static final int DRIVE_STATUS_LIMIT_MESSAGE_LEN = 16; // 0x10
     field public static final int DRIVE_STATUS_NO_CONFIG = 8; // 0x8
@@ -267,19 +263,16 @@ package android.support.car.media {
 
 package android.support.car.navigation {
 
-  public class CarNavigationInstrumentCluster extends android.support.car.os.ExtendableParcelable {
+  public class CarNavigationInstrumentCluster {
     ctor public CarNavigationInstrumentCluster(android.support.car.navigation.CarNavigationInstrumentCluster);
     method public static android.support.car.navigation.CarNavigationInstrumentCluster createCluster(int);
     method public static android.support.car.navigation.CarNavigationInstrumentCluster createCustomImageCluster(int, int, int, int);
-    method public int describeContents();
     method public int getImageColorDepthBits();
     method public int getImageHeight();
     method public int getImageWidth();
     method public int getMinIntervalMs();
     method public int getType();
     method public boolean supportsCustomImages();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.support.car.navigation.CarNavigationInstrumentCluster> CREATOR;
   }
 
   public static abstract class CarNavigationInstrumentCluster.ClusterType implements java.lang.annotation.Annotation {
@@ -329,20 +322,6 @@ package android.support.car.navigation {
   public static abstract interface CarNavigationStatusManager.CarNavigationListener {
     method public abstract void onInstrumentClusterStart(android.support.car.navigation.CarNavigationInstrumentCluster);
     method public abstract void onInstrumentClusterStop();
-  }
-
-}
-
-package android.support.car.os {
-
-  public abstract class ExtendableParcelable implements android.os.Parcelable {
-    ctor protected ExtendableParcelable(android.os.Parcel, int);
-    ctor protected ExtendableParcelable(int);
-    method public void completeReading(android.os.Parcel, int);
-    method public void completeWriting(android.os.Parcel, int);
-    method public int readHeader(android.os.Parcel);
-    method public int writeHeader(android.os.Parcel);
-    field public final int version;
   }
 
 }
