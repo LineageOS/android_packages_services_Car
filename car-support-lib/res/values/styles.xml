@@ -97,6 +97,34 @@
         <item name="android:textColor">@color/car_body2_light</item>
     </style>
 
+    <style name="CarKey1" >
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_key1_size</item>
+        <item name="android:textColor">@color/car_key1</item>
+    </style>
+
+    <style name="CarKey1.Dark" >
+        <item name="android:textColor">@color/car_key1_dark</item>
+    </style>
+
+    <style name="CarKey1.Light" >
+        <item name="android:textColor">@color/car_key1_light</item>
+    </style>
+
+    <style name="CarKey2" >
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_key2_size</item>
+        <item name="android:textColor">@color/car_key2</item>
+    </style>
+
+    <style name="CarKey2.Dark" >
+        <item name="android:textColor">@color/car_key2_dark</item>
+    </style>
+
+    <style name="CarKey2.Light" >
+        <item name="android:textColor">@color/car_key2_light</item>
+    </style>
+
     <style name="CarCaption" >
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_caption_size</item>

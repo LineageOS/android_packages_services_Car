@@ -89,6 +89,14 @@
     <color name="car_caption_dark">@color/car_grey_700</color>
     <color name="car_caption">@color/car_caption_dark</color>
 
+    <color name="car_key1_light">@color/car_grey_100</color>
+    <color name="car_key1_dark">@color/car_light_blue_700</color>
+    <color name="car_key1">@color/car_key1_dark</color>
+
+    <color name="car_key2_light">@color/car_grey_400</color>
+    <color name="car_key2_dark">@color/car_grey_650</color>
+    <color name="car_key2">@color/car_key2_dark</color>
+
     <color name="car_micro_light">@color/car_grey_100</color>
     <color name="car_micro_dark">@color/car_grey_700</color>
     <color name="car_micro">@color/car_micro_dark</color>
