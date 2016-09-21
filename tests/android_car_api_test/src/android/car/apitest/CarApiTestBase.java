@@ -34,7 +34,7 @@ public class CarApiTestBase extends AndroidTestCase {
     private final DefaultServiceConnectionListener mConnectionListener =
             new DefaultServiceConnectionListener();
 
-    protected void assertMainThread() {
+    protected static void assertMainThread() {
         assertTrue(Looper.getMainLooper().isCurrentThread());
     }
 
@@ -56,7 +56,7 @@ public class CarApiTestBase extends AndroidTestCase {
         return mCar;
     }
 
-    protected class DefaultServiceConnectionListener implements ServiceConnection {
+    protected static class DefaultServiceConnectionListener implements ServiceConnection {
         private final Semaphore mConnectionWait = new Semaphore(0);
 
         public void waitForConnection(long timeoutMs) throws InterruptedException {
