@@ -240,11 +240,7 @@ public class Car {
         mContext = context;
         mServiceConnectionCallbackClient = serviceConnectionCallback;
         if (handler == null) {
-            Looper looper = Looper.myLooper();
-
-            if(looper == null){
-                looper = Looper.getMainLooper();
-            }
+            Looper looper = Looper.getMainLooper();
             handler = new Handler(looper);
         }
         mEventHandler = handler;
