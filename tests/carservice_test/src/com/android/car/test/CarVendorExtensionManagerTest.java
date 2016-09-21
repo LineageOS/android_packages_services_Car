@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package com.android.car.test;
 
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePermissionModel.VEHICLE_PERMISSION_NO_RESTRICTION;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE;
@@ -56,7 +56,7 @@ import java.util.Random;
 /**
  * Tests for {@link CarVendorExtensionManager}
  */
-public class CarVendorExtensionManagerTest extends CarApiTestBase {
+public class CarVendorExtensionManagerTest extends MockedCarTestBase {
 
     private static final String TAG = CarVendorExtensionManager.class.getSimpleName();
 
