@@ -28,6 +28,8 @@
     <dimen name="car_body_1_size">32sp</dimen>
     <dimen name="car_body_2_size">26sp</dimen>
     <dimen name="car_caption_size">18sp</dimen>
+    <dimen name="car_key1_size">40sp</dimen>
+    <dimen name="car_key2_size">18sp</dimen>
     <dimen name="car_micro_size">20sp</dimen>
 
     <dimen name="car_action_bar_icon_padding">10dp</dimen>
