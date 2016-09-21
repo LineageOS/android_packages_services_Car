@@ -350,7 +350,7 @@ public class Car {
     public Car(Context context, ICar service, @Nullable Handler handler) {
         mContext = context;
         mEventHandler = determineEventHandler(handler);
-        mMainThreadEventHandler = determineMainThreadEventHandler(handler);
+        mMainThreadEventHandler = determineMainThreadEventHandler(mEventHandler);
 
         mService = service;
         mConnectionState = STATE_CONNECTED;
@@ -364,11 +364,7 @@ public class Car {
 
     private static Handler determineEventHandler(@Nullable Handler handler) {
         if (handler == null) {
-            Looper looper = Looper.myLooper();
-
-            if(looper == null){
-                looper = Looper.getMainLooper();
-            }
+            Looper looper = Looper.getMainLooper();
             handler = new Handler(looper);
         }
         return handler;
