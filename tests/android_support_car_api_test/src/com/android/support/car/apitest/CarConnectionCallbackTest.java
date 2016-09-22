@@ -53,7 +53,7 @@ public class CarConnectionCallbackTest extends CarApiTestBase {
         private Semaphore mWaitSemaphore = new Semaphore(0);
 
         @Override
-        public void onConnected(int connectionType) {
+        public void onConnected(Car car, int connectionType) {
             Log.i(TAG, "onConnected " + connectionType);
             mConnectionType = connectionType;
             mIsConnected = true;
@@ -61,7 +61,7 @@ public class CarConnectionCallbackTest extends CarApiTestBase {
         }
 
         @Override
-        public void onDisconnected() {
+        public void onDisconnected(Car car) {
             Log.i(TAG, "onDisconnected");
             mIsConnected = false;
             mWaitSemaphore.release();

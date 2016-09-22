@@ -34,7 +34,7 @@ public final class CarApiUtil {
 
     /**
      * CarService throw IllegalStateException with this message is re-thrown as
-     * {@link CarNotSupportedException}.
+     * {@link CarOperationNotSupportedException}.
      *
      * @hide
      */
@@ -45,17 +45,17 @@ public final class CarApiUtil {
      * exception.
      *
      * @param e exception from CarService
-     * @throws CarNotConnectedException
-     * @throws CarNotSupportedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
+     * @throws CarOperationNotSupportedException
      * @hide
      */
     public static void checkAllIllegalStateExceptionsFromCarService(IllegalStateException e)
-            throws CarNotConnectedException, CarNotSupportedException {
+            throws CarNotConnectedException, CarOperationNotSupportedException {
         String message = e.getMessage();
         if (message.equals(CAR_NOT_CONNECTED_EXCEPTION_MSG)) {
             throw new CarNotConnectedException();
         } else if (message.equals(CAR_NOT_SUPPORTED_EXCEPTION_MSG)) {
-            throw new CarNotSupportedException();
+            throw new CarOperationNotSupportedException();
         } else {
             throw e;
         }
@@ -67,7 +67,7 @@ public final class CarApiUtil {
      * exception.
      *
      * @param e exception from CarService
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @hide
      */
     public static void checkCarNotConnectedExceptionFromCarService(IllegalStateException e)

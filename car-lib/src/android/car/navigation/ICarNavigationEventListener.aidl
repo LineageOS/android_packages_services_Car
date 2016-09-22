@@ -22,6 +22,6 @@ import android.car.navigation.CarNavigationInstrumentCluster;
  * @hide
  */
 oneway interface ICarNavigationEventListener {
-    void onInstrumentClusterStart(in CarNavigationInstrumentCluster instrumentCluster) = 0;
-    void onInstrumentClusterStop() = 1;
+    void onInstrumentClusterStarted(in CarNavigationInstrumentCluster instrumentCluster) = 0;
+    void onInstrumentClusterStopped() = 1;
 }

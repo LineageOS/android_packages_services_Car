@@ -18,7 +18,7 @@ package android.car.apitest;
 import android.car.Car;
 import android.car.CarApiUtil;
 import android.car.CarNotConnectedException;
-import android.car.CarNotSupportedException;
+import android.car.CarOperationNotSupportedException;
 import android.car.settings.CarSettings;
 
 import junit.framework.TestCase;
@@ -97,7 +97,7 @@ public class CarApiUtilTest extends TestCase {
         } catch (Exception exception) {
             resultException = exception;
         }
-        assertTrue(resultException instanceof CarNotSupportedException);
+        assertTrue(resultException instanceof CarOperationNotSupportedException);
 
         e = new IllegalStateException("Hello");
         resultException = null;

@@ -25,9 +25,9 @@ import android.car.hardware.property.ICarPropertyEventListener;
  */
 interface ICarProperty {
 
-    void registerListener(in ICarPropertyEventListener listener) = 0;
+    void registerListener(in ICarPropertyEventListener callback) = 0;
 
-    void unregisterListener(in ICarPropertyEventListener listener) = 1;
+    void unregisterListener(in ICarPropertyEventListener callback) = 1;
 
     List<CarPropertyConfig> getPropertyList() = 2;
 

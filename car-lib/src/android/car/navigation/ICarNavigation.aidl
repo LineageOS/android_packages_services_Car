@@ -28,6 +28,6 @@ interface ICarNavigation {
     void sendNavigationTurnEvent(
         int event, String road, int turnAngle, int turnNumber, in Bitmap image, int turnSide);
     void sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds);
-    boolean registerEventListener(ICarNavigationEventListener listener);
-    boolean unregisterEventListener(ICarNavigationEventListener listener);
+    boolean registerEventListener(ICarNavigationEventListener callback);
+    boolean unregisterEventListener(ICarNavigationEventListener callback);
 }

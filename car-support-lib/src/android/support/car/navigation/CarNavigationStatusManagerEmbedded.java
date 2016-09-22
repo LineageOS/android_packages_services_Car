@@ -32,7 +32,7 @@ public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusMa
     /**
      * @param status new instrument cluster navigation status.
      * @return true if successful.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     @Override
     public boolean sendNavigationStatus(int status) throws CarNotConnectedException {
@@ -77,17 +77,17 @@ public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusMa
     }
 
     /**
-     * In this implementation we just immediately call {@code listener#onInstrumentClusterStart} as
+     * In this implementation we just immediately call {@code listener#onInstrumentClusterStarted} as
      * we expect instrument cluster to be working all the time.
      *
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     @Override
-    public void addListener(CarNavigationListener listener)
+    public void addListener(CarNavigationCallback callback)
             throws CarNotConnectedException {
 
         try {
-            listener.onInstrumentClusterStart(convert(mManager.getInstrumentClusterInfo()));
+            callback.onInstrumentClusterStarted(this, convert(mManager.getInstrumentClusterInfo()));
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }

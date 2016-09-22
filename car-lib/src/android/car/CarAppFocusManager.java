@@ -18,7 +18,6 @@ package android.car;
 
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 
 import java.lang.ref.WeakReference;
@@ -37,20 +36,20 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * Listener to get notification for app getting information on application type status changes.
      */
-    public interface AppFocusChangeListener {
+    public interface OnAppFocusChangedListener {
         /**
          * Application focus has changed. Note that {@link CarAppFocusManager} instance
          * causing the change will not get this notification.
          * @param appType
          * @param active
          */
-        void onAppFocusChange(int appType, boolean active);
+        void onAppFocusChanged(int appType, boolean active);
     }
 
     /**
      * Listener to get notification for app getting information on app type ownership loss.
      */
-    public interface AppFocusOwnershipChangeListener {
+    public interface OnAppFocusOwnershipLostListener {
         /**
          * Lost ownership for the focus, which happens when other app has set the focus.
          * The app losing focus should stop the action associated with the focus.
@@ -58,7 +57,7 @@ public final class CarAppFocusManager implements CarManagerBase {
          * upon getting this for {@link CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.
          * @param appType
          */
-        void onAppFocusOwnershipLoss(int appType);
+        void onAppFocusOwnershipLost(int appType);
     }
 
     /**
@@ -86,9 +85,9 @@ public final class CarAppFocusManager implements CarManagerBase {
 
     private final IAppFocus mService;
     private final Handler mHandler;
-    private final Map<AppFocusChangeListener, IAppFocusListenerImpl> mChangeBinders =
+    private final Map<OnAppFocusChangedListener, IAppFocusListenerImpl> mChangeBinders =
             new HashMap<>();
-    private final Map<AppFocusOwnershipChangeListener, IAppFocusOwnershipListenerImpl>
+    private final Map<OnAppFocusOwnershipLostListener, IAppFocusOwnershipListenerImpl>
             mOwnershipBinders = new HashMap<>();
 
     /**
@@ -102,10 +101,10 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * Register listener to monitor app focus change.
      * @param listener
-     * @param appType Applitcaion type to get notification for.
-     * @throws CarNotConnectedException
+     * @param appType Application type to get notification for.
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void registerFocusListener(AppFocusChangeListener listener, int appType)
+    public void addFocusListener(OnAppFocusChangedListener listener, int appType)
             throws CarNotConnectedException {
         if (listener == null) {
             throw new IllegalArgumentException("null listener");
@@ -130,9 +129,9 @@ public final class CarAppFocusManager implements CarManagerBase {
      * Unregister listener for application type and stop listening focus change events.
      * @param listener
      * @param appType
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void unregisterFocusListener(AppFocusChangeListener listener, int appType)
+    public void removeFocusListener(OnAppFocusChangedListener listener, int appType)
             throws CarNotConnectedException {
         IAppFocusListenerImpl binder;
         synchronized (this) {
@@ -158,9 +157,9 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * Unregister listener and stop listening focus change events.
      * @param listener
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void unregisterFocusListener(AppFocusChangeListener listener)
+    public void removeFocusListener(OnAppFocusChangedListener listener)
             throws CarNotConnectedException {
         IAppFocusListenerImpl binder;
         synchronized (this) {
@@ -180,7 +179,7 @@ public final class CarAppFocusManager implements CarManagerBase {
 
     /**
      * Returns application types currently active in the system.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @hide
      */
     public int[] getActiveAppTypes() throws CarNotConnectedException {
@@ -195,9 +194,9 @@ public final class CarAppFocusManager implements CarManagerBase {
      * Checks if listener is associated with active a focus
      * @param listener
      * @param appType
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public boolean isOwningFocus(AppFocusOwnershipChangeListener listener, int appType)
+    public boolean isOwningFocus(OnAppFocusOwnershipLostListener listener, int appType)
             throws CarNotConnectedException {
         IAppFocusOwnershipListenerImpl binder;
         synchronized (this) {
@@ -216,16 +215,16 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * Requests application focus.
      * By requesting this, the application is becoming owner of the focus, and will get
-     * {@link AppFocusOwnershipChangeListener#onAppFocusOwnershipLoss(int)}
+     * {@link OnAppFocusOwnershipLostListener#onAppFocusOwnershipLost(int)}
      * if ownership is given to other app by calling this. Fore-ground app will have higher priority
      * and other app cannot set the same focus while owner is in fore-ground.
      * @param appType
      * @param ownershipListener
      * @return {@link #APP_FOCUS_REQUEST_FAILED} or {@link #APP_FOCUS_REQUEST_GRANTED}
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @throws SecurityException If owner cannot be changed.
      */
-    public int requestAppFocus(int appType, AppFocusOwnershipChangeListener ownershipListener)
+    public int requestAppFocus(int appType, OnAppFocusOwnershipLostListener ownershipListener)
             throws SecurityException, CarNotConnectedException {
         if (ownershipListener == null) {
             throw new IllegalArgumentException("null listener");
@@ -251,9 +250,9 @@ public final class CarAppFocusManager implements CarManagerBase {
      * for the focus.
      * @param ownershipListener
      * @param appType
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void abandonAppFocus(AppFocusOwnershipChangeListener ownershipListener, int appType)
+    public void abandonAppFocus(OnAppFocusOwnershipLostListener ownershipListener, int appType)
             throws CarNotConnectedException {
         if (ownershipListener == null) {
             throw new IllegalArgumentException("null listener");
@@ -282,9 +281,9 @@ public final class CarAppFocusManager implements CarManagerBase {
      * Abandon all focuses, i.e. mark them as inactive. This also involves releasing ownership
      * for the focus.
      * @param ownershipListener
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void abandonAppFocus(AppFocusOwnershipChangeListener ownershipListener)
+    public void abandonAppFocus(OnAppFocusOwnershipLostListener ownershipListener)
             throws CarNotConnectedException {
         IAppFocusOwnershipListenerImpl binder;
         synchronized (this) {
@@ -311,10 +310,10 @@ public final class CarAppFocusManager implements CarManagerBase {
     private static class IAppFocusListenerImpl extends IAppFocusListener.Stub {
 
         private final WeakReference<CarAppFocusManager> mManager;
-        private final WeakReference<AppFocusChangeListener> mListener;
+        private final WeakReference<OnAppFocusChangedListener> mListener;
         private final Set<Integer> mAppTypes = new HashSet<>();
 
-        private IAppFocusListenerImpl(CarAppFocusManager manager, AppFocusChangeListener listener) {
+        private IAppFocusListenerImpl(CarAppFocusManager manager, OnAppFocusChangedListener listener) {
             mManager = new WeakReference<>(manager);
             mListener = new WeakReference<>(listener);
         }
@@ -336,16 +335,16 @@ public final class CarAppFocusManager implements CarManagerBase {
         }
 
         @Override
-        public void onAppFocusChange(final int appType, final boolean active) {
+        public void onAppFocusChanged(final int appType, final boolean active) {
             final CarAppFocusManager manager = mManager.get();
-            final AppFocusChangeListener listener = mListener.get();
+            final OnAppFocusChangedListener listener = mListener.get();
             if (manager == null || listener == null) {
                 return;
             }
             manager.mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onAppFocusChange(appType, active);
+                    listener.onAppFocusChanged(appType, active);
                 }
             });
         }
@@ -354,11 +353,11 @@ public final class CarAppFocusManager implements CarManagerBase {
     private static class IAppFocusOwnershipListenerImpl extends IAppFocusOwnershipListener.Stub {
 
         private final WeakReference<CarAppFocusManager> mManager;
-        private final WeakReference<AppFocusOwnershipChangeListener> mListener;
+        private final WeakReference<OnAppFocusOwnershipLostListener> mListener;
         private final Set<Integer> mAppTypes = new HashSet<>();
 
         private IAppFocusOwnershipListenerImpl(CarAppFocusManager manager,
-                AppFocusOwnershipChangeListener listener) {
+                OnAppFocusOwnershipLostListener listener) {
             mManager = new WeakReference<>(manager);
             mListener = new WeakReference<>(listener);
         }
@@ -380,16 +379,16 @@ public final class CarAppFocusManager implements CarManagerBase {
         }
 
         @Override
-        public void onAppFocusOwnershipLoss(final int appType) {
+        public void onAppFocusOwnershipLost(final int appType) {
             final CarAppFocusManager manager = mManager.get();
-            final AppFocusOwnershipChangeListener listener = mListener.get();
+            final OnAppFocusOwnershipLostListener listener = mListener.get();
             if (manager == null || listener == null) {
                 return;
             }
             manager.mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onAppFocusOwnershipLoss(appType);
+                    listener.onAppFocusOwnershipLost(appType);
                 }
             });
         }

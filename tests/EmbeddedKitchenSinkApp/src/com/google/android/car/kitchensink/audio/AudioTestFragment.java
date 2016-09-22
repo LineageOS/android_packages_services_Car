@@ -18,8 +18,8 @@ package com.google.android.car.kitchensink.audio;
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
-import android.car.CarAppFocusManager.AppFocusChangeListener;
-import android.car.CarAppFocusManager.AppFocusOwnershipChangeListener;
+import android.car.CarAppFocusManager.OnAppFocusChangedListener;
+import android.car.CarAppFocusManager.OnAppFocusOwnershipLostListener;
 import android.car.CarNotConnectedException;
 import android.car.media.CarAudioManager;
 import android.content.ComponentName;
@@ -119,10 +119,10 @@ public class AudioTestFragment extends Fragment {
                 }
     };
 
-    private final AppFocusOwnershipChangeListener mOwnershipListener =
-            new AppFocusOwnershipChangeListener() {
+    private final CarAppFocusManager.OnAppFocusOwnershipLostListener mOwnershipListener =
+            new OnAppFocusOwnershipLostListener() {
                 @Override
-                public void onAppFocusOwnershipLoss(int focus) {
+                public void onAppFocusOwnershipLost(int focus) {
                 }
     };
 
@@ -139,14 +139,14 @@ public class AudioTestFragment extends Fragment {
                     throw new RuntimeException("Failed to create app focus manager", e);
                 }
                 try {
-                    AppFocusChangeListener listener = new AppFocusChangeListener() {
+                    OnAppFocusChangedListener listener = new OnAppFocusChangedListener() {
                         @Override
-                        public void onAppFocusChange(int appType, boolean active) {
+                        public void onAppFocusChanged(int appType, boolean active) {
                         }
                     };
-                    mAppFocusManager.registerFocusListener(listener,
+                    mAppFocusManager.addFocusListener(listener,
                             CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-                    mAppFocusManager.registerFocusListener(listener,
+                    mAppFocusManager.addFocusListener(listener,
                             CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
                 } catch (CarNotConnectedException e) {
                     Log.e(TAG, "Failed to register focus listener", e);

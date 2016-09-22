@@ -307,14 +307,14 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     private void dispatchAppFocusOwnershipLoss(IAppFocusOwnershipListener listener, int appType) {
         try {
-            listener.onAppFocusOwnershipLoss(appType);
+            listener.onAppFocusOwnershipLost(appType);
         } catch (RemoteException e) {
         }
     }
 
     private void dispatchAppFocusChange(IAppFocusListener listener, int appType, boolean active) {
         try {
-            listener.onAppFocusChange(appType, active);
+            listener.onAppFocusChanged(appType, active);
         } catch (RemoteException e) {
         }
     }

@@ -62,18 +62,13 @@ public class CarProxyActivity extends Activity {
     private final ServiceConnectionCallback mConnectionListener= new ServiceConnectionCallback() {
 
         @Override
-        public void onServiceSuspended(int cause) {
-            Log.w(TAG, "Car service suspended: " + cause);
-        }
-
-        @Override
         public void onServiceDisconnected() {
             Log.w(TAG, "Car service disconnected");
         }
 
         @Override
-        public void onServiceConnectionFailed(int cause) {
-            Log.w(TAG, "Car service connection failed: " + cause);
+        public void onServiceConnectionFailed() {
+            Log.w(TAG, "Car service connection failed");
         }
 
         @Override

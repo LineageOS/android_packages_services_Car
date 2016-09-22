@@ -20,8 +20,6 @@ import android.car.CarAppFocusManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
-import com.android.car.test.MockedCarTestBase;
-
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -39,10 +37,10 @@ public class AppFocusTest extends MockedCarTestBase {
     public void testFocusChange() throws Exception {
         CarAppFocusManager manager = (CarAppFocusManager) getCar().getCarManager(
                 Car.APP_FOCUS_SERVICE);
-        FocusChangeListener listener = new FocusChangeListener();
-        FocusOwnershipChangeListerner ownershipListener = new FocusOwnershipChangeListerner();
-        manager.registerFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-        manager.registerFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
+        FocusChangedListener listener = new FocusChangedListener();
+        FocusOwnershipLostListerner ownershipListener = new FocusOwnershipLostListerner();
+        manager.addFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+        manager.addFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
         manager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, ownershipListener);
         listener.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, true);
@@ -55,10 +53,10 @@ public class AppFocusTest extends MockedCarTestBase {
         manager.abandonAppFocus(ownershipListener, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
         listener.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, false);
-        manager.unregisterFocusListener(listener);
+        manager.removeFocusListener(listener);
     }
 
-    private class FocusChangeListener implements CarAppFocusManager.AppFocusChangeListener {
+    private class FocusChangedListener implements CarAppFocusManager.OnAppFocusChangedListener {
         private int mLastChangeAppType;
         private boolean mLastChangeAppActive;
         private final Semaphore mChangeWait = new Semaphore(0);
@@ -74,16 +72,16 @@ public class AppFocusTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onAppFocusChange(int appType, boolean active) {
-            Log.i(TAG, "onAppFocusChange appType=" + appType + " active=" + active);
+        public void onAppFocusChanged(int appType, boolean active) {
+            Log.i(TAG, "onAppFocusChanged appType=" + appType + " active=" + active);
             mLastChangeAppType = appType;
             mLastChangeAppActive = active;
             mChangeWait.release();
         }
     }
 
-    private class FocusOwnershipChangeListerner
-            implements CarAppFocusManager.AppFocusOwnershipChangeListener {
+    private class FocusOwnershipLostListerner
+            implements CarAppFocusManager.OnAppFocusOwnershipLostListener {
         private int mLastLossEvent;
         private final Semaphore mLossEventWait = new Semaphore(0);
 
@@ -97,8 +95,8 @@ public class AppFocusTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onAppFocusOwnershipLoss(int appType) {
-            Log.i(TAG, "onAppFocusOwnershipLoss " + appType);
+        public void onAppFocusOwnershipLost(int appType) {
+            Log.i(TAG, "onAppFocusOwnershipLost " + appType);
             mLastLossEvent = appType;
             mLossEventWait.release();
         }

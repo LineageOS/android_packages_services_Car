@@ -24,7 +24,6 @@ import android.support.annotation.IntDef;
 import android.support.annotation.RequiresPermission;
 import android.support.car.CarManagerBase;
 import android.support.car.CarNotConnectedException;
-import android.support.car.CarNotSupportedException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -146,13 +145,15 @@ public abstract class CarAudioManager implements CarManagerBase {
      */
     public abstract AudioFormat getAudioRecordAudioFormat();
 
+    public abstract boolean isAudioRecordSupported();
+
     /**
      * Get minimum buffer size for {@link CarAudioRecord}.
      *
      * @return Buffer size in bytes.
      */
     public abstract int getAudioRecordMinBufferSize()
-            throws CarNotConnectedException, CarNotSupportedException;
+            throws CarNotConnectedException;
 
     /**
      * Get maximum buffer size for {@link CarAudioRecord}.
@@ -160,7 +161,7 @@ public abstract class CarAudioManager implements CarManagerBase {
      * @return Buffer size in bytes.
      */
     public abstract int getAudioRecordMaxBufferSize()
-            throws CarNotConnectedException, CarNotSupportedException;
+            throws CarNotConnectedException;
 
     /**
      * Create a {@link CarAudioRecord} for the current {@link CarAudioManager}. There can be
@@ -177,7 +178,7 @@ public abstract class CarAudioManager implements CarManagerBase {
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public abstract CarAudioRecord createCarAudioRecord(int bufferSize)
-            throws SecurityException, CarNotConnectedException, CarNotSupportedException;
+            throws SecurityException, CarNotConnectedException;
 
     /**
      * Check if media audio is muted or not (includes music and radio). Any application
@@ -190,7 +191,8 @@ public abstract class CarAudioManager implements CarManagerBase {
     /**
      * Mute or unmute media stream including radio. Can involve audio focus change to stop
      * the the app currently holding audio focus. If requester is currently holding audio focus,
-     * it gets LOSS_TRANSIENT focus loss. Requires {@link PERMISSION_CAR_CONTROL_AUDIO_VOLUME}
+     * it gets LOSS_TRANSIENT focus loss. Requires
+     * {@link android.support.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME}
      * permission.
      *
      * @param mute Returns {@code true} if media stream should be muted.

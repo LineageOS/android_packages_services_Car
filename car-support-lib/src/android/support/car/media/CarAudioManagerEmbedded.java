@@ -66,6 +66,12 @@ public class CarAudioManagerEmbedded extends CarAudioManager {
     }
 
     @Override
+    public boolean isAudioRecordSupported(){
+        //always true in embedded
+        return true;
+    }
+
+    @Override
     public AudioFormat getAudioRecordAudioFormat() {
         return AUDIO_RECORD_FORMAT;
     }

@@ -77,7 +77,7 @@ public class CarInfoManager implements CarManagerBase {
      * Retrieve floating point information for car.
      * @param key
      * @return null if the key is not supported.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @throws IllegalArgumentException
      */
     public float getFloat(String key) throws CarNotConnectedException, IllegalArgumentException {
@@ -139,7 +139,7 @@ public class CarInfoManager implements CarManagerBase {
      * getInt / getString, but this is for passing more complex data.
      * @param key
      * @return
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @throws IllegalArgumentException
      * @hide
      */

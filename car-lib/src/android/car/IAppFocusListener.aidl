@@ -18,5 +18,5 @@ package android.car;
 
 /** @hide */
 oneway interface IAppFocusListener {
-    void onAppFocusChange(int appType, boolean active) = 0;
+    void onAppFocusChanged(int appType, boolean active) = 0;
 }

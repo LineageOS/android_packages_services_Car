@@ -79,7 +79,7 @@ public class CarSensorEvent {
      * reception from the car in nanoseconds since system boot.
      */
     @VersionDef(version = 1)
-    public final long timeStampNs;
+    public final long timestamp;
     /**
      * Array holding float type of sensor data. If the sensor has single value, only floatValues[0]
      * should be used. */
@@ -94,17 +94,17 @@ public class CarSensorEvent {
      * CarSensorManager implementations. App developers need not worry about constructing these
      * objects.
      */
-    public CarSensorEvent(int sensorType, long timeStampNs, int floatValueSize, int intValueSize) {
+    public CarSensorEvent(int sensorType, long timestamp, int floatValueSize, int intValueSize) {
         this.sensorType = sensorType;
-        this.timeStampNs = timeStampNs;
+        this.timestamp = timestamp;
         floatValues = new float[floatValueSize];
         intValues = new int[intValueSize];
     }
 
     /** @hide */
-    CarSensorEvent(int sensorType, long timeStampNs, float[] floatValues, int[] intValues) {
+    CarSensorEvent(int sensorType, long timestamp, float[] floatValues, int[] intValues) {
         this.sensorType = sensorType;
-        this.timeStampNs = timeStampNs;
+        this.timestamp = timestamp;
         this.floatValues = floatValues;
         this.intValues = intValues;
     }
@@ -122,7 +122,7 @@ public class CarSensorEvent {
      */
     public static class CompassData {
         /** The time in nanoseconds since system boot. */
-        public final long timeStampNs;
+        public final long timestamp;
         /** The bearing in degrees. If unsupported by the car, this value is NaN. */
         public final float bearing;
         /** The pitch in degrees. Nose down is positive. If unsupported by the car, this value is NaN. */
@@ -130,8 +130,8 @@ public class CarSensorEvent {
         /** The roll in degrees. Right door down is positive. If unsupported by the car, this value is NaN. */
         public final float roll;
 
-        public CompassData(long timeStampNs, float bearing, float pitch, float roll) {
-            this.timeStampNs = timeStampNs;
+        public CompassData(long timestamp, float bearing, float pitch, float roll) {
+            this.timestamp = timestamp;
             this.bearing = bearing;
             this.pitch = pitch;
             this.roll = roll;
@@ -155,12 +155,12 @@ public class CarSensorEvent {
      */
     public static class ParkingBrakeData {
         /** The time in nanoseconds since system boot. */
-        public final long timeStampNs;
+        public final long timestamp;
         /** Returns {@code true} if the parking brake is engaged. */
         public final boolean isEngaged;
 
-        public ParkingBrakeData(long timeStampNs, boolean isEngaged) {
-            this.timeStampNs = timeStampNs;
+        public ParkingBrakeData(long timestamp, boolean isEngaged) {
+            this.timestamp = timestamp;
             this.isEngaged = isEngaged;
         }
     }
@@ -173,21 +173,21 @@ public class CarSensorEvent {
      */
     public ParkingBrakeData getParkingBrakeData() {
         checkType(CarSensorManager.SENSOR_TYPE_PARKING_BRAKE);
-        return new ParkingBrakeData(timeStampNs, (intValues[0] == 1));
+        return new ParkingBrakeData(timestamp, (intValues[0] == 1));
     }
 
     /**
      * Indicates if the system is in night mode (a state in which the screen is
-     * darkened or displays a darker color pallete).
+     * darkened or displays a darker color palette).
      */
     public static class NightData {
         /** The time in nanoseconds since system boot. */
-        public final long timeStampNs;
+        public final long timestamp;
         /** Returns {@code true} if the system is in night mode. */
         public final boolean isNightMode;
 
-        public NightData(long timeStampNs, boolean isNightMode) {
-            this.timeStampNs = timeStampNs;
+        public NightData(long timestamp, boolean isNightMode) {
+            this.timestamp = timestamp;
             this.isNightMode = isNightMode;
         }
     }
@@ -200,7 +200,7 @@ public class CarSensorEvent {
      */
     public NightData getNightData() {
         checkType(CarSensorManager.SENSOR_TYPE_NIGHT);
-        return new NightData(timeStampNs, (intValues[0] == 1));
+        return new NightData(timestamp, (intValues[0] == 1));
     }
 
     /**
@@ -210,7 +210,7 @@ public class CarSensorEvent {
         /**
          * The time in nanoseconds since system boot.
          */
-        public final long timeStampNs;
+        public final long timestamp;
         /**
          * A bitmask with the following field values: {@link #DRIVE_STATUS_NO_VIDEO},
          * {@link #DRIVE_STATUS_NO_KEYBOARD_INPUT}, {@link #DRIVE_STATUS_NO_VOICE_INPUT},
@@ -219,8 +219,8 @@ public class CarSensorEvent {
          */
         public final int status;
 
-        public DrivingStatusData(long timeStampNs, int status) {
-            this.timeStampNs = timeStampNs;
+        public DrivingStatusData(long timestamp, int status) {
+            this.timestamp = timestamp;
             this.status = status;
         }
 
@@ -276,7 +276,7 @@ public class CarSensorEvent {
      */
     public DrivingStatusData getDrivingStatusData() {
         checkType(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
-        return new DrivingStatusData(timeStampNs, intValues[0]);
+        return new DrivingStatusData(timestamp, intValues[0]);
     }
 
 
@@ -441,14 +441,14 @@ public class CarSensorEvent {
     /** @hide */
     public static class EnvironmentData {
         /** The time in nanoseconds since system boot. */
-        public final long timeStampNs;
+        public final long timestamp;
         /** If unsupported by the car, this value is NaN. */
         public final float temperature;
         /** If unsupported by the car, this value is NaN. */
         public final float pressure;
 
-        public EnvironmentData(long timeStampNs, float temperature, float pressure) {
-            this.timeStampNs = timeStampNs;
+        public EnvironmentData(long timestamp, float temperature, float pressure) {
+            this.timestamp = timestamp;
             this.temperature = temperature;
             this.pressure = pressure;
         }
@@ -466,17 +466,17 @@ public class CarSensorEvent {
 
         float temperature = floatValues[INDEX_ENVIRONMENT_TEMPERATURE];
         float pressure = floatValues[INDEX_ENVIRONMENT_PRESSURE];
-        return new EnvironmentData(timeStampNs, temperature, pressure);
+        return new EnvironmentData(timestamp, temperature, pressure);
     }
 
     /** @hide */
     public static class GearData {
         /** The time in nanoseconds since system boot. */
-        public final long timeStampNs;
+        public final long timestamp;
         public final int gear;
 
-        public GearData(long timeStampNs, int gear) {
-            this.timeStampNs = timeStampNs;
+        public GearData(long timestamp, int gear) {
+            this.timestamp = timestamp;
             this.gear = gear;
         }
     }
@@ -490,13 +490,13 @@ public class CarSensorEvent {
      */
     public GearData getGearData() {
         checkType(CarSensorManager.SENSOR_TYPE_GEAR);
-        return new GearData(timeStampNs,intValues[0] );
+        return new GearData(timestamp,intValues[0] );
     }
 
     /** @hide */
     public static class FuelLevelData {
         /** The time in nanoseconds since system boot. */
-        public final long timeStampNs;
+        public final long timestamp;
         /** Fuel level in %. If unsupported by the car, this value is -1. */
         public final int level;
         /** Fuel as possible range in Km. If unsupported by the car, this value is -1. */
@@ -504,8 +504,8 @@ public class CarSensorEvent {
         /** If unsupported by the car, this value is false. */
         public final boolean lowFuelWarning;
 
-        public FuelLevelData(long timeStampNs, int level, float range, boolean lowFuelWarning) {
-            this.timeStampNs = timeStampNs;
+        public FuelLevelData(long timestamp, int level, float range, boolean lowFuelWarning) {
+            this.timestamp = timestamp;
             this.level = level;
             this.range = range;
             this.lowFuelWarning = lowFuelWarning;
@@ -532,17 +532,17 @@ public class CarSensorEvent {
             }
         }
         boolean lowFuelWarning = (intValues[0] == 1);
-        return new FuelLevelData(timeStampNs, level, range, lowFuelWarning);
+        return new FuelLevelData(timestamp, level, range, lowFuelWarning);
     }
 
     /** @hide */
     public static class OdometerData {
         /** The time in nanoseconds since system boot. */
-        public final long timeStampNs;
+        public final long timestamp;
         public final float kms;
 
-        public OdometerData(long timeStampNs, float kms) {
-            this.timeStampNs = timeStampNs;
+        public OdometerData(long timestamp, float kms) {
+            this.timestamp = timestamp;
             this.kms = kms;
         }
     }
@@ -556,17 +556,17 @@ public class CarSensorEvent {
      */
     public OdometerData getOdometerData() {
         checkType(CarSensorManager.SENSOR_TYPE_ODOMETER);
-            return new OdometerData(timeStampNs,floatValues[0]);
+            return new OdometerData(timestamp,floatValues[0]);
     }
 
     /** @hide */
     public static class RpmData {
         /** The time in nanoseconds since system boot. */
-        public final long timeStampNs;
+        public final long timestamp;
         public final float rpm;
 
-        public RpmData(long timeStampNs, float rpm) {
-            this.timeStampNs = timeStampNs;
+        public RpmData(long timestamp, float rpm) {
+            this.timestamp = timestamp;
             this.rpm = rpm;
         }
     }
@@ -579,17 +579,17 @@ public class CarSensorEvent {
      */
     public RpmData getRpmData() {
         checkType(CarSensorManager.SENSOR_TYPE_RPM);
-        return new RpmData(timeStampNs, floatValues[0]);
+        return new RpmData(timestamp, floatValues[0]);
     }
 
     /** @hide */
     public static class CarSpeedData {
         /** The time in nanoseconds since system boot. */
-        public final long timeStampNs;
+        public final long timestamp;
         public final float carSpeed;
 
-        public CarSpeedData(long timeStampNs, float carSpeed) {
-            this.timeStampNs = timeStampNs;
+        public CarSpeedData(long timestamp, float carSpeed) {
+            this.timestamp = timestamp;
             this.carSpeed = carSpeed;
         }
     }
@@ -603,7 +603,7 @@ public class CarSensorEvent {
      */
     public CarSpeedData getCarSpeedData() {
         checkType(CarSensorManager.SENSOR_TYPE_CAR_SPEED);
-        return new CarSpeedData(timeStampNs, floatValues[0]);
+        return new CarSpeedData(timestamp, floatValues[0]);
     }
 
     /**
@@ -642,21 +642,21 @@ public class CarSensorEvent {
         if ((presense & (0x1 << INDEX_LOCATION_BEARING)) != 0) {
             location.setBearing(floatValues[INDEX_LOCATION_BEARING]);
         }
-        location.setElapsedRealtimeNanos(timeStampNs);
+        location.setElapsedRealtimeNanos(timestamp);
         // There is a risk of scheduler delaying 2nd elapsedRealtimeNs value.
         // But will not try to fix it assuming that is acceptable as UTC time's accuracy is not
         // guaranteed in Location data.
         long currentTimeMs = System.currentTimeMillis();
         long elapsedRealtimeNs = SystemClock.elapsedRealtimeNanos();
         location.setTime(
-                currentTimeMs - (elapsedRealtimeNs - timeStampNs) / MILLI_IN_NANOS);
+                currentTimeMs - (elapsedRealtimeNs - timestamp) / MILLI_IN_NANOS);
         return location;
     }
 
     /** @hide */
     public static class AccelerometerData  {
         /** The time in nanoseconds since system boot. */
-        public final long timeStampNs;
+        public final long timestamp;
         /** If unsupported by the car, this value is NaN. */
         public final float x;
         /** If unsupported by the car, this value is NaN. */
@@ -664,8 +664,8 @@ public class CarSensorEvent {
         /** If unsupported by the car, this value is NaN. */
         public final float z;
 
-        public AccelerometerData(long timeStampNs, float x, float y, float z) {
-            this.timeStampNs = timeStampNs;
+        public AccelerometerData(long timestamp, float x, float y, float z) {
+            this.timestamp = timestamp;
             this.x = x;
             this.y = y;
             this.z = z;
@@ -683,13 +683,13 @@ public class CarSensorEvent {
         float x = floatValues[INDEX_ACCELEROMETER_X];
         float y = floatValues[INDEX_ACCELEROMETER_Y];
         float z = floatValues[INDEX_ACCELEROMETER_Z];
-        return new AccelerometerData(timeStampNs, x, y, z);
+        return new AccelerometerData(timestamp, x, y, z);
     }
 
     /** @hide */
     public static class GyroscopeData {
         /** The time in nanoseconds since system boot. */
-        public final long timeStampNs;
+        public final long timestamp;
         /** If unsupported by the car, this value is NaN. */
         public final float x;
         /** If unsupported by the car, this value is NaN. */
@@ -697,8 +697,8 @@ public class CarSensorEvent {
         /** If unsupported by the car, this value is NaN. */
         public final float z;
 
-        public GyroscopeData(long timeStampNs, float x, float y, float z) {
-            this.timeStampNs = timeStampNs;
+        public GyroscopeData(long timestamp, float x, float y, float z) {
+            this.timestamp = timestamp;
             this.x = x;
             this.y = y;
             this.z = z;
@@ -716,7 +716,7 @@ public class CarSensorEvent {
         float x = floatValues[INDEX_GYROSCOPE_X];
         float y = floatValues[INDEX_GYROSCOPE_Y];
         float z = floatValues[INDEX_GYROSCOPE_Z];
-        return new GyroscopeData(timeStampNs, x, y, z);
+        return new GyroscopeData(timestamp, x, y, z);
     }
 
     // android.location.GpsSatellite doesn't have a public constructor, so that can't be used.
@@ -727,7 +727,7 @@ public class CarSensorEvent {
      */
     public static class GpsSatelliteData {
         /** The time in nanoseconds since system boot. */
-        public final long timeStampNs;
+        public final long timestamp;
         /**
          * Number of satellites used in GPS fix or -1 of unavailable.
          */
@@ -762,9 +762,9 @@ public class CarSensorEvent {
          */
         public final float[] elevation ;
 
-        public GpsSatelliteData(long timeStampNs, int numberInUse, int numberInView,
+        public GpsSatelliteData(long timestamp, int numberInUse, int numberInView,
                 boolean[] usedInFix, int[] prn, float[] snr, float[] azimuth, float[] elevation) {
-            this.timeStampNs = timeStampNs;
+            this.timestamp = timestamp;
             this.numberInUse = numberInUse;
             this.numberInView = numberInView;
             this.usedInFix = usedInFix;
@@ -822,7 +822,7 @@ public class CarSensorEvent {
                         + CarSensorEvent.INDEX_GPS_SATELLITE_ELEVATION_OFFSET];
             }
         }
-        return new GpsSatelliteData(timeStampNs, numberInUse, numberInView, usedInFix, prn, snr,
+        return new GpsSatelliteData(timestamp, numberInUse, numberInView, usedInFix, prn, snr,
                 azimuth, elevation);
     }
 

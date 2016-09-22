@@ -16,7 +16,6 @@
 
 package android.support.car;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -28,11 +27,16 @@ import android.support.car.content.pm.CarPackageManager;
 import android.support.car.hardware.CarSensorManager;
 import android.support.car.media.CarAudioManager;
 import android.support.car.navigation.CarNavigationStatusManager;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Top-level car API that provides access to all car services and data available in the platform.
@@ -75,6 +79,21 @@ public class Car {
      */
     public static final String NAVIGATION_STATUS_SERVICE = "car_navigation_service";
 
+    // TODO(jthol) move into a more robust registry implementation
+    private static final Map<Class, String> CLASS_TO_SERVICE_NAME;
+    static{
+        Map<Class, String> mapping = new HashMap<>();
+        mapping.put(CarSensorManager.class, SENSOR_SERVICE);
+        mapping.put(CarInfoManager.class, INFO_SERVICE);
+        mapping.put(CarAppFocusManager.class, APP_FOCUS_SERVICE);
+        mapping.put(CarPackageManager.class, PACKAGE_SERVICE);
+        mapping.put(CarAudioManager.class, AUDIO_SERVICE);
+        mapping.put(CarNavigationStatusManager.class, NAVIGATION_STATUS_SERVICE);
+
+        CLASS_TO_SERVICE_NAME = Collections.unmodifiableMap(mapping);
+    }
+
+
     /**
      * Type of car connection: car emulator, no physical connection.
      */
@@ -100,14 +119,26 @@ public class Car {
      */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
     /**
-     * Unknown type (the support lib is likely out-of-date).
-     */
-    public static final int CONNECTION_TYPE_UNKNOWN = -1;
-    /**
      * Type of car connection: platform runs directly in car with mocked vehicle HAL. Occurs
      * only in a testing environment.
      */
     public static final int CONNECTION_TYPE_EMBEDDED_MOCKING = 6;
+    /**
+     * Unknown type (the support lib is likely out-of-date).
+     */
+    public static final int CONNECTION_TYPE_UNKNOWN = -1;
+
+    private static final Set<Integer> CONNECTION_TYPES = new HashSet<>();
+    static {
+        CONNECTION_TYPES.add(CONNECTION_TYPE_ADB_EMULATOR);
+        CONNECTION_TYPES.add(CONNECTION_TYPE_USB);
+        CONNECTION_TYPES.add(CONNECTION_TYPE_WIFI);
+        CONNECTION_TYPES.add(CONNECTION_TYPE_ON_DEVICE_EMULATOR);
+        CONNECTION_TYPES.add(CONNECTION_TYPE_ADB_EMULATOR);
+        CONNECTION_TYPES.add(CONNECTION_TYPE_EMBEDDED);
+        CONNECTION_TYPES.add(CONNECTION_TYPE_EMBEDDED_MOCKING);
+    }
+
 
     /** @hide */
     @IntDef({CONNECTION_TYPE_EMULATOR, CONNECTION_TYPE_USB, CONNECTION_TYPE_WIFI,
@@ -155,6 +186,12 @@ public class Car {
      */
     private static final String PROJECTED_CAR_SERVICE_LOADER =
             "com.google.android.gms.car.CarServiceLoaderGms";
+    /**
+     * Permission necessary to change car audio volume through {@link CarAudioManager}.
+     * @hide
+     */
+    public static final String PERMISSION_CAR_CONTROL_AUDIO_VOLUME =
+            "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
 
     private final Context mContext;
     private final Handler mEventHandler;
@@ -187,13 +224,8 @@ public class Car {
                 }
 
                 @Override
-                public void onServiceSuspended(int cause) {
-                    mServiceConnectionCallbackClient.onServiceSuspended(cause);
-                }
-
-                @Override
-                public void onServiceConnectionFailed(int cause) {
-                    mServiceConnectionCallbackClient.onServiceConnectionFailed(cause);
+                public void onServiceConnectionFailed() {
+                    mServiceConnectionCallbackClient.onServiceConnectionFailed();
                 }
             };
 
@@ -247,7 +279,7 @@ public class Car {
 
         if (mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
             mCarServiceLoader =
-                    new CarServiceLoaderEmbedded(context, mServiceConnectionCallback,
+                    new CarServiceLoaderEmbedded(this, context, mServiceConnectionCallback,
                             mEventHandler);
         } else {
             mCarServiceLoader = loadCarServiceLoader(PROJECTED_CAR_SERVICE_LOADER, context,
@@ -337,7 +369,7 @@ public class Car {
     }
 
     /**
-     * @return Returns {@code true} if this object is connected to the service and {@code false} if
+     * @return Returns {@code true} if this object is connected to the service; {@code false}
      * otherwise.
      */
     public boolean isConnected() {
@@ -370,7 +402,7 @@ public class Car {
      * <pre>{@code CarSensorManager sensorManager =
      *     (CarSensorManager) car.getCarManager(Car.SENSOR_SERVICE);}</pre>
      *
-     * @param serviceName Name of service to create, e.g. {@link #SENSOR_SERVICE}.
+     * @param serviceName Name of service to create, for example {@link #SENSOR_SERVICE}.
      * @return The requested service manager or null if the service is not available.
      */
     public Object getCarManager(String serviceName)
@@ -391,17 +423,40 @@ public class Car {
     }
 
     /**
-     * Return the type of currently connected car.
+     * Get a car-specific manager. This is modeled after {@link Context#getSystemService(Class)}.
+     * The returned service will be type cast to the desired manager. For example,
+     * to get the sensor service, use the following:
+     * <pre>{@code CarSensorManager sensorManager = car.getCarManager(CarSensorManager.class);
+     * }</pre>
+     *
+     * @param serviceClass Class: The class of the desired service. For
+     * example {@link CarSensorManager}.
+     * @return The service or null if the class is not a supported car service.
+     */
+    public <T> T getCarManager(Class<T> serviceClass) throws CarNotConnectedException {
+        // TODO(jthol) port to a more robust registry implementation
+        String serviceName = CLASS_TO_SERVICE_NAME.get(serviceClass);
+        return (serviceName == null) ? null: (T) getCarManager(serviceName);
+
+    }
+
+    /**
+     * Return the type of currently connected car. This should only be used for testing scenarios
      *
      * @return One of {@link #CONNECTION_TYPE_USB}, {@link #CONNECTION_TYPE_WIFI},
      * {@link #CONNECTION_TYPE_EMBEDDED}, {@link #CONNECTION_TYPE_ON_DEVICE_EMULATOR},
      * {@link #CONNECTION_TYPE_ADB_EMULATOR}, {@link #CONNECTION_TYPE_EMBEDDED_MOCKING},
      * {@link #CONNECTION_TYPE_UNKNOWN}.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
+     * @hide
      */
     @ConnectionType
     public int getCarConnectionType() throws CarNotConnectedException {
-        return mCarServiceLoader.getCarConnectionType();
+        int carConnectionType = mCarServiceLoader.getCarConnectionType();
+        if(!CONNECTION_TYPES.contains(carConnectionType)){
+            return CONNECTION_TYPE_UNKNOWN;
+        }
+        return carConnectionType;
     }
 
     /**

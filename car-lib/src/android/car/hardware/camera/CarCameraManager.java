@@ -75,7 +75,7 @@ public class CarCameraManager implements CarManagerBase {
      *
      * @param cameraType Camera type to query capabilites
      * @return Bitmask of camera capabilities available for this device
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public int getCameraCapabilities(int cameraType) throws CarNotConnectedException {
         int capabilities;

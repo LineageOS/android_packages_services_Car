@@ -16,7 +16,6 @@
 
 package android.support.car;
 
-import android.content.ComponentName;
 import android.content.ServiceConnection;
 
 /**
@@ -38,14 +37,7 @@ public abstract class ServiceConnectionCallback {
     public abstract void onServiceDisconnected();
 
     /**
-     * Car Service is temporarily suspended for reasons such as an update.
-     * @param cause The reason for the suspension. Currently unused.
-     */
-    public abstract void onServiceSuspended(int cause);
-
-    /**
      * Connection failed. Client may retry.
-     * @param cause The reason for the failure. Currently unused.
      */
-    public abstract void onServiceConnectionFailed(int cause);
+    public abstract void onServiceConnectionFailed();
 }

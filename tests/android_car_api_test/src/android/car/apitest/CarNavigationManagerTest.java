@@ -17,8 +17,7 @@ package android.car.apitest;
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
-import android.car.CarAppFocusManager.AppFocusChangeListener;
-import android.car.CarAppFocusManager.AppFocusOwnershipChangeListener;
+import android.car.CarAppFocusManager.OnAppFocusOwnershipLostListener;
 import android.car.navigation.CarNavigationManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
@@ -58,15 +57,15 @@ public class CarNavigationManagerTest extends CarApiTestBase {
             // Expected. Client should acquire focus ownership for APP_FOCUS_TYPE_NAVIGATION.
         }
 
-        mCarAppFocusManager.registerFocusListener(new AppFocusChangeListener() {
+        mCarAppFocusManager.addFocusListener(new CarAppFocusManager.OnAppFocusChangedListener() {
             @Override
-            public void onAppFocusChange(int appType, boolean active) {
+            public void onAppFocusChanged(int appType, boolean active) {
                 // Nothing to do here.
             }
         }, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-        AppFocusOwnershipChangeListener ownershipListener = new AppFocusOwnershipChangeListener() {
+        OnAppFocusOwnershipLostListener ownershipListener = new OnAppFocusOwnershipLostListener() {
             @Override
-            public void onAppFocusOwnershipLoss(int focus) {
+            public void onAppFocusOwnershipLost(int focus) {
                 // Nothing to do here.
             }
         };

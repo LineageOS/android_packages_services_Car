@@ -37,17 +37,12 @@ public class CarTest extends AndroidTestCase {
             new ServiceConnectionCallback() {
 
         @Override
-        public void onServiceSuspended(int cause) {
-            assertMainThread();
-        }
-
-        @Override
         public void onServiceDisconnected() {
             assertMainThread();
         }
 
         @Override
-        public void onServiceConnectionFailed(int cause) {
+        public void onServiceConnectionFailed() {
             assertMainThread();
         }
 

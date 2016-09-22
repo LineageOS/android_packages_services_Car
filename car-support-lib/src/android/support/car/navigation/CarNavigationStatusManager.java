@@ -27,7 +27,7 @@ import android.support.car.CarNotConnectedException;
  * turn-by-turn information to the cluster through this manager.
  * <p/>
  * Navigation applications should first call {@link CarAppFocusManager#requestAppFocus(int,
- * CarAppFocusManager.AppFocusOwnershipChangeListener)} and request {@link
+ * CarAppFocusManager.OnAppFocusOwnershipLostListener)} and request {@link
  * CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}. After navigation focus is granted, apps can
  * request this manager via {@link Car#getCarManager(String)}. In cars without an instrument
  * cluster, a null value is returned.
@@ -49,18 +49,23 @@ public interface CarNavigationStatusManager extends CarManagerBase {
     /**
      * Listener for navigation related events. Callbacks are called in the Looper context.
      */
-    public interface CarNavigationListener {
+    public interface CarNavigationCallback {
         /**
          * Instrument Cluster started in navigation mode.
+         * @param manager The manager the callback is attached to.  Useful if the app wished to
+         * unregister.
          * @param instrumentCluster An object describing the configuration and state of the car's
          * navigation instrument cluster.
          */
-        void onInstrumentClusterStart(CarNavigationInstrumentCluster instrumentCluster);
+        void onInstrumentClusterStarted(CarNavigationStatusManager manager,
+                CarNavigationInstrumentCluster instrumentCluster);
 
         /**
          * Instrument cluster ended.
+         * @param manager The manager the callback is attached to.  Useful if the app wished to
+         * unregister.
          */
-        void onInstrumentClusterStop();
+        void onInstrumentClusterStopped(CarNavigationStatusManager manager);
     }
 
     /* Navigation statuses */
@@ -144,7 +149,7 @@ public interface CarNavigationStatusManager extends CarManagerBase {
      * @param status New instrument cluster navigation status, one of the STATUS_* constants in
      * this class.
      * @return Returns {@code true} if successful.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     boolean sendNavigationStatus(int status) throws CarNotConnectedException;
 
@@ -168,7 +173,7 @@ public interface CarNavigationStatusManager extends CarManagerBase {
      * @param turnSide Turn side ({@link #TURN_SIDE_LEFT}, {@link #TURN_SIDE_RIGHT} or {@link
      * #TURN_SIDE_UNSPECIFIED}).
      * @return Returns {@code true} if successful.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     boolean sendNavigationTurnEvent(int event, String road, int turnAngle, int turnNumber,
             int turnSide) throws CarNotConnectedException;
@@ -197,20 +202,20 @@ public interface CarNavigationStatusManager extends CarManagerBase {
      * @param displayDistanceUnit Unit type to use on of the DISTANCE_* types defined in this
      * file.
      * @return Returns {@code true} if successful.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
             int displayDistanceMillis, int displayDistanceUnit) throws CarNotConnectedException;
 
     /**
-     * @param Listener {@link CarNavigationListener} to be registered, replacing any existing
+     * @param callback {@link CarNavigationCallback} to be registered, replacing any existing
      * listeners.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    void addListener(CarNavigationListener listener) throws CarNotConnectedException;
+    void addListener(CarNavigationCallback callback) throws CarNotConnectedException;
 
     /**
-     * Unregister the {@link CarNavigationListener} associated with this instance.
+     * Unregister the {@link CarNavigationCallback} associated with this instance.
      */
     void removeListener();
 }

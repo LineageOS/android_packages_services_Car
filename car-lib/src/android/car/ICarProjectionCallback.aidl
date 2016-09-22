@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,9 @@
 
 package android.car;
 
-
 /**
- * Exception thrown when car is not supporting the requested operation.
+ * @hide
  */
-public class CarNotSupportedException extends Exception {
-    private static final long serialVersionUID = -8120487541467522808L;
-
-    public CarNotSupportedException() {
-    }
-
-    public CarNotSupportedException(String name) {
-        super(name);
-    }
-
-    public CarNotSupportedException(String name, Throwable cause) {
-        super(name, cause);
-    }
-
-    public CarNotSupportedException(Exception cause) {
-        super(cause);
-    }
+oneway interface ICarProjectionCallback {
+    void onVoiceAssistantRequest(boolean fromLongPress) = 0;
 }

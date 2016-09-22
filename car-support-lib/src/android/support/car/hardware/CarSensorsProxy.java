@@ -46,13 +46,16 @@ class CarSensorsProxy {
     private static final int MSG_SENSORT_EVENT = 1;
 
     // @GuardedBy("this")
-    private final Map<Integer, Set<CarSensorManager.CarSensorEventListener>> mListenersMultiMap;
+    private final Map<Integer, Set<CarSensorManager.OnSensorChangedListener>> mListenersMultiMap;
     private final LocationManager mLocationManager;
     private final SensorManager mSensorManager;
     private final Sensor mAccelerometerSensor;
     private final Sensor mMagneticFieldSensor;
     private final Sensor mGyroscopeSensor;
     private final int[] mSupportedSensors;
+
+    // returned with the onSensorChanged messages.
+    private final CarSensorManager mCarSensorManager;
 
     // @GuardedBy("this")
     private Location mLastLocation;
@@ -157,15 +160,15 @@ class CarSensorsProxy {
                 switch (msg.what) {
                     case MSG_SENSORT_EVENT:
                         int sensorType = msg.arg1;
-                        Collection<CarSensorManager.CarSensorEventListener> listenersCollection;
+                        Collection<CarSensorManager.OnSensorChangedListener> listenersCollection;
                         synchronized (CarSensorsProxy.this) {
                             listenersCollection = mListenersMultiMap.get(sensorType);
                         }
                         CarSensorEvent event = (CarSensorEvent) msg.obj;
                         if (event != null) {
-                            for (CarSensorManager.CarSensorEventListener listener :
+                            for (CarSensorManager.OnSensorChangedListener listener :
                                          listenersCollection) {
-                                listener.onSensorChanged(event);
+                                listener.onSensorChanged(mCarSensorManager, event);
                             }
                         }
                         break;
@@ -176,15 +179,15 @@ class CarSensorsProxy {
             }
         };
 
-    CarSensorsProxy(Context context) {
+    CarSensorsProxy(CarSensorManager carSensorManager, Context context) {
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         mAccelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mMagneticFieldSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         mGyroscopeSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        mListenersMultiMap = new HashMap<Integer, Set<CarSensorManager.CarSensorEventListener>>();
+        mListenersMultiMap = new HashMap<Integer, Set<CarSensorManager.OnSensorChangedListener>>();
         mSupportedSensors = initSupportedSensors(context);
-
+        mCarSensorManager = carSensorManager;
     }
 
     private int[] initSupportedSensors(Context context) {
@@ -232,14 +235,14 @@ class CarSensorsProxy {
         return mSupportedSensors;
     }
 
-    public boolean registerSensorListener(CarSensorManager.CarSensorEventListener listener,
+    public boolean registerSensorListener(CarSensorManager.OnSensorChangedListener listener,
             int sensorType, int rate) {
         // current implementation ignores rate.
         boolean sensorSetChanged = false;
         synchronized (this) {
             if (mListenersMultiMap.get(sensorType) == null) {
                 mListenersMultiMap.put(sensorType,
-                                       new HashSet<CarSensorManager.CarSensorEventListener>());
+                                       new HashSet<CarSensorManager.OnSensorChangedListener>());
                 sensorSetChanged = true;
             }
             mListenersMultiMap.get(sensorType).add(listener);
@@ -253,14 +256,14 @@ class CarSensorsProxy {
         return true;
     }
 
-    public void unregisterSensorListener(CarSensorManager.CarSensorEventListener listener,
+    public void unregisterSensorListener(CarSensorManager.OnSensorChangedListener listener,
             int sensorType) {
         if (listener == null) {
             return;
         }
         boolean sensorSetChanged = false;
         synchronized (this) {
-            Set<CarSensorManager.CarSensorEventListener> sensorTypeListeneres =
+            Set<CarSensorManager.OnSensorChangedListener> sensorTypeListeneres =
                     mListenersMultiMap.get(sensorType);
             if (sensorTypeListeneres != null) {
                 sensorTypeListeneres.remove(listener);
@@ -275,13 +278,13 @@ class CarSensorsProxy {
         };
     }
 
-    public void unregisterSensorListener(CarSensorManager.CarSensorEventListener listener) {
+    public void unregisterSensorListener(CarSensorManager.OnSensorChangedListener listener) {
         if (listener == null) {
             return;
         }
         Set<Integer> sensorsToRemove = new HashSet<>();
         synchronized (this) {
-            for (Map.Entry<Integer, Set<CarSensorManager.CarSensorEventListener>> entry :
+            for (Map.Entry<Integer, Set<CarSensorManager.OnSensorChangedListener>> entry :
                          mListenersMultiMap.entrySet()) {
                 if (entry.getValue().contains(listener)) {
                     entry.getValue().remove(listener);

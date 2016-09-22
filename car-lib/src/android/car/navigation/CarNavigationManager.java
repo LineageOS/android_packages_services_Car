@@ -108,7 +108,7 @@ public class CarNavigationManager implements CarManagerBase {
     /**
      * @param status new instrument cluster navigation status.
      * @return true if successful.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public boolean sendNavigationStatus(int status) throws CarNotConnectedException {
         try {
@@ -148,7 +148,7 @@ public class CarNavigationManager implements CarManagerBase {
      * @param turnSide turn side ({@link #TURN_SIDE_LEFT}, {@link #TURN_SIDE_RIGHT} or
      *        {@link #TURN_SIDE_UNSPECIFIED}).
      * @return true if successful.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      *
      */
     public boolean sendNavigationTurnEvent(int event, String road, int turnAngle, int turnNumber,
@@ -176,7 +176,7 @@ public class CarNavigationManager implements CarManagerBase {
      * @param displayDistanceUnit units for {@param displayDistanceMillis} param.
      * See {@link DisplayDistanceUnit} for acceptable values.
      * @return true if successful.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
             int displayDistanceMillis, @DisplayDistanceUnit int displayDistanceUnit)

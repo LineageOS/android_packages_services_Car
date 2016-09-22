@@ -23,8 +23,7 @@ import android.support.car.annotation.ValueTypeDef;
  * Utility to retrieve static information from a car. String keys require different types of
  * values, so be sure to query using the correct API (such as {@link #getFloat(String)} for float
  * type and {@link #getInt(String)} for int type). Passing a key string to the wrong
- * API causes an {@link IllegalArgumentException}. Get* APIs return null if the requested
- * property is not supported by the car.
+ * API causes an {@link IllegalArgumentException}.
  */
 public abstract class CarInfoManager implements CarManagerBase {
 

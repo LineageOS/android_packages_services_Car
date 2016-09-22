@@ -16,16 +16,13 @@
 
 package com.android.car;
 
-import android.Manifest;
 import android.car.Car;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.ICarSensor;
 import android.car.hardware.ICarSensorEventListener;
-import android.car.hardware.CarSensorManager.CarSensorEventListener;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.hardware.SensorEvent;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -42,13 +39,11 @@ import android.util.SparseBooleanArray;
 import com.android.car.hal.VehicleHal;
 import com.android.car.hal.SensorHalService;
 import com.android.car.hal.SensorHalServiceBase;
-import com.android.car.hal.SensorHalServiceBase.SensorListener;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -237,7 +232,7 @@ public class CarSensorService extends ICarSensor.Stub
             if (record != null) {
                 if (record.lastEvent == null) {
                     record.lastEvent = event;
-                } else if (record.lastEvent.timeStampNs < event.timeStampNs) {
+                } else if (record.lastEvent.timestamp < event.timestamp) {
                     record.lastEvent = event;
                     //TODO recycle event
                 } else { // wrong timestamp, throw away this.
