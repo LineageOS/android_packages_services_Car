@@ -21,12 +21,12 @@
     <dimen name="car_app_layout_search_box_small_width">320dp</dimen>
     <dimen name="car_app_layout_search_box_small_margin">16dp</dimen>
 
-    <dimen name="car_headline_0_size">50sp</dimen>
-    <dimen name="car_headline_1_size">45sp</dimen>
-    <dimen name="car_headline_2_size">36sp</dimen>
+    <dimen name="car_headline0_size">50sp</dimen>
+    <dimen name="car_headline1_size">45sp</dimen>
+    <dimen name="car_headline2_size">36sp</dimen>
     <dimen name="car_title_size">26sp</dimen>
-    <dimen name="car_body_1_size">32sp</dimen>
-    <dimen name="car_body_2_size">26sp</dimen>
+    <dimen name="car_body1_size">32sp</dimen>
+    <dimen name="car_body2_size">26sp</dimen>
     <dimen name="car_caption_size">18sp</dimen>
     <dimen name="car_key1_size">40sp</dimen>
     <dimen name="car_key2_size">18sp</dimen>
