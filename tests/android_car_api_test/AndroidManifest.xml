@@ -34,5 +34,7 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        <service android:name=".CarProjectionManagerTest$TestService"
+                 android:exported="true" />
     </application>
 </manifest>
