@@ -16,7 +16,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android" >
     <style name="CarHeadline0" >
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_headline_0_size</item>
+        <item name="android:textSize">@dimen/car_headline0_size</item>
         <item name="android:textColor">@color/car_headline0</item>
     </style>
 
@@ -30,7 +30,7 @@
 
     <style name="CarHeadline1" >
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_headline_1_size</item>
+        <item name="android:textSize">@dimen/car_headline1_size</item>
         <item name="android:textColor">@color/car_headline1</item>
     </style>
 
@@ -44,7 +44,7 @@
 
     <style name="CarHeadline2" >
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_headline_2_size</item>
+        <item name="android:textSize">@dimen/car_headline2_size</item>
         <item name="android:textColor">@color/car_headline1</item>
 
     </style>
@@ -74,7 +74,7 @@
 
     <style name="CarBody1" >
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_body_1_size</item>
+        <item name="android:textSize">@dimen/car_body1_size</item>
         <item name="android:textColor">@color/car_body1</item>
     </style>
 
@@ -88,7 +88,7 @@
 
     <style name="CarBody2" >
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_body_2_size</item>
+        <item name="android:textSize">@dimen/car_body2_size</item>
         <item name="android:textColor">@color/car_body2</item>
         <item name="android:includeFontPadding">false</item>
     </style>
@@ -175,14 +175,14 @@
     <style name="CarUnavailableCategory" >
         <item name="android:fontFamily">@string/car_font</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_body_2_size</item>
+        <item name="android:textSize">@dimen/car_body2_size</item>
         <item name="android:textColor">@color/car_unavailable_category</item>
     </style>
 
     <style name="CarTruncatedList" >
         <item name="android:fontFamily">@string/car_font</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/car_body_2_size</item>
+        <item name="android:textSize">@dimen/car_body2_size</item>
         <item name="android:textColor">@color/car_grey_50</item>
         <item name="android:drawableTint">@color/car_grey_50</item>
     </style>
