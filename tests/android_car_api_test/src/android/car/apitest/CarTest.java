@@ -17,6 +17,8 @@
 package android.car.apitest;
 
 import android.car.Car;
+import android.car.CarNotConnectedException;
+import android.car.ICar;
 import android.car.hardware.CarSensorManager;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
@@ -34,6 +36,8 @@ public class CarTest extends AndroidTestCase {
 
     private final Semaphore mConnectionWait = new Semaphore(0);
 
+    private ICar mICar;
+
     private final ServiceConnection mConnectionListener = new ServiceConnection() {
 
         @Override
@@ -44,6 +48,7 @@ public class CarTest extends AndroidTestCase {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             assertMainThread();
+            mICar = ICar.Stub.asInterface(service);
             mConnectionWait.release();
         }
     };
@@ -93,5 +98,30 @@ public class CarTest extends AndroidTestCase {
             // expected
         }
         car.disconnect();
+    }
+
+    public void testConstructorWithICar() throws Exception {
+        Car car = Car.createCar(getContext(), mConnectionListener);
+        car.connect();
+        waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
+        assertNotNull(mICar);
+        Car car2 = new Car(getContext(), mICar, null);
+        assertTrue(car2.isConnected());
+    }
+
+    public void testCheckCarNotConnectedExceptionFromCarService() throws Exception {
+        try {
+            Car.checkCarNotConnectedExceptionFromCarService(new IllegalStateException());
+            fail();
+        } catch(IllegalStateException e) {
+            // expected
+        }
+        try {
+            Car.checkCarNotConnectedExceptionFromCarService(
+                    new IllegalStateException(Car.CAR_NOT_CONNECTED_EXCEPTION_MSG));
+            fail();
+        } catch(CarNotConnectedException e) {
+            // expected
+        }
     }
 }
