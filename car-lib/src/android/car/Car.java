@@ -485,7 +485,7 @@ public class Car {
     public static void checkCarNotConnectedExceptionFromCarService(
             IllegalStateException e) throws CarNotConnectedException, IllegalStateException {
         String message = e.getMessage();
-        if (message.equals(CAR_NOT_CONNECTED_EXCEPTION_MSG)) {
+        if (CAR_NOT_CONNECTED_EXCEPTION_MSG.equals(message)) {
             throw new CarNotConnectedException();
         } else {
             throw e;
