@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.support.car.test;
+package com.android.car.test;
 
-import android.support.car.Car;
-import android.support.car.CarInfoManager;
+import android.car.Car;
+import android.car.CarInfoManager;
 import android.util.Log;
 
 import com.android.car.test.MockedCarTestBase;
@@ -42,7 +42,7 @@ public class CarInfoManagerTest extends MockedCarTestBase {
                         VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE, MAKE_NAME, 0));
         getVehicleHalEmulator().start();
         mCarInfoManager =
-                (CarInfoManager) getSupportCar().getCarManager(Car.INFO_SERVICE);
+                (CarInfoManager) getCar().getCarManager(Car.INFO_SERVICE);
     }
 
     public void testManufactuter() throws Exception {

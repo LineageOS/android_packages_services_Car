@@ -16,7 +16,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
-        package="com.android.support.car.carservicetest"
+        package="com.android.car.carservicetest"
         android:sharedUserId="android.uid.system" >
 
     <uses-permission android:name="android.Manifest.permission.MODIFY_AUDIO_ROUTING" />
@@ -25,7 +25,7 @@
     <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING" />
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME" />
     <instrumentation android:name="android.test.InstrumentationTestRunner"
-            android:targetPackage="com.android.support.car.carservicetest"
+            android:targetPackage="com.android.car.carservicetest"
             android:label="Tests for Car APIs"/>
 
     <application android:label="CarServiceTest">
