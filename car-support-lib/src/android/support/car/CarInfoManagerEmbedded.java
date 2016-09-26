@@ -72,7 +72,7 @@ public class CarInfoManagerEmbedded extends CarInfoManager {
      * @hide
      */
     @Override
-    public Bundle getBundle(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public Bundle getBundle(String key) throws CarNotConnectedException {
         try {
             return mManager.getBundle(key);
         } catch (android.car.CarNotConnectedException e) {
