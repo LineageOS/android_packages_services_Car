@@ -122,5 +122,5 @@ public abstract class CarInfoManager implements CarManagerBase {
      * @hide
      */
     public abstract Bundle getBundle(String key)
-            throws CarNotConnectedException, IllegalArgumentException;
+            throws CarNotConnectedException;
 }
