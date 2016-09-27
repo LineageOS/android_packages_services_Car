@@ -279,7 +279,7 @@ class CarSensorsProxy {
         if (listener == null) {
             return;
         }
-        boolean sensorSetChanged = false;
+        Set<Integer> sensorsToRemove = new HashSet<>();
         synchronized (this) {
             for (Map.Entry<Integer, Set<CarSensorManager.CarSensorEventListener>> entry :
                          mListenersMultiMap.entrySet()) {
@@ -287,12 +287,14 @@ class CarSensorsProxy {
                     entry.getValue().remove(listener);
                 }
                 if (entry.getValue().isEmpty()) {
-                    sensorSetChanged = true;
-                    mListenersMultiMap.remove(entry.getKey());
+                    sensorsToRemove.add(entry.getKey());
                 }
             }
         }
-        if (sensorSetChanged) {
+        if (!sensorsToRemove.isEmpty()) {
+            for (Integer s : sensorsToRemove) {
+                mListenersMultiMap.remove(s);
+            }
             updateSensorListeners();
         };
     }
