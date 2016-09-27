@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.support.car.test;
+package com.android.car.test;
 
-import android.support.car.Car;
-import android.support.car.CarAppFocusManager;
+import android.car.Car;
+import android.car.CarAppFocusManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
@@ -37,12 +37,12 @@ public class AppFocusTest extends MockedCarTestBase {
     }
 
     public void testFocusChange() throws Exception {
-        CarAppFocusManager manager = (CarAppFocusManager) getSupportCar().getCarManager(
+        CarAppFocusManager manager = (CarAppFocusManager) getCar().getCarManager(
                 Car.APP_FOCUS_SERVICE);
         FocusChangeListener listener = new FocusChangeListener();
         FocusOwnershipChangeListerner ownershipListener = new FocusOwnershipChangeListerner();
-        manager.addFocusListener(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, listener);
-        manager.addFocusListener(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, listener);
+        manager.registerFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+        manager.registerFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
         manager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, ownershipListener);
         listener.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, true);
@@ -55,7 +55,7 @@ public class AppFocusTest extends MockedCarTestBase {
         manager.abandonAppFocus(ownershipListener, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
         listener.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, false);
-        manager.removeFocusListener(listener);
+        manager.unregisterFocusListener(listener);
     }
 
     private class FocusChangeListener implements CarAppFocusManager.AppFocusChangeListener {

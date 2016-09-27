@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.support.car.test;
+package com.android.car.test;
 
 import android.content.ComponentName;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.car.Car;
-import android.support.car.hardware.CarSensorEvent;
-import android.support.car.hardware.CarSensorManager;
+import android.car.Car;
+import android.car.hardware.CarSensorEvent;
+import android.car.hardware.CarSensorManager;
 import android.test.AndroidTestCase;
 
 import java.util.concurrent.Semaphore;
