@@ -23,91 +23,69 @@ import android.test.suitebuilder.annotation.SmallTest;
 public class VehicleZoneUtilTest extends AndroidTestCase {
 
     public void testZoneToIndex() {
-        int zones = 0;
-        int zone = 0;
-        try {
-            int r = VehicleZoneUtil.zoneToIndex(zones, zone);
-            fail();
-        } catch (IllegalArgumentException e) {
-            // expected
+        int[] zones = {0, 0, 1, 0xf0, 0xf};
+        int[] zone  = {0, 1, 0,  0x1, 0x6};
+
+        // Test failure cases
+        for (int i = 0; i < zones.length; i++) {
+            try {
+                int r = VehicleZoneUtil.zoneToIndex(zones[i], zone[i]);
+                fail();
+            } catch (IllegalArgumentException e) {
+                // expected
+            }
         }
-        zone = 0x1;
-        try {
-            int r = VehicleZoneUtil.zoneToIndex(zones, zone);
-            fail();
-        } catch (IllegalArgumentException e) {
-            // expected
+
+        zones = new int[] {0xffffffff, 0xffffffff, 0x1002, 0x1002};
+        zone  = new int[] {       0x1, 0x80000000,    0x2, 0x1000};
+        int[] result =    {         0,         31,      0,      1};
+
+        // Test passing cases
+        for (int i = 0; i < zones.length; i++) {
+            assertEquals(result[i], VehicleZoneUtil.zoneToIndex(zones[i], zone[i]));
         }
-        zones = 0xffffffff;
-        zone = 0x1;
-        assertEquals(0, VehicleZoneUtil.zoneToIndex(zones, zone));
-        zone = 0x80000000;
-        assertEquals(31, VehicleZoneUtil.zoneToIndex(zones, zone));
-        zones = 0x1002;
-        try {
-            int r = VehicleZoneUtil.zoneToIndex(zones, zone);
-            fail();
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-        zone = 0x2;
-        assertEquals(0, VehicleZoneUtil.zoneToIndex(zones, zone));
-        zone = 0x1000;
-        assertEquals(1, VehicleZoneUtil.zoneToIndex(zones, zone));
     }
 
-    public void testGetNumBerOfZones() {
-        int zones = 0;
-        assertEquals(0, VehicleZoneUtil.getNumberOfZones(zones));
-        zones = 0x1;
-        assertEquals(1, VehicleZoneUtil.getNumberOfZones(zones));
-        zones = 0x7;
-        assertEquals(3, VehicleZoneUtil.getNumberOfZones(zones));
-        zones = 0xffffffff;
-        assertEquals(32, VehicleZoneUtil.getNumberOfZones(zones));
+    public void testGetNumberOfZones() {
+        int[] zones  = {0, 0x1, 0x7, 0xffffffff};
+        int[] result = {0,   1,   3,         32};
+
+        for (int i = 0; i < zones.length; i++) {
+            assertEquals(result[i], VehicleZoneUtil.getNumberOfZones(zones[i]));
+        }
     }
 
     public void testGetFirstZone() {
-        int zones = 0;
-        assertEquals(0, VehicleZoneUtil.getFirstZone(zones));
-        zones = 0x1;
-        assertEquals(0x1, VehicleZoneUtil.getFirstZone(zones));
-        zones = 0xffff00;
-        assertEquals(0x100, VehicleZoneUtil.getFirstZone(zones));
+        int[] zones  = {0, 1, 0xffff00};
+        int[] result = {0, 1,    0x100};
+
+        for (int i = 0; i < zones.length; i++) {
+            assertEquals(result[i], VehicleZoneUtil.getFirstZone(zones[i]));
+        }
     }
 
     public void testGetNextZone() {
-        int zones = 0;
-        int startingZone = 0x1;
-        assertEquals(0, VehicleZoneUtil.getNextZone(zones, startingZone));
-        startingZone = 0;
-        try {
-            int r = VehicleZoneUtil.getNextZone(zones, startingZone);
-            fail();
-        } catch (IllegalArgumentException e) {
-            // expected
+        int[] zones        = {0, 1, 0x7};
+        int[] startingZone = {0, 0, 0x3};
+
+        // Test failure cases
+        for (int i = 0; i < zones.length; i++) {
+            try {
+                int r = VehicleZoneUtil.getNextZone(zones[i], startingZone[i]);
+                fail();
+            } catch (IllegalArgumentException e) {
+                // expected
+            }
         }
-        zones = 0x1;
-        startingZone = 0;
-        try {
-            int r = VehicleZoneUtil.getNextZone(zones, startingZone);
-            fail();
-        } catch (IllegalArgumentException e) {
-            // expected
+
+        zones        = new int[] {0, 1, 0xff00, 0xff00, 0xf, 0xf0000000};
+        startingZone = new int[] {1, 1,      1,  0x100, 0x2, 0x40000000};
+        int[] result =           {0, 0,  0x100,  0x200, 0x4, 0x80000000};
+
+        // Test passing cases
+        for (int i = 0; i < zones.length; i++) {
+            assertEquals(result[i], VehicleZoneUtil.getNextZone(zones[i], startingZone[i]));
         }
-        startingZone = 0x1;
-        assertEquals(0, VehicleZoneUtil.getNextZone(zones, startingZone));
-        zones = 0xff00;
-        startingZone = 0x1;
-        assertEquals(0x100, VehicleZoneUtil.getNextZone(zones, startingZone));
-        startingZone = 0x0100;
-        assertEquals(0x0200, VehicleZoneUtil.getNextZone(zones, startingZone));
-        zones = 0xf;
-        startingZone = 0x2;
-        assertEquals(0x4, VehicleZoneUtil.getNextZone(zones, startingZone));
-        zones = 0xf0000000;
-        startingZone = 0x40000000;
-        assertEquals(0x80000000, VehicleZoneUtil.getNextZone(zones, startingZone));
     }
 
     public void testGetAllZones() {
