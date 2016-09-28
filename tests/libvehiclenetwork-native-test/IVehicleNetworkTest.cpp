@@ -158,9 +158,11 @@ TEST_F(IVehicleNetworkTest, setSubscribe) {
     for (auto& config : properties->getList()) {
         String8 msg = String8::format("subscribing property 0x%x\n", config->prop);
         std::cout<<msg.string();
-        status_t r = vn->subscribe(listener, config->prop, config->max_sample_rate, 0);
+        status_t r = vn->subscribe(listener, config->prop, config->max_sample_rate,
+                                   0,  /* zones */
+                                   SubscribeFlags::HAL_EVENT);
         if (((config->access & VEHICLE_PROP_ACCESS_READ) == 0) ||
-                (config->change_mode == VEHICLE_PROP_CHANGE_MODE_STATIC)) { // cannot subsctibe
+                (config->change_mode == VEHICLE_PROP_CHANGE_MODE_STATIC)) { // cannot subscribe
             ASSERT_TRUE(r != NO_ERROR);
         } else {
             if ((config->prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&

@@ -105,13 +105,81 @@ TEST_F(IVehicleNetworkMockedTest, halGlobalError) {
 TEST_F(IVehicleNetworkMockedTest, halPropertyError) {
     sp<IVehicleNetworkTestListener> listener(new IVehicleNetworkTestListener());
     ASSERT_EQ(NO_ERROR, mVN->startMocking(mHalMock));
-    ASSERT_EQ(NO_ERROR, mVN->subscribe(listener, TEST_PROPERTY_INT32, 0, 0));
+    ASSERT_EQ(NO_ERROR, mVN->subscribe(listener, TEST_PROPERTY_ZONED_INT32, 0, 0, 0));
     const int ERROR_CODE = -123;
     const int OPERATION_CODE = 4567;
-    ASSERT_EQ(NO_ERROR, mVN->injectHalError(ERROR_CODE, TEST_PROPERTY_INT32, OPERATION_CODE));
+    ASSERT_EQ(NO_ERROR, mVN->injectHalError(
+            ERROR_CODE, TEST_PROPERTY_ZONED_INT32, OPERATION_CODE));
     listener->waitForHalError(WAIT_TIMEOUT_NS);
-    ASSERT_TRUE(listener->isErrorMatching(ERROR_CODE, TEST_PROPERTY_INT32, OPERATION_CODE));
-    mVN->unsubscribe(listener, TEST_PROPERTY_INT32);
+    ASSERT_TRUE(listener->isErrorMatching(
+            ERROR_CODE, TEST_PROPERTY_ZONED_INT32, OPERATION_CODE));
+    mVN->unsubscribe(listener, TEST_PROPERTY_ZONED_INT32);
+}
+
+TEST_F(IVehicleNetworkMockedTest, subscribeToSetProperty) {
+    sp<IVehicleNetworkTestListener> listener(new IVehicleNetworkTestListener());
+    ASSERT_EQ(NO_ERROR, mVN->startMocking(mHalMock));
+    ASSERT_EQ(NO_ERROR, mVN->subscribe(listener,
+                                       TEST_PROPERTY_BOOLEAN,
+                                       0 /* rate */,
+                                       0 /* zones */,
+                                       SubscribeFlags::SET_CALL));
+    vehicle_prop_value_t v = {
+            .prop = TEST_PROPERTY_BOOLEAN,
+            .value_type = VEHICLE_VALUE_TYPE_BOOLEAN,
+            .timestamp = elapsedRealtimeNano(),
+            .value = {
+                    .boolean_value = VEHICLE_TRUE
+            }
+    };
+
+    mVN->setProperty(v);
+
+    std::unique_ptr<ScopedVehiclePropValue> actualValue(new ScopedVehiclePropValue());
+    ASSERT_EQ(NO_ERROR, listener->waitForOnPropertySet(WAIT_TIMEOUT_NS, &actualValue));
+
+    ASSERT_EQ(v.prop, actualValue->value.prop);
+    ASSERT_EQ(v.value.boolean_value, actualValue->value.value.boolean_value);
+
+    mVN->unsubscribe(listener, TEST_PROPERTY_BOOLEAN);
+}
+
+TEST_F(IVehicleNetworkMockedTest, subscribeToSetPropertyZoned) {
+    const int PROP = TEST_PROPERTY_ZONED_INT32;
+    const int SUBSCRIBED_ZONE = VEHICLE_ZONE_ROW_1_RIGHT;
+    const int NON_SUBSCRIBED_ZONE = VEHICLE_ZONE_ROW_1_LEFT;
+
+    sp<IVehicleNetworkTestListener> listener(new IVehicleNetworkTestListener());
+    ASSERT_EQ(NO_ERROR, mVN->startMocking(mHalMock));
+    ASSERT_EQ(NO_ERROR, mVN->subscribe(listener,
+                                       PROP,
+                                       0 /* rate */,
+                                       SUBSCRIBED_ZONE,
+                                       SubscribeFlags::SET_CALL));
+    vehicle_prop_value_t v = {
+            .prop = PROP,
+            .value_type = VEHICLE_VALUE_TYPE_ZONED_INT32,
+            .timestamp = elapsedRealtimeNano(),
+            .zone = NON_SUBSCRIBED_ZONE,  // We do not expect notifications for this zone.
+            .value = {
+                    .int32_value = 42
+            }
+    };
+
+    mVN->setProperty(v);
+
+    std::unique_ptr<ScopedVehiclePropValue> actualValue(new ScopedVehiclePropValue());
+
+    ASSERT_EQ(-ETIMEDOUT, listener->waitForOnPropertySet(WAIT_TIMEOUT_NS, &actualValue));
+
+    v.zone = SUBSCRIBED_ZONE;
+    mVN->setProperty(v);
+    ASSERT_EQ(NO_ERROR, listener->waitForOnPropertySet(WAIT_TIMEOUT_NS, &actualValue));
+
+    ASSERT_EQ(v.prop, actualValue->value.prop);
+    ASSERT_EQ(v.value.int32_value, actualValue->value.value.int32_value);
+
+    mVN->unsubscribe(listener, PROP);
 }
 
 }; // namespace android

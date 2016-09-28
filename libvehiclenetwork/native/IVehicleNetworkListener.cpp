@@ -35,6 +35,7 @@ enum {
     ON_EVENTS = IBinder::FIRST_CALL_TRANSACTION,
     ON_HAL_ERROR,
     ON_HAL_RESTART,
+    ON_PROPERTY_SET,
 };
 
 class BpVehicleNetworkListener : public BpInterface<IVehicleNetworkListener>
@@ -77,6 +78,17 @@ public:
         data.writeInterfaceToken(IVehicleNetworkListener::getInterfaceDescriptor());
         data.writeInt32(inMocking ? 1 : 0);
         remote()->transact(ON_HAL_RESTART, data, &reply);
+    }
+
+    virtual void onPropertySet(const vehicle_prop_value_t& value) {
+        Parcel data, reply;
+        data.writeInterfaceToken(IVehicleNetworkListener::getInterfaceDescriptor());
+        status_t r = VehiclePropValueBinderUtil::writeToParcel(data, value);
+        if (r != NO_ERROR) {
+            ALOGE("onPropertySet: failed to write to parcel: %d", r);
+            return;
+        }
+        remote()->transact(ON_PROPERTY_SET, data, &reply);
     }
 };
 
@@ -132,6 +144,17 @@ status_t BnVehicleNetworkListener::onTransact(uint32_t code, const Parcel& data,
             bool inMocking = (data.readInt32() == 1);
             onHalRestart(inMocking);
             return NO_ERROR;
+        } break;
+        case ON_PROPERTY_SET: {
+            CHECK_INTERFACE(IVehicleNetworkListener, data, reply);
+            ScopedVehiclePropValue value;
+            r = VehiclePropValueBinderUtil::readFromParcel(data, &value.value);
+            if (r == NO_ERROR) {
+                onPropertySet(value.value);
+            } else {
+                ALOGE("onPropertySet: failed to read from parcel: %d", r);
+            }
+            return r;
         } break;
         default:
             return BBinder::onTransact(code, data, reply, flags);

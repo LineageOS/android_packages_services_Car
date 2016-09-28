@@ -325,6 +325,11 @@ public class VehicleHal implements VehicleNetworkListener {
     }
 
     @Override
+    public void onPropertySet(VehiclePropValue value) {
+        // No need to handle on-property-set events in HAL service yet.
+    }
+
+    @Override
     public void onHalError(int errorCode, int property, int operation) {
         Log.e(CarLog.TAG_HAL, "onHalError, errorCode:" + errorCode +
                 " property:0x" + Integer.toHexString(property) +

@@ -17,6 +17,7 @@
 package com.android.car.vehiclenetwork;
 
 import com.android.car.vehiclenetwork.VehiclePropValuesParcelable;
+import com.android.car.vehiclenetwork.VehiclePropValueParcelable;
 
 /**
  * Listener for vehicle network service. Intentionally both way as this is supposed to be
@@ -27,5 +28,6 @@ interface IVehicleNetworkListener {
     void onVehicleNetworkEvents(in VehiclePropValuesParcelable values) = 0;
     void onHalError(int errorCode, int property, int operation)        = 1;
     void onHalRestart(boolean inMocking)                               = 2;
+    void onPropertySet(in VehiclePropValueParcelable value)            = 3;
     //TODO add specialized onVehicleNetworkEvents for byte array for efficiency
 }
