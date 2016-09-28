@@ -389,7 +389,7 @@ package android.car.content.pm {
 
 package android.car.hardware {
 
-  public class CarPropertyConfig implements android.os.Parcelable {
+  public class CarPropertyConfig<T> implements android.os.Parcelable {
     method public int describeContents();
     method public int getAreaCount();
     method public int[] getAreaIds();
@@ -403,13 +403,13 @@ package android.car.hardware {
     method public java.lang.Class<T> getPropertyType();
     method public boolean hasArea(int);
     method public boolean isGlobalProperty();
-    method public static android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(java.lang.Class<T>, int, int, int);
-    method public static android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(java.lang.Class<T>, int, int);
+    method public static <T> android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(java.lang.Class<T>, int, int, int);
+    method public static <T> android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(java.lang.Class<T>, int, int);
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.hardware.CarPropertyConfig> CREATOR;
   }
 
-  public static class CarPropertyConfig.AreaConfig implements android.os.Parcelable {
+  public static class CarPropertyConfig.AreaConfig<T> implements android.os.Parcelable {
     method public int describeContents();
     method public T getMaxValue();
     method public T getMinValue();
@@ -417,14 +417,14 @@ package android.car.hardware {
     field public static final android.os.Parcelable.Creator<android.car.hardware.CarPropertyConfig.AreaConfig<java.lang.Object>> CREATOR;
   }
 
-  public static class CarPropertyConfig.Builder {
+  public static class CarPropertyConfig.Builder<T> {
     method public android.car.hardware.CarPropertyConfig.Builder<T> addArea(int);
     method public android.car.hardware.CarPropertyConfig.Builder<T> addAreaConfig(int, T, T);
     method public android.car.hardware.CarPropertyConfig.Builder<T> addAreas(int[]);
     method public android.car.hardware.CarPropertyConfig<T> build();
   }
 
-  public class CarPropertyValue implements android.os.Parcelable {
+  public class CarPropertyValue<T> implements android.os.Parcelable {
     ctor public CarPropertyValue(int, T);
     ctor public CarPropertyValue(int, int, T);
     ctor public CarPropertyValue(android.os.Parcel);
@@ -569,12 +569,12 @@ package android.car.hardware {
   }
 
   public class CarVendorExtensionManager {
-    method public E getGlobalProperty(java.lang.Class<E>, int) throws android.car.CarNotConnectedException;
+    method public <E> E getGlobalProperty(java.lang.Class<E>, int) throws android.car.CarNotConnectedException;
     method public java.util.List<android.car.hardware.CarPropertyConfig> getProperties() throws android.car.CarNotConnectedException;
-    method public E getProperty(java.lang.Class<E>, int, int) throws android.car.CarNotConnectedException;
+    method public <E> E getProperty(java.lang.Class<E>, int, int) throws android.car.CarNotConnectedException;
     method public void registerListener(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionListener) throws android.car.CarNotConnectedException;
-    method public void setGlobalProperty(java.lang.Class<E>, int, E) throws android.car.CarNotConnectedException;
-    method public void setProperty(java.lang.Class<E>, int, int, E) throws android.car.CarNotConnectedException;
+    method public <E> void setGlobalProperty(java.lang.Class<E>, int, E) throws android.car.CarNotConnectedException;
+    method public <E> void setProperty(java.lang.Class<E>, int, int, E) throws android.car.CarNotConnectedException;
     method public void unregisterListener(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionListener) throws android.car.CarNotConnectedException;
   }
 
