@@ -64,9 +64,9 @@ import java.util.Set;
 //TODO monitor app installing and refresh policy
 
 public class CarPackageManagerService extends ICarPackageManager.Stub implements CarServiceBase {
-    static final boolean DBG_POLICY_SET = true;
+    static final boolean DBG_POLICY_SET = false;
     static final boolean DBG_POLICY_CHECK = false;
-    static final boolean DBG_POLICY_ENFORCEMENT = true;
+    static final boolean DBG_POLICY_ENFORCEMENT = false;
 
     private final Context mContext;
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;

@@ -26,7 +26,7 @@ import com.android.car.hal.VehicleHal;
  */
 public class CarVendorExtensionService extends CarPropertyServiceBase {
 
-    private final static boolean DEBUG = true;
+    private final static boolean DEBUG = false;
 
     public CarVendorExtensionService(Context context) {
         super(context, VehicleHal.getInstance().getVendorExtensionHal(),

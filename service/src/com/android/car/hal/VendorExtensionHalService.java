@@ -25,7 +25,7 @@ import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 /*package*/ class VendorExtensionHalService extends PropertyHalServiceBase {
 
     private final static String TAG = VendorExtensionHalService.class.getSimpleName();
-    private final static boolean DEBUG = true;
+    private final static boolean DEBUG = false;
 
     VendorExtensionHalService(VehicleHal vehicleHal) {
         super(vehicleHal, TAG, DEBUG);

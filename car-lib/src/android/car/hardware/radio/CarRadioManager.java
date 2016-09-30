@@ -43,8 +43,8 @@ import java.lang.ref.WeakReference;
  */
 @SystemApi
 public class CarRadioManager implements CarManagerBase {
-    public final static boolean DBG = true;
-    public final static String TAG = "CarRadioManager";
+    private final static boolean DBG = false;
+    private final static String TAG = "CarRadioManager";
 
     // Constants handled in the handler (see mHandler below).
     private final static int MSG_RADIO_EVENT = 0;

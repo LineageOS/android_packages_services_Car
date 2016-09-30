@@ -40,7 +40,7 @@ import java.io.PrintWriter;
  * covered under RadioManager API.
  */
 public class RadioHalService extends HalServiceBase {
-    public static boolean DBG = true;
+    public static boolean DBG = false;
     public static String TAG = CarLog.TAG_HAL + ".RadioHalService";
 
     private int mPresetCount = 0;

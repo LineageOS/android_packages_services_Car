@@ -41,7 +41,7 @@ import java.util.List;
  */
 public class CircularClipAnimation
         implements ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "CircularClipAnimation";
 
     public static final int DURATION_MS = 300;

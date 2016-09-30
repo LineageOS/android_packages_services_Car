@@ -20,7 +20,7 @@ import android.car.hardware.hvac.CarHvacManager.HvacPropertyId;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 
 public class HvacHalService extends PropertyHalServiceBase {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "HvacHalService";
 
     private final ManagerToHalPropIdMap mMgrHalPropIdMap = ManagerToHalPropIdMap.create(new int[] {

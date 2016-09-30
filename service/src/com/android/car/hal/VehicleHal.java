@@ -49,7 +49,7 @@ import java.util.List;
  */
 public class VehicleHal implements VehicleNetworkListener {
 
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     static {
         createInstance();
