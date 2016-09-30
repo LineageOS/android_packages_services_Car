@@ -41,7 +41,7 @@ import java.util.List;
  */
 @SystemApi
 public class CarCabinManager implements CarManagerBase {
-    private final static boolean DBG = true;
+    private final static boolean DBG = false;
     private final static String TAG = "CarCabinManager";
     private final CarPropertyManagerBase mMgr;
     private final ArraySet<CarCabinEventListener> mListeners = new ArraySet<>();

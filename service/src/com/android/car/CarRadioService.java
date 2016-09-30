@@ -36,7 +36,7 @@ import java.util.HashMap;
 
 public class CarRadioService extends ICarRadio.Stub
         implements CarServiceBase, RadioHalService.RadioListener {
-    public static boolean DBG = true;
+    public static boolean DBG = false;
     public static String TAG = CarLog.TAG_RADIO + ".CarRadioService";
 
     private RadioHalService mRadioHal;

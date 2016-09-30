@@ -54,7 +54,7 @@ public class GarageModeService implements CarServiceBase,
         CarPowerManagementService.PowerServiceEventListener,
         DeviceIdleControllerWrapper.DeviceMaintenanceActivityListener {
     private static String TAG = "GarageModeService";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     private static final int MSG_EXIT_GARAGE_MODE_EARLY = 0;
     private static final int MSG_WRITE_TO_PREF = 1;

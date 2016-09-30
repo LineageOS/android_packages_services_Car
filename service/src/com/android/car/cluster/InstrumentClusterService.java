@@ -51,7 +51,7 @@ public class InstrumentClusterService implements CarServiceBase,
         FocusOwnershipListener, KeyEventListener {
 
     private static final String TAG = CarLog.TAG_CLUSTER;
-    private static final Boolean DBG = true;
+    private static final Boolean DBG = false;
 
     private final Context mContext;
     private final AppFocusService mAppFocusService;

@@ -54,7 +54,7 @@ import java.util.ArrayList;
  */
 public class CarLayoutManager extends RecyclerView.LayoutManager {
     private static final String TAG = "CarLayoutManager";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     /**
      * Any fling below the threshold will just scroll to the top fully visible row. The units is

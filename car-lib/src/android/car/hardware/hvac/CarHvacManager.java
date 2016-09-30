@@ -41,7 +41,7 @@ import java.util.List;
  */
 @SystemApi
 public class CarHvacManager implements CarManagerBase {
-    private final static boolean DBG = true;
+    private final static boolean DBG = false;
     private final static String TAG = "CarHvacManager";
     private final CarPropertyManagerBase mMgr;
     private final ArraySet<CarHvacEventListener> mListeners = new ArraySet<>();

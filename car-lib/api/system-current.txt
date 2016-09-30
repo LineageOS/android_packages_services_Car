@@ -669,8 +669,6 @@ package android.car.hardware.camera {
     field public static final int CAMERA_POSITIONING_SUPPORT_FLAG = 4; // 0x4
     field public static final int CAR_CAMERA_TYPE_NONE = 0; // 0x0
     field public static final int CAR_CAMERA_TYPE_RVC = 1; // 0x1
-    field public static final boolean DBG = true;
-    field public static final java.lang.String TAG;
   }
 
   public class CarCameraState implements android.os.Parcelable {
@@ -761,8 +759,6 @@ package android.car.hardware.radio {
     method public synchronized void registerListener(android.car.hardware.radio.CarRadioManager.CarRadioEventListener) throws android.car.CarNotConnectedException;
     method public boolean setPreset(android.car.hardware.radio.CarRadioPreset) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public synchronized void unregisterListener() throws android.car.CarNotConnectedException;
-    field public static final boolean DBG = true;
-    field public static final java.lang.String TAG = "CarRadioManager";
   }
 
   public static abstract interface CarRadioManager.CarRadioEventListener {

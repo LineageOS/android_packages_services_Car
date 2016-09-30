@@ -84,7 +84,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         void onActivityLaunch(TopTaskInfoContainer topTask);
     }
 
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     private static final int NUM_MAX_TASK_TO_FETCH = 10;
 

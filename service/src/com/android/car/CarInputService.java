@@ -220,7 +220,6 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         Log.i(CarLog.TAG_INPUT, "call key, dialing last call");
 
         String lastNumber = Calls.getLastOutgoingCall(mContext);
-        Log.d(CarLog.TAG_INPUT, "Last number dialed: " + lastNumber);
         if (lastNumber != null && !lastNumber.isEmpty()) {
             Intent callLastNumberIntent = new Intent(Intent.ACTION_CALL)
                     .setData(Uri.fromParts("tel", lastNumber, null))

@@ -41,7 +41,7 @@ import java.util.List;
 @SystemApi
 public class CarVendorExtensionManager implements CarManagerBase {
 
-    private final static boolean DBG = true;
+    private final static boolean DBG = false;
     private final static String TAG = CarVendorExtensionManager.class.getSimpleName();
     private final CarPropertyManagerBase mPropertyManager;
 

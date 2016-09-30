@@ -31,8 +31,8 @@ import android.util.Log;
  */
 @SystemApi
 public class CarCameraManager implements CarManagerBase {
-    public final static boolean DBG = true;
-    public final static String TAG = CarCameraManager.class.getSimpleName();
+    private final static boolean DBG = false;
+    private final static String TAG = CarCameraManager.class.getSimpleName();
 
     // Camera capabilities flags
     public static final int ANDROID_OVERLAY_SUPPORT_FLAG    = 0x1;

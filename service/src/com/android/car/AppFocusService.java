@@ -40,7 +40,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         BinderInterfaceContainer.BinderEventHandler<IAppFocusOwnershipListener> {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final boolean DBG_EVENT = false;
 
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
