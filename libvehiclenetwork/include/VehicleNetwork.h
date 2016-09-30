@@ -46,6 +46,7 @@ public:
     virtual void onEvents(sp<VehiclePropValueListHolder>& events) = 0;
     virtual void onHalError(int32_t errorCode, int32_t property, int32_t operation) = 0;
     virtual void onHalRestart(bool inMocking) = 0;
+    virtual void onPropertySet(const vehicle_prop_value_t& value) = 0;
 };
 
 // ----------------------------------------------------------------------------
@@ -56,6 +57,7 @@ class VehicleNetworkEventMessageHandler : public MessageHandler {
         EVENT_EVENTS = 0,
         EVENT_HAL_ERROR = 1,
         EVENT_HAL_RESTART = 2,
+        EVENT_ON_SET = 3,
     };
 public:
     VehicleNetworkEventMessageHandler(const sp<Looper>& looper,
@@ -70,11 +72,14 @@ public:
      */
     void handleHalRestart(bool inMocking);
 
+    void handleOnPropertySet(const vehicle_prop_value_t& value);
+
 private:
     virtual void handleMessage(const Message& message);
     void doHandleHalEvents();
     void doHandleHalError();
     void doHandleHalRestart();
+    void doHandleOnPropertySet();
 private:
     mutable Mutex mLock;
     sp<Looper> mLooper;
@@ -82,6 +87,7 @@ private:
     List<sp<VehiclePropValueListHolder>> mEvents;
     List<VehicleHalError*> mHalErrors;
     List<bool> mHalRestartEvents;
+    List<vehicle_prop_value_t*> mSetValueEvents;
 };
 
 // ----------------------------------------------------------------------------
@@ -116,7 +122,8 @@ public:
     status_t setProperty(const vehicle_prop_value_t& value);
     /** For generic value getting. value->prop should be set. */
     status_t getProperty(vehicle_prop_value_t* value);
-    status_t subscribe(int32_t property, float sampleRate, int32_t zones = 0);
+    status_t subscribe(int32_t property, float sampleRate, int32_t zones = 0,
+                       int32_t flags = SubscribeFlags::DEFAULT);
     void unsubscribe(int32_t property);
 
     // Only for testing purpose
@@ -138,6 +145,7 @@ public:
     void onEvents(sp<VehiclePropValueListHolder>& events);
     void onHalError(int32_t errorCode, int32_t property, int32_t operation);
     void onHalRestart(bool inMocking);
+    void onPropertySet(const vehicle_prop_value_t& value);
 
 private:
     VehicleNetwork(sp<IVehicleNetwork>& vehicleNetwork, sp<VehicleNetworkListener> &listener);

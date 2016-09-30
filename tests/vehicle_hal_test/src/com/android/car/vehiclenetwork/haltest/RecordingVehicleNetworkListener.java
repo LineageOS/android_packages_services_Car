@@ -113,6 +113,11 @@ class RecordingVehicleNetworkListener implements VehicleNetworkListener {
         // TODO Auto-generated method stub
     }
 
+    @Override
+    public void onPropertySet(VehiclePropValue value) {
+        // TODO
+    }
+
     // To be used to compare expected vs recorded values.
     private static class NormalizedValue {
         private final int propertyId;

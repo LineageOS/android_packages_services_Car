@@ -252,8 +252,8 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
     msg.append("*Subscription info per property*\n");
     for (size_t i = 0; i < mSubscriptionInfos.size(); i++) {
         const SubscriptionInfo& info = mSubscriptionInfos.valueAt(i);
-        msg.appendFormat("prop 0x%x, sample rate %f Hz, zones 0x%x\n", mSubscriptionInfos.keyAt(i),
-                info.sampleRate, info.zones);
+        msg.appendFormat("prop 0x%x, sample rate %f Hz, zones 0x%x, flags: 0x%x\n",
+                         mSubscriptionInfos.keyAt(i), info.sampleRate, info.zones, info.flags);
     }
     msg.appendFormat("*Event info per property, now in ns:%" PRId64 " *\n", elapsedRealtimeNano());
     for (size_t i = 0; i < mEventInfos.size(); i++) {
@@ -283,9 +283,10 @@ bool VehicleNetworkService::isOperationAllowed(int32_t property, bool isWrite) {
 
 VehicleNetworkService::VehicleNetworkService()
     : mModule(NULL),
+      mPropertiesSubscribedToSetCall(0),
       mMockingEnabled(false),
       mDroppedEventsWhileInMocking(0),
-      mLastEventDropTimeWhileInMocking(0) {
+      mLastEventDropTimeWhileInMocking(0){
     sInstance = this;
 
    // Load vehicle network services policy file
@@ -412,6 +413,7 @@ void VehicleNetworkService::release() {
 }
 
 vehicle_prop_config_t const * VehicleNetworkService::findConfigLocked(int32_t property) {
+    // TODO: this method is called on every get/set, consider to use hash map.
     for (auto& config : (mMockingEnabled ?
             mPropertiesForMocking->getList() : mProperties->getList())) {
         if (config->prop == property) {
@@ -575,21 +577,24 @@ void VehicleNetworkService::releaseMemoryFromGet(vehicle_prop_value_t* value) {
 }
 
 status_t VehicleNetworkService::setProperty(const vehicle_prop_value_t& data) {
-    bool isInternalProperty = false;
     bool inMocking = false;
+    bool isInternalProperty = data.prop >= VEHICLE_PROPERTY_INTERNAL_START
+                              && data.prop <= VEHICLE_PROPERTY_INTERNAL_END;
+    sp<HalClientSpVector> propertyClientsForSetEvent;
     do { // for lock scoping
         Mutex::Autolock autoLock(mLock);
         if (!isSettableLocked(data.prop, data.value_type)) {
             ALOGW("setProperty, cannot set 0x%x", data.prop);
             return BAD_VALUE;
         }
-        if ((data.prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
-                            (data.prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
-            isInternalProperty = true;
+        if (isInternalProperty) {
             mCache.writeToCache(data);
         }
         if (mMockingEnabled) {
             inMocking = true;
+        }
+        if (mPropertiesSubscribedToSetCall.count(data.prop) == 1) {
+            propertyClientsForSetEvent = findClientsVectorForPropertyLocked(data.prop);
         }
     } while (false);
     if (inMocking) {
@@ -599,6 +604,11 @@ status_t VehicleNetworkService::setProperty(const vehicle_prop_value_t& data) {
             return r;
         }
     }
+
+    if (propertyClientsForSetEvent.get() != NULL && propertyClientsForSetEvent->size() > 0) {
+        dispatchPropertySetEvent(data, propertyClientsForSetEvent);
+    }
+
     if (isInternalProperty) {
         // for internal property, just publish it.
         onHalEvent(&data, inMocking);
@@ -635,6 +645,23 @@ status_t VehicleNetworkService::setProperty(const vehicle_prop_value_t& data) {
     return r;
 }
 
+void VehicleNetworkService::dispatchPropertySetEvent(
+        const vehicle_prop_value_t& data, const sp<HalClientSpVector>& clientsForProperty) {
+    for (size_t i = 0; i < clientsForProperty->size(); i++) {
+        sp<HalClient> client = clientsForProperty->itemAt(i);
+        SubscriptionInfo* subscription = client->getSubscriptionInfo(data.prop);
+
+        bool shouldDispatch =
+                subscription != NULL
+                && (SubscribeFlags::SET_CALL & subscription->flags)
+                && (data.zone == subscription->zones || (data.zone & subscription->zones));
+
+        if (shouldDispatch) {
+            client->dispatchPropertySetEvent(data);
+        }
+    }
+}
+
 bool isSampleRateFixed(int32_t changeMode) {
     switch (changeMode) {
     case VEHICLE_PROP_CHANGE_MODE_ON_CHANGE:
@@ -645,19 +672,31 @@ bool isSampleRateFixed(int32_t changeMode) {
 }
 
 status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &listener, int32_t prop,
-        float sampleRate, int32_t zones) {
+        float sampleRate, int32_t zones, int32_t flags) {
     bool shouldSubscribe = false;
     bool inMock = false;
     int32_t newZones = zones;
     vehicle_prop_config_t const * config = NULL;
     sp<HalClient> client;
     bool autoGetEnabled = false;
+
+    if (flags == SubscribeFlags::UNDEFINED) {
+        flags = SubscribeFlags::DEFAULT;
+    }
+
     do {
         Mutex::Autolock autoLock(mLock);
         if (!isSubscribableLocked(prop)) {
             return BAD_VALUE;
         }
         config = findConfigLocked(prop);
+        if ((flags & SubscribeFlags::SET_CALL)
+            && !(config->access & VEHICLE_PROP_ACCESS_WRITE)) {
+            ALOGE("Attempt to subscribe with SUBSCRIBE_TO_SET flag to prop: 0x%x that doesn't have"
+                          " write access", prop);
+            return BAD_VALUE;
+        }
+
         if (isSampleRateFixed(config->change_mode)) {
             if (sampleRate != 0) {
                 ALOGW("Sample rate set to non-zeo for on change type. Ignore it");
@@ -710,12 +749,18 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
             if (info.zones != newZones) {
                 shouldSubscribe = true;
             }
+            if (info.flags != flags) {  // Flags has been changed, need to update subscription.
+                shouldSubscribe = true;
+            }
         }
-        client->setSubscriptionInfo(prop, sampleRate, zones);
+        if (SubscribeFlags::SET_CALL & flags) {
+            mPropertiesSubscribedToSetCall.insert(prop);
+        }
+        client->setSubscriptionInfo(prop, sampleRate, zones, flags);
         if (shouldSubscribe) {
             autoGetEnabled = mVehiclePropertyAccessControl.isAutoGetEnabled(prop);
             inMock = mMockingEnabled;
-            SubscriptionInfo info(sampleRate, newZones);
+            SubscriptionInfo info(sampleRate, newZones, flags);
             mSubscriptionInfos.add(prop, info);
             if ((prop >= (int32_t)VEHICLE_PROPERTY_INTERNAL_START) &&
                                 (prop <= (int32_t)VEHICLE_PROPERTY_INTERNAL_END)) {
@@ -724,7 +769,7 @@ status_t VehicleNetworkService::subscribe(const sp<IVehicleNetworkListener> &lis
             }
         }
     } while (false);
-    if (shouldSubscribe) {
+    if (shouldSubscribe && (SubscribeFlags::HAL_EVENT & flags)) {
         if (inMock) {
             status_t r = mHalMock->onPropertySubscribe(prop, sampleRate, newZones);
             if (r != NO_ERROR) {
@@ -881,8 +926,20 @@ sp<HalClientSpVector> VehicleNetworkService::findOrCreateClientsVectorForPropert
     return clientsForProperty;
 }
 
+bool VehicleNetworkService::hasClientsSubscribedToSetCallLocked(
+        int32_t property, const sp<HalClientSpVector> &clientsForProperty) const {
+    for (size_t i = 0; i < clientsForProperty->size(); i++) {
+        sp<HalClient> c = clientsForProperty->itemAt(i);
+        SubscriptionInfo* subscription = c->getSubscriptionInfo(property);
+        if (subscription != NULL && (SubscribeFlags::SET_CALL & subscription->flags)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
- * remove given property from client and remove HalCLient if necessary.
+ * remove given property from client and remove HalClient if necessary.
  * @return true if the property should be unsubscribed from HAL (=no more clients).
  */
 bool VehicleNetworkService::removePropertyFromClientLocked(sp<IBinder>& ibinder,
@@ -898,6 +955,11 @@ bool VehicleNetworkService::removePropertyFromClientLocked(sp<IBinder>& ibinder,
         return false;
     }
     clientsForProperty->remove(client);
+
+    if (!hasClientsSubscribedToSetCallLocked(property, clientsForProperty)) {
+        mPropertiesSubscribedToSetCall.erase(property);
+    }
+
     //TODO reset sample rate. do not care for now.
     if (clientsForProperty->size() == 0) {
         mPropertyToClientsMap.removeItem(property);
@@ -1127,8 +1189,13 @@ void VehicleNetworkService::dispatchHalEvents(List<vehicle_prop_value_t*>& event
             EVENT_LOG("dispatchHalEvents, prop 0x%x, active clients %d", e->prop, clients->size());
             for (size_t i = 0; i < clients->size(); i++) {
                 sp<HalClient>& client = clients->editItemAt(i);
-                activeClients.add(client);
-                client->addEvent(e);
+                const SubscriptionInfo* info = client->getSubscriptionInfo(e->prop);
+                if (SubscribeFlags::HAL_EVENT & info->flags) {
+                    activeClients.add(client);
+                    client->addEvent(e);
+                } else {
+                    EVENT_LOG("Client is not subsribed to HAL events, prop: 0x%x", e->prop);
+                }
             }
         }
     } while (false);

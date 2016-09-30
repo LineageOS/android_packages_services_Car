@@ -17,6 +17,8 @@
 #ifndef ANDROID_IVEHICLENETWORK_TEST_LISTER_H
 #define ANDROID_IVEHICLENETWORK_TEST_LISTER_H
 
+#include <queue>
+
 #include <IVehicleNetworkListener.h>
 
 namespace android {
@@ -24,7 +26,9 @@ namespace android {
 class IVehicleNetworkTestListener : public BnVehicleNetworkListener {
 public:
     IVehicleNetworkTestListener() :
-        mHalRestartCount(0) {};
+        mHalRestartCount(0),
+        mOnPropertySetValues()
+    {};
 
     virtual void onEvents(sp<VehiclePropValueListHolder>& events) {
         String8 msg("events ");
@@ -58,6 +62,16 @@ public:
         Mutex::Autolock autolock(mHalRestartLock);
         mHalRestartCount++;
         mHalRestartCondition.signal();
+    }
+
+    virtual void onPropertySet(const vehicle_prop_value_t& value) {
+        Mutex::Autolock autolock(mOnPropertySetLock);
+
+        std::unique_ptr<ScopedVehiclePropValue> scopedValue(new ScopedVehiclePropValue);
+        VehiclePropValueUtil::copyVehicleProp(&scopedValue->value,
+                                              value);
+        mOnPropertySetValues.push(std::move(scopedValue));
+        mOnPropertySetCondition.signal();
     }
 
     void waitForEvents(nsecs_t reltime) {
@@ -99,6 +113,21 @@ public:
         mHalErrorCondition.waitRelative(mHalErrorLock, reltime);
     }
 
+    status_t waitForOnPropertySet(nsecs_t reltime, std::unique_ptr<ScopedVehiclePropValue>* out) {
+        Mutex::Autolock autolock(mOnPropertySetLock);
+
+        status_t r = mOnPropertySetValues.empty()
+                     ? mOnPropertySetCondition.waitRelative(mOnPropertySetLock, reltime)
+                     : NO_ERROR;
+
+        if (r == NO_ERROR) {
+            VehiclePropValueUtil::copyVehicleProp(&(*out)->value,  /* dest */
+                                                  mOnPropertySetValues.back()->value /* src */);
+            mOnPropertySetValues.pop();
+        }
+        return r;
+    }
+
     bool isErrorMatching(int32_t errorCode, int32_t property, int32_t operation) {
         Mutex::Autolock autolock(mHalErrorLock);
         return mErrorCode == errorCode && mProperty == property && mOperation == operation;
@@ -129,6 +158,10 @@ private:
     int32_t mErrorCode;
     int32_t mProperty;
     int32_t mOperation;
+
+    Mutex mOnPropertySetLock;
+    Condition mOnPropertySetCondition;
+    std::queue<std::unique_ptr<ScopedVehiclePropValue>> mOnPropertySetValues;
 };
 
 }; // namespace android

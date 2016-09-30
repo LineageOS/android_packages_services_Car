@@ -69,6 +69,10 @@ public:
         //TODO cannot test this in native world without plumbing mocking
     }
 
+    virtual void onPropertySet(const vehicle_prop_value_t& /* value */) {
+        // TODO
+    }
+
     void waitForEvents(nsecs_t reltime) {
         Mutex::Autolock autolock(mLock);
         mCondition.waitRelative(mLock, reltime);

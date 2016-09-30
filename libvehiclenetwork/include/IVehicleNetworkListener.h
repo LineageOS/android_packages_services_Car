@@ -55,6 +55,15 @@ public:
      * @param inMocking Whether it is in mocking mode or not.
      */
     virtual void onHalRestart(bool inMocking) = 0;
+
+    /**
+     * This method gets called if this listener was susbscribed to a property using
+     * SubscribeFlags::SET_CALL flag and set property method was called in
+     * Vehicle Network Service.
+     *
+     * @param value Value that was set by a Vehicle Network Service client.
+     */
+    virtual void onPropertySet(const vehicle_prop_value_t& value) = 0;;
 };
 
 // ----------------------------------------------------------------------------

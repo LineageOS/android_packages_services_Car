@@ -20,6 +20,7 @@ import static com.android.car.vehiclenetwork.VehiclePropValueUtil.isCustomProper
 import static com.android.car.vehiclenetwork.VehiclePropValueUtil.toFloatArray;
 import static com.android.car.vehiclenetwork.VehiclePropValueUtil.toIntArray;
 
+import android.annotation.IntDef;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -34,6 +35,8 @@ import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
 import com.android.internal.annotations.GuardedBy;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 
 /**
@@ -51,6 +54,7 @@ public class VehicleNetwork {
         void onVehicleNetworkEvents(VehiclePropValues values);
         void onHalError(int errorCode, int property, int operation);
         void onHalRestart(boolean inMocking);
+        void onPropertySet(VehiclePropValue value);
     }
 
     public interface VehicleNetworkHalMock {
@@ -59,6 +63,21 @@ public class VehicleNetwork {
         VehiclePropValue onPropertyGet(VehiclePropValue value);
         void onPropertySubscribe(int property, float sampleRate, int zones);
         void onPropertyUnsubscribe(int property);
+    }
+
+    /**
+     * Flags to be used in #subscribe(int, float, int, int).
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+            SubscribeFlags.HAL_EVENT,
+            SubscribeFlags.SET_CALL,
+            SubscribeFlags.DEFAULT,
+    })
+    public @interface SubscribeFlags {
+        int HAL_EVENT = 0x1;
+        int SET_CALL = 0x2;
+        int DEFAULT = HAL_EVENT;
     }
 
     private static final String TAG = VehicleNetwork.class.getSimpleName();
@@ -422,12 +441,26 @@ public class VehicleNetwork {
     }
 
     /**
-     * Subscribe given property with given sample rate.
+     * Subscribe given property with given sample rate and zones.
      */
     public void subscribe(int property, float sampleRate, int zones)
             throws IllegalArgumentException {
         try {
-            mService.subscribe(mVehicleNetworkListener, property, sampleRate, zones);
+            mService.subscribe(mVehicleNetworkListener, property, sampleRate, zones,
+                    SubscribeFlags.DEFAULT);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+    }
+
+    /**
+     * Subscribe given property with given sample rate, zones and flags.
+     */
+    @SuppressWarnings("ResourceType")
+    public void subscribe(int property, float sampleRate, int zones, @SubscribeFlags int flags)
+            throws IllegalArgumentException {
+        try {
+            mService.subscribe(mVehicleNetworkListener, property, sampleRate, zones, flags);
         } catch (RemoteException e) {
             handleRemoteException(e);
         }
@@ -575,11 +608,16 @@ public class VehicleNetwork {
         mListener.onHalRestart(inMocking);
     }
 
+    private void handleOnPropertySet(VehiclePropValue value) {
+        mListener.onPropertySet(value);
+    }
+
     private class EventHandler extends Handler {
 
         private static final int MSG_EVENTS = 0;
         private static final int MSG_HAL_ERROR = 1;
         private static final int MSG_HAL_RESTART = 2;
+        private static final int MSG_ON_PROPERTY_SET = 3;
 
         private EventHandler(Looper looper) {
             super(looper);
@@ -600,6 +638,11 @@ public class VehicleNetwork {
             sendMessage(msg);
         }
 
+        private void notifyPropertySet(VehiclePropValue value) {
+            Message msg = obtainMessage(MSG_ON_PROPERTY_SET, value);
+            sendMessage(msg);
+        }
+
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -612,6 +655,8 @@ public class VehicleNetwork {
                 case MSG_HAL_RESTART:
                     handleHalRestart(msg.arg1 == 1);
                     break;
+                case MSG_ON_PROPERTY_SET:
+                    handleOnPropertySet((VehiclePropValue) msg.obj);
                 default:
                     Log.w(TAG, "Unknown message:" + msg.what, new RuntimeException());
                     break;
@@ -623,8 +668,8 @@ public class VehicleNetwork {
 
         private final WeakReference<VehicleNetwork> mVehicleNetwork;
 
-        private IVehicleNetworkListenerImpl(VehicleNetwork vehicleNewotk) {
-            mVehicleNetwork = new WeakReference<>(vehicleNewotk);
+        private IVehicleNetworkListenerImpl(VehicleNetwork vehicleNetwork) {
+            mVehicleNetwork = new WeakReference<>(vehicleNetwork);
         }
 
         @Override
@@ -632,6 +677,14 @@ public class VehicleNetwork {
             VehicleNetwork vehicleNetwork = mVehicleNetwork.get();
             if (vehicleNetwork != null) {
                 vehicleNetwork.mEventHandler.notifyEvents(values.values);
+            }
+        }
+
+        @Override
+        public void onPropertySet(VehiclePropValueParcelable value) {
+            VehicleNetwork vehicleNetwork = mVehicleNetwork.get();
+            if (vehicleNetwork != null) {
+                vehicleNetwork.mEventHandler.notifyPropertySet(value.value);
             }
         }
 
