@@ -16,41 +16,58 @@
 
 package android.car;
 
+import android.annotation.StringDef;
 import android.car.annotation.ValueTypeDef;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
- * Utility to retrieve various static information from car. For given string keys, there can be
- * different types of values and right query API like {@link #getFloat(String)} for float
- * type, and {@link #getInt(String)} for int type, should be used. Passing a key string to wrong
- * API will lead into {@link IllegalArgumentException}. All get* apis return null if requested
- * property is not supported by the car. So caller should always check for null result.
+ * Utility to retrieve various static information from car. Each data are grouped as {@link Bundle}
+ * and relevant data can be checked from {@link Bundle} using pre-specified keys.
  */
-public class CarInfoManager implements CarManagerBase {
+public final class CarInfoManager implements CarManagerBase {
 
     /**
-     * Manufacturer of the car.
+     * Key for manufacturer of the car. Should be used for {@link android.os.Bundle} acquired from
+     * {@link #getBasicCarInfo()}.
      */
     @ValueTypeDef(type = String.class)
-    public static final String KEY_MANUFACTURER = "android.car.manufacturer";
+    public static final String BASIC_INFO_KEY_MANUFACTURER = "android.car.manufacturer";
     /**
-     * Model name of the car. This information may not necessarily allow distinguishing different
-     * car models as the same name may be used for different cars depending on manufacturers.
+     * Key for model name of the car. This information may not necessarily allow distinguishing
+     * different car models as the same name may be used for different cars depending on
+     * manufacturers. Should be used for {@link android.os.Bundle} acquired from
+     * {@link #getBasicCarInfo()}.
      */
     @ValueTypeDef(type = String.class)
-    public static final String KEY_MODEL = "android.car.model";
+    public static final String BASIC_INFO_KEY_MODEL = "android.car.model";
     /**
-     * Model year of the car in AC.
+     * Key for model year of the car in AC. Should be used for {@link android.os.Bundle} acquired
+     * from {@link #getBasicCarInfo()}.
      */
     @ValueTypeDef(type = Integer.class)
-    public static final String KEY_MODEL_YEAR = "android.car.model-year";
+    public static final String BASIC_INFO_KEY_MODEL_YEAR = "android.car.model-year";
     /**
-     * Unique identifier for the car. This is not VIN, and id is persistent until user resets it.
+     * Key for unique identifier for the car. This is not VIN, and id is persistent until user
+     * resets it. Should be used for {@link android.os.Bundle} acquired from
+     * {@link #getBasicCarInfo()}.
      */
     @ValueTypeDef(type = String.class)
-    public static final String KEY_VEHICLE_ID = "android.car.vehicle-id";
+    public static final String BASIC_INFO_KEY_VEHICLE_ID = "android.car.vehicle-id";
+
+    /** @hide */
+    @StringDef({
+        BASIC_INFO_KEY_MANUFACTURER,
+        BASIC_INFO_KEY_MODEL,
+        BASIC_INFO_KEY_MODEL_YEAR,
+        BASIC_INFO_KEY_VEHICLE_ID
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface BasicInfoKeys {}
 
     //TODO
     //@ValueTypeDef(type = Integer.class)
@@ -74,78 +91,16 @@ public class CarInfoManager implements CarManagerBase {
     private final ICarInfo mService;
 
     /**
-     * Retrieve floating point information for car.
-     * @param key
-     * @return null if the key is not supported.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
-     * @throws IllegalArgumentException
+     * Get {@link android.os.Bundle} containing basic car information. Check
+     * {@link #BASIC_INFO_KEY_MANUFACTURER}, {@link #BASIC_INFO_KEY_MODEL},
+     * {@link #BASIC_INFO_KEY_MODEL_YEAR}, and {@link #BASIC_INFO_KEY_VEHICLE_ID} for supported
+     * keys in the {@link android.os.Bundle}.
+     * @return {@link android.os.Bundle} containing basic car info.
+     * @throws CarNotConnectedException
      */
-    public float getFloat(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public Bundle getBasicInfo() throws CarNotConnectedException {
         try {
-            float[] v = mService.getFloat(key);
-            if (v != null) {
-                return v[0];
-            }
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
-        } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
-        }
-        return Float.NaN;
-    }
-
-    public int getInt(String key) throws CarNotConnectedException, IllegalArgumentException {
-        try {
-            int[] v = mService.getInt(key);
-            if (v != null) {
-                return v[0];
-            }
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
-        } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
-        }
-        return Integer.MIN_VALUE;
-    }
-
-    public long getLong(String key) throws CarNotConnectedException, IllegalArgumentException {
-        try {
-            long[] v = mService.getLong(key);
-            if (v != null) {
-                return v[0];
-            }
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
-        } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
-        }
-        return Long.MIN_VALUE;
-    }
-
-    public String getString(String key) throws CarNotConnectedException, IllegalArgumentException {
-        try {
-            return mService.getString(key);
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
-        } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
-        }
-        return null;
-    }
-
-    /**
-     * get Bundle for the given key. This is intended for passing vendor specific data for key
-     * defined only for the car vendor. Vendor extension can be used for other APIs like
-     * getInt / getString, but this is for passing more complex data.
-     * @param key
-     * @return
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
-     * @throws IllegalArgumentException
-     * @hide
-     */
-    public Bundle getBundle(String key) throws CarNotConnectedException, IllegalArgumentException {
-        try {
-            return mService.getBundle(key);
+            return mService.getBasicInfo();
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {

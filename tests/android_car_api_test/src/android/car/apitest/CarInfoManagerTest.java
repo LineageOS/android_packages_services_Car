@@ -33,31 +33,8 @@ public class CarInfoManagerTest extends CarApiTestBase {
 
     public void testNoSuchInfo() throws Exception {
         final String NO_SUCH_NAME = "no-such-information-available";
-        try {
-            String name = mInfoManager.getString(NO_SUCH_NAME);
-            fail("wrong param check");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-        try {
-            Integer intValue = mInfoManager.getInt(NO_SUCH_NAME);
-            fail("wrong param check");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
-        try {
-            Float floatValue = mInfoManager.getFloat(NO_SUCH_NAME);
-            fail("wrong param check");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
-        try {
-            Long longValue = mInfoManager.getLong(NO_SUCH_NAME);
-            fail("wrong param check");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
-        Bundle bundleValue = mInfoManager.getBundle(NO_SUCH_NAME);
-        assertNull(bundleValue);
+        Bundle info = mInfoManager.getBasicInfo();
+        assertNotNull(info);
+        assertNull(info.getCharSequence(NO_SUCH_NAME));
     }
 }

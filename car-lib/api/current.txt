@@ -44,15 +44,12 @@ package android.car {
     method public abstract void onAppFocusOwnershipLost(int);
   }
 
-  public class CarInfoManager {
-    method public float getFloat(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public int getInt(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public long getLong(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public java.lang.String getString(java.lang.String) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    field public static final java.lang.String KEY_MANUFACTURER = "android.car.manufacturer";
-    field public static final java.lang.String KEY_MODEL = "android.car.model";
-    field public static final java.lang.String KEY_MODEL_YEAR = "android.car.model-year";
-    field public static final java.lang.String KEY_VEHICLE_ID = "android.car.vehicle-id";
+  public final class CarInfoManager {
+    method public android.os.Bundle getBasicInfo() throws android.car.CarNotConnectedException;
+    field public static final java.lang.String BASIC_INFO_KEY_MANUFACTURER = "android.car.manufacturer";
+    field public static final java.lang.String BASIC_INFO_KEY_MODEL = "android.car.model";
+    field public static final java.lang.String BASIC_INFO_KEY_MODEL_YEAR = "android.car.model-year";
+    field public static final java.lang.String BASIC_INFO_KEY_VEHICLE_ID = "android.car.vehicle-id";
   }
 
   public class CarNotConnectedException extends java.lang.Exception {

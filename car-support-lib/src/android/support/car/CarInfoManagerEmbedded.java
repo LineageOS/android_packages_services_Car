@@ -16,6 +16,7 @@
 
 package android.support.car;
 
+import android.support.car.CarNotConnectedException;
 import android.os.Bundle;
 
 /** @hide */
@@ -29,52 +30,9 @@ public class CarInfoManagerEmbedded extends CarInfoManager {
         mManager = (android.car.CarInfoManager) manager;
     }
 
-    @Override
-    public float getFloat(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public Bundle getBasicInfo() throws CarNotConnectedException {
         try {
-            return mManager.getFloat(key);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    @Override
-    public int getInt(String key) throws CarNotConnectedException, IllegalArgumentException {
-        try {
-            return mManager.getInt(key);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    @Override
-    public long getLong(String key) throws CarNotConnectedException, IllegalArgumentException {
-        try {
-            return mManager.getLong(key);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    @Override
-    public String getString(String key) throws CarNotConnectedException, IllegalArgumentException {
-        try {
-            return mManager.getString(key);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    /**
-     * get Bundle for the given key. This is intended for passing vendor specific data for key
-     * defined only for the car vendor. Vendor extension can be used for other APIs like
-     * getInt / getString, but this is for passing more complex data.
-     * @hide
-     */
-    @Override
-    public Bundle getBundle(String key) throws CarNotConnectedException {
-        try {
-            return mManager.getBundle(key);
+            return mManager.getBasicInfo();
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }

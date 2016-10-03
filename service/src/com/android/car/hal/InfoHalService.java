@@ -16,9 +16,11 @@
 package com.android.car.hal;
 
 import android.car.CarInfoManager;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.android.car.CarLog;
+import com.android.car.vehiclenetwork.VehicleNetwork;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
@@ -31,8 +33,7 @@ import java.util.List;
 public class InfoHalService extends HalServiceBase {
 
     private final VehicleHal mHal;
-    private final HashMap<String, VehiclePropConfig> mInfoNameToHalPropertyMap =
-            new HashMap<String, VehiclePropConfig>();
+    private Bundle mBasicInfo = new Bundle();
 
     public InfoHalService(VehicleHal hal) {
         mHal = hal;
@@ -45,18 +46,30 @@ public class InfoHalService extends HalServiceBase {
 
     @Override
     public synchronized void release() {
-        mInfoNameToHalPropertyMap.clear();
+        mBasicInfo = new Bundle();
     }
 
     @Override
     public synchronized List<VehiclePropConfig> takeSupportedProperties(
             List<VehiclePropConfig> allProperties) {
+        VehicleNetwork vn = mHal.getVehicleNetwork();
         List<VehiclePropConfig> supported = new LinkedList<VehiclePropConfig>();
         for (VehiclePropConfig p: allProperties) {
-            String infoName = getInfoStringFromProperty(p.getProp());
-            if (infoName != null) {
-                supported.add(p);
-                mInfoNameToHalPropertyMap.put(infoName, p);
+            switch (p.getProp()) {
+                case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE:
+                    mBasicInfo.putString(CarInfoManager.BASIC_INFO_KEY_MANUFACTURER,
+                            vn.getStringProperty(p.getProp()));
+                    break;
+                case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL:
+                    mBasicInfo.putString(CarInfoManager.BASIC_INFO_KEY_MODEL,
+                            vn.getStringProperty(p.getProp()));
+                    break;
+                case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL_YEAR:
+                    mBasicInfo.putString(CarInfoManager.BASIC_INFO_KEY_MODEL_YEAR,
+                            vn.getStringProperty(p.getProp()));
+                    break;
+                default: // not supported
+                    break;
             }
         }
         return supported;
@@ -72,74 +85,15 @@ public class InfoHalService extends HalServiceBase {
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*InfoHal*");
-        writer.println("**Supported properties**");
-        for (VehiclePropConfig p : mInfoNameToHalPropertyMap.values()) {
-            //TODO fix toString
-            writer.println(p.toString());
-        }
+        writer.println("**BasicInfo:" + mBasicInfo);
     }
 
-    public int[] getInt(String key) {
-        VehiclePropConfig prop = getHalPropertyFromInfoString(key);
-        if (prop == null) {
-            return null;
-        }
-        // no lock here as get can take time and multiple get should be possible.
-        int v = mHal.getVehicleNetwork().getIntProperty(prop.getProp());
-        return new int[] { v };
-    }
-
-    public long[] getLong(String key) {
-        VehiclePropConfig prop = getHalPropertyFromInfoString(key);
-        if (prop == null) {
-            return null;
-        }
-        // no lock here as get can take time and multiple get should be possible.
-        long v = mHal.getVehicleNetwork().getLongProperty(prop.getProp());
-        return new long[] { v };
-    }
-
-    public float[] getFloat(String key) {
-        VehiclePropConfig prop = getHalPropertyFromInfoString(key);
-        if (prop == null) {
-            return null;
-        }
-        // no lock here as get can take time and multiple get should be possible.
-        float v = mHal.getVehicleNetwork().getFloatProperty(prop.getProp());
-        return new float[] { v };
-    }
-
-    public String getString(String key) {
-        VehiclePropConfig prop = getHalPropertyFromInfoString(key);
-        if (prop == null) {
-            return null;
-        }
-        // no lock here as get can take time and multiple get should be possible.
-        return mHal.getVehicleNetwork().getStringProperty(prop.getProp());
-    }
-
-    private synchronized VehiclePropConfig getHalPropertyFromInfoString(String key) {
-        return mInfoNameToHalPropertyMap.get(key);
+    public synchronized Bundle getBasicInfo() {
+        return mBasicInfo;
     }
 
     private void logUnexpectedEvent(int property) {
        Log.w(CarLog.TAG_INFO, "unexpected HAL event for property 0x" +
                Integer.toHexString(property));
-    }
-
-    private static String getInfoStringFromProperty(int property) {
-        switch (property) {
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE:
-                return CarInfoManager.KEY_MANUFACTURER;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL:
-                return CarInfoManager.KEY_MODEL;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL_YEAR:
-                return CarInfoManager.KEY_MODEL_YEAR;
-            case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_VIN:
-                return CarInfoManager.KEY_VEHICLE_ID;
-            //TODO add more properties
-            default:
-                return null;
-        }
     }
 }

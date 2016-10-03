@@ -17,109 +17,93 @@
 package android.support.car;
 
 import android.os.Bundle;
+import android.support.annotation.StringDef;
 import android.support.car.annotation.ValueTypeDef;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
- * Utility to retrieve static information from a car. String keys require different types of
- * values, so be sure to query using the correct API (such as {@link #getFloat(String)} for float
- * type and {@link #getInt(String)} for int type). Passing a key string to the wrong
- * API causes an {@link IllegalArgumentException}.
+ * Utility to retrieve various static information from car. Each data are grouped as {@link Bundle}
+ * and relevant data can be checked from {@link Bundle} using pre-specified keys.
  */
 public abstract class CarInfoManager implements CarManagerBase {
 
     /**
-     * Manufacturer of the car.
+     * Key for manufacturer of the car. Should be used for {@link android.os.Bundle} acquired from
+     * {@link #getBasicCarInfo()}.
      */
     @ValueTypeDef(type = String.class)
-    public static final String KEY_MANUFACTURER = "android.car.manufacturer";
+    public static final String BASIC_INFO_KEY_MANUFACTURER = "android.car.manufacturer";
     /**
-     * Model name of the car. This information may not distinguish between different
-     * car models as some manufacturers use the same name for different cars.
+     * Key for model name of the car. This information may not necessarily allow distinguishing
+     * different car models as the same name may be used for different cars depending on
+     * manufacturers. Should be used for {@link android.os.Bundle} acquired from
+     * {@link #getBasicCarInfo()}.
      */
     @ValueTypeDef(type = String.class)
-    public static final String KEY_MODEL = "android.car.model";
+    public static final String BASIC_INFO_KEY_MODEL = "android.car.model";
     /**
-     * Model year of the car.
+     * Key for model year of the car in AC. Should be used for {@link android.os.Bundle} acquired
+     * from {@link #getBasicCarInfo()}.
      */
     @ValueTypeDef(type = Integer.class)
-    public static final String KEY_MODEL_YEAR = "android.car.model-year";
+    public static final String BASIC_INFO_KEY_MODEL_YEAR = "android.car.model-year";
     /**
-     * Unique identifier for the car, persistent until reset by the user. This is not the VIN.
+     * Key for unique identifier for the car. This is not VIN, and id is persistent until user
+     * resets it. Should be used for {@link android.os.Bundle} acquired from
+     * {@link #getBasicCarInfo()}.
      */
     @ValueTypeDef(type = String.class)
-    public static final String KEY_VEHICLE_ID = "android.car.vehicle-id";
+    public static final String BASIC_INFO_KEY_VEHICLE_ID = "android.car.vehicle-id";
 
     /** Manufacturer of the head unit.*/
     @ValueTypeDef(type = String.class)
-    public static final String KEY_HEAD_UNIT_MAKE = "android.car.headUnitMake";
+    public static final String BASIC_INFO_KEY_HEAD_UNIT_MAKE = "android.car.headUnitMake";
     /** Model of the head unit.*/
     @ValueTypeDef(type = String.class)
-    public static final String KEY_HEAD_UNIT_MODEL = "android.car.headUnitModel";
+    public static final String BASIC_INFO_KEY_HEAD_UNIT_MODEL = "android.car.headUnitModel";
     /** Software build of the head unit. */
     @ValueTypeDef(type = String.class)
-    public static final String KEY_HEAD_UNIT_SOFTWARE_BUILD = "android.car.headUnitSoftwareBuild";
+    public static final String BASIC_INFO_KEY_HEAD_UNIT_SOFTWARE_BUILD =
+        "android.car.headUnitSoftwareBuild";
     /** Software version of the head unit. */
     @ValueTypeDef(type = String.class)
-    public static final String KEY_HEAD_UNIT_SOFTWARE_VERSION = "android.car.headUnitSoftwareVersion";
-    /** Location of driver's seat (one of the DRIVER_SIDE_* constants). */
+    public static final String BASIC_INFO_KEY_HEAD_UNIT_SOFTWARE_VERSION =
+        "android.car.headUnitSoftwareVersion";
+    /** Location of driver's seat (one of the BASIC_INFO_DRIVER_SIDE_* constants). */
     @ValueTypeDef(type = Integer.class)
-    public static final String KEY_DRIVER_POSITION = "android.car.driverPosition";
+    public static final String BASIC_INFO_KEY_DRIVER_POSITION = "android.car.driverPosition";
+
+    /** @hide */
+    @StringDef({
+        BASIC_INFO_KEY_MANUFACTURER,
+        BASIC_INFO_KEY_MODEL,
+        BASIC_INFO_KEY_MODEL_YEAR,
+        BASIC_INFO_KEY_VEHICLE_ID,
+        BASIC_INFO_KEY_HEAD_UNIT_MAKE,
+        BASIC_INFO_KEY_HEAD_UNIT_MODEL,
+        BASIC_INFO_KEY_HEAD_UNIT_SOFTWARE_BUILD,
+        BASIC_INFO_KEY_HEAD_UNIT_SOFTWARE_VERSION,
+        BASIC_INFO_KEY_DRIVER_POSITION
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface BasicInfoKeys {}
 
     /** Location of the driver: left. */
-    public static final int DRIVER_SIDE_LEFT   = 0;
+    public static final int BASIC_INFO_DRIVER_SIDE_LEFT   = 0;
     /** Location of the driver: right. */
-    public static final int DRIVER_SIDE_RIGHT  = 1;
+    public static final int BASIC_INFO_DRIVER_SIDE_RIGHT  = 1;
     /** Location of the driver: center. */
-    public static final int DRIVER_SIDE_CENTER = 2;
+    public static final int BASIC_INFO_DRIVER_SIDE_CENTER = 2;
 
     /**
-     * Return the value for the given key.
-     * @param key One of the KEY_* constants defined in this API or provided by manufacturer
-     * extensions.
-     * @return The value or {@link Float#NaN} if the key is not supported or populated.
+     * Get {@link android.os.Bundle} containing basic car information. Check
+     * {@link #BASIC_INFO_KEY_MANUFACTURER}, {@link #BASIC_INFO_KEY_MODEL},
+     * {@link #BASIC_INFO_KEY_MODEL_YEAR}, and {@link #BASIC_INFO_KEY_VEHICLE_ID} for supported
+     * keys in the {@link android.os.Bundle}.
+     * @return {@link android.os.Bundle} containing basic car info.
+     * @throws CarNotConnectedException
      */
-    public abstract float getFloat(String key)
-            throws CarNotConnectedException, IllegalArgumentException;
-
-    /**
-     * Return the value for the given key.
-     * @param key One of the KEY_* constants defined in this API or provided by manufacturer
-     * extensions.
-     * @return The value or {@link Integer#MIN_VALUE} if the key is not supported or
-     * populated.
-     */
-    public abstract int getInt(String key)
-            throws CarNotConnectedException, IllegalArgumentException;
-
-    /**
-     * Return the value for the given key.
-     * @param key One of the KEY_* constants defined in this API or provided by manufacturer
-     * extensions.
-     * @return The value or {@link Long#MIN_VALUE} if the key is not supported or
-     * populated.
-     */
-    public abstract long getLong(String key)
-            throws CarNotConnectedException, IllegalArgumentException;
-
-    /**
-     * Return the value for the given key.
-     * @param key One of the KEY_* constants defined in this API or provided by manufacturer
-     * extensions.
-     * @return The value or {@code null} if the key is not supported or populated.
-     */
-    public abstract String getString(String key)
-            throws CarNotConnectedException, IllegalArgumentException;
-
-    /**
-     * Retrieve a {@link Bundle} for the given key. Intended for passing vendor-specific
-     * data defined by car manufacturers. Vendor extensions can use other APIs (such as
-     * {@link #getString(String)}), but this API is for passing complex data.
-     * @param key One of the KEY_* constants defined in this API or provided by manufacturer
-     * extensions.
-     * @return The specified {@link Bundle} or {@code null} if the key is not supported or
-     * populated.
-     * @hide
-     */
-    public abstract Bundle getBundle(String key)
-            throws CarNotConnectedException;
+    public abstract Bundle getBasicInfo() throws CarNotConnectedException;
 }

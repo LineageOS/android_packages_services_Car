@@ -17,6 +17,7 @@ package com.android.car.test;
 
 import android.car.Car;
 import android.car.CarInfoManager;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.android.car.test.MockedCarTestBase;
@@ -46,42 +47,14 @@ public class CarInfoManagerTest extends MockedCarTestBase {
     }
 
     public void testManufactuter() throws Exception {
-        String name = mCarInfoManager.getString(CarInfoManager.KEY_MANUFACTURER);
-        assertEquals(MAKE_NAME, name);
-        Log.i(TAG, CarInfoManager.KEY_MANUFACTURER + ":" + name);
-        try {
-            Float v = mCarInfoManager.getFloat(CarInfoManager.KEY_MANUFACTURER);
-            fail("type check failed");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-        try {
-            Integer v = mCarInfoManager.getInt(CarInfoManager.KEY_MANUFACTURER);
-            fail("type check failed");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
+        Bundle info = mCarInfoManager.getBasicInfo();
+        assertEquals(MAKE_NAME, info.getCharSequence(CarInfoManager.BASIC_INFO_KEY_MANUFACTURER));
     }
 
     public void testNoSuchInfo() throws Exception {
         final String NO_SUCH_NAME = "no-such-information-available";
-        try {
-            String name = mCarInfoManager.getString(NO_SUCH_NAME);
-            fail("wrong param check");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-        try {
-            Integer intValue = mCarInfoManager.getInt(NO_SUCH_NAME);
-            fail("wrong param check");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
-        try {
-            Float floatValue = mCarInfoManager.getFloat(NO_SUCH_NAME);
-            fail("wrong param check");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
+        Bundle info = mCarInfoManager.getBasicInfo();
+        assertNotNull(info);
+        assertNull(info.getCharSequence(NO_SUCH_NAME));
     }
 }
