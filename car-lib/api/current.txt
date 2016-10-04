@@ -23,15 +23,15 @@ package android.car {
   }
 
   public final class CarAppFocusManager {
-    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipLostListener, int) throws android.car.CarNotConnectedException;
-    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipLostListener) throws android.car.CarNotConnectedException;
+    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) throws android.car.CarNotConnectedException;
+    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.car.CarNotConnectedException;
     method public void addFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int) throws android.car.CarNotConnectedException;
-    method public boolean isOwningFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipLostListener, int) throws android.car.CarNotConnectedException;
+    method public boolean isOwningFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) throws android.car.CarNotConnectedException;
     method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int) throws android.car.CarNotConnectedException;
     method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener) throws android.car.CarNotConnectedException;
-    method public int requestAppFocus(int, android.car.CarAppFocusManager.OnAppFocusOwnershipLostListener) throws android.car.CarNotConnectedException, java.lang.SecurityException;
+    method public int requestAppFocus(int, android.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.car.CarNotConnectedException, java.lang.SecurityException;
     field public static final int APP_FOCUS_REQUEST_FAILED = 0; // 0x0
-    field public static final int APP_FOCUS_REQUEST_GRANTED = 1; // 0x1
+    field public static final int APP_FOCUS_REQUEST_SUCCEEDED = 1; // 0x1
     field public static final int APP_FOCUS_TYPE_NAVIGATION = 1; // 0x1
     field public static final int APP_FOCUS_TYPE_VOICE_COMMAND = 2; // 0x2
   }
@@ -40,7 +40,8 @@ package android.car {
     method public abstract void onAppFocusChanged(int, boolean);
   }
 
-  public static abstract interface CarAppFocusManager.OnAppFocusOwnershipLostListener {
+  public static abstract interface CarAppFocusManager.OnAppFocusOwnershipCallback {
+    method public abstract void onAppFocusOwnershipGranted(int);
     method public abstract void onAppFocusOwnershipLost(int);
   }
 

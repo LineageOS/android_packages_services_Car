@@ -32,15 +32,15 @@ package android.support.car {
 
   public abstract class CarAppFocusManager {
     ctor public CarAppFocusManager();
-    method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.OnAppFocusOwnershipLostListener, int) throws android.support.car.CarNotConnectedException;
-    method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.OnAppFocusOwnershipLostListener) throws android.support.car.CarNotConnectedException;
+    method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) throws android.support.car.CarNotConnectedException;
+    method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.support.car.CarNotConnectedException;
     method public abstract void addFocusListener(android.support.car.CarAppFocusManager.OnAppFocusChangedListener, int) throws android.support.car.CarNotConnectedException;
-    method public abstract boolean isOwningFocus(int, android.support.car.CarAppFocusManager.OnAppFocusOwnershipLostListener) throws android.support.car.CarNotConnectedException;
+    method public abstract boolean isOwningFocus(int, android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.support.car.CarNotConnectedException;
     method public abstract void removeFocusListener(android.support.car.CarAppFocusManager.OnAppFocusChangedListener, int) throws android.support.car.CarNotConnectedException;
     method public abstract void removeFocusListener(android.support.car.CarAppFocusManager.OnAppFocusChangedListener) throws android.support.car.CarNotConnectedException;
-    method public abstract int requestAppFocus(int, android.support.car.CarAppFocusManager.OnAppFocusOwnershipLostListener) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException, java.lang.SecurityException;
+    method public abstract int requestAppFocus(int, android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException, java.lang.SecurityException;
     field public static final int APP_FOCUS_REQUEST_FAILED = 0; // 0x0
-    field public static final int APP_FOCUS_REQUEST_GRANTED = 1; // 0x1
+    field public static final int APP_FOCUS_REQUEST_SUCCEEDED = 1; // 0x1
     field public static final int APP_FOCUS_TYPE_NAVIGATION = 1; // 0x1
   }
 
@@ -48,7 +48,8 @@ package android.support.car {
     method public abstract void onAppFocusChanged(android.support.car.CarAppFocusManager, int, boolean);
   }
 
-  public static abstract interface CarAppFocusManager.OnAppFocusOwnershipLostListener {
+  public static abstract interface CarAppFocusManager.OnAppFocusOwnershipCallback {
+    method public abstract void onAppFocusOwnershipGranted(android.support.car.CarAppFocusManager, int);
     method public abstract void onAppFocusOwnershipLost(android.support.car.CarAppFocusManager, int);
   }
 

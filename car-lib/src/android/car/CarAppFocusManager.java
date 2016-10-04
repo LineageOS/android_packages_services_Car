@@ -49,7 +49,7 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * Listener to get notification for app getting information on app type ownership loss.
      */
-    public interface OnAppFocusOwnershipLostListener {
+    public interface OnAppFocusOwnershipCallback {
         /**
          * Lost ownership for the focus, which happens when other app has set the focus.
          * The app losing focus should stop the action associated with the focus.
@@ -58,6 +58,15 @@ public final class CarAppFocusManager implements CarManagerBase {
          * @param appType
          */
         void onAppFocusOwnershipLost(int appType);
+
+        /**
+         * Granted ownership for the focus, which happens when app has requested the focus.
+         * The app getting focus can start the action associated with the focus.
+         * For example, navigation app can start navigation
+         * upon getting this for {@link CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.
+         * @param appType
+         */
+        void onAppFocusOwnershipGranted(int appType);
     }
 
     /**
@@ -81,13 +90,13 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * A successful focus change request.
      */
-    public static final int APP_FOCUS_REQUEST_GRANTED = 1;
+    public static final int APP_FOCUS_REQUEST_SUCCEEDED = 1;
 
     private final IAppFocus mService;
     private final Handler mHandler;
     private final Map<OnAppFocusChangedListener, IAppFocusListenerImpl> mChangeBinders =
             new HashMap<>();
-    private final Map<OnAppFocusOwnershipLostListener, IAppFocusOwnershipListenerImpl>
+    private final Map<OnAppFocusOwnershipCallback, IAppFocusOwnershipCallbackImpl>
             mOwnershipBinders = new HashMap<>();
 
     /**
@@ -192,15 +201,15 @@ public final class CarAppFocusManager implements CarManagerBase {
 
     /**
      * Checks if listener is associated with active a focus
-     * @param listener
+     * @param callback
      * @param appType
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public boolean isOwningFocus(OnAppFocusOwnershipLostListener listener, int appType)
+    public boolean isOwningFocus(OnAppFocusOwnershipCallback callback, int appType)
             throws CarNotConnectedException {
-        IAppFocusOwnershipListenerImpl binder;
+        IAppFocusOwnershipCallbackImpl binder;
         synchronized (this) {
-            binder = mOwnershipBinders.get(listener);
+            binder = mOwnershipBinders.get(callback);
             if (binder == null) {
                 return false;
             }
@@ -215,26 +224,26 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * Requests application focus.
      * By requesting this, the application is becoming owner of the focus, and will get
-     * {@link OnAppFocusOwnershipLostListener#onAppFocusOwnershipLost(int)}
+     * {@link OnAppFocusOwnershipCallback#onAppFocusOwnershipLost(int)}
      * if ownership is given to other app by calling this. Fore-ground app will have higher priority
      * and other app cannot set the same focus while owner is in fore-ground.
      * @param appType
-     * @param ownershipListener
-     * @return {@link #APP_FOCUS_REQUEST_FAILED} or {@link #APP_FOCUS_REQUEST_GRANTED}
+     * @param ownershipCallback
+     * @return {@link #APP_FOCUS_REQUEST_FAILED} or {@link #APP_FOCUS_REQUEST_SUCCEEDED}
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @throws SecurityException If owner cannot be changed.
      */
-    public int requestAppFocus(int appType, OnAppFocusOwnershipLostListener ownershipListener)
+    public int requestAppFocus(int appType, OnAppFocusOwnershipCallback ownershipCallback)
             throws SecurityException, CarNotConnectedException {
-        if (ownershipListener == null) {
+        if (ownershipCallback == null) {
             throw new IllegalArgumentException("null listener");
         }
-        IAppFocusOwnershipListenerImpl binder;
+        IAppFocusOwnershipCallbackImpl binder;
         synchronized (this) {
-            binder = mOwnershipBinders.get(ownershipListener);
+            binder = mOwnershipBinders.get(ownershipCallback);
             if (binder == null) {
-                binder = new IAppFocusOwnershipListenerImpl(this, ownershipListener);
-                mOwnershipBinders.put(ownershipListener, binder);
+                binder = new IAppFocusOwnershipCallbackImpl(this, ownershipCallback);
+                mOwnershipBinders.put(ownershipCallback, binder);
             }
             binder.addAppType(appType);
         }
@@ -248,18 +257,18 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * Abandon the given focus, i.e. mark it as inactive. This also involves releasing ownership
      * for the focus.
-     * @param ownershipListener
+     * @param ownershipCallback
      * @param appType
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void abandonAppFocus(OnAppFocusOwnershipLostListener ownershipListener, int appType)
+    public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback, int appType)
             throws CarNotConnectedException {
-        if (ownershipListener == null) {
-            throw new IllegalArgumentException("null listener");
+        if (ownershipCallback == null) {
+            throw new IllegalArgumentException("null callback");
         }
-        IAppFocusOwnershipListenerImpl binder;
+        IAppFocusOwnershipCallbackImpl binder;
         synchronized (this) {
-            binder = mOwnershipBinders.get(ownershipListener);
+            binder = mOwnershipBinders.get(ownershipCallback);
             if (binder == null) {
                 return;
             }
@@ -272,7 +281,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         synchronized (this) {
             binder.removeAppType(appType);
             if (!binder.hasAppTypes()) {
-                mOwnershipBinders.remove(ownershipListener);
+                mOwnershipBinders.remove(ownershipCallback);
             }
         }
     }
@@ -280,14 +289,14 @@ public final class CarAppFocusManager implements CarManagerBase {
     /**
      * Abandon all focuses, i.e. mark them as inactive. This also involves releasing ownership
      * for the focus.
-     * @param ownershipListener
+     * @param ownershipCallback
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void abandonAppFocus(OnAppFocusOwnershipLostListener ownershipListener)
+    public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback)
             throws CarNotConnectedException {
-        IAppFocusOwnershipListenerImpl binder;
+        IAppFocusOwnershipCallbackImpl binder;
         synchronized (this) {
-            binder = mOwnershipBinders.remove(ownershipListener);
+            binder = mOwnershipBinders.remove(ownershipCallback);
             if (binder == null) {
                 return;
             }
@@ -350,16 +359,16 @@ public final class CarAppFocusManager implements CarManagerBase {
         }
     }
 
-    private static class IAppFocusOwnershipListenerImpl extends IAppFocusOwnershipListener.Stub {
+    private static class IAppFocusOwnershipCallbackImpl extends IAppFocusOwnershipCallback.Stub {
 
         private final WeakReference<CarAppFocusManager> mManager;
-        private final WeakReference<OnAppFocusOwnershipLostListener> mListener;
+        private final WeakReference<OnAppFocusOwnershipCallback> mCallback;
         private final Set<Integer> mAppTypes = new HashSet<>();
 
-        private IAppFocusOwnershipListenerImpl(CarAppFocusManager manager,
-                OnAppFocusOwnershipLostListener listener) {
+        private IAppFocusOwnershipCallbackImpl(CarAppFocusManager manager,
+                OnAppFocusOwnershipCallback callback) {
             mManager = new WeakReference<>(manager);
-            mListener = new WeakReference<>(listener);
+            mCallback = new WeakReference<>(callback);
         }
 
         public void addAppType(int appType) {
@@ -381,14 +390,29 @@ public final class CarAppFocusManager implements CarManagerBase {
         @Override
         public void onAppFocusOwnershipLost(final int appType) {
             final CarAppFocusManager manager = mManager.get();
-            final OnAppFocusOwnershipLostListener listener = mListener.get();
-            if (manager == null || listener == null) {
+            final OnAppFocusOwnershipCallback callback = mCallback.get();
+            if (manager == null || callback == null) {
                 return;
             }
             manager.mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onAppFocusOwnershipLost(appType);
+                    callback.onAppFocusOwnershipLost(appType);
+                }
+            });
+        }
+
+        @Override
+        public void onAppFocusOwnershipGranted(final int appType) {
+            final CarAppFocusManager manager = mManager.get();
+            final OnAppFocusOwnershipCallback callback = mCallback.get();
+            if (manager == null || callback == null) {
+                return;
+            }
+            manager.mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onAppFocusOwnershipGranted(appType);
                 }
             });
         }

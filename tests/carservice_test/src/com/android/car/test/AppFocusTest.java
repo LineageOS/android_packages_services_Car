@@ -38,7 +38,7 @@ public class AppFocusTest extends MockedCarTestBase {
         CarAppFocusManager manager = (CarAppFocusManager) getCar().getCarManager(
                 Car.APP_FOCUS_SERVICE);
         FocusChangedListener listener = new FocusChangedListener();
-        FocusOwnershipLostListerner ownershipListener = new FocusOwnershipLostListerner();
+        FocusOwnershipCallback ownershipListener = new FocusOwnershipCallback();
         manager.addFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         manager.addFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
         manager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, ownershipListener);
@@ -80,10 +80,13 @@ public class AppFocusTest extends MockedCarTestBase {
         }
     }
 
-    private class FocusOwnershipLostListerner
-            implements CarAppFocusManager.OnAppFocusOwnershipLostListener {
+    private class FocusOwnershipCallback
+            implements CarAppFocusManager.OnAppFocusOwnershipCallback {
         private int mLastLossEvent;
         private final Semaphore mLossEventWait = new Semaphore(0);
+
+        private int mLastGrantEvent;
+        private final Semaphore mGrantEventWait = new Semaphore(0);
 
         public boolean waitForOwnershipLossAndAssert(long timeoutMs, int expectedLossAppType)
                 throws Exception {
@@ -94,11 +97,27 @@ public class AppFocusTest extends MockedCarTestBase {
             return true;
         }
 
+        public boolean waitForOwnershipGrantAndAssert(long timeoutMs, int expectedGrantAppType)
+                throws Exception {
+            if (!mGrantEventWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
+                return false;
+            }
+            assertEquals(expectedGrantAppType, mLastGrantEvent);
+            return true;
+        }
+
         @Override
         public void onAppFocusOwnershipLost(int appType) {
             Log.i(TAG, "onAppFocusOwnershipLost " + appType);
             mLastLossEvent = appType;
             mLossEventWait.release();
+        }
+
+        @Override
+        public void onAppFocusOwnershipGranted(int appType) {
+            Log.i(TAG, "onAppFocusOwnershipGranted " + appType);
+            mLastGrantEvent = appType;
+            mGrantEventWait.release();
         }
     }
 }

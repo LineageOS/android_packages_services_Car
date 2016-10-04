@@ -29,8 +29,8 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
 
     private final Map<OnAppFocusChangedListener, OnAppFocusChangedListenerProxy>
             mChangeListeners = new HashMap<>();
-    private final Map<OnAppFocusOwnershipLostListener, OnAppFocusOwnershipLostListenerProxy>
-            mOwnershipListeners = new HashMap<>();
+    private final Map<OnAppFocusOwnershipCallback, OnAppFocusOwnershipCallbackProxy>
+            mOwnershipCallbacks = new HashMap<>();
 
     /**
      * @hide
@@ -95,11 +95,11 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
     }
 
     @Override
-    public boolean isOwningFocus(int appType, OnAppFocusOwnershipLostListener listener)
+    public boolean isOwningFocus(int appType, OnAppFocusOwnershipCallback listener)
             throws CarNotConnectedException {
-        OnAppFocusOwnershipLostListenerProxy proxy;
+        OnAppFocusOwnershipCallbackProxy proxy;
         synchronized (this) {
-            proxy = mOwnershipListeners.get(listener);
+            proxy = mOwnershipCallbacks.get(listener);
             if (proxy == null) {
                 return false;
             }
@@ -112,17 +112,17 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
     }
 
     @Override
-    public int requestAppFocus(int appType, OnAppFocusOwnershipLostListener ownershipListener)
+    public int requestAppFocus(int appType, OnAppFocusOwnershipCallback ownershipCallback)
             throws IllegalStateException, SecurityException, CarNotConnectedException {
-        if (ownershipListener == null) {
+        if (ownershipCallback == null) {
             throw new IllegalArgumentException("null listener");
         }
-        OnAppFocusOwnershipLostListenerProxy proxy;
+        OnAppFocusOwnershipCallbackProxy proxy;
         synchronized (this) {
-            proxy = mOwnershipListeners.get(ownershipListener);
+            proxy = mOwnershipCallbacks.get(ownershipCallback);
             if (proxy == null) {
-                proxy = new OnAppFocusOwnershipLostListenerProxy(this, ownershipListener);
-                mOwnershipListeners.put(ownershipListener, proxy);
+                proxy = new OnAppFocusOwnershipCallbackProxy(this, ownershipCallback);
+                mOwnershipCallbacks.put(ownershipCallback, proxy);
             }
         }
         try {
@@ -133,14 +133,14 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
     }
 
     @Override
-    public void abandonAppFocus(OnAppFocusOwnershipLostListener ownershipListener, int appType)
+    public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback, int appType)
             throws CarNotConnectedException {
-        if (ownershipListener == null) {
+        if (ownershipCallback == null) {
             throw new IllegalArgumentException("null listener");
         }
-        OnAppFocusOwnershipLostListenerProxy proxy;
+        OnAppFocusOwnershipCallbackProxy proxy;
         synchronized (this) {
-            proxy = mOwnershipListeners.get(ownershipListener);
+            proxy = mOwnershipCallbacks.get(ownershipCallback);
             if (proxy == null) {
                 return;
             }
@@ -153,14 +153,14 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
     }
 
     @Override
-    public void abandonAppFocus(OnAppFocusOwnershipLostListener ownershipListener)
+    public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback)
             throws CarNotConnectedException {
-        if (ownershipListener == null) {
+        if (ownershipCallback == null) {
             throw new IllegalArgumentException("null listener");
         }
-        OnAppFocusOwnershipLostListenerProxy proxy;
+        OnAppFocusOwnershipCallbackProxy proxy;
         synchronized (this) {
-            proxy = mOwnershipListeners.get(ownershipListener);
+            proxy = mOwnershipCallbacks.get(ownershipCallback);
             if (proxy == null) {
                 return;
             }
@@ -195,22 +195,27 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
         }
     }
 
-    private static class OnAppFocusOwnershipLostListenerProxy
-            implements android.car.CarAppFocusManager.OnAppFocusOwnershipLostListener {
+    private static class OnAppFocusOwnershipCallbackProxy
+            implements android.car.CarAppFocusManager.OnAppFocusOwnershipCallback {
 
-        private final OnAppFocusOwnershipLostListener mListener;
+        private final OnAppFocusOwnershipCallback mListener;
         private final CarAppFocusManager mManager;
 
 
-        OnAppFocusOwnershipLostListenerProxy(CarAppFocusManager manager,
-                OnAppFocusOwnershipLostListener listener) {
+        OnAppFocusOwnershipCallbackProxy(CarAppFocusManager manager,
+                OnAppFocusOwnershipCallback listener) {
             mListener = listener;
             mManager = manager;
         }
 
         @Override
-        public void onAppFocusOwnershipLost(int focus) {
-            mListener.onAppFocusOwnershipLost(mManager, focus);
+        public void onAppFocusOwnershipLost(int focusType) {
+            mListener.onAppFocusOwnershipLost(mManager, focusType);
+        }
+
+        @Override
+        public void onAppFocusOwnershipGranted(int focusType) {
+            mListener.onAppFocusOwnershipGranted(mManager, focusType);
         }
     }
 }
