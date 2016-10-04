@@ -35,7 +35,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * APIs for handling car specific audio stuffs.
  */
-public class CarAudioManager implements CarManagerBase {
+public final class CarAudioManager implements CarManagerBase {
 
     /**
      * Audio usage for unspecified type.

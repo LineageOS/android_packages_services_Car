@@ -33,7 +33,7 @@ import java.lang.annotation.RetentionPolicy;
  * API for providing navigation status for instrument cluster.
  * @hide
  */
-public class CarNavigationManager implements CarManagerBase {
+public final class CarNavigationManager implements CarManagerBase {
 
     /** Navigation status */
     public static final int STATUS_UNAVAILABLE = 0;

@@ -42,7 +42,7 @@ import java.lang.ref.WeakReference;
  * @hide
  */
 @SystemApi
-public class CarRadioManager implements CarManagerBase {
+public final class CarRadioManager implements CarManagerBase {
     private final static boolean DBG = false;
     private final static String TAG = "CarRadioManager";
 

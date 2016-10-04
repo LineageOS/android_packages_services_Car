@@ -39,7 +39,7 @@ import java.util.List;
  * @hide
  */
 @SystemApi
-public class CarVendorExtensionManager implements CarManagerBase {
+public final class CarVendorExtensionManager implements CarManagerBase {
 
     private final static boolean DBG = false;
     private final static String TAG = CarVendorExtensionManager.class.getSimpleName();

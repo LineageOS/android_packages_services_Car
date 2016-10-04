@@ -1,6 +1,6 @@
 package android.car {
 
-  public class Car {
+  public final class Car {
     method public void connect() throws java.lang.IllegalStateException;
     method public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection, android.os.Handler);
     method public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection);
@@ -182,7 +182,7 @@ package android.car.app.menu {
 
 package android.car.content.pm {
 
-  public class CarPackageManager {
+  public final class CarPackageManager {
     method public boolean isActivityAllowedWhileDriving(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
     method public boolean isServiceAllowedWhileDriving(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
   }
@@ -295,7 +295,7 @@ package android.car.hardware {
     field public long timestamp;
   }
 
-  public class CarSensorManager {
+  public final class CarSensorManager {
     method public android.car.hardware.CarSensorEvent getLatestSensorEvent(int) throws android.car.CarNotConnectedException;
     method public int[] getSupportedSensors() throws android.car.CarNotConnectedException;
     method public boolean isSensorSupported(int) throws android.car.CarNotConnectedException;
@@ -327,7 +327,7 @@ package android.car.hardware {
 
 package android.car.media {
 
-  public class CarAudioManager {
+  public final class CarAudioManager {
     method public int abandonAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes);
     method public android.media.AudioAttributes getAudioAttributesForCarUsage(int);
     method public int getStreamMaxVolume(int) throws android.car.CarNotConnectedException;

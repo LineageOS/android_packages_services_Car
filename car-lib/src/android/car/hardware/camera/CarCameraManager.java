@@ -30,7 +30,7 @@ import android.util.Log;
  * @hide
  */
 @SystemApi
-public class CarCameraManager implements CarManagerBase {
+public final class CarCameraManager implements CarManagerBase {
     private final static boolean DBG = false;
     private final static String TAG = CarCameraManager.class.getSimpleName();
 

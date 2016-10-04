@@ -40,7 +40,7 @@ import java.util.List;
  * @hide
  */
 @SystemApi
-public class CarHvacManager implements CarManagerBase {
+public final class CarHvacManager implements CarManagerBase {
     private final static boolean DBG = false;
     private final static String TAG = "CarHvacManager";
     private final CarPropertyManagerBase mMgr;

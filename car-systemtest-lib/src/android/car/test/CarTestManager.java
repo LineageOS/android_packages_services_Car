@@ -35,7 +35,7 @@ import java.lang.ref.WeakReference;
  * @hide
  */
 @SystemApi
-public class CarTestManager implements CarManagerBase {
+public final class CarTestManager implements CarManagerBase {
 
     /**
      * Flag for {@link #startMocking(VehicleNetworkHalMock, int)}.

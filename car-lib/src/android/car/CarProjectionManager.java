@@ -30,7 +30,7 @@ import java.lang.ref.WeakReference;
  * @hide
  */
 @SystemApi
-public class CarProjectionManager implements CarManagerBase {
+public final class CarProjectionManager implements CarManagerBase {
     /**
      * Listener to get projected notifications.
      *

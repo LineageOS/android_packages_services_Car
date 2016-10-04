@@ -52,7 +52,7 @@ import java.util.HashMap;
  *   This API works only for devices with {@link PackageManager#FEATURE_AUTOMOTIVE}
  *   Calling this API on a device with no such feature will lead to an exception.
  */
-public class Car {
+public final class Car {
 
     /**
      * Represent the version of Car API.

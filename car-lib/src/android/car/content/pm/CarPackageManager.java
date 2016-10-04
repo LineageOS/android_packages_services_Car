@@ -33,7 +33,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Provides car specific API related with package management.
  */
-public class CarPackageManager implements CarManagerBase {
+public final class CarPackageManager implements CarManagerBase {
 
     /**
      * Flag for {@link #setAppBlockingPolicy(String, CarAppBlockingPolicy, int)}. When this

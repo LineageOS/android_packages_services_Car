@@ -40,7 +40,7 @@ import java.util.List;
 /**
  *  API for monitoring car sensor data.
  */
-public class CarSensorManager implements CarManagerBase {
+public final class CarSensorManager implements CarManagerBase {
     /** @hide */
     public static final int SENSOR_TYPE_RESERVED1           = 1;
     /**

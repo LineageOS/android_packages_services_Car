@@ -1,6 +1,6 @@
 package android.car {
 
-  public class Car {
+  public final class Car {
     method public void connect() throws java.lang.IllegalStateException;
     method public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection, android.os.Handler);
     method public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection);
@@ -81,7 +81,7 @@ package android.car {
     ctor public CarOperationNotSupportedException(java.lang.Exception);
   }
 
-  public class CarProjectionManager {
+  public final class CarProjectionManager {
     method public void onCarDisconnected();
     method public void registerProjectionRunner(android.content.Intent) throws android.car.CarNotConnectedException;
     method public void regsiterProjectionListener(android.car.CarProjectionManager.CarProjectionListener, int) throws android.car.CarNotConnectedException;
@@ -365,7 +365,7 @@ package android.car.content.pm {
     field public static final java.lang.String SERVICE_INTERFACE = "android.car.content.pm.CarAppBlockingPolicyService";
   }
 
-  public class CarPackageManager {
+  public final class CarPackageManager {
     method public boolean isActivityAllowedWhileDriving(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
     method public boolean isActivityBackedBySafeActivity(android.content.ComponentName) throws android.car.CarNotConnectedException;
     method public boolean isServiceAllowedWhileDriving(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
@@ -530,7 +530,7 @@ package android.car.hardware {
     field public long timestamp;
   }
 
-  public class CarSensorManager {
+  public final class CarSensorManager {
     method public android.car.hardware.CarSensorEvent getLatestSensorEvent(int) throws android.car.CarNotConnectedException;
     method public int[] getSupportedSensors() throws android.car.CarNotConnectedException;
     method public boolean isSensorSupported(int) throws android.car.CarNotConnectedException;
@@ -558,7 +558,7 @@ package android.car.hardware {
     method public abstract void onSensorChanged(android.car.hardware.CarSensorEvent);
   }
 
-  public class CarVendorExtensionManager {
+  public final class CarVendorExtensionManager {
     method public E getGlobalProperty(java.lang.Class<E>, int) throws android.car.CarNotConnectedException;
     method public java.util.List<android.car.hardware.CarPropertyConfig> getProperties() throws android.car.CarNotConnectedException;
     method public E getProperty(java.lang.Class<E>, int, int) throws android.car.CarNotConnectedException;
@@ -577,7 +577,7 @@ package android.car.hardware {
 
 package android.car.hardware.cabin {
 
-  public class CarCabinManager {
+  public final class CarCabinManager {
     method public boolean getBooleanProperty(int, int) throws android.car.CarNotConnectedException;
     method public float getFloatProperty(int, int) throws android.car.CarNotConnectedException;
     method public int getIntProperty(int, int) throws android.car.CarNotConnectedException;
@@ -656,7 +656,7 @@ package android.car.hardware.camera {
     field public final int mCameraType;
   }
 
-  public class CarCameraManager {
+  public final class CarCameraManager {
     method public void closeCamera(android.car.hardware.camera.CarCamera);
     method public int getCameraCapabilities(int) throws android.car.CarNotConnectedException;
     method public int[] getCameraList();
@@ -695,7 +695,7 @@ package android.car.hardware.camera {
 
 package android.car.hardware.hvac {
 
-  public class CarHvacManager {
+  public final class CarHvacManager {
     method public boolean getBooleanProperty(int, int) throws android.car.CarNotConnectedException;
     method public float getFloatProperty(int, int) throws android.car.CarNotConnectedException;
     method public int getIntProperty(int, int) throws android.car.CarNotConnectedException;
@@ -750,7 +750,7 @@ package android.car.hardware.radio {
     field public static final int RADIO_PRESET = 0; // 0x0
   }
 
-  public class CarRadioManager {
+  public final class CarRadioManager {
     method public android.car.hardware.radio.CarRadioPreset getPreset(int) throws android.car.CarNotConnectedException;
     method public int getPresetCount();
     method public synchronized void registerListener(android.car.hardware.radio.CarRadioManager.CarRadioEventListener) throws android.car.CarNotConnectedException;
@@ -777,7 +777,7 @@ package android.car.hardware.radio {
 
 package android.car.media {
 
-  public class CarAudioManager {
+  public final class CarAudioManager {
     method public int abandonAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes);
     method public android.media.AudioAttributes getAudioAttributesForCarUsage(int);
     method public int getStreamMaxVolume(int) throws android.car.CarNotConnectedException;
