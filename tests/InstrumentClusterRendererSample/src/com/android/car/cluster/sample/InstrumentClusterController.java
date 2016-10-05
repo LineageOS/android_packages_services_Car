@@ -21,7 +21,7 @@ import android.annotation.Nullable;
 import android.app.Presentation;
 import android.car.cluster.renderer.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
-import android.car.navigation.CarNavigationManager.DisplayDistanceUnit;
+import android.car.navigation.CarNavigationStatusManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -213,19 +213,15 @@ import java.util.TimerTask;
     }
 
     private void initDistanceUnitNames(Context context) {
-        mDistanceUnitNames.put(DisplayDistanceUnit.METERS,
+        mDistanceUnitNames.put(CarNavigationStatusManager.DISTANCE_METERS,
                 context.getString(R.string.nav_distance_units_meters));
-        mDistanceUnitNames.put(DisplayDistanceUnit.KILOMETERS,
+        mDistanceUnitNames.put(CarNavigationStatusManager.DISTANCE_KILOMETERS,
                 context.getString(R.string.nav_distance_units_kilometers));
-        mDistanceUnitNames.put(DisplayDistanceUnit.KILOMETERS_P1,
-                context.getString(R.string.nav_distance_units_kilometers));
-        mDistanceUnitNames.put(DisplayDistanceUnit.FEET,
+        mDistanceUnitNames.put(CarNavigationStatusManager.DISTANCE_FEET,
                 context.getString(R.string.nav_distance_units_ft));
-        mDistanceUnitNames.put(DisplayDistanceUnit.MILES,
+        mDistanceUnitNames.put(CarNavigationStatusManager.DISTANCE_MILES,
                 context.getString(R.string.nav_distance_units_miles));
-        mDistanceUnitNames.put(DisplayDistanceUnit.MILES_P1,
-                context.getString(R.string.nav_distance_units_miles));
-        mDistanceUnitNames.put(DisplayDistanceUnit.YARDS,
+        mDistanceUnitNames.put(CarNavigationStatusManager.DISTANCE_YARDS,
                 context.getString(R.string.nav_distance_units_yards));
     }
 
@@ -582,10 +578,10 @@ import java.util.TimerTask;
         }
 
         @Override
-        public void onNextTurnChanged(int event, String road, int turnAngle, int turnNumber,
-                Bitmap image, int turnSide) {
+        public void onNextTurnChanged(int event, CharSequence eventName, int turnAngle,
+                int turnNumber, Bitmap image, int turnSide) {
             if (DEBUG) {
-                Log.d(TAG, "onNextTurnChanged, road: " + road + ", image: " + image +
+                Log.d(TAG, "onNextTurnChanged, eventName: " + eventName + ", image: " + image +
                         (image == null ? "" : ", size: "
                                 + image.getWidth() + "x" + image.getHeight()));
             }
@@ -593,7 +589,7 @@ import java.util.TimerTask;
                     (int) mResources.getDimension(R.dimen.card_icon_size),
                     mResources.getColor(R.color.maps_background, null),
                     image));
-            mNavCard.setStreet(road);
+            mNavCard.setStreet(eventName);
             if (!mClusterView.cardExists(mNavCard)) {
                 mClusterView.enqueueCard(mNavCard);
             }
@@ -601,27 +597,23 @@ import java.util.TimerTask;
 
         @Override
         public void onNextTurnDistanceChanged(int meters, int timeSeconds,
-                int displayDistanceMillis, @DisplayDistanceUnit int displayDistanceUnit) {
+                int displayDistanceMillis, int distanceUnit) {
             if (DEBUG) {
                 Log.d(TAG, "onNextTurnDistanceChanged, distanceMeters: " + meters
                         + ", timeSeconds: " + timeSeconds
                         + ", displayDistanceMillis: " + displayDistanceMillis
-                        + ", displayDistanceUnit: " + displayDistanceUnit);
+                        + ", DistanceUnit: " + distanceUnit);
             }
 
-            boolean requiresDigitAfterDecimal =
-                    displayDistanceUnit == DisplayDistanceUnit.KILOMETERS_P1
-                    || displayDistanceUnit == DisplayDistanceUnit.MILES_P1;
-
             int remainder = displayDistanceMillis % 1000;
-            String decimalPart = (requiresDigitAfterDecimal || remainder != 0)
+            String decimalPart = (remainder != 0)
                     ? String.format("%c%d",
                                     DecimalFormatSymbols.getInstance().getDecimalSeparator(),
                                     remainder)
                     : "";
 
             String distanceToDisplay = (displayDistanceMillis / 1000) + decimalPart;
-            String unitsToDisplay = mController.mDistanceUnitNames.get(displayDistanceUnit);
+            String unitsToDisplay = mController.mDistanceUnitNames.get(distanceUnit);
 
             mNavCard.setDistanceToNextManeuver(distanceToDisplay, unitsToDisplay);
         }

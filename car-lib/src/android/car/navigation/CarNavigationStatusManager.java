@@ -33,64 +33,129 @@ import java.lang.annotation.RetentionPolicy;
  * API for providing navigation status for instrument cluster.
  * @hide
  */
-public final class CarNavigationManager implements CarManagerBase {
+public final class CarNavigationStatusManager implements CarManagerBase {
 
     /** Navigation status */
     public static final int STATUS_UNAVAILABLE = 0;
     public static final int STATUS_ACTIVE = 1;
     public static final int STATUS_INACTIVE = 2;
-    /** Turn Types */
+
+    /** @hide */
+    @IntDef({
+        STATUS_UNAVAILABLE,
+        STATUS_ACTIVE,
+        STATUS_INACTIVE
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Status {}
+
+    /* Turn Types */
+    /** Turn is of an unknown type.*/
     public static final int TURN_UNKNOWN = 0;
+    /** Starting point of the navigation. */
     public static final int TURN_DEPART = 1;
+    /** No turn, but the street name changes. */
     public static final int TURN_NAME_CHANGE = 2;
+    /** Slight turn. */
     public static final int TURN_SLIGHT_TURN = 3;
+    /** Regular turn. */
     public static final int TURN_TURN = 4;
+    /** Sharp turn. */
     public static final int TURN_SHARP_TURN = 5;
+    /** U-turn. */
     public static final int TURN_U_TURN = 6;
+    /** On ramp. */
     public static final int TURN_ON_RAMP = 7;
+    /** Off ramp. */
     public static final int TURN_OFF_RAMP = 8;
+    /** Road forks (diverges). */
     public static final int TURN_FORK = 9;
+    /** Road merges. */
     public static final int TURN_MERGE = 10;
+    /** Roundabout entrance on which the route ends. Instruction says "Enter roundabout". */
     public static final int TURN_ROUNDABOUT_ENTER = 11;
+    /** Roundabout exit. */
     public static final int TURN_ROUNDABOUT_EXIT = 12;
+    /**
+     * Roundabout entrance and exit. For example, "At the roundabout, take Nth exit." Be sure to
+     * specify the "turnNumber" parameter when using this type.
+     */
     public static final int TURN_ROUNDABOUT_ENTER_AND_EXIT = 13;
+    /** Potentially confusing intersection where the user should steer straight. */
     public static final int TURN_STRAIGHT = 14;
+    /** You're on a boat! */
     public static final int TURN_FERRY_BOAT = 16;
+    /** Train ferries for vehicles. */
     public static final int TURN_FERRY_TRAIN = 17;
+    /** You have arrived. */
     public static final int TURN_DESTINATION = 19;
-    /** Turn Side */
+
+    /** @hide */
+    @IntDef({
+        TURN_UNKNOWN,
+        TURN_DEPART,
+        TURN_NAME_CHANGE,
+        TURN_SLIGHT_TURN,
+        TURN_TURN,
+        TURN_SHARP_TURN,
+        TURN_U_TURN,
+        TURN_ON_RAMP,
+        TURN_OFF_RAMP,
+        TURN_FORK,
+        TURN_MERGE,
+        TURN_ROUNDABOUT_ENTER,
+        TURN_ROUNDABOUT_EXIT,
+        TURN_ROUNDABOUT_ENTER_AND_EXIT,
+        TURN_STRAIGHT,
+        TURN_FERRY_BOAT,
+        TURN_FERRY_TRAIN,
+        TURN_DESTINATION
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface TurnEvent {}
+
+    /* Turn Side */
+    /** Turn is on the left side of the vehicle. */
     public static final int TURN_SIDE_LEFT = 1;
+    /** Turn is on the right side of the vehicle. */
     public static final int TURN_SIDE_RIGHT = 2;
+    /** Turn side is unspecified. */
     public static final int TURN_SIDE_UNSPECIFIED = 3;
+
+    /** @hide */
+    @IntDef({
+        TURN_SIDE_LEFT,
+        TURN_SIDE_RIGHT,
+        TURN_SIDE_UNSPECIFIED
+    })
+    public @interface TurnSide {}
 
     private static final int START = 1;
     private static final int STOP = 2;
 
     /**
      * Distance units for use in {@link #sendNavigationTurnDistanceEvent(int, int, int, int)}.
-     * DISTANCE_KILOMETERS_P1 and DISTANCE_MILES_P1 are the same as their respective
-     * units, except they require that the head unit display at least 1 digit after the
-     * decimal (e.g. 2.0).
      */
-    @Retention(RetentionPolicy.SOURCE)
+    /** Distance is specified in meters. */
+    public static final int DISTANCE_METERS = 1;
+    /** Distance is specified in kilometers. */
+    public static final int DISTANCE_KILOMETERS = 2;
+    /** Distance is specified in miles. */
+    public static final int DISTANCE_MILES = 3;
+    /** Distance is specified in feet. */
+    public static final int DISTANCE_FEET = 4;
+    /** Distance is specified in yards. */
+    public static final int DISTANCE_YARDS = 5;
+
+    /** @hide */
     @IntDef({
-            DisplayDistanceUnit.METERS,
-            DisplayDistanceUnit.KILOMETERS,
-            DisplayDistanceUnit.KILOMETERS_P1,
-            DisplayDistanceUnit.MILES,
-            DisplayDistanceUnit.MILES_P1,
-            DisplayDistanceUnit.FEET,
-            DisplayDistanceUnit.YARDS
+        DISTANCE_METERS,
+        DISTANCE_KILOMETERS,
+        DISTANCE_MILES,
+        DISTANCE_FEET,
+        DISTANCE_YARDS
     })
-    public @interface DisplayDistanceUnit {
-        int METERS = 1;
-        int KILOMETERS = 2;
-        int KILOMETERS_P1 = 3;
-        int MILES = 4;
-        int MILES_P1 = 5;
-        int FEET = 6;
-        int YARDS = 7;
-    }
+    public @interface DistanceUnit {}
 
     private static final String TAG = CarLibLog.TAG_NAV;
 
@@ -101,16 +166,15 @@ public final class CarNavigationManager implements CarManagerBase {
      * Only for CarServiceLoader
      * @hide
      */
-    public CarNavigationManager(IBinder service) {
+    public CarNavigationStatusManager(IBinder service) {
         mService = IInstrumentClusterNavigation.Stub.asInterface(service);
     }
 
     /**
      * @param status new instrument cluster navigation status.
-     * @return true if successful.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public boolean sendNavigationStatus(int status) throws CarNotConnectedException {
+    public void sendNavigationStatus(@Status int status) throws CarNotConnectedException {
         try {
             if (status == STATUS_ACTIVE) {
                 mService.onStartNavigation();
@@ -121,9 +185,7 @@ public final class CarNavigationManager implements CarManagerBase {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
             handleCarServiceRemoteExceptionAndThrow(e);
-            return false;
         }
-        return true;
     }
 
     /**
@@ -138,7 +200,8 @@ public final class CarNavigationManager implements CarManagerBase {
      *
      * @param event event type ({@link #TURN_TURN}, {@link #TURN_U_TURN},
      *        {@link #TURN_ROUNDABOUT_ENTER_AND_EXIT}, etc).
-     * @param road Name of the road
+     * @param eventName Name of the turn event like road name to turn. For example "Charleston road"
+     *        in "Turn right to Charleston road"
      * @param turnAngle turn angle in degrees between the roundabout entry and exit (0..359).  Only
      *        used for event type {@link #TURN_ROUNDABOUT_ENTER_AND_EXIT}.  -1 if unused.
      * @param turnNumber turn number, counting around from the roundabout entry to the exit.  Only
@@ -147,21 +210,20 @@ public final class CarNavigationManager implements CarManagerBase {
      *        cluster type doesn't support images.
      * @param turnSide turn side ({@link #TURN_SIDE_LEFT}, {@link #TURN_SIDE_RIGHT} or
      *        {@link #TURN_SIDE_UNSPECIFIED}).
-     * @return true if successful.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      *
      */
-    public boolean sendNavigationTurnEvent(int event, String road, int turnAngle, int turnNumber,
-            Bitmap image, int turnSide) throws CarNotConnectedException {
+    public void sendNavigationTurnEvent(@TurnEvent int turnEvent, CharSequence eventName,
+            int turnAngle, int turnNumber, Bitmap image, @TurnSide int turnSide)
+                    throws CarNotConnectedException {
         try {
-            mService.onNextManeuverChanged(event, road, turnAngle, turnNumber, image, turnSide);
+            mService.onNextManeuverChanged(turnEvent, eventName, turnAngle, turnNumber, image,
+                    turnSide);
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
             handleCarServiceRemoteExceptionAndThrow(e);
-            return false;
         }
-        return true;
     }
 
     /**
@@ -174,12 +236,11 @@ public final class CarNavigationManager implements CarManagerBase {
      * appropriate rounding function and units are in sync with navigation app. This parameter is
      * in {@code displayDistanceUnit * 1000}.
      * @param displayDistanceUnit units for {@param displayDistanceMillis} param.
-     * See {@link DisplayDistanceUnit} for acceptable values.
-     * @return true if successful.
+     * See {@link DistanceUnit} for acceptable values.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
-            int displayDistanceMillis, @DisplayDistanceUnit int displayDistanceUnit)
+    public void sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
+            int displayDistanceMillis, @DistanceUnit int displayDistanceUnit)
             throws CarNotConnectedException {
         try {
             mService.onNextManeuverDistanceChanged(distanceMeters, timeSeconds,
@@ -188,9 +249,7 @@ public final class CarNavigationManager implements CarManagerBase {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
             handleCarServiceRemoteExceptionAndThrow(e);
-            return false;
         }
-        return true;
     }
 
     @Override

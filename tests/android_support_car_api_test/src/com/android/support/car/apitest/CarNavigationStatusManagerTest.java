@@ -56,7 +56,7 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
                 // TODO: we should use VehicleHalMock once we implement HAL support in
                 // CarNavigationStatusService.
                 assertFalse(instrumentCluster.supportsCustomImages());
-                assertEquals(1000, instrumentCluster.getMinIntervalMs());
+                assertEquals(1000, instrumentCluster.getMinIntervalMillis());
                 onStartLatch.countDown();
             }
 

@@ -27,7 +27,8 @@ interface IInstrumentClusterNavigation {
     void onStartNavigation();
     void onStopNavigation();
     void onNextManeuverChanged(
-        int event, String road, int turnAngle, int turnNumber, in Bitmap image, int turnSide);
+        int event, CharSequence eventName, int turnAngle, int turnNumber, in Bitmap image,
+        int turnSide);
     void onNextManeuverDistanceChanged(int distanceMeters, int timeSeconds,
         int displayDistanceMillis, int displayDistanceUnit);
     CarNavigationInstrumentCluster getInstrumentClusterInfo();

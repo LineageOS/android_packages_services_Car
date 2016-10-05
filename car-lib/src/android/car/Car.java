@@ -27,7 +27,7 @@ import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.radio.CarRadioManager;
 import android.car.media.CarAudioManager;
-import android.car.navigation.CarNavigationManager;
+import android.car.navigation.CarNavigationStatusManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -74,7 +74,7 @@ public final class Car {
     /** Service name for {@link CarAudioManager} */
     public static final String AUDIO_SERVICE = "audio";
     /**
-     * Service name for {@link CarNavigationManager}
+     * Service name for {@link CarNavigationStatusManager}
      * @hide
      */
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
@@ -139,7 +139,7 @@ public final class Car {
             "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
 
     /**
-     * Permission necessary to use {@link CarNavigationManager}.
+     * Permission necessary to use {@link CarNavigationStatusManager}.
      * @hide
      */
     public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
@@ -512,7 +512,7 @@ public final class Car {
                 manager = new CarPackageManager(binder, mContext);
                 break;
             case CAR_NAVIGATION_SERVICE:
-                manager = new CarNavigationManager(binder);
+                manager = new CarNavigationStatusManager(binder);
                 break;
             case CABIN_SERVICE:
                 manager = new CarCabinManager(binder, mContext, mEventHandler);

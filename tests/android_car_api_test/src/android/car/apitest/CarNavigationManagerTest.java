@@ -18,26 +18,26 @@ package android.car.apitest;
 import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
-import android.car.navigation.CarNavigationManager;
+import android.car.navigation.CarNavigationStatusManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 /**
- * Unit tests for {@link CarNavigationManager}
+ * Unit tests for {@link CarNavigationStatusManager}
  */
 @MediumTest
 public class CarNavigationManagerTest extends CarApiTestBase {
 
     private static final String TAG = CarNavigationManagerTest.class.getSimpleName();
 
-    private CarNavigationManager mCarNavigationManager;
+    private CarNavigationStatusManager mCarNavigationManager;
     private CarAppFocusManager mCarAppFocusManager;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         mCarNavigationManager =
-                (CarNavigationManager) getCar().getCarManager(Car.CAR_NAVIGATION_SERVICE);
+                (CarNavigationStatusManager) getCar().getCarManager(Car.CAR_NAVIGATION_SERVICE);
         mCarAppFocusManager =
                 (CarAppFocusManager) getCar().getCarManager(Car.APP_FOCUS_SERVICE);
         assertNotNull(mCarAppFocusManager);

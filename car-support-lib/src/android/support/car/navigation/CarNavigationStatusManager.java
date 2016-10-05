@@ -16,10 +16,14 @@
 package android.support.car.navigation;
 
 import android.graphics.Bitmap;
+import android.support.annotation.IntDef;
 import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
 import android.support.car.CarManagerBase;
 import android.support.car.CarNotConnectedException;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * APIs for providing navigation status to the instrument cluster. For cars that have a navigation
@@ -28,11 +32,9 @@ import android.support.car.CarNotConnectedException;
  * <p/>
  * Navigation applications should first call {@link CarAppFocusManager#requestAppFocus(int,
  * CarAppFocusManager.OnAppFocusOwnershipLostListener)} and request {@link
- * CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}. After navigation focus is granted, apps can
- * request this manager via {@link Car#getCarManager(String)}. In cars without an instrument
- * cluster, a null value is returned.
+ * CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.
  * <p/>
- * After the connection to the cluster is established, applications should call {@code
+ * After navigation focus is granted, applications should call {@code
  * sendNavigationStatus(STATUS_ACTIVE);} to initialize the cluster and let it know the app will be
  * sending turn events. Then, for each turn of the turn-by-turn guidance, the app calls {@link
  * #sendNavigationTurnEvent(int, String, int, int, int)}; this sends image data to the cluster
@@ -73,10 +75,18 @@ public interface CarNavigationStatusManager extends CarManagerBase {
     public static final int STATUS_ACTIVE = 1;
     public static final int STATUS_INACTIVE = 2;
 
+    /** @hide */
+    @IntDef({
+        STATUS_UNAVAILABLE,
+        STATUS_ACTIVE,
+        STATUS_INACTIVE
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Status {}
+
     /* Turn Types */
     /** Turn is of an unknown type.*/
     public static final int TURN_UNKNOWN = 0;
-
     /** Starting point of the navigation. */
     public static final int TURN_DEPART = 1;
     /** No turn, but the street name changes. */
@@ -115,6 +125,30 @@ public interface CarNavigationStatusManager extends CarManagerBase {
     /** You have arrived. */
     public static final int TURN_DESTINATION = 19;
 
+    /** @hide */
+    @IntDef({
+        TURN_UNKNOWN,
+        TURN_DEPART,
+        TURN_NAME_CHANGE,
+        TURN_SLIGHT_TURN,
+        TURN_TURN,
+        TURN_SHARP_TURN,
+        TURN_U_TURN,
+        TURN_ON_RAMP,
+        TURN_OFF_RAMP,
+        TURN_FORK,
+        TURN_MERGE,
+        TURN_ROUNDABOUT_ENTER,
+        TURN_ROUNDABOUT_EXIT,
+        TURN_ROUNDABOUT_ENTER_AND_EXIT,
+        TURN_STRAIGHT,
+        TURN_FERRY_BOAT,
+        TURN_FERRY_TRAIN,
+        TURN_DESTINATION
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface TurnEvent {}
+
     /* Turn Side */
     /** Turn is on the left side of the vehicle. */
     public static final int TURN_SIDE_LEFT = 1;
@@ -123,35 +157,45 @@ public interface CarNavigationStatusManager extends CarManagerBase {
     /** Turn side is unspecified. */
     public static final int TURN_SIDE_UNSPECIFIED = 3;
 
+    /** @hide */
+    @IntDef({
+        TURN_SIDE_LEFT,
+        TURN_SIDE_RIGHT,
+        TURN_SIDE_UNSPECIFIED
+    })
+    public @interface TurnSide {}
 
     /*
      * Distance units for use in {@link #sendNavigationTurnDistanceEvent(int, int, int, int)}.
-     * DISTANCE_KILOMETERS_P1 and DISTANCE_MILES_P1 are the same as their respective units, except
-     * they require the head unit to display at least 1 digit after the decimal (e.g. 2.0).
      */
     /** Distance is specified in meters. */
     public static final int DISTANCE_METERS = 1;
     /** Distance is specified in kilometers. */
     public static final int DISTANCE_KILOMETERS = 2;
-    /** Same as kilometers, but the head unit must display at least 1 decimal place.  */
-    public static final int DISTANCE_KILOMETERS_P1 = 3;
     /** Distance is specified in miles. */
-    public static final int DISTANCE_MILES = 4;
-    /** Same as miles, but the head unit must display at least 1 decimal place.  */
-    public static final int DISTANCE_MILES_P1 = 5;
+    public static final int DISTANCE_MILES = 3;
     /** Distance is specified in feet. */
-    public static final int DISTANCE_FEET = 6;
+    public static final int DISTANCE_FEET = 4;
     /** Distance is specified in yards. */
-    public static final int DISTANCE_YARDS = 7;
+    public static final int DISTANCE_YARDS = 5;
+
+    /** @hide */
+    @IntDef({
+        DISTANCE_METERS,
+        DISTANCE_KILOMETERS,
+        DISTANCE_MILES,
+        DISTANCE_FEET,
+        DISTANCE_YARDS
+    })
+    public @interface DistanceUnit {}
 
     /**
      * Inform the instrument cluster if navigation is active or not.
      * @param status New instrument cluster navigation status, one of the STATUS_* constants in
      * this class.
-     * @return Returns {@code true} if successful.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    boolean sendNavigationStatus(int status) throws CarNotConnectedException;
+    void sendNavigationStatus(@Status int status) throws CarNotConnectedException;
 
     /**
      * Send a Navigation Next Step event to the car.
@@ -163,20 +207,20 @@ public interface CarNavigationStatusManager extends CarManagerBase {
      * drives on the left side of the road, such as Australia; counter-clockwise for roads
      * where the car drives on the right side of the road, such as the USA).
      *
-     * @param event Event type ({@link #TURN_TURN}, {@link #TURN_U_TURN}, {@link
+     * @param turnEvent Turn event type ({@link #TURN_TURN}, {@link #TURN_U_TURN}, {@link
      * #TURN_ROUNDABOUT_ENTER_AND_EXIT}, etc).
-     * @param road Name of the road
+     * @param eventName Name of the turn event like road name to turn. For example "Charleston road"
+     *        in "Turn right to Charleston road"
      * @param turnAngle Turn angle in degrees between the roundabout entry and exit (0..359). Used
      * only for event type {@link #TURN_ROUNDABOUT_ENTER_AND_EXIT}. -1 if unused.
      * @param turnNumber Turn number, counting from the roundabout entry to the exit. Used only
      * for event type {@link #TURN_ROUNDABOUT_ENTER_AND_EXIT}. -1 if unused.
      * @param turnSide Turn side ({@link #TURN_SIDE_LEFT}, {@link #TURN_SIDE_RIGHT} or {@link
      * #TURN_SIDE_UNSPECIFIED}).
-     * @return Returns {@code true} if successful.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    boolean sendNavigationTurnEvent(int event, String road, int turnAngle, int turnNumber,
-            int turnSide) throws CarNotConnectedException;
+    void sendNavigationTurnEvent(@TurnEvent int tuenEvent, CharSequence eventName, int turnAngle,
+            int turnNumber, @TurnSide int turnSide) throws CarNotConnectedException;
 
     /**
      * Same as the public version ({@link #sendNavigationTurnEvent(int, String, int, int, Bitmap,
@@ -189,8 +233,8 @@ public interface CarNavigationStatusManager extends CarManagerBase {
      *
      * @hide only first party applications may send a custom image to the cluster.
      */
-    boolean sendNavigationTurnEvent(int event, String road, int turnAngle, int turnNumber,
-            Bitmap image, int turnSide) throws CarNotConnectedException;
+    void sendNavigationTurnEvent(@TurnEvent int turnEvent, CharSequence eventName, int turnAngle,
+            int turnNumber, Bitmap image, @TurnSide int turnSide) throws CarNotConnectedException;
 
     /**
      * Send a Navigation Next Step Distance event to the car.
@@ -204,7 +248,7 @@ public interface CarNavigationStatusManager extends CarManagerBase {
      * @return Returns {@code true} if successful.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
+    void sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
             int displayDistanceMillis, int displayDistanceUnit) throws CarNotConnectedException;
 
     /**

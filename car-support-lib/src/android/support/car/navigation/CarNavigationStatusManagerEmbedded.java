@@ -23,37 +23,36 @@ import android.support.car.CarNotConnectedException;
  */
 public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusManager {
 
-    private final android.car.navigation.CarNavigationManager mManager;
+    private final android.car.navigation.CarNavigationStatusManager mManager;
 
     public CarNavigationStatusManagerEmbedded(Object manager) {
-        mManager = (android.car.navigation.CarNavigationManager) manager;
+        mManager = (android.car.navigation.CarNavigationStatusManager) manager;
     }
 
     /**
      * @param status new instrument cluster navigation status.
-     * @return true if successful.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     @Override
-    public boolean sendNavigationStatus(int status) throws CarNotConnectedException {
+    public void sendNavigationStatus(int status) throws CarNotConnectedException {
         try {
-            return mManager.sendNavigationStatus(status);
+            mManager.sendNavigationStatus(status);
         } catch (android.car.CarNotConnectedException e) {
            throw new CarNotConnectedException(e);
         }
     }
 
     @Override
-    public boolean sendNavigationTurnEvent(int event, String road, int turnAngle, int turnNumber,
-            int turnSide) throws CarNotConnectedException {
-        return sendNavigationTurnEvent(event, road, turnAngle, turnNumber, null, turnSide);
+    public void sendNavigationTurnEvent(int event, CharSequence eventName, int turnAngle,
+            int turnNumber, int turnSide) throws CarNotConnectedException {
+        sendNavigationTurnEvent(event, eventName, turnAngle, turnNumber, null, turnSide);
     }
 
     @Override
-    public boolean sendNavigationTurnEvent(int event, String road, int turnAngle, int turnNumber,
-            Bitmap image, int turnSide) throws CarNotConnectedException {
+    public void sendNavigationTurnEvent(int event, CharSequence eventName, int turnAngle,
+            int turnNumber, Bitmap image, int turnSide) throws CarNotConnectedException {
         try {
-            return mManager.sendNavigationTurnEvent(event, road, turnAngle, turnNumber, image,
+            mManager.sendNavigationTurnEvent(event, eventName, turnAngle, turnNumber, image,
                     turnSide);
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
@@ -61,10 +60,10 @@ public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusMa
     }
 
     @Override
-    public boolean sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
+    public void sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
             int displayDistanceMillis, int displayDistanceUnit) throws CarNotConnectedException {
         try {
-            return mManager.sendNavigationTurnDistanceEvent(distanceMeters, timeSeconds,
+            mManager.sendNavigationTurnDistanceEvent(distanceMeters, timeSeconds,
                     displayDistanceMillis, displayDistanceUnit);
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
@@ -103,7 +102,7 @@ public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusMa
         if (ic == null) {
             return null;
         }
-        return new CarNavigationInstrumentCluster(ic.getMinIntervalMs(), ic.getType(),
+        return new CarNavigationInstrumentCluster(ic.getMinIntervalMillis(), ic.getType(),
                 ic.getImageWidth(), ic.getImageHeight(), ic.getImageColorDepthBits());
     }
 }

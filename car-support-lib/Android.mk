@@ -42,7 +42,8 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-unde
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
                                android-support-v7-appcompat \
                                android-support-v7-recyclerview \
-                               android-support-v7-cardview
+                               android-support-v7-cardview \
+                               android-support-annotations
 
 LOCAL_JAVA_LIBRARIES += android.car
 # Specify 1.7 for backwards compatibility.  
@@ -89,7 +90,8 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-unde
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
                                android-support-v7-appcompat \
                                android-support-v7-recyclerview \
-                               android-support-v7-cardview
+                               android-support-v7-cardview \
+                               android-support-annotations
 
 LOCAL_JAVA_LIBRARIES += android.car \
                         android.support.car-res
@@ -120,7 +122,8 @@ LOCAL_JAVA_LIBRARIES := \
     android-support-v4 \
     android-support-v7-appcompat \
     android-support-v7-recyclerview \
-    android-support-v7-cardview
+    android-support-v7-cardview \
+    android-support-annotations
 
 LOCAL_MODULE := android.support.car
 LOCAL_MODULE_TAGS := optional

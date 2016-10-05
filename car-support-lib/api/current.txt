@@ -254,35 +254,27 @@ package android.support.car.media {
 package android.support.car.navigation {
 
   public class CarNavigationInstrumentCluster {
-    ctor public CarNavigationInstrumentCluster(android.support.car.navigation.CarNavigationInstrumentCluster);
-    method public static android.support.car.navigation.CarNavigationInstrumentCluster createCluster(int);
-    method public static android.support.car.navigation.CarNavigationInstrumentCluster createCustomImageCluster(int, int, int, int);
     method public int getImageColorDepthBits();
     method public int getImageHeight();
     method public int getImageWidth();
-    method public int getMinIntervalMs();
+    method public int getMinIntervalMillis();
     method public int getType();
     method public boolean supportsCustomImages();
-  }
-
-  public static abstract class CarNavigationInstrumentCluster.ClusterType implements java.lang.annotation.Annotation {
-    field public static final int CUSTOM_IMAGES_SUPPORTED = 1; // 0x1
-    field public static final int IMAGE_CODES_ONLY = 2; // 0x2
+    field public static final int CLUSTER_TYPE_CUSTOM_IMAGES_SUPPORTED = 1; // 0x1
+    field public static final int CLUSTER_TYPE_IMAGE_CODES_ONLY = 2; // 0x2
   }
 
   public abstract interface CarNavigationStatusManager {
     method public abstract void addListener(android.support.car.navigation.CarNavigationStatusManager.CarNavigationCallback) throws android.support.car.CarNotConnectedException;
     method public abstract void removeListener();
-    method public abstract boolean sendNavigationStatus(int) throws android.support.car.CarNotConnectedException;
-    method public abstract boolean sendNavigationTurnDistanceEvent(int, int, int, int) throws android.support.car.CarNotConnectedException;
-    method public abstract boolean sendNavigationTurnEvent(int, java.lang.String, int, int, int) throws android.support.car.CarNotConnectedException;
-    field public static final int DISTANCE_FEET = 6; // 0x6
+    method public abstract void sendNavigationStatus(int) throws android.support.car.CarNotConnectedException;
+    method public abstract void sendNavigationTurnDistanceEvent(int, int, int, int) throws android.support.car.CarNotConnectedException;
+    method public abstract void sendNavigationTurnEvent(int, java.lang.CharSequence, int, int, int) throws android.support.car.CarNotConnectedException;
+    field public static final int DISTANCE_FEET = 4; // 0x4
     field public static final int DISTANCE_KILOMETERS = 2; // 0x2
-    field public static final int DISTANCE_KILOMETERS_P1 = 3; // 0x3
     field public static final int DISTANCE_METERS = 1; // 0x1
-    field public static final int DISTANCE_MILES = 4; // 0x4
-    field public static final int DISTANCE_MILES_P1 = 5; // 0x5
-    field public static final int DISTANCE_YARDS = 7; // 0x7
+    field public static final int DISTANCE_MILES = 3; // 0x3
+    field public static final int DISTANCE_YARDS = 5; // 0x5
     field public static final int STATUS_ACTIVE = 1; // 0x1
     field public static final int STATUS_INACTIVE = 2; // 0x2
     field public static final int STATUS_UNAVAILABLE = 0; // 0x0

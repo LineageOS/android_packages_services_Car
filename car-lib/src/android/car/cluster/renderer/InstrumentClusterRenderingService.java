@@ -165,10 +165,10 @@ public abstract class InstrumentClusterRenderingService extends Service {
         }
 
         @Override
-        public void onNextManeuverChanged(int event, String road, int turnAngle, int turnNumber,
-                Bitmap image, int turnSide) throws RemoteException {
+        public void onNextManeuverChanged(int event, CharSequence eventName, int turnAngle,
+                int turnNumber, Bitmap image, int turnSide) throws RemoteException {
             assertContextOwnership();
-            mNavigationRenderer.onNextTurnChanged(event, road, turnAngle, turnNumber,
+            mNavigationRenderer.onNextTurnChanged(event, eventName, turnAngle, turnNumber,
                     image, turnSide);
         }
 

@@ -51,7 +51,7 @@ public class ManeuverPanel extends FrameLayout {
         mDistanceUnits.setText(units);
     }
 
-    public void setStreet(String street) {
+    public void setStreet(CharSequence street) {
         mStreet.setText(street);
     }
 }

@@ -169,7 +169,7 @@ public class Car {
     public static final String PERMISSION_VENDOR_EXTENSION =
             "android.car.permission.CAR_VENDOR_EXTENSION";
     /**
-     * Permission necessary to use {@link android.car.navigation.CarNavigationManager}.
+     * Permission necessary to use {@link android.car.navigation.CarNavigationStatusManager}.
      */
     public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
             "android.car.permission.PERMISSION_CAR_NAVIGATION_MANAGER";
