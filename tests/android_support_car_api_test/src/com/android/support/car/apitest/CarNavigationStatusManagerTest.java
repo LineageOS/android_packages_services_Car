@@ -20,7 +20,7 @@ import static android.support.car.CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION;
 import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
 import android.support.car.CarAppFocusManager.OnAppFocusChangedListener;
-import android.support.car.CarAppFocusManager.OnAppFocusOwnershipLostListener;
+import android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
 import android.support.car.navigation.CarNavigationInstrumentCluster;
 import android.support.car.navigation.CarNavigationStatusManager;
 
@@ -83,15 +83,20 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
                         // Nothing to do here.
                     }
                 }, APP_FOCUS_TYPE_NAVIGATION);
-        CarAppFocusManager.OnAppFocusOwnershipLostListener
-                ownershipListener = new OnAppFocusOwnershipLostListener() {
+        CarAppFocusManager.OnAppFocusOwnershipCallback
+                ownershipCallback = new OnAppFocusOwnershipCallback() {
             @Override
-            public void onAppFocusOwnershipLost(CarAppFocusManager manager, int focus) {
+            public void onAppFocusOwnershipLost(CarAppFocusManager manager, int focusType) {
+                // Nothing to do here.
+            }
+
+            @Override
+            public void onAppFocusOwnershipGranted(CarAppFocusManager manager, int focusType) {
                 // Nothing to do here.
             }
         };
-        mCarAppFocusManager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, ownershipListener);
-        assertTrue(mCarAppFocusManager.isOwningFocus(APP_FOCUS_TYPE_NAVIGATION, ownershipListener));
+        mCarAppFocusManager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, ownershipCallback);
+        assertTrue(mCarAppFocusManager.isOwningFocus(APP_FOCUS_TYPE_NAVIGATION, ownershipCallback));
 
         // TODO: we should use mocked HAL to be able to verify this, right now just make sure that
         // it is not crashing and logcat has appropriate traces.

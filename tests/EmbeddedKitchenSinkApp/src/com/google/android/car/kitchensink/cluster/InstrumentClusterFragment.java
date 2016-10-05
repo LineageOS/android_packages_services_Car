@@ -121,8 +121,8 @@ public class InstrumentClusterFragment extends Fragment {
             Log.e(TAG, "Failed to register focus listener", e);
         }
 
-        CarAppFocusManager.OnAppFocusOwnershipLostListener
-                focusListener = new CarAppFocusManager.OnAppFocusOwnershipLostListener() {
+        CarAppFocusManager.OnAppFocusOwnershipCallback
+                focusCallback = new CarAppFocusManager.OnAppFocusOwnershipCallback() {
             @Override
             public void onAppFocusOwnershipLost(CarAppFocusManager manager, int focus) {
                 Log.w(TAG, "onAppFocusOwnershipLost, focus: " + focus);
@@ -131,17 +131,22 @@ public class InstrumentClusterFragment extends Fragment {
                         .setMessage(R.string.cluster_nav_app_context_loss)
                         .show();
             }
+            @Override
+            public void onAppFocusOwnershipGranted(CarAppFocusManager manager, int focus) {
+                Log.w(TAG, "onAppFocusOwnershipGranted, focus: " + focus);
+            }
+
         };
         try {
             mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
-                    focusListener);
+                    focusCallback);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to set active focus", e);
         }
 
         try {
             boolean ownsFocus = mCarAppFocusManager.isOwningFocus(
-                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, focusListener);
+                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, focusCallback);
             Log.d(TAG, "Owns APP_FOCUS_TYPE_NAVIGATION: " + ownsFocus);
             if (!ownsFocus) {
                 throw new RuntimeException("Focus was not acquired.");

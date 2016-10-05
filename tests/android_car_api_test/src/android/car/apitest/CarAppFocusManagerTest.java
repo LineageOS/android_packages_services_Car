@@ -15,7 +15,7 @@
  */
 package android.car.apitest;
 
-import static android.car.CarAppFocusManager.APP_FOCUS_REQUEST_GRANTED;
+import static android.car.CarAppFocusManager.APP_FOCUS_REQUEST_SUCCEEDED;
 import static android.car.CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION;
 import static android.car.CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND;
 
@@ -48,7 +48,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
 
         // Request all application focuses and abandon them to ensure no active context is present
         // when test starts.
-        FocusOwnershipLostListener owner = new FocusOwnershipLostListener();
+        FocusOwnershipCallback owner = new FocusOwnershipCallback();
         mManager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner);
         mManager.requestAppFocus(APP_FOCUS_TYPE_VOICE_COMMAND, owner);
         mManager.abandonAppFocus(owner);
@@ -96,7 +96,8 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
 
         manager.removeFocusListener(listener1, APP_FOCUS_TYPE_NAVIGATION);
 
-        manager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, new FocusOwnershipLostListener());
+        assertEquals(CarAppFocusManager.APP_FOCUS_REQUEST_SUCCEEDED,
+                manager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, new FocusOwnershipCallback()));
 
         // Unregistred from nav app, no events expected.
         assertFalse(listener1.waitForFocusChangeAndAssert(
@@ -105,10 +106,12 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
                 DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION, true));
 
         manager.removeFocusListener(listener2, APP_FOCUS_TYPE_NAVIGATION);
-        manager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, new FocusOwnershipLostListener());
+        assertEquals(CarAppFocusManager.APP_FOCUS_REQUEST_SUCCEEDED,
+                manager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, new FocusOwnershipCallback()));
         assertFalse(listener2.waitForFocusChangeAndAssert(
                 DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION, true));
-        manager.requestAppFocus(APP_FOCUS_TYPE_VOICE_COMMAND, new FocusOwnershipLostListener());
+        assertEquals(CarAppFocusManager.APP_FOCUS_REQUEST_SUCCEEDED,
+                manager.requestAppFocus(APP_FOCUS_TYPE_VOICE_COMMAND, new FocusOwnershipCallback()));
         assertTrue(listener2.waitForFocusChangeAndAssert(
                 DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_VOICE_COMMAND, true));
 
@@ -125,14 +128,18 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         Assert.assertArrayEquals(emptyFocus, manager1.getActiveAppTypes());
         FocusChangedListener change1 = new FocusChangedListener();
         FocusChangedListener change2 = new FocusChangedListener();
-        FocusOwnershipLostListener owner1 = new FocusOwnershipLostListener();
-        FocusOwnershipLostListener owner2 = new FocusOwnershipLostListener();
+        FocusOwnershipCallback owner1 = new FocusOwnershipCallback();
+        FocusOwnershipCallback owner2 = new FocusOwnershipCallback();
         manager1.addFocusListener(change1, APP_FOCUS_TYPE_NAVIGATION);
         manager1.addFocusListener(change1, APP_FOCUS_TYPE_VOICE_COMMAND);
         manager2.addFocusListener(change2, APP_FOCUS_TYPE_NAVIGATION);
         manager2.addFocusListener(change2, APP_FOCUS_TYPE_VOICE_COMMAND);
 
-        manager1.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner1);
+
+        assertEquals(CarAppFocusManager.APP_FOCUS_REQUEST_SUCCEEDED,
+                manager1.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner1));
+        assertTrue(owner1.waitForOwnershipGrantAndAssert(
+                DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION));
         int[] expectedFocuses = new int[] {APP_FOCUS_TYPE_NAVIGATION};
         Assert.assertArrayEquals(expectedFocuses, manager1.getActiveAppTypes());
         Assert.assertArrayEquals(expectedFocuses, manager2.getActiveAppTypes());
@@ -146,7 +153,10 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         assertTrue(change1.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 APP_FOCUS_TYPE_NAVIGATION, true));
 
-        manager1.requestAppFocus(APP_FOCUS_TYPE_VOICE_COMMAND, owner1);
+        assertEquals(CarAppFocusManager.APP_FOCUS_REQUEST_SUCCEEDED,
+                manager1.requestAppFocus(APP_FOCUS_TYPE_VOICE_COMMAND, owner1));
+        assertTrue(owner1.waitForOwnershipGrantAndAssert(
+                DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_VOICE_COMMAND));
         expectedFocuses = new int[] {
                 APP_FOCUS_TYPE_NAVIGATION,
                 APP_FOCUS_TYPE_VOICE_COMMAND };
@@ -165,7 +175,11 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         // this should be no-op
         change1.reset();
         change2.reset();
-        manager1.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner1);
+        assertEquals(CarAppFocusManager.APP_FOCUS_REQUEST_SUCCEEDED,
+                manager1.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner1));
+        assertTrue(owner1.waitForOwnershipGrantAndAssert(
+                DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION));
+
         Assert.assertArrayEquals(expectedFocuses, manager1.getActiveAppTypes());
         Assert.assertArrayEquals(expectedFocuses, manager2.getActiveAppTypes());
         assertFalse(change2.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
@@ -173,7 +187,11 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         assertFalse(change1.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 APP_FOCUS_TYPE_NAVIGATION, true));
 
-        manager2.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner2);
+        assertEquals(CarAppFocusManager.APP_FOCUS_REQUEST_SUCCEEDED,
+                manager2.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner2));
+        assertTrue(owner2.waitForOwnershipGrantAndAssert(
+                DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION));
+
         assertFalse(manager1.isOwningFocus(owner1, APP_FOCUS_TYPE_NAVIGATION));
         assertTrue(manager1.isOwningFocus(owner1, APP_FOCUS_TYPE_VOICE_COMMAND));
         assertTrue(manager2.isOwningFocus(owner2, APP_FOCUS_TYPE_NAVIGATION));
@@ -239,13 +257,15 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
 
         FocusChangedListener listener1 = new FocusChangedListener();
         FocusChangedListener listener2 = new FocusChangedListener();
-        FocusOwnershipLostListener owner = new FocusOwnershipLostListener();
+        FocusOwnershipCallback owner = new FocusOwnershipCallback();
         manager1.addFocusListener(listener1, APP_FOCUS_TYPE_NAVIGATION);
         manager1.addFocusListener(listener1, APP_FOCUS_TYPE_VOICE_COMMAND);
         manager2.addFocusListener(listener2, APP_FOCUS_TYPE_NAVIGATION);
 
-        assertEquals(APP_FOCUS_REQUEST_GRANTED,
+        assertEquals(APP_FOCUS_REQUEST_SUCCEEDED,
                 manager1.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner));
+        assertTrue(owner.waitForOwnershipGrantAndAssert(
+                DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION));
 
         assertTrue(listener1.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 APP_FOCUS_TYPE_NAVIGATION, true));
@@ -254,7 +274,11 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
 
         listener1.reset();
         listener2.reset();
-        manager1.requestAppFocus(APP_FOCUS_TYPE_VOICE_COMMAND, owner);
+        assertEquals(APP_FOCUS_REQUEST_SUCCEEDED,
+                manager1.requestAppFocus(APP_FOCUS_TYPE_VOICE_COMMAND, owner));
+        assertTrue(owner.waitForOwnershipGrantAndAssert(
+                DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_VOICE_COMMAND));
+
         assertTrue(listener1.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 APP_FOCUS_TYPE_VOICE_COMMAND, true));
         assertFalse(listener2.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
@@ -305,12 +329,16 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         CarAppFocusManager manager = createManager();
         FocusChangedListener listener = new FocusChangedListener();
         FocusChangedListener listener2 = new FocusChangedListener();
-        FocusOwnershipLostListener owner = new FocusOwnershipLostListener();
+        FocusOwnershipCallback owner = new FocusOwnershipCallback();
         manager.addFocusListener(listener, APP_FOCUS_TYPE_NAVIGATION);
         manager.addFocusListener(listener, APP_FOCUS_TYPE_VOICE_COMMAND);
         manager.addFocusListener(listener2, APP_FOCUS_TYPE_NAVIGATION);
 
-        manager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner);
+        assertEquals(APP_FOCUS_REQUEST_SUCCEEDED,
+                manager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner));
+        assertTrue(owner.waitForOwnershipGrantAndAssert(
+                DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION));
+
         assertTrue(listener.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 APP_FOCUS_TYPE_NAVIGATION, true));
         assertTrue(listener2.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
@@ -318,7 +346,11 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
 
         listener.reset();
         listener2.reset();
-        manager.requestAppFocus(APP_FOCUS_TYPE_VOICE_COMMAND, owner);
+        assertEquals(APP_FOCUS_REQUEST_SUCCEEDED,
+                manager.requestAppFocus(APP_FOCUS_TYPE_VOICE_COMMAND, owner));
+        assertTrue(owner.waitForOwnershipGrantAndAssert(
+                DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_VOICE_COMMAND));
+
         assertTrue(listener.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 APP_FOCUS_TYPE_VOICE_COMMAND, true));
         assertFalse(listener2.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
@@ -373,10 +405,12 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         }
     }
 
-    private class FocusOwnershipLostListener
-            implements CarAppFocusManager.OnAppFocusOwnershipLostListener {
+    private class FocusOwnershipCallback
+            implements CarAppFocusManager.OnAppFocusOwnershipCallback {
         private int mLastLossEvent;
         private final Semaphore mLossEventWait = new Semaphore(0);
+        private int mLastGrantEvent;
+        private final Semaphore mGrantEventWait = new Semaphore(0);
 
         boolean waitForOwnershipLossAndAssert(long timeoutMs, int expectedAppType)
                 throws Exception {
@@ -387,12 +421,28 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
             return true;
         }
 
+        boolean waitForOwnershipGrantAndAssert(long timeoutMs, int expectedAppType)
+                throws Exception {
+            if (!mGrantEventWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
+                return false;
+            }
+            assertEquals(expectedAppType, mLastGrantEvent);
+            return true;
+        }
+
         @Override
         public void onAppFocusOwnershipLost(int appType) {
             Log.i(TAG, "onAppFocusOwnershipLost " + appType);
             assertEventThread();
             mLastLossEvent = appType;
             mLossEventWait.release();
+        }
+
+        @Override
+        public void onAppFocusOwnershipGranted(int appType) {
+            Log.i(TAG, "onAppFocusOwnershipGranted " + appType);
+            mLastGrantEvent = appType;
+            mGrantEventWait.release();
         }
     }
 

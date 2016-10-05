@@ -17,6 +17,7 @@
 package android.car;
 
 /** @hide */
-oneway interface IAppFocusOwnershipListener {
+oneway interface IAppFocusOwnershipCallback {
     void onAppFocusOwnershipLost(int appType) = 0;
+    void onAppFocusOwnershipGranted(int appType) = 1;
 }
