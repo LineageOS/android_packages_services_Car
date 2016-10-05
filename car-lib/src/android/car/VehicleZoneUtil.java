@@ -89,9 +89,12 @@ public final class VehicleZoneUtil {
                     "Starting zone should represent only one bit flag: 0x" +
                             Integer.toHexString(startingZone));
         }
-        int zonesMask = startingZone & (startingZone - 1);
 
-        return getFirstZone(zones & zonesMask);
+        // Create a mask that sets all bits above the current one
+        int mask = startingZone << 1;
+        mask -= 1;
+        mask = ~mask;
+        return getFirstZone(zones & mask);
     }
 
     /**
