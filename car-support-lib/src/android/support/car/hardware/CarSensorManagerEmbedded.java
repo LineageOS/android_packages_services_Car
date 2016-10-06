@@ -17,15 +17,19 @@
 package android.support.car.hardware;
 
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.support.car.CarNotConnectedException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  *  @hide
  */
+@RestrictTo(GROUP_ID)
 public class CarSensorManagerEmbedded extends CarSensorManager {
     private static final String TAG = "CarSensorsProxy";
 

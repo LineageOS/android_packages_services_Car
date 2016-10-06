@@ -19,7 +19,10 @@ package android.support.car.hardware;
 import android.location.GpsSatellite;
 import android.location.Location;
 import android.os.SystemClock;
+import android.support.annotation.RestrictTo;
 import android.support.car.annotation.VersionDef;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * A CarSensorEvent object corresponds to a single sensor event coming from the car. Sensor
@@ -71,29 +74,27 @@ public class CarSensorEvent {
     private static final long MILLI_IN_NANOS = 1000000L;
 
     /** Sensor type for this event, such as {@link CarSensorManager#SENSOR_TYPE_CAR_SPEED}. */
-    @VersionDef(version = 1)
     public final int sensorType;
 
     /**
      * When this data was acquired in car or received from car. It is the elapsed time of data
      * reception from the car in nanoseconds since system boot.
      */
-    @VersionDef(version = 1)
     public final long timestamp;
     /**
      * Array holding float type of sensor data. If the sensor has single value, only floatValues[0]
      * should be used. */
-    @VersionDef(version = 1)
     public final float[] floatValues;
     /** Array holding int type of sensor data. */
-    @VersionDef(version = 1)
     public final int[] intValues;
 
     /**
      * Constructs a {@link CarSensorEvent} from integer values. Handled by
      * CarSensorManager implementations. App developers need not worry about constructing these
      * objects.
+     * @hide
      */
+    @RestrictTo(GROUP_ID)
     public CarSensorEvent(int sensorType, long timestamp, int floatValueSize, int intValueSize) {
         this.sensorType = sensorType;
         this.timestamp = timestamp;
@@ -102,7 +103,8 @@ public class CarSensorEvent {
     }
 
     /** @hide */
-    CarSensorEvent(int sensorType, long timestamp, float[] floatValues, int[] intValues) {
+    @RestrictTo(GROUP_ID)
+    public CarSensorEvent(int sensorType, long timestamp, float[] floatValues, int[] intValues) {
         this.sensorType = sensorType;
         this.timestamp = timestamp;
         this.floatValues = floatValues;
@@ -130,6 +132,8 @@ public class CarSensorEvent {
         /** The roll in degrees. Right door down is positive. If unsupported by the car, this value is NaN. */
         public final float roll;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public CompassData(long timestamp, float bearing, float pitch, float roll) {
             this.timestamp = timestamp;
             this.bearing = bearing;
@@ -159,6 +163,8 @@ public class CarSensorEvent {
         /** Returns {@code true} if the parking brake is engaged. */
         public final boolean isEngaged;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public ParkingBrakeData(long timestamp, boolean isEngaged) {
             this.timestamp = timestamp;
             this.isEngaged = isEngaged;
@@ -186,6 +192,8 @@ public class CarSensorEvent {
         /** Returns {@code true} if the system is in night mode. */
         public final boolean isNightMode;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public NightData(long timestamp, boolean isNightMode) {
             this.timestamp = timestamp;
             this.isNightMode = isNightMode;
@@ -219,6 +227,8 @@ public class CarSensorEvent {
          */
         public final int status;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public DrivingStatusData(long timestamp, int status) {
             this.timestamp = timestamp;
             this.status = status;
@@ -447,6 +457,8 @@ public class CarSensorEvent {
         /** If unsupported by the car, this value is NaN. */
         public final float pressure;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public EnvironmentData(long timestamp, float temperature, float pressure) {
             this.timestamp = timestamp;
             this.temperature = temperature;
@@ -475,6 +487,8 @@ public class CarSensorEvent {
         public final long timestamp;
         public final int gear;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public GearData(long timestamp, int gear) {
             this.timestamp = timestamp;
             this.gear = gear;
@@ -504,6 +518,8 @@ public class CarSensorEvent {
         /** If unsupported by the car, this value is false. */
         public final boolean lowFuelWarning;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public FuelLevelData(long timestamp, int level, float range, boolean lowFuelWarning) {
             this.timestamp = timestamp;
             this.level = level;
@@ -541,6 +557,8 @@ public class CarSensorEvent {
         public final long timestamp;
         public final float kms;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public OdometerData(long timestamp, float kms) {
             this.timestamp = timestamp;
             this.kms = kms;
@@ -565,6 +583,8 @@ public class CarSensorEvent {
         public final long timestamp;
         public final float rpm;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public RpmData(long timestamp, float rpm) {
             this.timestamp = timestamp;
             this.rpm = rpm;
@@ -588,6 +608,8 @@ public class CarSensorEvent {
         public final long timestamp;
         public final float carSpeed;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public CarSpeedData(long timestamp, float carSpeed) {
             this.timestamp = timestamp;
             this.carSpeed = carSpeed;
@@ -664,6 +686,8 @@ public class CarSensorEvent {
         /** If unsupported by the car, this value is NaN. */
         public final float z;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public AccelerometerData(long timestamp, float x, float y, float z) {
             this.timestamp = timestamp;
             this.x = x;
@@ -697,6 +721,8 @@ public class CarSensorEvent {
         /** If unsupported by the car, this value is NaN. */
         public final float z;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public GyroscopeData(long timestamp, float x, float y, float z) {
             this.timestamp = timestamp;
             this.x = x;
@@ -762,6 +788,8 @@ public class CarSensorEvent {
          */
         public final float[] elevation ;
 
+        /** @hide */
+        @RestrictTo(GROUP_ID)
         public GpsSatelliteData(long timestamp, int numberInUse, int numberInView,
                 boolean[] usedInFix, int[] prn, float[] snr, float[] azimuth, float[] elevation) {
             this.timestamp = timestamp;

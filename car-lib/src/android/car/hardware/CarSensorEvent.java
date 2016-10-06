@@ -136,6 +136,7 @@ public class CarSensorEvent implements Parcelable {
     /** array holding int type of sensor data */
     public final int[] intValues;
 
+    /** @hide */
     public CarSensorEvent(Parcel in) {
         sensorType = in.readInt();
         timestamp = in.readLong();
@@ -174,6 +175,7 @@ public class CarSensorEvent implements Parcelable {
         }
     };
 
+    /** @hide */
     public CarSensorEvent(int sensorType, long timestamp, int floatValueSize, int intValueSize) {
         this.sensorType = sensorType;
         this.timestamp = timestamp;
@@ -203,6 +205,9 @@ public class CarSensorEvent implements Parcelable {
         public float temperature;
         /** If unsupported by the car, this value is NaN. */
         public float pressure;
+
+        /** @hide */
+        private EnvironmentData() {};
     }
 
     /**
@@ -212,6 +217,7 @@ public class CarSensorEvent implements Parcelable {
      * @param data an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return an EnvironmentData object corresponding to the data contained in the CarSensorEvent.
+     * @hide
      */
     public EnvironmentData getEnvironmentData(EnvironmentData data) {
         checkType(CarSensorManager.SENSOR_TYPE_ENVIRONMENT);
@@ -224,9 +230,13 @@ public class CarSensorEvent implements Parcelable {
         return data;
     }
 
+    /** @hide */
     public static class NightData {
         public long timestamp;
         public boolean isNightMode;
+
+        /** @hide */
+        private NightData() {};
     }
 
     /**
@@ -236,6 +246,7 @@ public class CarSensorEvent implements Parcelable {
      * @param data an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a NightData object corresponding to the data contained in the CarSensorEvent.
+     * @hide
      */
     public NightData getNightData(NightData data) {
         checkType(CarSensorManager.SENSOR_TYPE_NIGHT);
@@ -247,9 +258,13 @@ public class CarSensorEvent implements Parcelable {
         return data;
     }
 
+    /** @hide */
     public static class GearData {
         public long timestamp;
         public int gear;
+
+        /** @hide */
+        private GearData() {};
     }
 
     /**
@@ -259,6 +274,7 @@ public class CarSensorEvent implements Parcelable {
      * @param data an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a GearData object corresponding to the data contained in the CarSensorEvent.
+     * @hide
      */
     public GearData getGearData(GearData data) {
         checkType(CarSensorManager.SENSOR_TYPE_GEAR);
@@ -270,9 +286,13 @@ public class CarSensorEvent implements Parcelable {
         return data;
     }
 
+    /** @hide */
     public static class ParkingBrakeData {
         public long timestamp;
         public boolean isEngaged;
+
+        /** @hide */
+        private ParkingBrakeData() {}
     }
 
     /**
@@ -282,6 +302,7 @@ public class CarSensorEvent implements Parcelable {
      * @param data an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a ParkingBreakData object corresponding to the data contained in the CarSensorEvent.
+     * @hide
      */
     public ParkingBrakeData getParkingBrakeData(ParkingBrakeData data) {
         checkType(CarSensorManager.SENSOR_TYPE_PARKING_BRAKE);
@@ -293,6 +314,7 @@ public class CarSensorEvent implements Parcelable {
         return data;
     }
 
+    /** @hide */
     public static class FuelLevelData {
         public long timestamp;
         /** Fuel level in %. If unsupported by the car, this value is -1. */
@@ -301,6 +323,9 @@ public class CarSensorEvent implements Parcelable {
         public float range;
         /** If unsupported by the car, this value is false. */
         public boolean lowFuelWarning;
+
+        /** @hide */
+        private FuelLevelData() {};
     }
 
     /**
@@ -310,6 +335,7 @@ public class CarSensorEvent implements Parcelable {
      * @param data an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a FuelLevel object corresponding to the data contained in the CarSensorEvent.
+     * @hide
      */
     public FuelLevelData getFuelLevelData(FuelLevelData data) {
         checkType(CarSensorManager.SENSOR_TYPE_FUEL_LEVEL);
@@ -336,9 +362,13 @@ public class CarSensorEvent implements Parcelable {
         return data;
     }
 
+    /** @hide */
     public static class OdometerData {
         public long timestamp;
         public float kms;
+
+        /** @hide */
+        private OdometerData() {};
     }
 
     /**
@@ -348,6 +378,7 @@ public class CarSensorEvent implements Parcelable {
      * @param data an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return an OdometerData object corresponding to the data contained in the CarSensorEvent.
+     * @hide
      */
     public OdometerData getOdometerData(OdometerData data) {
         checkType(CarSensorManager.SENSOR_TYPE_ODOMETER);
@@ -359,9 +390,13 @@ public class CarSensorEvent implements Parcelable {
         return data;
     }
 
+    /** @hide */
     public static class RpmData {
         public long timestamp;
         public float rpm;
+
+        /** @hide */
+        private RpmData() {};
     }
 
     /**
@@ -371,6 +406,7 @@ public class CarSensorEvent implements Parcelable {
      * @param data an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a RpmData object corresponding to the data contained in the CarSensorEvent.
+     * @hide
      */
     public RpmData getRpmData(RpmData data) {
         checkType(CarSensorManager.SENSOR_TYPE_RPM);
@@ -382,9 +418,13 @@ public class CarSensorEvent implements Parcelable {
         return data;
     }
 
+    /** @hide */
     public static class CarSpeedData {
         public long timestamp;
         public float carSpeed;
+
+        /** @hide */
+        private CarSpeedData() {};
     }
 
     /**
@@ -394,6 +434,7 @@ public class CarSensorEvent implements Parcelable {
      * @param data an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a CarSpeedData object corresponding to the data contained in the CarSensorEvent.
+     * @hide
      */
     public CarSpeedData getCarSpeedData(CarSpeedData data) {
         checkType(CarSensorManager.SENSOR_TYPE_CAR_SPEED);
@@ -405,9 +446,13 @@ public class CarSensorEvent implements Parcelable {
         return data;
     }
 
+    /** @hide */
     public static class DrivingStatusData {
         public long timestamp;
         public int status;
+
+        /** @hide */
+        private DrivingStatusData() {};
     }
 
     /**
@@ -417,6 +462,7 @@ public class CarSensorEvent implements Parcelable {
      * @param data an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a DrivingStatusData object corresponding to the data contained in the CarSensorEvent.
+     * @hide
      */
     public DrivingStatusData getDrivingStatusData(DrivingStatusData data) {
         checkType(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);

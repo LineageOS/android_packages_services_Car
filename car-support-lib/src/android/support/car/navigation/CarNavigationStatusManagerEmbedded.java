@@ -21,7 +21,7 @@ import android.support.car.CarNotConnectedException;
 /**
  * @hide
  */
-public class CarNavigationStatusManagerEmbedded implements CarNavigationStatusManager {
+public class CarNavigationStatusManagerEmbedded extends CarNavigationStatusManager {
 
     private final android.car.navigation.CarNavigationStatusManager mManager;
 

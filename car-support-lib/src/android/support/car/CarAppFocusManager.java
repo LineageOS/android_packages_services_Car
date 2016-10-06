@@ -16,6 +16,11 @@
 
 package android.support.car;
 
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Enables applications to set and listen for the current application focus (such as active
  * navigation). Typically, only one such application should be running at a time. When another
@@ -35,7 +40,8 @@ public abstract class CarAppFocusManager implements CarManagerBase {
          * @param appType application type for which status changed
          * @param active returns {@code true} if active
          */
-        void onAppFocusChanged(CarAppFocusManager manager, int appType, boolean active);
+        void onAppFocusChanged(CarAppFocusManager manager, @AppFocusType int appType,
+                boolean active);
     }
 
     /**
@@ -51,7 +57,7 @@ public abstract class CarAppFocusManager implements CarManagerBase {
          * the app wishes to unregister the callback.
          * @param appType
          */
-        void onAppFocusOwnershipLost(CarAppFocusManager manager, int appType);
+        void onAppFocusOwnershipLost(CarAppFocusManager manager, @AppFocusType int appType);
 
         /**
          * Granted ownership for the focus, which happens after app has requested the focus.
@@ -62,7 +68,7 @@ public abstract class CarAppFocusManager implements CarManagerBase {
          * the app wishes to unregister the callback.
          * @param appType
          */
-        void onAppFocusOwnershipGranted(CarAppFocusManager manager, int appType);
+        void onAppFocusOwnershipGranted(CarAppFocusManager manager, @AppFocusType int appType);
     }
 
     /**
@@ -80,6 +86,14 @@ public abstract class CarAppFocusManager implements CarManagerBase {
      */
     public static final int APP_FOCUS_TYPE_MAX = 2;
 
+    /** @hide */
+    @IntDef({
+        APP_FOCUS_TYPE_NAVIGATION,
+        APP_FOCUS_TYPE_VOICE_COMMAND
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AppFocusType {}
+
     /**
      * A failed focus change request.
      */
@@ -89,6 +103,14 @@ public abstract class CarAppFocusManager implements CarManagerBase {
      */
     public static final int APP_FOCUS_REQUEST_SUCCEEDED = 1;
 
+    /** @hide */
+    @IntDef({
+        APP_FOCUS_REQUEST_FAILED,
+        APP_FOCUS_REQUEST_SUCCEEDED
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AppFocusRequestResult {}
+
     /**
      * Register listener to monitor app focus changes.
      * Multiple listeners can be registered for a single focus and the same listener can be used
@@ -97,8 +119,8 @@ public abstract class CarAppFocusManager implements CarManagerBase {
      * @param appType Application type to get notification for.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public abstract void addFocusListener(OnAppFocusChangedListener listener, int appType)
-            throws CarNotConnectedException;
+    public abstract void addFocusListener(OnAppFocusChangedListener listener,
+            @AppFocusType int appType) throws CarNotConnectedException;
 
     /**
      * Unregister listener for app type and stop listening to focus change events.
@@ -106,8 +128,8 @@ public abstract class CarAppFocusManager implements CarManagerBase {
      * @param appType Application type to get notification for.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public abstract void removeFocusListener(OnAppFocusChangedListener listener, int appType)
-            throws CarNotConnectedException;
+    public abstract void removeFocusListener(OnAppFocusChangedListener listener,
+            @AppFocusType int appType) throws CarNotConnectedException;
 
     /**
      * Unregister listener for all app types and stop listening to focus change events.
@@ -124,8 +146,8 @@ public abstract class CarAppFocusManager implements CarManagerBase {
      * @return Returns {@code true} if current callback owns focus for application type.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public abstract boolean isOwningFocus(int appType, OnAppFocusOwnershipCallback callback)
-            throws CarNotConnectedException;
+    public abstract boolean isOwningFocus(@AppFocusType int appType,
+            OnAppFocusOwnershipCallback callback) throws CarNotConnectedException;
 
     /**
      * Request application focus.
@@ -164,7 +186,7 @@ public abstract class CarAppFocusManager implements CarManagerBase {
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public abstract void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback,
-            int appType) throws CarNotConnectedException;
+            @AppFocusType int appType) throws CarNotConnectedException;
 
     /**
      * Abandon all focuses (mark them as inactive).

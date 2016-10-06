@@ -428,18 +428,7 @@ package android.car.hardware {
   }
 
   public class CarSensorEvent implements android.os.Parcelable {
-    ctor public CarSensorEvent(android.os.Parcel);
-    ctor public CarSensorEvent(int, long, int, int);
     method public int describeContents();
-    method public android.car.hardware.CarSensorEvent.CarSpeedData getCarSpeedData(android.car.hardware.CarSensorEvent.CarSpeedData);
-    method public android.car.hardware.CarSensorEvent.DrivingStatusData getDrivingStatusData(android.car.hardware.CarSensorEvent.DrivingStatusData);
-    method public android.car.hardware.CarSensorEvent.EnvironmentData getEnvironmentData(android.car.hardware.CarSensorEvent.EnvironmentData);
-    method public android.car.hardware.CarSensorEvent.FuelLevelData getFuelLevelData(android.car.hardware.CarSensorEvent.FuelLevelData);
-    method public android.car.hardware.CarSensorEvent.GearData getGearData(android.car.hardware.CarSensorEvent.GearData);
-    method public android.car.hardware.CarSensorEvent.NightData getNightData(android.car.hardware.CarSensorEvent.NightData);
-    method public android.car.hardware.CarSensorEvent.OdometerData getOdometerData(android.car.hardware.CarSensorEvent.OdometerData);
-    method public android.car.hardware.CarSensorEvent.ParkingBrakeData getParkingBrakeData(android.car.hardware.CarSensorEvent.ParkingBrakeData);
-    method public android.car.hardware.CarSensorEvent.RpmData getRpmData(android.car.hardware.CarSensorEvent.RpmData);
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.hardware.CarSensorEvent> CREATOR;
     field public static final int DRIVE_STATUS_FULLY_RESTRICTED = 31; // 0x1f
@@ -474,60 +463,9 @@ package android.car.hardware {
     field public long timestamp;
   }
 
-  public static class CarSensorEvent.CarSpeedData {
-    ctor public CarSensorEvent.CarSpeedData();
-    field public float carSpeed;
-    field public long timestamp;
-  }
-
-  public static class CarSensorEvent.DrivingStatusData {
-    ctor public CarSensorEvent.DrivingStatusData();
-    field public int status;
-    field public long timestamp;
-  }
-
   public static class CarSensorEvent.EnvironmentData {
-    ctor public CarSensorEvent.EnvironmentData();
     field public float pressure;
     field public float temperature;
-    field public long timestamp;
-  }
-
-  public static class CarSensorEvent.FuelLevelData {
-    ctor public CarSensorEvent.FuelLevelData();
-    field public int level;
-    field public boolean lowFuelWarning;
-    field public float range;
-    field public long timestamp;
-  }
-
-  public static class CarSensorEvent.GearData {
-    ctor public CarSensorEvent.GearData();
-    field public int gear;
-    field public long timestamp;
-  }
-
-  public static class CarSensorEvent.NightData {
-    ctor public CarSensorEvent.NightData();
-    field public boolean isNightMode;
-    field public long timestamp;
-  }
-
-  public static class CarSensorEvent.OdometerData {
-    ctor public CarSensorEvent.OdometerData();
-    field public float kms;
-    field public long timestamp;
-  }
-
-  public static class CarSensorEvent.ParkingBrakeData {
-    ctor public CarSensorEvent.ParkingBrakeData();
-    field public boolean isEngaged;
-    field public long timestamp;
-  }
-
-  public static class CarSensorEvent.RpmData {
-    ctor public CarSensorEvent.RpmData();
-    field public float rpm;
     field public long timestamp;
   }
 
@@ -785,7 +723,6 @@ package android.car.media {
     method public int getStreamMinVolume(int) throws android.car.CarNotConnectedException;
     method public int getStreamVolume(int) throws android.car.CarNotConnectedException;
     method public boolean isMediaMuted() throws android.car.CarNotConnectedException;
-    method public void onCarDisconnected();
     method public int requestAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes, int, int) throws java.lang.IllegalArgumentException;
     method public boolean setMediaMute(boolean) throws android.car.CarNotConnectedException;
     method public void setStreamVolume(int, int, int) throws android.car.CarNotConnectedException;

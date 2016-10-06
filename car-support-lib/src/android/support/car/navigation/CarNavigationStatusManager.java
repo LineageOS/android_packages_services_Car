@@ -46,7 +46,7 @@ import java.lang.annotation.RetentionPolicy;
  * car to use the cluster panel for other data (such as media, weather, etc.) and is what a well
  * behaved app is expected to do.
  */
-public interface CarNavigationStatusManager extends CarManagerBase {
+public abstract class CarNavigationStatusManager implements CarManagerBase {
 
     /**
      * Listener for navigation related events. Callbacks are called in the Looper context.
@@ -195,7 +195,7 @@ public interface CarNavigationStatusManager extends CarManagerBase {
      * this class.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    void sendNavigationStatus(@Status int status) throws CarNotConnectedException;
+    public abstract void sendNavigationStatus(@Status int status) throws CarNotConnectedException;
 
     /**
      * Send a Navigation Next Step event to the car.
@@ -219,8 +219,8 @@ public interface CarNavigationStatusManager extends CarManagerBase {
      * #TURN_SIDE_UNSPECIFIED}).
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    void sendNavigationTurnEvent(@TurnEvent int tuenEvent, CharSequence eventName, int turnAngle,
-            int turnNumber, @TurnSide int turnSide) throws CarNotConnectedException;
+    public abstract void sendNavigationTurnEvent(@TurnEvent int tuenEvent, CharSequence eventName,
+            int turnAngle, int turnNumber, @TurnSide int turnSide) throws CarNotConnectedException;
 
     /**
      * Same as the public version ({@link #sendNavigationTurnEvent(int, String, int, int, Bitmap,
@@ -233,8 +233,9 @@ public interface CarNavigationStatusManager extends CarManagerBase {
      *
      * @hide only first party applications may send a custom image to the cluster.
      */
-    void sendNavigationTurnEvent(@TurnEvent int turnEvent, CharSequence eventName, int turnAngle,
-            int turnNumber, Bitmap image, @TurnSide int turnSide) throws CarNotConnectedException;
+    public abstract void sendNavigationTurnEvent(@TurnEvent int turnEvent, CharSequence eventName,
+            int turnAngle, int turnNumber, Bitmap image, @TurnSide int turnSide)
+                    throws CarNotConnectedException;
 
     /**
      * Send a Navigation Next Step Distance event to the car.
@@ -248,7 +249,7 @@ public interface CarNavigationStatusManager extends CarManagerBase {
      * @return Returns {@code true} if successful.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    void sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
+    public abstract void sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
             int displayDistanceMillis, int displayDistanceUnit) throws CarNotConnectedException;
 
     /**
@@ -256,10 +257,11 @@ public interface CarNavigationStatusManager extends CarManagerBase {
      * listeners.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    void addListener(CarNavigationCallback callback) throws CarNotConnectedException;
+    public abstract void addListener(CarNavigationCallback callback)
+            throws CarNotConnectedException;
 
     /**
      * Unregister the {@link CarNavigationCallback} associated with this instance.
      */
-    void removeListener();
+    public abstract void removeListener();
 }

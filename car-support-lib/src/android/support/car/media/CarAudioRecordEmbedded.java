@@ -17,12 +17,16 @@ package android.support.car.media;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
+import android.support.annotation.RestrictTo;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * CarAudioRecordEmbedded allows apps to use microphone.
  * @hide
  */
-public class CarAudioRecordEmbedded implements CarAudioRecord {
+@RestrictTo(GROUP_ID)
+public class CarAudioRecordEmbedded extends CarAudioRecord {
 
     private final AudioFormat mFormat;
     private final int mBufferSize;

@@ -369,6 +369,7 @@ public final class CarAudioManager implements CarManagerBase {
         }
     }
 
+    /** @hide */
     @Override
     public void onCarDisconnected() {
     }

@@ -105,7 +105,6 @@ package android.support.car.annotation {
 package android.support.car.hardware {
 
   public class CarSensorEvent {
-    ctor public CarSensorEvent(int, long, int, int);
     method public android.support.car.hardware.CarSensorEvent.AccelerometerData getAccelerometerData();
     method public android.support.car.hardware.CarSensorEvent.CompassData getCompassData();
     method public android.support.car.hardware.CarSensorEvent.DrivingStatusData getDrivingStatusData();
@@ -131,7 +130,6 @@ package android.support.car.hardware {
   }
 
   public static class CarSensorEvent.AccelerometerData {
-    ctor public CarSensorEvent.AccelerometerData(long, float, float, float);
     field public final long timestamp;
     field public final float x;
     field public final float y;
@@ -139,7 +137,6 @@ package android.support.car.hardware {
   }
 
   public static class CarSensorEvent.CompassData {
-    ctor public CarSensorEvent.CompassData(long, float, float, float);
     field public final float bearing;
     field public final float pitch;
     field public final float roll;
@@ -147,7 +144,6 @@ package android.support.car.hardware {
   }
 
   public static class CarSensorEvent.DrivingStatusData {
-    ctor public CarSensorEvent.DrivingStatusData(long, int);
     method public boolean isConfigurationRestricted();
     method public boolean isFullyRestricted();
     method public boolean isKeyboardRestricted();
@@ -159,7 +155,6 @@ package android.support.car.hardware {
   }
 
   public static class CarSensorEvent.FuelLevelData {
-    ctor public CarSensorEvent.FuelLevelData(long, int, float, boolean);
     field public final int level;
     field public final boolean lowFuelWarning;
     field public final float range;
@@ -167,7 +162,6 @@ package android.support.car.hardware {
   }
 
   public static class CarSensorEvent.GyroscopeData {
-    ctor public CarSensorEvent.GyroscopeData(long, float, float, float);
     field public final long timestamp;
     field public final float x;
     field public final float y;
@@ -175,19 +169,16 @@ package android.support.car.hardware {
   }
 
   public static class CarSensorEvent.NightData {
-    ctor public CarSensorEvent.NightData(long, boolean);
     field public final boolean isNightMode;
     field public final long timestamp;
   }
 
   public static class CarSensorEvent.ParkingBrakeData {
-    ctor public CarSensorEvent.ParkingBrakeData(long, boolean);
     field public final boolean isEngaged;
     field public final long timestamp;
   }
 
   public static class CarSensorEvent.RpmData {
-    ctor public CarSensorEvent.RpmData(long, float);
     field public final float rpm;
     field public final long timestamp;
   }
@@ -238,7 +229,8 @@ package android.support.car.media {
     field public static final int CAR_AUDIO_USAGE_VOICE_COMMAND = 5; // 0x5
   }
 
-  public abstract interface CarAudioRecord {
+  public abstract class CarAudioRecord {
+    ctor public CarAudioRecord();
     method public abstract int getAudioSessionId();
     method public abstract int getBufferSize();
     method public abstract int getRecordingState();
@@ -264,7 +256,8 @@ package android.support.car.navigation {
     field public static final int CLUSTER_TYPE_IMAGE_CODES_ONLY = 2; // 0x2
   }
 
-  public abstract interface CarNavigationStatusManager {
+  public abstract class CarNavigationStatusManager {
+    ctor public CarNavigationStatusManager();
     method public abstract void addListener(android.support.car.navigation.CarNavigationStatusManager.CarNavigationCallback) throws android.support.car.CarNotConnectedException;
     method public abstract void removeListener();
     method public abstract void sendNavigationStatus(int) throws android.support.car.CarNotConnectedException;

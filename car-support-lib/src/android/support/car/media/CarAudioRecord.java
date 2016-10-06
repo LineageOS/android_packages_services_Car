@@ -21,37 +21,37 @@ import android.support.car.CarNotConnectedException;
 /**
  * Enables applications to use the microphone.
  */
-public interface CarAudioRecord {
+public abstract class CarAudioRecord {
     /**
      * Get the buffer size specified in {@link CarAudioManager#createCarAudioRecord(int)}.
      * @return Buffer size in bytes.
      */
-    int getBufferSize();
+    public abstract int getBufferSize();
 
     /**
      * Start audio recording.
      */
-    void startRecording() throws CarNotConnectedException;
+    public abstract void startRecording() throws CarNotConnectedException;
 
     /**
      * Stop audio recording. Calling stop multiple times is a safe operation.
      */
-    void stop();
+    public abstract void stop();
 
     /**
      * Release native resource allocated for this instance. {@link CarAudioRecord} can no longer
      * be used after release is called.
      */
-    void release();
+    public abstract void release();
 
     /** See {@link AudioRecord#getRecordingState() }. */
-    int getRecordingState();
+    public abstract int getRecordingState();
 
     /** See {@link AudioRecord#getState() }. */
-    int getState();
+    public abstract int getState();
 
     /** See {@link AudioRecord#getAudioSessionId() }. */
-    int getAudioSessionId();
+    public abstract int getAudioSessionId();
 
     /**
      * Read recorded audio. Be sure to start audio recording with {@link #startRecording()}
@@ -62,6 +62,6 @@ public interface CarAudioRecord {
      * @return Number of bytes read. Returns {@link android.media.AudioRecord#ERROR} on error.
      * @throws IllegalStateException if audio recording was not started.
      */
-    int read(byte[] audioData, int offsetInBytes, int sizeInBytes)
+    public abstract int read(byte[] audioData, int offsetInBytes, int sizeInBytes)
             throws IllegalStateException, CarNotConnectedException;
 }

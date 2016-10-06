@@ -16,10 +16,13 @@
 
 package android.car;
 
+import android.annotation.IntDef;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,7 +46,7 @@ public final class CarAppFocusManager implements CarManagerBase {
          * @param appType
          * @param active
          */
-        void onAppFocusChanged(int appType, boolean active);
+        void onAppFocusChanged(@AppFocusType int appType, boolean active);
     }
 
     /**
@@ -57,7 +60,7 @@ public final class CarAppFocusManager implements CarManagerBase {
          * upon getting this for {@link CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.
          * @param appType
          */
-        void onAppFocusOwnershipLost(int appType);
+        void onAppFocusOwnershipLost(@AppFocusType int appType);
 
         /**
          * Granted ownership for the focus, which happens when app has requested the focus.
@@ -66,7 +69,7 @@ public final class CarAppFocusManager implements CarManagerBase {
          * upon getting this for {@link CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.
          * @param appType
          */
-        void onAppFocusOwnershipGranted(int appType);
+        void onAppFocusOwnershipGranted(@AppFocusType int appType);
     }
 
     /**
@@ -83,6 +86,14 @@ public final class CarAppFocusManager implements CarManagerBase {
      */
     public static final int APP_FOCUS_MAX = 2;
 
+    /** @hide */
+    @IntDef({
+        APP_FOCUS_TYPE_NAVIGATION,
+        APP_FOCUS_TYPE_VOICE_COMMAND
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AppFocusType {}
+
     /**
      * A failed focus change request.
      */
@@ -91,6 +102,14 @@ public final class CarAppFocusManager implements CarManagerBase {
      * A successful focus change request.
      */
     public static final int APP_FOCUS_REQUEST_SUCCEEDED = 1;
+
+    /** @hide */
+    @IntDef({
+        APP_FOCUS_REQUEST_FAILED,
+        APP_FOCUS_REQUEST_SUCCEEDED
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AppFocusRequestResult {}
 
     private final IAppFocus mService;
     private final Handler mHandler;
@@ -113,7 +132,7 @@ public final class CarAppFocusManager implements CarManagerBase {
      * @param appType Application type to get notification for.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void addFocusListener(OnAppFocusChangedListener listener, int appType)
+    public void addFocusListener(OnAppFocusChangedListener listener, @AppFocusType int appType)
             throws CarNotConnectedException {
         if (listener == null) {
             throw new IllegalArgumentException("null listener");
@@ -140,7 +159,7 @@ public final class CarAppFocusManager implements CarManagerBase {
      * @param appType
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void removeFocusListener(OnAppFocusChangedListener listener, int appType)
+    public void removeFocusListener(OnAppFocusChangedListener listener, @AppFocusType int appType)
             throws CarNotConnectedException {
         IAppFocusListenerImpl binder;
         synchronized (this) {
@@ -205,7 +224,7 @@ public final class CarAppFocusManager implements CarManagerBase {
      * @param appType
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public boolean isOwningFocus(OnAppFocusOwnershipCallback callback, int appType)
+    public boolean isOwningFocus(OnAppFocusOwnershipCallback callback, @AppFocusType int appType)
             throws CarNotConnectedException {
         IAppFocusOwnershipCallbackImpl binder;
         synchronized (this) {
@@ -233,8 +252,9 @@ public final class CarAppFocusManager implements CarManagerBase {
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @throws SecurityException If owner cannot be changed.
      */
-    public int requestAppFocus(int appType, OnAppFocusOwnershipCallback ownershipCallback)
-            throws SecurityException, CarNotConnectedException {
+    public @AppFocusRequestResult int requestAppFocus(int appType,
+            OnAppFocusOwnershipCallback ownershipCallback)
+                    throws SecurityException, CarNotConnectedException {
         if (ownershipCallback == null) {
             throw new IllegalArgumentException("null listener");
         }
@@ -261,7 +281,8 @@ public final class CarAppFocusManager implements CarManagerBase {
      * @param appType
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback, int appType)
+    public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback,
+            @AppFocusType int appType)
             throws CarNotConnectedException {
         if (ownershipCallback == null) {
             throw new IllegalArgumentException("null callback");
@@ -322,16 +343,17 @@ public final class CarAppFocusManager implements CarManagerBase {
         private final WeakReference<OnAppFocusChangedListener> mListener;
         private final Set<Integer> mAppTypes = new HashSet<>();
 
-        private IAppFocusListenerImpl(CarAppFocusManager manager, OnAppFocusChangedListener listener) {
+        private IAppFocusListenerImpl(CarAppFocusManager manager,
+                OnAppFocusChangedListener listener) {
             mManager = new WeakReference<>(manager);
             mListener = new WeakReference<>(listener);
         }
 
-        public void addAppType(int appType) {
+        public void addAppType(@AppFocusType int appType) {
             mAppTypes.add(appType);
         }
 
-        public void removeAppType(int appType) {
+        public void removeAppType(@AppFocusType int appType) {
             mAppTypes.remove(appType);
         }
 
@@ -344,7 +366,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         }
 
         @Override
-        public void onAppFocusChanged(final int appType, final boolean active) {
+        public void onAppFocusChanged(final @AppFocusType int appType, final boolean active) {
             final CarAppFocusManager manager = mManager.get();
             final OnAppFocusChangedListener listener = mListener.get();
             if (manager == null || listener == null) {
@@ -371,11 +393,11 @@ public final class CarAppFocusManager implements CarManagerBase {
             mCallback = new WeakReference<>(callback);
         }
 
-        public void addAppType(int appType) {
+        public void addAppType(@AppFocusType int appType) {
             mAppTypes.add(appType);
         }
 
-        public void removeAppType(int appType) {
+        public void removeAppType(@AppFocusType int appType) {
             mAppTypes.remove(appType);
         }
 
@@ -388,7 +410,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         }
 
         @Override
-        public void onAppFocusOwnershipLost(final int appType) {
+        public void onAppFocusOwnershipLost(final @AppFocusType int appType) {
             final CarAppFocusManager manager = mManager.get();
             final OnAppFocusOwnershipCallback callback = mCallback.get();
             if (manager == null || callback == null) {
@@ -403,7 +425,7 @@ public final class CarAppFocusManager implements CarManagerBase {
         }
 
         @Override
-        public void onAppFocusOwnershipGranted(final int appType) {
+        public void onAppFocusOwnershipGranted(final @AppFocusType int appType) {
             final CarAppFocusManager manager = mManager.get();
             final OnAppFocusOwnershipCallback callback = mCallback.get();
             if (manager == null || callback == null) {
