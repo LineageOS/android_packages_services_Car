@@ -16,14 +16,18 @@
 
 package android.car;
 
-import android.annotation.StringDef;
+import android.annotation.Nullable;
 import android.car.annotation.ValueTypeDef;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+
+import com.android.internal.annotations.GuardedBy;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
 
 /**
  * Utility to retrieve various static information from car. Each data are grouped as {@link Bundle}
@@ -32,42 +36,32 @@ import java.lang.annotation.RetentionPolicy;
 public final class CarInfoManager implements CarManagerBase {
 
     /**
-     * Key for manufacturer of the car. Should be used for {@link android.os.Bundle} acquired from
-     * {@link #getBasicCarInfo()}.
+     * Key for manufacturer of the car. Passed in basic info Bundle.
+     * @hide
      */
     @ValueTypeDef(type = String.class)
     public static final String BASIC_INFO_KEY_MANUFACTURER = "android.car.manufacturer";
     /**
      * Key for model name of the car. This information may not necessarily allow distinguishing
      * different car models as the same name may be used for different cars depending on
-     * manufacturers. Should be used for {@link android.os.Bundle} acquired from
-     * {@link #getBasicCarInfo()}.
+     * manufacturers. Passed in basic info Bundle.
+     * @hide
      */
     @ValueTypeDef(type = String.class)
     public static final String BASIC_INFO_KEY_MODEL = "android.car.model";
     /**
-     * Key for model year of the car in AC. Should be used for {@link android.os.Bundle} acquired
-     * from {@link #getBasicCarInfo()}.
+     * Key for model year of the car in AC. Passed in basic info Bundle.
+     * @hide
      */
     @ValueTypeDef(type = Integer.class)
     public static final String BASIC_INFO_KEY_MODEL_YEAR = "android.car.model-year";
     /**
      * Key for unique identifier for the car. This is not VIN, and id is persistent until user
-     * resets it. Should be used for {@link android.os.Bundle} acquired from
-     * {@link #getBasicCarInfo()}.
+     * resets it. Passed in basic info Bundle.
+     * @hide
      */
     @ValueTypeDef(type = String.class)
     public static final String BASIC_INFO_KEY_VEHICLE_ID = "android.car.vehicle-id";
-
-    /** @hide */
-    @StringDef({
-        BASIC_INFO_KEY_MANUFACTURER,
-        BASIC_INFO_KEY_MODEL,
-        BASIC_INFO_KEY_MODEL_YEAR,
-        BASIC_INFO_KEY_VEHICLE_ID
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface BasicInfoKeys {}
 
     //TODO
     //@ValueTypeDef(type = Integer.class)
@@ -90,6 +84,44 @@ public final class CarInfoManager implements CarManagerBase {
 
     private final ICarInfo mService;
 
+    @GuardedBy("this")
+    private Bundle mBasicInfo;
+
+    /**
+     * Return manufacturer of the car.
+     * @return null if information is not available.
+     */
+    public @android.annotation.Nullable String getManufacturer() throws CarNotConnectedException {
+        return getBasicInfo().getString(BASIC_INFO_KEY_MANUFACTURER);
+    }
+
+    /**
+     * Return model name of the car. This information may not necessarily allow distinguishing
+     * different car models as the same name may be used for different cars depending on
+     * manufacturers.
+     * @return null if information is not available.
+     */
+    public @Nullable String getModel() throws CarNotConnectedException {
+        return getBasicInfo().getString(BASIC_INFO_KEY_MODEL);
+    }
+
+    /**
+     * Return model year of the car in AC.
+     * @return null if information is not available.
+     */
+    public @Nullable String getModelYear() throws CarNotConnectedException {
+        return getBasicInfo().getString(BASIC_INFO_KEY_MODEL_YEAR);
+    }
+
+    /**
+     * Return unique identifier for the car. This is not VIN, and id is persistent until user
+     * resets it. This ID is guaranteed to be always available.
+     * @return vehicle id
+     */
+    public String getVehicleId() throws CarNotConnectedException {
+        return getBasicInfo().getString(BASIC_INFO_KEY_VEHICLE_ID);
+    }
+
     /**
      * Get {@link android.os.Bundle} containing basic car information. Check
      * {@link #BASIC_INFO_KEY_MANUFACTURER}, {@link #BASIC_INFO_KEY_MODEL},
@@ -98,15 +130,18 @@ public final class CarInfoManager implements CarManagerBase {
      * @return {@link android.os.Bundle} containing basic car info.
      * @throws CarNotConnectedException
      */
-    public Bundle getBasicInfo() throws CarNotConnectedException {
+    private synchronized Bundle getBasicInfo() throws CarNotConnectedException {
+        if (mBasicInfo != null) {
+            return mBasicInfo;
+        }
         try {
-            return mService.getBasicInfo();
+            mBasicInfo = mService.getBasicInfo();
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
             throw new CarNotConnectedException(e);
         }
-        return null;
+        return mBasicInfo;
     }
 
     /** @hide */
@@ -117,6 +152,8 @@ public final class CarInfoManager implements CarManagerBase {
     /** @hide */
     @Override
     public void onCarDisconnected() {
-        //nothing to do
+        synchronized (this) {
+            mBasicInfo = null;
+        }
     }
 }

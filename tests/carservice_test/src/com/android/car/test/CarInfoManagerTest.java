@@ -41,20 +41,24 @@ public class CarInfoManagerTest extends MockedCarTestBase {
                         VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE),
                 VehiclePropValueUtil.createStringValue(
                         VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE, MAKE_NAME, 0));
+        getVehicleHalEmulator().removeProperty(VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL);
+        getVehicleHalEmulator().removeProperty(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL_YEAR);
         getVehicleHalEmulator().start();
         mCarInfoManager =
                 (CarInfoManager) getCar().getCarManager(Car.INFO_SERVICE);
     }
 
-    public void testManufactuter() throws Exception {
-        Bundle info = mCarInfoManager.getBasicInfo();
-        assertEquals(MAKE_NAME, info.getCharSequence(CarInfoManager.BASIC_INFO_KEY_MANUFACTURER));
+    public void testVehicleId() throws Exception {
+        assertNotNull(mCarInfoManager.getVehicleId());
     }
 
-    public void testNoSuchInfo() throws Exception {
-        final String NO_SUCH_NAME = "no-such-information-available";
-        Bundle info = mCarInfoManager.getBasicInfo();
-        assertNotNull(info);
-        assertNull(info.getCharSequence(NO_SUCH_NAME));
+    public void testManufactuter() throws Exception {
+        assertEquals(MAKE_NAME, mCarInfoManager.getManufacturer());
+    }
+
+    public void testNullItems() throws Exception {
+        assertNull(mCarInfoManager.getModel());
+        assertNull(mCarInfoManager.getModelYear());
     }
 }

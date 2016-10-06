@@ -17,6 +17,7 @@
 package android.support.car;
 
 import android.support.car.CarNotConnectedException;
+import android.support.car.CarInfoManager.DriverSide;
 import android.os.Bundle;
 
 /** @hide */
@@ -24,18 +25,70 @@ public class CarInfoManagerEmbedded extends CarInfoManager {
 
     private final android.car.CarInfoManager mManager;
 
-
     /** @hide */
     CarInfoManagerEmbedded(Object manager) {
         mManager = (android.car.CarInfoManager) manager;
     }
 
-    public Bundle getBasicInfo() throws CarNotConnectedException {
+    @Override
+    public String getManufacturer() throws CarNotConnectedException {
         try {
-            return mManager.getBasicInfo();
+            return mManager.getManufacturer();
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }
+    }
+
+    @Override
+    public String getModel() throws CarNotConnectedException {
+        try {
+            return mManager.getModel();
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    @Override
+    public String getModelYear() throws CarNotConnectedException {
+        try {
+            return mManager.getModelYear();
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    @Override
+    public String getVehicleId() throws CarNotConnectedException {
+        try {
+            return mManager.getVehicleId();
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    @Override
+    public String getHeadunitManufacturer() throws CarNotConnectedException {
+        return null;
+    }
+
+    @Override
+    public String getHeadunitModel() throws CarNotConnectedException {
+        return null; // N/A
+    }
+
+    @Override
+    public String getHeadunitSoftwareBuild() throws CarNotConnectedException {
+        return null; // N/A
+    }
+
+    @Override
+    public String getHeadunitSoftwareVersion() throws CarNotConnectedException {
+        return null; // N/A
+    }
+
+    @Override
+    public int getDriverPosition() throws CarNotConnectedException {
+        return CarInfoManager.DRIVER_SIDE_UNKNOWN; // N/A
     }
 
     /** @hide */

@@ -31,10 +31,14 @@ public class CarInfoManagerTest extends CarApiTestBase {
         assertNotNull(mInfoManager);
     }
 
-    public void testNoSuchInfo() throws Exception {
-        final String NO_SUCH_NAME = "no-such-information-available";
-        Bundle info = mInfoManager.getBasicInfo();
-        assertNotNull(info);
-        assertNull(info.getCharSequence(NO_SUCH_NAME));
+    public void testVehicleId() throws Exception {
+        assertNotNull(mInfoManager.getVehicleId());
+    }
+
+    public void testNullables() throws Exception {
+        // no guarantee of existence. just call and check if it throws exception.
+        mInfoManager.getManufacturer();
+        mInfoManager.getModel();
+        mInfoManager.getModelYear();
     }
 }
