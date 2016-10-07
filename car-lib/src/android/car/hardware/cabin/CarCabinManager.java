@@ -38,7 +38,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * API for controlling Cabin system in cars,
+ * API for controlling Cabin system in cars.
  * Most Car Cabin properties have both a MOVE and POSITION parameter associated with them.
  *
  * The MOVE parameter will start moving the device in the indicated direction.  Magnitude
@@ -390,8 +390,7 @@ public final class CarCabinManager implements CarManagerBase {
         mCallbacks.add(callback);
     }
 
-    public synchronized void unregisterCallback(CarCabinEventCallback callback) throws
-            CarNotConnectedException {
+    public synchronized void unregisterCallback(CarCabinEventCallback callback) {
         mCallbacks.remove(callback);
         if (mCallbacks.isEmpty()) {
             mMgr.unregisterCallback();

@@ -92,7 +92,8 @@ public abstract class CarAudioManager implements CarManagerBase {
     /**
      * Return {@link AudioAttributes} relevant for the given usage in car.
      */
-    public abstract AudioAttributes getAudioAttributesForCarUsage(@CarAudioUsage int carUsage);
+    public abstract AudioAttributes getAudioAttributesForCarUsage(@CarAudioUsage int carUsage)
+            throws CarNotConnectedException;
 
     /**
      * Request audio focus. Send a request to obtain audio focus.
@@ -118,7 +119,7 @@ public abstract class CarAudioManager implements CarManagerBase {
      */
     public abstract int requestAudioFocus(OnAudioFocusChangeListener listener,
             AudioAttributes requestAttributes,
-            int durationHint) throws IllegalArgumentException;
+            int durationHint) throws CarNotConnectedException, IllegalArgumentException;
 
     /**
      * See
@@ -128,24 +129,21 @@ public abstract class CarAudioManager implements CarManagerBase {
     public abstract int requestAudioFocus(OnAudioFocusChangeListener listener,
             AudioAttributes requestAttributes,
             int durationHint,
-            int flags) throws IllegalArgumentException;
+            int flags) throws CarNotConnectedException, IllegalArgumentException;
     /**
      * Abandon audio focus. Causes the previous focus owner (if any) to receive focus.
      * @param listener The listener with which focus was requested.
      * @param aa
-     * @return
-     * {@link AudioManager#AUDIOFOCUS_REQUEST_FAILED} or
-     * {@link AudioManager#AUDIOFOCUS_REQUEST_GRANTED}
      */
-    public abstract int abandonAudioFocus(OnAudioFocusChangeListener listener, AudioAttributes aa);
+    public abstract void abandonAudioFocus(OnAudioFocusChangeListener listener, AudioAttributes aa);
 
     /**
      * Get {@link AudioFormat} for audio record.
      * @return {@link AudioFormat} for audio record.
      */
-    public abstract AudioFormat getAudioRecordAudioFormat();
+    public abstract AudioFormat getAudioRecordAudioFormat() throws CarNotConnectedException;
 
-    public abstract boolean isAudioRecordSupported();
+    public abstract boolean isAudioRecordSupported() throws CarNotConnectedException;
 
     /**
      * Get minimum buffer size for {@link CarAudioRecord}.

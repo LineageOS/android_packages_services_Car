@@ -38,12 +38,12 @@ package android.car {
   }
 
   public final class CarAppFocusManager {
-    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) throws android.car.CarNotConnectedException;
-    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.car.CarNotConnectedException;
+    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int);
+    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback);
     method public void addFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int) throws android.car.CarNotConnectedException;
     method public boolean isOwningFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) throws android.car.CarNotConnectedException;
-    method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int) throws android.car.CarNotConnectedException;
-    method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener) throws android.car.CarNotConnectedException;
+    method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int);
+    method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener);
     method public int requestAppFocus(int, android.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.car.CarNotConnectedException, java.lang.SecurityException;
     field public static final int APP_FOCUS_REQUEST_FAILED = 0; // 0x0
     field public static final int APP_FOCUS_REQUEST_SUCCEEDED = 1; // 0x1
@@ -78,8 +78,8 @@ package android.car {
     method public void onCarDisconnected();
     method public void registerProjectionRunner(android.content.Intent) throws android.car.CarNotConnectedException;
     method public void regsiterProjectionListener(android.car.CarProjectionManager.CarProjectionListener, int) throws android.car.CarNotConnectedException;
-    method public void unregisterProjectionRunner(android.content.Intent) throws android.car.CarNotConnectedException;
-    method public void unregsiterProjectionListener() throws android.car.CarNotConnectedException;
+    method public void unregisterProjectionRunner(android.content.Intent);
+    method public void unregsiterProjectionListener();
     field public static final int PROJECTION_LONG_PRESS_VOICE_SEARCH = 2; // 0x2
     field public static final int PROJECTION_VOICE_SEARCH = 1; // 0x1
   }
@@ -458,8 +458,8 @@ package android.car.hardware {
     method public boolean isSensorSupported(int) throws android.car.CarNotConnectedException;
     method public static boolean isSensorSupported(int[], int);
     method public boolean registerListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public void unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener) throws android.car.CarNotConnectedException;
-    method public void unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int) throws android.car.CarNotConnectedException;
+    method public void unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener);
+    method public void unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int);
     field public static final int SENSOR_RATE_FAST = 1; // 0x1
     field public static final int SENSOR_RATE_FASTEST = 0; // 0x0
     field public static final int SENSOR_RATE_NORMAL = 3; // 0x3
@@ -487,7 +487,7 @@ package android.car.hardware {
     method public void registerCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback) throws android.car.CarNotConnectedException;
     method public void setGlobalProperty(java.lang.Class<E>, int, E) throws android.car.CarNotConnectedException;
     method public void setProperty(java.lang.Class<E>, int, int, E) throws android.car.CarNotConnectedException;
-    method public void unregisterCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback) throws android.car.CarNotConnectedException;
+    method public void unregisterCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback);
   }
 
   public static abstract interface CarVendorExtensionManager.CarVendorExtensionCallback {
@@ -509,7 +509,7 @@ package android.car.hardware.cabin {
     method public void setBooleanProperty(int, int, boolean) throws android.car.CarNotConnectedException;
     method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
     method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
-    method public synchronized void unregisterCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback) throws android.car.CarNotConnectedException;
+    method public synchronized void unregisterCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback);
     field public static final int ID_DOOR_LOCK = 3; // 0x3
     field public static final int ID_DOOR_MOVE = 2; // 0x2
     field public static final int ID_DOOR_POS = 1; // 0x1
@@ -578,8 +578,8 @@ package android.car.hardware.camera {
   public final class CarCameraManager {
     method public void closeCamera(android.car.hardware.camera.CarCamera);
     method public int getCameraCapabilities(int) throws android.car.CarNotConnectedException;
-    method public int[] getCameraList();
-    method public android.car.hardware.camera.CarCamera openCamera(int);
+    method public int[] getCameraList() throws android.car.CarNotConnectedException;
+    method public android.car.hardware.camera.CarCamera openCamera(int) throws android.car.CarNotConnectedException;
     field public static final int ANDROID_OVERLAY_SUPPORT_FLAG = 1; // 0x1
     field public static final int CAMERA_CROP_SUPPORT_FLAG = 2; // 0x2
     field public static final int CAMERA_POSITIONING_SUPPORT_FLAG = 4; // 0x4
@@ -624,7 +624,7 @@ package android.car.hardware.hvac {
     method public void setBooleanProperty(int, int, boolean) throws android.car.CarNotConnectedException;
     method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
     method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
-    method public synchronized void unregisterCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback) throws android.car.CarNotConnectedException;
+    method public synchronized void unregisterCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback);
     field public static final int ID_MIRROR_DEFROSTER_ON = 1; // 0x1
     field public static final int ID_OUTSIDE_AIR_TEMP = 3; // 0x3
     field public static final int ID_STEERING_WHEEL_TEMP = 2; // 0x2
@@ -667,10 +667,10 @@ package android.car.hardware.radio {
 
   public final class CarRadioManager {
     method public android.car.hardware.radio.CarRadioPreset getPreset(int) throws android.car.CarNotConnectedException;
-    method public int getPresetCount();
+    method public int getPresetCount() throws android.car.CarNotConnectedException;
     method public synchronized void registerListener(android.car.hardware.radio.CarRadioManager.CarRadioEventListener) throws android.car.CarNotConnectedException;
     method public boolean setPreset(android.car.hardware.radio.CarRadioPreset) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public synchronized void unregisterListener() throws android.car.CarNotConnectedException;
+    method public synchronized void unregisterListener();
   }
 
   public static abstract interface CarRadioManager.CarRadioEventListener {
@@ -693,13 +693,13 @@ package android.car.hardware.radio {
 package android.car.media {
 
   public final class CarAudioManager {
-    method public int abandonAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes);
-    method public android.media.AudioAttributes getAudioAttributesForCarUsage(int);
+    method public void abandonAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes);
+    method public android.media.AudioAttributes getAudioAttributesForCarUsage(int) throws android.car.CarNotConnectedException;
     method public int getStreamMaxVolume(int) throws android.car.CarNotConnectedException;
     method public int getStreamMinVolume(int) throws android.car.CarNotConnectedException;
     method public int getStreamVolume(int) throws android.car.CarNotConnectedException;
     method public boolean isMediaMuted() throws android.car.CarNotConnectedException;
-    method public int requestAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes, int, int) throws java.lang.IllegalArgumentException;
+    method public int requestAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes, int, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public boolean setMediaMute(boolean) throws android.car.CarNotConnectedException;
     method public void setStreamVolume(int, int, int) throws android.car.CarNotConnectedException;
     method public void setVolumeController(android.media.IVolumeController) throws android.car.CarNotConnectedException;

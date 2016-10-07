@@ -243,8 +243,7 @@ public abstract class CarSensorManager implements CarManagerBase {
      * this listener, all listening is stopped.
      * @param listener The listener to remove.
      */
-    public abstract  void removeListener(OnSensorChangedListener listener)
-            throws CarNotConnectedException;
+    public abstract  void removeListener(OnSensorChangedListener listener);
 
     /**
      * Stop getting sensor updates for the given listener and sensor. If the same listener is used
@@ -253,7 +252,7 @@ public abstract class CarSensorManager implements CarManagerBase {
      * @param sensorType The type to stop receiving notifications for.
      */
     public abstract  void removeListener(OnSensorChangedListener listener,
-            @SensorType int sensorType) throws CarNotConnectedException;
+            @SensorType int sensorType);
 
     /**
      * Get the most recent CarSensorEvent for the given type.

@@ -126,18 +126,15 @@ public abstract class CarAppFocusManager implements CarManagerBase {
      * Unregister listener for app type and stop listening to focus change events.
      * @param listener Listener to unregister from focus events.
      * @param appType Application type to get notification for.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public abstract void removeFocusListener(OnAppFocusChangedListener listener,
-            @AppFocusType int appType) throws CarNotConnectedException;
+            @AppFocusType int appType);
 
     /**
      * Unregister listener for all app types and stop listening to focus change events.
      * @param listener Listener to unregister from focus events.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public abstract void removeFocusListener(OnAppFocusChangedListener listener)
-            throws CarNotConnectedException;
+    public abstract void removeFocusListener(OnAppFocusChangedListener listener);
 
     /**
      * Check if the current process owns the given focus.
@@ -171,28 +168,24 @@ public abstract class CarAppFocusManager implements CarManagerBase {
      * @param ownershipCallback Ownership callback to request app focus for. Cannot be null.
      *
      * @return {@link #APP_FOCUS_REQUEST_FAILED} or {@link #APP_FOCUS_REQUEST_SUCCEEDED}
-     * @throws IllegalStateException if callback was not registered.
      * @throws SecurityException if owner cannot be changed.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public abstract int requestAppFocus(int appType,
             OnAppFocusOwnershipCallback ownershipCallback)
-            throws IllegalStateException, SecurityException, CarNotConnectedException;
+            throws SecurityException, CarNotConnectedException;
 
     /**
      * Abandon the given focus (mark it as inactive).
      * @param ownershipCallback Ownership callback to abandon app focus for. Cannot be null.
      * @param appType Application type to abandon focus for.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public abstract void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback,
-            @AppFocusType int appType) throws CarNotConnectedException;
+            @AppFocusType int appType);
 
     /**
      * Abandon all focuses (mark them as inactive).
      * @param ownershipCallback Ownership callback to abandon focus for. Cannot be null.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public abstract void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback)
-            throws CarNotConnectedException;
+    public abstract void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback);
 }

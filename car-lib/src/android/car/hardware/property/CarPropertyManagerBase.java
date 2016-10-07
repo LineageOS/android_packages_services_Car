@@ -125,7 +125,7 @@ public class CarPropertyManagerBase {
         }
     }
 
-    public void unregisterCallback() throws CarNotConnectedException {
+    public void unregisterCallback() {
         ICarPropertyEventListener listenerToService;
         synchronized (mLock) {
             listenerToService = mListenerToService;
@@ -142,9 +142,9 @@ public class CarPropertyManagerBase {
             mService.unregisterListener(listenerToService);
         } catch (RemoteException ex) {
             Log.e(mTag, "Failed to unregister listener", ex);
-            throw new CarNotConnectedException(ex);
+            //ignore
         } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
+            Car.hideCarNotConnectedExceptionFromCarService(ex);
         }
     }
 
@@ -284,18 +284,16 @@ public class CarPropertyManagerBase {
         mHandler.sendMessage(mHandler.obtainMessage(EventCallbackHandler.MSG_GENERIC_EVENT, event));
     }
 
+    /** @hide */
     public void onCarDisconnected() {
-        try {
-            ICarPropertyEventListener listenerToService;
-            synchronized (mLock) {
-                listenerToService = mListenerToService;
-            }
 
-            if (listenerToService != null) {
-                unregisterCallback();
-            }
-        } catch (CarNotConnectedException e) {
-            // Ignore, car is disconnecting.
+        ICarPropertyEventListener listenerToService;
+        synchronized (mLock) {
+            listenerToService = mListenerToService;
+        }
+
+        if (listenerToService != null) {
+            unregisterCallback();
         }
     }
 }

@@ -345,8 +345,7 @@ public final class CarSensorManager implements CarManagerBase {
      * @param listener
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void unregisterListener(OnSensorChangedListener listener)
-            throws CarNotConnectedException {
+    public void unregisterListener(OnSensorChangedListener listener) {
         //TODO: removing listener should reset update rate
         synchronized(mActiveSensorListeners) {
             Iterator<Integer> sensorIterator = mActiveSensorListeners.keySet().iterator();
@@ -364,15 +363,14 @@ public final class CarSensorManager implements CarManagerBase {
      * @param sensorType
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void unregisterListener(OnSensorChangedListener listener, @SensorType int sensorType)
-            throws CarNotConnectedException {
+    public void unregisterListener(OnSensorChangedListener listener, @SensorType int sensorType) {
         synchronized(mActiveSensorListeners) {
             doUnregisterListenerLocked(listener, sensorType, null);
         }
     }
 
     private void doUnregisterListenerLocked(OnSensorChangedListener listener, Integer sensor,
-            Iterator<Integer> sensorIterator) throws CarNotConnectedException {
+            Iterator<Integer> sensorIterator) {
         CarSensorListeners listeners = mActiveSensorListeners.get(sensor);
         if (listeners != null) {
             if (listeners.contains(listener)) {
@@ -383,7 +381,7 @@ public final class CarSensorManager implements CarManagerBase {
                     mService.unregisterSensorListener(sensor.intValue(),
                             mCarSensorEventListenerToService);
                 } catch (RemoteException e) {
-                    throw new CarNotConnectedException(e);
+                    //ignore
                 }
                 if (sensorIterator == null) {
                     mActiveSensorListeners.remove(sensor);

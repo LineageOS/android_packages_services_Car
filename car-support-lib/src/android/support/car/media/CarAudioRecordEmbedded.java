@@ -18,6 +18,7 @@ package android.support.car.media;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.support.annotation.RestrictTo;
+import android.support.car.CarNotConnectedException;
 
 import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
@@ -43,12 +44,12 @@ public class CarAudioRecordEmbedded extends CarAudioRecord {
     }
 
     @Override
-    public int getBufferSize() {
+    public int getBufferSize() throws CarNotConnectedException {
         return mBufferSize;
     }
 
     @Override
-    public void startRecording() {
+    public void startRecording() throws CarNotConnectedException {
         mAudioRecord.startRecording();
     }
 
@@ -63,23 +64,23 @@ public class CarAudioRecordEmbedded extends CarAudioRecord {
     }
 
     @Override
-    public int getRecordingState() {
+    public int getRecordingState() throws CarNotConnectedException {
         return mAudioRecord.getRecordingState();
     }
 
     @Override
-    public int getState() {
+    public int getState() throws CarNotConnectedException {
         return mAudioRecord.getState();
     }
 
     @Override
-    public int getAudioSessionId() {
+    public int getAudioSessionId() throws CarNotConnectedException {
         return mAudioRecord.getAudioSessionId();
     }
 
     @Override
     public int read(byte[] audioData, int offsetInBytes, int sizeInBytes)
-            throws IllegalStateException {
+            throws CarNotConnectedException, IllegalStateException {
         return mAudioRecord.read(audioData, offsetInBytes, sizeInBytes);
     }
 }

@@ -101,8 +101,7 @@ public final class CarVendorExtensionManager implements CarManagerBase {
     }
 
     /** Unregisters listener that was previously registered. */
-    public void unregisterCallback(CarVendorExtensionCallback callback)
-            throws CarNotConnectedException {
+    public void unregisterCallback(CarVendorExtensionCallback callback) {
         synchronized (mLock) {
             mCallbacks.remove(callback);
             if (mCallbacks.isEmpty()) {

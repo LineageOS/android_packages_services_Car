@@ -45,54 +45,69 @@ public class CarAudioManagerEmbedded extends CarAudioManager {
     }
 
     @Override
-    public AudioAttributes getAudioAttributesForCarUsage(@CarAudioUsage int carUsage) {
-        return mManager.getAudioAttributesForCarUsage(carUsage);
+    public AudioAttributes getAudioAttributesForCarUsage(@CarAudioUsage int carUsage)
+            throws CarNotConnectedException {
+        try {
+            return mManager.getAudioAttributesForCarUsage(carUsage);
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
     }
 
     @Override
     public int requestAudioFocus(OnAudioFocusChangeListener listener,
             AudioAttributes requestAttributes,
             int durationHint,
-            int flags) throws IllegalArgumentException {
-        return mManager.requestAudioFocus(listener, requestAttributes, durationHint, flags);
+            int flags) throws CarNotConnectedException, IllegalArgumentException {
+        try {
+            return mManager.requestAudioFocus(listener, requestAttributes, durationHint, flags);
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
     }
 
     @Override
     public int requestAudioFocus(OnAudioFocusChangeListener listener,
             AudioAttributes requestAttributes,
-            int durationHint) throws IllegalArgumentException {
-        return mManager.requestAudioFocus(listener, requestAttributes, durationHint, 0 /*flags*/);
+            int durationHint) throws CarNotConnectedException, IllegalArgumentException {
+        try {
+            return mManager.requestAudioFocus(listener, requestAttributes, durationHint,
+                    0 /*flags*/);
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
     }
 
     @Override
-    public int abandonAudioFocus(OnAudioFocusChangeListener listener, AudioAttributes aa) {
-        return mManager.abandonAudioFocus(listener, aa);
+    public void abandonAudioFocus(OnAudioFocusChangeListener listener, AudioAttributes aa) {
+        mManager.abandonAudioFocus(listener, aa);
     }
 
     @Override
-    public boolean isAudioRecordSupported(){
+    public boolean isAudioRecordSupported() throws CarNotConnectedException {
         //always true in embedded
         return true;
     }
 
     @Override
-    public AudioFormat getAudioRecordAudioFormat() {
+    public AudioFormat getAudioRecordAudioFormat() throws CarNotConnectedException {
         return AUDIO_RECORD_FORMAT;
     }
 
     @Override
-    public int getAudioRecordMinBufferSize() {
+    public int getAudioRecordMinBufferSize() throws CarNotConnectedException {
         return AudioRecord.getMinBufferSize(SAMPLING_RATE, AUDIO_RECORD_FORMAT.getChannelMask(),
                 AUDIO_RECORD_FORMAT.getEncoding());
     }
 
     @Override
-    public int getAudioRecordMaxBufferSize() {
+    public int getAudioRecordMaxBufferSize() throws CarNotConnectedException {
         return Math.max(getAudioRecordMinBufferSize(), MAX_BUFFER_SIZE_BYTE);
     }
 
     @Override
-    public CarAudioRecord createCarAudioRecord(int bufferSize) throws SecurityException {
+    public CarAudioRecord createCarAudioRecord(int bufferSize)
+            throws CarNotConnectedException, SecurityException {
         if (bufferSize < getAudioRecordMinBufferSize() ||
             bufferSize > getAudioRecordMaxBufferSize()) {
             throw new IllegalArgumentException("Bad bufferSize value");

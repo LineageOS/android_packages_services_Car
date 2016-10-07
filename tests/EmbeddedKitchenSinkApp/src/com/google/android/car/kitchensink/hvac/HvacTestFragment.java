@@ -183,11 +183,7 @@ public class HvacTestFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        try {
-            mCarHvacManager.unregisterCallback(mHvacCallback);
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to unregister listener", e);
-        }
+        mCarHvacManager.unregisterCallback(mHvacCallback);
     }
 
     @Override

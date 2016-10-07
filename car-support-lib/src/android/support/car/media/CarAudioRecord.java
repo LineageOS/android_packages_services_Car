@@ -26,7 +26,7 @@ public abstract class CarAudioRecord {
      * Get the buffer size specified in {@link CarAudioManager#createCarAudioRecord(int)}.
      * @return Buffer size in bytes.
      */
-    public abstract int getBufferSize();
+    public abstract int getBufferSize() throws CarNotConnectedException;
 
     /**
      * Start audio recording.
@@ -45,13 +45,13 @@ public abstract class CarAudioRecord {
     public abstract void release();
 
     /** See {@link AudioRecord#getRecordingState() }. */
-    public abstract int getRecordingState();
+    public abstract int getRecordingState() throws CarNotConnectedException;
 
     /** See {@link AudioRecord#getState() }. */
-    public abstract int getState();
+    public abstract int getState() throws CarNotConnectedException;
 
     /** See {@link AudioRecord#getAudioSessionId() }. */
-    public abstract int getAudioSessionId();
+    public abstract int getAudioSessionId() throws CarNotConnectedException;
 
     /**
      * Read recorded audio. Be sure to start audio recording with {@link #startRecording()}

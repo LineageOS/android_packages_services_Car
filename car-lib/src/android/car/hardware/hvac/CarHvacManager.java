@@ -225,8 +225,7 @@ public final class CarHvacManager implements CarManagerBase {
         mCallbacks.add(callback);
     }
 
-    public synchronized void unregisterCallback(CarHvacEventCallback callback) throws
-            CarNotConnectedException {
+    public synchronized void unregisterCallback(CarHvacEventCallback callback) {
         mCallbacks.remove(callback);
         if (mCallbacks.isEmpty()) {
             mMgr.unregisterCallback();

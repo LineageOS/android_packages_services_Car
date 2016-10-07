@@ -127,12 +127,12 @@ public final class CarAudioManager implements CarManagerBase {
      * @param carUsage
      * @return
      */
-    public AudioAttributes getAudioAttributesForCarUsage(@CarAudioUsage int carUsage) {
+    public AudioAttributes getAudioAttributesForCarUsage(@CarAudioUsage int carUsage)
+            throws CarNotConnectedException {
         try {
             return mService.getAudioAttributesForCarUsage(carUsage);
         } catch (RemoteException e) {
-            return createAudioAttributes(AudioAttributes.CONTENT_TYPE_UNKNOWN,
-                    AudioAttributes.USAGE_UNKNOWN);
+            throw new CarNotConnectedException();
         }
     }
 
@@ -148,12 +148,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @hide
      */
     public AudioAttributes getAudioAttributesForRadio(String radioType)
-            throws IllegalArgumentException {
+            throws CarNotConnectedException, IllegalArgumentException {
         try {
             return mService.getAudioAttributesForRadio(radioType);
         } catch (RemoteException e) {
-            return createAudioAttributes(AudioAttributes.CONTENT_TYPE_UNKNOWN,
-                    AudioAttributes.USAGE_UNKNOWN);
+            throw new CarNotConnectedException();
         }
     }
 
@@ -168,12 +167,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @hide
      */
     public AudioAttributes getAudioAttributesForExternalSource(String externalSourceType)
-            throws IllegalArgumentException {
+            throws CarNotConnectedException, IllegalArgumentException {
         try {
             return mService.getAudioAttributesForExternalSource(externalSourceType);
         } catch (RemoteException e) {
-            return createAudioAttributes(AudioAttributes.CONTENT_TYPE_UNKNOWN,
-                    AudioAttributes.USAGE_UNKNOWN);
+            throw new CarNotConnectedException();
         }
     }
 
@@ -184,11 +182,11 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * @hide
      */
-    public String[] getSupportedExternalSourceTypes() {
+    public String[] getSupportedExternalSourceTypes() throws CarNotConnectedException {
         try {
             return mService.getSupportedExternalSourceTypes();
         } catch (RemoteException e) {
-            return null;
+            throw new CarNotConnectedException();
         }
     }
 
@@ -199,11 +197,11 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * @hide
      */
-    public String[] getSupportedRadioTypes() {
+    public String[] getSupportedRadioTypes() throws CarNotConnectedException {
         try {
             return mService.getSupportedRadioTypes();
         } catch (RemoteException e) {
-            return null;
+            throw new CarNotConnectedException();
         }
     }
 
@@ -218,7 +216,8 @@ public final class CarAudioManager implements CarManagerBase {
     public int requestAudioFocus(OnAudioFocusChangeListener l,
                                  AudioAttributes requestAttributes,
                                  int durationHint,
-                                 int flags) throws IllegalArgumentException {
+                                 int flags)
+                                         throws CarNotConnectedException, IllegalArgumentException {
         return mAudioManager.requestAudioFocus(l, requestAttributes, durationHint, flags);
     }
 
@@ -226,10 +225,9 @@ public final class CarAudioManager implements CarManagerBase {
      * Abandon audio focus. Causes the previous focus owner, if any, to receive focus.
      * @param l
      * @param aa
-     * @return {@link #AUDIOFOCUS_REQUEST_FAILED} or {@link #AUDIOFOCUS_REQUEST_GRANTED}
      */
-    public int abandonAudioFocus(OnAudioFocusChangeListener l, AudioAttributes aa) {
-        return mAudioManager.abandonAudioFocus(l, aa);
+    public void abandonAudioFocus(OnAudioFocusChangeListener l, AudioAttributes aa) {
+        mAudioManager.abandonAudioFocus(l, aa);
     }
 
     /**
