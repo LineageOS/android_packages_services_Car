@@ -30,6 +30,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
@@ -37,10 +38,10 @@ import android.util.SparseArray;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -62,10 +63,11 @@ public class SystemActivityMonitoringService implements CarServiceBase {
             this.stackInfo = stackInfo;
         }
 
-        public boolean isMatching(ComponentName topActivity, int taskId, StackInfo stackInfo) {
-            return this.topActivity.equals(topActivity) && this.taskId == taskId &&
-                    this.stackInfo.stackId == stackInfo.stackId &&
-                    this.stackInfo.userId == stackInfo.userId;
+        public boolean isMatching(TopTaskInfoContainer taskInfo) {
+            return taskInfo != null
+                    && Objects.equals(this.topActivity, taskInfo.topActivity)
+                    && this.taskId == taskInfo.taskId
+                    && this.stackInfo.userId == taskInfo.stackInfo.userId;
         }
 
         @Override
@@ -99,7 +101,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     /** K: stack id, V: top task */
     private final SparseArray<TopTaskInfoContainer> mTopTasks = new SparseArray<>();
     /** K: uid, V : list of pid */
-    private final Map<Integer, Set<Integer>> mForegroundUidPids = new HashMap<>();
+    private final Map<Integer, Set<Integer>> mForegroundUidPids = new ArrayMap<>();
     private int mFocusedStackId = -1;
 
     /**
@@ -222,22 +224,18 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                     mTopTasks.remove(stackId);
                     continue;
                 }
-                // Assume last activity as top activity. StackInfo.topAcvitiy does not represent
-                // visible Activity correctly. Things will break if this assumption does not work.
-                int topActivityTaskId = info.taskIds[info.taskIds.length -1];
-                String topActivityName = info.taskNames[info.taskNames.length -1];
-                ComponentName topActivity = ComponentName.unflattenFromString(topActivityName);
+                TopTaskInfoContainer newTopTaskInfo = new TopTaskInfoContainer(
+                        info.topActivity, info.taskIds[info.taskIds.length - 1], info);
                 TopTaskInfoContainer currentTopTaskInfo = mTopTasks.get(stackId);
+
                 // if a new task is added to stack or focused stack changes, should notify
                 if (currentTopTaskInfo == null ||
-                        !currentTopTaskInfo.isMatching(topActivity, topActivityTaskId, info) ||
+                        !currentTopTaskInfo.isMatching(newTopTaskInfo) ||
                         (focusedStackId == stackId && focusedStackId != mFocusedStackId)) {
-                    currentTopTaskInfo = new TopTaskInfoContainer(topActivity,
-                            topActivityTaskId, info);
-                    mTopTasks.put(stackId, currentTopTaskInfo);
-                    mTasksToDispatch.add(currentTopTaskInfo);
+                    mTopTasks.put(stackId, newTopTaskInfo);
+                    mTasksToDispatch.add(newTopTaskInfo);
                     if (DBG) {
-                        Log.i(CarLog.TAG_AM, "top activity:" + topActivityName + " stack:" + info);
+                        Log.i(CarLog.TAG_AM, "New top task: " + newTopTaskInfo);
                     }
                 }
             }
