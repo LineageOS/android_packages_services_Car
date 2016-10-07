@@ -25,27 +25,23 @@ import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 public class VehicleSeatTest extends AndroidTestCase {
 
     public void testMatchWithVehicleHal() {
-        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_DRIVER_LHD,
-                VehicleSeat.SEAT_DRIVER_LHD);
-        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_DRIVER_RHD,
-                VehicleSeat.SEAT_DRIVER_RHD);
-        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_1_PASSENGER_LEFT,
-                VehicleSeat.SEAT_ROW_1_PASSENGER_LEFT);
-        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_1_PASSENGER_CENTER,
-                VehicleSeat.SEAT_ROW_1_PASSENGER_CENTER);
-        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_1_PASSENGER_RIGHT,
-                VehicleSeat.SEAT_ROW_1_PASSENGER_RIGHT);
-        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_2_PASSENGER_LEFT,
-                VehicleSeat.SEAT_ROW_2_PASSENGER_LEFT);
-        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_2_PASSENGER_CENTER,
-                VehicleSeat.SEAT_ROW_2_PASSENGER_CENTER);
-        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_2_PASSENGER_RIGHT,
-                VehicleSeat.SEAT_ROW_2_PASSENGER_RIGHT);
-        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_3_PASSENGER_LEFT,
-                VehicleSeat.SEAT_ROW_3_PASSENGER_LEFT);
-        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_3_PASSENGER_CENTER,
-                VehicleSeat.SEAT_ROW_3_PASSENGER_CENTER);
-        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_3_PASSENGER_RIGHT,
-                VehicleSeat.SEAT_ROW_3_PASSENGER_RIGHT);
+        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_1_LEFT,
+                VehicleSeat.SEAT_ROW_1_LEFT);
+        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_1_CENTER,
+                VehicleSeat.SEAT_ROW_1_CENTER);
+        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_1_RIGHT,
+                VehicleSeat.SEAT_ROW_1_RIGHT);
+        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_2_LEFT,
+                VehicleSeat.SEAT_ROW_2_LEFT);
+        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_2_CENTER,
+                VehicleSeat.SEAT_ROW_2_CENTER);
+        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_2_RIGHT,
+                VehicleSeat.SEAT_ROW_2_RIGHT);
+        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_3_LEFT,
+                VehicleSeat.SEAT_ROW_3_LEFT);
+        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_3_CENTER,
+                VehicleSeat.SEAT_ROW_3_CENTER);
+        assertEquals(VehicleNetworkConsts.VehicleSeat.VEHICLE_SEAT_ROW_3_RIGHT,
+                VehicleSeat.SEAT_ROW_3_RIGHT);
     }
 }

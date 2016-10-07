@@ -114,17 +114,15 @@ package android.car {
   }
 
   public final class VehicleSeat {
-    field public static final int SEAT_DRIVER_LHD = 1; // 0x1
-    field public static final int SEAT_DRIVER_RHD = 2; // 0x2
-    field public static final int SEAT_ROW_1_PASSENGER_CENTER = 32; // 0x20
-    field public static final int SEAT_ROW_1_PASSENGER_LEFT = 16; // 0x10
-    field public static final int SEAT_ROW_1_PASSENGER_RIGHT = 64; // 0x40
-    field public static final int SEAT_ROW_2_PASSENGER_CENTER = 512; // 0x200
-    field public static final int SEAT_ROW_2_PASSENGER_LEFT = 256; // 0x100
-    field public static final int SEAT_ROW_2_PASSENGER_RIGHT = 1024; // 0x400
-    field public static final int SEAT_ROW_3_PASSENGER_CENTER = 8192; // 0x2000
-    field public static final int SEAT_ROW_3_PASSENGER_LEFT = 4096; // 0x1000
-    field public static final int SEAT_ROW_3_PASSENGER_RIGHT = 16384; // 0x4000
+    field public static final int SEAT_ROW_1_CENTER = 2; // 0x2
+    field public static final int SEAT_ROW_1_LEFT = 1; // 0x1
+    field public static final int SEAT_ROW_1_RIGHT = 4; // 0x4
+    field public static final int SEAT_ROW_2_CENTER = 32; // 0x20
+    field public static final int SEAT_ROW_2_LEFT = 16; // 0x10
+    field public static final int SEAT_ROW_2_RIGHT = 64; // 0x40
+    field public static final int SEAT_ROW_3_CENTER = 512; // 0x200
+    field public static final int SEAT_ROW_3_LEFT = 256; // 0x100
+    field public static final int SEAT_ROW_3_RIGHT = 1024; // 0x400
   }
 
   public final class VehicleWindow {
