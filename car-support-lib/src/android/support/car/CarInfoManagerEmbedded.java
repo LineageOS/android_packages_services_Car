@@ -16,6 +16,8 @@
 
 package android.support.car;
 
+import android.support.car.CarNotConnectedException;
+import android.support.car.CarInfoManager.DriverSide;
 import android.os.Bundle;
 
 /** @hide */
@@ -23,61 +25,70 @@ public class CarInfoManagerEmbedded extends CarInfoManager {
 
     private final android.car.CarInfoManager mManager;
 
-
     /** @hide */
     CarInfoManagerEmbedded(Object manager) {
         mManager = (android.car.CarInfoManager) manager;
     }
 
     @Override
-    public float getFloat(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public String getManufacturer() throws CarNotConnectedException {
         try {
-            return mManager.getFloat(key);
+            return mManager.getManufacturer();
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }
     }
 
     @Override
-    public int getInt(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public String getModel() throws CarNotConnectedException {
         try {
-            return mManager.getInt(key);
+            return mManager.getModel();
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }
     }
 
     @Override
-    public long getLong(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public String getModelYear() throws CarNotConnectedException {
         try {
-            return mManager.getLong(key);
+            return mManager.getModelYear();
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }
     }
 
     @Override
-    public String getString(String key) throws CarNotConnectedException, IllegalArgumentException {
+    public String getVehicleId() throws CarNotConnectedException {
         try {
-            return mManager.getString(key);
+            return mManager.getVehicleId();
         } catch (android.car.CarNotConnectedException e) {
             throw new CarNotConnectedException(e);
         }
     }
 
-    /**
-     * get Bundle for the given key. This is intended for passing vendor specific data for key
-     * defined only for the car vendor. Vendor extension can be used for other APIs like
-     * getInt / getString, but this is for passing more complex data.
-     * @hide
-     */
     @Override
-    public Bundle getBundle(String key) throws CarNotConnectedException, IllegalArgumentException {
-        try {
-            return mManager.getBundle(key);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
+    public String getHeadunitManufacturer() throws CarNotConnectedException {
+        return null;
+    }
+
+    @Override
+    public String getHeadunitModel() throws CarNotConnectedException {
+        return null; // N/A
+    }
+
+    @Override
+    public String getHeadunitSoftwareBuild() throws CarNotConnectedException {
+        return null; // N/A
+    }
+
+    @Override
+    public String getHeadunitSoftwareVersion() throws CarNotConnectedException {
+        return null; // N/A
+    }
+
+    @Override
+    public int getDriverPosition() throws CarNotConnectedException {
+        return CarInfoManager.DRIVER_SIDE_UNKNOWN; // N/A
     }
 
     /** @hide */

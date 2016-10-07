@@ -30,9 +30,9 @@ import android.util.Log;
  * @hide
  */
 @SystemApi
-public class CarCameraManager implements CarManagerBase {
-    public final static boolean DBG = true;
-    public final static String TAG = CarCameraManager.class.getSimpleName();
+public final class CarCameraManager implements CarManagerBase {
+    private final static boolean DBG = false;
+    private final static String TAG = CarCameraManager.class.getSimpleName();
 
     // Camera capabilities flags
     public static final int ANDROID_OVERLAY_SUPPORT_FLAG    = 0x1;
@@ -75,7 +75,7 @@ public class CarCameraManager implements CarManagerBase {
      *
      * @param cameraType Camera type to query capabilites
      * @return Bitmask of camera capabilities available for this device
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public int getCameraCapabilities(int cameraType) throws CarNotConnectedException {
         int capabilities;

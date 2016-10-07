@@ -21,6 +21,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import com.android.car.vehiclenetwork.VehicleNetwork;
+import com.android.car.vehiclenetwork.VehicleNetwork.SubscribeFlags;
 import com.android.car.vehiclenetwork.VehicleNetwork.VehicleNetworkHalMock;
 import com.android.car.vehiclenetwork.VehicleNetwork.VehicleNetworkListener;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
@@ -343,6 +344,48 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
         mVehicleNetwork.unsubscribe(PROPERTY);
     }
 
+    public void testSubscribe_OnPropertySet() throws Exception {
+        final int PROPERTY = CUSTOM_PROPERTY_ZONED_INT32_VEC3;
+        final int ZONE = VehicleZone.VEHICLE_ZONE_ROW_1_LEFT;
+        final int[] VALUES = new int[] {10, 20, 30};
+        mVehicleNetwork.startMocking(mVehicleHalMock);
+        mVehicleNetwork.subscribe(PROPERTY, 0, ZONE, SubscribeFlags.SET_CALL);
+
+        mVehicleNetwork.setZonedIntVectorProperty(PROPERTY, ZONE, VALUES);
+
+        VehiclePropValue expectedValue = VehiclePropValueUtil.createZonedIntVectorValue(
+                PROPERTY, ZONE, VALUES, 0);
+
+        assertTrue(mListener.waitForOnPropertySet(TIMEOUT_MS, expectedValue));
+
+        mVehicleNetwork.injectEvent(expectedValue);
+        // Not subscribed to HAL events. No notifications expected here.
+        assertFalse(mListener.waitForEvent(TIMEOUT_MS, expectedValue));
+
+        mVehicleNetwork.unsubscribe(PROPERTY);
+    }
+
+    public void testSubscribe_HalEventAndOnPropertySet() throws Exception {
+        final int PROPERTY = CUSTOM_PROPERTY_ZONED_INT32_VEC3;
+        final int ZONE = VehicleZone.VEHICLE_ZONE_ROW_1_LEFT;
+        final int[] VALUES = new int[] {10, 20, 30};
+        mVehicleNetwork.startMocking(mVehicleHalMock);
+        mVehicleNetwork.subscribe(PROPERTY, 0, ZONE,
+                SubscribeFlags.SET_CALL | SubscribeFlags.HAL_EVENT);
+
+        mVehicleNetwork.setZonedIntVectorProperty(PROPERTY, ZONE, VALUES);
+
+        VehiclePropValue expectedValue = VehiclePropValueUtil.createZonedIntVectorValue(
+                PROPERTY, ZONE, VALUES, 0);
+
+        assertTrue(mListener.waitForOnPropertySet(TIMEOUT_MS, expectedValue));
+
+        mVehicleNetwork.injectEvent(expectedValue);
+        assertTrue(mListener.waitForEvent(TIMEOUT_MS, expectedValue));
+
+        mVehicleNetwork.unsubscribe(PROPERTY);
+    }
+
     public void testGetPropertyFailsForCustom() {
         try {
             mVehicleNetwork.getProperty(CUSTOM_PROPERTY_INT32);
@@ -366,10 +409,12 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
         int mErrorProperty;
         int mErrorOperation;
         VehiclePropValues mValuesReceived;
+        VehiclePropValue mPropertySetValue;
 
         private final Semaphore mRestartWait = new Semaphore(0);
         private final Semaphore mErrorWait = new Semaphore(0);
         private final Semaphore mEventWait = new Semaphore(0);
+        private final Semaphore mOnPropertySetWait = new Semaphore(0);
 
         @Override
         public void onVehicleNetworkEvents(VehiclePropValues values) {
@@ -403,6 +448,12 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
             mRestartWait.release();
         }
 
+        @Override
+        public void onPropertySet(VehiclePropValue value) {
+            mPropertySetValue = value;
+            mOnPropertySetWait.release();
+        }
+
         public boolean waitForHalRestartAndAssert(long timeoutMs, boolean expectedInMocking)
                 throws Exception {
             if (!mRestartWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
@@ -421,6 +472,17 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
             assertEquals(1, mValuesReceived.getValuesCount());
             assertEquals(VehiclePropValueUtil.toString(expected),
                     VehiclePropValueUtil.toString(mValuesReceived.getValues(0)));
+            return true;
+        }
+
+        public boolean waitForOnPropertySet(long timeoutMs, VehiclePropValue expected)
+                throws InterruptedException {
+            if (!mOnPropertySetWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
+                Log.w(TAG, "Timed out waiting for onPropertySet.");
+                return false;
+            }
+            assertEquals(VehiclePropValueUtil.toString(expected),
+                    VehiclePropValueUtil.toString(mPropertySetValue));
             return true;
         }
     }

@@ -221,6 +221,9 @@ public class VehicleNetworkTest extends AndroidTestCase {
             // TODO Auto-generated method stub
         }
 
+        @Override
+        public void onPropertySet(VehiclePropValue value) { }
+
         private synchronized boolean waitForEvent(Integer prop, long timeoutMs)
                 throws InterruptedException {
             long now = SystemClock.elapsedRealtime();

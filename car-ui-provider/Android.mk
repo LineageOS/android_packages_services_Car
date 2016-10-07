@@ -29,8 +29,6 @@ LOCAL_PACKAGE_NAME := CarUiProvider
 LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_DEX_PREOPT := nostripping
 
-LOCAL_SDK_VERSION := current
-
 include packages/services/Car/car-support-lib/car-support.mk
 
 include $(BUILD_PACKAGE)

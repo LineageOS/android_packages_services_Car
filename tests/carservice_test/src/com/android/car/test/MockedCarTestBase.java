@@ -21,8 +21,6 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.car.Car;
-import android.support.car.ServiceConnectionCallback;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
@@ -39,36 +37,12 @@ public class MockedCarTestBase extends AndroidTestCase {
     private static final String TAG = MockedCarTestBase.class.getSimpleName();
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
 
-    private Car mSupportCar;
     private android.car.Car mCar;
     private VehicleHalEmulator mVehicleHalEmulator;
 
-    private final Semaphore mConnectionWaitForSupportCar = new Semaphore(0);
     private final Semaphore mConnectionWaitForCar = new Semaphore(0);
     private final Semaphore mWaitForMain = new Semaphore(0);
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
-
-    private final ServiceConnectionCallback mConnectionCallbacks =
-            new ServiceConnectionCallback() {
-
-        @Override
-        public void onServiceSuspended(int cause) {
-        }
-
-        @Override
-        public void onServiceDisconnected() {
-        }
-
-        @Override
-        public void onServiceConnectionFailed(int cause) {
-        }
-
-        @Override
-        public void onServiceConnected() {
-            Log.i(TAG, "onServiceConnected, service is connected");
-            mConnectionWaitForSupportCar.release();
-        }
-    };
 
     public static <T> void assertArrayEquals(T[] expected, T[] actual) {
         if (!Arrays.equals(expected, actual)) {
@@ -87,8 +61,6 @@ public class MockedCarTestBase extends AndroidTestCase {
     @Override
     protected synchronized void setUp() throws Exception {
         super.setUp();
-        mSupportCar = Car.createCar(getContext(), mConnectionCallbacks);
-        mSupportCar.connect();
         mCar = android.car.Car.createCar(getContext(), new ServiceConnection() {
 
             @Override
@@ -101,7 +73,6 @@ public class MockedCarTestBase extends AndroidTestCase {
             }
         });
         mCar.connect();
-        assertTrue(waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
         assertTrue(mConnectionWaitForCar.tryAcquire(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS)
                 );
         mVehicleHalEmulator = new VehicleHalEmulator(mCar);
@@ -113,12 +84,7 @@ public class MockedCarTestBase extends AndroidTestCase {
         if (mVehicleHalEmulator.isStarted()) {
             mVehicleHalEmulator.stop();
         }
-        mSupportCar.disconnect();
         mCar.disconnect();
-    }
-
-    protected synchronized Car getSupportCar() {
-        return mSupportCar;
     }
 
     protected synchronized android.car.Car getCar() {
@@ -142,9 +108,5 @@ public class MockedCarTestBase extends AndroidTestCase {
 
     protected synchronized VehicleHalEmulator getVehicleHalEmulator() {
         return mVehicleHalEmulator;
-    }
-
-    private boolean waitForConnection(long timeoutMs) throws InterruptedException {
-        return mConnectionWaitForSupportCar.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
     }
 }

@@ -158,7 +158,7 @@ public class CarPropertyManagerBase {
         try {
             return mService.getPropertyList();
         } catch (RemoteException e) {
-            Log.w(mTag, "Exception in getPropertyList", e);
+            Log.e(mTag, "Exception in getPropertyList", e);
             throw new CarNotConnectedException(e);
         }
     }

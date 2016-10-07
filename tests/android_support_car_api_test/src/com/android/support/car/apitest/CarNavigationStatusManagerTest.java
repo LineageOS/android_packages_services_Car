@@ -19,11 +19,10 @@ import static android.support.car.CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION;
 
 import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
-import android.support.car.CarAppFocusManager.AppFocusChangeListener;
-import android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener;
+import android.support.car.CarAppFocusManager.OnAppFocusChangedListener;
+import android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
 import android.support.car.navigation.CarNavigationInstrumentCluster;
 import android.support.car.navigation.CarNavigationStatusManager;
-import android.support.car.navigation.CarNavigationStatusManager.CarNavigationListener;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -50,18 +49,19 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
     public void testStart() throws Exception {
         final CountDownLatch onStartLatch = new CountDownLatch(1);
 
-        mCarNavigationStatusManager.addListener(new CarNavigationListener() {
+        mCarNavigationStatusManager.addListener(new CarNavigationStatusManager.CarNavigationCallback() {
             @Override
-            public void onInstrumentClusterStart(CarNavigationInstrumentCluster instrumentCluster) {
+            public void onInstrumentClusterStarted(CarNavigationStatusManager manager,
+                    CarNavigationInstrumentCluster instrumentCluster) {
                 // TODO: we should use VehicleHalMock once we implement HAL support in
                 // CarNavigationStatusService.
                 assertFalse(instrumentCluster.supportsCustomImages());
-                assertEquals(1000, instrumentCluster.getMinIntervalMs());
+                assertEquals(1000, instrumentCluster.getMinIntervalMillis());
                 onStartLatch.countDown();
             }
 
             @Override
-            public void onInstrumentClusterStop() {
+            public void onInstrumentClusterStopped(CarNavigationStatusManager manager) {
               // TODO
             }
         });
@@ -76,20 +76,27 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
         }
 
         mCarAppFocusManager
-                .addFocusListener(APP_FOCUS_TYPE_NAVIGATION, new AppFocusChangeListener() {
+                .addFocusListener(new OnAppFocusChangedListener() {
                     @Override
-                    public void onAppFocusChange(int appType, boolean active) {
+                    public void onAppFocusChanged(CarAppFocusManager manager, int appType,
+                            boolean active) {
                         // Nothing to do here.
                     }
-                });
-        AppFocusOwnershipChangeListener ownershipListener = new AppFocusOwnershipChangeListener() {
+                }, APP_FOCUS_TYPE_NAVIGATION);
+        CarAppFocusManager.OnAppFocusOwnershipCallback
+                ownershipCallback = new OnAppFocusOwnershipCallback() {
             @Override
-            public void onAppFocusOwnershipLoss(int focus) {
+            public void onAppFocusOwnershipLost(CarAppFocusManager manager, int focusType) {
+                // Nothing to do here.
+            }
+
+            @Override
+            public void onAppFocusOwnershipGranted(CarAppFocusManager manager, int focusType) {
                 // Nothing to do here.
             }
         };
-        mCarAppFocusManager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, ownershipListener);
-        assertTrue(mCarAppFocusManager.isOwningFocus(APP_FOCUS_TYPE_NAVIGATION, ownershipListener));
+        mCarAppFocusManager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, ownershipCallback);
+        assertTrue(mCarAppFocusManager.isOwningFocus(APP_FOCUS_TYPE_NAVIGATION, ownershipCallback));
 
         // TODO: we should use mocked HAL to be able to verify this, right now just make sure that
         // it is not crashing and logcat has appropriate traces.

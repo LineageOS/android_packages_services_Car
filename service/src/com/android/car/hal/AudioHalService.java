@@ -171,7 +171,7 @@ public class AudioHalService extends HalServiceBase {
         void onVolumeLimitChange(int streamNumber, int volume);
     }
 
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     private final VehicleHal mVehicleHal;
     private AudioHalFocusListener mFocusListener;

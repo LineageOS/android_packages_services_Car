@@ -31,7 +31,7 @@ import android.util.Pair;
 import android.view.KeyEvent;
 
 import com.android.car.AppFocusService;
-import com.android.car.AppFocusService.FocusOwnershipListener;
+import com.android.car.AppFocusService.FocusOwnershipCallback;
 import com.android.car.CarInputService;
 import com.android.car.CarInputService.KeyEventListener;
 import com.android.car.CarLog;
@@ -48,10 +48,10 @@ import java.io.PrintWriter;
  */
 @SystemApi
 public class InstrumentClusterService implements CarServiceBase,
-        FocusOwnershipListener, KeyEventListener {
+        FocusOwnershipCallback, KeyEventListener {
 
     private static final String TAG = CarLog.TAG_CLUSTER;
-    private static final Boolean DBG = true;
+    private static final Boolean DBG = false;
 
     private final Context mContext;
     private final AppFocusService mAppFocusService;
@@ -105,7 +105,7 @@ public class InstrumentClusterService implements CarServiceBase,
             Log.d(TAG, "init");
         }
 
-        mAppFocusService.registerContextOwnerChangedListener(this /* FocusOwnershipListener */);
+        mAppFocusService.registerContextOwnerChangedCallback(this /* FocusOwnershipCallback */);
         mCarInputService.setInstrumentClusterKeyListener(this /* KeyEventListener */);
         mRendererBound = bindInstrumentClusterRendererService();
     }
@@ -116,7 +116,7 @@ public class InstrumentClusterService implements CarServiceBase,
             Log.d(TAG, "release");
         }
 
-        mAppFocusService.unregisterContextOwnerChangedListener(this);
+        mAppFocusService.unregisterContextOwnerChangedCallback(this);
         if (mRendererBound) {
             mContext.unbindService(mRendererServiceConnection);
             mRendererBound = false;

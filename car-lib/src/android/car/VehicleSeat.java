@@ -25,7 +25,7 @@ import android.car.hardware.CarPropertyValue;
  * @hide
  */
 @SystemApi
-public class VehicleSeat {
+public final class VehicleSeat {
     public static final int SEAT_DRIVER_LHD = 0x0001;
     public static final int SEAT_DRIVER_RHD = 0x0002;
     public static final int SEAT_ROW_1_PASSENGER_LEFT = 0x0010;
@@ -37,4 +37,6 @@ public class VehicleSeat {
     public static final int SEAT_ROW_3_PASSENGER_LEFT = 0x1000;
     public static final int SEAT_ROW_3_PASSENGER_CENTER = 0x2000;
     public static final int SEAT_ROW_3_PASSENGER_RIGHT = 0x4000;
+
+    private VehicleSeat() {}
 }

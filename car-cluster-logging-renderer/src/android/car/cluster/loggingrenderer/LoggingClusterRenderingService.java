@@ -52,11 +52,11 @@ public class LoggingClusterRenderingService extends InstrumentClusterRenderingSe
             }
 
             @Override
-            public void onNextTurnChanged(int event, String road, int turnAngle, int turnNumber,
-                    Bitmap image, int turnSide) {
-                Log.i(TAG, "event: " + event + ", road: " + road + ", turnAngle: " + turnAngle
-                        + ", turnNumber: " + turnNumber + ", image: " + image + ", turnSide: "
-                        + turnSide);
+            public void onNextTurnChanged(int event, CharSequence eventName, int turnAngle,
+                    int turnNumber, Bitmap image, int turnSide) {
+                Log.i(TAG, "event: " + event + ", eventName: " + eventName +
+                        ", turnAngle: " + turnAngle + ", turnNumber: " + turnNumber +
+                        ", image: " + image + ", turnSide: " + turnSide);
             }
 
             @Override

@@ -17,108 +17,92 @@
 package android.support.car;
 
 import android.os.Bundle;
+import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
+import android.support.car.CarNotConnectedException;
 import android.support.car.annotation.ValueTypeDef;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
- * Utility to retrieve various static information from a car. For given string keys, there can be
- * different types of values and right query API like {@link #getFloat(String)} for float
- * type, and {@link #getInt(String)} for int type, should be used. Passing a key string to wrong
- * API will lead into {@link IllegalArgumentException}. All get* apis return null if requested
- * property is not supported by the car. So caller should always check for null result.
+ * Utility to retrieve various static information from car.
  */
 public abstract class CarInfoManager implements CarManagerBase {
 
-    /**
-     * Manufacturer of the car.
-     */
-    @ValueTypeDef(type = String.class)
-    public static final String KEY_MANUFACTURER = "android.car.manufacturer";
-    /**
-     * Model name of the car. This information may not necessarily allow distinguishing different
-     * car models as the same name may be used for different cars depending on manufacturers.
-     */
-    @ValueTypeDef(type = String.class)
-    public static final String KEY_MODEL = "android.car.model";
-    /**
-     * Model year of the car.
-     */
-    @ValueTypeDef(type = Integer.class)
-    public static final String KEY_MODEL_YEAR = "android.car.model-year";
-    /**
-     * Unique identifier for the car. This is not VIN, and id is persistent until user resets it.
-     */
-    @ValueTypeDef(type = String.class)
-    public static final String KEY_VEHICLE_ID = "android.car.vehicle-id";
+    /** Location of the driver is unknown. */
+    public static final int DRIVER_SIDE_UNKNOWN = 0;
+    /** Location of the driver: left. */
+    public static final int DRIVER_SIDE_LEFT   = 1;
+    /** Location of the driver: right. */
+    public static final int DRIVER_SIDE_RIGHT  = 2;
+    /** Location of the driver: center. */
+    public static final int DRIVER_SIDE_CENTER = 3;
 
-    /** Manufacturer of the head unit.*/
-    @ValueTypeDef(type = String.class)
-    public static final String KEY_HEAD_UNIT_MAKE = "android.car.headUnitMake";
-    /** Model of the head unit.*/
-    @ValueTypeDef(type = String.class)
-    public static final String KEY_HEAD_UNIT_MODEL = "android.car.headUnitModel";
-    /** Head Unit software build */
-    @ValueTypeDef(type = String.class)
-    public static final String KEY_HEAD_UNIT_SOFTWARE_BUILD = "android.car.headUnitSoftwareBuild";
-    /** Head Unit software version */
-    @ValueTypeDef(type = String.class)
-    public static final String KEY_HEAD_UNIT_SOFTWARE_VERSION = "android.car.headUnitSoftwareVersion";
-    /** Where is the driver's seat.  One of the DRIVER_SIDE_* constants */
-    @ValueTypeDef(type = Integer.class)
-    public static final String KEY_DRIVER_POSITION = "android.car.driverPosition";
-
-    /** Location of the driver: left */
-    public static final int DRIVER_SIDE_LEFT   = 0;
-    /** Location of the driver: right */
-    public static final int DRIVER_SIDE_RIGHT  = 1;
-    /** Location of the driver: center */
-    public static final int DRIVER_SIDE_CENTER = 2;
+    /** @hide */
+    @IntDef({
+        DRIVER_SIDE_UNKNOWN,
+        DRIVER_SIDE_LEFT,
+        DRIVER_SIDE_RIGHT,
+        DRIVER_SIDE_CENTER
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface DriverSide {}
 
     /**
-     * Returns the value for the given key.
-     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
-     * extensions.
-     * @return The value or {@link Float#NaN} if the key is not supported or populated.
+     * Return manufacturer of the car.
+     * @return null if information is not available.
      */
-    public abstract float getFloat(String key)
-            throws CarNotConnectedException, IllegalArgumentException;
+    public abstract @Nullable String getManufacturer() throws CarNotConnectedException;
 
     /**
-     * Returns the value for the given key.
-     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
-     * extensions.
-     * @return The value or {@link Integer#MIN_VALUE} if the key is not supported or populated.
+     * Return model name of the car. This information may not necessarily allow distinguishing
+     * different car models as the same name may be used for different cars depending on
+     * manufacturers.
+     * @return null if information is not available.
      */
-    public abstract int getInt(String key)
-            throws CarNotConnectedException, IllegalArgumentException;
+    public abstract @Nullable String getModel() throws CarNotConnectedException;
 
     /**
-     * Returns the value for the given key.
-     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
-     * extensions.
-     * @return The value or {@link Long#MIN_VALUE} if the key is not supported or populated.
+     * Return model year of the car in AC.
+     * @return null if information is not available.
      */
-    public abstract long getLong(String key)
-            throws CarNotConnectedException, IllegalArgumentException;
+    public abstract @Nullable String getModelYear() throws CarNotConnectedException;
 
     /**
-     * Returns the value for the given key.
-     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
-     * extensions.
-     * @return The value or {@code null} if the key is not supported or populated.
+     * Return unique identifier for the car. This is not VIN, and id is persistent until user
+     * resets it.
+     * @return null if information is not available.
      */
-    public abstract String getString(String key)
-            throws CarNotConnectedException, IllegalArgumentException;
+    public abstract @Nullable String getVehicleId() throws CarNotConnectedException;
 
     /**
-     * Retrieves a {@link Bundle} for the given key. This is intended for passing vendor specific
-     * data specified by car manufacturers. Vendor extension can use other APIs like
-     * {@link #getString(String)}, but this is for passing more complex data.
-     * @param key One of the KEY_* constants defined in this api or provided by manufacturer
-     * extensions.
-     * @return The specified {@link Bundle} or {@code null} if the key is not supported or
-     * populated.
-     * @hide
+     * Return manufacturer of the head unit.
+     * @return null if information is not available.
      */
-    public abstract Bundle getBundle(String key)
-            throws CarNotConnectedException, IllegalArgumentException;
+    public abstract @Nullable String getHeadunitManufacturer() throws CarNotConnectedException;
+
+    /**
+     * Return model of the headunit.
+     * @return null if information is not available.
+     */
+    public abstract @Nullable String getHeadunitModel() throws CarNotConnectedException;
+
+    /**
+     * Return S/W build of the headunit.
+     * @return null if information is not available.
+     */
+    public abstract @Nullable String getHeadunitSoftwareBuild() throws CarNotConnectedException;
+
+    /**
+     * Return S/W version of the headunit.
+     * @return null if information is not available.
+     */
+    public abstract @Nullable String getHeadunitSoftwareVersion() throws CarNotConnectedException;
+
+    /**
+     * Return driver side of the car.
+     * @return {@link #DRIVER_SIDE_UNKNOWN} if information is not available.
+     */
+    public abstract @DriverSide int getDriverPosition() throws CarNotConnectedException;
 }

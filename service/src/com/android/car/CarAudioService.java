@@ -74,8 +74,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
 
     private static final String TAG_FOCUS = CarLog.TAG_AUDIO + ".FOCUS";
 
-    private static final boolean DBG = true;
-    private static final boolean DBG_DYNAMIC_AUDIO_ROUTING = true;
+    private static final boolean DBG = false;
+    private static final boolean DBG_DYNAMIC_AUDIO_ROUTING = false;
 
     /**
      * For no focus play case, wait this much to send focus request. This ugly time is necessary

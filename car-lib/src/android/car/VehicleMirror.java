@@ -23,8 +23,10 @@ import android.annotation.SystemApi;
  * @hide
  */
 @SystemApi
-public class VehicleMirror {
+public final class VehicleMirror {
     public static final int MIRROR_DRIVER_LEFT   = 0x00000001;
     public static final int MIRROR_DRIVER_RIGHT  = 0x00000002;
     public static final int MIRROR_DRIVER_CENTER = 0x00000004;
+
+    private VehicleMirror() {}
 }

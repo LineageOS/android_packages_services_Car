@@ -64,9 +64,9 @@ import java.util.Set;
 //TODO monitor app installing and refresh policy
 
 public class CarPackageManagerService extends ICarPackageManager.Stub implements CarServiceBase {
-    static final boolean DBG_POLICY_SET = true;
+    static final boolean DBG_POLICY_SET = false;
     static final boolean DBG_POLICY_CHECK = false;
-    static final boolean DBG_POLICY_ENFORCEMENT = true;
+    static final boolean DBG_POLICY_ENFORCEMENT = false;
 
     private final Context mContext;
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
@@ -76,6 +76,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private final HandlerThread mHandlerThread;
     private final PackageHandler mHandler;
 
+    private String mDefauiltActivityWhitelist;
     /**
      * Hold policy set from policy service or client.
      * Key: packageName of policy service
@@ -87,8 +88,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private HashMap<String, AppBlockingPackageInfoWrapper> mSystemWhitelists = new HashMap<>();
     @GuardedBy("this")
     private LinkedList<AppBlockingPolicyProxy> mProxies;
-    @GuardedBy("this")
-    private boolean mReleased = true;
 
     @GuardedBy("this")
     private final LinkedList<CarAppBlockingPolicy> mWaitingPolicies = new LinkedList<>();
@@ -263,23 +262,20 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     @Override
     public void init() {
-        synchronized (this) {
-            mReleased = false;
-            mHandler.requestInit();
+        if (!mEnableActivityBlocking) {
+            return;
         }
-        if (mEnableActivityBlocking) {
-            mSensorService.registerOrUpdateSensorListener(
-                    CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, 0, mDrivingStateListener);
-            mDrivingStateListener.resetState();
-            mSystemActivityMonitoringService.registerActivityLaunchListener(
-                    mActivityLaunchListener);
+        synchronized (this) {
+            mHandler.requestInit();
         }
     }
 
     @Override
     public void release() {
+        if (!mEnableActivityBlocking) {
+            return;
+        }
         synchronized (this) {
-            mReleased = true;
             mHandler.requestRelease();
             mSystemWhitelists.clear();
             mClientPolicies.clear();
@@ -291,17 +287,21 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
             wakeupClientsWaitingForPolicySetitngLocked();
         }
-        if (mEnableActivityBlocking) {
-            mSensorService.unregisterSensorListener(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
-                    mDrivingStateListener);
-            mSystemActivityMonitoringService.registerActivityLaunchListener(null);
-        }
+        mSensorService.unregisterSensorListener(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
+                mDrivingStateListener);
+        mSystemActivityMonitoringService.registerActivityLaunchListener(null);
     }
 
     // run from HandlerThread
     private void doHandleInit() {
         startAppBlockingPolicies();
         generateSystemWhitelists();
+        mSensorService.registerOrUpdateSensorListener(
+                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, 0, mDrivingStateListener);
+        mDrivingStateListener.resetState();
+        mSystemActivityMonitoringService.registerActivityLaunchListener(
+                mActivityLaunchListener);
+        blockTopActivitiesIfNecessary();
     }
 
     private void wakeupClientsWaitingForPolicySetitngLocked() {
@@ -440,6 +440,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         packageToActivityMap.put(mActivityBlockingActivity.getPackageName(), defaultActivity);
         Resources res = mContext.getResources();
         String whitelist = res.getString(R.string.defauiltActivityWhitelist);
+        mDefauiltActivityWhitelist = whitelist;
         String[] entries = whitelist.split(",");
         for (String entry : entries) {
             String[] packageActivityPair = entry.split("/");
@@ -452,7 +453,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
             if (packageActivityPair.length == 1) { // whole package
                 activities.clear();
-            } else if (packageActivityPair.length == 2){
+            } else if (packageActivityPair.length == 2) {
                 // add class name only when the whole package is not whitelisted.
                 if (newPackage || (activities.size() > 0)) {
                     activities.add(packageActivityPair[1]);
@@ -481,7 +482,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     configActivitiesForPackage = new ArraySet<>();
                 }
                 String[] activities = null;
-                // Go through meta data if whole activities are allowed already
+                // Go through meta data if whole activities are not allowed already
                 if ((flags & AppBlockingPackageInfo.FLAG_WHOLE_ACTIVITY) == 0) {
                     CarAppMetadataInfo metadataInfo = CarAppMetadataReader.parseMetadata(mContext,
                             info.packageName);
@@ -617,6 +618,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 sb.append(proxy.toString() + "\n");
             }
         }
+        sb.append("**Default Whitelist string**\n");
+        sb.append(mDefauiltActivityWhitelist + "\n");
+
         return sb.toString();
     }
 

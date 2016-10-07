@@ -49,7 +49,7 @@ public:
     virtual status_t setProperty(const vehicle_prop_value_t& value)= 0;
     virtual status_t getProperty(vehicle_prop_value_t* value) = 0;
     virtual status_t subscribe(const sp<IVehicleNetworkListener> &listener, int32_t property,
-            float sampleRate, int32_t zones) = 0;
+            float sampleRate, int32_t zones, int32_t flags = 0) = 0;
     virtual void unsubscribe(const sp<IVehicleNetworkListener> &listener, int32_t property) = 0;
     /**
      * Inject event for given property. This should work regardless of mocking but usually
@@ -103,6 +103,16 @@ public:
         }
         return count;
     }
+};
+
+struct SubscribeFlags {
+    enum : int32_t {
+        UNDEFINED = 0x00,
+        HAL_EVENT = 0x01,
+        SET_CALL  = 0x02,
+
+        DEFAULT = HAL_EVENT,
+    };
 };
 
 // ----------------------------------------------------------------------------

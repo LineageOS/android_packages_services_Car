@@ -33,7 +33,7 @@ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_RESOURCE_DIR += frameworks/support/v7/appcompat/res
 LOCAL_RESOURCE_DIR += frameworks/support/v7/recyclerview/res
 LOCAL_RESOURCE_DIR += frameworks/support/v7/cardview/res
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 24
 
 LOCAL_MANIFEST_FILE := AndroidManifest.xml
 
@@ -42,7 +42,8 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-unde
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
                                android-support-v7-appcompat \
                                android-support-v7-recyclerview \
-                               android-support-v7-cardview
+                               android-support-v7-cardview \
+                               android-support-annotations
 
 LOCAL_JAVA_LIBRARIES += android.car
 # Specify 1.7 for backwards compatibility.  
@@ -58,7 +59,7 @@ endif
 # Build the resources.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android.support.car-res
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 24
 LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_RESOURCE_DIR += frameworks/support/v7/appcompat/res
@@ -82,14 +83,15 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := android.support.car
 
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 24
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
                                android-support-v7-appcompat \
                                android-support-v7-recyclerview \
-                               android-support-v7-cardview
+                               android-support-v7-cardview \
+                               android-support-annotations
 
 LOCAL_JAVA_LIBRARIES += android.car \
                         android.support.car-res
@@ -120,7 +122,8 @@ LOCAL_JAVA_LIBRARIES := \
     android-support-v4 \
     android-support-v7-appcompat \
     android-support-v7-recyclerview \
-    android-support-v7-cardview
+    android-support-v7-cardview \
+    android-support-annotations
 
 LOCAL_MODULE := android.support.car
 LOCAL_MODULE_TAGS := optional

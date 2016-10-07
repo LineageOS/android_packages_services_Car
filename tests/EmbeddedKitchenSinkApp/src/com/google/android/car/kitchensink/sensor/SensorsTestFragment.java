@@ -61,10 +61,10 @@ public class SensorsTestFragment extends Fragment {
         Car.PERMISSION_SPEED
     };
 
-    private final CarSensorManager.CarSensorEventListener mCarSensorListener =
-            new CarSensorManager.CarSensorEventListener() {
+    private final CarSensorManager.OnSensorChangedListener mOnSensorChangedListener =
+            new CarSensorManager.OnSensorChangedListener() {
                 @Override
-                public void onSensorChanged(CarSensorEvent event) {
+                public void onSensorChanged(CarSensorManager manager, CarSensorEvent event) {
                     if (DBG_VERBOSE) {
                         Log.v(TAG, "New car sensor event: " + event);
                     }
@@ -115,7 +115,7 @@ public class SensorsTestFragment extends Fragment {
         super.onPause();
         if (mSensorManager != null) {
             try {
-                mSensorManager.removeListener(mCarSensorListener);
+                mSensorManager.removeListener(mOnSensorChangedListener);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Car not connected", e);
             }
@@ -133,7 +133,7 @@ public class SensorsTestFragment extends Fragment {
                     && !mActivePermissions.contains(Manifest.permission.ACCESS_FINE_LOCATION)) {
                     continue;
                 }
-                mSensorManager.addListener(mCarSensorListener, sensor,
+                mSensorManager.addListener(mOnSensorChangedListener, sensor,
                         CarSensorManager.SENSOR_RATE_NORMAL);
             }
         } catch (CarNotConnectedException e) {
@@ -295,7 +295,7 @@ public class SensorsTestFragment extends Fragment {
         if (event == null) {
             return mNaString;
         }
-        return mDateFormat.format(new Date(event.timeStampNs / 1000L));
+        return mDateFormat.format(new Date(event.timestamp / 1000L));
     }
 
     private String getCompassString(CarSensorEvent event) {

@@ -16,13 +16,10 @@
 package com.google.android.car.kitchensink.cluster;
 
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
-import android.support.car.CarAppFocusManager.AppFocusChangeListener;
-import android.support.car.CarAppFocusManager.AppFocusOwnershipChangeListener;
 import android.support.car.CarNotConnectedException;
 import android.support.car.ServiceConnectionCallback;
 import android.support.car.navigation.CarNavigationStatusManager;
@@ -65,12 +62,7 @@ public class InstrumentClusterFragment extends Fragment {
                 }
 
                 @Override
-                public void onServiceSuspended(int cause) {
-                    Log.d(TAG, "Car Service connection suspended");
-                }
-
-                @Override
-                public void onServiceConnectionFailed(int cause) {
+                public void onServiceConnectionFailed() {
                     Log.d(TAG, "Car Service connection failed");
                 }
             };
@@ -119,37 +111,42 @@ public class InstrumentClusterFragment extends Fragment {
 
     private void initCluster() {
         try {
-            mCarAppFocusManager.addFocusListener(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
-                    new AppFocusChangeListener() {
-                @Override
-                public void onAppFocusChange(int appType, boolean active) {
-                    Log.d(TAG, "onAppFocusChange, appType: " + appType + " active: " + active);
-                }
-            });
+            mCarAppFocusManager.addFocusListener(new CarAppFocusManager.OnAppFocusChangedListener() {
+        @Override
+        public void onAppFocusChanged(CarAppFocusManager manager, int appType, boolean active) {
+            Log.d(TAG, "onAppFocusChanged, appType: " + appType + " active: " + active);
+        }
+    }, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to register focus listener", e);
         }
 
-        AppFocusOwnershipChangeListener focusListener = new AppFocusOwnershipChangeListener() {
+        CarAppFocusManager.OnAppFocusOwnershipCallback
+                focusCallback = new CarAppFocusManager.OnAppFocusOwnershipCallback() {
             @Override
-            public void onAppFocusOwnershipLoss(int focus) {
-                Log.w(TAG, "onAppFocusOwnershipLoss, focus: " + focus);
+            public void onAppFocusOwnershipLost(CarAppFocusManager manager, int focus) {
+                Log.w(TAG, "onAppFocusOwnershipLost, focus: " + focus);
                 new AlertDialog.Builder(getContext())
                         .setTitle(getContext().getApplicationInfo().name)
                         .setMessage(R.string.cluster_nav_app_context_loss)
                         .show();
             }
+            @Override
+            public void onAppFocusOwnershipGranted(CarAppFocusManager manager, int focus) {
+                Log.w(TAG, "onAppFocusOwnershipGranted, focus: " + focus);
+            }
+
         };
         try {
             mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
-                    focusListener);
+                    focusCallback);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to set active focus", e);
         }
 
         try {
             boolean ownsFocus = mCarAppFocusManager.isOwningFocus(
-                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, focusListener);
+                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, focusCallback);
             Log.d(TAG, "Owns APP_FOCUS_TYPE_NAVIGATION: " + ownsFocus);
             if (!ownsFocus) {
                 throw new RuntimeException("Focus was not acquired.");

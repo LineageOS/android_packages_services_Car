@@ -32,8 +32,9 @@ LOCAL_MODULE_PATH := $(TARGET_OUT_DATA_APPS)
 
 LOCAL_PROGUARD_ENABLED := disabled
 
-LOCAL_STATIC_JAVA_LIBRARIES += android.support.car
-LOCAL_STATIC_JAVA_LIBRARIES += car-service-lib-for-test car-systemtest
+LOCAL_STATIC_JAVA_LIBRARIES += car-service-lib-for-test \
+                               car-systemtest \
+                               android-support-test
 
 LOCAL_JAVA_LIBRARIES := android.car android.test.runner
 

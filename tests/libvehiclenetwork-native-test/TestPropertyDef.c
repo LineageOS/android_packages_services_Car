@@ -58,6 +58,7 @@ static vehicle_prop_config_t TEST_PROPERTIES[] = {
         .config_flags = 0x1234567, // just random
         .min_sample_rate = 0,
         .max_sample_rate = 0,
+        .vehicle_zone_flags = VEHICLE_ZONE_ROW_1_LEFT | VEHICLE_ZONE_ROW_1_RIGHT,
         .hal_data = NULL,
     },
     {

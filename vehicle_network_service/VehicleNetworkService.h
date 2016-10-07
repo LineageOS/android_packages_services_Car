@@ -17,9 +17,10 @@
 #ifndef CAR_VEHICLE_NETWORK_SERVICE_H_
 #define CAR_VEHICLE_NETWORK_SERVICE_H_
 
-#include <stdint.h>
 #include <inttypes.h>
+#include <stdint.h>
 #include <sys/types.h>
+#include <unordered_set>
 
 #include <memory>
 
@@ -96,15 +97,19 @@ class SubscriptionInfo {
 public:
     float sampleRate;
     int32_t zones;
+    int32_t flags;
     SubscriptionInfo()
         : sampleRate(0),
-          zones(0) {};
-    SubscriptionInfo(float aSampleRate, int32_t aZones)
+          zones(0),
+          flags(SubscribeFlags::DEFAULT) {};
+    SubscriptionInfo(float aSampleRate, int32_t aZones, int32_t aFlags)
         : sampleRate(aSampleRate),
-          zones(aZones) {};
+          zones(aZones),
+          flags(aFlags) {};
     SubscriptionInfo(const SubscriptionInfo& info)
         : sampleRate(info.sampleRate),
-          zones(info.zones) {};
+          zones(info.zones),
+          flags(info.flags) {};
 };
 
 // ----------------------------------------------------------------------------
@@ -158,9 +163,9 @@ public:
         return &mSubscriptionInfos.editValueAt(index);
     }
 
-    void setSubscriptionInfo(int32_t property, float sampleRate, int32_t zones) {
+    void setSubscriptionInfo(int32_t property, float sampleRate, int32_t zones, int32_t flags) {
         Mutex::Autolock autoLock(mLock);
-        SubscriptionInfo info(sampleRate, zones);
+        SubscriptionInfo info(sampleRate, zones, flags);
         mSubscriptionInfos.add(property, info);
     }
 
@@ -224,7 +229,7 @@ public:
     }
 
     // no lock here as this should be called only from single event looper thread
-    status_t dispatchEvents(const int64_t& timestamp){
+    status_t dispatchEvents(const int64_t& timestamp) {
         ALOGV("dispatchEvents, num Events:%zu", mEvents.size());
         sp<VehiclePropValueListHolder> events(new VehiclePropValueListHolder(&mEvents,
                 false /*deleteInDestructor */));
@@ -243,6 +248,10 @@ public:
 
     void dispatchHalRestart(bool inMocking) {
         mListener->onHalRestart(inMocking);
+    }
+
+    void dispatchPropertySetEvent(const vehicle_prop_value_t& value) {
+        mListener->onPropertySet(value);
     }
 
     void dump(String8& msg) {
@@ -319,6 +328,7 @@ public:
     status_t onHalEvent(const vehicle_prop_value_t *eventData, bool isInjection = false);
     status_t onHalError(int32_t errorCode, int32_t property, int32_t operation,
             bool isInjection = false);
+    status_t onPropertySet(const vehicle_prop_value_t& eventData);
     /**
      * Called by VehicleHalMessageHandler for batching events
      */
@@ -329,7 +339,7 @@ public:
     virtual status_t getProperty(vehicle_prop_value_t* value);
     virtual void releaseMemoryFromGet(vehicle_prop_value_t* value);
     virtual status_t subscribe(const sp<IVehicleNetworkListener> &listener, int32_t property,
-            float sampleRate, int32_t zones);
+            float sampleRate, int32_t zones, int32_t flags = SubscribeFlags::DEFAULT);
     virtual void unsubscribe(const sp<IVehicleNetworkListener> &listener, int32_t property);
     virtual status_t injectEvent(const vehicle_prop_value_t& value);
     virtual status_t startMocking(const sp<IVehicleNetworkHalMock>& mock);
@@ -363,12 +373,15 @@ private:
     sp<HalClientSpVector> findOrCreateClientsVectorForPropertyLocked(int32_t property);
     bool removePropertyFromClientLocked(sp<IBinder>& ibinder, sp<HalClient>& client,
             int32_t property);
+    bool hasClientsSubscribedToSetCallLocked(int32_t property,
+                                             const sp<HalClientSpVector> &clientsForProperty) const;
     void handleHalRestartAndGetClientsToDispatchLocked(List<sp<HalClient> >& clientsToDispatch);
     status_t notifyClientWithCurrentValue(bool isMocking, const vehicle_prop_config_t *config,
                                           int32_t zones);
     status_t notifyClientWithCurrentValue(bool isMocking, int32_t prop, int32_t valueType,
                                           int32_t zone);
-
+    void dispatchPropertySetEvent(const vehicle_prop_value_t& data,
+                                  const sp<HalClientSpVector>& propertyClients);
 
     static int eventCallback(const vehicle_prop_value_t *eventData);
     static int errorCallback(int32_t errorCode, int32_t property, int32_t operation);
@@ -389,6 +402,7 @@ private:
     KeyedVector<int32_t, sp<HalClientSpVector> > mPropertyToClientsMap;
     KeyedVector<int32_t, SubscriptionInfo> mSubscriptionInfos;
     KeyedVector<int32_t, EventInfo> mEventInfos;
+    std::unordered_set<int32_t> mPropertiesSubscribedToSetCall;
     PropertyValueCache mCache;
     bool mMockingEnabled;
     int mDroppedEventsWhileInMocking;

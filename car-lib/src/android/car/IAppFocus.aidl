@@ -17,17 +17,17 @@
 package android.car;
 
 import android.car.IAppFocusListener;
-import android.car.IAppFocusOwnershipListener;
+import android.car.IAppFocusOwnershipCallback;
 
 /** @hide */
 interface IAppFocus {
-    void registerFocusListener(IAppFocusListener listener, int appType) = 0;
-    void unregisterFocusListener(IAppFocusListener listener, int appType) = 1;
+    void registerFocusListener(IAppFocusListener callback, int appType) = 0;
+    void unregisterFocusListener(IAppFocusListener callback, int appType) = 1;
     int[] getActiveAppTypes() = 2;
-    /** listener used as a token */
-    boolean isOwningFocus(IAppFocusOwnershipListener listener, int appType) = 3;
-    /** listener used as a token */
-    int requestAppFocus(IAppFocusOwnershipListener listener, int appType) = 4;
-    /** listener used as a token */
-    void abandonAppFocus(IAppFocusOwnershipListener listener, int appType) = 5;
+    /** callback used as a token */
+    boolean isOwningFocus(IAppFocusOwnershipCallback callback, int appType) = 3;
+    /** callback used as a token */
+    int requestAppFocus(IAppFocusOwnershipCallback callback, int appType) = 4;
+    /** callback used as a token */
+    void abandonAppFocus(IAppFocusOwnershipCallback callback, int appType) = 5;
 }

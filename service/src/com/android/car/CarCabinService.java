@@ -22,8 +22,10 @@ import com.android.car.CarLog;
 import com.android.car.hal.VehicleHal;
 
 public class CarCabinService extends CarPropertyServiceBase {
+	private final static boolean DBG = false;
+
     public CarCabinService(Context context) {
-        super(context, VehicleHal.getInstance().getCabinHal(), Car.PERMISSION_CAR_CABIN, true,
+        super(context, VehicleHal.getInstance().getCabinHal(), Car.PERMISSION_CAR_CABIN, DBG,
                 CarLog.TAG_CABIN);
     }
 }

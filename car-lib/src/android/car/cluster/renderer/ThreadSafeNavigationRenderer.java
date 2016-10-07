@@ -76,10 +76,10 @@ import java.util.concurrent.CountDownLatch;
     }
 
     @Override
-    public void onNextTurnChanged(int event, String road, int turnAngle, int turnNumber,
+    public void onNextTurnChanged(int event, CharSequence eventName, int turnAngle, int turnNumber,
             Bitmap image, int turnSide) {
         mHandler.sendMessage(mHandler.obtainMessage(MSG_NAV_NEXT_TURN,
-                new NextTurn(event, road, turnAngle, turnNumber, image, turnSide)));
+                new NextTurn(event, eventName, turnAngle, turnNumber, image, turnSide)));
     }
 
     @Override
@@ -107,7 +107,7 @@ import java.util.concurrent.CountDownLatch;
                     break;
                 case MSG_NAV_NEXT_TURN:
                     NextTurn nt = (NextTurn) msg.obj;
-                    renderer.onNextTurnChanged(nt.event, nt.road, nt.turnAngle, nt.turnNumber,
+                    renderer.onNextTurnChanged(nt.event, nt.eventName, nt.turnAngle, nt.turnNumber,
                             nt.bitmap, nt.turnSide);
                     break;
                 case MSG_NAV_NEXT_TURN_DISTANCE:
@@ -144,16 +144,16 @@ import java.util.concurrent.CountDownLatch;
 
     private static class NextTurn {
         private final int event;
-        private final String road;
+        private final CharSequence eventName;
         private final int turnAngle;
         private final int turnNumber;
         private final Bitmap bitmap;
         private final int turnSide;
 
-        NextTurn(int event, String road, int turnAngle, int turnNumber, Bitmap bitmap,
+        NextTurn(int event, CharSequence eventName, int turnAngle, int turnNumber, Bitmap bitmap,
                 int turnSide) {
             this.event = event;
-            this.road = road;
+            this.eventName = eventName;
             this.turnAngle = turnAngle;
             this.turnNumber = turnNumber;
             this.bitmap = bitmap;

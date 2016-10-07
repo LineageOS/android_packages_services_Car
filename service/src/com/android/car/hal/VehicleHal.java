@@ -49,7 +49,7 @@ import java.util.List;
  */
 public class VehicleHal implements VehicleNetworkListener {
 
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     static {
         createInstance();
@@ -322,6 +322,11 @@ public class VehicleHal implements VehicleNetworkListener {
             s.getDispatchList().clear();
         }
         mServicesToDispatch.clear();
+    }
+
+    @Override
+    public void onPropertySet(VehiclePropValue value) {
+        // No need to handle on-property-set events in HAL service yet.
     }
 
     @Override

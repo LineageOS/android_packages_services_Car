@@ -19,11 +19,15 @@ import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.AudioRecord;
+import android.support.annotation.RestrictTo;
 import android.support.car.CarNotConnectedException;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * @hide
  */
+@RestrictTo(GROUP_ID)
 public class CarAudioManagerEmbedded extends CarAudioManager {
 
     private static final int MAX_BUFFER_SIZE_BYTE = 512 * 1024;
@@ -63,6 +67,12 @@ public class CarAudioManagerEmbedded extends CarAudioManager {
     @Override
     public int abandonAudioFocus(OnAudioFocusChangeListener listener, AudioAttributes aa) {
         return mManager.abandonAudioFocus(listener, aa);
+    }
+
+    @Override
+    public boolean isAudioRecordSupported(){
+        //always true in embedded
+        return true;
     }
 
     @Override

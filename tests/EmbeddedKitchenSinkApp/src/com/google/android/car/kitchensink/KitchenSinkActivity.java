@@ -18,7 +18,6 @@ package com.google.android.car.kitchensink;
 
 import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -94,10 +93,10 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private CubesTestFragment mCubesTestFragment;
     private OrientationTestFragment mOrientationFragment;
 
-    private final CarSensorManager.CarSensorEventListener mListener =
-            new CarSensorManager.CarSensorEventListener() {
+    private final CarSensorManager.OnSensorChangedListener mListener =
+            new CarSensorManager.OnSensorChangedListener() {
         @Override
-        public void onSensorChanged(CarSensorEvent event) {
+        public void onSensorChanged(CarSensorManager manager, CarSensorEvent event) {
             switch (event.sensorType) {
                 case CarSensorManager.SENSOR_TYPE_DRIVING_STATUS:
                     Log.d(TAG, "driving status:" + event.intValues[0]);
@@ -209,12 +208,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         }
 
         @Override
-        public void onServiceSuspended(int cause) {
-            Log.d(TAG, "Car Service connection suspended");
-        }
-
-        @Override
-        public void onServiceConnectionFailed(int cause) {
+        public void onServiceConnectionFailed() {
             Log.d(TAG, "Car Service connection failed");
         }
     };

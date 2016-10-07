@@ -154,13 +154,14 @@ public:
     }
 
     virtual status_t subscribe(const sp<IVehicleNetworkListener> &listener, int32_t property,
-                float sampleRate, int32_t zones) {
+                float sampleRate, int32_t zones, int32_t flags) {
         Parcel data, reply;
         data.writeInterfaceToken(IVehicleNetwork::getInterfaceDescriptor());
         data.writeStrongBinder(IInterface::asBinder(listener));
         data.writeInt32(property);
         data.writeFloat(sampleRate);
         data.writeInt32(zones);
+        data.writeInt32(flags);
         status_t status = remote()->transact(SUBSCRIBE, data, &reply);
         return status;
     }
@@ -370,7 +371,8 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
             }
             float sampleRate = data.readFloat();
             int32_t zones = data.readInt32();
-            r = subscribe(listener, property, sampleRate, zones);
+            int32_t flags = data.readInt32();
+            r = subscribe(listener, property, sampleRate, zones, flags);
             BinderUtil::fillNoResultReply(reply);
             return r;
         } break;

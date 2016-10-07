@@ -61,19 +61,13 @@ public class CarApiTestBase extends AndroidTestCase {
         public void waitForConnection(long timeoutMs) throws InterruptedException {
             mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
         }
-
-        @Override
-        public void onServiceSuspended(int cause) {
-            assertMainThread();
-        }
-
         @Override
         public void onServiceDisconnected() {
             assertMainThread();
         }
 
         @Override
-        public void onServiceConnectionFailed(int cause) {
+        public void onServiceConnectionFailed() {
             assertMainThread();
         }
 

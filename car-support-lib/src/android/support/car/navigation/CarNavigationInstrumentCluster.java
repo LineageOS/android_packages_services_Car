@@ -15,80 +15,68 @@
  */
 package android.support.car.navigation;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.IntDef;
-import android.support.car.annotation.VersionDef;
-import android.support.car.os.ExtendableParcelable;
+import android.support.annotation.RestrictTo;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
 /**
  * Holds options related to navigation for the car's instrument cluster.
  */
-public class CarNavigationInstrumentCluster extends ExtendableParcelable {
+public class CarNavigationInstrumentCluster {
 
-    private static final int VERSION = 1;
+    /** Navigation Next Turn messages contain an image, as well as an enum. */
+    public static final int CLUSTER_TYPE_CUSTOM_IMAGES_SUPPORTED = 1;
+    /** Navigation Next Turn messages contain only an enum. */
+    public static final int CLUSTER_TYPE_IMAGE_CODES_ONLY = 2;
 
+    /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
-            ClusterType.CUSTOM_IMAGES_SUPPORTED,
-            ClusterType.IMAGE_CODES_ONLY
+        CLUSTER_TYPE_CUSTOM_IMAGES_SUPPORTED,
+        CLUSTER_TYPE_IMAGE_CODES_ONLY
     })
-    public @interface ClusterType {
-        /** Navigation Next Turn messages contain an image, as well as an enum. */
-        int CUSTOM_IMAGES_SUPPORTED = 1;
-        /** Navigation Next Turn messages only contain an enum. */
-        int IMAGE_CODES_ONLY = 2;
-    }
+    public @interface ClusterType {}
 
-    @VersionDef(version = 1)
-    private int mMinIntervalMs;
+    private int mMinIntervalMillis;
 
-    @VersionDef(version = 1)
     @ClusterType
     private int mType;
 
-    @VersionDef(version = 1)
     private int mImageWidth;
 
-    @VersionDef(version = 1)
     private int mImageHeight;
 
-    @VersionDef(version = 1)
     private int mImageColorDepthBits;
 
-    public static final Parcelable.Creator<CarNavigationInstrumentCluster> CREATOR
-            = new Parcelable.Creator<CarNavigationInstrumentCluster>() {
-        @Override
-        public CarNavigationInstrumentCluster createFromParcel(Parcel in) {
-            return new CarNavigationInstrumentCluster(in);
-        }
-
-        @Override
-        public CarNavigationInstrumentCluster[] newArray(int size) {
-            return new CarNavigationInstrumentCluster[size];
-        }
-    };
-
-    public static CarNavigationInstrumentCluster createCluster(int minIntervalMs) {
-        return new CarNavigationInstrumentCluster(minIntervalMs, ClusterType.IMAGE_CODES_ONLY,
+    /** @hide */
+    @RestrictTo(GROUP_ID)
+    public static CarNavigationInstrumentCluster createCluster(int minIntervalMillis) {
+        return new CarNavigationInstrumentCluster(minIntervalMillis, CLUSTER_TYPE_IMAGE_CODES_ONLY,
                 0, 0, 0);
     }
 
+    /** @hide */
+    @RestrictTo(GROUP_ID)
     public static CarNavigationInstrumentCluster createCustomImageCluster(int minIntervalMs,
             int imageWidth, int imageHeight, int imageColorDepthBits) {
         return new CarNavigationInstrumentCluster(minIntervalMs,
-                ClusterType.CUSTOM_IMAGES_SUPPORTED,
+                CLUSTER_TYPE_CUSTOM_IMAGES_SUPPORTED,
                 imageWidth, imageHeight, imageColorDepthBits);
     }
 
     /** Minimum time between instrument cluster updates in milliseconds.*/
-    public int getMinIntervalMs() {
-        return mMinIntervalMs;
+    public int getMinIntervalMillis() {
+        return mMinIntervalMillis;
     }
 
-    /** Type of instrument cluster, can be image or enum. */
+    /**
+     * Type of instrument cluster, can be {@link #CLUSTER_TYPE_CUSTOM_IMAGES_SUPPORTED} or
+     * {@link #CLUSTER_TYPE_IMAGE_CODES_ONLY}.
+     */
     @ClusterType
     public int getType() {
         return mType;
@@ -104,70 +92,52 @@ public class CarNavigationInstrumentCluster extends ExtendableParcelable {
         return mImageHeight;
     }
 
-    /** If instrument cluster is image, number of bits of colour depth it supports (8, 16 or 32). */
+    /**
+     * If instrument cluster is image, number of bits of colour depth it supports (8, 16, or 32).
+     */
     public int getImageColorDepthBits() {
         return mImageColorDepthBits;
     }
 
+    /** @hide */
+    @RestrictTo(GROUP_ID)
     public CarNavigationInstrumentCluster(CarNavigationInstrumentCluster that) {
-      this(that.mMinIntervalMs,
+      this(that.mMinIntervalMillis,
           that.mType,
           that.mImageWidth,
           that.mImageHeight,
           that.mImageColorDepthBits);
     }
 
+    /**
+     * Whether cluster support custom image or not.
+     * @return
+     */
     public boolean supportsCustomImages() {
-      return mType == ClusterType.CUSTOM_IMAGES_SUPPORTED;
+      return mType == CLUSTER_TYPE_CUSTOM_IMAGES_SUPPORTED;
     }
 
     /** @hide */
+    @RestrictTo(GROUP_ID)
     CarNavigationInstrumentCluster(
-            int minIntervalMs,
+            int minIntervalMillis,
             @ClusterType int type,
             int imageWidth,
             int imageHeight,
             int imageColorDepthBits) {
-        super(VERSION);
-        this.mMinIntervalMs = minIntervalMs;
+        this.mMinIntervalMillis = minIntervalMillis;
         this.mType = type;
         this.mImageWidth = imageWidth;
         this.mImageHeight = imageHeight;
         this.mImageColorDepthBits = imageColorDepthBits;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        int startingPosition = writeHeader(dest);
-        dest.writeInt(mMinIntervalMs);
-        dest.writeInt(mType);
-        dest.writeInt(mImageWidth);
-        dest.writeInt(mImageHeight);
-        dest.writeInt(mImageColorDepthBits);
-        completeWriting(dest, startingPosition);
-    }
-
-    private CarNavigationInstrumentCluster(Parcel in) {
-        super(in, VERSION);
-        int lastPosition = readHeader(in);
-        mMinIntervalMs = in.readInt();
-        mType = in.readInt();
-        mImageWidth = in.readInt();
-        mImageHeight = in.readInt();
-        mImageColorDepthBits = in.readInt();
-        completeReading(in, lastPosition);
-    }
-
-    /** Converts to string for debug purpose */
+    /** Converts to string for debug purpose. */
     @Override
     public String toString() {
         return CarNavigationInstrumentCluster.class.getSimpleName() + "{ " +
-                "minIntervalMs: " + mMinIntervalMs + ", " +
+                "minIntervalMillis: " + mMinIntervalMillis + ", " +
                 "type: " + mType + ", " +
                 "imageWidth: " + mImageWidth + ", " +
                 "imageHeight: " + mImageHeight + ", " +

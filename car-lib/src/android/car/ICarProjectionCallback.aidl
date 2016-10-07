@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.navigation;
 
-import android.car.navigation.CarNavigationInstrumentCluster;
+package android.car;
 
 /**
- * Binder callback for CarNavigationEventListener.
  * @hide
  */
-oneway interface ICarNavigationEventListener {
-    void onInstrumentClusterStart(in CarNavigationInstrumentCluster instrumentCluster) = 0;
-    void onInstrumentClusterStop() = 1;
+oneway interface ICarProjectionCallback {
+    void onVoiceAssistantRequest(boolean fromLongPress) = 0;
 }

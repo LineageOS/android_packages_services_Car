@@ -20,21 +20,21 @@ package android.car;
 /**
  * Exception thrown when car is not supporting the requested operation.
  */
-public class CarNotSupportedException extends Exception {
+public class CarOperationNotSupportedException extends Exception {
     private static final long serialVersionUID = -8120487541467522808L;
 
-    public CarNotSupportedException() {
+    public CarOperationNotSupportedException() {
     }
 
-    public CarNotSupportedException(String name) {
+    public CarOperationNotSupportedException(String name) {
         super(name);
     }
 
-    public CarNotSupportedException(String name, Throwable cause) {
+    public CarOperationNotSupportedException(String name, Throwable cause) {
         super(name, cause);
     }
 
-    public CarNotSupportedException(Exception cause) {
+    public CarOperationNotSupportedException(Exception cause) {
         super(cause);
     }
 }

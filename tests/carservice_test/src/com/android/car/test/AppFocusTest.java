@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.support.car.test;
+package com.android.car.test;
 
-import android.support.car.Car;
-import android.support.car.CarAppFocusManager;
+import android.car.Car;
+import android.car.CarAppFocusManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
-
-import com.android.car.test.MockedCarTestBase;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -37,12 +35,12 @@ public class AppFocusTest extends MockedCarTestBase {
     }
 
     public void testFocusChange() throws Exception {
-        CarAppFocusManager manager = (CarAppFocusManager) getSupportCar().getCarManager(
+        CarAppFocusManager manager = (CarAppFocusManager) getCar().getCarManager(
                 Car.APP_FOCUS_SERVICE);
-        FocusChangeListener listener = new FocusChangeListener();
-        FocusOwnershipChangeListerner ownershipListener = new FocusOwnershipChangeListerner();
-        manager.addFocusListener(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, listener);
-        manager.addFocusListener(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND, listener);
+        FocusChangedListener listener = new FocusChangedListener();
+        FocusOwnershipCallback ownershipListener = new FocusOwnershipCallback();
+        manager.addFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+        manager.addFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
         manager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, ownershipListener);
         listener.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, true);
@@ -58,7 +56,7 @@ public class AppFocusTest extends MockedCarTestBase {
         manager.removeFocusListener(listener);
     }
 
-    private class FocusChangeListener implements CarAppFocusManager.AppFocusChangeListener {
+    private class FocusChangedListener implements CarAppFocusManager.OnAppFocusChangedListener {
         private int mLastChangeAppType;
         private boolean mLastChangeAppActive;
         private final Semaphore mChangeWait = new Semaphore(0);
@@ -74,18 +72,21 @@ public class AppFocusTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onAppFocusChange(int appType, boolean active) {
-            Log.i(TAG, "onAppFocusChange appType=" + appType + " active=" + active);
+        public void onAppFocusChanged(int appType, boolean active) {
+            Log.i(TAG, "onAppFocusChanged appType=" + appType + " active=" + active);
             mLastChangeAppType = appType;
             mLastChangeAppActive = active;
             mChangeWait.release();
         }
     }
 
-    private class FocusOwnershipChangeListerner
-            implements CarAppFocusManager.AppFocusOwnershipChangeListener {
+    private class FocusOwnershipCallback
+            implements CarAppFocusManager.OnAppFocusOwnershipCallback {
         private int mLastLossEvent;
         private final Semaphore mLossEventWait = new Semaphore(0);
+
+        private int mLastGrantEvent;
+        private final Semaphore mGrantEventWait = new Semaphore(0);
 
         public boolean waitForOwnershipLossAndAssert(long timeoutMs, int expectedLossAppType)
                 throws Exception {
@@ -96,11 +97,27 @@ public class AppFocusTest extends MockedCarTestBase {
             return true;
         }
 
+        public boolean waitForOwnershipGrantAndAssert(long timeoutMs, int expectedGrantAppType)
+                throws Exception {
+            if (!mGrantEventWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
+                return false;
+            }
+            assertEquals(expectedGrantAppType, mLastGrantEvent);
+            return true;
+        }
+
         @Override
-        public void onAppFocusOwnershipLoss(int appType) {
-            Log.i(TAG, "onAppFocusOwnershipLoss " + appType);
+        public void onAppFocusOwnershipLost(int appType) {
+            Log.i(TAG, "onAppFocusOwnershipLost " + appType);
             mLastLossEvent = appType;
             mLossEventWait.release();
+        }
+
+        @Override
+        public void onAppFocusOwnershipGranted(int appType) {
+            Log.i(TAG, "onAppFocusOwnershipGranted " + appType);
+            mLastGrantEvent = appType;
+            mGrantEventWait.release();
         }
     }
 }

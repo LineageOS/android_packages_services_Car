@@ -18,7 +18,6 @@ package android.support.car;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Looper;
 
 /**
  * CarServiceLoader is the abstraction for loading different types of car service.
@@ -27,12 +26,12 @@ import android.os.Looper;
 public abstract class CarServiceLoader {
 
     private final Context mContext;
-    private final ServiceConnectionCallback mListener;
+    private final ServiceConnectionCallback mCallback;
     private final Handler mEventHandler;
 
-    public CarServiceLoader(Context context, ServiceConnectionCallback listener, Handler handler) {
+    public CarServiceLoader(Context context, ServiceConnectionCallback callback, Handler handler) {
         mContext = context;
-        mListener = listener;
+        mCallback = callback;
         mEventHandler = handler;
     }
 
@@ -41,17 +40,16 @@ public abstract class CarServiceLoader {
     public abstract boolean isConnectedToCar();
     @Car.ConnectionType
     public abstract int getCarConnectionType() throws CarNotConnectedException;
-    public abstract void registerCarConnectionCallback(CarConnectionCallback listener)
+    public abstract void registerCarConnectionCallback(CarConnectionCallback callback)
             throws CarNotConnectedException;
-    public abstract void unregisterCarConnectionCallback(CarConnectionCallback listener);
+    public abstract void unregisterCarConnectionCallback(CarConnectionCallback callback);
 
     /**
      * Retrieves a manager object for a specified Car*Manager.
      * @param serviceName One of the android.car.Car#*_SERVICE constants.
      * @return An instance of the request manager.  Null if the manager is not supported on the
      * current vehicle.
-     * @throws CarNotConnectedException Thrown when the device is not connected to a car data
-     * source.
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public abstract Object getCarManager(String serviceName) throws CarNotConnectedException;
 
@@ -59,8 +57,8 @@ public abstract class CarServiceLoader {
         return mContext;
     }
 
-    protected ServiceConnectionCallback getConnectionListener() {
-        return mListener;
+    protected ServiceConnectionCallback getConnectionCallback() {
+        return mCallback;
     }
 
     protected Handler getEventHandler() {

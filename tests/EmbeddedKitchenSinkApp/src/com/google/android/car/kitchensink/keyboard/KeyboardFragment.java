@@ -99,7 +99,7 @@ public class KeyboardFragment extends Fragment {
         try {
             mSensorManager = (CarSensorManager)
                     mActivity.getCar().getCarManager(Car.SENSOR_SERVICE);
-            mSensorManager.addListener(mCarSensorListener,
+            mSensorManager.addListener(mOnSensorChangedListener,
                     CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
                     CarSensorManager.SENSOR_RATE_FASTEST);
         } catch (CarNotConnectedException e) {
@@ -112,17 +112,17 @@ public class KeyboardFragment extends Fragment {
         super.onPause();
         if (mSensorManager != null) {
             try {
-                mSensorManager.removeListener(mCarSensorListener);
+                mSensorManager.removeListener(mOnSensorChangedListener);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Car not connected", e);
             }
         }
     }
 
-    private final CarSensorManager.CarSensorEventListener mCarSensorListener =
-            new CarSensorManager.CarSensorEventListener() {
+    private final CarSensorManager.OnSensorChangedListener mOnSensorChangedListener =
+            new CarSensorManager.OnSensorChangedListener() {
                 @Override
-                public void onSensorChanged(CarSensorEvent event) {
+                public void onSensorChanged(CarSensorManager manager, CarSensorEvent event) {
                     if (event.sensorType != CarSensorManager.SENSOR_TYPE_DRIVING_STATUS) {
                         return;
                     }

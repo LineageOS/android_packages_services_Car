@@ -33,7 +33,7 @@ interface IVehicleNetwork {
     VehiclePropValueParcelable getProperty(in VehiclePropValueParcelable value)          = 2;
     /** For error case, exception will be thrown. */
     void subscribe(in IVehicleNetworkListener listener, int property, float sampleRate,
-                                                                             int zones)  = 3;
+                   int zones, int flags)                                                 = 3;
     void unsubscribe(in IVehicleNetworkListener listener, int property)                  = 4;
     /** For testing only. inject events. */
     void injectEvent(in VehiclePropValueParcelable value)                                = 5;

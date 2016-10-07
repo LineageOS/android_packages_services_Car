@@ -67,7 +67,7 @@ public class NavCard extends CardView {
         maneuver.setDistanceToNextManeuver(distance, units);
     }
 
-    public void setStreet(String street) {
+    public void setStreet(CharSequence street) {
         ManeuverPanel maneuver = (ManeuverPanel) mDirectionsSwitcher.getNextView();
         maneuver.setStreet(street);
         mDirectionsSwitcher.showNext();

@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.support.car.test;
+package com.android.car.test;
 
-import android.support.car.Car;
-import android.support.car.CarInfoManager;
+import android.car.Car;
+import android.car.CarInfoManager;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.android.car.test.MockedCarTestBase;
@@ -40,48 +41,24 @@ public class CarInfoManagerTest extends MockedCarTestBase {
                         VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE),
                 VehiclePropValueUtil.createStringValue(
                         VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE, MAKE_NAME, 0));
+        getVehicleHalEmulator().removeProperty(VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL);
+        getVehicleHalEmulator().removeProperty(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL_YEAR);
         getVehicleHalEmulator().start();
         mCarInfoManager =
-                (CarInfoManager) getSupportCar().getCarManager(Car.INFO_SERVICE);
+                (CarInfoManager) getCar().getCarManager(Car.INFO_SERVICE);
+    }
+
+    public void testVehicleId() throws Exception {
+        assertNotNull(mCarInfoManager.getVehicleId());
     }
 
     public void testManufactuter() throws Exception {
-        String name = mCarInfoManager.getString(CarInfoManager.KEY_MANUFACTURER);
-        assertEquals(MAKE_NAME, name);
-        Log.i(TAG, CarInfoManager.KEY_MANUFACTURER + ":" + name);
-        try {
-            Float v = mCarInfoManager.getFloat(CarInfoManager.KEY_MANUFACTURER);
-            fail("type check failed");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-        try {
-            Integer v = mCarInfoManager.getInt(CarInfoManager.KEY_MANUFACTURER);
-            fail("type check failed");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
+        assertEquals(MAKE_NAME, mCarInfoManager.getManufacturer());
     }
 
-    public void testNoSuchInfo() throws Exception {
-        final String NO_SUCH_NAME = "no-such-information-available";
-        try {
-            String name = mCarInfoManager.getString(NO_SUCH_NAME);
-            fail("wrong param check");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-        try {
-            Integer intValue = mCarInfoManager.getInt(NO_SUCH_NAME);
-            fail("wrong param check");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
-        try {
-            Float floatValue = mCarInfoManager.getFloat(NO_SUCH_NAME);
-            fail("wrong param check");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
+    public void testNullItems() throws Exception {
+        assertNull(mCarInfoManager.getModel());
+        assertNull(mCarInfoManager.getModelYear());
     }
 }

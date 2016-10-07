@@ -41,6 +41,7 @@ VehicleNetworkEventMessageHandler::~VehicleNetworkEventMessageHandler() {
     }
     mHalErrors.clear();
     mHalRestartEvents.clear();
+    mSetValueEvents.clear();
 }
 
 void VehicleNetworkEventMessageHandler::handleHalEvents(sp<VehiclePropValueListHolder>& events) {
@@ -65,6 +66,12 @@ void VehicleNetworkEventMessageHandler::handleHalRestart(bool inMocking) {
     Mutex::Autolock autoLock(mLock);
     mHalRestartEvents.push_back(inMocking);
     mLooper->sendMessage(this, Message(EVENT_HAL_RESTART));
+}
+
+void VehicleNetworkEventMessageHandler::handleOnPropertySet(const vehicle_prop_value_t& value) {
+    Mutex::Autolock autoLock(mLock);
+    mSetValueEvents.push_back(VehiclePropValueUtil::allocVehicleProp(value));
+    mLooper->sendMessage(this, Message(EVENT_ON_SET));
 }
 
 void VehicleNetworkEventMessageHandler::doHandleHalEvents() {
@@ -115,17 +122,37 @@ void VehicleNetworkEventMessageHandler::doHandleHalRestart() {
     }
 }
 
+void VehicleNetworkEventMessageHandler::doHandleOnPropertySet() {
+    vehicle_prop_value_t* value = nullptr;
+    {
+        Mutex::Autolock autoLock(mLock);
+        if (!mSetValueEvents.empty()) {
+            auto itr = mSetValueEvents.begin();
+            value = *itr;
+            mSetValueEvents.erase(itr);
+        }
+    }
+    if (value != nullptr) {
+        mListener->onPropertySet(*value);
+        VehiclePropValueUtil::deleteMembers(value);
+        delete value;
+    }
+}
+
 void VehicleNetworkEventMessageHandler::handleMessage(const Message& message) {
     switch (message.what) {
-    case EVENT_EVENTS:
-        doHandleHalEvents();
-        break;
-    case EVENT_HAL_ERROR:
-        doHandleHalError();
-        break;
-    case EVENT_HAL_RESTART:
-        doHandleHalRestart();
-        break;
+        case EVENT_EVENTS:
+            doHandleHalEvents();
+            break;
+        case EVENT_HAL_ERROR:
+            doHandleHalError();
+            break;
+        case EVENT_HAL_RESTART:
+            doHandleHalRestart();
+            break;
+        case EVENT_ON_SET:
+            doHandleOnPropertySet();
+            break;
     }
 }
 
@@ -272,8 +299,9 @@ status_t VehicleNetwork::getProperty(vehicle_prop_value_t* value) {
     return getService()->getProperty(value);
 }
 
-status_t VehicleNetwork::subscribe(int32_t property, float sampleRate, int32_t zones) {
-    return getService()->subscribe(this, property, sampleRate, zones);
+status_t VehicleNetwork::subscribe(int32_t property, float sampleRate, int32_t zones,
+                                   int32_t flags) {
+    return getService()->subscribe(this, property, sampleRate, zones, flags);
 }
 
 void VehicleNetwork::unsubscribe(int32_t property) {
@@ -335,5 +363,9 @@ void VehicleNetwork::onHalError(int32_t errorCode, int32_t property, int32_t ope
 
 void VehicleNetwork::onHalRestart(bool inMocking) {
     getEventHandler()->handleHalRestart(inMocking);
+}
+
+void VehicleNetwork::onPropertySet(const vehicle_prop_value_t& value) {
+    getEventHandler()->handleOnPropertySet(value);
 }
 }; // namespace android

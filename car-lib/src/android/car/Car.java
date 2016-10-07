@@ -27,7 +27,7 @@ import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.radio.CarRadioManager;
 import android.car.media.CarAudioManager;
-import android.car.navigation.CarNavigationManager;
+import android.car.navigation.CarNavigationStatusManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -52,7 +52,7 @@ import java.util.HashMap;
  *   This API works only for devices with {@link PackageManager#FEATURE_AUTOMOTIVE}
  *   Calling this API on a device with no such feature will lead to an exception.
  */
-public class Car {
+public final class Car {
 
     /**
      * Represent the version of Car API.
@@ -74,7 +74,7 @@ public class Car {
     /** Service name for {@link CarAudioManager} */
     public static final String AUDIO_SERVICE = "audio";
     /**
-     * Service name for {@link CarNavigationManager}
+     * Service name for {@link CarNavigationStatusManager}
      * @hide
      */
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
@@ -139,7 +139,7 @@ public class Car {
             "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
 
     /**
-     * Permission necessary to use {@link CarNavigationManager}.
+     * Permission necessary to use {@link CarNavigationStatusManager}.
      * @hide
      */
     public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
@@ -350,7 +350,7 @@ public class Car {
     public Car(Context context, ICar service, @Nullable Handler handler) {
         mContext = context;
         mEventHandler = determineEventHandler(handler);
-        mMainThreadEventHandler = determineMainThreadEventHandler(handler);
+        mMainThreadEventHandler = determineMainThreadEventHandler(mEventHandler);
 
         mService = service;
         mConnectionState = STATE_CONNECTED;
@@ -364,11 +364,7 @@ public class Car {
 
     private static Handler determineEventHandler(@Nullable Handler handler) {
         if (handler == null) {
-            Looper looper = Looper.myLooper();
-
-            if(looper == null){
-                looper = Looper.getMainLooper();
-            }
+            Looper looper = Looper.getMainLooper();
             handler = new Handler(looper);
         }
         return handler;
@@ -437,7 +433,7 @@ public class Car {
      * SensorManagerService sensorManagerService = car.getCarManager(Car.SENSOR_SERVICE);
      * @param serviceName Name of service that should be created like {@link #SENSOR_SERVICE}.
      * @return Matching service manager or null if there is no such service.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public Object getCarManager(String serviceName) throws CarNotConnectedException {
         CarManagerBase manager;
@@ -483,13 +479,13 @@ public class Car {
      * original exception.
      *
      * @param e exception from XyzCarService.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @hide
      */
     public static void checkCarNotConnectedExceptionFromCarService(
             IllegalStateException e) throws CarNotConnectedException, IllegalStateException {
         String message = e.getMessage();
-        if (message.equals(CAR_NOT_CONNECTED_EXCEPTION_MSG)) {
+        if (CAR_NOT_CONNECTED_EXCEPTION_MSG.equals(message)) {
             throw new CarNotConnectedException();
         } else {
             throw e;
@@ -516,7 +512,7 @@ public class Car {
                 manager = new CarPackageManager(binder, mContext);
                 break;
             case CAR_NAVIGATION_SERVICE:
-                manager = new CarNavigationManager(binder);
+                manager = new CarNavigationStatusManager(binder);
                 break;
             case CABIN_SERVICE:
                 manager = new CarCabinManager(binder, mContext, mEventHandler);

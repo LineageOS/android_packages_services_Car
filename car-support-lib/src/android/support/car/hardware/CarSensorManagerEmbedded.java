@@ -17,25 +17,29 @@
 package android.support.car.hardware;
 
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.support.car.CarNotConnectedException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+
 /**
  *  @hide
  */
+@RestrictTo(GROUP_ID)
 public class CarSensorManagerEmbedded extends CarSensorManager {
     private static final String TAG = "CarSensorsProxy";
 
     private final android.car.hardware.CarSensorManager mManager;
     private final CarSensorsProxy mCarSensorsProxy;
-    private final LinkedList<CarSensorEventListenerProxy> mListeners = new LinkedList<>();
+    private final LinkedList<OnSensorChangedListenerProxy> mListeners = new LinkedList<>();
 
     public CarSensorManagerEmbedded(Object manager, Context context) {
         mManager = (android.car.hardware.CarSensorManager) manager;
-        mCarSensorsProxy = new CarSensorsProxy(context);
+        mCarSensorsProxy = new CarSensorsProxy(this, context);
     }
 
     @Override
@@ -85,16 +89,16 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
     }
 
     @Override
-    public boolean addListener(CarSensorEventListener listener, int sensorType,
+    public boolean addListener(OnSensorChangedListener listener, int sensorType,
             int rate) throws CarNotConnectedException, IllegalArgumentException {
         if (isSensorProxied(sensorType)) {
             return mCarSensorsProxy.registerSensorListener(listener, sensorType, rate);
         }
-        CarSensorEventListenerProxy proxy = null;
+        OnSensorChangedListenerProxy proxy = null;
         synchronized (this) {
             proxy = findListenerLocked(listener);
             if (proxy == null) {
-                proxy = new CarSensorEventListenerProxy(listener, sensorType);
+                proxy = new OnSensorChangedListenerProxy(listener, sensorType, this);
                 mListeners.add(proxy);
             } else {
                 proxy.sensors.add(sensorType);
@@ -108,10 +112,10 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
     }
 
     @Override
-    public void removeListener(CarSensorEventListener listener)
+    public void removeListener(OnSensorChangedListener listener)
             throws CarNotConnectedException {
         mCarSensorsProxy.unregisterSensorListener(listener);
-        CarSensorEventListenerProxy proxy = null;
+        OnSensorChangedListenerProxy proxy = null;
         synchronized (this) {
             proxy = findListenerLocked(listener);
             if (proxy == null) {
@@ -127,10 +131,10 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
     }
 
     @Override
-    public void removeListener(CarSensorEventListener listener, int sensorType)
+    public void removeListener(OnSensorChangedListener listener, int sensorType)
             throws CarNotConnectedException {
         mCarSensorsProxy.unregisterSensorListener(listener, sensorType);
-        CarSensorEventListenerProxy proxy = null;
+        OnSensorChangedListenerProxy proxy = null;
         synchronized (this) {
             proxy = findListenerLocked(listener);
             if (proxy == null) {
@@ -165,8 +169,8 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
         //nothing to do
     }
 
-    private CarSensorEventListenerProxy findListenerLocked(CarSensorEventListener listener) {
-        for (CarSensorEventListenerProxy proxy : mListeners) {
+    private OnSensorChangedListenerProxy findListenerLocked(OnSensorChangedListener listener) {
+        for (OnSensorChangedListenerProxy proxy : mListeners) {
             if (proxy.listener == listener) {
                 return proxy;
             }
@@ -178,25 +182,28 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
         if (event == null) {
             return null;
         }
-        return new CarSensorEvent(event.sensorType, event.timeStampNs, event.floatValues,
+        return new CarSensorEvent(event.sensorType, event.timestamp, event.floatValues,
                 event.intValues);
     }
 
-    private static class CarSensorEventListenerProxy implements
-            android.car.hardware.CarSensorManager.CarSensorEventListener {
+    private static class OnSensorChangedListenerProxy
+            implements android.car.hardware.CarSensorManager.OnSensorChangedListener {
 
-        public final CarSensorEventListener listener;
-        public final Set<Integer> sensors = new HashSet<Integer>();
+        public final OnSensorChangedListener listener;
+        public final Set<Integer> sensors = new HashSet<>();
+        public final CarSensorManager manager;
 
-        CarSensorEventListenerProxy(CarSensorEventListener listener, int sensor) {
+        OnSensorChangedListenerProxy(OnSensorChangedListener listener, int sensor,
+                CarSensorManager manager) {
             this.listener = listener;
             this.sensors.add(sensor);
+            this.manager = manager;
         }
 
         @Override
         public void onSensorChanged(android.car.hardware.CarSensorEvent event) {
             CarSensorEvent newEvent = convert(event);
-            listener.onSensorChanged(newEvent);
+            listener.onSensorChanged(manager, newEvent);
         }
     }
 }

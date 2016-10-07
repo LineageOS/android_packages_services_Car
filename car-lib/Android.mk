@@ -26,6 +26,10 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 
+ifeq ($(EMMA_INSTRUMENT_FRAMEWORK),true)
+LOCAL_EMMA_INSTRUMENT := true
+endif
+
 include $(BUILD_JAVA_LIBRARY)
 
 ifeq ($(BOARD_IS_AUTOMOTIVE), true)
@@ -47,6 +51,10 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android.car7
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+
+ifeq ($(EMMA_INSTRUMENT_FRAMEWORK),true)
+LOCAL_EMMA_INSTRUMENT := true
+endif
 
 include $(BUILD_JAVA_LIBRARY)
 $(call dist-for-goals,dist_files,$(full_classes_jar):$(LOCAL_MODULE).jar)

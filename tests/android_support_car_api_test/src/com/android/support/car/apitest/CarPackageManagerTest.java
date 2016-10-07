@@ -38,19 +38,13 @@ public class CarPackageManagerTest extends AndroidTestCase {
 
     private final ServiceConnectionCallback mConnectionCallbacks =
             new ServiceConnectionCallback() {
-
-        @Override
-        public void onServiceSuspended(int cause) {
-            assertMainThread();
-        }
-
         @Override
         public void onServiceDisconnected() {
             assertMainThread();
         }
 
         @Override
-        public void onServiceConnectionFailed(int cause) {
+        public void onServiceConnectionFailed() {
             assertMainThread();
         }
 

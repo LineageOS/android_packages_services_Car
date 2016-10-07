@@ -17,7 +17,7 @@ package com.android.car;
 
 import android.car.CarProjectionManager;
 import android.car.ICarProjection;
-import android.car.ICarProjectionListener;
+import android.car.ICarProjectionCallback;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -35,8 +35,8 @@ import java.io.PrintWriter;
  * Car projection service allows to bound to projected app to boost it prioirity.
  * It also enables proejcted applications to handle voice action requests.
  */
-public class CarProjectionService extends ICarProjection.Stub implements CarServiceBase,
-        BinderInterfaceContainer.BinderEventHandler<ICarProjectionListener> {
+class CarProjectionService extends ICarProjection.Stub implements CarServiceBase,
+        BinderInterfaceContainer.BinderEventHandler<ICarProjectionCallback> {
     private final ListenerHolder mAllListeners;
     private final CarInputService mCarInputService;
     private final Context mContext;
@@ -136,7 +136,7 @@ public class CarProjectionService extends ICarProjection.Stub implements CarServ
     }
 
     private synchronized void handleVoiceAssitantRequest(boolean isTriggeredByLongPress) {
-        for (BinderInterfaceContainer.BinderInterface<ICarProjectionListener> listener :
+        for (BinderInterfaceContainer.BinderInterface<ICarProjectionCallback> listener :
                  mAllListeners.getInterfaces()) {
             ListenerInfo listenerInfo = (ListenerInfo) listener;
             if ((listenerInfo.hasFilter(CarProjectionManager.PROJECTION_LONG_PRESS_VOICE_SEARCH)
@@ -149,7 +149,7 @@ public class CarProjectionService extends ICarProjection.Stub implements CarServ
     }
 
     @Override
-    public void regsiterProjectionListener(ICarProjectionListener listener, int filter) {
+    public void regsiterProjectionListener(ICarProjectionCallback listener, int filter) {
         synchronized (this) {
             ListenerInfo info = (ListenerInfo) mAllListeners.getBinderInterface(listener);
             if (info == null) {
@@ -163,7 +163,7 @@ public class CarProjectionService extends ICarProjection.Stub implements CarServ
     }
 
     @Override
-    public void unregsiterProjectionListener(ICarProjectionListener listener) {
+    public void unregsiterProjectionListener(ICarProjectionCallback listener) {
         synchronized (this) {
             mAllListeners.removeBinder(listener);
         }
@@ -174,7 +174,7 @@ public class CarProjectionService extends ICarProjection.Stub implements CarServ
         boolean listenShortPress = false;
         boolean listenLongPress = false;
         synchronized (this) {
-            for (BinderInterfaceContainer.BinderInterface<ICarProjectionListener> listener :
+            for (BinderInterfaceContainer.BinderInterface<ICarProjectionCallback> listener :
                          mAllListeners.getInterfaces()) {
                 ListenerInfo listenerInfo = (ListenerInfo) listener;
                 listenShortPress |= listenerInfo.hasFilter(
@@ -203,7 +203,7 @@ public class CarProjectionService extends ICarProjection.Stub implements CarServ
 
     @Override
     public void onBinderDeath(
-            BinderInterfaceContainer.BinderInterface<ICarProjectionListener> bInterface) {
+            BinderInterfaceContainer.BinderInterface<ICarProjectionCallback> bInterface) {
         unregsiterProjectionListener(bInterface.binderInterface);
     }
 
@@ -211,7 +211,7 @@ public class CarProjectionService extends ICarProjection.Stub implements CarServ
     public void dump(PrintWriter writer) {
         writer.println("**CarProjectionService**");
         synchronized (this) {
-            for (BinderInterfaceContainer.BinderInterface<ICarProjectionListener> listener :
+            for (BinderInterfaceContainer.BinderInterface<ICarProjectionCallback> listener :
                          mAllListeners.getInterfaces()) {
                 ListenerInfo listenerInfo = (ListenerInfo) listener;
                 writer.println(listenerInfo.toString());
@@ -219,7 +219,7 @@ public class CarProjectionService extends ICarProjection.Stub implements CarServ
         }
     }
 
-    private void dispatchVoiceAssistantRequest(ICarProjectionListener listener,
+    private void dispatchVoiceAssistantRequest(ICarProjectionCallback listener,
             boolean fromLongPress) {
         try {
             listener.onVoiceAssistantRequest(fromLongPress);
@@ -227,17 +227,17 @@ public class CarProjectionService extends ICarProjection.Stub implements CarServ
         }
     }
 
-    private static class ListenerHolder extends BinderInterfaceContainer<ICarProjectionListener> {
+    private static class ListenerHolder extends BinderInterfaceContainer<ICarProjectionCallback> {
         private ListenerHolder(CarProjectionService service) {
             super(service);
         }
     }
 
     private static class ListenerInfo extends
-            BinderInterfaceContainer.BinderInterface<ICarProjectionListener> {
+            BinderInterfaceContainer.BinderInterface<ICarProjectionCallback> {
         private int mFilter;
 
-        private ListenerInfo(ListenerHolder holder, ICarProjectionListener binder, int filter) {
+        private ListenerInfo(ListenerHolder holder, ICarProjectionCallback binder, int filter) {
             super(holder, binder);
             this.mFilter = filter;
         }

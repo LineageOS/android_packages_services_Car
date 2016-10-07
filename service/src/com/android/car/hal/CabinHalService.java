@@ -20,7 +20,7 @@ import android.car.hardware.cabin.CarCabinManager.CabinPropertyId;
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 
 public class CabinHalService extends PropertyHalServiceBase {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "CAR.CABIN.HAL";
 
     private final ManagerToHalPropIdMap mMgrHalPropIdMap = ManagerToHalPropIdMap.create(new int[] {

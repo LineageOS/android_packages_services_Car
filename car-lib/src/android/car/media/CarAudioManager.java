@@ -35,7 +35,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * APIs for handling car specific audio stuffs.
  */
-public class CarAudioManager implements CarManagerBase {
+public final class CarAudioManager implements CarManagerBase {
 
     /**
      * Audio usage for unspecified type.
@@ -334,7 +334,7 @@ public class CarAudioManager implements CarManagerBase {
      * taking audio focus for media stream will get it out of mute state.
      *
      * @return true if media is muted.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @hide
      */
     @SystemApi
@@ -356,7 +356,7 @@ public class CarAudioManager implements CarManagerBase {
      * @param mute
      * @return Mute state of system after the request. Note that mute request can fail if there
      *         is higher priority audio already being played like phone call.
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @hide
      */
     @SystemApi
@@ -369,6 +369,7 @@ public class CarAudioManager implements CarManagerBase {
         }
     }
 
+    /** @hide */
     @Override
     public void onCarDisconnected() {
     }

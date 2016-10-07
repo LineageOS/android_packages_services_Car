@@ -39,9 +39,9 @@ import java.util.List;
  * @hide
  */
 @SystemApi
-public class CarVendorExtensionManager implements CarManagerBase {
+public final class CarVendorExtensionManager implements CarManagerBase {
 
-    private final static boolean DBG = true;
+    private final static boolean DBG = false;
     private final static String TAG = CarVendorExtensionManager.class.getSimpleName();
     private final CarPropertyManagerBase mPropertyManager;
 
@@ -130,7 +130,7 @@ public class CarVendorExtensionManager implements CarManagerBase {
      *        {@code Integer.class}.
      * @param propId - property id which is matched with the one defined in vehicle HAL
      *
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public <E> E getGlobalProperty(Class<E> propertyClass, int propId)
             throws CarNotConnectedException {
@@ -147,7 +147,7 @@ public class CarVendorExtensionManager implements CarManagerBase {
      * @param area - vehicle area (e.g. {@code VEHICLE_ZONE_ROW_1_LEFT}
      *        or {@code VEHICLE_MIRROR_DRIVER_LEFT}
      *
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public <E> E getProperty(Class<E> propertyClass, int propId, int area)
             throws CarNotConnectedException {
@@ -164,7 +164,7 @@ public class CarVendorExtensionManager implements CarManagerBase {
      * @param value - new value, this object should match a class provided in {@code propertyClass}
      *        argument.
      *
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public <E> void setGlobalProperty(Class<E> propertyClass, int propId, E value)
             throws CarNotConnectedException {
@@ -183,7 +183,7 @@ public class CarVendorExtensionManager implements CarManagerBase {
      * @param value - new value, this object should match a class provided in {@code propertyClass}
      *        argument.
      *
-     * @throws CarNotConnectedException
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public <E> void setProperty(Class<E> propertyClass, int propId, int area, E value)
             throws CarNotConnectedException {
