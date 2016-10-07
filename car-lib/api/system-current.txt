@@ -74,13 +74,6 @@ package android.car {
     ctor public CarNotConnectedException(java.lang.Exception);
   }
 
-  public class CarOperationNotSupportedException extends java.lang.Exception {
-    ctor public CarOperationNotSupportedException();
-    ctor public CarOperationNotSupportedException(java.lang.String);
-    ctor public CarOperationNotSupportedException(java.lang.String, java.lang.Throwable);
-    ctor public CarOperationNotSupportedException(java.lang.Exception);
-  }
-
   public final class CarProjectionManager {
     method public void onCarDisconnected();
     method public void registerProjectionRunner(android.content.Intent) throws android.car.CarNotConnectedException;
