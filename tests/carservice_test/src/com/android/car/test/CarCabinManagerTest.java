@@ -18,8 +18,7 @@ package com.android.car.test;
 
 import android.car.Car;
 import android.car.hardware.cabin.CarCabinManager;
-import android.car.hardware.cabin.CarCabinManager.CarCabinEventListener;
-import android.car.hardware.cabin.CarCabinManager.CabinPropertyId;
+import android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback;
 import android.car.hardware.CarPropertyValue;
 import android.car.test.VehicleHalEmulator;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -80,37 +79,37 @@ public class CarCabinManagerTest extends MockedCarTestBase {
 
     // Test a boolean property
     public void testCabinDoorLockOn() throws Exception {
-        mCarCabinManager.setBooleanProperty(CabinPropertyId.DOOR_LOCK,
+        mCarCabinManager.setBooleanProperty(CarCabinManager.ID_DOOR_LOCK,
                 VehicleDoor.VEHICLE_DOOR_ROW_1_LEFT, true);
-        boolean lock = mCarCabinManager.getBooleanProperty(CabinPropertyId.DOOR_LOCK,
+        boolean lock = mCarCabinManager.getBooleanProperty(CarCabinManager.ID_DOOR_LOCK,
                 VehicleDoor.VEHICLE_DOOR_ROW_1_LEFT);
         assertTrue(lock);
 
-        mCarCabinManager.setBooleanProperty(CabinPropertyId.DOOR_LOCK,
+        mCarCabinManager.setBooleanProperty(CarCabinManager.ID_DOOR_LOCK,
                 VehicleDoor.VEHICLE_DOOR_ROW_1_LEFT, false);
-        lock = mCarCabinManager.getBooleanProperty(CabinPropertyId.DOOR_LOCK,
+        lock = mCarCabinManager.getBooleanProperty(CarCabinManager.ID_DOOR_LOCK,
                 VehicleDoor.VEHICLE_DOOR_ROW_1_LEFT);
         assertFalse(lock);
     }
 
     // Test an integer property
     public void testCabinWindowPos() throws Exception {
-        mCarCabinManager.setIntProperty(CabinPropertyId.WINDOW_POS,
+        mCarCabinManager.setIntProperty(CarCabinManager.ID_WINDOW_POS,
                 VehicleWindow.VEHICLE_WINDOW_ROW_1_LEFT, 50);
-        int windowPos = mCarCabinManager.getIntProperty(CabinPropertyId.WINDOW_POS,
+        int windowPos = mCarCabinManager.getIntProperty(CarCabinManager.ID_WINDOW_POS,
                 VehicleWindow.VEHICLE_WINDOW_ROW_1_LEFT);
         assertEquals(50, windowPos);
 
-        mCarCabinManager.setIntProperty(CabinPropertyId.WINDOW_POS,
+        mCarCabinManager.setIntProperty(CarCabinManager.ID_WINDOW_POS,
                 VehicleWindow.VEHICLE_WINDOW_ROW_1_LEFT, 25);
-        windowPos = mCarCabinManager.getIntProperty(CabinPropertyId.WINDOW_POS,
+        windowPos = mCarCabinManager.getIntProperty(CarCabinManager.ID_WINDOW_POS,
                 VehicleWindow.VEHICLE_WINDOW_ROW_1_LEFT);
         assertEquals(25, windowPos);
     }
 
     // Test an event
     public void testEvent() throws Exception {
-        mCarCabinManager.registerListener(new EventListener());
+        mCarCabinManager.registerCallback(new EventListener());
 
         // Inject a boolean event and wait for its callback in onPropertySet.
         VehiclePropValue v = VehiclePropValueUtil.createZonedBooleanValue(
@@ -163,7 +162,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
         }
     }
 
-    private class EventListener implements CarCabinEventListener {
+    private class EventListener implements CarCabinEventCallback {
         public EventListener() { }
 
         @Override

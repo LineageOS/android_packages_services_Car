@@ -22,7 +22,6 @@ import android.car.CarNotConnectedException;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.hvac.CarHvacManager;
-import android.car.hardware.hvac.CarHvacManager.HvacPropertyId;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -79,25 +78,25 @@ public class HvacTestFragment extends Fragment {
     private int mZoneForFanSpeed;
     private int mZoneForFanPosition;
 
-    private final CarHvacManager.CarHvacEventListener mHvacListener =
-            new CarHvacManager.CarHvacEventListener () {
+    private final CarHvacManager.CarHvacEventCallback mHvacCallback =
+            new CarHvacManager.CarHvacEventCallback () {
                 @Override
                 public void onChangeEvent(final CarPropertyValue value) {
                     int zones = value.getAreaId();
                     switch(value.getPropertyId()) {
-                        case HvacPropertyId.OUTSIDE_AIR_TEMP:
+                        case CarHvacManager.ID_OUTSIDE_AIR_TEMP:
                             mTvOutsideTemp.setText(String.valueOf(value.getValue()));
                             break;
-                        case HvacPropertyId.ZONED_DUAL_ZONE_ON:
+                        case CarHvacManager.ID_ZONED_DUAL_ZONE_ON:
                             mTbDual.setChecked((boolean)value.getValue());
                             break;
-                        case HvacPropertyId.ZONED_AC_ON:
+                        case CarHvacManager.ID_ZONED_AC_ON:
                             mTbAc.setChecked((boolean)value.getValue());
                             break;
-                        case HvacPropertyId.ZONED_AUTOMATIC_MODE_ON:
+                        case CarHvacManager.ID_ZONED_AUTOMATIC_MODE_ON:
                             mTbAuto.setChecked((boolean)value.getValue());
                             break;
-                        case HvacPropertyId.ZONED_FAN_POSITION:
+                        case CarHvacManager.ID_ZONED_FAN_POSITION:
                             switch((int)value.getValue()) {
                                 case VehicleHvacFanDirection.VEHICLE_HVAC_FAN_DIRECTION_FACE:
                                     mRbFanPositionFace.setChecked(true);
@@ -123,19 +122,19 @@ public class HvacTestFragment extends Fragment {
                                     break;
                             }
                             break;
-                        case HvacPropertyId.ZONED_MAX_AC_ON:
+                        case CarHvacManager.ID_ZONED_MAX_AC_ON:
                             mTbMaxAc.setChecked((boolean)value.getValue());
                             break;
-                        case HvacPropertyId.ZONED_AIR_RECIRCULATION_ON:
+                        case CarHvacManager.ID_ZONED_AIR_RECIRCULATION_ON:
                             mTbRecirc.setChecked((boolean)value.getValue());
                             break;
-                        case HvacPropertyId.ZONED_FAN_SPEED_SETPOINT:
+                        case CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT:
                             if ((zones & mZoneForFanSpeed) != 0) {
                                 mCurFanSpeed = (int)value.getValue();
                                 mTvFanSpeed.setText(String.valueOf(mCurFanSpeed));
                             }
                             break;
-                        case HvacPropertyId.ZONED_TEMP_SETPOINT:
+                        case CarHvacManager.ID_ZONED_TEMP_SETPOINT:
                             if ((zones & mZoneForSetTempD) != 0) {
                                 mCurDTemp = (float)value.getValue();
                                 mTvDTemp.setText(String.valueOf(mCurDTemp));
@@ -145,10 +144,10 @@ public class HvacTestFragment extends Fragment {
                                 mTvPTemp.setText(String.valueOf(mCurPTemp));
                             }
                             break;
-                        case HvacPropertyId.ZONED_MAX_DEFROST_ON:
+                        case CarHvacManager.ID_ZONED_MAX_DEFROST_ON:
                             mTbMaxDefrost.setChecked((boolean)value.getValue());
                             break;
-                        case HvacPropertyId.WINDOW_DEFROSTER_ON:
+                        case CarHvacManager.ID_WINDOW_DEFROSTER_ON:
                             if((zones & VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD) ==
                                     VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD) {
                                 mTbDefrostFront.setChecked((boolean)value.getValue());
@@ -175,7 +174,7 @@ public class HvacTestFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            mCarHvacManager.registerListener(mHvacListener);
+            mCarHvacManager.registerCallback(mHvacCallback);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Car is not connected!");
         }
@@ -185,7 +184,7 @@ public class HvacTestFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         try {
-            mCarHvacManager.unregisterListener(mHvacListener);
+            mCarHvacManager.unregisterCallback(mHvacCallback);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to unregister listener", e);
         }
@@ -211,37 +210,37 @@ public class HvacTestFragment extends Fragment {
             }
 
             switch(propId) {
-                case HvacPropertyId.OUTSIDE_AIR_TEMP:
+                case CarHvacManager.ID_OUTSIDE_AIR_TEMP:
                     configureOutsideTemp(v, prop);
                     break;
-                case HvacPropertyId.ZONED_DUAL_ZONE_ON:
+                case CarHvacManager.ID_ZONED_DUAL_ZONE_ON:
                     configureDualOn(v, prop);
                     break;
-                case HvacPropertyId.ZONED_AC_ON:
+                case CarHvacManager.ID_ZONED_AC_ON:
                     configureAcOn(v, prop);
                     break;
-                case HvacPropertyId.ZONED_FAN_POSITION:
+                case CarHvacManager.ID_ZONED_FAN_POSITION:
                     configureFanPosition(v, prop);
                     break;
-                case HvacPropertyId.ZONED_FAN_SPEED_SETPOINT:
+                case CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT:
                     configureFanSpeed(v, prop);
                     break;
-                case HvacPropertyId.ZONED_TEMP_SETPOINT:
+                case CarHvacManager.ID_ZONED_TEMP_SETPOINT:
                     configureTempSetpoint(v, prop);
                     break;
-                case HvacPropertyId.ZONED_AUTOMATIC_MODE_ON:
+                case CarHvacManager.ID_ZONED_AUTOMATIC_MODE_ON:
                     configureAutoModeOn(v, prop);
                     break;
-                case HvacPropertyId.ZONED_AIR_RECIRCULATION_ON:
+                case CarHvacManager.ID_ZONED_AIR_RECIRCULATION_ON:
                     configureRecircOn(v, prop);
                     break;
-                case HvacPropertyId.ZONED_MAX_AC_ON:
+                case CarHvacManager.ID_ZONED_MAX_AC_ON:
                     configureMaxAcOn(v, prop);
                     break;
-                case HvacPropertyId.ZONED_MAX_DEFROST_ON:
+                case CarHvacManager.ID_ZONED_MAX_DEFROST_ON:
                     configureMaxDefrostOn(v, prop);
                     break;
-                case HvacPropertyId.WINDOW_DEFROSTER_ON:
+                case CarHvacManager.ID_WINDOW_DEFROSTER_ON:
                     configureDefrosterOn(v, prop);
                     break;
                 default:
@@ -283,7 +282,7 @@ public class HvacTestFragment extends Fragment {
         mTbDual.setOnClickListener(view -> {
             // TODO handle zone properly
             try {
-                mCarHvacManager.setBooleanProperty(HvacPropertyId.ZONED_DUAL_ZONE_ON,temp,
+                mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_DUAL_ZONE_ON,temp,
                         mTbDual.isChecked());
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Failed to set HVAC boolean property", e);
@@ -299,7 +298,7 @@ public class HvacTestFragment extends Fragment {
         mTbAc.setOnClickListener(view -> {
             // TODO handle zone properly
             try {
-                mCarHvacManager.setBooleanProperty(HvacPropertyId.ZONED_AC_ON, mZoneForAcOn,
+                mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_AC_ON, mZoneForAcOn,
                         mTbAc.isChecked());
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Failed to set HVAC boolean property", e);
@@ -315,7 +314,7 @@ public class HvacTestFragment extends Fragment {
         mTbAuto.setOnClickListener(view -> {
             // TODO handle zone properly
             try {
-                mCarHvacManager.setBooleanProperty(HvacPropertyId.ZONED_AUTOMATIC_MODE_ON,temp,
+                mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_AUTOMATIC_MODE_ON,temp,
                         mTbAuto.isChecked());
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Failed to set HVAC boolean property", e);
@@ -348,7 +347,7 @@ public class HvacTestFragment extends Fragment {
                     throw new IllegalStateException("Unexpected fan position: " + checkedId);
             }
             try {
-                mCarHvacManager.setIntProperty(HvacPropertyId.ZONED_FAN_POSITION,
+                mCarHvacManager.setIntProperty(CarHvacManager.ID_ZONED_FAN_POSITION,
                         mZoneForFanPosition,
                         position);
             } catch (CarNotConnectedException e) {
@@ -374,7 +373,7 @@ public class HvacTestFragment extends Fragment {
         mZoneForFanSpeed = prop.getFirstAndOnlyAreaId();
         try {
             mCurFanSpeed = mCarHvacManager.getIntProperty(
-                    HvacPropertyId.ZONED_FAN_SPEED_SETPOINT,
+                    CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT,
                     mZoneForFanSpeed);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to get HVAC int property", e);
@@ -387,7 +386,7 @@ public class HvacTestFragment extends Fragment {
                 mCurFanSpeed++;
                 mTvFanSpeed.setText(String.valueOf(mCurFanSpeed));
                 try {
-                    mCarHvacManager.setIntProperty(HvacPropertyId.ZONED_FAN_SPEED_SETPOINT,
+                    mCarHvacManager.setIntProperty(CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT,
                             mZoneForFanSpeed, mCurFanSpeed);
                 } catch (CarNotConnectedException e) {
                     Log.e(TAG, "Failed to set HVAC int property", e);
@@ -402,7 +401,7 @@ public class HvacTestFragment extends Fragment {
                 mCurFanSpeed--;
                 mTvFanSpeed.setText(String.valueOf(mCurFanSpeed));
                 try {
-                    mCarHvacManager.setIntProperty(HvacPropertyId.ZONED_FAN_SPEED_SETPOINT,
+                    mCarHvacManager.setIntProperty(CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT,
                             mZoneForFanSpeed, mCurFanSpeed);
                 } catch (CarNotConnectedException e) {
                     Log.e(TAG, "Failed to set HVAC fan speed property", e);
@@ -441,7 +440,7 @@ public class HvacTestFragment extends Fragment {
         if (mZoneForSetTempD != 0) {
             try {
                 mCurDTemp = mCarHvacManager.getFloatProperty(
-                        HvacPropertyId.ZONED_TEMP_SETPOINT,
+                        CarHvacManager.ID_ZONED_TEMP_SETPOINT,
                         mZoneForSetTempD);
                 if (mCurDTemp < mMinTemp) {
                     mCurDTemp = mMinTemp;
@@ -458,7 +457,7 @@ public class HvacTestFragment extends Fragment {
                     mTvDTemp.setText(String.valueOf(mCurDTemp));
                     try {
                         mCarHvacManager.setFloatProperty(
-                                HvacPropertyId.ZONED_TEMP_SETPOINT,
+                                CarHvacManager.ID_ZONED_TEMP_SETPOINT,
                                 mZoneForSetTempD, mCurDTemp);
                     } catch (CarNotConnectedException e) {
                         Log.e(TAG, "Failed to set HVAC zoned temp property", e);
@@ -474,7 +473,7 @@ public class HvacTestFragment extends Fragment {
                     mTvDTemp.setText(String.valueOf(mCurDTemp));
                     try {
                         mCarHvacManager.setFloatProperty(
-                                HvacPropertyId.ZONED_TEMP_SETPOINT,
+                                CarHvacManager.ID_ZONED_TEMP_SETPOINT,
                                 mZoneForSetTempD, mCurDTemp);
                     } catch (CarNotConnectedException e) {
                         Log.e(TAG, "Failed to set HVAC zoned temp property", e);
@@ -489,7 +488,7 @@ public class HvacTestFragment extends Fragment {
         if (mZoneForSetTempP !=0 ) {
             try {
                 mCurPTemp = mCarHvacManager.getFloatProperty(
-                        HvacPropertyId.ZONED_TEMP_SETPOINT,
+                        CarHvacManager.ID_ZONED_TEMP_SETPOINT,
                         mZoneForSetTempP);
                 if (mCurPTemp < mMinTemp) {
                     mCurPTemp = mMinTemp;
@@ -506,7 +505,7 @@ public class HvacTestFragment extends Fragment {
                     mTvPTemp.setText(String.valueOf(mCurPTemp));
                     try {
                         mCarHvacManager.setFloatProperty(
-                                HvacPropertyId.ZONED_TEMP_SETPOINT,
+                                CarHvacManager.ID_ZONED_TEMP_SETPOINT,
                                 mZoneForSetTempP, mCurPTemp);
                     } catch (CarNotConnectedException e) {
                         Log.e(TAG, "Failed to set HVAC zoned temp property", e);
@@ -522,7 +521,7 @@ public class HvacTestFragment extends Fragment {
                     mTvPTemp.setText(String.valueOf(mCurPTemp));
                     try {
                         mCarHvacManager.setFloatProperty(
-                                HvacPropertyId.ZONED_TEMP_SETPOINT,
+                                CarHvacManager.ID_ZONED_TEMP_SETPOINT,
                                 mZoneForSetTempP, mCurPTemp);
                     } catch (CarNotConnectedException e) {
                         Log.e(TAG, "Failed to set HVAC zoned temp property", e);
@@ -540,7 +539,7 @@ public class HvacTestFragment extends Fragment {
             mTbDefrostFront.setEnabled(true);
             mTbDefrostFront.setOnClickListener(view -> {
                 try {
-                    mCarHvacManager.setBooleanProperty(HvacPropertyId.WINDOW_DEFROSTER_ON,
+                    mCarHvacManager.setBooleanProperty(CarHvacManager.ID_WINDOW_DEFROSTER_ON,
                             VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD,
                             mTbDefrostFront.isChecked());
                 } catch (CarNotConnectedException e) {
@@ -553,7 +552,7 @@ public class HvacTestFragment extends Fragment {
             mTbDefrostRear.setEnabled(true);
             mTbDefrostRear.setOnClickListener(view -> {
                 try {
-                    mCarHvacManager.setBooleanProperty(HvacPropertyId.WINDOW_DEFROSTER_ON,
+                    mCarHvacManager.setBooleanProperty(CarHvacManager.ID_WINDOW_DEFROSTER_ON,
                             VehicleWindow.VEHICLE_WINDOW_REAR_WINDSHIELD,
                             mTbDefrostRear.isChecked());
                 } catch (CarNotConnectedException e) {
@@ -571,8 +570,8 @@ public class HvacTestFragment extends Fragment {
         mTbRecirc.setOnClickListener(view -> {
             // TODO handle zone properly
             try {
-                mCarHvacManager.setBooleanProperty(HvacPropertyId.ZONED_AIR_RECIRCULATION_ON,temp,
-                        mTbRecirc.isChecked());
+                mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_AIR_RECIRCULATION_ON,
+                        temp, mTbRecirc.isChecked());
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Failed to set HVAC boolean property", e);
             }
@@ -587,7 +586,7 @@ public class HvacTestFragment extends Fragment {
         mTbMaxAc.setOnClickListener(view -> {
             // TODO handle zone properly
             try {
-                mCarHvacManager.setBooleanProperty(HvacPropertyId.ZONED_MAX_AC_ON,temp,
+                mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_MAX_AC_ON,temp,
                         mTbMaxAc.isChecked());
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Failed to set HVAC boolean property", e);
@@ -603,7 +602,7 @@ public class HvacTestFragment extends Fragment {
         mTbMaxDefrost.setOnClickListener(view -> {
             // TODO handle zone properly
             try {
-                mCarHvacManager.setBooleanProperty(HvacPropertyId.ZONED_MAX_DEFROST_ON,temp,
+                mCarHvacManager.setBooleanProperty(CarHvacManager.ID_ZONED_MAX_DEFROST_ON,temp,
                         mTbMaxDefrost.isChecked());
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Failed to set HVAC boolean property", e);

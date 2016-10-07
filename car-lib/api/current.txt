@@ -61,13 +61,6 @@ package android.car {
 
 }
 
-package android.car.annotation {
-
-  public abstract class ValueTypeDef implements java.lang.annotation.Annotation {
-  }
-
-}
-
 package android.car.app.menu {
 
   public abstract class CarMenuCallbacks {

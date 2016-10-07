@@ -21,7 +21,7 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.car.hardware.property.CarPropertyManagerBase;
-import android.car.hardware.property.CarPropertyManagerBase.CarPropertyEventListener;
+import android.car.hardware.property.CarPropertyManagerBase.CarPropertyEventCallback;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -46,7 +46,7 @@ public final class CarVendorExtensionManager implements CarManagerBase {
     private final CarPropertyManagerBase mPropertyManager;
 
     @GuardedBy("mLock")
-    private ArraySet<CarVendorExtensionListener> mListeners;
+    private ArraySet<CarVendorExtensionCallback> mCallbacks;
     private final Object mLock = new Object();
 
     /**
@@ -63,7 +63,7 @@ public final class CarVendorExtensionManager implements CarManagerBase {
      * Contains callback functions that will be called when some event happens with vehicle
      * property.
      */
-    public interface CarVendorExtensionListener {
+    public interface CarVendorExtensionCallback {
         /** Called when a property is updated */
         void onChangeEvent(CarPropertyValue value);
 
@@ -75,46 +75,47 @@ public final class CarVendorExtensionManager implements CarManagerBase {
      * Registers listener. The methods of the listener will be called when new events arrived in
      * the main thread.
      */
-    public void registerListener(CarVendorExtensionListener listener) throws CarNotConnectedException {
+    public void registerCallback(CarVendorExtensionCallback callback)
+            throws CarNotConnectedException {
         synchronized (mLock) {
-            if (mListeners == null) {
-                mPropertyManager.registerListener(new CarPropertyEventListener() {
+            if (mCallbacks == null) {
+                mPropertyManager.registerCallback(new CarPropertyEventCallback() {
                     @Override
                     public void onChangeEvent(CarPropertyValue value) {
-                        for (CarVendorExtensionListener listener: getListeners()) {
+                        for (CarVendorExtensionCallback listener: getCallbacks()) {
                             listener.onChangeEvent(value);
                         }
                     }
 
                     @Override
                     public void onErrorEvent(int propertyId, int zone) {
-                        for (CarVendorExtensionListener listener: getListeners()) {
+                        for (CarVendorExtensionCallback listener: getCallbacks()) {
                             listener.onErrorEvent(propertyId, zone);
                         }
                     }
                 });
-                mListeners = new ArraySet<>(1 /* We expect at least one element */);
+                mCallbacks = new ArraySet<>(1 /* We expect at least one element */);
             }
-            mListeners.add(listener);
+            mCallbacks.add(callback);
         }
     }
 
     /** Unregisters listener that was previously registered. */
-    public void unregisterListener(CarVendorExtensionListener listener)
+    public void unregisterCallback(CarVendorExtensionCallback callback)
             throws CarNotConnectedException {
         synchronized (mLock) {
-            mListeners.remove(listener);
-            if (mListeners.isEmpty()) {
-                mPropertyManager.unregisterListener();
-                mListeners = null;
+            mCallbacks.remove(callback);
+            if (mCallbacks.isEmpty()) {
+                mPropertyManager.unregisterCallback();
+                mCallbacks = null;
             }
         }
     }
 
     /** Returns copy of listeners. Thread safe. */
-    private CarVendorExtensionListener[] getListeners() {
+    private CarVendorExtensionCallback[] getCallbacks() {
         synchronized (mLock) {
-            return mListeners.toArray(new CarVendorExtensionListener[mListeners.size()]);
+            return mCallbacks.toArray(new CarVendorExtensionCallback[mCallbacks.size()]);
         }
     }
 
