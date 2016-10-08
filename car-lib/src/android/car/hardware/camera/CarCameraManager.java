@@ -67,7 +67,7 @@ public final class CarCameraManager implements CarManagerBase {
      *
      * @return Array of CAR_CAMERA_TYPE_* telling which cameras are present
      */
-    public int[] getCameraList() {
+    public int[] getCameraList() throws CarNotConnectedException {
         return mCameraList;
     }
 
@@ -88,7 +88,7 @@ public final class CarCameraManager implements CarManagerBase {
         return capabilities;
     }
 
-    public CarCamera openCamera(int cameraType) {
+    public CarCamera openCamera(int cameraType) throws CarNotConnectedException {
         CarCamera camera = null;
 
         // Find cameraType in the list of available cameras

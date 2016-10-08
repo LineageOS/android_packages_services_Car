@@ -61,8 +61,7 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
     }
 
     @Override
-    public void removeFocusListener(OnAppFocusChangedListener listener, int appType)
-            throws CarNotConnectedException {
+    public void removeFocusListener(OnAppFocusChangedListener listener, int appType) {
         OnAppFocusChangedListenerProxy proxy;
         synchronized (this) {
             proxy = mChangeListeners.get(listener);
@@ -70,16 +69,11 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
                 return;
             }
         }
-        try {
-            mManager.removeFocusListener(proxy, appType);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
+        mManager.removeFocusListener(proxy, appType);
     }
 
     @Override
-    public void removeFocusListener(OnAppFocusChangedListener listener)
-            throws CarNotConnectedException {
+    public void removeFocusListener(OnAppFocusChangedListener listener) {
         OnAppFocusChangedListenerProxy proxy;
         synchronized (this) {
             proxy = mChangeListeners.remove(listener);
@@ -87,11 +81,7 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
                 return;
             }
         }
-        try {
-            mManager.removeFocusListener(proxy);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
+        mManager.removeFocusListener(proxy);
     }
 
     @Override
@@ -133,8 +123,7 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
     }
 
     @Override
-    public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback, int appType)
-            throws CarNotConnectedException {
+    public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback, int appType) {
         if (ownershipCallback == null) {
             throw new IllegalArgumentException("null listener");
         }
@@ -145,16 +134,11 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
                 return;
             }
         }
-        try {
-            mManager.abandonAppFocus(proxy, appType);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
+        mManager.abandonAppFocus(proxy, appType);
     }
 
     @Override
-    public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback)
-            throws CarNotConnectedException {
+    public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback) {
         if (ownershipCallback == null) {
             throw new IllegalArgumentException("null listener");
         }
@@ -165,11 +149,7 @@ public class CarAppFocusManagerEmbedded extends CarAppFocusManager {
                 return;
             }
         }
-        try {
-            mManager.abandonAppFocus(proxy);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
+        mManager.abandonAppFocus(proxy);
     }
 
     @Override

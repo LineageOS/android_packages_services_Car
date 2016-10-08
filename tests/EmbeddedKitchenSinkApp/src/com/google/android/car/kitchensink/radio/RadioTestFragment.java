@@ -282,8 +282,12 @@ public class RadioTestFragment extends Fragment {
                 if (DBG) {
                     Log.i(TAG, "Get radio focus");
                 }
-                mCarAudioManager.requestAudioFocus(mRadioFocusListener, mRadioAudioAttrib,
-                        AudioManager.AUDIOFOCUS_GAIN, 0);
+                try {
+                    mCarAudioManager.requestAudioFocus(mRadioFocusListener, mRadioAudioAttrib,
+                            AudioManager.AUDIOFOCUS_GAIN, 0);
+                } catch (CarNotConnectedException e) {
+                  //ignore for now
+                }
                 mHasRadioFocus = true;
                 updateStates();
             }

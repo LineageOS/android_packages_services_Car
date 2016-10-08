@@ -32,13 +32,13 @@ package android.support.car {
 
   public abstract class CarAppFocusManager {
     ctor public CarAppFocusManager();
-    method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) throws android.support.car.CarNotConnectedException;
-    method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.support.car.CarNotConnectedException;
+    method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int);
+    method public abstract void abandonAppFocus(android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback);
     method public abstract void addFocusListener(android.support.car.CarAppFocusManager.OnAppFocusChangedListener, int) throws android.support.car.CarNotConnectedException;
     method public abstract boolean isOwningFocus(int, android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.support.car.CarNotConnectedException;
-    method public abstract void removeFocusListener(android.support.car.CarAppFocusManager.OnAppFocusChangedListener, int) throws android.support.car.CarNotConnectedException;
-    method public abstract void removeFocusListener(android.support.car.CarAppFocusManager.OnAppFocusChangedListener) throws android.support.car.CarNotConnectedException;
-    method public abstract int requestAppFocus(int, android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException, java.lang.SecurityException;
+    method public abstract void removeFocusListener(android.support.car.CarAppFocusManager.OnAppFocusChangedListener, int);
+    method public abstract void removeFocusListener(android.support.car.CarAppFocusManager.OnAppFocusChangedListener);
+    method public abstract int requestAppFocus(int, android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.support.car.CarNotConnectedException, java.lang.SecurityException;
     field public static final int APP_FOCUS_REQUEST_FAILED = 0; // 0x0
     field public static final int APP_FOCUS_REQUEST_SUCCEEDED = 1; // 0x1
     field public static final int APP_FOCUS_TYPE_NAVIGATION = 1; // 0x1
@@ -189,8 +189,8 @@ package android.support.car.hardware {
     method public abstract android.support.car.hardware.CarSensorEvent getLatestSensorEvent(int) throws android.support.car.CarNotConnectedException;
     method public abstract int[] getSupportedSensors() throws android.support.car.CarNotConnectedException;
     method public abstract boolean isSensorSupported(int) throws android.support.car.CarNotConnectedException;
-    method public abstract void removeListener(android.support.car.hardware.CarSensorManager.OnSensorChangedListener) throws android.support.car.CarNotConnectedException;
-    method public abstract void removeListener(android.support.car.hardware.CarSensorManager.OnSensorChangedListener, int) throws android.support.car.CarNotConnectedException;
+    method public abstract void removeListener(android.support.car.hardware.CarSensorManager.OnSensorChangedListener);
+    method public abstract void removeListener(android.support.car.hardware.CarSensorManager.OnSensorChangedListener, int);
     field public static final int SENSOR_RATE_FASTEST = 0; // 0x0
     field public static final int SENSOR_RATE_NORMAL = 3; // 0x3
     field public static final int SENSOR_TYPE_COMPASS = 1; // 0x1
@@ -209,15 +209,15 @@ package android.support.car.media {
 
   public abstract class CarAudioManager {
     ctor public CarAudioManager();
-    method public abstract int abandonAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes);
+    method public abstract void abandonAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes);
     method public abstract android.support.car.media.CarAudioRecord createCarAudioRecord(int) throws android.support.car.CarNotConnectedException, java.lang.SecurityException;
-    method public abstract android.media.AudioAttributes getAudioAttributesForCarUsage(int);
-    method public abstract android.media.AudioFormat getAudioRecordAudioFormat();
+    method public abstract android.media.AudioAttributes getAudioAttributesForCarUsage(int) throws android.support.car.CarNotConnectedException;
+    method public abstract android.media.AudioFormat getAudioRecordAudioFormat() throws android.support.car.CarNotConnectedException;
     method public abstract int getAudioRecordMaxBufferSize() throws android.support.car.CarNotConnectedException;
     method public abstract int getAudioRecordMinBufferSize() throws android.support.car.CarNotConnectedException;
-    method public abstract boolean isAudioRecordSupported();
+    method public abstract boolean isAudioRecordSupported() throws android.support.car.CarNotConnectedException;
     method public abstract boolean isMediaMuted() throws android.support.car.CarNotConnectedException;
-    method public abstract int requestAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes, int) throws java.lang.IllegalArgumentException;
+    method public abstract int requestAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes, int) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     field public static final int CAR_AUDIO_USAGE_ALARM = 6; // 0x6
     field public static final int CAR_AUDIO_USAGE_DEFAULT = 0; // 0x0
     field public static final int CAR_AUDIO_USAGE_MUSIC = 1; // 0x1
@@ -231,10 +231,10 @@ package android.support.car.media {
 
   public abstract class CarAudioRecord {
     ctor public CarAudioRecord();
-    method public abstract int getAudioSessionId();
-    method public abstract int getBufferSize();
-    method public abstract int getRecordingState();
-    method public abstract int getState();
+    method public abstract int getAudioSessionId() throws android.support.car.CarNotConnectedException;
+    method public abstract int getBufferSize() throws android.support.car.CarNotConnectedException;
+    method public abstract int getRecordingState() throws android.support.car.CarNotConnectedException;
+    method public abstract int getState() throws android.support.car.CarNotConnectedException;
     method public abstract int read(byte[], int, int) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException;
     method public abstract void release();
     method public abstract void startRecording() throws android.support.car.CarNotConnectedException;

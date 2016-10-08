@@ -17,7 +17,6 @@ package android.car.apitest;
 
 import android.car.Car;
 import android.car.hardware.cabin.CarCabinManager;
-import android.car.hardware.cabin.CarCabinManager.CabinPropertyId;
 import android.car.hardware.CarPropertyConfig;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
@@ -58,52 +57,52 @@ public class CarCabinManagerTest extends CarApiTestBase {
         int propId = property.getPropertyId();
         switch (propId) {
             // Zoned boolean properties
-            case CabinPropertyId.DOOR_LOCK:
-            case CabinPropertyId.MIRROR_LOCK:
-            case CabinPropertyId.MIRROR_FOLD:
-            case CabinPropertyId.SEAT_BELT_BUCKLED:
-            case CabinPropertyId.WINDOW_LOCK:
+            case CarCabinManager.ID_DOOR_LOCK:
+            case CarCabinManager.ID_MIRROR_LOCK:
+            case CarCabinManager.ID_MIRROR_FOLD:
+            case CarCabinManager.ID_SEAT_BELT_BUCKLED:
+            case CarCabinManager.ID_WINDOW_LOCK:
                 assertEquals(Boolean.class, property.getPropertyType());
                 assertFalse(property.isGlobalProperty());
                 break;
 
             // Zoned integer properties
-            case CabinPropertyId.DOOR_POS:
-            case CabinPropertyId.DOOR_MOVE:
-            case CabinPropertyId.MIRROR_Z_POS:
-            case CabinPropertyId.MIRROR_Z_MOVE:
-            case CabinPropertyId.MIRROR_Y_POS:
-            case CabinPropertyId.MIRROR_Y_MOVE:
-            case CabinPropertyId.SEAT_MEMORY_SELECT:
-            case CabinPropertyId.SEAT_MEMORY_SET:
-            case CabinPropertyId.SEAT_BELT_HEIGHT_POS:
-            case CabinPropertyId.SEAT_BELT_HEIGHT_MOVE:
-            case CabinPropertyId.SEAT_FORE_AFT_POS:
-            case CabinPropertyId.SEAT_FORE_AFT_MOVE:
-            case CabinPropertyId.SEAT_BACKREST_ANGLE_1_POS:
-            case CabinPropertyId.SEAT_BACKREST_ANGLE_1_MOVE:
-            case CabinPropertyId.SEAT_BACKREST_ANGLE_2_POS:
-            case CabinPropertyId.SEAT_BACKREST_ANGLE_2_MOVE:
-            case CabinPropertyId.SEAT_HEIGHT_POS:
-            case CabinPropertyId.SEAT_HEIGHT_MOVE:
-            case CabinPropertyId.SEAT_DEPTH_POS:
-            case CabinPropertyId.SEAT_DEPTH_MOVE:
-            case CabinPropertyId.SEAT_TILT_POS:
-            case CabinPropertyId.SEAT_TILT_MOVE:
-            case CabinPropertyId.SEAT_LUMBAR_FORE_AFT_POS:
-            case CabinPropertyId.SEAT_LUMBAR_FORE_AFT_MOVE:
-            case CabinPropertyId.SEAT_LUMBAR_SIDE_SUPPORT_POS:
-            case CabinPropertyId.SEAT_LUMBAR_SIDE_SUPPORT_MOVE:
-            case CabinPropertyId.SEAT_HEADREST_HEIGHT_POS:
-            case CabinPropertyId.SEAT_HEADREST_HEIGHT_MOVE:
-            case CabinPropertyId.SEAT_HEADREST_ANGLE_POS:
-            case CabinPropertyId.SEAT_HEADREST_ANGLE_MOVE:
-            case CabinPropertyId.SEAT_HEADREST_FORE_AFT_POS:
-            case CabinPropertyId.SEAT_HEADREST_FORE_AFT_MOVE:
-            case CabinPropertyId.WINDOW_POS:
-            case CabinPropertyId.WINDOW_MOVE:
-            case CabinPropertyId.WINDOW_VENT_POS:
-            case CabinPropertyId.WINDOW_VENT_MOVE:
+            case CarCabinManager.ID_DOOR_POS:
+            case CarCabinManager.ID_DOOR_MOVE:
+            case CarCabinManager.ID_MIRROR_Z_POS:
+            case CarCabinManager.ID_MIRROR_Z_MOVE:
+            case CarCabinManager.ID_MIRROR_Y_POS:
+            case CarCabinManager.ID_MIRROR_Y_MOVE:
+            case CarCabinManager.ID_SEAT_MEMORY_SELECT:
+            case CarCabinManager.ID_SEAT_MEMORY_SET:
+            case CarCabinManager.ID_SEAT_BELT_HEIGHT_POS:
+            case CarCabinManager.ID_SEAT_BELT_HEIGHT_MOVE:
+            case CarCabinManager.ID_SEAT_FORE_AFT_POS:
+            case CarCabinManager.ID_SEAT_FORE_AFT_MOVE:
+            case CarCabinManager.ID_SEAT_BACKREST_ANGLE_1_POS:
+            case CarCabinManager.ID_SEAT_BACKREST_ANGLE_1_MOVE:
+            case CarCabinManager.ID_SEAT_BACKREST_ANGLE_2_POS:
+            case CarCabinManager.ID_SEAT_BACKREST_ANGLE_2_MOVE:
+            case CarCabinManager.ID_SEAT_HEIGHT_POS:
+            case CarCabinManager.ID_SEAT_HEIGHT_MOVE:
+            case CarCabinManager.ID_SEAT_DEPTH_POS:
+            case CarCabinManager.ID_SEAT_DEPTH_MOVE:
+            case CarCabinManager.ID_SEAT_TILT_POS:
+            case CarCabinManager.ID_SEAT_TILT_MOVE:
+            case CarCabinManager.ID_SEAT_LUMBAR_FORE_AFT_POS:
+            case CarCabinManager.ID_SEAT_LUMBAR_FORE_AFT_MOVE:
+            case CarCabinManager.ID_SEAT_LUMBAR_SIDE_SUPPORT_POS:
+            case CarCabinManager.ID_SEAT_LUMBAR_SIDE_SUPPORT_MOVE:
+            case CarCabinManager.ID_SEAT_HEADREST_HEIGHT_POS:
+            case CarCabinManager.ID_SEAT_HEADREST_HEIGHT_MOVE:
+            case CarCabinManager.ID_SEAT_HEADREST_ANGLE_POS:
+            case CarCabinManager.ID_SEAT_HEADREST_ANGLE_MOVE:
+            case CarCabinManager.ID_SEAT_HEADREST_FORE_AFT_POS:
+            case CarCabinManager.ID_SEAT_HEADREST_FORE_AFT_MOVE:
+            case CarCabinManager.ID_WINDOW_POS:
+            case CarCabinManager.ID_WINDOW_MOVE:
+            case CarCabinManager.ID_WINDOW_VENT_POS:
+            case CarCabinManager.ID_WINDOW_VENT_MOVE:
                 assertEquals(Integer.class, property.getPropertyType());
                 assertFalse(property.isGlobalProperty());
                 checkIntMinMax(property);

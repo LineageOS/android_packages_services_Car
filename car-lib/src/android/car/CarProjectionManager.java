@@ -97,12 +97,12 @@ public final class CarProjectionManager implements CarManagerBase {
      * Unregister listener and stop listening projection events.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void unregsiterProjectionListener() throws CarNotConnectedException {
+    public void unregsiterProjectionListener() {
         synchronized (this) {
             try {
                 mService.unregsiterProjectionListener(mBinderListener);
             } catch (RemoteException e) {
-                throw new CarNotConnectedException(e);
+                //ignore
             }
             mListener = null;
             mVoiceSearchFilter = 0;
@@ -134,7 +134,7 @@ public final class CarProjectionManager implements CarManagerBase {
      * @param serviceIntent
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void unregisterProjectionRunner(Intent serviceIntent) throws CarNotConnectedException {
+    public void unregisterProjectionRunner(Intent serviceIntent) {
         if (serviceIntent == null) {
             throw new IllegalArgumentException("null serviceIntent");
         }
@@ -142,7 +142,7 @@ public final class CarProjectionManager implements CarManagerBase {
             try {
                 mService.unregisterProjectionRunner(serviceIntent);
             } catch (RemoteException e) {
-                throw new CarNotConnectedException(e);
+                //ignore
             }
         }
     }

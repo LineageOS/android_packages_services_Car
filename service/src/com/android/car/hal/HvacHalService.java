@@ -15,7 +15,7 @@
  */
 package com.android.car.hal;
 
-import android.car.hardware.hvac.CarHvacManager.HvacPropertyId;
+import android.car.hardware.hvac.CarHvacManager;
 
 import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 
@@ -24,61 +24,61 @@ public class HvacHalService extends PropertyHalServiceBase {
     private static final String TAG = "HvacHalService";
 
     private final ManagerToHalPropIdMap mMgrHalPropIdMap = ManagerToHalPropIdMap.create(new int[] {
-           HvacPropertyId.MIRROR_DEFROSTER_ON,
+           CarHvacManager.ID_MIRROR_DEFROSTER_ON,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_SIDE_MIRROR_HEAT,
 
-           HvacPropertyId.STEERING_WHEEL_TEMP,
+           CarHvacManager.ID_STEERING_WHEEL_TEMP,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_STEERING_WHEEL_TEMP,
 
-           HvacPropertyId.OUTSIDE_AIR_TEMP,
+           CarHvacManager.ID_OUTSIDE_AIR_TEMP,
            VehicleNetworkConsts.VEHICLE_PROPERTY_ENV_OUTSIDE_TEMPERATURE,
 
-           HvacPropertyId.TEMPERATURE_UNITS,
+           CarHvacManager.ID_TEMPERATURE_UNITS,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_UNITS,
 
-           HvacPropertyId.ZONED_TEMP_SETPOINT,
+           CarHvacManager.ID_ZONED_TEMP_SETPOINT,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET,
 
-           HvacPropertyId.ZONED_TEMP_ACTUAL,
+           CarHvacManager.ID_ZONED_TEMP_ACTUAL,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_TEMPERATURE_CURRENT,
 
-           HvacPropertyId.ZONED_FAN_SPEED_SETPOINT,
+           CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_SPEED,
 
-           HvacPropertyId.ZONED_FAN_SPEED_RPM,
+           CarHvacManager.ID_ZONED_FAN_SPEED_RPM,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_ACTUAL_FAN_SPEED_RPM,
 
-           HvacPropertyId.ZONED_FAN_POSITION_AVAILABLE,
+           CarHvacManager.ID_ZONED_FAN_POSITION_AVAILABLE,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION_AVAILABLE,
 
-           HvacPropertyId.ZONED_FAN_POSITION,
+           CarHvacManager.ID_ZONED_FAN_POSITION,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_FAN_DIRECTION,
 
-           HvacPropertyId.ZONED_SEAT_TEMP,
+           CarHvacManager.ID_ZONED_SEAT_TEMP,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_SEAT_TEMPERATURE,
 
-           HvacPropertyId.ZONED_AC_ON,
+           CarHvacManager.ID_ZONED_AC_ON,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AC_ON,
 
-           HvacPropertyId.ZONED_AUTOMATIC_MODE_ON,
+           CarHvacManager.ID_ZONED_AUTOMATIC_MODE_ON,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_AUTO_ON,
 
-           HvacPropertyId.ZONED_AIR_RECIRCULATION_ON,
+           CarHvacManager.ID_ZONED_AIR_RECIRCULATION_ON,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_RECIRC_ON,
 
-           HvacPropertyId.ZONED_MAX_AC_ON,
+           CarHvacManager.ID_ZONED_MAX_AC_ON,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_AC_ON,
 
-           HvacPropertyId.ZONED_DUAL_ZONE_ON,
+           CarHvacManager.ID_ZONED_DUAL_ZONE_ON,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DUAL_ON,
 
-           HvacPropertyId.ZONED_MAX_DEFROST_ON,
+           CarHvacManager.ID_ZONED_MAX_DEFROST_ON,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_MAX_DEFROST_ON,
 
-           HvacPropertyId.ZONED_HVAC_POWER_ON,
+           CarHvacManager.ID_ZONED_HVAC_POWER_ON,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_POWER_ON,
 
-           HvacPropertyId.WINDOW_DEFROSTER_ON,
+           CarHvacManager.ID_WINDOW_DEFROSTER_ON,
            VehicleNetworkConsts.VEHICLE_PROPERTY_HVAC_DEFROSTER
     });
 
