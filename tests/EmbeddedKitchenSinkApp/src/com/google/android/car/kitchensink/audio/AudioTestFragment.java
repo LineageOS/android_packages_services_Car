@@ -159,16 +159,20 @@ public class AudioTestFragment extends Fragment {
                 } catch (CarNotConnectedException e) {
                     throw new RuntimeException("Failed to create audio manager", e);
                 }
-                mMusicAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
-                        CarAudioManager.CAR_AUDIO_USAGE_MUSIC);
-                mNavAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
-                        CarAudioManager.CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE);
-                mVrAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
-                        CarAudioManager.CAR_AUDIO_USAGE_VOICE_COMMAND);
-                mRadioAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
-                        CarAudioManager.CAR_AUDIO_USAGE_RADIO);
-                mSystemSoundAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
-                        CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SOUND);
+                try {
+                    mMusicAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
+                            CarAudioManager.CAR_AUDIO_USAGE_MUSIC);
+                    mNavAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
+                            CarAudioManager.CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE);
+                    mVrAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
+                            CarAudioManager.CAR_AUDIO_USAGE_VOICE_COMMAND);
+                    mRadioAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
+                            CarAudioManager.CAR_AUDIO_USAGE_RADIO);
+                    mSystemSoundAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
+                            CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SOUND);
+                } catch (CarNotConnectedException e) {
+                    //ignore for now
+                }
 
                 mMusicPlayer = new AudioPlayer(mContext, R.raw.john_harrison_with_the_wichita_state_university_chamber_players_05_summer_mvt_2_adagio,
                         mMusicAudioAttrib);
@@ -274,12 +278,8 @@ public class AudioTestFragment extends Fragment {
                             new PlayStateListener() {
                         @Override
                         public void onCompletion() {
-                            try {
-                                mAppFocusManager.abandonAppFocus(mOwnershipCallbacks,
-                                        CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-                            } catch (CarNotConnectedException e) {
-                                Log.e(TAG, "Failed to reset active focus", e);
-                            }
+                            mAppFocusManager.abandonAppFocus(mOwnershipCallbacks,
+                                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
                         }
                     });
                 }
@@ -306,12 +306,8 @@ public class AudioTestFragment extends Fragment {
                             new PlayStateListener() {
                         @Override
                         public void onCompletion() {
-                            try {
-                                mAppFocusManager.abandonAppFocus(mOwnershipCallbacks,
-                                        CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
-                            } catch (CarNotConnectedException e) {
-                                Log.e(TAG, "Failed to reset active focus", e);
-                            }
+                            mAppFocusManager.abandonAppFocus(mOwnershipCallbacks,
+                                    CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
                         }
                     });
                 }
@@ -471,11 +467,7 @@ public class AudioTestFragment extends Fragment {
             mAudioFocusHandler = null;
         }
         if (mAppFocusManager != null) {
-            try {
-                mAppFocusManager.abandonAppFocus(mOwnershipCallbacks);
-            } catch (CarNotConnectedException e) {
-                Log.e(TAG, "Failed to reset active focus", e);
-            }
+            mAppFocusManager.abandonAppFocus(mOwnershipCallbacks);
         }
     }
 
@@ -492,11 +484,11 @@ public class AudioTestFragment extends Fragment {
         try {
             mAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                     mOwnershipCallbacks);
+            mCarAudioManager.requestAudioFocus(mNavFocusListener, mNavAudioAttrib,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to set active focus", e);
         }
-        mCarAudioManager.requestAudioFocus(mNavFocusListener, mNavAudioAttrib,
-                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
     }
 
     private void handleNavEnd() {
@@ -509,12 +501,8 @@ public class AudioTestFragment extends Fragment {
         if (DBG) {
             Log.i(TAG, "Nav end");
         }
-        try {
-            mAppFocusManager.abandonAppFocus(mOwnershipCallbacks,
-                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to reset active focus", e);
-        }
+        mAppFocusManager.abandonAppFocus(mOwnershipCallbacks,
+                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         mCarAudioManager.abandonAudioFocus(mNavFocusListener, mNavAudioAttrib);
     }
 
@@ -531,11 +519,11 @@ public class AudioTestFragment extends Fragment {
         try {
             mAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND,
                     mOwnershipCallbacks);
+            mCarAudioManager.requestAudioFocus(mVrFocusListener, mVrAudioAttrib,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, 0);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to set active focus", e);
         }
-        mCarAudioManager.requestAudioFocus(mVrFocusListener, mVrAudioAttrib,
-                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, 0);
     }
 
     private void handleVrEnd() {
@@ -548,12 +536,8 @@ public class AudioTestFragment extends Fragment {
         if (DBG) {
             Log.i(TAG, "VR end");
         }
-        try {
-            mAppFocusManager.abandonAppFocus(mOwnershipCallbacks,
-                    CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to reset active focus", e);
-        }
+        mAppFocusManager.abandonAppFocus(mOwnershipCallbacks,
+                CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
         mCarAudioManager.abandonAudioFocus(mVrFocusListener, mVrAudioAttrib);
     }
 
@@ -564,8 +548,12 @@ public class AudioTestFragment extends Fragment {
         if (DBG) {
             Log.i(TAG, "Radio start");
         }
-        mCarAudioManager.requestAudioFocus(mRadioFocusListener, mRadioAudioAttrib,
-                AudioManager.AUDIOFOCUS_GAIN, 0);
+        try {
+            mCarAudioManager.requestAudioFocus(mRadioFocusListener, mRadioAudioAttrib,
+                    AudioManager.AUDIOFOCUS_GAIN, 0);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "failed", e);
+        }
     }
 
     private void handleRadioEnd() {

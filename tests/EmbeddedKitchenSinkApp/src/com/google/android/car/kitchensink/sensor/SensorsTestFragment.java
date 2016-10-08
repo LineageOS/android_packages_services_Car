@@ -114,11 +114,7 @@ public class SensorsTestFragment extends Fragment {
     public void onPause() {
         super.onPause();
         if (mSensorManager != null) {
-            try {
-                mSensorManager.removeListener(mOnSensorChangedListener);
-            } catch (CarNotConnectedException e) {
-                Log.e(TAG, "Car not connected", e);
-            }
+            mSensorManager.removeListener(mOnSensorChangedListener);
         }
     }
 

@@ -49,6 +49,15 @@ public class CameraTestFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
         View v = inflater.inflate(R.layout.camera_test, container, false);
 
+        try {
+            doCreateView(v);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Car not connected", e);
+        }
+        return v;
+    }
+
+    private void doCreateView(View v) throws CarNotConnectedException {
         int[] cameraList = mCarCameraManager.getCameraList();
         for (int camera : cameraList) {
             if (camera == CarCameraManager.CAR_CAMERA_TYPE_RVC) {
@@ -197,7 +206,6 @@ public class CameraTestFragment extends Fragment {
         if(DBG) {
             Log.d(TAG, "Starting CameraTestFragment");
         }
-        return v;
     }
 
     public void setCameraManager(CarCameraManager cameraManager) {

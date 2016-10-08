@@ -151,7 +151,7 @@ public final class CarRadioManager implements CarManagerBase {
     /**
      * Unregister {@link CarRadioEventListener}.
      */
-    public synchronized void unregisterListener() throws CarNotConnectedException {
+    public synchronized void unregisterListener() {
         if (DBG) {
             Log.d(TAG, "unregisterListener");
         }
@@ -159,7 +159,7 @@ public final class CarRadioManager implements CarManagerBase {
             mService.unregisterListener(mListenerToService);
         } catch (RemoteException ex) {
             Log.e(TAG, "Could not connect: " + ex.toString());
-            throw new CarNotConnectedException(ex);
+            //ignore
         }
         mListenerToService = null;
         mListener = null;
@@ -170,7 +170,7 @@ public final class CarRadioManager implements CarManagerBase {
      *
      * @return: A positive value if the call succeeded, -1 if it failed.
      */
-    public int getPresetCount() {
+    public int getPresetCount() throws CarNotConnectedException {
         return mCount;
     }
 

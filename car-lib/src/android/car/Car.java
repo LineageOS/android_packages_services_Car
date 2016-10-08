@@ -492,6 +492,17 @@ public final class Car {
         }
     }
 
+    /** @hide */
+    public static void hideCarNotConnectedExceptionFromCarService(
+            IllegalStateException e) throws IllegalStateException {
+        String message = e.getMessage();
+        if (CAR_NOT_CONNECTED_EXCEPTION_MSG.equals(message)) {
+            return; //ignore
+        } else {
+            throw e;
+        }
+    }
+
     private CarManagerBase createCarManager(String serviceName, IBinder binder)
             throws CarNotConnectedException {
         CarManagerBase manager = null;

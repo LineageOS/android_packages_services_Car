@@ -17,7 +17,6 @@ package android.car.apitest;
 
 import android.car.Car;
 import android.car.hardware.hvac.CarHvacManager;
-import android.car.hardware.hvac.CarHvacManager.HvacPropertyId;
 import android.car.hardware.CarPropertyConfig;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
@@ -56,44 +55,44 @@ public class CarHvacManagerTest extends CarApiTestBase {
 
     private void assertTypeAndZone(CarPropertyConfig property) {
         switch (property.getPropertyId()) {
-            case HvacPropertyId.MIRROR_DEFROSTER_ON: // non-zoned bool
+            case CarHvacManager.ID_MIRROR_DEFROSTER_ON: // non-zoned bool
                 assertEquals(Boolean.class, property.getPropertyType());
                 assertTrue(property.isGlobalProperty());
                 break;
-            case HvacPropertyId.STEERING_WHEEL_TEMP: // non-zoned int
-            case HvacPropertyId.TEMPERATURE_UNITS:
+            case CarHvacManager.ID_STEERING_WHEEL_TEMP: // non-zoned int
+            case CarHvacManager.ID_TEMPERATURE_UNITS:
                 assertEquals(Integer.class, property.getPropertyType());
                 assertTrue(property.isGlobalProperty());
                 checkIntMinMax(property);
                 break;
-            case HvacPropertyId.OUTSIDE_AIR_TEMP:
+            case CarHvacManager.ID_OUTSIDE_AIR_TEMP:
                 assertEquals(Float.class, property.getPropertyType());
                 assertTrue(property.isGlobalProperty());
                 checkFloatMinMax(property);
                 break;
-            case HvacPropertyId.ZONED_TEMP_SETPOINT: // zoned float
-            case HvacPropertyId.ZONED_TEMP_ACTUAL:
+            case CarHvacManager.ID_ZONED_TEMP_SETPOINT: // zoned float
+            case CarHvacManager.ID_ZONED_TEMP_ACTUAL:
                 assertEquals(Float.class, property.getPropertyType());
                 assertFalse(property.isGlobalProperty());
                 checkFloatMinMax(property);
                 break;
-            case HvacPropertyId.ZONED_FAN_SPEED_SETPOINT: // zoned int
-            case HvacPropertyId.ZONED_FAN_SPEED_RPM:
-            case HvacPropertyId.ZONED_FAN_POSITION_AVAILABLE:
-            case HvacPropertyId.ZONED_FAN_POSITION:
-            case HvacPropertyId.ZONED_SEAT_TEMP:
+            case CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT: // zoned int
+            case CarHvacManager.ID_ZONED_FAN_SPEED_RPM:
+            case CarHvacManager.ID_ZONED_FAN_POSITION_AVAILABLE:
+            case CarHvacManager.ID_ZONED_FAN_POSITION:
+            case CarHvacManager.ID_ZONED_SEAT_TEMP:
                 assertEquals(Integer.class, property.getPropertyType());
                 assertFalse(property.isGlobalProperty());
                 checkIntMinMax(property);
                 break;
-            case HvacPropertyId.ZONED_AC_ON: // zoned boolean
-            case HvacPropertyId.ZONED_AUTOMATIC_MODE_ON:
-            case HvacPropertyId.ZONED_AIR_RECIRCULATION_ON:
-            case HvacPropertyId.ZONED_MAX_AC_ON:
-            case HvacPropertyId.ZONED_DUAL_ZONE_ON:
-            case HvacPropertyId.ZONED_MAX_DEFROST_ON:
-            case HvacPropertyId.ZONED_HVAC_POWER_ON:
-            case HvacPropertyId.WINDOW_DEFROSTER_ON:
+            case CarHvacManager.ID_ZONED_AC_ON: // zoned boolean
+            case CarHvacManager.ID_ZONED_AUTOMATIC_MODE_ON:
+            case CarHvacManager.ID_ZONED_AIR_RECIRCULATION_ON:
+            case CarHvacManager.ID_ZONED_MAX_AC_ON:
+            case CarHvacManager.ID_ZONED_DUAL_ZONE_ON:
+            case CarHvacManager.ID_ZONED_MAX_DEFROST_ON:
+            case CarHvacManager.ID_ZONED_HVAC_POWER_ON:
+            case CarHvacManager.ID_WINDOW_DEFROSTER_ON:
                 assertEquals(Boolean.class, property.getPropertyType());
                 assertFalse(property.isGlobalProperty());
                 break;

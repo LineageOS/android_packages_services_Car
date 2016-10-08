@@ -17,10 +17,14 @@
 package android.support.car.hardware;
 
 import android.Manifest;
+import android.support.annotation.IntDef;
 import android.support.annotation.RequiresPermission;
 import android.support.car.Car;
 import android.support.car.CarManagerBase;
 import android.support.car.CarNotConnectedException;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  *  Enables applications to monitor car sensor data. Applications register listeners to this
@@ -134,6 +138,26 @@ public abstract class CarSensorManager implements CarManagerBase {
     /** @hide */
     public static final int SENSOR_TYPE_VENDOR_EXTENSION_END   = 0x6fffffff;
 
+    /** @hide */
+    @IntDef({
+        SENSOR_TYPE_COMPASS,
+        SENSOR_TYPE_CAR_SPEED,
+        SENSOR_TYPE_RPM,
+        SENSOR_TYPE_ODOMETER,
+        SENSOR_TYPE_FUEL_LEVEL,
+        SENSOR_TYPE_PARKING_BRAKE,
+        SENSOR_TYPE_GEAR,
+        SENSOR_TYPE_NIGHT,
+        SENSOR_TYPE_LOCATION,
+        SENSOR_TYPE_DRIVING_STATUS,
+        SENSOR_TYPE_ENVIRONMENT,
+        SENSOR_TYPE_ACCELEROMETER,
+        SENSOR_TYPE_GPS_SATELLITE,
+        SENSOR_TYPE_GYROSCOPE
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SensorType {}
+
     /** Read sensor at the default normal rate set for each sensors. This is default rate. */
     public static final int SENSOR_RATE_NORMAL  = 3;
     /**@hide*/
@@ -142,6 +166,16 @@ public abstract class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_RATE_FAST = 1;
     /** Read sensor at the maximum rate. Actual rate will be different depending on the sensor. */
     public static final int SENSOR_RATE_FASTEST = 0;
+
+    /** @hide */
+    @IntDef({
+        SENSOR_RATE_NORMAL,
+        SENSOR_RATE_UI,
+        SENSOR_RATE_FAST,
+        SENSOR_RATE_FASTEST
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SensorRate {}
 
     /**
      * Listener for car sensor data change.
@@ -170,7 +204,8 @@ public abstract class CarSensorManager implements CarManagerBase {
      * @return Returns {@code true} if the sensor is supported.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public abstract boolean isSensorSupported(int sensorType) throws CarNotConnectedException;
+    public abstract boolean isSensorSupported(@SensorType int sensorType)
+            throws CarNotConnectedException;
 
     /**
      * Register {@link OnSensorChangedListener} to get repeated sensor updates. Can register
@@ -199,16 +234,16 @@ public abstract class CarSensorManager implements CarManagerBase {
      */
     @RequiresPermission(anyOf={Manifest.permission.ACCESS_FINE_LOCATION, Car.PERMISSION_SPEED,
             Car.PERMISSION_MILEAGE, Car.PERMISSION_FUEL}, conditional=true)
-    public abstract boolean addListener(OnSensorChangedListener listener, int sensorType,
-            int rate) throws CarNotConnectedException, IllegalArgumentException;
+    public abstract boolean addListener(OnSensorChangedListener listener,
+            @SensorType int sensorType, @SensorRate int rate)
+                    throws CarNotConnectedException, IllegalArgumentException;
 
     /**
      * Stop getting sensor updates for the given listener. If there are multiple registrations for
      * this listener, all listening is stopped.
      * @param listener The listener to remove.
      */
-    public abstract  void removeListener(OnSensorChangedListener listener)
-            throws CarNotConnectedException;
+    public abstract  void removeListener(OnSensorChangedListener listener);
 
     /**
      * Stop getting sensor updates for the given listener and sensor. If the same listener is used
@@ -216,8 +251,8 @@ public abstract class CarSensorManager implements CarManagerBase {
      * @param listener The listener to remove.
      * @param sensorType The type to stop receiving notifications for.
      */
-    public abstract  void removeListener(OnSensorChangedListener listener, int sensorType)
-            throws CarNotConnectedException;
+    public abstract  void removeListener(OnSensorChangedListener listener,
+            @SensorType int sensorType);
 
     /**
      * Get the most recent CarSensorEvent for the given type.
@@ -225,5 +260,6 @@ public abstract class CarSensorManager implements CarManagerBase {
      * @return null if no sensor update since connection to the car.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public abstract CarSensorEvent getLatestSensorEvent(int type) throws CarNotConnectedException;
+    public abstract CarSensorEvent getLatestSensorEvent(@SensorType int type)
+            throws CarNotConnectedException;
 }

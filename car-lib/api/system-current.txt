@@ -38,12 +38,12 @@ package android.car {
   }
 
   public final class CarAppFocusManager {
-    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) throws android.car.CarNotConnectedException;
-    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.car.CarNotConnectedException;
+    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int);
+    method public void abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback);
     method public void addFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int) throws android.car.CarNotConnectedException;
     method public boolean isOwningFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) throws android.car.CarNotConnectedException;
-    method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int) throws android.car.CarNotConnectedException;
-    method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener) throws android.car.CarNotConnectedException;
+    method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int);
+    method public void removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener);
     method public int requestAppFocus(int, android.car.CarAppFocusManager.OnAppFocusOwnershipCallback) throws android.car.CarNotConnectedException, java.lang.SecurityException;
     field public static final int APP_FOCUS_REQUEST_FAILED = 0; // 0x0
     field public static final int APP_FOCUS_REQUEST_SUCCEEDED = 1; // 0x1
@@ -74,19 +74,12 @@ package android.car {
     ctor public CarNotConnectedException(java.lang.Exception);
   }
 
-  public class CarOperationNotSupportedException extends java.lang.Exception {
-    ctor public CarOperationNotSupportedException();
-    ctor public CarOperationNotSupportedException(java.lang.String);
-    ctor public CarOperationNotSupportedException(java.lang.String, java.lang.Throwable);
-    ctor public CarOperationNotSupportedException(java.lang.Exception);
-  }
-
   public final class CarProjectionManager {
     method public void onCarDisconnected();
     method public void registerProjectionRunner(android.content.Intent) throws android.car.CarNotConnectedException;
     method public void regsiterProjectionListener(android.car.CarProjectionManager.CarProjectionListener, int) throws android.car.CarNotConnectedException;
-    method public void unregisterProjectionRunner(android.content.Intent) throws android.car.CarNotConnectedException;
-    method public void unregsiterProjectionListener() throws android.car.CarNotConnectedException;
+    method public void unregisterProjectionRunner(android.content.Intent);
+    method public void unregsiterProjectionListener();
     field public static final int PROJECTION_LONG_PRESS_VOICE_SEARCH = 2; // 0x2
     field public static final int PROJECTION_VOICE_SEARCH = 1; // 0x1
   }
@@ -121,17 +114,15 @@ package android.car {
   }
 
   public final class VehicleSeat {
-    field public static final int SEAT_DRIVER_LHD = 1; // 0x1
-    field public static final int SEAT_DRIVER_RHD = 2; // 0x2
-    field public static final int SEAT_ROW_1_PASSENGER_CENTER = 32; // 0x20
-    field public static final int SEAT_ROW_1_PASSENGER_LEFT = 16; // 0x10
-    field public static final int SEAT_ROW_1_PASSENGER_RIGHT = 64; // 0x40
-    field public static final int SEAT_ROW_2_PASSENGER_CENTER = 512; // 0x200
-    field public static final int SEAT_ROW_2_PASSENGER_LEFT = 256; // 0x100
-    field public static final int SEAT_ROW_2_PASSENGER_RIGHT = 1024; // 0x400
-    field public static final int SEAT_ROW_3_PASSENGER_CENTER = 8192; // 0x2000
-    field public static final int SEAT_ROW_3_PASSENGER_LEFT = 4096; // 0x1000
-    field public static final int SEAT_ROW_3_PASSENGER_RIGHT = 16384; // 0x4000
+    field public static final int SEAT_ROW_1_CENTER = 2; // 0x2
+    field public static final int SEAT_ROW_1_LEFT = 1; // 0x1
+    field public static final int SEAT_ROW_1_RIGHT = 4; // 0x4
+    field public static final int SEAT_ROW_2_CENTER = 32; // 0x20
+    field public static final int SEAT_ROW_2_LEFT = 16; // 0x10
+    field public static final int SEAT_ROW_2_RIGHT = 64; // 0x40
+    field public static final int SEAT_ROW_3_CENTER = 512; // 0x200
+    field public static final int SEAT_ROW_3_LEFT = 256; // 0x100
+    field public static final int SEAT_ROW_3_RIGHT = 1024; // 0x400
   }
 
   public final class VehicleWindow {
@@ -172,13 +163,6 @@ package android.car {
     method public static int getNumberOfZones(int);
     method public static int[] listAllZones(int);
     method public static int zoneToIndex(int, int) throws java.lang.IllegalArgumentException;
-  }
-
-}
-
-package android.car.annotation {
-
-  public abstract class ValueTypeDef implements java.lang.annotation.Annotation {
   }
 
 }
@@ -474,8 +458,8 @@ package android.car.hardware {
     method public boolean isSensorSupported(int) throws android.car.CarNotConnectedException;
     method public static boolean isSensorSupported(int[], int);
     method public boolean registerListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public void unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener) throws android.car.CarNotConnectedException;
-    method public void unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int) throws android.car.CarNotConnectedException;
+    method public void unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener);
+    method public void unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int);
     field public static final int SENSOR_RATE_FAST = 1; // 0x1
     field public static final int SENSOR_RATE_FASTEST = 0; // 0x0
     field public static final int SENSOR_RATE_NORMAL = 3; // 0x3
@@ -500,13 +484,13 @@ package android.car.hardware {
     method public <E> E getGlobalProperty(java.lang.Class<E>, int) throws android.car.CarNotConnectedException;
     method public java.util.List<android.car.hardware.CarPropertyConfig> getProperties() throws android.car.CarNotConnectedException;
     method public <E> E getProperty(java.lang.Class<E>, int, int) throws android.car.CarNotConnectedException;
-    method public void registerListener(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionListener) throws android.car.CarNotConnectedException;
+    method public void registerCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback) throws android.car.CarNotConnectedException;
     method public <E> void setGlobalProperty(java.lang.Class<E>, int, E) throws android.car.CarNotConnectedException;
     method public <E> void setProperty(java.lang.Class<E>, int, int, E) throws android.car.CarNotConnectedException;
-    method public void unregisterListener(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionListener) throws android.car.CarNotConnectedException;
+    method public void unregisterCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback);
   }
 
-  public static abstract interface CarVendorExtensionManager.CarVendorExtensionListener {
+  public static abstract interface CarVendorExtensionManager.CarVendorExtensionCallback {
     method public abstract void onChangeEvent(android.car.hardware.CarPropertyValue);
     method public abstract void onErrorEvent(int, int);
   }
@@ -521,58 +505,55 @@ package android.car.hardware.cabin {
     method public int getIntProperty(int, int) throws android.car.CarNotConnectedException;
     method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList() throws android.car.CarNotConnectedException;
     method public static boolean isZonedProperty(int);
-    method public synchronized void registerListener(android.car.hardware.cabin.CarCabinManager.CarCabinEventListener) throws android.car.CarNotConnectedException;
+    method public synchronized void registerCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback) throws android.car.CarNotConnectedException;
     method public void setBooleanProperty(int, int, boolean) throws android.car.CarNotConnectedException;
     method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
     method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
-    method public synchronized void unregisterListener(android.car.hardware.cabin.CarCabinManager.CarCabinEventListener) throws android.car.CarNotConnectedException;
+    method public synchronized void unregisterCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback);
+    field public static final int ID_DOOR_LOCK = 3; // 0x3
+    field public static final int ID_DOOR_MOVE = 2; // 0x2
+    field public static final int ID_DOOR_POS = 1; // 0x1
+    field public static final int ID_MIRROR_FOLD = 4102; // 0x1006
+    field public static final int ID_MIRROR_LOCK = 4101; // 0x1005
+    field public static final int ID_MIRROR_Y_MOVE = 4100; // 0x1004
+    field public static final int ID_MIRROR_Y_POS = 4099; // 0x1003
+    field public static final int ID_MIRROR_Z_MOVE = 4098; // 0x1002
+    field public static final int ID_MIRROR_Z_POS = 4097; // 0x1001
+    field public static final int ID_SEAT_BACKREST_ANGLE_1_MOVE = 8201; // 0x2009
+    field public static final int ID_SEAT_BACKREST_ANGLE_1_POS = 8200; // 0x2008
+    field public static final int ID_SEAT_BACKREST_ANGLE_2_MOVE = 8203; // 0x200b
+    field public static final int ID_SEAT_BACKREST_ANGLE_2_POS = 8202; // 0x200a
+    field public static final int ID_SEAT_BELT_BUCKLED = 8195; // 0x2003
+    field public static final int ID_SEAT_BELT_HEIGHT_MOVE = 8197; // 0x2005
+    field public static final int ID_SEAT_BELT_HEIGHT_POS = 8196; // 0x2004
+    field public static final int ID_SEAT_DEPTH_MOVE = 8207; // 0x200f
+    field public static final int ID_SEAT_DEPTH_POS = 8206; // 0x200e
+    field public static final int ID_SEAT_FORE_AFT_MOVE = 8199; // 0x2007
+    field public static final int ID_SEAT_FORE_AFT_POS = 8198; // 0x2006
+    field public static final int ID_SEAT_HEADREST_ANGLE_MOVE = 8217; // 0x2019
+    field public static final int ID_SEAT_HEADREST_ANGLE_POS = 8216; // 0x2018
+    field public static final int ID_SEAT_HEADREST_FORE_AFT_MOVE = 8219; // 0x201b
+    field public static final int ID_SEAT_HEADREST_FORE_AFT_POS = 8218; // 0x201a
+    field public static final int ID_SEAT_HEADREST_HEIGHT_MOVE = 8215; // 0x2017
+    field public static final int ID_SEAT_HEADREST_HEIGHT_POS = 8214; // 0x2016
+    field public static final int ID_SEAT_HEIGHT_MOVE = 8205; // 0x200d
+    field public static final int ID_SEAT_HEIGHT_POS = 8204; // 0x200c
+    field public static final int ID_SEAT_LUMBAR_FORE_AFT_MOVE = 8211; // 0x2013
+    field public static final int ID_SEAT_LUMBAR_FORE_AFT_POS = 8210; // 0x2012
+    field public static final int ID_SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 8213; // 0x2015
+    field public static final int ID_SEAT_LUMBAR_SIDE_SUPPORT_POS = 8212; // 0x2014
+    field public static final int ID_SEAT_MEMORY_SELECT = 8193; // 0x2001
+    field public static final int ID_SEAT_MEMORY_SET = 8194; // 0x2002
+    field public static final int ID_SEAT_TILT_MOVE = 8209; // 0x2011
+    field public static final int ID_SEAT_TILT_POS = 8208; // 0x2010
+    field public static final int ID_WINDOW_LOCK = 12293; // 0x3005
+    field public static final int ID_WINDOW_MOVE = 12290; // 0x3002
+    field public static final int ID_WINDOW_POS = 12289; // 0x3001
+    field public static final int ID_WINDOW_VENT_MOVE = 12292; // 0x3004
+    field public static final int ID_WINDOW_VENT_POS = 12291; // 0x3003
   }
 
-  public static abstract class CarCabinManager.CabinPropertyId implements java.lang.annotation.Annotation {
-    field public static final int DOOR_LOCK = 3; // 0x3
-    field public static final int DOOR_MOVE = 2; // 0x2
-    field public static final int DOOR_POS = 1; // 0x1
-    field public static final int MIRROR_FOLD = 4102; // 0x1006
-    field public static final int MIRROR_LOCK = 4101; // 0x1005
-    field public static final int MIRROR_Y_MOVE = 4100; // 0x1004
-    field public static final int MIRROR_Y_POS = 4099; // 0x1003
-    field public static final int MIRROR_Z_MOVE = 4098; // 0x1002
-    field public static final int MIRROR_Z_POS = 4097; // 0x1001
-    field public static final int SEAT_BACKREST_ANGLE_1_MOVE = 8201; // 0x2009
-    field public static final int SEAT_BACKREST_ANGLE_1_POS = 8200; // 0x2008
-    field public static final int SEAT_BACKREST_ANGLE_2_MOVE = 8203; // 0x200b
-    field public static final int SEAT_BACKREST_ANGLE_2_POS = 8202; // 0x200a
-    field public static final int SEAT_BELT_BUCKLED = 8195; // 0x2003
-    field public static final int SEAT_BELT_HEIGHT_MOVE = 8197; // 0x2005
-    field public static final int SEAT_BELT_HEIGHT_POS = 8196; // 0x2004
-    field public static final int SEAT_DEPTH_MOVE = 8207; // 0x200f
-    field public static final int SEAT_DEPTH_POS = 8206; // 0x200e
-    field public static final int SEAT_FORE_AFT_MOVE = 8199; // 0x2007
-    field public static final int SEAT_FORE_AFT_POS = 8198; // 0x2006
-    field public static final int SEAT_HEADREST_ANGLE_MOVE = 8217; // 0x2019
-    field public static final int SEAT_HEADREST_ANGLE_POS = 8216; // 0x2018
-    field public static final int SEAT_HEADREST_FORE_AFT_MOVE = 8219; // 0x201b
-    field public static final int SEAT_HEADREST_FORE_AFT_POS = 8218; // 0x201a
-    field public static final int SEAT_HEADREST_HEIGHT_MOVE = 8215; // 0x2017
-    field public static final int SEAT_HEADREST_HEIGHT_POS = 8214; // 0x2016
-    field public static final int SEAT_HEIGHT_MOVE = 8205; // 0x200d
-    field public static final int SEAT_HEIGHT_POS = 8204; // 0x200c
-    field public static final int SEAT_LUMBAR_FORE_AFT_MOVE = 8211; // 0x2013
-    field public static final int SEAT_LUMBAR_FORE_AFT_POS = 8210; // 0x2012
-    field public static final int SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 8213; // 0x2015
-    field public static final int SEAT_LUMBAR_SIDE_SUPPORT_POS = 8212; // 0x2014
-    field public static final int SEAT_MEMORY_SELECT = 8193; // 0x2001
-    field public static final int SEAT_MEMORY_SET = 8194; // 0x2002
-    field public static final int SEAT_TILT_MOVE = 8209; // 0x2011
-    field public static final int SEAT_TILT_POS = 8208; // 0x2010
-    field public static final int WINDOW_LOCK = 12293; // 0x3005
-    field public static final int WINDOW_MOVE = 12290; // 0x3002
-    field public static final int WINDOW_POS = 12289; // 0x3001
-    field public static final int WINDOW_VENT_MOVE = 12292; // 0x3004
-    field public static final int WINDOW_VENT_POS = 12291; // 0x3003
-  }
-
-  public static abstract interface CarCabinManager.CarCabinEventListener {
+  public static abstract interface CarCabinManager.CarCabinEventCallback {
     method public abstract void onChangeEvent(android.car.hardware.CarPropertyValue);
     method public abstract void onErrorEvent(int, int);
   }
@@ -597,8 +578,8 @@ package android.car.hardware.camera {
   public final class CarCameraManager {
     method public void closeCamera(android.car.hardware.camera.CarCamera);
     method public int getCameraCapabilities(int) throws android.car.CarNotConnectedException;
-    method public int[] getCameraList();
-    method public android.car.hardware.camera.CarCamera openCamera(int);
+    method public int[] getCameraList() throws android.car.CarNotConnectedException;
+    method public android.car.hardware.camera.CarCamera openCamera(int) throws android.car.CarNotConnectedException;
     field public static final int ANDROID_OVERLAY_SUPPORT_FLAG = 1; // 0x1
     field public static final int CAMERA_CROP_SUPPORT_FLAG = 2; // 0x2
     field public static final int CAMERA_POSITIONING_SUPPORT_FLAG = 4; // 0x4
@@ -639,39 +620,35 @@ package android.car.hardware.hvac {
     method public int getIntProperty(int, int) throws android.car.CarNotConnectedException;
     method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList() throws android.car.CarNotConnectedException;
     method public static boolean isZonedProperty(int);
-    method public synchronized void registerListener(android.car.hardware.hvac.CarHvacManager.CarHvacEventListener) throws android.car.CarNotConnectedException;
+    method public synchronized void registerCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback) throws android.car.CarNotConnectedException;
     method public void setBooleanProperty(int, int, boolean) throws android.car.CarNotConnectedException;
     method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
     method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
-    method public synchronized void unregisterListener(android.car.hardware.hvac.CarHvacManager.CarHvacEventListener) throws android.car.CarNotConnectedException;
+    method public synchronized void unregisterCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback);
+    field public static final int ID_MIRROR_DEFROSTER_ON = 1; // 0x1
+    field public static final int ID_OUTSIDE_AIR_TEMP = 3; // 0x3
+    field public static final int ID_STEERING_WHEEL_TEMP = 2; // 0x2
+    field public static final int ID_TEMPERATURE_UNITS = 4; // 0x4
+    field public static final int ID_WINDOW_DEFROSTER_ON = 20481; // 0x5001
+    field public static final int ID_ZONED_AC_ON = 16393; // 0x4009
+    field public static final int ID_ZONED_AIR_RECIRCULATION_ON = 16395; // 0x400b
+    field public static final int ID_ZONED_AUTOMATIC_MODE_ON = 16394; // 0x400a
+    field public static final int ID_ZONED_DUAL_ZONE_ON = 16397; // 0x400d
+    field public static final int ID_ZONED_FAN_POSITION = 16391; // 0x4007
+    field public static final int ID_ZONED_FAN_POSITION_AVAILABLE = 16390; // 0x4006
+    field public static final int ID_ZONED_FAN_SPEED_RPM = 16389; // 0x4005
+    field public static final int ID_ZONED_FAN_SPEED_SETPOINT = 16388; // 0x4004
+    field public static final int ID_ZONED_HVAC_POWER_ON = 16387; // 0x4003
+    field public static final int ID_ZONED_MAX_AC_ON = 16396; // 0x400c
+    field public static final int ID_ZONED_MAX_DEFROST_ON = 16398; // 0x400e
+    field public static final int ID_ZONED_SEAT_TEMP = 16392; // 0x4008
+    field public static final int ID_ZONED_TEMP_ACTUAL = 16386; // 0x4002
+    field public static final int ID_ZONED_TEMP_SETPOINT = 16385; // 0x4001
   }
 
-  public static abstract interface CarHvacManager.CarHvacEventListener {
+  public static abstract interface CarHvacManager.CarHvacEventCallback {
     method public abstract void onChangeEvent(android.car.hardware.CarPropertyValue);
     method public abstract void onErrorEvent(int, int);
-  }
-
-  public static abstract class CarHvacManager.HvacPropertyId implements java.lang.annotation.Annotation {
-    field public static final int MAX_GLOBAL_PROPERTY_ID = 16383; // 0x3fff
-    field public static final int MIRROR_DEFROSTER_ON = 1; // 0x1
-    field public static final int OUTSIDE_AIR_TEMP = 3; // 0x3
-    field public static final int STEERING_WHEEL_TEMP = 2; // 0x2
-    field public static final int TEMPERATURE_UNITS = 4; // 0x4
-    field public static final int WINDOW_DEFROSTER_ON = 20481; // 0x5001
-    field public static final int ZONED_AC_ON = 16393; // 0x4009
-    field public static final int ZONED_AIR_RECIRCULATION_ON = 16395; // 0x400b
-    field public static final int ZONED_AUTOMATIC_MODE_ON = 16394; // 0x400a
-    field public static final int ZONED_DUAL_ZONE_ON = 16397; // 0x400d
-    field public static final int ZONED_FAN_POSITION = 16391; // 0x4007
-    field public static final int ZONED_FAN_POSITION_AVAILABLE = 16390; // 0x4006
-    field public static final int ZONED_FAN_SPEED_RPM = 16389; // 0x4005
-    field public static final int ZONED_FAN_SPEED_SETPOINT = 16388; // 0x4004
-    field public static final int ZONED_HVAC_POWER_ON = 16387; // 0x4003
-    field public static final int ZONED_MAX_AC_ON = 16396; // 0x400c
-    field public static final int ZONED_MAX_DEFROST_ON = 16398; // 0x400e
-    field public static final int ZONED_SEAT_TEMP = 16392; // 0x4008
-    field public static final int ZONED_TEMP_ACTUAL = 16386; // 0x4002
-    field public static final int ZONED_TEMP_SETPOINT = 16385; // 0x4001
   }
 
 }
@@ -690,10 +667,10 @@ package android.car.hardware.radio {
 
   public final class CarRadioManager {
     method public android.car.hardware.radio.CarRadioPreset getPreset(int) throws android.car.CarNotConnectedException;
-    method public int getPresetCount();
+    method public int getPresetCount() throws android.car.CarNotConnectedException;
     method public synchronized void registerListener(android.car.hardware.radio.CarRadioManager.CarRadioEventListener) throws android.car.CarNotConnectedException;
     method public boolean setPreset(android.car.hardware.radio.CarRadioPreset) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public synchronized void unregisterListener() throws android.car.CarNotConnectedException;
+    method public synchronized void unregisterListener();
   }
 
   public static abstract interface CarRadioManager.CarRadioEventListener {
@@ -737,13 +714,13 @@ package android.car.input {
 package android.car.media {
 
   public final class CarAudioManager {
-    method public int abandonAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes);
-    method public android.media.AudioAttributes getAudioAttributesForCarUsage(int);
+    method public void abandonAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes);
+    method public android.media.AudioAttributes getAudioAttributesForCarUsage(int) throws android.car.CarNotConnectedException;
     method public int getStreamMaxVolume(int) throws android.car.CarNotConnectedException;
     method public int getStreamMinVolume(int) throws android.car.CarNotConnectedException;
     method public int getStreamVolume(int) throws android.car.CarNotConnectedException;
     method public boolean isMediaMuted() throws android.car.CarNotConnectedException;
-    method public int requestAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes, int, int) throws java.lang.IllegalArgumentException;
+    method public int requestAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes, int, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public boolean setMediaMute(boolean) throws android.car.CarNotConnectedException;
     method public void setStreamVolume(int, int, int) throws android.car.CarNotConnectedException;
     method public void setVolumeController(android.media.IVolumeController) throws android.car.CarNotConnectedException;

@@ -17,6 +17,7 @@
 package android.car.hardware;
 
 import android.Manifest;
+import android.annotation.IntDef;
 import android.annotation.RequiresPermission;
 import android.car.Car;
 import android.car.CarApiUtil;
@@ -31,6 +32,8 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -138,12 +141,37 @@ public final class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_VENDOR_EXTENSION_START = 0x60000000;
     public static final int SENSOR_TYPE_VENDOR_EXTENSION_END   = 0x6fffffff;
 
+    /** @hide */
+    @IntDef({
+        SENSOR_TYPE_CAR_SPEED,
+        SENSOR_TYPE_RPM,
+        SENSOR_TYPE_ODOMETER,
+        SENSOR_TYPE_FUEL_LEVEL,
+        SENSOR_TYPE_PARKING_BRAKE,
+        SENSOR_TYPE_GEAR,
+        SENSOR_TYPE_NIGHT,
+        SENSOR_TYPE_DRIVING_STATUS,
+        SENSOR_TYPE_ENVIRONMENT
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SensorType {}
+
     /** Read sensor in default normal rate set for each sensors. This is default rate. */
     public static final int SENSOR_RATE_NORMAL  = 3;
     public static final int SENSOR_RATE_UI = 2;
     public static final int SENSOR_RATE_FAST = 1;
     /** Read sensor at the maximum rate. Actual rate will be different depending on the sensor. */
     public static final int SENSOR_RATE_FASTEST = 0;
+
+    /** @hide */
+    @IntDef({
+        SENSOR_RATE_NORMAL,
+        SENSOR_RATE_UI,
+        SENSOR_RATE_FAST,
+        SENSOR_RATE_FASTEST
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SensorRate {}
 
     private static final int MSG_SENSOR_EVENTS = 0;
 
@@ -221,7 +249,7 @@ public final class CarSensorManager implements CarManagerBase {
      * @return true if the sensor is supported.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public boolean isSensorSupported(int sensorType) throws CarNotConnectedException {
+    public boolean isSensorSupported(@SensorType int sensorType) throws CarNotConnectedException {
         int[] sensors = getSupportedSensors();
         for (int sensorSupported: sensors) {
             if (sensorType == sensorSupported) {
@@ -237,7 +265,7 @@ public final class CarSensorManager implements CarManagerBase {
      * @param sensorType
      * @return
      */
-    public static boolean isSensorSupported(int[] sensorList, int sensorType) {
+    public static boolean isSensorSupported(int[] sensorList, @SensorType int sensorType) {
         for (int sensorSupported: sensorList) {
             if (sensorType == sensorSupported) {
                 return true;
@@ -281,8 +309,8 @@ public final class CarSensorManager implements CarManagerBase {
      */
     @RequiresPermission(anyOf={Manifest.permission.ACCESS_FINE_LOCATION, Car.PERMISSION_SPEED,
             Car.PERMISSION_MILEAGE, Car.PERMISSION_FUEL}, conditional=true)
-    public boolean registerListener(OnSensorChangedListener listener, int sensorType, int rate)
-            throws CarNotConnectedException, IllegalArgumentException {
+    public boolean registerListener(OnSensorChangedListener listener, @SensorType int sensorType,
+            @SensorRate int rate) throws CarNotConnectedException, IllegalArgumentException {
         assertSensorType(sensorType);
         if (rate != SENSOR_RATE_FASTEST && rate != SENSOR_RATE_NORMAL) {
             throw new IllegalArgumentException("wrong rate " + rate);
@@ -317,8 +345,7 @@ public final class CarSensorManager implements CarManagerBase {
      * @param listener
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void unregisterListener(OnSensorChangedListener listener)
-            throws CarNotConnectedException {
+    public void unregisterListener(OnSensorChangedListener listener) {
         //TODO: removing listener should reset update rate
         synchronized(mActiveSensorListeners) {
             Iterator<Integer> sensorIterator = mActiveSensorListeners.keySet().iterator();
@@ -336,15 +363,14 @@ public final class CarSensorManager implements CarManagerBase {
      * @param sensorType
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public void unregisterListener(OnSensorChangedListener listener, int sensorType)
-            throws CarNotConnectedException {
+    public void unregisterListener(OnSensorChangedListener listener, @SensorType int sensorType) {
         synchronized(mActiveSensorListeners) {
             doUnregisterListenerLocked(listener, sensorType, null);
         }
     }
 
     private void doUnregisterListenerLocked(OnSensorChangedListener listener, Integer sensor,
-            Iterator<Integer> sensorIterator) throws CarNotConnectedException {
+            Iterator<Integer> sensorIterator) {
         CarSensorListeners listeners = mActiveSensorListeners.get(sensor);
         if (listeners != null) {
             if (listeners.contains(listener)) {
@@ -355,7 +381,7 @@ public final class CarSensorManager implements CarManagerBase {
                     mService.unregisterSensorListener(sensor.intValue(),
                             mCarSensorEventListenerToService);
                 } catch (RemoteException e) {
-                    throw new CarNotConnectedException(e);
+                    //ignore
                 }
                 if (sensorIterator == null) {
                     mActiveSensorListeners.remove(sensor);
@@ -389,7 +415,8 @@ public final class CarSensorManager implements CarManagerBase {
      * @return null if there was no sensor update since connected to the car.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public CarSensorEvent getLatestSensorEvent(int type) throws CarNotConnectedException {
+    public CarSensorEvent getLatestSensorEvent(@SensorType int type)
+            throws CarNotConnectedException {
         assertSensorType(type);
         try {
             return mService.getLatestSensorEvent(type);
