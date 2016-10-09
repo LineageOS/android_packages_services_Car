@@ -180,6 +180,22 @@
     <string name="volume_down_logical">Vol -</string>
     <string name="refresh_volume">Refresh volumes</string>
 
+    <!-- Bluetooth Tests -->
+    <string name="sms_recipient_label" translatable="false">Recipient #</string>
+    <string name="sms_content_label" translatable="false">Message Body</string>
+    <string name="sms_connect" translatable="false">Connect</string>
+    <string name="sms_disconnect" translatable="false">Disconnect</string>
+    <string name="sms_send_message" translatable="false">Send</string>
+    <string name="sms_notifications" translatable="false">Toggle Notifications</string>
+    <string name="sms_listing_button" translatable="false">List SMS</string>
+    <string name="sms_listing_label_folder" translatable="false">Folder</string>
+    <string name="sms_listing_label_count" translatable="false">Count</string>
+    <string name="sms_listing_label_offset" translatable="false">Offset</string>
+    <string name="sms_activity_label" translatable="false">Bt Sms Tester</string>
+    <string name="sms_reply_busy" translatable="false">Reply "I'm Busy"</string>
+    <string name="sms_reply_sent" translatable="false">Reply Sent</string>
+    <string name="sms_reply_delivered" translatable="false">Reply Delivered</string>
+
     <!--Car Service Settings-->
     <string name="garage_title">Garage Mode</string>
     <string name="garage_description">Customize your system maintenance</string>
