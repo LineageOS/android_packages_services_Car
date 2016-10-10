@@ -1194,7 +1194,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             if (((mCurrentFocusState.streams & streamsToRequest) == streamsToRequest) &&
                     ((mCurrentFocusState.streams & ~streamsToRequest) != 0)) {
                 // stream is reduced, so do not release it immediately
-                //TODO find better way than blocking here.
                 try {
                     Thread.sleep(NO_FOCUS_PLAY_WAIT_TIME_MS);
                 } catch (InterruptedException e) {
@@ -1343,7 +1342,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     }
 
     private void doHandleFocusRelease() {
-        //TODO Is there a need to wait for the stopping of streams?
         boolean sent = false;
         synchronized (mLock) {
             if (mCurrentFocusState != FocusState.STATE_LOSS) {

@@ -23,13 +23,15 @@ import android.util.Log;
 
 import java.io.PrintWriter;
 
-//TODO
+//TODO implement default one based on time or other sensors. bug: 32066909
 public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
 
     private final Context mContext;
     private SensorListener mSensorListener;
     private boolean mIsReady = false;
     private boolean mStarted = false;
+
+    private static final int[] SUPPORTED_SENSORS = { CarSensorManager.SENSOR_TYPE_NIGHT };
 
     public DayNightModePolicy(Context context) {
         mContext = context;
@@ -42,7 +44,6 @@ public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
 
     @Override
     public synchronized void release() {
-        // TODO Auto-generated method stub
     }
 
     public static CarSensorEvent getDefaultValue(int sensorType) {
@@ -59,7 +60,6 @@ public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
 
     @Override
     public synchronized void onSensorServiceReady() {
-        // TODO Auto-generated method stub
     }
 
     @Override
@@ -69,14 +69,12 @@ public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
 
     @Override
     public synchronized int[] getSupportedSensors() {
-        // TODO Auto-generated method stub
-        return null;
+        return SUPPORTED_SENSORS;
     }
 
     @Override
     public synchronized boolean requestSensorStart(int sensorType, int rate) {
         mStarted = true;
-        // TODO Auto-generated method stub
         Log.w(CarLog.TAG_SENSOR,
                 "DayNightModePolicy.requestSensorStart, default policy not implemented");
         return false;
@@ -84,7 +82,6 @@ public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
 
     @Override
     public synchronized void requestSensorStop(int sensorType) {
-        // TODO Auto-generated method stub
     }
 
     private static CarSensorEvent createEvent(boolean isNight, long timestamp) {
@@ -96,6 +93,5 @@ public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
 
     @Override
     public synchronized void dump(PrintWriter writer) {
-        // TODO Auto-generated method stub
     }
 }

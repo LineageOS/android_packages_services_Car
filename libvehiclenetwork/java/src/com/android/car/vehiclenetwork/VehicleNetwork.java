@@ -425,7 +425,6 @@ public class VehicleNetwork {
     /**
      * Get string type property.
      */
-    //TODO check UTF8 to java string conversion
     public String getStringProperty(int property) throws IllegalArgumentException,
             ServiceSpecificException {
         VehiclePropValue v = getProperty(

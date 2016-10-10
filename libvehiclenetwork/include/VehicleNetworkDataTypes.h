@@ -100,7 +100,6 @@ public:
         if (l.config_flags != r.config_flags) {
             return false;
         }
-        //TODO config_string
         if (l.float_min_value != r.float_min_value) {
             return false;
         }

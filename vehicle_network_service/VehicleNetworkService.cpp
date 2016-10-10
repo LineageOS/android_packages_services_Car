@@ -197,7 +197,6 @@ bool PropertyValueCache::readFromCache(vehicle_prop_value_t* value) {
         return false;
     }
     const vehicle_prop_value_t* cached = mCache.valueAt(index);
-    //TODO this can be improved by just passing pointer and not deleting members.
     status_t r = VehiclePropValueUtil::copyVehicleProp(value, *cached);
     if (r != NO_ERROR) {
         ALOGD("readFromCache 0x%x, copy failed %d", value->prop, r);
@@ -232,7 +231,6 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
     if (mMockingEnabled) {
         msg.append("*Mocked Properties\n");
         for (auto& prop : mPropertiesForMocking->getList()) {
-            //TODO dump more info
             msg.appendFormat("property 0x%x\n", prop->prop);
         }
     }
@@ -325,7 +323,6 @@ void VehicleNetworkService::binderDied(const wp<IBinder>& who) {
         for (size_t i = 0; i < mPropertyToClientsMap.size(); i++) {
             sp<HalClientSpVector>& clients = mPropertyToClientsMap.editValueAt(i);
             clients->remove(currentClient);
-            // TODO update frame rate
             if (clients->size() == 0) {
                 int32_t property = mPropertyToClientsMap.keyAt(i);
                 propertiesToUnsubscribe.push_back(property);
@@ -466,7 +463,6 @@ bool VehicleNetworkService::isSubscribableLocked(int32_t property) {
         ALOGI("cannot subscribe, property 0x%x is static", property);
         return false;
     }
-    //TODO extend VNS to support event notification for set from android
     if (config->change_mode == VEHICLE_PROP_CHANGE_MODE_POLL) {
             ALOGI("cannot subscribe, property 0x%x is poll only", property);
             return false;
@@ -998,7 +994,6 @@ status_t VehicleNetworkService::startMocking(const sp<IVehicleNetworkHalMock>& m
         // onlistProperties call. Otherwise, this will lead into dead-lock.
         mPropertiesForMocking = mock->onListProperties();
         handleHalRestartAndGetClientsToDispatchLocked(clientsToDispatch);
-        //TODO handle binder death
         handler = mHandler;
     } while (false);
     handler->handleMockStart();

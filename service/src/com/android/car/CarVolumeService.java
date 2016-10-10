@@ -37,7 +37,6 @@ import java.io.PrintWriter;
 public class CarVolumeService {
     private static final String TAG = "CarVolumeService";
 
-    // TODO: need to have a policy to define the default context
     public static int DEFAULT_CAR_AUDIO_CONTEXT =
             VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG;
     private final Context mContext;

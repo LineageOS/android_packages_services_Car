@@ -29,5 +29,4 @@ interface IVehicleNetworkListener {
     void onHalError(int errorCode, int property, int operation)        = 1;
     void onHalRestart(boolean inMocking)                               = 2;
     void onPropertySet(in VehiclePropValueParcelable value)            = 3;
-    //TODO add specialized onVehicleNetworkEvents for byte array for efficiency
 }

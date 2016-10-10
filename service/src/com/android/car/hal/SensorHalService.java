@@ -170,7 +170,7 @@ public class SensorHalService extends SensorHalServiceBase {
         if (config == null) {
             return false;
         }
-        //TODO calculate sampling rate properly
+        //TODO calculate sampling rate properly, bug: 32095903
         mHal.subscribeProperty(this, config.getProp(), fixSamplingRateForProperty(config, rate));
         return true;
     }

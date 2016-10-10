@@ -43,7 +43,6 @@ status_t VehicleNetworkProtoUtil::toVehiclePropValue(const vehicle_prop_value_t&
     out.set_zone(in.zone);
     switch (in.value_type) {
         case VEHICLE_VALUE_TYPE_STRING: {
-            //TODO fix ugly copy here for inplace mode
             if (in.value.str_value.len > 0) {
                 out.set_string_value((char*)in.value.str_value.data, in.value.str_value.len);
             }
@@ -119,7 +118,6 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
                     return BAD_VALUE;
                 }
             }
-            //TODO fix copy...
             status_t r = copyString(in.string_value(), &(out.value.str_value.data),
                     &(out.value.str_value.len));
             if (r != NO_ERROR) {

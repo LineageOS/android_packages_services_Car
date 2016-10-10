@@ -186,11 +186,11 @@ public class CarVolumeControllerFactory {
      * volume internally. If we only support single channel, then we only send the volume change
      * event when that stream is in focus; Otherwise, we need to adjust the stream volume either on
      * software mixer level or send it the car audio module if the car support audio context
-     * and multi channel. TODO: Add support for multi channel.
+     * and multi channel. TODO: Add support for multi channel. bug: 32095376
      *
      * Per context volume should be persisted, so the volumes can stay the same across boots.
      * Depending on the hardware property, this can be persisted on car side (or/and android side).
-     * TODO: we need to define one single source of truth if the car has memory.
+     * TODO: we need to define one single source of truth if the car has memory. bug: 32091839
      */
     public static class CarExternalVolumeController extends CarVolumeController
             implements CarInputService.KeyEventListener, AudioHalService.AudioHalVolumeListener,
@@ -392,7 +392,7 @@ public class CarVolumeControllerFactory {
 
         private void initCurrentVolumeLocked() {
             if (mHasExternalMemory) {
-                // TODO: read per context volume from audio hal
+                // TODO: read per context volume from audio hal. bug: 32091839
             } else {
                 // when vhal does not work, get call can take long. For that case,
                 // for the same physical streams, cache initial get results
@@ -554,8 +554,8 @@ public class CarVolumeControllerFactory {
 
         @Override
         public void onVolumeLimitChange(int streamNumber, int volume) {
-            // TODO: How should this update be sent to SystemUI? maybe send a volume update without
-            // showing UI.
+            // TODO: How should this update be sent to SystemUI? bug: 32095237
+            // maybe send a volume update without showing UI.
             synchronized (this) {
                 initVolumeLimitLocked();
             }
@@ -592,7 +592,7 @@ public class CarVolumeControllerFactory {
             if (DBG) {
                 Log.d(TAG, "Receive volume keyevent " + event.toString());
             }
-            // TODO: properly handle long press on volume key
+            // TODO: properly handle long press on volume key, bug: 32095989
             if (!down || interceptVolKeyBeforeDispatching(mContext)) {
                 return true;
             }

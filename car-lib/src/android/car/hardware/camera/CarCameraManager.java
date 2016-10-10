@@ -102,7 +102,7 @@ public final class CarCameraManager implements CarManagerBase {
     }
 
     public void closeCamera(CarCamera camera) {
-        // TODO:  What should we do?
+        // nothing to do for now
     }
 
     /** @hide */

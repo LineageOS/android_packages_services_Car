@@ -61,7 +61,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-//TODO monitor app installing and refresh policy
+//TODO monitor app installing and refresh policy, bug: 31970400
 
 public class CarPackageManagerService extends ICarPackageManager.Stub implements CarServiceBase {
     static final boolean DBG_POLICY_SET = false;
