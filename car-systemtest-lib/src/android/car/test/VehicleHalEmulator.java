@@ -36,7 +36,7 @@ import java.util.HashMap;
 /**
  * This is for mocking vehicle HAL and testing system's internal behavior.
  * By default, emulated vehicle HAL will have all properties defined with default values
- * returned for get call. For interested properties, each test can replace default behavior with
+ * returned for get call. Each test can replace default behavior with
  * {@link #addProperty(VehiclePropConfig, VehicleHalPropertyHandler)} or
  * {@link #addStaticProperty(VehiclePropConfig, VehiclePropValue)}.
  * To test a case where specific property should not be present, test can call
@@ -117,6 +117,8 @@ public class VehicleHalEmulator {
      * Start emulation. All necessary properties should have been added / removed before this.
      */
     public void start() {
+        populateDefaultPropertiesIfNecessary();
+
         mCarTestManager.startMocking(mMock, CarTestManager.FLAG_MOCKING_NONE);
         synchronized (this) {
             mStarted = true;
@@ -181,9 +183,13 @@ public class VehicleHalEmulator {
     }
 
     private synchronized void populateDefaultPropertiesIfNecessary() {
+        // TODO:  Consider validating that emulation is not currently running (ie: mStarted = false)
         if (mDefaultPropertiesPopulated) {
             return;
         }
+
+        Log.d(TAG, "VehicleHalEmulator populating default properties...");
+
         for (Field f : VehicleNetworkConsts.class.getDeclaredFields()) {
             if (f.getType() == int.class) {
                 int property = 0;
@@ -238,6 +244,8 @@ public class VehicleHalEmulator {
     }
 
     private synchronized VehiclePropConfigs handleListProperties() {
+        Log.d(TAG, "handleListProperties sees " + mProperties.size() + " values.");
+
         VehiclePropConfigs.Builder builder = VehiclePropConfigs.newBuilder();
         for (VehicleHalProperty halProp : mProperties.values()) {
             builder.addConfigs(halProp.config);
