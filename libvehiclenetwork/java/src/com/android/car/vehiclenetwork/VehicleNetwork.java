@@ -228,7 +228,7 @@ public class VehicleNetwork {
     }
 
     /**
-     * Set zoned boolean type property
+     * Set boolean type property
      *
      * @throws IllegalArgumentException For type mismatch (=the property is not boolean type)
      */
