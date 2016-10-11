@@ -32,7 +32,6 @@ LOCAL_SHARED_LIBRARIES := \
 
 LOCAL_CFLAGS := \
     -Wno-unused-parameter \
-    -std=c++11
 
 LOCAL_MODULE := libjni_car_service
 LOCAL_MODULE_TAGS := optional
