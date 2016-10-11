@@ -15,7 +15,11 @@
  */
 package android.car;
 
+import android.annotation.IntDef;
 import android.annotation.SystemApi;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Represents vehicle area such as window, door, seat, zone, etc.
@@ -33,6 +37,18 @@ public final class VehicleAreaType {
     public static final int VEHICLE_AREA_TYPE_WINDOW = 2;
     public static final int VEHICLE_AREA_TYPE_SEAT = 3;
     public static final int VEHICLE_AREA_TYPE_DOOR = 4;
-
+    public static final int VEHICLE_AREA_TYPE_MIRROR = 5;
     private VehicleAreaType() {}
+
+    /** @hide */
+    @IntDef({
+        VEHICLE_AREA_TYPE_NONE,
+        VEHICLE_AREA_TYPE_ZONE,
+        VEHICLE_AREA_TYPE_WINDOW,
+        VEHICLE_AREA_TYPE_SEAT,
+        VEHICLE_AREA_TYPE_DOOR,
+        VEHICLE_AREA_TYPE_MIRROR
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface VehicleAreaTypeValue {}
 }

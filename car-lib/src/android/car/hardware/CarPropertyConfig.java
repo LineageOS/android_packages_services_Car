@@ -18,6 +18,7 @@ package android.car.hardware;
 
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.car.VehicleAreaType;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
@@ -52,11 +53,11 @@ public class CarPropertyConfig<T> implements Parcelable {
 
     public int getPropertyId() { return mPropertyId; }
     public Class<T> getPropertyType() { return mType; }
-    public int getAreaType() { return mAreaType; }
+    public @VehicleAreaType.VehicleAreaTypeValue int getAreaType() { return mAreaType; }
 
     /** Returns true if this property doesn't hold car area-specific configuration */
     public boolean isGlobalProperty() {
-        return mAreaType == 0;
+        return mAreaType == VehicleAreaType.VEHICLE_AREA_TYPE_NONE;
     }
 
     public int getAreaCount() {
