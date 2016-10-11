@@ -626,6 +626,10 @@ status_t VehiclePropValueBinderUtil::readFromParcel(const Parcel& parcel,
     ReadableBlobHolder blob(new Parcel::ReadableBlob());
     ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
     int32_t size = parcel.readInt32();
+    if (size < 0) {
+        ALOGE("readFromParcel, bad blob size %d", size);
+        return BAD_VALUE;
+    }
     status_t status = parcel.readBlob(size, blob.blob);
     if (status != NO_ERROR) {
         ALOGE("readFromParcel, cannot read blob");

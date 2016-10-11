@@ -112,6 +112,10 @@ status_t BnVehicleNetworkListener::onTransact(uint32_t code, const Parcel& data,
             ReadableBlobHolder blob(new Parcel::ReadableBlob());
             ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
             int32_t size = data.readInt32();
+            if (size < 0) {
+                ALOGE("onEvents: bad blob size %d", size);
+                return BAD_VALUE;
+            }
             r = data.readBlob(size, blob.blob);
             if (r != NO_ERROR) {
                 ALOGE("onEvents: cannot read blob");
