@@ -277,6 +277,11 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
         synchronized (this) {
             mHandler.requestRelease();
+            // wait for release do be done. This guarantees that init is done.
+            try {
+                wait();
+            } catch (InterruptedException e) {
+            }
             mSystemWhitelists.clear();
             mClientPolicies.clear();
             if (mProxies != null) {
@@ -296,12 +301,22 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private void doHandleInit() {
         startAppBlockingPolicies();
         generateSystemWhitelists();
-        mSensorService.registerOrUpdateSensorListener(
-                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, 0, mDrivingStateListener);
+        try {
+            mSensorService.registerOrUpdateSensorListener(
+                    CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, 0, mDrivingStateListener);
+        } catch (IllegalArgumentException e) {
+            // can happen while mocking is going on while init is still done.
+            Log.w(CarLog.TAG_PACKAGE, "sensor subscription failed", e);
+            return;
+        }
         mDrivingStateListener.resetState();
         mSystemActivityMonitoringService.registerActivityLaunchListener(
                 mActivityLaunchListener);
         blockTopActivitiesIfNecessary();
+    }
+
+    private synchronized void doHandleRelease() {
+        notifyAll();
     }
 
     private void wakeupClientsWaitingForPolicySetitngLocked() {
@@ -670,6 +685,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         private final int MSG_INIT = 0;
         private final int MSG_SET_POLICY = 1;
         private final int MSG_UPDATE_POLICY = 2;
+        private final int MSG_RELEASE = 3;
 
         private PackageHandler(Looper looper) {
             super(looper);
@@ -684,6 +700,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             removeMessages(MSG_INIT);
             removeMessages(MSG_SET_POLICY);
             removeMessages(MSG_UPDATE_POLICY);
+            Message msg = obtainMessage(MSG_RELEASE);
+            sendMessage(msg);
         }
 
         private void requestPolicySetting() {
@@ -711,6 +729,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     Pair<String, CarAppBlockingPolicy> pair =
                             (Pair<String, CarAppBlockingPolicy>) msg.obj;
                     doUpdatePolicy(pair.first, pair.second, msg.arg1);
+                    break;
+                case MSG_RELEASE:
+                    doHandleRelease();
                     break;
             }
         }
