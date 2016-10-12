@@ -22,7 +22,6 @@ import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.car.app.CarActivity;
 import android.support.car.content.pm.CarPackageManager;
 import android.support.car.hardware.CarSensorManager;
 import android.support.car.media.CarAudioManager;
@@ -40,8 +39,7 @@ import java.util.Set;
 
 /**
  * Top-level car API that provides access to all car services and data available in the platform.
- * Developers may create their own instance of {@link Car}, or use the {@link CarActivity#getCar()}
- * method when using a CarActivity.
+ * Developers may create their own instance of {@link Car} when using a CarActivity.
  */
 public class Car {
 
@@ -436,8 +434,7 @@ public class Car {
     public <T> T getCarManager(Class<T> serviceClass) throws CarNotConnectedException {
         // TODO(jthol) port to a more robust registry implementation
         String serviceName = CLASS_TO_SERVICE_NAME.get(serviceClass);
-        return (serviceName == null) ? null: (T) getCarManager(serviceName);
-
+        return (serviceName == null) ? null : (T) getCarManager(serviceName);
     }
 
     /**
@@ -453,7 +450,7 @@ public class Car {
     @ConnectionType
     public int getCarConnectionType() throws CarNotConnectedException {
         int carConnectionType = mCarServiceLoader.getCarConnectionType();
-        if(!CONNECTION_TYPES.contains(carConnectionType)){
+        if (!CONNECTION_TYPES.contains(carConnectionType)){
             return CONNECTION_TYPE_UNKNOWN;
         }
         return carConnectionType;
@@ -466,7 +463,7 @@ public class Car {
      *
      * @throws IllegalStateException if service is not connected.
      */
-    public void registerCarConnectionCallbacks(CarConnectionCallback listener)
+    public void registerCarConnectionCallback(CarConnectionCallback listener)
             throws IllegalStateException, CarNotConnectedException {
         assertCarConnection();
         mCarServiceLoader.registerCarConnectionCallback(listener);
@@ -478,7 +475,7 @@ public class Car {
      * listener will not receive callbacks after this method returns.
      * @param listener The listener to unregister.
      */
-    public void unregisterCarConnectionCallbacks(CarConnectionCallback listener) {
+    public void unregisterCarConnectionCallback(CarConnectionCallback listener) {
         mCarServiceLoader.unregisterCarConnectionCallback(listener);
     }
 
