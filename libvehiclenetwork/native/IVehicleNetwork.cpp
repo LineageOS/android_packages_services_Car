@@ -86,7 +86,6 @@ public:
                 ALOGE("listProperties, cannot read blob %d", status);
                 return holder;
             }
-            //TODO make this more memory efficient
             std::unique_ptr<VehiclePropConfigs> configs(new VehiclePropConfigs());
             if (configs.get() == NULL) {
                 return holder;
@@ -338,7 +337,6 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
                 switch (value.value_type) {
                 case VEHICLE_VALUE_TYPE_INT32:
                 case VEHICLE_VALUE_TYPE_ZONED_INT32:
-                    // TODO:  Handle array types as well?
                     if (value.value.int32_value == VEHICLE_INT_OUT_OF_RANGE_OFF) {
                         // this should be handled specially to throw IllegalStateException in java.
                         reply->writeInt32(binder::Status::EX_ILLEGAL_STATE);
@@ -347,7 +345,6 @@ status_t BnVehicleNetwork::onTransact(uint32_t code, const Parcel& data, Parcel*
                     break;
                 case VEHICLE_VALUE_TYPE_FLOAT:
                 case VEHICLE_VALUE_TYPE_ZONED_FLOAT:
-                    // TODO:  Handle array types as well?
                     if (value.value.float_value == VEHICLE_FLOAT_OUT_OF_RANGE_OFF) {
                         // this should be handled specially to throw IllegalStateException in java.
                         reply->writeInt32(binder::Status::EX_ILLEGAL_STATE);

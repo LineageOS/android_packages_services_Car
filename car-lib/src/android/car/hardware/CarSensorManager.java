@@ -346,7 +346,7 @@ public final class CarSensorManager implements CarManagerBase {
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public void unregisterListener(OnSensorChangedListener listener) {
-        //TODO: removing listener should reset update rate
+        //TODO: removing listener should reset update rate, bug: 32060307
         synchronized(mActiveSensorListeners) {
             Iterator<Integer> sensorIterator = mActiveSensorListeners.keySet().iterator();
             while (sensorIterator.hasNext()) {

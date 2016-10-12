@@ -86,7 +86,6 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
 
     @Override
     public void release() {
-        // TODO Auto-generated method stub
     }
 
     public static CarSensorEvent getDefaultValue(int sensorType) {
@@ -130,7 +129,6 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
 
     @Override
     public void dump(PrintWriter writer) {
-        // TODO Auto-generated method stub
     }
 
     private boolean subscribeIfSupportedLocked(int sensorList[], int sensorType, int rate) {

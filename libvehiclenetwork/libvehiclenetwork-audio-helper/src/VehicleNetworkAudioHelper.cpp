@@ -243,7 +243,6 @@ void VehicleNetworkAudioHelper::onHalRestart(bool /*inMocking*/) {
 }
 
 void VehicleNetworkAudioHelper::onPropertySet(const vehicle_prop_value_t &value) {
-    // TODO
 }
 
 }; // namespace android

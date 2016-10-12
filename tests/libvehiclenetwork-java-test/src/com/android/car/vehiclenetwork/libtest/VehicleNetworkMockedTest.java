@@ -587,7 +587,6 @@ public class VehicleNetworkMockedTest extends AndroidTestCase {
 
         @Override
         public void onPropertyUnsubscribe(int property) {
-            // TODO Auto-generated method stub
         }
 
         private void setValue(VehiclePropValue value) {

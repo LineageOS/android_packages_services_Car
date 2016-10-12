@@ -46,6 +46,4 @@ interface IVehicleNetwork {
     void stopErrorListening(in IVehicleNetworkListener listener)                         = 10;
     void startHalRestartMonitoring(in IVehicleNetworkListener listener)                  = 11;
     void stopHalRestartMonitoring(in IVehicleNetworkListener listener)                   = 12;
-
-    //TODO add specialized set for byte array for efficiency
 }

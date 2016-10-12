@@ -234,9 +234,9 @@ public class CarSensorService extends ICarSensor.Stub
                     record.lastEvent = event;
                 } else if (record.lastEvent.timestamp < event.timestamp) {
                     record.lastEvent = event;
-                    //TODO recycle event
+                    //TODO recycle event, bug: 32094595
                 } else { // wrong timestamp, throw away this.
-                    //TODO recycle new event
+                    //TODO recycle new event, bug: 32094595
                     continue;
                 }
                 SensorListeners listeners = mSensorListeners.get(event.sensorType);
@@ -400,7 +400,7 @@ public class CarSensorService extends ICarSensor.Stub
         return result;
     }
 
-    //TODO handle per property OEM permission
+    //TODO handle per property OEM permission. bug: 32094983
     private String getPermissionName(int sensorType) {
         if ((sensorType >= CarSensorManager.SENSOR_TYPE_VENDOR_EXTENSION_START) &&
                 (sensorType >= CarSensorManager.SENSOR_TYPE_VENDOR_EXTENSION_END)) {
@@ -424,7 +424,7 @@ public class CarSensorService extends ICarSensor.Stub
     }
 
     private boolean startSensor(SensorRecord record, int sensorType, int rate) {
-        //TODO choose proper sensor rate per each sensor.
+        //TODO handle sensor rate properly. bug: 32095903
         //Some sensors which report only when there is change should be always set with maximum
         //rate. For now, set every sensor to the maximum.
         if (Log.isLoggable(CarLog.TAG_SENSOR, Log.VERBOSE)) {

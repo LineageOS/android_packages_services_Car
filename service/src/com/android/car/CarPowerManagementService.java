@@ -506,15 +506,15 @@ public class CarPowerManagementService implements CarServiceBase,
 
     @Override
     public void onDisplayBrightnessChange(int brightness) {
-        // TODO
+        // TODO bug: 32065231
     }
 
     private void doHandleDisplayBrightnessChange(int brightness) {
-        //TODO
+        //TODO bug: 32065231
     }
 
     private void doHandleMainDisplayStateChange(boolean on) {
-        //TODO
+        //TODO bug: 32065231
     }
 
     private boolean shouldDoFakeShutdown() {
@@ -672,7 +672,7 @@ public class CarPowerManagementService implements CarServiceBase,
 
         @Override
         public void enterDeepSleep(int wakeupTimeSec) {
-            //TODO set wake up time
+            //TODO set wake up time, bug: 32061842
             mPowerManager.goToSleep(SystemClock.uptimeMillis(),
                     PowerManager.GO_TO_SLEEP_REASON_DEVICE_ADMIN,
                     PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
@@ -680,7 +680,7 @@ public class CarPowerManagementService implements CarServiceBase,
 
         @Override
         public boolean isSystemSupportingDeepSleep() {
-            //TODO should return by checking some kernel suspend control sysfs
+            //TODO should return by checking some kernel suspend control sysfs, bug: 32061842
             return false;
         }
 
@@ -716,8 +716,8 @@ public class CarPowerManagementService implements CarServiceBase,
 
         @Override
         public boolean isWakeupCausedByTimer() {
-            //TODO check wake up reason and do necessary operation information should come from
-            // kernel. it can be either power on or wake up for maintenance
+            //TODO bug: 32061842, check wake up reason and do necessary operation information should
+            // come from kernel. it can be either power on or wake up for maintenance
             // power on will involve GPIO trigger from power controller
             // its own wakeup will involve timer expiration.
             return false;

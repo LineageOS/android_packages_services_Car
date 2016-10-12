@@ -132,7 +132,8 @@ public final class CarTestManager implements CarManagerBase {
     }
 
     private void handleRemoteException(RemoteException e) {
-        //TODO
+        // let test fail
+        throw new RuntimeException(e);
     }
 
     private static class IVehicleNetworkHalMockImpl extends IVehicleNetworkHalMock.Stub {

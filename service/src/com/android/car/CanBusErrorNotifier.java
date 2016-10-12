@@ -64,7 +64,7 @@ final class CanBusErrorNotifier {
 
     private void showNotification() {
         if (IS_RELEASE_BUILD) {
-            // TODO: for release build we should show message to take car to the dealer.
+            // TODO: for user, we should show message to take car to the dealer. bug:32096297
             return;
         }
         Notification notification;
@@ -84,7 +84,7 @@ final class CanBusErrorNotifier {
 
     private void hideNotification() {
         if (IS_RELEASE_BUILD) {
-            // TODO: for release build we should show message to take car to the dealer.
+            // TODO: for user, we should show message to take car to the dealer. bug:32096297
             return;
         }
         mNotificationManager.cancel(TAG, NOTIFICATION_ID);

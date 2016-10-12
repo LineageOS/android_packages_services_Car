@@ -334,13 +334,13 @@ public class VehicleHal implements VehicleNetworkListener {
         Log.e(CarLog.TAG_HAL, "onHalError, errorCode:" + errorCode +
                 " property:0x" + Integer.toHexString(property) +
                 " operation:" + operation);
-        // TODO propagate per property error to HAL services and handle global error
+        // TODO propagate per property error to HAL services and handle global error, bug:32068464
     }
 
     @Override
     public void onHalRestart(boolean inMocking) {
         Log.e(CarLog.TAG_HAL, "onHalRestart, inMocking:" + inMocking);
-        // TODO restart things as other components started mocking. For now, ignore.
+        // TODO restart things as other components started mocking. For now, ignore., bug:32068464
     }
 
     public void dump(PrintWriter writer) {

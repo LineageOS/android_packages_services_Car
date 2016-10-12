@@ -127,7 +127,7 @@ import java.util.List;
             halType = VEHICLE_VALUE_TYPE_STRING;
             builder.setStringValue((String) o);
         } else if (o instanceof byte[]) {
-            halType = VEHICLE_VALUE_TYPE_BYTES;  // TODO: We don't have zoned type in vehicle.h
+            halType = VEHICLE_VALUE_TYPE_BYTES;  // We don't have zoned type in vehicle.h
             builder.setBytesValue(ByteString.copyFrom((byte[]) o));
         } else {
             throw new IllegalArgumentException("Unexpected type in: " + hvacProp);

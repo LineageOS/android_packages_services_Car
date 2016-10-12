@@ -375,7 +375,7 @@ public class AudioHalService extends HalServiceBase {
                     VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME, payload);
         } catch (ServiceSpecificException e) {
             Log.e(CarLog.TAG_AUDIO, "Cannot write to VEHICLE_PROPERTY_AUDIO_VOLUME", e);
-            //TODO should reset volume
+            //TODO should reset volume, bug: 32096870
         }
     }
 

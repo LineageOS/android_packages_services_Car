@@ -78,7 +78,6 @@ public:
                 ALOGE("listProperties, cannot read blob %d", status);
                 return holder;
             }
-            //TODO make this more memory efficient
             std::unique_ptr<VehiclePropConfigs> configs(new VehiclePropConfigs());
             if (configs.get() == NULL) {
                 return holder;
