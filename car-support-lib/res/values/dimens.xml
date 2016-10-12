@@ -50,9 +50,13 @@
     <!-- The amount of space the LayoutManager will make sure the last item on the screen is
          peeking before scrolling down -->
     <dimen name="car_last_card_peek_amount">16dp</dimen>
-    <dimen name="car_paged_list_view_pagination_width">96dp</dimen>
+    <dimen name="car_paged_list_view_pagination_width">48dp</dimen>
     <dimen name="car_paged_list_view_button_background_inset">24dp</dimen>
     <dimen name="car_paged_list_view_scrollbar_thumb_margin">8dp</dimen>
+
+    <dimen name="scroll_button_size">48dp</dimen>
+    <dimen name="scroll_bar_thumb_width">12dp</dimen>
+
     <!-- height of list dividers -->
     <dimen name="car_divider_height">1dp</dimen>
 
@@ -88,6 +92,6 @@
     <dimen name="car_drawer_margin_right">96dp</dimen>
     <dimen name="rail_height">80dp</dimen>
 
-    <dimen name="key_line1">112dp</dimen>
-    <dimen name="key_line2">228dp</dimen>
+    <dimen name="key_line1">32dp</dimen>
+    <dimen name="key_line2">132dp</dimen>
 </resources>

@@ -76,11 +76,11 @@ public class PagedScrollBarView extends FrameLayout
                 R.layout.car_paged_scrollbar_buttons, this /*root*/, true /*attachToRoot*/);
 
         mUpButton = (ImageView) findViewById(R.id.page_up);
-        mUpButton.setImageDrawable(CarUiResourceLoader.getDrawable(context, "ic_up"));
+        mUpButton.setImageDrawable(context.getDrawable(R.drawable.ic_up_button));
         mUpButton.setOnClickListener(this);
         mUpButton.setOnLongClickListener(this);
         mDownButton = (ImageView) findViewById(R.id.page_down);
-        mDownButton.setImageDrawable(CarUiResourceLoader.getDrawable(context, "ic_down"));
+        mDownButton.setImageDrawable(context.getDrawable(R.drawable.ic_down_button));
         mDownButton.setOnClickListener(this);
         mDownButton.setOnLongClickListener(this);
 
