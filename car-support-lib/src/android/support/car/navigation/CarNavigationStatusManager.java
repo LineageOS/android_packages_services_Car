@@ -31,13 +31,13 @@ import java.lang.annotation.RetentionPolicy;
  * turn-by-turn information to the cluster through this manager.
  * <p/>
  * Navigation applications should first call {@link CarAppFocusManager#requestAppFocus(int,
- * CarAppFocusManager.OnAppFocusOwnershipLostListener)} and request {@link
+ * CarAppFocusManager.OnAppFocusOwnershipCallback)} and request {@link
  * CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.
  * <p/>
  * After navigation focus is granted, applications should call {@code
  * sendNavigationStatus(STATUS_ACTIVE);} to initialize the cluster and let it know the app will be
  * sending turn events. Then, for each turn of the turn-by-turn guidance, the app calls {@link
- * #sendNavigationTurnEvent(int, String, int, int, int)}; this sends image data to the cluster
+ * #sendNavigationTurnEvent(int, CharSequence, int, int, int)}; this sends image data to the cluster
  * (and is why that data is not sent in subsequent turn distance events). To update the distance
  * and time to the next turn, the app should make periodic calls to {@link
  * #sendNavigationTurnDistanceEvent(int, int, int, int)}.
@@ -54,7 +54,7 @@ public abstract class CarNavigationStatusManager implements CarManagerBase {
     public interface CarNavigationCallback {
         /**
          * Instrument Cluster started in navigation mode.
-         * @param manager The manager the callback is attached to.  Useful if the app wished to
+         * @param manager The manager the callback is attached to.  Useful if the app wishes to
          * unregister.
          * @param instrumentCluster An object describing the configuration and state of the car's
          * navigation instrument cluster.
@@ -219,17 +219,18 @@ public abstract class CarNavigationStatusManager implements CarManagerBase {
      * #TURN_SIDE_UNSPECIFIED}).
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
-    public abstract void sendNavigationTurnEvent(@TurnEvent int tuenEvent, CharSequence eventName,
+    public abstract void sendNavigationTurnEvent(@TurnEvent int turnEvent, CharSequence eventName,
             int turnAngle, int turnNumber, @TurnSide int turnSide) throws CarNotConnectedException;
 
     /**
-     * Same as the public version ({@link #sendNavigationTurnEvent(int, String, int, int, Bitmap,
-     * int)}) except a custom image can be sent to the cluster. See documentation for that method.
+     * Same as the public version ({@link #sendNavigationTurnEvent(int, CharSequence, int, int,
+     * Bitmap, int)}) except a custom image can be sent to the cluster. See documentation for that
+     * method.
      *
      * @param image image to be shown in the instrument cluster. Null if instrument cluster type is
-     * {@link CarNavigationInstrumentCluster.ClusterType#IMAGE_CODES_ONLY}, or if the image
-     * parameters are malformed (length or width non-positive, or illegal imageColorDepthBits) in
-     * the initial NavigationStatusService call.
+     * {@link CarNavigationInstrumentCluster.ClusterType#CLUSTER_TYPE_IMAGE_CODES_ONLY}, or if
+     * the image parameters are malformed (length or width non-positive, or illegal
+     * imageColorDepthBits) in the initial NavigationStatusService call.
      *
      * @hide only first party applications may send a custom image to the cluster.
      */

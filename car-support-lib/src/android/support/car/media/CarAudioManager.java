@@ -122,8 +122,6 @@ public abstract class CarAudioManager implements CarManagerBase {
             int durationHint) throws CarNotConnectedException, IllegalArgumentException;
 
     /**
-     * See
-     * {@link AudioManager#requestAudioFocus(OnAudioFocusChangeListener, AudioAttributes, int, int)}
      * @hide
      */
     public abstract int requestAudioFocus(OnAudioFocusChangeListener listener,
