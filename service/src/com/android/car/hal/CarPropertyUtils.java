@@ -35,6 +35,12 @@ import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueTy
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32_VEC2;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32_VEC3;
 import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32_VEC4;
+import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZoneType.VEHICLE_ZONE_TYPE_NONE;
+import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZoneType.VEHICLE_ZONE_TYPE_ZONE;
+import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZoneType.VEHICLE_ZONE_TYPE_SEAT;
+import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZoneType.VEHICLE_ZONE_TYPE_DOOR;
+import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZoneType.VEHICLE_ZONE_TYPE_WINDOW;
+import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZoneType.VEHICLE_ZONE_TYPE_MIRROR;
 import static com.android.car.vehiclenetwork.VehiclePropValueUtil.getVectorValueType;
 import static java.lang.Integer.toHexString;
 
@@ -45,6 +51,7 @@ import android.car.hardware.CarPropertyValue;
 
 import com.google.protobuf.ByteString;
 
+import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
 import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 
@@ -135,9 +142,7 @@ import java.util.List;
     static CarPropertyConfig<?> toCarPropertyConfig(VehiclePropConfig p, int propertyId) {
         int[] areas = VehicleZoneUtil.listAllZones(p.getZones());
 
-        // TODO: handle other vehicle area types.
-        int areaType = areas.length == 0
-                ? VehicleAreaType.VEHICLE_AREA_TYPE_NONE : VehicleAreaType.VEHICLE_AREA_TYPE_ZONE;
+        int areaType = getVehicleAreaType(VehicleNetworkConsts.getVehicleZoneType(propertyId));
 
         Class<?> clazz = getJavaClass(p.getValueType());
         if (clazz == Boolean.class || clazz == byte[].class || clazz == String.class) {
@@ -164,6 +169,25 @@ import java.util.List;
                 builder.addAreaConfig(areaId, mins.get(i), maxs.get(i));
             }
             return builder.build();
+        }
+    }
+
+    private static @VehicleAreaType.VehicleAreaTypeValue int getVehicleAreaType(int zoneType) {
+        switch (zoneType) {
+            case VEHICLE_ZONE_TYPE_NONE:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_NONE;
+            case VEHICLE_ZONE_TYPE_ZONE:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_ZONE;
+            case VEHICLE_ZONE_TYPE_SEAT:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_SEAT;
+            case VEHICLE_ZONE_TYPE_DOOR:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_DOOR;
+            case VEHICLE_ZONE_TYPE_WINDOW:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW;
+            case VEHICLE_ZONE_TYPE_MIRROR:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR;
+            default:
+                throw new RuntimeException("Unsupported zone type " + zoneType);
         }
     }
 
