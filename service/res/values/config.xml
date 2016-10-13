@@ -70,4 +70,6 @@
           package or use format of "packagename/activity_classname" for tagging each activities.
           Besides this, system apps with car app meta data will be auto whitelisted. -->
     <string name="defauiltActivityWhitelist">android,com.android.systemui</string>
+    <!-- Default home activity -->
+    <string name="defaultHomeActivity">com.android.car.overview/com.android.car.overview.StreamOverviewActivity</string>
 </resources>
