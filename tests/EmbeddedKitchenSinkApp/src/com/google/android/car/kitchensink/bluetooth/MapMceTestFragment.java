@@ -48,6 +48,7 @@ public class MapMceTestFragment extends Fragment {
     BluetoothAdapter mBluetoothAdapter;
     TextView mMessage;
     TextView mOriginator;
+    TextView mOriginatorDisplayName;
     CheckBox mSent;
     CheckBox mDelivered;
     TextView mBluetoothDevice;
@@ -67,6 +68,7 @@ public class MapMceTestFragment extends Fragment {
         Button checkMessages = (Button) v.findViewById(R.id.check_messages);
         mBluetoothDevice = (TextView) v.findViewById(R.id.bluetoothDevice);
         mOriginator = (TextView) v.findViewById(R.id.messageOriginator);
+        mOriginatorDisplayName = (TextView) v.findViewById(R.id.messageOriginatorDisplayName);
         mSent = (CheckBox) v.findViewById(R.id.sent_checkbox);
         mDelivered = (CheckBox) v.findViewById(R.id.delivered_checkbox);
         mSendIntent = new Intent(BluetoothMapClient.ACTION_MESSAGE_SENT_SUCCESSFULLY);
@@ -181,6 +183,7 @@ public class MapMceTestFragment extends Fragment {
                         BluetoothMapClient.ACTION_MESSAGE_DELIVERED_SUCCESSFULLY)) {
                     mDelivered.setChecked(true);
                 } else if (action.equals(BluetoothMapClient.ACTION_MESSAGE_RECEIVED)) {
+
                     String[] recipients = intent.getStringArrayExtra(android.provider
                             .ContactsContract.Intents.EXTRA_RECIPIENT_CONTACT_URI);
                     StringBuilder stringBuilder = new StringBuilder();
@@ -190,8 +193,18 @@ public class MapMceTestFragment extends Fragment {
                         }
                     }
 
+                    String[] recipientsName = intent.getStringArrayExtra(android.provider
+                            .ContactsContract.Intents.EXTRA_RECIPIENT_CONTACT_NAME);
+                    StringBuilder stringBuilderName = new StringBuilder();
+                    if (recipientsName != null) {
+                        for (String s : recipientsName) {
+                            stringBuilderName.append(s);
+                        }
+                    }
+
                     mMessage.setText(intent.getStringExtra(android.content.Intent.EXTRA_TEXT));
                     mOriginator.setText(stringBuilder.toString());
+                    mOriginatorDisplayName.setText(stringBuilderName.toString());
                 }
             }
         }
