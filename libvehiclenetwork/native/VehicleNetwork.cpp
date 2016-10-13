@@ -70,7 +70,7 @@ void VehicleNetworkEventMessageHandler::handleHalRestart(bool inMocking) {
 
 void VehicleNetworkEventMessageHandler::handleOnPropertySet(const vehicle_prop_value_t& value) {
     Mutex::Autolock autoLock(mLock);
-    mSetValueEvents.push_back(VehiclePropValueUtil::allocVehicleProp(value));
+    mSetValueEvents.push_back(VehiclePropValueUtil::allocVehiclePropValue(value));
     mLooper->sendMessage(this, Message(EVENT_ON_SET));
 }
 

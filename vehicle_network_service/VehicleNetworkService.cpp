@@ -26,6 +26,7 @@
 #include "VehicleHalPropertyUtil.h"
 #include "VehicleNetworkService.h"
 
+//#define DBG_MEM_LEAK
 //#define DBG_EVENT
 //#define DBG_VERBOSE
 #ifdef DBG_EVENT
@@ -41,6 +42,131 @@
 
 namespace android {
 
+#ifdef DBG_MEM_LEAK
+// copied from frameworks/base/core/jni/android_os_Debug.cpp
+
+extern "C" void get_malloc_leak_info(uint8_t** info, size_t* overallSize,
+    size_t* infoSize, size_t* totalMemory, size_t* backtraceSize);
+extern "C" void free_malloc_leak_info(uint8_t* info);
+#define SIZE_FLAG_ZYGOTE_CHILD  (1<<31)
+#define BACKTRACE_SIZE          32
+
+static size_t gNumBacktraceElements;
+
+/*
+ * This is a qsort() callback.
+ *
+ * See dumpNativeHeap() for comments about the data format and sort order.
+ */
+static int compareHeapRecords(const void* vrec1, const void* vrec2)
+{
+    const size_t* rec1 = (const size_t*) vrec1;
+    const size_t* rec2 = (const size_t*) vrec2;
+    size_t size1 = *rec1;
+    size_t size2 = *rec2;
+
+    if (size1 < size2) {
+        return 1;
+    } else if (size1 > size2) {
+        return -1;
+    }
+
+    uintptr_t* bt1 = (uintptr_t*)(rec1 + 2);
+    uintptr_t* bt2 = (uintptr_t*)(rec2 + 2);
+    for (size_t idx = 0; idx < gNumBacktraceElements; idx++) {
+        uintptr_t addr1 = bt1[idx];
+        uintptr_t addr2 = bt2[idx];
+        if (addr1 == addr2) {
+            if (addr1 == 0)
+                break;
+            continue;
+        }
+        if (addr1 < addr2) {
+            return -1;
+        } else if (addr1 > addr2) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static void dumpNativeHeap(String8& msg)
+{
+    uint8_t* info = NULL;
+    size_t overallSize, infoSize, totalMemory, backtraceSize;
+
+    get_malloc_leak_info(&info, &overallSize, &infoSize, &totalMemory,
+        &backtraceSize);
+    if (info == NULL) {
+        msg.appendFormat("Native heap dump not available. To enable, run these"
+                    " commands (requires root):\n");
+        msg.appendFormat("# adb shell stop\n");
+        msg.appendFormat("# adb shell setprop libc.debug.malloc.options "
+                    "backtrace\n");
+        msg.appendFormat("# adb shell start\n");
+        return;
+    }
+
+    msg.appendFormat("Android Native Heap Dump v1.0\n\n");
+
+    size_t recordCount = overallSize / infoSize;
+    msg.appendFormat("Total memory: %zu\n", totalMemory);
+    msg.appendFormat("Allocation records: %zd\n", recordCount);
+    msg.appendFormat("\n");
+
+    /* re-sort the entries */
+    gNumBacktraceElements = backtraceSize;
+    qsort(info, recordCount, infoSize, compareHeapRecords);
+
+    /* dump the entries to the file */
+    const uint8_t* ptr = info;
+    for (size_t idx = 0; idx < recordCount; idx++) {
+        size_t size = *(size_t*) ptr;
+        size_t allocations = *(size_t*) (ptr + sizeof(size_t));
+        uintptr_t* backtrace = (uintptr_t*) (ptr + sizeof(size_t) * 2);
+
+        msg.appendFormat("z %d  sz %8zu  num %4zu  bt",
+                (size & SIZE_FLAG_ZYGOTE_CHILD) != 0,
+                size & ~SIZE_FLAG_ZYGOTE_CHILD,
+                allocations);
+        for (size_t bt = 0; bt < backtraceSize; bt++) {
+            if (backtrace[bt] == 0) {
+                break;
+            } else {
+#ifdef __LP64__
+                msg.appendFormat(" %016" PRIxPTR, backtrace[bt]);
+#else
+                msg.appendFormat(" %08" PRIxPTR, backtrace[bt]);
+#endif
+            }
+        }
+        msg.appendFormat("\n");
+
+        ptr += infoSize;
+    }
+
+    free_malloc_leak_info(info);
+
+    msg.appendFormat("MAPS\n");
+    const char* maps = "/proc/self/maps";
+    FILE* in = fopen(maps, "r");
+    if (in == NULL) {
+        msg.appendFormat("Could not open %s\n", maps);
+        return;
+    }
+    char buf[BUFSIZ];
+    while (size_t n = fread(buf, sizeof(char), BUFSIZ, in)) {
+        msg.append(buf, n);
+    }
+    fclose(in);
+
+    msg.appendFormat("END\n");
+}
+#endif
+
+// ----------------------------------------------------------------------------
+
 VehicleHalMessageHandler::VehicleHalMessageHandler(const sp<Looper>& looper,
         VehicleNetworkService& service)
     : mLooper(looper),
@@ -53,8 +179,7 @@ VehicleHalMessageHandler::~VehicleHalMessageHandler() {
     Mutex::Autolock autoLock(mLock);
     for (int i = 0; i < NUM_PROPERTY_EVENT_LISTS; i++) {
         for (auto& e : mHalPropertyList[i]) {
-            VehiclePropValueUtil::deleteMembers(e);
-            delete e;
+            VehiclePropValueUtil::deleteVehiclePropValue(e);
         }
     }
     for (VehicleHalError* e : mHalErrors) {
@@ -84,10 +209,14 @@ void VehicleHalMessageHandler::handleHalError(VehicleHalError* error) {
     mLooper->sendMessage(this, Message(HAL_ERROR));
 }
 
-void VehicleHalMessageHandler::handleMockStart() {
+void VehicleHalMessageHandler::handleMockStateChange() {
     Mutex::Autolock autoLock(mLock);
-    mHalPropertyList[0].clear();
-    mHalPropertyList[1].clear();
+    for (int i = 0; i < 2; i++) {
+        for (auto& e : mHalPropertyList[i]) {
+            VehiclePropValueUtil::deleteVehiclePropValue(e);
+        }
+        mHalPropertyList[i].clear();
+    }
     sp<MessageHandler> self(this);
     mLooper->removeMessages(self);
 }
@@ -118,8 +247,7 @@ void VehicleHalMessageHandler::doHandleHalEvent() {
         mService.dispatchHalEvents(*events);
         //TODO implement return to memory pool
         for (auto& e : *events) {
-            VehiclePropValueUtil::deleteMembers(e);
-            delete e;
+            VehiclePropValueUtil::deleteVehiclePropValue(e);
         }
         events->clear();
     }
@@ -171,8 +299,7 @@ PropertyValueCache::PropertyValueCache() {
 PropertyValueCache::~PropertyValueCache() {
     for (size_t i = 0; i < mCache.size(); i++) {
         vehicle_prop_value_t* v = mCache.editValueAt(i);
-        VehiclePropValueUtil::deleteMembers(v);
-        delete v;
+        VehiclePropValueUtil::deleteVehiclePropValue(v);
     }
     mCache.clear();
 }
@@ -181,12 +308,12 @@ void PropertyValueCache::writeToCache(const vehicle_prop_value_t& value) {
     vehicle_prop_value_t* v;
     ssize_t index = mCache.indexOfKey(value.prop);
     if (index < 0) {
-        v = VehiclePropValueUtil::allocVehicleProp(value);
+        v = VehiclePropValueUtil::allocVehiclePropValue(value);
         ASSERT_OR_HANDLE_NO_MEMORY(v, return);
         mCache.add(value.prop, v);
     } else {
         v = mCache.editValueAt(index);
-        VehiclePropValueUtil::copyVehicleProp(v, value, true /* deleteOldData */);
+        VehiclePropValueUtil::copyVehiclePropValue(v, value, true /* deleteOldData */);
     }
 }
 
@@ -197,7 +324,7 @@ bool PropertyValueCache::readFromCache(vehicle_prop_value_t* value) {
         return false;
     }
     const vehicle_prop_value_t* cached = mCache.valueAt(index);
-    status_t r = VehiclePropValueUtil::copyVehicleProp(value, *cached);
+    status_t r = VehiclePropValueUtil::copyVehiclePropValue(value, *cached);
     if (r != NO_ERROR) {
         ALOGD("readFromCache 0x%x, copy failed %d", value->prop, r);
         return false;
@@ -221,7 +348,10 @@ status_t VehicleNetworkService::dump(int fd, const Vector<String16>& /*args*/) {
         write(fd, msg.string(), msg.size());
         return NO_ERROR;
     }
-    msg.append("MockingEnabled=%d\n", mMockingEnabled ? 1 : 0);
+#ifdef DBG_MEM_LEAK
+    dumpNativeHeap(msg);
+#endif
+    msg.appendFormat("MockingEnabled=%d\n", mMockingEnabled ? 1 : 0);
     msg.appendFormat("*Handler, now in ms:%" PRId64 "\n", elapsedRealtime());
     mHandler->dump(msg);
     msg.append("*Properties\n");
@@ -567,7 +697,11 @@ void VehicleNetworkService::releaseMemoryFromGet(vehicle_prop_value_t* value) {
     case VEHICLE_VALUE_TYPE_STRING:
     case VEHICLE_VALUE_TYPE_BYTES: {
         Mutex::Autolock autoLock(mLock);
-        mDevice->release_memory_from_get(mDevice, value);
+        if (mMockingEnabled) {
+            VehiclePropValueUtil::deleteMembers(value);
+        } else {
+            mDevice->release_memory_from_get(mDevice, value);
+        }
     } break;
     }
 }
@@ -817,12 +951,13 @@ status_t VehicleNetworkService::notifyClientWithCurrentValue(bool isMocking,
 
 status_t VehicleNetworkService::notifyClientWithCurrentValue(bool isMocking,
     int32_t prop, int32_t valueType, int32_t zone) {
-    vehicle_prop_value_t value;
-    memset(&value, 0, sizeof(value));
-    value.prop = prop;
-    value.value_type = valueType;
-    value.zone = zone;
-    status_t r = isMocking ? mHalMock->onPropertyGet(&value) : mDevice->get(mDevice, &value);
+    std::unique_ptr<vehicle_prop_value_t> v(new vehicle_prop_value_t());
+    ASSERT_OR_HANDLE_NO_MEMORY(v.get(), return NO_MEMORY);
+    memset(v.get(), 0, sizeof(vehicle_prop_value_t));
+    v->prop = prop;
+    v->value_type = valueType;
+    v->zone = zone;
+    status_t r = isMocking ? mHalMock->onPropertyGet(v.get()) : mDevice->get(mDevice, v.get());
     if (r != NO_ERROR) {
         if (r == -EAGAIN) {
             LOG_VERBOSE("value is not ready:0x%x, mock:%d", prop, isMocking);
@@ -832,8 +967,15 @@ status_t VehicleNetworkService::notifyClientWithCurrentValue(bool isMocking,
             return r;
         }
     }
+    if (isMocking) {
+        // no copy and vehicle_prop_value_t is passed to event handler
+        onHalEvent(v.release(), false, false /*do not copy */);
+    } else {
+        // copy is made, and vehicle_prop_value_t deleted in this function
+        onHalEvent(v.get(), false, true /*do copy */);
+        releaseMemoryFromGet(v.get());
+    }
 
-    onHalEvent(&value, false);
     return NO_ERROR;
 }
 
@@ -984,9 +1126,7 @@ status_t VehicleNetworkService::startMocking(const sp<IVehicleNetworkHalMock>& m
         }
         ALOGW("starting vehicle HAL mocking");
         sp<IBinder> ibinder = IInterface::asBinder(mock);
-        if (mHalMockDeathHandler.get() == NULL) {
-            mHalMockDeathHandler = new MockDeathHandler(*this);
-        }
+        mHalMockDeathHandler = new MockDeathHandler(*this);
         ibinder->linkToDeath(mHalMockDeathHandler);
         mHalMock = mock;
         mMockingEnabled = true;
@@ -996,7 +1136,7 @@ status_t VehicleNetworkService::startMocking(const sp<IVehicleNetworkHalMock>& m
         handleHalRestartAndGetClientsToDispatchLocked(clientsToDispatch);
         handler = mHandler;
     } while (false);
-    handler->handleMockStart();
+    handler->handleMockStateChange();
     for (auto& client : clientsToDispatch) {
         client->dispatchHalRestart(true);
     }
@@ -1006,6 +1146,7 @@ status_t VehicleNetworkService::startMocking(const sp<IVehicleNetworkHalMock>& m
 
 void VehicleNetworkService::stopMocking(const sp<IVehicleNetworkHalMock>& mock) {
     List<sp<HalClient> > clientsToDispatch;
+    sp<VehicleHalMessageHandler> handler;
     do {
         Mutex::Autolock autoLock(mLock);
         if (mHalMock.get() == NULL) {
@@ -1018,10 +1159,14 @@ void VehicleNetworkService::stopMocking(const sp<IVehicleNetworkHalMock>& mock) 
         }
         ALOGW("stopping vehicle HAL mocking");
         ibinder->unlinkToDeath(mHalMockDeathHandler.get());
-        mHalMock = NULL;
+        mHalMockDeathHandler.clear();
+        mHalMock.clear();
         mMockingEnabled = false;
+        mPropertiesForMocking.clear();
         handleHalRestartAndGetClientsToDispatchLocked(clientsToDispatch);
+        handler = mHandler;
     } while (false);
+    handler->handleMockStateChange();
     for (auto& client : clientsToDispatch) {
         client->dispatchHalRestart(false);
     }
@@ -1114,18 +1259,21 @@ void VehicleNetworkService::stopHalRestartMonitoring(const sp<IVehicleNetworkLis
     }
 }
 
-status_t VehicleNetworkService::onHalEvent(const vehicle_prop_value_t* eventData, bool isInjection)
+status_t VehicleNetworkService::onHalEvent(const vehicle_prop_value_t* eventData, bool isInjection,
+        bool doCopy)
 {
     sp<VehicleHalMessageHandler> handler;
     do {
         Mutex::Autolock autoLock(mLock);
-        if (!isInjection) {
-            if (mMockingEnabled) {
-                // drop real HAL event if mocking is enabled
-                mDroppedEventsWhileInMocking++;
-                mLastEventDropTimeWhileInMocking = elapsedRealtimeNano();
-                return NO_ERROR;
+        if (!isInjection && mMockingEnabled) {
+            // drop real HAL event if mocking is enabled
+            mDroppedEventsWhileInMocking++;
+            mLastEventDropTimeWhileInMocking = elapsedRealtimeNano();
+            if (!doCopy) { // ownership passed here. so should delete here.
+                VehiclePropValueUtil::deleteVehiclePropValue(
+                        const_cast<vehicle_prop_value_t*>(eventData));
             }
+            return NO_ERROR;
         }
         ssize_t index = mEventInfos.indexOfKey(eventData->prop);
         if (index < 0) {
@@ -1139,8 +1287,13 @@ status_t VehicleNetworkService::onHalEvent(const vehicle_prop_value_t* eventData
         handler = mHandler;
     } while (false);
     //TODO add memory pool
-    vehicle_prop_value_t* copy = VehiclePropValueUtil::allocVehicleProp(*eventData);
-    ASSERT_OR_HANDLE_NO_MEMORY(copy, return NO_MEMORY);
+    vehicle_prop_value_t* copy;
+    if (doCopy) {
+        copy = VehiclePropValueUtil::allocVehiclePropValue(*eventData);
+        ASSERT_OR_HANDLE_NO_MEMORY(copy, return NO_MEMORY);
+    } else {
+        copy = const_cast<vehicle_prop_value_t*>(eventData);
+    }
     handler->handleHalEvent(copy);
     return NO_ERROR;
 }

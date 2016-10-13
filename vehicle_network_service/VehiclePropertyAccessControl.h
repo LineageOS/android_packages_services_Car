@@ -36,7 +36,7 @@ namespace android {
 class VehiclePropertyAccessControl {
 public:
     VehiclePropertyAccessControl();
-    ~VehiclePropertyAccessControl();
+    virtual ~VehiclePropertyAccessControl();
     bool init();
     bool testAccess(int32_t property, int32_t uid, bool isWrite);
     bool isAutoGetEnabled(int32_t property);

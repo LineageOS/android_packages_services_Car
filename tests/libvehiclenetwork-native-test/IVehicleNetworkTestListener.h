@@ -68,7 +68,7 @@ public:
         Mutex::Autolock autolock(mOnPropertySetLock);
 
         std::unique_ptr<ScopedVehiclePropValue> scopedValue(new ScopedVehiclePropValue);
-        VehiclePropValueUtil::copyVehicleProp(&scopedValue->value,
+        VehiclePropValueUtil::copyVehiclePropValue(&scopedValue->value,
                                               value);
         mOnPropertySetValues.push(std::move(scopedValue));
         mOnPropertySetCondition.signal();
@@ -121,7 +121,7 @@ public:
                      : NO_ERROR;
 
         if (r == NO_ERROR) {
-            VehiclePropValueUtil::copyVehicleProp(&(*out)->value,  /* dest */
+            VehiclePropValueUtil::copyVehiclePropValue(&(*out)->value,  /* dest */
                                                   mOnPropertySetValues.back()->value /* src */);
             mOnPropertySetValues.pop();
         }

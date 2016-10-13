@@ -21,6 +21,10 @@
 #include <IVehicleNetwork.h>
 #include "VehicleNetworkProtoUtil.h"
 
+#ifdef LOG_MEMORY
+#include <utils/CallStack.h>
+#endif
+
 namespace android {
 
 static status_t copyString(const std::string& in, uint8_t** out, int32_t* len) {
@@ -31,6 +35,15 @@ static status_t copyString(const std::string& in, uint8_t** out, int32_t* len) {
     }
     *out = new uint8_t[*len];
     ASSERT_OR_HANDLE_NO_MEMORY(*out, return NO_MEMORY);
+#ifdef LOG_MEMORY
+    ALOGE("allocValueArray %p, l:%d", *out, *len);
+    /* enable to dump stack
+    if (*len > 10000) {
+        CallStack stack;
+        stack.update();
+        stack.log(LOG_TAG, ANDROID_LOG_ERROR);
+    }*/
+#endif
     memcpy(*out, in.data(), *len);
     return NO_ERROR;
 }
@@ -267,8 +280,8 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValues(const VehiclePropValues&
     status_t r;
     for (int i = 0; i < in.values_size(); i++) {
         vehicle_prop_value_t* v =  new vehicle_prop_value_t();
-        memset(v, 0, sizeof(vehicle_prop_value_t));
         ASSERT_OR_HANDLE_NO_MEMORY(v, r = NO_MEMORY;goto error);
+        memset(v, 0, sizeof(vehicle_prop_value_t));
         r = fromVehiclePropValue(in.values(i), *v);
         if (r != NO_ERROR) {
             delete v;

@@ -75,7 +75,7 @@ public:
 
     void handleHalEvent(vehicle_prop_value_t *eventData);
     void handleHalError(VehicleHalError* error);
-    void handleMockStart();
+    void handleMockStateChange();
     void dump(String8& msg);
 
 private:
@@ -142,7 +142,7 @@ public:
         mLastDispatchTime(0) {
     }
 
-    ~HalClient() {
+    virtual ~HalClient() {
         mSubscriptionInfos.clear();
     }
 
@@ -275,6 +275,8 @@ private:
 };
 
 class HalClientSpVector : public SortedVector<sp<HalClient> >, public RefBase {
+public:
+    virtual ~HalClientSpVector() {};
 protected:
     virtual int do_compare(const void* lhs, const void* rhs) const {
         sp<HalClient>& lh = * (sp<HalClient> * )(lhs);
@@ -306,7 +308,7 @@ class MockDeathHandler: public IBinder::DeathRecipient {
 public:
     MockDeathHandler(VehicleNetworkService& vns) :
         mService(vns) {};
-
+    virtual ~MockDeathHandler() {};
     virtual void binderDied(const wp<IBinder>& who);
 
 private:
@@ -322,10 +324,11 @@ public:
     static const char* getServiceName() ANDROID_API { return IVehicleNetwork::SERVICE_NAME; };
 
     VehicleNetworkService();
-    ~VehicleNetworkService();
+    virtual ~VehicleNetworkService();
     virtual status_t dump(int fd, const Vector<String16>& args);
     void release();
-    status_t onHalEvent(const vehicle_prop_value_t *eventData, bool isInjection = false);
+    status_t onHalEvent(const vehicle_prop_value_t *eventData, bool isInjection = false,
+            bool doCopy = true);
     status_t onHalError(int32_t errorCode, int32_t property, int32_t operation,
             bool isInjection = false);
     status_t onPropertySet(const vehicle_prop_value_t& eventData);
