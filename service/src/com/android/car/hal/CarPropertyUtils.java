@@ -142,7 +142,7 @@ import java.util.List;
     static CarPropertyConfig<?> toCarPropertyConfig(VehiclePropConfig p, int propertyId) {
         int[] areas = VehicleZoneUtil.listAllZones(p.getZones());
 
-        int areaType = getVehicleAreaType(VehicleNetworkConsts.getVehicleZoneType(propertyId));
+        int areaType = getVehicleAreaType(VehicleNetworkConsts.getVehicleZoneType(p.getProp()));
 
         Class<?> clazz = getJavaClass(p.getValueType());
         if (clazz == Boolean.class || clazz == byte[].class || clazz == String.class) {

@@ -362,6 +362,8 @@ public class VehicleHal implements VehicleNetworkListener {
             builder.append(",changeMode:0x" + Integer.toHexString(config.getChangeMode()));
             builder.append(",valueType:0x" + Integer.toHexString(config.getValueType()));
             builder.append(",permission:0x" + Integer.toHexString(config.getPermissionModel()));
+            builder.append(",zone:0x" + Integer.toHexString(
+                config.hasZones() ? config.getZones() : 0));
             builder.append(",config:0x" + Integer.toHexString(config.getConfigArray(0)));
             builder.append(",fs min:" + config.getSampleRateMin());
             builder.append(",fs max:").append(config.getSampleRateMax());
