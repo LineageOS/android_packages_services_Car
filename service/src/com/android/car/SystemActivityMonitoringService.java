@@ -15,7 +15,6 @@
  */
 package com.android.car;
 
-import android.app.ActivityManager;
 import android.app.ActivityManager.StackInfo;
 import android.app.ActivityManagerNative;
 import android.app.IActivityManager;
@@ -312,6 +311,13 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     private void handleBlockActivity(TopTaskInfoContainer currentTask, Intent newActivityIntent) {
         Log.i(CarLog.TAG_AM, String.format("stopping activity %s with taskid:%d",
                 currentTask.topActivity, currentTask.taskId));
+        // Put launcher in the activity stack, so that we have something safe to show after the
+        // block activity finishes.
+        Intent launcherIntent = new Intent();
+        launcherIntent.setComponent(ComponentName.unflattenFromString(
+                mContext.getString(R.string.defaultHomeActivity)));
+        mContext.startActivity(launcherIntent);
+
         newActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivityAsUser(newActivityIntent,
                 new UserHandle(currentTask.stackInfo.userId));
