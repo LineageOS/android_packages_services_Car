@@ -56,14 +56,24 @@ public final class CarHvacManager implements CarManagerBase {
      * Global HVAC properties.  There is only a single instance in a car.
      * Global properties are in the range of 0-0x3FFF.
      */
-    /** Mirror defrosters state, bool. */
+    /**
+     * Mirror defrosters state, bool type
+     * true indicates mirror defroster is on
+     */
     public static final int ID_MIRROR_DEFROSTER_ON = 0x0001;
-    /** Steering wheel temp:  negative values indicate cooling, positive values indicate
-     * heat, int. */
+    /**
+     * Steering wheel temp, int type
+     * Positive values indicate heating.
+     * Negative values indicate cooling
+     */
     public static final int ID_STEERING_WHEEL_TEMP = 0x0002;
-    /** Outside air temperature, float. */
+    /**
+     * Outside air temperature, float type
+     * Value is in degrees of ID_TEMPERATURE_UNITS
+     */
     public static final int ID_OUTSIDE_AIR_TEMP = 0x0003;
-    /** Temperature units being used, int
+    /**
+     * Temperature units being used, int type
      *  0x30 = Celsius
      *  0x31 = Fahrenheit
      */
@@ -80,43 +90,81 @@ public final class CarHvacManager implements CarManagerBase {
      * ID_ZONED_* represents properties available on a per-zone basis.  All zones in a car are
      * not required to have the same properties.  Zone specific properties start at 0x4000.
      */
-    /** Temperature setpoint desired by the user, int
-     *  Temperature units are determined by TEMPERTURE_UNITS property
+    /**
+     * Temperature setpoint, float type
+     * Temperature set by the user, units are determined by ID_TEMPERTURE_UNITS property.
      */
     public static final int ID_ZONED_TEMP_SETPOINT = 0x4001;
-    /** Actual zone temperature is read only integer, in terms of F or C, int. */
+    /**
+     * Actual temperature, float type
+     * Actual zone temperature is read only value, in terms of F or C.
+     */
     public static final int ID_ZONED_TEMP_ACTUAL = 0x4002;
-    /** HVAC system powered on / off, bool
-     *  In many vehicles, if the HVAC system is powered off, the SET and GET command will
-     *  throw an IllegalStateException.  To correct this, need to turn on the HVAC module first
-     *  before manipulating a parameter.
+    /**
+     * HVAC system powered on / off, bool type
+     * In many vehicles, if the HVAC system is powered off, the SET and GET command will
+     * throw an IllegalStateException.  To correct this, need to turn on the HVAC module first
+     * before manipulating a parameter.
      */
     public static final int ID_ZONED_HVAC_POWER_ON = 0x4003;
-    /** Fan speed setpoint is an integer from 0-n, depending on the number of fan speeds
-     * available. Selection determines the fan position, int. */
+    /**
+     * Fan speed setpoint, int type
+     * Fan speed is an integer from 0-n, depending on number of fan speeds available.
+     */
     public static final int ID_ZONED_FAN_SPEED_SETPOINT = 0x4004;
-    /** Actual fan speed is a read-only value, expressed in RPM, int. */
+    /**
+     * Actual fan speed, int type
+     * Actual fan speed is a read-only value, expressed in RPM.
+     */
     public static final int ID_ZONED_FAN_SPEED_RPM = 0x4005;
-    /** Fan position available is a bitmask of positions available for each zone, int. */
+    /** Fan position available, int type
+     *  Fan position is a bitmask of positions available for each zone.
+     */
     public static final int ID_ZONED_FAN_POSITION_AVAILABLE = 0x4006;
-    /** Current fan position setting, int. */
+    /**
+     * Current fan position setting, int type
+     */
     public static final int ID_ZONED_FAN_POSITION = 0x4007;
-    /** Seat temperature is negative for cooling, positive for heating.  Temperature is a
-     * setting, i.e. -3 to 3 for 3 levels of cooling and 3 levels of heating.  int. */
+    /**
+     * Seat temperature, int type
+     * Seat temperature is negative for cooling, positive for heating.  Temperature is a
+     * setting, i.e. -3 to 3 for 3 levels of cooling and 3 levels of heating.
+     */
     public static final int ID_ZONED_SEAT_TEMP = 0x4008;
-    /** Air conditioner state, bool */
+    /**
+     * Air ON, bool type
+     * true indicates AC is ON.
+     */
     public static final int ID_ZONED_AC_ON = 0x4009;
-    /** HVAC is in automatic mode, bool. */
+    /**
+     * Automatic Mode ON, bool type
+     * true indicates HVAC is in automatic mode
+     */
     public static final int ID_ZONED_AUTOMATIC_MODE_ON = 0x400A;
-    /** Air recirculation is active, bool. */
+    /**
+     * Air recirculation ON, bool type
+     * true indicates recirculation is active.
+     */
     public static final int ID_ZONED_AIR_RECIRCULATION_ON = 0x400B;
-    /** Max AC is active, bool. */
+    /**
+     * Max AC ON, bool type
+     * true indicates MAX AC is ON
+     */
     public static final int ID_ZONED_MAX_AC_ON = 0x400C;
-    /** Dual zone is enabled, bool. */
+    /** Dual zone ON, bool type
+     * true indicates dual zone mode is ON
+     */
     public static final int ID_ZONED_DUAL_ZONE_ON = 0x400D;
-    /** Max Defrost is active, bool. */
+    /**
+     * Max Defrost ON, bool type
+     * true indicates max defrost is active.
+     */
     public static final int ID_ZONED_MAX_DEFROST_ON = 0x400E;
-    /** Defroster is based off of window position, bool */
+    /**
+     * Defroster ON, bool type
+     * Defroster controls are based on window position.
+     * True indicates the defroster is ON.
+     */
     public static final int ID_WINDOW_DEFROSTER_ON = 0x5001;
 
     /** @hide */
@@ -144,11 +192,22 @@ public final class CarHvacManager implements CarManagerBase {
     @Retention(RetentionPolicy.SOURCE)
     public @interface PropertyId {}
 
+    /**
+     * Application registers CarCHvacEventCallback object to receive updates and changes to
+     * subscribed Car HVAC properties.
+     */
     public interface CarHvacEventCallback {
-        /** Called when a property is updated */
+        /**
+         * Called when a property is updated
+         * @param value Property that has been updated.
+         */
         void onChangeEvent(CarPropertyValue value);
 
-        /** Called when an error is detected with a property */
+        /**
+         * Called when an error is detected with a property
+         * @param propertyId
+         * @param zone
+         */
         void onErrorEvent(@PropertyId int propertyId, int zone);
     }
 
@@ -176,7 +235,7 @@ public final class CarHvacManager implements CarManagerBase {
         }
     }
 
-    void handleOnChangeEvent(CarPropertyValue value) {
+    private void handleOnChangeEvent(CarPropertyValue value) {
         Collection<CarHvacEventCallback> callbacks;
         synchronized (this) {
             callbacks = new ArraySet<>(mCallbacks);
@@ -188,7 +247,7 @@ public final class CarHvacManager implements CarManagerBase {
         }
     }
 
-    void handleOnErrorEvent(int propertyId, int zone) {
+    private void handleOnErrorEvent(int propertyId, int zone) {
         Collection<CarHvacEventCallback> callbacks;
         synchronized (this) {
             callbacks = new ArraySet<>(mCallbacks);
@@ -204,18 +263,29 @@ public final class CarHvacManager implements CarManagerBase {
      * Get an instance of the CarHvacManager.
      *
      * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
+     * @param service
+     * @param context
+     * @param handler
      * @hide
      */
     public CarHvacManager(IBinder service, Context context, Handler handler) {
         mMgr = new CarPropertyManagerBase(service, handler, DBG, TAG);
     }
 
-    /** Returns true if the property is a zoned type. */
+    /**
+     * Determine if a property is zoned or not.
+     * @param propertyId
+     * @return true if property is a zoned type.
+     */
     public static boolean isZonedProperty(@PropertyId int propertyId) {
         return propertyId > ID_MAX_GLOBAL_PROPERTY_ID;
     }
 
-    /** Implement wrappers for contained CarPropertyManagerBase object */
+    /**
+     * Implement wrappers for contained CarPropertyManagerBase object
+     * @param callback
+     * @throws CarNotConnectedException
+     */
     public synchronized void registerCallback(CarHvacEventCallback callback) throws
             CarNotConnectedException {
         if (mCallbacks.isEmpty()) {
@@ -225,6 +295,11 @@ public final class CarHvacManager implements CarManagerBase {
         mCallbacks.add(callback);
     }
 
+    /**
+     * Stop getting property updates for the given callback. If there are multiple registrations for
+     * this listener, all listening will be stopped.
+     * @param callback
+     */
     public synchronized void unregisterCallback(CarHvacEventCallback callback) {
         mCallbacks.remove(callback);
         if (mCallbacks.isEmpty()) {
@@ -233,35 +308,82 @@ public final class CarHvacManager implements CarManagerBase {
         }
     }
 
+    /**
+     * Get list of properties available to Car Hvac Manager
+     * @return List of CarPropertyConfig objects available via Car Hvac Manager.
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
+     */
     public List<CarPropertyConfig> getPropertyList() throws CarNotConnectedException {
         return mMgr.getPropertyList();
     }
 
+    /**
+     * Get value of boolean property
+     * @param propertyId
+     * @param area
+     * @return value of requested boolean property
+     * @throws CarNotConnectedException
+     */
     public boolean getBooleanProperty(@PropertyId int propertyId, int area)
             throws CarNotConnectedException {
         return mMgr.getBooleanProperty(propertyId, area);
     }
 
+    /**
+     * Get value of float property
+     * @param propertyId
+     * @param area
+     * @return value of requested float property
+     * @throws CarNotConnectedException
+     */
     public float getFloatProperty(@PropertyId int propertyId, int area)
             throws CarNotConnectedException {
         return mMgr.getFloatProperty(propertyId, area);
     }
 
+    /**
+     * Get value of integer property
+     * @param propertyId
+     * @param area
+     * @return value of requested integer property
+     * @throws CarNotConnectedException
+     */
     public int getIntProperty(@PropertyId int propertyId, int area)
             throws CarNotConnectedException {
         return mMgr.getIntProperty(propertyId, area);
     }
 
+    /**
+     * Set the value of a boolean property
+     * @param propertyId
+     * @param area
+     * @param val
+     * @throws CarNotConnectedException
+     */
     public void setBooleanProperty(@PropertyId int propertyId, int area, boolean val)
             throws CarNotConnectedException {
         mMgr.setBooleanProperty(propertyId, area, val);
     }
 
+    /**
+     * Set the value of a float property
+     * @param propertyId
+     * @param area
+     * @param val
+     * @throws CarNotConnectedException
+     */
     public void setFloatProperty(@PropertyId int propertyId, int area, float val)
             throws CarNotConnectedException {
         mMgr.setFloatProperty(propertyId, area, val);
     }
 
+    /**
+     * Set the value of an integer property
+     * @param propertyId
+     * @param area
+     * @param val
+     * @throws CarNotConnectedException
+     */
     public void setIntProperty(@PropertyId int propertyId, int area, int val)
             throws CarNotConnectedException {
         mMgr.setIntProperty(propertyId, area, val);
