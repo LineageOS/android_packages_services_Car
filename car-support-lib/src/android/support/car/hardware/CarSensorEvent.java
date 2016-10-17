@@ -88,6 +88,9 @@ public class CarSensorEvent {
     /** Array holding int type of sensor data. */
     public final int[] intValues;
 
+    private static final float[] EMPTY_FLOAT_ARRAY = {};
+    private static final int[] EMPTY_INT_ARRAY = {};
+
     /**
      * Constructs a {@link CarSensorEvent} from integer values. Handled by
      * CarSensorManager implementations. App developers need not worry about constructing these
@@ -102,13 +105,44 @@ public class CarSensorEvent {
         intValues = new int[intValueSize];
     }
 
-    /** @hide */
+    /**
+     * Constructor
+     * @param sensorType one of the {@link CarSensorManager}'s SENSOR_TYPE_* constants
+     * @param timestamp time since system start in nanoseconds
+     * @param floatValues {@code null} will be converted to an empty array
+     * @param intValues {@code null} will be converted to an empty array
+     * @hide
+     */
     @RestrictTo(GROUP_ID)
     public CarSensorEvent(int sensorType, long timestamp, float[] floatValues, int[] intValues) {
         this.sensorType = sensorType;
         this.timestamp = timestamp;
-        this.floatValues = floatValues;
-        this.intValues = intValues;
+        this.floatValues = (floatValues == null) ? EMPTY_FLOAT_ARRAY : floatValues;
+        this.intValues = (intValues == null) ? EMPTY_INT_ARRAY : intValues;
+    }
+
+    /**
+     * Constructor
+     * @param sensorType one of the {@link CarSensorManager}'s SENSOR_TYPE_* constants
+     * @param timestamp time since system start in nanoseconds
+     * @param floatValues {@code null} will be converted to an empty array
+     * @param byteValues bytes will be converted into the intValues array. {@code null} will be
+     * converted to an empty array.
+     * @hide
+     */
+    @RestrictTo(GROUP_ID)
+    public CarSensorEvent(int sensorType, long timestamp, float[] floatValues, byte[] byteValues) {
+        this.sensorType = sensorType;
+        this.timestamp = timestamp;
+        this.floatValues = (floatValues == null) ? EMPTY_FLOAT_ARRAY : floatValues;
+        if (byteValues == null) {
+            this.intValues = EMPTY_INT_ARRAY;
+        } else {
+            this.intValues = new int[byteValues.length];
+            for (int i = 0; i < byteValues.length; i++) {
+                this.intValues[i] = byteValues[i];
+            }
+        }
     }
 
     private void checkType(int type) {
@@ -370,8 +404,8 @@ public class CarSensorEvent {
      * Both byte values and float values are used.
      * Two first bytes encode number of satellites in-use/in-view (or 0xFF if unavailable).
      * Then optionally with INDEX_GPS_SATELLITE_ARRAY_BYTE_OFFSET offset and interval
-     * INDEX_GPS_SATELLITE_ARRAY_BYTE_INTERVAL between elements are encoded boolean flags of whether
-     * particular satellite from in-view participate in in-use subset.
+     * INDEX_GPS_SATELLITE_ARRAY_BYTE_INTERVAL between elements are encoded boolean flags of 
+     * whether particular satellite from in-view participate in in-use subset.
      * Float values with INDEX_GPS_SATELLITE_ARRAY_FLOAT_OFFSET offset and interval
      * INDEX_GPS_SATELLITE_ARRAY_FLOAT_INTERVAL between elements can optionally contain
      * per-satellite values of signal strength and other values or NaN if unavailable.
@@ -447,7 +481,6 @@ public class CarSensorEvent {
     /**@hide*/
     public static final int INDEX_ACCELEROMETER_Z = 2;
 
-
     /** @hide */
     public static class EnvironmentData {
         /** The time in nanoseconds since system boot. */
@@ -504,7 +537,7 @@ public class CarSensorEvent {
      */
     public GearData getGearData() {
         checkType(CarSensorManager.SENSOR_TYPE_GEAR);
-        return new GearData(timestamp,intValues[0] );
+        return new GearData(timestamp, intValues[0]);
     }
 
     /** @hide */
@@ -574,7 +607,7 @@ public class CarSensorEvent {
      */
     public OdometerData getOdometerData() {
         checkType(CarSensorManager.SENSOR_TYPE_ODOMETER);
-            return new OdometerData(timestamp,floatValues[0]);
+            return new OdometerData(timestamp, floatValues[0]);
     }
 
     /** @hide */
@@ -700,7 +733,8 @@ public class CarSensorEvent {
      * Convenience method for obtaining an {@link AccelerometerData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_ACCELEROMETER}.
      *
-     * @return An AccelerometerData object corresponding to the data contained in the CarSensorEvent.
+     * @return An AccelerometerData object corresponding to the data contained in the
+     * CarSensorEvent.
      */
     public AccelerometerData getAccelerometerData() {
         checkType(CarSensorManager.SENSOR_TYPE_ACCELEROMETER);
@@ -766,27 +800,27 @@ public class CarSensorEvent {
          * Per-satellite flag if this satellite was used for GPS fix.
          * Can be null if per-satellite data is unavailable.
          */
-        public final boolean[] usedInFix ;
+        public final boolean[] usedInFix;
         /**
          * Per-satellite pseudo-random id.
          * Can be null if per-satellite data is unavailable.
          */
-        public final int[] prn ;
+        public final int[] prn;
         /**
          * Per-satellite signal to noise ratio.
          * Can be null if per-satellite data is unavailable.
          */
-        public final float[] snr ;
+        public final float[] snr;
         /**
          * Per-satellite azimuth.
          * Can be null if per-satellite data is unavailable.
          */
-        public final float[] azimuth ;
+        public final float[] azimuth;
         /**
          * Per-satellite elevation.
          * Can be null if per-satellite data is unavailable.
          */
-        public final float[] elevation ;
+        public final float[] elevation;
 
         /** @hide */
         @RestrictTo(GROUP_ID)
@@ -810,7 +844,8 @@ public class CarSensorEvent {
 
     /**
      * Convenience method for obtaining a {@link GpsSatelliteData} object from a CarSensorEvent
-     * object with type {@link CarSensorManager#SENSOR_TYPE_GPS_SATELLITE} with optional per-satellite info.
+     * object with type {@link CarSensorManager#SENSOR_TYPE_GPS_SATELLITE} with optional 
+     * per-satellite info.
      *
      * @param withPerSatellite whether to include per-satellite data.
      * @return a GpsSatelliteData object corresponding to the data contained in the CarSensorEvent.

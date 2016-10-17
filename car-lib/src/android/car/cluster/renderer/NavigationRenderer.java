@@ -23,7 +23,7 @@ import android.graphics.Bitmap;
 /**
  * Contains methods specified for Navigation App renderer in instrument cluster.
  *
- * TODO: Consider to add methods to report time / distance to final destination.
+ * TODO: Consider to add methods to report time / distance to final destination. bug:32060070
  * @hide
  */
 @SystemApi

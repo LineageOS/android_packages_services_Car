@@ -16,90 +16,233 @@
 
 package com.android.car.test;
 
-import android.content.ComponentName;
-import android.os.IBinder;
-import android.os.Looper;
 import android.car.Car;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
-import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.util.Log;
+
+import com.android.car.vehiclenetwork.VehicleNetworkConsts;
+import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
+import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-/** TODO change to mocking
-public class CarSensorManagerTest extends AndroidTestCase {
-    private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
+/**
+ * Test the public entry points for the CarSensorManager
+ */
+@MediumTest
+public class CarSensorManagerTest extends MockedCarTestBase {
+    private static final String TAG = CarSensorManagerTest.class.getSimpleName();
 
-    private final Semaphore mConnectionWait = new Semaphore(0);
-
-    private Car mCar;
     private CarSensorManager mCarSensorManager;
-
-    private final ServiceConnectionListener mConnectionListener = new ServiceConnectionListener() {
-
-        @Override
-        public void onServiceSuspended(int cause) {
-            assertMainThread();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            assertMainThread();
-        }
-
-        @Override
-        public void onServiceConnectionFailed(int cause) {
-            assertMainThread();
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            assertMainThread();
-            mConnectionWait.release();
-        }
-    };
-
-    private void assertMainThread() {
-        assertTrue(Looper.getMainLooper().isCurrentThread());
-    }
-    private void waitForConnection(long timeoutMs) throws InterruptedException {
-        mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
-    }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mCar = new Car(getContext(), mConnectionListener, null);
-        mCar.connect();
-        waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
-        mCarSensorManager =
-                (CarSensorManager) mCar.getCarManager(Car.SENSOR_SERVICE);
+
+        // Our tests simply rely on the properties already added by default in the
+        // VehilceHalEmulator.  We don't actually need to add any of our own.
+
+        // Start the HAL layer and set up the sensor manager service
+        getVehicleHalEmulator().start();
+        mCarSensorManager = (CarSensorManager) getCar().getCarManager(Car.SENSOR_SERVICE);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        mCar.disconnect();
+    /**
+     * Test single sensor availability entry point
+     * @throws Exception
+     */
+    public void testSensorAvailability() throws Exception {
+        // NOTE:  Update this test if/when the reserved values put into use.  For now, we
+        //        expect them to never be supported.
+        assertFalse(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_RESERVED1));
+        assertFalse(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_RESERVED13));
+        assertFalse(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_RESERVED21));
+
+        // We expect these sensors to always be available
+        assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_CAR_SPEED));
+        assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_FUEL_LEVEL));
+        assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_PARKING_BRAKE));
+        assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_GEAR));
+        assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_NIGHT));
+        assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
     }
 
-    public void testDrivingPolicy() throws Exception {
+    /**
+     * Test sensor enumeration entry point
+     * @throws Exception
+     */
+    public void testSensorEnumeration() throws Exception {
         int[] supportedSensors = mCarSensorManager.getSupportedSensors();
         assertNotNull(supportedSensors);
+
+        Log.i(TAG, "Found " + supportedSensors.length + " supported sensors.");
+
+        // Unfortunately, we don't have a definitive range for legal sensor values,
+        // so we have set a "reasonable" range here.  The ending value, in particular,
+        // will need to be updated if/when new sensor types are allowed.
+        // Here we are ensuring that all the enumerated sensors also return supported.
+        for (int candidate = 0; candidate <= CarSensorManager.SENSOR_TYPE_RESERVED21; ++candidate) {
+            boolean supported = mCarSensorManager.isSensorSupported(candidate);
+            boolean found = false;
+            for (int sensor : supportedSensors) {
+                if (candidate == sensor) {
+                    found = true;
+                    Log.i(TAG, "Sensor type " + sensor + " is supported.");
+                    break;
+                }
+            }
+
+            // Make sure the individual query on a sensor type is consistent
+            assertEquals(found, supported);
+        }
+
+        // Here we simply ensure that one specific expected sensor is always available to help
+        // ensure we don't have a trivially broken test finding nothing.
         boolean found = false;
-        for (int sensor: supportedSensors) {
+        for (int sensor : supportedSensors) {
             if (sensor == CarSensorManager.SENSOR_TYPE_DRIVING_STATUS) {
                 found = true;
                 break;
             }
         }
-        assertTrue(found);
-        assertTrue(mCarSensorManager.isSensorSupported(
-                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
-        assertTrue(CarSensorManager.isSensorSupported(supportedSensors,
-                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
-        CarSensorEvent lastEvent = mCarSensorManager.getLatestSensorEvent(
-                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
-        assertNotNull(lastEvent);
+        assertTrue("We expect at least DRIVING_STATUS to be available", found);
     }
-}*/
+
+    /**
+     * Test senor notification registration, delivery, and unregistration
+     * @throws Exception
+     */
+    public void testEvents() throws Exception {
+        // Set up our listener callback
+        SensorListener listener = new SensorListener();
+        mCarSensorManager.registerListener(listener,
+                CarSensorManager.SENSOR_TYPE_NIGHT,
+                CarSensorManager.SENSOR_RATE_NORMAL);
+
+        VehiclePropValue value = null;
+        CarSensorEvent.NightData data = null;
+        CarSensorEvent event = null;
+
+        // Consume any sensor events queued up on startup
+        while (listener.waitForSensorChange()) {};
+
+        // Validate that no events are now pending
+        listener.checkNoSensorChangePosted();
+
+
+        // Set the value TRUE and wait for the event to arrive
+        value = VehiclePropValueUtil.createBooleanValue(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_NIGHT_MODE, true, 1);
+        getVehicleHalEmulator().injectEvent(value);
+        assertTrue(listener.waitForSensorChange());
+
+        // Validate that no events remain pending
+        listener.checkNoSensorChangePosted();
+
+        // Ensure we got the expected event
+        assertEquals(listener.getLastEvent().sensorType, CarSensorManager.SENSOR_TYPE_NIGHT);
+
+        // Ensure we got the expected value in our callback
+        data = listener.getLastEvent().getNightData(data);
+        Log.d(TAG, "NightMode " + data.isNightMode + " at " + data.timestamp);
+        assertTrue(data.isNightMode);
+
+        // Ensure we have the expected value in the sensor manager's cache
+        event = mCarSensorManager.getLatestSensorEvent(CarSensorManager.SENSOR_TYPE_NIGHT);
+        data = event.getNightData(data);
+        assertEquals("Unexpected event timestamp", data.timestamp, 1);
+        assertTrue("Unexpected value", data.isNightMode);
+
+
+        // Set the value FALSE
+        value = VehiclePropValueUtil.createBooleanValue(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_NIGHT_MODE, false, 1001);
+        getVehicleHalEmulator().injectEvent(value);
+        assertTrue(listener.waitForSensorChange());
+
+        // Ensure we got the expected event
+        assertEquals(listener.getLastEvent().sensorType, CarSensorManager.SENSOR_TYPE_NIGHT);
+
+        // Ensure we got the expected value in our callback
+        data = listener.getLastEvent().getNightData(data);
+        assertEquals("Unexpected event timestamp", data.timestamp, 1001);
+        assertFalse("Unexpected value", data.isNightMode);
+
+        // Ensure we have the expected value in the sensor manager's cache
+        event = mCarSensorManager.getLatestSensorEvent(CarSensorManager.SENSOR_TYPE_NIGHT);
+        data = event.getNightData(data);
+        assertFalse(data.isNightMode);
+
+
+        // Unregister our handler (from all sensor types)
+        mCarSensorManager.unregisterListener(listener);
+
+        // Set the value TRUE again
+        value = VehiclePropValueUtil.createBooleanValue(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_NIGHT_MODE, true, 2001);
+        listener.checkNoSensorChangePosted();
+        getVehicleHalEmulator().injectEvent(value);
+
+        // Ensure we did not get a callback (should timeout)
+        Log.i(TAG, "waiting for unexpected callback -- should timeout.");
+        assertFalse(listener.waitForSensorChange());
+        listener.checkNoSensorChangePosted();
+
+        // Despite us not having a callback registered, the Sensor Manager should see the update
+        event = mCarSensorManager.getLatestSensorEvent(CarSensorManager.SENSOR_TYPE_NIGHT);
+        data = event.getNightData(data);
+        assertEquals("Unexpected event timestamp", data.timestamp, 2001);
+        assertTrue("Unexpected value", data.isNightMode);
+    }
+
+
+    /**
+     * Callback function we register for sensor update notifications.
+     * This tracks the number of times it has been called via the mAvailable semaphore,
+     * and keeps a reference to the most recent event delivered.
+     */
+    class SensorListener implements CarSensorManager.OnSensorChangedListener {
+
+        // Initialize the semaphore with ZERO callback events indicated
+        private Semaphore mAvailable = new Semaphore(0);
+
+        private CarSensorEvent mLastEvent = null;
+
+        public CarSensorEvent getLastEvent() {
+            return mLastEvent;
+        }
+
+        public void checkNoSensorChangePosted() {
+            // Verify that no permits are available (ie: the callback has not fired)
+            assertEquals("No events expected at this point.", 0, mAvailable.availablePermits());
+        }
+
+        // Returns True to indicate receipt of a sensor event.  False indicates a timeout.
+        public boolean waitForSensorChange() throws InterruptedException {
+            Log.i(TAG, "Waiting to for sensor update...");
+
+            long startTime = System.currentTimeMillis();
+            boolean result = mAvailable.tryAcquire(2L, TimeUnit.SECONDS);
+            long duration  = System.currentTimeMillis() - startTime;
+
+            Log.d(TAG, "tryAcquire returned " + result + " in " + duration + "ms");
+
+            return result;
+        }
+
+        @Override
+        public void onSensorChanged(CarSensorEvent event) {
+            Log.d(TAG, "onSensorChanged: " + event);
+
+            // We're going to hold a reference to this object
+            mLastEvent = event;
+
+            // Add one to the semaphore, indicating that we have run
+            mAvailable.release();
+        }
+    }
+
+}

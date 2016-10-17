@@ -10,8 +10,8 @@ package android.support.car {
     method public boolean isConnected();
     method public boolean isConnectedToCar();
     method public boolean isConnecting();
-    method public void registerCarConnectionCallbacks(android.support.car.CarConnectionCallback) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException;
-    method public void unregisterCarConnectionCallbacks(android.support.car.CarConnectionCallback);
+    method public void registerCarConnectionCallback(android.support.car.CarConnectionCallback) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException;
+    method public void unregisterCarConnectionCallback(android.support.car.CarConnectionCallback);
     field public static final java.lang.String APP_FOCUS_SERVICE = "app_focus";
     field public static final java.lang.String AUDIO_SERVICE = "audio";
     field public static final int CONNECTION_TYPE_ADB_EMULATOR = 4; // 0x4

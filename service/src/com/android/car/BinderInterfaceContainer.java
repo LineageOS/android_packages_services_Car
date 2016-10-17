@@ -78,7 +78,7 @@ public class BinderInterfaceContainer<T extends IInterface> {
         IBinder binder = binderInterface.asBinder();
         synchronized(this) {
             BinderInterface<T> bInterface = mBinders.get(binder);
-            if (bInterface != null) {
+            if (bInterface == null) {
                 return;
             }
             binder.unlinkToDeath(bInterface, 0);

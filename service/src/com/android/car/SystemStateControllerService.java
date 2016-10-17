@@ -44,7 +44,7 @@ public class SystemStateControllerService implements CarServiceBase,
 
     @Override
     public long onPrepareShutdown(boolean shuttingDown) {
-        //TODO add state saving here for things to restore on power on.
+        //TODO add state saving here for things to restore on power on. bug: 32096079
         return 0;
     }
 
@@ -59,7 +59,7 @@ public class SystemStateControllerService implements CarServiceBase,
             if (!mICarImpl.isInMocking()) { // do not do this in mocking as it can affect test.
                 Log.i(CarLog.TAG_SYS, "Media mute");
                 mCarAudioService.muteMediaWithLock(mLockWhenMuting);
-                //TODO store last context and resume or silence radio on display on
+                //TODO store last context and resume or silence radio on display on. bug: 32096079
             }
         }
     }
@@ -71,17 +71,17 @@ public class SystemStateControllerService implements CarServiceBase,
 
     @Override
     public void onShutdown() {
-        // TODO
+        // TODO bug: 32096079
     }
 
     @Override
     public void onSleepEntry() {
-        // TODO
+        // TODO bug: 32096079
     }
 
     @Override
     public void onSleepExit() {
-        // TODO
+        // TODO bug: 32096079
     }
 
     @Override

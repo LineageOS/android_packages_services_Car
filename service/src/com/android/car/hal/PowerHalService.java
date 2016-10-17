@@ -278,7 +278,8 @@ public class PowerHalService extends HalServiceBase {
     }
 
     @Override
-    public List<VehiclePropConfig> takeSupportedProperties(List<VehiclePropConfig> allProperties) {
+    public synchronized List<VehiclePropConfig> takeSupportedProperties(
+            List<VehiclePropConfig> allProperties) {
         for (VehiclePropConfig config : allProperties) {
             switch (config.getProp()) {
                 case VehicleNetworkConsts.VEHICLE_PROPERTY_AP_POWER_STATE:

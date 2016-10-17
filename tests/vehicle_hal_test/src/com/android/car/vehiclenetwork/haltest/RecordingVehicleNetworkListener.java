@@ -105,17 +105,14 @@ class RecordingVehicleNetworkListener implements VehicleNetworkListener {
 
     @Override
     public void onHalError(int errorCode, int property, int operation) {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public void onHalRestart(boolean inMocking) {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public void onPropertySet(VehiclePropValue value) {
-        // TODO
     }
 
     // To be used to compare expected vs recorded values.

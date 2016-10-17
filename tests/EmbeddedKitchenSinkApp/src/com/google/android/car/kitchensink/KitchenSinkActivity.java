@@ -50,6 +50,7 @@ import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
 import com.google.android.car.kitchensink.setting.CarServiceSettingsActivity;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
+//import com.google.android.car.kitchensink.bluetooth.MapMceTestFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String MENU_CUBES_TEST = "cubes test";
     private static final String MENU_CAR_SETTINGS = "car service settings";
     private static final String MENU_ORIENTATION = "orientation test";
+    private static final String MENU_MAP_MESSAGING = "bluetooth messaging test";
 
     private Car mCarApi;
     private CarCameraManager mCameraManager;
@@ -92,6 +94,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private TouchTestFragment mTouchTestFragment;
     private CubesTestFragment mCubesTestFragment;
     private OrientationTestFragment mOrientationFragment;
+    //private MapMceTestFragment mMapMceTestFragment;
 
     private final CarSensorManager.OnSensorChangedListener mListener =
             new CarSensorManager.OnSensorChangedListener() {
@@ -226,7 +229,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                         MENU_AUDIO, MENU_RADIO, MENU_CAMERA, MENU_HVAC, MENU_JOB, MENU_KEYBOARD,
                         MENU_CLUSTER, MENU_INPUT_TEST, MENU_SENSORS, MENU_VOLUME_TEST,
                         MENU_TOUCH_TEST, MENU_CUBES_TEST, MENU_CAR_SETTINGS, MENU_ORIENTATION,
-                        MENU_QUIT
+                        MENU_MAP_MESSAGING, MENU_QUIT
                 };
                 for (String menu : allMenus) {
                     items.add(new CarMenu.Builder(menu).setText(menu).build());
@@ -314,6 +317,11 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                     mOrientationFragment = new OrientationTestFragment();
                 }
                 showFragment(mOrientationFragment);
+            //} else if (id.equals(MENU_MAP_MESSAGING)) {
+            //    if (mMapMceTestFragment == null) {
+            //        mMapMceTestFragment = new MapMceTestFragment();
+            //    }
+            //    showFragment(mMapMceTestFragment);
             } else if (id.equals(MENU_QUIT)) {
                 finish();
             }

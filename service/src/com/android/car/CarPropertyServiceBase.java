@@ -101,7 +101,6 @@ public class CarPropertyServiceBase extends ICarProperty.Stub
 
     @Override
     public void dump(PrintWriter writer) {
-        // TODO
     }
 
     @Override
@@ -209,6 +208,6 @@ public class CarPropertyServiceBase extends ICarProperty.Stub
 
     @Override
     public void onError(int zone, int property) {
-        // TODO:
+        // TODO bug:32068464
     }
 }

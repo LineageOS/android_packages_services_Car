@@ -30,21 +30,21 @@ public class CarConnectionCallbackTest extends CarApiTestBase {
 
     public void testRegisterUnregister() throws Exception {
         CarConnectionCallbackImpl listener = new CarConnectionCallbackImpl();
-        getCar().registerCarConnectionCallbacks(listener);
+        getCar().registerCarConnectionCallback(listener);
         assertTrue(listener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
-        getCar().unregisterCarConnectionCallbacks(listener);
+        getCar().unregisterCarConnectionCallback(listener);
     }
 
     public void testMultiple() throws Exception {
         CarConnectionCallbackImpl listener1 = new CarConnectionCallbackImpl();
-        getCar().registerCarConnectionCallbacks(listener1);
+        getCar().registerCarConnectionCallback(listener1);
         assertTrue(listener1.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
         CarConnectionCallbackImpl listener2 = new CarConnectionCallbackImpl();
-        getCar().registerCarConnectionCallbacks(listener2);
+        getCar().registerCarConnectionCallback(listener2);
         assertTrue(listener2.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
         assertFalse(listener1.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS));
-        getCar().unregisterCarConnectionCallbacks(listener2);
-        getCar().unregisterCarConnectionCallbacks(listener1);
+        getCar().unregisterCarConnectionCallback(listener2);
+        getCar().unregisterCarConnectionCallback(listener1);
     }
 
     private class CarConnectionCallbackImpl extends CarConnectionCallback {

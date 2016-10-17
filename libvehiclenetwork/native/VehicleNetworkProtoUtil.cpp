@@ -21,6 +21,10 @@
 #include <IVehicleNetwork.h>
 #include "VehicleNetworkProtoUtil.h"
 
+#ifdef LOG_MEMORY
+#include <utils/CallStack.h>
+#endif
+
 namespace android {
 
 static status_t copyString(const std::string& in, uint8_t** out, int32_t* len) {
@@ -31,6 +35,15 @@ static status_t copyString(const std::string& in, uint8_t** out, int32_t* len) {
     }
     *out = new uint8_t[*len];
     ASSERT_OR_HANDLE_NO_MEMORY(*out, return NO_MEMORY);
+#ifdef LOG_MEMORY
+    ALOGE("allocValueArray %p, l:%d", *out, *len);
+    /* enable to dump stack
+    if (*len > 10000) {
+        CallStack stack;
+        stack.update();
+        stack.log(LOG_TAG, ANDROID_LOG_ERROR);
+    }*/
+#endif
     memcpy(*out, in.data(), *len);
     return NO_ERROR;
 }
@@ -43,7 +56,6 @@ status_t VehicleNetworkProtoUtil::toVehiclePropValue(const vehicle_prop_value_t&
     out.set_zone(in.zone);
     switch (in.value_type) {
         case VEHICLE_VALUE_TYPE_STRING: {
-            //TODO fix ugly copy here for inplace mode
             if (in.value.str_value.len > 0) {
                 out.set_string_value((char*)in.value.str_value.data, in.value.str_value.len);
             }
@@ -119,7 +131,6 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValue(const VehiclePropValue& i
                     return BAD_VALUE;
                 }
             }
-            //TODO fix copy...
             status_t r = copyString(in.string_value(), &(out.value.str_value.data),
                     &(out.value.str_value.len));
             if (r != NO_ERROR) {
@@ -269,8 +280,8 @@ status_t VehicleNetworkProtoUtil::fromVehiclePropValues(const VehiclePropValues&
     status_t r;
     for (int i = 0; i < in.values_size(); i++) {
         vehicle_prop_value_t* v =  new vehicle_prop_value_t();
-        memset(v, 0, sizeof(vehicle_prop_value_t));
         ASSERT_OR_HANDLE_NO_MEMORY(v, r = NO_MEMORY;goto error);
+        memset(v, 0, sizeof(vehicle_prop_value_t));
         r = fromVehiclePropValue(in.values(i), *v);
         if (r != NO_ERROR) {
             delete v;
@@ -626,6 +637,10 @@ status_t VehiclePropValueBinderUtil::readFromParcel(const Parcel& parcel,
     ReadableBlobHolder blob(new Parcel::ReadableBlob());
     ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
     int32_t size = parcel.readInt32();
+    if (size < 0) {
+        ALOGE("readFromParcel, bad blob size %d", size);
+        return BAD_VALUE;
+    }
     status_t status = parcel.readBlob(size, blob.blob);
     if (status != NO_ERROR) {
         ALOGE("readFromParcel, cannot read blob");

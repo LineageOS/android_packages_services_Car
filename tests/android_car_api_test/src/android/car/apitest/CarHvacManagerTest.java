@@ -81,8 +81,10 @@ public class CarHvacManagerTest extends CarApiTestBase {
             case CarHvacManager.ID_ZONED_FAN_POSITION_AVAILABLE:
             case CarHvacManager.ID_ZONED_FAN_POSITION:
             case CarHvacManager.ID_ZONED_SEAT_TEMP:
-                assertEquals(Integer.class, property.getPropertyType());
-                assertFalse(property.isGlobalProperty());
+                assertEquals("Wrong type, expecting Int type for id:" + property.getPropertyId(),
+                    Integer.class, property.getPropertyType());
+                assertFalse("Wrong zone, should not be global for id: " + property.getPropertyId() +
+                    ", area type:" + property.getAreaType(), property.isGlobalProperty());
                 checkIntMinMax(property);
                 break;
             case CarHvacManager.ID_ZONED_AC_ON: // zoned boolean

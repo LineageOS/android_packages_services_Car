@@ -69,12 +69,15 @@ public:
                 return holder;
             }
             int32_t size = reply.readInt32();
+            if (size < 0) {
+                ALOGE("listProperties, bad blob size %d", size);
+                return holder;
+            }
             status = reply.readBlob(size, blob.blob);
             if (status != NO_ERROR) {
                 ALOGE("listProperties, cannot read blob %d", status);
                 return holder;
             }
-            //TODO make this more memory efficient
             std::unique_ptr<VehiclePropConfigs> configs(new VehiclePropConfigs());
             if (configs.get() == NULL) {
                 return holder;
@@ -202,6 +205,10 @@ status_t BnVehicleNetworkHalMock::onTransact(uint32_t code, const Parcel& data, 
             ReadableBlobHolder blob(new Parcel::ReadableBlob());
             ASSERT_OR_HANDLE_NO_MEMORY(blob.blob, return NO_MEMORY);
             int32_t size = data.readInt32();
+            if (size < 0) {
+                ALOGE("setProperty:service, bad blob size %d", size);
+                return BAD_VALUE;
+            }
             r = data.readBlob(size, blob.blob);
             if (r != NO_ERROR) {
                 ALOGE("setProperty:service, cannot read blob");

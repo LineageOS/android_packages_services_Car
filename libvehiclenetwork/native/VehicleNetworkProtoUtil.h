@@ -34,6 +34,8 @@
 
 #include <VehicleNetworkProto.pb.h>
 
+//#define LOG_MEMORY
+
 namespace android {
 
 class VehicleNetworkProtoUtil {
@@ -69,11 +71,16 @@ public:
 
     WritableBlobHolder(Parcel::WritableBlob* aBlob)
         : blob(aBlob) {
+#ifdef LOG_MEMORY
+        ALOGE("WriteBlobHolder, blob %p", aBlob);
+#endif
     }
 
-    ~WritableBlobHolder() {
+    virtual ~WritableBlobHolder() {
         if (blob != NULL) {
-            blob->release();
+#ifdef LOG_MEMORY
+            ALOGE("~WriteBlobHolder, blob %p", blob);
+#endif
             delete blob;
         }
     }
@@ -88,11 +95,16 @@ public:
 
     ReadableBlobHolder(Parcel::ReadableBlob* aBlob)
         : blob(aBlob) {
+#ifdef LOG_MEMORY
+        ALOGE("ReadBlobHolder, blob %p", aBlob);
+#endif
     }
 
-    ~ReadableBlobHolder() {
+    virtual ~ReadableBlobHolder() {
         if (blob != NULL) {
-            blob->release();
+#ifdef LOG_MEMORY
+            ALOGE("~ReadBlobHolder, blob %p", blob);
+#endif
             delete blob;
         }
     }

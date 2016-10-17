@@ -15,7 +15,6 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
         package="com.android.car.carservicetest"
         android:sharedUserId="android.uid.system" >
 
@@ -36,5 +35,12 @@
                 <action android:name="android.car.content.pm.CarAppBlockingPolicyService"/>
             </intent-filter>
         </service>
+        <activity android:name="com.android.car.test.SystemActivityMonitoringServiceTest$ActivityA" />
+        <activity android:name="com.android.car.test.SystemActivityMonitoringServiceTest$ActivityB"
+            android:taskAffinity="com.android.car.carservicetest.activity"/>
+        <activity android:name="com.android.car.test.SystemActivityMonitoringServiceTest$ActivityC"
+            android:process="com.android.car.carservicetest.activityC"/>
+        <activity android:name="com.android.car.test.SystemActivityMonitoringServiceTest$BlockingActivity"
+            android:taskAffinity="com.android.car.carservicetest.block"/>
     </application>
 </manifest>

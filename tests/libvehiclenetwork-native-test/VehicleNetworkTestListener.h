@@ -53,7 +53,7 @@ public:
                 mEventCounts.replaceValueAt(index, count);
                 msg.appendFormat("0x%x:%d ", e->prop, count);
             }
-            vehicle_prop_value_t* copy = VehiclePropValueUtil::allocVehicleProp(*e);
+            vehicle_prop_value_t* copy = VehiclePropValueUtil::allocVehiclePropValue(*e);
             mEvents->getList().push_back(copy);
         }
         msg.append("\n");

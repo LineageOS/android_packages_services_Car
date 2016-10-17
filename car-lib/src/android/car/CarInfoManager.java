@@ -63,24 +63,22 @@ public final class CarInfoManager implements CarManagerBase {
     @ValueTypeDef(type = String.class)
     public static final String BASIC_INFO_KEY_VEHICLE_ID = "android.car.vehicle-id";
 
-    //TODO
+    /* TODO bug: 32059999
     //@ValueTypeDef(type = Integer.class)
     //public static final String KEY_DRIVER_POSITION = "driver-position";
 
-    //TODO
     //@ValueTypeDef(type = int[].class)
     //public static final String KEY_SEAT_CONFIGURATION = "seat-configuration";
 
-    //TODO
     //@ValueTypeDef(type = Integer.class)
     //public static final String KEY_WINDOW_CONFIGURATION = "window-configuration";
 
-    //TODO: MT, AT, CVT, ...
+    //MT, AT, CVT, ...
     //@ValueTypeDef(type = Integer.class)
     //public static final String KEY_TRANSMISSION_TYPE = "transmission-type";
 
-    //TODO add: transmission gear available selection, gear available steps
-    //          drive wheel: FWD, RWD, AWD, 4WD
+    // add: transmission gear available selection, gear available steps
+    //          drive wheel: FWD, RWD, AWD, 4WD */
 
     private final ICarInfo mService;
 

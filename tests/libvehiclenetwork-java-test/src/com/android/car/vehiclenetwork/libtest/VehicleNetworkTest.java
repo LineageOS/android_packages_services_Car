@@ -213,12 +213,10 @@ public class VehicleNetworkTest extends AndroidTestCase {
 
         @Override
         public void onHalError(int errorCode, int property, int operation) {
-            // TODO Auto-generated method stub
         }
 
         @Override
         public void onHalRestart(boolean inMocking) {
-            // TODO Auto-generated method stub
         }
 
         @Override

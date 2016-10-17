@@ -35,6 +35,9 @@
     <uses-permission android:name="android.permission.MANAGE_USB" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <application android:label="@string/app_title"
         android:icon="@drawable/ic_launcher">
 
@@ -83,5 +86,15 @@
                   android:theme="@android:style/Theme.Material.Light.Dialog"
                   android:launchMode="singleTop">
         </activity>
+
+        <!--
+        <receiver android:name=".bluetooth.MapReceiver"
+            android:permission="android.permission.READ_SMS">
+            <intent-filter>
+                <action android:name="android.bluetooth.mapmce.profile.action.MESSAGE_RECEIVED"/>
+                <action android:name="android.provider.action.VOICE_SEND_MESSAGE_TO_CONTACTS"/>
+            </intent-filter>
+        </receiver>
+        -->
     </application>
 </manifest>

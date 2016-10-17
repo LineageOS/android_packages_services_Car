@@ -30,6 +30,11 @@
 #include <utils/RefBase.h>
 #include <utils/Errors.h>
 
+//#define LOG_MEMORY
+
+#ifdef LOG_MEMORY
+#include <utils/CallStack.h>
+#endif
 /**
  * Define this macro to make the process crash when memory alloc fails.
  * Enabling this can be useful to track memory leak. When this macro is not define,
@@ -62,6 +67,10 @@ public:
     static void deleteMembers(vehicle_prop_config_t* config) {
         if (config->config_string.data != NULL && config->config_string.len > 0){
             delete[] config->config_string.data;
+#ifdef LOG_MEMORY
+                ALOGE("deleteConfigString %p, l:%d",config->config_string.data,
+                        config->config_string.len);
+#endif
         }
         switch (config->prop) {
             case VEHICLE_VALUE_TYPE_ZONED_INT32:
@@ -100,7 +109,6 @@ public:
         if (l.config_flags != r.config_flags) {
             return false;
         }
-        //TODO config_string
         if (l.float_min_value != r.float_min_value) {
             return false;
         }
@@ -126,9 +134,16 @@ public:
 
     VehiclePropertiesHolder(bool deleteConfigsInDestructor = true)
         : mDeleteConfigsInDestructor(deleteConfigsInDestructor) {
+#ifdef LOG_MEMORY
+        ALOGE("VehiclePropertiesHolder, this %p", this);
+#endif
     };
 
     virtual ~VehiclePropertiesHolder() {
+#ifdef LOG_MEMORY
+        ALOGE("~VehiclePropertiesHolder, this %p, deleteConfig:%d", this,
+                mDeleteConfigsInDestructor);
+#endif
         if (!mDeleteConfigsInDestructor) {
             return; // should not delete members
         }
@@ -166,25 +181,43 @@ public:
         switch (v->value_type) {
             case VEHICLE_VALUE_TYPE_BYTES:
             case VEHICLE_VALUE_TYPE_STRING: {
+#ifdef LOG_MEMORY
+                ALOGE("deleteValueArray %p, l:%d",v->value.str_value.data,
+                        v->value.str_value.len);
+#endif
                 delete[] v->value.str_value.data;
                 v->value.str_value.data = NULL;
             } break;
         }
     };
 
-    static status_t copyVehicleProp(vehicle_prop_value_t* dest, const vehicle_prop_value_t& src,
-            bool deleteOldData = false) {
+    static status_t copyVehiclePropValue(vehicle_prop_value_t* dest,
+            const vehicle_prop_value_t& src, bool deleteOldData = false) {
         switch (src.value_type) {
         case VEHICLE_VALUE_TYPE_BYTES:
         case VEHICLE_VALUE_TYPE_STRING: {
             if (deleteOldData && dest->value.str_value.data != NULL &&
                     dest->value.str_value.len > 0) {
                 delete[] dest->value.str_value.data;
+#ifdef LOG_MEMORY
+                ALOGE("deleteValueArray %p, l:%d", dest->value.str_value.data,
+                        dest->value.str_value.len);
+#endif
             }
             memcpy(dest, &src, sizeof(vehicle_prop_value_t));
             if (dest->value.str_value.len > 0) {
                 dest->value.str_value.data = new uint8_t[dest->value.str_value.len];
                 ASSERT_OR_HANDLE_NO_MEMORY(dest->value.str_value.data, return NO_MEMORY);
+#ifdef LOG_MEMORY
+                ALOGE("allocValueArray %p, l:%d", dest->value.str_value.data,
+                        dest->value.str_value.len);
+                /* enable to dump stack
+                if (dest->value.str_value.len > 10000) {
+                    CallStack stack;
+                    stack.update();
+                    stack.log(LOG_TAG, ANDROID_LOG_ERROR);
+                }*/
+#endif
                 memcpy(dest->value.str_value.data, src.value.str_value.data,
                         dest->value.str_value.len);
             } else {
@@ -201,15 +234,26 @@ public:
     /**
      * Create a deep copy of vehicle_prop_value_t.
      */
-    static vehicle_prop_value_t* allocVehicleProp(const vehicle_prop_value_t& v) {
+    static vehicle_prop_value_t* allocVehiclePropValue(const vehicle_prop_value_t& v) {
         std::unique_ptr<vehicle_prop_value_t> copy(new vehicle_prop_value_t());
         ASSERT_OR_HANDLE_NO_MEMORY(copy.get(), return NO_MEMORY);
-        status_t r = copyVehicleProp(copy.get(), v);
+        status_t r = copyVehiclePropValue(copy.get(), v);
         if (r != NO_ERROR) {
             return NULL;
         }
+#ifdef LOG_MEMORY
+        ALOGE("allocVehiclePropValue, %p", copy.get());
+#endif
         return copy.release();
     };
+
+    static void deleteVehiclePropValue(vehicle_prop_value_t* v) {
+#ifdef LOG_MEMORY
+        ALOGE("deleteVehiclePropValue, %p", v);
+#endif
+        deleteMembers(v);
+        delete v;
+    }
 };
 
 // ----------------------------------------------------------------------------
@@ -228,10 +272,16 @@ public:
 
     ScopedVehiclePropValue() {
         memset(&value, 0, sizeof(value));
+#ifdef LOG_MEMORY
+        ALOGE("ScopedVehiclePropValue, %p", this);
+#endif
     };
 
-    ~ScopedVehiclePropValue() {
+    virtual ~ScopedVehiclePropValue() {
         VehiclePropValueUtil::deleteMembers(&value);
+#ifdef LOG_MEMORY
+        ALOGE("~ScopedVehiclePropValue, %p", this);
+#endif
     };
 };
 
@@ -243,13 +293,20 @@ class VehiclePropValueListHolder : public virtual RefBase {
 public:
     VehiclePropValueListHolder(List<vehicle_prop_value_t* > * list, bool deleteInDestructor = true)
       : mList(list),
-        mDeleteInDestructor(deleteInDestructor) {};
+        mDeleteInDestructor(deleteInDestructor) {
+#ifdef LOG_MEMORY
+        ALOGE("VehiclePropValueListHolder, %p", this);
+#endif
+    };
 
     List<vehicle_prop_value_t*>& getList() {
         return *mList;
     };
 
     virtual ~VehiclePropValueListHolder() {
+#ifdef LOG_MEMORY
+            ALOGE("~VehiclePropValueListHolder, %p, deleteList:%d", this, mDeleteInDestructor);
+#endif
         if (mDeleteInDestructor && mList != NULL) {
             for (auto pv : *mList) {
                 VehiclePropValueUtil::deleteMembers(pv);

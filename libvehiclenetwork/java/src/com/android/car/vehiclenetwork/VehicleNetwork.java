@@ -228,7 +228,7 @@ public class VehicleNetwork {
     }
 
     /**
-     * Set zoned boolean type property
+     * Set boolean type property
      *
      * @throws IllegalArgumentException For type mismatch (=the property is not boolean type)
      */
@@ -425,7 +425,6 @@ public class VehicleNetwork {
     /**
      * Get string type property.
      */
-    //TODO check UTF8 to java string conversion
     public String getStringProperty(int property) throws IllegalArgumentException,
             ServiceSpecificException {
         VehiclePropValue v = getProperty(

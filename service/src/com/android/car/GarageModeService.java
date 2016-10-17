@@ -229,7 +229,7 @@ public class GarageModeService implements CarServiceBase,
 
     private void readPolicyLocked() {
         logd("readPolicy");
-        // TODO: define a xml schema for garage mode policy and read it from system dir.
+        // TODO: define a xml schema for policy and read it from system dir. bug: 32096969
         mPolicy = new DefaultGarageModePolicy();
     }
 
@@ -269,8 +269,8 @@ public class GarageModeService implements CarServiceBase,
          * Returns number of seconds between now to 1am {@param numDays} days later.
          */
         public static int nextWakeUpSeconds(int numDays, int hour, int min) {
-            // TODO: Should select a random time within a window to avoid all cars update at the
-            // same time.
+            // TODO: Should select a random time within a window. bug: 32096386
+            // This is to avoid all cars update at the same time.
             Calendar next = Calendar.getInstance();
             next.add(Calendar.DATE, numDays);
             next.set(Calendar.HOUR_OF_DAY, hour);

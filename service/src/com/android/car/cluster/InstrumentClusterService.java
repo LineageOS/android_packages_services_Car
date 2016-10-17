@@ -73,22 +73,14 @@ public class InstrumentClusterService implements CarServiceBase,
             if (mNavContextOwner != null) {
                 notifyNavContextOwnerChanged(mNavContextOwner.first, mNavContextOwner.second);
             }
-
-            try {
-                binder.linkToDeath(() -> CarServiceUtils.runOnMainSync(() -> {
-                    Log.w(TAG, "Instrument cluster renderer died, trying to rebind");
-                    mRendererService = null;
-                    // Try to rebind with instrument cluster.
-                    mRendererBound = bindInstrumentClusterRendererService();
-                }), 0);
-            } catch (RemoteException e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "onServiceDisconnected, name: " + name);
+            mRendererService = null;
+            // Try to rebind with instrument cluster.
+            mRendererBound = bindInstrumentClusterRendererService();
         }
     };
 

@@ -63,7 +63,6 @@ public class VehicleNetworkProtoUtil {
         if (l.getPermissionModel() != r.getPermissionModel()) {
             return false;
         }
-        //TODO add more comparison
         return true;
     }
 }
