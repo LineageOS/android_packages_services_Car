@@ -85,6 +85,8 @@ public class PagedScrollBarView extends FrameLayout
         mDownButton.setOnLongClickListener(this);
 
         mScrollThumb = (ImageView) findViewById(R.id.scrollbar_thumb);
+        mScrollThumb.setAlpha(0.5f);
+
         mFiller = findViewById(R.id.filler);
 
         mMinThumbLength = getResources().getDimensionPixelSize(R.dimen.min_thumb_height);
@@ -153,6 +155,8 @@ public class PagedScrollBarView extends FrameLayout
         mUpButton.setBackgroundResource(R.drawable.car_pagination_background);
         mDownButton.setColorFilter(color, PorterDuff.Mode.SRC_IN);
         mDownButton.setBackgroundResource(R.drawable.car_pagination_background);
+
+        mScrollThumb.setBackgroundColor(color);
     }
 
     /** Sets auto light mode */
@@ -162,6 +166,8 @@ public class PagedScrollBarView extends FrameLayout
         mUpButton.setBackgroundResource(R.drawable.car_pagination_background_light);
         mDownButton.setColorFilter(color, PorterDuff.Mode.SRC_IN);
         mDownButton.setBackgroundResource(R.drawable.car_pagination_background_light);
+
+        mScrollThumb.setBackgroundColor(color);
     }
 
     /** Sets auto dark mode */
@@ -171,6 +177,8 @@ public class PagedScrollBarView extends FrameLayout
         mUpButton.setBackgroundResource(R.drawable.car_pagination_background_dark);
         mDownButton.setColorFilter(color, PorterDuff.Mode.SRC_IN);
         mDownButton.setBackgroundResource(R.drawable.car_pagination_background_dark);
+
+        mScrollThumb.setBackgroundColor(color);
     }
 
     protected void setUpEnabled(boolean enabled) {
