@@ -90,6 +90,7 @@ PRODUCT_PACKAGES += \
     CarMediaApp \
     Stream \
     CarHvacApp \
+    CarMapsPlaceholder \
     android.car \
     libvehiclenetwork-native \
     vns_policy.xml \

@@ -53,7 +53,7 @@
         <item></item>
     </array>
     <array name="car_facet_package_filters">
-        <item>com.google.android.apps.maps</item>
+        <item>com.android.car.mapsplaceholder</item>
         <item>com.android.car.dialer</item>
         <item>com.android.car.overview</item>
         <item></item>
