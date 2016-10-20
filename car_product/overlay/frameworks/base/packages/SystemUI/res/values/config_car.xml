@@ -16,8 +16,10 @@
 ** limitations under the License.
 */
 -->
+
 <resources>
-    <dimen name="status_bar_height">56dp</dimen>
-    <dimen name="navigation_bar_height_car_mode">112dp</dimen>
-    <dimen name="status_bar_icon_size">40dp</dimen>
+    <!-- These next two work together, if you enable this first one you need to provide an intent
+         uri that will be launched into the docked window. -->
+    <bool name="config_enablePersistentDockedActivity">false</bool>
+    <string name="config_persistentDockedActivityIntentUri" translatable="false"></string>
 </resources>

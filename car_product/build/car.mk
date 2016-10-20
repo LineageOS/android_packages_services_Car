@@ -81,6 +81,15 @@ PRODUCT_PACKAGES += \
     vehicle_network_service \
     CarService \
     CarUiProvider \
+    CarTrustAgentService \
+    CarDialerApp \
+    CarRadioApp \
+    OverviewApp \
+    CarLensPickerApp \
+    LocalMediaPlayer \
+    CarMediaApp \
+    Stream \
+    CarHvacApp \
     android.car \
     libvehiclenetwork-native \
     vns_policy.xml \
