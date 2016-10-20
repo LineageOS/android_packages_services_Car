@@ -17,7 +17,9 @@
 */
 -->
 <resources>
-    <dimen name="status_bar_height">56dp</dimen>
-    <dimen name="navigation_bar_height_car_mode">112dp</dimen>
-    <dimen name="status_bar_icon_size">40dp</dimen>
+    <!-- System ui can't depend on car libs so redefine. -->
+    <color name="car_grey_50">#fffafafa</color>
+
+    <color name="docked_divider_background">@color/car_grey_50</color>
+    <color name="system_bar_background_opaque">#ff172026</color>
 </resources>
