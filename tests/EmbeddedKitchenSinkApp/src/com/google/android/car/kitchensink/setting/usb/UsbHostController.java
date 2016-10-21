@@ -101,14 +101,15 @@ public final class UsbHostController
     }
 
     private synchronized void setActiveDeviceIfSerialMatch(UsbDevice device) {
-        if (device.getSerialNumber().equals(mProcessingDeviceSerial)) {
+        if (device != null && device.getSerialNumber() != null
+                && device.getSerialNumber().equals(mProcessingDeviceSerial)) {
             mActiveDevice = device;
         }
     }
 
     private synchronized void unsetActiveDeviceIfSerialMatch(UsbDevice device) {
         mHandler.requestDeviceRemoved();
-        if (mActiveDevice != null
+        if (mActiveDevice != null && mActiveDevice.getSerialNumber() != null
                 && mActiveDevice.getSerialNumber().equals(device.getSerialNumber())) {
             mActiveDevice = null;
         }
@@ -134,7 +135,7 @@ public final class UsbHostController
 
     private boolean deviceMatchedActiveDevice(UsbDevice device) {
         UsbDevice activeDevice = getActiveDevice();
-        return activeDevice != null
+        return activeDevice != null && activeDevice.getSerialNumber() != null
                 && activeDevice.getSerialNumber().equals(device.getSerialNumber());
     }
 

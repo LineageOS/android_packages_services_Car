@@ -49,10 +49,11 @@ class UsbDeviceStateController {
     private static final String TAG = UsbDeviceStateController.class.getSimpleName();
     private static final boolean LOCAL_LOGD = true;
 
-    private static final int USB_RESET_RETRY_COUNT = 10;
-    private static final int MAX_USB_DETACH_CHANGE_WAIT = 50;
-    private static final int MAX_USB_ATTACH_CHANGE_WAIT = 5;
-    private static final long USB_STATE_DETACH_WAIT_TIMEOUT_MS = 20;
+    // Because of the bug in UsbDeviceManager total time for AOAP reset should be >10s.
+    // 21*500 = 10.5 s.
+    private static final int MAX_USB_DETACH_CHANGE_WAIT = 21;
+    private static final int MAX_USB_ATTACH_CHANGE_WAIT = 21;
+    private static final long USB_STATE_DETACH_WAIT_TIMEOUT_MS = 500;
     private static final long USB_STATE_ATTACH_WAIT_TIMEOUT_MS = 500;
 
     private final Context mContext;
@@ -219,11 +220,7 @@ class UsbDeviceStateController {
                 removalDetected = true;
                 break;
             }
-            // Because of the bug in UsbDeviceManager it's hard to get device out of
-            // AOAP mode in first 10s after connection. Repetitive sending of reset command helps.
-            for (int i = 0; i < USB_RESET_RETRY_COUNT; i++) {
-                connNow.resetDevice();
-            }
+            connNow.resetDevice();
             connNow.close();
             synchronized (mUsbConnectionChangeWait) {
                 try {
@@ -240,6 +237,7 @@ class UsbDeviceStateController {
                 }
             }
             retry++;
+            connNow = null;
         }
         if (!removalDetected) {
             Log.w(TAG, "resetDevice failed for device, device still in the same mode: " + device);

@@ -573,6 +573,8 @@ public final class UsbDeviceHandlerResolver
         Pair<ResolveInfo, DeviceFilter> option = mActiveDeviceOptions.peek();
         if (option == null) {
             Log.w(TAG, "No more options left.");
+            mStateController.startDeviceReset(mActiveUsbDevice);
+            return;
         }
         DeviceFilter filter = option.second;
         Intent serviceIntent = new Intent();
