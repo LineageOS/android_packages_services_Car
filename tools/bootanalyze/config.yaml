@@ -18,8 +18,8 @@ events:
   vns_start_by_init: Starting service 'vns'
   SystemServer_start: Entered the Android system server!
   system_server_ready: Enabled StrictMode for system server main
-  PackageManagerInit_start: StartPackageManagerService
-  PackageManagerInit_ready: StartOtaDexOptService
+  PackageManagerInit_start: SystemServer\s*:\s*StartPackageManagerService
+  PackageManagerInit_ready: StartPackageManagerService took to complete
   BluetoothService_start: Starting com.android.server.BluetoothService
   SystemUi_start: for service com.android.systemui/.
   LauncherReady: Em.Overview:\s*onResume
