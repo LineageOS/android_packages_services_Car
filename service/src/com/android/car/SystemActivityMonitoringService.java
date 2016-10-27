@@ -19,7 +19,7 @@ import android.app.ActivityManager.StackInfo;
 import android.app.ActivityManagerNative;
 import android.app.IActivityManager;
 import android.app.IProcessObserver;
-import android.app.ITaskStackListener;
+import android.app.TaskStackListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -378,33 +378,13 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         }
     }
 
-    private class TaskListener extends ITaskStackListener.Stub {
+    private class TaskListener extends TaskStackListener {
         @Override
         public void onTaskStackChanged() {
             if (DBG) {
                 Log.i(CarLog.TAG_AM, "onTaskStackChanged");
             }
             mHandler.requestUpdatingTask();
-        }
-
-        @Override
-        public void onActivityPinned() {
-        }
-
-        @Override
-        public void onPinnedActivityRestartAttempt() {
-        }
-
-        @Override
-        public void onPinnedStackAnimationEnded() {
-        }
-
-        @Override
-        public void onActivityForcedResizable(String packageName, int taskId) {
-        }
-
-        @Override
-        public void onActivityDismissingDockedStack() {
         }
     }
 
