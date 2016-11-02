@@ -69,7 +69,8 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
         assertTrue(onStartLatch.await(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         try {
-            mCarNavigationStatusManager.sendNavigationStatus(1);
+            mCarNavigationStatusManager.sendNavigationStatus(CarNavigationStatusManager
+                    .STATUS_ACTIVE);
             fail();
         } catch (IllegalStateException expected) {
             // Expected. Client should acquire focus ownership for APP_FOCUS_TYPE_NAVIGATION.
@@ -100,6 +101,6 @@ public class CarNavigationStatusManagerTest extends CarApiTestBase {
 
         // TODO: we should use mocked HAL to be able to verify this, right now just make sure that
         // it is not crashing and logcat has appropriate traces.
-        mCarNavigationStatusManager.sendNavigationStatus(1);
+        mCarNavigationStatusManager.sendNavigationStatus(CarNavigationStatusManager.STATUS_ACTIVE);
     }
 }

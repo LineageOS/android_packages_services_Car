@@ -21,7 +21,7 @@ import android.support.annotation.Nullable;
 import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
 import android.support.car.CarNotConnectedException;
-import android.support.car.ServiceConnectionCallback;
+import android.support.car.CarConnectionCallback;
 import android.support.car.navigation.CarNavigationStatusManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -41,10 +41,10 @@ public class InstrumentClusterFragment extends Fragment {
     private CarAppFocusManager mCarAppFocusManager;
     private Car mCarApi;
 
-    private final ServiceConnectionCallback mServiceConnectionCallback =
-            new ServiceConnectionCallback() {
+    private final CarConnectionCallback mCarConnectionCallback =
+            new CarConnectionCallback() {
                 @Override
-                public void onServiceConnected() {
+                public void onConnected(Car car) {
                     Log.d(TAG, "Connected to Car Service");
                     try {
                         mCarNavigationStatusManager = (CarNavigationStatusManager) mCarApi.getCarManager(
@@ -57,13 +57,8 @@ public class InstrumentClusterFragment extends Fragment {
                 }
 
                 @Override
-                public void onServiceDisconnected() {
+                public void onDisconnected(Car car) {
                     Log.d(TAG, "Disconnect from Car Service");
-                }
-
-                @Override
-                public void onServiceConnectionFailed() {
-                    Log.d(TAG, "Car Service connection failed");
                 }
             };
 
@@ -73,7 +68,7 @@ public class InstrumentClusterFragment extends Fragment {
             mCarApi = null;
         }
 
-        mCarApi = Car.createCar(getContext(), mServiceConnectionCallback);
+        mCarApi = Car.createCar(getContext(), mCarConnectionCallback);
         mCarApi.connect();
     }
 

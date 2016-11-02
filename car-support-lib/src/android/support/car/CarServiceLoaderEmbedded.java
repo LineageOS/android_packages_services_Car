@@ -27,7 +27,6 @@ import android.support.car.content.pm.CarPackageManagerEmbedded;
 import android.support.car.hardware.CarSensorManagerEmbedded;
 import android.support.car.media.CarAudioManagerEmbedded;
 import android.support.car.navigation.CarNavigationStatusManagerEmbedded;
-import java.util.LinkedList;
 
 /**
  * Default CarServiceLoader for system with built-in car service (=embedded).
@@ -39,27 +38,22 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            getConnectionCallback().onServiceConnected();
+            getConnectionCallback().onConnected();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            getConnectionCallback().onServiceDisconnected();
+            getConnectionCallback().onDisconnected();
         }
     };
 
     private final android.car.Car mEmbeddedCar;
-    private final LinkedList<CarConnectionCallback> mCarConnectionCallback =
-            new LinkedList<>();
-    private final CallbackHandler mHandler;
 
     /** @hide */
-    CarServiceLoaderEmbedded(Car car, Context context, ServiceConnectionCallback
-            serviceConnectionCallback,
+    CarServiceLoaderEmbedded(Context context, CarConnectionCallbackProxy carConnectionCallback,
             Handler handler) {
-        super(context, serviceConnectionCallback, handler);
+        super(context, carConnectionCallback, handler);
         mEmbeddedCar = android.car.Car.createCar(context, mServiceConnection, handler);
-        mHandler = new CallbackHandler(car, handler.getLooper());
     }
 
     @Override
@@ -73,8 +67,7 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
     }
 
     @Override
-    public boolean isConnectedToCar() {
-        // for embedded, connected to service means connected to car.
+    public boolean isConnected() {
         return mEmbeddedCar.isConnected();
     }
 
@@ -83,23 +76,6 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
         @android.support.car.Car.ConnectionType
         int carConnectionType = mEmbeddedCar.getCarConnectionType();
         return carConnectionType;
-    }
-
-    @Override
-    public void registerCarConnectionCallback(final CarConnectionCallback listener)
-            throws CarNotConnectedException {
-        synchronized (this) {
-            mCarConnectionCallback.add(listener);
-        }
-        // car service connection is checked when this is called. So just dispatch it.
-        mHandler.dispatchCarConnectionCall(listener, getCarConnectionType());
-    }
-
-    @Override
-    public void unregisterCarConnectionCallback(CarConnectionCallback listener) {
-        synchronized (this) {
-            mCarConnectionCallback.remove(listener);
-        }
     }
 
     @Override
@@ -130,31 +106,6 @@ public class CarServiceLoaderEmbedded extends CarServiceLoader {
                 return new CarNavigationStatusManagerEmbedded(manager);
             default:
                 return manager;
-        }
-    }
-
-    private static class CallbackHandler extends Handler {
-
-        private static final int MSG_DISPATCH_CAR_CONNECTION = 0;
-        private final Car mCar;
-
-        private CallbackHandler(Car car, Looper looper) {
-            super(looper);
-            mCar = car;
-        }
-
-        private void dispatchCarConnectionCall(CarConnectionCallback listener, int connectionType) {
-            sendMessage(obtainMessage(MSG_DISPATCH_CAR_CONNECTION, connectionType, 0, listener));
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_DISPATCH_CAR_CONNECTION:
-                    CarConnectionCallback listener = (CarConnectionCallback) msg.obj;
-                    listener.onConnected(mCar, msg.arg1);
-                    break;
-            }
         }
     }
 }

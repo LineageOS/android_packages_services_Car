@@ -16,12 +16,8 @@
 
 package android.support.car;
 
-import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
-import android.support.car.CarNotConnectedException;
-import android.support.car.annotation.ValueTypeDef;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 

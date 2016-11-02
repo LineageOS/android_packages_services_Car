@@ -16,9 +16,6 @@
 
 package android.support.car;
 
-import android.support.car.CarNotConnectedException;
-import android.support.car.CarInfoManager.DriverSide;
-import android.os.Bundle;
 
 /** @hide */
 public class CarInfoManagerEmbedded extends CarInfoManager {

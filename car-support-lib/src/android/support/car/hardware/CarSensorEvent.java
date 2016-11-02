@@ -20,7 +20,6 @@ import android.location.GpsSatellite;
 import android.location.Location;
 import android.os.SystemClock;
 import android.support.annotation.RestrictTo;
-import android.support.car.annotation.VersionDef;
 
 import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
 
@@ -161,9 +160,15 @@ public class CarSensorEvent {
         public final long timestamp;
         /** The bearing in degrees. If unsupported by the car, this value is NaN. */
         public final float bearing;
-        /** The pitch in degrees. Nose down is positive. If unsupported by the car, this value is NaN. */
+        /**
+         * The pitch in degrees. Nose down is positive. If unsupported by the car, this value is
+         * NaN.
+         */
         public final float pitch;
-        /** The roll in degrees. Right door down is positive. If unsupported by the car, this value is NaN. */
+        /**
+         * The roll in degrees. Right door down is positive. If unsupported by the car, this value
+         * is NaN.
+         */
         public final float roll;
 
         /** @hide */

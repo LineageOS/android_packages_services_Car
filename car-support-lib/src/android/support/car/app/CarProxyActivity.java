@@ -17,14 +17,13 @@
 package android.support.car.app;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionCallback;
+import android.support.car.CarConnectionCallback;
 import android.support.car.input.CarInputManager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -59,20 +58,15 @@ public class CarProxyActivity extends Activity {
 
     private final CopyOnWriteArrayList<Pair<Integer, Object[]>> mCmds =
             new CopyOnWriteArrayList<>();
-    private final ServiceConnectionCallback mConnectionListener= new ServiceConnectionCallback() {
+    private final CarConnectionCallback mConnectionListener= new CarConnectionCallback() {
 
         @Override
-        public void onServiceDisconnected() {
+        public void onDisconnected(Car car) {
             Log.w(TAG, "Car service disconnected");
         }
 
         @Override
-        public void onServiceConnectionFailed() {
-            Log.w(TAG, "Car service connection failed");
-        }
-
-        @Override
-        public void onServiceConnected() {
+        public void onConnected(Car car) {
             for (Pair<Integer, Object[]> cmd: mCmds) {
                 mCarActivity.dispatchCmd(cmd.first, cmd.second);
             }

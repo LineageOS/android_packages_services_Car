@@ -26,7 +26,7 @@ import android.os.Bundle;
 import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
 import android.support.car.CarNotConnectedException;
-import android.support.car.ServiceConnectionCallback;
+import android.support.car.CarConnectionCallback;
 import android.support.car.app.menu.CarDrawerActivity;
 import android.support.car.app.menu.CarMenu;
 import android.support.car.app.menu.CarMenuCallbacks;
@@ -123,7 +123,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
 
         // Connection to Car Service does not work for non-automotive yet.
         if (getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
-            mCarApi = Car.createCar(getContext(), mServiceConnectionCallback);
+            mCarApi = Car.createCar(getContext(), mCarConnectionCallback);
             mCarApi.connect();
         }
         Log.i(TAG, "onCreate");
@@ -181,10 +181,10 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 .commit();
     }
 
-    private final ServiceConnectionCallback mServiceConnectionCallback =
-            new ServiceConnectionCallback() {
+    private final CarConnectionCallback mCarConnectionCallback =
+            new CarConnectionCallback() {
         @Override
-        public void onServiceConnected() {
+        public void onConnected(Car car) {
             Log.d(TAG, "Connected to Car Service");
             try {
                 mCameraManager = (CarCameraManager) mCarApi.getCarManager(android.car.Car
@@ -202,13 +202,8 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         }
 
         @Override
-        public void onServiceDisconnected() {
+        public void onDisconnected(Car car) {
             Log.d(TAG, "Disconnect from Car Service");
-        }
-
-        @Override
-        public void onServiceConnectionFailed() {
-            Log.d(TAG, "Car Service connection failed");
         }
     };
 

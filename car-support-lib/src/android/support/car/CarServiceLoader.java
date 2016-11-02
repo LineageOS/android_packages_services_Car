@@ -26,10 +26,10 @@ import android.os.Handler;
 public abstract class CarServiceLoader {
 
     private final Context mContext;
-    private final ServiceConnectionCallback mCallback;
+    private final CarConnectionCallbackProxy mCallback;
     private final Handler mEventHandler;
 
-    public CarServiceLoader(Context context, ServiceConnectionCallback callback, Handler handler) {
+    public CarServiceLoader(Context context, CarConnectionCallbackProxy callback, Handler handler) {
         mContext = context;
         mCallback = callback;
         mEventHandler = handler;
@@ -37,12 +37,10 @@ public abstract class CarServiceLoader {
 
     public abstract void connect() throws IllegalStateException;
     public abstract void disconnect();
-    public abstract boolean isConnectedToCar();
+    public abstract boolean isConnected();
+
     @Car.ConnectionType
     public abstract int getCarConnectionType() throws CarNotConnectedException;
-    public abstract void registerCarConnectionCallback(CarConnectionCallback callback)
-            throws CarNotConnectedException;
-    public abstract void unregisterCarConnectionCallback(CarConnectionCallback callback);
 
     /**
      * Retrieves a manager object for a specified Car*Manager.
@@ -57,11 +55,29 @@ public abstract class CarServiceLoader {
         return mContext;
     }
 
-    protected ServiceConnectionCallback getConnectionCallback() {
+    protected CarConnectionCallbackProxy getConnectionCallback() {
         return mCallback;
     }
 
     protected Handler getEventHandler() {
         return mEventHandler;
+    }
+
+    /**
+     * Wrapper for CarConnectionCallback which does not return a {@link android.support.car.Car}
+     * object.
+     */
+    public abstract static class CarConnectionCallbackProxy {
+
+        /**
+         * Called when the Car has been connected. Does not guarantee the car is still connected
+         * while this callback is running, so {@link CarNotConnectedException}s may still be
+         * thrown from {@link Car} method calls.
+         */
+        public abstract void onConnected();
+        /**
+         * Called when the Car has been disconnected.
+         */
+        public abstract void onDisconnected();
     }
 }

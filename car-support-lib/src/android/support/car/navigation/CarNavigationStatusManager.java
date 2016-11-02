@@ -17,11 +17,8 @@ package android.support.car.navigation;
 
 import android.graphics.Bitmap;
 import android.support.annotation.IntDef;
-import android.support.car.Car;
-import android.support.car.CarAppFocusManager;
 import android.support.car.CarManagerBase;
 import android.support.car.CarNotConnectedException;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -30,9 +27,10 @@ import java.lang.annotation.RetentionPolicy;
  * display built into the instrument cluster, a navigation application should also provide
  * turn-by-turn information to the cluster through this manager.
  * <p/>
- * Navigation applications should first call {@link CarAppFocusManager#requestAppFocus(int,
- * CarAppFocusManager.OnAppFocusOwnershipCallback)} and request {@link
- * CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.
+ * Navigation applications should first call
+ * {@link android.support.car.CarAppFocusManager#requestAppFocus(int,
+ * android.support.car.CarAppFocusManager.OnAppFocusOwnershipCallback)} and request
+ * {@link android.support.car.CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.
  * <p/>
  * After navigation focus is granted, applications should call {@code
  * sendNavigationStatus(STATUS_ACTIVE);} to initialize the cluster and let it know the app will be

@@ -53,7 +53,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
 
     public void testRegisterNull() throws Exception {
         try {
-            mManager.addFocusListener(null, 0);
+            mManager.addFocusListener(null, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
             fail();
         } catch (IllegalArgumentException e) {
             // expected
@@ -63,15 +63,15 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
     public void testRegisterUnregister() throws Exception {
         FocusChangedListener listener = new FocusChangedListener();
         FocusChangedListener listener2 = new FocusChangedListener();
-        mManager.addFocusListener(listener, 1);
-        mManager.addFocusListener(listener2, 1);
+        mManager.addFocusListener(listener, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
+        mManager.addFocusListener(listener2, CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND);
         mManager.removeFocusListener(listener);
         mManager.removeFocusListener(listener2);
     }
 
     public void testFocusChange() throws Exception {
-        DefaultServiceConnectionCallback connectionCallbacks =
-                new DefaultServiceConnectionCallback();
+        DefaultCarConnectionCallback connectionCallbacks =
+                new DefaultCarConnectionCallback();
         Car car2 = Car.createCar(getContext(), connectionCallbacks, null);
         car2.connect();
         connectionCallbacks.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
@@ -174,8 +174,8 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
     }
 
     public void testFilter() throws Exception {
-        DefaultServiceConnectionCallback connectionCallbacks =
-                new DefaultServiceConnectionCallback();
+        DefaultCarConnectionCallback connectionCallbacks =
+                new DefaultCarConnectionCallback();
         Car car2 = Car.createCar(getContext(), connectionCallbacks);
         car2.connect();
         connectionCallbacks.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);

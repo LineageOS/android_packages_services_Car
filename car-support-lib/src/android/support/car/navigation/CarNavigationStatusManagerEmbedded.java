@@ -76,8 +76,8 @@ public class CarNavigationStatusManagerEmbedded extends CarNavigationStatusManag
     }
 
     /**
-     * In this implementation we just immediately call {@code listener#onInstrumentClusterStarted} as
-     * we expect instrument cluster to be working all the time.
+     * In this implementation we just immediately call {@code listener#onInstrumentClusterStarted}
+     * as we expect instrument cluster to be working all the time.
      *
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */

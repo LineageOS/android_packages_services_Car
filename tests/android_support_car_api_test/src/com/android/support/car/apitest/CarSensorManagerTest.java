@@ -16,10 +16,9 @@
 
 package com.android.support.car.apitest;
 
-import android.content.ComponentName;
 import android.os.Looper;
 import android.support.car.Car;
-import android.support.car.ServiceConnectionCallback;
+import android.support.car.CarConnectionCallback;
 import android.support.car.hardware.CarSensorEvent;
 import android.support.car.hardware.CarSensorManager;
 import android.test.AndroidTestCase;
@@ -41,20 +40,15 @@ public class CarSensorManagerTest extends AndroidTestCase {
     private Car mCar;
     private CarSensorManager mCarSensorManager;
 
-    private final ServiceConnectionCallback mConnectionCallbacks =
-            new ServiceConnectionCallback() {
+    private final CarConnectionCallback mConnectionCallbacks =
+            new CarConnectionCallback() {
         @Override
-        public void onServiceDisconnected() {
+        public void onDisconnected(Car car) {
             assertMainThread();
         }
 
         @Override
-        public void onServiceConnectionFailed() {
-            assertMainThread();
-        }
-
-        @Override
-        public void onServiceConnected() {
+        public void onConnected(Car car) {
             assertMainThread();
             mConnectionWait.release();
         }

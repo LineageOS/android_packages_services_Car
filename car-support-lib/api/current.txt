@@ -2,16 +2,13 @@ package android.support.car {
 
   public class Car {
     method public void connect() throws java.lang.IllegalStateException;
-    method public static android.support.car.Car createCar(android.content.Context, android.support.car.ServiceConnectionCallback, android.os.Handler);
-    method public static android.support.car.Car createCar(android.content.Context, android.support.car.ServiceConnectionCallback);
+    method public static android.support.car.Car createCar(android.content.Context, android.support.car.CarConnectionCallback, android.os.Handler);
+    method public static android.support.car.Car createCar(android.content.Context, android.support.car.CarConnectionCallback);
     method public void disconnect();
     method public java.lang.Object getCarManager(java.lang.String) throws android.support.car.CarNotConnectedException;
     method public <T> T getCarManager(java.lang.Class<T>) throws android.support.car.CarNotConnectedException;
     method public boolean isConnected();
-    method public boolean isConnectedToCar();
     method public boolean isConnecting();
-    method public void registerCarConnectionCallback(android.support.car.CarConnectionCallback) throws android.support.car.CarNotConnectedException, java.lang.IllegalStateException;
-    method public void unregisterCarConnectionCallback(android.support.car.CarConnectionCallback);
     field public static final java.lang.String APP_FOCUS_SERVICE = "app_focus";
     field public static final java.lang.String AUDIO_SERVICE = "audio";
     field public static final int CONNECTION_TYPE_ADB_EMULATOR = 4; // 0x4
@@ -55,7 +52,7 @@ package android.support.car {
 
   public abstract class CarConnectionCallback {
     ctor public CarConnectionCallback();
-    method public abstract void onConnected(android.support.car.Car, int);
+    method public abstract void onConnected(android.support.car.Car);
     method public abstract void onDisconnected(android.support.car.Car);
   }
 
@@ -81,13 +78,6 @@ package android.support.car {
     ctor public CarNotConnectedException(java.lang.String);
     ctor public CarNotConnectedException(java.lang.String, java.lang.Throwable);
     ctor public CarNotConnectedException(java.lang.Exception);
-  }
-
-  public abstract class ServiceConnectionCallback {
-    ctor public ServiceConnectionCallback();
-    method public abstract void onServiceConnected();
-    method public abstract void onServiceConnectionFailed();
-    method public abstract void onServiceDisconnected();
   }
 
 }
