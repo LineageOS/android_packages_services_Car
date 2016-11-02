@@ -81,6 +81,16 @@ PRODUCT_PACKAGES += \
     vehicle_monitor_service \
     CarService \
     CarUiProvider \
+    CarTrustAgentService \
+    CarDialerApp \
+    CarRadioApp \
+    OverviewApp \
+    CarLensPickerApp \
+    LocalMediaPlayer \
+    CarMediaApp \
+    Stream \
+    CarHvacApp \
+    CarMapsPlaceholder \
     android.car \
     libvehiclenetwork-native \
     libvehiclemonitor-native \
