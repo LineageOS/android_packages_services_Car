@@ -458,7 +458,9 @@ class CarSensorsProxy {
         synchronized (this) {
             activeSensors = mListenersMultiMap.keySet();
         }
-        if (activeSensors.contains(CarSensorManager.SENSOR_TYPE_LOCATION)) {
+
+        if (activeSensors.contains(CarSensorManager.SENSOR_TYPE_LOCATION)
+            && mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
                     mLocationListener);
         } else {
