@@ -35,7 +35,9 @@ LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_JAVA_LIBRARIES += android.car
-LOCAL_STATIC_JAVA_LIBRARIES += libvehiclenetwork-java car-systemtest
+LOCAL_STATIC_JAVA_LIBRARIES += \
+        android.hardware.vehicle@2.0-java-static \
+        car-systemtest \
 
 LOCAL_JNI_SHARED_LIBRARIES := libjni_car_service
 
@@ -52,7 +54,9 @@ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_MODULE := car-service-lib-for-test
 
 LOCAL_JAVA_LIBRARIES += android.car
-LOCAL_STATIC_JAVA_LIBRARIES += libvehiclenetwork-java car-systemtest
+LOCAL_STATIC_JAVA_LIBRARIES += \
+        android.hardware.vehicle@2.0-java-static \
+        car-systemtest \
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 

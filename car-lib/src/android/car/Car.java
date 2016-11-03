@@ -21,8 +21,8 @@ import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.content.pm.CarPackageManager;
 import android.car.hardware.CarSensorManager;
-import android.car.hardware.cabin.CarCabinManager;
 import android.car.hardware.CarVendorExtensionManager;
+import android.car.hardware.cabin.CarCabinManager;
 import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.radio.CarRadioManager;
@@ -199,23 +199,26 @@ public final class Car {
     /**
      * Permission necessary to mock vehicle hal for testing.
      * @hide
+     * @deprecated mocking vehicle HAL in car service is no longer supported.
      */
     @SystemApi
     public static final String PERMISSION_MOCK_VEHICLE_HAL =
             "android.car.permission.CAR_MOCK_VEHICLE_HAL";
 
-    /** Type of car connection: platform runs directly in car. */
-    public static final int CONNECTION_TYPE_EMBEDDED = 5;
     /**
-     * Type of car connection: platform runs directly in car but with mocked vehicle hal.
-     * This will only happen in testing environment.
+     * Permission necessary to access CarTestService.
      * @hide
      */
-    public static final int CONNECTION_TYPE_EMBEDDED_MOCKING = 6;
+    @SystemApi
+    public static final String PERMISSION_CAR_TEST_SERVICE =
+            "android.car.permission.CAR_TEST_SERVICE";
+
+    /** Type of car connection: platform runs directly in car. */
+    public static final int CONNECTION_TYPE_EMBEDDED = 5;
 
 
     /** @hide */
-    @IntDef({CONNECTION_TYPE_EMBEDDED, CONNECTION_TYPE_EMBEDDED_MOCKING})
+    @IntDef({CONNECTION_TYPE_EMBEDDED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ConnectionType {}
 
@@ -234,14 +237,13 @@ public final class Car {
 
     private static final String CAR_SERVICE_CLASS = "com.android.car.CarService";
 
-    private static final String CAR_TEST_MANAGER_CLASS = "android.car.CarTestManager";
-
     private static final long CAR_SERVICE_BIND_RETRY_INTERVAL_MS = 500;
     private static final long CAR_SERVICE_BIND_MAX_RETRY = 20;
 
     private final Context mContext;
     @GuardedBy("this")
     private ICar mService;
+    private final boolean mOwnsService;
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
@@ -339,12 +341,13 @@ public final class Car {
         mMainThreadEventHandler = determineMainThreadEventHandler(mEventHandler);
 
         mService = null;
+        mOwnsService = true;
         mServiceConnectionListenerClient = serviceConnectionListener;
     }
 
 
     /**
-     * Car constructor when ICar binder is already available.     *
+     * Car constructor when ICar binder is already available.
      * @hide
      */
     public Car(Context context, ICar service, @Nullable Handler handler) {
@@ -353,6 +356,7 @@ public final class Car {
         mMainThreadEventHandler = determineMainThreadEventHandler(mEventHandler);
 
         mService = service;
+        mOwnsService = false;
         mConnectionState = STATE_CONNECTED;
         mServiceConnectionListenerClient = null;
     }
@@ -401,7 +405,10 @@ public final class Car {
             tearDownCarManagers();
             mService = null;
             mConnectionState = STATE_DISCONNECTED;
-            mContext.unbindService(mServiceConnectionListener);
+
+            if (mOwnsService) {
+                mContext.unbindService(mServiceConnectionListener);
+            }
         }
     }
 

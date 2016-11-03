@@ -16,36 +16,24 @@
 
 package com.android.car.test;
 
-import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePermissionModel.VEHICLE_PERMISSION_NO_RESTRICTION;
-import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE;
-import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE;
-import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_BYTES;
-import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_INT32;
-import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_STRING;
-import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_FLOAT;
-import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZone.VEHICLE_ZONE_ROW_1_LEFT;
-import static com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT;
-import static com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue.newBuilder;
-import static java.util.Collections.singletonList;
+import static com.android.car.CarServiceUtils.toByteArray;
 
 import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarVendorExtensionManager;
-import android.car.test.CarTestManager;
-import android.car.test.CarTestManagerBinderWrapper;
+import android.hardware.vehicle.V2_0.StatusCode;
+import android.hardware.vehicle.V2_0.VehicleArea;
+import android.hardware.vehicle.V2_0.VehicleAreaZone;
+import android.hardware.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.vehicle.V2_0.VehiclePropertyGroup;
+import android.hardware.vehicle.V2_0.VehiclePropertyType;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.google.android.collect.Lists;
-import com.google.protobuf.ByteString;
-
-import com.android.car.vehiclenetwork.VehicleNetwork.VehicleNetworkHalMock;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
+import com.android.car.vehiclehal.test.MockedVehicleHal;
+import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 
 import org.junit.Assert;
 
@@ -61,15 +49,19 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
     private static final String TAG = CarVendorExtensionManager.class.getSimpleName();
 
     private static final int CUSTOM_GLOBAL_INT_PROP_ID =
-            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START;
+            0x1 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.GLOBAL;
+
     private static final int CUSTOM_ZONED_FLOAT_PROP_ID =
-            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 1;
+            0x2 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.FLOAT | VehicleArea.ZONE;
+
     private static final int CUSTOM_BYTES_PROP_ID_1 =
-            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 2;
+            0x3 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.BYTES | VehicleArea.ZONE;
+
     private static final int CUSTOM_BYTES_PROP_ID_2 =
-            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 3;
+            0x4 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.BYTES | VehicleArea.GLOBAL;
+
     private static final int CUSTOM_STRING_PROP_ID =
-            VehicleNetworkConsts.VEHICLE_PROPERTY_CUSTOM_START + 4;
+            0x5 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.STRING | VehicleArea.GLOBAL;
 
     private static final float EPS = 1e-9f;
     private static final int MILLION = 1000 * 1000;
@@ -80,79 +72,29 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
     private static final float MIN_PROP_FLOAT = 10.42f;
     private static final float MAX_PROP_FLOAT = 42.10f;
 
-    private static final MockedVehicleHal mVehicleHal = new MockedVehicleHal();
+//    private static final MockedVehicleHal mVehicleHal = new MockedVehicleHal();
 
-    private static final VehiclePropConfigs VEHICLE_HAL_CONFIGS = VehiclePropConfigs.newBuilder()
-            .addConfigs(VehiclePropConfig.newBuilder()
-                    .setProp(CUSTOM_GLOBAL_INT_PROP_ID)
-                    .setAccess(VEHICLE_PROP_ACCESS_READ_WRITE)
-                    .setChangeMode(VEHICLE_PROP_CHANGE_MODE_ON_CHANGE)
-                    .setValueType(VEHICLE_VALUE_TYPE_INT32)
-                    .setPermissionModel(VEHICLE_PERMISSION_NO_RESTRICTION)
-                    .addConfigArray(0)
-                    .setSampleRateMin(0f)
-                    .setSampleRateMax(0f)
-                    .addAllInt32Mins(singletonList(MIN_PROP_INT32))
-                    .addAllInt32Maxs(singletonList(MAX_PROP_INT32))
-                    .build())
-            .addConfigs(VehiclePropConfig.newBuilder()
-                    .setProp(CUSTOM_ZONED_FLOAT_PROP_ID)
-                    .setAccess(VEHICLE_PROP_ACCESS_READ_WRITE)
-                    .setChangeMode(VEHICLE_PROP_CHANGE_MODE_ON_CHANGE)
-                    .setValueType(VEHICLE_VALUE_TYPE_ZONED_FLOAT)
-                    .setPermissionModel(VEHICLE_PERMISSION_NO_RESTRICTION)
-                    .setZones(VEHICLE_ZONE_ROW_1_LEFT | VEHICLE_ZONE_ROW_1_RIGHT)
-                    .addConfigArray(0)
-                    .setSampleRateMin(0f)
-                    .setSampleRateMax(0f)
-                    .addAllFloatMins(Lists.newArrayList(MIN_PROP_FLOAT, MIN_PROP_FLOAT))
-                    .addAllFloatMaxs(Lists.newArrayList(MAX_PROP_FLOAT, MAX_PROP_FLOAT))
-                    .build())
-            .addConfigs(VehiclePropConfig.newBuilder()
-                    .setProp(CUSTOM_BYTES_PROP_ID_1)
-                    .setAccess(VEHICLE_PROP_ACCESS_READ_WRITE)
-                    .setChangeMode(VEHICLE_PROP_CHANGE_MODE_ON_CHANGE)
-                    .setValueType(VEHICLE_VALUE_TYPE_BYTES)
-                    .setPermissionModel(VEHICLE_PERMISSION_NO_RESTRICTION)
-                    .setZones(VEHICLE_ZONE_ROW_1_LEFT | VEHICLE_ZONE_ROW_1_RIGHT)
-                    .addConfigArray(0)
-                    .setSampleRateMin(0f)
-                    .setSampleRateMax(0f)
-                    .build())
-            .addConfigs(VehiclePropConfig.newBuilder()
-                    .setProp(CUSTOM_BYTES_PROP_ID_2)
-                    .setAccess(VEHICLE_PROP_ACCESS_READ_WRITE)
-                    .setChangeMode(VEHICLE_PROP_CHANGE_MODE_ON_CHANGE)
-                    .setValueType(VEHICLE_VALUE_TYPE_BYTES)
-                    .setPermissionModel(VEHICLE_PERMISSION_NO_RESTRICTION)
-                    .addConfigArray(0)
-                    .setSampleRateMin(0f)
-                    .setSampleRateMax(0f)
-                    .build())
-            .addConfigs(VehiclePropConfig.newBuilder()
-                    .setProp(CUSTOM_STRING_PROP_ID)
-                    .setAccess(VEHICLE_PROP_ACCESS_READ_WRITE)
-                    .setChangeMode(VEHICLE_PROP_CHANGE_MODE_ON_CHANGE)
-                    .setValueType(VEHICLE_VALUE_TYPE_STRING)
-                    .setPermissionModel(VEHICLE_PERMISSION_NO_RESTRICTION)
-                    .addConfigArray(0)
-                    .setSampleRateMin(0f)
-                    .setSampleRateMax(0f)
-                    .build())
-            .build();
+    private static final VehiclePropConfig mConfigs[] = new VehiclePropConfig[] {
+            VehiclePropConfigBuilder.newBuilder(CUSTOM_GLOBAL_INT_PROP_ID)
+                    .addAreaConfig(0, MIN_PROP_INT32, MAX_PROP_INT32)
+                    .build(),
+            VehiclePropConfigBuilder.newBuilder(CUSTOM_ZONED_FLOAT_PROP_ID)
+                    .setSupportedAreas(VehicleAreaZone.ROW_1_LEFT | VehicleAreaZone.ROW_1_RIGHT)
+                    .addAreaConfig(VehicleAreaZone.ROW_1_LEFT, MIN_PROP_FLOAT, MAX_PROP_FLOAT)
+                    .addAreaConfig(VehicleAreaZone.ROW_2_RIGHT, MIN_PROP_FLOAT, MAX_PROP_FLOAT)
+                    .build(),
+            VehiclePropConfigBuilder.newBuilder(CUSTOM_BYTES_PROP_ID_1)
+                    .setSupportedAreas(VehicleAreaZone.ROW_1_LEFT | VehicleAreaZone.ROW_1_RIGHT)
+                    .build(),
+            VehiclePropConfigBuilder.newBuilder(CUSTOM_BYTES_PROP_ID_2).build(),
+            VehiclePropConfigBuilder.newBuilder(CUSTOM_STRING_PROP_ID).build(),
+    };
 
     private CarVendorExtensionManager mManager;
-    private CarTestManager mCarTestManager;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
-        CarTestManagerBinderWrapper testManagerWrapper =
-                (CarTestManagerBinderWrapper) getCar().getCarManager(Car.TEST_SERVICE);
-
-        mCarTestManager = new CarTestManager(testManagerWrapper);
-        mCarTestManager.startMocking(mVehicleHal, 0);
 
         mManager = (CarVendorExtensionManager) getCar().getCarManager(Car.VENDOR_EXTENSION_SERVICE);
         assertNotNull(mManager);
@@ -161,12 +103,11 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        mCarTestManager.stopMocking();
     }
 
     public void testPropertyList() throws Exception {
         List<CarPropertyConfig> configs = mManager.getProperties();
-        assertEquals(VEHICLE_HAL_CONFIGS.getConfigsCount(), configs.size());
+        assertEquals(mConfigs.length, configs.size());
 
         SparseArray<CarPropertyConfig> configById = new SparseArray<>(configs.size());
         for (CarPropertyConfig config : configs) {
@@ -192,11 +133,11 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
         mManager.setProperty(
                 Float.class,
                 CUSTOM_ZONED_FLOAT_PROP_ID,
-                VEHICLE_ZONE_ROW_1_RIGHT,
+                VehicleAreaZone.ROW_1_RIGHT,
                 value);
 
         float actualValue = mManager.getProperty(
-                Float.class, CUSTOM_ZONED_FLOAT_PROP_ID, VEHICLE_ZONE_ROW_1_RIGHT);
+                Float.class, CUSTOM_ZONED_FLOAT_PROP_ID, VehicleAreaZone.ROW_1_RIGHT);
         assertEquals(value, actualValue, EPS);
     }
 
@@ -278,59 +219,56 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
         return sb.toString();
     }
 
-    private static class MockedVehicleHal implements VehicleNetworkHalMock {
+    @Override
+    protected synchronized MockedVehicleHal createMockedVehicleHal() {
+        MockedVehicleHal hal = new VendorExtMockedVehicleHal();
+        hal.addProperties(mConfigs);
+        return hal;
+    }
+
+    private static class VendorExtMockedVehicleHal extends MockedVehicleHal {
         private final SparseArray<VehiclePropValue> mValues = new SparseArray<>();
 
         private byte[] mBytes = null;
 
         @Override
-        public VehiclePropConfigs onListProperties() {
-            return VEHICLE_HAL_CONFIGS;
-        }
-
-        @Override
-        public void onPropertySet(VehiclePropValue value) {
-            if (value.getProp() == CUSTOM_BYTES_PROP_ID_1) {
-                mBytes = value.getBytesValue().toByteArray();
+        public synchronized int set(VehiclePropValue propValue) {
+            if (propValue.prop == CUSTOM_BYTES_PROP_ID_1) {
+                mBytes = toByteArray(propValue.value.bytes);
             }
 
-            mValues.put(value.getProp(), newBuilder(value).build());
+            mValues.put(propValue.prop, propValue);
+            return StatusCode.OK;
         }
 
         @Override
-        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            Log.d(TAG, "onPropertyGet: 0x" + Integer.toHexString(value.getProp()) + ", "
-                    + VehiclePropValueUtil.toString(value));
+        public synchronized void get(VehiclePropValue requestedPropValue, getCallback cb) {
+            if (!isVendorProperty(requestedPropValue.prop)) {
+                cb.onValues(StatusCode.INVALID_ARG, null);
+                return;
+            }
+            VehiclePropValue result = new VehiclePropValue();
+            result.prop = requestedPropValue.prop;
+            result.areaId = requestedPropValue.areaId;
 
-            if (value.getProp() == CUSTOM_BYTES_PROP_ID_2 && mBytes != null) {
+            if (requestedPropValue.prop == CUSTOM_BYTES_PROP_ID_2 && mBytes != null) {
                 Log.d(TAG, "Returning byte array property, value: " + Arrays.toString(mBytes));
-                return VehiclePropValue
-                        .newBuilder(value)
-                        .setBytesValue(ByteString.copyFrom(mBytes))
-                        .build();
-            }
-
-            VehiclePropValue existingValue = mValues.get(value.getProp());
-            if (existingValue != null) {
-                return existingValue;
-            }
-
-            int type = value.getValueType();
-
-            // VehicleNetwork will fail if we do not set empty data for these properties.
-            if (type == VEHICLE_VALUE_TYPE_BYTES && !value.hasBytesValue()) {
-                return VehiclePropValue.newBuilder(value).setBytesValue(ByteString.EMPTY).build();
-            } else if (type == VEHICLE_VALUE_TYPE_STRING && !value.hasStringValue()) {
-                return VehiclePropValue.newBuilder(value).setStringValue("").build();
+                for (byte b : mBytes) {
+                    result.value.bytes.add(b);
+                }
             } else {
-                return value;
+                VehiclePropValue existingValue = mValues.get(requestedPropValue.prop);
+                if (existingValue != null) {
+                    result = existingValue;
+                } else {
+                    result = requestedPropValue;
+                }
             }
+            cb.onValues(StatusCode.OK, result);
         }
 
-        @Override
-        public void onPropertySubscribe(int property, float sampleRate, int zones) { }
-
-        @Override
-        public void onPropertyUnsubscribe(int property) { }
+        private boolean isVendorProperty(int prop) {
+            return VehiclePropertyGroup.VENDOR == (prop & VehiclePropertyGroup.VENDOR);
+        }
     }
 }

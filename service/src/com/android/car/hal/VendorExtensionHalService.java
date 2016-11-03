@@ -16,13 +16,13 @@
 
 package com.android.car.hal;
 
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
+import android.hardware.vehicle.V2_0.VehiclePropertyGroup;
 
 /**
  * Implementation of {@link HalServiceBase} that responsible for custom properties that were defined
  * by OEMs.
  */
-/*package*/ class VendorExtensionHalService extends PropertyHalServiceBase {
+public class VendorExtensionHalService extends PropertyHalServiceBase {
 
     private final static String TAG = VendorExtensionHalService.class.getSimpleName();
     private final static boolean DEBUG = false;
@@ -33,13 +33,15 @@ import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 
     @Override
     protected int managerToHalPropId(int managerPropId) {
-        return VehiclePropValueUtil.isCustomProperty(managerPropId)
-                ? managerPropId : NOT_SUPPORTED_PROPERTY;
+        return isVendorProperty(managerPropId) ? managerPropId : NOT_SUPPORTED_PROPERTY;
     }
 
     @Override
     protected int halToManagerPropId(int halPropId) {
-        return VehiclePropValueUtil.isCustomProperty(halPropId)
-                ? halPropId : NOT_SUPPORTED_PROPERTY;
+        return isVendorProperty(halPropId) ? halPropId : NOT_SUPPORTED_PROPERTY;
+    }
+
+    private static boolean isVendorProperty(int property) {
+        return (property & VehiclePropertyGroup.MASK) == VehiclePropertyGroup.VENDOR;
     }
 }

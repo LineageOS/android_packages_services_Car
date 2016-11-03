@@ -16,9 +16,9 @@
 
 package com.android.car;
 
-import android.content.Context;
 import android.car.hardware.camera.CarCameraState;
 import android.car.hardware.camera.ICarCamera;
+import android.content.Context;
 import android.graphics.Rect;
 import android.util.Log;
 
@@ -45,7 +45,11 @@ public class CarCameraService extends ICarCamera.Stub implements CarServiceBase 
         if (DBG) {
             Log.d(TAG, "init called");
         }
-        mModule = nativeOpen();
+        try {
+            mModule = nativeOpen();
+        } catch (UnsatisfiedLinkError ex) {
+            Log.e(TAG, "Failed to open camera module: " + ex.getMessage());
+        }
 
         if (mModule != 0) {
             int[] cameraType = nativeGetSupportedCameras(mModule);

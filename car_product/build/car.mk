@@ -95,7 +95,6 @@ PRODUCT_PACKAGES += \
     libvehiclenetwork-native \
     libvehiclemonitor-native \
     vns_policy.xml \
-    vendor_vns_policy.xml #for testing, should be replaced by vendor
 
 # Boot animation
 PRODUCT_COPY_FILES += \

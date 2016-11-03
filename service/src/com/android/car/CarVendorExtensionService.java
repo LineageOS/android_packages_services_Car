@@ -19,7 +19,7 @@ package com.android.car;
 import android.car.Car;
 import android.content.Context;
 
-import com.android.car.hal.VehicleHal;
+import com.android.car.hal.VendorExtensionHalService;
 
 /**
  * Service responsible for handling custom properties that were defined in vehicle HAL by OEMs.
@@ -28,8 +28,7 @@ public class CarVendorExtensionService extends CarPropertyServiceBase {
 
     private final static boolean DEBUG = false;
 
-    public CarVendorExtensionService(Context context) {
-        super(context, VehicleHal.getInstance().getVendorExtensionHal(),
-                Car.PERMISSION_VENDOR_EXTENSION, DEBUG, CarLog.TAG_VENDOR_EXT);
+    public CarVendorExtensionService(Context context, VendorExtensionHalService vendorHal) {
+        super(context, vendorHal, Car.PERMISSION_VENDOR_EXTENSION, DEBUG, CarLog.TAG_VENDOR_EXT);
     }
 }

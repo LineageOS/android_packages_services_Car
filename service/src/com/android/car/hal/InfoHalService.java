@@ -16,17 +16,16 @@
 package com.android.car.hal;
 
 import android.car.CarInfoManager;
+import android.hardware.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.vehicle.V2_0.VehicleProperty;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.android.car.CarLog;
-import com.android.car.vehiclenetwork.VehicleNetwork;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,23 +49,19 @@ public class InfoHalService extends HalServiceBase {
     }
 
     @Override
-    public synchronized List<VehiclePropConfig> takeSupportedProperties(
-            List<VehiclePropConfig> allProperties) {
-        VehicleNetwork vn = mHal.getVehicleNetwork();
-        List<VehiclePropConfig> supported = new LinkedList<VehiclePropConfig>();
+    public synchronized Collection<VehiclePropConfig> takeSupportedProperties(
+            Collection<VehiclePropConfig> allProperties) {
+        List<VehiclePropConfig> supported = new LinkedList<>();
         for (VehiclePropConfig p: allProperties) {
-            switch (p.getProp()) {
-                case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE:
-                    mBasicInfo.putString(CarInfoManager.BASIC_INFO_KEY_MANUFACTURER,
-                            vn.getStringProperty(p.getProp()));
+            switch (p.prop) {
+                case VehicleProperty.INFO_MAKE:
+                    readPropertyToBundle(p.prop, CarInfoManager.BASIC_INFO_KEY_MANUFACTURER);
                     break;
-                case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL:
-                    mBasicInfo.putString(CarInfoManager.BASIC_INFO_KEY_MODEL,
-                            vn.getStringProperty(p.getProp()));
+                case VehicleProperty.INFO_MODEL:
+                    readPropertyToBundle(p.prop, CarInfoManager.BASIC_INFO_KEY_MODEL);
                     break;
-                case VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL_YEAR:
-                    mBasicInfo.putString(CarInfoManager.BASIC_INFO_KEY_MODEL_YEAR,
-                            vn.getStringProperty(p.getProp()));
+                case VehicleProperty.INFO_MODEL_YEAR:
+                    readPropertyToBundle(p.prop, CarInfoManager.BASIC_INFO_KEY_MODEL_YEAR);
                     break;
                 default: // not supported
                     break;
@@ -75,10 +70,20 @@ public class InfoHalService extends HalServiceBase {
         return supported;
     }
 
+    private void readPropertyToBundle(int prop, String key) {
+        String value = "";
+        try {
+            value = mHal.get(String.class, prop);
+        } catch (PropertyTimeoutException e) {
+            Log.e(CarLog.TAG_INFO, "Unable to read property", e);
+        }
+        mBasicInfo.putString(key, value);
+    }
+
     @Override
     public void handleHalEvents(List<VehiclePropValue> values) {
         for (VehiclePropValue v : values) {
-            logUnexpectedEvent(v.getProp());
+            logUnexpectedEvent(v.prop);
         }
     }
 

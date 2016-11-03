@@ -19,20 +19,21 @@ import static com.android.car.hal.CarPropertyUtils.toCarPropertyValue;
 import static com.android.car.hal.CarPropertyUtils.toVehiclePropValue;
 import static java.lang.Integer.toHexString;
 
+import android.annotation.Nullable;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
-import android.os.ServiceSpecificException;
+import android.hardware.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.vehicle.V2_0.VehiclePropValue;
 import android.util.Log;
 import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,7 +45,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class PropertyHalServiceBase extends HalServiceBase {
     private final boolean mDbg;
-    private final SparseIntArray mHalPropToValueType = new SparseIntArray();
     private final ConcurrentHashMap<Integer, CarPropertyConfig<?>> mProps =
             new ConcurrentHashMap<>();
     private final String mTag;
@@ -81,6 +81,10 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
         return new ArrayList<>(mProps.values());
     }
 
+    /**
+     * Returns property or null if property is not ready yet.
+     */
+    @Nullable
     public CarPropertyValue getProperty(int mgrPropId, int areaId) {
         int halPropId = managerToHalPropId(mgrPropId);
         if (halPropId == NOT_SUPPORTED_PROPERTY) {
@@ -89,14 +93,8 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
 
         VehiclePropValue value = null;
         try {
-            VehiclePropValue valueRequest = VehiclePropValue.newBuilder()
-                    .setProp(halPropId)
-                    .setZone(areaId)
-                    .setValueType(mHalPropToValueType.get(halPropId))
-                    .build();
-
-            value = mVehicleHal.getVehicleNetwork().getProperty(valueRequest);
-        } catch (ServiceSpecificException e) {
+            value = mVehicleHal.get(halPropId, areaId);
+        } catch (PropertyTimeoutException e) {
             Log.e(CarLog.TAG_PROPERTY, "get, property not ready 0x" + toHexString(halPropId), e);
         }
 
@@ -111,8 +109,8 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
         }
         VehiclePropValue halProp = toVehiclePropValue(prop, halPropId);
         try {
-            mVehicleHal.getVehicleNetwork().setProperty(halProp);
-        } catch (ServiceSpecificException e) {
+            mVehicleHal.set(halProp);
+        } catch (PropertyTimeoutException e) {
             Log.e(CarLog.TAG_PROPERTY, "set, property not ready 0x" + toHexString(halPropId), e);
             throw new RuntimeException(e);
         }
@@ -148,12 +146,12 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
     }
 
     @Override
-    public List<VehiclePropConfig> takeSupportedProperties(
-            List<VehiclePropConfig> allProperties) {
+    public Collection<VehiclePropConfig> takeSupportedProperties(
+            Collection<VehiclePropConfig> allProperties) {
         List<VehiclePropConfig> taken = new LinkedList<>();
 
         for (VehiclePropConfig p : allProperties) {
-            int mgrPropId = halToManagerPropId(p.getProp());
+            int mgrPropId = halToManagerPropId(p.prop);
 
             if (mgrPropId == NOT_SUPPORTED_PROPERTY) {
                 continue;  // The property is not handled by this HAL.
@@ -162,11 +160,10 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
             CarPropertyConfig config = CarPropertyUtils.toCarPropertyConfig(p, mgrPropId);
 
             taken.add(p);
-            mProps.put(p.getProp(), config);
-            mHalPropToValueType.put(p.getProp(), p.getValueType());
+            mProps.put(p.prop, config);
 
             if (mDbg) {
-                Log.d(mTag, "takeSupportedProperties: " + toHexString(p.getProp()));
+                Log.d(mTag, "takeSupportedProperties: " + toHexString(p.prop));
             }
         }
         return taken;
@@ -180,7 +177,7 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
         }
         if (listener != null) {
             for (VehiclePropValue v : values) {
-                int prop = v.getProp();
+                int prop = v.prop;
                 int mgrPropId = halToManagerPropId(prop);
 
                 if (mgrPropId == NOT_SUPPORTED_PROPERTY) {

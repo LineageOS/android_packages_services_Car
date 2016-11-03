@@ -17,22 +17,19 @@
 package com.android.car.test;
 
 import android.car.Car;
+import android.car.hardware.CarPropertyValue;
 import android.car.hardware.cabin.CarCabinManager;
 import android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback;
-import android.car.hardware.CarPropertyValue;
-import android.car.test.VehicleHalEmulator;
+import android.hardware.vehicle.V2_0.VehicleAreaDoor;
+import android.hardware.vehicle.V2_0.VehicleAreaWindow;
+import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.vehicle.V2_0.VehicleProperty;
+import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleDoor;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleWindow;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
-import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
+import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
@@ -47,63 +44,52 @@ public class CarCabinManagerTest extends MockedCarTestBase {
 
     private CarCabinManager mCarCabinManager;
     private boolean mEventBoolVal;
-    private float mEventFloatVal;
     private int mEventIntVal;
     private int mEventZoneVal;
+
+    @Override
+    protected synchronized void configureMockedHal() {
+        CabinPropertyHandler handler = new CabinPropertyHandler();
+        addProperty(VehicleProperty.DOOR_LOCK, handler)
+                .setSupportedAreas(VehicleAreaDoor.ROW_1_LEFT);
+        addProperty(VehicleProperty.WINDOW_POS, handler)
+                .setSupportedAreas(VehicleAreaWindow.ROW_1_LEFT);
+    }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         mAvailable = new Semaphore(0);
-        CabinPropertyHandler handler = new CabinPropertyHandler();
-        getVehicleHalEmulator().addProperty(
-                VehiclePropConfigUtil.createZonedProperty(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_LOCK,
-                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
-                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_BOOLEAN,
-                        VehicleNetworkConsts.VehicleDoor.VEHICLE_DOOR_ROW_1_LEFT,
-                        0), handler);
-        getVehicleHalEmulator().addProperty(
-                VehiclePropConfigUtil.createZonedProperty(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_POS,
-                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
-                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleValueType.VEHICLE_VALUE_TYPE_ZONED_INT32,
-                        VehicleWindow.VEHICLE_WINDOW_ROW_1_LEFT,
-                        0), handler);
-
-        getVehicleHalEmulator().start();
         mCarCabinManager = (CarCabinManager) getCar().getCarManager(Car.CABIN_SERVICE);
     }
 
     // Test a boolean property
     public void testCabinDoorLockOn() throws Exception {
         mCarCabinManager.setBooleanProperty(CarCabinManager.ID_DOOR_LOCK,
-                VehicleDoor.VEHICLE_DOOR_ROW_1_LEFT, true);
+                VehicleAreaDoor.ROW_1_LEFT, true);
         boolean lock = mCarCabinManager.getBooleanProperty(CarCabinManager.ID_DOOR_LOCK,
-                VehicleDoor.VEHICLE_DOOR_ROW_1_LEFT);
+                VehicleAreaDoor.ROW_1_LEFT);
         assertTrue(lock);
 
         mCarCabinManager.setBooleanProperty(CarCabinManager.ID_DOOR_LOCK,
-                VehicleDoor.VEHICLE_DOOR_ROW_1_LEFT, false);
+                VehicleAreaDoor.ROW_1_LEFT, false);
         lock = mCarCabinManager.getBooleanProperty(CarCabinManager.ID_DOOR_LOCK,
-                VehicleDoor.VEHICLE_DOOR_ROW_1_LEFT);
+                VehicleAreaDoor.ROW_1_LEFT);
         assertFalse(lock);
     }
 
     // Test an integer property
     public void testCabinWindowPos() throws Exception {
         mCarCabinManager.setIntProperty(CarCabinManager.ID_WINDOW_POS,
-                VehicleWindow.VEHICLE_WINDOW_ROW_1_LEFT, 50);
+                VehicleAreaWindow.ROW_1_LEFT, 50);
         int windowPos = mCarCabinManager.getIntProperty(CarCabinManager.ID_WINDOW_POS,
-                VehicleWindow.VEHICLE_WINDOW_ROW_1_LEFT);
+                VehicleAreaWindow.ROW_1_LEFT);
         assertEquals(50, windowPos);
 
         mCarCabinManager.setIntProperty(CarCabinManager.ID_WINDOW_POS,
-                VehicleWindow.VEHICLE_WINDOW_ROW_1_LEFT, 25);
+                VehicleAreaWindow.ROW_1_LEFT, 25);
         windowPos = mCarCabinManager.getIntProperty(CarCabinManager.ID_WINDOW_POS,
-                VehicleWindow.VEHICLE_WINDOW_ROW_1_LEFT);
+                VehicleAreaWindow.ROW_1_LEFT);
         assertEquals(25, windowPos);
     }
 
@@ -112,47 +98,52 @@ public class CarCabinManagerTest extends MockedCarTestBase {
         mCarCabinManager.registerCallback(new EventListener());
 
         // Inject a boolean event and wait for its callback in onPropertySet.
-        VehiclePropValue v = VehiclePropValueUtil.createZonedBooleanValue(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_LOCK,
-                VehicleDoor.VEHICLE_DOOR_ROW_1_LEFT, true, 0);
+        VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.DOOR_LOCK)
+                .setAreaId(VehicleAreaDoor.ROW_1_LEFT)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .addIntValue(1)
+                .build();
+
         assertEquals(0, mAvailable.availablePermits());
-        getVehicleHalEmulator().injectEvent(v);
+        getMockedVehicleHal().injectEvent(v);
 
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertTrue(mEventBoolVal);
-        assertEquals(mEventZoneVal, VehicleDoor.VEHICLE_DOOR_ROW_1_LEFT);
+        assertEquals(VehicleAreaDoor.ROW_1_LEFT, mEventZoneVal);
 
         // Inject an integer event and wait for its callback in onPropertySet.
-        v = VehiclePropValueUtil.createZonedIntValue(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_POS,
-                VehicleWindow.VEHICLE_WINDOW_ROW_1_LEFT, 75, 0);
+        v = VehiclePropValueBuilder.newBuilder(VehicleProperty.WINDOW_POS)
+                .setAreaId(VehicleAreaWindow.ROW_1_LEFT)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .addIntValue(75)
+                .build();
+
         assertEquals(0, mAvailable.availablePermits());
-        getVehicleHalEmulator().injectEvent(v);
+        getMockedVehicleHal().injectEvent(v);
 
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertEquals(mEventIntVal, 75);
-        assertEquals(mEventZoneVal, VehicleWindow.VEHICLE_WINDOW_ROW_1_LEFT);
+        assertEquals(VehicleAreaWindow.ROW_1_LEFT, mEventZoneVal);
     }
 
 
-    private class CabinPropertyHandler
-            implements VehicleHalEmulator.VehicleHalPropertyHandler {
+    private class CabinPropertyHandler implements VehicleHalPropertyHandler {
         HashMap<Integer, VehiclePropValue> mMap = new HashMap<>();
 
         @Override
         public synchronized void onPropertySet(VehiclePropValue value) {
-            mMap.put(value.getProp(), value);
+            mMap.put(value.prop, value);
         }
 
         @Override
         public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            VehiclePropValue currentValue = mMap.get(value.getProp());
-            // VNS will call getProperty method when subscribe is called, just return empty value.
+            VehiclePropValue currentValue = mMap.get(value.prop);
+            // VNS will call get method when subscribe is called, just return empty value.
             return currentValue != null ? currentValue : value;
         }
 
         @Override
-        public synchronized void onPropertySubscribe(int property, float sampleRate, int zones) {
+        public synchronized void onPropertySubscribe(int property, int zones, float sampleRate) {
             Log.d(TAG, "onPropertySubscribe property " + property + " sampleRate " + sampleRate);
         }
 
@@ -163,7 +154,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
     }
 
     private class EventListener implements CarCabinEventCallback {
-        public EventListener() { }
+        EventListener() { }
 
         @Override
         public void onChangeEvent(final CarPropertyValue value) {

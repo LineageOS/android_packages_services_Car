@@ -18,12 +18,10 @@ package com.android.car;
 
 import android.annotation.IntDef;
 import android.app.UiModeManager;
-import android.car.Car;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.ICarSensorEventListener;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.util.Log;
 
 import java.io.PrintWriter;
@@ -104,8 +102,9 @@ public class CarNightService implements CarServiceBase {
         return mUiModeManager.getNightMode();
     }
 
-    CarNightService(Context context) {
+    CarNightService(Context context, CarSensorService sensorService) {
         mContext = context;
+        mCarSensorService = sensorService;
         mUiModeManager = (UiModeManager) mContext.getSystemService(Context.UI_MODE_SERVICE);
         if (mUiModeManager == null) {
             Log.w(CarLog.TAG_SENSOR,"Failed to get UI_MODE_SERVICE");
@@ -117,8 +116,6 @@ public class CarNightService implements CarServiceBase {
         if (DBG) {
             Log.d(CarLog.TAG_SENSOR,"CAR dayNight init.");
         }
-        mCarSensorService = (CarSensorService) ICarImpl.getInstance(mContext).getCarService(
-                Car.SENSOR_SERVICE);
         mCarSensorService.registerOrUpdateSensorListener(CarSensorManager.SENSOR_TYPE_NIGHT,
                 CarSensorManager.SENSOR_RATE_NORMAL, mICarSensorEventListener);
         CarSensorEvent currentState = mCarSensorService.getLatestSensorEvent(

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.car.vehiclenetwork;
+package com.android.car.hal;
 
-parcelable VehiclePropConfigsParcelable;
+import static java.lang.Integer.toHexString;
+
+/**
+ * This exception is raised when IVehicle#get or IVehicle#set returns StatusCode.TRY_AGAIN. This
+ * usually happens during boot-up meaning that Vehicle HAL is not ready to get or set that property.
+ */
+class PropertyTimeoutException extends Exception {
+    PropertyTimeoutException(int property) {
+        super("Property 0x" + toHexString(property) + " is not ready yet.");
+    }
+}

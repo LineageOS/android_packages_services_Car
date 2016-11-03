@@ -20,12 +20,8 @@ import android.car.CarNotConnectedException;
 import android.car.content.pm.AppBlockingPackageInfo;
 import android.car.content.pm.CarAppBlockingPolicy;
 import android.car.content.pm.CarPackageManager;
-import android.content.pm.PackageManager;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
-
-import com.android.car.test.MockedCarTestBase;
-import com.android.car.test.TestAppBlockingPolicyService;
 
 @SmallTest
 public class CarPackageManagerTest extends MockedCarTestBase {
@@ -35,19 +31,14 @@ public class CarPackageManagerTest extends MockedCarTestBase {
     private static final long POLLING_SLEEP = 100;
 
     private CarPackageManager mCarPm;
-    private PackageManager mPm;
-
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mPm = getContext().getPackageManager();
-
     }
 
     private void init(boolean policyFromService) throws Exception {
         TestAppBlockingPolicyService.controlPolicySettingFromService(policyFromService);
-        getVehicleHalEmulator().start();
         mCarPm = (CarPackageManager) getCar().getCarManager(Car.PACKAGE_SERVICE);
         assertNotNull(mCarPm);
     }
@@ -136,11 +127,11 @@ public class CarPackageManagerTest extends MockedCarTestBase {
                 activityNotAllowed));
     }
 
-    public interface PollingChecker {
+    interface PollingChecker {
         boolean check();
     }
 
-    public static boolean pollingCheck(PollingChecker checker, int maxRetry, long sleepMs)
+    static boolean pollingCheck(PollingChecker checker, int maxRetry, long sleepMs)
             throws Exception {
         int retry = 0;
         boolean checked = checker.check();

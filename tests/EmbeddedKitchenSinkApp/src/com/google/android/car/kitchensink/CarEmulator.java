@@ -16,365 +16,269 @@
 
 package com.google.android.car.kitchensink;
 
+import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_VOLUME_LIMIT;
+
 import android.car.Car;
-import android.car.test.VehicleHalEmulator.VehicleHalPropertyHandler;
-import android.car.test.VehicleHalEmulator;
+import android.content.Context;
+import android.hardware.vehicle.V2_0.VehicleAudioFocusIndex;
+import android.hardware.vehicle.V2_0.VehicleAudioFocusRequest;
+import android.hardware.vehicle.V2_0.VehicleAudioFocusState;
+import android.hardware.vehicle.V2_0.VehicleAudioVolumeIndex;
+import android.hardware.vehicle.V2_0.VehicleAudioVolumeLimitIndex;
+import android.hardware.vehicle.V2_0.VehicleHwKeyInputAction;
+import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.vehicle.V2_0.VehicleProperty;
+import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
 import android.os.SystemClock;
 import android.util.SparseIntArray;
-import android.view.KeyEvent;
 
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusIndex;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusRequest;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusState;
-import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePermissionModel;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
+import com.google.android.collect.Lists;
+
+import com.android.car.ICarImpl;
+import com.android.car.SystemInterface;
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
+import com.android.car.vehiclehal.test.MockedVehicleHal;
+import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CarEmulator {
 
     private final Car mCar;
-    private final VehicleHalEmulator mHalEmulator;
+    private final MockedVehicleHal mHalEmulator;
 
     private final AudioFocusPropertyHandler mAudioFocusPropertyHandler =
             new AudioFocusPropertyHandler();
-    private final AudioStreamStatePropertyHandler mAudioStreamStatePropertyHandler =
-            new AudioStreamStatePropertyHandler();
     private final AudioVolumeLimitPropertyHandler mAudioVolumeLimitPropertyHandler =
             new AudioVolumeLimitPropertyHandler();
-    private final SingleChannelVolumeHandler mVolumeHandler;
-    private static final int STREAM_COUNT = 2;
-    private static final int[] STREAM_MAX_VOLUME = {30, 30};
-    private static final int[] STREAM_MIN_VOLUME = {0, 0};
 
-    public CarEmulator(Car car) {
-        mCar = car;
-        mHalEmulator = new VehicleHalEmulator(car);
-        List<Integer> maxVols = new ArrayList<>();
-        List<Integer> minVols = new ArrayList<>();
-        for(int i = 0; i < STREAM_COUNT; i++) {
-            maxVols.add(STREAM_MAX_VOLUME[i]);
-            minVols.add(STREAM_MIN_VOLUME[i]);
-        }
-        mVolumeHandler = new SingleChannelVolumeHandler(minVols, maxVols);
-        int zones = (1<<maxVols.size()) - 1;
+    private static final Integer[] STREAM_MAX_VOLUME = {30, 30};
+
+    public static CarEmulator create(Context context) {
+        CarEmulator emulator = new CarEmulator(context);
+        emulator.init();
+        return emulator;
+    }
+
+    private CarEmulator(Context context) {
+        mHalEmulator = new MockedVehicleHal();
+        ICarImpl carService = new ICarImpl(context, mHalEmulator,
+                SystemInterface.getDefault(context));
+        mCar = new Car(context, carService, null /* Handler */);
+    }
+
+    public Car getCar() {
+        return mCar;
+    }
+
+    private void init() {
+        final int streamCount = STREAM_MAX_VOLUME.length;
+        SingleChannelVolumeHandler volumeHandler = new SingleChannelVolumeHandler(streamCount);
+
+        int supportedStreams = (1 << streamCount) - 1;  // A bitwise mask of supported streams.
+
+        List<Integer> audioVolumeConfigArray = Lists.newArrayList(supportedStreams, 0, 0, 0);
+        audioVolumeConfigArray.addAll(Arrays.asList(STREAM_MAX_VOLUME));
 
         mHalEmulator.addProperty(
-                VehiclePropConfigUtil.getBuilder(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS,
-                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
-                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC4,
-                        VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
-                        0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
+                VehiclePropConfigBuilder.newBuilder(VehicleProperty.AUDIO_FOCUS).build(),
                 mAudioFocusPropertyHandler);
+        //TODO(b/32665590): no internal properties in Vehicle Hal 2.0
+//        mHalEmulator.addProperty(
+//                VehiclePropConfigUtil.getBuilder(
+//                        INTERNAL_AUDIO_STREAM_STATE,
+//                        VehiclePropertyAccess.READ_WRITE,
+//                        VehiclePropertyChangeMode.ON_CHANGE,
+//                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2,
+//                        VehiclePermissionModel.SYSTEM_APP_ONLY,
+//                        0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
+//                        NoOpPropertyHandler);
         mHalEmulator.addProperty(
-                VehiclePropConfigUtil.getBuilder(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_INTERNAL_AUDIO_STREAM_STATE,
-                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
-                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2,
-                        VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
-                        0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
-                        mAudioStreamStatePropertyHandler);
+                VehiclePropConfigBuilder.newBuilder(VehicleProperty.AUDIO_VOLUME)
+                        .setConfigArray(audioVolumeConfigArray)
+                        .build(),
+                volumeHandler);
         mHalEmulator.addProperty(
-                VehiclePropConfigUtil.getBuilder(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME,
-                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
-                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC3,
-                        VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
-                        0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/,
-                        maxVols, minVols).setZones(zones).build(),
-                mVolumeHandler);
-        mHalEmulator.addProperty(
-                VehiclePropConfigUtil.getBuilder(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME_LIMIT,
-                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
-                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2,
-                        VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
-                        0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
+                VehiclePropConfigBuilder.newBuilder(VehicleProperty.AUDIO_VOLUME_LIMIT).build(),
                 mAudioVolumeLimitPropertyHandler);
 
         mHalEmulator.addProperty(
-                VehiclePropConfigUtil.getBuilder(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT,
-                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ,
-                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC4,
-                        VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
-                        0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
+                VehiclePropConfigBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
+                        .setAccess(VehiclePropertyAccess.READ)
+                        .build(),
                 mHWKeyHandler);
     }
 
     public void start() {
-        mHalEmulator.start();
     }
 
     public void stop() {
-        mHalEmulator.stop();
     }
 
     public void setAudioFocusControl(boolean reject) {
         mAudioFocusPropertyHandler.setAudioFocusControl(reject);
     }
 
-    public void injectVolumeKey(boolean volUp) {
-        int[] values = {
-                VehicleNetworkConsts.VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_DOWN,
-                volUp ? KeyEvent.KEYCODE_VOLUME_UP : KeyEvent.KEYCODE_VOLUME_DOWN, 0, 0 };
-
-        VehiclePropValue injectValue = VehiclePropValueUtil.createIntVectorValue(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT, values,
-                SystemClock.elapsedRealtimeNanos());
-
-        mHalEmulator.injectEvent(injectValue);
-
-        int[] upValues = {
-                VehicleNetworkConsts.VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_UP,
-                volUp ? KeyEvent.KEYCODE_VOLUME_UP : KeyEvent.KEYCODE_VOLUME_DOWN, 0, 0 };
-
-        injectValue = VehiclePropValueUtil.createIntVectorValue(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT, upValues,
-                SystemClock.elapsedRealtimeNanos());
+    public void injectKey(int keyCode, int action) {
+        VehiclePropValue injectValue =
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
+                        .setTimestamp()
+                        .addIntValue(action, keyCode, 0, 0)
+                        .build();
 
         mHalEmulator.injectEvent(injectValue);
     }
 
-    private final VehicleHalEmulator.VehicleHalPropertyHandler mHWKeyHandler =
-            new VehicleHalEmulator.VehicleHalPropertyHandler() {
-                @Override
-                public void onPropertySet(VehiclePropValue value) {
-                }
+    public void injectKey(int keyCode) {
+        injectKey(keyCode, VehicleHwKeyInputAction.ACTION_DOWN);
+        injectKey(keyCode, VehicleHwKeyInputAction.ACTION_UP);
+    }
 
+    private final VehicleHalPropertyHandler mHWKeyHandler =
+            new VehicleHalPropertyHandler() {
                 @Override
                 public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-                    int[] values = {0, 0, 0, 0 };
-                    return VehiclePropValueUtil.createIntVectorValue(
-                            VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT, values,
-                            SystemClock.elapsedRealtimeNanos());
-                }
+                    return VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
+                            .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                            .addIntValue(0, 0, 0, 0)
+                            .build();
 
-                @Override
-                public void onPropertySubscribe(int property, float sampleRate, int zones) {
-                }
-
-                @Override
-                public void onPropertyUnsubscribe(int property) {
                 }
             };
 
     private class AudioFocusPropertyHandler implements VehicleHalPropertyHandler {
         private boolean mRejectFocus;
-        private int mCurrentFocusState = VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS;
+        private int mCurrentFocusState = VehicleAudioFocusState.STATE_LOSS;
         private int mCurrentFocusStreams = 0;
         private int mCurrentFocusExtState = 0;
 
-        public void setAudioFocusControl(boolean reject) {
-            VehiclePropValue injectValue = null;
+        void setAudioFocusControl(boolean reject) {
+            boolean inject = false;
             synchronized (this) {
                 if (reject) {
                     if (!mRejectFocus) {
-                        mCurrentFocusState = VehicleAudioFocusState
-                                .VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_EXLCUSIVE;
+                        mCurrentFocusState = VehicleAudioFocusState.STATE_LOSS_TRANSIENT_EXLCUSIVE;
                         mCurrentFocusStreams = 0;
                         mCurrentFocusExtState = 0;
                         mRejectFocus = true;
-                        int[] values = { mCurrentFocusState, mCurrentFocusStreams,
-                                mCurrentFocusExtState, 0};
-                        injectValue = VehiclePropValueUtil.createIntVectorValue(
-                                VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
-                                SystemClock.elapsedRealtimeNanos());
+                        inject = true;
                     }
                 } else {
                     if (mRejectFocus) {
-                        mCurrentFocusState = VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS;
+                        mCurrentFocusState = VehicleAudioFocusState.STATE_LOSS;
                         mCurrentFocusStreams = 0;
                         mCurrentFocusExtState = 0;
-                        int[] values = { mCurrentFocusState, mCurrentFocusStreams,
-                                mCurrentFocusExtState, 0};
-                        injectValue = VehiclePropValueUtil.createIntVectorValue(
-                                VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
-                                SystemClock.elapsedRealtimeNanos());
+                        inject = true;
                     }
                     mRejectFocus = false;
                 }
             }
-            if (injectValue != null) {
-                mHalEmulator.injectEvent(injectValue);
+
+            if (inject) {
+                injectCurrentStateToHal();
             }
         }
 
         @Override
         public void onPropertySet(VehiclePropValue value) {
-            VehiclePropValue injectValue = null;
             synchronized (this) {
-                if (mRejectFocus) {
-                    int[] values = { mCurrentFocusState, mCurrentFocusStreams,
-                            mCurrentFocusExtState, 0};
-                    injectValue = VehiclePropValueUtil.createIntVectorValue(
-                            VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
-                            SystemClock.elapsedRealtimeNanos());
-                } else {
-                    int request = value.getInt32Values(
-                            VehicleAudioFocusIndex.VEHICLE_AUDIO_FOCUS_INDEX_FOCUS);
-                    int requestedStreams = value.getInt32Values(
-                            VehicleAudioFocusIndex.VEHICLE_AUDIO_FOCUS_INDEX_STREAMS);
-                    int requestedExtFocus = value.getInt32Values(
-                            VehicleAudioFocusIndex.VEHICLE_AUDIO_FOCUS_INDEX_EXTERNAL_FOCUS_STATE);
-                    int response = VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS;
+                if (!mRejectFocus) {
+                    ArrayList<Integer> v = value.value.int32Values;
+
+                    int request = v.get(VehicleAudioFocusIndex.FOCUS);
+                    int requestedStreams = v.get(VehicleAudioFocusIndex.STREAMS);
+                    int requestedExtFocus = v.get(VehicleAudioFocusIndex.EXTERNAL_FOCUS_STATE);
+                    int response = VehicleAudioFocusState.STATE_LOSS;
                     switch (request) {
-                        case VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN:
-                            response = VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN;
+                        case VehicleAudioFocusRequest.REQUEST_GAIN:
+                            response = VehicleAudioFocusState.STATE_GAIN;
                             break;
-                        case VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT:
-                        case VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK:
+                        case VehicleAudioFocusRequest.REQUEST_GAIN_TRANSIENT:
+                        case VehicleAudioFocusRequest.REQUEST_GAIN_TRANSIENT_MAY_DUCK:
                             response =
-                                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN_TRANSIENT;
+                                VehicleAudioFocusState.STATE_GAIN_TRANSIENT;
                             break;
-                        case VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE:
-                            response = VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS;
+                        case VehicleAudioFocusRequest.REQUEST_RELEASE:
+                            response = VehicleAudioFocusState.STATE_LOSS;
                             break;
                     }
                     mCurrentFocusState = response;
                     mCurrentFocusStreams = requestedStreams;
                     mCurrentFocusExtState = requestedExtFocus;
-                    int[] values = { mCurrentFocusState, mCurrentFocusStreams,
-                            mCurrentFocusExtState, 0};
-                    injectValue = VehiclePropValueUtil.createIntVectorValue(
-                            VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
-                            SystemClock.elapsedRealtimeNanos());
                 }
             }
-            if (injectValue != null) {
-                mHalEmulator.injectEvent(injectValue);
-            }
+            injectCurrentStateToHal();
+        }
+
+        private void injectCurrentStateToHal() {
+            mHalEmulator.injectEvent(VehiclePropValueBuilder.newBuilder(VehicleProperty.AUDIO_FOCUS)
+                    .setTimestamp()
+                    .addIntValue(mCurrentFocusState, mCurrentFocusStreams, mCurrentFocusExtState, 0)
+                    .build());
         }
 
         @Override
         public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            int[] values = { mCurrentFocusState, mCurrentFocusStreams,
-                    mCurrentFocusExtState, 0};
-            return VehiclePropValueUtil.createIntVectorValue(
-                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
-                    SystemClock.elapsedRealtimeNanos());
-        }
-
-        @Override
-        public void onPropertySubscribe(int property, float sampleRate, int zones) {
-        }
-
-        @Override
-        public void onPropertyUnsubscribe(int property) {
-        }
-    }
-
-    private class AudioStreamStatePropertyHandler implements VehicleHalPropertyHandler {
-        @Override
-        public void onPropertySet(VehiclePropValue value) {
-        }
-
-        @Override
-        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            //ignore
-            return null;
-        }
-
-        @Override
-        public void onPropertySubscribe(int property, float sampleRate, int zones) {
-        }
-
-        @Override
-        public void onPropertyUnsubscribe(int property) {
+            return VehiclePropValueBuilder.newBuilder(VehicleProperty.AUDIO_FOCUS)
+                    .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                    .addIntValue(mCurrentFocusState, mCurrentFocusStreams, mCurrentFocusExtState, 0)
+                    .build();
         }
     }
 
     private static class AudioVolumeLimitPropertyHandler implements VehicleHalPropertyHandler {
         @Override
-        public void onPropertySet(VehiclePropValue value) {
-        }
-
-        @Override
         public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            int stream = value.getInt32Values(
-                    VehicleNetworkConsts.VehicleAudioVolumeLimitIndex
-                            .VEHICLE_AUDIO_VOLUME_LIMIT_INDEX_STREAM);
+            int stream = value.value.int32Values.get(VehicleAudioVolumeLimitIndex.STREAM);
 
-            int[] values = {stream, 20};
-            VehiclePropValue propValue = VehiclePropValueUtil.createIntVectorValue(
-                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME_LIMIT, values,
-                    SystemClock.elapsedRealtimeNanos());
-            return propValue;
-        }
-
-        @Override
-        public void onPropertySubscribe(int property, float sampleRate, int zones) {
-        }
-
-        @Override
-        public void onPropertyUnsubscribe(int property) {
+            return VehiclePropValueBuilder.newBuilder(AUDIO_VOLUME_LIMIT)
+                    .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                    .addIntValue(stream, 20)
+                    .build();
         }
     }
 
-    private class SingleChannelVolumeHandler implements
-            VehicleHalEmulator.VehicleHalPropertyHandler {
-        private final List<Integer> mMins;
-        private final List<Integer> mMaxs;
+    private class SingleChannelVolumeHandler implements VehicleHalPropertyHandler {
         private final SparseIntArray mCurrent;
 
-        public SingleChannelVolumeHandler(List<Integer> mins, List<Integer> maxs) {
-            mMins = mins;
-            mMaxs = maxs;
-            mCurrent = new SparseIntArray(mMins.size());
-            // initialize the vol to be the min volume.
-            for (int i = 0; i < mMins.size(); i++) {
-                mCurrent.put(i, mMins.get(i));
+        SingleChannelVolumeHandler(int streamCount) {
+            mCurrent = new SparseIntArray(streamCount);
+            // Initialize the vol to be the min (mute) volume.
+            for (int i = 0; i < streamCount; i++) {
+                mCurrent.put(i, 0);
             }
         }
 
         @Override
         public void onPropertySet(VehiclePropValue value) {
-            int stream = value.getInt32Values(
-                    VehicleNetworkConsts.VehicleAudioVolumeIndex.VEHICLE_AUDIO_VOLUME_INDEX_STREAM);
-            int volume = value.getInt32Values(
-                    VehicleNetworkConsts.VehicleAudioVolumeIndex.VEHICLE_AUDIO_VOLUME_INDEX_VOLUME);
-            int state = value.getInt32Values(
-                    VehicleNetworkConsts.VehicleAudioVolumeIndex.VEHICLE_AUDIO_VOLUME_INDEX_STATE);
+            ArrayList<Integer> v = value.value.int32Values;
 
-            int[] values = {stream, volume, state};
-            VehiclePropValue injectValue = VehiclePropValueUtil.createIntVectorValue(
-                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME, values,
-                    SystemClock.elapsedRealtimeNanos());
+            int stream = v.get(VehicleAudioVolumeIndex.INDEX_STREAM);
+            int volume = v.get(VehicleAudioVolumeIndex.INDEX_VOLUME);
+            int state = v.get(VehicleAudioVolumeIndex.INDEX_STATE);
+
+            VehiclePropValue injectValue =
+                    VehiclePropValueBuilder.newBuilder(VehicleProperty.AUDIO_VOLUME)
+                            .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                            .addIntValue(state, volume, state)
+                            .build();
+
             mCurrent.put(stream, volume);
             mHalEmulator.injectEvent(injectValue);
         }
 
         @Override
         public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            int stream = value.getInt32Values(
-                    VehicleNetworkConsts.VehicleAudioVolumeIndex.VEHICLE_AUDIO_VOLUME_INDEX_STREAM);
-
+            int stream = value.value.int32Values.get(VehicleAudioVolumeIndex.INDEX_STREAM);
             int volume = mCurrent.get(stream);
-            int[] values = {stream, volume, 0};
-            VehiclePropValue propValue = VehiclePropValueUtil.createIntVectorValue(
-                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_VOLUME, values,
-                    SystemClock.elapsedRealtimeNanos());
-            return propValue;
-        }
 
-        @Override
-        public void onPropertySubscribe(int property, float sampleRate, int zones) {
-        }
-
-        @Override
-        public void onPropertyUnsubscribe(int property) {
+            return VehiclePropValueBuilder.newBuilder(VehicleProperty.AUDIO_VOLUME)
+                            .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                            .addIntValue(stream, volume, 0)
+                            .build();
         }
     }
 }

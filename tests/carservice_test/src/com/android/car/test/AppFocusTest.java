@@ -28,12 +28,6 @@ public class AppFocusTest extends MockedCarTestBase {
     private static final String TAG = AppFocusTest.class.getSimpleName();
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 1000;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        getVehicleHalEmulator().start();
-    }
-
     public void testFocusChange() throws Exception {
         CarAppFocusManager manager = (CarAppFocusManager) getCar().getCarManager(
                 Car.APP_FOCUS_SERVICE);

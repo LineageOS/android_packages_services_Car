@@ -16,8 +16,7 @@
 package com.android.car.hal;
 
 import android.car.hardware.cabin.CarCabinManager;
-
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
+import android.hardware.vehicle.V2_0.VehicleProperty;
 
 public class CabinHalService extends PropertyHalServiceBase {
     private static final boolean DBG = false;
@@ -25,127 +24,127 @@ public class CabinHalService extends PropertyHalServiceBase {
 
     private final ManagerToHalPropIdMap mMgrHalPropIdMap = ManagerToHalPropIdMap.create(new int[] {
             CarCabinManager.ID_DOOR_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_POS,
+            VehicleProperty.DOOR_POS,
 
             CarCabinManager.ID_DOOR_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_MOVE,
+            VehicleProperty.DOOR_MOVE,
 
             CarCabinManager.ID_DOOR_LOCK,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_DOOR_LOCK,
+            VehicleProperty.DOOR_LOCK,
 
             CarCabinManager.ID_MIRROR_Z_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Z_POS,
+            VehicleProperty.MIRROR_Z_POS,
 
             CarCabinManager.ID_MIRROR_Z_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Z_MOVE,
+            VehicleProperty.MIRROR_Z_MOVE,
 
             CarCabinManager.ID_MIRROR_Y_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Y_POS,
+            VehicleProperty.MIRROR_Y_POS,
 
             CarCabinManager.ID_MIRROR_Y_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_Y_MOVE,
+            VehicleProperty.MIRROR_Y_MOVE,
 
             CarCabinManager.ID_MIRROR_LOCK,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_LOCK,
+            VehicleProperty.MIRROR_LOCK,
 
             CarCabinManager.ID_MIRROR_FOLD,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_MIRROR_FOLD,
+            VehicleProperty.MIRROR_FOLD,
 
             CarCabinManager.ID_SEAT_MEMORY_SELECT,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_MEMORY_SELECT,
+            VehicleProperty.SEAT_MEMORY_SELECT,
 
             CarCabinManager.ID_SEAT_MEMORY_SET,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_MEMORY_SET,
+            VehicleProperty.SEAT_MEMORY_SET,
 
             CarCabinManager.ID_SEAT_BELT_BUCKLED,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BELT_BUCKLED,
+            VehicleProperty.SEAT_BELT_BUCKLED,
 
             CarCabinManager.ID_SEAT_BELT_HEIGHT_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BELT_HEIGHT_POS,
+            VehicleProperty.SEAT_BELT_HEIGHT_POS,
 
             CarCabinManager.ID_SEAT_BELT_HEIGHT_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BELT_HEIGHT_MOVE,
+            VehicleProperty.SEAT_BELT_HEIGHT_MOVE,
 
             CarCabinManager.ID_SEAT_FORE_AFT_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_FORE_AFT_POS,
+            VehicleProperty.SEAT_FORE_AFT_POS,
 
             CarCabinManager.ID_SEAT_FORE_AFT_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_FORE_AFT_MOVE,
+            VehicleProperty.SEAT_FORE_AFT_MOVE,
 
             CarCabinManager.ID_SEAT_BACKREST_ANGLE_1_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_1_POS,
+            VehicleProperty.SEAT_BACKREST_ANGLE_1_POS,
 
             CarCabinManager.ID_SEAT_BACKREST_ANGLE_1_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_1_MOVE,
+            VehicleProperty.SEAT_BACKREST_ANGLE_1_MOVE,
 
             CarCabinManager.ID_SEAT_BACKREST_ANGLE_2_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_2_POS,
+            VehicleProperty.SEAT_BACKREST_ANGLE_2_POS,
 
             CarCabinManager.ID_SEAT_BACKREST_ANGLE_2_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_BACKREST_ANGLE_2_MOVE,
+            VehicleProperty.SEAT_BACKREST_ANGLE_2_MOVE,
 
             CarCabinManager.ID_SEAT_HEIGHT_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEIGHT_POS,
+            VehicleProperty.SEAT_HEIGHT_POS,
 
             CarCabinManager.ID_SEAT_HEIGHT_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEIGHT_MOVE,
+            VehicleProperty.SEAT_HEIGHT_MOVE,
 
             CarCabinManager.ID_SEAT_DEPTH_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_DEPTH_POS,
+            VehicleProperty.SEAT_DEPTH_POS,
 
             CarCabinManager.ID_SEAT_DEPTH_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_DEPTH_MOVE,
+            VehicleProperty.SEAT_DEPTH_MOVE,
 
             CarCabinManager.ID_SEAT_TILT_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_TILT_POS,
+            VehicleProperty.SEAT_TILT_POS,
 
             CarCabinManager.ID_SEAT_TILT_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_TILT_MOVE,
+            VehicleProperty.SEAT_TILT_MOVE,
 
             CarCabinManager.ID_SEAT_LUMBAR_FORE_AFT_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_FORE_AFT_POS,
+            VehicleProperty.SEAT_LUMBAR_FORE_AFT_POS,
 
             CarCabinManager.ID_SEAT_LUMBAR_FORE_AFT_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_FORE_AFT_MOVE,
+            VehicleProperty.SEAT_LUMBAR_FORE_AFT_MOVE,
 
             CarCabinManager.ID_SEAT_LUMBAR_SIDE_SUPPORT_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_SIDE_SUPPORT_POS,
+            VehicleProperty.SEAT_LUMBAR_SIDE_SUPPORT_POS,
 
             CarCabinManager.ID_SEAT_LUMBAR_SIDE_SUPPORT_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_LUMBAR_SIDE_SUPPORT_MOVE,
+            VehicleProperty.SEAT_LUMBAR_SIDE_SUPPORT_MOVE,
 
             CarCabinManager.ID_SEAT_HEADREST_HEIGHT_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_HEIGHT_POS,
+            VehicleProperty.SEAT_HEADREST_HEIGHT_POS,
 
             CarCabinManager.ID_SEAT_HEADREST_HEIGHT_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_HEIGHT_MOVE,
+            VehicleProperty.SEAT_HEADREST_HEIGHT_MOVE,
 
             CarCabinManager.ID_SEAT_HEADREST_ANGLE_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_ANGLE_POS,
+            VehicleProperty.SEAT_HEADREST_ANGLE_POS,
 
             CarCabinManager.ID_SEAT_HEADREST_ANGLE_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_ANGLE_MOVE,
+            VehicleProperty.SEAT_HEADREST_ANGLE_MOVE,
 
             CarCabinManager.ID_SEAT_HEADREST_FORE_AFT_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_FORE_AFT_POS,
+            VehicleProperty.SEAT_HEADREST_FORE_AFT_POS,
 
             CarCabinManager.ID_SEAT_HEADREST_FORE_AFT_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_SEAT_HEADREST_FORE_AFT_MOVE,
+            VehicleProperty.SEAT_HEADREST_FORE_AFT_MOVE,
 
             CarCabinManager.ID_WINDOW_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_POS,
+            VehicleProperty.WINDOW_POS,
 
             CarCabinManager.ID_WINDOW_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_MOVE,
+            VehicleProperty.WINDOW_MOVE,
 
             CarCabinManager.ID_WINDOW_VENT_POS,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_VENT_POS,
+            VehicleProperty.WINDOW_VENT_POS,
 
             CarCabinManager.ID_WINDOW_VENT_MOVE,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_VENT_MOVE,
+            VehicleProperty.WINDOW_VENT_MOVE,
 
             CarCabinManager.ID_WINDOW_LOCK,
-            VehicleNetworkConsts.VEHICLE_PROPERTY_WINDOW_LOCK
+            VehicleProperty.WINDOW_LOCK
     });
 
     public CabinHalService(VehicleHal vehicleHal) {

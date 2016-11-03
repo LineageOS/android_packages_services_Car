@@ -15,31 +15,34 @@
  */
 package com.android.car.test;
 
+import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_FOCUS;
+import static java.lang.Integer.toHexString;
+
 import android.car.Car;
 import android.car.media.CarAudioManager;
-import android.car.test.VehicleHalEmulator.VehicleHalPropertyHandler;
 import android.content.Context;
+import android.hardware.vehicle.V2_0.VehicleAudioContextFlag;
+import android.hardware.vehicle.V2_0.VehicleAudioExtFocusFlag;
+import android.hardware.vehicle.V2_0.VehicleAudioFocusIndex;
+import android.hardware.vehicle.V2_0.VehicleAudioFocusRequest;
+import android.hardware.vehicle.V2_0.VehicleAudioFocusState;
+import android.hardware.vehicle.V2_0.VehicleAudioStream;
+import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.vehicle.V2_0.VehicleProperty;
+import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioExtFocusFlag;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusIndex;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusRequest;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioFocusState;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioStream;
-import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePermissionModel;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleValueType;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
+import com.google.android.collect.Lists;
 
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
+import com.android.car.vehiclehal.test.MockedVehicleHal.FailingPropertyHandler;
+import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
@@ -52,26 +55,10 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
     private static final long TIMEOUT_MS = 3000;
 
     private final VehicleHalPropertyHandler mAudioRoutingPolicyPropertyHandler =
-            new VehicleHalPropertyHandler() {
+            new FailingPropertyHandler() {
         @Override
         public void onPropertySet(VehiclePropValue value) {
             //TODO
-        }
-
-        @Override
-        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            fail("cannot get");
-            return null;
-        }
-
-        @Override
-        public void onPropertySubscribe(int property, float sampleRate, int zones) {
-            fail("cannot subscribe");
-        }
-
-        @Override
-        public void onPropertyUnsubscribe(int property) {
-            fail("cannot unsubscribe");
         }
     };
 
@@ -93,6 +80,22 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
     private CarAudioManager mCarAudioManager;
 
     @Override
+    protected synchronized void configureMockedHal() {
+        addProperty(VehicleProperty.AUDIO_ROUTING_POLICY, mAudioRoutingPolicyPropertyHandler);
+        addProperty(VehicleProperty.AUDIO_FOCUS, mAudioFocusPropertyHandler);
+
+        addStaticProperty(VehicleProperty.AUDIO_HW_VARIANT,
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.AUDIO_HW_VARIANT)
+                        .addIntValue(-1)
+                        .build())
+                .setConfigArray(Lists.newArrayList(0));
+
+        addProperty(VehicleProperty.AUDIO_EXT_ROUTING_HINT, mExtRoutingHintPropertyHandler)
+                .setAccess(VehiclePropertyAccess.WRITE)
+                .setConfigString(EXT_ROUTING_CONFIG);
+    }
+
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         // AudioManager should be created in main thread to get focus event. :(
@@ -103,40 +106,6 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
             }
         });
 
-        getVehicleHalEmulator().addProperty(
-                VehiclePropConfigUtil.getBuilder(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_ROUTING_POLICY,
-                        VehiclePropAccess.VEHICLE_PROP_ACCESS_WRITE,
-                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC2,
-                        VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
-                        0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
-                        mAudioRoutingPolicyPropertyHandler);
-        getVehicleHalEmulator().addProperty(
-                VehiclePropConfigUtil.getBuilder(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS,
-                        VehiclePropAccess.VEHICLE_PROP_ACCESS_READ_WRITE,
-                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC4,
-                        VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
-                        0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
-                        mAudioFocusPropertyHandler);
-        getVehicleHalEmulator().addStaticProperty(
-                VehiclePropConfigUtil.createStaticStringProperty(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT),
-                VehiclePropValueUtil.createIntValue(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_HW_VARIANT, -1, 0));
-        getVehicleHalEmulator().addProperty(
-                VehiclePropConfigUtil.getBuilder(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_HINT,
-                        VehiclePropAccess.VEHICLE_PROP_ACCESS_WRITE,
-                        VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC4,
-                        VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
-                        0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/).
-                        setConfigString(EXT_ROUTING_CONFIG).build(),
-                        mExtRoutingHintPropertyHandler);
-        getVehicleHalEmulator().start();
         mCarAudioManager = (CarAudioManager) getCar().getCarManager(Car.AUDIO_SERVICE);
         assertNotNull(mCarAudioManager);
     }
@@ -171,8 +140,7 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
         assertNotNull(attrb);
 
         try {
-            attrb = mCarAudioManager.getAudioAttributesForRadio(
-                    CarAudioManager.CAR_RADIO_TYPE_AM_FM_HD);
+            mCarAudioManager.getAudioAttributesForRadio(CarAudioManager.CAR_RADIO_TYPE_AM_FM_HD);
             fail();
         } catch (IllegalArgumentException e) {
             // expected
@@ -193,7 +161,7 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
         assertNotNull(attrb);
 
         try {
-            attrb = mCarAudioManager.getAudioAttributesForExternalSource(
+            mCarAudioManager.getAudioAttributesForExternalSource(
                     CarAudioManager.CAR_RADIO_TYPE_AM_FM_HD);
             fail();
         } catch (IllegalArgumentException e) {
@@ -206,8 +174,8 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 CarAudioManager.CAR_RADIO_TYPE_AM_FM);
         assertNotNull(attrb);
         checkSingleRequestRelease(attrb, AudioManager.AUDIOFOCUS_GAIN, new int[] {1, 0, 0, 0},
-                0, VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG);
+                0, VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
+                VehicleAudioContextFlag.RADIO_FLAG);
     }
 
     public void testRadioSatelliteGainFocus() throws Exception {
@@ -215,8 +183,8 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 CarAudioManager.CAR_RADIO_TYPE_SATELLITE);
         assertNotNull(attrb);
         checkSingleRequestRelease(attrb, AudioManager.AUDIOFOCUS_GAIN, new int[] {2, 0, 0, 0},
-                0, VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG);
+                0, VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
+                VehicleAudioContextFlag.RADIO_FLAG);
     }
 
     public void testCdGainFocus() throws Exception {
@@ -224,8 +192,8 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 CarAudioManager.CAR_EXTERNAL_SOURCE_TYPE_CD_DVD);
         assertNotNull(attrb);
         checkSingleRequestRelease(attrb, AudioManager.AUDIOFOCUS_GAIN, new int[] {0, 2, 0, 0},
-                0, VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CD_ROM_FLAG);
+                0, VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
+                VehicleAudioContextFlag.CD_ROM_FLAG);
     }
 
     public void testAuxInFocus() throws Exception {
@@ -233,8 +201,8 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 CarAudioManager.CAR_EXTERNAL_SOURCE_TYPE_AUX_IN0);
         assertNotNull(attrb);
         checkSingleRequestRelease(attrb, AudioManager.AUDIOFOCUS_GAIN, new int[] {0x1<<5, 0, 0, 0},
-                0, VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_AUX_AUDIO_FLAG);
+                0, VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
+                VehicleAudioContextFlag.AUX_AUDIO_FLAG);
     }
 
     public void testExtNavInFocus() throws Exception {
@@ -242,8 +210,8 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 CarAudioManager.CAR_EXTERNAL_SOURCE_TYPE_EXT_NAV_GUIDANCE);
         assertNotNull(attrb);
         checkSingleRequestRelease(attrb, AudioManager.AUDIOFOCUS_GAIN, new int[] {0x1<<4, 0, 0, 0},
-                0, VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_EXT_SOURCE_FLAG);
+                0, VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
+                VehicleAudioContextFlag.EXT_SOURCE_FLAG);
     }
 
     public void testCustomInFocus() throws Exception {
@@ -251,8 +219,8 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 "com.google.test.SOMETHING_SPECIAL");
         assertNotNull(attrb);
         checkSingleRequestRelease(attrb, AudioManager.AUDIOFOCUS_GAIN, new int[] {0, 0, 1, 0},
-                0, VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_EXT_SOURCE_FLAG);
+                0, VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
+                VehicleAudioContextFlag.EXT_SOURCE_FLAG);
     }
 
     public void testMediaNavFocus() throws Exception {
@@ -263,16 +231,16 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 AudioManager.AUDIOFOCUS_GAIN);
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
         int[] request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
-        assertEquals(0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM0, request[1]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
+        assertEquals(0x1 << VehicleAudioStream.STREAM0, request[1]);
         assertEquals(0, request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.MUSIC_FLAG, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 request[1],
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioExtFocusFlag.NONE_FLAG);
 
         // nav guidance start
         AudioFocusListener listenerNav = new AudioFocusListener();
@@ -280,45 +248,45 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).
                 setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE).
                 build();
-        res = mAudioManager.requestAudioFocus(listenerNav, navAttrib,
+        mAudioManager.requestAudioFocus(listenerNav, navAttrib,
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
         assertEquals(0x3, request[1]);
         assertEquals(0, request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG |
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.MUSIC_FLAG |
+                VehicleAudioContextFlag.NAVIGATION_FLAG, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN, request[1],
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioFocusState.STATE_GAIN, request[1],
+                VehicleAudioExtFocusFlag.NONE_FLAG);
 
         // nav guidance done
         mAudioManager.abandonAudioFocus(listenerNav);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
-        assertEquals(0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM0, request[1]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
+        assertEquals(0x1 << VehicleAudioStream.STREAM0, request[1]);
         assertEquals(0, request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.MUSIC_FLAG, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN, request[1],
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioFocusState.STATE_GAIN, request[1],
+                VehicleAudioExtFocusFlag.NONE_FLAG);
 
         // music done
         mAudioManager.abandonAudioFocus(listenerMusic);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_RELEASE, request[0]);
         assertEquals(0, request[1]);
         assertEquals(0, request[2]);
         assertEquals(0, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS, request[1],
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioFocusState.STATE_LOSS, request[1],
+                VehicleAudioExtFocusFlag.NONE_FLAG);
     }
 
     public void testMediaExternalMediaNavFocus() throws Exception {
@@ -329,22 +297,22 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 AudioManager.AUDIOFOCUS_GAIN);
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
         int[] request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
-        assertEquals(0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM0, request[1]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
+        assertEquals(0x1 << VehicleAudioStream.STREAM0, request[1]);
         assertEquals(0, request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.MUSIC_FLAG, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 request[1],
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioExtFocusFlag.NONE_FLAG);
 
         // car plays external media (=outside Android)
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS,
+                VehicleAudioFocusState.STATE_LOSS,
                 0,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PERMANENT_FLAG);
+                VehicleAudioExtFocusFlag.PERMANENT_FLAG);
         int focusChange = listenerMusic.waitAndGetFocusChange(TIMEOUT_MS);
         assertEquals(AudioManager.AUDIOFOCUS_LOSS, focusChange);
 
@@ -354,38 +322,38 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).
                 setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE).
                 build();
-        res = mAudioManager.requestAudioFocus(listenerNav, navAttrib,
+        mAudioManager.requestAudioFocus(listenerNav, navAttrib,
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK,
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN_TRANSIENT_MAY_DUCK,
                 request[0]);
-        assertEquals(0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM1, request[1]);
+        assertEquals(0x1 << VehicleAudioStream.STREAM1, request[1]);
         assertEquals(0, request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.NAVIGATION_FLAG, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN_TRANSIENT,
-                0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM1,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PERMANENT_FLAG);
+                VehicleAudioFocusState.STATE_GAIN_TRANSIENT,
+                0x1 << VehicleAudioStream.STREAM1,
+                VehicleAudioExtFocusFlag.PERMANENT_FLAG);
 
         // nav guidance ends
         mAudioManager.abandonAudioFocus(listenerNav);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_RELEASE, request[0]);
         assertEquals(0, request[1]);
         assertEquals(0, request[2]);
         assertEquals(0, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS,
+                VehicleAudioFocusState.STATE_LOSS,
                 0,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PERMANENT_FLAG);
+                VehicleAudioExtFocusFlag.PERMANENT_FLAG);
 
         // now ends external play
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS,
+                VehicleAudioFocusState.STATE_LOSS,
                 0,
                 0);
         mAudioManager.abandonAudioFocus(listenerMusic);
@@ -404,17 +372,17 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 radioAttributes, AudioManager.AUDIOFOCUS_GAIN, 0);
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
         int[] request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
         assertEquals(0, request[1]);
-        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
+        assertEquals(VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
                 request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.RADIO_FLAG, request[3]);
         assertArrayEquals(new int[] {1, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 0,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG);
+                VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG);
 
         //external nav
         AudioFocusListener listenerNav = new AudioFocusListener();
@@ -424,44 +392,44 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 extNavAttributes, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN,
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN,
                 request[0]);
         assertEquals(0, request[1]);
-        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
+        assertEquals(VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
                 request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG |
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_EXT_SOURCE_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.RADIO_FLAG |
+                VehicleAudioContextFlag.EXT_SOURCE_FLAG, request[3]);
         assertArrayEquals(new int[] {1 | 1<<4, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 0,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG);
+                VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG);
 
         mAudioManager.abandonAudioFocus(listenerNav);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
         assertEquals(0, request[1]);
-        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
+        assertEquals(VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
                 request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.RADIO_FLAG, request[3]);
         assertArrayEquals(new int[] {1, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 0,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG);
+                VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG);
 
         mAudioManager.abandonAudioFocus(listenerRadio);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_RELEASE, request[0]);
         assertEquals(0, request[1]);
         assertEquals(0, request[2]);
         assertEquals(0, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS,
+                VehicleAudioFocusState.STATE_LOSS,
                 0,
                 0);
     }
@@ -474,16 +442,16 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 AudioManager.AUDIOFOCUS_GAIN);
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
         int[] request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
-        assertEquals(0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM0, request[1]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
+        assertEquals(0x1 << VehicleAudioStream.STREAM0, request[1]);
         assertEquals(0, request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.MUSIC_FLAG, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 request[1],
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioExtFocusFlag.NONE_FLAG);
 
         //external nav
         AudioFocusListener listenerNav = new AudioFocusListener();
@@ -493,43 +461,43 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 extNavAttributes, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN,
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN,
                 request[0]);
         assertEquals(0x1, request[1]);
-        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
+        assertEquals(VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
                 request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG |
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_EXT_SOURCE_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.MUSIC_FLAG |
+                VehicleAudioContextFlag.EXT_SOURCE_FLAG, request[3]);
         assertArrayEquals(new int[] {1<<4, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 0x1,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG);
+                VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG);
 
         mAudioManager.abandonAudioFocus(listenerNav);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
-        assertEquals(0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM0, request[1]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
+        assertEquals(0x1 << VehicleAudioStream.STREAM0, request[1]);
         assertEquals(0, request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.MUSIC_FLAG, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 request[1],
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioExtFocusFlag.NONE_FLAG);
 
         mAudioManager.abandonAudioFocus(listenerMusic);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_RELEASE, request[0]);
         assertEquals(0, request[1]);
         assertEquals(0, request[2]);
         assertEquals(0, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS,
+                VehicleAudioFocusState.STATE_LOSS,
                 0,
                 0);
     }
@@ -549,17 +517,17 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
         int[] request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK,
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN_TRANSIENT_MAY_DUCK,
                 request[0]);
         assertEquals(0x2, request[1]);
         assertEquals(0, request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.NAVIGATION_FLAG, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 request[1],
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioExtFocusFlag.NONE_FLAG);
 
         //external nav
         AudioFocusListener listenerExtNav = new AudioFocusListener();
@@ -569,43 +537,43 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 extNavAttributes, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN,
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN,
                 request[0]);
         assertEquals(0, request[1]);
-        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
+        assertEquals(VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
                 request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_EXT_SOURCE_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.EXT_SOURCE_FLAG, request[3]);
         assertArrayEquals(new int[] {1<<4, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 0x1,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG);
+                VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG);
 
         mAudioManager.abandonAudioFocus(listenerExtNav);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK,
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN_TRANSIENT_MAY_DUCK,
                 request[0]);
         assertEquals(0x2, request[1]);
         assertEquals(0, request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.NAVIGATION_FLAG, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 request[1],
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioExtFocusFlag.NONE_FLAG);
 
         mAudioManager.abandonAudioFocus(listenerIntNav);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_RELEASE, request[0]);
         assertEquals(0, request[1]);
         assertEquals(0, request[2]);
         assertEquals(0, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS,
+                VehicleAudioFocusState.STATE_LOSS,
                 0,
                 0);
     }
@@ -618,16 +586,16 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 AudioManager.AUDIOFOCUS_GAIN);
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
         int[] request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
-        assertEquals(0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM0, request[1]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
+        assertEquals(0x1 << VehicleAudioStream.STREAM0, request[1]);
         assertEquals(0, request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.MUSIC_FLAG, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 request[1],
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioExtFocusFlag.NONE_FLAG);
 
         // android radio
         AudioFocusListener listenerRadio = new AudioFocusListener();
@@ -640,17 +608,17 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 radioAttributes, AudioManager.AUDIOFOCUS_GAIN, 0);
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
         assertEquals(0, request[1]);
-        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
+        assertEquals(VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
                 request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.RADIO_FLAG, request[3]);
         assertArrayEquals(new int[] {1, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 0,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG);
+                VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG);
 
         // nav guidance start
         AudioFocusListener listenerNav = new AudioFocusListener();
@@ -661,35 +629,35 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
         res = mAudioManager.requestAudioFocus(listenerNav, navAttrib,
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN,
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN,
                 request[0]);
-        assertEquals(0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM1, request[1]);
-        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
+        assertEquals(0x1 << VehicleAudioStream.STREAM1, request[1]);
+        assertEquals(VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
                 request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG |
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.NAVIGATION_FLAG |
+                VehicleAudioContextFlag.RADIO_FLAG, request[3]);
         assertArrayEquals(new int[] {1, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
-                0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM1,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG);
+                VehicleAudioFocusState.STATE_GAIN,
+                0x1 << VehicleAudioStream.STREAM1,
+                VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG);
 
         // nav guidance ends
         mAudioManager.abandonAudioFocus(listenerNav);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN,
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN,
                 request[0]);
         assertEquals(0, request[1]);
-        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
+        assertEquals(VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
                 request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.RADIO_FLAG, request[3]);
         assertArrayEquals(new int[] {1, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 0,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG);
+                VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG);
 
         // ends radio. music will get the focus GAIN.
         // Music app is supposed to stop and release focus when it has lost focus, but here just
@@ -697,30 +665,30 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
         mAudioManager.abandonAudioFocus(listenerRadio);
         listenerMusic.waitForFocus(TIMEOUT_MS, AudioManager.AUDIOFOCUS_GAIN);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
-        assertEquals(0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM0, request[1]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
+        assertEquals(0x1 << VehicleAudioStream.STREAM0, request[1]);
         assertEquals(0, request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.MUSIC_FLAG, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
-                0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM0,
+                VehicleAudioFocusState.STATE_GAIN,
+                0x1 << VehicleAudioStream.STREAM0,
                 0);
 
         // now music release focus.
         mAudioManager.abandonAudioFocus(listenerMusic);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_RELEASE, request[0]);
         assertEquals(0, request[1]);
         assertEquals(0, request[2]);
         assertEquals(0, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS,
+                VehicleAudioFocusState.STATE_LOSS,
                 0,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioExtFocusFlag.NONE_FLAG);
     }
 
     private void checkSingleRequestRelease(AudioAttributes attrb, int androidFocusToRequest,
@@ -730,22 +698,22 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
         int res = mCarAudioManager.requestAudioFocus(lister, attrb, androidFocusToRequest, 0);
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
         int[] request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        int expectedFocusRequest = VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE;
-        int response = VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS;
+        int expectedFocusRequest = VehicleAudioFocusRequest.REQUEST_RELEASE;
+        int response = VehicleAudioFocusState.STATE_LOSS;
         switch (androidFocusToRequest) {
             case AudioManager.AUDIOFOCUS_GAIN:
-                expectedFocusRequest = VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN;
-                response = VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN;
+                expectedFocusRequest = VehicleAudioFocusRequest.REQUEST_GAIN;
+                response = VehicleAudioFocusState.STATE_GAIN;
                 break;
             case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT:
                 expectedFocusRequest =
-                    VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT;
-                response = VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN_TRANSIENT;
+                    VehicleAudioFocusRequest.REQUEST_GAIN_TRANSIENT;
+                response = VehicleAudioFocusState.STATE_GAIN_TRANSIENT;
                 break;
             case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
                 expectedFocusRequest =
-                    VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK;
-                response = VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN_TRANSIENT;
+                    VehicleAudioFocusRequest.REQUEST_GAIN_TRANSIENT_MAY_DUCK;
+                response = VehicleAudioFocusState.STATE_GAIN_TRANSIENT;
                 break;
         }
         assertEquals(expectedFocusRequest, request[0]);
@@ -756,33 +724,33 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
         mAudioFocusPropertyHandler.sendAudioFocusState(
                 response,
                 request[1],
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioExtFocusFlag.NONE_FLAG);
         mAudioManager.abandonAudioFocus(lister);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_RELEASE, request[0]);
         assertEquals(0, request[1]);
         assertEquals(0, request[2]);
         assertEquals(0, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS,
+                VehicleAudioFocusState.STATE_LOSS,
                 request[1],
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG);
+                VehicleAudioExtFocusFlag.NONE_FLAG);
     }
 
     public void testRadioMute() throws Exception {
         testMediaMute(CarAudioManager.CAR_AUDIO_USAGE_RADIO,
                 0,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_PLAY_ONLY_FLAG,
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG);
+                VehicleAudioExtFocusFlag.PLAY_ONLY_FLAG,
+                VehicleAudioContextFlag.RADIO_FLAG);
     }
 
     public void testMusicMute() throws Exception {
         testMediaMute(CarAudioManager.CAR_AUDIO_USAGE_MUSIC,
                 0x1,
                 0,
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG);
+                VehicleAudioContextFlag.MUSIC_FLAG);
     }
 
     private void testMediaMute(int mediaUsage, int primaryStream, int extFocusFlag,
@@ -798,7 +766,7 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 radioAttributes, AudioManager.AUDIOFOCUS_GAIN, 0);
         assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
         int[] request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
         assertEquals(primaryStream, request[1]);
         assertEquals(extFocusFlag, request[2]);
         assertEquals(mediaContext, request[3]);
@@ -810,7 +778,7 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                     mExtRoutingHintPropertyHandler.getLastHint());
         }
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 primaryStream,
                 extFocusFlag);
         // now mute it.
@@ -818,18 +786,18 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
         Log.i(TAG, "mute media");
         assertTrue(carAudioManager.setMediaMute(true));
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT,
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN_TRANSIENT,
                 request[0]);
         assertEquals(0, request[1]);
-        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG,
+        assertEquals(VehicleAudioExtFocusFlag.MUTE_MEDIA_FLAG,
                 request[2]);
         assertEquals(0, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 0,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG);
+                VehicleAudioExtFocusFlag.MUTE_MEDIA_FLAG);
         assertTrue(carAudioManager.isMediaMuted());
         // nav guidance on top of it
         AudioFocusListener listenerNav = new AudioFocusListener();
@@ -841,42 +809,42 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
         res = mAudioManager.requestAudioFocus(listenerNav, navAttrib,
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT_MAY_DUCK,
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN_TRANSIENT_MAY_DUCK,
                 request[0]);
-        assertEquals(0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM1, request[1]);
-        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG,
+        assertEquals(0x1 << VehicleAudioStream.STREAM1, request[1]);
+        assertEquals(VehicleAudioExtFocusFlag.MUTE_MEDIA_FLAG,
                 request[2]);
-        assertEquals(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG, request[3]);
+        assertEquals(VehicleAudioContextFlag.NAVIGATION_FLAG, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         assertTrue(carAudioManager.isMediaMuted());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
-                0x1 << VehicleAudioStream.VEHICLE_AUDIO_STREAM1,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG);
+                VehicleAudioFocusState.STATE_GAIN,
+                0x1 << VehicleAudioStream.STREAM1,
+                VehicleAudioExtFocusFlag.MUTE_MEDIA_FLAG);
         assertTrue(carAudioManager.isMediaMuted());
         // nav guidance ends
         mAudioManager.abandonAudioFocus(listenerNav);
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN_TRANSIENT,
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN_TRANSIENT,
                 request[0]);
         assertEquals(0, request[1]);
-        assertEquals(VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG,
+        assertEquals(VehicleAudioExtFocusFlag.MUTE_MEDIA_FLAG,
                 request[2]);
         assertEquals(0, request[3]);
         assertArrayEquals(new int[] {0, 0, 0, 0},
                 mExtRoutingHintPropertyHandler.getLastHint());
         assertTrue(carAudioManager.isMediaMuted());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 0,
-                VehicleAudioExtFocusFlag.VEHICLE_AUDIO_EXT_FOCUS_CAR_MUTE_MEDIA_FLAG);
+                VehicleAudioExtFocusFlag.MUTE_MEDIA_FLAG);
         // now unmute it. media should resume.
         assertTrue(carAudioManager.isMediaMuted());
         assertFalse(carAudioManager.setMediaMute(false));
         assertFalse(carAudioManager.isMediaMuted());
         request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
-        assertEquals(VehicleAudioFocusRequest.VEHICLE_AUDIO_FOCUS_REQUEST_GAIN, request[0]);
+        assertEquals(VehicleAudioFocusRequest.REQUEST_GAIN, request[0]);
         assertEquals(primaryStream, request[1]);
         assertEquals(extFocusFlag,
                 request[2]);
@@ -890,7 +858,7 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
         }
         assertFalse(carAudioManager.isMediaMuted());
         mAudioFocusPropertyHandler.sendAudioFocusState(
-                VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_GAIN,
+                VehicleAudioFocusState.STATE_GAIN,
                 primaryStream,
                 extFocusFlag);
         assertFalse(carAudioManager.isMediaMuted());
@@ -926,7 +894,7 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
 
     protected static class FocusPropertyHandler implements VehicleHalPropertyHandler {
 
-        private int mState = VehicleAudioFocusState.VEHICLE_AUDIO_FOCUS_STATE_LOSS;
+        private int mState = VehicleAudioFocusState.STATE_LOSS;
         private int mStreams = 0;
         private int mExtFocus = 0;
         private int mRequest;
@@ -947,10 +915,11 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
                 mStreams = streams;
                 mExtFocus = extFocus;
             }
-            int[] values = { state, streams, extFocus, 0 };
-            mCarTest.getVehicleHalEmulator().injectEvent(VehiclePropValueUtil.createIntVectorValue(
-                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
-                    SystemClock.elapsedRealtimeNanos()));
+            mCarTest.getMockedVehicleHal().injectEvent(
+                    VehiclePropValueBuilder.newBuilder(VehicleProperty.AUDIO_FOCUS)
+                            .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                            .addIntValue(state, streams, extFocus, 0)
+                            .build());
         }
 
         public int[] waitForAudioFocusRequest(long timeoutMs) throws Exception {
@@ -965,47 +934,46 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
 
         @Override
         public void onPropertySet(VehiclePropValue value) {
-            assertEquals(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, value.getProp());
+            Log.i(TAG, "onPropertySet, prop: 0x" + toHexString(value.prop));
+            assertEquals(AUDIO_FOCUS, value.prop);
+            ArrayList<Integer> v = value.value.int32Values;
             synchronized (this) {
-                mRequest = value.getInt32Values(
-                        VehicleAudioFocusIndex.VEHICLE_AUDIO_FOCUS_INDEX_FOCUS);
-                mRequestedStreams = value.getInt32Values(
-                        VehicleAudioFocusIndex.VEHICLE_AUDIO_FOCUS_INDEX_STREAMS);
-                mRequestedExtFocus = value.getInt32Values(
-                        VehicleAudioFocusIndex.VEHICLE_AUDIO_FOCUS_INDEX_EXTERNAL_FOCUS_STATE);
-                mRequestedAudioContexts = value.getInt32Values(
-                        VehicleAudioFocusIndex.VEHICLE_AUDIO_FOCUS_INDEX_AUDIO_CONTEXTS);
+                mRequest = v.get(VehicleAudioFocusIndex.FOCUS);
+                mRequestedStreams = v.get(VehicleAudioFocusIndex.STREAMS);
+                mRequestedExtFocus = v.get(VehicleAudioFocusIndex.EXTERNAL_FOCUS_STATE);
+                mRequestedAudioContexts = v.get(VehicleAudioFocusIndex.AUDIO_CONTEXTS);
             }
+            Log.i(TAG, "onPropertySet, values: " + Arrays.toString(v.toArray()));
             mSetWaitSemaphore.release();
         }
 
         @Override
         public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            assertEquals(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, value.getProp());
+            assertEquals(AUDIO_FOCUS, value.prop);
             int state, streams, extFocus;
             synchronized (this) {
                 state = mState;
                 streams = mStreams;
                 extFocus = mExtFocus;
             }
-            int[] values = { state, streams, extFocus, 0 };
-            return VehiclePropValueUtil.createIntVectorValue(
-                    VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, values,
-                    SystemClock.elapsedRealtimeNanos());
+            return VehiclePropValueBuilder.newBuilder(VehicleProperty.AUDIO_FOCUS)
+                    .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                    .addIntValue(state, streams, extFocus, 0)
+                    .build();
         }
 
         @Override
-        public void onPropertySubscribe(int property, float sampleRate, int zones) {
-            assertEquals(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, property);
+        public void onPropertySubscribe(int property, int zones, float sampleRate) {
+            assertEquals(AUDIO_FOCUS, property);
         }
 
         @Override
         public void onPropertyUnsubscribe(int property) {
-            assertEquals(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_FOCUS, property);
+            assertEquals(AUDIO_FOCUS, property);
         }
     }
 
-    private static class ExtRoutingHintPropertyHandler implements VehicleHalPropertyHandler {
+    private static class ExtRoutingHintPropertyHandler extends FailingPropertyHandler {
         private int[] mLastHint = {0, 0, 0, 0};
 
         public int[] getLastHint() {
@@ -1018,30 +986,13 @@ public class CarAudioExtFocusTest extends MockedCarTestBase {
 
         @Override
         public void onPropertySet(VehiclePropValue value) {
-            assertEquals(VehicleNetworkConsts.VEHICLE_PROPERTY_AUDIO_EXT_ROUTING_HINT,
-                    value.getProp());
-            assertEquals(mLastHint.length, value.getInt32ValuesCount());
+            assertEquals(VehicleProperty.AUDIO_EXT_ROUTING_HINT, value.prop);
+            assertEquals(mLastHint.length, value.value.int32Values.size());
             synchronized (this) {
                 for (int i = 0; i < mLastHint.length; i++) {
-                    mLastHint[i] = value.getInt32Values(i);
+                    mLastHint[i] = value.value.int32Values.get(i);
                 }
             }
-        }
-
-        @Override
-        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            fail("write only");
-            return null;
-        }
-
-        @Override
-        public void onPropertySubscribe(int property, float sampleRate, int zones) {
-            fail("cannot subsctibe");
-        }
-
-        @Override
-        public void onPropertyUnsubscribe(int property) {
-            fail("cannot subsctibe");
         }
     }
 }

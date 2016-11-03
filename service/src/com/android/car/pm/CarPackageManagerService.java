@@ -31,8 +31,8 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.ServiceInfo;
 import android.content.pm.ResolveInfo;
+import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.os.Handler;
@@ -54,7 +54,6 @@ import com.android.car.pm.CarAppMetadataReader.CarAppMetadataInfo;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;

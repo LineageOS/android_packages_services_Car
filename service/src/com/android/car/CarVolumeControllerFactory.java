@@ -30,7 +30,6 @@ import android.provider.Settings;
 import android.telecom.TelecomManager;
 import android.util.ArrayMap;
 import android.util.Log;
-import android.util.Pair;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 
@@ -229,9 +228,6 @@ public class CarVolumeControllerFactory {
                 new SparseArray<>(VolumeUtils.CAR_AUDIO_CONTEXT.length);
         // stream volume limit, the key is car audio context type
         @GuardedBy("this")
-        private final SparseArray<Integer> mCarContextVolumeMin =
-                new SparseArray<>(VolumeUtils.CAR_AUDIO_CONTEXT.length);
-        @GuardedBy("this")
         private final RemoteCallbackList<IVolumeController> mVolumeControllers =
                 new RemoteCallbackList<>();
         @GuardedBy("this")
@@ -374,19 +370,13 @@ public class CarVolumeControllerFactory {
         private void initVolumeLimitLocked() {
             for (int i : VolumeUtils.CAR_AUDIO_CONTEXT) {
                 int carStream = carContextToCarStream(i);
-                Pair<Integer, Integer> volumeMinMax = mHal.getStreamVolumeLimit(carStream);
-                int max;
-                int min;
-                if (volumeMinMax == null) {
+                Integer volumeMax = mHal.getStreamMaxVolume(carStream);
+                int max = volumeMax == null ? 0 : volumeMax;
+                if (max < 0) {
                     max = 0;
-                    min = 0;
-                } else {
-                    max = volumeMinMax.second >= 0 ? volumeMinMax.second : 0;
-                    min = volumeMinMax.first >=0 ? volumeMinMax.first : 0;
                 }
                 // get default stream volume limit first.
                 mCarContextVolumeMax.put(i, max);
-                mCarContextVolumeMin.put(i, min);
             }
         }
 
@@ -574,13 +564,7 @@ public class CarVolumeControllerFactory {
 
         @Override
         public int getStreamMinVolume(int stream) {
-            synchronized (this) {
-                if (VolumeUtils.carContextToAndroidStream(mCurrentContext) == stream) {
-                    return mCarContextVolumeMin.get(mCurrentContext);
-                } else {
-                    return mCarContextVolumeMin.get(VolumeUtils.androidStreamToCarContext(stream));
-                }
-            }
+            return 0;  // Min value is always zero.
         }
 
         @Override
@@ -669,8 +653,6 @@ public class CarVolumeControllerFactory {
                 dumpVolumes(writer, mCurrentCarContextVolume);
                 writer.println("mCarContextVolumeMax:");
                 dumpVolumes(writer, mCarContextVolumeMax);
-                writer.println("mCarContextVolumeMin:");
-                dumpVolumes(writer, mCarContextVolumeMin);
                 writer.println("Number of volume controllers:" +
                         mVolumeControllers.getRegisteredCallbackCount());
             }

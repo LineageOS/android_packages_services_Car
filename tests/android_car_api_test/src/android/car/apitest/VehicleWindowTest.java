@@ -16,32 +16,22 @@
 package android.car.apitest;
 
 import android.car.VehicleWindow;
+import android.hardware.vehicle.V2_0.VehicleAreaWindow;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
-
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 
 @SmallTest
 public class VehicleWindowTest extends AndroidTestCase {
 
     public void testMatchWithVehicleHal() {
-        assertEquals(VehicleNetworkConsts.VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD,
-                VehicleWindow.WINDOW_FRONT_WINDSHIELD);
-        assertEquals(VehicleNetworkConsts.VehicleWindow.VEHICLE_WINDOW_REAR_WINDSHIELD,
-                VehicleWindow.WINDOW_REAR_WINDSHIELD);
-        assertEquals(VehicleNetworkConsts.VehicleWindow.VEHICLE_WINDOW_ROOF_TOP,
-                VehicleWindow.WINDOW_ROOF_TOP);
-        assertEquals(VehicleNetworkConsts.VehicleWindow.VEHICLE_WINDOW_ROW_1_LEFT,
-                VehicleWindow.WINDOW_ROW_1_LEFT);
-        assertEquals(VehicleNetworkConsts.VehicleWindow.VEHICLE_WINDOW_ROW_1_RIGHT,
-                VehicleWindow.WINDOW_ROW_1_RIGHT);
-        assertEquals(VehicleNetworkConsts.VehicleWindow.VEHICLE_WINDOW_ROW_2_LEFT,
-                VehicleWindow.WINDOW_ROW_2_LEFT);
-        assertEquals(VehicleNetworkConsts.VehicleWindow.VEHICLE_WINDOW_ROW_2_RIGHT,
-                VehicleWindow.WINDOW_ROW_2_RIGHT);
-        assertEquals(VehicleNetworkConsts.VehicleWindow.VEHICLE_WINDOW_ROW_3_LEFT,
-                VehicleWindow.WINDOW_ROW_3_LEFT);
-        assertEquals(VehicleNetworkConsts.VehicleWindow.VEHICLE_WINDOW_ROW_3_RIGHT,
-                VehicleWindow.WINDOW_ROW_3_RIGHT);
+        assertEquals(VehicleAreaWindow.FRONT_WINDSHIELD, VehicleWindow.WINDOW_FRONT_WINDSHIELD);
+        assertEquals(VehicleAreaWindow.REAR_WINDSHIELD, VehicleWindow.WINDOW_REAR_WINDSHIELD);
+        assertEquals(VehicleAreaWindow.ROOF_TOP, VehicleWindow.WINDOW_ROOF_TOP);
+        assertEquals(VehicleAreaWindow.ROW_1_LEFT, VehicleWindow.WINDOW_ROW_1_LEFT);
+        assertEquals(VehicleAreaWindow.ROW_1_RIGHT, VehicleWindow.WINDOW_ROW_1_RIGHT);
+        assertEquals(VehicleAreaWindow.ROW_2_LEFT, VehicleWindow.WINDOW_ROW_2_LEFT);
+        assertEquals(VehicleAreaWindow.ROW_2_RIGHT, VehicleWindow.WINDOW_ROW_2_RIGHT);
+        assertEquals(VehicleAreaWindow.ROW_3_LEFT, VehicleWindow.WINDOW_ROW_3_LEFT);
+        assertEquals(VehicleAreaWindow.ROW_3_RIGHT, VehicleWindow.WINDOW_ROW_3_RIGHT);
     }
 }
