@@ -829,7 +829,7 @@ package android.support.car.ui {
     method public static int getTintColor(double, int, int...);
   }
 
-  public abstract class CursorRecyclerViewAdapter extends android.support.v7.widget.RecyclerView.Adapter {
+  public abstract class CursorRecyclerViewAdapter<VH extends android.support.v7.widget.RecyclerView.ViewHolder> extends android.support.v7.widget.RecyclerView.Adapter {
     ctor public CursorRecyclerViewAdapter(android.content.Context, android.database.Cursor);
     method public void changeCursor(android.database.Cursor);
     method public android.database.Cursor getCursor();
@@ -869,7 +869,7 @@ package android.support.car.ui {
     method public void setStrokeColor(int);
   }
 
-  public abstract class GroupingCursorRecyclerViewAdapter extends android.support.car.ui.CursorRecyclerViewAdapter {
+  public abstract class GroupingCursorRecyclerViewAdapter<VH extends android.support.v7.widget.RecyclerView.ViewHolder> extends android.support.car.ui.CursorRecyclerViewAdapter {
     ctor public GroupingCursorRecyclerViewAdapter(android.content.Context, android.database.Cursor);
     method protected void addGroup(int, int, boolean);
     method protected abstract void buildGroups(android.database.Cursor);
@@ -898,7 +898,7 @@ package android.support.car.ui {
     ctor public GroupingCursorRecyclerViewAdapter.PositionMetadata(int, int, android.support.car.ui.GroupingCursorRecyclerViewAdapter.GroupMetadata);
   }
 
-  public abstract class GroupingRecyclerViewAdapter extends android.support.v7.widget.RecyclerView.Adapter {
+  public abstract class GroupingRecyclerViewAdapter<E, VH extends android.support.v7.widget.RecyclerView.ViewHolder> extends android.support.v7.widget.RecyclerView.Adapter {
     ctor public GroupingRecyclerViewAdapter(android.content.Context);
     method protected void addGroup(int, int, boolean);
     method protected abstract void buildGroups(java.util.List<E>);
