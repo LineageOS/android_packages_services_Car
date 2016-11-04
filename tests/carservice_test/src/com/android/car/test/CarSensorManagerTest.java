@@ -176,7 +176,6 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         data = event.getNightData(data);
         assertFalse(data.isNightMode);
 
-
         // Unregister our handler (from all sensor types)
         mCarSensorManager.unregisterListener(listener);
 
@@ -200,11 +199,182 @@ public class CarSensorManagerTest extends MockedCarTestBase {
 
 
     /**
+     * Test senor multiple liseners notification registration, delivery and unregistration.
+     * @throws Exception
+     */
+    public void testEventsWithMultipleListeners() throws Exception {
+        // Set up our listeners callback
+        SensorListener listener1 = new SensorListener("1");
+        SensorListener listener2 = new SensorListener("2");
+        SensorListener listener3 = new SensorListener("3");
+
+        mCarSensorManager.registerListener(listener1,
+                CarSensorManager.SENSOR_TYPE_NIGHT,
+                CarSensorManager.SENSOR_RATE_NORMAL);
+
+        mCarSensorManager.registerListener(listener2,
+                CarSensorManager.SENSOR_TYPE_NIGHT,
+                CarSensorManager.SENSOR_RATE_NORMAL);
+
+        mCarSensorManager.registerListener(listener3,
+                CarSensorManager.SENSOR_TYPE_NIGHT,
+                CarSensorManager.SENSOR_RATE_FASTEST);
+
+        VehiclePropValue value = null;
+        CarSensorEvent.NightData data = null;
+        CarSensorEvent event = null;
+
+        // Consume any sensor events queued up on startup
+        while (listener1.waitForSensorChange()) {};
+
+        // Consume any sensor events queued up on startup
+        while (listener2.waitForSensorChange()) {};
+
+        // Consume any sensor events queued up on startup
+        while (listener3.waitForSensorChange()) {};
+
+        // Validate that no events are now pending
+        listener1.checkNoSensorChangePosted();
+
+        // Validate that no events are now pending
+        listener2.checkNoSensorChangePosted();
+
+        // Validate that no events are now pending
+        listener3.checkNoSensorChangePosted();
+
+        // Set the value TRUE and wait for the event to arrive
+        value = VehiclePropValueUtil.createBooleanValue(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_NIGHT_MODE, true, 1);
+        getVehicleHalEmulator().injectEvent(value);
+        assertTrue(listener1.waitForSensorChange());
+        assertTrue(listener2.waitForSensorChange());
+        assertTrue(listener3.waitForSensorChange());
+
+        // Validate that no events remain pending
+        listener1.checkNoSensorChangePosted();
+
+        // Validate that no events remain pending
+        listener2.checkNoSensorChangePosted();
+
+        // Validate that no events remain pending
+        listener3.checkNoSensorChangePosted();
+
+        // Ensure we got the expected event
+        assertEquals(listener1.getLastEvent().sensorType, CarSensorManager.SENSOR_TYPE_NIGHT);
+        assertEquals(listener2.getLastEvent().sensorType, CarSensorManager.SENSOR_TYPE_NIGHT);
+        assertEquals(listener3.getLastEvent().sensorType, CarSensorManager.SENSOR_TYPE_NIGHT);
+
+        // Ensure we got the expected value in our callback
+        data = listener1.getLastEvent().getNightData(data);
+        Log.d(TAG, "NightMode " + data.isNightMode + " at " + data.timestamp);
+        assertTrue(data.isNightMode);
+
+        data = listener2.getLastEvent().getNightData(data);
+        Log.d(TAG, "NightMode " + data.isNightMode + " at " + data.timestamp);
+        assertTrue(data.isNightMode);
+
+        data = listener3.getLastEvent().getNightData(data);
+        Log.d(TAG, "NightMode " + data.isNightMode + " at " + data.timestamp);
+        assertTrue(data.isNightMode);
+
+        // Ensure we have the expected value in the sensor manager's cache
+        event = mCarSensorManager.getLatestSensorEvent(CarSensorManager.SENSOR_TYPE_NIGHT);
+        data = event.getNightData(data);
+        assertEquals("Unexpected event timestamp", data.timestamp, 1);
+        assertTrue("Unexpected value", data.isNightMode);
+
+        // Set the value FALSE
+        value = VehiclePropValueUtil.createBooleanValue(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_NIGHT_MODE, false, 1001);
+        getVehicleHalEmulator().injectEvent(value);
+        assertTrue(listener1.waitForSensorChange());
+        assertTrue(listener2.waitForSensorChange());
+        assertTrue(listener3.waitForSensorChange());
+
+        // Validate that no events remain pending
+        listener1.checkNoSensorChangePosted();
+
+        // Validate that no events remain pending
+        listener2.checkNoSensorChangePosted();
+
+        // Validate that no events remain pending
+        listener3.checkNoSensorChangePosted();
+
+        // Ensure we got the expected event
+        assertEquals(listener1.getLastEvent().sensorType, CarSensorManager.SENSOR_TYPE_NIGHT);
+        assertEquals(listener2.getLastEvent().sensorType, CarSensorManager.SENSOR_TYPE_NIGHT);
+        assertEquals(listener3.getLastEvent().sensorType, CarSensorManager.SENSOR_TYPE_NIGHT);
+
+        // Ensure we got the expected value in our callback
+        data = listener1.getLastEvent().getNightData(data);
+        assertEquals("Unexpected event timestamp", data.timestamp, 1001);
+        assertFalse("Unexpected value", data.isNightMode);
+
+        data = listener2.getLastEvent().getNightData(data);
+        assertEquals("Unexpected event timestamp", data.timestamp, 1001);
+        assertFalse("Unexpected value", data.isNightMode);
+
+        data = listener3.getLastEvent().getNightData(data);
+        assertEquals("Unexpected event timestamp", data.timestamp, 1001);
+        assertFalse("Unexpected value", data.isNightMode);
+
+        // Ensure we have the expected value in the sensor manager's cache
+        event = mCarSensorManager.getLatestSensorEvent(CarSensorManager.SENSOR_TYPE_NIGHT);
+        data = event.getNightData(data);
+        assertFalse(data.isNightMode);
+
+        Log.d(TAG, "Unregistering listener3");
+        mCarSensorManager.unregisterListener(listener3);
+
+        Log.d(TAG, "Rate changed - expect sensor restart and change event sent.");
+        assertTrue(listener1.waitForSensorChange());
+        assertTrue(listener2.waitForSensorChange());
+        assertFalse(listener2.waitForSensorChange());
+
+        // Set the value TRUE again
+        value = VehiclePropValueUtil.createBooleanValue(
+                VehicleNetworkConsts.VEHICLE_PROPERTY_NIGHT_MODE, true, 2001);
+        listener1.checkNoSensorChangePosted();
+        listener2.checkNoSensorChangePosted();
+        listener3.checkNoSensorChangePosted();
+        getVehicleHalEmulator().injectEvent(value);
+
+        assertTrue(listener1.waitForSensorChange());
+        assertTrue(listener2.waitForSensorChange());
+
+        // Ensure we did not get a callback (should timeout)
+        Log.i(TAG, "waiting for unexpected callback -- should timeout.");
+        assertFalse(listener3.waitForSensorChange());
+
+        listener1.checkNoSensorChangePosted();
+        listener2.checkNoSensorChangePosted();
+        listener3.checkNoSensorChangePosted();
+
+        Log.d(TAG, "Unregistering listener2");
+        mCarSensorManager.unregisterListener(listener3);
+
+        Log.d(TAG, "Rate did nor change - dont expect sensor restart and change event sent.");
+        assertFalse(listener1.waitForSensorChange());
+        assertFalse(listener2.waitForSensorChange());
+        assertFalse(listener2.waitForSensorChange());
+    }
+
+
+    /**
      * Callback function we register for sensor update notifications.
      * This tracks the number of times it has been called via the mAvailable semaphore,
      * and keeps a reference to the most recent event delivered.
      */
     class SensorListener implements CarSensorManager.OnSensorChangedListener {
+        private final String mTag;
+
+        SensorListener(String tag) {
+            mTag = tag;
+        }
+
+        SensorListener() {
+            this("");
+        }
 
         // Initialize the semaphore with ZERO callback events indicated
         private Semaphore mAvailable = new Semaphore(0);
@@ -217,25 +387,26 @@ public class CarSensorManagerTest extends MockedCarTestBase {
 
         public void checkNoSensorChangePosted() {
             // Verify that no permits are available (ie: the callback has not fired)
-            assertEquals("No events expected at this point.", 0, mAvailable.availablePermits());
+            assertEquals("No events expected at this point for " + mTag + ".",
+                    0, mAvailable.availablePermits());
         }
 
         // Returns True to indicate receipt of a sensor event.  False indicates a timeout.
         public boolean waitForSensorChange() throws InterruptedException {
-            Log.i(TAG, "Waiting to for sensor update...");
+            Log.i(TAG, mTag + ":Waiting to for sensor update...");
 
             long startTime = System.currentTimeMillis();
             boolean result = mAvailable.tryAcquire(2L, TimeUnit.SECONDS);
             long duration  = System.currentTimeMillis() - startTime;
 
-            Log.d(TAG, "tryAcquire returned " + result + " in " + duration + "ms");
+            Log.d(TAG, mTag + ": tryAcquire returned " + result + " in " + duration + "ms");
 
             return result;
         }
 
         @Override
         public void onSensorChanged(CarSensorEvent event) {
-            Log.d(TAG, "onSensorChanged: " + event);
+            Log.d(TAG, mTag + ": onSensorChanged: " + event);
 
             // We're going to hold a reference to this object
             mLastEvent = event;

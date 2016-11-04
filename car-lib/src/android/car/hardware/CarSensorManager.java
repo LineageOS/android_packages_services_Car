@@ -35,10 +35,12 @@ import android.util.Log;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  *  API for monitoring car sensor data.
@@ -343,7 +345,6 @@ public final class CarSensorManager implements CarManagerBase {
      * Stop getting sensor update for the given listener. If there are multiple registrations for
      * this listener, all listening will be stopped.
      * @param listener
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public void unregisterListener(OnSensorChangedListener listener) {
         //TODO: removing listener should reset update rate, bug: 32060307
@@ -361,7 +362,6 @@ public final class CarSensorManager implements CarManagerBase {
      * for other sensors, those subscriptions will not be affected.
      * @param listener
      * @param sensorType
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
     public void unregisterListener(OnSensorChangedListener listener, @SensorType int sensorType) {
         synchronized(mActiveSensorListeners) {
@@ -373,8 +373,9 @@ public final class CarSensorManager implements CarManagerBase {
             Iterator<Integer> sensorIterator) {
         CarSensorListeners listeners = mActiveSensorListeners.get(sensor);
         if (listeners != null) {
+            boolean needsServerUpdate = false;
             if (listeners.contains(listener)) {
-                listeners.remove(listener);
+                needsServerUpdate = listeners.remove(listener);
             }
             if (listeners.isEmpty()) {
                 try {
@@ -387,6 +388,12 @@ public final class CarSensorManager implements CarManagerBase {
                     mActiveSensorListeners.remove(sensor);
                 } else {
                     sensorIterator.remove();
+                }
+            } else if (needsServerUpdate) {
+                try {
+                    registerOrUpdateSensorListener(sensor, listeners.getRate());
+                } catch (CarNotConnectedException e) {
+                    // ignore
                 }
             }
         }
@@ -468,8 +475,8 @@ public final class CarSensorManager implements CarManagerBase {
      * Represent listeners for a sensor.
      */
     private class CarSensorListeners {
-        private final LinkedList<OnSensorChangedListener> mListeners =
-                new LinkedList<OnSensorChangedListener>();
+        private final Map<OnSensorChangedListener, Integer> mListenersToRate =
+                new HashMap<>();
 
         private int mUpdateRate;
         private long mLastUpdateTime = -1;
@@ -479,15 +486,33 @@ public final class CarSensorManager implements CarManagerBase {
         }
 
         boolean contains(OnSensorChangedListener listener) {
-            return mListeners.contains(listener);
+            return mListenersToRate.containsKey(listener);
         }
 
-        void remove(OnSensorChangedListener listener) {
-            mListeners.remove(listener);
+        int getRate() {
+            return mUpdateRate;
+        }
+
+        /**
+         * Remove given listener from the list and update rate if necessary.
+         * @param listener.
+         * @return true if rate was updated. Otherwise, returns false.
+         */
+        boolean remove(OnSensorChangedListener listener) {
+            mListenersToRate.remove(listener);
+            if (mListenersToRate.isEmpty()) {
+                return false;
+            }
+            Integer updateRate = Collections.min(mListenersToRate.values());
+            if (updateRate != mUpdateRate) {
+                mUpdateRate = updateRate;
+                return true;
+            }
+            return false;
         }
 
         boolean isEmpty() {
-            return mListeners.isEmpty();
+            return mListenersToRate.isEmpty();
         }
 
         /**
@@ -497,12 +522,12 @@ public final class CarSensorManager implements CarManagerBase {
          * @return true if rate was updated. Otherwise, returns false.
          */
         boolean addAndUpdateRate(OnSensorChangedListener listener, int updateRate) {
-            if (!mListeners.contains(listener)) {
-                mListeners.add(listener);
-            }
+            Integer oldUpdateRate = mListenersToRate.put(listener, updateRate);
             if (mUpdateRate > updateRate) {
                 mUpdateRate = updateRate;
                 return true;
+            } else if (oldUpdateRate != null && oldUpdateRate == mUpdateRate) {
+                mUpdateRate = Collections.min(mListenersToRate.values());
             }
             return false;
         }
@@ -515,7 +540,7 @@ public final class CarSensorManager implements CarManagerBase {
                 return;
             }
             mLastUpdateTime = updateTime;
-            for (OnSensorChangedListener listener: mListeners) {
+            for (OnSensorChangedListener listener: mListenersToRate.keySet()) {
                 listener.onSensorChanged(event);
             }
         }
