@@ -15,8 +15,8 @@
  */
 package com.android.car;
 
+import android.app.ActivityManager;
 import android.app.ActivityManager.StackInfo;
-import android.app.ActivityManagerNative;
 import android.app.IActivityManager;
 import android.app.IProcessObserver;
 import android.app.TaskStackListener;
@@ -116,7 +116,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         mHandler = new ActivityMonitorHandler(mMonitorHandlerThread.getLooper());
         mProcessObserver = new ProcessObserver();
         mTaskListener = new TaskListener();
-        mAm = ActivityManagerNative.getDefault();
+        mAm = ActivityManager.getService();
         // Monitoring both listeners are necessary as there are cases where one listener cannot
         // monitor activity change.
         try {
