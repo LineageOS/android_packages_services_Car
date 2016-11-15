@@ -21,8 +21,6 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.support.car.content.pm.CarPackageManagerEmbedded;
 import android.support.car.hardware.CarSensorManagerEmbedded;
 import android.support.car.media.CarAudioManagerEmbedded;

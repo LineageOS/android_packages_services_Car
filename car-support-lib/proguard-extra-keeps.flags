@@ -1,0 +1,10 @@
+-keepattributes *Annotation*,InnerClasses,Exceptions
+
+-keep class android.support.car.CarServiceLoader {
+    public protected *;
+    class CarConnectionCallbackProxy;
+}
+
+-keep class android.support.car.CarServiceLoader$CarConnectionCallbackProxy {
+    *;
+}

@@ -22,12 +22,9 @@ LOCAL_PATH:= $(call my-dir)
 #Build prebuilt android.support.car library
 include $(CLEAR_VARS)
 
-LOCAL_AAPT_FLAGS := --auto-add-overlay \
-    --extra-packages android.support.v7.appcompat \
-    --extra-packages android.support.v7.recyclerview \
-    --extra-packages android.support.v7.cardview
-
+LOCAL_AAPT_FLAGS := --auto-add-overlay
 LOCAL_MODULE := android.support.car-prebuilt
+LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_RESOURCE_DIR += frameworks/support/v7/appcompat/res
@@ -38,22 +35,24 @@ LOCAL_SDK_VERSION := 24
 LOCAL_MANIFEST_FILE := AndroidManifest.xml
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
-
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
-                               android-support-v7-appcompat \
-                               android-support-v7-recyclerview \
-                               android-support-v7-cardview \
-                               android-support-annotations
-
-LOCAL_JAVA_LIBRARIES += android.car
-# Specify 1.7 for backwards compatibility.  
+LOCAL_JAVA_LIBRARIES += android.car\
+						android-support-v4 \
+                        android-support-v7-appcompat \
+                        android-support-v7-recyclerview \
+                        android-support-v7-cardview \
+                        android-support-annotations
+# Specify 1.7 for backwards compatibility.
 # Otherwise the lib won't be usable on pre-N devices
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7 
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+
+LOCAL_PROGUARD_ENABLED := custom optimization obfuscation
+LOCAL_PROGUARD_FLAGS := -dontwarn
+LOCAL_PROGUARD_FLAG_FILES := proguard-release.flags proguard-extra-keeps.flags
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 ifeq ($(BOARD_IS_AUTOMOTIVE), true)
-$(call dist-for-goals,dist_files,$(built_aar):android.support.car.aar)
+ $(call dist-for-goals,dist_files,$(built_aar):android.support.car.aar)
 endif
 
 # Build the resources.
@@ -103,10 +102,13 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # ---------------------------------------------
 car_module := $(LOCAL_MODULE)
 car_module_src_files := $(LOCAL_SRC_FILES)
+car_module_proguard_file := $(LOCAL_PATH)/proguard-release.flags
 car_module_api_dir := $(LOCAL_PATH)/api
 car_module_java_libraries := $(LOCAL_JAVA_LIBRARIES) $(LOCAL_STATIC_JAVA_LIBRARIES) framework
 car_module_java_packages := android.support.car*
+car_module_include_proguard := true
 include $(CAR_API_CHECK)
+
 
 # Generate offline docs
 #---------------------------------------------

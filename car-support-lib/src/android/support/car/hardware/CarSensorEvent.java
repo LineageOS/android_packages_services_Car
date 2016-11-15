@@ -72,7 +72,7 @@ public class CarSensorEvent {
 
     private static final long MILLI_IN_NANOS = 1000000L;
 
-    /** Sensor type for this event, such as {@link CarSensorManager#SENSOR_TYPE_CAR_SPEED}. */
+    /** Sensor type for this event, such as {@link CarSensorManager#SENSOR_TYPE_COMPASS}. */
     public final int sensorType;
 
     /**
@@ -571,6 +571,7 @@ public class CarSensorEvent {
      * with type {@link CarSensorManager#SENSOR_TYPE_FUEL_LEVEL}.
      *
      * @return A FuelLevel object corresponding to the data contained in the CarSensorEvent.
+     * @hide
      */
     public FuelLevelData getFuelLevelData() {
         checkType(CarSensorManager.SENSOR_TYPE_FUEL_LEVEL);
@@ -634,6 +635,7 @@ public class CarSensorEvent {
      * type {@link CarSensorManager#SENSOR_TYPE_RPM}.
      *
      * @return An RpmData object corresponding to the data contained in the CarSensorEvent.
+     * @hide
      */
     public RpmData getRpmData() {
         checkType(CarSensorManager.SENSOR_TYPE_RPM);
@@ -740,6 +742,7 @@ public class CarSensorEvent {
      *
      * @return An AccelerometerData object corresponding to the data contained in the
      * CarSensorEvent.
+     * @hide
      */
     public AccelerometerData getAccelerometerData() {
         checkType(CarSensorManager.SENSOR_TYPE_ACCELEROMETER);
@@ -775,6 +778,7 @@ public class CarSensorEvent {
      * with type {@link CarSensorManager#SENSOR_TYPE_GYROSCOPE}.
      *
      * @return A GyroscopeData object corresponding to the data contained in the CarSensorEvent.
+     * @hide
      */
     public GyroscopeData getGyroscopeData() {
         checkType(CarSensorManager.SENSOR_TYPE_GYROSCOPE);
