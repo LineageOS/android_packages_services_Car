@@ -60,6 +60,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     private static final boolean DBG = false;
 
     private final Context mContext;
+    private final InputHalService mInputHalService;
     private final TelecomManager mTelecomManager;
     private final InputManager mInputManager;
 
@@ -125,8 +126,9 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         }
     };
 
-    public CarInputService(Context context) {
+    public CarInputService(Context context, InputHalService inputHalService) {
         mContext = context;
+        mInputHalService = inputHalService;
         mTelecomManager = context.getSystemService(TelecomManager.class);
         mInputManager = context.getSystemService(InputManager.class);
     }
@@ -181,14 +183,13 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
 
     @Override
     public void init() {
-        InputHalService hal = VehicleHal.getInstance().getInputHal();
-        if (!hal.isKeyInputSupported()) {
+        if (!mInputHalService.isKeyInputSupported()) {
             Log.w(CarLog.TAG_INPUT, "Hal does not support key input.");
             return;
         }
 
 
-        hal.setInputListener(this);
+        mInputHalService.setInputListener(this);
         mCarInputListenerBound = bindCarInputService();
     }
 

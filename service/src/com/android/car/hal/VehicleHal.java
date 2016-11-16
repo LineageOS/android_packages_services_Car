@@ -16,6 +16,19 @@
 
 package com.android.car.hal;
 
+import static com.android.car.CarServiceUtils.toByteArray;
+import static com.android.car.CarServiceUtils.toFloatArray;
+import static com.android.car.CarServiceUtils.toIntArray;
+import static java.lang.Integer.toHexString;
+
+import android.annotation.CheckResult;
+import android.hardware.vehicle.V2_0.IVehicle;
+import android.hardware.vehicle.V2_0.IVehicleCallback;
+import android.hardware.vehicle.V2_0.VehicleAreaConfig;
+import android.hardware.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
+import android.hardware.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.os.HandlerThread;
 import android.os.SystemClock;
 import android.util.ArraySet;
@@ -23,23 +36,17 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
-import com.android.car.vehiclenetwork.VehicleNetwork;
-import com.android.car.vehiclenetwork.VehicleNetwork.VehicleNetworkListener;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropAccess;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehiclePropChangeMode;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfigs;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValues;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Abstraction for vehicle HAL. This class handles interface with native HAL and do basic parsing
@@ -47,39 +54,13 @@ import java.util.List;
  * implementation. It is responsibility of {@link HalServiceBase} to convert data to corresponding
  * Car*Service for Car*Manager API.
  */
-public class VehicleHal implements VehicleNetworkListener {
+public class VehicleHal extends IVehicleCallback.Stub {
 
     private static final boolean DBG = false;
 
-    static {
-        createInstance();
-    }
-
-    private static VehicleHal sInstance;
-
-    public static synchronized VehicleHal getInstance() {
-        if (sInstance == null) {
-            createInstance();
-        }
-        return sInstance;
-    }
-
-    private static synchronized void createInstance() {
-        sInstance = new VehicleHal();
-        // init is handled in a separate thread to prevent blocking the calling thread for too
-        // long.
-        sInstance.init();
-    }
-
-    public static synchronized void releaseInstance() {
-        if (sInstance != null) {
-            sInstance.release();
-            sInstance = null;
-        }
-    }
+    private static final int NO_AREA = -1;
 
     private final HandlerThread mHandlerThread;
-    private final VehicleNetwork mVehicleNetwork;
     private final SensorHalService mSensorHal;
     private final InfoHalService mInfoHal;
     private final AudioHalService mAudioHal;
@@ -89,16 +70,17 @@ public class VehicleHal implements VehicleNetworkListener {
     private final HvacHalService mHvacHal;
     private final InputHalService mInputHal;
     private final VendorExtensionHalService mVendorExtensionHal;
+    private final HalClient mHalClient;
 
     /** stores handler for each HAL property. Property events are sent to handler. */
-    private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<HalServiceBase>();
+    private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<>();
     /** This is for iterating all HalServices with fixed order. */
     private final HalServiceBase[] mAllServices;
-    private final ArraySet<Integer> mSubscribedProperties = new ArraySet<Integer>();
+    private final ArraySet<Integer> mSubscribedProperties = new ArraySet<>();
     private final HashMap<Integer, VehiclePropConfig> mAllProperties = new HashMap<>();
     private final HashMap<Integer, VehiclePropertyEventInfo> mEventLog = new HashMap<>();
 
-    private VehicleHal() {
+    public VehicleHal(IVehicle vehicle) {
         mHandlerThread = new HandlerThread("VEHICLE-HAL");
         mHandlerThread.start();
         // passing this should be safe as long as it is just kept and not used in constructor
@@ -109,7 +91,7 @@ public class VehicleHal implements VehicleNetworkListener {
         mCabinHal = new CabinHalService(this);
         mRadioHal = new RadioHalService(this);
         mHvacHal = new HvacHalService(this);
-        mInputHal = new InputHalService();
+        mInputHal = new InputHalService(this);
         mVendorExtensionHal = new VendorExtensionHalService(this);
         mAllServices = new HalServiceBase[] {
                 mPowerHal,
@@ -122,14 +104,15 @@ public class VehicleHal implements VehicleNetworkListener {
                 mInputHal,
                 mVendorExtensionHal
                 };
-        mVehicleNetwork = VehicleNetwork.createVehicleNetwork(this, mHandlerThread.getLooper());
+
+        mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(), this /*IVehicleCallback*/);
     }
 
     /** Dummy version only for testing */
     @VisibleForTesting
     public VehicleHal(PowerHalService powerHal, SensorHalService sensorHal, InfoHalService infoHal,
             AudioHalService audioHal, CabinHalService cabinHal, RadioHalService radioHal,
-            HvacHalService hvacHal, VehicleNetwork vehicleNetwork) {
+            HvacHalService hvacHal, HalClient halClient) {
         mHandlerThread = null;
         mPowerHal = powerHal;
         mSensorHal = sensorHal;
@@ -141,24 +124,21 @@ public class VehicleHal implements VehicleNetworkListener {
         mInputHal = null;
         mVendorExtensionHal = null;
         mAllServices = null;
-        mVehicleNetwork = vehicleNetwork;
+        mHalClient = halClient;
     }
 
     public void init() {
-        VehiclePropConfigs properties = mVehicleNetwork.listProperties();
-        // needs copy as getConfigsList gives unmodifiable one.
-        List<VehiclePropConfig> propertiesList =
-                new LinkedList<VehiclePropConfig>(properties.getConfigsList());
+        Set<VehiclePropConfig> properties = new HashSet<>(mHalClient.getAllPropConfigs());
 
         synchronized (this) {
             // Create map of all properties
-            for (VehiclePropConfig p : propertiesList) {
-                mAllProperties.put(p.getProp(), p);
+            for (VehiclePropConfig p : properties) {
+                mAllProperties.put(p.prop, p);
             }
         }
 
         for (HalServiceBase service: mAllServices) {
-            List<VehiclePropConfig> taken = service.takeSupportedProperties(propertiesList);
+            Collection<VehiclePropConfig> taken = service.takeSupportedProperties(properties);
             if (taken == null) {
                 continue;
             }
@@ -167,10 +147,10 @@ public class VehicleHal implements VehicleNetworkListener {
             }
             synchronized (this) {
                 for (VehiclePropConfig p: taken) {
-                    mPropertyHandlers.append(p.getProp(), service);
+                    mPropertyHandlers.append(p.prop, service);
                 }
             }
-            propertiesList.removeAll(taken);
+            properties.removeAll(taken);
             service.init();
         }
     }
@@ -182,7 +162,7 @@ public class VehicleHal implements VehicleNetworkListener {
         }
         synchronized (this) {
             for (int p : mSubscribedProperties) {
-                mVehicleNetwork.unsubscribe(p);
+                mHalClient.unsubscribe(p);
             }
             mSubscribedProperties.clear();
             mAllProperties.clear();
@@ -228,19 +208,20 @@ public class VehicleHal implements VehicleNetworkListener {
 
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {
         if (service != mPropertyHandlers.get(property)) {
-            throw new IllegalArgumentException("Property 0x" + Integer.toHexString(property)
+            throw new IllegalArgumentException("Property 0x" + toHexString(property)
                     + " is not owned by service: " + service);
         }
     }
 
     /**
      * Subscribe given property. Only Hal service owning the property can subscribe it.
-     * @param service
-     * @param property
-     * @param samplingRateHz
      */
     public void subscribeProperty(HalServiceBase service, int property,
             float samplingRateHz) throws IllegalArgumentException {
+        if (DBG) {
+            Log.i(CarLog.TAG_HAL, "subscribeProperty, service:" + service
+                    + ", property: 0x" + toHexString(property));
+        }
         VehiclePropConfig config;
         synchronized (this) {
             config = mAllProperties.get(property);
@@ -254,13 +235,17 @@ public class VehicleHal implements VehicleNetworkListener {
                 assertServiceOwnerLocked(service, property);
                 mSubscribedProperties.add(property);
             }
-            mVehicleNetwork.subscribe(property, samplingRateHz);
+            mHalClient.subscribe(property, samplingRateHz);
         } else {
             Log.e(CarLog.TAG_HAL, "Cannot subscribe to property: " + property);
         }
     }
 
     public void unsubscribeProperty(HalServiceBase service, int property) {
+        if (DBG) {
+            Log.i(CarLog.TAG_HAL, "unsubscribeProperty, service:" + service
+                    + ", property: 0x" + toHexString(property));
+        }
         VehiclePropConfig config;
         synchronized (this) {
             config = mAllProperties.get(property);
@@ -273,45 +258,116 @@ public class VehicleHal implements VehicleNetworkListener {
                 assertServiceOwnerLocked(service, property);
                 mSubscribedProperties.remove(property);
             }
-            mVehicleNetwork.unsubscribe(property);
+            mHalClient.unsubscribe(property);
         } else {
             Log.e(CarLog.TAG_HAL, "Cannot unsubscribe property: " + property);
         }
     }
 
-    public VehicleNetwork getVehicleNetwork() {
-        return mVehicleNetwork;
+    public boolean isPropertySupported(int propertyId) {
+        return mAllProperties.containsKey(propertyId);
     }
 
-    public static boolean isPropertySubscribable(VehiclePropConfig config) {
-        if ((config.getAccess() & VehiclePropAccess.VEHICLE_PROP_ACCESS_READ) == 0 ||
-                (config.getChangeMode() ==
-                VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_STATIC)) {
+    public Collection<VehiclePropConfig> getAllPropConfigs() {
+        return mAllProperties.values();
+    }
+
+    public VehiclePropValue get(int propertyId) throws PropertyTimeoutException {
+        return get(propertyId, NO_AREA);
+    }
+
+    public VehiclePropValue get(int propertyId, int areaId) throws PropertyTimeoutException {
+        Log.i(CarLog.TAG_HAL, "get, property: 0x" + toHexString(propertyId)
+                + ", areaId: 0x" + toHexString(areaId));
+        VehiclePropValue propValue = new VehiclePropValue();
+        propValue.prop = propertyId;
+        propValue.areaId = areaId;
+        return mHalClient.getValue(propValue);
+    }
+
+    public <T> T get(Class clazz, int propertyId) throws PropertyTimeoutException {
+        return get(clazz, createPropValue(propertyId, NO_AREA));
+    }
+
+    public <T> T get(Class clazz, int propertyId, int areaId) throws PropertyTimeoutException {
+        return get(clazz, createPropValue(propertyId, areaId));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T get(Class clazz, VehiclePropValue requestedPropValue)
+            throws PropertyTimeoutException {
+        VehiclePropValue propValue = mHalClient.getValue(requestedPropValue);
+        if (clazz == Integer.class || clazz == int.class) {
+            return (T) propValue.value.int32Values.get(0);
+        } else if (clazz == Boolean.class || clazz == boolean.class) {
+            return (T) Boolean.valueOf(propValue.value.int32Values.get(0) == 1);
+        } else if (clazz == Float.class || clazz == float.class) {
+            return (T) propValue.value.floatValues.get(0);
+        } else if (clazz == Integer[].class) {
+            Integer[] intArray = new Integer[propValue.value.int32Values.size()];
+            return (T) propValue.value.int32Values.toArray(intArray);
+        } else if (clazz == Float[].class) {
+            Float[] floatArray = new Float[propValue.value.floatValues.size()];
+            return (T) propValue.value.floatValues.toArray(floatArray);
+        } else if (clazz == int[].class) {
+            return (T) toIntArray(propValue.value.int32Values);
+        } else if (clazz == float[].class) {
+            return (T) toFloatArray(propValue.value.floatValues);
+        } else if (clazz == byte[].class) {
+            return (T) toByteArray(propValue.value.bytes);
+        } else if (clazz == String.class) {
+            return (T) propValue.value.stringValue;
+        } else {
+            throw new IllegalArgumentException("Unexpected type: " + clazz);
+        }
+    }
+
+    public VehiclePropValue get(VehiclePropValue requestedPropValue)
+            throws PropertyTimeoutException {
+        return mHalClient.getValue(requestedPropValue);
+    }
+
+    void set(VehiclePropValue propValue) throws PropertyTimeoutException {
+        mHalClient.setValue(propValue);
+    }
+
+    @CheckResult
+    VehiclePropValueSetter set(int propId) {
+        return new VehiclePropValueSetter(mHalClient, propId, NO_AREA);
+    }
+
+    @CheckResult
+    VehiclePropValueSetter set(int propId, int areaId) {
+        return new VehiclePropValueSetter(mHalClient, propId, areaId);
+    }
+
+    static boolean isPropertySubscribable(VehiclePropConfig config) {
+        if ((config.access & VehiclePropertyAccess.READ) == 0 ||
+                (config.changeMode == VehiclePropertyChangeMode.STATIC)) {
             return false;
         }
         return true;
     }
 
-    public static void dumpProperties(PrintWriter writer, Collection<VehiclePropConfig> configs) {
+    static void dumpProperties(PrintWriter writer, Collection<VehiclePropConfig> configs) {
         for (VehiclePropConfig config : configs) {
-            writer.println("property " +
-                    VehicleNetworkConsts.getVehiclePropertyName(config.getProp()));
+            writer.println(String.format("property 0x%x", config.prop));
         }
     }
 
-    private final ArraySet<HalServiceBase> mServicesToDispatch = new ArraySet<HalServiceBase>();
+    private final ArraySet<HalServiceBase> mServicesToDispatch = new ArraySet<>();
 
     @Override
-    public void onVehicleNetworkEvents(VehiclePropValues values) {
+    public void onPropertyEvent(ArrayList<VehiclePropValue> propValues) {
         synchronized (this) {
-            for (VehiclePropValue v : values.getValuesList()) {
-                HalServiceBase service = mPropertyHandlers.get(v.getProp());
+            for (VehiclePropValue v : propValues) {
+                HalServiceBase service = mPropertyHandlers.get(v.prop);
                 service.getDispatchList().add(v);
                 mServicesToDispatch.add(service);
-                VehiclePropertyEventInfo info = mEventLog.get(v.getProp());
+                VehiclePropertyEventInfo info = mEventLog.get(v.prop);
                 if (info == null) {
                     info = new VehiclePropertyEventInfo(v);
-                    mEventLog.put(v.getProp(), info);
+                    mEventLog.put(v.prop, info);
                 } else {
                     info.addNewEvent(v);
                 }
@@ -330,17 +386,10 @@ public class VehicleHal implements VehicleNetworkListener {
     }
 
     @Override
-    public void onHalError(int errorCode, int property, int operation) {
-        Log.e(CarLog.TAG_HAL, "onHalError, errorCode:" + errorCode +
-                " property:0x" + Integer.toHexString(property) +
-                " operation:" + operation);
+    public void onPropertySetError(int errorCode, int propId, int areaId) {
+        Log.e(CarLog.TAG_HAL, String.format("onPropertySetError, errorCode: %d, prop: 0x%x, "
+                + "area: 0x%x", errorCode, propId, areaId));
         // TODO propagate per property error to HAL services and handle global error, bug:32068464
-    }
-
-    @Override
-    public void onHalRestart(boolean inMocking) {
-        Log.e(CarLog.TAG_HAL, "onHalRestart, inMocking:" + inMocking);
-        // TODO restart things as other components started mocking. For now, ignore., bug:32068464
     }
 
     public void dump(PrintWriter writer) {
@@ -354,30 +403,26 @@ public class VehicleHal implements VehicleNetworkListener {
             configList = new ArrayList<>(mAllProperties.values());
         }
 
+
         writer.println("**All properties**");
         for (VehiclePropConfig config : configList) {
-            StringBuilder builder = new StringBuilder();
-            builder.append("Property:0x").append(Integer.toHexString(config.getProp()));
-            builder.append(",access:0x" + Integer.toHexString(config.getAccess()));
-            builder.append(",changeMode:0x" + Integer.toHexString(config.getChangeMode()));
-            builder.append(",valueType:0x" + Integer.toHexString(config.getValueType()));
-            builder.append(",permission:0x" + Integer.toHexString(config.getPermissionModel()));
-            builder.append(",zone:0x" + Integer.toHexString(
-                config.hasZones() ? config.getZones() : 0));
-            builder.append(",config:0x" + Integer.toHexString(config.getConfigArray(0)));
-            builder.append(",fs min:" + config.getSampleRateMin());
-            builder.append(",fs max:").append(config.getSampleRateMax());
-            for (int i = 0; i < config.getFloatMaxsCount(); i++) {
-                builder.append(",v min:" + config.getFloatMins(i));
-                builder.append(",v max:" + config.getFloatMaxs(i));
-            }
-            for (int i = 0; i < config.getInt32MaxsCount(); i++) {
-                builder.append(",v min:" + config.getInt32Mins(i));
-                builder.append(",v max:" + config.getInt32Maxs(i));
-            }
-            for (int i = 0; i < config.getInt64MaxsCount(); i++) {
-                builder.append(",v min:" + config.getInt64Mins(i));
-                builder.append(",v max:" + config.getInt64Maxs(i));
+            StringBuilder builder = new StringBuilder()
+                    .append("Property:0x").append(toHexString(config.prop))
+                    .append(",access:0x").append(toHexString(config.access))
+                    .append(",changeMode:0x").append(toHexString(config.changeMode))
+                    .append(",permission:0x").append(toHexString(config.permissionModel))
+                    .append(",areas:0x").append(toHexString(config.supportedAreas))
+                    .append(",config:0x").append(Arrays.toString(config.configArray.toArray()))
+                    .append(",fs min:").append(config.minSampleRate)
+                    .append(",fs max:").append(config.maxSampleRate);
+            for (VehicleAreaConfig area : config.areaConfigs) {
+                builder.append(",areaId :").append(toHexString(area.areaId))
+                        .append(",f min:").append(area.minFloatValue)
+                        .append(",f max:").append(area.maxFloatValue)
+                        .append(",i min:").append(area.minInt32Value)
+                        .append(",i max:").append(area.maxInt32Value)
+                        .append(",i64 min:").append(area.minInt64Value)
+                        .append(",i64 max:").append(area.maxInt64Value);
             }
             writer.println(builder.toString());
         }
@@ -396,35 +441,6 @@ public class VehicleHal implements VehicleNetworkListener {
         }
     }
 
-    public static String dumpVehiclePropValue(VehiclePropValue value) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Property:0x" + Integer.toHexString(value.getProp()));
-        sb.append(",timestamp:" + value.getTimestamp());
-        sb.append(",value type:0x" + Integer.toHexString(value.getValueType()));
-        sb.append(",zone:0x" + Integer.toHexString(value.getZone()));
-        if (value.getInt32ValuesCount() > 0) {
-            sb.append(",int32 values:");
-            for (int i = 0; i < value.getInt32ValuesCount(); i++) {
-                sb.append("," + value.getInt32Values(i));
-            }
-        }
-        if (value.hasInt64Value()) {
-            sb.append(",int64 value:" + value.getInt64Value());
-        }
-        if (value.getFloatValuesCount() > 0) {
-            sb.append(",float values:");
-            for (int i = 0; i < value.getFloatValuesCount(); i++) {
-                sb.append("," + value.getFloatValues(i));
-            }
-        }
-        if (value.hasStringValue()) {
-            sb.append(",string value:" + value.getStringValue());
-        }
-        if (value.hasBytesValue()) {
-            sb.append(",bytes value:" + value.getBytesValue());
-        }
-        return sb.toString();
-    }
     private static class VehiclePropertyEventInfo {
         private int eventCount;
         private VehiclePropValue lastEvent;
@@ -438,5 +454,77 @@ public class VehicleHal implements VehicleNetworkListener {
             eventCount++;
             lastEvent = event;
         }
+    }
+
+    final class VehiclePropValueSetter {
+        final WeakReference<HalClient> mClient;
+        final VehiclePropValue mPropValue;
+
+        private VehiclePropValueSetter(HalClient client, int propId, int areaId) {
+            mClient = new WeakReference<>(client);
+            mPropValue = new VehiclePropValue();
+            mPropValue.prop = propId;
+            mPropValue.areaId = areaId;
+        }
+
+        void to(boolean value) throws PropertyTimeoutException {
+            to(value ? 1 : 0);
+        }
+
+        void to(int value) throws PropertyTimeoutException {
+            mPropValue.value.int32Values.add(value);
+            submit();
+        }
+
+        void to(int[] values) throws PropertyTimeoutException {
+            for (int value : values) {
+                mPropValue.value.int32Values.add(value);
+            }
+            submit();
+        }
+
+        void to(Collection<Integer> values) throws PropertyTimeoutException {
+            mPropValue.value.int32Values.addAll(values);
+            submit();
+        }
+
+        void submit() throws PropertyTimeoutException {
+            HalClient client =  mClient.get();
+            if (client != null) {
+                Log.i(CarLog.TAG_HAL, "set, property: 0x" + toHexString(mPropValue.prop)
+                        + ", areaId: 0x" + toHexString(mPropValue.areaId));
+                client.setValue(mPropValue);
+            }
+        }
+    }
+
+    private static String dumpVehiclePropValue(VehiclePropValue value) {
+        final int MAX_BYTE_SIZE = 20;
+
+        StringBuilder sb = new StringBuilder()
+                .append("Property:0x").append(toHexString(value.prop))
+                .append(",timestamp:").append(value.timestamp)
+                .append(",zone:0x").append(toHexString(value.areaId))
+                .append(",floatValues: ").append(Arrays.toString(value.value.floatValues.toArray()))
+                .append(",int32Values: ").append(Arrays.toString(value.value.int32Values.toArray()))
+                .append(",int64Values: ")
+                .append(Arrays.toString(value.value.int64Values.toArray()));
+
+        if (value.value.bytes.size() > MAX_BYTE_SIZE) {
+            Object[] bytes = Arrays.copyOf(value.value.bytes.toArray(), MAX_BYTE_SIZE);
+            sb.append(",bytes: ").append(Arrays.toString(bytes));
+        } else {
+            sb.append(",bytes: ").append(Arrays.toString(value.value.bytes.toArray()));
+        }
+        sb.append(",string: ").append(value.value.stringValue);
+
+        return sb.toString();
+    }
+
+    private static VehiclePropValue createPropValue(int propId, int areaId) {
+        VehiclePropValue propValue = new VehiclePropValue();
+        propValue.prop = propId;
+        propValue.areaId = areaId;
+        return propValue;
     }
 }

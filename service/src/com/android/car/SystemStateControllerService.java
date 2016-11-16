@@ -33,9 +33,9 @@ public class SystemStateControllerService implements CarServiceBase,
     private final boolean mLockWhenMuting;
 
     public SystemStateControllerService(Context context,
-            CarPowerManagementService carPowerManagementSercvice,
+            CarPowerManagementService carPowerManagementService,
             CarAudioService carAudioService, ICarImpl carImpl) {
-        mCarPowerManagementService = carPowerManagementSercvice;
+        mCarPowerManagementService = carPowerManagementService;
         mCarAudioService = carAudioService;
         mICarImpl = carImpl;
         Resources res = context.getResources();
@@ -51,16 +51,12 @@ public class SystemStateControllerService implements CarServiceBase,
     @Override
     public void onPowerOn(boolean displayOn) {
         if (displayOn) {
-            if (!mICarImpl.isInMocking()) {
-                Log.i(CarLog.TAG_SYS, "Media unmute");
-                mCarAudioService.unMuteMedia();
-            }
+            Log.i(CarLog.TAG_SYS, "Media unmute");
+            mCarAudioService.unMuteMedia();
         } else {
-            if (!mICarImpl.isInMocking()) { // do not do this in mocking as it can affect test.
-                Log.i(CarLog.TAG_SYS, "Media mute");
-                mCarAudioService.muteMediaWithLock(mLockWhenMuting);
-                //TODO store last context and resume or silence radio on display on. bug: 32096079
-            }
+            Log.i(CarLog.TAG_SYS, "Media mute");
+            mCarAudioService.muteMediaWithLock(mLockWhenMuting);
+            //TODO store last context and resume or silence radio on display on. bug: 32096079
         }
     }
 

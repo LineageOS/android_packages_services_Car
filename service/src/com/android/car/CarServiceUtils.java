@@ -16,16 +16,15 @@
 
 package com.android.car;
 
-import java.util.List;
-
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+
+import java.util.List;
 
 /** Utility class */
 public final class CarServiceUtils {
@@ -153,6 +152,15 @@ public final class CarServiceUtils {
     public static int[] toIntArray(List<Integer> list) {
         final int size = list.size();
         final int[] array = new int[size];
+        for (int i = 0; i < size; ++i) {
+            array[i] = list.get(i);
+        }
+        return array;
+    }
+
+    public static byte[] toByteArray(List<Byte> list) {
+        final int size = list.size();
+        final byte[] array = new byte[size];
         for (int i = 0; i < size; ++i) {
             array[i] = list.get(i);
         }

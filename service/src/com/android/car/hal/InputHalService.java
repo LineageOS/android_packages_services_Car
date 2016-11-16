@@ -15,6 +15,12 @@
  */
 package com.android.car.hal;
 
+import static android.hardware.vehicle.V2_0.VehicleProperty.HW_KEY_INPUT;
+
+import android.hardware.vehicle.V2_0.VehicleDisplay;
+import android.hardware.vehicle.V2_0.VehicleHwKeyInputAction;
+import android.hardware.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.vehicle.V2_0.VehiclePropValue;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseLongArray;
@@ -22,21 +28,17 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 
 import com.android.car.CarLog;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleDisplay;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleHwKeyInputAction;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 public class InputHalService extends HalServiceBase {
 
-    public static final int DISPLAY_MAIN = VehicleDisplay.VEHICLE_DISPLAY_MAIN;
-    public static final int DISPLAY_INSTRUMENT_CLUSTER =
-            VehicleDisplay.VEHICLE_DISPLAY_INSTRUMENT_CLUSTER;
+    public static final int DISPLAY_MAIN = VehicleDisplay.MAIN;
+    public static final int DISPLAY_INSTRUMENT_CLUSTER = VehicleDisplay.INSTRUMENT_CLUSTER;
+    private final VehicleHal mHal;
 
     public interface InputListener {
         void onKeyEvent(KeyEvent event, int targetDisplay);
@@ -48,6 +50,10 @@ public class InputHalService extends HalServiceBase {
     private InputListener mListener;
     private final SparseLongArray mKeyDownTimes = new SparseLongArray();
 
+    public InputHalService(VehicleHal hal) {
+        mHal = hal;
+    }
+
     public void setInputListener(InputListener listener) {
         synchronized (this) {
             if (!mKeyInputSupported) {
@@ -56,8 +62,7 @@ public class InputHalService extends HalServiceBase {
             }
             mListener = listener;
         }
-        VehicleHal.getInstance().subscribeProperty(this,
-                VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT, 0);
+        mHal.subscribeProperty(this, HW_KEY_INPUT, 0);
     }
 
     public synchronized boolean isKeyInputSupported() {
@@ -77,10 +82,11 @@ public class InputHalService extends HalServiceBase {
     }
 
     @Override
-    public List<VehiclePropConfig> takeSupportedProperties(List<VehiclePropConfig> allProperties) {
-        List<VehiclePropConfig> supported = new LinkedList<VehiclePropConfig>();
+    public Collection<VehiclePropConfig> takeSupportedProperties(
+            Collection<VehiclePropConfig> allProperties) {
+        List<VehiclePropConfig> supported = new LinkedList<>();
         for (VehiclePropConfig p: allProperties) {
-            if (p.getProp() == VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT) {
+            if (p.prop == HW_KEY_INPUT) {
                 supported.add(p);
                 synchronized (this) {
                     mKeyInputSupported = true;
@@ -92,7 +98,7 @@ public class InputHalService extends HalServiceBase {
 
     @Override
     public void handleHalEvents(List<VehiclePropValue> values) {
-        InputListener listener = null;
+        InputListener listener;
         synchronized (this) {
             listener = mListener;
         }
@@ -101,19 +107,18 @@ public class InputHalService extends HalServiceBase {
             return;
         }
         for (VehiclePropValue v : values) {
-            if (v.getProp() != VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT) {
+            if (v.prop != HW_KEY_INPUT) {
                 Log.e(CarLog.TAG_INPUT, "Wrong event dispatched, prop:0x" +
-                        Integer.toHexString(v.getProp()));
+                        Integer.toHexString(v.prop));
                 continue;
             }
-            int action = (v.getInt32Values(0) ==
-                    VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_DOWN) ?
+            int action = (v.value.int32Values.get(0) == VehicleHwKeyInputAction.ACTION_DOWN) ?
                             KeyEvent.ACTION_DOWN : KeyEvent.ACTION_UP;
-            int code = v.getInt32Values(1);
-            int display = v.getInt32Values(2);
+            int code = v.value.int32Values.get(1);
+            int display = v.value.int32Values.get(2);
             if (DBG) {
-                Log.i(CarLog.TAG_INPUT, "hal event code:" + code + ",action:" + action +
-                        ",display:" + display);
+                Log.i(CarLog.TAG_INPUT, "hal event code:" + code + ", action:" + action +
+                        ", display:" + display);
             }
 
             dispatchKeyEvent(listener, action, code, display);

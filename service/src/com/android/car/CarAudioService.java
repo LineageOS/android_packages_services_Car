@@ -171,8 +171,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             CarAudioAttributesUtil.getAudioAttributesForCarUsage(
                     CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY);
 
-    public CarAudioService(Context context, CarInputService inputService) {
-        mAudioHal = VehicleHal.getInstance().getAudioHal();
+    public CarAudioService(Context context, AudioHalService audioHal,
+            CarInputService inputService) {
+        mAudioHal = audioHal;
         mContext = context;
         mFocusHandlerThread = new HandlerThread(CarLog.TAG_AUDIO);
         mSystemFocusListener = new SystemFocusListener();
@@ -221,10 +222,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         AudioPolicy audioPolicy = null;
         if (isFocusSupported || mUseDynamicRouting) {
             audioPolicy = builder.build();
-            int r = mAudioManager.registerAudioPolicy(audioPolicy);
-            if (r != 0) {
-                throw new RuntimeException("registerAudioPolicy failed " + r);
-            }
         }
         mAudioHal.setFocusListener(this);
         mAudioHal.setAudioRoutingPolicy(audioRoutingPolicy);
@@ -287,6 +284,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             Arrays.fill(mExternalRoutings, 0);
         }
         mVolumeService.init();
+
+        // Register audio policy only after this class is fully initialized.
+        int r = mAudioManager.registerAudioPolicy(audioPolicy);
+        if (r != 0) {
+            throw new RuntimeException("registerAudioPolicy failed " + r);
+        }
     }
 
     private void setupDynamicRouting(AudioRoutingPolicy audioRoutingPolicy,

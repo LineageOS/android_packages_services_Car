@@ -17,41 +17,24 @@ package com.google.android.car.kitchensink.input;
 
 import android.annotation.Nullable;
 import android.annotation.StringRes;
-import android.car.Car;
-import android.car.CarNotConnectedException;
-import android.car.test.CarTestManager;
-import android.car.test.CarTestManagerBinderWrapper;
-import android.content.ComponentName;
-import android.content.ServiceConnection;
+import android.hardware.vehicle.V2_0.VehicleHwKeyInputAction;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.google.android.car.kitchensink.CarEmulator;
 import com.google.android.car.kitchensink.R;
-
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleHwKeyInputAction;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleHwKeyInputAction;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
-
-import com.google.android.car.kitchensink.R;
 
 /**
  * Test input event handling to system.
@@ -63,9 +46,9 @@ public class InputTestFragment extends Fragment {
 
     private static final Button BREAK_LINE = null;
 
-    private Car mCar;
-    private CarTestManager mTestManager;
     private final List<View> mButtons = new ArrayList<>();
+
+    private CarEmulator mCarEmulator;
 
     @Nullable
     @Override
@@ -93,35 +76,9 @@ public class InputTestFragment extends Fragment {
                 createButton(R.string.call_end, KeyEvent.KEYCODE_ENDCALL)
                 );
 
+        mCarEmulator = CarEmulator.create(getContext());
         addButtonsToPanel((LinearLayout) view.findViewById(R.id.input_buttons), mButtons);
 
-        mCar = Car.createCar(getContext(), new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                try {
-                    mTestManager = new CarTestManager(
-                            (CarTestManagerBinderWrapper) mCar.getCarManager(Car.TEST_SERVICE));
-                } catch (CarNotConnectedException e) {
-                    throw new RuntimeException("Failed to create test service manager", e);
-                }
-                boolean hwKeySupported = mTestManager.isPropertySupported(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT);
-                if (!hwKeySupported) {
-                    Log.w(TAG, "VEHICLE_PROPERTY_HW_KEY_INPUT not supported");
-                }
-
-                for (View v : mButtons) {
-                    if (v != null) {
-                        v.setEnabled(hwKeySupported);
-                    }
-                }
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        });
-        mCar.connect();
         return view;
     }
 
@@ -139,50 +96,32 @@ public class InputTestFragment extends Fragment {
         return button;
     }
 
-    private void checkHwKeyInputSupported() {
-        boolean hwKeyInputSupported = mTestManager.isPropertySupported(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT);
-        if (!hwKeyInputSupported) {
-            Log.w(TAG, "VEHICLE_PROPERTY_HW_KEY_INPUT not supported");
-        }
-
-        for (View v : mButtons) {
-            if (v != null) {
-                v.setEnabled(hwKeyInputSupported);
-            }
-        }
-    }
-
     private void handleTouchEvent(MotionEvent event, int keyCode) {
-        int action = event.getActionMasked();
-        Log.i(TAG, "handleTouchEvent, action:" + action + ",keyCode:" + keyCode);
-        boolean shouldInject = false;
-        boolean isDown = false;
-        if (action == MotionEvent.ACTION_DOWN) {
-            shouldInject = true;
-            isDown = true;
-        } else if (action == MotionEvent.ACTION_UP) {
-            shouldInject = true;
-        }
-        if (shouldInject) {
-            int[] values = { isDown ? VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_DOWN :
-                VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_UP, keyCode, 0, 0 };
-            long now = SystemClock.elapsedRealtimeNanos();
-            mTestManager.injectEvent(VehiclePropValueUtil.createIntVectorValue(
-                    VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT, values, now));
+        int androidAction = event.getActionMasked();
+        Log.i(TAG, "handleTouchEvent, action:" + androidAction + ",keyCode:" + keyCode);
+
+        switch (androidAction) {
+            case MotionEvent.ACTION_DOWN:
+                mCarEmulator.injectKey(keyCode, VehicleHwKeyInputAction.ACTION_DOWN);
+                break;
+            case MotionEvent.ACTION_UP:
+                mCarEmulator.injectKey(keyCode, VehicleHwKeyInputAction.ACTION_UP);
+                break;
+            default:
+                Log.w(TAG, "Unhandled touch action: " + androidAction);
+                break;
         }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mCar.disconnect();
     }
 
     private void addButtonsToPanel(LinearLayout root, List<View> buttons) {
         LinearLayout panel = null;
         for (View button : buttons) {
-            if (button == BREAK_LINE) {
+            if (button == BREAK_LINE || panel == null) {
                 panel = new LinearLayout(getContext());
                 panel.setOrientation(LinearLayout.HORIZONTAL);
                 root.addView(panel);

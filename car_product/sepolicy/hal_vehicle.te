@@ -1,0 +1,13 @@
+# vehicle subsystem
+type hal_vehicle, domain;
+type hal_vehicle_exec, exec_type, file_type;
+
+# hwbinder access
+hwbinder_use(hal_vehicle)
+
+allow hal_vehicle system_app:binder { call };
+allow hal_vehicle priv_app:binder { call };
+allow hal_vehicle car_service:service_manager { add };
+
+# may be started by init
+init_daemon_domain(hal_vehicle)

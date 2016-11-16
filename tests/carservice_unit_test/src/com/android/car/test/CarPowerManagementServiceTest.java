@@ -24,6 +24,7 @@ import com.android.car.CarPowerManagementService.PowerEventProcessingHandler;
 import com.android.car.CarPowerManagementService.PowerServiceEventListener;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
+import com.android.car.SystemInterface;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -32,8 +33,9 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     private static final String TAG = CarPowerManagementServiceTest.class.getSimpleName();
     private static final long WAIT_TIMEOUT_MS = 2000;
     private static final long WAIT_TIMEOUT_LONG_MS = 5000;
+
     private MockedPowerHalService mPowerHal;
-    private SystemIntefaceImpl mSystemInterface;
+    private SystemInterfaceImpl mSystemInterface;
     private CarPowerManagementService mService;
     private final PowerEventListener mPowerEventListener = new PowerEventListener();
     private PowerEventProcessingHandlerImpl mPowerEventProcessingHandler;
@@ -43,7 +45,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         super.setUp();
         mPowerHal = new MockedPowerHalService(true /*isPowerStateSupported*/,
                 true /*isDeepSleepAllowed*/, true /*isTimedWakeupAllowed*/);
-        mSystemInterface = new SystemIntefaceImpl();
+        mSystemInterface = new SystemInterfaceImpl();
     }
 
     @Override
@@ -55,7 +57,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     }
 
     public void testBootComplete() throws Exception {
-        mService = new CarPowerManagementService(getContext(), mPowerHal, mSystemInterface);
+        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
         mService.init();
         mService.registerPowerEventListener(mPowerEventListener);
         mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(0, 0);
@@ -65,7 +67,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     }
 
     public void testDisplayOff() throws Exception {
-        mService = new CarPowerManagementService(getContext(), mPowerHal, mSystemInterface);
+        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
         mService.init();
         mService.registerPowerEventListener(mPowerEventListener);
         mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(0, 0);
@@ -82,7 +84,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         // start with display off
         mSystemInterface.setDisplayState(false);
         mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS);
-        mService = new CarPowerManagementService(getContext(), mPowerHal, mSystemInterface);
+        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
         mService.init();
         mService.registerPowerEventListener(mPowerEventListener);
         mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(0, 0);
@@ -96,7 +98,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
 
     public void testShutdown() throws Exception {
         final int wakeupTime = 100;
-        mService = new CarPowerManagementService(getContext(), mPowerHal, mSystemInterface);
+        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
         mService.init();
         mService.registerPowerEventListener(mPowerEventListener);
         mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(0, wakeupTime);
@@ -116,7 +118,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     public void testShutdownWithProcessing() throws Exception {
         final long processingTimeMs = 3000;
         final int wakeupTime = 100;
-        mService = new CarPowerManagementService(getContext(), mPowerHal, mSystemInterface);
+        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
         mService.init();
         mService.registerPowerEventListener(mPowerEventListener);
         mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(processingTimeMs,
@@ -137,7 +139,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
 
     public void testSleepEntryAndWakeup() throws Exception {
         final int wakeupTime = 100;
-        mService = new CarPowerManagementService(getContext(), mPowerHal, mSystemInterface);
+        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
         mService.init();
         mService.registerPowerEventListener(mPowerEventListener);
         mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(0, wakeupTime);
@@ -161,7 +163,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     public void testSleepEntryAndPowerOnWithProcessing() throws Exception {
         final long processingTimeMs = 3000;
         final int wakeupTime = 100;
-        mService = new CarPowerManagementService(getContext(), mPowerHal, mSystemInterface);
+        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
         mService.init();
         mService.registerPowerEventListener(mPowerEventListener);
         mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(processingTimeMs,
@@ -191,7 +193,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     public void testSleepEntryAndWakeUpForProcessing() throws Exception {
         final long processingTimeMs = 3000;
         final int wakeupTime = 100;
-        mService = new CarPowerManagementService(getContext(), mPowerHal, mSystemInterface);
+        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
         mService.init();
         mService.registerPowerEventListener(mPowerEventListener);
         mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(processingTimeMs,
@@ -257,7 +259,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         }
     }
 
-    private class SystemIntefaceImpl implements CarPowerManagementService.SystemInteface {
+    private static class SystemInterfaceImpl extends SystemInterface {
 
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
@@ -269,7 +271,6 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
 
         @Override
         public synchronized void setDisplayState(boolean on) {
-            Log.i(TAG, "SystemIntefaceImpl.setDisplayState " + on);
             mDisplayOn = on;
             mDisplayStateWait.release();
         }

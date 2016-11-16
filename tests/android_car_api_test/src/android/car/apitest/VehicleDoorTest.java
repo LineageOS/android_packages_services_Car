@@ -16,28 +16,21 @@
 package android.car.apitest;
 
 import android.car.VehicleDoor;
+import android.hardware.vehicle.V2_0.VehicleAreaDoor;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
-
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
 
 @SmallTest
 public class VehicleDoorTest extends AndroidTestCase {
 
     public void testMatchWithVehicleHal() {
-        assertEquals(VehicleNetworkConsts.VehicleDoor.VEHICLE_DOOR_HOOD, VehicleDoor.DOOR_HOOD);
-        assertEquals(VehicleNetworkConsts.VehicleDoor.VEHICLE_DOOR_REAR, VehicleDoor.DOOR_REAR);
-        assertEquals(VehicleNetworkConsts.VehicleDoor.VEHICLE_DOOR_ROW_1_LEFT,
-                VehicleDoor.DOOR_ROW_1_LEFT);
-        assertEquals(VehicleNetworkConsts.VehicleDoor.VEHICLE_DOOR_ROW_1_RIGHT,
-                VehicleDoor.DOOR_ROW_1_RIGHT);
-        assertEquals(VehicleNetworkConsts.VehicleDoor.VEHICLE_DOOR_ROW_2_LEFT,
-                VehicleDoor.DOOR_ROW_2_LEFT);
-        assertEquals(VehicleNetworkConsts.VehicleDoor.VEHICLE_DOOR_ROW_2_RIGHT,
-                VehicleDoor.DOOR_ROW_2_RIGHT);
-        assertEquals(VehicleNetworkConsts.VehicleDoor.VEHICLE_DOOR_ROW_3_LEFT,
-                VehicleDoor.DOOR_ROW_3_LEFT);
-        assertEquals(VehicleNetworkConsts.VehicleDoor.VEHICLE_DOOR_ROW_3_RIGHT,
-                VehicleDoor.DOOR_ROW_3_RIGHT);
+        assertEquals(VehicleAreaDoor.HOOD, VehicleDoor.DOOR_HOOD);
+        assertEquals(VehicleAreaDoor.REAR, VehicleDoor.DOOR_REAR);
+        assertEquals(VehicleAreaDoor.ROW_1_LEFT, VehicleDoor.DOOR_ROW_1_LEFT);
+        assertEquals(VehicleAreaDoor.ROW_1_RIGHT, VehicleDoor.DOOR_ROW_1_RIGHT);
+        assertEquals(VehicleAreaDoor.ROW_2_LEFT, VehicleDoor.DOOR_ROW_2_LEFT);
+        assertEquals(VehicleAreaDoor.ROW_2_RIGHT, VehicleDoor.DOOR_ROW_2_RIGHT);
+        assertEquals(VehicleAreaDoor.ROW_3_LEFT, VehicleDoor.DOOR_ROW_3_LEFT);
+        assertEquals(VehicleAreaDoor.ROW_3_RIGHT, VehicleDoor.DOOR_ROW_3_RIGHT);
     }
 }

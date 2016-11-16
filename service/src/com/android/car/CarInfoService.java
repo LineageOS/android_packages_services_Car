@@ -17,26 +17,21 @@ package com.android.car;
 
 import android.car.CarInfoManager;
 import android.car.ICarInfo;
-import android.car.annotation.ValueTypeDef;
 import android.content.Context;
 import android.os.Bundle;
 import android.provider.Settings;
 
 import com.android.car.hal.InfoHalService;
-import com.android.car.hal.VehicleHal;
 
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 
 public class CarInfoService extends ICarInfo.Stub implements CarServiceBase {
 
     private final InfoHalService mInfoHal;
     private final Context mContext;
 
-    public CarInfoService(Context context) {
-        mInfoHal = VehicleHal.getInstance().getInfoHal();
+    public CarInfoService(Context context, InfoHalService infoHal) {
+        mInfoHal = infoHal;
         mContext = context;
     }
 

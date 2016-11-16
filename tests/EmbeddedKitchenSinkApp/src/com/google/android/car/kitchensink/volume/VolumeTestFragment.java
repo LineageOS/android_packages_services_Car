@@ -18,21 +18,18 @@ package com.google.android.car.kitchensink.volume;
 import android.car.Car;
 import android.car.CarNotConnectedException;
 import android.car.media.CarAudioManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.media.IVolumeController;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.SparseIntArray;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -163,39 +160,30 @@ public class VolumeTestFragment extends Fragment{
             }
         });
 
-        mCar = Car.createCar(getContext(), new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                mCarEmulator = new CarEmulator(mCar);
-                mCarEmulator.start();
-                try {
-                    mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
-                    initVolumeInfo();
-                    mCarAudioManager.setVolumeController(mVolumeController);
-                } catch (CarNotConnectedException e) {
-                    Log.e(TAG, "Car not connected!");
+        mCarEmulator = CarEmulator.create(getContext());
+        mCar = mCarEmulator.getCar();
+        try {
+            mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
+            initVolumeInfo();
+            mCarAudioManager.setVolumeController(mVolumeController);
+        } catch (CarNotConnectedException e) {
+            throw new RuntimeException(e); // Should never occur in car emulator.
+        }
 
-                }
-            }
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        });
-        mCar.connect();
         mVolumeUp = (Button) v.findViewById(R.id.volume_up);
         mVolumeDown = (Button) v.findViewById(R.id.volume_down);
 
         mVolumeUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCarEmulator.injectVolumeKey(true);
+                mCarEmulator.injectKey(KeyEvent.KEYCODE_VOLUME_UP);
             }
         });
 
         mVolumeDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCarEmulator.injectVolumeKey(false);
+                mCarEmulator.injectKey(KeyEvent.KEYCODE_VOLUME_DOWN);
             }
         });
 

@@ -16,7 +16,6 @@
 
 package com.android.car;
 
-import android.car.Car;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.ICarSensorEventListener;
@@ -37,7 +36,7 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
 
     private final Context mContext;
     private CarSensorService mSensorService;
-    private int mDringState = CarSensorEvent.DRIVE_STATUS_FULLY_RESTRICTED;
+    private int mDrivingState = CarSensorEvent.DRIVE_STATUS_FULLY_RESTRICTED;
     private SensorListener mSensorListener;
     private boolean mIsReady = false;
     private boolean mStarted = false;
@@ -54,8 +53,9 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
         }
     };
 
-    public DrivingStatePolicy(Context context) {
+    public DrivingStatePolicy(Context context, CarSensorService sensorService) {
         mContext = context;
+        mSensorService = sensorService;
     }
 
     @Override
@@ -65,8 +65,6 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
 
     @Override
     public synchronized void onSensorServiceReady() {
-        mSensorService =
-                (CarSensorService) ICarImpl.getInstance(mContext).getCarService(Car.SENSOR_SERVICE);
         int sensorList[] = mSensorService.getSupportedSensors();
         boolean hasSpeed = subscribeIfSupportedLocked(sensorList,
                 CarSensorManager.SENSOR_TYPE_CAR_SPEED, CarSensorManager.SENSOR_RATE_FASTEST);
@@ -118,7 +116,7 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
     @Override
     public synchronized boolean requestSensorStart(int sensorType, int rate) {
         mStarted = true;
-        dispatchCarSensorEvent(mSensorListener, createEvent(mDringState));
+        dispatchCarSensorEvent(mSensorListener, createEvent(mDrivingState));
         return true;
     }
 
@@ -146,9 +144,9 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
             case CarSensorManager.SENSOR_TYPE_GEAR:
             case CarSensorManager.SENSOR_TYPE_CAR_SPEED:
                 int drivingState = recalcDrivingStateLocked();
-                if (drivingState != mDringState && mSensorListener != null) {
-                    mDringState = drivingState;
-                    dispatchCarSensorEvent(mSensorListener, createEvent(mDringState));
+                if (drivingState != mDrivingState && mSensorListener != null) {
+                    mDrivingState = drivingState;
+                    dispatchCarSensorEvent(mSensorListener, createEvent(mDrivingState));
                 }
                 break;
             default:

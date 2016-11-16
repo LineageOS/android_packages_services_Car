@@ -22,6 +22,9 @@ import android.car.CarNotConnectedException;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.hvac.CarHvacManager;
+import android.hardware.vehicle.V2_0.VehicleAreaWindow;
+import android.hardware.vehicle.V2_0.VehicleAreaZone;
+import android.hardware.vehicle.V2_0.VehicleHvacFanDirection;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -35,10 +38,6 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.google.android.car.kitchensink.R;
-
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleHvacFanDirection;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleWindow;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleZone;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,21 +97,19 @@ public class HvacTestFragment extends Fragment {
                             break;
                         case CarHvacManager.ID_ZONED_FAN_POSITION:
                             switch((int)value.getValue()) {
-                                case VehicleHvacFanDirection.VEHICLE_HVAC_FAN_DIRECTION_FACE:
+                                case VehicleHvacFanDirection.FACE:
                                     mRbFanPositionFace.setChecked(true);
                                     break;
-                                case VehicleHvacFanDirection.VEHICLE_HVAC_FAN_DIRECTION_FLOOR:
+                                case VehicleHvacFanDirection.FLOOR:
                                     mRbFanPositionFloor.setChecked(true);
                                     break;
-                                case VehicleHvacFanDirection.
-                                        VEHICLE_HVAC_FAN_DIRECTION_FACE_AND_FLOOR:
+                                case VehicleHvacFanDirection.FACE_AND_FLOOR:
                                     mRbFanPositionFaceAndFloor.setChecked(true);
                                     break;
-                                case VehicleHvacFanDirection.VEHICLE_HVAC_FAN_DIRECTION_DEFROST:
+                                case VehicleHvacFanDirection.DEFROST:
                                     mRbFanPositionDefrost.setChecked(true);
                                     break;
-                                case VehicleHvacFanDirection
-                                        .VEHICLE_HVAC_FAN_DIRECTION_DEFROST_AND_FLOOR:
+                                case VehicleHvacFanDirection.DEFROST_AND_FLOOR:
                                     mRbFanPositionDefrostAndFloor.setChecked(true);
                                     break;
                                 default:
@@ -148,12 +145,12 @@ public class HvacTestFragment extends Fragment {
                             mTbMaxDefrost.setChecked((boolean)value.getValue());
                             break;
                         case CarHvacManager.ID_WINDOW_DEFROSTER_ON:
-                            if((zones & VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD) ==
-                                    VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD) {
+                            if((zones & VehicleAreaWindow.FRONT_WINDSHIELD) ==
+                                    VehicleAreaWindow.FRONT_WINDSHIELD) {
                                 mTbDefrostFront.setChecked((boolean)value.getValue());
                             }
-                            if((zones & VehicleWindow.VEHICLE_WINDOW_REAR_WINDSHIELD) ==
-                                    VehicleWindow.VEHICLE_WINDOW_REAR_WINDSHIELD) {
+                            if((zones & VehicleAreaWindow.REAR_WINDSHIELD) ==
+                                    VehicleAreaWindow.REAR_WINDSHIELD) {
                                 mTbDefrostRear.setChecked((boolean)value.getValue());
                             }
                             break;
@@ -325,19 +322,19 @@ public class HvacTestFragment extends Fragment {
             int position;
             switch(checkedId) {
                 case R.id.rbPositionFace:
-                    position = VehicleHvacFanDirection.VEHICLE_HVAC_FAN_DIRECTION_FACE;
+                    position = VehicleHvacFanDirection.FACE;
                     break;
                 case R.id.rbPositionFloor:
-                    position = VehicleHvacFanDirection.VEHICLE_HVAC_FAN_DIRECTION_FLOOR;
+                    position = VehicleHvacFanDirection.FLOOR;
                     break;
                 case R.id.rbPositionFaceAndFloor:
-                    position = VehicleHvacFanDirection.VEHICLE_HVAC_FAN_DIRECTION_FACE_AND_FLOOR;
+                    position = VehicleHvacFanDirection.FACE_AND_FLOOR;
                     break;
                 case R.id.rbPositionDefrost:
-                    position = VehicleHvacFanDirection.VEHICLE_HVAC_FAN_DIRECTION_DEFROST;
+                    position = VehicleHvacFanDirection.DEFROST;
                     break;
                 case R.id.rbPositionDefrostAndFloor:
-                    position = VehicleHvacFanDirection.VEHICLE_HVAC_FAN_DIRECTION_DEFROST_AND_FLOOR;
+                    position = VehicleHvacFanDirection.DEFROST_AND_FLOOR;
                     break;
                 default:
                     throw new IllegalStateException("Unexpected fan position: " + checkedId);
@@ -418,12 +415,12 @@ public class HvacTestFragment extends Fragment {
             mTempStep = 0.5f;
         }
         mZoneForSetTempD = 0;
-        if (prop.hasArea(VehicleZone.VEHICLE_ZONE_ROW_1_LEFT)) {
-            mZoneForSetTempD = VehicleZone.VEHICLE_ZONE_ROW_1_LEFT;
+        if (prop.hasArea(VehicleAreaZone.ROW_1_LEFT)) {
+            mZoneForSetTempD = VehicleAreaZone.ROW_1_LEFT;
         }
         mZoneForSetTempP = 0;
-        if (prop.hasArea(VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT)) {
-            mZoneForSetTempP = VehicleZone.VEHICLE_ZONE_ROW_1_RIGHT;
+        if (prop.hasArea(VehicleAreaZone.ROW_1_RIGHT)) {
+            mZoneForSetTempP = VehicleAreaZone.ROW_1_RIGHT;
         }
         int[] areas = prop.getAreaIds();
         if (mZoneForSetTempD == 0 && areas.length > 1) {
@@ -530,26 +527,26 @@ public class HvacTestFragment extends Fragment {
     }
 
     private void configureDefrosterOn(View v, CarPropertyConfig prop1) {
-        if (prop1.hasArea(VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD)) {
+        if (prop1.hasArea(VehicleAreaWindow.FRONT_WINDSHIELD)) {
             mTbDefrostFront = (ToggleButton) v.findViewById(R.id.tbDefrostFront);
             mTbDefrostFront.setEnabled(true);
             mTbDefrostFront.setOnClickListener(view -> {
                 try {
                     mCarHvacManager.setBooleanProperty(CarHvacManager.ID_WINDOW_DEFROSTER_ON,
-                            VehicleWindow.VEHICLE_WINDOW_FRONT_WINDSHIELD,
+                            VehicleAreaWindow.FRONT_WINDSHIELD,
                             mTbDefrostFront.isChecked());
                 } catch (CarNotConnectedException e) {
                     Log.e(TAG, "Failed to set HVAC window defroster property", e);
                 }
             });
         }
-        if (prop1.hasArea(VehicleWindow.VEHICLE_WINDOW_REAR_WINDSHIELD)) {
+        if (prop1.hasArea(VehicleAreaWindow.REAR_WINDSHIELD)) {
             mTbDefrostRear = (ToggleButton) v.findViewById(R.id.tbDefrostRear);
             mTbDefrostRear.setEnabled(true);
             mTbDefrostRear.setOnClickListener(view -> {
                 try {
                     mCarHvacManager.setBooleanProperty(CarHvacManager.ID_WINDOW_DEFROSTER_ON,
-                            VehicleWindow.VEHICLE_WINDOW_REAR_WINDSHIELD,
+                            VehicleAreaWindow.REAR_WINDSHIELD,
                             mTbDefrostRear.isChecked());
                 } catch (CarNotConnectedException e) {
                     Log.e(TAG, "Failed to set HVAC window defroster property", e);

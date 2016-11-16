@@ -18,16 +18,17 @@ package com.android.car.test;
 
 import android.car.Car;
 import android.car.CarProjectionManager;
-import android.car.test.VehicleHalEmulator;
+import android.hardware.vehicle.V2_0.VehicleHwKeyInputAction;
+import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.vehicle.V2_0.VehicleProperty;
+import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.KeyEvent;
 
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
-import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
+import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
@@ -55,21 +56,14 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
     private CarProjectionManager mManager;
 
     @Override
+    protected synchronized void configureMockedHal() {
+        addProperty(VehicleProperty.HW_KEY_INPUT, new PropertyHandler())
+                .setAccess(VehiclePropertyAccess.READ);
+    }
+
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
-        PropertyHandler handler = new PropertyHandler();
-        getVehicleHalEmulator().addProperty(
-                VehiclePropConfigUtil.getBuilder(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT,
-                        VehicleNetworkConsts.VehiclePropAccess.VEHICLE_PROP_ACCESS_READ,
-                        VehicleNetworkConsts.VehiclePropChangeMode
-                            .VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                        VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_INT32_VEC4,
-                        VehicleNetworkConsts.VehiclePermissionModel
-                            .VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
-                        0 /*configFlags*/, 0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
-                handler);
-        getVehicleHalEmulator().start();
         mManager = (CarProjectionManager) getCar().getCarManager(Car.PROJECTION_SERVICE);
     }
 
@@ -114,52 +108,50 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
     }
 
     public void sendVoiceKey(boolean isLong) throws InterruptedException {
-        int[] values = {
-            VehicleNetworkConsts.VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_DOWN,
-            KeyEvent.KEYCODE_VOICE_ASSIST, 0, 0 };
+        int[] values = {VehicleHwKeyInputAction.ACTION_DOWN, KeyEvent.KEYCODE_VOICE_ASSIST, 0, 0};
 
-        VehiclePropValue injectValue = VehiclePropValueUtil.createIntVectorValue(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT, values,
-                SystemClock.elapsedRealtimeNanos());
+        VehiclePropValue injectValue =
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
+                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                        .addIntValue(values)
+                        .build();
 
-        getVehicleHalEmulator().injectEvent(injectValue);
+        getMockedVehicleHal().injectEvent(injectValue);
 
         if (isLong) {
             Thread.sleep(1200); // Long press is > 1s.
         }
 
-        int[] upValues = {
-            VehicleNetworkConsts.VehicleHwKeyInputAction.VEHICLE_HW_KEY_INPUT_ACTION_UP,
-            KeyEvent.KEYCODE_VOICE_ASSIST, 0, 0 };
+        int[] upValues = {VehicleHwKeyInputAction.ACTION_UP, KeyEvent.KEYCODE_VOICE_ASSIST, 0, 0 };
 
-        injectValue = VehiclePropValueUtil.createIntVectorValue(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_HW_KEY_INPUT, upValues,
-                SystemClock.elapsedRealtimeNanos());
+        injectValue = VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .addIntValue(upValues)
+                .build();
 
-        getVehicleHalEmulator().injectEvent(injectValue);
+        getMockedVehicleHal().injectEvent(injectValue);
     }
 
 
-    private class PropertyHandler
-            implements VehicleHalEmulator.VehicleHalPropertyHandler {
+    private class PropertyHandler implements VehicleHalPropertyHandler {
         HashMap<Integer, VehiclePropValue> mMap = new HashMap<>();
 
         @Override
         public synchronized void onPropertySet(VehiclePropValue value) {
             Log.d(TAG, "onPropertySet:" + value);
-            mMap.put(value.getProp(), value);
+            mMap.put(value.prop, value);
         }
 
         @Override
         public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
             Log.d(TAG, "onPropertyGet:" + value);
-            VehiclePropValue currentValue = mMap.get(value.getProp());
-            // VNS will call getProperty method when subscribe is called, just return empty value.
+            VehiclePropValue currentValue = mMap.get(value.prop);
+            // VNS will call get method when subscribe is called, just return empty value.
             return currentValue != null ? currentValue : value;
         }
 
         @Override
-        public synchronized void onPropertySubscribe(int property, float sampleRate, int zones) {
+        public synchronized void onPropertySubscribe(int property, int zones, float sampleRate) {
             Log.d(TAG, "onPropertySubscribe property " + property + " sampleRate " + sampleRate);
         }
 

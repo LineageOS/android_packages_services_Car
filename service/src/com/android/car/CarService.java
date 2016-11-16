@@ -15,28 +15,40 @@
  */
 package com.android.car;
 
+import static android.os.SystemClock.elapsedRealtime;
+
+import android.annotation.Nullable;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.vehicle.V2_0.IVehicle;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemProperties;
 import android.util.Log;
-
-import com.android.car.hal.VehicleHal;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 
 public class CarService extends Service {
 
-    // main thread only
+    /** Default vehicle HAL service name. */
+    private static final String VEHICLE_SERVICE_NAME = "Vehicle";
+
+    private static final long WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS = 10_000;
+
     private ICarImpl mICarImpl;
 
     @Override
     public void onCreate() {
         Log.i(CarLog.TAG_SERVICE, "Service onCreate");
-        mICarImpl = ICarImpl.getInstance(this);
+        IVehicle vehicle = getVehicle(WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS);
+        if (vehicle == null) {
+            throw new IllegalStateException("Vehicle HAL service is not available.");
+        }
+
+        mICarImpl = new ICarImpl(this, vehicle, SystemInterface.getDefault(this));
+        mICarImpl.init();
         SystemProperties.set("boot.car_service_created", "1");
         super.onCreate();
     }
@@ -44,7 +56,7 @@ public class CarService extends Service {
     @Override
     public void onDestroy() {
         Log.i(CarLog.TAG_SERVICE, "Service onDestroy");
-        ICarImpl.releaseInstance();
+        mICarImpl.release();
         super.onDestroy();
     }
 
@@ -70,12 +82,30 @@ public class CarService extends Service {
         }
         if (args == null || args.length == 0) {
             writer.println("*dump car service*");
-            writer.println("*dump HAL*");
-            VehicleHal.getInstance().dump(writer);
-            writer.println("*dump services*");
-            ICarImpl.getInstance(this).dump(writer);
+            mICarImpl.dump(writer);
         } else {
-            ICarImpl.getInstance(this).execShellCmd(args, writer);
+            mICarImpl.execShellCmd(args, writer);
         }
+    }
+
+    @Nullable
+    private IVehicle getVehicle(long waitMilliseconds) {
+        IVehicle vehicle = getVehicle();
+        long start = elapsedRealtime();
+        while (vehicle == null && (start + waitMilliseconds) > elapsedRealtime()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Sleep was interrupted", e);
+            }
+
+            vehicle = getVehicle();
+        }
+        return vehicle;
+    }
+
+    @Nullable
+    private IVehicle getVehicle() {
+        return IVehicle.getService(VEHICLE_SERVICE_NAME);
     }
 }

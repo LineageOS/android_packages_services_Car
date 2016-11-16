@@ -18,13 +18,13 @@ package com.android.car;
 
 import android.car.Car;
 import android.content.Context;
-import com.android.car.hal.VehicleHal;
+
+import com.android.car.hal.HvacHalService;
 
 public class CarHvacService extends CarPropertyServiceBase {
-	private final static boolean DBG = false;
+    private final static boolean DBG = false;
 
-    public CarHvacService(Context context) {
-        super(context, VehicleHal.getInstance().getHvacHal(), Car.PERMISSION_CAR_HVAC, DBG,
-                CarLog.TAG_HVAC);
+    public CarHvacService(Context context, HvacHalService hvacHal) {
+        super(context, hvacHal, Car.PERMISSION_CAR_HVAC, DBG, CarLog.TAG_HVAC);
     }
 }

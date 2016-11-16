@@ -42,6 +42,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.car.kitchensink.CarEmulator;
@@ -421,7 +422,11 @@ public class AudioTestFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (mCarEmulator == null) {
-                    mCarEmulator = new CarEmulator(mCar);
+                    //TODO(pavelm): need to do a full switch between emulated and normal mode
+                    // all Car*Manager references should be invalidated.
+                    Toast.makeText(AudioTestFragment.this.getContext(),
+                            "Not supported yet :(", Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 if (isChecked) {
                     mRejectFocus.setActivated(true);

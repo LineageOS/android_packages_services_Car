@@ -17,43 +17,35 @@ package com.android.car.test;
 
 import android.car.Car;
 import android.car.CarInfoManager;
-import android.os.Bundle;
-import android.util.Log;
+import android.hardware.vehicle.V2_0.VehicleProperty;
 
-import com.android.car.test.MockedCarTestBase;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
 
 public class CarInfoManagerTest extends MockedCarTestBase {
-
-    private static final String TAG = CarInfoManagerTest.class.getSimpleName();
-
     private static final String MAKE_NAME = "ANDROID";
 
     private CarInfoManager mCarInfoManager;
 
     @Override
+    protected synchronized void configureMockedHal() {
+        addStaticProperty(VehicleProperty.INFO_MAKE,
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.INFO_MAKE)
+                        .setStringValue(MAKE_NAME)
+                        .build());
+
+    }
+
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
-        getVehicleHalEmulator().addStaticProperty(
-                VehiclePropConfigUtil.createStaticStringProperty(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE),
-                VehiclePropValueUtil.createStringValue(
-                        VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MAKE, MAKE_NAME, 0));
-        getVehicleHalEmulator().removeProperty(VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL);
-        getVehicleHalEmulator().removeProperty(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_INFO_MODEL_YEAR);
-        getVehicleHalEmulator().start();
-        mCarInfoManager =
-                (CarInfoManager) getCar().getCarManager(Car.INFO_SERVICE);
+        mCarInfoManager = (CarInfoManager) getCar().getCarManager(Car.INFO_SERVICE);
     }
 
     public void testVehicleId() throws Exception {
         assertNotNull(mCarInfoManager.getVehicleId());
     }
 
-    public void testManufactuter() throws Exception {
+    public void testManufacturer() throws Exception {
         assertEquals(MAKE_NAME, mCarInfoManager.getManufacturer());
     }
 

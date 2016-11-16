@@ -16,10 +16,13 @@
 
 package com.android.car.hal;
 
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
+
+import android.annotation.Nullable;
+import android.hardware.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.vehicle.V2_0.VehiclePropValue;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -51,8 +54,11 @@ public abstract class HalServiceBase {
      * @param allProperties
      * @return null if no properties are supported.
      */
-    public abstract List<VehiclePropConfig> takeSupportedProperties(
-            List<VehiclePropConfig> allProperties);
+    @Nullable
+    public Collection<VehiclePropConfig> takeSupportedProperties(
+            Collection<VehiclePropConfig> allProperties) {
+        return null;
+    }
 
     public abstract void handleHalEvents(List<VehiclePropValue> values);
 

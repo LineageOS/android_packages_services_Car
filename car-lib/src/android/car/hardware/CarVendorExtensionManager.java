@@ -144,7 +144,7 @@ public final class CarVendorExtensionManager implements CarManagerBase {
      *        defined as {@code VEHICLE_VALUE_TYPE_INT32} in vehicle HAL could be accessed using
      *        {@code Integer.class}.
      * @param propId - property id which is matched with the one defined in vehicle HAL
-     * @param area - vehicle area (e.g. {@code VEHICLE_ZONE_ROW_1_LEFT}
+     * @param area - vehicle area (e.g. {@code VehicleAreaZone.ROW_1_LEFT}
      *        or {@code VEHICLE_MIRROR_DRIVER_LEFT}
      *
      * @throws CarNotConnectedException if the connection to the car service has been lost.
@@ -178,7 +178,7 @@ public final class CarVendorExtensionManager implements CarManagerBase {
      *        defined as {@code VEHICLE_VALUE_TYPE_INT32} in vehicle HAL could be accessed using
      *        {@code Integer.class}.
      * @param propId - property id which is matched with the one defined in vehicle HAL
-     * @param area - vehicle area (e.g. {@code VEHICLE_ZONE_ROW_1_LEFT}
+     * @param area - vehicle area (e.g. {@code VehicleAreaZone.ROW_1_LEFT}
      *        or {@code VEHICLE_MIRROR_DRIVER_LEFT}
      * @param value - new value, this object should match a class provided in {@code propertyClass}
      *        argument.

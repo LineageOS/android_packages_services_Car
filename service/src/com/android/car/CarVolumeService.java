@@ -17,12 +17,11 @@
 package com.android.car;
 
 import android.content.Context;
+import android.hardware.vehicle.V2_0.VehicleAudioContextFlag;
 import android.media.AudioAttributes;
 import android.media.IVolumeController;
-import android.view.KeyEvent;
 
 import com.android.car.hal.AudioHalService;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
 
 import java.io.PrintWriter;
 
@@ -38,7 +37,7 @@ public class CarVolumeService {
     private static final String TAG = "CarVolumeService";
 
     public static int DEFAULT_CAR_AUDIO_CONTEXT =
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG;
+            VehicleAudioContextFlag.MUSIC_FLAG;
     private final Context mContext;
     private final AudioHalService mAudioHal;
     private final CarAudioService mAudioService;

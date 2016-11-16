@@ -17,11 +17,10 @@
 package com.android.car.hal;
 
 import android.car.hardware.CarSensorEvent;
+import android.hardware.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.vehicle.V2_0.VehiclePropValue;
 
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropConfig;
-import com.android.car.vehiclenetwork.VehicleNetworkProto.VehiclePropValue;
-
-import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,7 +43,7 @@ public abstract class SensorHalServiceBase  extends HalServiceBase {
         void onSensorEvents(List<CarSensorEvent> events);
     }
 
-    private final LinkedList<CarSensorEvent> mDispatchQ = new LinkedList<CarSensorEvent>();
+    private final LinkedList<CarSensorEvent> mDispatchQ = new LinkedList<>();
 
     public abstract void registerSensorListener(SensorListener listener);
 
@@ -82,10 +81,5 @@ public abstract class SensorHalServiceBase  extends HalServiceBase {
         // default no-op impl. Necessary to not propagate this HAL specific event to logical
         // sensor provider.
         throw new RuntimeException("should not be called");
-    }
-
-    @Override
-    public List<VehiclePropConfig> takeSupportedProperties(List<VehiclePropConfig> allProperties) {
-        return null;
     }
 }

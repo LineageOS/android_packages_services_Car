@@ -22,6 +22,7 @@ import android.car.ICar;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.hardware.vehicle.V2_0.IVehicle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -40,14 +41,16 @@ public class ICarImpl extends ICar.Stub {
 
     // load jni for all services here
     static {
-        System.loadLibrary("jni_car_service");
+        try {
+            System.loadLibrary("jni_car_service");
+        } catch (UnsatisfiedLinkError ex) {
+            // Unable to load native library when loaded from the testing framework.
+            Log.e(CarLog.TAG_SERVICE, "Failed to load jni_car_service library: " + ex.getMessage());
+        }
     }
 
-    @GuardedBy("ICarImpl.class")
-    private static ICarImpl sInstance = null;
-
     private final Context mContext;
-    private final VehicleHal mHal;
+    private VehicleHal mHal;
 
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
     private final CarPowerManagementService mCarPowerManagementService;
@@ -68,54 +71,42 @@ public class ICarImpl extends ICar.Stub {
     private final SystemStateControllerService mSystemStateControllerService;
     private final CarVendorExtensionService mCarVendorExtensionService;
 
+    private final CarServiceBase[] mAllServices;
+
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
     private CarTestService mCarTestService;
-    private final CarServiceBase[] mAllServices;
 
-    public synchronized static ICarImpl getInstance(Context serviceContext) {
-        if (sInstance == null) {
-            sInstance = new ICarImpl(serviceContext);
-            sInstance.init();
-        }
-        return sInstance;
-    }
-
-    public synchronized static void releaseInstance() {
-        if (sInstance == null) {
-            return;
-        }
-        sInstance.release();
-        sInstance = null;
-    }
-
-    public ICarImpl(Context serviceContext) {
+    public ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface) {
         mContext = serviceContext;
-        mHal = VehicleHal.getInstance();
+        mHal = new VehicleHal(vehicle);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
-        mCarPowerManagementService = new CarPowerManagementService(serviceContext);
-        mCarSensorService = new CarSensorService(serviceContext);
+        mCarPowerManagementService = new CarPowerManagementService(
+                mHal.getPowerHal(), systemInterface);
+        mCarSensorService = new CarSensorService(serviceContext, mHal.getSensorHal());
         mCarPackageManagerService = new CarPackageManagerService(serviceContext, mCarSensorService,
                 mSystemActivityMonitoringService);
-        mCarInputService = new CarInputService(serviceContext);
+        mCarInputService = new CarInputService(serviceContext, mHal.getInputHal());
         mCarProjectionService = new CarProjectionService(serviceContext, mCarInputService);
         mGarageModeService = new GarageModeService(mContext, mCarPowerManagementService);
-        mCarInfoService = new CarInfoService(serviceContext);
+        mCarInfoService = new CarInfoService(serviceContext, mHal.getInfoHal());
         mAppFocusService = new AppFocusService(serviceContext, mSystemActivityMonitoringService);
-        mCarAudioService = new CarAudioService(serviceContext, mCarInputService);
-        mCarCabinService = new CarCabinService(serviceContext);
-        mCarHvacService = new CarHvacService(serviceContext);
-        mCarRadioService = new CarRadioService(serviceContext);
+        mCarAudioService = new CarAudioService(serviceContext, mHal.getAudioHal(),
+                mCarInputService);
+        mCarCabinService = new CarCabinService(serviceContext, mHal.getCabinHal());
+        mCarHvacService = new CarHvacService(serviceContext, mHal.getHvacHal());
+        mCarRadioService = new CarRadioService(serviceContext, mHal.getRadioHal());
         mCarCameraService = new CarCameraService(serviceContext);
-        mCarNightService = new CarNightService(serviceContext);
+        mCarNightService = new CarNightService(serviceContext, mCarSensorService);
         mInstrumentClusterService = new InstrumentClusterService(serviceContext,
                 mAppFocusService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(serviceContext,
                 mCarPowerManagementService, mCarAudioService, this);
-        mCarVendorExtensionService = new CarVendorExtensionService(serviceContext);
+        mCarVendorExtensionService = new CarVendorExtensionService(serviceContext,
+                mHal.getVendorExtensionHal());
 
         // Be careful with order. Service depending on other service should be inited later.
-        mAllServices = new CarServiceBase[] {
+        mAllServices = new CarServiceBase[]{
                 mSystemActivityMonitoringService,
                 mCarPowerManagementService,
                 mCarSensorService,
@@ -134,43 +125,22 @@ public class ICarImpl extends ICar.Stub {
                 mCarProjectionService,
                 mSystemStateControllerService,
                 mCarVendorExtensionService
-                };
+        };
     }
 
-    private void init() {
+    public void init() {
+        mHal.init();
         for (CarServiceBase service: mAllServices) {
             service.init();
         }
     }
 
-    private void release() {
+    public void release() {
         // release done in opposite order from init
         for (int i = mAllServices.length - 1; i >= 0; i--) {
             mAllServices[i].release();
         }
-        VehicleHal.releaseInstance();
-    }
-
-    /** Only for CarTestService */
-    void startMocking() {
-        reinitServices();
-    }
-
-    /** Only for CarTestService */
-    void stopMocking() {
-        reinitServices();
-    }
-
-    /** Reset all services when starting / stopping vehicle hal mocking */
-    private void reinitServices() {
-        for (int i = mAllServices.length - 1; i >= 0; i--) {
-            mAllServices[i].release();
-        }
-        VehicleHal.getInstance().release();
-        VehicleHal.getInstance().init();
-        for (CarServiceBase service: mAllServices) {
-            service.init();
-        }
+        mHal.release();
     }
 
     @Override
@@ -210,7 +180,7 @@ public class ICarImpl extends ICar.Stub {
                 assertVendorExtensionPermission(mContext);
                 return mCarVendorExtensionService;
             case Car.TEST_SERVICE: {
-                assertVehicleHalMockPermission(mContext);
+                assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
                 synchronized (this) {
                     if (mCarTestService == null) {
                         mCarTestService = new CarTestService(mContext, this);
@@ -226,11 +196,7 @@ public class ICarImpl extends ICar.Stub {
 
     @Override
     public int getCarConnectionType() {
-        if (!isInMocking()) {
-            return Car.CONNECTION_TYPE_EMBEDDED;
-        } else {
-            return Car.CONNECTION_TYPE_EMBEDDED_MOCKING;
-        }
+        return Car.CONNECTION_TYPE_EMBEDDED;
     }
 
     public CarServiceBase getCarInternalService(String serviceName) {
@@ -244,17 +210,6 @@ public class ICarImpl extends ICar.Stub {
                         serviceName);
                 return null;
         }
-    }
-
-    /**
-     * Whether mocking underlying HAL or not.
-     * @return
-     */
-    public synchronized boolean isInMocking() {
-        if (mCarTestService == null) {
-            return false;
-        }
-        return mCarTestService.isInMocking();
     }
 
     public static void assertVehicleHalMockPermission(Context context) {
@@ -300,10 +255,11 @@ public class ICarImpl extends ICar.Stub {
         for (CarServiceBase service: mAllServices) {
             service.dump(writer);
         }
-        CarTestService testService = mCarTestService;
-        if (testService != null) {
-            testService.dump(writer);
+        if (mCarTestService != null) {
+            mCarTestService.dump(writer);
         }
+        writer.println("*Dump Vehicle HAL*");
+        mHal.dump(writer);
     }
 
     void execShellCmd(String[] args, PrintWriter writer) {

@@ -16,18 +16,18 @@
 package com.android.car.test;
 
 import android.app.Activity;
-import android.car.test.VehicleHalEmulator;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.hardware.vehicle.V2_0.VehicleDrivingStatus;
+import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.vehicle.V2_0.VehicleProperty;
+import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
 import android.os.SystemClock;
 
 import com.android.car.SystemActivityMonitoringService;
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts;
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleDrivingStatus;
-import com.android.car.vehiclenetwork.VehicleNetworkProto;
-import com.android.car.vehiclenetwork.VehiclePropConfigUtil;
-import com.android.car.vehiclenetwork.VehiclePropValueUtil;
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
+import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,28 +42,22 @@ public class SystemActivityMonitoringServiceTest extends MockedCarTestBase {
     private final DrivingStatusHandler mDrivingStatusHandler = new DrivingStatusHandler();
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        getVehicleHalEmulator().addProperty(VehiclePropConfigUtil.getBuilder(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_DRIVING_STATUS,
-                VehicleNetworkConsts.VehiclePropAccess.VEHICLE_PROP_ACCESS_READ,
-                VehicleNetworkConsts.VehiclePropChangeMode.VEHICLE_PROP_CHANGE_MODE_ON_CHANGE,
-                VehicleNetworkConsts.VehicleValueType.VEHICLE_VALUE_TYPE_INT32,
-                VehicleNetworkConsts.VehiclePermissionModel.VEHICLE_PERMISSION_SYSTEM_APP_ONLY,
-                0 /*configFlags*/,
-                0 /*sampleRateMax*/, 0 /*sampleRateMin*/).build(),
-                mDrivingStatusHandler);
+    protected synchronized void configureMockedHal() {
+        addProperty(VehicleProperty.DRIVING_STATUS, mDrivingStatusHandler)
+                .setAccess(VehiclePropertyAccess.READ);
     }
 
     private void init(boolean drivingStatusRestricted) {
         // Set no restriction to driving status, to avoid CarPackageManagerService to launch a
         // blocking activity.
         mDrivingStatusHandler.setDrivingStatusRestricted(drivingStatusRestricted);
-        getVehicleHalEmulator().start();
-        VehicleNetworkProto.VehiclePropValue injectValue = VehiclePropValueUtil.createIntValue(
-                VehicleNetworkConsts.VEHICLE_PROPERTY_DRIVING_STATUS, 0,
-                SystemClock.elapsedRealtimeNanos());
-        getVehicleHalEmulator().injectEvent(injectValue);
+
+        VehiclePropValue injectValue =
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.DRIVING_STATUS)
+                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                        .addIntValue(0)
+                        .build();
+        getMockedVehicleHal().injectEvent(injectValue);
     }
 
     public void testActivityLaunch() {
@@ -195,30 +189,28 @@ public class SystemActivityMonitoringServiceTest extends MockedCarTestBase {
     public static class BlockingActivity extends Activity {
     }
 
-    private class DrivingStatusHandler implements VehicleHalEmulator.VehicleHalPropertyHandler {
-        int mDrivingStatus =
-                VehicleNetworkConsts.VehicleDrivingStatus.VEHICLE_DRIVING_STATUS_UNRESTRICTED;
+    private class DrivingStatusHandler implements VehicleHalPropertyHandler {
+        int mDrivingStatus = VehicleDrivingStatus.UNRESTRICTED;
 
         public void setDrivingStatusRestricted(boolean restricted) {
-            mDrivingStatus = restricted ? VehicleDrivingStatus.VEHICLE_DRIVING_STATUS_NO_VIDEO
-                    : VehicleDrivingStatus.VEHICLE_DRIVING_STATUS_UNRESTRICTED;
+            mDrivingStatus = restricted ? VehicleDrivingStatus.NO_VIDEO
+                    : VehicleDrivingStatus.UNRESTRICTED;
         }
 
         @Override
-        public void onPropertySet(VehicleNetworkProto.VehiclePropValue value) {
+        public void onPropertySet(VehiclePropValue value) {
         }
 
         @Override
-        public VehicleNetworkProto.VehiclePropValue onPropertyGet(
-                VehicleNetworkProto.VehiclePropValue value) {
-            return VehiclePropValueUtil.createIntValue(
-                    VehicleNetworkConsts.VEHICLE_PROPERTY_DRIVING_STATUS,
-                    mDrivingStatus,
-                    SystemClock.elapsedRealtimeNanos());
+        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
+            return VehiclePropValueBuilder.newBuilder(VehicleProperty.DRIVING_STATUS)
+                    .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                    .addIntValue(mDrivingStatus)
+                    .build();
         }
 
         @Override
-        public void onPropertySubscribe(int property, float sampleRate, int zones) {
+        public void onPropertySubscribe(int property, int zones, float sampleRate) {
         }
 
         @Override

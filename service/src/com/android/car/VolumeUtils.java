@@ -17,16 +17,13 @@
 package com.android.car;
 
 import android.car.settings.CarSettings;
+import android.hardware.vehicle.V2_0.VehicleAudioContextFlag;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.android.car.vehiclenetwork.VehicleNetworkConsts.VehicleAudioContextFlag;
-
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class VolumeUtils {
     private static final String TAG = "VolumeUtils";
@@ -42,50 +39,50 @@ public class VolumeUtils {
     };
 
     public static final int[] CAR_AUDIO_CONTEXT = {
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG,
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG,
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG,
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG,
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG,
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG,
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG,
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SAFETY_ALERT_FLAG,
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CD_ROM_FLAG,
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_AUX_AUDIO_FLAG,
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG,
-            VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG
+            VehicleAudioContextFlag.MUSIC_FLAG,
+            VehicleAudioContextFlag.NAVIGATION_FLAG,
+            VehicleAudioContextFlag.VOICE_COMMAND_FLAG,
+            VehicleAudioContextFlag.CALL_FLAG,
+            VehicleAudioContextFlag.ALARM_FLAG,
+            VehicleAudioContextFlag.NOTIFICATION_FLAG,
+            VehicleAudioContextFlag.UNKNOWN_FLAG,
+            VehicleAudioContextFlag.SAFETY_ALERT_FLAG,
+            VehicleAudioContextFlag.CD_ROM_FLAG,
+            VehicleAudioContextFlag.AUX_AUDIO_FLAG,
+            VehicleAudioContextFlag.SYSTEM_SOUND_FLAG,
+            VehicleAudioContextFlag.RADIO_FLAG
     };
 
     public static final SparseArray<String> CAR_AUDIO_CONTEXT_SETTINGS = new SparseArray<>();
     static {
-        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG,
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.UNKNOWN_FLAG,
                 CarSettings.Global.KEY_VOLUME_MUSIC);
-        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG,
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.MUSIC_FLAG,
                 CarSettings.Global.KEY_VOLUME_MUSIC);
         CAR_AUDIO_CONTEXT_SETTINGS.put(
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NAVIGATION_FLAG,
+                VehicleAudioContextFlag.NAVIGATION_FLAG,
                 CarSettings.Global.KEY_VOLUME_NAVIGATION);
         CAR_AUDIO_CONTEXT_SETTINGS.put(
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_VOICE_COMMAND_FLAG,
+                VehicleAudioContextFlag.VOICE_COMMAND_FLAG,
                 CarSettings.Global.KEY_VOLUME_VOICE_COMMAND);
-        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG,
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.CALL_FLAG,
                 CarSettings.Global.KEY_VOLUME_CALL);
-        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG,
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.ALARM_FLAG,
                 CarSettings.Global.KEY_VOLUME_ALARM);
         CAR_AUDIO_CONTEXT_SETTINGS.put(
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG,
+                VehicleAudioContextFlag.NOTIFICATION_FLAG,
                 CarSettings.Global.KEY_VOLUME_NOTIFICATION);
         CAR_AUDIO_CONTEXT_SETTINGS.put(
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SAFETY_ALERT_FLAG,
+                VehicleAudioContextFlag.SAFETY_ALERT_FLAG,
                 CarSettings.Global.KEY_VOLUME_SAFETY_ALERT);
-        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CD_ROM_FLAG,
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.CD_ROM_FLAG,
                 CarSettings.Global.KEY_VOLUME_CD_ROM);
-        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_AUX_AUDIO_FLAG,
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.AUX_AUDIO_FLAG,
                 CarSettings.Global.KEY_VOLUME_AUX);
         CAR_AUDIO_CONTEXT_SETTINGS.put(
-                VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG,
+                VehicleAudioContextFlag.SYSTEM_SOUND_FLAG,
                 CarSettings.Global.KEY_VOLUME_SYSTEM_SOUND);
-        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_RADIO_FLAG,
+        CAR_AUDIO_CONTEXT_SETTINGS.put(VehicleAudioContextFlag.RADIO_FLAG,
                 CarSettings.Global.KEY_VOLUME_RADIO);
     }
 
@@ -105,35 +102,35 @@ public class VolumeUtils {
     public static int androidStreamToCarContext(int logicalAndroidStream) {
         switch (logicalAndroidStream) {
             case AudioManager.STREAM_VOICE_CALL:
-                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG;
+                return VehicleAudioContextFlag.CALL_FLAG;
             case AudioManager.STREAM_SYSTEM:
-                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG;
+                return VehicleAudioContextFlag.SYSTEM_SOUND_FLAG;
             case AudioManager.STREAM_RING:
-                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG;
+                return VehicleAudioContextFlag.NOTIFICATION_FLAG;
             case AudioManager.STREAM_MUSIC:
-                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG;
+                return VehicleAudioContextFlag.MUSIC_FLAG;
             case AudioManager.STREAM_ALARM:
-                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG;
+                return VehicleAudioContextFlag.ALARM_FLAG;
             case AudioManager.STREAM_NOTIFICATION:
-                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG;
+                return VehicleAudioContextFlag.NOTIFICATION_FLAG;
             case AudioManager.STREAM_DTMF:
-                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG;
+                return VehicleAudioContextFlag.SYSTEM_SOUND_FLAG;
             default:
-                return VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_UNKNOWN_FLAG;
+                return VehicleAudioContextFlag.UNKNOWN_FLAG;
         }
     }
 
     public static int carContextToAndroidStream(int carContext) {
         switch (carContext) {
-            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_CALL_FLAG:
+            case VehicleAudioContextFlag.CALL_FLAG:
                 return AudioManager.STREAM_VOICE_CALL;
-            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_SYSTEM_SOUND_FLAG:
+            case VehicleAudioContextFlag.SYSTEM_SOUND_FLAG:
                 return AudioManager.STREAM_SYSTEM;
-            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_NOTIFICATION_FLAG:
+            case VehicleAudioContextFlag.NOTIFICATION_FLAG:
                 return AudioManager.STREAM_NOTIFICATION;
-            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_MUSIC_FLAG:
+            case VehicleAudioContextFlag.MUSIC_FLAG:
                 return AudioManager.STREAM_MUSIC;
-            case VehicleAudioContextFlag.VEHICLE_AUDIO_CONTEXT_ALARM_FLAG:
+            case VehicleAudioContextFlag.ALARM_FLAG:
                 return AudioManager.STREAM_ALARM;
             default:
                 return AudioManager.STREAM_MUSIC;

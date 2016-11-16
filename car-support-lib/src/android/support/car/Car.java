@@ -117,11 +117,7 @@ public class Car {
      * Type of car connection: platform runs directly in car.
      */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
-    /**
-     * Type of car connection: platform runs directly in car with mocked vehicle HAL. Occurs
-     * only in a testing environment.
-     */
-    public static final int CONNECTION_TYPE_EMBEDDED_MOCKING = 6;
+
     /**
      * Unknown type (the support lib is likely out-of-date).
      */
@@ -135,9 +131,7 @@ public class Car {
         CONNECTION_TYPES.add(CONNECTION_TYPE_ON_DEVICE_EMULATOR);
         CONNECTION_TYPES.add(CONNECTION_TYPE_ADB_EMULATOR);
         CONNECTION_TYPES.add(CONNECTION_TYPE_EMBEDDED);
-        CONNECTION_TYPES.add(CONNECTION_TYPE_EMBEDDED_MOCKING);
     }
-
 
     /** @hide */
     @IntDef({CONNECTION_TYPE_EMULATOR, CONNECTION_TYPE_USB, CONNECTION_TYPE_WIFI,
@@ -429,7 +423,7 @@ public class Car {
      *
      * @return One of {@link #CONNECTION_TYPE_USB}, {@link #CONNECTION_TYPE_WIFI},
      * {@link #CONNECTION_TYPE_EMBEDDED}, {@link #CONNECTION_TYPE_ON_DEVICE_EMULATOR},
-     * {@link #CONNECTION_TYPE_ADB_EMULATOR}, {@link #CONNECTION_TYPE_EMBEDDED_MOCKING},
+     * {@link #CONNECTION_TYPE_ADB_EMULATOR},
      * {@link #CONNECTION_TYPE_UNKNOWN}.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @hide

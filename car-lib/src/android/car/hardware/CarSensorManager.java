@@ -25,6 +25,7 @@ import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.content.Context;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.IBinder;
@@ -32,13 +33,16 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.google.android.collect.Lists;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -459,7 +463,7 @@ public final class CarSensorManager implements CarManagerBase {
         private final WeakReference<CarSensorManager> mManager;
 
         public CarSensorEventListenerToService(CarSensorManager manager) {
-            mManager = new WeakReference<CarSensorManager>(manager);
+            mManager = new WeakReference<>(manager);
         }
 
         @Override

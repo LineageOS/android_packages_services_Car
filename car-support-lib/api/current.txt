@@ -13,7 +13,6 @@ package android.support.car {
     field public static final java.lang.String AUDIO_SERVICE = "audio";
     field public static final int CONNECTION_TYPE_ADB_EMULATOR = 4; // 0x4
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
-    field public static final int CONNECTION_TYPE_EMBEDDED_MOCKING = 6; // 0x6
     field public static final int CONNECTION_TYPE_EMULATOR = 0; // 0x0
     field public static final int CONNECTION_TYPE_ON_DEVICE_EMULATOR = 3; // 0x3
     field public static final int CONNECTION_TYPE_UNKNOWN = -1; // 0xffffffff
