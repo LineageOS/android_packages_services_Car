@@ -20,7 +20,6 @@ package android.support.car {
     field public static final int CONNECTION_TYPE_WIFI = 2; // 0x2
     field public static final java.lang.String INFO_SERVICE = "info";
     field public static final java.lang.String NAVIGATION_STATUS_SERVICE = "car_navigation_service";
-    field public static final java.lang.String PACKAGE_SERVICE = "package";
     field public static final java.lang.String PERMISSION_CAR_NAVIGATION_MANAGER = "android.car.permission.PERMISSION_CAR_NAVIGATION_MANAGER";
     field public static final java.lang.String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
     field public static final java.lang.String SENSOR_SERVICE = "sensor";

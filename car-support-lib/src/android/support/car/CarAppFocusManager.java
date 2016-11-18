@@ -73,6 +73,13 @@ public abstract class CarAppFocusManager implements CarManagerBase {
 
     /**
      * Represents navigation focus.
+     * <p/>
+     * When a program loses navigation focus they should no longer send navigation data to the
+     * instrument cluster via the
+     * {@link android.support.car.navigation.CarNavigationStatusManager}.  Furthermore they
+     * should stop sending audio updates and any notifications regarding navigation.
+     * Essentially, these apps should stop all navigation activities as this means another app is
+     * navigating.
      */
     public static final int APP_FOCUS_TYPE_NAVIGATION = 1;
     /**
