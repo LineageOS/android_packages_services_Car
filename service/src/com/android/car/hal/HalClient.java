@@ -222,16 +222,11 @@ class  HalClient {
         }
     }
 
-    private static class VehicleCallback implements IVehicleCallback {
+    private static class VehicleCallback extends IVehicleCallback.Stub {
         private Handler mHandler;
 
         VehicleCallback(Handler handler) {
             mHandler = handler;
-        }
-
-        @Override
-        public IHwBinder asBinder() {
-            return null;
         }
 
         @Override
@@ -251,11 +246,6 @@ class  HalClient {
             mHandler.sendMessage(Message.obtain(
                     mHandler, CallbackHandler.MSG_ON_SET_ERROR,
                     new PropertySetError(errorCode, propId, areaId)));
-        }
-
-        @Override
-        public ArrayList<String> interfaceChain() {
-            return null;
         }
     }
 }

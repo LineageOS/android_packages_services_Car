@@ -40,7 +40,7 @@ import java.util.Map;
 /**
  * Mocked implementation of {@link IVehicle}.
  */
-public class MockedVehicleHal implements IVehicle {
+public class MockedVehicleHal extends IVehicle.Stub {
     /**
      * Interface for handler of each property.
      */
@@ -81,11 +81,6 @@ public class MockedVehicleHal implements IVehicle {
         for (IVehicleCallback callback : callbacks) {
             callback.onPropertyEvent(Lists.newArrayList(value));
         }
-    }
-
-    @Override
-    public IHwBinder asBinder() {
-        return null;
     }
 
     @Override
@@ -168,11 +163,6 @@ public class MockedVehicleHal implements IVehicle {
 
     @Override
     public String debugDump() {
-        return null;
-    }
-
-    @Override
-    public ArrayList<String> interfaceChain() {
         return null;
     }
 
