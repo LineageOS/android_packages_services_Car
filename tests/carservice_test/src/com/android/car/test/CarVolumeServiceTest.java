@@ -451,5 +451,9 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
         @Override
         public void dismiss() throws RemoteException {
         }
+
+        @Override
+        public void setA11yMode(int mode) throws RemoteException {
+        }
     }
 }
