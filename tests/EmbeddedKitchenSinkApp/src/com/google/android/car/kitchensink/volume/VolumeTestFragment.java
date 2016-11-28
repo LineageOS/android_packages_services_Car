@@ -292,5 +292,9 @@ public class VolumeTestFragment extends Fragment{
         @Override
         public void dismiss() throws RemoteException {
         }
+
+        @Override
+        public void setA11yMode(int mode) throws RemoteException {
+        }
     }
 }
