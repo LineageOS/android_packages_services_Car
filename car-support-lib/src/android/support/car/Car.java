@@ -39,19 +39,7 @@ import java.util.Set;
 
 /**
  * Top-level car API that provides access to all car services and data available in the platform.
- * <p/>
- * Use one of the createCar methods to create a new instance of the Car api.  The
- * {@link CarConnectionCallback} will respond with an {@link CarConnectionCallback#onConnected(Car)}
- * or {@link CarConnectionCallback#onDisconnected(Car)} message.  Nothing can be done with the
- * car until onConnected is called.  When the car disconnects then reconnects you may still use
- * the Car object but any manages retried from it should be considered invalid and will need to
- * be retrieved.
- *
- * <p/>
- * Once connected, {@link #getCarManager(String)} or {@link #getCarManager(Class)} can be used to
- * retrieve a manager.  This is patterned after how one would retrieve a service from
- * {@link Context#getSystemService(String)} or {@link Context#getSystemService(Class)}.  Once
- * again if the car is disconnected you'll want to get new versions of these managers.
+ * Developers may create their own instance of {@link Car} when using a CarActivity.
  */
 public class Car {
 
@@ -73,7 +61,6 @@ public class Car {
 
     /**
      * Service name for {@link CarPackageManager}.
-     * @hide
      */
     public static final String PACKAGE_SERVICE = "package";
 
