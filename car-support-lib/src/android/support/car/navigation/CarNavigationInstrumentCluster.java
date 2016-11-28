@@ -82,25 +82,18 @@ public class CarNavigationInstrumentCluster {
         return mType;
     }
 
-    /**
-     * If instrument cluster is image, width of instrument cluster in pixels.
-     * @return the width of the image in pixels, 0 otherwise.
-     */
+    /** If instrument cluster is image, width of instrument cluster in pixels. */
     public int getImageWidth() {
         return mImageWidth;
     }
 
-    /**
-     * If instrument cluster is image, height of instrument cluster in pixels.
-     * @return the width of the image in pixels, 0 otherwise.
-     */
+    /** If instrument cluster is image, height of instrument cluster in pixels. */
     public int getImageHeight() {
         return mImageHeight;
     }
 
     /**
-     * @return If instrument cluster is image, number of bits of colour depth it supports (8, 16,
-     * or  32), 0 otherwise.
+     * If instrument cluster is image, number of bits of colour depth it supports (8, 16, or 32).
      */
     public int getImageColorDepthBits() {
         return mImageColorDepthBits;
@@ -117,9 +110,8 @@ public class CarNavigationInstrumentCluster {
     }
 
     /**
-     * Whether cluster support custom images or not.  If not generally the cluster will provide
-     * its own images.
-     * @return True if supported, false otherwise.
+     * Whether cluster support custom image or not.
+     * @return
      */
     public boolean supportsCustomImages() {
       return mType == CLUSTER_TYPE_CUSTOM_IMAGES_SUPPORTED;
