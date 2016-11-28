@@ -17,7 +17,6 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.VehicleZoneUtil;
-import android.app.AppGlobals;
 import android.car.media.CarAudioManager;
 import android.car.media.ICarAudio;
 import android.content.Context;
@@ -28,23 +27,19 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
 import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.IVolumeController;
 import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioMixingRule;
-import android.media.IVolumeController;
 import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioPolicy.AudioPolicyFocusListener;
-import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.os.RemoteException;
 import android.util.Log;
-import android.util.Pair;
 
 import com.android.car.hal.AudioHalService;
 import com.android.car.hal.AudioHalService.AudioHalFocusListener;
-import com.android.car.hal.VehicleHal;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
@@ -777,7 +772,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             return false;
         }
         AudioAttributes attrib = info.getAttributes();
-        if (info.getPackageName().equals(mContext.getPackageName()) &&
+        if (info.getPackageName().equals(mContext.getOpPackageName()) &&
                 CarAudioAttributesUtil.getCarUsageFromAudioAttributes(attrib) ==
                 CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_BOTTOM) {
             return true;
@@ -790,7 +785,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             return false;
         }
         AudioAttributes attrib = info.getAttributes();
-        if (info.getPackageName().equals(mContext.getPackageName()) &&
+        if (info.getPackageName().equals(mContext.getOpPackageName()) &&
                 attrib != null &&
                 CarAudioAttributesUtil.getCarUsageFromAudioAttributes(attrib) ==
                 CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY) {
