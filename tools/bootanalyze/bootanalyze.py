@@ -106,7 +106,7 @@ def iterate(args, search_events, timings, cfg):
   logcat_events, logcat_timing_events = collect_events(
     search_events, 'adb logcat -b all -v epoch', timings, cfg['stop_event'])
 
-  dmesg_events, e = collect_events(search_events, 'adb shell dmesg', {})
+  dmesg_events, e = collect_events(search_events, 'adb root;adb shell dmesg', {})
 
   logcat_event_time = extract_time(
     logcat_events, TIME_LOGCAT, float);
