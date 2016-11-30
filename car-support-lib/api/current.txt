@@ -94,14 +94,10 @@ package android.support.car.annotation {
 package android.support.car.hardware {
 
   public class CarSensorEvent {
-    method public android.support.car.hardware.CarSensorEvent.AccelerometerData getAccelerometerData();
     method public android.support.car.hardware.CarSensorEvent.CompassData getCompassData();
     method public android.support.car.hardware.CarSensorEvent.DrivingStatusData getDrivingStatusData();
-    method public android.support.car.hardware.CarSensorEvent.FuelLevelData getFuelLevelData();
-    method public android.support.car.hardware.CarSensorEvent.GyroscopeData getGyroscopeData();
     method public android.support.car.hardware.CarSensorEvent.NightData getNightData();
     method public android.support.car.hardware.CarSensorEvent.ParkingBrakeData getParkingBrakeData();
-    method public android.support.car.hardware.CarSensorEvent.RpmData getRpmData();
     field public static final int DRIVE_STATUS_FULLY_RESTRICTED = 31; // 0x1f
     field public static final int DRIVE_STATUS_LIMIT_MESSAGE_LEN = 16; // 0x10
     field public static final int DRIVE_STATUS_NO_CONFIG = 8; // 0x8
@@ -116,13 +112,6 @@ package android.support.car.hardware {
     field public final int[] intValues;
     field public final int sensorType;
     field public final long timestamp;
-  }
-
-  public static class CarSensorEvent.AccelerometerData {
-    field public final long timestamp;
-    field public final float x;
-    field public final float y;
-    field public final float z;
   }
 
   public static class CarSensorEvent.CompassData {
@@ -143,20 +132,6 @@ package android.support.car.hardware {
     field public final long timestamp;
   }
 
-  public static class CarSensorEvent.FuelLevelData {
-    field public final int level;
-    field public final boolean lowFuelWarning;
-    field public final float range;
-    field public final long timestamp;
-  }
-
-  public static class CarSensorEvent.GyroscopeData {
-    field public final long timestamp;
-    field public final float x;
-    field public final float y;
-    field public final float z;
-  }
-
   public static class CarSensorEvent.NightData {
     field public final boolean isNightMode;
     field public final long timestamp;
@@ -164,11 +139,6 @@ package android.support.car.hardware {
 
   public static class CarSensorEvent.ParkingBrakeData {
     field public final boolean isEngaged;
-    field public final long timestamp;
-  }
-
-  public static class CarSensorEvent.RpmData {
-    field public final float rpm;
     field public final long timestamp;
   }
 

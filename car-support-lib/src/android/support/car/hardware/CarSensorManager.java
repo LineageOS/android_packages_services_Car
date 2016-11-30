@@ -216,11 +216,6 @@ public abstract class CarSensorManager implements CarManagerBase {
      * The {@link OnSensorChangedListener} is the identifier for the request and the same
      * instance must be passed into {@link #removeListener(OnSensorChangedListener)}.
      * <p>
-     * Requires {@link android.Manifest.permission#ACCESS_FINE_LOCATION} for
-     * {@link #SENSOR_TYPE_LOCATION}, {@link Car#PERMISSION_SPEED} for
-     * {@link #SENSOR_TYPE_CAR_SPEED}, {@link Car#PERMISSION_MILEAGE} for
-     * {@link #SENSOR_TYPE_ODOMETER}, or {@link Car#PERMISSION_FUEL} for
-     * {@link #SENSOR_TYPE_FUEL_LEVEL}.
      *
      * @param sensorType Sensor type to subscribe.
      * @param rate How fast sensor events are delivered. Should be one of
