@@ -7,6 +7,14 @@ events:
   kernel: Linux version
   android_init_1st_stage: init first stage started
   android_init_2st_stage: init second stage started
+  late_init: processing action \(late-init\)
+  fs: processing action \(fs\)
+  post-fs: processing action \(post-fs\)
+  late-fs: processing action \(late-fs\)
+  post-fs-data: processing action \(post-fs-data\)
+  load_persist_props_action: processing action \(load_persist_props_action\)
+  early-boot: processing action \(early-boot\)
+  boot: processing action \(boot\)
   ueventd: Starting service 'ueventd'
   system_mounted: target=/system
   data_mounted: target=/data
