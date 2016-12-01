@@ -12,6 +12,10 @@ events:
   post-fs: processing action \(post-fs\)
   late-fs: processing action \(late-fs\)
   post-fs-data: processing action \(post-fs-data\)
+  nonencrypted: processing action \(nonencrypted\)
+  vold:  starting service 'vold'
+  starting_zygote: starting service 'zygote'
+  starting_zygote_secondary: starting service 'zygote_secondary'
   load_persist_props_action: processing action \(load_persist_props_action\)
   early-boot: processing action \(early-boot\)
   boot: processing action \(boot\)
@@ -20,7 +24,6 @@ events:
   data_mounted: target=/data
   correction: Updating system time diff=([0-9]+\.?[0-9]*), cuttime=([0-9]+)
   servicemanager_start_by_init: starting service 'servicemanager'
-  zygote_start_by_init: starting service 'zygote'
   zygoteInit: START com.android.internal.os.ZygoteInit
   zygote_preload__start: Zygote\s*:\s*begin preload
   zygote_preload_classes_start: Zygote\s*:\s*Preloading classes...
