@@ -27,9 +27,6 @@ LOCAL_MODULE := android.support.car-prebuilt
 LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_RESOURCE_DIR += frameworks/support/v7/appcompat/res
-LOCAL_RESOURCE_DIR += frameworks/support/v7/recyclerview/res
-LOCAL_RESOURCE_DIR += frameworks/support/v7/cardview/res
 LOCAL_SDK_VERSION := 24
 
 LOCAL_MANIFEST_FILE := AndroidManifest.xml
