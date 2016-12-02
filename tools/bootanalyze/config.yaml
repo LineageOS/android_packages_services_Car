@@ -19,8 +19,8 @@ events:
   system_mounted: target=/system
   data_mounted: target=/data
   correction: Updating system time diff=([0-9]+\.?[0-9]*), cuttime=([0-9]+)
-  servicemanager_start_by_init: Starting service 'servicemanager'
-  zygote_start_by_init: Starting service 'zygote'
+  servicemanager_start_by_init: starting service 'servicemanager'
+  zygote_start_by_init: starting service 'zygote'
   zygoteInit: START com.android.internal.os.ZygoteInit
   zygote_preload__start: Zygote\s*:\s*begin preload
   zygote_preload_classes_start: Zygote\s*:\s*Preloading classes...
@@ -36,5 +36,6 @@ events:
   SystemUi_start: for service com.android.systemui/.
   LauncherReady: Em.Overview:\s*onResume
   CarService_start: for service com.android.car/.CarService
-  BootAnimEnd: init:\sService 'bootanim'
+  BootAnimStart: starting service 'bootanim'
+  BootAnimEnd: Service 'bootanim'
   BootComplete: Starting phase 1000
