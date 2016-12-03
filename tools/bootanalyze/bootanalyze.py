@@ -36,8 +36,11 @@ KERNEL_TIME_KEY = "kernel"
 BOOT_ANIM_END_TIME_KEY = "BootAnimEnd"
 MAX_RETRIES = 5
 DEBUG = False
+ADB_CMD = "adb"
 
 def main():
+  global ADB_CMD
+
   args = init_arguments()
 
   if args.iterate < 1:
@@ -46,6 +49,9 @@ def main():
   if args.iterate > 1 and not args.reboot:
     print "Forcing reboot flag"
     args.reboot = True
+
+  if args.serial:
+    ADB_CMD = "%s %s" % ("adb -s", args.serial)
 
   cfg = yaml.load(args.config)
 
@@ -108,9 +114,9 @@ def iterate(args, search_events, timings, cfg):
     reboot()
 
   logcat_events, logcat_timing_events = collect_events(
-    search_events, 'adb logcat -b all -v epoch', timings, cfg['stop_event'])
+    search_events, ADB_CMD + ' logcat -b all -v epoch', timings, cfg['stop_event'])
 
-  dmesg_events, e = collect_events(search_events, 'adb shell su root dmesg', {})
+  dmesg_events, e = collect_events(search_events, ADB_CMD + ' shell su root dmesg', {})
 
   logcat_event_time = extract_time(
     logcat_events, TIME_LOGCAT, float);
@@ -223,7 +229,7 @@ def init_arguments():
   parser = argparse.ArgumentParser(description='Measures boot time.')
   parser.add_argument('-r', '--reboot', dest='reboot',
                       action='store_true',
-                      help='adb reboot device for measurement', )
+                      help='reboot device for measurement', )
   parser.add_argument('-c', '--config', dest='config',
                       default='config.yaml', type=argparse.FileType('r'),
                       help='config file for the tool', )
@@ -233,7 +239,8 @@ def init_arguments():
                       help='ignore too big values error', )
   parser.add_argument('-t', '--timings', dest='timings', action='store_true',
                       help='print individual component times', default=True, )
-
+  parser.add_argument('-p', '--serial', dest='serial', action='store',
+                      help='android device serial number')
   return parser.parse_args()
 
 def collect_events(search_events, command, timings, stop_event=None):
@@ -282,7 +289,7 @@ def extract_time(events, pattern, date_transform_function):
 
 def reboot():
   print 'Rebooting the device'
-  subprocess.Popen('adb reboot', shell=True).wait()
+  subprocess.Popen(ADB_CMD + ' reboot', shell=True).wait()
 
 def logcat_time_func(offset_year):
   def f(date_str):
