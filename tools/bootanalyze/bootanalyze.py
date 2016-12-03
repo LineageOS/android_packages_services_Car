@@ -32,7 +32,8 @@ import operator
 
 TIME_DMESG = "\[\s*(\d+\.\d+)\]"
 TIME_LOGCAT = "[0-9]+\.?[0-9]*"
-VALUE_TOO_BIG = 600
+KERNEL_TIME_KEY = "kernel"
+BOOT_ANIM_END_TIME_KEY = "BootAnimEnd"
 MAX_RETRIES = 5
 DEBUG = False
 
@@ -95,9 +96,12 @@ def main():
     print "Avg values after {0} runs".format(args.iterate)
     print '{0:30}: {1:<7} {2:<7}'.format("Event", "Mean", "stddev")
 
-    for item in sorted(data_points.items(), key=operator.itemgetter(1)):
+    average_with_stddev = []
+    for item in data_points.items():
+      average_with_stddev.append((item[0], sum(item[1])/len(item[1]), stddev(item[1])))
+    for item in sorted(average_with_stddev, key=lambda entry: entry[1]):
       print '{0:30}: {1:<7.5} {2:<7.5}'.format(
-        item[0], sum(item[1])/len(item[1]), stddev(item[1]))
+        item[0], item[1], item[2])
 
 def iterate(args, search_events, timings, cfg):
   if args.reboot:
@@ -114,7 +118,6 @@ def iterate(args, search_events, timings, cfg):
     logcat_events, TIME_LOGCAT, str);
   dmesg_event_time = extract_time(
     dmesg_events, TIME_DMESG, float);
-
   events = {}
   diff_time = 0
   max_time = 0
@@ -135,34 +138,46 @@ def iterate(args, search_events, timings, cfg):
     time_correction_delta, time_correction_time))
 
   for k, v in logcat_event_time.iteritems():
-    debug("event[{0}, {1}]".format(k, v))
     if v <= time_correction_time:
       logcat_event_time[k] += time_correction_delta
       v = v + time_correction_delta
       debug("correcting event to event[{0}, {1}]".format(k, v))
 
+  if not logcat_event_time.get(KERNEL_TIME_KEY):
+    print "kernel time not captured in logcat, cannot get time diff"
+    return None, None
+  kernel_diff = logcat_event_time[KERNEL_TIME_KEY]
+
+  if not dmesg_event_time.get(BOOT_ANIM_END_TIME_KEY) or not \
+    logcat_event_time.get(BOOT_ANIM_END_TIME_KEY):
+    print "BootAnimEnd time not captured in both log, cannot get time diff"
+    return None, None
+  boot_anim_end_diff = logcat_event_time[BOOT_ANIM_END_TIME_KEY] - \
+    dmesg_event_time[BOOT_ANIM_END_TIME_KEY]
+
+  debug("time diff, kernel {0}, boot anim end {1}".format(kernel_diff,\
+                                                          boot_anim_end_diff))
+  for k, v in logcat_event_time.iteritems():
+    debug("event[{0}, {1}]".format(k, v))
     events[k] = v
     if k in dmesg_event_time:
       debug("{0} is in dmesg".format(k))
-      if dmesg_event_time[k] > max_time:
-        debug("{0} is bigger max={1}".format(dmesg_event_time[k], max_time))
-        max_time = dmesg_event_time[k]
-        diff_time = v - max_time
-        debug("diff_time={0}".format(diff_time))
       events[k] = dmesg_event_time[k]
       replaced_from_dmesg.add(k)
     else:
       events_to_correct.append(k)
 
-  debug("diff_time={0}".format(diff_time))
   for k in events_to_correct:
     debug("k={0}, {1}".format(k, events[k]))
-    if round(events[k] - diff_time, 3) >= 0:
-      events[k] = round(events[k] - diff_time, 3)
-      if events[k] > VALUE_TOO_BIG and not args.ignore:
-        print "Event {0} value {1} too big , possible processing error".format(
-          k, events[k])
-        return None, None
+    adj1 = round(events[k] - kernel_diff, 3)
+    adj2 = round(events[k] - boot_anim_end_diff, 3)
+    # take whatever with less amount of change.
+    if abs(adj1) < abs(adj2):
+      events[k] = adj1
+    else:
+      events[k] = adj2
+    if events[k] < 0.0:
+        events[k] = 0.0
 
   data_points = {}
   timing_points = {}
