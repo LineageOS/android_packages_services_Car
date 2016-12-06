@@ -1,5 +1,4 @@
 #YAML
-stop_event: Starting phase 1000
 time_correction_key: correction
 timings:
   system_server: SystemServerTiming\s*:\s*(?P<name>[^\s]+) took to complete:\s(?P<time>[0-9]+)ms
@@ -25,7 +24,7 @@ events:
   correction: Updating system time diff=([0-9]+\.?[0-9]*), cuttime=([0-9]+)
   servicemanager_start_by_init: starting service 'servicemanager'
   zygoteInit: START com.android.internal.os.ZygoteInit
-  zygote_preload__start: Zygote\s*:\s*begin preload
+  zygote_preload_start: Zygote\s*:\s*begin preload
   zygote_preload_classes_start: Zygote\s*:\s*Preloading classes...
   zygote_preload_res_start: Zygote\s*:\s*Preloading resources...
   zygote_preload_end: Zygote\s*:\s*end preload
@@ -42,3 +41,4 @@ events:
   BootAnimStart: starting service 'bootanim'
   BootAnimEnd: Service 'bootanim'
   BootComplete: Starting phase 1000
+  BootComplete_kernel: processing action \(sys\.boot_completed=1\)

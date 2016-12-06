@@ -34,6 +34,9 @@ TIME_DMESG = "\[\s*(\d+\.\d+)\]"
 TIME_LOGCAT = "[0-9]+\.?[0-9]*"
 KERNEL_TIME_KEY = "kernel"
 BOOT_ANIM_END_TIME_KEY = "BootAnimEnd"
+KERNEL_BOOT_COMPLETE = "BootComplete_kernel"
+LOGCAT_BOOT_COMPLETE = "BootComplete"
+BOOT_TIME_TOO_BIG = 200.0
 MAX_RETRIES = 5
 DEBUG = False
 ADB_CMD = "adb"
@@ -59,8 +62,6 @@ def main():
                    for key, pattern in cfg['events'].iteritems()}
   timing_events = {key: re.compile(pattern)
                    for key, pattern in cfg['timings'].iteritems()}
-  if 'stop_event' not in cfg:
-    raise Exception('Logcat stop_event is missing in config');
 
   data_points = {}
   timing_points = {}
@@ -114,9 +115,10 @@ def iterate(args, search_events, timings, cfg):
     reboot()
 
   logcat_events, logcat_timing_events = collect_events(
-    search_events, ADB_CMD + ' logcat -b all -v epoch', timings, cfg['stop_event'])
+    search_events, ADB_CMD + ' logcat -b all -v epoch', timings, LOGCAT_BOOT_COMPLETE)
 
-  dmesg_events, e = collect_events(search_events, ADB_CMD + ' shell su root dmesg', {})
+  dmesg_events, e = collect_events(search_events, ADB_CMD + ' shell su root dmesg -w', {},\
+                                   KERNEL_BOOT_COMPLETE)
 
   logcat_event_time = extract_time(
     logcat_events, TIME_LOGCAT, float);
@@ -154,15 +156,34 @@ def iterate(args, search_events, timings, cfg):
     return None, None
   kernel_diff = logcat_event_time[KERNEL_TIME_KEY]
 
-  if not dmesg_event_time.get(BOOT_ANIM_END_TIME_KEY) or not \
-    logcat_event_time.get(BOOT_ANIM_END_TIME_KEY):
-    print "BootAnimEnd time not captured in both log, cannot get time diff"
-    return None, None
-  boot_anim_end_diff = logcat_event_time[BOOT_ANIM_END_TIME_KEY] - \
-    dmesg_event_time[BOOT_ANIM_END_TIME_KEY]
+  boot_complete_logcat = logcat_event_time[LOGCAT_BOOT_COMPLETE]
+  needs_adj_time = False
+  if abs(boot_complete_logcat - kernel_diff) > BOOT_TIME_TOO_BIG and time_correction_time == 0:
+    needs_adj_time = True
 
-  debug("time diff, kernel {0}, boot anim end {1}".format(kernel_diff,\
-                                                          boot_anim_end_diff))
+  second_diff = kernel_diff
+  if needs_adj_time:
+    if dmesg_event_time.get(BOOT_ANIM_END_TIME_KEY) and \
+      logcat_event_time.get(BOOT_ANIM_END_TIME_KEY):
+      second_diff = logcat_event_time[BOOT_ANIM_END_TIME_KEY] - \
+        dmesg_event_time[BOOT_ANIM_END_TIME_KEY]
+    # check if bootanim end time is too early and miss time change
+    if abs(second_diff - kernel_diff) < BOOT_TIME_TOO_BIG:
+      if not dmesg_event_time.get(KERNEL_BOOT_COMPLETE):
+        print "BootAnimEnd time or BootComplete-kernel not captured in both log" +\
+          ", cannot get time diff"
+        return None, None
+      debug("bootcomplete, kernel {0}, logcat {1}".format(dmesg_event_time[KERNEL_BOOT_COMPLETE],\
+                                                          logcat_event_time[LOGCAT_BOOT_COMPLETE]))
+      if logcat_event_time.get(KERNEL_BOOT_COMPLETE):
+        second_diff  = logcat_event_time[KERNEL_BOOT_COMPLETE] -\
+          dmesg_event_time[KERNEL_BOOT_COMPLETE]
+      else:
+        second_diff  = logcat_event_time[LOGCAT_BOOT_COMPLETE] -\
+          dmesg_event_time[KERNEL_BOOT_COMPLETE]
+
+  debug("time diff, kernel {0}, second {1}".format(kernel_diff,\
+                                                          second_diff))
   for k, v in logcat_event_time.iteritems():
     debug("event[{0}, {1}]".format(k, v))
     events[k] = v
@@ -176,7 +197,7 @@ def iterate(args, search_events, timings, cfg):
   for k in events_to_correct:
     debug("k={0}, {1}".format(k, events[k]))
     adj1 = round(events[k] - kernel_diff, 3)
-    adj2 = round(events[k] - boot_anim_end_diff, 3)
+    adj2 = round(events[k] - second_diff, 3)
     # take whatever with less amount of change.
     if abs(adj1) < abs(adj2):
       events[k] = adj1
@@ -184,6 +205,9 @@ def iterate(args, search_events, timings, cfg):
       events[k] = adj2
     if events[k] < 0.0:
         events[k] = 0.0
+
+  if events.get(KERNEL_BOOT_COMPLETE): # show only one BootComplete always
+    del events[KERNEL_BOOT_COMPLETE]
 
   data_points = {}
   timing_points = {}
@@ -243,7 +267,7 @@ def init_arguments():
                       help='android device serial number')
   return parser.parse_args()
 
-def collect_events(search_events, command, timings, stop_event=None):
+def collect_events(search_events, command, timings, stop_event):
   events = {}
   timing_events = {}
   process = subprocess.Popen(command, shell=True,
@@ -258,6 +282,8 @@ def collect_events(search_events, command, timings, stop_event=None):
     if event:
       debug("event[{0}] captured: {1}".format(event, line))
       events[event] = line
+      if event == stop_event:
+        break;
 
     timing_event = get_boot_event(line, timings);
     if timing_event:
@@ -266,8 +292,6 @@ def collect_events(search_events, command, timings, stop_event=None):
       timing_events[timing_event].append(line)
       debug("timing_event[{0}] captured: {1}".format(timing_event, line))
 
-    if stop_event and stop_event in line:
-      break;
   process.terminate()
   return events, timing_events
 
