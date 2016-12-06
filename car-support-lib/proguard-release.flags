@@ -5119,17 +5119,8 @@
 
     public static java.lang.String APP_FOCUS_SERVICE;
     public static java.lang.String AUDIO_SERVICE;
-    public static int CONNECTION_TYPE_ADB_EMULATOR;
-    public static int CONNECTION_TYPE_EMBEDDED;
-    public static int CONNECTION_TYPE_EMBEDDED_MOCKING;
-    public static int CONNECTION_TYPE_EMULATOR;
-    public static int CONNECTION_TYPE_ON_DEVICE_EMULATOR;
-    public static int CONNECTION_TYPE_UNKNOWN;
-    public static int CONNECTION_TYPE_USB;
-    public static int CONNECTION_TYPE_WIFI;
     public static java.lang.String INFO_SERVICE;
     public static java.lang.String NAVIGATION_STATUS_SERVICE;
-    public static java.lang.String PACKAGE_SERVICE;
     public static java.lang.String PERMISSION_CAR_NAVIGATION_MANAGER;
     public static java.lang.String PERMISSION_VENDOR_EXTENSION;
     public static java.lang.String SENSOR_SERVICE;
