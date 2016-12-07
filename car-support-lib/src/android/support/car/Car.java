@@ -108,31 +108,38 @@ public class Car {
 
     /**
      * Type of car connection: car emulator, no physical connection.
+     * @hide
      */
     public static final int CONNECTION_TYPE_EMULATOR = 0;
     /**
      * Type of car connection: connected to a car via USB.
+     * @hide
      */
     public static final int CONNECTION_TYPE_USB = 1;
     /**
      * Type of car connection: connected to a car via Wi-Fi.
+     * @hide
      */
     public static final int CONNECTION_TYPE_WIFI = 2;
     /**
      * Type of car connection: on-device car emulator, for development (such as Local Head Unit).
+     * @hide
      */
     public static final int CONNECTION_TYPE_ON_DEVICE_EMULATOR = 3;
     /**
      * Type of car connection: car emulator, connected over ADB (such as Desktop Head Unit).
+     * @hide
      */
     public static final int CONNECTION_TYPE_ADB_EMULATOR = 4;
     /**
      * Type of car connection: platform runs directly in car.
+     * @hide
      */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
 
     /**
      * Unknown type (the support lib is likely out-of-date).
+     * @hide
      */
     public static final int CONNECTION_TYPE_UNKNOWN = -1;
 

@@ -34,38 +34,56 @@ import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
  */
 public class CarSensorEvent {
 
+
     /**
-     * Bitmask of driving restrictions.
+     * Status for {@link CarSensorManager#SENSOR_TYPE_DRIVING_STATUS}: No restrictions.
      */
-    /** No restrictions. */
     public static final int DRIVE_STATUS_UNRESTRICTED = 0;
-    /** No video playback allowed. */
+    /**
+     * Status for {@link CarSensorManager#SENSOR_TYPE_DRIVING_STATUS}: No video playback allowed.
+     * See {@link #getDrivingStatusData()}.
+     */
     public static final int DRIVE_STATUS_NO_VIDEO = 0x1;
-    /** No keyboard or rotary controller input allowed. */
+    /**
+     * Status for {@link CarSensorManager#SENSOR_TYPE_DRIVING_STATUS}: No keyboard or rotary
+     * controller input allowed. See {@link #getDrivingStatusData()}.
+     */
     public static final int DRIVE_STATUS_NO_KEYBOARD_INPUT = 0x2;
-    /** No voice input allowed. */
+    /**
+     * Status for {@link CarSensorManager#SENSOR_TYPE_DRIVING_STATUS}: No voice input allowed.
+     * See {@link #getDrivingStatusData()}.
+     */
     public static final int DRIVE_STATUS_NO_VOICE_INPUT = 0x4;
-    /** No setup/configuration allowed. */
+    /**
+     * Status for {@link CarSensorManager#SENSOR_TYPE_DRIVING_STATUS}: No setup/configuration
+     * allowed. See {@link #getDrivingStatusData()}.
+     */
     public static final int DRIVE_STATUS_NO_CONFIG = 0x8;
-    /** Limit displayed message length. */
+    /**
+     * Status for {@link CarSensorManager#SENSOR_TYPE_DRIVING_STATUS}: Limit displayed message
+     * length. See {@link #getDrivingStatusData()}.
+     */
     public static final int DRIVE_STATUS_LIMIT_MESSAGE_LEN = 0x10;
-    /** All driving restrictions enabled. */
+    /**
+     * Status for {@link CarSensorManager#SENSOR_TYPE_DRIVING_STATUS}: All driving restrictions
+     * enabled. See {@link #getDrivingStatusData()}.
+     */
     public static final int DRIVE_STATUS_FULLY_RESTRICTED = DRIVE_STATUS_NO_VIDEO |
             DRIVE_STATUS_NO_KEYBOARD_INPUT | DRIVE_STATUS_NO_VOICE_INPUT | DRIVE_STATUS_NO_CONFIG |
             DRIVE_STATUS_LIMIT_MESSAGE_LEN;
     /**
      * Indices for {@link CarSensorManager#SENSOR_TYPE_COMPASS} in floatValues.
-     * Angles are in degrees. Can be NaN if not available.
+     * Angles are in degrees. Can be NaN if not available. See {@link #getCompassData()}.
      */
     public static final int INDEX_COMPASS_BEARING = 0;
     /**
      * Indices for {@link CarSensorManager#SENSOR_TYPE_COMPASS} in floatValues.
-     * Angles are in degrees. Can be NaN if not available.
+     * Angles are in degrees. Can be NaN if not available. See {@link #getCompassData()}.
      */
     public static final int INDEX_COMPASS_PITCH   = 1;
     /**
      * Indices for {@link CarSensorManager#SENSOR_TYPE_COMPASS} in floatValues.
-     * Angles are in degrees. Can be NaN if not available.
+     * Angles are in degrees. Can be NaN if not available. See {@link #getCompassData()}.
      */
     public static final int INDEX_COMPASS_ROLL    = 2;
 
@@ -153,7 +171,7 @@ public class CarSensorEvent {
     }
 
     /**
-     * Holds data about the car's compass readings.
+     * Holds data about the car's compass readings. See {@link #getCompassData()}.
      */
     public static class CompassData {
         /** The time in nanoseconds since system boot. */
@@ -194,7 +212,8 @@ public class CarSensorEvent {
     }
 
     /**
-     * Indicates the state of the parking brake (engaged or not).
+     * Indicates the state of the parking brake (engaged or not). See
+     * {@link #getParkingBrakeData()}.
      */
     public static class ParkingBrakeData {
         /** The time in nanoseconds since system boot. */
@@ -212,7 +231,8 @@ public class CarSensorEvent {
 
     /**
      * Convenience method for obtaining a {@link ParkingBrakeData} object from a CarSensorEvent
-     * object with type {@link CarSensorManager#SENSOR_TYPE_PARKING_BRAKE}.
+     * object with type {@link CarSensorManager#SENSOR_TYPE_PARKING_BRAKE}. See
+     * {@link #getParkingBrakeData()}.
      *
      * @return A ParkingBreakData object corresponding to the data contained in the CarSensorEvent.
      */
@@ -223,7 +243,7 @@ public class CarSensorEvent {
 
     /**
      * Indicates if the system is in night mode (a state in which the screen is
-     * darkened or displays a darker color palette).
+     * darkened or displays a darker color palette). See {@link #getNightData()}.
      */
     public static class NightData {
         /** The time in nanoseconds since system boot. */
@@ -251,7 +271,8 @@ public class CarSensorEvent {
     }
 
     /**
-     * Indicates the restrictions in effect based on the status of the vehicle.
+     * Indicates the restrictions in effect based on the status of the vehicle. See
+     * {@link #getDrivingStatusData()}.
      */
     public static class DrivingStatusData {
         /**
