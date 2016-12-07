@@ -29,6 +29,7 @@ import math
 import datetime
 import sys
 import operator
+from datetime import datetime, date
 
 TIME_DMESG = "\[\s*(\d+\.\d+)\]"
 TIME_LOGCAT = "[0-9]+\.?[0-9]*"
@@ -56,6 +57,10 @@ def main():
   if args.serial:
     ADB_CMD = "%s %s" % ("adb -s", args.serial)
 
+  error_time = BOOT_TIME_TOO_BIG * 10
+  if args.errortime:
+    error_time = float(args.errortime)
+
   cfg = yaml.load(args.config)
 
   search_events = {key: re.compile(pattern)
@@ -74,7 +79,7 @@ def main():
     while attempt <= MAX_RETRIES and processing_data is None:
       attempt += 1
       processing_data, timings = iterate(
-        args, search_events, timing_events, cfg)
+        args, search_events, timing_events, cfg, error_time)
 
     if processing_data is None:
       # Processing error
@@ -110,7 +115,7 @@ def main():
       print '{0:30}: {1:<7.5} {2:<7.5}'.format(
         item[0], item[1], item[2])
 
-def iterate(args, search_events, timings, cfg):
+def iterate(args, search_events, timings, cfg, error_time):
   if args.reboot:
     reboot()
 
@@ -235,6 +240,15 @@ def iterate(args, search_events, timings, cfg):
       logcat_original_time[item[0]])
 
   print '\n* - event time was obtained from dmesg log\n'
+  if events[LOGCAT_BOOT_COMPLETE] > error_time:
+    now = datetime.now()
+    bugreport_file = "bugreport-bootuptoolong-%s_%s.zip" % (str(events[LOGCAT_BOOT_COMPLETE]),\
+                                              now.strftime("%Y-%m-%d-%H-%M-%S"))
+    print "Boot up time too big, treated as error, will capture bugreport %s and reject data"\
+       % (bugreport_file)
+    os.system(ADB_CMD + " bugreport " + bugreport_file)
+    return None, None
+
   return data_points, timing_points
 
 def debug(string):
@@ -265,6 +279,8 @@ def init_arguments():
                       help='print individual component times', default=True, )
   parser.add_argument('-p', '--serial', dest='serial', action='store',
                       help='android device serial number')
+  parser.add_argument('-e', '--errortime', dest='errortime', action='store',
+                      help='handle bootup time bigger than this as error')
   return parser.parse_args()
 
 def collect_events(search_events, command, timings, stop_event):
