@@ -283,6 +283,32 @@ def init_arguments():
                       help='handle bootup time bigger than this as error')
   return parser.parse_args()
 
+def handle_zygote_event(zygote_pids, events, event, line):
+  words = line.split()
+  if len(words) > 1:
+    pid = int(words[1])
+    if len(zygote_pids) == 2:
+      if pid == zygote_pids[1]: # secondary
+        event = event + "-secondary"
+    elif len(zygote_pids) == 1:
+      if zygote_pids[0] != pid: # new pid, need to decide if old ones were secondary
+        primary_pid = min(pid, zygote_pids[0])
+        secondary_pid = max(pid, zygote_pids[0])
+        zygote_pids = [primary_pid, secondary_pid]
+        if pid == primary_pid: # old one was secondary:
+          move_to_secondary = []
+          for k, l in events.iteritems():
+            if k.startswith("zygote"):
+              move_to_secondary.append((k, l))
+          for item in move_to_secondary:
+            del events[item[0]]
+            events[item[0] + "-secondary"] = item[1]
+        else:
+          event = event + "-secondary"
+    else:
+      zygote_pids.append(pid)
+  events[event] = line
+
 def collect_events(search_events, command, timings, stop_event):
   events = {}
   timing_events = {}
@@ -290,6 +316,8 @@ def collect_events(search_events, command, timings, stop_event):
                              stdout=subprocess.PIPE);
   out = process.stdout
   data_available = stop_event is None
+  zygote_pids = []
+
   for line in out:
     if not data_available:
       print "Collecting data samples. Please wait...\n"
@@ -297,7 +325,10 @@ def collect_events(search_events, command, timings, stop_event):
     event = get_boot_event(line, search_events);
     if event:
       debug("event[{0}] captured: {1}".format(event, line))
-      events[event] = line
+      if event.startswith("zygote"):
+        handle_zygote_event(zygote_pids, events, event, line)
+      else:
+        events[event] = line
       if event == stop_event:
         break;
 
