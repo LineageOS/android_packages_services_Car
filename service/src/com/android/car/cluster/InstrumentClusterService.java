@@ -15,6 +15,7 @@
  */
 package com.android.car.cluster;
 
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.CarAppFocusManager;
 import android.car.cluster.renderer.IInstrumentCluster;
@@ -27,7 +28,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
 import android.view.KeyEvent;
 
 import com.android.car.AppFocusService;
@@ -36,8 +36,8 @@ import com.android.car.CarInputService;
 import com.android.car.CarInputService.KeyEventListener;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
-import com.android.car.CarServiceUtils;
 import com.android.car.R;
+import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 
@@ -56,10 +56,13 @@ public class InstrumentClusterService implements CarServiceBase,
     private final Context mContext;
     private final AppFocusService mAppFocusService;
     private final CarInputService mCarInputService;
+    private final Object mSync = new Object();
 
-    private Pair<Integer, Integer> mNavContextOwner;
-
+    @GuardedBy("mSync")
+    private ContextOwner mNavContextOwner;
+    @GuardedBy("mSync")
     private IInstrumentCluster mRendererService;
+
     private boolean mRendererBound = false;
 
     private final ServiceConnection mRendererServiceConnection = new ServiceConnection() {
@@ -68,10 +71,14 @@ public class InstrumentClusterService implements CarServiceBase,
             if (DBG) {
                 Log.d(TAG, "onServiceConnected, name: " + name + ", binder: " + binder);
             }
-            mRendererService = IInstrumentCluster.Stub.asInterface(binder);
-
-            if (mNavContextOwner != null) {
-                notifyNavContextOwnerChanged(mNavContextOwner.first, mNavContextOwner.second);
+            IInstrumentCluster service = IInstrumentCluster.Stub.asInterface(binder);
+            ContextOwner navContextOwner;
+            synchronized (mSync) {
+                mRendererService = service;
+                navContextOwner = mNavContextOwner;
+            }
+            if (navContextOwner !=  null) {
+                notifyNavContextOwnerChanged(service, navContextOwner.uid, navContextOwner.pid);
             }
         }
 
@@ -128,9 +135,13 @@ public class InstrumentClusterService implements CarServiceBase,
             return;
         }
 
-        mNavContextOwner = new Pair<>(uid, pid);
+        IInstrumentCluster service;
+        synchronized (mSync) {
+            mNavContextOwner = new ContextOwner(uid, pid);
+            service = mRendererService;
+        }
 
-        notifyNavContextOwnerChanged(uid, pid);
+        notifyNavContextOwnerChanged(service, uid, pid);
     }
 
     @Override
@@ -139,20 +150,28 @@ public class InstrumentClusterService implements CarServiceBase,
             return;
         }
 
-        if (mNavContextOwner != null
-                && mNavContextOwner.first == uid
-                && mNavContextOwner.second == pid) {
-            notifyNavContextOwnerChanged(0, 0);  // Reset focus ownership
+        IInstrumentCluster service;
+        synchronized (mSync) {
+            if (mNavContextOwner == null
+                    || mNavContextOwner.uid != uid
+                    || mNavContextOwner.pid != pid) {
+                return;  // Nothing to do here, no active focus or not owned by this client.
+            }
+
+            mNavContextOwner = null;
+            service = mRendererService;
+        }
+
+        if (service != null) {
+            notifyNavContextOwnerChanged(service, 0, 0);
         }
     }
 
-    private void notifyNavContextOwnerChanged(int uid, int pid) {
-        if (mRendererService != null) {
-            try {
-                mRendererService.setNavigationContextOwner(uid, pid);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Failed to call setNavigationContextOwner", e);
-            }
+    private static void notifyNavContextOwnerChanged(IInstrumentCluster service, int uid, int pid) {
+        try {
+            service.setNavigationContextOwner(uid, pid);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Failed to call setNavigationContextOwner", e);
         }
     }
 
@@ -172,9 +191,15 @@ public class InstrumentClusterService implements CarServiceBase,
         return mContext.bindService(intent, mRendererServiceConnection, Context.BIND_IMPORTANT);
     }
 
+    @Nullable
     public IInstrumentClusterNavigation getNavigationService() {
+        IInstrumentCluster service;
+        synchronized (mSync) {
+            service = mRendererService;
+        }
+
         try {
-            return mRendererService == null ? null : mRendererService.getNavigationService();
+            return service == null ? null : service.getNavigationService();
         } catch (RemoteException e) {
             Log.e(TAG, "getNavigationServiceBinder" , e);
             return null;
@@ -186,13 +211,29 @@ public class InstrumentClusterService implements CarServiceBase,
         if (DBG) {
             Log.d(TAG, "InstrumentClusterService#onKeyEvent: " + event);
         }
-        if (mRendererService != null) {
+
+        IInstrumentCluster service;
+        synchronized (mSync) {
+            service = mRendererService;
+        }
+
+        if (service != null) {
             try {
-                mRendererService.onKeyEvent(event);
+                service.onKeyEvent(event);
             } catch (RemoteException e) {
                 Log.e(TAG, "onKeyEvent", e);
             }
         }
         return true;
+    }
+
+    private static class ContextOwner {
+        final int uid;
+        final int pid;
+
+        ContextOwner(int uid, int pid) {
+            this.uid = uid;
+            this.pid = pid;
+        }
     }
 }
