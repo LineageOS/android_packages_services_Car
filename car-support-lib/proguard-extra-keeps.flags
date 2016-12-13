@@ -1,4 +1,4 @@
--keepattributes *Annotation*,InnerClasses,Exceptions,Signature
+-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,EnclosingMethod,*Annotation*
 
 -keep class android.support.car.CarServiceLoader {
     public protected *;
