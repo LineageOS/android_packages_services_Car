@@ -27,6 +27,7 @@ import android.hardware.vehicle.V2_0.IVehicleCallback;
 import android.hardware.vehicle.V2_0.VehicleAreaConfig;
 import android.hardware.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.vehicle.V2_0.VehicleProperty;
 import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.os.HandlerThread;
@@ -389,7 +390,12 @@ public class VehicleHal extends IVehicleCallback.Stub {
     public void onPropertySetError(int errorCode, int propId, int areaId) {
         Log.e(CarLog.TAG_HAL, String.format("onPropertySetError, errorCode: %d, prop: 0x%x, "
                 + "area: 0x%x", errorCode, propId, areaId));
-        // TODO propagate per property error to HAL services and handle global error, bug:32068464
+        if (propId != VehicleProperty.INVALID) {
+            HalServiceBase service = mPropertyHandlers.get(propId);
+            if (service != null) {
+                service.handlePropertySetError(propId, areaId);
+            }
+        }
     }
 
     public void dump(PrintWriter writer) {
@@ -402,7 +408,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
         synchronized (this) {
             configList = new ArrayList<>(mAllProperties.values());
         }
-
 
         writer.println("**All properties**");
         for (VehiclePropConfig config : configList) {

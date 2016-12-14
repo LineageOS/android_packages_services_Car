@@ -62,5 +62,7 @@ public abstract class HalServiceBase {
 
     public abstract void handleHalEvents(List<VehiclePropValue> values);
 
+    public void handlePropertySetError(int property, int area) {}
+
     public abstract void dump(PrintWriter writer);
 }

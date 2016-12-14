@@ -58,7 +58,7 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
 
     public interface PropertyHalListener {
         void onPropertyChange(CarPropertyEvent event);
-        void onError(int zone, int property);
+        void onPropertySetError(int property, int area);
     }
 
     protected PropertyHalServiceBase(VehicleHal vehicleHal, String tag, boolean dbg) {
@@ -172,7 +172,7 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
     @Override
     public void handleHalEvents(List<VehiclePropValue> values) {
         PropertyHalListener listener;
-        synchronized (this) {
+        synchronized (mLock) {
             listener = mListener;
         }
         if (listener != null) {
@@ -195,6 +195,17 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
                     Log.d(mTag, "handleHalEvents event: " + event);
                 }
             }
+        }
+    }
+
+    @Override
+    public void handlePropertySetError(int property, int area) {
+        PropertyHalListener listener;
+        synchronized (mLock) {
+            listener = mListener;
+        }
+        if (listener != null) {
+            listener.onPropertySetError(property, area);
         }
     }
 

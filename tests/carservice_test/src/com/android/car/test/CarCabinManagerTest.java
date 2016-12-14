@@ -20,6 +20,7 @@ import android.car.Car;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.cabin.CarCabinManager;
 import android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback;
+import android.car.hardware.cabin.CarCabinManager.PropertyId;
 import android.hardware.vehicle.V2_0.VehicleAreaDoor;
 import android.hardware.vehicle.V2_0.VehicleAreaWindow;
 import android.hardware.vehicle.V2_0.VehiclePropValue;
@@ -27,11 +28,13 @@ import android.hardware.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
+import android.util.MutableInt;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -92,6 +95,36 @@ public class CarCabinManagerTest extends MockedCarTestBase {
                 VehicleAreaWindow.ROW_1_LEFT);
         assertEquals(25, windowPos);
     }
+
+    public void testError() throws Exception {
+        final int PROP = VehicleProperty.DOOR_LOCK;
+        final int AREA = VehicleAreaWindow.ROW_1_LEFT;
+        final int ERR_CODE = 42;
+
+        CountDownLatch errorLatch = new CountDownLatch(1);
+        MutableInt propertyIdReceived = new MutableInt(0);
+        MutableInt areaIdReceived = new MutableInt(0);
+
+        mCarCabinManager.registerCallback(new CarCabinEventCallback() {
+            @Override
+            public void onChangeEvent(CarPropertyValue value) {
+
+            }
+
+            @Override
+            public void onErrorEvent(@PropertyId int propertyId, int area) {
+                propertyIdReceived.value = propertyId;
+                areaIdReceived.value = area;
+                errorLatch.countDown();
+            }
+        });
+
+        getMockedVehicleHal().injectError(ERR_CODE, PROP, AREA);
+        assertTrue(errorLatch.await(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(PROP, propertyIdReceived.value);
+        assertEquals(AREA, areaIdReceived.value);
+    }
+
 
     // Test an event
     public void testEvent() throws Exception {

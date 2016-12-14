@@ -27,7 +27,6 @@ import android.hardware.vehicle.V2_0.SubscribeOptions;
 import android.hardware.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.vehicle.V2_0.VehiclePropValue;
 import android.os.Handler;
-import android.os.IHwBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
