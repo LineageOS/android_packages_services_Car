@@ -28,7 +28,6 @@ import android.hardware.vehicle.V2_0.SubscribeOptions;
 import android.hardware.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.vehicle.V2_0.VehiclePropValue;
 import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
-import android.os.IHwBinder;
 
 import com.google.android.collect.Lists;
 
@@ -80,6 +79,15 @@ public class MockedVehicleHal extends IVehicle.Stub {
                 callbacks);
         for (IVehicleCallback callback : callbacks) {
             callback.onPropertyEvent(Lists.newArrayList(value));
+        }
+    }
+
+    public synchronized void injectError(int errorCode, int propertyId, int areaId) {
+        List<IVehicleCallback> callbacks = mSubscribers.get(propertyId);
+        assertNotNull("Injecting error failed for property: " + propertyId + ". No listeners found",
+                callbacks);
+        for (IVehicleCallback callback : callbacks) {
+            callback.onPropertySetError(errorCode, propertyId, areaId);
         }
     }
 

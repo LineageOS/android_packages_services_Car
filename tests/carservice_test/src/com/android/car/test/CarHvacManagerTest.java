@@ -20,6 +20,7 @@ import android.car.Car;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback;
+import android.car.hardware.hvac.CarHvacManager.PropertyId;
 import android.hardware.vehicle.V2_0.VehicleAreaWindow;
 import android.hardware.vehicle.V2_0.VehicleAreaZone;
 import android.hardware.vehicle.V2_0.VehiclePropValue;
@@ -29,11 +30,13 @@ import android.hardware.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
+import android.util.MutableInt;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -115,6 +118,35 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         temp = mCarHvacManager.getFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT,
                 VehicleAreaZone.ROW_1_LEFT);
         assertEquals(65.5, temp, 0);
+    }
+
+    public void testError() throws Exception {
+        final int PROP = VehicleProperty.HVAC_DEFROSTER;
+        final int AREA = VehicleAreaWindow.FRONT_WINDSHIELD;
+        final int ERR_CODE = 42;
+
+        CountDownLatch errorLatch = new CountDownLatch(1);
+        MutableInt propertyIdReceived = new MutableInt(0);
+        MutableInt areaIdReceived = new MutableInt(0);
+
+        mCarHvacManager.registerCallback(new CarHvacEventCallback() {
+            @Override
+            public void onChangeEvent(CarPropertyValue value) {
+
+            }
+
+            @Override
+            public void onErrorEvent(@PropertyId int propertyId, int area) {
+                propertyIdReceived.value = propertyId;
+                areaIdReceived.value = area;
+                errorLatch.countDown();
+            }
+        });
+
+        getMockedVehicleHal().injectError(ERR_CODE, PROP, AREA);
+        assertTrue(errorLatch.await(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(PROP, propertyIdReceived.value);
+        assertEquals(AREA, areaIdReceived.value);
     }
 
     // Test an event

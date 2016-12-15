@@ -192,12 +192,19 @@ public class CarPropertyServiceBase extends ICarProperty.Stub
         mHal.setProperty(prop);
     }
 
+    private ICarPropertyEventListener[] getListeners() {
+        synchronized (mLock) {
+            int size = mListenersMap.values().size();
+            return mListenersMap.values().toArray(new ICarPropertyEventListener[size]);
+        }
+    }
+
     // Implement PropertyHalListener interface
     @Override
     public void onPropertyChange(CarPropertyEvent event) {
-        for (ICarPropertyEventListener l : mListenersMap.values()) {
+        for (ICarPropertyEventListener listener : getListeners()) {
             try {
-                l.onEvent(event);
+                listener.onEvent(event);
             } catch (RemoteException ex) {
                 // If we could not send a record, its likely the connection snapped. Let the binder
                 // death handle the situation.
@@ -207,7 +214,20 @@ public class CarPropertyServiceBase extends ICarProperty.Stub
     }
 
     @Override
-    public void onError(int zone, int property) {
-        // TODO bug:32068464
+    public void onPropertySetError(int property, int area) {
+        for (ICarPropertyEventListener listener : getListeners()) {
+            try {
+                listener.onEvent(createErrorEvent(property, area));
+            } catch (RemoteException ex) {
+                // If we could not send a record, its likely the connection snapped. Let the binder
+                // death handle the situation.
+                Log.e(mTag, "onEvent calling failed: " + ex);
+            }
+        }
+    }
+
+    private static CarPropertyEvent createErrorEvent(int property, int area) {
+        return new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_ERROR,
+                new CarPropertyValue<>(property, area, null));
     }
 }
