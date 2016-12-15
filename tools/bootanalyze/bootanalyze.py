@@ -272,7 +272,9 @@ def handle_zygote_event(zygote_pids, events, event, line):
       if zygote_pids[0] != pid: # new pid, need to decide if old ones were secondary
         primary_pid = min(pid, zygote_pids[0])
         secondary_pid = max(pid, zygote_pids[0])
-        zygote_pids = [primary_pid, secondary_pid]
+        zygote_pids.pop()
+        zygote_pids.append(primary_pid)
+        zygote_pids.append(secondary_pid)
         if pid == primary_pid: # old one was secondary:
           move_to_secondary = []
           for k, l in events.iteritems():
@@ -280,7 +282,11 @@ def handle_zygote_event(zygote_pids, events, event, line):
               move_to_secondary.append((k, l))
           for item in move_to_secondary:
             del events[item[0]]
-            events[item[0] + "-secondary"] = item[1]
+            if item[0].endswith("-secondary"):
+              print "Secondary already exists for event %s  while found new pid %d, primary %d "\
+                % (item[0], secondary_pid, primary_pid)
+            else:
+              events[item[0] + "-secondary"] = item[1]
         else:
           event = event + "-secondary"
     else:
