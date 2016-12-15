@@ -29,7 +29,9 @@ import math
 import datetime
 import sys
 import operator
+import collections
 from datetime import datetime, date
+
 
 TIME_DMESG = "\[\s*(\d+\.\d+)\]"
 TIME_LOGCAT = "[0-9]+\.?[0-9]*"
@@ -41,6 +43,7 @@ BOOT_TIME_TOO_BIG = 200.0
 MAX_RETRIES = 5
 DEBUG = False
 ADB_CMD = "adb"
+TIMING_THRESHOLD = 5.0
 
 def main():
   global ADB_CMD
@@ -69,7 +72,7 @@ def main():
                    for key, pattern in cfg['timings'].iteritems()}
 
   data_points = {}
-  timing_points = {}
+  timing_points = collections.OrderedDict()
   for it in range(0, args.iterate):
     if args.iterate > 1:
       print "Run: {0}".format(it + 1)
@@ -98,13 +101,25 @@ def main():
 
   if args.iterate > 1:
     if timing_points and args.timings:
-      print "Avg time values after {0} runs".format(args.iterate)
+      print "-----------------"
+      print "Timing in order, Avg time values after {0} runs".format(args.iterate)
       print '{0:30}: {1:<7} {2:<7}'.format("Event", "Mean", "stddev")
 
-      for item in sorted(timing_points.items(), key=operator.itemgetter(1)):
+      for item in timing_points.items():
         print '{0:30}: {1:<7.5} {2:<7.5}'.format(
           item[0], sum(item[1])/len(item[1]), stddev(item[1]))
 
+      print "-----------------"
+      print "Timing top items, Avg time values after {0} runs".format(args.iterate)
+      print '{0:30}: {1:<7} {2:<7}'.format("Event", "Mean", "stddev")
+      for item in sorted(timing_points.items(), key=operator.itemgetter(1), reverse=True):
+        average = sum(item[1])/len(item[1])
+        if average < TIMING_THRESHOLD:
+          break
+        print '{0:30}: {1:<7.5} {2:<7.5}'.format(
+          item[0], average, stddev(item[1]))
+
+    print "-----------------"
     print "Avg values after {0} runs".format(args.iterate)
     print '{0:30}: {1:<7} {2:<7}'.format("Event", "Mean", "stddev")
 
@@ -193,16 +208,35 @@ def iterate(args, search_events, timings, cfg, error_time):
         events[k] = 0.0
 
   data_points = {}
-  timing_points = {}
+  timing_points = collections.OrderedDict()
 
   if args.timings:
+    timing_abs_times = []
     for k, l in logcat_timing_events.iteritems():
       for v in l:
         name, time_v = extract_timing(v, timings)
-        if name:
+        time_abs = extract_a_time(v, TIME_LOGCAT, float)
+        if name and time_abs:
           timing_points[name] = time_v
-    print "Event timing"
-    for item in sorted(timing_points.items(), key=operator.itemgetter(1)):
+          timing_abs_times.append(time_abs * 1000.0)
+    timing_delta = []
+    if len(timing_points.items()) > 0:
+      timing_delta.append(timing_points.items()[0][1])
+    for i in range(1, len(timing_abs_times)):
+      timing_delta.append(timing_abs_times[i] -  timing_abs_times[i - 1])
+    print "Event timing in time order, key: time (delta from prev too big)"
+    for item in timing_points.items():
+      delta = timing_delta.pop(0)
+      msg = ""
+      if (delta - item[1]) > TIMING_THRESHOLD:
+        msg = "**big delta from prev step:" + str(delta)
+      print '{0:30}: {1:<7.5} {2}'.format(
+        item[0], item[1], msg)
+    print "-----------------"
+    print "Event timing top items"
+    for item in sorted(timing_points.items(), key=operator.itemgetter(1), reverse = True):
+      if item[1] < TIMING_THRESHOLD:
+        break
       print '{0:30}: {1:<7.5}'.format(
         item[0], item[1])
     print "-----------------"
@@ -239,7 +273,7 @@ def extract_timing(s, patterns):
     if m:
       g_dict = m.groupdict()
       return g_dict['name'], float(g_dict['time'])
-  return None, Node
+  return None, None
 
 def init_arguments():
   parser = argparse.ArgumentParser(description='Measures boot time.')
@@ -294,7 +328,7 @@ def handle_zygote_event(zygote_pids, events, event, line):
   events[event] = line
 
 def collect_events(search_events, command, timings, stop_events):
-  events = {}
+  events = collections.OrderedDict()
   timing_events = {}
   process = subprocess.Popen(command, shell=True,
                              stdout=subprocess.PIPE);
@@ -334,12 +368,19 @@ def get_boot_event(line, events):
       return event_key
   return None
 
-def extract_time(events, pattern, date_transform_function):
-  result = {}
-  for event, data in events.iteritems():
-    found = re.findall(pattern, data)
+def extract_a_time(line, pattern, date_transform_function):
+    found = re.findall(pattern, line)
     if len(found) > 0:
-      result[event] = date_transform_function(found[0])
+      return date_transform_function(found[0])
+    else:
+      return None
+
+def extract_time(events, pattern, date_transform_function):
+  result = collections.OrderedDict()
+  for event, data in events.iteritems():
+    time = extract_a_time(data, pattern, date_transform_function)
+    if time:
+      result[event] = time
     else:
       print "Failed to find time for event: ", event, data
   return result
