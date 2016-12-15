@@ -185,7 +185,7 @@ def iterate(args, search_events, timings, cfg, error_time):
 
   for k in events_to_correct:
     diff = diffs[0]
-    while diff[0] < events[k] and len(diffs) > 0:
+    while diff[0] < events[k] and len(diffs) > 1:
       diffs.pop(0)
       diff = diffs[0]
     events[k] = events[k] - diff[1]
@@ -304,7 +304,7 @@ def collect_events(search_events, command, timings, stop_events):
 
   for line in out:
     if not data_available:
-      print "Collecting data samples. Please wait...\n"
+      print "Collecting data samples from '%s'. Please wait...\n" % command
       data_available = True
     event = get_boot_event(line, search_events);
     if event:
@@ -346,7 +346,9 @@ def extract_time(events, pattern, date_transform_function):
 
 def reboot():
   print 'Rebooting the device'
-  subprocess.Popen(ADB_CMD + ' reboot', shell=True).wait()
+  subprocess.call(ADB_CMD + ' reboot', shell=True)
+  print 'Waiting the device'
+  subprocess.call(ADB_CMD + ' wait-for-device', shell=True)
 
 def logcat_time_func(offset_year):
   def f(date_str):
