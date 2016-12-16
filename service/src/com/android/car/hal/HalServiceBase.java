@@ -35,6 +35,8 @@ public abstract class HalServiceBase {
     /** For dispatching events. Kept here to avoid alloc every time */
     private final LinkedList<VehiclePropValue> mDispatchList = new LinkedList<VehiclePropValue>();
 
+    final static int NOT_SUPPORTED_PROPERTY = -1;
+
     public List<VehiclePropValue> getDispatchList() {
         return mDispatchList;
     }
@@ -65,4 +67,36 @@ public abstract class HalServiceBase {
     public void handlePropertySetError(int property, int area) {}
 
     public abstract void dump(PrintWriter writer);
+
+    /**
+     * Helper class that maintains bi-directional mapping between manager's property
+     * Id (public or system API) and vehicle HAL property Id.
+     *
+     * <p>This class is supposed to be immutable. Use {@link #create(int[])} factory method to
+     * instantiate this class.
+     */
+    static class ManagerToHalPropIdMap {
+        private final BidirectionalSparseIntArray mMap;
+
+        /**
+         * Creates {@link ManagerToHalPropIdMap} for provided [manager prop Id, hal prop Id] pairs.
+         *
+         * <p> The input array should have an odd number of elements.
+         */
+        static ManagerToHalPropIdMap create(int... mgrToHalPropIds) {
+            return new ManagerToHalPropIdMap(BidirectionalSparseIntArray.create(mgrToHalPropIds));
+        }
+
+        private ManagerToHalPropIdMap(BidirectionalSparseIntArray map) {
+            mMap = map;
+        }
+
+        int getHalPropId(int managerPropId) {
+            return mMap.getValue(managerPropId, NOT_SUPPORTED_PROPERTY);
+        }
+
+        int getManagerPropId(int halPropId) {
+            return mMap.getKey(halPropId, NOT_SUPPORTED_PROPERTY);
+        }
+    }
 }

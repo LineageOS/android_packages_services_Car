@@ -22,7 +22,7 @@ public class HvacHalService extends PropertyHalServiceBase {
     private static final boolean DBG = false;
     private static final String TAG = "HvacHalService";
 
-    private final ManagerToHalPropIdMap mMgrHalPropIdMap = ManagerToHalPropIdMap.create(new int[] {
+    private final ManagerToHalPropIdMap mMgrHalPropIdMap = ManagerToHalPropIdMap.create(
            CarHvacManager.ID_MIRROR_DEFROSTER_ON, VehicleProperty.HVAC_SIDE_MIRROR_HEAT,
 
            CarHvacManager.ID_STEERING_WHEEL_TEMP, VehicleProperty.HVAC_STEERING_WHEEL_TEMP,
@@ -61,7 +61,7 @@ public class HvacHalService extends PropertyHalServiceBase {
            CarHvacManager.ID_ZONED_HVAC_POWER_ON, VehicleProperty.HVAC_POWER_ON,
 
            CarHvacManager.ID_WINDOW_DEFROSTER_ON, VehicleProperty.HVAC_DEFROSTER
-    });
+    );
 
     public HvacHalService(VehicleHal vehicleHal) {
         super(vehicleHal, TAG, DBG);

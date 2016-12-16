@@ -26,7 +26,6 @@ import android.car.hardware.property.CarPropertyEvent;
 import android.hardware.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.vehicle.V2_0.VehiclePropValue;
 import android.util.Log;
-import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;
@@ -53,8 +52,6 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
     @GuardedBy("mLock")
     private PropertyHalListener mListener;
     private final Object mLock = new Object();
-
-    protected final static int NOT_SUPPORTED_PROPERTY = -1;
 
     public interface PropertyHalListener {
         void onPropertyChange(CarPropertyEvent event);
@@ -229,52 +226,4 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
      * If property is not supported, it will return {@link #NOT_SUPPORTED_PROPERTY}.
      */
     abstract protected int halToManagerPropId(int halPropId);
-
-    /**
-     * Helper class that maintains bi-directional mapping between manager's property
-     * Id (public or system API) and vehicle HAL property Id.
-     *
-     * <p>This class is supposed to be immutable. Use {@link #create(int[])} factory method to
-     * instantiate this class.
-     */
-    static class ManagerToHalPropIdMap {
-        private final SparseIntArray mMap;
-        private final SparseIntArray mInverseMap;
-
-        /**
-         * Creates {@link ManagerToHalPropIdMap} for provided [manager prop Id, hal prop Id] pairs.
-         *
-         * <p> The input array should have an odd number of elements.
-         */
-        static ManagerToHalPropIdMap create(int[] mgrToHalPropIds) {
-            int inputLength = mgrToHalPropIds.length;
-            if (inputLength % 2 != 0) {
-                throw new IllegalArgumentException("Odd number of key-value elements");
-            }
-
-            ManagerToHalPropIdMap biMap = new ManagerToHalPropIdMap(inputLength / 2);
-            for (int i = 0; i < mgrToHalPropIds.length; i += 2) {
-                biMap.put(mgrToHalPropIds[i], mgrToHalPropIds[i + 1]);
-            }
-            return biMap;
-        }
-
-        private ManagerToHalPropIdMap(int initialCapacity) {
-            mMap = new SparseIntArray(initialCapacity);
-            mInverseMap = new SparseIntArray(initialCapacity);
-        }
-
-        private void put(int managerPropId, int halPropId) {
-            mMap.put(managerPropId, halPropId);
-            mInverseMap.put(halPropId, managerPropId);
-        }
-
-        int getHalPropId(int managerPropId) {
-            return mMap.get(managerPropId, NOT_SUPPORTED_PROPERTY);
-        }
-
-        int getManagerPropId(int halPropId) {
-            return mInverseMap.get(halPropId, NOT_SUPPORTED_PROPERTY);
-        }
-    }
 }

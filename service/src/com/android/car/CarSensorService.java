@@ -130,46 +130,61 @@ public class CarSensorService extends ICarSensor.Stub
             mSensorHal.registerSensorListener(this);
             mCarProvidedSensors = mSensorHal.getSupportedSensors();
             mSupportedSensors = refreshSupportedSensorsLocked();
-            CarSensorEvent event = null;
-            if (mUseDefaultDrivingPolicy) {
-                mDrivingStatePolicy.init();
-                mDrivingStatePolicy.registerSensorListener(this);
-            } else {
-                event = mSensorHal.getCurrentSensorValue(
-                        CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
-                Log.i(CarLog.TAG_SENSOR, "initial driving status:" + ((event == null)?
-                        "not ready" : " 0x" + Integer.toHexString(event.intValues[0])));
-            }
-            if (event == null) {
-                event = DrivingStatePolicy.getDefaultValue(
-                        CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
-                if (!mUseDefaultDrivingPolicy) {
-                    Log.w(CarLog.TAG_SENSOR, "Default driving status set as sensor not ready");
-                }
-            }
-            // always populate default value
-            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, event);
-            event = null;
-            if (mUseDefaultDayNightModePolicy) {
-                mDayNightModePolicy.init();
-                mDayNightModePolicy.registerSensorListener(this);
-            } else {
-                event = mSensorHal.getCurrentSensorValue(CarSensorManager.SENSOR_TYPE_NIGHT);
-                Log.i(CarLog.TAG_SENSOR, "initial daynight: "
-                        + ((event == null) ? "not ready" : + event.intValues[0]));
-            }
-            if (event == null) {
-                event = DayNightModePolicy.getDefaultValue(CarSensorManager.SENSOR_TYPE_NIGHT);
-                if (!mUseDefaultDayNightModePolicy) {
-                    Log.w(CarLog.TAG_SENSOR, "Default daynight set as sensor not ready");
-                }
-            }
-            // always populate default value
-            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_NIGHT, event);
+
+            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
+                    getInitialDrivingStatus());
+            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_NIGHT, getInitialNightMode());
+            addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_IGNITION_STATE,
+                getInitialIgnitionState());
+
             notifyDefaultPoliciesLocked();
         } finally {
             mSensorLock.unlock();
         }
+    }
+
+    private CarSensorEvent getInitialIgnitionState() {
+        return mSensorHal.getCurrentSensorValue(CarSensorManager.SENSOR_TYPE_IGNITION_STATE);
+    }
+
+    private CarSensorEvent getInitialNightMode() {
+        CarSensorEvent event = null;
+        if (mUseDefaultDayNightModePolicy) {
+            mDayNightModePolicy.init();
+            mDayNightModePolicy.registerSensorListener(this);
+        } else {
+            event = mSensorHal.getCurrentSensorValue(CarSensorManager.SENSOR_TYPE_NIGHT);
+            Log.i(CarLog.TAG_SENSOR, "initial daynight: "
+                    + ((event == null) ? "not ready" : + event.intValues[0]));
+        }
+        if (event == null) {
+            event = DayNightModePolicy.getDefaultValue(CarSensorManager.SENSOR_TYPE_NIGHT);
+            if (!mUseDefaultDayNightModePolicy) {
+                Log.w(CarLog.TAG_SENSOR, "Default daynight set as sensor not ready");
+            }
+        }
+        return event;
+    }
+
+    private CarSensorEvent getInitialDrivingStatus() {
+        CarSensorEvent event = null;
+        if (mUseDefaultDrivingPolicy) {
+            mDrivingStatePolicy.init();
+            mDrivingStatePolicy.registerSensorListener(this);
+        } else {
+            event = mSensorHal.getCurrentSensorValue(
+                    CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
+            Log.i(CarLog.TAG_SENSOR, "initial driving status:" + ((event == null)?
+                    "not ready" : " 0x" + Integer.toHexString(event.intValues[0])));
+        }
+        if (event == null) {
+            event = DrivingStatePolicy.getDefaultValue(
+                    CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
+            if (!mUseDefaultDrivingPolicy) {
+                Log.w(CarLog.TAG_SENSOR, "Default driving status set as sensor not ready");
+            }
+        }
+        return event;
     }
 
     private void addNewSensorRecordLocked(int type, CarSensorEvent event) {

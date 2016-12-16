@@ -92,13 +92,13 @@ public final class CarSensorManager implements CarManagerBase {
      */
     public static final int SENSOR_TYPE_GEAR              = 7;
     /** @hide */
-    public static final int SENSOR_TYPE_RESERVED8        = 8;
+    public static final int SENSOR_TYPE_RESERVED8         = 8;
     /**
      * Day/night sensor. Sensor data is intValues[0].
      */
     public static final int SENSOR_TYPE_NIGHT             = 9;
     /** @hide */
-    public static final int SENSOR_TYPE_RESERVED10         = 10;
+    public static final int SENSOR_TYPE_RESERVED10        = 10;
     /**
      * Represents the current driving status of car. Different user interaction should be used
      * depending on the current driving status. Driving status is intValues[0].
@@ -128,10 +128,16 @@ public final class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_RESERVED21        = 21;
 
     /**
+     * Represents ignition state. The value should be one of the constants that starts with
+     * IGNITION_STATE_* in {@link CarSensorEvent}.
+     */
+    public static final int SENSOR_TYPE_IGNITION_STATE    = 22;
+
+    /**
      * Sensor type bigger than this is invalid. Always update this after adding a new sensor.
      * @hide
      */
-    private static final int SENSOR_TYPE_MAX = SENSOR_TYPE_ENVIRONMENT;
+    private static final int SENSOR_TYPE_MAX = SENSOR_TYPE_IGNITION_STATE;
 
     /**
      * Sensors defined in this range [{@link #SENSOR_TYPE_VENDOR_EXTENSION_START},
@@ -157,7 +163,8 @@ public final class CarSensorManager implements CarManagerBase {
         SENSOR_TYPE_GEAR,
         SENSOR_TYPE_NIGHT,
         SENSOR_TYPE_DRIVING_STATUS,
-        SENSOR_TYPE_ENVIRONMENT
+        SENSOR_TYPE_ENVIRONMENT,
+        SENSOR_TYPE_IGNITION_STATE,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface SensorType {}

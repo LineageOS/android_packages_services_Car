@@ -22,7 +22,7 @@ public class CabinHalService extends PropertyHalServiceBase {
     private static final boolean DBG = false;
     private static final String TAG = "CAR.CABIN.HAL";
 
-    private final ManagerToHalPropIdMap mMgrHalPropIdMap = ManagerToHalPropIdMap.create(new int[] {
+    private final ManagerToHalPropIdMap mMgrHalPropIdMap = ManagerToHalPropIdMap.create(
             CarCabinManager.ID_DOOR_POS,
             VehicleProperty.DOOR_POS,
 
@@ -145,7 +145,7 @@ public class CabinHalService extends PropertyHalServiceBase {
 
             CarCabinManager.ID_WINDOW_LOCK,
             VehicleProperty.WINDOW_LOCK
-    });
+    );
 
     public CabinHalService(VehicleHal vehicleHal) {
         super(vehicleHal, TAG, DBG);
