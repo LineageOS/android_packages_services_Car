@@ -17,7 +17,6 @@ package com.android.car.test;
 
 import android.hardware.vehicle.V2_0.VehicleAudioContextFlag;
 import android.hardware.vehicle.V2_0.VehicleAudioRoutingPolicyIndex;
-import android.hardware.vehicle.V2_0.VehiclePermissionModel;
 import android.hardware.vehicle.V2_0.VehiclePropValue;
 import android.hardware.vehicle.V2_0.VehicleProperty;
 import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
@@ -60,8 +59,7 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
     @Override
     protected synchronized void configureMockedHal() {
         addProperty(VehicleProperty.AUDIO_ROUTING_POLICY, mAudioRoutingPolicyHandler)
-                .setAccess(VehiclePropertyAccess.WRITE)
-                .setPermissionModel(VehiclePermissionModel.SYSTEM_APP_ONLY);
+                .setAccess(VehiclePropertyAccess.WRITE);
     }
 
     public void testNoHwVariant() throws Exception {
