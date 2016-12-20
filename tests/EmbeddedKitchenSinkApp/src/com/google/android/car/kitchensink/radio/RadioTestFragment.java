@@ -401,6 +401,8 @@ public class RadioTestFragment extends Fragment {
         mRadioNext.setEnabled(mRadioTuner != null);
         mRadioPrev.setEnabled(mRadioTuner != null);
         mRadioBand.setEnabled(mRadioTuner != null);
+        mRadioScanCancel.setEnabled(mRadioTuner != null);
+        mRadioGetProgramInfo.setEnabled(mRadioTuner != null);
     }
 
     private void updateMessages() {
