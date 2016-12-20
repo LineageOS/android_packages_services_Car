@@ -272,6 +272,7 @@ public class SensorsTestFragment extends Fragment {
                         break;
                     case CarSensorManager.SENSOR_TYPE_GYROSCOPE:
                         summary.add(getGyroscopeString(event));
+                        break;
                     default:
                         // Should never happen.
                         Log.w(TAG, "Unrecognized event type: " + i);
