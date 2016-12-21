@@ -44,6 +44,7 @@ MAX_RETRIES = 5
 DEBUG = False
 ADB_CMD = "adb"
 TIMING_THRESHOLD = 5.0
+BOOT_PROP = "\[ro\.boottime\.([^\]]+)\]:\s+\[(\d+)\]"
 
 def main():
   global ADB_CMD
@@ -73,18 +74,20 @@ def main():
 
   data_points = {}
   timing_points = collections.OrderedDict()
+  boottime_points = collections.OrderedDict()
   for it in range(0, args.iterate):
     if args.iterate > 1:
       print "Run: {0}".format(it + 1)
     attempt = 1
     processing_data = None
     timings = None
+    boottime_events = None
     while attempt <= MAX_RETRIES and processing_data is None:
       attempt += 1
-      processing_data, timings = iterate(
+      processing_data, timings, boottime_events = iterate(
         args, search_events, timing_events, cfg, error_time)
 
-    if processing_data is None:
+    if not processing_data or not boottime_events:
       # Processing error
       print "Failed to collect valid samples for run {0}".format(it + 1)
       continue
@@ -99,7 +102,20 @@ def main():
           timing_points[k] = []
         timing_points[k].append(v)
 
+    for k, v in boottime_events.iteritems():
+      if not k in boottime_points:
+        boottime_points[k] = []
+      boottime_points[k].append(v)
+
   if args.iterate > 1:
+    print "-----------------"
+    print "ro.boottime.* after {0} runs".format(args.iterate)
+    print '{0:30}: {1:<7} {2:<7}'.format("Event", "Mean", "stddev")
+    for item in boottime_points.items():
+        print '{0:30}: {1:<7.5} {2:<7.5} {3}'.format(
+          item[0], sum(item[1])/len(item[1]), stddev(item[1]),\
+          "*time taken" if item[0].startswith("init.") else "")
+
     if timing_points and args.timings:
       print "-----------------"
       print "Timing in order, Avg time values after {0} runs".format(args.iterate)
@@ -147,6 +163,7 @@ def iterate(args, search_events, timings, cfg, error_time):
     logcat_events, TIME_LOGCAT, str);
   dmesg_event_time = extract_time(
     dmesg_events, TIME_DMESG, float);
+  boottime_events = fetch_boottime_property()
   events = {}
   diff_time = 0
   max_time = 0
@@ -174,7 +191,7 @@ def iterate(args, search_events, timings, cfg, error_time):
 
   if not logcat_event_time.get(KERNEL_TIME_KEY):
     print "kernel time not captured in logcat, cannot get time diff"
-    return None, None
+    return None, None, None
   diffs = []
   diffs.append((logcat_event_time[KERNEL_TIME_KEY], logcat_event_time[KERNEL_TIME_KEY]))
   if logcat_event_time.get(BOOT_ANIM_END_TIME_KEY) and dmesg_event_time.get(BOOT_ANIM_END_TIME_KEY):
@@ -184,7 +201,7 @@ def iterate(args, search_events, timings, cfg, error_time):
   if not dmesg_event_time.get(KERNEL_BOOT_COMPLETE):
       print "BootAnimEnd time or BootComplete-kernel not captured in both log" +\
         ", cannot get time diff"
-      return None, None
+      return None, None, None
   diffs.append((logcat_event_time[KERNEL_BOOT_COMPLETE],\
                 logcat_event_time[KERNEL_BOOT_COMPLETE] - dmesg_event_time[KERNEL_BOOT_COMPLETE]))
 
@@ -252,6 +269,13 @@ def iterate(args, search_events, timings, cfg, error_time):
       logcat_original_time[item[0]])
 
   print '\n* - event time was obtained from dmesg log\n'
+
+  print "-----------------"
+  print "ro.boottime.*: time"
+  for item in boottime_events.items():
+    print '{0:30}: {1:<7.5} {2}'.format(item[0], item[1],\
+      "*time taken" if item[0].startswith("init.") else "")
+
   if events[LOGCAT_BOOT_COMPLETE] > error_time:
     now = datetime.now()
     bugreport_file = "bugreport-bootuptoolong-%s_%s.zip" % (str(events[LOGCAT_BOOT_COMPLETE]),\
@@ -259,9 +283,9 @@ def iterate(args, search_events, timings, cfg, error_time):
     print "Boot up time too big, treated as error, will capture bugreport %s and reject data"\
        % (bugreport_file)
     os.system(ADB_CMD + " bugreport " + bugreport_file)
-    return None, None
+    return None, None, None
 
-  return data_points, timing_points
+  return data_points, timing_points, boottime_events
 
 def debug(string):
   if DEBUG:
@@ -361,6 +385,23 @@ def collect_events(search_events, command, timings, stop_events):
 
   process.terminate()
   return events, timing_events
+
+def fetch_boottime_property():
+  cmd = ADB_CMD + ' shell su root getprop'
+  events = {}
+  process = subprocess.Popen(cmd, shell=True,
+                             stdout=subprocess.PIPE);
+  out = process.stdout
+  pattern = re.compile(BOOT_PROP)
+  for line in out:
+    match = pattern.match(line)
+    if match:
+      events[match.group(1)] = float(match.group(2)) / 1000000000.0 #ns to s
+  ordered_event = collections.OrderedDict()
+  for item in sorted(events.items(), key=operator.itemgetter(1)):
+    ordered_event[item[0]] = item[1]
+  return ordered_event
+
 
 def get_boot_event(line, events):
   for event_key, event_pattern in events.iteritems():
