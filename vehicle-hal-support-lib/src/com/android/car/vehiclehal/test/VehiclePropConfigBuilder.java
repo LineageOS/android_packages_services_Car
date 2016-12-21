@@ -18,7 +18,6 @@ package com.android.car.vehiclehal.test;
 
 import android.annotation.CheckResult;
 import android.hardware.vehicle.V2_0.VehicleAreaConfig;
-import android.hardware.vehicle.V2_0.VehiclePermissionModel;
 import android.hardware.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.vehicle.V2_0.VehiclePropertyChangeMode;
@@ -42,7 +41,6 @@ public class VehiclePropConfigBuilder {
         mConfig.prop = propId;
         mConfig.access = VehiclePropertyAccess.READ_WRITE;
         mConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
-        mConfig.permissionModel = VehiclePermissionModel.NO_RESTRICTION;
     }
 
     private VehiclePropConfig clone(VehiclePropConfig propConfig) {
@@ -51,7 +49,6 @@ public class VehiclePropConfigBuilder {
         newConfig.prop = propConfig.prop;
         newConfig.access = propConfig.access;
         newConfig.changeMode = propConfig.changeMode;
-        newConfig.permissionModel = propConfig.permissionModel;
         newConfig.supportedAreas = propConfig.supportedAreas;
         newConfig.configFlags = propConfig.configFlags;
         newConfig.configString = propConfig.configString;
@@ -82,12 +79,6 @@ public class VehiclePropConfigBuilder {
     @CheckResult
     public VehiclePropConfigBuilder setChangeMode(int changeMode) {
         mConfig.changeMode = changeMode;
-        return this;
-    }
-
-    @CheckResult
-    public VehiclePropConfigBuilder setPermissionModel(int permissionModel) {
-        mConfig.permissionModel = permissionModel;
         return this;
     }
 

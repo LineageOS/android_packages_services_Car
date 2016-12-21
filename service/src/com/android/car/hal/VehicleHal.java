@@ -229,8 +229,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
         }
 
         if (config == null) {
-            throw new IllegalArgumentException("subscribe error: config is null for property " +
-                    property);
+            throw new IllegalArgumentException("subscribe error: config is null for property 0x" +
+                    toHexString(property));
         } else if (isPropertySubscribable(config)) {
             synchronized (this) {
                 assertServiceOwnerLocked(service, property);
@@ -415,7 +415,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
                     .append("Property:0x").append(toHexString(config.prop))
                     .append(",access:0x").append(toHexString(config.access))
                     .append(",changeMode:0x").append(toHexString(config.changeMode))
-                    .append(",permission:0x").append(toHexString(config.permissionModel))
                     .append(",areas:0x").append(toHexString(config.supportedAreas))
                     .append(",config:0x").append(Arrays.toString(config.configArray.toArray()))
                     .append(",fs min:").append(config.minSampleRate)
