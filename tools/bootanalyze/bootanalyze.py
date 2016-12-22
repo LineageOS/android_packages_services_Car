@@ -227,6 +227,14 @@ def iterate(args, search_events, timings, cfg, error_time):
   data_points = {}
   timing_points = collections.OrderedDict()
 
+
+  print "-----------------"
+  print "ro.boottime.*: time"
+  for item in boottime_events.items():
+    print '{0:30}: {1:<7.5} {2}'.format(item[0], item[1],\
+      "*time taken" if item[0].startswith("init.") else "")
+  print "-----------------"
+
   if args.timings:
     timing_abs_times = []
     for k, l in logcat_timing_events.iteritems():
@@ -269,12 +277,6 @@ def iterate(args, search_events, timings, cfg, error_time):
       logcat_original_time[item[0]])
 
   print '\n* - event time was obtained from dmesg log\n'
-
-  print "-----------------"
-  print "ro.boottime.*: time"
-  for item in boottime_events.items():
-    print '{0:30}: {1:<7.5} {2}'.format(item[0], item[1],\
-      "*time taken" if item[0].startswith("init.") else "")
 
   if events[LOGCAT_BOOT_COMPLETE] > error_time:
     now = datetime.now()
