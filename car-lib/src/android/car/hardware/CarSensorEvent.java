@@ -19,7 +19,6 @@ package android.car.hardware;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-
 /**
  * A CarSensorEvent object corresponds to a single sensor event coming from the car. The sensor
  * data is stored in a sensor-type specific format in the object's float and byte arrays.
@@ -87,6 +86,26 @@ public class CarSensorEvent implements Parcelable {
     public static final int GEAR_PARK       = 101;
     /** Gear in reverse */
     public static final int GEAR_REVERSE    = 102;
+
+    /**
+     * Ignition state is unknown.
+     *
+     * The constants that starts with IGNITION_STATE_ represent values for
+     * {@link CarSensorManager#SENSOR_TYPE_IGNITION_STATE} sensor.
+     * */
+    public static final int IGNITION_STATE_UNDEFINED = 0;
+    /**
+     * Steering wheel is locked.
+     */
+    public static final int IGNITION_STATE_LOCK = 1;
+    /** Typically engine is off, but steering wheel is unlocked. */
+    public static final int IGNITION_STATE_OFF = 2;
+    /** Accessory is turned off, but engine is not running yet (for EV car is not ready to move). */
+    public static final int IGNITION_STATE_ACC = 3;
+    /** In this state engine typically is running (for EV, car is ready to move). */
+    public static final int IGNITION_STATE_ON = 4;
+    /** In this state engine is typically starting (cranking). */
+    public static final int IGNITION_STATE_START = 5;
 
     /**
      * Bitmask of driving restrictions.

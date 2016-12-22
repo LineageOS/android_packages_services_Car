@@ -82,7 +82,7 @@ public abstract class CarSensorManager implements CarManagerBase {
      */
     public static final int SENSOR_TYPE_GEAR = 7;
 
-    /**@hide*/
+    /** @hide */
     public static final int SENSOR_TYPE_RESERVED8 = 8;
 
     /**
@@ -122,6 +122,8 @@ public abstract class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_RESERVED20 = 20;
     /** @hide */
     public static final int SENSOR_TYPE_RESERVED21 = 21;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED22 = 22;
 
     /**
      * Sensors defined in this range [{@link #SENSOR_TYPE_VENDOR_EXTENSION_START},

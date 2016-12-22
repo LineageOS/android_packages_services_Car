@@ -17,8 +17,11 @@
 package com.android.car.test;
 
 import android.car.Car;
+import android.car.CarNotConnectedException;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
+import android.hardware.vehicle.V2_0.VehicleGear;
+import android.hardware.vehicle.V2_0.VehicleIgnitionState;
 import android.hardware.vehicle.V2_0.VehiclePropValue;
 import android.hardware.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
@@ -66,6 +69,10 @@ public class CarSensorManagerTest extends MockedCarTestBase {
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.DRIVING_STATUS)
                         .addIntValue(0)
                         .build());
+        addProperty(VehicleProperty.IGNITION_STATE,
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.IGNITION_STATE)
+                        .addIntValue(CarSensorEvent.IGNITION_STATE_ACC)
+                        .build());
     }
 
     @Override
@@ -92,7 +99,10 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_PARKING_BRAKE));
         assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_GEAR));
         assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_NIGHT));
-        assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
+        assertTrue(mCarSensorManager.isSensorSupported(
+                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
+        assertTrue(mCarSensorManager.isSensorSupported(
+                CarSensorManager.SENSOR_TYPE_IGNITION_STATE));
     }
 
     /**
@@ -222,6 +232,125 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         assertTrue("Unexpected value", data.isNightMode);
     }
 
+    public void testIgnitionState() throws CarNotConnectedException {
+        CarSensorEvent event = mCarSensorManager.getLatestSensorEvent(
+                CarSensorManager.SENSOR_TYPE_IGNITION_STATE);
+        assertNotNull(event);
+        assertEquals(CarSensorEvent.IGNITION_STATE_ACC, event.intValues[0]);
+    }
+
+    public void testIgnitionEvents() throws Exception {
+        SensorListener listener = new SensorListener();
+        mCarSensorManager.registerListener(listener, CarSensorManager.SENSOR_TYPE_IGNITION_STATE,
+                CarSensorManager.SENSOR_RATE_NORMAL);
+
+
+        // Mapping of HAL -> Manager ignition states.
+        int[] ignitionStates = new int[] {
+                VehicleIgnitionState.UNDEFINED, CarSensorEvent.IGNITION_STATE_UNDEFINED,
+                VehicleIgnitionState.LOCK, CarSensorEvent.IGNITION_STATE_LOCK,
+                VehicleIgnitionState.OFF, CarSensorEvent.IGNITION_STATE_OFF,
+                VehicleIgnitionState.ACC, CarSensorEvent.IGNITION_STATE_ACC,
+                VehicleIgnitionState.ON, CarSensorEvent.IGNITION_STATE_ON,
+                VehicleIgnitionState.START, CarSensorEvent.IGNITION_STATE_START,
+                VehicleIgnitionState.ON, CarSensorEvent.IGNITION_STATE_ON,
+                VehicleIgnitionState.LOCK, CarSensorEvent.IGNITION_STATE_LOCK,
+        };
+
+        for (int i = 0; i < ignitionStates.length; i += 2) {
+            injectIgnitionStateAndAssert(listener, ignitionStates[i], ignitionStates[i + 1]);
+        }
+    }
+
+    private void injectIgnitionStateAndAssert(SensorListener listener, int halIgnitionState,
+            int mgrIgnitionState) throws Exception{
+        listener.reset();
+        long time = SystemClock.elapsedRealtimeNanos();
+        getMockedVehicleHal().injectEvent(
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.IGNITION_STATE)
+                        .addIntValue(halIgnitionState)
+                        .setTimestamp(time)
+                        .build());
+        assertTrue(listener.waitForSensorChange(time));
+
+        CarSensorEvent eventReceived = listener.getLastEvent();
+        assertEquals(CarSensorManager.SENSOR_TYPE_IGNITION_STATE, eventReceived.sensorType);
+        assertEquals(mgrIgnitionState, eventReceived.intValues[0]);
+    }
+
+    public void testIgnitionEvents_Bad() throws Exception {
+        SensorListener listener = new SensorListener();
+        mCarSensorManager.registerListener(listener, CarSensorManager.SENSOR_TYPE_IGNITION_STATE,
+                CarSensorManager.SENSOR_RATE_NORMAL);
+
+        listener.reset();
+        long time = SystemClock.elapsedRealtimeNanos();
+        getMockedVehicleHal().injectEvent(
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.IGNITION_STATE)
+                        .addIntValue(0xdeadbeef)
+                        .setTimestamp(time)
+                        .build());
+
+        // Make sure invalid events are never propagated to clients.
+        assertFalse(listener.waitForSensorChange(time));
+    }
+
+    public void testGear() throws Exception {
+        SensorListener listener = new SensorListener();
+        mCarSensorManager.registerListener(listener, CarSensorManager.SENSOR_TYPE_GEAR,
+                CarSensorManager.SENSOR_RATE_NORMAL);
+
+        // Mapping of HAL -> Manager gear selection states.
+        int[] gears = new int[] {
+                VehicleGear.GEAR_PARK, CarSensorEvent.GEAR_PARK,
+                VehicleGear.GEAR_DRIVE, CarSensorEvent.GEAR_DRIVE,
+                VehicleGear.GEAR_NEUTRAL, CarSensorEvent.GEAR_NEUTRAL,
+                VehicleGear.GEAR_REVERSE, CarSensorEvent.GEAR_REVERSE,
+                VehicleGear.GEAR_LOW, CarSensorEvent.GEAR_FIRST,
+                VehicleGear.GEAR_1, CarSensorEvent.GEAR_FIRST,
+                VehicleGear.GEAR_2, CarSensorEvent.GEAR_SECOND,
+                VehicleGear.GEAR_3, CarSensorEvent.GEAR_THIRD,
+                VehicleGear.GEAR_4, CarSensorEvent.GEAR_FOURTH,
+                VehicleGear.GEAR_5, CarSensorEvent.GEAR_FIFTH,
+                VehicleGear.GEAR_6, CarSensorEvent.GEAR_SIXTH,
+                VehicleGear.GEAR_7, CarSensorEvent.GEAR_SEVENTH,
+                VehicleGear.GEAR_8, CarSensorEvent.GEAR_EIGHTH,
+                VehicleGear.GEAR_9, CarSensorEvent.GEAR_NINTH,
+        };
+
+        for (int i = 0; i < gears.length; i += 2) {
+            injectGearEventAndAssert(listener, gears[i], gears[i + 1]);
+        }
+
+        // invalid input should not be forwarded
+        long time = SystemClock.elapsedRealtimeNanos();
+        getMockedVehicleHal().injectEvent(
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
+                        .addIntValue(0xdeadbeef)
+                        .setTimestamp(time)
+                        .build());
+        assertFalse(listener.waitForSensorChange(time));
+        CarSensorEvent event = mCarSensorManager.getLatestSensorEvent(
+                CarSensorManager.SENSOR_TYPE_GEAR);
+        assertNotNull(event);  // Still holds an old event.
+        assertEquals(CarSensorEvent.GEAR_NINTH, event.intValues[0]);
+    }
+
+    private void injectGearEventAndAssert(SensorListener listener, int halValue,
+            int carSensorValue) throws Exception {
+        listener.reset();
+        long time = SystemClock.elapsedRealtimeNanos();
+        getMockedVehicleHal().injectEvent(
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
+                        .addIntValue(halValue)
+                        .setTimestamp(time)
+                        .build());
+        assertTrue(listener.waitForSensorChange(time));
+        CarSensorEvent event = mCarSensorManager.getLatestSensorEvent(
+                CarSensorManager.SENSOR_TYPE_GEAR);
+        assertNotNull(event);
+        assertEquals(carSensorValue, event.intValues[0]);
+    }
 
     /**
      * Test senor multiple liseners notification registration, delivery and unregistration.

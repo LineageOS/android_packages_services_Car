@@ -77,7 +77,7 @@ public class InstrumentClusterService implements CarServiceBase,
                 mRendererService = service;
                 navContextOwner = mNavContextOwner;
             }
-            if (navContextOwner !=  null) {
+            if (navContextOwner !=  null && service != null) {
                 notifyNavContextOwnerChanged(service, navContextOwner.uid, navContextOwner.pid);
             }
         }
@@ -141,7 +141,9 @@ public class InstrumentClusterService implements CarServiceBase,
             service = mRendererService;
         }
 
-        notifyNavContextOwnerChanged(service, uid, pid);
+        if (service != null) {
+            notifyNavContextOwnerChanged(service, uid, pid);
+        }
     }
 
     @Override

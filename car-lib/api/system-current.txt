@@ -437,6 +437,12 @@ package android.car.hardware {
     field public static final int GEAR_SIXTH = 6; // 0x6
     field public static final int GEAR_TENTH = 10; // 0xa
     field public static final int GEAR_THIRD = 3; // 0x3
+    field public static final int IGNITION_STATE_ACC = 3; // 0x3
+    field public static final int IGNITION_STATE_LOCK = 1; // 0x1
+    field public static final int IGNITION_STATE_OFF = 2; // 0x2
+    field public static final int IGNITION_STATE_ON = 4; // 0x4
+    field public static final int IGNITION_STATE_START = 5; // 0x5
+    field public static final int IGNITION_STATE_UNDEFINED = 0; // 0x0
     field public static final int INDEX_ENVIRONMENT_PRESSURE = 1; // 0x1
     field public static final int INDEX_ENVIRONMENT_TEMPERATURE = 0; // 0x0
     field public static final int INDEX_FUEL_LEVEL_IN_DISTANCE = 1; // 0x1
@@ -471,6 +477,7 @@ package android.car.hardware {
     field public static final int SENSOR_TYPE_ENVIRONMENT = 12; // 0xc
     field public static final int SENSOR_TYPE_FUEL_LEVEL = 5; // 0x5
     field public static final int SENSOR_TYPE_GEAR = 7; // 0x7
+    field public static final int SENSOR_TYPE_IGNITION_STATE = 22; // 0x16
     field public static final int SENSOR_TYPE_NIGHT = 9; // 0x9
     field public static final int SENSOR_TYPE_ODOMETER = 4; // 0x4
     field public static final int SENSOR_TYPE_PARKING_BRAKE = 6; // 0x6
