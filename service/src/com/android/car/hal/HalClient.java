@@ -29,6 +29,7 @@ import android.hardware.vehicle.V2_0.VehiclePropValue;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.car.CarLog;
@@ -65,11 +66,11 @@ class  HalClient {
         mInternalCallback = new VehicleCallback(handler);
     }
 
-    ArrayList<VehiclePropConfig> getAllPropConfigs() {
+    ArrayList<VehiclePropConfig> getAllPropConfigs() throws RemoteException {
         return mVehicle.getAllPropConfigs();
     }
 
-    public void subscribe(int prop, float sampleRateHz) {
+    public void subscribe(int prop, float sampleRateHz) throws RemoteException {
         SubscribeOptions opt = new SubscribeOptions();
         opt.propId = prop;
         opt.sampleRate = sampleRateHz;
@@ -79,11 +80,11 @@ class  HalClient {
         mVehicle.subscribe(mInternalCallback, options);
     }
 
-    public void unsubscribe(int prop) {
+    public void unsubscribe(int prop) throws RemoteException {
         mVehicle.unsubscribe(mInternalCallback, prop);
     }
 
-    public void setValue(VehiclePropValue propValue) throws PropertyTimeoutException {
+    public void setValue(VehiclePropValue propValue) throws RemoteException, PropertyTimeoutException {
         int status = invokeRetriable(() -> mVehicle.set(propValue),
                 WAIT_CAP_FOR_RETRIABLE_RESULT_MS, SLEEP_BETWEEN_RETRIABLE_INVOKES_MS);
 
@@ -104,7 +105,7 @@ class  HalClient {
         }
     }
 
-    VehiclePropValue getValue(VehiclePropValue requestedPropValue) throws PropertyTimeoutException {
+    VehiclePropValue getValue(VehiclePropValue requestedPropValue) throws RemoteException, PropertyTimeoutException {
         final ObjectWrapper<VehiclePropValue> valueWrapper = new ObjectWrapper<>();
         int status = invokeRetriable(() -> {
             ValueResult res = internalGet(requestedPropValue);
@@ -132,7 +133,7 @@ class  HalClient {
         return valueWrapper.object;
     }
 
-    private ValueResult internalGet(VehiclePropValue requestedPropValue) {
+    private ValueResult internalGet(VehiclePropValue requestedPropValue) throws RemoteException {
         final ValueResult result = new ValueResult();
         mVehicle.get(requestedPropValue,
                 new getCallback() {
@@ -148,10 +149,10 @@ class  HalClient {
 
     interface RetriableCallback {
         /** Returns {@link StatusCode} */
-        int action();
+        int action() throws RemoteException;
     }
 
-    private static int invokeRetriable(RetriableCallback callback, long timeoutMs, long sleepMs) {
+    private static int invokeRetriable(RetriableCallback callback, long timeoutMs, long sleepMs) throws RemoteException {
         int status = callback.action();
         long startTime = elapsedRealtime();
         while (StatusCode.TRY_AGAIN == status && (elapsedRealtime() - startTime) < timeoutMs) {
@@ -204,19 +205,23 @@ class  HalClient {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-            switch (msg.what) {
-                case MSG_ON_PROPERTY_EVENT:
-                    mCallback.onPropertyEvent((ArrayList<VehiclePropValue>) msg.obj);
-                    break;
-                case MSG_ON_PROPERTY_SET:
-                    mCallback.onPropertySet((VehiclePropValue) msg.obj);
-                    break;
-                case MSG_ON_SET_ERROR:
-                    PropertySetError obj = (PropertySetError) msg.obj;
-                    mCallback.onPropertySetError(obj.errorCode, obj.propId, obj.areaId);
-                    break;
-                default:
+            try {
+                switch (msg.what) {
+                    case MSG_ON_PROPERTY_EVENT:
+                        mCallback.onPropertyEvent((ArrayList<VehiclePropValue>) msg.obj);
+                        break;
+                    case MSG_ON_PROPERTY_SET:
+                        mCallback.onPropertySet((VehiclePropValue) msg.obj);
+                        break;
+                    case MSG_ON_SET_ERROR:
+                        PropertySetError obj = (PropertySetError) msg.obj;
+                        mCallback.onPropertySetError(obj.errorCode, obj.propId, obj.areaId);
+                        break;
+                    default:
                         Log.e(CarLog.TAG_HAL, "Unexpected message: " + msg.what);
+                }
+            } catch (RemoteException e) {
+                Log.e(CarLog.TAG_HAL, "Message failed: " + msg.what);
             }
         }
     }
