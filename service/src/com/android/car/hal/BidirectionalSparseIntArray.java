@@ -29,7 +29,7 @@ class BidirectionalSparseIntArray {
     /**
      * Creates {@link BidirectionalSparseIntArray} for provided int pairs.
      *
-     * <p> The input array should have an odd number of elements.
+     * <p> The input array should have an even number of elements.
      */
     static BidirectionalSparseIntArray create(int[] keyValuePairs) {
         int inputLength = keyValuePairs.length;
