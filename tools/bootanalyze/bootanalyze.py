@@ -280,8 +280,8 @@ def iterate(args, search_events, timings, cfg, error_time):
 
   if events[LOGCAT_BOOT_COMPLETE] > error_time:
     now = datetime.now()
-    bugreport_file = "bugreport-bootuptoolong-%s_%s.zip" % (str(events[LOGCAT_BOOT_COMPLETE]),\
-                                              now.strftime("%Y-%m-%d-%H-%M-%S"))
+    bugreport_file = "bugreport-bootuptoolong-%s_%s.zip" % (now.strftime("%Y-%m-%d-%H-%M-%S"), \
+                                                            str(events[LOGCAT_BOOT_COMPLETE]))
     print "Boot up time too big, treated as error, will capture bugreport %s and reject data"\
        % (bugreport_file)
     os.system(ADB_CMD + " bugreport " + bugreport_file)
