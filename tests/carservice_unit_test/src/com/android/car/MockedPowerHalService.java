@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.test;
+package com.android.car;
 
 import android.util.Log;
 
 import com.android.car.hal.PowerHalService;
-import com.android.car.hal.PowerHalService.PowerEventListener;
-import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.hal.VehicleHal;
 
 import java.util.LinkedList;

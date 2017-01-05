@@ -23,6 +23,9 @@ import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Class used to notify user about CAN bus failure.
  */
@@ -34,8 +37,10 @@ final class CanBusErrorNotifier {
     private final Context mContext;
     private final NotificationManager mNotificationManager;
 
+    // Contains a set of objects that reported failure. The notification will be hidden only when
+    // this set is empty (all reported objects are in love and peace with the vehicle).
     @GuardedBy("this")
-    private boolean mFailed;
+    private final Set<Object> mReportedObjects = new HashSet<>();
 
     @GuardedBy("this")
     private Notification mNotification;
@@ -46,16 +51,29 @@ final class CanBusErrorNotifier {
         mContext = context;
     }
 
-    public void setCanBusFailure(boolean failed) {
+    public void removeFailureReport(Object sender) {
+        setCanBusFailure(false, sender);
+    }
+
+    public void reportFailure(Object sender) {
+        setCanBusFailure(true, sender);
+    }
+
+    private void setCanBusFailure(boolean failed, Object sender) {
+        boolean shouldShowNotification;
         synchronized (this) {
-            if (mFailed == failed) {
+            boolean changed = failed
+                    ? mReportedObjects.add(sender) : mReportedObjects.remove(sender);
+
+            if (!changed) {
                 return;
             }
-            mFailed = failed;
-        }
-        Log.i(TAG, "Changing CAN bus failure state to " + failed);
 
-        if (failed) {
+            shouldShowNotification = !mReportedObjects.isEmpty();
+        }
+        Log.i(TAG, "Changing CAN bus failure state to " + shouldShowNotification);
+
+        if (shouldShowNotification) {
             showNotification();
         } else {
             hideNotification();

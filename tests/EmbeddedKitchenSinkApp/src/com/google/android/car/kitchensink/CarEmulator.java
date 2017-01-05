@@ -18,6 +18,8 @@ package com.google.android.car.kitchensink;
 
 import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_VOLUME_LIMIT;
 
+import com.google.android.collect.Lists;
+
 import android.car.Car;
 import android.content.Context;
 import android.hardware.vehicle.V2_0.VehicleAudioFocusIndex;
@@ -31,8 +33,6 @@ import android.hardware.vehicle.V2_0.VehicleProperty;
 import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
 import android.os.SystemClock;
 import android.util.SparseIntArray;
-
-import com.google.android.collect.Lists;
 
 import com.android.car.ICarImpl;
 import com.android.car.SystemInterface;
@@ -66,7 +66,7 @@ public class CarEmulator {
     private CarEmulator(Context context) {
         mHalEmulator = new MockedVehicleHal();
         ICarImpl carService = new ICarImpl(context, mHalEmulator,
-                SystemInterface.getDefault(context));
+                SystemInterface.getDefault(context), null /* error notifier */);
         mCar = new Car(context, carService, null /* Handler */);
     }
 

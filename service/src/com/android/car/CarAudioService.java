@@ -167,7 +167,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                     CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY);
 
     public CarAudioService(Context context, AudioHalService audioHal,
-            CarInputService inputService) {
+            CarInputService inputService, CanBusErrorNotifier errorNotifier) {
         mAudioHal = audioHal;
         mContext = context;
         mFocusHandlerThread = new HandlerThread(CarLog.TAG_AUDIO);
@@ -175,7 +175,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         mFocusHandlerThread.start();
         mFocusHandler = new CarAudioFocusChangeHandler(mFocusHandlerThread.getLooper());
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        mCanBusErrorNotifier = new CanBusErrorNotifier(context);
+        mCanBusErrorNotifier =  errorNotifier;
         Resources res = context.getResources();
         mFocusResponseWaitTimeoutMs = (long) res.getInteger(R.integer.audioFocusWaitTimeoutMs);
         mNumConsecutiveHalFailuresForCanError =
@@ -1381,8 +1381,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
 
     private void checkCanStatus() {
         // If CAN bus recovers, message will be removed.
-        mCanBusErrorNotifier.setCanBusFailure(
-                mNumConsecutiveHalFailures >= mNumConsecutiveHalFailuresForCanError);
+        if (mNumConsecutiveHalFailures >= mNumConsecutiveHalFailuresForCanError) {
+            mCanBusErrorNotifier.reportFailure(this);
+        } else {
+            mCanBusErrorNotifier.removeFailureReport(this);
+        }
     }
 
     private static boolean isAudioAttributesSame(AudioAttributes one, AudioAttributes two) {

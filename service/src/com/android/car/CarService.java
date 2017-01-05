@@ -23,13 +23,20 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.vehicle.V2_0.IVehicle;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
+import android.os.IHwBinder.DeathRecipient;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.util.Log;
 
+import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.RingBufferIndices;
+
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.NoSuchElementException;
 
 public class CarService extends Service {
 
@@ -38,19 +45,46 @@ public class CarService extends Service {
 
     private static final long WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS = 10_000;
 
+    private static final boolean IS_USER_BUILD = "user".equals(Build.TYPE);
+
+    private CanBusErrorNotifier mCanBusErrorNotifier;
     private ICarImpl mICarImpl;
+    private IVehicle mVehicle;
+
+    // If 10 crashes of Vehicle HAL occurred within 10 minutes then thrown an exception in
+    // Car Service.
+    private final CrashTracker mVhalCrashTracker = new CrashTracker(
+            10,  // Max crash count.
+            10 * 60 * 1000,  // 10 minutes - sliding time window.
+            () -> {
+                if (IS_USER_BUILD) {
+                    Log.e(CarLog.TAG_SERVICE, "Vehicle HAL keeps crashing, notifying user...");
+                    mCanBusErrorNotifier.reportFailure(CarService.this);
+                } else {
+                    throw new RuntimeException(
+                            "Vehicle HAL crashed too many times in a given time frame");
+                }
+            }
+    );
+
+    private final VehicleDeathRecipient mVehicleDeathRecipient = new VehicleDeathRecipient();
 
     @Override
     public void onCreate() {
         Log.i(CarLog.TAG_SERVICE, "Service onCreate");
-        IVehicle vehicle = getVehicle(WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS);
-        if (vehicle == null) {
+        mCanBusErrorNotifier = new CanBusErrorNotifier(this /* context */);
+        mVehicle = getVehicleWithTimeout(WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS);
+        if (mVehicle == null) {
             throw new IllegalStateException("Vehicle HAL service is not available.");
         }
 
-        mICarImpl = new ICarImpl(this, vehicle, SystemInterface.getDefault(this));
+        mICarImpl = new ICarImpl(this, mVehicle, SystemInterface.getDefault(this),
+                mCanBusErrorNotifier);
         mICarImpl.init();
         SystemProperties.set("boot.car_service_created", "1");
+
+        linkToDeath(mVehicle, mVehicleDeathRecipient);
+
         super.onCreate();
     }
 
@@ -58,6 +92,17 @@ public class CarService extends Service {
     public void onDestroy() {
         Log.i(CarLog.TAG_SERVICE, "Service onDestroy");
         mICarImpl.release();
+        mCanBusErrorNotifier.removeFailureReport(this);
+
+        if (mVehicle != null) {
+            try {
+                mVehicle.unlinkToDeath(mVehicleDeathRecipient);
+                mVehicle = null;
+            } catch (RemoteException e) {
+                // Ignore errors on shutdown path.
+            }
+        }
+
         super.onDestroy();
     }
 
@@ -84,13 +129,17 @@ public class CarService extends Service {
         if (args == null || args.length == 0) {
             writer.println("*dump car service*");
             mICarImpl.dump(writer);
+
+            writer.println("**Debug info**");
+            writer.println("Vehicle HAL reconnected: "
+                    + mVehicleDeathRecipient.deathCount + " times.");
         } else {
             mICarImpl.execShellCmd(args, writer);
         }
     }
 
     @Nullable
-    private IVehicle getVehicle(long waitMilliseconds) {
+    private IVehicle getVehicleWithTimeout(long waitMilliseconds) {
         IVehicle vehicle = getVehicle();
         long start = elapsedRealtime();
         while (vehicle == null && (start + waitMilliseconds) > elapsedRealtime()) {
@@ -102,6 +151,11 @@ public class CarService extends Service {
 
             vehicle = getVehicle();
         }
+
+        if (vehicle != null) {
+            mCanBusErrorNotifier.removeFailureReport(this);
+        }
+
         return vehicle;
     }
 
@@ -110,8 +164,83 @@ public class CarService extends Service {
         try {
             return IVehicle.getService(VEHICLE_SERVICE_NAME);
         } catch (RemoteException e) {
-            // TODO(pavelm)
-            return null;
+            Log.e(CarLog.TAG_SERVICE, "Failed to get IVehicle service", e);
+        } catch (NoSuchElementException e) {
+            Log.e(CarLog.TAG_SERVICE, "IVehicle service not registered yet");
+        }
+        return null;
+    }
+
+    private class VehicleDeathRecipient implements DeathRecipient {
+        private int deathCount = 0;
+
+        @Override
+        public void serviceDied(long cookie) {
+            Log.w(CarLog.TAG_SERVICE, "Vehicle HAL died.");
+
+            try {
+                mVehicle.unlinkToDeath(this);
+            } catch (RemoteException e) {
+                Log.e(CarLog.TAG_SERVICE, "Failed to unlinkToDeath", e);  // Log and continue.
+            }
+            mVehicle = null;
+
+            mVhalCrashTracker.crashDetected();
+
+            Log.i(CarLog.TAG_SERVICE, "Trying to reconnect to Vehicle HAL...");
+            mVehicle = getVehicleWithTimeout(WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS);
+            if (mVehicle == null) {
+                throw new IllegalStateException("Failed to reconnect to Vehicle HAL");
+            }
+
+            linkToDeath(mVehicle, this);
+
+            Log.i(CarLog.TAG_SERVICE, "Notifying car service Vehicle HAL reconnected...");
+            mICarImpl.vehicleHalReconnected(mVehicle);
+        }
+    }
+
+    private static void linkToDeath(IVehicle vehicle, DeathRecipient recipient) {
+        try {
+            vehicle.linkToDeath(recipient, 0);
+        } catch (RemoteException e) {
+            throw new IllegalStateException("Failed to linkToDeath Vehicle HAL");
+        }
+    }
+
+    @VisibleForTesting
+    static class CrashTracker {
+        private final int mMaxCrashCountLimit;
+        private final int mSlidingWindowMillis;
+
+        private final long[] mCrashTimestamps;
+        private final RingBufferIndices mCrashTimestampsIndices;
+        private final Runnable mCallback;
+
+        /**
+         * If maxCrashCountLimit number of crashes occurred within slidingWindowMillis time
+         * frame then call provided callback function.
+         */
+        CrashTracker(int maxCrashCountLimit, int slidingWindowMillis, Runnable callback) {
+            mMaxCrashCountLimit = maxCrashCountLimit;
+            mSlidingWindowMillis = slidingWindowMillis;
+            mCallback = callback;
+
+            mCrashTimestamps = new long[maxCrashCountLimit];
+            mCrashTimestampsIndices = new RingBufferIndices(mMaxCrashCountLimit);
+        }
+
+        void crashDetected() {
+            long lastCrash = SystemClock.elapsedRealtime();
+            mCrashTimestamps[mCrashTimestampsIndices.add()] = lastCrash;
+
+            if (mCrashTimestampsIndices.size() == mMaxCrashCountLimit) {
+                long firstCrash = mCrashTimestamps[mCrashTimestampsIndices.indexOf(0)];
+
+                if (lastCrash - firstCrash < mSlidingWindowMillis) {
+                    mCallback.run();
+                }
+            }
         }
     }
 }

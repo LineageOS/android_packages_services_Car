@@ -89,7 +89,8 @@ public class MockedCarTestBase extends AndroidTestCase {
 
         mFakeSystemInterface = new FakeSystemInterface();
         Context context = getCarServiceContext();
-        mCarImpl = new ICarImpl(context, mMockedVehicleHal, mFakeSystemInterface);
+        mCarImpl = new ICarImpl(context, mMockedVehicleHal, mFakeSystemInterface,
+                null /* error notifier */);
 
         initMockedHal(false /* no need to release */);
 
