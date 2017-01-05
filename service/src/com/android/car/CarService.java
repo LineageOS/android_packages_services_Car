@@ -24,6 +24,7 @@ import android.content.pm.PackageManager;
 import android.hardware.vehicle.V2_0.IVehicle;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.util.Log;
 
@@ -106,6 +107,11 @@ public class CarService extends Service {
 
     @Nullable
     private IVehicle getVehicle() {
-        return IVehicle.getService(VEHICLE_SERVICE_NAME);
+        try {
+            return IVehicle.getService(VEHICLE_SERVICE_NAME);
+        } catch (RemoteException e) {
+            // TODO(pavelm)
+            return null;
+        }
     }
 }
