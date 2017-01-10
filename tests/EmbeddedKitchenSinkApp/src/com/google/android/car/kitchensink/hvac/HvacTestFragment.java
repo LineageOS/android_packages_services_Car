@@ -18,13 +18,14 @@ package com.google.android.car.kitchensink.hvac;
 
 import static java.lang.Integer.toHexString;
 
+import com.google.android.car.kitchensink.R;
+
 import android.car.CarNotConnectedException;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.hvac.CarHvacManager;
 import android.hardware.vehicle.V2_0.VehicleAreaWindow;
 import android.hardware.vehicle.V2_0.VehicleAreaZone;
-import android.hardware.vehicle.V2_0.VehicleHvacFanDirection;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -36,8 +37,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
-import com.google.android.car.kitchensink.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,19 +96,19 @@ public class HvacTestFragment extends Fragment {
                             break;
                         case CarHvacManager.ID_ZONED_FAN_POSITION:
                             switch((int)value.getValue()) {
-                                case VehicleHvacFanDirection.FACE:
+                                case CarHvacManager.FAN_POSITION_FACE:
                                     mRbFanPositionFace.setChecked(true);
                                     break;
-                                case VehicleHvacFanDirection.FLOOR:
+                                case CarHvacManager.FAN_POSITION_FLOOR:
                                     mRbFanPositionFloor.setChecked(true);
                                     break;
-                                case VehicleHvacFanDirection.FACE_AND_FLOOR:
+                                case CarHvacManager.FAN_POSITION_FACE_AND_FLOOR:
                                     mRbFanPositionFaceAndFloor.setChecked(true);
                                     break;
-                                case VehicleHvacFanDirection.DEFROST:
+                                case CarHvacManager.FAN_POSITION_DEFROST:
                                     mRbFanPositionDefrost.setChecked(true);
                                     break;
-                                case VehicleHvacFanDirection.DEFROST_AND_FLOOR:
+                                case CarHvacManager.FAN_POSITION_DEFROST_AND_FLOOR:
                                     mRbFanPositionDefrostAndFloor.setChecked(true);
                                     break;
                                 default:
@@ -322,19 +321,19 @@ public class HvacTestFragment extends Fragment {
             int position;
             switch(checkedId) {
                 case R.id.rbPositionFace:
-                    position = VehicleHvacFanDirection.FACE;
+                    position = CarHvacManager.FAN_POSITION_FACE;
                     break;
                 case R.id.rbPositionFloor:
-                    position = VehicleHvacFanDirection.FLOOR;
+                    position = CarHvacManager.FAN_POSITION_FLOOR;
                     break;
                 case R.id.rbPositionFaceAndFloor:
-                    position = VehicleHvacFanDirection.FACE_AND_FLOOR;
+                    position = CarHvacManager.FAN_POSITION_FACE_AND_FLOOR;
                     break;
                 case R.id.rbPositionDefrost:
-                    position = VehicleHvacFanDirection.DEFROST;
+                    position = CarHvacManager.FAN_POSITION_DEFROST;
                     break;
                 case R.id.rbPositionDefrostAndFloor:
-                    position = VehicleHvacFanDirection.DEFROST_AND_FLOOR;
+                    position = CarHvacManager.FAN_POSITION_DEFROST_AND_FLOOR;
                     break;
                 default:
                     throw new IllegalStateException("Unexpected fan position: " + checkedId);

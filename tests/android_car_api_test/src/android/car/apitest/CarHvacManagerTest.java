@@ -18,6 +18,7 @@ package android.car.apitest;
 import android.car.Car;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.CarPropertyConfig;
+import android.hardware.vehicle.V2_0.VehicleHvacFanDirection;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
@@ -51,6 +52,16 @@ public class CarHvacManagerTest extends CarApiTestBase {
                 fail("Type is not supported for " + property);
             }
         }
+    }
+
+    public void testHvacPosition() {
+        assertEquals(CarHvacManager.FAN_POSITION_FACE, VehicleHvacFanDirection.FACE);
+        assertEquals(CarHvacManager.FAN_POSITION_FLOOR, VehicleHvacFanDirection.FLOOR);
+        assertEquals(CarHvacManager.FAN_POSITION_FACE_AND_FLOOR,
+                VehicleHvacFanDirection.FACE_AND_FLOOR);
+        assertEquals(CarHvacManager.FAN_POSITION_DEFROST, VehicleHvacFanDirection.DEFROST);
+        assertEquals(CarHvacManager.FAN_POSITION_DEFROST_AND_FLOOR,
+                VehicleHvacFanDirection.DEFROST_AND_FLOOR);
     }
 
     private void assertTypeAndZone(CarPropertyConfig property) {

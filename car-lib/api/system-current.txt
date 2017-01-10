@@ -634,6 +634,11 @@ package android.car.hardware.hvac {
     method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
     method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
     method public synchronized void unregisterCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback);
+    field public static final int FAN_POSITION_DEFROST = 4; // 0x4
+    field public static final int FAN_POSITION_DEFROST_AND_FLOOR = 5; // 0x5
+    field public static final int FAN_POSITION_FACE = 1; // 0x1
+    field public static final int FAN_POSITION_FACE_AND_FLOOR = 3; // 0x3
+    field public static final int FAN_POSITION_FLOOR = 2; // 0x2
     field public static final int ID_MIRROR_DEFROSTER_ON = 1; // 0x1
     field public static final int ID_OUTSIDE_AIR_TEMP = 3; // 0x3
     field public static final int ID_STEERING_WHEEL_TEMP = 2; // 0x2
