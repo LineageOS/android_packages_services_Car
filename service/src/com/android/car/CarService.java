@@ -41,9 +41,6 @@ import java.util.NoSuchElementException;
 
 public class CarService extends Service {
 
-    /** Default vehicle HAL service name. */
-    private static final String VEHICLE_SERVICE_NAME = "Vehicle";
-
     private static final long WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS = 10_000;
 
     private static final boolean IS_USER_BUILD = "user".equals(Build.TYPE);
@@ -183,12 +180,12 @@ public class CarService extends Service {
             IVehicle vehicle = null;
             if (ENABLE_VEHICLE_HAL_V2_1 && (anyVersion || IVHAL_21.equals(interfaceName))) {
                 vehicle = android.hardware.automotive.vehicle.V2_1.IVehicle
-                        .getService(VEHICLE_SERVICE_NAME);
+                        .getService();
             }
 
             if (vehicle == null && (anyVersion || IVHAL_20.equals(interfaceName))) {
                 vehicle = android.hardware.automotive.vehicle.V2_0.IVehicle
-                        .getService(VEHICLE_SERVICE_NAME);
+                        .getService();
             }
             return vehicle;
         } catch (RemoteException e) {
