@@ -278,7 +278,7 @@ def iterate(args, search_events, timings, cfg, error_time):
 
   print '\n* - event time was obtained from dmesg log\n'
 
-  if events[LOGCAT_BOOT_COMPLETE] > error_time:
+  if events[LOGCAT_BOOT_COMPLETE] > error_time and not args.ignore:
     now = datetime.now()
     bugreport_file = "bugreport-bootuptoolong-%s_%s.zip" % (now.strftime("%Y-%m-%d-%H-%M-%S"), \
                                                             str(events[LOGCAT_BOOT_COMPLETE]))
