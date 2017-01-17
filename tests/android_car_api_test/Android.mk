@@ -32,6 +32,7 @@ LOCAL_MODULE_PATH := $(TARGET_OUT_DATA_APPS)
 
 LOCAL_PROGUARD_ENABLED := disabled
 
+LOCAL_STATIC_JAVA_LIBRARIES := junit legacy-android-test
 LOCAL_STATIC_JAVA_LIBRARIES += \
         android-support-test \
         android.hardware.vehicle@2.0-java-static \

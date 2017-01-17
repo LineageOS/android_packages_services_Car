@@ -31,6 +31,7 @@ LOCAL_MODULE_PATH := $(TARGET_OUT_DATA_APPS)
 
 LOCAL_PROGUARD_ENABLED := disabled
 
+LOCAL_STATIC_JAVA_LIBRARIES := junit legacy-android-test
 include packages/services/Car/car-support-lib/car-support.mk
 
 include $(BUILD_PACKAGE)
