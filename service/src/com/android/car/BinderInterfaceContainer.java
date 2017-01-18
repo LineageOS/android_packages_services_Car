@@ -57,6 +57,10 @@ public class BinderInterfaceContainer<T extends IInterface> {
         mEventHandler = eventHandler;
     }
 
+    public BinderInterfaceContainer() {
+        mEventHandler = null;
+    }
+
     public void addBinder(T binderInterface) {
         IBinder binder = binderInterface.asBinder();
         synchronized (this) {
@@ -109,6 +113,10 @@ public class BinderInterfaceContainer<T extends IInterface> {
         synchronized (this) {
             return mBinders.values();
         }
+    }
+
+    public synchronized int size() {
+        return mBinders.size();
     }
 
     public synchronized void clear() {

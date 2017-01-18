@@ -57,6 +57,8 @@
     <string name="car_permission_label_projection">Car Projection</string>
     <!-- Permission text: apps can control car-audio-volume [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_audio_volume">Car Audio Volume</string>
+    <!-- Permission text: apps can control car-audio-settings [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_audio_settings">Car Audio Settings</string>
     <!-- Permission text: apps can control car-projection [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_projection">Project phone interface on car display.</string>
     <string name="car_permission_label_mock_vehicle_hal">Emulate vehicle HAL</string>
@@ -65,6 +67,7 @@
         testing purpose.</string>
     <!-- Permission text: can adjust the audio volume on your car [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_audio_volume">Control your car\'s audio volume.</string>
+    <string name="car_permission_desc_audio_settings">Control your car\'s audio settings.</string>
     <string name="car_permission_label_control_app_blocking">Application blocking</string>
     <!-- Permission text: can emulate information from your car [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_app_blocking">Control application blocking while

@@ -16,6 +16,7 @@
 
 package android.car.media;
 
+import android.car.media.ICarAudioCallback;
 import android.media.AudioAttributes;
 import android.media.IVolumeController;
 
@@ -38,4 +39,9 @@ interface ICarAudio {
     AudioAttributes getAudioAttributesForExternalSource(in String externalSourceType) = 9;
     String[] getSupportedExternalSourceTypes() = 10;
     String[] getSupportedRadioTypes() = 11;
+    String[] getParameterKeys() = 12;
+    void setParameters(in String parameters) = 13;
+    String getParameters(in String keys) = 14;
+    void registerOnParameterChangeListener(in ICarAudioCallback callback) = 15;
+    void unregisterOnParameterChangeListener(in ICarAudioCallback callback) = 16;
 }

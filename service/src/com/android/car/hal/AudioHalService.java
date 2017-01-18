@@ -18,6 +18,7 @@ package com.android.car.hal;
 import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_EXT_ROUTING_HINT;
 import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_FOCUS;
 import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_HW_VARIANT;
+import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_PARAMETERS;
 import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_ROUTING_POLICY;
 import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_VOLUME;
 import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_VOLUME_LIMIT;
@@ -27,6 +28,7 @@ import static java.lang.Integer.toHexString;
 import android.annotation.Nullable;
 import android.car.VehicleZoneUtil;
 import android.car.media.CarAudioManager;
+import android.car.media.CarAudioManager.OnParameterChangeListener;
 import android.hardware.vehicle.V2_0.VehicleAudioContextFlag;
 import android.hardware.vehicle.V2_0.VehicleAudioExtFocusFlag;
 import android.hardware.vehicle.V2_0.VehicleAudioFocusIndex;
@@ -173,6 +175,8 @@ public class AudioHalService extends HalServiceBase {
     private int mVariant;
 
     private final HashMap<Integer, VehiclePropConfig> mProperties = new HashMap<>();
+
+    private OnParameterChangeListener mOnParameterChangeListener;
 
     public AudioHalService(VehicleHal vehicleHal) {
         mVehicleHal = vehicleHal;
@@ -603,6 +607,7 @@ public class AudioHalService extends HalServiceBase {
                 case VehicleProperty.AUDIO_VOLUME_LIMIT:
                 case VehicleProperty.AUDIO_HW_VARIANT:
                 case VehicleProperty.AUDIO_EXT_ROUTING_HINT:
+                case VehicleProperty.AUDIO_PARAMETERS:
                     // TODO(pavelm): we don't have internal properties anymore.
 //                case VehicleProperty.INTERNAL_AUDIO_STREAM_STATE:
                     mProperties.put(p.prop, p);
@@ -616,20 +621,75 @@ public class AudioHalService extends HalServiceBase {
     public void handleHalEvents(List<VehiclePropValue> values) {
         AudioHalFocusListener focusListener;
         AudioHalVolumeListener volumeListener;
+        OnParameterChangeListener parameterListener;
         synchronized (this) {
             focusListener = mFocusListener;
             volumeListener = mVolumeListener;
+            parameterListener = mOnParameterChangeListener;
         }
-        dispatchEventToListener(focusListener, volumeListener, values);
+        dispatchEventToListener(focusListener, volumeListener, parameterListener, values);
+    }
+
+    public String[] getAudioParameterKeys() {
+        VehiclePropConfig config;
+        synchronized (this) {
+            if (!isPropertySupportedLocked(AUDIO_PARAMETERS)) {
+                if (DBG) {
+                    Log.i(CarLog.TAG_AUDIO, "AUDIO_PARAMETERS is not supported");
+                }
+                return null;
+            }
+            config = mProperties.get(AUDIO_PARAMETERS);
+        }
+        return config.configString.split(";");
+    }
+
+    public void setAudioParameters(String parameters) {
+        synchronized (this) {
+            if (!isPropertySupportedLocked(AUDIO_PARAMETERS)) {
+                throw new IllegalStateException("VehicleProperty.AUDIO_PARAMETERS not supported");
+            }
+        }
+        VehiclePropValue value = new VehiclePropValue();
+        value.prop = AUDIO_PARAMETERS;
+        value.value.stringValue = parameters;
+        try {
+            mVehicleHal.set(value);
+        } catch (PropertyTimeoutException e) {
+            Log.e(CarLog.TAG_AUDIO, "Cannot write to VehicleProperty.AUDIO_EXT_ROUTING_HINT", e);
+        }
+    }
+
+    public String getAudioParameters(String keys) {
+        synchronized (this) {
+            if (!isPropertySupportedLocked(AUDIO_PARAMETERS)) {
+                throw new IllegalStateException("VehicleProperty.AUDIO_PARAMETERS not supported");
+            }
+        }
+        try {
+            VehiclePropValue requested = new VehiclePropValue();
+            requested.prop = AUDIO_PARAMETERS;
+            requested.value.stringValue = keys;
+            VehiclePropValue propValue = mVehicleHal.get(requested);
+            return propValue.value.stringValue;
+        } catch (PropertyTimeoutException e) {
+            Log.e(CarLog.TAG_AUDIO, "VehicleProperty.AUDIO_PARAMETERS not ready", e);
+            return new String("");
+        }
+    }
+
+    public synchronized void setOnParameterChangeListener(OnParameterChangeListener listener) {
+        mOnParameterChangeListener = listener;
     }
 
     private void dispatchEventToListener(AudioHalFocusListener focusListener,
             AudioHalVolumeListener volumeListener,
+            OnParameterChangeListener parameterListener,
             List<VehiclePropValue> values) {
         for (VehiclePropValue v : values) {
-            ArrayList<Integer> vec = v.value.int32Values;
             switch (v.prop) {
                 case VehicleProperty.AUDIO_FOCUS: {
+                    ArrayList<Integer> vec = v.value.int32Values;
                     int focusState = vec.get(VehicleAudioFocusIndex.FOCUS);
                     int streams = vec.get(VehicleAudioFocusIndex.STREAMS);
                     int externalFocus = vec.get(VehicleAudioFocusIndex.EXTERNAL_FOCUS_STATE);
@@ -649,6 +709,7 @@ public class AudioHalService extends HalServiceBase {
 //                    }
 //                } break;
                 case AUDIO_VOLUME: {
+                    ArrayList<Integer> vec = v.value.int32Values;
                     int volume = vec.get(VehicleAudioVolumeIndex.INDEX_VOLUME);
                     int streamNum = vec.get(VehicleAudioVolumeIndex.INDEX_STREAM);
                     int volumeState = vec.get(VehicleAudioVolumeIndex.INDEX_STATE);
@@ -657,12 +718,19 @@ public class AudioHalService extends HalServiceBase {
                     }
                 } break;
                 case AUDIO_VOLUME_LIMIT: {
+                    ArrayList<Integer> vec = v.value.int32Values;
                     int stream = vec.get(VehicleAudioVolumeLimitIndex.STREAM);
                     int maxVolume = vec.get(VehicleAudioVolumeLimitIndex.MAX_VOLUME);
                     if (volumeListener != null) {
                         volumeListener.onVolumeLimitChange(stream, maxVolume);
                     }
                 } break;
+                case AUDIO_PARAMETERS: {
+                    String params = v.value.stringValue;
+                    if (parameterListener != null) {
+                        parameterListener.onParameterChange(params);
+                    }
+                }
             }
         }
         values.clear();

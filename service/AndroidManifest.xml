@@ -100,6 +100,12 @@
         android:description="@string/car_permission_desc_audio_volume" />
 
     <permission
+        android:name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_audio_settings"
+        android:description="@string/car_permission_desc_audio_settings" />
+
+    <permission
             android:name="android.car.permission.BIND_INSTRUMENT_CLUSTER_RENDERER_SERVICE"
             android:protectionLevel="signature"
             android:label="@string/car_permission_label_bind_instrument_cluster_rendering"

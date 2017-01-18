@@ -139,6 +139,13 @@ public final class Car {
             "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
 
     /**
+     * Permission necessary to change car audio settings through {@link CarAudioManager}.
+     * @hide
+     */
+    public static final String PERMISSION_CAR_CONTROL_AUDIO_SETTINGS =
+            "android.car.permission.CAR_CONTROL_AUDIO_SETTINGS";
+
+    /**
      * Permission necessary to use {@link CarNavigationStatusManager}.
      * @hide
      */
@@ -515,7 +522,7 @@ public final class Car {
         CarManagerBase manager = null;
         switch (serviceName) {
             case AUDIO_SERVICE:
-                manager = new CarAudioManager(binder, mContext);
+                manager = new CarAudioManager(binder, mContext, mEventHandler);
                 break;
             case SENSOR_SERVICE:
                 manager = new CarSensorManager(binder, mContext, mEventHandler);

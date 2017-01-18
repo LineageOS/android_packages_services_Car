@@ -16,6 +16,7 @@
 package android.car.media;
 
 import android.annotation.IntDef;
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.CarLibLog;
 import android.car.CarNotConnectedException;
@@ -24,6 +25,7 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.IVolumeController;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.car.CarManagerBase;
@@ -31,6 +33,7 @@ import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 
 /**
  * APIs for handling car specific audio stuffs.
@@ -121,6 +124,10 @@ public final class CarAudioManager implements CarManagerBase {
 
     private final ICarAudio mService;
     private final AudioManager mAudioManager;
+    private final Handler mHandler;
+
+    private ParameterChangeCallback mParameterChangeCallback;
+    private OnParameterChangeListener mOnParameterChangeListener;
 
     /**
      * Get {@link AudioAttributes} relevant for the given usage in car.
@@ -367,19 +374,149 @@ public final class CarAudioManager implements CarManagerBase {
         }
     }
 
+    /**
+     * Listener to monitor audio parameter changes.
+     * @hide
+     */
+    public interface OnParameterChangeListener {
+        /**
+         * Parameter changed.
+         * @param parameters Have format of key1=value1;key2=value2;...
+         */
+        void onParameterChange(String parameters);
+    }
+
+    /**
+     * Return array of keys supported in this system.
+     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
+     * The list is static and will not change.
+     * @return null if there is no audio parameters supported.
+     * @throws CarNotConnectedException
+     *
+     * @hide
+     */
+    public @Nullable String[] getParameterKeys() throws CarNotConnectedException {
+        try {
+            return mService.getParameterKeys();
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "getParameterKeys failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Set car specific audio parameters.
+     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
+     * Only keys listed from {@link #getParameterKeys()} should be used.
+     * @param parameters has format of key1=value1;key2=value2;...
+     * @throws CarNotConnectedException
+     *
+     * @hide
+     */
+    public void setParameters(String parameters) throws CarNotConnectedException {
+        try {
+            mService.setParameters(parameters);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "setParameters failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Get parameters for the key passed.
+     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
+     * Only keys listed from {@link #getParameterKeys()} should be used.
+     * @param keys Keys to get value. Format is key1;key2;...
+     * @return Parameters in format of key1=value1;key2=value2;...
+     * @throws CarNotConnectedException
+     *
+     * @hide
+     */
+    public String getParameters(String keys) throws CarNotConnectedException {
+        try {
+            return mService.getParameters(keys);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "getParameters failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Set listener to monitor audio parameter changes.
+     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
+     * @param listener Non-null listener will start monitoring. null listener will stop listening.
+     * @throws CarNotConnectedException
+     *
+     * @hide
+     */
+    public void setOnParameterChangeListener(OnParameterChangeListener listener)
+            throws CarNotConnectedException {
+        ParameterChangeCallback oldCb = null;
+        ParameterChangeCallback newCb = null;
+        synchronized (this) {
+            if (listener != null) {
+                if (mParameterChangeCallback != null) {
+                    oldCb = mParameterChangeCallback;
+                }
+                newCb = new ParameterChangeCallback(this);
+            }
+            mParameterChangeCallback = newCb;
+            mOnParameterChangeListener = listener;
+        }
+        try {
+            if (oldCb != null) {
+                mService.unregisterOnParameterChangeListener(oldCb);
+            }
+            if (newCb != null) {
+                mService.registerOnParameterChangeListener(newCb);
+            }
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "setOnParameterChangeListener failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
     /** @hide */
     @Override
     public void onCarDisconnected() {
     }
 
     /** @hide */
-    public CarAudioManager(IBinder service, Context context) {
+    public CarAudioManager(IBinder service, Context context, Handler handler) {
         mService = ICarAudio.Stub.asInterface(service);
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        mHandler = handler;
     }
 
     private AudioAttributes createAudioAttributes(int contentType, int usage) {
         AudioAttributes.Builder builder = new AudioAttributes.Builder();
         return builder.setContentType(contentType).setUsage(usage).build();
+    }
+
+    private static class ParameterChangeCallback extends ICarAudioCallback.Stub {
+
+        private final WeakReference<CarAudioManager> mManager;
+
+        private ParameterChangeCallback(CarAudioManager manager) {
+            mManager = new WeakReference<>(manager);
+        }
+
+        @Override
+        public void onParameterChange(final String params) {
+            CarAudioManager manager = mManager.get();
+            if (manager == null) {
+                return;
+            }
+            final OnParameterChangeListener listener = manager.mOnParameterChangeListener;
+            if (listener == null) {
+                return;
+            }
+            manager.mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onParameterChange(params);
+                }
+            });
+        }
     }
 }
