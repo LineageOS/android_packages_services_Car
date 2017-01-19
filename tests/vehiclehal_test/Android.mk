@@ -22,7 +22,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_PACKAGE_NAME := VehicleHALTest
 
-# for system|priviledged permission.
 LOCAL_CERTIFICATE := platform
 
 LOCAL_MODULE_TAGS := tests
