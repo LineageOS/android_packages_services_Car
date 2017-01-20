@@ -70,6 +70,7 @@ public class ICarImpl extends ICar.Stub {
     private final InstrumentClusterService mInstrumentClusterService;
     private final SystemStateControllerService mSystemStateControllerService;
     private final CarVendorExtensionService mCarVendorExtensionService;
+    private final CarBluetoothService mCarBluetoothService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -104,6 +105,7 @@ public class ICarImpl extends ICar.Stub {
                 mCarPowerManagementService, mCarAudioService, this);
         mCarVendorExtensionService = new CarVendorExtensionService(serviceContext,
                 mHal.getVendorExtensionHal());
+        mCarBluetoothService = new CarBluetoothService(serviceContext, mCarCabinService);
 
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[]{
@@ -124,7 +126,8 @@ public class ICarImpl extends ICar.Stub {
                 mInstrumentClusterService,
                 mCarProjectionService,
                 mSystemStateControllerService,
-                mCarVendorExtensionService
+                mCarVendorExtensionService,
+                mCarBluetoothService
         };
     }
 
