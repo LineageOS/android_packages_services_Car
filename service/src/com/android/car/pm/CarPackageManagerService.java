@@ -127,7 +127,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             throw new SecurityException(
                     "requires permission " + Car.PERMISSION_CONTROL_APP_BLOCKING);
         }
-        CarServiceUtils.assertPakcageName(mContext, packageName);
+        CarServiceUtils.assertPackageName(mContext, packageName);
         if (policy == null) {
             throw new IllegalArgumentException("policy cannot be null");
         }

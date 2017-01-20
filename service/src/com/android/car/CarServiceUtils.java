@@ -39,7 +39,7 @@ public final class CarServiceUtils {
      * @param context
      * @param packageName
      */
-    public static void assertPakcageName(Context context, String packageName)
+    public static void assertPackageName(Context context, String packageName)
             throws IllegalArgumentException, SecurityException {
         if (packageName == null) {
             throw new IllegalArgumentException("Package name null");
