@@ -73,6 +73,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private final HvacHalService mHvacHal;
     private final InputHalService mInputHal;
     private final VendorExtensionHalService mVendorExtensionHal;
+    private final VmsHalService mVmsHal;
 
     /** Might be re-assigned if Vehicle HAL is reconnected. */
     private volatile HalClient mHalClient;
@@ -98,6 +99,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mHvacHal = new HvacHalService(this);
         mInputHal = new InputHalService(this);
         mVendorExtensionHal = new VendorExtensionHalService(this);
+        mVmsHal = new VmsHalService(this);
         mAllServices = new HalServiceBase[] {
                 mPowerHal,
                 mAudioHal,
@@ -107,7 +109,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
                 mSensorHal,
                 mRadioHal,
                 mInputHal,
-                mVendorExtensionHal
+                mVendorExtensionHal,
+                mVmsHal
                 };
 
         mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(), this /*IVehicleCallback*/);
@@ -128,6 +131,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mHvacHal = hvacHal;
         mInputHal = null;
         mVendorExtensionHal = null;
+        // TODO(antoniocortes): do we need a test version of VmsHalService?
+        mVmsHal = null;
         mAllServices = null;
         mHalClient = halClient;
     }
@@ -237,6 +242,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
     public VendorExtensionHalService getVendorExtensionHal() {
         return mVendorExtensionHal;
     }
+
+    public VmsHalService getVmsHal() { return mVmsHal; }
 
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {
         if (service != mPropertyHandlers.get(property)) {
