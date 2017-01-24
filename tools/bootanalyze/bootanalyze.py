@@ -430,7 +430,7 @@ def extract_time(events, pattern, date_transform_function):
 
 def reboot():
   print 'Rebooting the device'
-  subprocess.call(ADB_CMD + ' reboot', shell=True)
+  subprocess.call(ADB_CMD + ' shell su  svc power reboot', shell=True)
   print 'Waiting the device'
   subprocess.call(ADB_CMD + ' wait-for-device', shell=True)
 
