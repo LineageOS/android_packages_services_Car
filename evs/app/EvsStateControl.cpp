@@ -77,6 +77,9 @@ EvsStateControl::EvsStateControl(android::sp <IVehicle>       pVnet,
 bool EvsStateControl::configureForVehicleState() {
     ALOGD("configureForVehicleState");
 
+    static int32_t sDummyGear   = int32_t(VehicleGear::GEAR_REVERSE);
+    static int32_t sDummySignal = int32_t(VehicleTurnSignal::NONE);
+
     if (mVehicle != nullptr) {
         // Query the car state
         if (invokeGet(&mGearValue) != StatusCode::OK) {
@@ -84,14 +87,12 @@ bool EvsStateControl::configureForVehicleState() {
             return false;
         }
         if (invokeGet(&mTurnSignalValue) != StatusCode::OK) {
-            ALOGE("TURN_SIGNAL_STATE not available from vehicle.  Exiting.");
-            return false;
+            // Silently treat missing turn signal state as no turn signal active
+            mTurnSignalValue.value.int32Values.setToExternal(&sDummySignal, 1);
         }
     } else {
         // While testing without a vehicle, behave as if we're in reverse for the first 20 seconds
         static const int kShowTime = 20;    // seconds
-        static int32_t sDummyGear   = int32_t(VehicleGear::GEAR_REVERSE);
-        static int32_t sDummySignal = int32_t(VehicleTurnSignal::NONE);
 
         // See if it's time to turn off the default reverse camera
         static std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
@@ -202,6 +203,9 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
             // Activate the display
             ALOGD("Arming the display");
             mDisplay->setDisplayState(DisplayState::VISIBLE_ON_NEXT_FRAME);
+
+            // TODO:  Detect and exit if we encounter a stalled stream or unresponsive driver?
+            // Consider using a timer and watching for frame arrival?
         }
     }
 
@@ -221,16 +225,12 @@ Return<void> EvsStateControl::deliverFrame(const BufferDesc& buffer) {
         std::unique_lock<std::mutex> lock(mAccessLock);
         mCurrentState = State::OFF;
         lock.unlock();
-
-        // In case the main thread is waiting for us, announce our change
-        mSignal.notify_one();
     } else {
         // Get the output buffer we'll use to display the imagery
         BufferDesc tgtBuffer = {};
         mDisplay->getTargetBuffer([&tgtBuffer]
                                   (const BufferDesc& buff) {
                                       tgtBuffer = buff;
-                                      tgtBuffer.memHandle = native_handle_clone(buff.memHandle);
                                       ALOGD("Got output buffer (%p) with id %d cloned as (%p)",
                                             buff.memHandle.getNativeHandle(),
                                             tgtBuffer.bufferId,
@@ -256,15 +256,6 @@ Return<void> EvsStateControl::deliverFrame(const BufferDesc& buffer) {
                 ALOGE("We encountered error %d when returning a buffer to the display!",
                       (EvsResult)result);
             }
-
-            // Now release our copy of the handle
-            // TODO:  If we don't end up needing to pass it back, then close our handle earlier
-            // As it stands, the buffer might still be held by this process for some time after
-            // it gets returned to the server via returnTargetBufferForDisplay()
-            native_handle_close(tgtBuffer.memHandle.getNativeHandle());
-
-            // TODO:  Sort our whether this call is needed, and if so, are we forced to const_cast?
-            //native_handle_delete(tgtBuffer.memHandle.getNativeHandle());
         }
 
         // Send the camera buffer back now that we're done with it

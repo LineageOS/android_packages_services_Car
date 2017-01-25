@@ -22,6 +22,8 @@
 #include <ui/GraphicBuffer.h>
 
 #include <thread>
+#include <deque>
+
 
 using namespace ::android::hardware::evs::V1_0;
 using ::android::hardware::Return;
@@ -45,6 +47,7 @@ class HalCamera;
 class VirtualCamera : public IEvsCamera {
 public:
     explicit VirtualCamera(sp<HalCamera> halCamera) : mHalCamera(halCamera) {};
+    virtual ~VirtualCamera();
     void              shutdown();
 
     sp<HalCamera>     getHalCamera() { return mHalCamera; };
@@ -67,7 +70,7 @@ private:
     sp<HalCamera>           mHalCamera;
     sp<IEvsCameraStream>    mStream;
 
-    unsigned                mFramesHeld     = 0;
+    std::deque<BufferDesc>  mFramesHeld;
     unsigned                mFramesAllowed  = 1;
     enum {
         STOPPED,

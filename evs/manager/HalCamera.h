@@ -65,7 +65,7 @@ public:
 
 private:
     sp<IEvsCamera>                  mHwCamera;
-    std::list<sp<VirtualCamera>>    mClients;
+    std::list<wp<VirtualCamera>>    mClients;   // Weak pointers -> objects destruct if client dies
 
     enum {
         STOPPED,

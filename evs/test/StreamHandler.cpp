@@ -97,7 +97,6 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
         mDisplay->getTargetBuffer([&tgtBuffer]
                                   (const BufferDesc& buff) {
                                       tgtBuffer = buff;
-                                      tgtBuffer.memHandle = native_handle_clone(buff.memHandle);
                                       ALOGD("Got output buffer (%p) with id %d cloned as (%p)",
                                             buff.memHandle.getNativeHandle(),
                                             tgtBuffer.bufferId,
@@ -108,6 +107,11 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
         if (tgtBuffer.memHandle == nullptr) {
             ALOGE("Didn't get requested output buffer -- skipping this frame.");
         } else {
+            // In order for the handles passed through HIDL and stored in the BufferDesc to
+            // be lockable, we must register them with GraphicBufferMapper
+            registerBufferHelper(tgtBuffer);
+            registerBufferHelper(buffer);
+
             // Copy the contents of the of buffer.memHandle into tgtBuffer
             copyBufferContents(tgtBuffer, buffer);
 
@@ -129,13 +133,9 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
                       (EvsResult)result);
             }
 
-            // Now release our copy of the handle
-            // TODO:  If we don't end up needing to pass it back, then close our handle earlier
-            // As it stands, the buffer might still be held by this process for some time after
-            // it gets returned to the server via returnTargetBufferForDisplay()
-            // Could/should this be fixed by "exporting" the tgtBuffer before returning it?
-            native_handle_close(tgtBuffer.memHandle);
-            native_handle_delete(const_cast<native_handle*>(tgtBuffer.memHandle.getNativeHandle()));
+            // Now tell GraphicBufferMapper we won't be using these handles anymore
+            unregisterBufferHelper(tgtBuffer);
+            unregisterBufferHelper(buffer);
         }
 
         // Send the camera buffer back now that we're done with it
@@ -202,4 +202,36 @@ bool StreamHandler::copyBufferContents(const BufferDesc& tgtBuffer,
     mapper.unregisterBuffer(tgtBuffer.memHandle);
 
     return success;
+}
+
+
+void StreamHandler::registerBufferHelper(const BufferDesc& buffer)
+{
+    // In order for the handles passed through HIDL and stored in the BufferDesc to
+    // be lockable, we must register them with GraphicBufferMapper.
+    // If the device upon which we're running supports gralloc1, we could just call
+    // registerBuffer directly with the handle.  But that call  is broken for gralloc0 devices
+    // (which we care about, at least for now).  As a result, we have to synthesize a GraphicBuffer
+    // object around the buffer handle in order to make a call to the overloaded alternate
+    // version of the registerBuffer call that does happen to work on gralloc0 devices.
+#if REGISTER_BUFFER_ALWAYS_WORKS
+    android::GraphicBufferMapper::get().registerBuffer(buffer.memHandle);
+#else
+    android::sp<android::GraphicBuffer> pGfxBuff = new android::GraphicBuffer(
+            buffer.width, buffer.height, buffer.format,
+            1, /* we always use exactly one layer */
+            buffer.usage, buffer.stride,
+            const_cast<native_handle_t*>(buffer.memHandle.getNativeHandle()),
+            false /* GraphicBuffer should not try to free the handle */
+    );
+
+    android::GraphicBufferMapper::get().registerBuffer(pGfxBuff.get());
+#endif
+}
+
+
+void StreamHandler::unregisterBufferHelper(const BufferDesc& buffer)
+{
+    // Now tell GraphicBufferMapper we won't be using these handles anymore
+    android::GraphicBufferMapper::get().unregisterBuffer(buffer.memHandle);
 }

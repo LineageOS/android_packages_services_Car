@@ -30,6 +30,9 @@ namespace V1_0 {
 namespace implementation {
 
 
+// TODO:  We need to hook up death monitoring to detect stream death so we can attempt a reconnect
+
+
 sp<VirtualCamera> HalCamera::makeVirtualCamera() {
 
     // Create the client camera interface object
@@ -47,9 +50,10 @@ sp<VirtualCamera> HalCamera::makeVirtualCamera() {
         return nullptr;
     }
 
-    // Add this client to our ownership list
+    // Add this client to our ownership list via weak pointer
     mClients.push_back(client);
 
+    // Return the strong pointer to the client
     return client;
 }
 
@@ -57,7 +61,7 @@ sp<VirtualCamera> HalCamera::makeVirtualCamera() {
 void HalCamera::disownVirtualCamera(sp<VirtualCamera> virtualCamera) {
     // Ignore calls with null pointers
     if (virtualCamera.get() == nullptr) {
-        ALOGW("Ignoring call with null pointer");
+        ALOGW("Ignoring disownVirtualCamera call with null pointer");
         return;
     }
 
@@ -65,7 +69,11 @@ void HalCamera::disownVirtualCamera(sp<VirtualCamera> virtualCamera) {
     virtualCamera->stopVideoStream();
 
     // Remove the virtual camera from our client list
+    unsigned clientCount = mClients.size();
     mClients.remove(virtualCamera);
+    if (clientCount != mClients.size() + 1) {
+        ALOGE("Couldn't find camera in our client list to remove it");
+    }
     virtualCamera->shutdown();
 
     // Recompute the number of buffers required with the target camera removed from the list
@@ -79,7 +87,10 @@ bool HalCamera::changeFramesInFlight(int delta) {
     // Walk all our clients and count their currently required frames
     unsigned bufferCount = 0;
     for (auto&& client :  mClients) {
-        bufferCount += client->getAllowedBuffers();
+        sp<VirtualCamera> virtCam = client.promote();
+        if (virtCam != nullptr) {
+            bufferCount += virtCam->getAllowedBuffers();
+        }
     }
 
     // Add the requested delta
@@ -130,8 +141,11 @@ Return<EvsResult> HalCamera::clientStreamStarting() {
 void HalCamera::clientStreamEnding() {
     // Do we still have a running client?
     bool stillRunning = false;
-    for (auto&& client :  mClients) {
-        stillRunning |= client->isStreaming();
+    for (auto&& client : mClients) {
+        sp<VirtualCamera> virtCam = client.promote();
+        if (virtCam != nullptr) {
+            stillRunning |= virtCam->isStreaming();
+        }
     }
 
     // If not, then stop the hardware stream
@@ -168,8 +182,11 @@ Return<void> HalCamera::deliverFrame(const BufferDesc& buffer) {
     // Run through all our clients and deliver this frame to any who are eligible
     unsigned frameDeliveries = 0;
     for (auto&& client : mClients) {
-        if (client->deliverFrame(buffer)) {
-            frameDeliveries++;
+        sp<VirtualCamera> virtCam = client.promote();
+        if (virtCam != nullptr) {
+            if (virtCam->deliverFrame(buffer)) {
+                frameDeliveries++;
+            }
         }
     }
 
@@ -188,7 +205,7 @@ Return<void> HalCamera::deliverFrame(const BufferDesc& buffer) {
         if (i == mFrames.size()) {
             mFrames.emplace_back(buffer.bufferId);
         } else {
-            mFrames[i].frameId  = buffer.bufferId;
+            mFrames[i].frameId = buffer.bufferId;
         }
         mFrames[i].refCount = frameDeliveries;
     }

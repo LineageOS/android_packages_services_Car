@@ -68,7 +68,6 @@ private:
     sp<IEvsCamera>              mCurrentCamera;
 
     std::mutex                  mAccessLock;
-    std::condition_variable     mSignal;
 };
 
 

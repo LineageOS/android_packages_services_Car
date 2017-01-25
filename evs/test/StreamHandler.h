@@ -46,6 +46,8 @@ private:
 
     // Local implementation details
     bool copyBufferContents(const BufferDesc& tgtBuffer, const BufferDesc& srcBuffer);
+    void registerBufferHelper(const BufferDesc& buffer);
+    void unregisterBufferHelper(const BufferDesc& buffer);
 
     android::sp <IEvsCamera>    mCamera;
     CameraDesc                  mCameraInfo;

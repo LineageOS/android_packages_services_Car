@@ -30,10 +30,30 @@ namespace V1_0 {
 namespace implementation {
 
 
-// TODO(b/31632518):  Need to get notification when our client dies so we can close the camera.
-// As it stands, if the client dies suddently, the buffer may be stranded.
-// As possible work around would be to give the client a HIDL object to exclusively hold
-// and use it's destructor to perform some work in the server side.
+// If the client dies before closing the camera, this is our chance to clean up...
+VirtualCamera::~VirtualCamera() {
+    // If we have been connected to a camera device we have some cleanup to do...
+    if (mHalCamera != nullptr) {
+        mStreamState = STOPPED;
+
+        if (mFramesHeld.size() > 0) {
+            ALOGW("VirtualCamera destructing with frames in flight.");
+
+            // Return to the underlying hardware camera any buffers the client was holding
+            for (auto&& heldBuffer : mFramesHeld) {
+                // Tell our parent that we're done with this buffer
+                mHalCamera->doneWithFrame(heldBuffer);
+            }
+            mFramesHeld.clear();
+        }
+
+        // Give the underlying hardware camera the heads up that it might be time to stop
+        mHalCamera->clientStreamEnding();
+
+        // Disconnect ourselves from the underlying hardware camera so it can adjust it's resources
+        mHalCamera->disownVirtualCamera(this);
+    }
+}
 
 
 void VirtualCamera::shutdown() {
@@ -43,6 +63,12 @@ void VirtualCamera::shutdown() {
 
 bool VirtualCamera::deliverFrame(const BufferDesc& buffer) {
     if (buffer.memHandle == nullptr) {
+        // Warn if we got an unexpected stream termination
+        if (mStreamState != STOPPING) {
+            // TODO:  Should we suicide in this case to trigger a restart of the stack?
+            ALOGW("Stream unexpectedly stopped");
+        }
+
         // This is the stream end marker, so send it along, then mark the stream as stopped
         mStream->deliverFrame(buffer);
         mStreamState = STOPPED;
@@ -51,14 +77,16 @@ bool VirtualCamera::deliverFrame(const BufferDesc& buffer) {
         if (mStreamState == STOPPED) {
             // A stopped stream gets no frames
             return false;
-        } else if (mFramesHeld >= mFramesAllowed) {
+        } else if (mFramesHeld.size() >= mFramesAllowed) {
             // Indicate that we declined to send the frame to the client because they're at quota
-            ALOGI("Skipping new frame as we hold %d of %d allowed.",
-                  mFramesHeld, mFramesAllowed);
+            ALOGI("Skipping new frame as we hold %lu of %u allowed.",
+                  mFramesHeld.size(), mFramesAllowed);
             return false;
         } else {
-            // Pass this directly through to our client
-            mFramesHeld++;
+            // Keep a record of this frame so we can clean up if we have to in case of client death
+            mFramesHeld.push_back(buffer);
+
+            // Pass this buffer through to our client
             mStream->deliverFrame(buffer);
             return true;
         }
@@ -71,6 +99,7 @@ Return<void> VirtualCamera::getId(getId_cb id_cb) {
     // Straight pass through to hardware layer
     return mHalCamera->getHwCamera()->getId(id_cb);
 }
+
 
 Return<EvsResult> VirtualCamera::setMaxFramesInFlight(uint32_t bufferCount) {
     // How many buffers are we trying to add (or remove if negative)
@@ -88,6 +117,7 @@ Return<EvsResult> VirtualCamera::setMaxFramesInFlight(uint32_t bufferCount) {
     return EvsResult::OK;
 }
 
+
 Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCameraStream>& stream)  {
     // We only support a single stream at a time
     if (mStreamState != STOPPED) {
@@ -96,7 +126,7 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
     }
 
     // Validate our held frame count is starting out at zero as we expect
-    assert(mFramesHeld == 0);
+    assert(mFramesHeld.size() == 0);
 
     // Record the user's callback for use when we have a frame ready
     mStream = stream;
@@ -111,29 +141,48 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
         return EvsResult::UNDERLYING_SERVICE_ERROR;
     }
 
+    // TODO:  Detect and exit if we encounter a stalled stream or unresponsive driver?
+    // Consider using a timer and watching for frame arrival?
+
     return EvsResult::OK;
 }
+
 
 Return<void> VirtualCamera::doneWithFrame(const BufferDesc& buffer) {
     if (buffer.memHandle == nullptr) {
         ALOGE("ignoring doneWithFrame called with invalid handle");
     } else {
-        // Drop our held buffer count
-        mFramesHeld--;
+        // Find this buffer in our "held" list
+        auto it = mFramesHeld.begin();
+        while (it != mFramesHeld.end()) {
+            if (it->bufferId == buffer.bufferId) {
+                // found it!
+                break;
+            }
+            ++it;
+        }
+        if (it == mFramesHeld.end()) {
+            // We should always find the frame in our "held" list
+            ALOGE("Ignoring doneWithFrame called with unrecognized frameID %d", buffer.bufferId);
+        } else {
+            // Take this frame out of our "held" list
+            mFramesHeld.erase(it);
 
-        // Tell our parent that we're done with this buffer
-        mHalCamera->doneWithFrame(buffer);
+            // Tell our parent that we're done with this buffer
+            mHalCamera->doneWithFrame(buffer);
+        }
     }
 
     return Void();
 }
+
 
 Return<void> VirtualCamera::stopVideoStream()  {
     if (mStreamState == RUNNING) {
         // Tell the frame delivery pipeline we don't want any more frames
         mStreamState = STOPPING;
 
-        // Deliver an empty frame to close out the frame stream outside the lock
+        // Deliver an empty frame to close out the frame stream
         BufferDesc nullBuff = {};
         auto result = mStream->deliverFrame(nullBuff);
         if (!result.isOk()) {
@@ -153,10 +202,12 @@ Return<void> VirtualCamera::stopVideoStream()  {
     return Void();
 }
 
+
 Return<int32_t> VirtualCamera::getExtendedInfo(uint32_t opaqueIdentifier)  {
     // Pass straight through to the hardware device
     return mHalCamera->getHwCamera()->getExtendedInfo(opaqueIdentifier);
 }
+
 
 Return<EvsResult> VirtualCamera::setExtendedInfo(uint32_t opaqueIdentifier, int32_t opaqueValue)  {
     // Pass straight through to the hardware device

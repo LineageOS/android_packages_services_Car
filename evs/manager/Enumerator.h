@@ -50,7 +50,7 @@ public:
 
 private:
     sp<IEvsEnumerator>          mHwEnumerator;  // Hardware enumerator
-    sp<IEvsDisplay>             mActiveDisplay; // Hardware display
+    wp<IEvsDisplay>             mActiveDisplay; // Hardware display
     std::list<sp<HalCamera>>    mCameras;       // Camera proxy objects wrapping hw cameras
 };
 

@@ -85,14 +85,14 @@ Return<sp<IEvsCamera>> Enumerator::openCamera(const hidl_string& cameraId) {
         clientCamera = hwCamera->makeVirtualCamera();
     }
 
-    // Add the hardware camera to our list, which will keep the object alive via ref count
+    // Add the hardware camera to our list, which will keep it alive via ref count
     if (clientCamera != nullptr) {
         mCameras.push_back(hwCamera);
     } else {
         ALOGE("Requested camera %s not found or not available", cameraId.c_str());
     }
 
-    // Send the virtual camera object (also owned by our hwCamera) back to the client
+    // Send the virtual camera object back to the client by strong pointer which will keep it alive
     return clientCamera;
 }
 
@@ -136,19 +136,20 @@ Return<sp<IEvsDisplay>> Enumerator::openDisplay() {
     ALOGD("openDisplay");
 
     // If we already have a display active, then this request must be denied
-    if (mActiveDisplay != nullptr) {
+    sp<IEvsDisplay> pActiveDisplay = mActiveDisplay.promote();
+    if (pActiveDisplay != nullptr) {
         ALOGW("Rejecting openDisplay request because the display is already in use.");
         return nullptr;
     } else {
         // Request exclusive access to the EVS display
         ALOGI("Acquiring EVS Display");
-
-        mActiveDisplay = mHwEnumerator->openDisplay();
-        if (mActiveDisplay.get() == nullptr) {
+        pActiveDisplay = mHwEnumerator->openDisplay();
+        if (pActiveDisplay == nullptr) {
             ALOGE("EVS Display unavailable");
         }
 
-        return mActiveDisplay;
+        mActiveDisplay = pActiveDisplay;
+        return pActiveDisplay;
     }
 }
 
@@ -156,9 +157,13 @@ Return<sp<IEvsDisplay>> Enumerator::openDisplay() {
 Return<void> Enumerator::closeDisplay(const ::android::sp<IEvsDisplay>& display) {
     ALOGD("closeDisplay");
 
+    // Do we still have a display object we think should be active?
+    sp<IEvsDisplay> pActiveDisplay = mActiveDisplay.promote();
+
     // Drop the active display
-    if (display != mActiveDisplay) {
-        ALOGW("Ignoring call to closeDisplay with a display object we don't recognize.");
+    if (display.get() != pActiveDisplay.get()) {
+        ALOGW("Ignoring call to closeDisplay with unrecognzied display object.");
+        ALOGI("Got %p while active display is %p.", display.get(), pActiveDisplay.get());
     } else {
         // Pass this request through to the hardware layer
         mHwEnumerator->closeDisplay(display);
@@ -172,24 +177,20 @@ Return<void> Enumerator::closeDisplay(const ::android::sp<IEvsDisplay>& display)
 Return<DisplayState> Enumerator::getDisplayState()  {
     ALOGD("getDisplayState");
 
-    // Pass this request through to the hardware layer
-    if (mHwEnumerator == nullptr) {
-        // If we haven't even been initialized, this should not be called
-        ALOGE("getDisplayState called on incompletely initialized EvsEnumerator");
-        return DisplayState::NOT_OPEN;
-    } else if (mActiveDisplay == nullptr) {
-        // We actually DO hold the underlying hardware display open (in order to reserve it)
-        // but the application hasn't opened it, so we know it isn't actually doing anything.
-        return DisplayState::NOT_OPEN;
+    // Do we have a display object we think should be active?
+    sp<IEvsDisplay> pActiveDisplay = mActiveDisplay.promote();
+    if (pActiveDisplay != nullptr) {
+        // Pass this request through to the hardware layer
+        return pActiveDisplay->getDisplayState();
     } else {
-        return mActiveDisplay->getDisplayState();
+        // We don't have a live display right now
+        mActiveDisplay = nullptr;
+        return DisplayState::NOT_OPEN;
     }
 }
 
 
 // TODO(b/31632518):  Need to get notification when our client dies so we can close the camera.
-// As possible work around would be to give the client a HIDL object to exclusively hold
-// and use it's destructor to perform some work in the server side.
 
 
 } // namespace implementation
