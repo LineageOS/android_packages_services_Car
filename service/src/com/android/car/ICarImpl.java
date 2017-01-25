@@ -251,6 +251,8 @@ public class ICarImpl extends ICar.Stub {
     }
 
     void dump(PrintWriter writer) {
+        writer.println("*FutureConfig, DEFAULT:" + FeatureConfiguration.DEFAULT);
+        //TODO dump all feature flags by reflection
         writer.println("*Dump all services*");
         for (CarServiceBase service: mAllServices) {
             service.dump(writer);
