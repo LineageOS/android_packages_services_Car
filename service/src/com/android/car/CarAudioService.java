@@ -18,7 +18,9 @@ package com.android.car;
 import android.car.Car;
 import android.car.VehicleZoneUtil;
 import android.car.media.CarAudioManager;
+import android.car.media.CarAudioManager.OnParameterChangeListener;
 import android.car.media.ICarAudio;
+import android.car.media.ICarAudioCallback;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -36,6 +38,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.car.hal.AudioHalService;
@@ -52,7 +55,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
-        AudioHalFocusListener {
+        AudioHalFocusListener, OnParameterChangeListener {
 
     public interface AudioContextChangeListener {
         /**
@@ -166,6 +169,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             CarAudioAttributesUtil.getAudioAttributesForCarUsage(
                     CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_CAR_PROXY);
 
+    @GuardedBy("mLock")
+    private final BinderInterfaceContainer<ICarAudioCallback> mAudioParamListeners =
+        new BinderInterfaceContainer<>();
+    @GuardedBy("mLock")
+    private HashSet<String> mAudioParamKeys;
+
     public CarAudioService(Context context, AudioHalService audioHal,
             CarInputService inputService) {
         mAudioHal = audioHal;
@@ -220,6 +229,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         }
         mAudioHal.setFocusListener(this);
         mAudioHal.setAudioRoutingPolicy(audioRoutingPolicy);
+        mAudioHal.setOnParameterChangeListener(this);
         // get call outside lock as it can take time
         HashSet<String> externalRadioRoutingTypes = new HashSet<>();
         HashSet<String> externalNonRadioRoutingTypes = new HashSet<>();
@@ -277,6 +287,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             mExternalNonRadioRoutingTypes = externalNonRadioRoutingTypes;
             mDefaultRadioRoutingType = defaultRadioRouting;
             Arrays.fill(mExternalRoutings, 0);
+            populateParameterKeysLocked();
         }
         mVolumeService.init();
 
@@ -404,6 +415,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         mAudioManager.abandonAudioFocus(mCarProxyAudioFocusListener);
         AudioPolicy audioPolicy;
         synchronized (mLock) {
+            mAudioParamKeys = null;
             mCurrentFocusState = FocusState.STATE_LOSS;
             mLastFocusRequestToCar = null;
             mTopFocusInfo = null;
@@ -462,6 +474,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 for (Entry<String, AudioHalService.ExtRoutingSourceInfo> entry :
                     mExternalRoutingTypes.entrySet()) {
                     writer.println("  type:" + entry.getKey() + " info:" + entry.getValue());
+                }
+            }
+            if (mAudioParamKeys != null) {
+                writer.println("** Audio parameter keys**");
+                for (String key : mAudioParamKeys) {
+                    writer.println("  " + key);
                 }
             }
         }
@@ -572,6 +590,99 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         synchronized (mLock) {
             return mExternalRadioRoutingTypes.toArray(
                     new String[mExternalRadioRoutingTypes.size()]);
+        }
+    }
+
+    @Override
+    public void onParameterChange(String parameters) {
+        for (BinderInterfaceContainer.BinderInterface<ICarAudioCallback> client :
+            mAudioParamListeners.getInterfaces()) {
+            try {
+                client.binderInterface.onParameterChange(parameters);
+            } catch (RemoteException e) {
+                // ignore. death handler will handle it.
+            }
+        }
+    }
+
+    @Override
+    public String[] getParameterKeys() {
+        enforceAudioSettingsPermission();
+        return mAudioHal.getAudioParameterKeys();
+    }
+
+    @Override
+    public void setParameters(String parameters) {
+        enforceAudioSettingsPermission();
+        if (parameters == null) {
+            throw new IllegalArgumentException("null parameters");
+        }
+        String[] keyValues = parameters.split(";");
+        synchronized (mLock) {
+            for (String keyValue : keyValues) {
+                String[] keyValuePair = keyValue.split("=");
+                if (keyValuePair.length != 2) {
+                    throw new IllegalArgumentException("Wrong audio parameter:" + parameters);
+                }
+                assertPamameterKeysLocked(keyValuePair[0]);
+            }
+        }
+        mAudioHal.setAudioParameters(parameters);
+    }
+
+    @Override
+    public String getParameters(String keys) {
+        enforceAudioSettingsPermission();
+        if (keys == null) {
+            throw new IllegalArgumentException("null keys");
+        }
+        synchronized (mLock) {
+            for (String key : keys.split(";")) {
+                assertPamameterKeysLocked(key);
+            }
+        }
+        return mAudioHal.getAudioParameters(keys);
+    }
+
+    @Override
+    public void registerOnParameterChangeListener(ICarAudioCallback callback) {
+        enforceAudioSettingsPermission();
+        if (callback == null) {
+            throw new IllegalArgumentException("callback null");
+        }
+        mAudioParamListeners.addBinder(callback);
+    }
+
+    @Override
+    public void unregisterOnParameterChangeListener(ICarAudioCallback callback) {
+        if (callback == null) {
+            return;
+        }
+        mAudioParamListeners.removeBinder(callback);
+    }
+
+    private void populateParameterKeysLocked() {
+        String[] keys = mAudioHal.getAudioParameterKeys();
+        mAudioParamKeys = new HashSet<>();
+        if (keys == null) { // not supported
+            return;
+        }
+        for (String key : keys) {
+            mAudioParamKeys.add(key);
+        }
+    }
+
+    private void assertPamameterKeysLocked(String key) {
+        if (!mAudioParamKeys.contains(key)) {
+            throw new IllegalArgumentException("Audio parameter not available:" + key);
+        }
+    }
+
+    private void enforceAudioSettingsPermission() {
+        if (mContext.checkCallingOrSelfPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException(
+                    "requires permission " + Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         }
     }
 
