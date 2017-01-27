@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.car.test;
+package com.android.car;
 
 import android.test.AndroidTestCase;
 import android.util.Log;
 
-import com.android.car.CarPowerManagementService;
 import com.android.car.CarPowerManagementService.PowerEventProcessingHandler;
 import com.android.car.CarPowerManagementService.PowerServiceEventListener;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
-import com.android.car.SystemInterface;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;

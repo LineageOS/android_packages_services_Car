@@ -19,7 +19,6 @@ package com.android.car.hal;
 import static android.os.SystemClock.elapsedRealtime;
 
 import android.hardware.vehicle.V2_0.IVehicle;
-import android.hardware.vehicle.V2_0.IVehicle.getCallback;
 import android.hardware.vehicle.V2_0.IVehicleCallback;
 import android.hardware.vehicle.V2_0.StatusCode;
 import android.hardware.vehicle.V2_0.SubscribeFlags;
@@ -84,9 +83,15 @@ class  HalClient {
         mVehicle.unsubscribe(mInternalCallback, prop);
     }
 
-    public void setValue(VehiclePropValue propValue) throws RemoteException, PropertyTimeoutException {
-        int status = invokeRetriable(() -> mVehicle.set(propValue),
-                WAIT_CAP_FOR_RETRIABLE_RESULT_MS, SLEEP_BETWEEN_RETRIABLE_INVOKES_MS);
+    public void setValue(VehiclePropValue propValue) throws PropertyTimeoutException {
+        int status = invokeRetriable(() -> {
+            try {
+                return mVehicle.set(propValue);
+            } catch (RemoteException e) {
+                Log.e(CarLog.TAG_HAL, "Failed to set value", e);
+                return StatusCode.TRY_AGAIN;
+            }
+        }, WAIT_CAP_FOR_RETRIABLE_RESULT_MS, SLEEP_BETWEEN_RETRIABLE_INVOKES_MS);
 
         if (StatusCode.INVALID_ARG == status) {
             throw new IllegalArgumentException(
@@ -105,7 +110,7 @@ class  HalClient {
         }
     }
 
-    VehiclePropValue getValue(VehiclePropValue requestedPropValue) throws RemoteException, PropertyTimeoutException {
+    VehiclePropValue getValue(VehiclePropValue requestedPropValue) throws PropertyTimeoutException {
         final ObjectWrapper<VehiclePropValue> valueWrapper = new ObjectWrapper<>();
         int status = invokeRetriable(() -> {
             ValueResult res = internalGet(requestedPropValue);
@@ -133,26 +138,28 @@ class  HalClient {
         return valueWrapper.object;
     }
 
-    private ValueResult internalGet(VehiclePropValue requestedPropValue) throws RemoteException {
+    private ValueResult internalGet(VehiclePropValue requestedPropValue) {
         final ValueResult result = new ValueResult();
-        mVehicle.get(requestedPropValue,
-                new getCallback() {
-                    @Override
-                    public void onValues(int status, VehiclePropValue propValue) {
+        try {
+            mVehicle.get(requestedPropValue,
+                    (status, propValue) -> {
                         result.status = status;
                         result.propValue = propValue;
-                    }
-                });
+                    });
+        } catch (RemoteException e) {
+            Log.e(CarLog.TAG_HAL, "Failed to get value from vehicle HAL", e);
+            result.status = StatusCode.TRY_AGAIN;
+        }
 
         return result;
     }
 
     interface RetriableCallback {
         /** Returns {@link StatusCode} */
-        int action() throws RemoteException;
+        int action();
     }
 
-    private static int invokeRetriable(RetriableCallback callback, long timeoutMs, long sleepMs) throws RemoteException {
+    private static int invokeRetriable(RetriableCallback callback, long timeoutMs, long sleepMs) {
         int status = callback.action();
         long startTime = elapsedRealtime();
         while (StatusCode.TRY_AGAIN == status && (elapsedRealtime() - startTime) < timeoutMs) {
