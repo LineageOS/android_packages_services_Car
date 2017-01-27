@@ -21,9 +21,16 @@ ifneq ($(TARGET_BUILD_PDK),true)
 
 LOCAL_PATH:= $(call my-dir)
 
+car_service_sources := $(call all-java-files-under, src)
+ifeq ($(TARGET_USES_CAR_FUTURE_FEATURES),true)
+car_service_sources += $(call all-java-files-under, src_feature_future)
+else
+car_service_sources += $(call all-java-files-under, src_feature_current)
+endif
+
 include $(CLEAR_VARS)
 
-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_SRC_FILES := $(car_service_sources)
 
 LOCAL_PACKAGE_NAME := CarService
 
@@ -48,7 +55,7 @@ include $(BUILD_PACKAGE)
 #####################################################################################
 include $(CLEAR_VARS)
 
-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_SRC_FILES := $(car_service_sources)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
 LOCAL_MODULE := car-service-lib-for-test
