@@ -215,14 +215,19 @@ def iterate(args, search_events, timings, cfg, error_time):
     else:
       events_to_correct.append(k)
 
+  diff_prev = diffs[0]
   for k in events_to_correct:
     diff = diffs[0]
     while diff[0] < events[k] and len(diffs) > 1:
       diffs.pop(0)
+      diff_prev = diff
       diff = diffs[0]
     events[k] = events[k] - diff[1]
     if events[k] < 0.0:
-        events[k] = 0.0
+        if events[k] < -0.1: # maybe previous one is better fit
+          events[k] = events[k] + diff[1] - diff_prev[1]
+        else:
+          events[k] = 0.0
 
   data_points = {}
   timing_points = collections.OrderedDict()
