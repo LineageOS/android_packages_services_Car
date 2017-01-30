@@ -19,7 +19,8 @@
     <android.support.car.ui.MaxWidthLayout
             android:id="@+id/max_width_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/car_drawer_button_container_width">
         <android.support.car.ui.CarRecyclerView
                 android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
