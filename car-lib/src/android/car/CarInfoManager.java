@@ -17,6 +17,7 @@
 package android.car;
 
 import android.annotation.Nullable;
+import android.car.annotation.FutureFeature;
 import android.car.annotation.ValueTypeDef;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -62,6 +63,14 @@ public final class CarInfoManager implements CarManagerBase {
      */
     @ValueTypeDef(type = String.class)
     public static final String BASIC_INFO_KEY_VEHICLE_ID = "android.car.vehicle-id";
+
+    /**
+     * Key for product configuration info.
+     * @FutureFeature Cannot drop due to usage in non-flag protected place.
+     * @hide
+     */
+    @ValueTypeDef(type = String.class)
+    public static final String INFO_KEY_PRODUCT_CONFIGURATION = "android.car.product-config";
 
     /* TODO bug: 32059999
     //@ValueTypeDef(type = Integer.class)
@@ -118,6 +127,26 @@ public final class CarInfoManager implements CarManagerBase {
      */
     public String getVehicleId() throws CarNotConnectedException {
         return getBasicInfo().getString(BASIC_INFO_KEY_VEHICLE_ID);
+    }
+
+    /**
+     * Get product configuration string. Contents of this string is product specific but it should
+     * be composed of key-value pairs with the format of:
+     *   key1=value1;key2=value2;...
+     * @return null if such information is not available in this car.
+     * @throws CarNotConnectedException
+     * @hide
+     */
+    @FutureFeature
+    public @Nullable String getProductConfiguration() throws CarNotConnectedException {
+        try {
+            return mService.getStringInfo(INFO_KEY_PRODUCT_CONFIGURATION);
+        } catch (IllegalStateException e) {
+            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
+        } catch (RemoteException e) {
+            throw new CarNotConnectedException(e);
+        }
+        return null;
     }
 
     /**

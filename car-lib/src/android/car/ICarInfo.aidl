@@ -20,5 +20,6 @@ import android.os.Bundle;
 
 /** @hide */
 interface ICarInfo {
-	Bundle getBasicInfo() = 0;
+    Bundle getBasicInfo() = 0;
+    String getStringInfo(in String key) = 1;
 }

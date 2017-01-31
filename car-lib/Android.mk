@@ -24,6 +24,12 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android.car
 LOCAL_MODULE_TAGS := optional
 
+ifneq ($(TARGET_USES_CAR_FUTURE_FEATURES),true)
+#TODO need a tool to generate proguard rule to drop all items under @FutureFeature
+#LOCAL_PROGUARD_ENABLED := custom
+#LOCAL_PROGUARD_FLAG_FILES := proguard_drop_future.flags
+endif
+
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 
 ifeq ($(EMMA_INSTRUMENT_FRAMEWORK),true)

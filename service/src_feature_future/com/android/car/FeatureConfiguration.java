@@ -21,4 +21,6 @@ package com.android.car;
 public class FeatureConfiguration {
     /** Enable future feature by default. */
     public static final boolean DEFAULT = true;
+    /** product configuration in CarInfoManager */
+    public static final boolean ENABLE_PRODUCT_CONFIGURATION_INFO = DEFAULT;
 }

@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package android.car.internal;
 
 /**
- * Class to hold static boolean flag for enabling / disabling features.
+ * Internal utility for checking feature
+ * @hide
  */
-public class FeatureConfiguration {
-    /** Disable future feature by default. */
-    public static final boolean DEFAULT = false;
-    /** product configuration in CarInfoManager */
-    public static final boolean ENABLE_PRODUCT_CONFIGURATION_INFO = DEFAULT;
+public class FeatureUtil {
 
+    public static void assertFeature(boolean featureFlag) {
+        if (!featureFlag) {
+            throw new IllegalStateException("Feature not enabled");
+        }
+    }
 }

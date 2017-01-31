@@ -17,6 +17,7 @@ package com.android.car;
 
 import android.car.CarInfoManager;
 import android.car.ICarInfo;
+import android.car.internal.FeatureUtil;
 import android.content.Context;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -38,6 +39,25 @@ public class CarInfoService extends ICarInfo.Stub implements CarServiceBase {
     @Override
     public Bundle getBasicInfo() {
         return mInfoHal.getBasicInfo();
+    }
+
+    @Override
+    public String getStringInfo(String key) {
+        switch (key) {
+            case CarInfoManager.INFO_KEY_PRODUCT_CONFIGURATION:
+                FeatureUtil.assertFeature(
+                        FeatureConfiguration.ENABLE_PRODUCT_CONFIGURATION_INFO);
+                // still protect with if-feature code. code under if can be dropped by
+                // proguard if necessary.
+                if (FeatureConfiguration.ENABLE_PRODUCT_CONFIGURATION_INFO) {
+                    //TODO get it from HAL layer
+                    return null;
+                }
+                break;
+            default: // just throw exception
+                break;
+        }
+        throw new IllegalArgumentException("Unsupported key:" + key);
     }
 
     @Override
