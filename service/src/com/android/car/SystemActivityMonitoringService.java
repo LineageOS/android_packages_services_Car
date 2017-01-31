@@ -368,11 +368,6 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         }
 
         @Override
-        public void onProcessStateChanged(int pid, int uid, int procState) {
-            // ignore
-        }
-
-        @Override
         public void onProcessDied(int pid, int uid) {
             mHandler.requestProcessDied(pid, uid);
         }
