@@ -65,6 +65,15 @@ def main():
   if args.errortime:
     error_time = float(args.errortime)
 
+  components_to_monitor = {}
+  if args.componentmonitor:
+    items = args.componentmonitor.split(",")
+    for item in items:
+      kv = item.split("=")
+      key = kv[0]
+      value = float(kv[1])
+      components_to_monitor[key] = value
+
   cfg = yaml.load(args.config)
 
   search_events = {key: re.compile(pattern)
@@ -85,7 +94,7 @@ def main():
     while attempt <= MAX_RETRIES and processing_data is None:
       attempt += 1
       processing_data, timings, boottime_events = iterate(
-        args, search_events, timing_events, cfg, error_time)
+        args, search_events, timing_events, cfg, error_time, components_to_monitor)
 
     if not processing_data or not boottime_events:
       # Processing error
@@ -150,7 +159,14 @@ def main():
       print '{0:30}: {1:<7.5} {2:<7.5}'.format(
         item[0], item[1], item[2])
 
-def iterate(args, search_events, timings, cfg, error_time):
+def capture_bugreport(bugreport_hint, boot_complete_time):
+    now = datetime.now()
+    bugreport_file = ("bugreport-%s-" + bugreport_hint + "-%s.zip") \
+        % (now.strftime("%Y-%m-%d-%H-%M-%S"), str(boot_complete_time))
+    print "Boot up time too big, will capture bugreport %s" % (bugreport_file)
+    os.system(ADB_CMD + " bugreport " + bugreport_file)
+
+def iterate(args, search_events, timings, cfg, error_time, components_to_monitor):
   if args.reboot:
     reboot()
 
@@ -288,13 +304,14 @@ def iterate(args, search_events, timings, cfg, error_time):
   print '\n* - event time was obtained from dmesg log\n'
 
   if events[LOGCAT_BOOT_COMPLETE] > error_time and not args.ignore:
-    now = datetime.now()
-    bugreport_file = "bugreport-bootuptoolong-%s_%s.zip" % (now.strftime("%Y-%m-%d-%H-%M-%S"), \
-                                                            str(events[LOGCAT_BOOT_COMPLETE]))
-    print "Boot up time too big, treated as error, will capture bugreport %s and reject data"\
-       % (bugreport_file)
-    os.system(ADB_CMD + " bugreport " + bugreport_file)
+    capture_bugreport("bootuptoolong", events[LOGCAT_BOOT_COMPLETE])
     return None, None, None
+
+  for k, v in components_to_monitor.iteritems():
+    value_measured = timing_points.get(k)
+    if value_measured and value_measured > v:
+      capture_bugreport(k + "-" + str(value_measured), events[LOGCAT_BOOT_COMPLETE])
+      break
 
   return data_points, timing_points, boottime_events
 
@@ -328,6 +345,10 @@ def init_arguments():
                       help='android device serial number')
   parser.add_argument('-e', '--errortime', dest='errortime', action='store',
                       help='handle bootup time bigger than this as error')
+  parser.add_argument('-m', '--componentmonitor', dest='componentmonitor', action='store',
+                      help='capture bugreport if specified timing component is taking more than ' +\
+                           'certain time. Unlike errortime, the result will not be rejected in' +\
+                           'averaging. Format is key1=time1,key2=time2...')
   return parser.parse_args()
 
 def handle_zygote_event(zygote_pids, events, event, line):
