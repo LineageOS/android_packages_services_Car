@@ -117,23 +117,27 @@ def main():
           "*time taken" if item[0].startswith("init.") else "")
 
     if timing_points and args.timings:
+      averaged_timing_points = []
+      for item in timing_points.items():
+        average = sum(item[1])/len(item[1])
+        std_dev = stddev(item[1])
+        averaged_timing_points.append((item[0], average, std_dev))
+
       print "-----------------"
       print "Timing in order, Avg time values after {0} runs".format(args.iterate)
       print '{0:30}: {1:<7} {2:<7}'.format("Event", "Mean", "stddev")
-
-      for item in timing_points.items():
+      for item in averaged_timing_points:
         print '{0:30}: {1:<7.5} {2:<7.5}'.format(
-          item[0], sum(item[1])/len(item[1]), stddev(item[1]))
+          item[0], item[1], item[2])
 
       print "-----------------"
       print "Timing top items, Avg time values after {0} runs".format(args.iterate)
       print '{0:30}: {1:<7} {2:<7}'.format("Event", "Mean", "stddev")
-      for item in sorted(timing_points.items(), key=operator.itemgetter(1), reverse=True):
-        average = sum(item[1])/len(item[1])
-        if average < TIMING_THRESHOLD:
+      for item in sorted(averaged_timing_points, key=lambda entry: entry[1], reverse=True):
+        if item[1] < TIMING_THRESHOLD:
           break
         print '{0:30}: {1:<7.5} {2:<7.5}'.format(
-          item[0], average, stddev(item[1]))
+          item[0], item[1], item[2])
 
     print "-----------------"
     print "Avg values after {0} runs".format(args.iterate)
@@ -445,7 +449,6 @@ def logcat_time_func(offset_year):
                                  date_str, '%Y-%m-%d %H:%M:%S.%f')
     return datetime_to_unix_time(ndate)
   return f
-
 
 def datetime_to_unix_time(ndate):
   return time.mktime(ndate.timetuple()) + ndate.microsecond/1000000.0
