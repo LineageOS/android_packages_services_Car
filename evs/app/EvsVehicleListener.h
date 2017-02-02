@@ -40,7 +40,7 @@ public:
     }
 
     Return<void> onPropertySetError(StatusCode      /* errorCode */,
-                                    VehicleProperty /* propId */,
+                                    int32_t         /* propId */,
                                     int32_t         /* areaId */) override {
         // We don't set values, so we don't listen for set errors
         return Return<void>();

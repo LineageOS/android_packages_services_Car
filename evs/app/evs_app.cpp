@@ -89,9 +89,14 @@ int main(int /* argc */, char** /* argv */)
         // Register for vehicle state change callbacks we care about
         // Changes in these values are what will trigger a reconfiguration of the EVS pipeline
         SubscribeOptions optionsData[2] = {
-                // PropID,                           area, rate, flags
-                {VehicleProperty::GEAR_SELECTION,    0,    0,    SubscribeFlags::DEFAULT},
-                {VehicleProperty::TURN_SIGNAL_STATE, 0,    0,    SubscribeFlags::DEFAULT},
+                {
+                    .propId = static_cast<int32_t>(VehicleProperty::GEAR_SELECTION),
+                    .flags = SubscribeFlags::DEFAULT
+                },
+                {
+                    .propId = static_cast<int32_t>(VehicleProperty::TURN_SIGNAL_STATE),
+                    .flags = SubscribeFlags::DEFAULT
+                },
         };
         hidl_vec<SubscribeOptions> options;
         options.setToExternal(optionsData, arraysize(optionsData));

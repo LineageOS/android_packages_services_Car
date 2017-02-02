@@ -46,8 +46,8 @@ EvsStateControl::EvsStateControl(android::sp <IVehicle>       pVnet,
     static_assert(getPropType(VehicleProperty::TURN_SIGNAL_STATE) == VehiclePropertyType::INT32,
                   "Unexpected type for TURN_SIGNAL_STATE property");
 
-    mGearValue.prop       = VehicleProperty::GEAR_SELECTION;
-    mTurnSignalValue.prop = VehicleProperty::TURN_SIGNAL_STATE;
+    mGearValue.prop       = static_cast<int32_t>(VehicleProperty::GEAR_SELECTION);
+    mTurnSignalValue.prop = static_cast<int32_t>(VehicleProperty::TURN_SIGNAL_STATE);
 
     // Build our set of cameras for the states we support
     ALOGD("Requesting camera list");
