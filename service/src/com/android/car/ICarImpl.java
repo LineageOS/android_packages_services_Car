@@ -19,7 +19,9 @@ package com.android.car;
 import android.app.UiModeManager;
 import android.car.Car;
 import android.car.ICar;
+import android.car.annotation.FutureFeature;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
+import android.car.internal.FeatureUtil;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.vehicle.V2_0.IVehicle;
@@ -32,6 +34,9 @@ import com.android.car.pm.CarPackageManagerService;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ICarImpl extends ICar.Stub {
 
@@ -71,6 +76,8 @@ public class ICarImpl extends ICar.Stub {
     private final SystemStateControllerService mSystemStateControllerService;
     private final CarVendorExtensionService mCarVendorExtensionService;
     private final CarBluetoothService mCarBluetoothService;
+    @FutureFeature
+    private VmsSubscriberService mVmsSubscriberService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -107,9 +114,12 @@ public class ICarImpl extends ICar.Stub {
         mCarVendorExtensionService = new CarVendorExtensionService(serviceContext,
                 mHal.getVendorExtensionHal());
         mCarBluetoothService = new CarBluetoothService(serviceContext, mCarCabinService);
+        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
+            mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
+        }
 
         // Be careful with order. Service depending on other service should be inited later.
-        mAllServices = new CarServiceBase[]{
+        List<CarServiceBase> allServices = new ArrayList<>(Arrays.asList(
                 mSystemActivityMonitoringService,
                 mCarPowerManagementService,
                 mCarSensorService,
@@ -129,7 +139,11 @@ public class ICarImpl extends ICar.Stub {
                 mSystemStateControllerService,
                 mCarVendorExtensionService,
                 mCarBluetoothService
-        };
+        ));
+        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
+            allServices.add(mVmsSubscriberService);
+        }
+        mAllServices = allServices.toArray(new CarServiceBase[0]);
     }
 
     public void init() {
@@ -190,6 +204,12 @@ public class ICarImpl extends ICar.Stub {
             case Car.VENDOR_EXTENSION_SERVICE:
                 assertVendorExtensionPermission(mContext);
                 return mCarVendorExtensionService;
+            case Car.VMS_SUBSCRIBER_SERVICE:
+                FeatureUtil.assertFeature(FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE);
+                if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
+                    assertVmsSubscriberPermission(mContext);
+                    return mVmsSubscriberService;
+                }
             case Car.TEST_SERVICE: {
                 assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
                 synchronized (this) {
@@ -253,6 +273,11 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertVendorExtensionPermission(Context context) {
         assertPermission(context, Car.PERMISSION_VENDOR_EXTENSION);
+    }
+
+    @FutureFeature
+    public static void assertVmsSubscriberPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_VMS_SUBSCRIBER);
     }
 
     public static void assertPermission(Context context, String permission) {

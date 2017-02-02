@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+
+package android.car.vms;
+
+import android.car.vms.VmsProperty;
 
 /**
- * Class to hold static boolean flag for enabling / disabling features.
+ * @hide
  */
-public class FeatureConfiguration {
-    /** Disable future feature by default. */
-    public static final boolean DEFAULT = false;
-    /** product configuration in CarInfoManager */
-    public static final boolean ENABLE_PRODUCT_CONFIGURATION_INFO = DEFAULT;
-    public static final boolean ENABLE_VEHICLE_MAP_SERVICE = DEFAULT;
+oneway interface IOnVmsMessageReceivedListener {
+    /**
+     * A VmsService uses this callback to pass messages to subscribers.
+     */
+    void onVmsMessageReceived(in VmsProperty message) = 0;
 }

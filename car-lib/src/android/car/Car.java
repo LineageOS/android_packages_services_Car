@@ -19,6 +19,7 @@ package android.car;
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.car.annotation.FutureFeature;
 import android.car.content.pm.CarPackageManager;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.CarVendorExtensionManager;
@@ -114,6 +115,13 @@ public final class Car {
      */
     @SystemApi
     public static final String VENDOR_EXTENSION_SERVICE = "vendor_extension";
+
+    /**
+     * @FutureFeature Cannot drop due to usage in non-flag protected place.
+     * @hide
+     */
+    @SystemApi
+    public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
 
     /**
      * Service for testing. This is system app only feature.
@@ -219,6 +227,14 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_CAR_TEST_SERVICE =
             "android.car.permission.CAR_TEST_SERVICE";
+
+    /**
+     * Permission necessary to access VMS APIs.
+     * @hide
+     */
+    @FutureFeature
+    @SystemApi
+    public static final String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
 
     /** Type of car connection: platform runs directly in car. */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
