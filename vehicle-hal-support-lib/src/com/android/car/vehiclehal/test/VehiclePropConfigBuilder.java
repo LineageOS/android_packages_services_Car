@@ -17,15 +17,15 @@
 package com.android.car.vehiclehal.test;
 
 import android.annotation.CheckResult;
-import android.hardware.vehicle.V2_0.VehicleAreaConfig;
-import android.hardware.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
-import android.hardware.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 
 import java.util.Collection;
 
 /**
- * A builder class for {@link android.hardware.vehicle.V2_0.VehiclePropConfig}
+ * A builder class for {@link android.hardware.automotive.vehicle.V2_0.VehiclePropConfig}
  */
 public class VehiclePropConfigBuilder {
 

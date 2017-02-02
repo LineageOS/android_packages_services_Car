@@ -17,9 +17,9 @@ package com.android.car.test;
 
 import android.car.Car;
 import android.car.media.CarAudioManager;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehicleProperty;
-import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 

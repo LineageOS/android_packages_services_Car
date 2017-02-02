@@ -18,7 +18,7 @@ package android.car.apitest;
 import android.car.Car;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.CarPropertyConfig;
-import android.hardware.vehicle.V2_0.VehicleHvacFanDirection;
+import android.hardware.automotive.vehicle.V2_0.VehicleHvacFanDirection;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 

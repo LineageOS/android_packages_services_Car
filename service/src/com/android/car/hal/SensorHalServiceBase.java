@@ -17,8 +17,8 @@
 package com.android.car.hal;
 
 import android.car.hardware.CarSensorEvent;
-import android.hardware.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 
 import java.util.Collection;
 import java.util.LinkedList;

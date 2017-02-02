@@ -15,18 +15,18 @@
  */
 package com.android.car.hal;
 
-import static android.hardware.vehicle.V2_0.VehicleProperty.AP_POWER_STATE;
-import static android.hardware.vehicle.V2_0.VehicleProperty.DISPLAY_BRIGHTNESS;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AP_POWER_STATE;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.DISPLAY_BRIGHTNESS;
 
 import android.annotation.Nullable;
-import android.hardware.vehicle.V2_0.VehicleApPowerSetState;
-import android.hardware.vehicle.V2_0.VehicleApPowerState;
-import android.hardware.vehicle.V2_0.VehicleApPowerStateConfigFlag;
-import android.hardware.vehicle.V2_0.VehicleApPowerStateIndex;
-import android.hardware.vehicle.V2_0.VehicleApPowerStateShutdownParam;
-import android.hardware.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerSetState;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerState;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateConfigFlag;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateIndex;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.util.Log;
 
 import com.android.car.CarLog;

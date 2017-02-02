@@ -15,11 +15,11 @@
  */
 package com.android.car.test;
 
-import android.hardware.vehicle.V2_0.VehicleAudioContextFlag;
-import android.hardware.vehicle.V2_0.VehicleAudioRoutingPolicyIndex;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehicleProperty;
-import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioContextFlag;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioRoutingPolicyIndex;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.google.android.collect.Lists;

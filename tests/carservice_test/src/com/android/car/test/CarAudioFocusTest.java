@@ -15,20 +15,20 @@
  */
 package com.android.car.test;
 
-import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_FOCUS;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_FOCUS;
 
 import android.car.Car;
 import android.car.media.CarAudioManager;
 import android.content.Context;
-import android.hardware.vehicle.V2_0.VehicleAudioContextFlag;
-import android.hardware.vehicle.V2_0.VehicleAudioExtFocusFlag;
-import android.hardware.vehicle.V2_0.VehicleAudioFocusIndex;
-import android.hardware.vehicle.V2_0.VehicleAudioFocusRequest;
-import android.hardware.vehicle.V2_0.VehicleAudioFocusState;
-import android.hardware.vehicle.V2_0.VehicleAudioStream;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehicleProperty;
-import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioContextFlag;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioExtFocusFlag;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioFocusIndex;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioFocusRequest;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioFocusState;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioStream;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.SystemClock;

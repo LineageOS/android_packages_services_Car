@@ -22,7 +22,7 @@
 
 class EvsVehicleListener : public IVehicleCallback {
 public:
-    // Methods from ::android::hardware::vehicle::V2_0::IVehicleCallback follow.
+    // Methods from ::android::hardware::automotive::vehicle::V2_0::IVehicleCallback follow.
     Return<void> onPropertyEvent(const hidl_vec <VehiclePropValue> & /*values*/) override {
         {
             // Our use case is so simple, we don't actually need to update a variable,

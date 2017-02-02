@@ -15,12 +15,12 @@
  */
 package com.android.car.hal;
 
-import static android.hardware.vehicle.V2_0.VehicleProperty.HW_KEY_INPUT;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.HW_KEY_INPUT;
 
-import android.hardware.vehicle.V2_0.VehicleDisplay;
-import android.hardware.vehicle.V2_0.VehicleHwKeyInputAction;
-import android.hardware.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
+import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseLongArray;

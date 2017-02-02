@@ -20,9 +20,9 @@ import static java.lang.Integer.toHexString;
 import android.annotation.Nullable;
 import android.car.VehicleAreaType;
 import android.car.vms.VmsProperty;
-import android.hardware.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.util.Log;
 
 import com.android.car.CarLog;

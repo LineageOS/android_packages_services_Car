@@ -23,10 +23,10 @@ import static com.android.car.vehiclehal.test.Utils.tryWithDeadline;
 import static org.junit.Assert.*;
 
 import android.annotation.Nullable;
-import android.hardware.vehicle.V2_0.IVehicle;
-import android.hardware.vehicle.V2_0.StatusCode;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.IVehicle;
+import android.hardware.automotive.vehicle.V2_0.StatusCode;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.RemoteException;
 import android.util.Log;
 import java.util.Objects;

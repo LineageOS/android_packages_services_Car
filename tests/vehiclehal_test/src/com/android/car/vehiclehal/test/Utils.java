@@ -19,9 +19,9 @@ package com.android.car.vehiclehal.test;
 import static android.os.SystemClock.elapsedRealtime;
 
 import android.annotation.Nullable;
-import android.hardware.vehicle.V2_0.IVehicle;
-import android.hardware.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.IVehicle;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.RemoteException;
 import android.util.Log;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;

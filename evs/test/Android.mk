@@ -14,7 +14,7 @@ LOCAL_C_INCLUDES += \
 
 LOCAL_SHARED_LIBRARIES := \
     android.hardware.evs@1.0 \
-    android.hardware.vehicle@2.0 \
+    android.hardware.automotive.vehicle@2.0 \
     libcutils \
     liblog \
     libutils \

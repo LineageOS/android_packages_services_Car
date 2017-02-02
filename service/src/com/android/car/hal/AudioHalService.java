@@ -15,13 +15,13 @@
  */
 package com.android.car.hal;
 
-import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_EXT_ROUTING_HINT;
-import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_FOCUS;
-import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_HW_VARIANT;
-import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_PARAMETERS;
-import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_ROUTING_POLICY;
-import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_VOLUME;
-import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_VOLUME_LIMIT;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_EXT_ROUTING_HINT;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_FOCUS;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_HW_VARIANT;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_PARAMETERS;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_ROUTING_POLICY;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_VOLUME;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_VOLUME_LIMIT;
 import static com.android.car.CarServiceUtils.toIntArray;
 import static java.lang.Integer.toHexString;
 
@@ -29,19 +29,19 @@ import android.annotation.Nullable;
 import android.car.VehicleZoneUtil;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioManager.OnParameterChangeListener;
-import android.hardware.vehicle.V2_0.VehicleAudioContextFlag;
-import android.hardware.vehicle.V2_0.VehicleAudioExtFocusFlag;
-import android.hardware.vehicle.V2_0.VehicleAudioFocusIndex;
-import android.hardware.vehicle.V2_0.VehicleAudioFocusRequest;
-import android.hardware.vehicle.V2_0.VehicleAudioFocusState;
-import android.hardware.vehicle.V2_0.VehicleAudioHwVariantConfigFlag;
-import android.hardware.vehicle.V2_0.VehicleAudioRoutingPolicyIndex;
-import android.hardware.vehicle.V2_0.VehicleAudioVolumeCapabilityFlag;
-import android.hardware.vehicle.V2_0.VehicleAudioVolumeIndex;
-import android.hardware.vehicle.V2_0.VehicleAudioVolumeLimitIndex;
-import android.hardware.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioContextFlag;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioExtFocusFlag;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioFocusIndex;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioFocusRequest;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioFocusState;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioHwVariantConfigFlag;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioRoutingPolicyIndex;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioVolumeCapabilityFlag;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioVolumeIndex;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioVolumeLimitIndex;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.text.TextUtils;
 import android.util.Log;
 

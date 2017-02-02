@@ -22,11 +22,11 @@ import android.car.VehicleAreaType;
 import android.car.VehicleZoneUtil;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
-import android.hardware.vehicle.V2_0.VehicleArea;
-import android.hardware.vehicle.V2_0.VehicleAreaConfig;
-import android.hardware.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehiclePropertyType;
+import android.hardware.automotive.vehicle.V2_0.VehicleArea;
+import android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 
 import java.util.Collections;
 import java.util.List;

@@ -17,7 +17,7 @@ package com.google.android.car.kitchensink.input;
 
 import android.annotation.Nullable;
 import android.annotation.StringRes;
-import android.hardware.vehicle.V2_0.VehicleHwKeyInputAction;
+import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;

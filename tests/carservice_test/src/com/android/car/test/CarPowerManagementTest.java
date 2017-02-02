@@ -15,14 +15,14 @@
  */
 package com.android.car.test;
 
-import android.hardware.vehicle.V2_0.VehicleApPowerBootupReason;
-import android.hardware.vehicle.V2_0.VehicleApPowerSetState;
-import android.hardware.vehicle.V2_0.VehicleApPowerState;
-import android.hardware.vehicle.V2_0.VehicleApPowerStateConfigFlag;
-import android.hardware.vehicle.V2_0.VehicleApPowerStateIndex;
-import android.hardware.vehicle.V2_0.VehicleApPowerStateShutdownParam;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerBootupReason;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerSetState;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerState;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateConfigFlag;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateIndex;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 

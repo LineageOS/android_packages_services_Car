@@ -35,7 +35,7 @@ LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_DEX_PREOPT := false
 
 LOCAL_STATIC_JAVA_LIBRARIES += \
-        android.hardware.vehicle@2.0-java-static \
+        android.hardware.automotive.vehicle@2.0-java-static \
         vehicle-hal-support-lib \
         car-service-lib-for-test \
 

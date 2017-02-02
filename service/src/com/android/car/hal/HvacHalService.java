@@ -16,7 +16,7 @@
 package com.android.car.hal;
 
 import android.car.hardware.hvac.CarHvacManager;
-import android.hardware.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 
 public class HvacHalService extends PropertyHalServiceBase {
     private static final boolean DBG = false;

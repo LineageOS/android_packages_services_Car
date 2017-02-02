@@ -21,13 +21,13 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
 
-import android.hardware.vehicle.V2_0.IVehicle;
-import android.hardware.vehicle.V2_0.IVehicleCallback;
-import android.hardware.vehicle.V2_0.StatusCode;
-import android.hardware.vehicle.V2_0.SubscribeOptions;
-import android.hardware.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.V2_0.IVehicle;
+import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
+import android.hardware.automotive.vehicle.V2_0.StatusCode;
+import android.hardware.automotive.vehicle.V2_0.SubscribeOptions;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 
 import android.os.RemoteException;
 

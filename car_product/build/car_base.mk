@@ -81,7 +81,7 @@ PRODUCT_PACKAGES += \
     requestsync \
     wifi-service \
     A2dpSinkService \
-    android.hardware.vehicle@2.0-service \
+    android.hardware.automotive.vehicle@2.0-service \
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_minimal.mk)
 

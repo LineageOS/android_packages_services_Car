@@ -18,13 +18,13 @@ package com.android.car.hal;
 
 import static android.os.SystemClock.elapsedRealtime;
 
-import android.hardware.vehicle.V2_0.IVehicle;
-import android.hardware.vehicle.V2_0.IVehicleCallback;
-import android.hardware.vehicle.V2_0.StatusCode;
-import android.hardware.vehicle.V2_0.SubscribeFlags;
-import android.hardware.vehicle.V2_0.SubscribeOptions;
-import android.hardware.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.IVehicle;
+import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
+import android.hardware.automotive.vehicle.V2_0.StatusCode;
+import android.hardware.automotive.vehicle.V2_0.SubscribeFlags;
+import android.hardware.automotive.vehicle.V2_0.SubscribeOptions;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
