@@ -23,6 +23,7 @@ import android.content.Context;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.android.car.hal.SensorHalService.SensorListener;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -32,7 +33,7 @@ import java.util.List;
  * no restriction vs fully restrictive. To enter no restriction state, speed should be zero
  * while either parking brake is applied or transmission gear is in P.
  */
-public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
+public class DrivingStatePolicy extends CarSensorService.LogicalSensor {
 
     private final Context mContext;
     private CarSensorService mSensorService;
@@ -98,7 +99,6 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensorHalBase {
         return createEvent(CarSensorEvent.DRIVE_STATUS_FULLY_RESTRICTED, 0 /* timestamp */);
     }
 
-    @Override
     public synchronized void registerSensorListener(SensorListener listener) {
         mSensorListener = listener;
     }

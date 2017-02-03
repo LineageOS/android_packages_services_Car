@@ -37,6 +37,8 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
+import com.android.car.hal.SensorBase;
+import com.android.car.hal.SensorHalService.SensorListener;
 import com.google.android.collect.Lists;
 
 import com.android.car.hal.SensorHalService;
@@ -64,10 +66,24 @@ public class CarSensorService extends ICarSensor.Stub
      * is state change for the given sensor after {@link SensorHalServiceBase#init()}
      * is called.
      */
-    public static abstract class LogicalSensorHalBase extends SensorHalServiceBase {
+    public static abstract class LogicalSensor implements SensorBase {
+        private final LinkedList<CarSensorEvent> mDispatchQ = new LinkedList<>();
 
         /** Sensor service is ready and all vehicle sensors are available. */
         public abstract void onSensorServiceReady();
+
+        /**
+         * Utility to help service to send one event as listener only takes list form.
+         * @param listener
+         * @param event
+         */
+        protected void dispatchCarSensorEvent(SensorListener listener, CarSensorEvent event) {
+            synchronized (mDispatchQ) {
+                mDispatchQ.add(event);
+                listener.onSensorEvents(mDispatchQ);
+                mDispatchQ.clear();
+            }
+        }
     }
 
     /**
@@ -458,7 +474,7 @@ public class CarSensorService extends ICarSensor.Stub
         if (Log.isLoggable(CarLog.TAG_SENSOR, Log.VERBOSE)) {
             Log.v(CarLog.TAG_SENSOR, "startSensor " + sensorType + " with rate " + rate);
         }
-        SensorHalServiceBase sensorHal = getSensorHal(sensorType);
+        SensorBase sensorHal = getSensorHal(sensorType);
         if (sensorHal != null) {
             if (!sensorHal.isReady()) {
                 Log.w(CarLog.TAG_SENSOR, "Sensor channel not available.");
@@ -546,7 +562,7 @@ public class CarSensorService extends ICarSensor.Stub
         if (Log.isLoggable(CarLog.TAG_SENSOR, Log.DEBUG)) {
             Log.d(CarLog.TAG_SENSOR, "stopSensor " + sensorType);
         }
-        SensorHalServiceBase sensorHal = getSensorHal(sensorType);
+        SensorBase sensorHal = getSensorHal(sensorType);
         if (sensorHal == null || !sensorHal.isReady()) {
             Log.w(CarLog.TAG_SENSOR, "Sensor channel not available.");
             return;
@@ -564,7 +580,7 @@ public class CarSensorService extends ICarSensor.Stub
         sensorHal.requestSensorStop(sensorType);
     }
 
-    private SensorHalServiceBase getSensorHal(int sensorType) {
+    private SensorBase getSensorHal(int sensorType) {
         try {
             mSensorLock.lock();
             switch (sensorType) {
