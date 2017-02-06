@@ -19,6 +19,7 @@ import static java.lang.Integer.toHexString;
 
 import android.annotation.Nullable;
 import android.car.VehicleAreaType;
+import android.car.annotation.FutureFeature;
 import android.car.vms.VmsProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -37,6 +38,7 @@ import java.util.List;
  * This is a glue layer between the VehicleHal and the VmsService. It sends VMS properties back and
  * forth.
  */
+@FutureFeature
 public class VmsHalService extends HalServiceBase {
     private static final boolean DBG = true;
     private static final int HAL_PROPERTY_ID = VehicleProperty.VEHICLE_MAP_SERVICE;
