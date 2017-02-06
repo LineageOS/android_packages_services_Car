@@ -195,6 +195,12 @@
     <string name="sms_reply_busy" translatable="false">Reply "I'm Busy"</string>
     <string name="sms_reply_sent" translatable="false">Reply Sent</string>
     <string name="sms_reply_delivered" translatable="false">Reply Delivered</string>
+    <string name="bluetooth_profile_connect">Profile connect</string>
+    <string name="bluetooth_profile_disconnect">Profile disconnect</string>
+    <string name="bluetooth_sco_connect">SCO connect</string>
+    <string name="bluetooth_sco_disconnect">SCO disconnect</string>
+    <string name="bluetooth_pick_device">Pick Device</string>
+    <string name="bluetooth_quiet_mode_enable">Quiet Mode</string>
 
     <!--Car Service Settings-->
     <string name="garage_title">Garage Mode</string>
