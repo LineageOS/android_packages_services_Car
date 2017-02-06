@@ -17,12 +17,13 @@ package com.android.car;
 
 import android.car.CarInfoManager;
 import android.car.ICarInfo;
-import android.car.internal.FeatureUtil;
 import android.content.Context;
 import android.os.Bundle;
 import android.provider.Settings;
 
 import com.android.car.hal.InfoHalService;
+import com.android.car.internal.FeatureConfiguration;
+import com.android.car.internal.FeatureUtil;
 
 import java.io.PrintWriter;
 

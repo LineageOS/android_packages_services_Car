@@ -30,7 +30,15 @@ ifneq ($(TARGET_USES_CAR_FUTURE_FEATURES),true)
 #LOCAL_PROGUARD_FLAG_FILES := proguard_drop_future.flags
 endif
 
-LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
+car_lib_sources := $(call all-java-files-under, src)
+ifeq ($(TARGET_USES_CAR_FUTURE_FEATURES),true)
+car_lib_sources += $(call all-java-files-under, src_feature_future)
+else
+car_lib_sources += $(call all-java-files-under, src_feature_current)
+endif
+car_lib_sources += $(call all-Iaidl-files-under, src)
+
+LOCAL_SRC_FILES := $(car_lib_sources)
 
 ifeq ($(EMMA_INSTRUMENT_FRAMEWORK),true)
 LOCAL_EMMA_INSTRUMENT := true
@@ -55,7 +63,7 @@ include $(CAR_API_CHECK)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := android.car7
-LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
+LOCAL_SRC_FILES := $(car_lib_sources)
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 
 ifeq ($(EMMA_INSTRUMENT_FRAMEWORK),true)
