@@ -16,10 +16,18 @@
 
 package com.android.car.hal;
 
+import static java.lang.Integer.toHexString;
+
+import android.annotation.Nullable;
 import android.car.hardware.CarSensorEvent;
 import android.hardware.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.vehicle.V2_0.VehiclePropValue;
 
+import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
+import android.hardware.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.util.Log;
+import android.util.SparseArray;
+import com.android.car.CarLog;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,50 +39,104 @@ import java.util.List;
  * It is ok to report sensor data {@link SensorListener#onSensorData(CarSensorEvent)} inside
  * the {@link #requestSensorStart(int, int)} call.
  */
-public abstract class SensorHalServiceBase  extends HalServiceBase {
-    /**
-     * Listener for monitoring sensor event. Only sensor service will implement this.
-     */
-    public interface SensorListener {
-        /**
-         * Sensor events are available.
-         * @param events
-         */
-        void onSensorEvents(List<CarSensorEvent> events);
+public abstract class SensorHalServiceBase extends HalServiceBase implements SensorBase {
+    private final String TAG = "SensorHalServiceBase";
+    private final VehicleHal mHal;
+
+    private boolean mIsReady = false;
+
+    protected static final int SENSOR_TYPE_INVALID = NOT_SUPPORTED_PROPERTY;
+    protected final SparseArray<VehiclePropConfig> mSensorToPropConfig = new SparseArray<>();
+
+    public SensorHalServiceBase(VehicleHal hal) {
+        mHal = hal;
     }
 
-    private final LinkedList<CarSensorEvent> mDispatchQ = new LinkedList<>();
+    @Override
+    public synchronized Collection<VehiclePropConfig> takeSupportedProperties(
+        Collection<VehiclePropConfig> allProperties) {
+        LinkedList<VehiclePropConfig> supportedProperties = new LinkedList<>();
+        for (VehiclePropConfig halProperty : allProperties) {
+            int sensor = getTokenForProperty(halProperty);
+            if (sensor != SENSOR_TYPE_INVALID) {
+                supportedProperties.add(halProperty);
+                mSensorToPropConfig.append(sensor, halProperty);
+            }
+        }
+        return supportedProperties;
+    }
 
-    public abstract void registerSensorListener(SensorListener listener);
+    @Override
+    public synchronized void init() {
+        mIsReady = true;
+    }
+
+    @Override
+    public synchronized void release() {
+        mIsReady = false;
+    }
 
     /**
      * Sensor HAL should be ready after init call.
      * @return
      */
-    public abstract boolean isReady();
+    @Override
+    public synchronized boolean isReady() {
+        return mIsReady;
+    }
 
     /**
      * This should work after {@link #init()}.
      * @return
      */
-    public abstract int[] getSupportedSensors();
+    @Override
+    public synchronized int[] getSupportedSensors() {
+        int[] supportedSensors = new int[mSensorToPropConfig.size()];
+        for (int i = 0; i < supportedSensors.length; i++) {
+            supportedSensors[i] = mSensorToPropConfig.keyAt(i);
+        }
+        return supportedSensors;
+    }
 
-    public abstract boolean requestSensorStart(int sensorType, int rate);
+    @Override
+    public synchronized boolean requestSensorStart(int sensorType, int rate) {
+        VehiclePropConfig config = mSensorToPropConfig.get(sensorType);
+        if (config == null) {
+            return false;
+        }
+        //TODO calculate sampling rate properly, bug: 32095903
+        mHal.subscribeProperty(this, config.prop, fixSamplingRateForProperty(config, rate));
+        return true;
+    }
 
-    public abstract void requestSensorStop(int sensorType);
+    @Override
+    public synchronized void requestSensorStop(int sensorType) {
+        VehiclePropConfig config = mSensorToPropConfig.get(sensorType);
+        if (config == null) {
+            return;
+        }
+        mHal.unsubscribeProperty(this, config.prop);
+    }
 
-    /**
-     * Utility to help service to send one event as listener only takes list form.
-     * @param listener
-     * @param event
-     */
-    protected void dispatchCarSensorEvent(SensorListener listener, CarSensorEvent event) {
-        synchronized (mDispatchQ) {
-            mDispatchQ.add(event);
-            listener.onSensorEvents(mDispatchQ);
-            mDispatchQ.clear();
+    @Nullable
+    public VehiclePropValue getCurrentSensorVehiclePropValue(int sensorType) {
+        VehiclePropConfig config;
+        synchronized (this) {
+            config = mSensorToPropConfig.get(sensorType);
+        }
+        if (config == null) {
+            Log.e(TAG, "sensor type not available 0x" +
+                toHexString(sensorType));
+            return null;
+        }
+        try {
+            return mHal.get(config.prop);
+        } catch (PropertyTimeoutException e) {
+            Log.e(TAG, "property not ready 0x" + toHexString(config.prop), e);
+            return null;
         }
     }
+
 
     @Override
     public void handleHalEvents(List<VehiclePropValue> values) {
@@ -82,4 +144,16 @@ public abstract class SensorHalServiceBase  extends HalServiceBase {
         // sensor provider.
         throw new RuntimeException("should not be called");
     }
+
+    protected abstract float fixSamplingRateForProperty(VehiclePropConfig prop,
+        int carSensorManagerRate);
+
+    /**
+     * Returns a unique token to be used to map this property to a higher-level sensor
+     * This token will be stored in mSensorToPropConfig to allow callers to go from unique
+     * sensor identifiers to VehiclePropConfig objects
+     * @param config
+     * @return SENSOR_TYPE_INVALID or a locally unique token
+     */
+    protected abstract int getTokenForProperty(VehiclePropConfig config);
 }

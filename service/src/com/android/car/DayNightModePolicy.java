@@ -21,10 +21,11 @@ import android.car.hardware.CarSensorManager;
 import android.content.Context;
 import android.util.Log;
 
+import com.android.car.hal.SensorHalService.SensorListener;
 import java.io.PrintWriter;
 
 //TODO implement default one based on time or other sensors. bug: 32066909
-public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
+public class DayNightModePolicy extends CarSensorService.LogicalSensor {
 
     private final Context mContext;
     private SensorListener mSensorListener;
@@ -53,7 +54,6 @@ public class DayNightModePolicy extends CarSensorService.LogicalSensorHalBase {
         return createEvent(true /* isNight */, 0 /* timestamp */);
     }
 
-    @Override
     public synchronized void registerSensorListener(SensorListener listener) {
         mSensorListener = listener;
     }
