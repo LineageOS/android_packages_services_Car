@@ -184,13 +184,13 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     // Implements CarServiceBase interface.
     @Override
     public void init() {
-        mHal.setListener(this);
+        mHal.addListener(this);
     }
 
     @Override
     public void release() {
         mMessageReceivedManager.release();
-        mHal.setListener(null);
+        mHal.removeListener(this);
     }
 
     @Override

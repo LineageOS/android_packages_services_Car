@@ -30,6 +30,7 @@ import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,9 +46,9 @@ public class VmsHalService extends HalServiceBase {
     private static final String TAG = "VmsHalService";
 
     private boolean mIsSupported = false;
-    @GuardedBy("mListenerLock")
-    private VmsHalListener mListener;
-    private final Object mListenerLock = new Object();
+    @GuardedBy("mListenersLock")
+    private List<VmsHalListener> mListeners = new ArrayList<>();
+    private final Object mListenersLock = new Object();
     private final VehicleHal mVehicleHal;
 
     /**
@@ -64,9 +65,15 @@ public class VmsHalService extends HalServiceBase {
         }
     }
 
-    public void setListener(VmsHalListener listener) {
-        synchronized (mListenerLock) {
-            mListener = listener;
+    public void addListener(VmsHalListener listener) {
+        synchronized (mListenersLock) {
+            mListeners.add(listener);
+        }
+    }
+
+    public void removeListener(VmsHalListener listener) {
+        synchronized (mListenersLock) {
+            mListeners.remove(listener);
         }
     }
 
@@ -121,8 +128,8 @@ public class VmsHalService extends HalServiceBase {
         if (mIsSupported) {
             mVehicleHal.unsubscribeProperty(this, HAL_PROPERTY_ID);
         }
-        synchronized (mListenerLock) {
-            mListener = null;
+        synchronized (mListenersLock) {
+            mListeners.clear();
         }
     }
 
@@ -145,11 +152,11 @@ public class VmsHalService extends HalServiceBase {
 
     @Override
     public void handleHalEvents(List<VehiclePropValue> values) {
-        VmsHalListener listener;
-        synchronized (mListenerLock) {
-            listener = mListener;
+        List<VmsHalListener> listeners;
+        synchronized (mListenersLock) {
+            listeners = mListeners;
         }
-        if (listener != null) {
+        for (VmsHalListener listener : listeners) {
             for (VehiclePropValue v : values) {
                 VmsProperty propVal = toVmsProperty(v);
                 listener.onChange(propVal);
