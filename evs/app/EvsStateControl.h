@@ -17,7 +17,7 @@
 #ifndef CAR_EVS_APP_EVSSTATECONTROL_H
 #define CAR_EVS_APP_EVSSTATECONTROL_H
 
-#include <android/hardware/vehicle/2.0/IVehicle.h>
+#include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <android/hardware/evs/1.0/IEvsEnumerator.h>
 #include <android/hardware/evs/1.0/IEvsDisplay.h>
 #include <android/hardware/evs/1.0/IEvsCamera.h>
@@ -25,7 +25,7 @@
 
 
 using namespace ::android::hardware::evs::V1_0;
-using namespace ::android::hardware::vehicle::V2_0;
+using namespace ::android::hardware::automotive::vehicle::V2_0;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
 using ::android::hardware::hidl_vec;

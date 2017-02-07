@@ -20,10 +20,10 @@ import android.annotation.Nullable;
 import android.car.hardware.radio.CarRadioEvent;
 import android.car.hardware.radio.CarRadioPreset;
 import android.hardware.radio.RadioManager;
-import android.hardware.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehicleProperty;
-import android.hardware.vehicle.V2_0.VehicleRadioConstants;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehicleRadioConstants;
 import android.util.Log;
 
 import com.android.car.CarLog;

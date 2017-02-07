@@ -17,7 +17,7 @@ package com.android.car.test;
 
 import android.car.Car;
 import android.car.CarInfoManager;
-import android.hardware.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 

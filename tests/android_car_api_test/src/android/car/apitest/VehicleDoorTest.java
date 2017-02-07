@@ -16,7 +16,7 @@
 package android.car.apitest;
 
 import android.car.VehicleDoor;
-import android.hardware.vehicle.V2_0.VehicleAreaDoor;
+import android.hardware.automotive.vehicle.V2_0.VehicleAreaDoor;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 

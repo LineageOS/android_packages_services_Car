@@ -17,10 +17,10 @@
 package com.android.car.vehiclehal;
 
 import android.annotation.CheckResult;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.SystemClock;
 
-/** A builder class for {@link android.hardware.vehicle.V2_0.VehiclePropValue} */
+/** A builder class for {@link android.hardware.automotive.vehicle.V2_0.VehiclePropValue} */
 public class VehiclePropValueBuilder {
     private final VehiclePropValue mPropValue;
 

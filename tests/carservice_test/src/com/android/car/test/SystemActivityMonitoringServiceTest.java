@@ -18,10 +18,10 @@ package com.android.car.test;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.hardware.vehicle.V2_0.VehicleDrivingStatus;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehicleProperty;
-import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.V2_0.VehicleDrivingStatus;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.os.SystemClock;
 
 import com.android.car.SystemActivityMonitoringService;

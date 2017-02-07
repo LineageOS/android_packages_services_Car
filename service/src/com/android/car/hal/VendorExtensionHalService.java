@@ -16,7 +16,7 @@
 
 package com.android.car.hal;
 
-import android.hardware.vehicle.V2_0.VehiclePropertyGroup;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
 
 /**
  * Implementation of {@link HalServiceBase} that responsible for custom properties that were defined

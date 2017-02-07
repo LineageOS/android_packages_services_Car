@@ -16,7 +16,7 @@
 package android.car.apitest;
 
 import android.car.VehicleWindow;
-import android.hardware.vehicle.V2_0.VehicleAreaWindow;
+import android.hardware.automotive.vehicle.V2_0.VehicleAreaWindow;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 

@@ -5,5 +5,5 @@
 /system/bin/vehicle_network_service              u:object_r:vns_exec:s0
 /system/bin/vehicle_monitor_service              u:object_r:vms_exec:s0
 
-/system/bin/hw/android.hardware.vehicle@2.0-service  u:object_r:hal_vehicle_exec:s0
+/system/bin/hw/android.hardware.automotive.vehicle@2.0-service  u:object_r:hal_vehicle_exec:s0
 ###################################

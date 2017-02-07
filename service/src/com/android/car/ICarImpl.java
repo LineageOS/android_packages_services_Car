@@ -24,7 +24,7 @@ import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.internal.FeatureUtil;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.hardware.vehicle.V2_0.IVehicle;
+import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.os.IBinder;
 import android.util.Log;
 

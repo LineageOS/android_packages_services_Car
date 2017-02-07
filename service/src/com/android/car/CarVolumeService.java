@@ -17,7 +17,7 @@
 package com.android.car;
 
 import android.content.Context;
-import android.hardware.vehicle.V2_0.VehicleAudioContextFlag;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioContextFlag;
 import android.media.AudioAttributes;
 import android.media.IVolumeController;
 

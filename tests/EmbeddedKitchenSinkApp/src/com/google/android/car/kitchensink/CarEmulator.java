@@ -16,21 +16,21 @@
 
 package com.google.android.car.kitchensink;
 
-import static android.hardware.vehicle.V2_0.VehicleProperty.AUDIO_VOLUME_LIMIT;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_VOLUME_LIMIT;
 
 import com.google.android.collect.Lists;
 
 import android.car.Car;
 import android.content.Context;
-import android.hardware.vehicle.V2_0.VehicleAudioFocusIndex;
-import android.hardware.vehicle.V2_0.VehicleAudioFocusRequest;
-import android.hardware.vehicle.V2_0.VehicleAudioFocusState;
-import android.hardware.vehicle.V2_0.VehicleAudioVolumeIndex;
-import android.hardware.vehicle.V2_0.VehicleAudioVolumeLimitIndex;
-import android.hardware.vehicle.V2_0.VehicleHwKeyInputAction;
-import android.hardware.vehicle.V2_0.VehiclePropValue;
-import android.hardware.vehicle.V2_0.VehicleProperty;
-import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioFocusIndex;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioFocusRequest;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioFocusState;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioVolumeIndex;
+import android.hardware.automotive.vehicle.V2_0.VehicleAudioVolumeLimitIndex;
+import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.os.SystemClock;
 import android.util.SparseIntArray;
 

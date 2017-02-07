@@ -21,7 +21,7 @@ import android.annotation.Nullable;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.vehicle.V2_0.IVehicle;
+import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
