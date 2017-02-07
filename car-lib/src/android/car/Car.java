@@ -239,7 +239,17 @@ public final class Car {
             "android.car.permission.CAR_TEST_SERVICE";
 
     /**
-     * Permission necessary to access VMS APIs.
+     * Permissions necessary to access VMS publisher APIs.
+     *
+     * @hide
+     */
+    @FutureFeature
+    @SystemApi
+    public static final String PERMISSION_VMS_PUBLISHER = "android.car.permission.VMS_PUBLISHER";
+
+    /**
+     * Permissions necessary to access VMS subscriber APIs.
+     *
      * @hide
      */
     @FutureFeature
