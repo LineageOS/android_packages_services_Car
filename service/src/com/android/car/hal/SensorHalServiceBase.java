@@ -23,8 +23,8 @@ import android.car.hardware.CarSensorEvent;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 
-import android.hardware.vehicle.V2_0.VehiclePropertyAccess;
-import android.hardware.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.util.Log;
 import android.util.SparseArray;
 import com.android.car.CarLog;
