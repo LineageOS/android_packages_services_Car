@@ -21,6 +21,7 @@ import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.annotation.FutureFeature;
 import android.car.content.pm.CarPackageManager;
+import android.car.hardware.CarDiagnosticManager;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.cabin.CarCabinManager;
@@ -88,6 +89,12 @@ public final class Car {
      */
     @SystemApi
     public static final String CABIN_SERVICE = "cabin";
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    public static final String DIAGNOSTIC_SERVICE = "diagnostic";
 
     /**
      * @hide
@@ -560,6 +567,10 @@ public final class Car {
                 break;
             case CABIN_SERVICE:
                 manager = new CarCabinManager(binder, mContext, mEventHandler);
+                break;
+            case DIAGNOSTIC_SERVICE:
+                //TODO(egranata): only enable this if FeatureConfiguration is turned on
+                manager = new CarDiagnosticManager(binder, mContext, mEventHandler);
                 break;
             case CAMERA_SERVICE:
                 manager = new CarCameraManager(binder, mContext);

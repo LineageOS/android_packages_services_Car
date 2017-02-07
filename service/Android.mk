@@ -44,6 +44,7 @@ LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_JAVA_LIBRARIES += android.car
 LOCAL_STATIC_JAVA_LIBRARIES += \
         android.hardware.automotive.vehicle@2.0-java-static \
+        vehicle-hal-support-lib \
         car-systemtest \
 
 LOCAL_JNI_SHARED_LIBRARIES := libjni_car_service
@@ -63,6 +64,7 @@ LOCAL_MODULE := car-service-lib-for-test
 LOCAL_JAVA_LIBRARIES += android.car
 LOCAL_STATIC_JAVA_LIBRARIES += \
         android.hardware.automotive.vehicle@2.0-java-static \
+        vehicle-hal-support-lib \
         car-systemtest \
 
 include $(BUILD_STATIC_JAVA_LIBRARY)

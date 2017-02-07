@@ -78,6 +78,8 @@ public class ICarImpl extends ICar.Stub {
     private final CarVendorExtensionService mCarVendorExtensionService;
     private final CarBluetoothService mCarBluetoothService;
     @FutureFeature
+    private CarDiagnosticService mCarDiagnosticService;
+    @FutureFeature
     private VmsSubscriberService mVmsSubscriberService;
 
     private final CarServiceBase[] mAllServices;
@@ -118,6 +120,10 @@ public class ICarImpl extends ICar.Stub {
         if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
             mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
         }
+        if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
+            mCarDiagnosticService = new CarDiagnosticService(serviceContext,
+                mHal.getDiagnosticHal());
+        }
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>(Arrays.asList(
@@ -143,6 +149,9 @@ public class ICarImpl extends ICar.Stub {
         ));
         if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
             allServices.add(mVmsSubscriberService);
+        }
+        if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
+            allServices.add(mCarDiagnosticService);
         }
         mAllServices = allServices.toArray(new CarServiceBase[0]);
     }
@@ -188,6 +197,9 @@ public class ICarImpl extends ICar.Stub {
             case Car.CAMERA_SERVICE:
                 assertCameraPermission(mContext);
                 return mCarCameraService;
+            case Car.DIAGNOSTIC_SERVICE:
+                //TODO(egranata): handle permissions
+                return mCarDiagnosticService;
             case Car.HVAC_SERVICE:
                 assertHvacPermission(mContext);
                 return mCarHvacService;

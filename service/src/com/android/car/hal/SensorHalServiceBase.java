@@ -23,11 +23,8 @@ import android.car.hardware.CarSensorEvent;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.util.Log;
 import android.util.SparseArray;
-import com.android.car.CarLog;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,12 +37,12 @@ import java.util.List;
  * the {@link #requestSensorStart(int, int)} call.
  */
 public abstract class SensorHalServiceBase extends HalServiceBase implements SensorBase {
-    private final String TAG = "SensorHalServiceBase";
-    private final VehicleHal mHal;
+    private static final String TAG = "SensorHalServiceBase";
 
     private boolean mIsReady = false;
 
     protected static final int SENSOR_TYPE_INVALID = NOT_SUPPORTED_PROPERTY;
+    protected final VehicleHal mHal;
     protected final SparseArray<VehiclePropConfig> mSensorToPropConfig = new SparseArray<>();
 
     public SensorHalServiceBase(VehicleHal hal) {

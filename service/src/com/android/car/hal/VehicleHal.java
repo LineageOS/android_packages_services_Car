@@ -78,13 +78,16 @@ public class VehicleHal extends IVehicleCallback.Stub {
     @FutureFeature
     private VmsHalService mVmsHal;
 
+    @FutureFeature
+    private DiagnosticHalService mDiagnosticHal = null;
+
     /** Might be re-assigned if Vehicle HAL is reconnected. */
     private volatile HalClient mHalClient;
 
     /** Stores handler for each HAL property. Property events are sent to handler. */
     private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<>();
     /** This is for iterating all HalServices with fixed order. */
-    private final HalServiceBase[] mAllServices;
+    private final ArrayList<HalServiceBase> mAllServices = new ArrayList<>();
     private final HashMap<Integer, Float> mSubscribedProperties = new HashMap<>();
     private final HashMap<Integer, VehiclePropConfig> mAllProperties = new HashMap<>();
     private final HashMap<Integer, VehiclePropertyEventInfo> mEventLog = new HashMap<>();
@@ -105,21 +108,24 @@ public class VehicleHal extends IVehicleCallback.Stub {
         if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
             mVmsHal = new VmsHalService(this);
         }
-        List<HalServiceBase> allServices = new ArrayList<>(Arrays.asList(
-                mPowerHal,
+        if(FeatureConfiguration.ENABLE_DIAGNOSTIC) {
+            mDiagnosticHal = new DiagnosticHalService(this);
+        }
+        mAllServices.addAll(Arrays.asList(mPowerHal,
+                mSensorHal,
+                mInfoHal,
                 mAudioHal,
                 mCabinHal,
-                mHvacHal,
-                mInfoHal,
-                mSensorHal,
                 mRadioHal,
+                mHvacHal,
                 mInputHal,
-                mVendorExtensionHal
-        ));
+                mVendorExtensionHal));
         if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
-            allServices.add(mVmsHal);
+            mAllServices.add(mVmsHal);
         }
-        mAllServices = allServices.toArray(new HalServiceBase[0]);
+        if(FeatureConfiguration.ENABLE_DIAGNOSTIC) {
+            mAllServices.add(mDiagnosticHal);
+        }
 
         mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(), this /*IVehicleCallback*/);
     }
@@ -127,8 +133,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
     /** Dummy version only for testing */
     @VisibleForTesting
     public VehicleHal(PowerHalService powerHal, SensorHalService sensorHal, InfoHalService infoHal,
-            AudioHalService audioHal, CabinHalService cabinHal, RadioHalService radioHal,
-            HvacHalService hvacHal, HalClient halClient) {
+            AudioHalService audioHal, CabinHalService cabinHal,
+            RadioHalService radioHal, HvacHalService hvacHal, HalClient halClient) {
         mHandlerThread = null;
         mPowerHal = powerHal;
         mSensorHal = sensorHal;
@@ -139,12 +145,39 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mHvacHal = hvacHal;
         mInputHal = null;
         mVendorExtensionHal = null;
+
         if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
             // TODO(antoniocortes): do we need a test version of VmsHalService?
             mVmsHal = null;
         }
-        mAllServices = null;
+        if(FeatureConfiguration.ENABLE_DIAGNOSTIC) {
+            mDiagnosticHal = null;
+        }
+
         mHalClient = halClient;
+    }
+
+    /** Dummy version only for testing */
+    @VisibleForTesting
+    @FutureFeature
+    public VehicleHal(PowerHalService powerHal, SensorHalService sensorHal, InfoHalService infoHal,
+            AudioHalService audioHal, CabinHalService cabinHal, DiagnosticHalService diagnosticHal,
+            RadioHalService radioHal, HvacHalService hvacHal, HalClient halClient) {
+            mHandlerThread = null;
+            mPowerHal = powerHal;
+            mSensorHal = sensorHal;
+            mInfoHal = infoHal;
+            mAudioHal = audioHal;
+            mCabinHal = cabinHal;
+            mDiagnosticHal = diagnosticHal;
+            mRadioHal = radioHal;
+            mHvacHal = hvacHal;
+            mInputHal = null;
+            mVendorExtensionHal = null;
+            // TODO(antoniocortes): do we need a test version of VmsHalService?
+            mVmsHal = null;
+            mHalClient = halClient;
+            mDiagnosticHal = diagnosticHal;
     }
 
     public void vehicleHalReconnected(IVehicle vehicle) {
@@ -199,8 +232,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
 
     public void release() {
         // release in reverse order from init
-        for (int i = mAllServices.length - 1; i >= 0; i--) {
-            mAllServices[i].release();
+        for (int i = mAllServices.size() - 1; i >= 0; i--) {
+            mAllServices.get(i).release();
         }
         synchronized (this) {
             for (int p : mSubscribedProperties.keySet()) {
@@ -232,6 +265,9 @@ public class VehicleHal extends IVehicleCallback.Stub {
     public CabinHalService getCabinHal() {
         return mCabinHal;
     }
+
+    @FutureFeature
+    public DiagnosticHalService getDiagnosticHal() { return mDiagnosticHal; }
 
     public RadioHalService getRadioHal() {
         return mRadioHal;

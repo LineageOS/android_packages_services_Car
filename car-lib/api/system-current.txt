@@ -14,6 +14,7 @@ package android.car {
     field public static final java.lang.String CABIN_SERVICE = "cabin";
     field public static final java.lang.String CAMERA_SERVICE = "camera";
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
+    field public static final java.lang.String DIAGNOSTIC_SERVICE = "diagnostic";
     field public static final java.lang.String HVAC_SERVICE = "hvac";
     field public static final java.lang.String INFO_SERVICE = "info";
     field public static final java.lang.String PACKAGE_SERVICE = "package";
