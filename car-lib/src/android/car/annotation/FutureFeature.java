@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR,
         ElementType.LOCAL_VARIABLE})
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 public @interface FutureFeature {
     Class type() default Object.class;
 }
