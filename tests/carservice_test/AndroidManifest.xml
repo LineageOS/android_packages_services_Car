@@ -43,5 +43,8 @@
             android:process="com.android.car.carservicetest.activityC"/>
         <activity android:name="com.android.car.test.SystemActivityMonitoringServiceTest$BlockingActivity"
             android:taskAffinity="com.android.car.carservicetest.block"/>
+        <service android:name=".SimpleVmsPublisherClientService"
+                 android:exported="true"
+        />
     </application>
 </manifest>
