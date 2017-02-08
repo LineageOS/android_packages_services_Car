@@ -37,6 +37,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
+import static com.android.car.Listeners.ClientWithRate;
 import com.android.car.hal.SensorBase;
 import com.android.car.hal.SensorHalService.SensorListener;
 import com.google.android.collect.Lists;
@@ -103,7 +104,7 @@ public class CarSensorService extends ICarSensor.Stub
 
     /** key: sensor type. */
     @GuardedBy("mSensorLock")
-    private final SparseArray<SensorListeners> mSensorListeners = new SparseArray<>();
+    private final SparseArray<Listeners<SensorClient>> mSensorListeners = new SparseArray<>();
     /** key: sensor type. */
     @GuardedBy("mSensorLock")
     private final SparseArray<SensorRecord> mSensorRecords = new SparseArray<>();
@@ -223,7 +224,7 @@ public class CarSensorService extends ICarSensor.Stub
                 mDayNightModePolicy.release();
             }
             for (int i = mSensorListeners.size() - 1; i >= 0; --i) {
-                SensorListeners listener = mSensorListeners.valueAt(i);
+                Listeners listener = mSensorListeners.valueAt(i);
                 listener.release();
             }
             mSensorListeners.clear();
@@ -274,13 +275,13 @@ public class CarSensorService extends ICarSensor.Stub
                     continue;
                 }
 
-                SensorListeners listeners = mSensorListeners.get(event.sensorType);
+                Listeners<SensorClient> listeners = mSensorListeners.get(event.sensorType);
                 if (listeners == null) {
                     continue;
                 }
 
-                for (SensorClientWithRate clientWithRate : listeners.mSensorClients) {
-                    SensorClient client = clientWithRate.getSensorClient();
+                for (ClientWithRate<SensorClient> clientWithRate : listeners.getClients()) {
+                    SensorClient client = clientWithRate.getClient();
                     List<CarSensorEvent> clientEvents = eventsByClient.get(client);
                     if (clientEvents == null) {
                         clientEvents = new LinkedList<>();
@@ -327,7 +328,7 @@ public class CarSensorService extends ICarSensor.Stub
         SensorRecord sensorRecord = null;
         SensorClient sensorClient = null;
         Integer oldRate = null;
-        SensorListeners sensorListeners = null;
+        Listeners<SensorClient> sensorListeners = null;
         mSensorLock.lock();
         try {
             sensorRecord = mSensorRecords.get(sensorType);
@@ -353,7 +354,7 @@ public class CarSensorService extends ICarSensor.Stub
                         listener);
             }
             sensorClient = findSensorClientLocked(listener);
-            SensorClientWithRate sensorClientWithRate = null;
+            ClientWithRate<SensorClient> sensorClientWithRate = null;
             sensorListeners = mSensorListeners.get(sensorType);
             if (sensorClient == null) {
                 sensorClient = new SensorClient(listener);
@@ -373,16 +374,16 @@ public class CarSensorService extends ICarSensor.Stub
                 sensorClient.dispatchSensorUpdate(Lists.newArrayList(record.lastEvent));
             }
             if (sensorListeners == null) {
-                sensorListeners = new SensorListeners(rate);
+                sensorListeners = new Listeners<>(rate);
                 mSensorListeners.put(sensorType, sensorListeners);
                 shouldStartSensors = true;
             } else {
                 oldRate = sensorListeners.getRate();
-                sensorClientWithRate = sensorListeners.findSensorClientWithRate(sensorClient);
+                sensorClientWithRate = sensorListeners.findClientWithRate(sensorClient);
             }
             if (sensorClientWithRate == null) {
-                sensorClientWithRate = new SensorClientWithRate(sensorClient, rate);
-                sensorListeners.addSensorClientWithRate(sensorClientWithRate);
+                sensorClientWithRate = new ClientWithRate<>(sensorClient, rate);
+                sensorListeners.addClientWithRate(sensorClientWithRate);
             } else {
                 sensorClientWithRate.setRate(rate);
             }
@@ -521,7 +522,7 @@ public class CarSensorService extends ICarSensor.Stub
                 sensorClient.release();
                 mClients.remove(sensorClient);
             }
-            SensorListeners sensorListeners = mSensorListeners.get(sensorType);
+            Listeners<SensorClient> sensorListeners = mSensorListeners.get(sensorType);
             if (sensorListeners == null) {
                 // sensor not active
                 if (Log.isLoggable(CarLog.TAG_SENSOR, Log.DEBUG)) {
@@ -529,15 +530,15 @@ public class CarSensorService extends ICarSensor.Stub
                 }
                 return;
             }
-            SensorClientWithRate clientWithRate =
-                    sensorListeners.findSensorClientWithRate(sensorClient);
+            ClientWithRate<SensorClient> clientWithRate =
+                    sensorListeners.findClientWithRate(sensorClient);
             if (clientWithRate == null) {
                 if (Log.isLoggable(CarLog.TAG_SENSOR, Log.DEBUG)) {
                     Log.d(CarLog.TAG_SENSOR, "unregister for not registered sensor");
                 }
                 return;
             }
-            sensorListeners.removeSensorClientWithRate(clientWithRate);
+            sensorListeners.removeClientWithRate(clientWithRate);
             if (sensorListeners.getNumberOfClients() == 0) {
                 shouldStopSensor = true;
                 mSensorListeners.remove(sensorType);
@@ -778,7 +779,7 @@ public class CarSensorService extends ICarSensor.Stub
     }
 
     /** internal instance for pending client request */
-    private class SensorClient implements IBinder.DeathRecipient {
+    private class SensorClient implements Listeners.IListener {
         /** callback for sensor events */
         private final ICarSensorEventListener mListener;
         private final SparseBooleanArray mActiveSensors = new SparseBooleanArray();
@@ -853,7 +854,8 @@ public class CarSensorService extends ICarSensor.Stub
             }
         }
 
-        void release() {
+        @Override
+        public void release() {
             if (mActive) {
                 mListener.asBinder().unlinkToDeath(this, 0);
                 mActiveSensors.clear();
@@ -862,106 +864,11 @@ public class CarSensorService extends ICarSensor.Stub
         }
     }
 
-    private class SensorClientWithRate {
-        private final SensorClient mSensorClient;
-        /** rate requested from client */
-        private int mRate;
-
-        SensorClientWithRate(SensorClient client, int rate) {
-            mSensorClient = client;
-            mRate = rate;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof SensorClientWithRate &&
-                    mSensorClient == ((SensorClientWithRate) o).mSensorClient) {
-                return true;
-            }
-            return false;
-        }
-
-        int getRate() {
-            return mRate;
-        }
-
-        void setRate(int rate) {
-            mRate = rate;
-        }
-
-        SensorClient getSensorClient() {
-            return mSensorClient;
-        }
-    }
-
     private static class SensorRecord {
         /** Record the lastly received sensor event */
         CarSensorEvent lastEvent = null;
         /** sensor was enabled by at least one client */
         boolean enabled = false;
-    }
-
-    private static class SensorListeners {
-        private final LinkedList<SensorClientWithRate> mSensorClients =
-                new LinkedList<SensorClientWithRate>();
-        /** rate for this sensor, sent to car */
-        private int mRate;
-
-        SensorListeners(int rate) {
-            mRate = rate;
-        }
-
-        int getRate() {
-            return mRate;
-        }
-
-        void setRate(int rate) {
-            mRate = rate;
-        }
-
-        /** update rate from existing clients and return true if rate is changed. */
-        boolean updateRate() {
-            int fastestRate = CarSensorManager.SENSOR_RATE_NORMAL;
-            for (SensorClientWithRate clientWithRate: mSensorClients) {
-                int clientRate = clientWithRate.getRate();
-                if (clientRate < fastestRate) {
-                    fastestRate = clientRate;
-                }
-            }
-            if (mRate != fastestRate) {
-                mRate = fastestRate;
-                return true;
-            }
-            return false;
-        }
-
-        void addSensorClientWithRate(SensorClientWithRate clientWithRate) {
-            mSensorClients.add(clientWithRate);
-        }
-
-        void removeSensorClientWithRate(SensorClientWithRate clientWithRate) {
-            mSensorClients.remove(clientWithRate);
-        }
-
-        int getNumberOfClients() {
-            return mSensorClients.size();
-        }
-
-        SensorClientWithRate findSensorClientWithRate(SensorClient sensorClient) {
-            for (SensorClientWithRate clientWithRates: mSensorClients) {
-                if (clientWithRates.getSensorClient() == sensorClient) {
-                    return clientWithRates;
-                }
-            }
-            return null;
-        }
-
-        void release() {
-            for (SensorClientWithRate clientWithRate: mSensorClients) {
-                clientWithRate.mSensorClient.release();
-            }
-            mSensorClients.clear();
-        }
     }
 
     @Override
@@ -980,7 +887,7 @@ public class CarSensorService extends ICarSensor.Stub
                                 + " active: " + record.enabled);
                         writer.println(" " + record.lastEvent.toString());
                     }
-                    SensorListeners listeners = mSensorListeners.get(sensor);
+                    Listeners listeners = mSensorListeners.get(sensor);
                     if (listeners != null) {
                         writer.println(" rate: " + listeners.getRate());
                     }
@@ -1013,7 +920,7 @@ public class CarSensorService extends ICarSensor.Stub
             int sensorListenerSize = mSensorListeners.size();
             for (int i = 0; i < sensorListenerSize; i++) {
                 int sensor = mSensorListeners.keyAt(i);
-                SensorListeners sensorListeners = mSensorListeners.get(sensor);
+                Listeners sensorListeners = mSensorListeners.get(sensor);
                 if (sensorListeners != null) {
                     writer.println(" Sensor:" + sensor
                             + " num client:" + sensorListeners.getNumberOfClients()
