@@ -30,6 +30,7 @@ import android.car.hardware.radio.CarRadioManager;
 import android.car.media.CarAudioManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.test.CarTestManagerBinderWrapper;
+import android.car.vms.VmsSubscriberManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -577,6 +578,9 @@ public final class Car {
                 /* CarTestManager exist in static library. So instead of constructing it here,
                  * only pass binder wrapper so that CarTestManager can be constructed outside. */
                 manager = new CarTestManagerBinderWrapper(binder);
+                break;
+            case VMS_SUBSCRIBER_SERVICE:
+                manager = new VmsSubscriberManager(binder, mEventHandler);
                 break;
         }
         return manager;

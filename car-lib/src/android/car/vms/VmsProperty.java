@@ -16,6 +16,7 @@
 
 package android.car.vms;
 
+import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -26,6 +27,7 @@ import java.nio.charset.Charset;
  *
  * @hide
  */
+@SystemApi
 public class VmsProperty implements Parcelable {
     private final static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
