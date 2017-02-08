@@ -46,7 +46,7 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
     public static final int CONNECT_TIMEOUT = 103;
     public static final int DEVICE_CONNECTED = 104;
     public static final int DEVICE_DISCONNECTED = 105;
-    public static final int CONNECTION_TIMEOUT_MS = 5000;
+    public static final int CONNECTION_TIMEOUT_MS = 8000;
 
 
     BluetoothAutoConnectStateMachine(BluetoothDeviceConnectionPolicy policy) {
@@ -128,7 +128,7 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
          * Processing state
          */
         private void connectToBluetoothDevice() {
-            boolean deviceToConnectFound = mPolicy.findADeviceToConnect();
+            boolean deviceToConnectFound = mPolicy.findDeviceToConnect();
             if (deviceToConnectFound) {
                 transitionTo(mProcessing);
             } else {

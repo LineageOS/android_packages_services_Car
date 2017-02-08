@@ -40,6 +40,8 @@ import android.util.SparseArray;
 import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
 
+import com.google.android.collect.Lists;
+
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -492,6 +494,18 @@ public class VehicleHal extends IVehicleCallback.Stub {
             HalServiceBase service = mPropertyHandlers.valueAt(i);
             writer.println(String.format("Prop: 0x%08X, service: %s", propId, service));
         }
+    }
+
+    /**
+     * Inject a fake boolean HAL event - for testing purposes.
+     * @param propId - VehicleProperty ID
+     * @param areaId - Vehicle Area ID
+     * @param value - true/false to inject
+     */
+    public void injectBooleanEvent(int propId, int areaId, boolean value) {
+        VehiclePropValue v = createPropValue(propId, areaId);
+        v.value.int32Values.add(value? 1 : 0);
+        onPropertyEvent(Lists.newArrayList(v));
     }
 
     private static class VehiclePropertyEventInfo {

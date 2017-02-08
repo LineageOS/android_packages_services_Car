@@ -25,6 +25,8 @@ import android.car.internal.FeatureUtil;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
+import android.hardware.automotive.vehicle.V2_0.VehicleAreaDoor;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -148,7 +150,7 @@ public class ICarImpl extends ICar.Stub {
 
     public void init() {
         mHal.init();
-        for (CarServiceBase service: mAllServices) {
+        for (CarServiceBase service : mAllServices) {
             service.init();
         }
     }
@@ -290,7 +292,7 @@ public class ICarImpl extends ICar.Stub {
         writer.println("*FutureConfig, DEFAULT:" + FeatureConfiguration.DEFAULT);
         //TODO dump all feature flags by reflection
         writer.println("*Dump all services*");
-        for (CarServiceBase service: mAllServices) {
+        for (CarServiceBase service : mAllServices) {
             service.dump(writer);
         }
         if (mCarTestService != null) {
@@ -307,9 +309,12 @@ public class ICarImpl extends ICar.Stub {
     private class CarShellCommand {
         private static final String COMMAND_HELP = "-h";
         private static final String COMMAND_DAY_NIGHT_MODE = "day-night-mode";
+        private static final String COMMAND_INJECT_EVENT = "inject-event";
+
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
         private static final String PARAM_SENSOR_MODE = "sensor";
+        private static final String PARAM_ZONED_BOOLEAN = "zoned-boolean";
 
         private void dumpHelp(PrintWriter pw) {
             pw.println("Car service commands:");
@@ -317,6 +322,8 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  Print this help text.");
             pw.println("\tday-night-mode [day|night|sensor]");
             pw.println("\t  Force into day/night mode or restore to auto.");
+            pw.println("\tinject-event zoned-boolean propertyType zone [true|false]");
+            pw.println("\t  Inject a Boolean HAL Event. ");
         }
 
         public void exec(String[] args, PrintWriter writer) {
@@ -328,6 +335,21 @@ public class ICarImpl extends ICar.Stub {
                 case COMMAND_DAY_NIGHT_MODE:
                     String value = args.length < 1 ? "" : args[1];
                     forceDayNightMode(value, writer);
+                    break;
+                case COMMAND_INJECT_EVENT:
+                    String eventType;
+                    if(args.length > 1) {
+                         eventType = args[1];
+                         // Zoned boolean event
+                         if(eventType.equalsIgnoreCase(PARAM_ZONED_BOOLEAN)) {
+                             if(args.length < 5) {
+                                 writer.println("Incorrect number of arguments.");
+                                 dumpHelp(writer);
+                                 break;
+                             }
+                             inject_zoned_boolean_event(args[2], args[3], args[4], writer);
+                         }
+                    }
                     break;
                 default:
                     writer.println("Unknown command.");
@@ -367,5 +389,33 @@ public class ICarImpl extends ICar.Stub {
             }
             writer.println("DayNightMode changed to: " + currentMode);
         }
+
+        /**
+         * Inject a fake boolean HAL event to help testing.
+         * Currently supporting Door Unlock/Lock
+         * @param property - Vehicle Property
+         * @param value - boolean value for the property
+         * @param writer - Printwriter
+         */
+        private void inject_zoned_boolean_event(String property, String zone, String value, PrintWriter writer) {
+            Log.d(CarLog.TAG_SERVICE, "Injecting Boolean event");
+            boolean event;
+            int propId;
+            int zoneId;
+            if (value.equalsIgnoreCase("true")) {
+                event = true;
+            } else {
+                event = false;
+            }
+            try {
+                propId = Integer.decode(property);
+                zoneId = Integer.decode(zone);
+            } catch (NumberFormatException e) {
+                writer.println("Invalid property Id or Zone Id. Prefix hex values with 0x");
+                return;
+            }
+            mHal.injectBooleanEvent(propId, zoneId, event);
+        }
+
     }
 }
