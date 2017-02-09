@@ -52,6 +52,8 @@ public class BluetoothHeadsetFragment extends Fragment {
 
     TextView mPickedDeviceText;
     Button mDevicePicker;
+    Button mConnect;
+    Button mDisconnect;
     Button mScoConnect;
     Button mScoDisconnect;
     Button mEnableQuietMode;
@@ -68,6 +70,8 @@ public class BluetoothHeadsetFragment extends Fragment {
 
         mPickedDeviceText = (TextView) v.findViewById(R.id.bluetooth_device);
         mDevicePicker = (Button) v.findViewById(R.id.bluetooth_pick_device);
+        mConnect = (Button) v.findViewById(R.id.bluetooth_headset_connect);
+        mDisconnect = (Button) v.findViewById(R.id.bluetooth_headset_disconnect);
         mScoConnect = (Button) v.findViewById(R.id.bluetooth_sco_connect);
         mScoDisconnect= (Button) v.findViewById(R.id.bluetooth_sco_disconnect);
         mEnableQuietMode = (Button) v.findViewById(R.id.bluetooth_quiet_mode_enable);
@@ -77,6 +81,22 @@ public class BluetoothHeadsetFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 launchDevicePicker();
+            }
+        });
+
+        // Connect profile
+        mConnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                connect();
+            }
+        });
+
+        // Disonnect profile
+        mDisconnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                disconnect();
             }
         });
 
@@ -114,6 +134,34 @@ public class BluetoothHeadsetFragment extends Fragment {
         Intent intent = new Intent(DEVICE_PICKER_ACTION);
         intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         getContext().startActivity(intent);
+    }
+
+    void connect() {
+        if (mPickedDevice == null) {
+            Log.w(TAG, "Device null when trying to connect sco!");
+            return;
+        }
+
+        // Check if we have the proxy and connect the device.
+        if (mHfpClientProfile == null) {
+            Log.w(TAG, "HFP Profile proxy not available, cannot connect sco to " + mPickedDevice);
+            return;
+        }
+        mHfpClientProfile.connect(mPickedDevice);
+    }
+
+    void disconnect() {
+        if (mPickedDevice == null) {
+            Log.w(TAG, "Device null when trying to connect sco!");
+            return;
+        }
+
+        // Check if we have the proxy and connect the device.
+        if (mHfpClientProfile == null) {
+            Log.w(TAG, "HFP Profile proxy not available, cannot connect sco to " + mPickedDevice);
+            return;
+        }
+        mHfpClientProfile.disconnect(mPickedDevice);
     }
 
     void connectSco() {

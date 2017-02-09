@@ -33,6 +33,16 @@
             android:text="@string/bluetooth_pick_device"/>
     </LinearLayout>
     <Button
+        android:id="@+id/bluetooth_headset_connect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bluetooth_profile_connect"/>
+    <Button
+        android:id="@+id/bluetooth_headset_disconnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bluetooth_profile_disconnect"/>
+    <Button
         android:id="@+id/bluetooth_sco_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
