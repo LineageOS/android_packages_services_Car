@@ -14,11 +14,25 @@
      limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical" android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" android:orientation="vertical">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content" android:orientation="horizontal">
+    <Button
+        android:id="@+id/bluetooth_pick_device"
+        android:layout_width="193dp"
+        android:layout_height="wrap_content"
+        android:text="@string/bluetooth_pick_device"/>
+        <Button
+            android:id="@+id/bluetooth_disconnect_device"
+            android:layout_width="193dp"
+            android:layout_height="wrap_content"
+            android:text="@string/bluetooth_profile_disconnect"/>
+    </LinearLayout>
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
               android:id="@+id/messageOriginatorDisplayName"/>
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+    <EditText android:layout_width="match_parent" android:layout_height="wrap_content"
               android:id="@+id/messageOriginator"/>
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
               android:id="@+id/messageContent"/>
