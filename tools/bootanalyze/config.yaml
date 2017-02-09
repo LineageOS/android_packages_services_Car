@@ -1,7 +1,8 @@
 #YAML
 time_correction_key: correction
 timings:
-  system_server: SystemServerTiming\s*:\s*(?P<name>[^\s]+) took to complete:\s(?P<time>[0-9]+)ms
+  system_server: SystemServerTiming(Async)?\s*:\s*(?P<name>[^\s]+) took to complete:\s(?P<time>[0-9]+)ms
+
 events:
   kernel: Linux version
   android_init_1st_stage: init first stage started

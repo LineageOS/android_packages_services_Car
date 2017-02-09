@@ -267,6 +267,8 @@ def iterate(args, search_events, timings, cfg, error_time, components_to_monitor
         name, time_v = extract_timing(v, timings)
         time_abs = extract_a_time(v, TIME_LOGCAT, float)
         if name and time_abs:
+          if v.find("SystemServerTimingAsync") > 0:
+            name = "(" + name + ")"
           timing_points[name] = time_v
           timing_abs_times.append(time_abs * 1000.0)
     timing_delta = []
