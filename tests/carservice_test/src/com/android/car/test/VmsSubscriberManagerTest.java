@@ -21,7 +21,6 @@ import android.car.VehicleAreaType;
 import android.car.annotation.FutureFeature;
 import android.car.vms.VmsSubscriberManager.OnVmsMessageReceivedListener;
 import android.car.vms.VmsSubscriberManager;
-import android.car.vms.VmsProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
@@ -76,11 +75,19 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
                 .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
-        v.value.stringValue = "Hello, World!";
+        v.value.int32Values.add(1); // MessageType
+        v.value.int32Values.add(2); // Layer ID
+        v.value.int32Values.add(3); // Layer Version
+        v.value.bytes.add((byte)0xa);
+        v.value.bytes.add((byte)0xb);
         assertEquals(0, mSubscriberSemaphore.availablePermits());
+
         getMockedVehicleHal().injectEvent(v);
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals("Hello, World!", listener.getProperty().getValue());
+        assertEquals(2, listener.getLayerId());
+        assertEquals(3, listener.getLayerVersion());
+        byte[] expectedPayload = {(byte)0xa, (byte)0xb};
+        assertEquals(expectedPayload, listener.getPayload());
     }
 
     private class HalHandler implements VehicleHalPropertyHandler {
@@ -114,17 +121,30 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
 
     private class TestListener implements OnVmsMessageReceivedListener {
-        private VmsProperty mProperty;
+        private int mLayerId;
+        private int mLayerVersion;
+        private byte[] mPayload;
 
         @Override
-        public void onVmsMessageReceived(VmsProperty property) {
-            Log.d(TAG, "onVmsMessageReceived: " + property);
-            mProperty = property;
+        public void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload) {
+            Log.d(TAG, "onVmsMessageReceived: Layer: " + layerId +
+                " Version: " + layerVersion + " Payload: " + payload);
+            mLayerId = layerId;
+            mLayerVersion = layerVersion;
+            mPayload = payload;
             mSubscriberSemaphore.release();
         }
 
-        public VmsProperty getProperty() {
-            return mProperty;
+        public int getLayerId() {
+            return mLayerId;
+        }
+
+        public int getLayerVersion() {
+            return mLayerVersion;
+        }
+
+        public byte[] getPayload() {
+            return mPayload;
         }
     }
 }

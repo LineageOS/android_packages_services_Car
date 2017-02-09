@@ -15,15 +15,17 @@
  */
 package com.android.car.hal;
 
+import static com.android.car.CarServiceUtils.toByteArray;
 import static java.lang.Integer.toHexString;
 
 import android.annotation.Nullable;
 import android.car.VehicleAreaType;
 import android.car.annotation.FutureFeature;
-import android.car.vms.VmsProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VmsMessageIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.util.Log;
 
 import com.android.car.CarLog;
@@ -31,9 +33,14 @@ import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This is a glue layer between the VehicleHal and the VmsService. It sends VMS properties back and
@@ -44,20 +51,37 @@ public class VmsHalService extends HalServiceBase {
     private static final boolean DBG = true;
     private static final int HAL_PROPERTY_ID = VehicleProperty.VEHICLE_MAP_SERVICE;
     private static final String TAG = "VmsHalService";
+    private static final Set<Integer> SUPPORTED_MESSAGE_TYPES =
+        new HashSet<Integer>(
+            Arrays.asList(
+                VmsMessageType.SUBSCRIBE,
+                VmsMessageType.UNSUBSCRIBE,
+                VmsMessageType.DATA));
 
     private boolean mIsSupported = false;
-    @GuardedBy("mListenersLock")
-    private List<VmsHalListener> mListeners = new ArrayList<>();
-    private final Object mListenersLock = new Object();
+    private CopyOnWriteArrayList<VmsHalPublisherListener> mPublisherListeners =
+        new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<VmsHalSubscriberListener> mSubscriberListeners =
+        new CopyOnWriteArrayList<>();
     private final VehicleHal mVehicleHal;
+
+    /**
+     * The VmsPublisherService implements this interface to receive data from the HAL.
+     */
+    public interface VmsHalPublisherListener {
+        void onChange(int layerId, int layerVersion, boolean hasSubscribers);
+    }
+
+    /**
+     * The VmsSubscriberService implements this interface to receive data from the HAL.
+     */
+    public interface VmsHalSubscriberListener {
+        void onChange(int layerId, int layerVersion, byte[] payload);
+    }
 
     /**
      * The VmsService implements this interface to receive data from the HAL.
      */
-    public interface VmsHalListener {
-        void onChange(VmsProperty propVal);
-    }
-
     protected VmsHalService(VehicleHal vehicleHal) {
         mVehicleHal = vehicleHal;
         if (DBG) {
@@ -65,49 +89,20 @@ public class VmsHalService extends HalServiceBase {
         }
     }
 
-    public void addListener(VmsHalListener listener) {
-        synchronized (mListenersLock) {
-            mListeners.add(listener);
-        }
+    public void addPublisherListener(VmsHalPublisherListener listener) {
+        mPublisherListeners.add(listener);
     }
 
-    public void removeListener(VmsHalListener listener) {
-        synchronized (mListenersLock) {
-            mListeners.remove(listener);
-        }
+    public void addSubscriberListener(VmsHalSubscriberListener listener) {
+        mSubscriberListeners.add(listener);
     }
 
-    /**
-     * Returns property or null if property is not ready yet.
-     */
-    @Nullable
-    public VmsProperty getProperty() {
-        VehiclePropValue value = null;
-        try {
-            value = mVehicleHal.get(HAL_PROPERTY_ID);
-        } catch (PropertyTimeoutException e) {
-            Log.e(CarLog.TAG_PROPERTY, "get, property not ready 0x" + toHexString(HAL_PROPERTY_ID));
-        }
-
-        return value == null ? null : toVmsProperty(value);
+    public void removePublisherListener(VmsHalPublisherListener listener) {
+        mPublisherListeners.remove(listener);
     }
 
-    /**
-     * Updates the VMS HAL property with the given value.
-     *
-     * @param property the value used to update the HAL property.
-     * @return         true if the call to the HAL to update the property was successful.
-     */
-    public boolean setProperty(VmsProperty property) {
-        VehiclePropValue halProp = toVehiclePropValue(property);
-        boolean success = false;
-        try {
-            mVehicleHal.set(halProp);
-            success = true;
-        } catch (PropertyTimeoutException e) {
-            Log.e(CarLog.TAG_PROPERTY, "set, property not ready 0x" + toHexString(HAL_PROPERTY_ID));
-        }
-        return success;
+    public void removeSubscriberListener(VmsHalSubscriberListener listener) {
+        mSubscriberListeners.remove(listener);
     }
 
     @Override
@@ -128,9 +123,8 @@ public class VmsHalService extends HalServiceBase {
         if (mIsSupported) {
             mVehicleHal.unsubscribeProperty(this, HAL_PROPERTY_ID);
         }
-        synchronized (mListenersLock) {
-            mListeners.clear();
-        }
+        mPublisherListeners.clear();
+        mSubscriberListeners.clear();
     }
 
     @Override
@@ -152,16 +146,37 @@ public class VmsHalService extends HalServiceBase {
 
     @Override
     public void handleHalEvents(List<VehiclePropValue> values) {
-        List<VmsHalListener> listeners;
-        synchronized (mListenersLock) {
-            listeners = mListeners;
-        }
-        for (VmsHalListener listener : listeners) {
-            for (VehiclePropValue v : values) {
-                VmsProperty propVal = toVmsProperty(v);
-                listener.onChange(propVal);
-                if (DBG) {
-                    Log.d(TAG, "handleHalEvents event: " + toHexString(v.prop));
+        for (VehiclePropValue v : values) {
+            ArrayList<Integer> vec = v.value.int32Values;
+            int messageType = vec.get(VmsMessageIntegerValuesIndex.VMS_MESSAGE_TYPE);
+            int layerId = vec.get(VmsMessageIntegerValuesIndex.VMS_LAYER_ID);
+            int layerVersion = vec.get(VmsMessageIntegerValuesIndex.VMS_LAYER_VERSION);
+
+            // Check if message type is supported.
+            if (!SUPPORTED_MESSAGE_TYPES.contains(messageType)) {
+                throw new IllegalArgumentException("Unexpected message type. " +
+                    "Expecting: " + SUPPORTED_MESSAGE_TYPES +
+                    ". Got: " + messageType);
+
+            }
+
+            // This is a data message intended for subscribers.
+            if (messageType == VmsMessageType.DATA) {
+                // Get the payload.
+                byte[] payload = toByteArray(v.value.bytes);
+
+                // Send the message.
+                for (VmsHalSubscriberListener listener : mSubscriberListeners) {
+                    listener.onChange(layerId, layerVersion, payload);
+                }
+            } else {
+                //TODO(b/35386660): This is placeholder until implementing subscription manager.
+                // Get subscribe or unsubscribe.
+                boolean hasSubscribers = (messageType == VmsMessageType.SUBSCRIBE) ? true : false;
+
+                // Send the message.
+                for (VmsHalPublisherListener listener : mPublisherListeners) {
+                    listener.onChange(layerId, layerVersion, hasSubscribers);
                 }
             }
         }
@@ -173,20 +188,70 @@ public class VmsHalService extends HalServiceBase {
         writer.println("VmsProperty " + (mIsSupported ? "" : "not") + " supported.");
     }
 
-    // TODO(antoniocortes): update the following two methods once we have the actual VMS property.
-    /** Converts {@link VehiclePropValue} to {@link VmsProperty} */
-    static VmsProperty toVmsProperty(VehiclePropValue halValue) {
-        VehiclePropValue.RawValue v = halValue.value;
-        return new VmsProperty(v.stringValue);
+    /**
+     * Updates the VMS HAL property with the given value.
+     *
+     * @param property the value used to update the HAL property.
+     * @return         true if the call to the HAL to update the property was successful.
+     */
+    public boolean setSubscribeRequest(int layerId, int layerVersion) {
+        VehiclePropValue vehiclePropertyValue = toVehiclePropValue(VmsMessageType.SUBSCRIBE,
+            layerId,
+            layerVersion);
+        return setPropertyValue(vehiclePropertyValue);
     }
 
-    /** Converts {@link VmsProperty} to {@link VehiclePropValue} */
-    static VehiclePropValue toVehiclePropValue(VmsProperty carProp) {
+    public boolean setUnsubscribeRequest(int layerId, int layerVersion) {
+        VehiclePropValue vehiclePropertyValue = toVehiclePropValue(VmsMessageType.UNSUBSCRIBE,
+            layerId,
+            layerVersion);
+        return setPropertyValue(vehiclePropertyValue);
+    }
+
+    public boolean setDataMessage(int layerId, int layerVersion, byte[] payload) {
+        VehiclePropValue vehiclePropertyValue = toVehiclePropValue(VmsMessageType.DATA,
+            layerId,
+            layerVersion,
+            payload);
+        return setPropertyValue(vehiclePropertyValue);
+    }
+
+    public boolean setPropertyValue(VehiclePropValue vehiclePropertyValue) {
+        try {
+            mVehicleHal.set(vehiclePropertyValue);
+            return true;
+        } catch (PropertyTimeoutException e) {
+            Log.e(CarLog.TAG_PROPERTY, "set, property not ready 0x" + toHexString(HAL_PROPERTY_ID));
+        }
+        return false;
+    }
+
+    /** Creates a {@link VehiclePropValue} */
+    static VehiclePropValue toVehiclePropValue(int messageType,
+                                               int layerId,
+                                               int layerVersion) {
         VehiclePropValue vehicleProp = new VehiclePropValue();
         vehicleProp.prop = HAL_PROPERTY_ID;
         vehicleProp.areaId = VehicleAreaType.VEHICLE_AREA_TYPE_NONE;
         VehiclePropValue.RawValue v = vehicleProp.value;
-        v.stringValue = carProp.getValue();
+
+        v.int32Values.add(messageType);
+        v.int32Values.add(layerId);
+        v.int32Values.add(layerVersion);
+        return vehicleProp;
+    }
+
+    /** Creates a {@link VehiclePropValue} with payload*/
+    static VehiclePropValue toVehiclePropValue(int messageType,
+                                               int layerId,
+                                               int layerVersion,
+                                               byte[] payload) {
+        VehiclePropValue vehicleProp = toVehiclePropValue(messageType, layerId, layerVersion);
+        VehiclePropValue.RawValue v = vehicleProp.value;
+        v.bytes.ensureCapacity(payload.length);
+        for (byte b : payload) {
+            v.bytes.add(b);
+        }
         return vehicleProp;
     }
 }

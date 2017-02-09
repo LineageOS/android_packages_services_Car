@@ -16,8 +16,6 @@
 
 package android.car.vms;
 
-import android.car.vms.VmsProperty;
-
 /**
  * @hide
  */
@@ -25,5 +23,5 @@ oneway interface IOnVmsMessageReceivedListener {
     /**
      * A VmsService uses this callback to pass messages to subscribers.
      */
-    void onVmsMessageReceived(in VmsProperty message) = 0;
+    void onVmsMessageReceived(in int layerId, in int layerVersion, in byte[] payload) = 0;
 }

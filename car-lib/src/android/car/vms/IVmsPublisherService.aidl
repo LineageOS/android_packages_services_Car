@@ -26,10 +26,8 @@ import android.car.vms.VmsProperty;
 interface IVmsPublisherService {
     /**
      * Client call to publish a message.
-     *
-     * TODO(antoniocortes): change VmsProperty to String or byte[] once b/35313272 is submitted.
      */
-    oneway void publish(int layer, int version, in VmsProperty message) = 0;
+    oneway void publish(int layer, int version, in byte[] message) = 0;
 
     /**
      * Returns whether the layer/version has any clients subscribed to it.

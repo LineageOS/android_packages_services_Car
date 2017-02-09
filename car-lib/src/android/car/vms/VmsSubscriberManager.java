@@ -55,7 +55,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
     /** Interface exposed to VMS subscribers: it is a wrapper of IOnVmsMessageReceivedListener. */
     public interface OnVmsMessageReceivedListener {
         /** Called when the property is updated */
-        void onVmsMessageReceived(VmsProperty message);
+        void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload);
     }
 
     /**
@@ -78,7 +78,13 @@ public final class VmsSubscriberManager implements CarManagerBase {
                 case ON_RECEIVE_MESSAGE_EVENT:
                     VmsSubscriberManager mgr = mMgr.get();
                     if (mgr != null) {
-                        mgr.dispatchOnReceiveMessage((VmsProperty) msg.obj);
+                        // Parse the message
+                        VmsDataMessage vmsDataMessage = (VmsDataMessage) msg.obj;
+
+                        // Dispatch the parsed message
+                        mgr.dispatchOnReceiveMessage(vmsDataMessage.getLayerId(),
+                                                     vmsDataMessage.getLayerVersion(),
+                                                     vmsDataMessage.getPayload());
                     }
                     break;
                 default:
@@ -93,9 +99,14 @@ public final class VmsSubscriberManager implements CarManagerBase {
         mHandler = new VmsEventHandler(this, handler.getLooper());
         mIListener = new IOnVmsMessageReceivedListener.Stub() {
             @Override
-            public void onVmsMessageReceived(VmsProperty message) throws RemoteException {
+            public void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload)
+                throws RemoteException {
+                // Create the data message
+                VmsDataMessage vmsDataMessage = new VmsDataMessage(layerId, layerVersion, payload);
                 mHandler.sendMessage(
-                        mHandler.obtainMessage(VmsEventHandler.ON_RECEIVE_MESSAGE_EVENT, message));
+                        mHandler.obtainMessage(
+                            VmsEventHandler.ON_RECEIVE_MESSAGE_EVENT,
+                            vmsDataMessage));
             }
         };
     }
@@ -195,7 +206,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
     }
 
-    private void dispatchOnReceiveMessage(VmsProperty message) {
+    private void dispatchOnReceiveMessage(int layerId, int layerVersion, byte[] payload) {
         OnVmsMessageReceivedListener listener;
         synchronized (mListenerLock) {
             listener = mListener;
@@ -204,12 +215,34 @@ public final class VmsSubscriberManager implements CarManagerBase {
             Log.e(TAG, "Listener died, not dispatching event.");
             return;
         }
-        listener.onVmsMessageReceived(message);
+        listener.onVmsMessageReceived(layerId, layerVersion, payload);
     }
 
     /** @hide */
     @Override
     public void onCarDisconnected() {
         clearListener();
+    }
+
+    private static final class VmsDataMessage {
+        private int mLayerId;
+        private int mLayerVersion;
+        private byte[] mPayload;
+
+        public VmsDataMessage(int layerId, int layerVersion, byte[] payload) {
+            mLayerId = layerId;
+            mLayerVersion = layerVersion;
+            mPayload = payload;
+        }
+
+        public int getLayerId() {
+            return mLayerId;
+        }
+        public int getLayerVersion() {
+            return mLayerVersion;
+        }
+        public byte[] getPayload() {
+            return mPayload;
+        }
     }
 }

@@ -20,7 +20,6 @@ import android.car.Car;
 import android.car.annotation.FutureFeature;
 import android.car.vms.IOnVmsMessageReceivedListener;
 import android.car.vms.IVmsSubscriberService;
-import android.car.vms.VmsProperty;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -42,7 +41,7 @@ import java.util.Map;
  */
 @FutureFeature
 public class VmsSubscriberService extends IVmsSubscriberService.Stub
-        implements CarServiceBase, VmsHalService.VmsHalListener {
+        implements CarServiceBase, VmsHalService.VmsHalSubscriberListener {
     private static final boolean DBG = true;
     private static final String PERMISSION = Car.PERMISSION_VMS_SUBSCRIBER;
     private static final String TAG = "VmsSubscriberService";
@@ -184,13 +183,13 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     // Implements CarServiceBase interface.
     @Override
     public void init() {
-        mHal.addListener(this);
+        mHal.addSubscriberListener(this);
     }
 
     @Override
     public void release() {
         mMessageReceivedManager.release();
-        mHal.removeListener(this);
+        mHal.removeSubscriberListener(this);
     }
 
     @Override
@@ -210,12 +209,12 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         mMessageReceivedManager.remove(listener);
     }
 
-    // Implements VmsHalListener interface
+    // Implements VmsHalSubscriberListener interface
     @Override
-    public void onChange(VmsProperty message) {
+    public void onChange(int layerId, int layerVersion, byte[] payload) {
         for (IOnVmsMessageReceivedListener subscriber : mMessageReceivedManager.getListeners()) {
             try {
-                subscriber.onVmsMessageReceived(message);
+                subscriber.onVmsMessageReceived(layerId, layerVersion, payload);
             } catch (RemoteException e) {
                 // If we could not send a record, its likely the connection snapped. Let the binder
                 // death handle the situation.
