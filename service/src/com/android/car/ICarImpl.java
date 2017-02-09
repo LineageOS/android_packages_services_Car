@@ -21,7 +21,6 @@ import android.car.Car;
 import android.car.ICar;
 import android.car.annotation.FutureFeature;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
-import android.car.internal.FeatureUtil;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -30,6 +29,8 @@ import android.util.Log;
 
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.hal.VehicleHal;
+import com.android.car.internal.FeatureConfiguration;
+import com.android.car.internal.FeatureUtil;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.internal.annotations.GuardedBy;
 

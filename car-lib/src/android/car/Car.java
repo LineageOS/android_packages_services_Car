@@ -43,6 +43,8 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
 
+import com.android.car.internal.FeatureConfiguration;
+import com.android.car.internal.FeatureUtil;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
@@ -580,7 +582,9 @@ public final class Car {
                 manager = new CarTestManagerBinderWrapper(binder);
                 break;
             case VMS_SUBSCRIBER_SERVICE:
-                manager = new VmsSubscriberManager(binder, mEventHandler);
+                if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
+                    manager = new VmsSubscriberManager(binder, mEventHandler);
+                }
                 break;
         }
         return manager;

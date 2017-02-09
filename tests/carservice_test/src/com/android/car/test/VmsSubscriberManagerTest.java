@@ -18,6 +18,7 @@ package com.android.car.test;
 
 import android.car.Car;
 import android.car.VehicleAreaType;
+import android.car.annotation.FutureFeature;
 import android.car.vms.VmsSubscriberManager.OnVmsMessageReceivedListener;
 import android.car.vms.VmsSubscriberManager;
 import android.car.vms.VmsProperty;
@@ -35,6 +36,7 @@ import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandle
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@FutureFeature
 @MediumTest
 public class VmsSubscriberManagerTest extends MockedCarTestBase {
     private static final String TAG = "VmsSubscriberManagerTest";

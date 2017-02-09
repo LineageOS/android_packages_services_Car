@@ -20,6 +20,7 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
+import android.car.annotation.FutureFeature;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -38,6 +39,8 @@ import java.lang.ref.WeakReference;
  *
  * @hide
  */
+
+@FutureFeature
 @SystemApi
 public final class VmsSubscriberManager implements CarManagerBase {
     private static final boolean DBG = true;

@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.internal;
 
 /**
  * Class to hold static boolean flag for enabling / disabling features.
+ *
+ * @hide
  */
 public class FeatureConfiguration {
     /** Disable future feature by default. */
