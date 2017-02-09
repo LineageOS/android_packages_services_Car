@@ -36,12 +36,11 @@ import java.lang.ref.WeakReference;
  * API for interfacing with the VmsSubscriberService. It supports a single listener that can
  * (un)subscribe to different layers. After getting an instance of this manager, the first step
  * must be to call #setListener. After that, #subscribe and #unsubscribe methods can be invoked.
+ * SystemApi candidate
  *
  * @hide
  */
-
 @FutureFeature
-@SystemApi
 public final class VmsSubscriberManager implements CarManagerBase {
     private static final boolean DBG = true;
     private static final String TAG = "VmsSubscriberManager";
