@@ -22,6 +22,7 @@ import static com.android.car.CarServiceUtils.toIntArray;
 import static java.lang.Integer.toHexString;
 
 import android.annotation.CheckResult;
+import android.car.annotation.FutureFeature;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig;
@@ -38,6 +39,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.internal.FeatureConfiguration;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
@@ -73,7 +75,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private final HvacHalService mHvacHal;
     private final InputHalService mInputHal;
     private final VendorExtensionHalService mVendorExtensionHal;
-    private final VmsHalService mVmsHal;
+    @FutureFeature
+    private VmsHalService mVmsHal;
 
     /** Might be re-assigned if Vehicle HAL is reconnected. */
     private volatile HalClient mHalClient;
@@ -99,8 +102,10 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mHvacHal = new HvacHalService(this);
         mInputHal = new InputHalService(this);
         mVendorExtensionHal = new VendorExtensionHalService(this);
-        mVmsHal = new VmsHalService(this);
-        mAllServices = new HalServiceBase[] {
+        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
+            mVmsHal = new VmsHalService(this);
+        }
+        List<HalServiceBase> allServices = new ArrayList<>(Arrays.asList(
                 mPowerHal,
                 mAudioHal,
                 mCabinHal,
@@ -109,9 +114,12 @@ public class VehicleHal extends IVehicleCallback.Stub {
                 mSensorHal,
                 mRadioHal,
                 mInputHal,
-                mVendorExtensionHal,
-                mVmsHal
-                };
+                mVendorExtensionHal
+        ));
+        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
+            allServices.add(mVmsHal);
+        }
+        mAllServices = allServices.toArray(new HalServiceBase[0]);
 
         mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(), this /*IVehicleCallback*/);
     }
@@ -131,8 +139,10 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mHvacHal = hvacHal;
         mInputHal = null;
         mVendorExtensionHal = null;
-        // TODO(antoniocortes): do we need a test version of VmsHalService?
-        mVmsHal = null;
+        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
+            // TODO(antoniocortes): do we need a test version of VmsHalService?
+            mVmsHal = null;
+        }
         mAllServices = null;
         mHalClient = halClient;
     }
@@ -243,6 +253,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         return mVendorExtensionHal;
     }
 
+    @FutureFeature
     public VmsHalService getVmsHal() { return mVmsHal; }
 
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {
