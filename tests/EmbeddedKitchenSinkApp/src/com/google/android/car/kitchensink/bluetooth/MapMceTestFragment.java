@@ -19,6 +19,7 @@ package com.google.android.car.kitchensink.bluetooth;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothDevicePicker;
 import android.bluetooth.BluetoothMapClient;
 import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
@@ -35,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.car.kitchensink.R;
@@ -46,8 +48,10 @@ public class MapMceTestFragment extends Fragment {
     private static final String TAG = "CAR.BLUETOOTH.KS";
     BluetoothMapClient mMapProfile;
     BluetoothAdapter mBluetoothAdapter;
+    Button mDevicePicker;
+    Button mDeviceDisconnect;
     TextView mMessage;
-    TextView mOriginator;
+    EditText mOriginator;
     TextView mOriginatorDisplayName;
     CheckBox mSent;
     CheckBox mDelivered;
@@ -67,14 +71,15 @@ public class MapMceTestFragment extends Fragment {
         Button reply = (Button) v.findViewById(R.id.reply);
         Button checkMessages = (Button) v.findViewById(R.id.check_messages);
         mBluetoothDevice = (TextView) v.findViewById(R.id.bluetoothDevice);
-        mOriginator = (TextView) v.findViewById(R.id.messageOriginator);
+        mOriginator = (EditText) v.findViewById(R.id.messageOriginator);
         mOriginatorDisplayName = (TextView) v.findViewById(R.id.messageOriginatorDisplayName);
         mSent = (CheckBox) v.findViewById(R.id.sent_checkbox);
         mDelivered = (CheckBox) v.findViewById(R.id.delivered_checkbox);
         mSendIntent = new Intent(BluetoothMapClient.ACTION_MESSAGE_SENT_SUCCESSFULLY);
         mDeliveryIntent = new Intent(BluetoothMapClient.ACTION_MESSAGE_DELIVERED_SUCCESSFULLY);
         mMessage = (TextView) v.findViewById(R.id.messageContent);
-
+        mDevicePicker = (Button) v.findViewById(R.id.bluetooth_pick_device);
+        mDeviceDisconnect = (Button) v.findViewById(R.id.bluetooth_disconnect_device);
         //TODO add manual entry option for phone number
         reply.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,8 +96,36 @@ public class MapMceTestFragment extends Fragment {
             }
         });
 
+        // Pick a bluetooth device
+        mDevicePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                launchDevicePicker();
+            }
+        });
+        mDeviceDisconnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                disconnectDevice(mBluetoothDevice.getText().toString());
+            }
+        });
+
         mTransmissionStatusReceiver = new NotificationReceiver();
         return v;
+    }
+
+    void launchDevicePicker() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevicePicker.ACTION_DEVICE_SELECTED);
+        getContext().registerReceiver(mPickerReceiver, filter);
+
+        Intent intent = new Intent(BluetoothDevicePicker.ACTION_LAUNCH);
+        intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+        getContext().startActivity(intent);
+    }
+
+    void disconnectDevice(String device) {
+        mMapProfile.disconnect(mBluetoothAdapter.getRemoteDevice((device)));
     }
 
     @Override
@@ -107,6 +140,7 @@ public class MapMceTestFragment extends Fragment {
         intentFilter.addAction(BluetoothMapClient.ACTION_MESSAGE_SENT_SUCCESSFULLY);
         intentFilter.addAction(BluetoothMapClient.ACTION_MESSAGE_DELIVERED_SUCCESSFULLY);
         intentFilter.addAction(BluetoothMapClient.ACTION_MESSAGE_RECEIVED);
+        intentFilter.addAction(BluetoothMapClient.ACTION_CONNECTION_STATE_CHANGED);
         getContext().registerReceiver(mTransmissionStatusReceiver, intentFilter);
     }
 
@@ -118,16 +152,32 @@ public class MapMceTestFragment extends Fragment {
 
     private void getMessages() {
         synchronized (mLock) {
+            BluetoothDevice remoteDevice;
+            try {
+                remoteDevice = mBluetoothAdapter.getRemoteDevice(
+                        mBluetoothDevice.getText().toString());
+            } catch (java.lang.IllegalArgumentException e) {
+                Log.e(TAG, e.toString());
+                return;
+            }
+
             if (mMapProfile != null) {
                 Log.d(TAG, "Getting Messages");
-                mMapProfile.getUnreadMessages(mBluetoothAdapter.getRemoteDevice(
-                        mBluetoothDevice.getText().toString()));
+                mMapProfile.getUnreadMessages(remoteDevice);
             }
         }
     }
 
     private void sendMessage(Uri[] recipients, String message) {
         synchronized (mLock) {
+            BluetoothDevice remoteDevice;
+            try {
+                remoteDevice = mBluetoothAdapter.getRemoteDevice(
+                        mBluetoothDevice.getText().toString());
+            } catch (java.lang.IllegalArgumentException e) {
+                Log.e(TAG, e.toString());
+                return;
+            }
             mSent.setChecked(false);
             mDelivered.setChecked(false);
             if (mMapProfile != null) {
@@ -146,7 +196,7 @@ public class MapMceTestFragment extends Fragment {
                 mDeliveredIntent = PendingIntent.getBroadcast(getContext(), 0, mDeliveryIntent,
                         PendingIntent.FLAG_ONE_SHOT);
                 mMapProfile.sendMessage(
-                        mBluetoothAdapter.getRemoteDevice(mBluetoothDevice.getText().toString()),
+                        remoteDevice,
                         recipients, message, mSentIntent, mDeliveredIntent);
             }
         }
@@ -177,7 +227,16 @@ public class MapMceTestFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             synchronized (mLock) {
-                if (action.equals(BluetoothMapClient.ACTION_MESSAGE_SENT_SUCCESSFULLY)) {
+                if (action.equals(BluetoothMapClient.ACTION_CONNECTION_STATE_CHANGED)) {
+                    if (intent.getIntExtra(BluetoothProfile.EXTRA_STATE, 0)
+                            == BluetoothProfile.STATE_CONNECTED) {
+                        mBluetoothDevice.setText(((BluetoothDevice) intent.getParcelableExtra(
+                                BluetoothDevice.EXTRA_DEVICE)).getAddress());
+                    } else if (intent.getIntExtra(BluetoothProfile.EXTRA_STATE, 0)
+                            == BluetoothProfile.STATE_DISCONNECTED) {
+                        mBluetoothDevice.setText("Disconnected");
+                    }
+                } else if (action.equals(BluetoothMapClient.ACTION_MESSAGE_SENT_SUCCESSFULLY)) {
                     mSent.setChecked(true);
                 } else if (action.equals(
                         BluetoothMapClient.ACTION_MESSAGE_DELIVERED_SUCCESSFULLY)) {
@@ -209,4 +268,22 @@ public class MapMceTestFragment extends Fragment {
             }
         }
     }
+
+    private final BroadcastReceiver mPickerReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            Log.v(TAG, "mPickerReceiver got " + action);
+
+            if (BluetoothDevicePicker.ACTION_DEVICE_SELECTED.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                Log.v(TAG, "mPickerReceiver got " + device);
+                mMapProfile.connect(device);
+
+                // The receiver can now be disabled.
+                getContext().unregisterReceiver(mPickerReceiver);
+            }
+        }
+    };
 }

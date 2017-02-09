@@ -89,7 +89,6 @@
                   android:launchMode="singleTop">
         </activity>
 
-        <!--
         <receiver android:name=".bluetooth.MapReceiver"
             android:permission="android.permission.READ_SMS">
             <intent-filter>
@@ -97,6 +96,5 @@
                 <action android:name="android.provider.action.VOICE_SEND_MESSAGE_TO_CONTACTS"/>
             </intent-filter>
         </receiver>
-        -->
     </application>
 </manifest>
