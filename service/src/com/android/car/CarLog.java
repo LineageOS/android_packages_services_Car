@@ -40,4 +40,5 @@ public class CarLog {
     public static final String TAG_SERVICE = "CAR.SERVICE";
     public static final String TAG_SYS = "CAR.SYS";
     public static final String TAG_TEST = "CAR.TEST";
+    public static final String TAG_DIAGNOSTIC = "CAR.DIAGNOSTIC";
 }
