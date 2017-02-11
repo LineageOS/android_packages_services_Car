@@ -79,7 +79,7 @@ bool VirtualCamera::deliverFrame(const BufferDesc& buffer) {
             return false;
         } else if (mFramesHeld.size() >= mFramesAllowed) {
             // Indicate that we declined to send the frame to the client because they're at quota
-            ALOGI("Skipping new frame as we hold %lu of %u allowed.",
+            ALOGI("Skipping new frame as we hold %zu of %u allowed.",
                   mFramesHeld.size(), mFramesAllowed);
             return false;
         } else {
