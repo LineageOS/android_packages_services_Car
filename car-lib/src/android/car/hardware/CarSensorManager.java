@@ -25,26 +25,22 @@ import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.content.Context;
-import android.os.Binder;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.google.android.collect.Lists;
+import com.android.car.internal.CarRatedListeners;
+import com.android.car.internal.SingleMessageHandler;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  *  API for monitoring car sensor data.
@@ -199,36 +195,24 @@ public final class CarSensorManager implements CarManagerBase {
     private final HashMap<Integer, CarSensorListeners> mActiveSensorListeners =
             new HashMap<Integer, CarSensorListeners>();
 
-    /** Handles call back into projected apps. */
-    private final Handler mHandler;
-    private final Callback mHandlerCallback = new Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_SENSOR_EVENTS:
-                    synchronized(mActiveSensorListeners) {
-                        List<CarSensorEvent> events = (List<CarSensorEvent>) msg.obj;
-                        for (CarSensorEvent event: events) {
-                            CarSensorListeners listeners =
-                                    mActiveSensorListeners.get(event.sensorType);
-                            if (listeners != null) {
-                                listeners.onSensorChanged(event);
-                            }
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return true;
-        }
-    };
+    /** Handles call back into clients. */
+    private final SingleMessageHandler<CarSensorEvent> mHandlerCallback;
 
 
     /** @hide */
     public CarSensorManager(IBinder service, Context context, Handler handler) {
         mService = ICarSensor.Stub.asInterface(service);
-        mHandler = new Handler(handler.getLooper(), mHandlerCallback);
+        mHandlerCallback = new SingleMessageHandler<CarSensorEvent>(handler.getLooper(),
+                MSG_SENSOR_EVENTS) {
+            @Override
+            protected void handleEvent(CarSensorEvent event) {
+                CarSensorListeners listeners =
+                    mActiveSensorListeners.get(event.sensorType);
+                if (listeners != null) {
+                    listeners.onSensorChanged(event);
+                }
+            }
+        };
     }
 
     /** @hide */
@@ -463,7 +447,7 @@ public final class CarSensorManager implements CarManagerBase {
     }
 
     private void handleOnSensorChanged(List<CarSensorEvent> events) {
-        mHandler.sendMessage(mHandler.obtainMessage(MSG_SENSOR_EVENTS, events));
+        mHandlerCallback.sendEvents(events);
     }
 
     private static class CarSensorEventListenerToService extends ICarSensorEventListener.Stub {
@@ -482,68 +466,12 @@ public final class CarSensorManager implements CarManagerBase {
         }
     }
 
-    /**
-     * Represent listeners for a sensor.
-     */
-    private class CarSensorListeners {
-        private final Map<OnSensorChangedListener, Integer> mListenersToRate =
-                new HashMap<>();
-
-        private int mUpdateRate;
-        private long mLastUpdateTime = -1;
-
+    private class CarSensorListeners extends CarRatedListeners<OnSensorChangedListener> {
         CarSensorListeners(int rate) {
-            mUpdateRate = rate;
+            super(rate);
         }
 
-        boolean contains(OnSensorChangedListener listener) {
-            return mListenersToRate.containsKey(listener);
-        }
-
-        int getRate() {
-            return mUpdateRate;
-        }
-
-        /**
-         * Remove given listener from the list and update rate if necessary.
-         * @param listener.
-         * @return true if rate was updated. Otherwise, returns false.
-         */
-        boolean remove(OnSensorChangedListener listener) {
-            mListenersToRate.remove(listener);
-            if (mListenersToRate.isEmpty()) {
-                return false;
-            }
-            Integer updateRate = Collections.min(mListenersToRate.values());
-            if (updateRate != mUpdateRate) {
-                mUpdateRate = updateRate;
-                return true;
-            }
-            return false;
-        }
-
-        boolean isEmpty() {
-            return mListenersToRate.isEmpty();
-        }
-
-        /**
-         * Add given listener to the list and update rate if necessary.
-         * @param listener if null, add part is skipped.
-         * @param updateRate
-         * @return true if rate was updated. Otherwise, returns false.
-         */
-        boolean addAndUpdateRate(OnSensorChangedListener listener, int updateRate) {
-            Integer oldUpdateRate = mListenersToRate.put(listener, updateRate);
-            if (mUpdateRate > updateRate) {
-                mUpdateRate = updateRate;
-                return true;
-            } else if (oldUpdateRate != null && oldUpdateRate == mUpdateRate) {
-                mUpdateRate = Collections.min(mListenersToRate.values());
-            }
-            return false;
-        }
-
-        void onSensorChanged(CarSensorEvent event) {
+        void onSensorChanged(final CarSensorEvent event) {
             // throw away old sensor data as oneway binder call can change order.
             long updateTime = event.timestamp;
             if (updateTime < mLastUpdateTime) {
@@ -551,9 +479,12 @@ public final class CarSensorManager implements CarManagerBase {
                 return;
             }
             mLastUpdateTime = updateTime;
-            for (OnSensorChangedListener listener: mListenersToRate.keySet()) {
-                listener.onSensorChanged(event);
-            }
+            getListeners().forEach(new Consumer<OnSensorChangedListener>() {
+                @Override
+                public void accept(OnSensorChangedListener listener) {
+                    listener.onSensorChanged(event);
+                }
+            });
         }
     }
 }

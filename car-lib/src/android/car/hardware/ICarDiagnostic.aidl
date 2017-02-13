@@ -24,7 +24,7 @@ interface ICarDiagnostic {
     /**
      * Register a callback (or update registration) for diagnostic events.
      */
-    boolean registerOrUpdateDiagnosticListener(int frameKind, int rate,
+    boolean registerOrUpdateDiagnosticListener(int frameType, int rate,
         in ICarDiagnosticEventListener listener) = 1;
 
     /**
@@ -50,6 +50,6 @@ interface ICarDiagnostic {
     /**
      * Stop receiving diagnostic events for a given callback.
      */
-     void unregisterDiagnosticListener(int frameKind,
+     void unregisterDiagnosticListener(int frameType,
          in ICarDiagnosticEventListener callback) = 6;
 }
