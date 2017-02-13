@@ -39,6 +39,7 @@ KERNEL_TIME_KEY = "kernel"
 BOOT_ANIM_END_TIME_KEY = "BootAnimEnd"
 KERNEL_BOOT_COMPLETE = "BootComplete_kernel"
 LOGCAT_BOOT_COMPLETE = "BootComplete"
+LAUNCHER_START = "LauncherStart"
 BOOT_TIME_TOO_BIG = 200.0
 MAX_RETRIES = 5
 DEBUG = False
@@ -170,13 +171,13 @@ def iterate(args, search_events, timings, cfg, error_time, components_to_monitor
   if args.reboot:
     reboot()
 
-  logcat_events, logcat_timing_events = collect_events(
-    search_events, ADB_CMD + ' logcat -b all -v epoch', timings, [ LOGCAT_BOOT_COMPLETE,\
-                                                                   KERNEL_BOOT_COMPLETE ])
-
   dmesg_events, e = collect_events(search_events, ADB_CMD + ' shell su root dmesg -w', {},\
                                    [ KERNEL_BOOT_COMPLETE ])
 
+  logcat_events, logcat_timing_events = collect_events(
+    search_events, ADB_CMD + ' logcat -b all -v epoch', timings, [ LOGCAT_BOOT_COMPLETE,\
+                                                                   KERNEL_BOOT_COMPLETE, \
+                                                                   LAUNCHER_START ])
   logcat_event_time = extract_time(
     logcat_events, TIME_LOGCAT, float);
   logcat_original_time = extract_time(
