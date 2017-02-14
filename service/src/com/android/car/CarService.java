@@ -16,6 +16,7 @@
 package com.android.car;
 
 import static android.os.SystemClock.elapsedRealtime;
+import static com.android.car.internal.FeatureConfiguration.ENABLE_VEHICLE_HAL_V2_1;
 
 import android.annotation.Nullable;
 import android.app.Service;
@@ -47,9 +48,16 @@ public class CarService extends Service {
 
     private static final boolean IS_USER_BUILD = "user".equals(Build.TYPE);
 
+    private static final String IVHAL_20 =
+            android.hardware.automotive.vehicle.V2_0.IVehicle.kInterfaceName;
+    private static final String IVHAL_21 =
+            android.hardware.automotive.vehicle.V2_1.IVehicle.kInterfaceName;
+
     private CanBusErrorNotifier mCanBusErrorNotifier;
     private ICarImpl mICarImpl;
     private IVehicle mVehicle;
+
+    private String mVehicleInterfaceName;
 
     // If 10 crashes of Vehicle HAL occurred within 10 minutes then thrown an exception in
     // Car Service.
@@ -73,10 +81,18 @@ public class CarService extends Service {
     public void onCreate() {
         Log.i(CarLog.TAG_SERVICE, "Service onCreate");
         mCanBusErrorNotifier = new CanBusErrorNotifier(this /* context */);
-        mVehicle = getVehicleWithTimeout(WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS);
+        mVehicle = getVehicle(null /* Any Vehicle HAL interface name */);
+
         if (mVehicle == null) {
             throw new IllegalStateException("Vehicle HAL service is not available.");
         }
+        try {
+            mVehicleInterfaceName = mVehicle.interfaceDescriptor();
+        } catch (RemoteException e) {
+            throw new IllegalStateException("Unable to get Vehicle HAL interface descriptor", e);
+        }
+
+        Log.i(CarLog.TAG_SERVICE, "Connected to " + mVehicleInterfaceName);
 
         mICarImpl = new ICarImpl(this, mVehicle, SystemInterface.getDefault(this),
                 mCanBusErrorNotifier);
@@ -128,6 +144,7 @@ public class CarService extends Service {
         }
         if (args == null || args.length == 0) {
             writer.println("*dump car service*");
+            writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
             mICarImpl.dump(writer);
 
             writer.println("**Debug info**");
@@ -139,8 +156,8 @@ public class CarService extends Service {
     }
 
     @Nullable
-    private IVehicle getVehicleWithTimeout(long waitMilliseconds) {
-        IVehicle vehicle = getVehicle();
+    private IVehicle getVehicleWithTimeout(long waitMilliseconds, @Nullable String interfaceName) {
+        IVehicle vehicle = getVehicle(interfaceName);
         long start = elapsedRealtime();
         while (vehicle == null && (start + waitMilliseconds) > elapsedRealtime()) {
             try {
@@ -149,7 +166,7 @@ public class CarService extends Service {
                 throw new RuntimeException("Sleep was interrupted", e);
             }
 
-            vehicle = getVehicle();
+            vehicle = getVehicle(interfaceName);
         }
 
         if (vehicle != null) {
@@ -160,9 +177,20 @@ public class CarService extends Service {
     }
 
     @Nullable
-    private IVehicle getVehicle() {
+    private static IVehicle getVehicle(@Nullable String interfaceName) {
         try {
-            return IVehicle.getService(VEHICLE_SERVICE_NAME);
+            boolean anyVersion = interfaceName == null || interfaceName.isEmpty();
+            IVehicle vehicle = null;
+            if (ENABLE_VEHICLE_HAL_V2_1 && (anyVersion || IVHAL_21.equals(interfaceName))) {
+                vehicle = android.hardware.automotive.vehicle.V2_1.IVehicle
+                        .getService(VEHICLE_SERVICE_NAME);
+            }
+
+            if (vehicle == null && (anyVersion || IVHAL_20.equals(interfaceName))) {
+                vehicle = android.hardware.automotive.vehicle.V2_0.IVehicle
+                        .getService(VEHICLE_SERVICE_NAME);
+            }
+            return vehicle;
         } catch (RemoteException e) {
             Log.e(CarLog.TAG_SERVICE, "Failed to get IVehicle service", e);
         } catch (NoSuchElementException e) {
@@ -187,8 +215,10 @@ public class CarService extends Service {
 
             mVhalCrashTracker.crashDetected();
 
-            Log.i(CarLog.TAG_SERVICE, "Trying to reconnect to Vehicle HAL...");
-            mVehicle = getVehicleWithTimeout(WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS);
+            Log.i(CarLog.TAG_SERVICE, "Trying to reconnect to Vehicle HAL: " +
+                    mVehicleInterfaceName);
+            mVehicle = getVehicleWithTimeout(WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS,
+                    mVehicleInterfaceName);
             if (mVehicle == null) {
                 throw new IllegalStateException("Failed to reconnect to Vehicle HAL");
             }

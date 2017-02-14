@@ -44,6 +44,7 @@ LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_JAVA_LIBRARIES += android.car
 LOCAL_STATIC_JAVA_LIBRARIES += \
         android.hardware.automotive.vehicle@2.0-java-static \
+        android.hardware.automotive.vehicle@2.1-java-static \
         vehicle-hal-support-lib \
         car-systemtest \
 
@@ -64,6 +65,7 @@ LOCAL_MODULE := car-service-lib-for-test
 LOCAL_JAVA_LIBRARIES += android.car
 LOCAL_STATIC_JAVA_LIBRARIES += \
         android.hardware.automotive.vehicle@2.0-java-static \
+        android.hardware.automotive.vehicle@2.1-java-static \
         vehicle-hal-support-lib \
         car-systemtest \
 
