@@ -81,6 +81,8 @@ public class ICarImpl extends ICar.Stub {
     private CarDiagnosticService mCarDiagnosticService;
     @FutureFeature
     private VmsSubscriberService mVmsSubscriberService;
+    @FutureFeature
+    private VmsPublisherService mVmsPublisherService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -119,6 +121,7 @@ public class ICarImpl extends ICar.Stub {
         mCarBluetoothService = new CarBluetoothService(serviceContext, mCarCabinService);
         if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
             mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
+            mVmsPublisherService = new VmsPublisherService(serviceContext, mHal.getVmsHal());
         }
         if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
             mCarDiagnosticService = new CarDiagnosticService(serviceContext,
@@ -149,6 +152,7 @@ public class ICarImpl extends ICar.Stub {
         ));
         if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
             allServices.add(mVmsSubscriberService);
+            allServices.add(mVmsPublisherService);
         }
         if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
             allServices.add(mCarDiagnosticService);
@@ -286,6 +290,11 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertVendorExtensionPermission(Context context) {
         assertPermission(context, Car.PERMISSION_VENDOR_EXTENSION);
+    }
+
+    @FutureFeature
+    public static void assertVmsPublisherPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_VMS_PUBLISHER);
     }
 
     @FutureFeature
