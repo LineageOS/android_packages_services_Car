@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.annotation.FutureFeature;
 import android.car.hardware.CarDiagnosticEvent;
@@ -97,24 +98,41 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
         }
     }
 
+    @Nullable
     private CarDiagnosticEvent setInitialLiveFrame() {
-        CarDiagnosticEvent liveFrame = setRecentmostLiveFrame(mDiagnosticHal.getCurrentLiveFrame());
+        CarDiagnosticEvent liveFrame = null;
+        if(mDiagnosticHal.getDiagnosticCapabilities().isLiveFrameSupported()) {
+            liveFrame = setRecentmostLiveFrame(mDiagnosticHal.getCurrentLiveFrame());
+        }
         return liveFrame;
     }
 
     private void setInitialFreezeFrames() {
-        for (long timestamp: mDiagnosticHal.getFreezeFrameTimestamps()) {
-            setRecentmostFreezeFrame(mDiagnosticHal.getFreezeFrame(timestamp));
+        if(mDiagnosticHal.getDiagnosticCapabilities().isFreezeFrameSupported() &&
+            mDiagnosticHal.getDiagnosticCapabilities().isFreezeFrameInfoSupported()) {
+            long[] timestamps = mDiagnosticHal.getFreezeFrameTimestamps();
+            if (timestamps != null) {
+                for (long timestamp : timestamps) {
+                    setRecentmostFreezeFrame(mDiagnosticHal.getFreezeFrame(timestamp));
+                }
+            }
         }
     }
 
+    @Nullable
     private CarDiagnosticEvent setRecentmostLiveFrame(final CarDiagnosticEvent event) {
-        return mLiveFrameDiagnosticRecord.update(Objects.requireNonNull(event).checkLiveFrame());
+        if (event != null) {
+            return mLiveFrameDiagnosticRecord.update(event.checkLiveFrame());
+        }
+        return null;
     }
 
+    @Nullable
     private CarDiagnosticEvent setRecentmostFreezeFrame(final CarDiagnosticEvent event) {
-        return mFreezeFrameDiagnosticRecords.update(
-                Objects.requireNonNull(event).checkFreezeFrame());
+        if (event != null) {
+            return mFreezeFrameDiagnosticRecords.update(event.checkFreezeFrame());
+        }
+        return null;
     }
 
     @Override
@@ -453,11 +471,15 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
 
     @Override
     public boolean clearFreezeFrames(long... timestamps) {
-        mFreezeFrameDiagnosticRecords.lock();
-        mDiagnosticHal.clearFreezeFrames(timestamps);
-        mFreezeFrameDiagnosticRecords.clearEvents();
-        mFreezeFrameDiagnosticRecords.unlock();
-        return true;
+        //TODO(egranata): verify permissions before executing operation
+        if (mDiagnosticHal.getDiagnosticCapabilities().isFreezeFrameClearSupported()) {
+            mFreezeFrameDiagnosticRecords.lock();
+            mDiagnosticHal.clearFreezeFrames(timestamps);
+            mFreezeFrameDiagnosticRecords.clearEvents();
+            mFreezeFrameDiagnosticRecords.unlock();
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -691,7 +713,7 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
         }
 
         @Override
-        CarDiagnosticEvent update(CarDiagnosticEvent newEvent) {
+        CarDiagnosticEvent update(@NonNull CarDiagnosticEvent newEvent) {
             newEvent = Objects.requireNonNull(newEvent);
             if((null == mLastEvent) || mLastEvent.isEarlierThan(newEvent))
                 mLastEvent = newEvent;
@@ -724,7 +746,7 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
         }
 
         @Override
-        CarDiagnosticEvent update(CarDiagnosticEvent newEvent) {
+        CarDiagnosticEvent update(@NonNull CarDiagnosticEvent newEvent) {
             mEvents.put(newEvent.timestamp, newEvent);
             return newEvent;
         }
