@@ -24,6 +24,7 @@
 #include <android/log.h>
 #include <cutils/native_handle.h>
 #include <ui/GraphicBufferMapper.h>
+#include <ui/GraphicBuffer.h>
 
 #include <algorithm>    // std::min
 
