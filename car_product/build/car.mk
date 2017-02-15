@@ -77,7 +77,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Automotive specific packages
 PRODUCT_PACKAGES += \
-    vehicle_network_service \
     vehicle_monitor_service \
     CarService \
     CarUiProvider \
@@ -93,9 +92,7 @@ PRODUCT_PACKAGES += \
     CarMapsPlaceholder \
     CarUsbHandler \
     android.car \
-    libvehiclenetwork-native \
     libvehiclemonitor-native \
-    vns_policy.xml \
 
 # Boot animation
 PRODUCT_COPY_FILES += \
