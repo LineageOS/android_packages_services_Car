@@ -25,12 +25,12 @@ import java.nio.charset.Charset;
 
 /**
  * Parcelable wrapper of the VMS property.
+ * SystemApi candidate.
  *
  * @hide
  */
 @FutureFeature
-@SystemApi
-public class VmsProperty implements Parcelable {
+public final class VmsProperty implements Parcelable {
     private final static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
     // TODO(antoniocortes): change type to actual VMS property once defined.

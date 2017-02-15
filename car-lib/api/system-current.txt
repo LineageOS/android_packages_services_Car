@@ -802,28 +802,3 @@ package android.car.test {
 
 }
 
-package android.car.vms {
-
-  public class VmsProperty implements android.os.Parcelable {
-    ctor public VmsProperty(java.lang.String);
-    ctor public VmsProperty(android.os.Parcel);
-    method public int describeContents();
-    method public java.lang.String getValue();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.vms.VmsProperty> CREATOR;
-  }
-
-  public final class VmsSubscriberManager {
-    ctor public VmsSubscriberManager(android.os.IBinder, android.os.Handler);
-    method public void clearListener();
-    method public void setListener(android.car.vms.VmsSubscriberManager.OnVmsMessageReceivedListener);
-    method public void subscribe(int, int, boolean) throws android.car.CarNotConnectedException;
-    method public void unsubscribe(int, int);
-  }
-
-  public static abstract interface VmsSubscriberManager.OnVmsMessageReceivedListener {
-    method public abstract void onVmsMessageReceived(android.car.vms.VmsProperty);
-  }
-
-}
-
