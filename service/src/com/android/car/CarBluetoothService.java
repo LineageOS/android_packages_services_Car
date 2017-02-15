@@ -52,6 +52,7 @@ public class CarBluetoothService implements CarServiceBase {
 
     @Override
     public synchronized void dump(PrintWriter writer) {
+        mBluetoothDeviceConnectionPolicy.dump(writer);
     }
 
 }
