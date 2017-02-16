@@ -32,6 +32,19 @@ public class SimpleVmsPublisherClientService extends VmsPublisherClientService {
     @Override
     public void onVmsPublisherServiceReady() {
         // Publish a property that is going to be verified in the test.
-        publish(12, 34, new byte[]{1, 1, 2, 3, 5, 8, 13});
+        publish(getLayerId(), getLayerVersion(), getPayload());
+    }
+
+    // methods exposed for testing.
+    static public int getLayerId() {
+        return 12;
+    }
+
+    static public int getLayerVersion() {
+        return 34;
+    }
+
+    static byte[] getPayload() {
+        return new byte[]{1, 1, 2, 3, 5, 8, 13};
     }
 }
