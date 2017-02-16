@@ -16,16 +16,24 @@
 
 package android.car.hardware;
 
-import android.annotation.SystemApi;
 import android.car.CarApiUtil;
+import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.RemoteException;
+import android.util.Log;
+import android.util.SparseArray;
+
+import com.android.car.internal.CarRatedListeners;
+import com.android.car.internal.SingleMessageHandler;
+
+import java.lang.ref.WeakReference;
+import java.util.List;
+import java.util.function.Consumer;
 
 /** API for monitoring car diagnostic data. */
 /** @hide */
@@ -33,25 +41,38 @@ public final class CarDiagnosticManager implements CarManagerBase {
     public static final int FRAME_TYPE_FLAG_LIVE = 0;
     public static final int FRAME_TYPE_FLAG_FREEZE = 1;
 
-    private final ICarDiagnostic mService;
+    private static final int MSG_DIAGNOSTIC_EVENTS = 0;
 
-    /** Handles call back into projected apps. */
-    private final Handler mHandler;
-    private final Callback mHandlerCallback = new Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            //TODO(egranata): dispatch diagnostic messages to listeners
-            return true;
-        }
-    };
+    private final ICarDiagnostic mService;
+    private final SparseArray<CarDiagnosticListeners> mActiveListeners = new SparseArray<>();
+
+    /** Handles call back into clients. */
+    private final SingleMessageHandler<CarDiagnosticEvent> mHandlerCallback;
+
+    private CarDiagnosticEventListenerToService mListenerToService;
 
     public CarDiagnosticManager(IBinder service, Context context, Handler handler) {
         mService = ICarDiagnostic.Stub.asInterface(service);
-        mHandler = new Handler(handler.getLooper(), mHandlerCallback);
+        mHandlerCallback = new SingleMessageHandler<CarDiagnosticEvent>(handler.getLooper(),
+            MSG_DIAGNOSTIC_EVENTS) {
+            @Override
+            protected void handleEvent(CarDiagnosticEvent event) {
+                CarDiagnosticListeners listeners =
+                    mActiveListeners.get(event.frameType);
+                if (listeners != null) {
+                    listeners.onDiagnosticEvent(event);
+                }
+            }
+        };
     }
 
     @Override
-    public void onCarDisconnected() {}
+    public void onCarDisconnected() {
+        synchronized(mActiveListeners) {
+            mActiveListeners.clear();
+            mListenerToService = null;
+        }
+    }
 
     /** Listener for diagnostic events. Callbacks are called in the Looper context. */
     public interface OnDiagnosticEventListener {
@@ -60,24 +81,98 @@ public final class CarDiagnosticManager implements CarManagerBase {
          *
          * @param carDiagnosticEvent
          */
-        void onDiagnosticEvent(final CarDiagnosticManager manager,
-                final CarDiagnosticEvent carDiagnosticEvent);
+        void onDiagnosticEvent(final CarDiagnosticEvent carDiagnosticEvent);
     }
 
-    // ICarDiagnostic forwards
+    // OnDiagnosticEventListener registration
+
+    private void assertFrameType(int frameType) {
+        switch(frameType) {
+            case FRAME_TYPE_FLAG_FREEZE:
+            case FRAME_TYPE_FLAG_LIVE:
+                return;
+            default:
+                throw new IllegalArgumentException(String.format(
+                            "%d is not a valid diagnostic frame type", frameType));
+        }
+    }
 
     /**
-     * Register a new diagnostic events listener, or update an existing registration.
+     * Register a new listener for events of a given frame type and rate.
+     * @param listener
      * @param frameType
      * @param rate
-     * @param listener
-     * @return true if registration successfully occurs
+     * @return true if the registration was successful; false otherwise
      * @throws CarNotConnectedException
+     * @throws IllegalArgumentException
      */
-    public boolean registerOrUpdateDiagnosticListener(int frameType, int rate,
-            ICarDiagnosticEventListener listener) throws CarNotConnectedException {
+    public boolean registerListener(OnDiagnosticEventListener listener, int frameType, int rate)
+                throws CarNotConnectedException, IllegalArgumentException {
+        assertFrameType(frameType);
+        synchronized(mActiveListeners) {
+            if (null == mListenerToService) {
+                mListenerToService = new CarDiagnosticEventListenerToService(this);
+            }
+            boolean needsServerUpdate = false;
+            CarDiagnosticListeners listeners = mActiveListeners.get(frameType);
+            if (listeners == null) {
+                listeners = new CarDiagnosticListeners(rate);
+                mActiveListeners.put(frameType, listeners);
+                needsServerUpdate = true;
+            }
+            if (listeners.addAndUpdateRate(listener, rate)) {
+                needsServerUpdate = true;
+            }
+            if (needsServerUpdate) {
+                if (!registerOrUpdateDiagnosticListener(frameType, rate)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Unregister a listener, causing it to stop receiving all diagnostic events.
+     * @param listener
+     */
+    public void unregisterListener(OnDiagnosticEventListener listener) {
+        synchronized(mActiveListeners) {
+            for(int i = 0; i < mActiveListeners.size(); i++) {
+                doUnregisterListenerLocked(listener, mActiveListeners.keyAt(i));
+            }
+        }
+    }
+
+    private void doUnregisterListenerLocked(OnDiagnosticEventListener listener, int sensor) {
+        CarDiagnosticListeners listeners = mActiveListeners.get(sensor);
+        if (listeners != null) {
+            boolean needsServerUpdate = false;
+            if (listeners.contains(listener)) {
+                needsServerUpdate = listeners.remove(listener);
+            }
+            if (listeners.isEmpty()) {
+                try {
+                    mService.unregisterDiagnosticListener(sensor,
+                        mListenerToService);
+                } catch (RemoteException e) {
+                    //ignore
+                }
+                mActiveListeners.remove(sensor);
+            } else if (needsServerUpdate) {
+                try {
+                    registerOrUpdateDiagnosticListener(sensor, listeners.getRate());
+                } catch (CarNotConnectedException e) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    private boolean registerOrUpdateDiagnosticListener(int frameType, int rate)
+        throws CarNotConnectedException {
         try {
-            return mService.registerOrUpdateDiagnosticListener(frameType, rate, listener);
+            return mService.registerOrUpdateDiagnosticListener(frameType, rate, mListenerToService);
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
@@ -85,6 +180,8 @@ public final class CarDiagnosticManager implements CarManagerBase {
         }
         return false;
     }
+
+    // ICarDiagnostic forwards
 
     /**
      * Retrieve the most-recently acquired live frame data from the car.
@@ -152,23 +249,47 @@ public final class CarDiagnosticManager implements CarManagerBase {
         return false;
     }
 
-    /**
-     * Unregister a diagnostic events listener, such that the listener will stop receiveing events.
-     * This only removes the registration for one type of frame, such that if a listener is
-     * receiving events for multiple types of frames, it will keep receiving them for types other
-     * than the given frameType.
-     * @param frameType
-     * @param listener
-     * @throws CarNotConnectedException
-     */
-    public void unregisterDiagnosticListener(int frameType,
-            ICarDiagnosticEventListener listener) throws CarNotConnectedException {
-        try {
-            mService.unregisterDiagnosticListener(frameType, listener);
-        } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
-        } catch (RemoteException e) {
-            throw new CarNotConnectedException();
+    private static class CarDiagnosticEventListenerToService
+            extends ICarDiagnosticEventListener.Stub {
+        private final WeakReference<CarDiagnosticManager> mManager;
+
+        public CarDiagnosticEventListenerToService(CarDiagnosticManager manager) {
+            mManager = new WeakReference<>(manager);
+        }
+
+        private void handleOnDiagnosticEvents(CarDiagnosticManager manager,
+            List<CarDiagnosticEvent> events) {
+            manager.mHandlerCallback.sendEvents(events);
+        }
+
+        @Override
+        public void onDiagnosticEvents(List<CarDiagnosticEvent> events) {
+            CarDiagnosticManager manager = mManager.get();
+            if (manager != null) {
+                handleOnDiagnosticEvents(manager, events);
+            }
+        }
+    }
+
+    private class CarDiagnosticListeners extends CarRatedListeners<OnDiagnosticEventListener> {
+        CarDiagnosticListeners(int rate) {
+            super(rate);
+        }
+
+        void onDiagnosticEvent(final CarDiagnosticEvent event) {
+            // throw away old sensor data as oneway binder call can change order.
+            long updateTime = event.timestamp;
+            if (updateTime < mLastUpdateTime) {
+                Log.w(CarLibLog.TAG_DIAGNOSTIC, "dropping old sensor data");
+                return;
+            }
+            mLastUpdateTime = updateTime;
+            getListeners().forEach(new Consumer<OnDiagnosticEventListener>() {
+                @Override
+                public void accept(OnDiagnosticEventListener listener) {
+                    listener.onDiagnosticEvent(event);
+                }
+            });
         }
     }
 }
