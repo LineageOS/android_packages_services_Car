@@ -20,6 +20,10 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
+LOCAL_RESOURCE_DIR += packages/services/Car/service/res
+
+LOCAL_AAPT_FLAGS += --extra-packages com.android.car --auto-add-overlay
+
 LOCAL_PACKAGE_NAME := CarServiceTest
 
 # for system|priviledged permission.

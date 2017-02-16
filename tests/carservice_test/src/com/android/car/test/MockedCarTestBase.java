@@ -105,7 +105,7 @@ public class MockedCarTestBase extends AndroidTestCase {
         mCarImpl.release();
     }
 
-    private Context getCarServiceContext() throws NameNotFoundException {
+    protected Context getCarServiceContext() throws NameNotFoundException {
         return getContext()
                 .createPackageContext("com.android.car", Context.CONTEXT_IGNORE_SECURITY);
     }
