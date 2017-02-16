@@ -140,8 +140,8 @@ public class DiagnosticHalService extends SensorHalServiceBase {
 
         CarDiagnosticEvent.Builder builder =
                 (isFreezeFrame
-                                ? CarDiagnosticEvent.Builder.freezeFrame()
-                                : CarDiagnosticEvent.Builder.liveFrame())
+                                ? CarDiagnosticEvent.Builder.newFreezeFrameBuilder()
+                                : CarDiagnosticEvent.Builder.newLiveFrameBuilder())
                         .atTimestamp(value.timestamp);
 
         BitSet bitset = BitSet.valueOf(CarServiceUtils.toByteArray(value.value.bytes));
