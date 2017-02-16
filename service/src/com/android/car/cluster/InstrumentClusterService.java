@@ -188,9 +188,7 @@ public class InstrumentClusterService implements CarServiceBase,
 
         Intent intent = new Intent();
         intent.setComponent(ComponentName.unflattenFromString(rendererService));
-        // Explicitly start service as we do not use BIND_AUTO_CREATE flag to handle renderer crash.
-        mContext.startService(intent);
-        return mContext.bindService(intent, mRendererServiceConnection, Context.BIND_IMPORTANT);
+        return mContext.bindService(intent, mRendererServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Nullable

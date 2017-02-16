@@ -146,11 +146,9 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
                 }
                 Intent intent = new Intent();
                 intent.setComponent(name);
-                // Explicitly start service as we do not use BIND_AUTO_CREATE flag to handle crash.
-                publisherService.mContext.startService(intent);
                 PublisherConnection connection = new PublisherConnection();
                 if (publisherService.mContext.bindService(intent, connection,
-                        Context.BIND_IMPORTANT)) {
+                        Context.BIND_AUTO_CREATE)) {
                     mPublisherConnectionMap.put(publisherName, connection);
                 } else {
                     Log.e(TAG, "unable to bind to: " + publisherName);
