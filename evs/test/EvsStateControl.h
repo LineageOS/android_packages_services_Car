@@ -48,6 +48,13 @@ public:
 
     bool configureEvsPipeline(State desiredState);
 
+    unsigned getFramesReceived() {
+        return mCurrentStreamHandler.get() ? mCurrentStreamHandler->getFramesReceived() : 0;
+    }
+    unsigned getFramesCompleted() {
+        return mCurrentStreamHandler.get() ? mCurrentStreamHandler->getFramesCompleted() : 0;
+    }
+
 private:
     android::sp <IEvsEnumerator>    mEnumerator;
 

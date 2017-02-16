@@ -45,11 +45,26 @@ const static char kDirectEnumeratorName[]  = "EvsEnumeratorHw-Mock";
 const static char kManagedEnumeratorName[] = "EvsSharedEnumerator";
 
 
+// Timing expectations for EVS performance are called out in the EVS Vehicle Camera HAL
+// design document available internally at go/aae-evs
+static const unsigned kMaxTimeToFirstFrame  = 500;  // units of ms
+static const unsigned kMaxTimeBetweenFrames = 100;  // units of ms;
+
+static const unsigned kTestTimeInReverse = 1;       // units of seconds;
+static const unsigned kTestTimeInLeft    = 3;       // units of seconds;
+static const unsigned kTestTimeInRight   = 3;       // units of seconds;
+static const unsigned kTestTimeInOff     = 1;       // units of seconds;
+
+constexpr unsigned expectedFrames(unsigned testTimeSec) {
+    unsigned minTime = (testTimeSec * 1000) - kMaxTimeToFirstFrame;
+    unsigned requiredFrames = minTime / kMaxTimeBetweenFrames;
+    return requiredFrames;
+}
+
+
 bool VerifyDisplayState(DisplayState expectedState, DisplayState actualState) {
     if (expectedState != actualState) {
-        ALOGE("ERROR:  DisplayState should be %d, but is %d instead.",
-              expectedState, actualState);
-        printf("ERROR:  DisplayState should be NOT_OPEN(%d), but is %d instead.\n",
+        printf("ERROR:  DisplayState should be %d, but is %d instead.\n",
                expectedState, actualState);
         return false;
     } else {
@@ -83,10 +98,9 @@ int main(int argc, char** argv)
     printf("EVS test starting for %s\n", serviceName);
 
     // Get the EVS enumerator service
-    ALOGI("Acquiring EVS Enumerator");
     sp<IEvsEnumerator> pEnumerator = IEvsEnumerator::getService(serviceName);
     if (pEnumerator.get() == nullptr) {
-        ALOGE("getService returned NULL, exiting");
+        printf("getService returned NULL, exiting\n");
         return 1;
     }
     DisplayState displayState = pEnumerator->getDisplayState();
@@ -95,10 +109,9 @@ int main(int argc, char** argv)
     }
 
     // Request exclusive access to the EVS display
-    ALOGI("Acquiring EVS Display");
     sp<IEvsDisplay> pDisplay = pEnumerator->openDisplay();
     if (pDisplay.get() == nullptr) {
-        ALOGE("EVS Display unavailable, exiting");
+        printf("EVS Display unavailable, exiting\n");
         return 1;
     }
     displayState = pEnumerator->getDisplayState();
@@ -112,41 +125,65 @@ int main(int argc, char** argv)
     // Set thread pool size to one to avoid concurrent events from the HAL.
     // Note:  The pool _will_ run in parallel with the main thread logic below which
     // implements the test actions.
-    ALOGD("Starting thread pool to handle async callbacks");
     configureRpcThreadpool(1, false /* callerWillJoin */);
 
     // Run our test sequence
     printf("Reverse...\n");
     stateController.configureEvsPipeline(EvsStateControl::State::REVERSE);
-    sleep(1);
+    sleep(kTestTimeInReverse);
 
     // Make sure we get the expected EVS Display State
     displayState = pEnumerator->getDisplayState();
     printf("EVS Display State is %d\n", displayState);
     if (displayState != pDisplay->getDisplayState()) {
-        ALOGE("ERROR:  DisplayState mismatch.");
         printf("ERROR:  DisplayState mismatch.\n");
         return 1;
     }
     if (!VerifyDisplayState(DisplayState::VISIBLE, displayState)) {
+        printf("Display didn't enter visible state within %d second\n", kTestTimeInReverse);
         return 1;
+    }
+
+    // Make sure that we got at least the minimum required number of frames delivered while the
+    // stream was running assuming a maximum startup time and a minimum frame rate.
+    unsigned framesSent = stateController.getFramesReceived();
+    unsigned framesDone = stateController.getFramesCompleted();
+    printf("In the first %d second of reverse, we got %d frames delivered, and %d completed\n",
+           kTestTimeInReverse, framesSent, framesDone);
+    if (framesSent < expectedFrames(kTestTimeInReverse)) {
+        printf("Warning: we got only %d of the required minimum %d frames in the first %d second.",
+               framesSent, expectedFrames(kTestTimeInReverse), kTestTimeInReverse);
     }
 
     printf("Left...\n");
     stateController.configureEvsPipeline(EvsStateControl::State::LEFT);
     sleep(3);
+    framesSent = stateController.getFramesReceived();
+    framesDone = stateController.getFramesCompleted();
+    printf("in %d seconds of Left, we got %d frames delivered, and %d completed\n",
+           kTestTimeInLeft, framesSent, framesDone);
 
     printf("Right...\n");
     stateController.configureEvsPipeline(EvsStateControl::State::RIGHT);
-    sleep(3);
+    sleep(kTestTimeInRight);
+    framesSent = stateController.getFramesReceived();
+    framesDone = stateController.getFramesCompleted();
+    printf("in %d seconds of Right, we got %d frames delivered, and %d completed\n",
+           kTestTimeInRight, framesSent, framesDone);
 
     printf("Off...\n");
     stateController.configureEvsPipeline(EvsStateControl::State::OFF);
-    sleep(1);
+    sleep(kTestTimeInOff);
     displayState = pEnumerator->getDisplayState();
     if (!VerifyDisplayState(DisplayState::NOT_VISIBLE, displayState)) {
+        printf("Display didn't turn off within 1 second.\n");
         return 1;
     }
+
+    framesSent = stateController.getFramesReceived();
+    framesDone = stateController.getFramesCompleted();
+    printf("in %d seconds of Off, we got %d frames delivered, and %d completed\n",
+           kTestTimeInOff, framesSent, framesDone);
 
     // Explicitly release our resources while still in main
     printf("Exiting...\n");
@@ -154,6 +191,7 @@ int main(int argc, char** argv)
     pEnumerator->closeDisplay(pDisplay);
     displayState = pEnumerator->getDisplayState();
     if (!VerifyDisplayState(DisplayState::NOT_OPEN, displayState)) {
+        printf("Display didn't report closed after shutdown.\n");
         return 1;
     }
 
