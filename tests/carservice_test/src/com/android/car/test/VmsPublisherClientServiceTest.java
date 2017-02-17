@@ -27,12 +27,15 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
+import android.hardware.automotive.vehicle.V2_0.VmsMessageIntegerValuesIndex;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import com.android.car.R;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
+import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -102,14 +105,18 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
      */
     public void testPublish() throws Exception {
         assertTrue(mHalHandlerSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        VehiclePropValue halProperty = mHalHandler.getValue();
-        assertEquals(12, (int) halProperty.value.int32Values.get(1));  // Layer ID
-        assertEquals(34, (int) halProperty.value.int32Values.get(2));  // Layer Version
-        Byte[] payload = new Byte[halProperty.value.bytes.size()];
-        for (int i = 0; i < halProperty.value.bytes.size(); ++i) {
-            payload[i] = new Byte(halProperty.value.bytes.get(i));
+        VehiclePropValue.RawValue rawValue = mHalHandler.getValue().value;
+        int messageType = rawValue.int32Values.get(VmsMessageIntegerValuesIndex.VMS_MESSAGE_TYPE);
+        int layerId = rawValue.int32Values.get(VmsMessageIntegerValuesIndex.VMS_LAYER_ID);
+        int layerVersion = rawValue.int32Values.get(VmsMessageIntegerValuesIndex.VMS_LAYER_VERSION);
+        byte[] payload = new byte[rawValue.bytes.size()];
+        for (int i = 0; i < rawValue.bytes.size(); ++i) {
+            payload[i] = rawValue.bytes.get(i);
         }
-        assertArrayEquals(new Byte[]{1, 1, 2, 3, 5, 8, 13}, payload);
+        assertEquals(VmsMessageType.DATA, messageType);
+        assertEquals(SimpleVmsPublisherClientService.getLayerId(), layerId);
+        assertEquals(SimpleVmsPublisherClientService.getLayerVersion(), layerVersion);
+        assertTrue(Arrays.equals(SimpleVmsPublisherClientService.getPayload(), payload));
     }
 
     private class HalHandler implements VehicleHalPropertyHandler {

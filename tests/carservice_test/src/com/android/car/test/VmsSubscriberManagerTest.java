@@ -25,6 +25,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
@@ -32,6 +33,7 @@ import android.util.Log;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
+import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -75,19 +77,19 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
                 .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
-        v.value.int32Values.add(1); // MessageType
+        v.value.int32Values.add(VmsMessageType.DATA); // MessageType
         v.value.int32Values.add(2); // Layer ID
         v.value.int32Values.add(3); // Layer Version
-        v.value.bytes.add((byte)0xa);
-        v.value.bytes.add((byte)0xb);
+        v.value.bytes.add((byte) 0xa);
+        v.value.bytes.add((byte) 0xb);
         assertEquals(0, mSubscriberSemaphore.availablePermits());
 
         getMockedVehicleHal().injectEvent(v);
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         assertEquals(2, listener.getLayerId());
         assertEquals(3, listener.getLayerVersion());
-        byte[] expectedPayload = {(byte)0xa, (byte)0xb};
-        assertEquals(expectedPayload, listener.getPayload());
+        byte[] expectedPayload = {(byte) 0xa, (byte) 0xb};
+        assertTrue(Arrays.equals(expectedPayload, listener.getPayload()));
     }
 
     private class HalHandler implements VehicleHalPropertyHandler {
@@ -128,7 +130,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         @Override
         public void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload) {
             Log.d(TAG, "onVmsMessageReceived: Layer: " + layerId +
-                " Version: " + layerVersion + " Payload: " + payload);
+                    " Version: " + layerVersion + " Payload: " + payload);
             mLayerId = layerId;
             mLayerVersion = layerVersion;
             mPayload = payload;
