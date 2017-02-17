@@ -80,7 +80,7 @@ status_t VehicleMonitorService::dump(int fd, const Vector<String16>& /*args*/) {
     String8 msg;
     if (!PermissionCache::checkCallingPermission(sDump)) {
         msg.appendFormat("Permission Denial: "
-                         "can't dump VNS from pid=%d, uid=%d\n",
+                         "can't dump VMS from pid=%d, uid=%d\n",
                          IPCThreadState::self()->getCallingPid(),
                          IPCThreadState::self()->getCallingUid());
         write(fd, msg.string(), msg.size());

@@ -30,7 +30,6 @@ events:
   zygote_preload_res_start: Zygote\s*:\s*Preloading resources...
   zygote_preload_end: Zygote\s*:\s*end preload
   zygote_create_system_server: Zygote\s*:\s*System server process [0-9]* has been created
-  vns_start_by_init: Starting service 'vns'
   SystemServer_start: Entered the Android system server!
   system_server_ready: Enabled StrictMode for system server main
   PackageManagerInit_start: SystemServer\s*:\s*StartPackageManagerService

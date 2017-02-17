@@ -29,8 +29,5 @@ on property:dev.bootcomplete=1
 on property:boot.car_service_created=1
     exec - root root -- /system/bin/bootstat -r car_service_created
 
-on property:init.svc.vns=running
-    exec - root root -- /system/bin/bootstat -r vns_running
-
 on property:init.svc.zygote=running
     exec - root root -- /system/bin/bootstat -r zygote_running
