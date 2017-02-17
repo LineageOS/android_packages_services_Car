@@ -28,6 +28,12 @@
 #include <algorithm>    // std::min
 
 
+// For the moment, we're assuming that the underlying EVS driver we're working with
+// is providing 4 byte RGBx data.  This is fine for loopback testing, although
+// real hardware is expected to provide YUV data -- most likly formatted as YV12
+static const unsigned kBytesPerPixel = 4;   // assuming 4 byte RGBx pixels
+
+
 StreamHandler::StreamHandler(android::sp <IEvsCamera>  pCamera,  CameraDesc  cameraInfo,
                              android::sp <IEvsDisplay> pDisplay, DisplayDesc displayInfo) :
     mCamera(pCamera),
@@ -78,11 +84,27 @@ bool StreamHandler::isRunning() {
 }
 
 
-Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
-    ALOGD("Received a frame from the camera (%p)", buffer.memHandle.getNativeHandle());
+unsigned StreamHandler::getFramesReceived() {
+    std::unique_lock<std::mutex> lock(mLock);
+    return mFramesReceived;
+};
+
+
+unsigned StreamHandler::getFramesCompleted() {
+    std::unique_lock<std::mutex> lock(mLock);
+    return mFramesCompleted;
+};
+
+
+Return<void> StreamHandler::deliverFrame(const BufferDesc& bufferArg) {
+    ALOGD("Received a frame from the camera (%p)", bufferArg.memHandle.getNativeHandle());
+
+    // TODO:  Why do we get a gralloc crash if we don't clone the buffer here?
+    BufferDesc buffer(bufferArg);
+    ALOGD("Clone the received frame as %p", buffer.memHandle.getNativeHandle());
 
     if (buffer.memHandle.getNativeHandle() == nullptr) {
-        ALOGD("Got end of stream notification");
+        printf("Got end of stream notification\n");
 
         // Signal that the last frame has been received and the stream is stopped
         mLock.lock();
@@ -92,6 +114,11 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
 
         ALOGI("End of stream signaled");
     } else {
+        // Quick and dirty so that we can monitor frame delivery for testing
+        mLock.lock();
+        mFramesReceived++;
+        mLock.unlock();
+
         // Get the output buffer we'll use to display the imagery
         BufferDesc tgtBuffer = {};
         mDisplay->getTargetBuffer([&tgtBuffer]
@@ -105,6 +132,7 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
         );
 
         if (tgtBuffer.memHandle == nullptr) {
+            printf("Didn't get target buffer - frame lost\n");
             ALOGE("Didn't get requested output buffer -- skipping this frame.");
         } else {
             // In order for the handles passed through HIDL and stored in the BufferDesc to
@@ -125,12 +153,20 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
                   tgtBuffer.memHandle.getNativeHandle());
             Return<EvsResult> result = mDisplay->returnTargetBufferForDisplay(tgtBuffer);
             if (!result.isOk()) {
+                printf("HIDL error on display buffer (%s)- frame lost\n",
+                       result.description().c_str());
                 ALOGE("Error making the remote function call.  HIDL said %s",
                       result.description().c_str());
-            }
-            if (result != EvsResult::OK) {
+            } else if (result != EvsResult::OK) {
+                printf("Display reported error - frame lost\n");
                 ALOGE("We encountered error %d when returning a buffer to the display!",
                       (EvsResult)result);
+            } else {
+                // Everything looks good!  Keep track so tests or watch dogs can monitor progress
+                mLock.lock();
+                mFramesCompleted++;
+                mLock.unlock();
+                printf("frame OK\n");
             }
 
             // Now tell GraphicBufferMapper we won't be using these handles anymore
@@ -140,7 +176,8 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& buffer) {
 
         // Send the camera buffer back now that we're done with it
         ALOGD("Calling doneWithFrame");
-        mCamera->doneWithFrame(buffer);
+        // TODO:  Why is it that we get a HIDL crash if we pass back the cloned buffer?
+        mCamera->doneWithFrame(bufferArg);
 
         ALOGD("Frame handling complete");
     }
@@ -181,11 +218,11 @@ bool StreamHandler::copyBufferContents(const BufferDesc& tgtBuffer,
     if (srcPixels && tgtPixels) {
         for (unsigned row = 0; row < height; row++) {
             // Copy the entire row of pixel data
-            memcpy(tgtPixels, srcPixels, width * sizeof(*srcPixels));
+            memcpy(tgtPixels, srcPixels, width * kBytesPerPixel);
 
-            // Advance to the next row
-            tgtPixels += tgtBuffer.stride;
-            srcPixels += srcBuffer.stride;
+            // Advance to the next row (keeping in mind that stride here is in units of pixels)
+            tgtPixels += tgtBuffer.stride * kBytesPerPixel;
+            srcPixels += srcBuffer.stride * kBytesPerPixel;
         }
     } else {
         ALOGE("Failed to copy buffer contents");

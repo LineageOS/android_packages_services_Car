@@ -40,6 +40,9 @@ public:
 
     bool isRunning();
 
+    unsigned getFramesReceived();
+    unsigned getFramesCompleted();
+
 private:
     // Implementation for ::android::hardware::evs::V1_0::ICarCameraStream
     Return<void> deliverFrame(const BufferDesc& buffer)  override;
@@ -58,6 +61,9 @@ private:
     std::condition_variable     mSignal;
 
     bool                        mRunning = false;
+
+    unsigned                    mFramesReceived = 0;    // Simple counter -- rolls over eventually!
+    unsigned                    mFramesCompleted = 0;   // Simple counter -- rolls over eventually!
 };
 
 
