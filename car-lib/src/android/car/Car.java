@@ -579,8 +579,9 @@ public final class Car {
                 manager = new CarCabinManager(binder, mContext, mEventHandler);
                 break;
             case DIAGNOSTIC_SERVICE:
-                //TODO(egranata): only enable this if FeatureConfiguration is turned on
-                manager = new CarDiagnosticManager(binder, mContext, mEventHandler);
+                if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
+                    manager = new CarDiagnosticManager(binder, mContext, mEventHandler);
+                }
                 break;
             case CAMERA_SERVICE:
                 manager = new CarCameraManager(binder, mContext);

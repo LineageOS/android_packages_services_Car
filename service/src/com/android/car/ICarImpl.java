@@ -204,8 +204,11 @@ public class ICarImpl extends ICar.Stub {
                 assertCameraPermission(mContext);
                 return mCarCameraService;
             case Car.DIAGNOSTIC_SERVICE:
-                //TODO(egranata): handle permissions
-                return mCarDiagnosticService;
+                FeatureUtil.assertFeature(FeatureConfiguration.ENABLE_DIAGNOSTIC);
+                if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
+                    //TODO(egranata): handle permissions
+                    return mCarDiagnosticService;
+                }
             case Car.HVAC_SERVICE:
                 assertHvacPermission(mContext);
                 return mCarHvacService;
