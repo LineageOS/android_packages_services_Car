@@ -76,5 +76,6 @@
     <string name="defaultHomeActivity">com.android.car.overview/com.android.car.overview.StreamOverviewActivity</string>
     <!--  The com.android.car.VmsPublisherService will bind to this list of clients -->
     <string-array translatable="false" name="vmsPublisherClients">
+        <item>"com.google.android.car.vms.publisher/.VmsPublisherClientSampleService"</item>
     </string-array>
 </resources>
