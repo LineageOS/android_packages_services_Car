@@ -32,12 +32,13 @@ public class CarBluetoothService implements CarServiceBase {
 
     private static final String TAG = "CarBluetoothService";
     private final Context mContext;
-    private BluetoothDeviceConnectionPolicy mBluetoothDeviceConnectionPolicy = null;
+    private final BluetoothDeviceConnectionPolicy mBluetoothDeviceConnectionPolicy;
 
-    public CarBluetoothService(Context context, CarCabinService carCabinService) {
+    public CarBluetoothService(Context context, CarCabinService carCabinService,
+            CarSensorService carSensorService) {
         mContext = context;
         mBluetoothDeviceConnectionPolicy = BluetoothDeviceConnectionPolicy.create(mContext,
-                carCabinService);
+                carCabinService, carSensorService);
     }
 
     @Override

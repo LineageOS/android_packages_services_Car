@@ -43,7 +43,7 @@ import java.util.List;
 
 public class ICarImpl extends ICar.Stub {
 
-    public static final String INTERNAL_INPUT_SERVICE =  "internal_input";
+    public static final String INTERNAL_INPUT_SERVICE = "internal_input";
     public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
             "system_activity_monitoring";
 
@@ -120,14 +120,15 @@ public class ICarImpl extends ICar.Stub {
                 mCarPowerManagementService, mCarAudioService, this);
         mCarVendorExtensionService = new CarVendorExtensionService(serviceContext,
                 mHal.getVendorExtensionHal());
-        mCarBluetoothService = new CarBluetoothService(serviceContext, mCarCabinService);
+        mCarBluetoothService = new CarBluetoothService(serviceContext, mCarCabinService,
+                mCarSensorService);
         if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
             mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
             mVmsPublisherService = new VmsPublisherService(serviceContext, mHal.getVmsHal());
         }
         if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
             mCarDiagnosticService = new CarDiagnosticService(serviceContext,
-                mHal.getDiagnosticHal());
+                    mHal.getDiagnosticHal());
         }
 
         // Be careful with order. Service depending on other service should be inited later.
@@ -340,6 +341,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String PARAM_NIGHT_MODE = "night";
         private static final String PARAM_SENSOR_MODE = "sensor";
         private static final String PARAM_ZONED_BOOLEAN = "zoned-boolean";
+        private static final String PARAM_GLOBAL_INT = "global-integer";
 
         private void dumpHelp(PrintWriter pw) {
             pw.println("Car service commands:");
@@ -363,17 +365,32 @@ public class ICarImpl extends ICar.Stub {
                     break;
                 case COMMAND_INJECT_EVENT:
                     String eventType;
-                    if(args.length > 1) {
-                         eventType = args[1];
-                         // Zoned boolean event
-                         if(eventType.equalsIgnoreCase(PARAM_ZONED_BOOLEAN)) {
-                             if(args.length < 5) {
-                                 writer.println("Incorrect number of arguments.");
-                                 dumpHelp(writer);
-                                 break;
-                             }
-                             inject_zoned_boolean_event(args[2], args[3], args[4], writer);
-                         }
+                    if (args.length > 1) {
+                        eventType = args[1].toLowerCase();
+                        switch (eventType) {
+                            case PARAM_ZONED_BOOLEAN:
+                                if (args.length < 5) {
+                                    writer.println("Incorrect number of arguments.");
+                                    dumpHelp(writer);
+                                    break;
+                                }
+                                inject_zoned_boolean_event(args[2], args[3], args[4], writer);
+                                break;
+
+                            case PARAM_GLOBAL_INT:
+                                if (args.length < 4) {
+                                    writer.println("Incorrect number of Arguments");
+                                    dumpHelp(writer);
+                                    break;
+                                }
+                                inject_global_integer_event(args[2], args[3], writer);
+                                break;
+
+                            default:
+                                writer.println("Unsupported event type");
+                                dumpHelp(writer);
+                                break;
+                        }
                     }
                     break;
                 default:
@@ -417,12 +434,13 @@ public class ICarImpl extends ICar.Stub {
 
         /**
          * Inject a fake boolean HAL event to help testing.
-         * Currently supporting Door Unlock/Lock
+         *
          * @param property - Vehicle Property
-         * @param value - boolean value for the property
-         * @param writer - Printwriter
+         * @param value    - boolean value for the property
+         * @param writer   - Printwriter
          */
-        private void inject_zoned_boolean_event(String property, String zone, String value, PrintWriter writer) {
+        private void inject_zoned_boolean_event(String property, String zone, String value,
+                PrintWriter writer) {
             Log.d(CarLog.TAG_SERVICE, "Injecting Boolean event");
             boolean event;
             int propId;
@@ -440,6 +458,28 @@ public class ICarImpl extends ICar.Stub {
                 return;
             }
             mHal.injectBooleanEvent(propId, zoneId, event);
+        }
+
+        /**
+         * Inject a fake Integer HAL event to help testing.
+         *
+         * @param property - Vehicle Property
+         * @param value    - Integer value to inject
+         * @param writer   - PrintWriter
+         */
+        private void inject_global_integer_event(String property, String value,
+                PrintWriter writer) {
+            Log.d(CarLog.TAG_SERVICE, "Injecting integer event");
+            int propId;
+            int eventValue;
+            try {
+                propId = Integer.decode(property);
+                eventValue = Integer.decode(value);
+            } catch (NumberFormatException e) {
+                writer.println("Invalid property Id or event value.  Prefix hex values with 0x");
+                return;
+            }
+            mHal.injectIntegerEvent(propId, eventValue);
         }
 
     }
