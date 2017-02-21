@@ -27,4 +27,5 @@ public class FeatureConfiguration {
     public static final boolean ENABLE_PRODUCT_CONFIGURATION_INFO = DEFAULT;
     public static final boolean ENABLE_VEHICLE_MAP_SERVICE = DEFAULT;
     public static final boolean ENABLE_DIAGNOSTIC = DEFAULT;
+    public static final boolean ENABLE_VEHICLE_HAL_V2_1 = DEFAULT;
 }
