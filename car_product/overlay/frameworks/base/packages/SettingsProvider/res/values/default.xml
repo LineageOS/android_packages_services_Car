@@ -17,8 +17,9 @@
  */
 -->
 <resources>
-    <bool name="def_device_provisioned">false</bool>
-    <bool name="def_user_setup_complete">false</bool>
+    <!-- no setup wizard - we are already "provisioned" - This will go soon! -->
+    <bool name="def_device_provisioned">true</bool>
+    <bool name="def_user_setup_complete">true</bool>
     <bool name="def_bluetooth_on">true</bool>
     <bool name="def_wifi_on">false</bool>
     <bool name="def_lockscreen_disabled">true</bool>

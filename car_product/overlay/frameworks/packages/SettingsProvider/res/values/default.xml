@@ -17,6 +17,7 @@
  */
 -->
 <resources>
-    <bool name="def_device_provisioned">false</bool>
+    <!-- no setup wizard - we are already "provisioned" - This will go soon! -->
+    <bool name="def_device_provisioned">true</bool>
     <integer name="add_users_when_locked">1</integer>
 </resources>
