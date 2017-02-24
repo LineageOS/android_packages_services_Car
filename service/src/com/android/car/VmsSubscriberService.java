@@ -153,6 +153,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         // The function assumes that binder will exist both in listeners and death recipients list.
         private void removeListener(IBinder listenerBinder) {
             synchronized (mLock) {
+                //TODO(asafro): mHal.vms.routing.removeDeadListener(mListenerMap(listenerBinder))
                 boolean found = mListenerMap.remove(listenerBinder) != null;
                 if (found) {
                     mListenerDeathRecipientMap.get(listenerBinder).release();
