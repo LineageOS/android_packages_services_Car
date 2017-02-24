@@ -96,4 +96,14 @@
     <string name="activity_blocked_string">The application is not allowed while driving.</string>
     <!--  Blocking activity: Message on exit button. [CHAR LIMIT=NONE] -->
     <string name="exit_now">Exit</string>
+
+    <!-- Permission text: apps can control diagnostic data [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_diag_read">Diagnostic Data</string>
+    <!-- Permission text: apps can read diagnostic data from the car [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_diag_read">Read diagnostic data from the car</string>
+
+    <!-- Permission text: apps can control diagnostic data [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_diag_clear">Diagnostic Data</string>
+    <!-- Permission text: apps can clear diagnostic data from the car [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_diag_clear">Clear diagnostic data from the car</string>
 </resources>

@@ -256,6 +256,24 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
 
+    /**
+     * Permissions necessary to read diagnostic information.
+     *
+     * @hide
+     */
+    @FutureFeature
+    @SystemApi
+    public static final String PERMISSION_CAR_DIAGNOSTIC_READ = "android.car.permission.DIAGNOSTIC_READ";
+
+    /**
+     * Permissions necessary to clear diagnostic information.
+     *
+     * @hide
+     */
+    @FutureFeature
+    @SystemApi
+    public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.DIAGNOSTIC_CLEAR";
+
     /** Type of car connection: platform runs directly in car. */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
 

@@ -296,7 +296,7 @@ public class CarDiagnosticEvent implements Parcelable {
      * Diagnostic Troubleshooting Code (DTC) that was detected and caused this frame to be stored
      * (if a freeze frame). Always null for a live frame.
      */
-    public final String DTC;
+    public final String dtc;
 
     public CarDiagnosticEvent(Parcel in) {
         frameType = in.readInt();
@@ -315,7 +315,7 @@ public class CarDiagnosticEvent implements Parcelable {
             int value = in.readInt();
             intValues.put(key, value);
         }
-        DTC = (String)in.readValue(String.class.getClassLoader());
+        dtc = (String)in.readValue(String.class.getClassLoader());
         // version 1 up to here
     }
 
@@ -340,7 +340,7 @@ public class CarDiagnosticEvent implements Parcelable {
             dest.writeInt(key);
             dest.writeInt(intValues.get(key));
         }
-        dest.writeValue(DTC);
+        dest.writeValue(dtc);
     }
 
     public static final Parcelable.Creator<CarDiagnosticEvent> CREATOR =
@@ -364,7 +364,7 @@ public class CarDiagnosticEvent implements Parcelable {
         this.timestamp = timestamp;
         this.floatValues = floatValues;
         this.intValues = intValues;
-        this.DTC = dtc;
+        this.dtc = dtc;
     }
 
     public static class Builder {
@@ -372,7 +372,7 @@ public class CarDiagnosticEvent implements Parcelable {
         private long mTimestamp = 0;
         private SparseArray<Float> mFloatValues = new SparseArray<>();
         private SparseIntArray mIntValues = new SparseIntArray();
-        private String mDTC = null;
+        private String mDtc = null;
 
         private Builder(int type) {
             mType = type;
@@ -401,14 +401,36 @@ public class CarDiagnosticEvent implements Parcelable {
             return this;
         }
 
-        public Builder withDTC(String DTC) {
-            mDTC = DTC;
+        public Builder withDTC(String dtc) {
+            mDtc = dtc;
             return this;
         }
 
         public CarDiagnosticEvent build() {
-            return new CarDiagnosticEvent(mType, mTimestamp, mFloatValues, mIntValues, mDTC);
+            return new CarDiagnosticEvent(mType, mTimestamp, mFloatValues, mIntValues, mDtc);
         }
+    }
+
+    /**
+     * Returns a copy of this CarDiagnosticEvent with all vendor-specific sensors removed.
+     * @hide
+     */
+    public CarDiagnosticEvent withVendorSensorsRemoved() {
+        SparseIntArray newIntValues = intValues.clone();
+        SparseArray<Float> newFloatValues = floatValues.clone();
+        for(int i = 0; i < intValues.size(); ++i) {
+            int key = intValues.keyAt(i);
+            if (key >= Obd2IntegerSensorIndex.LAST_SYSTEM) {
+                newIntValues.delete(key);
+            }
+        }
+        for(int i = 0; i < floatValues.size(); ++i) {
+            int key = floatValues.keyAt(i);
+            if (key >= Obd2FloatSensorIndex.LAST_SYSTEM) {
+                newFloatValues.delete(key);
+            }
+        }
+        return new CarDiagnosticEvent(frameType, timestamp, newFloatValues, newIntValues, dtc);
     }
 
     public boolean isLiveFrame() {
@@ -422,7 +444,7 @@ public class CarDiagnosticEvent implements Parcelable {
     public boolean isEmptyFrame() {
         boolean empty = (0 == intValues.size());
         empty &= (0 == floatValues.size());
-        if (isFreezeFrame()) empty &= DTC.isEmpty();
+        if (isFreezeFrame()) empty &= dtc.isEmpty();
         return empty;
     }
 
@@ -454,7 +476,7 @@ public class CarDiagnosticEvent implements Parcelable {
                         + "\tfloatValues: %s\n}",
                 isLiveFrame() ? "live" : "freeze",
                 timestamp,
-                DTC,
+                dtc,
                 intValues.toString(),
                 floatValues.toString());
     }

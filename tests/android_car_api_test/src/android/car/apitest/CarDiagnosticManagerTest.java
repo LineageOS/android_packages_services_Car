@@ -78,6 +78,7 @@ public class CarDiagnosticManagerTest extends AndroidTestCase {
 
     /**
      * Test that we can read live frame data over the diagnostic manager
+     *
      * @throws Exception
      */
     public void testLiveFrame() throws Exception {
@@ -90,6 +91,7 @@ public class CarDiagnosticManagerTest extends AndroidTestCase {
 
     /**
      * Test that we can read well-formed freeze frame data over the diagnostic manager
+     *
      * @throws Exception
      */
     public void testFreezeFrames() throws Exception {
@@ -101,7 +103,7 @@ public class CarDiagnosticManagerTest extends AndroidTestCase {
                 assertEquals(timestamp, freezeFrame.timestamp);
                 assertTrue(freezeFrame.isFreezeFrame());
                 assertFalse(freezeFrame.isEmptyFrame());
-                assertNotSame("", freezeFrame.DTC);
+                assertNotSame("", freezeFrame.dtc);
             }
         }
     }
