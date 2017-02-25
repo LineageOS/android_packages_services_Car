@@ -29,13 +29,14 @@ import android.hardware.automotive.vehicle.V2_1.IVehicle;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 import android.os.RemoteException;
 import android.util.Log;
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import java.util.Objects;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Test retrieving the OBD2_LIVE_FRAME property from VHAL */
-public class Obd2LiveFrameTest {
-    private static final String TAG = Obd2LiveFrameTest.class.getSimpleName();
+/** Test retrieving the OBD2_FREEZE_FRAME property from VHAL */
+public class Obd2FreezeFrameTest {
+    private static final String TAG = Obd2FreezeFrameTest.class.getSimpleName();
     private static final String VEHICLE_SERVICE_NAME = "Vehicle";
     private static final long WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS = 10_000;
 
@@ -54,31 +55,52 @@ public class Obd2LiveFrameTest {
                     try {
                         return IVehicle.getService(VEHICLE_SERVICE_NAME);
                     } catch (RemoteException e) {
-                        Log.w(TAG, "attempt to get IVehicle service " + VEHICLE_SERVICE_NAME
-                                   + " caused RemoteException: ", e);
+                        Log.w(
+                                TAG,
+                                "attempt to get IVehicle service "
+                                        + VEHICLE_SERVICE_NAME
+                                        + " caused RemoteException: ",
+                                e);
                         return null;
                     }
                 });
     }
 
     @Test
-    public void testLiveFrame() throws RemoteException {
-        if (!isLiveFrameAvailable()) {
-            Log.i(TAG, "live frame not available; returning - our job here is done");
+    public void testFreezeFrame() throws RemoteException {
+        if (!isFreezeFrameAvailable()) {
+            Log.i(TAG, "freeze frame not available; returning - our job here is done");
             return;
         }
         readVhalProperty(
                 mVehicle,
-                VehicleProperty.OBD2_LIVE_FRAME,
+                VehicleProperty.OBD2_FREEZE_FRAME_INFO,
                 (Integer status, VehiclePropValue value) -> {
                     assertEquals(StatusCode.OK, status.intValue());
-                    assertNotNull("OBD2_LIVE_FRAME is supported; should not be null", value);
-                    Log.i(TAG, "dump of OBD2_LIVE_FRAME:\n" + dumpVehiclePropValue(value));
+                    assertNotNull("OBD2_FREEZE_FRAME_INFO is supported; should not be null", value);
+                    Log.i(TAG, "dump of OBD2_FREEZE_FRAME_INFO:\n" + dumpVehiclePropValue(value));
+                    for(long timestamp: value.value.int64Values) {
+                      Log.i(TAG, "timestamp: " + timestamp);
+                      readVhalProperty(
+                          mVehicle,
+                          VehiclePropValueBuilder.newBuilder(VehicleProperty.OBD2_FREEZE_FRAME)
+                                .setInt64Value(timestamp)
+                                .build(),
+                          (Integer frameStatus, VehiclePropValue freezeFrame) -> {
+                              if (StatusCode.OK == frameStatus.intValue()) {
+                                  assertNotNull("OBD2_FREEZE_FRAME read OK; should not be null", freezeFrame);
+                                  Log.i(TAG, "dump of OBD2_FREEZE_FRAME:\n" + dumpVehiclePropValue(freezeFrame));
+                                  assertEquals(freezeFrame.timestamp, timestamp);
+                              }
+                              return true;
+                          });
+                    }
                     return true;
                 });
     }
 
-    private boolean isLiveFrameAvailable() throws RemoteException {
-        return isVhalPropertyAvailable(mVehicle, VehicleProperty.OBD2_LIVE_FRAME);
+    private boolean isFreezeFrameAvailable() throws RemoteException {
+        return isVhalPropertyAvailable(mVehicle, VehicleProperty.OBD2_FREEZE_FRAME) &&
+            isVhalPropertyAvailable(mVehicle, VehicleProperty.OBD2_FREEZE_FRAME_INFO);
     }
 }

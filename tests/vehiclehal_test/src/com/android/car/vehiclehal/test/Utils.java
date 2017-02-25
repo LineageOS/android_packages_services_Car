@@ -84,9 +84,31 @@ final class Utils {
     }
 
     static VehiclePropValue readVhalProperty(
-            IVehicle vehicle,
-            int propertyId,
-            java.util.function.BiFunction<Integer, VehiclePropValue, Boolean> f) {
+        IVehicle vehicle,
+        VehiclePropValue request,
+        java.util.function.BiFunction<Integer, VehiclePropValue, Boolean> f) {
+        vehicle = Objects.requireNonNull(vehicle);
+        request = Objects.requireNonNull(request);
+        VehiclePropValue vpv[] = new VehiclePropValue[] {null};
+        try {
+            vehicle.get(
+                request,
+                (int status, VehiclePropValue propValue) -> {
+                    if (f.apply(status, propValue)) {
+                        vpv[0] = propValue;
+                    }
+                });
+        } catch (RemoteException e) {
+            Log.w(TAG, "attempt to read VHAL property " +
+                    dumpVehiclePropValue(request) + " caused RemoteException: ", e);
+        }
+        return vpv[0];
+    }
+
+    static VehiclePropValue readVhalProperty(
+        IVehicle vehicle,
+        int propertyId,
+        java.util.function.BiFunction<Integer, VehiclePropValue, Boolean> f) {
         return readVhalProperty(vehicle, propertyId, 0, f);
     }
 
@@ -95,22 +117,8 @@ final class Utils {
             int propertyId,
             int areaId,
             java.util.function.BiFunction<Integer, VehiclePropValue, Boolean> f) {
-        vehicle = Objects.requireNonNull(vehicle);
         VehiclePropValue request =
-                VehiclePropValueBuilder.newBuilder(propertyId).setAreaId(areaId).build();
-        VehiclePropValue vpv[] = new VehiclePropValue[] {null};
-        try {
-            vehicle.get(
-                    request,
-                    (int status, VehiclePropValue propValue) -> {
-                        if (f.apply(status, propValue)) {
-                            vpv[0] = propValue;
-                        }
-                    });
-        } catch (RemoteException e) {
-            Log.w(TAG, "attempt to read VHAL property 0x" + Integer.toHexString(propertyId)
-                       + " from area " + areaId + " caused RemoteException: ", e);
-        }
-        return vpv[0];
+            VehiclePropValueBuilder.newBuilder(propertyId).setAreaId(areaId).build();
+        return readVhalProperty(vehicle, request, f);
     }
 }
