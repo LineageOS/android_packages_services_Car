@@ -21,6 +21,8 @@ package android.car {
     field public static final java.lang.String PERMISSION_CAR_CABIN = "android.car.permission.CAR_CABIN";
     field public static final java.lang.String PERMISSION_CAR_CAMERA = "android.car.permission.CAR_CAMERA";
     field public static final java.lang.String PERMISSION_CAR_CONTROL_AUDIO_VOLUME = "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
+    field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.DIAGNOSTIC_CLEAR";
+    field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_READ = "android.car.permission.DIAGNOSTIC_READ";
     field public static final java.lang.String PERMISSION_CAR_HVAC = "android.car.permission.CAR_HVAC";
     field public static final java.lang.String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final java.lang.String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";

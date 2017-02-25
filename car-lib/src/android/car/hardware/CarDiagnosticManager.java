@@ -16,18 +16,19 @@
 
 package android.car.hardware;
 
+import android.car.Car;
 import android.car.CarApiUtil;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.os.Handler;
-import android.os.Handler.Callback;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.android.car.internal.CarPermission;
 import com.android.car.internal.CarRatedListeners;
 import com.android.car.internal.SingleMessageHandler;
 
@@ -51,6 +52,8 @@ public final class CarDiagnosticManager implements CarManagerBase {
 
     private CarDiagnosticEventListenerToService mListenerToService;
 
+    private final CarPermission mVendorExtensionPermission;
+
     public CarDiagnosticManager(IBinder service, Context context, Handler handler) {
         mService = ICarDiagnostic.Stub.asInterface(service);
         mHandlerCallback = new SingleMessageHandler<CarDiagnosticEvent>(handler.getLooper(),
@@ -64,6 +67,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
                 }
             }
         };
+        mVendorExtensionPermission = new CarPermission(context, Car.PERMISSION_VENDOR_EXTENSION);
     }
 
     @Override
@@ -284,10 +288,14 @@ public final class CarDiagnosticManager implements CarManagerBase {
                 return;
             }
             mLastUpdateTime = updateTime;
+            final boolean hasVendorExtensionPermission = mVendorExtensionPermission.checkGranted();
+            final CarDiagnosticEvent eventToDispatch = hasVendorExtensionPermission ?
+                    event :
+                    event.withVendorSensorsRemoved();
             getListeners().forEach(new Consumer<OnDiagnosticEventListener>() {
                 @Override
                 public void accept(OnDiagnosticEventListener listener) {
-                    listener.onDiagnosticEvent(event);
+                    listener.onDiagnosticEvent(eventToDispatch);
                 }
             });
         }

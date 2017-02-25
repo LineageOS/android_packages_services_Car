@@ -18,23 +18,22 @@ package com.android.car;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.Car;
 import android.car.annotation.FutureFeature;
 import android.car.hardware.CarDiagnosticEvent;
 import android.car.hardware.CarDiagnosticManager;
 import android.car.hardware.ICarDiagnostic;
 import android.car.hardware.ICarDiagnosticEventListener;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.ArrayMap;
 import android.util.Log;
+import com.android.car.internal.CarPermission;
 import com.android.car.Listeners.ClientWithRate;
 import com.android.car.hal.DiagnosticHalService;
 import com.android.internal.annotations.GuardedBy;
@@ -81,9 +80,16 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
 
     private final Context mContext;
 
+    private final CarPermission mDiagnosticReadPermission;
+
+    private final CarPermission mDiagnosticClearPermission;
+
     public CarDiagnosticService(Context context, DiagnosticHalService diagnosticHal) {
         mContext = context;
         mDiagnosticHal = diagnosticHal;
+        mDiagnosticReadPermission = new CarPermission(mContext, Car.PERMISSION_CAR_DIAGNOSTIC_READ);
+        mDiagnosticClearPermission = new CarPermission(mContext,
+                Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR);
     }
 
     @Override
@@ -217,23 +223,6 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
         return events;
     }
 
-    private void assertPermission(int frameType) {
-        if (Binder.getCallingUid() != Process.myUid()) {
-            switch (getDiagnosticPermission(frameType)) {
-                case PackageManager.PERMISSION_GRANTED:
-                    break;
-                default:
-                    throw new SecurityException(
-                        "client does not have permission:"
-                            + getPermissionName(frameType)
-                            + " pid:"
-                            + Binder.getCallingPid()
-                            + " uid:"
-                            + Binder.getCallingUid());
-            }
-        }
-    }
-
     @Override
     public boolean registerOrUpdateDiagnosticListener(int frameType, int rate,
                 ICarDiagnosticEventListener listener) {
@@ -243,7 +232,7 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
         Listeners<DiagnosticClient> diagnosticListeners = null;
         mDiagnosticLock.lock();
         try {
-            assertPermission(frameType);
+            mDiagnosticReadPermission.assertGranted();
             diagnosticClient = findDiagnosticClientLocked(listener);
             Listeners.ClientWithRate<DiagnosticClient> diagnosticClientWithRate = null;
             if (diagnosticClient == null) {
@@ -312,21 +301,6 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
             }
         }
         return true;
-    }
-
-    //TODO(egranata): handle permissions correctly
-    private int getDiagnosticPermission(int frameType) {
-        String permission = getPermissionName(frameType);
-        int result = PackageManager.PERMISSION_GRANTED;
-        if (permission != null) {
-            return mContext.checkCallingOrSelfPermission(permission);
-        }
-        // If no permission is required, return granted.
-        return result;
-    }
-
-    private String getPermissionName(int frameType) {
-        return null;
     }
 
     private boolean startDiagnostic(int frameType, int rate) {
@@ -471,7 +445,7 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
 
     @Override
     public boolean clearFreezeFrames(long... timestamps) {
-        //TODO(egranata): verify permissions before executing operation
+        mDiagnosticClearPermission.assertGranted();
         if (mDiagnosticHal.getDiagnosticCapabilities().isFreezeFrameClearSupported()) {
             mFreezeFrameDiagnosticRecords.lock();
             mDiagnosticHal.clearFreezeFrames(timestamps);

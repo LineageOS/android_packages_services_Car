@@ -206,7 +206,7 @@ public class ICarImpl extends ICar.Stub {
             case Car.DIAGNOSTIC_SERVICE:
                 FeatureUtil.assertFeature(FeatureConfiguration.ENABLE_DIAGNOSTIC);
                 if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
-                    //TODO(egranata): handle permissions
+                    assertAnyDiagnosticPermission(mContext);
                     return mCarDiagnosticService;
                 }
             case Car.HVAC_SERVICE:
@@ -298,6 +298,13 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @FutureFeature
+    public static void assertAnyDiagnosticPermission(Context context) {
+        assertAnyPermission(context,
+                Car.PERMISSION_CAR_DIAGNOSTIC_READ,
+                Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR);
+    }
+
+    @FutureFeature
     public static void assertVmsPublisherPermission(Context context) {
         assertPermission(context, Car.PERMISSION_VMS_PUBLISHER);
     }
@@ -311,6 +318,16 @@ public class ICarImpl extends ICar.Stub {
         if (context.checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException("requires " + permission);
         }
+    }
+
+    public static void assertAnyPermission(Context context, String... permissions) {
+        for (String permission : permissions) {
+            if (context.checkCallingOrSelfPermission(permission) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+        }
+        throw new SecurityException("requires any of " + Arrays.toString(permissions));
     }
 
     void dump(PrintWriter writer) {
