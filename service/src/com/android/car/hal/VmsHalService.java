@@ -213,6 +213,11 @@ public class VmsHalService extends HalServiceBase {
             layerId,
             layerVersion,
             payload);
+        // TODO(b/34977500): remove call to handleHalEvents once the routing is implemented.
+        // This temporal code forwards messages from publishers to subscribers.
+        List<VehiclePropValue> list = new ArrayList<>();
+        list.add(vehiclePropertyValue);
+        handleHalEvents(list);
         return setPropertyValue(vehiclePropertyValue);
     }
 

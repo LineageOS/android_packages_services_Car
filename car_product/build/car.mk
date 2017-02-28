@@ -33,7 +33,8 @@ PRODUCT_PACKAGES += \
 # This is for testing
 PRODUCT_PACKAGES += \
     EmbeddedKitchenSinkApp \
-    VmsPublisherClientSample
+    VmsPublisherClientSample \
+    VmsSubscriberClientSample
 
 PRODUCT_COPY_FILES := \
     frameworks/av/media/libeffects/data/audio_effects.conf:system/etc/audio_effects.conf \
