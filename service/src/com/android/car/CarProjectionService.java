@@ -121,8 +121,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             mRegisteredService = serviceIntent;
         }
         UserHandle userHandle = UserHandle.getUserHandleForUid(Binder.getCallingUid());
-        mContext.startServiceAsUser(serviceIntent, userHandle);
-        mContext.bindServiceAsUser(serviceIntent, mConnection, Context.BIND_IMPORTANT, userHandle);
+        mContext.bindServiceAsUser(serviceIntent, mConnection, Context.BIND_AUTO_CREATE,
+                userHandle);
     }
 
     private void unbindServiceIfBound() {

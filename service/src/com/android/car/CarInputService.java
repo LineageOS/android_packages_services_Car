@@ -396,8 +396,6 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         extras.putBinder(CarInputHandlingService.INPUT_CALLBACK_BINDER_KEY, mCallback);
         intent.putExtras(extras);
         intent.setComponent(ComponentName.unflattenFromString(carInputService));
-        // Explicitly start service as we do not use BIND_AUTO_CREATE flag to handle service crash.
-        mContext.startService(intent);
-        return mContext.bindService(intent, mInputServiceConnection, Context.BIND_IMPORTANT);
+        return mContext.bindService(intent, mInputServiceConnection, Context.BIND_AUTO_CREATE);
     }
 }
