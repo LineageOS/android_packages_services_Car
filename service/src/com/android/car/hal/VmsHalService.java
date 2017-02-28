@@ -23,9 +23,9 @@ import android.car.VehicleAreaType;
 import android.car.annotation.FutureFeature;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.hardware.automotive.vehicle.V2_0.VmsMessageIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
+import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_1.VmsMessageIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_1.VmsMessageType;
 import android.util.Log;
 
 import com.android.car.CarLog;
