@@ -636,12 +636,12 @@ public class CarDiagnosticEvent implements Parcelable {
      */
     public static final class IgnitionMonitors {
         public static final class IgnitionMonitor {
-            public final boolean mAvailable;
-            public final boolean mIncomplete;
+            public final boolean available;
+            public final boolean incomplete;
 
             IgnitionMonitor(boolean available, boolean incomplete) {
-                mAvailable = available;
-                mIncomplete = incomplete;
+                this.available = available;
+                this.incomplete = incomplete;
             }
 
             public static final class Builder {
