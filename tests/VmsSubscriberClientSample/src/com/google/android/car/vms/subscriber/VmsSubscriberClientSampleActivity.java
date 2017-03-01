@@ -89,7 +89,7 @@ public class VmsSubscriberClientSampleActivity extends Activity {
         private void configureSubscriptions(VmsSubscriberManager vmsSubscriberManager) {
             try {
                 vmsSubscriberManager.setListener(mListener);
-                vmsSubscriberManager.subscribe(TEST_LAYER_ID, TEST_LAYER_VERSION, false);
+                vmsSubscriberManager.subscribe(TEST_LAYER_ID, TEST_LAYER_VERSION);
             } catch (android.car.CarNotConnectedException e) {
                 Log.e(TAG, "Car is not connected!", e);
             }

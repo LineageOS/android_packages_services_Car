@@ -33,8 +33,11 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import com.android.car.R;
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
+import com.android.car.vehiclehal.test.MockedVehicleHal;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +46,8 @@ import java.util.concurrent.TimeUnit;
 @MediumTest
 public class VmsPublisherClientServiceTest extends MockedCarTestBase {
     private static final String TAG = "VmsPublisherTest";
+    private static final int MOCK_PUBLISHER_LAYER_ID = 12;
+    private static final int MOCK_PUBLISHER_LAYER_VERSION = 34;
 
     private HalHandler mHalHandler;
     // Used to block until the HAL property is updated in HalHandler.onPropertySet.
@@ -85,6 +90,14 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
         return wrapper;
     }
 
+    private VehiclePropValue getHalSubscriptionRequest() {
+        return VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
+            .addIntValue(VmsMessageType.SUBSCRIBE)
+            .addIntValue(MOCK_PUBLISHER_LAYER_ID)
+            .addIntValue(MOCK_PUBLISHER_LAYER_VERSION)
+            .build();
+    }
+
     @Override
     protected void setUp() throws Exception {
         /**
@@ -93,6 +106,10 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
          */
         mHalHandlerSemaphore = new Semaphore(0);
         super.setUp();
+
+        // Inject a subscribe event which simulates the HAL is subscribed to the Mock Publisher.
+        MockedVehicleHal mHal = getMockedVehicleHal();
+        mHal.injectEvent(getHalSubscriptionRequest());
     }
 
     /**
@@ -104,6 +121,10 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
      * this test.
      */
     public void testPublish() throws Exception {
+        //TODO: This test is using minial synchronisation between clients.
+        //      If more complexity is added this may result in publisher
+        //      publishing before the subscriber subscribed, in which case
+        //      the semaphore will not be released.
         assertTrue(mHalHandlerSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         VehiclePropValue.RawValue rawValue = mHalHandler.getValue().value;
         int messageType = rawValue.int32Values.get(VmsMessageIntegerValuesIndex.VMS_MESSAGE_TYPE);
@@ -125,7 +146,13 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
         @Override
         public synchronized void onPropertySet(VehiclePropValue value) {
             mValue = value;
-            mHalHandlerSemaphore.release();
+
+            // If this is the data message release the semaphone so the test can continue.
+            ArrayList<Integer> int32Values = value.value.int32Values;
+            if (int32Values.get(VmsMessageIntegerValuesIndex.VMS_MESSAGE_TYPE) ==
+                    VmsMessageType.DATA) {
+                mHalHandlerSemaphore.release();
+            }
         }
 
         @Override

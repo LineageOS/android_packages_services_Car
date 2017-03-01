@@ -150,6 +150,24 @@ public class VmsRouting {
     }
 
     /**
+     * Checks if a listener is subscribed to any messages.
+     * @param listener that may have subscription.
+     * @return true if the listener uis subscribed to messages.
+     */
+    public boolean containsListener(IOnVmsMessageReceivedListener listener) {
+        synchronized (mLock) {
+            // Check if listener is subscribed to a layer.
+            for (Set<IOnVmsMessageReceivedListener> layerListeners: mLayerSubscriptions.values()) {
+                if (layerListeners.contains(listener)) {
+                    return true;
+                }
+            }
+            // Check is listener is subscribed to all data messages.
+            return mPromiscuousSubscribers.contains(listener);
+        }
+    }
+
+    /**
      * Add a layer and version to the HAL subscriptions.
      * @param layer the HAL subscribes to.
      */
@@ -166,6 +184,28 @@ public class VmsRouting {
     public void removeHalSubscription(VmsLayer layer) {
         synchronized (mLock) {
             mHalSubscriptions.remove(layer);
+        }
+    }
+
+    /**
+     * checks if the HAL is subscribed to a layer.
+     * @param layer
+     * @return true if the HAL is subscribed to layer.
+     */
+    public boolean isHalSubscribed(VmsLayer layer) {
+        synchronized (mLock) {
+            return mHalSubscriptions.contains(layer);
+        }
+    }
+
+    /**
+     * checks if there are subscribers to a layer.
+     * @param layer
+     * @return true if there are subscribers to layer.
+     */
+    public boolean hasLayerSubscriptions(VmsLayer layer) {
+        synchronized (mLock) {
+            return mLayerSubscriptions.containsKey(layer);
         }
     }
 
