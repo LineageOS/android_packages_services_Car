@@ -461,6 +461,12 @@ public class VehicleHal extends IVehicleCallback.Stub {
         synchronized (this) {
             for (VehiclePropValue v : propValues) {
                 HalServiceBase service = mPropertyHandlers.get(v.prop);
+                if(service == null) {
+                    if (DBG) {
+                        Log.d(CarLog.TAG_HAL, "HalService is null for " + v.prop);
+                    }
+                    return;
+                }
                 service.getDispatchList().add(v);
                 mServicesToDispatch.add(service);
                 VehiclePropertyEventInfo info = mEventLog.get(v.prop);
@@ -552,6 +558,18 @@ public class VehicleHal extends IVehicleCallback.Stub {
     public void injectBooleanEvent(int propId, int areaId, boolean value) {
         VehiclePropValue v = createPropValue(propId, areaId);
         v.value.int32Values.add(value? 1 : 0);
+        onPropertyEvent(Lists.newArrayList(v));
+    }
+
+    /**
+     * Inject a fake Integer HAL event - for testing purposes.
+     * @param propId - VehicleProperty ID
+     * @param value - Integer value to inject
+     */
+    public void injectIntegerEvent(int propId, int value) {
+        VehiclePropValue v = createPropValue(propId, 0);
+        v.value.int32Values.add(value);
+        v.timestamp = SystemClock.elapsedRealtimeNanos();
         onPropertyEvent(Lists.newArrayList(v));
     }
 

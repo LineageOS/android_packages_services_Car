@@ -24,6 +24,9 @@ import android.bluetooth.BluetoothMapClient;
 import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.CarSensorEvent;
+import android.car.hardware.CarSensorManager;
+import android.car.hardware.ICarSensorEventListener;
 import android.car.hardware.cabin.CarCabinManager;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
@@ -69,7 +72,6 @@ import java.util.Set;
  * connected.  The device that successfully connects on a profile is moved to the top of the list
  * of devices for that profile, so the next time a connection attempt is made, the policy starts
  * with the last connected device first.
- *
  */
 
 public class BluetoothDeviceConnectionPolicy {
@@ -90,8 +92,11 @@ public class BluetoothDeviceConnectionPolicy {
 
     // Events that are listened to for triggering an auto-connect:
     // Cabin events like Door unlock coming from the Cabin Service.
-    private CarCabinService mCarCabinService;
-    private ICarPropertyEventListener mCabinEventListener;
+    private final CarCabinService mCarCabinService;
+    private final CarPropertyListener mCabinEventListener;
+    // Sensor events like Ignition switch ON from the Car Sensor Service
+    private final CarSensorService mCarSensorService;
+    private final CarSensorEventListener mCarSensorEventListener;
 
     // Profile Proxies.
     private BluetoothHeadsetClient mBluetoothHeadsetClient;
@@ -111,17 +116,21 @@ public class BluetoothDeviceConnectionPolicy {
     private ConnectionParams mConnectionInFlight;
 
     public static BluetoothDeviceConnectionPolicy create(Context context,
-            CarCabinService carCabinService) {
-        return new BluetoothDeviceConnectionPolicy(context, carCabinService);
+            CarCabinService carCabinService, CarSensorService carSensorService) {
+        return new BluetoothDeviceConnectionPolicy(context, carCabinService, carSensorService);
     }
 
-    private BluetoothDeviceConnectionPolicy(Context context, CarCabinService carCabinService) {
+    private BluetoothDeviceConnectionPolicy(Context context, CarCabinService carCabinService,
+            CarSensorService carSensorService) {
         mContext = context;
         mCarCabinService = carCabinService;
+        mCarSensorService = carSensorService;
         mProfilesToConnect = Arrays.asList(new Integer[]
                 {BluetoothProfile.HEADSET_CLIENT,
                         BluetoothProfile.PBAP_CLIENT, BluetoothProfile.A2DP_SINK,
                         BluetoothProfile.MAP_CLIENT,});
+        mCabinEventListener = new CarPropertyListener();
+        mCarSensorEventListener = new CarSensorEventListener();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             Log.w(TAG, "No Bluetooth Adapter Available");
@@ -319,44 +328,66 @@ public class BluetoothDeviceConnectionPolicy {
      */
     private void setupEventListeners() {
         // Setting up a listener for events from CarCabinService
-        // For now, we only listen to door unlock signal coming from {@link CarCabinService},
-        // but more events will be added here soon -  b/34723490
-        mCabinEventListener = new ICarPropertyEventListener.Stub() {
-            @Override
-            public void onEvent(CarPropertyEvent event) throws RemoteException {
-                handleCabinChangeEvent(event);
-            }
-        };
+        // For now, we listen to door unlock signal coming from {@link CarCabinService},
+        // and Ignition state START from {@link CarSensorService}
         mCarCabinService.registerListener(mCabinEventListener);
+        mCarSensorService.registerOrUpdateSensorListener(
+                CarSensorManager.SENSOR_TYPE_IGNITION_STATE, 0, mCarSensorEventListener);
     }
 
     /**
-     * handleCabinChangeEvent handles events coming in from the {@link CarCabinService}
+     * Handles events coming in from the {@link CarCabinService}
      * The events that can trigger Bluetooth Scanning from CarCabinService is Door Unlock.
      * Upon receiving the event that is of interest, initiate a connection attempt by calling
      * the policy {@link BluetoothDeviceConnectionPolicy}
      */
-    private void handleCabinChangeEvent(CarPropertyEvent event) {
-        if (DBG) {
-            Log.d(TAG, "Cabin change Event : " + event.getEventType());
-        }
-        Boolean locked;
-        CarPropertyValue value = event.getCarPropertyValue();
-        Object o = value.getValue();
+    private class CarPropertyListener extends ICarPropertyEventListener.Stub {
+        @Override
+        public void onEvent(CarPropertyEvent event) throws RemoteException {
+            if (DBG) {
+                Log.d(TAG, "Cabin change Event : " + event.getEventType());
+            }
+            Boolean locked;
+            CarPropertyValue value = event.getCarPropertyValue();
+            Object o = value.getValue();
 
-        if (value.getPropertyId() == CarCabinManager.ID_DOOR_LOCK) {
-            if (o instanceof Boolean) {
-                locked = (Boolean) o;
-                // Attempting a connection only on a door unlock
-                if (locked) {
+            if (value.getPropertyId() == CarCabinManager.ID_DOOR_LOCK) {
+                if (o instanceof Boolean) {
+                    locked = (Boolean) o;
                     if (DBG) {
-                        Log.d(TAG, "Door locked");
+                        Log.d(TAG, "Door Lock: " + locked);
                     }
-                } else {
+                    // Attempting a connection only on a door unlock
+                    if (!locked) {
+                        initiateConnection();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Handles events coming in from the {@link CarSensorService}
+     * The events that can trigger Bluetooth Scanning from CarSensorService is Ignition START.
+     * Upon receiving the event that is of interest, initiate a connection attempt by calling
+     * the policy {@link BluetoothDeviceConnectionPolicy}
+     */
+
+    private class CarSensorEventListener extends ICarSensorEventListener.Stub {
+        @Override
+        public void onSensorChanged(List<CarSensorEvent> events) throws RemoteException {
+            if (events != null & events.size() > 0) {
+                CarSensorEvent event = events.get(0);
+                if (DBG) {
+                    Log.d(TAG, "Sensor event Type : " + event.sensorType);
+                }
+                if (event.sensorType == CarSensorManager.SENSOR_TYPE_IGNITION_STATE) {
                     if (DBG) {
-                        Log.d(TAG, "Door Unlocked");
+                        Log.d(TAG, "Sensor value : " + event.intValues[0]);
                     }
-                    initiateConnection();
+                    if (event.intValues[0] == CarSensorEvent.IGNITION_STATE_START) {
+                        initiateConnection();
+                    }
                 }
             }
         }
@@ -671,7 +702,6 @@ public class BluetoothDeviceConnectionPolicy {
         BluetoothDevice devToConnect = devInfo.getNextDeviceInQueueLocked();
         if (devToConnect != null) {
             switch (profile) {
-                // b/34723437 - Add MAP_CLIENT
                 case BluetoothProfile.A2DP_SINK:
                     if (mBluetoothA2dpSink != null) {
                         if (DBG) {
@@ -1095,11 +1125,11 @@ public class BluetoothDeviceConnectionPolicy {
             return false;
         }
 
-        if (mBluetoothAdapter != null ) {
+        if (mBluetoothAdapter != null) {
             if (DBG) {
                 Log.d(TAG, "Bonded devices size:" + mBluetoothAdapter.getBondedDevices().size());
             }
-            if(mBluetoothAdapter.getBondedDevices().isEmpty()) {
+            if (mBluetoothAdapter.getBondedDevices().isEmpty()) {
                 if (DBG) {
                     Log.d(TAG, "No Bonded Devices available. Quit rebuilding");
                 }
@@ -1109,7 +1139,7 @@ public class BluetoothDeviceConnectionPolicy {
 
         boolean rebuildSuccess = true;
         // Iterate through the Map's entries and build the {@link #mProfileToConnectableDevicesMap}
-        if (mProfileToConnectableDevicesMap == null ) {
+        if (mProfileToConnectableDevicesMap == null) {
             mProfileToConnectableDevicesMap = new HashMap<Integer, BluetoothDevicesInfo>();
         }
 
