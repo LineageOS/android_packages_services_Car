@@ -18,13 +18,13 @@
 #define CAR_EVS_APP_EVSSTATECONTROL_H
 
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
-#include <android/hardware/evs/1.0/IEvsEnumerator.h>
-#include <android/hardware/evs/1.0/IEvsDisplay.h>
-#include <android/hardware/evs/1.0/IEvsCamera.h>
-#include <android/hardware/evs/1.0/IEvsCameraStream.h>
+#include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
+#include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
+#include <android/hardware/automotive/evs/1.0/IEvsCamera.h>
+#include <android/hardware/automotive/evs/1.0/IEvsCameraStream.h>
 
 
-using namespace ::android::hardware::evs::V1_0;
+using namespace ::android::hardware::automotive::evs::V1_0;
 using namespace ::android::hardware::automotive::vehicle::V2_0;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
@@ -53,7 +53,7 @@ private:
     StatusCode invokeGet(VehiclePropValue *pRequestedPropValue);
     bool configureEvsPipeline(State desiredState);
 
-    // Methods from ::android::hardware::evs::V1_0::ICarCameraStream follow.
+    // Methods from ::android::hardware::automotive::evs::V1_0::ICarCameraStream follow.
     Return<void> deliverFrame(const BufferDesc& buffer)  override;
 
     sp<IVehicle>                mVehicle;

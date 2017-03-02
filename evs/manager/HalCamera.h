@@ -17,14 +17,14 @@
 #ifndef ANDROID_AUTOMOTIVE_EVS_V1_0_HALCAMERA_H
 #define ANDROID_AUTOMOTIVE_EVS_V1_0_HALCAMERA_H
 
-#include <android/hardware/evs/1.0/types.h>
-#include <android/hardware/evs/1.0/IEvsCamera.h>
+#include <android/hardware/automotive/evs/1.0/types.h>
+#include <android/hardware/automotive/evs/1.0/IEvsCamera.h>
 #include <ui/GraphicBuffer.h>
 
 #include <thread>
 #include <list>
 
-using namespace ::android::hardware::evs::V1_0;
+using namespace ::android::hardware::automotive::evs::V1_0;
 using ::android::hardware::Return;
 using ::android::hardware::hidl_handle;
 
@@ -60,7 +60,7 @@ public:
     void                clientStreamEnding();
     Return<void>        doneWithFrame(const BufferDesc& buffer);
 
-    // Methods from ::android::hardware::evs::V1_0::ICarCameraStream follow.
+    // Methods from ::android::hardware::automotive::evs::V1_0::ICarCameraStream follow.
     Return<void> deliverFrame(const BufferDesc& buffer)  override;
 
 private:

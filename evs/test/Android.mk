@@ -13,7 +13,7 @@ LOCAL_C_INCLUDES += \
     packages/services/Car/evs/test \
 
 LOCAL_SHARED_LIBRARIES := \
-    android.hardware.evs@1.0 \
+    android.hardware.automotive.evs@1.0 \
     android.hardware.automotive.vehicle@2.0 \
     libcutils \
     liblog \

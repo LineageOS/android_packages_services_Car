@@ -94,7 +94,7 @@ bool VirtualCamera::deliverFrame(const BufferDesc& buffer) {
 }
 
 
-// Methods from ::android::hardware::evs::V1_0::IEvsCamera follow.
+// Methods from ::android::hardware::automotive::evs::V1_0::IEvsCamera follow.
 Return<void> VirtualCamera::getId(getId_cb id_cb) {
     // Straight pass through to hardware layer
     return mHalCamera->getHwCamera()->getId(id_cb);
