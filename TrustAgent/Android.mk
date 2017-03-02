@@ -16,6 +16,8 @@
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
+LOCAL_USE_AAPT2 := true
+
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_PACKAGE_NAME := CarTrustAgentService
@@ -27,7 +29,7 @@ LOCAL_CERTIFICATE := platform
 
 LOCAL_MODULE_TAGS := optional
 
-LOCAL_PROGUARD_ENABLED := disabled
+#LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_DEX_PREOPT := false
 

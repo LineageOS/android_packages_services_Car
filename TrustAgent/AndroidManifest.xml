@@ -17,25 +17,76 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.car.trust">
     <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="17"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+    <!-- Needed to unlock user -->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    <uses-permission android:name="android.permission.MANAGE_USERS" />
+
+    <uses-feature android:name="android.hardware.bluetooth_le"  android:required="true" />
+
+    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="23"/>
     <uses-permission android:name="android.permission.CONTROL_KEYGUARD" />
     <uses-permission android:name="android.permission.PROVIDE_TRUST_AGENT" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application android:label="@string/app_name">
         <service
-                android:name=".CarBluetoothTrustAgent"
+                android:name=".CarBleTrustAgent"
                 android:label="@string/app_name"
                 android:permission="android.permission.BIND_TRUST_AGENT"
+                android:directBootAware="true"
                 android:exported="true">
             <intent-filter>
                 <action android:name="android.service.trust.TrustAgentService" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <!-- Warning: the meta data must be included if the service is direct boot aware.
+                 If not included, the device will crash before boot completes. Rendering the
+                 device unusable. -->
+            <meta-data android:name="android.service.trust.trustagent"
+                       android:resource="@xml/car_sample_trust_agent"/>
         </service>
-        <receiver android:name=".BootupReceiver">
+
+        <!-- CarUnlockService needs to be direct boot aware, since the trust agent
+             binds to it during direct boot.-->
+        <service android:name=".CarUnlockService"
+                 android:directBootAware="true">
+            <!-- Warning: the meta data must be included if the service is direct boot aware.
+                 If not included, the device will crash before boot completes. Rendering the device
+                 unusable. -->
+            <meta-data android:name="android.service.trust.trustagent"
+                       android:resource="@xml/car_sample_trust_agent"/>
+        </service>
+
+        <service android:name=".CarEnrolmentService"/>
+
+        <activity
+                android:name=".MainActivity"
+                android:label="@string/app_name"
+                android:exported="true"
+                android:launchMode="singleInstance">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </receiver>
+        </activity>
+
+        <activity
+                android:name=".CarEnrolmentActivity"
+                android:label="Car Client1">
+        </activity>
+
+        <activity
+                android:name=".PhoneEnrolmentActivity"
+                android:label="Phone Enrolment Client">
+        </activity>
+
+        <activity
+                android:name=".PhoneUnlockActivity"
+                android:label="Phone Unlock Client">
+        </activity>
     </application>
 </manifest>
