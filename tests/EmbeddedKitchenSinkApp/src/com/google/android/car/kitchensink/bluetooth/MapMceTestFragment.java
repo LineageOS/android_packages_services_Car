@@ -243,8 +243,8 @@ public class MapMceTestFragment extends Fragment {
                     mDelivered.setChecked(true);
                 } else if (action.equals(BluetoothMapClient.ACTION_MESSAGE_RECEIVED)) {
 
-                    String[] recipients = intent.getStringArrayExtra(android.provider
-                            .ContactsContract.Intents.EXTRA_RECIPIENT_CONTACT_URI);
+                    String[] recipients = intent.getStringArrayExtra(
+                            BluetoothMapClient.EXTRA_SENDER_CONTACT_URI);
                     StringBuilder stringBuilder = new StringBuilder();
                     if (recipients != null) {
                         for (String s : recipients) {
@@ -252,8 +252,8 @@ public class MapMceTestFragment extends Fragment {
                         }
                     }
 
-                    String[] recipientsName = intent.getStringArrayExtra(android.provider
-                            .ContactsContract.Intents.EXTRA_RECIPIENT_CONTACT_NAME);
+                    String[] recipientsName = intent.getStringArrayExtra(
+                            BluetoothMapClient.EXTRA_SENDER_CONTACT_NAME);
                     StringBuilder stringBuilderName = new StringBuilder();
                     if (recipientsName != null) {
                         for (String s : recipientsName) {
