@@ -29,7 +29,7 @@ LOCAL_CERTIFICATE := platform
 
 LOCAL_MODULE_TAGS := optional
 
-#LOCAL_PROGUARD_ENABLED := disabled
+LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_DEX_PREOPT := false
 

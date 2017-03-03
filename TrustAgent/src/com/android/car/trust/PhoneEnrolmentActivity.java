@@ -24,8 +24,8 @@ import android.widget.TextView;
  * Activity to allow the user to add an escrow token to a remote device.
  */
 public class PhoneEnrolmentActivity extends Activity {
-    private Button mScannButton;
-    private Button mEnrolButton;
+    private Button mScanButton;
+    private Button mEnrollButton;
 
     private TextView mTextOutput;
 
@@ -34,13 +34,13 @@ public class PhoneEnrolmentActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.phone_client);
 
-        mScannButton = (Button) findViewById(R.id.ble_scan_btn);
-        mEnrolButton = (Button) findViewById(R.id.action_button);
-        mEnrolButton.setText(getString(R.string.enrol_button));
+        mScanButton = (Button) findViewById(R.id.ble_scan_btn);
+        mEnrollButton = (Button) findViewById(R.id.action_button);
+        mEnrollButton.setText(getString(R.string.enroll_button));
 
         mTextOutput = (TextView) findViewById(R.id.output);
 
         PhoneEnrolmentController controller = new PhoneEnrolmentController(this /* context */);
-        controller.bind(mTextOutput, mScannButton, mEnrolButton);
+        controller.bind(mTextOutput, mScanButton, mEnrollButton);
     }
 }

@@ -16,6 +16,11 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.car.trust">
+    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="23"/>
+
+    <!-- Need Bluetooth LE -->
+    <uses-feature android:name="android.hardware.bluetooth_le"  android:required="true" />
+
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -24,10 +29,6 @@
     <!-- Needed to unlock user -->
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
     <uses-permission android:name="android.permission.MANAGE_USERS" />
-
-    <uses-feature android:name="android.hardware.bluetooth_le"  android:required="true" />
-
-    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="23"/>
     <uses-permission android:name="android.permission.CONTROL_KEYGUARD" />
     <uses-permission android:name="android.permission.PROVIDE_TRUST_AGENT" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -74,19 +75,13 @@
             </intent-filter>
         </activity>
 
-        <activity
-                android:name=".CarEnrolmentActivity"
-                android:label="Car Client1">
-        </activity>
+        <activity android:name=".CarEnrolmentActivity"
+            android:exported="false" />
 
-        <activity
-                android:name=".PhoneEnrolmentActivity"
-                android:label="Phone Enrolment Client">
-        </activity>
+        <activity android:name=".PhoneEnrolmentActivity"
+            android:exported="false" />
 
-        <activity
-                android:name=".PhoneUnlockActivity"
-                android:label="Phone Unlock Client">
-        </activity>
+        <activity android:name=".PhoneUnlockActivity"
+            android:exported="false" />
     </application>
 </manifest>

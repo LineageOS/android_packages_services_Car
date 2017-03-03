@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 /**
- * A service that receives escrow token enrolment requests from remote devices.
+ * A service that receives escrow token enrollment requests from remote devices.
  */
 public class CarEnrolmentService extends SimpleBleServer {
     private static final String TAG = "CarEnrolmentService";
@@ -55,7 +55,7 @@ public class CarEnrolmentService extends SimpleBleServer {
 
     public void start() {
         ParcelUuid uuid = new ParcelUuid(
-                UUID.fromString(getString(R.string.enrolment_service_uuid)));
+                UUID.fromString(getString(R.string.enrollment_service_uuid)));
         start(uuid, mEnrolmentService);
     }
 
@@ -69,7 +69,9 @@ public class CarEnrolmentService extends SimpleBleServer {
             int requestId, BluetoothGattCharacteristic characteristic,
             boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
         if (characteristic.getUuid().equals(mEnrolmentEscrowToken.getUuid())) {
-            Log.d(TAG, "Enrolment token received, value: " + Utils.getLong(value));
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Enrolment token received, value: " + Utils.getLong(value));
+            }
 
             for (EnrolmentCallback callback : mCallbacks) {
                 callback.onEnrolmentDataReceived(value);
@@ -90,7 +92,9 @@ public class CarEnrolmentService extends SimpleBleServer {
     public void sendHandle(long handle, BluetoothDevice device) {
         mEnrolmentTokenHandle.setValue(Utils.getBytes(handle));
 
-        Log.d(TAG, "Sending notification for EscrowToken Handle");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Sending notification for EscrowToken Handle");
+        }
         mGattServer.notifyCharacteristicChanged(device,
                 mEnrolmentTokenHandle, false /* confirm */);
     }
@@ -104,18 +108,18 @@ public class CarEnrolmentService extends SimpleBleServer {
     // Create services and characteristics for enrolling new unlocking escrow tokens
     private void setupEnrolmentService() {
         mEnrolmentService = new BluetoothGattService(
-                UUID.fromString(getString(R.string.enrolment_service_uuid)),
+                UUID.fromString(getString(R.string.enrollment_service_uuid)),
                 BluetoothGattService.SERVICE_TYPE_PRIMARY);
 
         // Characteristic to describe the escrow token being used for unlock
         mEnrolmentEscrowToken = new BluetoothGattCharacteristic(
-                UUID.fromString(getString(R.string.enrolment_token_uuid)),
+                UUID.fromString(getString(R.string.enrollment_token_uuid)),
                 BluetoothGattCharacteristic.PROPERTY_WRITE,
                 BluetoothGattCharacteristic.PERMISSION_WRITE);
 
         // Characteristic to describe the handle being used for this escrow token
         mEnrolmentTokenHandle = new BluetoothGattCharacteristic(
-                UUID.fromString(getString(R.string.enrolment_handle_uuid)),
+                UUID.fromString(getString(R.string.enrollment_handle_uuid)),
                 BluetoothGattCharacteristic.PROPERTY_NOTIFY,
                 BluetoothGattCharacteristic.PERMISSION_READ);
 

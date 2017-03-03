@@ -60,7 +60,9 @@ public class CarUnlockService extends SimpleBleServer {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "CarUnlockService starting up, creating BLE service");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "CarUnlockService starting up, creating BLE service");
+        }
         setupUnlockService();
     }
 
@@ -89,11 +91,15 @@ public class CarUnlockService extends SimpleBleServer {
         UUID uuid = characteristic.getUuid();
 
         if (uuid.equals(mUnlockTokenHandle.getUuid())) {
-            Log.d(TAG, "Unlock handle received, value: " + Utils.getLong(value));
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Unlock handle received, value: " + Utils.getLong(value));
+            }
             mCurrentHandle = Utils.getLong(value);
             unlockDataReceived();
         } else if (uuid.equals(mUnlockEscrowToken.getUuid())) {
-            Log.d(TAG, "Unlock escrow token received, value: " + Utils.getLong(value));
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Unlock escrow token received, value: " + Utils.getLong(value));
+            }
             mCurrentToken = value;
             unlockDataReceived();
         }
@@ -110,8 +116,11 @@ public class CarUnlockService extends SimpleBleServer {
         if (mCurrentHandle == null || mCurrentToken == null) {
             return;
         }
-        Log.d(TAG, "Handle and token both received, requesting unlock. Time: "
-                + System.currentTimeMillis());
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Handle and token both received, requesting unlock. Time: "
+                    + System.currentTimeMillis());
+        }
         // Both the handle and token has been received, try to unlock the device.
 
 

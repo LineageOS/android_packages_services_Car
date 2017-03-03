@@ -69,7 +69,10 @@ public class CarEnrolmentActivity extends Activity {
             intent.getPackage();
 
             String action = intent.getAction();
-            Log.d(TAG, "Received broadcast: " + action);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Received broadcast: " + action);
+            }
+
             if (ACTION_TOKEN_STATUS_RESULT.equals(action)) {
                 boolean tokenActive = intent.getBooleanExtra(INTENT_EXTRA_TOKEN_STATUS, false);
                 appendOutputText("Is token active? " + tokenActive + " handle: " + mHandle);
@@ -79,9 +82,10 @@ public class CarEnrolmentActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d(TAG, "about to store new handle");
                         mPrefs.edit().putLong(SP_HANDLE_KEY, handle).apply();
-                        Log.d(TAG, "stored new handle");
+                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, "stored new handle");
+                        }
                     }
                 });
 
@@ -159,7 +163,9 @@ public class CarEnrolmentActivity extends Activity {
 
         try {
             mHandle = mPrefs.getLong(SP_HANDLE_KEY, -1);
-            Log.d(TAG, "onResume, checking handle active: " + mHandle);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onResume, checking handle active: " + mHandle);
+            }
             isTokenActive(mHandle);
         } catch (RemoteException e) {
             Log.e(TAG, "Error checking if token is valid");

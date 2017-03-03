@@ -129,7 +129,9 @@ public class SimpleBleClient {
         ScanSettings.Builder settings = new ScanSettings.Builder();
         settings.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
 
-        Log.d(TAG, "Start scanning for uuid: " + mServiceUuid.getUuid());
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Start scanning for uuid: " + mServiceUuid.getUuid());
+        }
         mScanner.startScan(filters, settings.build(), mScanCallback);
 
         Handler handler = new Handler();
@@ -137,7 +139,9 @@ public class SimpleBleClient {
             @Override
             public void run() {
                 mScanner.stopScan(mScanCallback);
-                Log.d(TAG, "Stopping Scanner");
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Stopping Scanner");
+                }
             }
         }, SCAN_TIME_MS);
     }
@@ -215,7 +219,9 @@ public class SimpleBleClient {
             return;
         }
 
-        Log.d(TAG, "Executing BLE Action type: " + action.getAction());
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Executing BLE Action type: " + action.getAction());
+        }
 
         int actionType = action.getAction();
         switch (actionType) {
@@ -258,14 +264,18 @@ public class SimpleBleClient {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             BluetoothDevice device = result.getDevice();
-            Log.d(TAG, "Scan result found: " + result.getScanRecord().getServiceUuids());
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Scan result found: " + result.getScanRecord().getServiceUuids());
+            }
 
             if (!hasServiceUuid(result)) {
                 return;
             }
 
             for (ParcelUuid uuid : result.getScanRecord().getServiceUuids()) {
-                Log.d(TAG, "Scan result UUID: " + uuid);
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Scan result UUID: " + uuid);
+                }
                 if (uuid.equals(mServiceUuid)) {
                     // This client only supports connecting to one service.
                     // Once we find one, stop scanning and open a GATT connection to the device.
@@ -279,14 +289,16 @@ public class SimpleBleClient {
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
             for (ScanResult r : results) {
-                Log.d(TAG, "Batch scanResult: "
-                        + r.getDevice().getName() + " " + r.getDevice().getAddress());
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Batch scanResult: " + r.getDevice().getName()
+                            + " " + r.getDevice().getAddress());
+                    }
             }
         }
 
         @Override
         public void onScanFailed(int errorCode) {
-            Log.d(TAG, "Scan failed: " + errorCode);
+            Log.w(TAG, "Scan failed: " + errorCode);
         }
     };
 
@@ -310,13 +322,17 @@ public class SimpleBleClient {
                     callback.onDeviceDisconnected();
                 }
             }
-            Log.d(TAG, " Gatt connection status: " + getStatus(status) + " newState: " + state);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, " Gatt connection status: " + getStatus(status) + " newState: " + state);
+            }
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             super.onServicesDiscovered(gatt, status);
-            Log.d(TAG, "onServicesDiscovered: " + status);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onServicesDiscovered: " + status);
+            }
 
             List<BluetoothGattService> services = gatt.getServices();
             if (services == null || services.size() <= 0) {
@@ -325,7 +341,9 @@ public class SimpleBleClient {
 
             // Notify clients of newly discovered services.
             for (BluetoothGattService service : mBtGatt.getServices()) {
-                Log.d(TAG, "Found service: " + service.getUuid() + " notifying clients");
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Found service: " + service.getUuid() + " notifying clients");
+                }
                 for (ClientCallback callback : mCallbacks) {
                     callback.onServiceDiscovered(service);
                 }
@@ -335,14 +353,18 @@ public class SimpleBleClient {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt,
                 BluetoothGattCharacteristic characteristic, int status) {
-            Log.d(TAG, "onCharacteristicWrite: " + status);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onCharacteristicWrite: " + status);
+            }
             processNextAction();
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                 BluetoothGattCharacteristic characteristic, int status) {
-            Log.d(TAG, "onCharacteristicRead:" + new String(characteristic.getValue()));
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onCharacteristicRead:" + new String(characteristic.getValue()));
+            }
             processNextAction();
         }
 
@@ -355,5 +377,4 @@ public class SimpleBleClient {
             processNextAction();
         }
     };
-
 }

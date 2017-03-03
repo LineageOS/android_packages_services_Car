@@ -135,12 +135,17 @@ public class PhoneUnlockController {
         @Override
         public void onServiceDiscovered(BluetoothGattService service) {
             if (!service.getUuid().equals(mUnlockServiceUuid.getUuid())) {
-                Log.d(TAG, "Service UUID: " + service.getUuid() + " does not match Enrolment UUID "
-                        + mUnlockServiceUuid.getUuid());
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Service UUID: " + service.getUuid()
+                        + " does not match Enrolment UUID " + mUnlockServiceUuid.getUuid());
+                }
                 return;
             }
 
-            Log.d(TAG, "Unlock Service # characteristics: " + service.getCharacteristics().size());
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Unlock Service # characteristics: "
+                        + service.getCharacteristics().size());
+            }
             mUnlockEscrowToken
                     = Utils.getCharacteristic(R.string.unlock_escrow_token_uiid, service, mContext);
             mUnlockTokenHandle
