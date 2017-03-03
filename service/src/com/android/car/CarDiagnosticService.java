@@ -25,12 +25,8 @@ import android.car.hardware.CarDiagnosticManager;
 import android.car.hardware.ICarDiagnostic;
 import android.car.hardware.ICarDiagnosticEventListener;
 import android.content.Context;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.util.ArrayMap;
 import android.util.Log;
 import com.android.car.internal.CarPermission;
@@ -53,9 +49,6 @@ import java.util.concurrent.locks.ReentrantLock;
 /** @hide */
 public class CarDiagnosticService extends ICarDiagnostic.Stub
         implements CarServiceBase, DiagnosticHalService.DiagnosticListener {
-    /** {@link #mDiagnosticLock} is not waited forever for handling disconnection */
-    private static final long MAX_DIAGNOSTIC_LOCK_WAIT_MS = 1000;
-
     /** lock to access diagnostic structures */
     private final ReentrantLock mDiagnosticLock = new ReentrantLock();
     /** hold clients callback */
@@ -484,82 +477,6 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
             mClients.remove(diagnosticClient);
         } finally {
             mDiagnosticLock.unlock();
-        }
-    }
-
-    private class DiagnosticDispatchHandler extends Handler {
-        private static final long DIAGNOSTIC_DISPATCH_MIN_INTERVAL_MS = 16; // over 60Hz
-
-        private static final int MSG_DIAGNOSTIC_DATA = 0;
-
-        private long mLastDiagnosticDispatchTime = -1;
-        private int mFreeListIndex = 0;
-        private final LinkedList<CarDiagnosticEvent>[] mDiagnosticDataList = new LinkedList[2];
-
-        private DiagnosticDispatchHandler(Looper looper) {
-            super(looper);
-            for (int i = 0; i < mDiagnosticDataList.length; i++) {
-                mDiagnosticDataList[i] = new LinkedList<CarDiagnosticEvent>();
-            }
-        }
-
-        private synchronized void handleDiagnosticEvents(List<CarDiagnosticEvent> data) {
-            LinkedList<CarDiagnosticEvent> list = mDiagnosticDataList[mFreeListIndex];
-            list.addAll(data);
-            requestDispatchLocked();
-        }
-
-        private synchronized void handleDiagnosticEvent(CarDiagnosticEvent event) {
-            LinkedList<CarDiagnosticEvent> list = mDiagnosticDataList[mFreeListIndex];
-            list.add(event);
-            requestDispatchLocked();
-        }
-
-        private void requestDispatchLocked() {
-            Message msg = obtainMessage(MSG_DIAGNOSTIC_DATA);
-            long now = SystemClock.uptimeMillis();
-            long delta = now - mLastDiagnosticDispatchTime;
-            if (delta > DIAGNOSTIC_DISPATCH_MIN_INTERVAL_MS) {
-                sendMessage(msg);
-            } else {
-                sendMessageDelayed(msg, DIAGNOSTIC_DISPATCH_MIN_INTERVAL_MS - delta);
-            }
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_DIAGNOSTIC_DATA:
-                    doHandleDiagnosticData();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private void doHandleDiagnosticData() {
-            List<CarDiagnosticEvent> listToDispatch = null;
-            synchronized (this) {
-                mLastDiagnosticDispatchTime = SystemClock.uptimeMillis();
-                int nonFreeListIndex = mFreeListIndex ^ 0x1;
-                List<CarDiagnosticEvent> nonFreeList = mDiagnosticDataList[nonFreeListIndex];
-                List<CarDiagnosticEvent> freeList = mDiagnosticDataList[mFreeListIndex];
-                if (nonFreeList.size() > 0) {
-                    // copy again, but this should not be normal case
-                    nonFreeList.addAll(freeList);
-                    listToDispatch = nonFreeList;
-                    freeList.clear();
-                } else if (freeList.size() > 0) {
-                    listToDispatch = freeList;
-                    mFreeListIndex = nonFreeListIndex;
-                }
-            }
-            // leave this part outside lock so that time-taking dispatching can be done without
-            // blocking diagnostic event notification.
-            if (listToDispatch != null) {
-                processDiagnosticData(listToDispatch);
-                listToDispatch.clear();
-            }
         }
     }
 
