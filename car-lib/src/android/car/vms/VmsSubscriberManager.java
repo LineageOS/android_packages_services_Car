@@ -151,7 +151,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
      *                        it only listens passively.
      * @throws IllegalStateException if the listener was not set via {@link #setListener}.
      */
-    public void subscribe(int layer, int version, boolean silentSubscribe)
+    public void subscribe(int layer, int version)
             throws CarNotConnectedException {
         if (DBG) {
             Log.d(TAG, "Subscribing to layer: " + layer + ", version: " + version);
@@ -166,8 +166,31 @@ public final class VmsSubscriberManager implements CarManagerBase {
             throw new IllegalStateException("Listener was not set.");
         }
         try {
-            mVmsSubscriberService.addOnVmsMessageReceivedListener(layer, version, mIListener,
-                    silentSubscribe);
+            mVmsSubscriberService.addOnVmsMessageReceivedListener(mIListener, layer, version);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not connect: ", e);
+            throw new CarNotConnectedException(e);
+        } catch (IllegalStateException ex) {
+            Car.checkCarNotConnectedExceptionFromCarService(ex);
+        }
+    }
+
+    public void subscribeAll()
+        throws CarNotConnectedException {
+        if (DBG) {
+            Log.d(TAG, "Subscribing passively to all data messages");
+        }
+        OnVmsMessageReceivedListener listener;
+        synchronized (mListenerLock) {
+            listener = mListener;
+        }
+        if (listener == null) {
+            Log.w(TAG, "subscribe: listener was not set, " +
+                "setListener must be called first.");
+            throw new IllegalStateException("Listener was not set.");
+        }
+        try {
+            mVmsSubscriberService.addOnVmsMessageReceivedPassiveListener(mIListener);
         } catch (RemoteException e) {
             Log.e(TAG, "Could not connect: ", e);
             throw new CarNotConnectedException(e);
@@ -197,7 +220,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             throw new IllegalStateException("Listener was not set.");
         }
         try {
-            mVmsSubscriberService.removeOnVmsMessageReceivedListener(layer, version, mIListener);
+            mVmsSubscriberService.removeOnVmsMessageReceivedListener(mIListener, layer, version);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to unregister subscriber", e);
             // ignore

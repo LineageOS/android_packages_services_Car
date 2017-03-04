@@ -41,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 @MediumTest
 public class VmsSubscriberManagerTest extends MockedCarTestBase {
     private static final String TAG = "VmsSubscriberManagerTest";
+    private static final int SUBSCRIPTION_LAYER_ID = 2;
+    private static final int SUBSCRIPTION_LAYER_VERSION = 3;
 
     private HalHandler mHalHandler;
     // Used to block until the HAL property is updated in HalHandler.onPropertySet.
@@ -70,7 +72,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();
         vmsSubscriberManager.setListener(listener);
-        vmsSubscriberManager.subscribe(0, 0, false);
+        vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER_ID, SUBSCRIPTION_LAYER_VERSION);
 
         // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
@@ -78,16 +80,45 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         v.value.int32Values.add(VmsMessageType.DATA); // MessageType
-        v.value.int32Values.add(2); // Layer ID
-        v.value.int32Values.add(3); // Layer Version
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
         v.value.bytes.add((byte) 0xa);
         v.value.bytes.add((byte) 0xb);
         assertEquals(0, mSubscriberSemaphore.availablePermits());
 
         getMockedVehicleHal().injectEvent(v);
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(2, listener.getLayerId());
-        assertEquals(3, listener.getLayerVersion());
+        assertEquals(SUBSCRIPTION_LAYER_ID, listener.getLayerId());
+        assertEquals(SUBSCRIPTION_LAYER_VERSION, listener.getLayerVersion());
+        byte[] expectedPayload = {(byte) 0xa, (byte) 0xb};
+        assertTrue(Arrays.equals(expectedPayload, listener.getPayload()));
+    }
+
+
+    // Test injecting a value in the HAL and verifying it propagates to a subscriber.
+    public void testSubscribeAll() throws Exception {
+        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
+            Car.VMS_SUBSCRIBER_SERVICE);
+        TestListener listener = new TestListener();
+        vmsSubscriberManager.setListener(listener);
+        vmsSubscriberManager.subscribeAll();
+
+        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
+            .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+            .setTimestamp(SystemClock.elapsedRealtimeNanos())
+            .build();
+        v.value.int32Values.add(VmsMessageType.DATA); // MessageType
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
+        v.value.bytes.add((byte) 0xa);
+        v.value.bytes.add((byte) 0xb);
+        assertEquals(0, mSubscriberSemaphore.availablePermits());
+
+        getMockedVehicleHal().injectEvent(v);
+        assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+        assertEquals(SUBSCRIPTION_LAYER_ID, listener.getLayerId());
+        assertEquals(SUBSCRIPTION_LAYER_VERSION, listener.getLayerVersion());
         byte[] expectedPayload = {(byte) 0xa, (byte) 0xb};
         assertTrue(Arrays.equals(expectedPayload, listener.getPayload()));
     }

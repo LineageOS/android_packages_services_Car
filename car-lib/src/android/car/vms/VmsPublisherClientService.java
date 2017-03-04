@@ -94,6 +94,9 @@ public abstract class VmsPublisherClientService extends Service {
      * @return if the call to the method VmsPublisherService.publish was successful.
      */
     public final boolean publish(int layerId, int layerVersion, byte[] payload) {
+        if (DBG) {
+            Log.d(TAG, "Publishing for layer ID: " + layerId + " Version: " + layerVersion);
+        }
         if (mVmsPublisherService == null) {
             throw new IllegalStateException("VmsPublisherService not set.");
         }

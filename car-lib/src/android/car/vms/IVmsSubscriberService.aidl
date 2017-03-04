@@ -24,23 +24,32 @@ import android.car.vms.VmsProperty;
  */
 interface IVmsSubscriberService {
     /**
-     * Subscribes the listener to receive messages from layer/version. If silent is true, the
-     * service will not send subscription notifications to publishers (i.e. this is a passive
-     * subscriber). Note that removeOnVmsMessageReceivedListener does not require the parameter
-     * silent because the service keeps track of silent subscribes and it will not generate
-     * unsubscribe events in this scenario.
+     * Subscribes the listener to receive messages from layer/version.
      */
     void addOnVmsMessageReceivedListener(
-            int layer,
-            int version,
             in IOnVmsMessageReceivedListener listener,
-            boolean silent) = 0;
+            int layer,
+            int version) = 0;
+
+    /**
+     * Subscribes the listener to receive messages from all published layer/version. The
+     * service will not send any subscription notifications to publishers (i.e. this is a passive
+     * subscriber).
+     */
+    void addOnVmsMessageReceivedPassiveListener(in IOnVmsMessageReceivedListener listener) = 1;
 
     /**
      * Tells the VmsSubscriberService a client unsubscribes to layer messages.
      */
     void removeOnVmsMessageReceivedListener(
+            in IOnVmsMessageReceivedListener listener,
             int layer,
-            int version,
-            in IOnVmsMessageReceivedListener listener) = 1;
+            int version) = 2;
+
+    /**
+     * Tells the VmsSubscriberService a passive client unsubscribes. This will not unsubscribe
+     * the listener from any specific layer it has subscribed to.
+     */
+    void removeOnVmsMessageReceivedPassiveListener(
+            in IOnVmsMessageReceivedListener listener) = 3;
 }

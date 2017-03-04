@@ -33,11 +33,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * + Receives HAL updates by implementing VmsHalService.VmsHalListener.
  * + Offers subscriber/publisher services by implementing IVmsService.Stub.
- * TODO(antoniocortes): implement layer subscription logic (i.e. routing).
  */
 @FutureFeature
 public class VmsSubscriberService extends IVmsSubscriberService.Stub
@@ -48,7 +48,10 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     private final Context mContext;
     private final VmsHalService mHal;
+
+    @GuardedBy("mSubscriberServiceLock")
     private final VmsListenerManager mMessageReceivedManager = new VmsListenerManager();
+    private final Object mSubscriberServiceLock = new Object();
 
     /**
      * Keeps track of listeners of this service.
@@ -57,11 +60,11 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         /**
          * Allows to modify mListenerMap and mListenerDeathRecipientMap as a single unit.
          */
-        private final Object mLock = new Object();
-        @GuardedBy("mLock")
+        private final Object mListenerManagerLock = new Object();
+        @GuardedBy("mListenerManagerLock")
         private final Map<IBinder, ListenerDeathRecipient> mListenerDeathRecipientMap =
                 new HashMap<>();
-        @GuardedBy("mLock")
+        @GuardedBy("mListenerManagerLock")
         private final Map<IBinder, IOnVmsMessageReceivedListener> mListenerMap = new HashMap<>();
 
         class ListenerDeathRecipient implements IBinder.DeathRecipient {
@@ -79,6 +82,20 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
                 if (DBG) {
                     Log.d(TAG, "binderDied " + mListenerBinder);
                 }
+
+                // Get the Listener from the Binder
+                IOnVmsMessageReceivedListener listener = mListenerMap.get(mListenerBinder);
+
+                // Remove the listener subscriptions.
+                if (listener != null) {
+                    Log.d(TAG, "Removing subscriptions for dead listener: " + listener);
+                    mHal.removeDeadListener(listener);
+                } else {
+                    Log.d(TAG, "Handling dead binder with no matching listener");
+
+                }
+
+                // Remove binder
                 VmsListenerManager.this.removeListener(mListenerBinder);
             }
 
@@ -113,7 +130,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
                 Log.d(TAG, "register: " + listener);
             }
             IBinder listenerBinder = listener.asBinder();
-            synchronized (mLock) {
+            synchronized (mListenerManagerLock) {
                 if (mListenerMap.containsKey(listenerBinder)) {
                     // Already registered, nothing to do.
                     return;
@@ -152,8 +169,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         // Removes the listenerBinder from the current state.
         // The function assumes that binder will exist both in listeners and death recipients list.
         private void removeListener(IBinder listenerBinder) {
-            synchronized (mLock) {
-                //TODO(asafro): mHal.vms.routing.removeDeadListener(mListenerMap(listenerBinder))
+            synchronized (mListenerManagerLock) {
                 boolean found = mListenerMap.remove(listenerBinder) != null;
                 if (found) {
                     mListenerDeathRecipientMap.get(listenerBinder).release();
@@ -170,7 +186,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
          * @return list of listeners.
          */
         public List<IOnVmsMessageReceivedListener> getListeners() {
-            synchronized (mLock) {
+            synchronized (mListenerManagerLock) {
                 return new ArrayList<>(mListenerMap.values());
             }
         }
@@ -199,21 +215,70 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     // Implements IVmsService interface.
     @Override
-    public void addOnVmsMessageReceivedListener(int layer, int version,
-            IOnVmsMessageReceivedListener listener, boolean silent) {
-        mMessageReceivedManager.add(listener);
+    public void addOnVmsMessageReceivedListener(IOnVmsMessageReceivedListener listener,
+        int layerId, int layerVersion) {
+        synchronized (mSubscriberServiceLock) {
+            // Add the listener so it can subscribe.
+            mMessageReceivedManager.add(listener);
+
+            // Add the subscription for the layer.
+            VmsLayer layer = new VmsLayer(layerId, layerVersion);
+            mHal.addSubscription(listener, layer);
+        }
     }
 
     @Override
-    public void removeOnVmsMessageReceivedListener(int layer, int version,
-            IOnVmsMessageReceivedListener listener) {
-        mMessageReceivedManager.remove(listener);
+    public void removeOnVmsMessageReceivedListener(IOnVmsMessageReceivedListener listener,
+        int layerId, int layerVersion) {
+        synchronized (mSubscriberServiceLock) {
+            // Remove the subscription.
+            VmsLayer layer = new VmsLayer(layerId, layerVersion);
+            mHal.removeSubscription(listener, layer);
+
+            // Remove the listener if it has no more subscriptions.
+            if (!mHal.containsListener(listener)) {
+                mMessageReceivedManager.remove(listener);
+            }
+        }
+    }
+
+    @Override
+    public void addOnVmsMessageReceivedPassiveListener(IOnVmsMessageReceivedListener listener) {
+        synchronized (mSubscriberServiceLock) {
+            mMessageReceivedManager.add(listener);
+            mHal.addSubscription(listener);
+        }
+    }
+
+    @Override
+    public void removeOnVmsMessageReceivedPassiveListener(IOnVmsMessageReceivedListener listener) {
+        synchronized (mSubscriberServiceLock) {
+            // Remove the subscription.
+            mHal.removeSubscription(listener);
+
+            // Remove the listener if it has no more subscriptions.
+            if (!mHal.containsListener(listener)) {
+                mMessageReceivedManager.remove(listener);
+            }
+        }
     }
 
     // Implements VmsHalSubscriberListener interface
     @Override
     public void onChange(int layerId, int layerVersion, byte[] payload) {
-        for (IOnVmsMessageReceivedListener subscriber : mMessageReceivedManager.getListeners()) {
+        VmsLayer layer = new VmsLayer(layerId, layerVersion);
+        if(DBG) {
+            Log.d(TAG, "Publishing a message for layer: " + layer);
+        }
+
+        Set<IOnVmsMessageReceivedListener> listeners = mHal.getListeners(layer);
+
+        // If there are no listeners we're done.
+        if ((listeners == null)) {
+            return;
+        }
+
+        for (IOnVmsMessageReceivedListener subscriber : listeners) {
             try {
                 subscriber.onVmsMessageReceived(layerId, layerVersion, payload);
             } catch (RemoteException e) {
@@ -222,5 +287,6 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
                 Log.e(TAG, "onVmsMessageReceived calling failed: ", e);
             }
         }
+
     }
 }

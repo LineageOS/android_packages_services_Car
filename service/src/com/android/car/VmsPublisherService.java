@@ -17,6 +17,8 @@
 package com.android.car;
 
 import android.car.annotation.FutureFeature;
+import android.car.vms.IOnVmsMessageReceivedListener;
+
 import android.car.vms.IVmsPublisherClient;
 import android.car.vms.IVmsPublisherService;
 import android.content.ComponentName;
@@ -37,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * + Receives HAL updates by implementing VmsHalService.VmsHalListener.
@@ -92,21 +95,50 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
     // Implements IVmsPublisherService interface.
     @Override
     public void publish(int layerId, int layerVersion, byte[] payload) {
+        if (DBG) {
+            Log.d(TAG, "Publishing for layer ID: " + layerId + " Version: " + layerVersion);
+        }
         ICarImpl.assertVmsPublisherPermission(mContext);
-        mHal.setDataMessage(layerId, layerVersion, payload);
+        VmsLayer layer = new VmsLayer(layerId, layerVersion);
+
+        // Sned the message to application listeners.
+        Set<IOnVmsMessageReceivedListener> listeners = mHal.getListeners(layer);
+
+        if (DBG) {
+            Log.d(TAG, "Number of subscribed apps: " + listeners.size());
+        }
+        for (IOnVmsMessageReceivedListener listener : listeners) {
+            try {
+                listener.onVmsMessageReceived(layerId, layerVersion, payload);
+            } catch (RemoteException ex) {
+                Log.e(TAG, "unable to publish to listener: " + listener);
+            }
+        }
+
+        // Send the message to HAL
+        if (mHal.isHalSubscribed(layer)) {
+            Log.d(TAG, "HAL is subscribed");
+            mHal.setDataMessage(layerId, layerVersion, payload);
+        } else {
+            Log.d(TAG, "HAL is NOT subscribed");
+        }
     }
 
     @Override
-    public boolean hasSubscribers(int layer, int version) {
+    public boolean hasSubscribers(int layerId, int layerVersion) {
         ICarImpl.assertVmsPublisherPermission(mContext);
-        // TODO(antoniocortes): implement this logic.
-        return true;
+        VmsLayer layer = new VmsLayer(layerId, layerVersion);
+        return mHal.isHalSubscribed(layer) || mHal.hasLayerSubscriptions(layer);
     }
 
     // Implements VmsHalListener interface
     @Override
     public void onChange(int layerId, int layerVersion, boolean hasSubscribers) {
-        // TODO(antoniocortes): notify publishers if this message causes a subscription change.
+        if (hasSubscribers) {
+            mHal.addHalSubscription(new VmsLayer(layerId, layerVersion));
+        } else {
+            mHal.removeHalSubscription(new VmsLayer(layerId, layerVersion));
+        }
     }
 
     /**
