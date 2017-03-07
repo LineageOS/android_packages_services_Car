@@ -92,9 +92,6 @@
     <dimen name="car_drawer_margin_right">96dp</dimen>
     <dimen name="rail_height">80dp</dimen>
 
-    <dimen name="key_line1">32dp</dimen>
-    <dimen name="key_line2">132dp</dimen>
-
     <dimen name="car_drawer_button_container_width">@dimen/stream_content_keyline_2</dimen>
 
     <!-- The following values should match the values provided by car_stream-ui-lib. Eventually,
