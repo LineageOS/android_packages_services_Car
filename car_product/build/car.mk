@@ -92,6 +92,7 @@ PRODUCT_PACKAGES += \
     Stream \
     CarHvacApp \
     CarMapsPlaceholder \
+    CarLatinIME \
     CarUsbHandler \
     android.car \
     libvehiclemonitor-native \
