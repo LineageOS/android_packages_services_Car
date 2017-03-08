@@ -68,12 +68,6 @@ PRODUCT_PROPERTY_OVERRIDES := \
     ro.config.alarm_alert=Oxygen.ogg \
     $(PRODUCT_PROPERTY_OVERRIDES) \
 
-# SetupWizard requires internet access before continuing
-# (hot sim or wifi not blocked by captive portal)
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.setupwizard.require_network=any
-
-
 PRODUCT_PROPERTY_OVERRIDES += \
     keyguard.no_require_sim=true
 
