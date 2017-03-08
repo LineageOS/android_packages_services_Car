@@ -23,7 +23,7 @@ LOCAL_SHARED_LIBRARIES := \
     libhidltransport \
     libtinyalsa \
     libhardware \
-    android.hardware.evs@1.0 \
+    android.hardware.automotive.evs@1.0 \
 
 LOCAL_STRIP_MODULE := keep_symbols
 

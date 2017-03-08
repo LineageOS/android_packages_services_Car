@@ -32,8 +32,8 @@ using android::hardware::configureRpcThreadpool;
 using android::hardware::joinRpcThreadpool;
 
 // Generated HIDL files
-using android::hardware::evs::V1_0::IEvsEnumerator;
-using android::hardware::evs::V1_0::IEvsDisplay;
+using android::hardware::automotive::evs::V1_0::IEvsEnumerator;
+using android::hardware::automotive::evs::V1_0::IEvsDisplay;
 
 // The namespace in which all our implementation code lives
 using namespace android::automotive::evs::V1_0::implementation;
@@ -45,7 +45,7 @@ int main() {
     // threads beyond the main thread which will "join" the pool below.
     configureRpcThreadpool(1, true /* callerWillJoin */);
 
-    ALOGI("EVS Hardware Enumerator service is starting as %s", kManagedEnumeratorName);
+    ALOGI("EVS managed service connecting to hardware at %s", kHardwareEnumeratorName);
     android::sp<Enumerator> service = new Enumerator();
     if (!service->init(kHardwareEnumeratorName)) {
         ALOGE("Failed to initialize");
@@ -54,6 +54,7 @@ int main() {
 
     // Register our service -- if somebody is already registered by our name,
     // they will be killed (their thread pool will throw an exception).
+    ALOGI("EVS managed service is starting as %s", kManagedEnumeratorName);
     status_t status = service->registerAsService(kManagedEnumeratorName);
     if (status == OK) {
         ALOGD("Registration complete");

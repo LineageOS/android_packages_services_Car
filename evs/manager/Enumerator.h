@@ -22,10 +22,10 @@
 #include "HalCamera.h"
 #include "VirtualCamera.h"
 
-#include <android/hardware/evs/1.0/IEvsEnumerator.h>
-#include <android/hardware/evs/1.0/IEvsDisplay.h>
+#include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
+#include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
 
-using namespace ::android::hardware::evs::V1_0;
+using namespace ::android::hardware::automotive::evs::V1_0;
 using ::android::hardware::Return;
 using ::android::hardware::hidl_string;
 
@@ -37,7 +37,7 @@ namespace implementation {
 
 class Enumerator : public IEvsEnumerator {
 public:
-    // Methods from ::android::hardware::evs::V1_0::IEvsEnumerator follow.
+    // Methods from ::android::hardware::automotive::evs::V1_0::IEvsEnumerator follow.
     Return<void>            getCameraList(getCameraList_cb _hidl_cb)  override;
     Return<sp<IEvsCamera>>  openCamera(const hidl_string& cameraId)  override;
     Return<void>            closeCamera(const ::android::sp<IEvsCamera>& virtualCamera)  override;

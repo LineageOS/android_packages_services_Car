@@ -17,15 +17,15 @@
 #ifndef ANDROID_AUTOMOTIVE_EVS_V1_0_CAMERAPROXY_H
 #define ANDROID_AUTOMOTIVE_EVS_V1_0_CAMERAPROXY_H
 
-#include <android/hardware/evs/1.0/types.h>
-#include <android/hardware/evs/1.0/IEvsCamera.h>
+#include <android/hardware/automotive/evs/1.0/types.h>
+#include <android/hardware/automotive/evs/1.0/IEvsCamera.h>
 #include <ui/GraphicBuffer.h>
 
 #include <thread>
 #include <deque>
 
 
-using namespace ::android::hardware::evs::V1_0;
+using namespace ::android::hardware::automotive::evs::V1_0;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
 using ::android::hardware::hidl_handle;
@@ -57,7 +57,7 @@ public:
     // Proxy to receive frames and forward them to the client's stream
     bool              deliverFrame(const BufferDesc& buffer);
 
-    // Methods from ::android::hardware::evs::V1_0::IEvsCamera follow.
+    // Methods from ::android::hardware::automotive::evs::V1_0::IEvsCamera follow.
     Return<void>      getId(getId_cb id_cb)  override;
     Return<EvsResult> setMaxFramesInFlight(uint32_t bufferCount)  override;
     Return<EvsResult> startVideoStream(const ::android::sp<IEvsCameraStream>& stream)  override;

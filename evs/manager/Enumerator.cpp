@@ -36,7 +36,7 @@ bool Enumerator::init(const char* hardwareServiceName) {
 }
 
 
-// Methods from ::android::hardware::evs::V1_0::IEvsEnumerator follow.
+// Methods from ::android::hardware::automotive::evs::V1_0::IEvsEnumerator follow.
 Return<void> Enumerator::getCameraList(getCameraList_cb list_cb)  {
     ALOGD("getCameraList");
 

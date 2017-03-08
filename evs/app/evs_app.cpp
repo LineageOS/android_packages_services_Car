@@ -25,8 +25,8 @@
 
 #include "android-base/macros.h"    // arraysize
 
-#include <android/hardware/evs/1.0/IEvsEnumerator.h>
-#include <android/hardware/evs/1.0/IEvsDisplay.h>
+#include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
+#include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
 
 #include <hwbinder/ProcessState.h>
 

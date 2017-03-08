@@ -17,11 +17,11 @@
 #ifndef CAR_EVS_APP_STREAMHANDLER_H
 #define CAR_EVS_APP_STREAMHANDLER_H
 
-#include <android/hardware/evs/1.0/IEvsCameraStream.h>
-#include <android/hardware/evs/1.0/IEvsCamera.h>
-#include <android/hardware/evs/1.0/IEvsDisplay.h>
+#include <android/hardware/automotive/evs/1.0/IEvsCameraStream.h>
+#include <android/hardware/automotive/evs/1.0/IEvsCamera.h>
+#include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
 
-using namespace ::android::hardware::evs::V1_0;
+using namespace ::android::hardware::automotive::evs::V1_0;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
 using ::android::hardware::hidl_vec;
@@ -44,7 +44,7 @@ public:
     unsigned getFramesCompleted();
 
 private:
-    // Implementation for ::android::hardware::evs::V1_0::ICarCameraStream
+    // Implementation for ::android::hardware::automotive::evs::V1_0::ICarCameraStream
     Return<void> deliverFrame(const BufferDesc& buffer)  override;
 
     // Local implementation details
