@@ -131,7 +131,7 @@ LOCAL_IS_HOST_MODULE := false
 
 LOCAL_ADDITIONAL_JAVA_DIR := $(call intermediates-dir-for,$(LOCAL_MODULE_CLASS),android.support.car,,COMMON)
 
-LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
+LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := external/doclava/res/assets/templates-sdk
 
 include $(BUILD_DROIDDOC)
 
