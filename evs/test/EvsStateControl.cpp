@@ -24,14 +24,6 @@
 #include <android/log.h>
 
 
-// TODO:  Seems like it'd be nice if the Vehicle HAL provided such helpers (but how & where?)
-inline constexpr VehiclePropertyType getPropType(VehicleProperty prop) {
-    return static_cast<VehiclePropertyType>(
-            static_cast<int32_t>(prop)
-            & static_cast<int32_t>(VehiclePropertyType::MASK));
-}
-
-
 EvsStateControl::EvsStateControl(android::sp <IEvsEnumerator> pEnumerator,
                                  android::sp <IEvsDisplay> pDisplay) {
 
