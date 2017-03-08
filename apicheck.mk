@@ -57,7 +57,7 @@ LOCAL_DROIDDOC_OPTIONS:= \
     -nodocs \
     -hide 113 \
     -hide 110
-LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
+LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := external/doclava/res/assets/templates-sdk
 LOCAL_UNINSTALLABLE_MODULE := true
 
 include $(BUILD_DROIDDOC)
@@ -95,7 +95,7 @@ LOCAL_DROIDDOC_OPTIONS:= \
     -nodocs \
     -hide 113 \
     -hide 110
-LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
+LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := external/doclava/res/assets/templates-sdk
 LOCAL_UNINSTALLABLE_MODULE := true
 
 include $(BUILD_DROIDDOC)
