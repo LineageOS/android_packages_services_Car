@@ -15,10 +15,6 @@ limitations under the License.
 -->
 <resources>
     <dimen name="car_drawer_margin_right">320dp</dimen>
-    <dimen name="key_line1">112dp</dimen>
-    <dimen name="key_line2">228dp</dimen>
-    <!--same as key_line1, TODO: remove this and use key_line1 after key_lines are updated to work
-     for all screen sizes -->
     <dimen name="car_list_item_right_icon_margin">112dp</dimen>
 
     <dimen name="car_list_item_icon_right_margin">60dp</dimen>
