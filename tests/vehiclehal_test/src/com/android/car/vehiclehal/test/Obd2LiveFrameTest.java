@@ -36,7 +36,6 @@ import org.junit.Test;
 /** Test retrieving the OBD2_LIVE_FRAME property from VHAL */
 public class Obd2LiveFrameTest {
     private static final String TAG = Obd2LiveFrameTest.class.getSimpleName();
-    private static final String VEHICLE_SERVICE_NAME = "Vehicle";
     private static final long WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS = 10_000;
 
     private IVehicle mVehicle = null;
@@ -52,10 +51,10 @@ public class Obd2LiveFrameTest {
                 waitMilliseconds,
                 () -> {
                     try {
-                        return IVehicle.getService(VEHICLE_SERVICE_NAME);
+                        return IVehicle.getService();
                     } catch (RemoteException e) {
-                        Log.w(TAG, "attempt to get IVehicle service " + VEHICLE_SERVICE_NAME
-                                   + " caused RemoteException: ", e);
+                        Log.w(TAG, "attempt to get IVehicle service " +
+                                   " caused RemoteException: ", e);
                         return null;
                     }
                 });
