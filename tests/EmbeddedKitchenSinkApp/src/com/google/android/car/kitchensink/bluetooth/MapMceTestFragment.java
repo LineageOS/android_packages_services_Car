@@ -242,28 +242,21 @@ public class MapMceTestFragment extends Fragment {
                         BluetoothMapClient.ACTION_MESSAGE_DELIVERED_SUCCESSFULLY)) {
                     mDelivered.setChecked(true);
                 } else if (action.equals(BluetoothMapClient.ACTION_MESSAGE_RECEIVED)) {
-
-                    String[] recipients = intent.getStringArrayExtra(
-                            BluetoothMapClient.EXTRA_SENDER_CONTACT_URI);
-                    StringBuilder stringBuilder = new StringBuilder();
-                    if (recipients != null) {
-                        for (String s : recipients) {
-                            stringBuilder.append(s);
-                        }
+                    String senderUri =
+                            intent.getStringExtra(BluetoothMapClient.EXTRA_SENDER_CONTACT_URI);
+                    if (senderUri == null) {
+                        senderUri = "<null>";
                     }
 
-                    String[] recipientsName = intent.getStringArrayExtra(
+                    String senderName = intent.getStringExtra(
                             BluetoothMapClient.EXTRA_SENDER_CONTACT_NAME);
-                    StringBuilder stringBuilderName = new StringBuilder();
-                    if (recipientsName != null) {
-                        for (String s : recipientsName) {
-                            stringBuilderName.append(s);
-                        }
+                    if (senderName == null) {
+                        senderName = "<null>";
                     }
 
                     mMessage.setText(intent.getStringExtra(android.content.Intent.EXTRA_TEXT));
-                    mOriginator.setText(stringBuilder.toString());
-                    mOriginatorDisplayName.setText(stringBuilderName.toString());
+                    mOriginator.setText(senderUri);
+                    mOriginatorDisplayName.setText(senderName);
                 }
             }
         }
