@@ -18,7 +18,6 @@
 
 PRODUCT_PACKAGES += \
     Bluetooth \
-    bt-map-service \
     OneTimeInitializer \
     Provision \
     SystemUI \
