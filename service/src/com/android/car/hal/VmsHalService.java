@@ -303,14 +303,10 @@ public class VmsHalService extends HalServiceBase {
                     listener.onChange(layerId, layerVersion, payload);
                 }
             } else if (messageType == VmsMessageType.SUBSCRIBE) {
-                for (VmsHalPublisherListener listener : mPublisherListeners) {
-                    listener.onChange(layerId, layerVersion, true);
-                }
+                addHalSubscription(new VmsLayer(layerId, layerVersion));
             } else {
                 // messageType == VmsMessageType.UNSUBSCRIBE
-                for (VmsHalPublisherListener listener : mPublisherListeners) {
-                    listener.onChange(layerId, layerVersion, false);
-                }
+                removeHalSubscription(new VmsLayer(layerId, layerVersion));
             }
         }
     }

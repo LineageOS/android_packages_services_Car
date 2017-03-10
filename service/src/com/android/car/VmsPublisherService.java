@@ -101,7 +101,7 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
         ICarImpl.assertVmsPublisherPermission(mContext);
         VmsLayer layer = new VmsLayer(layerId, layerVersion);
 
-        // Sned the message to application listeners.
+        // Send the message to application listeners.
         Set<IOnVmsMessageReceivedListener> listeners = mHal.getListeners(layer);
 
         if (DBG) {
@@ -134,10 +134,13 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
     // Implements VmsHalListener interface
     @Override
     public void onChange(int layerId, int layerVersion, boolean hasSubscribers) {
-        if (hasSubscribers) {
-            mHal.addHalSubscription(new VmsLayer(layerId, layerVersion));
-        } else {
-            mHal.removeHalSubscription(new VmsLayer(layerId, layerVersion));
+        // Send the message to application listeners.
+        for (IVmsPublisherClient client : mPublisherManager.getClients()) {
+            try {
+                client.onVmsSubscriptionChange(layerId, layerVersion, hasSubscribers);
+            } catch (RemoteException ex) {
+                Log.e(TAG, "unable to send notification to: " + client, ex);
+            }
         }
     }
 

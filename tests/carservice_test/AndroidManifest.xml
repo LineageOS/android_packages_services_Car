@@ -46,5 +46,6 @@
         <service android:name=".SimpleVmsPublisherClientService"
                  android:exported="true"
         />
+        <service android:name=".VmsPublisherClientMockService" android:exported="true" />
     </application>
 </manifest>
