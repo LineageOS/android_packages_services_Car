@@ -147,8 +147,6 @@ public final class VmsSubscriberManager implements CarManagerBase {
      *
      * @param layer           the layer id to subscribe to.
      * @param version         the layer version to subscribe to.
-     * @param silentSubscribe if true, the listener does not notify publishers of its existence,
-     *                        it only listens passively.
      * @throws IllegalStateException if the listener was not set via {@link #setListener}.
      */
     public void subscribe(int layer, int version)
