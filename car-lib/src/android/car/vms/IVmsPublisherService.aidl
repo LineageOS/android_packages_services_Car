@@ -16,6 +16,8 @@
 
 package android.car.vms;
 
+import android.car.vms.VmsLayer;
+
 /**
  * Exposes publisher services to VMS clients.
  *
@@ -30,5 +32,5 @@ interface IVmsPublisherService {
     /**
      * Returns whether the layer/version has any clients subscribed to it.
      */
-    boolean hasSubscribers(int layer, int version) = 1;
+    List<VmsLayer> getSubscribers() = 1;
 }

@@ -17,7 +17,10 @@
 package com.android.car.test;
 
 import android.car.annotation.FutureFeature;
+import android.car.vms.VmsLayer;
 import android.car.vms.VmsPublisherClientService;
+
+import java.util.List;
 
 /**
  * This service is launched during the tests in VmsPublisherClientServiceTest.
@@ -25,7 +28,7 @@ import android.car.vms.VmsPublisherClientService;
 @FutureFeature
 public class SimpleVmsPublisherClientService extends VmsPublisherClientService {
     @Override
-    public void onVmsSubscriptionChange(int layer, int version, boolean hasSubscribers) {
+    public void onVmsSubscriptionChange(List<VmsLayer> layers, long sequence) {
 
     }
 

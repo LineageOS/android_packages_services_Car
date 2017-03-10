@@ -27,6 +27,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_1.VmsMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_1.VmsMessageType;
+import android.os.SystemClock;
 import android.util.Log;
 import com.android.car.CarLog;
 import com.android.car.VmsRouting;
@@ -71,7 +72,7 @@ public class VmsHalService extends HalServiceBase {
      * The VmsPublisherService implements this interface to receive data from the HAL.
      */
     public interface VmsHalPublisherListener {
-        void onChange(int layerId, int layerVersion, boolean hasSubscribers);
+        void onChange(List<VmsLayer> layers, long sequence);
     }
 
     /**
@@ -168,8 +169,8 @@ public class VmsHalService extends HalServiceBase {
         return mRouting.isHalSubscribed(layer);
     }
 
-    public boolean hasLayerSubscriptions(VmsLayer layer) {
-        return mRouting.hasLayerSubscriptions(layer);
+    public List<VmsLayer> getSubscribedLayers() {
+        return new ArrayList<>(mRouting.getSubscribedLayers());
     }
 
     public void addHalSubscription(VmsLayer layer) {
@@ -214,8 +215,8 @@ public class VmsHalService extends HalServiceBase {
      * Notify all the publishers and the HAL on subscription changes regardless of who triggered
      * the change.
      *
-     * @param layer which is being subscribed to or unsubscribed from.
-     * @param hasListeners indicates if the notification is for subscription or unsubscription.
+     * @param layer          layer which is being subscribed to or unsubscribed from.
+     * @param hasSubscribers indicates if the notification is for subscription or unsubscription.
      */
     public void notifyPublishers(VmsLayer layer, boolean hasSubscribers) {
         synchronized (mLock) {
@@ -224,7 +225,10 @@ public class VmsHalService extends HalServiceBase {
 
             // Notify the App publishers
             for (VmsHalPublisherListener listener : mPublisherListeners) {
-                listener.onChange(layer.getId(), layer.getVersion(), hasSubscribers);
+                // Besides the list of layers, also a timestamp is provided to the clients.
+                // They should ignore any notification with a timestamp that is older than the most
+                // recent timestamp they have seen.
+                listener.onChange(getSubscribedLayers(), SystemClock.elapsedRealtimeNanos());
             }
         }
     }
