@@ -18,9 +18,9 @@ package com.android.car;
 
 import android.car.annotation.FutureFeature;
 import android.car.vms.IOnVmsMessageReceivedListener;
-
 import android.car.vms.IVmsPublisherClient;
 import android.car.vms.IVmsPublisherService;
+import android.car.vms.VmsLayer;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;

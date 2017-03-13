@@ -20,6 +20,7 @@ import android.car.Car;
 import android.car.annotation.FutureFeature;
 import android.car.vms.IOnVmsMessageReceivedListener;
 import android.car.vms.IVmsSubscriberService;
+import android.car.vms.VmsLayer;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
