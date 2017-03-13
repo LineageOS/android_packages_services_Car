@@ -42,7 +42,7 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
     @Override
     public void onVmsPublisherServiceReady() {
         // Case when the subscription request was sent before the publisher was ready.
-        publishIfNeeded(getSubscribers());
+        publishIfNeeded(getSubscriptions());
     }
 
     private void publishIfNeeded(List<VmsLayer> layers) {
