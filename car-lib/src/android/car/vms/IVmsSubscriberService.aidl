@@ -17,7 +17,6 @@
 package android.car.vms;
 
 import android.car.vms.IOnVmsMessageReceivedListener;
-import android.car.vms.VmsProperty;
 
 /**
  * @hide

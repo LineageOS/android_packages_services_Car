@@ -16,8 +16,6 @@
 
 package android.car.vms;
 
-import android.car.vms.VmsProperty;
-
 /**
  * Exposes publisher services to VMS clients.
  *
