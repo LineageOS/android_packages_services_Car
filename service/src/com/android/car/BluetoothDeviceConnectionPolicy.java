@@ -280,6 +280,7 @@ public class BluetoothDeviceConnectionPolicy {
         mProfileFilter.addAction(BluetoothA2dpSink.ACTION_CONNECTION_STATE_CHANGED);
         mProfileFilter.addAction(BluetoothHeadsetClient.ACTION_CONNECTION_STATE_CHANGED);
         mProfileFilter.addAction(BluetoothPbapClient.ACTION_CONNECTION_STATE_CHANGED);
+        mProfileFilter.addAction(BluetoothMapClient.ACTION_CONNECTION_STATE_CHANGED);
         mProfileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         mContext.registerReceiver(mReceiver, mProfileFilter);
         if (DBG) {
