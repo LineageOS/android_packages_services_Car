@@ -1491,6 +1491,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     }
 
     private void checkCanStatus() {
+        if (mCanBusErrorNotifier == null) {
+            // TODO(b/36189057): create CanBusErrorNotifier from unit-tests and remove this code
+            return;
+        }
+
         // If CAN bus recovers, message will be removed.
         if (mNumConsecutiveHalFailures >= mNumConsecutiveHalFailuresForCanError) {
             mCanBusErrorNotifier.reportFailure(this);
