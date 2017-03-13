@@ -17,6 +17,7 @@
 package com.android.car;
 
 import android.car.vms.IOnVmsMessageReceivedListener;
+import android.car.vms.VmsLayer;
 import android.test.AndroidTestCase;
 import java.util.HashSet;
 import java.util.Set;

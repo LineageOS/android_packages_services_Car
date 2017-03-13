@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.car.annotation.FutureFeature;
 import android.car.vms.IOnVmsMessageReceivedListener;
+import android.car.vms.VmsLayer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.HashMap;

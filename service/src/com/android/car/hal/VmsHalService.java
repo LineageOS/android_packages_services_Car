@@ -21,6 +21,7 @@ import static java.lang.Integer.toHexString;
 import android.car.VehicleAreaType;
 import android.car.annotation.FutureFeature;
 import android.car.vms.IOnVmsMessageReceivedListener;
+import android.car.vms.VmsLayer;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
@@ -28,7 +29,6 @@ import android.hardware.automotive.vehicle.V2_1.VmsMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_1.VmsMessageType;
 import android.util.Log;
 import com.android.car.CarLog;
-import com.android.car.VmsLayer;
 import com.android.car.VmsRouting;
 import com.android.internal.annotations.GuardedBy;
 import java.io.PrintWriter;
@@ -303,14 +303,10 @@ public class VmsHalService extends HalServiceBase {
                     listener.onChange(layerId, layerVersion, payload);
                 }
             } else if (messageType == VmsMessageType.SUBSCRIBE) {
-                for (VmsHalPublisherListener listener : mPublisherListeners) {
-                    listener.onChange(layerId, layerVersion, true);
-                }
+                addHalSubscription(new VmsLayer(layerId, layerVersion));
             } else {
                 // messageType == VmsMessageType.UNSUBSCRIBE
-                for (VmsHalPublisherListener listener : mPublisherListeners) {
-                    listener.onChange(layerId, layerVersion, false);
-                }
+                removeHalSubscription(new VmsLayer(layerId, layerVersion));
             }
         }
     }
