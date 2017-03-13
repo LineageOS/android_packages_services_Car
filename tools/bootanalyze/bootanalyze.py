@@ -47,6 +47,8 @@ ADB_CMD = "adb"
 TIMING_THRESHOLD = 5.0
 BOOT_PROP = "\[ro\.boottime\.([^\]]+)\]:\s+\[(\d+)\]"
 
+max_wait_time = BOOT_TIME_TOO_BIG
+
 def main():
   global ADB_CMD
 
@@ -65,6 +67,9 @@ def main():
   error_time = BOOT_TIME_TOO_BIG * 10
   if args.errortime:
     error_time = float(args.errortime)
+  if args.maxwaittime:
+    global max_wait_time
+    max_wait_time = float(args.maxwaittime)
 
   components_to_monitor = {}
   if args.componentmonitor:
@@ -169,15 +174,16 @@ def capture_bugreport(bugreport_hint, boot_complete_time):
 
 def iterate(args, search_events, timings, cfg, error_time, components_to_monitor):
   if args.reboot:
-    reboot()
+    reboot(args.fs_check)
 
   dmesg_events, e = collect_events(search_events, ADB_CMD + ' shell su root dmesg -w', {},\
                                    [ KERNEL_BOOT_COMPLETE ])
 
+  logcat_stop_events = [ LOGCAT_BOOT_COMPLETE, KERNEL_BOOT_COMPLETE, LAUNCHER_START]
+  if args.fs_check:
+    logcat_stop_events.append("FsStat")
   logcat_events, logcat_timing_events = collect_events(
-    search_events, ADB_CMD + ' logcat -b all -v epoch', timings, [ LOGCAT_BOOT_COMPLETE,\
-                                                                   KERNEL_BOOT_COMPLETE, \
-                                                                   LAUNCHER_START ])
+    search_events, ADB_CMD + ' logcat -b all -v epoch', timings, logcat_stop_events)
   logcat_event_time = extract_time(
     logcat_events, TIME_LOGCAT, float);
   logcat_original_time = extract_time(
@@ -308,13 +314,24 @@ def iterate(args, search_events, timings, cfg, error_time, components_to_monitor
 
   if events[LOGCAT_BOOT_COMPLETE] > error_time and not args.ignore:
     capture_bugreport("bootuptoolong", events[LOGCAT_BOOT_COMPLETE])
-    return None, None, None
 
   for k, v in components_to_monitor.iteritems():
     value_measured = timing_points.get(k)
     if value_measured and value_measured > v:
       capture_bugreport(k + "-" + str(value_measured), events[LOGCAT_BOOT_COMPLETE])
       break
+
+  if args.fs_check:
+    fs_stat = None
+    if logcat_events.get("FsStat"):
+      fs_stat_pattern = cfg["events"]["FsStat"]
+      m = re.search(fs_stat_pattern, logcat_events.get("FsStat"))
+      if m:
+        fs_stat = m.group(1)
+    print 'fs_stat:', fs_stat
+
+    if fs_stat and fs_stat != "0x5" and fs_stat != "0x15":
+      capture_bugreport("fs_stat_" + fs_stat, events[LOGCAT_BOOT_COMPLETE])
 
   return data_points, timing_points, boottime_events
 
@@ -348,6 +365,12 @@ def init_arguments():
                       help='android device serial number')
   parser.add_argument('-e', '--errortime', dest='errortime', action='store',
                       help='handle bootup time bigger than this as error')
+  parser.add_argument('-w', '--maxwaittime', dest='maxwaittime', action='store',
+                      help='wait for up to this time to collect logs. Retry after this time.' +\
+                           ' Default is 200 sec.')
+  parser.add_argument('-f', '--fs_check', dest='fs_check',
+                      action='store_true',
+                      help='check fs_stat after reboot', )
   parser.add_argument('-m', '--componentmonitor', dest='componentmonitor', action='store',
                       help='capture bugreport if specified timing component is taking more than ' +\
                            'certain time. Unlike errortime, the result will not be rejected in' +\
@@ -394,6 +417,7 @@ def collect_events(search_events, command, timings, stop_events):
   out = process.stdout
   data_available = stop_events is None
   zygote_pids = []
+  start_time = time.time()
 
   for line in out:
     if not data_available:
@@ -417,6 +441,11 @@ def collect_events(search_events, command, timings, stop_events):
         timing_events[timing_event] = []
       timing_events[timing_event].append(line)
       debug("timing_event[{0}] captured: {1}".format(timing_event, line))
+
+    time_passed = time.time() - start_time
+    if time_passed > max_wait_time:
+      print "timeout waiting for event, continue"
+      break
 
   process.terminate()
   return events, timing_events
@@ -461,9 +490,15 @@ def extract_time(events, pattern, date_transform_function):
       print "Failed to find time for event: ", event, data
   return result
 
-def reboot():
-  print 'Rebooting the device'
-  subprocess.call(ADB_CMD + ' shell su root svc power reboot', shell=True)
+
+
+def reboot(use_adb_reboot):
+  if use_adb_reboot:
+    print 'Rebooting the device using adb reboot'
+    subprocess.call(ADB_CMD + ' reboot', shell=True)
+  else:
+    print 'Rebooting the device using svc power reboot'
+    subprocess.call(ADB_CMD + ' shell su root svc power reboot', shell=True)
   print 'Waiting the device'
   subprocess.call(ADB_CMD + ' wait-for-device', shell=True)
 

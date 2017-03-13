@@ -2,6 +2,7 @@
 time_correction_key: correction
 timings:
   system_server: SystemServerTiming(Async)?\s*:\s*(?P<name>[^\s]+) took to complete:\s(?P<time>[0-9]+)ms
+  fs_shutdown: (?P<name>boot_fs_shutdown),(?P<time>[0-9]+),([0-9]+)
 
 events:
   kernel: Linux version
@@ -43,3 +44,5 @@ events:
   BootComplete: Starting phase 1000
   BootComplete_kernel: processing action \(sys\.boot_completed=1\)
   LauncherStart: START.*HOME.*(NexusLauncherActivity|GEL)
+  FsStat: fs_stat, partition:userdata stat:(0x\S+)
+
