@@ -17,7 +17,10 @@
 package com.android.car.test;
 
 import android.car.annotation.FutureFeature;
+import android.car.vms.VmsLayer;
 import android.car.vms.VmsPublisherClientService;
+
+import java.util.List;
 
 /**
  * This service is launched during the tests in VmsPublisherSubscriberTest. It publishes a property
@@ -31,22 +34,25 @@ import android.car.vms.VmsPublisherClientService;
 public class VmsPublisherClientMockService extends VmsPublisherClientService {
 
     @Override
-    public void onVmsSubscriptionChange(int layerId, int layerVersion, boolean hasSubscribers) {
+    public void onVmsSubscriptionChange(List<VmsLayer> layers, long sequence) {
         // Case when the publisher finished initialization before the subscription request.
-        if (layerId == VmsPublisherSubscriberTest.LAYER_ID
-                && layerVersion == VmsPublisherSubscriberTest.LAYER_VERSION && hasSubscribers) {
-            publish(VmsPublisherSubscriberTest.LAYER_ID, VmsPublisherSubscriberTest.LAYER_VERSION,
-                    VmsPublisherSubscriberTest.PAYLOAD);
-        }
+        publishIfNeeded(layers);
     }
 
     @Override
     public void onVmsPublisherServiceReady() {
         // Case when the subscription request was sent before the publisher was ready.
-        if (hasSubscribers(VmsPublisherSubscriberTest.LAYER_ID,
-                VmsPublisherSubscriberTest.LAYER_VERSION)) {
-            publish(VmsPublisherSubscriberTest.LAYER_ID, VmsPublisherSubscriberTest.LAYER_VERSION,
-                    VmsPublisherSubscriberTest.PAYLOAD);
+        publishIfNeeded(getSubscribers());
+    }
+
+    private void publishIfNeeded(List<VmsLayer> layers) {
+        for (VmsLayer layer : layers) {
+            if (layer.getId() == VmsPublisherSubscriberTest.LAYER_ID
+                    && layer.getVersion() == VmsPublisherSubscriberTest.LAYER_VERSION) {
+                publish(VmsPublisherSubscriberTest.LAYER_ID,
+                        VmsPublisherSubscriberTest.LAYER_VERSION,
+                        VmsPublisherSubscriberTest.PAYLOAD);
+            }
         }
     }
 }

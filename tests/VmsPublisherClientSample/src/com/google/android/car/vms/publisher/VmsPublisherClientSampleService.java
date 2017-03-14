@@ -16,9 +16,12 @@
 
 package com.google.android.car.vms.publisher;
 
+import android.car.vms.VmsLayer;
 import android.car.vms.VmsPublisherClientService;
 import android.os.Handler;
 import android.os.Message;
+
+import java.util.List;
 
 /**
  * This service is launched during the initialization of the VMS publisher service.
@@ -42,7 +45,7 @@ public class VmsPublisherClientSampleService extends VmsPublisherClientService {
 
     /**
      * Notifies that the publisher services are ready to be used: {@link #publish(int, int, byte[])}
-     * and {@link #hasSubscribers(int, int)}.
+     * and {@link #getSubscribers()}.
      */
     @Override
     public void onVmsPublisherServiceReady() {
@@ -52,7 +55,7 @@ public class VmsPublisherClientSampleService extends VmsPublisherClientService {
     }
 
     @Override
-    public void onVmsSubscriptionChange(int layer, int version, boolean hasSubscribers) {
+    public void onVmsSubscriptionChange(List<VmsLayer> layers, long sequence) {
         // TODO(b/35327656): implement sample logic once the routing is ready (e.g. move the code in
         // onVmsPublisherServiceReady to this function).
     }

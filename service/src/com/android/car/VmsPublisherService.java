@@ -125,19 +125,22 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
     }
 
     @Override
-    public boolean hasSubscribers(int layerId, int layerVersion) {
+    public List<VmsLayer> getSubscribers() {
         ICarImpl.assertVmsPublisherPermission(mContext);
-        VmsLayer layer = new VmsLayer(layerId, layerVersion);
-        return mHal.isHalSubscribed(layer) || mHal.hasLayerSubscriptions(layer);
+        return mHal.getSubscribedLayers();
     }
 
     // Implements VmsHalListener interface
+    /**
+     * This method is only invoked by VmsHalService.notifyPublishers which is synchronized.
+     * Therefore this method only sees a non-decreasing sequence.
+     */
     @Override
-    public void onChange(int layerId, int layerVersion, boolean hasSubscribers) {
+    public void onChange(List<VmsLayer> layers, long sequence) {
         // Send the message to application listeners.
         for (IVmsPublisherClient client : mPublisherManager.getClients()) {
             try {
-                client.onVmsSubscriptionChange(layerId, layerVersion, hasSubscribers);
+                client.onVmsSubscriptionChange(layers, sequence);
             } catch (RemoteException ex) {
                 Log.e(TAG, "unable to send notification to: " + client, ex);
             }
