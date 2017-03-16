@@ -16,8 +16,8 @@
 
 package com.android.car.test;
 
-import android.car.hardware.CarDiagnosticEvent.Obd2FloatSensorIndex;
-import android.car.hardware.CarDiagnosticEvent.Obd2IntegerSensorIndex;
+import android.car.hardware.CarDiagnosticSensorIndices.Obd2FloatSensorIndex;
+import android.car.hardware.CarDiagnosticSensorIndices.Obd2IntegerSensorIndex;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.util.SparseArray;
