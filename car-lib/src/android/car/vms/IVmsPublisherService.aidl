@@ -31,7 +31,7 @@ interface IVmsPublisherService {
     oneway void publish(in IBinder token, int layer, int version, in byte[] message) = 0;
 
     /**
-     * Returns whether the layer/version has any clients subscribed to it.
+     * Returns the list of VmsLayers that has any clients subscribed to it.
      */
     List<VmsLayer> getSubscriptions() = 1;
 

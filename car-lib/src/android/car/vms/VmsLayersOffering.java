@@ -20,6 +20,7 @@ import android.car.annotation.FutureFeature;
 import android.os.Parcel;
 import android.os.Parcelable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,13 +31,17 @@ import java.util.List;
 @FutureFeature
 public final class VmsLayersOffering implements Parcelable {
 
-    private final List<VmsLayerDependency> mDependencies = new ArrayList<>();
+    private final List<VmsLayerDependency> mDependencies;
+
+    public VmsLayersOffering(List<VmsLayerDependency> dependencies) {
+        mDependencies = Collections.unmodifiableList(dependencies);
+    }
 
     /**
      * Returns the dependencies.
      */
     public List<VmsLayerDependency> getDependencies() {
-        return new ArrayList<VmsLayerDependency>(mDependencies);
+        return mDependencies;
     }
 
     public static final Parcelable.Creator<VmsLayersOffering> CREATOR = new
@@ -60,6 +65,8 @@ public final class VmsLayersOffering implements Parcelable {
     }
 
     private VmsLayersOffering(Parcel in) {
-        in.readParcelableList(mDependencies, VmsLayerDependency.class.getClassLoader());
+        List<VmsLayerDependency> dependencies = new ArrayList<>();
+        in.readParcelableList(dependencies, VmsLayerDependency.class.getClassLoader());
+        mDependencies = Collections.unmodifiableList(dependencies);
     }
 }
