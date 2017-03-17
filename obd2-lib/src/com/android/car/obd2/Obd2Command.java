@@ -17,9 +17,23 @@
 package com.android.car.obd2;
 
 import com.android.car.obd2.commands.AmbientAirTemperature;
+import com.android.car.obd2.commands.CalculatedEngineLoad;
+import com.android.car.obd2.commands.EngineCoolantTemperature;
 import com.android.car.obd2.commands.EngineOilTemperature;
+import com.android.car.obd2.commands.EngineRuntime;
+import com.android.car.obd2.commands.FuelGaugePressure;
+import com.android.car.obd2.commands.FuelSystemStatus;
+import com.android.car.obd2.commands.FuelTankLevel;
+import com.android.car.obd2.commands.FuelTrimCommand.Bank1LongTermFuelTrimCommand;
+import com.android.car.obd2.commands.FuelTrimCommand.Bank1ShortTermFuelTrimCommand;
+import com.android.car.obd2.commands.FuelTrimCommand.Bank2LongTermFuelTrimCommand;
+import com.android.car.obd2.commands.FuelTrimCommand.Bank2ShortTermFuelTrimCommand;
+import com.android.car.obd2.commands.RPM;
+import com.android.car.obd2.commands.Speed;
+import com.android.car.obd2.commands.ThrottlePosition;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -51,16 +65,22 @@ public abstract class Obd2Command<ValueType> {
     private static final HashMap<Integer, OutputSemanticHandler<Float>> SUPPORTED_FLOAT_COMMANDS =
             new HashMap<>();
 
-    private static void addSupportedIntegerCommand(
-            OutputSemanticHandler<Integer> integerOutputSemanticHandler) {
-        SUPPORTED_INTEGER_COMMANDS.put(
-                integerOutputSemanticHandler.getPid(), integerOutputSemanticHandler);
+    private static void addSupportedIntegerCommands(
+            OutputSemanticHandler<Integer>... integerOutputSemanticHandlers) {
+        for (OutputSemanticHandler<Integer> integerOutputSemanticHandler :
+                integerOutputSemanticHandlers) {
+            SUPPORTED_INTEGER_COMMANDS.put(
+                    integerOutputSemanticHandler.getPid(), integerOutputSemanticHandler);
+        }
     }
 
-    private static void addSupportedFloatCommand(
-            OutputSemanticHandler<Float> floatOutputSemanticHandler) {
-        SUPPORTED_FLOAT_COMMANDS.put(
-                floatOutputSemanticHandler.getPid(), floatOutputSemanticHandler);
+    private static void addSupportedFloatCommands(
+            OutputSemanticHandler<Float>... floatOutputSemanticHandlers) {
+        for (OutputSemanticHandler<Float> floatOutputSemanticHandler :
+                floatOutputSemanticHandlers) {
+            SUPPORTED_FLOAT_COMMANDS.put(
+                    floatOutputSemanticHandler.getPid(), floatOutputSemanticHandler);
+        }
     }
 
     public static Set<Integer> getSupportedIntegerCommands() {
@@ -80,8 +100,23 @@ public abstract class Obd2Command<ValueType> {
     }
 
     static {
-        addSupportedFloatCommand(new AmbientAirTemperature());
-        addSupportedIntegerCommand(new EngineOilTemperature());
+        addSupportedFloatCommands(
+                new AmbientAirTemperature(),
+                new CalculatedEngineLoad(),
+                new FuelTankLevel(),
+                new Bank2ShortTermFuelTrimCommand(),
+                new Bank2LongTermFuelTrimCommand(),
+                new Bank1LongTermFuelTrimCommand(),
+                new Bank1ShortTermFuelTrimCommand(),
+                new ThrottlePosition());
+        addSupportedIntegerCommands(
+                new EngineOilTemperature(),
+                new EngineCoolantTemperature(),
+                new FuelGaugePressure(),
+                new FuelSystemStatus(),
+                new RPM(),
+                new EngineRuntime(),
+                new Speed());
     }
 
     protected final int mMode;
@@ -89,7 +124,7 @@ public abstract class Obd2Command<ValueType> {
 
     Obd2Command(int mode, OutputSemanticHandler<ValueType> semanticHandler) {
         mMode = mode;
-        mSemanticHandler = semanticHandler;
+        mSemanticHandler = Objects.requireNonNull(semanticHandler);
     }
 
     public abstract Optional<ValueType> run(Obd2Connection connection) throws Exception;
