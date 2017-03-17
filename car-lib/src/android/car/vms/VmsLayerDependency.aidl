@@ -16,27 +16,4 @@
 
 package android.car.vms;
 
-import android.car.vms.VmsLayer;
-import android.car.vms.VmsLayersOffering;
-
-/**
- * Exposes publisher services to VMS clients.
- *
- * @hide
- */
-interface IVmsPublisherService {
-    /**
-     * Client call to publish a message.
-     */
-    oneway void publish(in IBinder token, int layer, int version, in byte[] message) = 0;
-
-    /**
-     * Returns whether the layer/version has any clients subscribed to it.
-     */
-    List<VmsLayer> getSubscriptions() = 1;
-
-    /**
-     * Sets which layers the publisher can publish under which dependencties.
-     */
-    oneway void setLayersOffering(in IBinder token, in VmsLayersOffering offering) = 2;
-}
+parcelable VmsLayerDependency;

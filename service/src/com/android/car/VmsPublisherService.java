@@ -21,18 +21,18 @@ import android.car.vms.IOnVmsMessageReceivedListener;
 import android.car.vms.IVmsPublisherClient;
 import android.car.vms.IVmsPublisherService;
 import android.car.vms.VmsLayer;
+import android.car.vms.VmsLayersOffering;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.android.car.hal.VmsHalService;
 import com.android.internal.annotations.GuardedBy;
-
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -55,6 +55,7 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
     private final Context mContext;
     private final VmsHalService mHal;
     private final VmsPublisherManager mPublisherManager;
+    private final Map<IBinder, VmsLayersOffering> mRawOffering = new HashMap<>();
 
     public VmsPublisherService(Context context, VmsHalService hal) {
         mContext = context;
@@ -92,9 +93,19 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
     public void dump(PrintWriter writer) {
     }
 
+    @Override
+    public void setLayersOffering(IBinder token, VmsLayersOffering offering) {
+        // Store the raw dependencies
+        mRawOffering.put(token, offering);
+
+        //TODO(asafro): Calculate the new available layers
+
+        //TODO(asafro): Notify the subscribers that there is a change in availability
+    }
+
     // Implements IVmsPublisherService interface.
     @Override
-    public void publish(int layerId, int layerVersion, byte[] payload) {
+    public void publish(IBinder token, int layerId, int layerVersion, byte[] payload) {
         if (DBG) {
             Log.d(TAG, "Publishing for layer ID: " + layerId + " Version: " + layerVersion);
         }
@@ -125,7 +136,7 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
     }
 
     @Override
-    public List<VmsLayer> getSubscribers() {
+    public List<VmsLayer> getSubscriptions() {
         ICarImpl.assertVmsPublisherPermission(mContext);
         return mHal.getSubscribedLayers();
     }
@@ -240,6 +251,9 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
         }
 
         class PublisherConnection implements ServiceConnection {
+
+            private final IBinder mToken = new Binder();
+
             /**
              * Once the service binds to a publisher service, the publisher binder is added to
              * mPublisherMap
@@ -257,7 +271,7 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
                     mPublisherMap.put(name.flattenToString(), service);
                 }
                 try {
-                    service.setVmsPublisherService(publisherService);
+                    service.setVmsPublisherService(mToken, publisherService);
                 } catch (RemoteException e) {
                     Log.e(TAG, "unable to configure publisher: " + name);
                 }

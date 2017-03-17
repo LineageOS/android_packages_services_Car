@@ -25,9 +25,10 @@ import android.car.vms.VmsLayer;
 interface IVmsPublisherClient {
     /**
     * Once the VmsPublisherService is bound to the client, this callback is used to set the
-    * binder that the client can use to invoke publisher services.
+    * binder that the client can use to invoke publisher services. This also gives the client
+    * the token it should use when calling the service.
     */
-    oneway void setVmsPublisherService(IVmsPublisherService service) = 0;
+    oneway void setVmsPublisherService(in IBinder token, IVmsPublisherService service) = 0;
 
     /**
      * The VmsPublisherService uses this callback to notify about subscription changes.

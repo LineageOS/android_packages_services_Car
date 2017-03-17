@@ -52,9 +52,13 @@ public abstract class VmsPublisherClientService extends Service {
     private static final boolean DBG = true;
     private static final String TAG = "VmsPublisherClient";
 
+    private final Object mLock = new Object();
+
     private Handler mHandler = new VmsEventHandler(this);
     private final VmsPublisherClientBinder mVmsPublisherClient = new VmsPublisherClientBinder(this);
     private volatile IVmsPublisherService mVmsPublisherService = null;
+    @GuardedBy("mLock")
+    private volatile IBinder mToken = null;
 
     @Override
     public final IBinder onBind(Intent intent) {
@@ -71,6 +75,12 @@ public abstract class VmsPublisherClientService extends Service {
         }
         stopSelf();
         return super.onUnbind(intent);
+    }
+
+    public void setToken(IBinder token) {
+        synchronized (mLock) {
+            mToken = token;
+        }
     }
 
     /**
@@ -103,8 +113,17 @@ public abstract class VmsPublisherClientService extends Service {
         if (mVmsPublisherService == null) {
             throw new IllegalStateException("VmsPublisherService not set.");
         }
+
+        IBinder token;
+        synchronized (mLock) {
+            token = mToken;
+        }
+        if (token == null) {
+            throw new IllegalStateException("VmsPublisherService does not have a valid token.");
+        }
         try {
-            mVmsPublisherService.publish(layerId, layerVersion, payload);
+            mVmsPublisherService
+                .publish(token, layerId, layerVersion, payload);
             return true;
         } catch (RemoteException e) {
             Log.e(TAG, "unable to publish message: " + payload, e);
@@ -118,12 +137,12 @@ public abstract class VmsPublisherClientService extends Service {
      *
      * @return list of layer/version or null in case of error.
      */
-    public final @Nullable List<VmsLayer> getSubscribers() {
+    public final @Nullable List<VmsLayer> getSubscriptions() {
         if (mVmsPublisherService == null) {
             throw new IllegalStateException("VmsPublisherService not set.");
         }
         try {
-            return mVmsPublisherService.getSubscribers();
+            return mVmsPublisherService.getSubscriptions();
         } catch (RemoteException e) {
             Log.e(TAG, "unable to invoke binder method.", e);
         }
@@ -149,7 +168,8 @@ public abstract class VmsPublisherClientService extends Service {
         }
 
         @Override
-        public void setVmsPublisherService(IVmsPublisherService service) throws RemoteException {
+        public void setVmsPublisherService(IBinder token, IVmsPublisherService service)
+                throws RemoteException {
             VmsPublisherClientService vmsPublisherClientService = mVmsPublisherClientService.get();
             if (vmsPublisherClientService == null) return;
             if (DBG) {
@@ -158,6 +178,7 @@ public abstract class VmsPublisherClientService extends Service {
             Handler handler = vmsPublisherClientService.mHandler;
             handler.sendMessage(
                     handler.obtainMessage(VmsEventHandler.SET_SERVICE_CALLBACK, service));
+            vmsPublisherClientService.setToken(token);
         }
 
         @Override
