@@ -162,15 +162,21 @@ public class VmsHalService extends HalServiceBase {
     }
 
     public Set<IOnVmsMessageReceivedListener> getListeners(VmsLayer layer) {
-        return mRouting.getListeners(layer);
+        synchronized (mLock) {
+            return mRouting.getListeners(layer);
+        }
     }
 
     public boolean isHalSubscribed(VmsLayer layer) {
-        return mRouting.isHalSubscribed(layer);
+        synchronized (mLock) {
+            return mRouting.isHalSubscribed(layer);
+        }
     }
 
     public List<VmsLayer> getSubscribedLayers() {
-        return new ArrayList<>(mRouting.getSubscribedLayers());
+        synchronized (mLock) {
+            return new ArrayList<>(mRouting.getSubscribedLayers());
+        }
     }
 
     public void addHalSubscription(VmsLayer layer) {
@@ -208,7 +214,9 @@ public class VmsHalService extends HalServiceBase {
     }
 
     public boolean containsListener(IOnVmsMessageReceivedListener listener) {
-        return mRouting.containsListener(listener);
+        synchronized (mLock) {
+            return mRouting.containsListener(listener);
+        }
     }
 
     /**
