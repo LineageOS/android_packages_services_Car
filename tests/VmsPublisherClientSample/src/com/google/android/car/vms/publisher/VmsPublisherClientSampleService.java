@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.os.Message;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This service is launched during the initialization of the VMS publisher service.
@@ -32,7 +33,8 @@ public class VmsPublisherClientSampleService extends VmsPublisherClientService {
     public static final int TEST_LAYER_ID = 0;
     public static final int TEST_LAYER_VERSION = 0;
 
-    private byte counter = 0;
+    private byte mCounter = 0;
+    private AtomicBoolean mInitialized = new AtomicBoolean(false);
 
     private final Handler mHandler = new Handler() {
         @Override
@@ -49,21 +51,22 @@ public class VmsPublisherClientSampleService extends VmsPublisherClientService {
      */
     @Override
     public void onVmsPublisherServiceReady() {
-        // Notify to the application that everything is ready to start publishing.
-        Message message = mHandler.obtainMessage(PUBLISH_EVENT);
-        mHandler.sendMessage(message);
     }
 
     @Override
     public void onVmsSubscriptionChange(List<VmsLayer> layers, long sequence) {
-        // TODO(b/35327656): implement sample logic once the routing is ready (e.g. move the code in
-        // onVmsPublisherServiceReady to this function).
+        if (mInitialized.compareAndSet(false, true)) {
+            for (VmsLayer layer : layers) {
+                if (layer.getId() == TEST_LAYER_ID && layer.getVersion() == TEST_LAYER_VERSION) {
+                    mHandler.sendEmptyMessage(PUBLISH_EVENT);
+                }
+            }
+        }
     }
 
     private void periodicPublish() {
-        publish(TEST_LAYER_ID, TEST_LAYER_VERSION, new byte[]{counter});
-        ++counter;
-        Message message = mHandler.obtainMessage(PUBLISH_EVENT);
-        mHandler.sendMessageDelayed(message, 1000);
+        publish(TEST_LAYER_ID, TEST_LAYER_VERSION, new byte[]{mCounter});
+        ++mCounter;
+        mHandler.sendEmptyMessageDelayed(PUBLISH_EVENT, 1000);
     }
 }
