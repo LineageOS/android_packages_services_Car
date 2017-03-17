@@ -82,6 +82,7 @@ PRODUCT_PACKAGES += \
     CarLensPickerApp \
     LocalMediaPlayer \
     CarMediaApp \
+    CarMessengerApp \
     Stream \
     CarHvacApp \
     CarMapsPlaceholder \
