@@ -20,7 +20,7 @@ import static java.lang.Integer.toHexString;
 
 import android.car.VehicleAreaType;
 import android.car.annotation.FutureFeature;
-import android.car.vms.IOnVmsMessageReceivedListener;
+import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -108,7 +108,7 @@ public class VmsHalService extends HalServiceBase {
         mSubscriberListeners.remove(listener);
     }
 
-    public void addSubscription(IOnVmsMessageReceivedListener listener, VmsLayer layer) {
+    public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         synchronized (mLock) {
             // Check if publishers need to be notified about this change in subscriptions.
             boolean firstSubscriptionForLayer = !mRouting.getSubscribedLayers().contains(layer);
@@ -123,7 +123,7 @@ public class VmsHalService extends HalServiceBase {
         }
     }
 
-    public void removeSubscription(IOnVmsMessageReceivedListener listener, VmsLayer layer) {
+    public void removeSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         synchronized (mLock) {
             if (!mRouting.hasLayerSubscriptions(layer)) {
                 Log.i(TAG, "Trying to remove a layer with no subscription: " + layer);
@@ -143,25 +143,25 @@ public class VmsHalService extends HalServiceBase {
         }
     }
 
-    public void addSubscription(IOnVmsMessageReceivedListener listener) {
+    public void addSubscription(IVmsSubscriberClient listener) {
         synchronized (mLock) {
             mRouting.addSubscription(listener);
         }
     }
 
-    public void removeSubscription(IOnVmsMessageReceivedListener listener) {
+    public void removeSubscription(IVmsSubscriberClient listener) {
         synchronized (mLock) {
             mRouting.removeSubscription(listener);
         }
     }
 
-    public void removeDeadListener(IOnVmsMessageReceivedListener listener) {
+    public void removeDeadListener(IVmsSubscriberClient listener) {
         synchronized (mLock) {
             mRouting.removeDeadListener(listener);
         }
     }
 
-    public Set<IOnVmsMessageReceivedListener> getListeners(VmsLayer layer) {
+    public Set<IVmsSubscriberClient> getListeners(VmsLayer layer) {
         synchronized (mLock) {
             return mRouting.getListeners(layer);
         }
@@ -213,7 +213,7 @@ public class VmsHalService extends HalServiceBase {
         }
     }
 
-    public boolean containsListener(IOnVmsMessageReceivedListener listener) {
+    public boolean containsListener(IVmsSubscriberClient listener) {
         synchronized (mLock) {
             return mRouting.containsListener(listener);
         }

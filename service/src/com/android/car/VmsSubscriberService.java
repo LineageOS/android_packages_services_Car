@@ -18,7 +18,7 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.annotation.FutureFeature;
-import android.car.vms.IOnVmsMessageReceivedListener;
+import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.IVmsSubscriberService;
 import android.car.vms.VmsLayer;
 import android.content.Context;
@@ -31,6 +31,7 @@ import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +67,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         private final Map<IBinder, ListenerDeathRecipient> mListenerDeathRecipientMap =
                 new HashMap<>();
         @GuardedBy("mListenerManagerLock")
-        private final Map<IBinder, IOnVmsMessageReceivedListener> mListenerMap = new HashMap<>();
+        private final Map<IBinder, IVmsSubscriberClient> mListenerMap = new HashMap<>();
 
         class ListenerDeathRecipient implements IBinder.DeathRecipient {
             private IBinder mListenerBinder;
@@ -85,7 +86,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
                 }
 
                 // Get the Listener from the Binder
-                IOnVmsMessageReceivedListener listener = mListenerMap.get(mListenerBinder);
+                IVmsSubscriberClient listener = mListenerMap.get(mListenerBinder);
 
                 // Remove the listener subscriptions.
                 if (listener != null) {
@@ -121,7 +122,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
          * @throws IllegalStateException    if it was not possible to link a death recipient to the
          *                                  listener.
          */
-        public void add(IOnVmsMessageReceivedListener listener) {
+        public void add(IVmsSubscriberClient listener) {
             ICarImpl.assertPermission(mContext, PERMISSION);
             if (listener == null) {
                 Log.e(TAG, "register: listener is null.");
@@ -154,7 +155,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
          * @param listener to be removed.
          * @throws IllegalArgumentException if listener is null.
          */
-        public void remove(IOnVmsMessageReceivedListener listener) {
+        public void remove(IVmsSubscriberClient listener) {
             if (DBG) {
                 Log.d(TAG, "unregisterListener");
             }
@@ -186,7 +187,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
          *
          * @return list of listeners.
          */
-        public List<IOnVmsMessageReceivedListener> getListeners() {
+        public List<IVmsSubscriberClient> getListeners() {
             synchronized (mListenerManagerLock) {
                 return new ArrayList<>(mListenerMap.values());
             }
@@ -216,7 +217,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     // Implements IVmsService interface.
     @Override
-    public void addOnVmsMessageReceivedListener(IOnVmsMessageReceivedListener listener,
+    public void addVmsSubscriberClientListener(IVmsSubscriberClient listener,
         int layerId, int layerVersion) {
         synchronized (mSubscriberServiceLock) {
             // Add the listener so it can subscribe.
@@ -229,7 +230,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     }
 
     @Override
-    public void removeOnVmsMessageReceivedListener(IOnVmsMessageReceivedListener listener,
+    public void removeVmsSubscriberClientListener(IVmsSubscriberClient listener,
         int layerId, int layerVersion) {
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
@@ -244,7 +245,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     }
 
     @Override
-    public void addOnVmsMessageReceivedPassiveListener(IOnVmsMessageReceivedListener listener) {
+    public void addVmsSubscriberClientPassiveListener(IVmsSubscriberClient listener) {
         synchronized (mSubscriberServiceLock) {
             mMessageReceivedManager.add(listener);
             mHal.addSubscription(listener);
@@ -252,7 +253,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     }
 
     @Override
-    public void removeOnVmsMessageReceivedPassiveListener(IOnVmsMessageReceivedListener listener) {
+    public void removeVmsSubscriberClientPassiveListener(IVmsSubscriberClient listener) {
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
             mHal.removeSubscription(listener);
@@ -264,6 +265,12 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         }
     }
 
+    @Override
+    public List<VmsLayer> getAvailableLayers() {
+        //TODO(asafro): return the list of available layers once logic is implemented.
+        return Collections.emptyList();
+    }
+
     // Implements VmsHalSubscriberListener interface
     @Override
     public void onChange(int layerId, int layerVersion, byte[] payload) {
@@ -272,14 +279,14 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
             Log.d(TAG, "Publishing a message for layer: " + layer);
         }
 
-        Set<IOnVmsMessageReceivedListener> listeners = mHal.getListeners(layer);
+        Set<IVmsSubscriberClient> listeners = mHal.getListeners(layer);
 
         // If there are no listeners we're done.
         if ((listeners == null)) {
             return;
         }
 
-        for (IOnVmsMessageReceivedListener subscriber : listeners) {
+        for (IVmsSubscriberClient subscriber : listeners) {
             try {
                 subscriber.onVmsMessageReceived(layerId, layerVersion, payload);
             } catch (RemoteException e) {

@@ -20,6 +20,7 @@ import android.annotation.ArrayRes;
 import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.annotation.FutureFeature;
+import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriberManager;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -32,6 +33,7 @@ import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -112,7 +114,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     private class HalHandler implements MockedVehicleHal.VehicleHalPropertyHandler {
     }
 
-    private class TestListener implements VmsSubscriberManager.OnVmsMessageReceivedListener {
+    private class TestListener implements VmsSubscriberManager.VmsSubscriberClientListener {
         private int mLayerId;
         private int mLayerVersion;
         private byte[] mPayload;
@@ -126,6 +128,13 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
             mLayerVersion = layerVersion;
             mPayload = payload;
             mSubscriberSemaphore.release();
+        }
+
+        @Override
+        public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
+            //TODO(asafro): test availability changes on publisher update when logic is implemented.
+            //  for that need to add Offering support in VmsPublisherClientService
+            //  and update VmsPublisherClientMockService
         }
 
         public int getLayerId() {

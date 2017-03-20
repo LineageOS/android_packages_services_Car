@@ -16,7 +16,8 @@
 
 package android.car.vms;
 
-import android.car.vms.IOnVmsMessageReceivedListener;
+import android.car.vms.IVmsSubscriberClient;
+import android.car.vms.VmsLayer;
 
 /**
  * @hide
@@ -25,8 +26,8 @@ interface IVmsSubscriberService {
     /**
      * Subscribes the listener to receive messages from layer/version.
      */
-    void addOnVmsMessageReceivedListener(
-            in IOnVmsMessageReceivedListener listener,
+    void addVmsSubscriberClientListener(
+            in IVmsSubscriberClient listener,
             int layer,
             int version) = 0;
 
@@ -35,13 +36,13 @@ interface IVmsSubscriberService {
      * service will not send any subscription notifications to publishers (i.e. this is a passive
      * subscriber).
      */
-    void addOnVmsMessageReceivedPassiveListener(in IOnVmsMessageReceivedListener listener) = 1;
+    void addVmsSubscriberClientPassiveListener(in IVmsSubscriberClient listener) = 1;
 
     /**
      * Tells the VmsSubscriberService a client unsubscribes to layer messages.
      */
-    void removeOnVmsMessageReceivedListener(
-            in IOnVmsMessageReceivedListener listener,
+    void removeVmsSubscriberClientListener(
+            in IVmsSubscriberClient listener,
             int layer,
             int version) = 2;
 
@@ -49,6 +50,12 @@ interface IVmsSubscriberService {
      * Tells the VmsSubscriberService a passive client unsubscribes. This will not unsubscribe
      * the listener from any specific layer it has subscribed to.
      */
-    void removeOnVmsMessageReceivedPassiveListener(
-            in IOnVmsMessageReceivedListener listener) = 3;
+    void removeVmsSubscriberClientPassiveListener(
+            in IVmsSubscriberClient listener) = 3;
+
+    /**
+     * Tells the VmsSubscriberService a client requests the list of available layers.
+     * The service should call the client's onLayersAvailabilityChange in response.
+     */
+    List<VmsLayer> getAvailableLayers() = 4;
 }
