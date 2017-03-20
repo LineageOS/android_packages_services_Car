@@ -20,6 +20,7 @@ import android.car.annotation.FutureFeature;
 import android.os.Parcel;
 import android.os.Parcelable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,14 +31,14 @@ import java.util.List;
 @FutureFeature
 public final class VmsLayerDependency implements Parcelable {
     private final VmsLayer mLayer;
-    private final List<VmsLayer> mDependency = new ArrayList<>();
+    private final List<VmsLayer> mDependency;
 
     /**
      * Construct a dependency for layer on other layers.
      */
     public VmsLayerDependency(VmsLayer layer, List<VmsLayer> dependencies) {
         mLayer = layer;
-        mDependency.addAll(dependencies);
+        mDependency = Collections.unmodifiableList(dependencies);
     }
 
     /**
@@ -45,6 +46,7 @@ public final class VmsLayerDependency implements Parcelable {
      */
     public VmsLayerDependency(VmsLayer layer) {
         mLayer = layer;
+        mDependency = Collections.emptyList();
     }
 
     /**
@@ -62,7 +64,7 @@ public final class VmsLayerDependency implements Parcelable {
      * Returns the dependencies.
      */
     public List<VmsLayer> getDependencies() {
-        return new ArrayList<VmsLayer>(mDependency);
+        return mDependency;
     }
 
     public static final Parcelable.Creator<VmsLayerDependency> CREATOR = new
@@ -88,7 +90,8 @@ public final class VmsLayerDependency implements Parcelable {
 
     private VmsLayerDependency(Parcel in) {
         mLayer = in.readParcelable(VmsLayer.class.getClassLoader());
-        in.readParcelableList(mDependency, VmsLayer.class.getClassLoader());
-
+        List<VmsLayer> dependency = new ArrayList<>();
+        in.readParcelableList(dependency, VmsLayer.class.getClassLoader());
+        mDependency = Collections.unmodifiableList(dependency);
     }
 }

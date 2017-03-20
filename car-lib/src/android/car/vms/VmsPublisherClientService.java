@@ -58,7 +58,7 @@ public abstract class VmsPublisherClientService extends Service {
     private final VmsPublisherClientBinder mVmsPublisherClient = new VmsPublisherClientBinder(this);
     private volatile IVmsPublisherService mVmsPublisherService = null;
     @GuardedBy("mLock")
-    private volatile IBinder mToken = null;
+    private IBinder mToken = null;
 
     @Override
     public final IBinder onBind(Intent intent) {
@@ -122,8 +122,7 @@ public abstract class VmsPublisherClientService extends Service {
             throw new IllegalStateException("VmsPublisherService does not have a valid token.");
         }
         try {
-            mVmsPublisherService
-                .publish(token, layerId, layerVersion, payload);
+            mVmsPublisherService.publish(token, layerId, layerVersion, payload);
             return true;
         } catch (RemoteException e) {
             Log.e(TAG, "unable to publish message: " + payload, e);
