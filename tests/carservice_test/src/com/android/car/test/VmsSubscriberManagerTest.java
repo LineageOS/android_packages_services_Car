@@ -19,8 +19,9 @@ package com.android.car.test;
 import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.annotation.FutureFeature;
-import android.car.vms.VmsSubscriberManager.OnVmsMessageReceivedListener;
+import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriberManager;
+import android.car.vms.VmsSubscriberManager.VmsSubscriberClientListener;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
@@ -29,11 +30,10 @@ import android.hardware.automotive.vehicle.V2_1.VmsMessageType;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
-
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
-
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -153,7 +153,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     }
 
 
-    private class TestListener implements OnVmsMessageReceivedListener {
+    private class TestListener implements VmsSubscriberClientListener{
         private int mLayerId;
         private int mLayerVersion;
         private byte[] mPayload;
@@ -166,6 +166,11 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
             mLayerVersion = layerVersion;
             mPayload = payload;
             mSubscriberSemaphore.release();
+        }
+
+        @Override
+        public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
+            Log.d(TAG, "onLayersAvailabilityChange: Layers: " + availableLayers);
         }
 
         public int getLayerId() {

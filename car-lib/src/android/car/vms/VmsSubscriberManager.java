@@ -16,7 +16,6 @@
 
 package android.car.vms;
 
-import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
@@ -27,10 +26,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
-
 import com.android.internal.annotations.GuardedBy;
-
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 /**
  * API for interfacing with the VmsSubscriberService. It supports a single listener that can
@@ -47,15 +45,18 @@ public final class VmsSubscriberManager implements CarManagerBase {
 
     private final Handler mHandler;
     private final IVmsSubscriberService mVmsSubscriberService;
-    private final IOnVmsMessageReceivedListener mIListener;
+    private final IVmsSubscriberClient mIListener;
     private final Object mListenerLock = new Object();
     @GuardedBy("mListenerLock")
-    private OnVmsMessageReceivedListener mListener;
+    private VmsSubscriberClientListener mListener;
 
-    /** Interface exposed to VMS subscribers: it is a wrapper of IOnVmsMessageReceivedListener. */
-    public interface OnVmsMessageReceivedListener {
+    /** Interface exposed to VMS subscribers: it is a wrapper of IVmsSubscriberClient. */
+    public interface VmsSubscriberClientListener {
         /** Called when the property is updated */
         void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload);
+
+        /** Called when layers availability change */
+        void onLayersAvailabilityChange(List<VmsLayer> availableLayers);
     }
 
     /**
@@ -64,6 +65,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
     private final static class VmsEventHandler extends Handler {
         /** Constants handled in the handler */
         private static final int ON_RECEIVE_MESSAGE_EVENT = 0;
+        private static final int ON_AVAILABILITY_CHANGE_EVENT = 1;
 
         private final WeakReference<VmsSubscriberManager> mMgr;
 
@@ -74,9 +76,9 @@ public final class VmsSubscriberManager implements CarManagerBase {
 
         @Override
         public void handleMessage(Message msg) {
+            VmsSubscriberManager mgr = mMgr.get();
             switch (msg.what) {
                 case ON_RECEIVE_MESSAGE_EVENT:
-                    VmsSubscriberManager mgr = mMgr.get();
                     if (mgr != null) {
                         // Parse the message
                         VmsDataMessage vmsDataMessage = (VmsDataMessage) msg.obj;
@@ -87,6 +89,16 @@ public final class VmsSubscriberManager implements CarManagerBase {
                                                      vmsDataMessage.getPayload());
                     }
                     break;
+                case ON_AVAILABILITY_CHANGE_EVENT:
+                    if (mgr != null) {
+                        // Parse the message
+                        List<VmsLayer> vmsAvailabilityChangeMessage = (List<VmsLayer>) msg.obj;
+
+                        // Dispatch the parsed message
+                        mgr.dispatchOnAvailabilityChangeMessage(vmsAvailabilityChangeMessage);
+                    }
+                    break;
+
                 default:
                     Log.e(VmsSubscriberManager.TAG, "Event type not handled:  " + msg.what);
                     break;
@@ -97,7 +109,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
     public VmsSubscriberManager(IBinder service, Handler handler) {
         mVmsSubscriberService = IVmsSubscriberService.Stub.asInterface(service);
         mHandler = new VmsEventHandler(this, handler.getLooper());
-        mIListener = new IOnVmsMessageReceivedListener.Stub() {
+        mIListener = new IVmsSubscriberClient.Stub() {
             @Override
             public void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload)
                 throws RemoteException {
@@ -107,6 +119,14 @@ public final class VmsSubscriberManager implements CarManagerBase {
                         mHandler.obtainMessage(
                             VmsEventHandler.ON_RECEIVE_MESSAGE_EVENT,
                             vmsDataMessage));
+            }
+
+            @Override
+            public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
+                mHandler.sendMessage(
+                    mHandler.obtainMessage(
+                        VmsEventHandler.ON_AVAILABILITY_CHANGE_EVENT,
+                        availableLayers));
             }
         };
     }
@@ -120,7 +140,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
      * @param listener subscriber listener that will handle onVmsMessageReceived events.
      * @throws IllegalStateException if the listener was already set.
      */
-    public void setListener(OnVmsMessageReceivedListener listener) {
+    public void setListener(VmsSubscriberClientListener listener) {
         if (DBG) {
             Log.d(TAG, "Setting listener.");
         }
@@ -154,7 +174,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         if (DBG) {
             Log.d(TAG, "Subscribing to layer: " + layer + ", version: " + version);
         }
-        OnVmsMessageReceivedListener listener;
+        VmsSubscriberClientListener listener;
         synchronized (mListenerLock) {
             listener = mListener;
         }
@@ -164,7 +184,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             throw new IllegalStateException("Listener was not set.");
         }
         try {
-            mVmsSubscriberService.addOnVmsMessageReceivedListener(mIListener, layer, version);
+            mVmsSubscriberService.addVmsSubscriberClientListener(mIListener, layer, version);
         } catch (RemoteException e) {
             Log.e(TAG, "Could not connect: ", e);
             throw new CarNotConnectedException(e);
@@ -178,7 +198,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         if (DBG) {
             Log.d(TAG, "Subscribing passively to all data messages");
         }
-        OnVmsMessageReceivedListener listener;
+        VmsSubscriberClientListener listener;
         synchronized (mListenerLock) {
             listener = mListener;
         }
@@ -188,7 +208,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             throw new IllegalStateException("Listener was not set.");
         }
         try {
-            mVmsSubscriberService.addOnVmsMessageReceivedPassiveListener(mIListener);
+            mVmsSubscriberService.addVmsSubscriberClientPassiveListener(mIListener);
         } catch (RemoteException e) {
             Log.e(TAG, "Could not connect: ", e);
             throw new CarNotConnectedException(e);
@@ -208,7 +228,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         if (DBG) {
             Log.d(TAG, "Unsubscribing from layer: " + layer + ", version: " + version);
         }
-        OnVmsMessageReceivedListener listener;
+        VmsSubscriberClientListener listener;
         synchronized (mListenerLock) {
             listener = mListener;
         }
@@ -218,7 +238,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             throw new IllegalStateException("Listener was not set.");
         }
         try {
-            mVmsSubscriberService.removeOnVmsMessageReceivedListener(mIListener, layer, version);
+            mVmsSubscriberService.removeVmsSubscriberClientListener(mIListener, layer, version);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to unregister subscriber", e);
             // ignore
@@ -228,7 +248,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
     }
 
     private void dispatchOnReceiveMessage(int layerId, int layerVersion, byte[] payload) {
-        OnVmsMessageReceivedListener listener;
+        VmsSubscriberClientListener listener;
         synchronized (mListenerLock) {
             listener = mListener;
         }
@@ -237,6 +257,18 @@ public final class VmsSubscriberManager implements CarManagerBase {
             return;
         }
         listener.onVmsMessageReceived(layerId, layerVersion, payload);
+    }
+
+    private void dispatchOnAvailabilityChangeMessage(List<VmsLayer> availableLayers) {
+        VmsSubscriberClientListener listener;
+        synchronized (mListenerLock) {
+            listener = mListener;
+        }
+        if (listener == null) {
+            Log.e(TAG, "Listener died, not dispatching event.");
+            return;
+        }
+        listener.onLayersAvailabilityChange(availableLayers);
     }
 
     /** @hide */

@@ -16,10 +16,11 @@
 
 package com.android.car;
 
-import android.car.vms.IOnVmsMessageReceivedListener;
+import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
 import android.test.AndroidTestCase;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -127,8 +128,11 @@ public class VmsRoutingTest extends AndroidTestCase {
             mRouting.getListeners(LAYER_WITHOUT_SUBSCRIPTION));
     }
 
-    class MockVmsListener extends IOnVmsMessageReceivedListener.Stub {
+    class MockVmsListener extends IVmsSubscriberClient.Stub {
         @Override
         public void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload) {}
+
+        @Override
+        public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {}
     }
 }

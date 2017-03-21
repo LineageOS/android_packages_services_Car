@@ -17,7 +17,7 @@
 package com.android.car;
 
 import android.car.annotation.FutureFeature;
-import android.car.vms.IOnVmsMessageReceivedListener;
+import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.IVmsPublisherClient;
 import android.car.vms.IVmsPublisherService;
 import android.car.vms.VmsLayer;
@@ -113,12 +113,12 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
         VmsLayer layer = new VmsLayer(layerId, layerVersion);
 
         // Send the message to application listeners.
-        Set<IOnVmsMessageReceivedListener> listeners = mHal.getListeners(layer);
+        Set<IVmsSubscriberClient> listeners = mHal.getListeners(layer);
 
         if (DBG) {
             Log.d(TAG, "Number of subscribed apps: " + listeners.size());
         }
-        for (IOnVmsMessageReceivedListener listener : listeners) {
+        for (IVmsSubscriberClient listener : listeners) {
             try {
                 listener.onVmsMessageReceived(layerId, layerVersion, payload);
             } catch (RemoteException ex) {

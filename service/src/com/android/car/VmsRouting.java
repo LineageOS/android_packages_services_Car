@@ -17,7 +17,7 @@
 package com.android.car;
 
 import android.car.annotation.FutureFeature;
-import android.car.vms.IOnVmsMessageReceivedListener;
+import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
 import java.util.Collection;
 import java.util.HashSet;
@@ -38,11 +38,11 @@ public class VmsRouting {
     private final Object mLock = new Object();
     // A map of Layer + Version to listeners.
     @GuardedBy("mLock")
-    private Map<VmsLayer, Set<IOnVmsMessageReceivedListener>> mLayerSubscriptions =
+    private Map<VmsLayer, Set<IVmsSubscriberClient>> mLayerSubscriptions =
         new HashMap<>();
     // A set of listeners that are interested in any layer + version.
     @GuardedBy("mLock")
-    private Set<IOnVmsMessageReceivedListener> mPromiscuousSubscribers =
+    private Set<IVmsSubscriberClient> mPromiscuousSubscribers =
         new HashSet<>();
     // A set of all the layers + versions the HAL is subscribed to.
     @GuardedBy("mLock")
@@ -54,10 +54,10 @@ public class VmsRouting {
      * @param listener a VMS subscriber.
      * @param layer the layer subscribing to.
      */
-    public void addSubscription(IOnVmsMessageReceivedListener listener, VmsLayer layer) {
+    public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         synchronized (mLock) {
             // Get or create the list of listeners for layer and version.
-            Set<IOnVmsMessageReceivedListener> listeners = mLayerSubscriptions.get(layer);
+            Set<IVmsSubscriberClient> listeners = mLayerSubscriptions.get(layer);
 
             if (listeners == null) {
                 listeners = new HashSet<>();
@@ -73,7 +73,7 @@ public class VmsRouting {
      *
      * @param listener a VMS subscriber.
      */
-    public void addSubscription(IOnVmsMessageReceivedListener listener) {
+    public void addSubscription(IVmsSubscriberClient listener) {
         synchronized (mLock) {
             mPromiscuousSubscribers.add(listener);
         }
@@ -86,9 +86,9 @@ public class VmsRouting {
      * @param listener to remove.
      * @param layer of the subscription.
      */
-    public void removeSubscription(IOnVmsMessageReceivedListener listener, VmsLayer layer) {
+    public void removeSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         synchronized (mLock) {
-            Set<IOnVmsMessageReceivedListener> listeners = mLayerSubscriptions.get(layer);
+            Set<IVmsSubscriberClient> listeners = mLayerSubscriptions.get(layer);
 
             // If there are no listeners we are done.
             if (listeners == null) {
@@ -108,7 +108,7 @@ public class VmsRouting {
      *
      * @param listener a VMS subscriber.
      */
-    public void removeSubscription(IOnVmsMessageReceivedListener listener) {
+    public void removeSubscription(IVmsSubscriberClient listener) {
         synchronized (mLock) {
             mPromiscuousSubscribers.remove(listener);
         }
@@ -119,7 +119,7 @@ public class VmsRouting {
      *
      * @param listener a VMS subscriber.
      */
-    public void removeDeadListener(IOnVmsMessageReceivedListener listener) {
+    public void removeDeadListener(IVmsSubscriberClient listener) {
         synchronized (mLock) {
             // Remove the listener from all the routes.
             for (VmsLayer layer : mLayerSubscriptions.keySet()) {
@@ -137,8 +137,8 @@ public class VmsRouting {
      * @param layer to get listeners to.
      * @return a list of the listeners.
      */
-    public Set<IOnVmsMessageReceivedListener> getListeners(VmsLayer layer) {
-        Set<IOnVmsMessageReceivedListener> listeners = new HashSet<>();
+    public Set<IVmsSubscriberClient> getListeners(VmsLayer layer) {
+        Set<IVmsSubscriberClient> listeners = new HashSet<>();
         synchronized (mLock) {
             // Add the subscribers which explicitly subscribed to this layer and version
             if (mLayerSubscriptions.containsKey(layer)) {
@@ -155,10 +155,10 @@ public class VmsRouting {
      * @param listener that may have subscription.
      * @return true if the listener uis subscribed to messages.
      */
-    public boolean containsListener(IOnVmsMessageReceivedListener listener) {
+    public boolean containsListener(IVmsSubscriberClient listener) {
         synchronized (mLock) {
             // Check if listener is subscribed to a layer.
-            for (Set<IOnVmsMessageReceivedListener> layerListeners: mLayerSubscriptions.values()) {
+            for (Set<IVmsSubscriberClient> layerListeners: mLayerSubscriptions.values()) {
                 if (layerListeners.contains(listener)) {
                     return true;
                 }

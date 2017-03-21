@@ -17,6 +17,7 @@
 package com.google.android.car.vms.subscriber;
 
 import android.app.Activity;
+import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriberManager;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.support.car.Car;
 import android.support.car.CarConnectionCallback;
 import android.util.Log;
 import android.widget.TextView;
+import java.util.List;
 
 /**
  * Connects to the Car service during onCreate. CarConnectionCallback.onConnected is invoked when
@@ -96,11 +98,16 @@ public class VmsSubscriberClientSampleActivity extends Activity {
         }
     };
 
-    private final VmsSubscriberManager.OnVmsMessageReceivedListener mListener =
-            new VmsSubscriberManager.OnVmsMessageReceivedListener() {
+    private final VmsSubscriberManager.VmsSubscriberClientListener mListener =
+            new VmsSubscriberManager.VmsSubscriberClientListener() {
                 @Override
                 public void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload) {
                     mTextView.setText(String.valueOf(payload[0]));
+                }
+
+                @Override
+                public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
+                    mTextView.setText(String.valueOf(availableLayers));
                 }
             };
 }
