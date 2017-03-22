@@ -19,17 +19,19 @@
 bootanalyze read logcat and dmesg loga and determines key points for boot.
 """
 
-import yaml
 import argparse
-import re
-import os
-import subprocess
-import time
-import math
-import datetime
-import sys
-import operator
 import collections
+import datetime
+import math
+import operator
+import os
+import re
+import select
+import subprocess
+import sys
+import time
+import yaml
+
 from datetime import datetime, date
 
 
@@ -414,12 +416,24 @@ def collect_events(search_events, command, timings, stop_events):
   timing_events = {}
   process = subprocess.Popen(command, shell=True,
                              stdout=subprocess.PIPE);
-  out = process.stdout
   data_available = stop_events is None
   zygote_pids = []
   start_time = time.time()
 
-  for line in out:
+  line = None
+  read_poll = select.poll()
+  read_poll.register(process.stdout, select.POLLIN)
+  while True:
+    time_left = start_time + max_wait_time - time.time()
+    if time_left <= 0:
+      print "timeout waiting for event, continue", time_left
+      break
+    read_r = read_poll.poll(time_left * 1000.0)
+    if read_r:
+        line = process.stdout.readline()
+    else:
+      print "poll timeout waiting for event, continue", time_left
+      break
     if not data_available:
       print "Collecting data samples from '%s'. Please wait...\n" % command
       data_available = True
@@ -432,6 +446,7 @@ def collect_events(search_events, command, timings, stop_events):
         events[event] = line
       if event in stop_events:
         stop_events.remove(event)
+        print "remaining stop_events:", stop_events
         if len(stop_events) == 0:
           break;
 
@@ -441,11 +456,6 @@ def collect_events(search_events, command, timings, stop_events):
         timing_events[timing_event] = []
       timing_events[timing_event].append(line)
       debug("timing_event[{0}] captured: {1}".format(timing_event, line))
-
-    time_passed = time.time() - start_time
-    if time_passed > max_wait_time:
-      print "timeout waiting for event, continue"
-      break
 
   process.terminate()
   return events, timing_events
