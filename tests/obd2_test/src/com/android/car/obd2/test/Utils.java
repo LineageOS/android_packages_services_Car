@@ -30,9 +30,21 @@ public class Utils {
         return arrayList.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    static int[] concatIntArrays(int[] array1, int[] array2) {
-        int[] newArray = Arrays.copyOf(array1, array1.length + array2.length);
-        System.arraycopy(array2, 0, newArray, array1.length, array2.length);
+    static int[] concatIntArrays(int[]... arrays) {
+        // corner and trivial cases
+        if (0 == arrays.length) return new int[] {};
+        if (1 == arrays.length) return arrays[0];
+
+        // the general case in its full glory
+        int totalSize = Arrays.stream(arrays).mapToInt((int[] array) -> array.length).sum();
+        int[] newArray = Arrays.copyOf(arrays[0], totalSize);
+        int usedSize = arrays[0].length;
+        for (int i = 1; i < arrays.length; ++i) {
+            int[] array = arrays[i];
+            int length = array.length;
+            System.arraycopy(array, 0, newArray, usedSize, length);
+            usedSize += length;
+        }
         return newArray;
     }
 }
