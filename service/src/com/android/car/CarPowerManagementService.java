@@ -89,8 +89,6 @@ public class CarPowerManagementService implements CarServiceBase,
 
     private final PowerHalService mHal;
     private final SystemInterface mSystemInterface;
-    private final HandlerThread mHandlerThread;
-    private final PowerHandler mHandler;
 
     private final CopyOnWriteArrayList<PowerServiceEventListener> mListeners =
             new CopyOnWriteArrayList<>();
@@ -107,6 +105,10 @@ public class CarPowerManagementService implements CarServiceBase,
     private long mLastSleepEntryTime;
     @GuardedBy("this")
     private final LinkedList<PowerState> mPendingPowerStates = new LinkedList<>();
+    @GuardedBy("this")
+    private HandlerThread mHandlerThread;
+    @GuardedBy("this")
+    private PowerHandler mHandler;
 
     private final static int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
     private final static int SHUTDOWN_EXTEND_MAX_MS = 5000;
@@ -114,9 +116,6 @@ public class CarPowerManagementService implements CarServiceBase,
     public CarPowerManagementService(PowerHalService powerHal, SystemInterface systemInterface) {
         mHal = powerHal;
         mSystemInterface = systemInterface;
-        mHandlerThread = new HandlerThread(CarLog.TAG_POWER);
-        mHandlerThread.start();
-        mHandler = new PowerHandler(mHandlerThread.getLooper());
     }
 
     /**
@@ -133,6 +132,12 @@ public class CarPowerManagementService implements CarServiceBase,
 
     @Override
     public void init() {
+        synchronized (this) {
+            mHandlerThread = new HandlerThread(CarLog.TAG_POWER);
+            mHandlerThread.start();
+            mHandler = new PowerHandler(mHandlerThread.getLooper());
+        }
+
         mHal.setListener(this);
         if (mHal.isPowerStateSupported()) {
             mHal.sendBootComplete();
@@ -153,12 +158,20 @@ public class CarPowerManagementService implements CarServiceBase,
 
     @Override
     public void release() {
+        HandlerThread handlerThread;
         synchronized (this) {
             releaseTimerLocked();
             mCurrentState = null;
+            mHandler.cancelAll();
+            handlerThread = mHandlerThread;
+        }
+        handlerThread.quitSafely();
+        try {
+            handlerThread.join(1000);
+        } catch (InterruptedException e) {
+            Log.e(CarLog.TAG_POWER, "Timeout while joining for handler thread to join.");
         }
         mSystemInterface.stopDisplayStateMonitoring();
-        mHandler.cancelAll();
         mListeners.clear();
         mPowerEventProcessingHandlers.clear();
         mSystemInterface.releaseAllWakeLocks();
@@ -209,6 +222,7 @@ public class CarPowerManagementService implements CarServiceBase,
         long now = SystemClock.elapsedRealtime();
         long startTime;
         boolean shouldShutdown = true;
+        PowerHandler powerHandler;
         synchronized (this) {
             startTime = mProcessingStartTime;
             if (mCurrentState == null) {
@@ -224,10 +238,11 @@ public class CarPowerManagementService implements CarServiceBase,
                     return;
                 }
             }
+            powerHandler = mHandler;
         }
         if ((startTime + processingTime) <= now) {
             Log.i(CarLog.TAG_POWER, "Processing all done");
-            mHandler.handleProcessingComplete(shouldShutdown);
+            powerHandler.handleProcessingComplete(shouldShutdown);
         }
     }
 
@@ -245,14 +260,17 @@ public class CarPowerManagementService implements CarServiceBase,
 
     @Override
     public void onApPowerStateChange(PowerState state) {
+        PowerHandler handler;
         synchronized (this) {
             mPendingPowerStates.addFirst(state);
+            handler = mHandler;
         }
-        mHandler.handlePowerStateChange();
+        handler.handlePowerStateChange();
     }
 
     private void doHandlePowerStateChange() {
         PowerState state = null;
+        PowerHandler handler;
         synchronized (this) {
             state = mPendingPowerStates.peekFirst();
             mPendingPowerStates.clear();
@@ -264,8 +282,9 @@ public class CarPowerManagementService implements CarServiceBase,
             }
             // now real power change happens. Whatever was queued before should be all cancelled.
             releaseTimerLocked();
-            mHandler.cancelProcessingComplete();
+            handler = mHandler;
         }
+        handler.cancelProcessingComplete();
 
         Log.i(CarLog.TAG_POWER, "Power state change:" + state);
         switch (state.mState) {
@@ -366,7 +385,11 @@ public class CarPowerManagementService implements CarServiceBase,
                         SHUTDOWN_POLLING_INTERVAL_MS);
             }
         } else {
-            mHandler.handleProcessingComplete(shuttingDown);
+            PowerHandler handler;
+            synchronized (this) {
+                handler = mHandler;
+            }
+            handler.handleProcessingComplete(shuttingDown);
         }
     }
 
@@ -374,7 +397,11 @@ public class CarPowerManagementService implements CarServiceBase,
         // keep holding partial wakelock to prevent entering sleep before enterDeepSleep call
         // enterDeepSleep should force sleep entry even if wake lock is kept.
         mSystemInterface.switchToPartialWakeLock();
-        mHandler.cancelProcessingComplete();
+        PowerHandler handler;
+        synchronized (this) {
+            handler = mHandler;
+        }
+        handler.cancelProcessingComplete();
         for (PowerServiceEventListener listener : mListeners) {
             listener.onSleepEntry();
         }
@@ -482,10 +509,14 @@ public class CarPowerManagementService implements CarServiceBase,
     }
 
     public void handleMainDisplayChanged(boolean on) {
-        mHandler.handleMainDisplayStateChange(on);
+        PowerHandler handler;
+        synchronized (this) {
+            handler = mHandler;
+        }
+        handler.handleMainDisplayStateChange(on);
     }
 
-    public Handler getHandler() {
+    public synchronized Handler getHandler() {
         return mHandler;
     }
 
@@ -581,10 +612,12 @@ public class CarPowerManagementService implements CarServiceBase,
         public void run() {
             mCurrentCount++;
             if (mCurrentCount > mExpirationCount) {
+                PowerHandler handler;
                 synchronized (CarPowerManagementService.this) {
                     releaseTimerLocked();
+                    handler = mHandler;
                 }
-                mHandler.handleProcessingComplete(mShutdownWhenCompleted);
+                handler.handleProcessingComplete(mShutdownWhenCompleted);
             } else {
                 mHal.sendShutdownPostpone(SHUTDOWN_EXTEND_MAX_MS);
             }
