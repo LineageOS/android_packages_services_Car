@@ -33,6 +33,8 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.util.Log;
+import com.android.car.internal.FeatureConfiguration;
 import com.android.car.vehiclehal.DiagnosticEventBuilder;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
@@ -196,6 +198,10 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 mFreezeFrameProperties.mFreezeFrameClearHandler);
     }
 
+    private boolean isFeatureEnabled() {
+        return FeatureConfiguration.ENABLE_DIAGNOSTIC;
+    }
+
     @Override
     protected void setUp() throws Exception {
         mLiveFrameEventBuilder.addIntSensor(Obd2IntegerSensorIndex.AMBIENT_AIR_TEMPERATURE, 30);
@@ -219,11 +225,21 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
         super.setUp();
 
-        mCarDiagnosticManager =
-                (CarDiagnosticManager) getCar().getCarManager(Car.DIAGNOSTIC_SERVICE);
+        if (isFeatureEnabled()) {
+            Log.i(TAG, "attempting to get DIAGNOSTIC_SERVICE");
+            mCarDiagnosticManager =
+                    (CarDiagnosticManager) getCar().getCarManager(Car.DIAGNOSTIC_SERVICE);
+        } else {
+            Log.i(TAG, "skipping diagnostic tests as ENABLE_DIAGNOSTIC flag is false");
+        }
     }
 
     public void testLiveFrameRead() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testLiveFrameRead as diagnostics API is not enabled");
+            return;
+        }
+
         CarDiagnosticEvent liveFrame = mCarDiagnosticManager.getLatestLiveFrame();
 
         assertNotNull(liveFrame);
@@ -257,6 +273,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testLiveFrameEvent() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testLiveFrameEvent as diagnostics API is not enabled");
+            return;
+        }
+
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -281,6 +302,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testMissingSensorRead() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testMissingSensorRead as diagnostics API is not enabled");
+            return;
+        }
+
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -315,6 +341,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testFuelSystemStatus() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testFuelSystemStatus as diagnostics API is not enabled");
+            return;
+        }
+
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -338,6 +369,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testSecondaryAirStatus() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testSecondaryAirStatus as diagnostics API is not enabled");
+            return;
+        }
+
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -367,6 +403,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testIgnitionMonitors() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testIgnitionMonitors as diagnostics API is not enabled");
+            return;
+        }
+
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -464,6 +505,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testFuelType() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testFuelType as diagnostics API is not enabled");
+            return;
+        }
+
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -487,6 +533,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testMultipleListeners() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testMultipleListeners as diagnostics API is not enabled");
+            return;
+        }
+
         Listener listener1 = new Listener();
         Listener listener2 = new Listener();
 
@@ -540,6 +591,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testFreezeFrameEvent() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testFreezeFrameEvent as diagnostics API is not enabled");
+            return;
+        }
+
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -578,6 +634,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testFreezeFrameTimestamps() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testFreezeFrameTimestamps as diagnostics API is not enabled");
+            return;
+        }
+
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -607,6 +668,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testClearFreezeFrameTimestamps() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testClearFreezeFrameTimestamps as diagnostics API is not enabled");
+            return;
+        }
+
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
