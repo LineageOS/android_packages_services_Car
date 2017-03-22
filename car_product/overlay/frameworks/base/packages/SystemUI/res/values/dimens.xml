@@ -66,4 +66,8 @@
 
     <dimen name="navigation_bar_padding_top">0dp</dimen>
     <dimen name="navigation_bar_padding_side">264dp</dimen>
+
+    <!-- Largest size an avatar might need to be drawn in the user picker, status bar, or
+         quick settings header -->
+    <dimen name="max_avatar_size">128dp</dimen>
 </resources>
