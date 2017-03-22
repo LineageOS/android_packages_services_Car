@@ -136,7 +136,8 @@ public class GarageModeService implements CarServiceBase,
     @Override
     public void init() {
         logd("init GarageMode");
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(
+                mContext.createDeviceProtectedStorageContext());
         final int index = mSharedPreferences.getInt(KEY_GARAGE_MODE_INDEX, 0);
         synchronized (this) {
             mMaintenanceActive = mDeviceIdleController.startTracking(this);
