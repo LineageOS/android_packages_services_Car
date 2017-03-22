@@ -26,6 +26,8 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_MODULE := com.android.car.obd2
 LOCAL_JAVA_LANGUAGE_VERSION := 1.8
 
+LOCAL_STATIC_JAVA_LIBRARIES += vehicle-hal-support-lib \
+
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 endif #TARGET_BUILD_PDK

@@ -129,6 +129,10 @@ public abstract class Obd2Command<ValueType> {
 
     public abstract Optional<ValueType> run(Obd2Connection connection) throws Exception;
 
+    public int getPid() {
+        return mSemanticHandler.getPid();
+    }
+
     public static final <T> LiveFrameCommand<T> getLiveFrameCommand(OutputSemanticHandler handler) {
         return new LiveFrameCommand<>(handler);
     }
