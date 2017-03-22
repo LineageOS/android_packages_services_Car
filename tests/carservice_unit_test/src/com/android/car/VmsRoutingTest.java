@@ -130,7 +130,7 @@ public class VmsRoutingTest extends AndroidTestCase {
 
     class MockVmsListener extends IVmsSubscriberClient.Stub {
         @Override
-        public void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload) {}
+        public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {}
 
         @Override
         public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {}

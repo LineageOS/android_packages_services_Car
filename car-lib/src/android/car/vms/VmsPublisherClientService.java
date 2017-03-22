@@ -101,14 +101,13 @@ public abstract class VmsPublisherClientService extends Service {
     /**
      * Uses the VmsPublisherService binder to publish messages.
      *
-     * @param layerId   the layer to publish to.
-     * @param layerVersion the layer's version to publish to.
+     * @param layer   the layer to publish to.
      * @param payload the message to be sent.
      * @return if the call to the method VmsPublisherService.publish was successful.
      */
-    public final boolean publish(int layerId, int layerVersion, byte[] payload) {
+    public final boolean publish(VmsLayer layer, byte[] payload) {
         if (DBG) {
-            Log.d(TAG, "Publishing for layer ID: " + layerId + " Version: " + layerVersion);
+            Log.d(TAG, "Publishing for layer : " + layer);
         }
         if (mVmsPublisherService == null) {
             throw new IllegalStateException("VmsPublisherService not set.");
@@ -122,7 +121,7 @@ public abstract class VmsPublisherClientService extends Service {
             throw new IllegalStateException("VmsPublisherService does not have a valid token.");
         }
         try {
-            mVmsPublisherService.publish(token, layerId, layerVersion, payload);
+            mVmsPublisherService.publish(token, layer, payload);
             return true;
         } catch (RemoteException e) {
             Log.e(TAG, "unable to publish message: " + payload, e);

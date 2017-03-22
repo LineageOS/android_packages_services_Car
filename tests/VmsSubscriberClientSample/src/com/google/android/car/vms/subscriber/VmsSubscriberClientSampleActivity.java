@@ -36,8 +36,7 @@ public class VmsSubscriberClientSampleActivity extends Activity {
     private static final String TAG = "VmsSampleActivity";
     // The layer id and version should match the ones defined in
     // com.google.android.car.vms.publisher.VmsPublisherClientSampleService
-    public static final int TEST_LAYER_ID = 0;
-    public static final int TEST_LAYER_VERSION = 0;
+    public static final VmsLayer TEST_LAYER = new VmsLayer(0, 0);
 
     private Car mCarApi;
     private TextView mTextView;
@@ -91,7 +90,7 @@ public class VmsSubscriberClientSampleActivity extends Activity {
         private void configureSubscriptions(VmsSubscriberManager vmsSubscriberManager) {
             try {
                 vmsSubscriberManager.setListener(mListener);
-                vmsSubscriberManager.subscribe(TEST_LAYER_ID, TEST_LAYER_VERSION);
+                vmsSubscriberManager.subscribe(TEST_LAYER);
             } catch (android.car.CarNotConnectedException e) {
                 Log.e(TAG, "Car is not connected!", e);
             }
@@ -101,7 +100,7 @@ public class VmsSubscriberClientSampleActivity extends Activity {
     private final VmsSubscriberManager.VmsSubscriberClientListener mListener =
             new VmsSubscriberManager.VmsSubscriberClientListener() {
                 @Override
-                public void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload) {
+                public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
                     mTextView.setText(String.valueOf(payload[0]));
                 }
 

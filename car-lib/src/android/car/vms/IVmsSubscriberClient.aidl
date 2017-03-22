@@ -25,7 +25,7 @@ oneway interface IVmsSubscriberClient {
     /**
      * A VmsService uses this callback to pass messages to subscribers.
      */
-    void onVmsMessageReceived(in int layerId, in int layerVersion, in byte[] payload) = 0;
+    void onVmsMessageReceived(in VmsLayer layer, in byte[] payload) = 0;
 
     void onLayersAvailabilityChange(in List<VmsLayer> availableLayers) = 1;
 }

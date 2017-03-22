@@ -47,11 +47,8 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
 
     private void publishIfNeeded(List<VmsLayer> layers) {
         for (VmsLayer layer : layers) {
-            if (layer.getId() == VmsPublisherSubscriberTest.LAYER_ID
-                    && layer.getVersion() == VmsPublisherSubscriberTest.LAYER_VERSION) {
-                publish(VmsPublisherSubscriberTest.LAYER_ID,
-                        VmsPublisherSubscriberTest.LAYER_VERSION,
-                        VmsPublisherSubscriberTest.PAYLOAD);
+            if (layer.equals(VmsPublisherSubscriberTest.LAYER)) {
+                publish(VmsPublisherSubscriberTest.LAYER, VmsPublisherSubscriberTest.PAYLOAD);
             }
         }
     }

@@ -30,8 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class VmsPublisherClientSampleService extends VmsPublisherClientService {
     public static final int PUBLISH_EVENT = 0;
-    public static final int TEST_LAYER_ID = 0;
-    public static final int TEST_LAYER_VERSION = 0;
+    public static final VmsLayer TEST_LAYER = new VmsLayer(0,0);
 
     private byte mCounter = 0;
     private AtomicBoolean mInitialized = new AtomicBoolean(false);
@@ -57,7 +56,7 @@ public class VmsPublisherClientSampleService extends VmsPublisherClientService {
     public void onVmsSubscriptionChange(List<VmsLayer> layers, long sequence) {
         if (mInitialized.compareAndSet(false, true)) {
             for (VmsLayer layer : layers) {
-                if (layer.getId() == TEST_LAYER_ID && layer.getVersion() == TEST_LAYER_VERSION) {
+                if (layer.equals(TEST_LAYER)) {
                     mHandler.sendEmptyMessage(PUBLISH_EVENT);
                 }
             }
@@ -65,7 +64,7 @@ public class VmsPublisherClientSampleService extends VmsPublisherClientService {
     }
 
     private void periodicPublish() {
-        publish(TEST_LAYER_ID, TEST_LAYER_VERSION, new byte[]{mCounter});
+        publish(TEST_LAYER, new byte[]{mCounter});
         ++mCounter;
         mHandler.sendEmptyMessageDelayed(PUBLISH_EVENT, 1000);
     }

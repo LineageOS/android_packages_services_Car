@@ -28,8 +28,7 @@ interface IVmsSubscriberService {
      */
     void addVmsSubscriberClientListener(
             in IVmsSubscriberClient listener,
-            int layer,
-            int version) = 0;
+            in VmsLayer layer) = 0;
 
     /**
      * Subscribes the listener to receive messages from all published layer/version. The
@@ -43,8 +42,7 @@ interface IVmsSubscriberService {
      */
     void removeVmsSubscriberClientListener(
             in IVmsSubscriberClient listener,
-            int layer,
-            int version) = 2;
+            in VmsLayer layer) = 2;
 
     /**
      * Tells the VmsSubscriberService a passive client unsubscribes. This will not unsubscribe
