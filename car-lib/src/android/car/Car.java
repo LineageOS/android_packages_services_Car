@@ -25,7 +25,6 @@ import android.car.hardware.CarDiagnosticManager;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.cabin.CarCabinManager;
-import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.radio.CarRadioManager;
 import android.car.media.CarAudioManager;
@@ -95,12 +94,6 @@ public final class Car {
      */
     @SystemApi
     public static final String DIAGNOSTIC_SERVICE = "diagnostic";
-
-    /**
-     * @hide
-     */
-    @SystemApi
-    public static final String CAMERA_SERVICE = "camera";
 
     /**
      * @hide
@@ -191,13 +184,6 @@ public final class Car {
      */
     @SystemApi
     public static final String PERMISSION_CAR_CABIN = "android.car.permission.CAR_CABIN";
-
-    /**
-     * Permission necessary to access Car Camera APIs.
-     * @hide
-     */
-    @SystemApi
-    public static final String PERMISSION_CAR_CAMERA = "android.car.permission.CAR_CAMERA";
 
     /**
      * Permission necessary to access Car HVAC APIs.
@@ -600,9 +586,6 @@ public final class Car {
                 if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
                     manager = new CarDiagnosticManager(binder, mContext, mEventHandler);
                 }
-                break;
-            case CAMERA_SERVICE:
-                manager = new CarCameraManager(binder, mContext);
                 break;
             case HVAC_SERVICE:
                 manager = new CarHvacManager(binder, mContext, mEventHandler);
