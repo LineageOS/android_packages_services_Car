@@ -40,7 +40,6 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -79,16 +78,16 @@ public class BluetoothDeviceConnectionPolicy {
     private static final boolean DBG = false;
     private Context mContext;
 
+    private boolean mInitialized = false;
+
     // The main datastructure that holds on to the {profile:list of known and connectible devices}
     private HashMap<Integer, BluetoothDevicesInfo> mProfileToConnectableDevicesMap;
     // mProfileToConnectableDevicesInfo - holds information to serialize and write
     // to file, that can be used to rebuild the mProfileToConnectableDevicesMap on a reboot.
     private HashMap<Integer, List<String>> mProfileToConnectableDevicesInfo;
-    BluetoothAutoConnectStateMachine mBluetoothAutoConnectStateMachine;
+    private BluetoothAutoConnectStateMachine mBluetoothAutoConnectStateMachine;
     private final BluetoothAdapter mBluetoothAdapter;
-    private Set<BluetoothDevice> mBondedDevices;
     private BroadcastReceiver mReceiver;
-    private IntentFilter mProfileFilter;
 
     // Events that are listened to for triggering an auto-connect:
     // Cabin events like Door unlock coming from the Cabin Service.
@@ -105,7 +104,7 @@ public class BluetoothDeviceConnectionPolicy {
     private BluetoothMapClient mBluetoothMapClient;
 
     // The Bluetooth profiles that the CarService will try to autoconnect on.
-    private List<Integer> mProfilesToConnect;
+    private final List<Integer> mProfilesToConnect;
     private static final int MAX_CONNECT_RETRIES = 1;
 
     // File to write connectable devices for a profile information
@@ -125,10 +124,11 @@ public class BluetoothDeviceConnectionPolicy {
         mContext = context;
         mCarCabinService = carCabinService;
         mCarSensorService = carSensorService;
-        mProfilesToConnect = Arrays.asList(new Integer[]
-                {BluetoothProfile.HEADSET_CLIENT,
-                        BluetoothProfile.PBAP_CLIENT, BluetoothProfile.A2DP_SINK,
-                        BluetoothProfile.MAP_CLIENT,});
+        mProfilesToConnect = Arrays.asList(
+                BluetoothProfile.HEADSET_CLIENT,
+                BluetoothProfile.PBAP_CLIENT,
+                BluetoothProfile.A2DP_SINK,
+                BluetoothProfile.MAP_CLIENT);
         mCabinEventListener = new CarPropertyListener();
         mCarSensorEventListener = new CarSensorEventListener();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -248,7 +248,7 @@ public class BluetoothDeviceConnectionPolicy {
      * Setup the Bluetooth profile service connections and Vehicle Event listeners.
      * and start the state machine -{@link BluetoothAutoConnectStateMachine}
      */
-    public void init() {
+    public synchronized void init() {
         if (DBG) {
             Log.d(TAG, "init()");
         }
@@ -264,6 +264,8 @@ public class BluetoothDeviceConnectionPolicy {
         mBluetoothAutoConnectStateMachine = BluetoothAutoConnectStateMachine.make(this);
         // Listen to various events coming from the vehicle.
         setupEventListeners();
+
+        mInitialized = true;
     }
 
     /**
@@ -275,14 +277,14 @@ public class BluetoothDeviceConnectionPolicy {
      * 3. A specific profile's connection state changes.
      */
     private void setupIntentFilter() {
-        mProfileFilter = new IntentFilter();
-        mProfileFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        mProfileFilter.addAction(BluetoothA2dpSink.ACTION_CONNECTION_STATE_CHANGED);
-        mProfileFilter.addAction(BluetoothHeadsetClient.ACTION_CONNECTION_STATE_CHANGED);
-        mProfileFilter.addAction(BluetoothPbapClient.ACTION_CONNECTION_STATE_CHANGED);
-        mProfileFilter.addAction(BluetoothMapClient.ACTION_CONNECTION_STATE_CHANGED);
-        mProfileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        mContext.registerReceiver(mReceiver, mProfileFilter);
+        IntentFilter profileFilter = new IntentFilter();
+        profileFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        profileFilter.addAction(BluetoothA2dpSink.ACTION_CONNECTION_STATE_CHANGED);
+        profileFilter.addAction(BluetoothHeadsetClient.ACTION_CONNECTION_STATE_CHANGED);
+        profileFilter.addAction(BluetoothPbapClient.ACTION_CONNECTION_STATE_CHANGED);
+        profileFilter.addAction(BluetoothMapClient.ACTION_CONNECTION_STATE_CHANGED);
+        profileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        mContext.registerReceiver(mReceiver, profileFilter);
         if (DBG) {
             Log.d(TAG, "Intent Receiver Registered");
         }
@@ -295,15 +297,13 @@ public class BluetoothDeviceConnectionPolicy {
      */
     private synchronized void initDeviceMap() {
         boolean result = readDeviceInfoFromFile();
-        if (result == false || mProfileToConnectableDevicesMap == null) {
-            if (mProfileToConnectableDevicesMap == null) {
-                mProfileToConnectableDevicesMap = new HashMap<Integer, BluetoothDevicesInfo>();
-                for (Integer profile : mProfilesToConnect) {
-                    mProfileToConnectableDevicesMap.put(profile, new BluetoothDevicesInfo(profile));
-                }
-                if (DBG) {
-                    Log.d(TAG, "new Device Map created");
-                }
+        if (!result && mProfileToConnectableDevicesMap == null) {
+            mProfileToConnectableDevicesMap = new HashMap<>();
+            for (Integer profile : mProfilesToConnect) {
+                mProfileToConnectableDevicesMap.put(profile, new BluetoothDevicesInfo(profile));
+            }
+            if (DBG) {
+                Log.d(TAG, "new Device Map created");
             }
         }
     }
@@ -377,7 +377,7 @@ public class BluetoothDeviceConnectionPolicy {
     private class CarSensorEventListener extends ICarSensorEventListener.Stub {
         @Override
         public void onSensorChanged(List<CarSensorEvent> events) throws RemoteException {
-            if (events != null & events.size() > 0) {
+            if (events != null && !events.isEmpty()) {
                 CarSensorEvent event = events.get(0);
                 if (DBG) {
                     Log.d(TAG, "Sensor event Type : " + event.sensorType);
@@ -398,10 +398,12 @@ public class BluetoothDeviceConnectionPolicy {
      * Clean up slate. Close the Bluetooth profile service connections and quit the state machine -
      * {@link BluetoothAutoConnectStateMachine}
      */
-    public void release() {
+    public synchronized void release() {
         if (DBG) {
             Log.d(TAG, "release()");
         }
+        mInitialized = false;
+
         writeDeviceInfoToFile();
         closeEventListeners();
         // Closing the connections to the Profile Services
@@ -409,7 +411,6 @@ public class BluetoothDeviceConnectionPolicy {
         mConnectionInFlight = null;
         // quit the state machine
         mBluetoothAutoConnectStateMachine.doQuit();
-
     }
 
     /**
@@ -474,7 +475,7 @@ public class BluetoothDeviceConnectionPolicy {
      *
      * @return profile list.
      */
-    public List<Integer> getProfilesToConnect() {
+    public synchronized List<Integer> getProfilesToConnect() {
         return mProfilesToConnect;
     }
 
@@ -589,15 +590,15 @@ public class BluetoothDeviceConnectionPolicy {
         if (mBluetoothAdapter == null) {
             return false;
         }
-        mBondedDevices = mBluetoothAdapter.getBondedDevices();
-        if (mBondedDevices.size() == 0) {
+        Set<BluetoothDevice> bondedDevices = mBluetoothAdapter.getBondedDevices();
+        if (bondedDevices == null || bondedDevices.isEmpty()) {
             if (DBG) {
                 Log.d(TAG, "populateDeviceMapFromBondedDevices() - No bonded devices");
             }
             return false;
         }
 
-        for (BluetoothDevice bd : mBondedDevices) {
+        for (BluetoothDevice bd : bondedDevices) {
             for (Integer profile : mProfilesToConnect) {
                 if (bd != null) {
                     if (DBG) {
@@ -619,8 +620,8 @@ public class BluetoothDeviceConnectionPolicy {
      * false - if we cannot find a device to connect to or if we are not ready to connect yet.
      */
     public synchronized boolean findDeviceToConnect() {
-        if (mBluetoothAdapter == null || mBluetoothAdapter.isEnabled() == false
-                || mProfileToConnectableDevicesMap == null) {
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()
+                || mProfileToConnectableDevicesMap == null || !mInitialized) {
             return false;
         }
         boolean deviceFound = false;
@@ -1104,6 +1105,7 @@ public class BluetoothDeviceConnectionPolicy {
             }
             readSuccess = false;
         }
+
         if (readSuccess) {
             readSuccess = rebuildDeviceMapFromDeviceInfoLocked();
         }
@@ -1138,10 +1140,9 @@ public class BluetoothDeviceConnectionPolicy {
             }
         }
 
-        boolean rebuildSuccess = true;
         // Iterate through the Map's entries and build the {@link #mProfileToConnectableDevicesMap}
         if (mProfileToConnectableDevicesMap == null) {
-            mProfileToConnectableDevicesMap = new HashMap<Integer, BluetoothDevicesInfo>();
+            mProfileToConnectableDevicesMap = new HashMap<>();
         }
 
         for (Map.Entry<Integer, List<String>> entry : mProfileToConnectableDevicesInfo.entrySet()) {
@@ -1164,7 +1165,7 @@ public class BluetoothDeviceConnectionPolicy {
             mProfileToConnectableDevicesMap.put(profile, devicesInfo);
         }
 
-        return rebuildSuccess;
+        return true;
     }
 
     /**
