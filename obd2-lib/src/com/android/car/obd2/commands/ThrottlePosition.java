@@ -31,6 +31,6 @@ public class ThrottlePosition implements Obd2Command.OutputSemanticHandler<Float
         return data.hasAtLeast(
                 1,
                 theData -> Optional.of(theData.consume() * 0.392157f),
-                theData -> Optional.empty());
+                theData -> Optional.<Float>empty());
     }
 }

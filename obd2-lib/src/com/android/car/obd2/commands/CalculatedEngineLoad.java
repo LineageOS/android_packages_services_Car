@@ -29,6 +29,8 @@ public class CalculatedEngineLoad implements Obd2Command.OutputSemanticHandler<F
     @Override
     public Optional<Float> consume(IntegerArrayStream data) {
         return data.hasAtLeast(
-                1, theData -> Optional.of(theData.consume() / 2.25f), theData -> Optional.empty());
+                1,
+                theData -> Optional.of(theData.consume() / 2.25f),
+                theData -> Optional.<Float>empty());
     }
 }

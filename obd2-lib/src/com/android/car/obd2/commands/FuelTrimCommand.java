@@ -26,7 +26,7 @@ public abstract class FuelTrimCommand implements Obd2Command.OutputSemanticHandl
         return data.hasAtLeast(
                 1,
                 theData -> Optional.of(3 * theData.consume() / 1.28f - 100),
-                theData -> Optional.empty());
+                theData -> Optional.<Float>empty());
     }
 
     public static class Bank1ShortTermFuelTrimCommand extends FuelTrimCommand {

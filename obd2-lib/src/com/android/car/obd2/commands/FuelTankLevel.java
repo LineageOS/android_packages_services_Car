@@ -31,6 +31,6 @@ public class FuelTankLevel implements Obd2Command.OutputSemanticHandler<Float> {
         return data.hasAtLeast(
                 1,
                 theData -> Optional.of(theData.consume() * (100.0f / 255.0f)),
-                theData -> Optional.empty());
+                theData -> Optional.<Float>empty());
     }
 }
