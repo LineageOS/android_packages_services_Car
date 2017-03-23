@@ -39,8 +39,9 @@ import java.util.concurrent.TimeUnit;
 
 @FutureFeature
 public class VmsPublisherSubscriberTest extends MockedCarTestBase {
-    public static final int LAYER_ID = 88;
-    public static final int LAYER_VERSION = 19;
+    private static final int LAYER_ID = 88;
+    private static final int LAYER_VERSION = 19;
+    public static final VmsLayer LAYER = new VmsLayer(LAYER_ID, LAYER_VERSION);
     public static final byte[] PAYLOAD = new byte[]{2, 3, 5, 7, 11, 13, 17};
 
     private HalHandler mHalHandler;
@@ -103,11 +104,10 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();
         vmsSubscriberManager.setListener(listener);
-        vmsSubscriberManager.subscribe(LAYER_ID, LAYER_VERSION);
+        vmsSubscriberManager.subscribe(LAYER);
 
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(LAYER_ID, listener.getLayerId());
-        assertEquals(LAYER_VERSION, listener.getLayerVersion());
+        assertEquals(LAYER, listener.getLayer());
         assertTrue(Arrays.equals(PAYLOAD, listener.getPayload()));
     }
 
@@ -115,17 +115,14 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     }
 
     private class TestListener implements VmsSubscriberManager.VmsSubscriberClientListener {
-        private int mLayerId;
-        private int mLayerVersion;
+        private VmsLayer mLayer;
         private byte[] mPayload;
 
         @Override
-        public void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload) {
-            assertEquals(LAYER_ID, layerId);
-            assertEquals(LAYER_VERSION, layerVersion);
+        public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
+            assertEquals(LAYER, layer);
             assertTrue(Arrays.equals(PAYLOAD, payload));
-            mLayerId = layerId;
-            mLayerVersion = layerVersion;
+            mLayer = layer;
             mPayload = payload;
             mSubscriberSemaphore.release();
         }
@@ -137,12 +134,8 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
             //  and update VmsPublisherClientMockService
         }
 
-        public int getLayerId() {
-            return mLayerId;
-        }
-
-        public int getLayerVersion() {
-            return mLayerVersion;
+        public VmsLayer getLayer() {
+            return mLayer;
         }
 
         public byte[] getPayload() {

@@ -43,6 +43,8 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     private static final String TAG = "VmsSubscriberManagerTest";
     private static final int SUBSCRIPTION_LAYER_ID = 2;
     private static final int SUBSCRIPTION_LAYER_VERSION = 3;
+    private static final VmsLayer SUBSCRIPTION_LAYER = new VmsLayer(SUBSCRIPTION_LAYER_ID,
+            SUBSCRIPTION_LAYER_VERSION);
 
     private HalHandler mHalHandler;
     // Used to block until the HAL property is updated in HalHandler.onPropertySet.
@@ -72,7 +74,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();
         vmsSubscriberManager.setListener(listener);
-        vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER_ID, SUBSCRIPTION_LAYER_VERSION);
+        vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
 
         // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
@@ -88,8 +90,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         getMockedVehicleHal().injectEvent(v);
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(SUBSCRIPTION_LAYER_ID, listener.getLayerId());
-        assertEquals(SUBSCRIPTION_LAYER_VERSION, listener.getLayerVersion());
+        assertEquals(SUBSCRIPTION_LAYER, listener.getLayer());
         byte[] expectedPayload = {(byte) 0xa, (byte) 0xb};
         assertTrue(Arrays.equals(expectedPayload, listener.getPayload()));
     }
@@ -117,8 +118,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         getMockedVehicleHal().injectEvent(v);
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(SUBSCRIPTION_LAYER_ID, listener.getLayerId());
-        assertEquals(SUBSCRIPTION_LAYER_VERSION, listener.getLayerVersion());
+        assertEquals(SUBSCRIPTION_LAYER, listener.getLayer());
         byte[] expectedPayload = {(byte) 0xa, (byte) 0xb};
         assertTrue(Arrays.equals(expectedPayload, listener.getPayload()));
     }
@@ -154,16 +154,13 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
 
     private class TestListener implements VmsSubscriberClientListener{
-        private int mLayerId;
-        private int mLayerVersion;
+        private VmsLayer mLayer;
         private byte[] mPayload;
 
         @Override
-        public void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload) {
-            Log.d(TAG, "onVmsMessageReceived: Layer: " + layerId +
-                    " Version: " + layerVersion + " Payload: " + payload);
-            mLayerId = layerId;
-            mLayerVersion = layerVersion;
+        public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
+            Log.d(TAG, "onVmsMessageReceived: layer: " + layer + " Payload: " + payload);
+            mLayer = layer;
             mPayload = payload;
             mSubscriberSemaphore.release();
         }
@@ -173,12 +170,8 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
             Log.d(TAG, "onLayersAvailabilityChange: Layers: " + availableLayers);
         }
 
-        public int getLayerId() {
-            return mLayerId;
-        }
-
-        public int getLayerVersion() {
-            return mLayerVersion;
+        public VmsLayer getLayer() {
+            return mLayer;
         }
 
         public byte[] getPayload() {

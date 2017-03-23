@@ -53,7 +53,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
     /** Interface exposed to VMS subscribers: it is a wrapper of IVmsSubscriberClient. */
     public interface VmsSubscriberClientListener {
         /** Called when the property is updated */
-        void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload);
+        void onVmsMessageReceived(VmsLayer layer, byte[] payload);
 
         /** Called when layers availability change */
         void onLayersAvailabilityChange(List<VmsLayer> availableLayers);
@@ -84,8 +84,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
                         VmsDataMessage vmsDataMessage = (VmsDataMessage) msg.obj;
 
                         // Dispatch the parsed message
-                        mgr.dispatchOnReceiveMessage(vmsDataMessage.getLayerId(),
-                                                     vmsDataMessage.getLayerVersion(),
+                        mgr.dispatchOnReceiveMessage(vmsDataMessage.getLayer(),
                                                      vmsDataMessage.getPayload());
                     }
                     break;
@@ -111,10 +110,10 @@ public final class VmsSubscriberManager implements CarManagerBase {
         mHandler = new VmsEventHandler(this, handler.getLooper());
         mIListener = new IVmsSubscriberClient.Stub() {
             @Override
-            public void onVmsMessageReceived(int layerId, int layerVersion, byte[] payload)
+            public void onVmsMessageReceived(VmsLayer layer, byte[] payload)
                 throws RemoteException {
                 // Create the data message
-                VmsDataMessage vmsDataMessage = new VmsDataMessage(layerId, layerVersion, payload);
+                VmsDataMessage vmsDataMessage = new VmsDataMessage(layer, payload);
                 mHandler.sendMessage(
                         mHandler.obtainMessage(
                             VmsEventHandler.ON_RECEIVE_MESSAGE_EVENT,
@@ -163,16 +162,15 @@ public final class VmsSubscriberManager implements CarManagerBase {
     }
 
     /**
-     * Subscribes to listen to the layer/version specified.
+     * Subscribes to listen to the layer specified.
      *
-     * @param layer           the layer id to subscribe to.
-     * @param version         the layer version to subscribe to.
+     * @param layer the layer to subscribe to.
      * @throws IllegalStateException if the listener was not set via {@link #setListener}.
      */
-    public void subscribe(int layer, int version)
+    public void subscribe(VmsLayer layer)
             throws CarNotConnectedException {
         if (DBG) {
-            Log.d(TAG, "Subscribing to layer: " + layer + ", version: " + version);
+            Log.d(TAG, "Subscribing to layer: " + layer);
         }
         VmsSubscriberClientListener listener;
         synchronized (mListenerLock) {
@@ -184,7 +182,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             throw new IllegalStateException("Listener was not set.");
         }
         try {
-            mVmsSubscriberService.addVmsSubscriberClientListener(mIListener, layer, version);
+            mVmsSubscriberService.addVmsSubscriberClientListener(mIListener, layer);
         } catch (RemoteException e) {
             Log.e(TAG, "Could not connect: ", e);
             throw new CarNotConnectedException(e);
@@ -220,13 +218,12 @@ public final class VmsSubscriberManager implements CarManagerBase {
     /**
      * Unsubscribes from the layer/version specified.
      *
-     * @param layer   the layer id to unsubscribe from.
-     * @param version the layer version to unsubscribe from.
+     * @param layer   the layer to unsubscribe from.
      * @throws IllegalStateException if the listener was not set via {@link #setListener}.
      */
-    public void unsubscribe(int layer, int version) {
+    public void unsubscribe(VmsLayer layer) {
         if (DBG) {
-            Log.d(TAG, "Unsubscribing from layer: " + layer + ", version: " + version);
+            Log.d(TAG, "Unsubscribing from layer: " + layer);
         }
         VmsSubscriberClientListener listener;
         synchronized (mListenerLock) {
@@ -238,7 +235,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             throw new IllegalStateException("Listener was not set.");
         }
         try {
-            mVmsSubscriberService.removeVmsSubscriberClientListener(mIListener, layer, version);
+            mVmsSubscriberService.removeVmsSubscriberClientListener(mIListener, layer);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to unregister subscriber", e);
             // ignore
@@ -247,7 +244,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
     }
 
-    private void dispatchOnReceiveMessage(int layerId, int layerVersion, byte[] payload) {
+    private void dispatchOnReceiveMessage(VmsLayer layer, byte[] payload) {
         VmsSubscriberClientListener listener;
         synchronized (mListenerLock) {
             listener = mListener;
@@ -256,7 +253,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             Log.e(TAG, "Listener died, not dispatching event.");
             return;
         }
-        listener.onVmsMessageReceived(layerId, layerVersion, payload);
+        listener.onVmsMessageReceived(layer, payload);
     }
 
     private void dispatchOnAvailabilityChangeMessage(List<VmsLayer> availableLayers) {
@@ -278,21 +275,16 @@ public final class VmsSubscriberManager implements CarManagerBase {
     }
 
     private static final class VmsDataMessage {
-        private int mLayerId;
-        private int mLayerVersion;
-        private byte[] mPayload;
+        private final VmsLayer mLayer;
+        private final byte[] mPayload;
 
-        public VmsDataMessage(int layerId, int layerVersion, byte[] payload) {
-            mLayerId = layerId;
-            mLayerVersion = layerVersion;
+        public VmsDataMessage(VmsLayer layer, byte[] payload) {
+            mLayer = layer;
             mPayload = payload;
         }
 
-        public int getLayerId() {
-            return mLayerId;
-        }
-        public int getLayerVersion() {
-            return mLayerVersion;
+        public VmsLayer getLayer() {
+            return mLayer;
         }
         public byte[] getPayload() {
             return mPayload;

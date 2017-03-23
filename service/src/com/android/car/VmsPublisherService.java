@@ -105,12 +105,11 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
 
     // Implements IVmsPublisherService interface.
     @Override
-    public void publish(IBinder token, int layerId, int layerVersion, byte[] payload) {
+    public void publish(IBinder token, VmsLayer layer, byte[] payload) {
         if (DBG) {
-            Log.d(TAG, "Publishing for layer ID: " + layerId + " Version: " + layerVersion);
+            Log.d(TAG, "Publishing for layer: " + layer);
         }
         ICarImpl.assertVmsPublisherPermission(mContext);
-        VmsLayer layer = new VmsLayer(layerId, layerVersion);
 
         // Send the message to application listeners.
         Set<IVmsSubscriberClient> listeners = mHal.getListeners(layer);
@@ -120,7 +119,7 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
         }
         for (IVmsSubscriberClient listener : listeners) {
             try {
-                listener.onVmsMessageReceived(layerId, layerVersion, payload);
+                listener.onVmsMessageReceived(layer, payload);
             } catch (RemoteException ex) {
                 Log.e(TAG, "unable to publish to listener: " + listener);
             }
@@ -129,7 +128,7 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
         // Send the message to HAL
         if (mHal.isHalSubscribed(layer)) {
             Log.d(TAG, "HAL is subscribed");
-            mHal.setDataMessage(layerId, layerVersion, payload);
+            mHal.setDataMessage(layer, payload);
         } else {
             Log.d(TAG, "HAL is NOT subscribed");
         }

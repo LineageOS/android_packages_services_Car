@@ -28,7 +28,7 @@ interface IVmsPublisherService {
     /**
      * Client call to publish a message.
      */
-    oneway void publish(in IBinder token, int layer, int version, in byte[] message) = 0;
+    oneway void publish(in IBinder token, in VmsLayer layer, in byte[] message) = 0;
 
     /**
      * Returns the list of VmsLayers that has any clients subscribed to it.

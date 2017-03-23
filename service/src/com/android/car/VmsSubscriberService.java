@@ -217,24 +217,20 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     // Implements IVmsService interface.
     @Override
-    public void addVmsSubscriberClientListener(IVmsSubscriberClient listener,
-        int layerId, int layerVersion) {
+    public void addVmsSubscriberClientListener(IVmsSubscriberClient listener, VmsLayer layer) {
         synchronized (mSubscriberServiceLock) {
             // Add the listener so it can subscribe.
             mMessageReceivedManager.add(listener);
 
             // Add the subscription for the layer.
-            VmsLayer layer = new VmsLayer(layerId, layerVersion);
             mHal.addSubscription(listener, layer);
         }
     }
 
     @Override
-    public void removeVmsSubscriberClientListener(IVmsSubscriberClient listener,
-        int layerId, int layerVersion) {
+    public void removeVmsSubscriberClientListener(IVmsSubscriberClient listener, VmsLayer layer) {
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
-            VmsLayer layer = new VmsLayer(layerId, layerVersion);
             mHal.removeSubscription(listener, layer);
 
             // Remove the listener if it has no more subscriptions.
@@ -273,8 +269,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     // Implements VmsHalSubscriberListener interface
     @Override
-    public void onChange(int layerId, int layerVersion, byte[] payload) {
-        VmsLayer layer = new VmsLayer(layerId, layerVersion);
+    public void onChange(VmsLayer layer, byte[] payload) {
         if(DBG) {
             Log.d(TAG, "Publishing a message for layer: " + layer);
         }
@@ -288,7 +283,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
         for (IVmsSubscriberClient subscriber : listeners) {
             try {
-                subscriber.onVmsMessageReceived(layerId, layerVersion, payload);
+                subscriber.onVmsMessageReceived(layer, payload);
             } catch (RemoteException e) {
                 // If we could not send a record, its likely the connection snapped. Let the binder
                 // death handle the situation.

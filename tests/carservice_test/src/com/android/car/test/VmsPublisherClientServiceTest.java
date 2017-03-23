@@ -19,6 +19,7 @@ package com.android.car.test;
 import android.annotation.ArrayRes;
 import android.car.VehicleAreaType;
 import android.car.annotation.FutureFeature;
+import android.car.vms.VmsLayer;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
@@ -48,6 +49,9 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
     private static final String TAG = "VmsPublisherTest";
     private static final int MOCK_PUBLISHER_LAYER_ID = 12;
     private static final int MOCK_PUBLISHER_LAYER_VERSION = 34;
+    public static final VmsLayer MOCK_PUBLISHER_LAYER = new VmsLayer(MOCK_PUBLISHER_LAYER_ID,
+            MOCK_PUBLISHER_LAYER_VERSION);
+    public static final byte[] PAYLOAD = new byte[]{1, 1, 2, 3, 5, 8, 13};
 
     private HalHandler mHalHandler;
     // Used to block until the HAL property is updated in HalHandler.onPropertySet.
@@ -135,9 +139,9 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
             payload[i] = rawValue.bytes.get(i);
         }
         assertEquals(VmsMessageType.DATA, messageType);
-        assertEquals(SimpleVmsPublisherClientService.getLayerId(), layerId);
-        assertEquals(SimpleVmsPublisherClientService.getLayerVersion(), layerVersion);
-        assertTrue(Arrays.equals(SimpleVmsPublisherClientService.getPayload(), payload));
+        assertEquals(MOCK_PUBLISHER_LAYER_ID, layerId);
+        assertEquals(MOCK_PUBLISHER_LAYER_VERSION, layerVersion);
+        assertTrue(Arrays.equals(PAYLOAD, payload));
     }
 
     private class HalHandler implements VehicleHalPropertyHandler {
