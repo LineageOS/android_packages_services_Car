@@ -77,6 +77,9 @@ public class MockObd2UnderlyingTransport implements Obd2Connection.UnderlyingTra
     }
 
     @Override
+    public boolean isConnected() { return true; }
+
+    @Override
     public InputStream getInputStream() {
         return mMockInput;
     }

@@ -36,6 +36,8 @@ public class Obd2Connection {
 
         boolean reconnect();
 
+        boolean isConnected();
+
         InputStream getInputStream();
 
         OutputStream getOutputStream();
