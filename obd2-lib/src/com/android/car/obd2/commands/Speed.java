@@ -29,6 +29,8 @@ public class Speed implements Obd2Command.OutputSemanticHandler<Integer> {
     @Override
     public Optional<Integer> consume(IntegerArrayStream data) {
         return data.hasAtLeast(
-                1, theData -> Optional.of(theData.consume()), theData -> Optional.empty());
+                1,
+                theData -> Optional.of(theData.consume()),
+                theData -> Optional.<Integer>empty());
     }
 }

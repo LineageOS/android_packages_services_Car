@@ -31,6 +31,6 @@ public class RPM implements Obd2Command.OutputSemanticHandler<Integer> {
         return data.hasAtLeast(
                 2,
                 theData -> Optional.of(theData.consume() * 256 + theData.consume() / 4),
-                theData -> Optional.empty());
+                theData -> Optional.<Integer>empty());
     }
 }

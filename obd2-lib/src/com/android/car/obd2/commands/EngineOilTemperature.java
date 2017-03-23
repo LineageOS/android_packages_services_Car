@@ -29,6 +29,8 @@ public class EngineOilTemperature implements Obd2Command.OutputSemanticHandler<I
     @Override
     public Optional<Integer> consume(IntegerArrayStream data) {
         return data.hasAtLeast(
-                1, theData -> Optional.of(theData.consume() - 40), theData -> Optional.empty());
+                1,
+                theData -> Optional.of(theData.consume() - 40),
+                theData -> Optional.<Integer>empty());
     }
 }

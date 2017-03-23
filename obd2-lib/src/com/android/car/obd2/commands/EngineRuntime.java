@@ -31,6 +31,6 @@ public class EngineRuntime implements Obd2Command.OutputSemanticHandler<Integer>
         return data.hasAtLeast(
                 2,
                 theData -> Optional.of(theData.consume() * 256 + theData.consume()),
-                theData -> Optional.empty());
+                theData -> Optional.<Integer>empty());
     }
 }

@@ -29,6 +29,8 @@ public class FuelSystemStatus implements Obd2Command.OutputSemanticHandler<Integ
     @Override
     public Optional<Integer> consume(IntegerArrayStream data) {
         return data.hasAtLeast(
-                1, theData -> Optional.of(theData.consume()), theData -> Optional.empty());
+                1,
+                theData -> Optional.of(theData.consume()),
+                theData -> Optional.<Integer>empty());
     }
 }
