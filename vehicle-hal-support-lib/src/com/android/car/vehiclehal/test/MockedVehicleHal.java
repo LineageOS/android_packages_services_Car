@@ -21,6 +21,8 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
 
+import com.google.android.collect.Lists;
+
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
 import android.hardware.automotive.vehicle.V2_0.StatusCode;
@@ -28,10 +30,7 @@ import android.hardware.automotive.vehicle.V2_0.SubscribeOptions;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
-
 import android.os.RemoteException;
-
-import com.google.android.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,8 +76,8 @@ public class MockedVehicleHal extends IVehicle.Stub {
 
     public synchronized void injectEvent(VehiclePropValue value) {
         List<IVehicleCallback> callbacks = mSubscribers.get(value.prop);
-        assertNotNull("Injecting event failed for property: " + value.prop + ". No listeners found",
-                callbacks);
+        assertNotNull("Injecting event failed for property: " + value.prop
+                        + ". No listeners found", callbacks);
         for (IVehicleCallback callback : callbacks) {
             try {
                 callback.onPropertyEvent(Lists.newArrayList(value));
@@ -91,8 +90,8 @@ public class MockedVehicleHal extends IVehicle.Stub {
 
     public synchronized void injectError(int errorCode, int propertyId, int areaId) {
         List<IVehicleCallback> callbacks = mSubscribers.get(propertyId);
-        assertNotNull("Injecting error failed for property: " + propertyId + ". No listeners found",
-                callbacks);
+        assertNotNull("Injecting error failed for property: " + propertyId
+                        + ". No listeners found", callbacks);
         for (IVehicleCallback callback : callbacks) {
             try {
                 callback.onPropertySetError(errorCode, propertyId, areaId);

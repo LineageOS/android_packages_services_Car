@@ -62,7 +62,7 @@ public class InputHalService extends HalServiceBase {
             }
             mListener = listener;
         }
-        mHal.subscribeProperty(this, HW_KEY_INPUT, 0);
+        mHal.subscribeProperty(this, HW_KEY_INPUT);
     }
 
     public synchronized boolean isKeyInputSupported() {
