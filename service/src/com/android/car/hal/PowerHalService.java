@@ -249,7 +249,7 @@ public class PowerHalService extends HalServiceBase {
     public synchronized void init() {
         for (VehiclePropConfig config : mProperties.values()) {
             if (VehicleHal.isPropertySubscribable(config)) {
-                mHal.subscribeProperty(this, config.prop, 0);
+                mHal.subscribeProperty(this, config.prop);
             }
         }
         VehiclePropConfig brightnessProperty = mProperties.get(DISPLAY_BRIGHTNESS);

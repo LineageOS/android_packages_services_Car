@@ -120,7 +120,7 @@ public abstract class PropertyHalServiceBase extends HalServiceBase {
         }
         // Subscribe to each of the properties
         for (Integer prop : mProps.keySet()) {
-            mVehicleHal.subscribeProperty(this, prop, 0);
+            mVehicleHal.subscribeProperty(this, prop);
         }
     }
 
