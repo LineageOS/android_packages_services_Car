@@ -17,7 +17,7 @@
 package android.car.vms;
 
 import android.car.vms.IVmsPublisherService;
-import android.car.vms.VmsLayer;
+import android.car.vms.VmsSubscriptionState;
 
 /**
  * @hide
@@ -32,10 +32,9 @@ interface IVmsPublisherClient {
 
     /**
      * The VmsPublisherService uses this callback to notify about subscription changes.
-     * @param layers   all the layers that have subscribers.
-     * @param sequence a monotonicallly increasing number, clients should ignore any packet with a
-     *                 sequence number that is less than the highest sequence number they have seen
-     *                 thus far.
+     * @param subscriptionState all the layers that have subscribers and a sequence number,
+     *                          clients should ignore any packet with a sequence number that is less
+     *                          than the highest sequence number they have seen thus far.
      */
-    oneway void onVmsSubscriptionChange(in List<VmsLayer> layers, long sequence) = 1;
+    oneway void onVmsSubscriptionChange(in VmsSubscriptionState subscriptionState) = 1;
 }

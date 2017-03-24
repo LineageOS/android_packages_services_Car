@@ -22,6 +22,7 @@ import android.car.VehicleAreaType;
 import android.car.annotation.FutureFeature;
 import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
+import android.car.vms.VmsSubscriptionState;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
@@ -72,7 +73,7 @@ public class VmsHalService extends HalServiceBase {
      * The VmsPublisherService implements this interface to receive data from the HAL.
      */
     public interface VmsHalPublisherListener {
-        void onChange(List<VmsLayer> layers, long sequence);
+        void onChange(VmsSubscriptionState subscriptionState);
     }
 
     /**
@@ -111,7 +112,7 @@ public class VmsHalService extends HalServiceBase {
     public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         synchronized (mLock) {
             // Check if publishers need to be notified about this change in subscriptions.
-            boolean firstSubscriptionForLayer = !mRouting.getSubscribedLayers().contains(layer);
+            boolean firstSubscriptionForLayer = !mRouting.hasLayerSubscriptions(layer);
 
             // Add the listeners subscription to the layer
             mRouting.addSubscription(listener, layer);
@@ -134,7 +135,7 @@ public class VmsHalService extends HalServiceBase {
             mRouting.removeSubscription(listener, layer);
 
             // Check if publishers need to be notified about this change in subscriptions.
-            boolean layerHasSubscribers = mRouting.getSubscribedLayers().contains(layer);
+            boolean layerHasSubscribers = mRouting.hasLayerSubscriptions(layer);
 
             // Notify the publishers
             if (!layerHasSubscribers) {
@@ -173,16 +174,16 @@ public class VmsHalService extends HalServiceBase {
         }
     }
 
-    public List<VmsLayer> getSubscribedLayers() {
+    public VmsSubscriptionState getSubscriptionState() {
         synchronized (mLock) {
-            return new ArrayList<>(mRouting.getSubscribedLayers());
+            return mRouting.getSubscriptionState();
         }
     }
 
     public void addHalSubscription(VmsLayer layer) {
         synchronized (mLock) {
             // Check if publishers need to be notified about this change in subscriptions.
-            boolean firstSubscriptionForLayer = !mRouting.getSubscribedLayers().contains(layer);
+            boolean firstSubscriptionForLayer = !mRouting.hasLayerSubscriptions(layer);
 
             // Add the listeners subscription to the layer
             mRouting.addHalSubscription(layer);
@@ -204,7 +205,7 @@ public class VmsHalService extends HalServiceBase {
             mRouting.removeHalSubscription(layer);
 
             // Check if publishers need to be notified about this change in subscriptions.
-            boolean layerHasSubscribers = mRouting.getSubscribedLayers().contains(layer);
+            boolean layerHasSubscribers = mRouting.hasLayerSubscriptions(layer);
 
             // Notify the publishers
             if (!layerHasSubscribers) {
@@ -236,7 +237,7 @@ public class VmsHalService extends HalServiceBase {
                 // Besides the list of layers, also a timestamp is provided to the clients.
                 // They should ignore any notification with a timestamp that is older than the most
                 // recent timestamp they have seen.
-                listener.onChange(getSubscribedLayers(), SystemClock.elapsedRealtimeNanos());
+                listener.onChange(getSubscriptionState());
             }
         }
     }

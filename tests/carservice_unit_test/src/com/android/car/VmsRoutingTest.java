@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
+import android.car.vms.VmsSubscriptionState;
 import android.test.AndroidTestCase;
 import java.util.HashSet;
 import java.util.List;
@@ -45,10 +46,12 @@ public class VmsRoutingTest extends AndroidTestCase {
         mRouting.addHalSubscription(LAYER_WITH_SUBSCRIPTION_2);
 
         // Verify expected subscriptions are in routing manager.
-        Set<VmsLayer> expectedSubscriptions = new HashSet<VmsLayer>();
+        Set<VmsLayer> expectedSubscriptions = new HashSet<>();
         expectedSubscriptions.add(LAYER_WITH_SUBSCRIPTION_1);
         expectedSubscriptions.add(LAYER_WITH_SUBSCRIPTION_2);
-        assertEquals(expectedSubscriptions, mRouting.getSubscribedLayers());
+        VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
+        assertEquals(2, subscriptionState.getSequenceNumber());
+        assertEquals(expectedSubscriptions, new HashSet<>(subscriptionState.getLayers()));
 
         // Verify there is only a single listener.
         assertEquals(1,
@@ -65,10 +68,12 @@ public class VmsRoutingTest extends AndroidTestCase {
         mRouting.addHalSubscription(LAYER_WITH_SUBSCRIPTION_2);
 
         // Verify expected subscriptions are in routing manager.
-        Set<VmsLayer> expectedSubscriptions = new HashSet<VmsLayer>();
+        Set<VmsLayer> expectedSubscriptions = new HashSet<>();
         expectedSubscriptions.add(LAYER_WITH_SUBSCRIPTION_1);
         expectedSubscriptions.add(LAYER_WITH_SUBSCRIPTION_2);
-        assertEquals(expectedSubscriptions, mRouting.getSubscribedLayers());
+        VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
+        assertEquals(3, subscriptionState.getSequenceNumber());
+        assertEquals(expectedSubscriptions, new HashSet<>(subscriptionState.getLayers()));
     }
 
     public void testAddingAndRemovingLayers() throws Exception {
@@ -86,12 +91,12 @@ public class VmsRoutingTest extends AndroidTestCase {
         mRouting.removeHalSubscription(LAYER_WITH_SUBSCRIPTION_2);
 
         // Verify there are no subscribers in the routing manager.
-        Set<VmsLayer> expectedEmptySubscriptions =
-            new HashSet<VmsLayer>();
-        assertEquals(expectedEmptySubscriptions, mRouting.getSubscribedLayers());
+        VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
+        assertEquals(4, subscriptionState.getSequenceNumber());
+        assertTrue(subscriptionState.getLayers().isEmpty());
     }
 
-    public void testAddingBothTypesOfSubscripbers() throws Exception {
+    public void testAddingBothTypesOfSubscribers() throws Exception {
         // Add a subscription to a layer.
         MockVmsListener listenerForLayer = new MockVmsListener();
         mRouting.addSubscription(listenerForLayer, LAYER_WITH_SUBSCRIPTION_1);

@@ -19,9 +19,12 @@ package com.android.car;
 import android.car.annotation.FutureFeature;
 import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
-import java.util.Collection;
+import android.car.vms.VmsSubscriptionState;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,6 +50,10 @@ public class VmsRouting {
     // A set of all the layers + versions the HAL is subscribed to.
     @GuardedBy("mLock")
     private Set<VmsLayer> mHalSubscriptions = new HashSet<>();
+    // A sequence number that is increased every time the subscription state is modified. Note that
+    // modifying the list of promiscuous subscribers does not affect the subscription state.
+    @GuardedBy("mLock")
+    private int mSequenceNumber = 0;
 
     /**
      * Add a listener subscription to a data messages from layer + version.
@@ -56,6 +63,7 @@ public class VmsRouting {
      */
     public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         synchronized (mLock) {
+            ++mSequenceNumber;
             // Get or create the list of listeners for layer and version.
             Set<IVmsSubscriberClient> listeners = mLayerSubscriptions.get(layer);
 
@@ -75,6 +83,7 @@ public class VmsRouting {
      */
     public void addSubscription(IVmsSubscriberClient listener) {
         synchronized (mLock) {
+            ++mSequenceNumber;
             mPromiscuousSubscribers.add(listener);
         }
     }
@@ -88,6 +97,7 @@ public class VmsRouting {
      */
     public void removeSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         synchronized (mLock) {
+            ++mSequenceNumber;
             Set<IVmsSubscriberClient> listeners = mLayerSubscriptions.get(layer);
 
             // If there are no listeners we are done.
@@ -110,6 +120,7 @@ public class VmsRouting {
      */
     public void removeSubscription(IVmsSubscriberClient listener) {
         synchronized (mLock) {
+            ++mSequenceNumber;
             mPromiscuousSubscribers.remove(listener);
         }
     }
@@ -174,6 +185,7 @@ public class VmsRouting {
      */
     public void addHalSubscription(VmsLayer layer) {
         synchronized (mLock) {
+            ++mSequenceNumber;
             mHalSubscriptions.add(layer);
         }
     }
@@ -184,6 +196,7 @@ public class VmsRouting {
      */
     public void removeHalSubscription(VmsLayer layer) {
         synchronized (mLock) {
+            ++mSequenceNumber;
             mHalSubscriptions.remove(layer);
         }
     }
@@ -206,19 +219,19 @@ public class VmsRouting {
      */
     public boolean hasLayerSubscriptions(VmsLayer layer) {
         synchronized (mLock) {
-            return mLayerSubscriptions.containsKey(layer);
+            return mLayerSubscriptions.containsKey(layer) || mHalSubscriptions.contains(layer);
         }
     }
 
     /**
      * @return a Set of layers and versions which VMS clients are subscribed to.
      */
-    public Collection<VmsLayer> getSubscribedLayers() {
-        Set<VmsLayer> layers = new HashSet<>();
+    public VmsSubscriptionState getSubscriptionState() {
         synchronized (mLock) {
+            List<VmsLayer> layers = new ArrayList<>();
             layers.addAll(mLayerSubscriptions.keySet());
             layers.addAll(mHalSubscriptions);
+            return new VmsSubscriptionState(mSequenceNumber, layers);
         }
-        return layers;
     }
 }

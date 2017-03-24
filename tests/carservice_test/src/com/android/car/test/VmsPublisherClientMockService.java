@@ -19,8 +19,7 @@ package com.android.car.test;
 import android.car.annotation.FutureFeature;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsPublisherClientService;
-
-import java.util.List;
+import android.car.vms.VmsSubscriptionState;
 
 /**
  * This service is launched during the tests in VmsPublisherSubscriberTest. It publishes a property
@@ -34,9 +33,9 @@ import java.util.List;
 public class VmsPublisherClientMockService extends VmsPublisherClientService {
 
     @Override
-    public void onVmsSubscriptionChange(List<VmsLayer> layers, long sequence) {
+    public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState) {
         // Case when the publisher finished initialization before the subscription request.
-        publishIfNeeded(layers);
+        publishIfNeeded(subscriptionState);
     }
 
     @Override
@@ -45,8 +44,8 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
         publishIfNeeded(getSubscriptions());
     }
 
-    private void publishIfNeeded(List<VmsLayer> layers) {
-        for (VmsLayer layer : layers) {
+    private void publishIfNeeded(VmsSubscriptionState subscriptionState) {
+        for (VmsLayer layer : subscriptionState.getLayers()) {
             if (layer.equals(VmsPublisherSubscriberTest.LAYER)) {
                 publish(VmsPublisherSubscriberTest.LAYER, VmsPublisherSubscriberTest.PAYLOAD);
             }

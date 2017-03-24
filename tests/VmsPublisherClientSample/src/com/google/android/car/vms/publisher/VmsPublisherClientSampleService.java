@@ -18,6 +18,7 @@ package com.google.android.car.vms.publisher;
 
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsPublisherClientService;
+import android.car.vms.VmsSubscriptionState;
 import android.os.Handler;
 import android.os.Message;
 
@@ -45,17 +46,17 @@ public class VmsPublisherClientSampleService extends VmsPublisherClientService {
     };
 
     /**
-     * Notifies that the publisher services are ready to be used: {@link #publish(int, int, byte[])}
-     * and {@link #getSubscribers()}.
+     * Notifies that the publisher services are ready to be used: {@link #publish(VmsLayer, byte[])}
+     * and {@link #getSubscriptions()}.
      */
     @Override
     public void onVmsPublisherServiceReady() {
     }
 
     @Override
-    public void onVmsSubscriptionChange(List<VmsLayer> layers, long sequence) {
+    public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState) {
         if (mInitialized.compareAndSet(false, true)) {
-            for (VmsLayer layer : layers) {
+            for (VmsLayer layer : subscriptionState.getLayers()) {
                 if (layer.equals(TEST_LAYER)) {
                     mHandler.sendEmptyMessage(PUBLISH_EVENT);
                 }
