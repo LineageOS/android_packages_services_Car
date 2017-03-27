@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class Obd2LiveFrameGenerator {
+    public static final int FRAME_TYPE_LIVE = 1;
     public static final String TAG = Obd2LiveFrameGenerator.class.getSimpleName();
 
     private final Obd2Connection mConnection;
@@ -63,6 +64,7 @@ public class Obd2LiveFrameGenerator {
 
     public JsonWriter generate(JsonWriter jsonWriter, long timestamp) throws IOException {
         jsonWriter.beginObject();
+        jsonWriter.name("type").value(FRAME_TYPE_LIVE);
         jsonWriter.name("timestamp").value(timestamp);
         jsonWriter.name("intValues").beginArray();
         for (LiveFrameCommand<Integer> command : mIntegerCommands) {
@@ -75,8 +77,11 @@ public class Obd2LiveFrameGenerator {
                     jsonWriter.endObject();
                 }
             } catch (IOException | InterruptedException e) {
-                Log.w(TAG, String.format("unable to retrieve OBD2 pid %d due to exception: %s",
-                    command.getPid(), e));
+                Log.w(
+                        TAG,
+                        String.format(
+                                "unable to retrieve OBD2 pid %d due to exception: %s",
+                                command.getPid(), e));
                 // skip this entry
             }
         }
@@ -93,8 +98,11 @@ public class Obd2LiveFrameGenerator {
                     jsonWriter.endObject();
                 }
             } catch (IOException | InterruptedException e) {
-                Log.w(TAG, String.format("unable to retrieve OBD2 pid %d due to exception: %s",
-                    command.getPid(), e));
+                Log.w(
+                        TAG,
+                        String.format(
+                                "unable to retrieve OBD2 pid %d due to exception: %s",
+                                command.getPid(), e));
                 // skip this entry
             }
         }
