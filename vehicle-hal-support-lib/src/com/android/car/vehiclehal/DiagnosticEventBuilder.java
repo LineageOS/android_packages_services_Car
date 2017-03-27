@@ -20,9 +20,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_1.Obd2FloatSensorIndex;
 import android.hardware.automotive.vehicle.V2_1.Obd2IntegerSensorIndex;
-import android.util.JsonReader;
 import android.util.SparseArray;
-import java.io.IOException;
 import java.util.BitSet;
 import java.util.Iterator;
 
@@ -70,6 +68,10 @@ public class DiagnosticEventBuilder {
             return mSize;
         }
 
+        void clear() {
+            mElements.clear();
+        }
+
         @Override
         public Iterator<T> iterator() {
             return new Iterator<T>() {
@@ -115,6 +117,14 @@ public class DiagnosticEventBuilder {
         mFloatValues = new DefaultedArray<>(numFloatSensors, 0.0f);
     }
 
+    public DiagnosticEventBuilder clear() {
+        mIntValues.clear();
+        mFloatValues.clear();
+        mBitmask.clear();
+        mDtc = null;
+        return this;
+    }
+
     public DiagnosticEventBuilder addIntSensor(int index, int value) {
         mIntValues.set(index, value);
         mBitmask.set(index);
@@ -146,58 +156,5 @@ public class DiagnosticEventBuilder {
         mIntValues.forEach(propValueBuilder::addIntValue);
         mFloatValues.forEach(propValueBuilder::addFloatValue);
         return propValueBuilder.addByteValue(mBitmask.toByteArray()).setStringValue(mDtc).build();
-    }
-
-    private void readIntValues(JsonReader jsonReader) throws IOException {
-        while (jsonReader.hasNext()) {
-            int id = 0;
-            int value = 0;
-            jsonReader.beginObject();
-            while (jsonReader.hasNext()) {
-                String name = jsonReader.nextName();
-                if (name.equals("id")) id = jsonReader.nextInt();
-                else if (name.equals("value")) value = jsonReader.nextInt();
-            }
-            jsonReader.endObject();
-            addIntSensor(id, value);
-        }
-    }
-
-    private void readFloatValues(JsonReader jsonReader) throws IOException {
-        while (jsonReader.hasNext()) {
-            int id = 0;
-            float value = 0.0f;
-            jsonReader.beginObject();
-            while (jsonReader.hasNext()) {
-                String name = jsonReader.nextName();
-                if (name.equals("id")) id = jsonReader.nextInt();
-                else if (name.equals("value")) value = (float) jsonReader.nextDouble();
-            }
-            jsonReader.endObject();
-            addFloatSensor(id, value);
-        }
-    }
-
-    public VehiclePropValue build(JsonReader jsonReader) throws IOException {
-        jsonReader.beginObject();
-        long timestamp = 0;
-        while (jsonReader.hasNext()) {
-            String name = jsonReader.nextName();
-            if (name.equals("timestamp")) {
-                timestamp = jsonReader.nextLong();
-            } else if (name.equals("intValues")) {
-                jsonReader.beginArray();
-                readIntValues(jsonReader);
-                jsonReader.endArray();
-            } else if (name.equals("floatValues")) {
-                jsonReader.beginArray();
-                readFloatValues(jsonReader);
-                jsonReader.endArray();
-            } else if (name.equals("stringValue")) {
-                setDTC(jsonReader.nextString());
-            }
-        }
-        jsonReader.endObject();
-        return build(timestamp);
     }
 }
