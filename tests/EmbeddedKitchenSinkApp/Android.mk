@@ -43,6 +43,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
 
 LOCAL_JAVA_LIBRARIES += android.car
 
+include packages/apps/Car/libs/car-stream-ui-lib/car-stream-ui-lib.mk
 include packages/services/Car/car-support-lib/car-support.mk
 
 include $(BUILD_PACKAGE)

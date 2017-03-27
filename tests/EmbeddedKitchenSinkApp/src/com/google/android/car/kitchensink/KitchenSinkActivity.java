@@ -18,43 +18,36 @@ package com.google.android.car.kitchensink;
 
 import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
-import android.support.car.CarNotConnectedException;
 import android.support.car.CarConnectionCallback;
-import android.support.car.app.menu.CarDrawerActivity;
-import android.support.car.app.menu.CarMenu;
-import android.support.car.app.menu.CarMenuCallbacks;
-import android.support.car.app.menu.RootMenu;
-import android.support.car.hardware.CarSensorEvent;
+import android.support.car.CarNotConnectedException;
 import android.support.car.hardware.CarSensorManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import com.android.car.app.CarDrawerActivity;
+import com.android.car.app.CarDrawerAdapter;
+import com.android.car.app.DrawerItemViewHolder;
+
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
+import com.google.android.car.kitchensink.bluetooth.BluetoothHeadsetFragment;
+import com.google.android.car.kitchensink.bluetooth.MapMceTestFragment;
 import com.google.android.car.kitchensink.camera.CameraTestFragment;
 import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
 import com.google.android.car.kitchensink.cube.CubesTestFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
 import com.google.android.car.kitchensink.input.InputTestFragment;
 import com.google.android.car.kitchensink.job.JobSchedulerFragment;
-import com.google.android.car.kitchensink.keyboard.KeyboardFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.radio.RadioTestFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
 import com.google.android.car.kitchensink.setting.CarServiceSettingsActivity;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
-import com.google.android.car.kitchensink.bluetooth.MapMceTestFragment;
-import com.google.android.car.kitchensink.bluetooth.BluetoothHeadsetFragment;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String TAG = "KitchenSinkActivity";
@@ -64,7 +57,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String MENU_HVAC = "hvac";
     private static final String MENU_QUIT = "quit";
     private static final String MENU_JOB = "job_scheduler";
-    private static final String MENU_KEYBOARD = "keyboard";
     private static final String MENU_CLUSTER = "inst cluster";
     private static final String MENU_INPUT_TEST = "input test";
     private static final String MENU_RADIO = "radio";
@@ -89,7 +81,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private CameraTestFragment mCameraTestFragment;
     private HvacTestFragment mHvacTestFragment;
     private JobSchedulerFragment mJobFragment;
-    private KeyboardFragment mKeyboardFragment;
     private InstrumentClusterFragment mInstrumentClusterFragment;
     private InputTestFragment mInputTestFragment;
     private VolumeTestFragment mVolumeTestFragment;
@@ -99,34 +90,27 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private MapMceTestFragment mMapMceTestFragment;
     private BluetoothHeadsetFragment mBluetoothHeadsetFragement;
 
-    private final CarSensorManager.OnSensorChangedListener mListener =
-            new CarSensorManager.OnSensorChangedListener() {
-        @Override
-        public void onSensorChanged(CarSensorManager manager, CarSensorEvent event) {
-            switch (event.sensorType) {
-                case CarSensorManager.SENSOR_TYPE_DRIVING_STATUS:
-                    Log.d(TAG, "driving status:" + event.intValues[0]);
-                    break;
-            }
+    private final CarSensorManager.OnSensorChangedListener mListener = (manager, event) -> {
+        switch (event.sensorType) {
+            case CarSensorManager.SENSOR_TYPE_DRIVING_STATUS:
+                Log.d(TAG, "driving status:" + event.intValues[0]);
+                break;
         }
     };
 
-    public KitchenSinkActivity(Proxy proxy, Context context, Car car) {
-        super(proxy, context, car);
+    @Override
+    protected CarDrawerAdapter getRootAdapter() {
+        return new DrawerAdapter();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        resetTitle();
-        setScrimColor(Color.LTGRAY);
-        setLightMode();
-        setCarMenuCallbacks(new MyCarMenuCallbacks());
-        setContentView(R.layout.kitchen_sink_activity);
+        setMainContent(R.layout.kitchen_content);
 
         // Connection to Car Service does not work for non-automotive yet.
-        if (getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
-            mCarApi = Car.createCar(getContext(), mCarConnectionCallback);
+        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
+            mCarApi = Car.createCar(this, mCarConnectionCallback);
             mCarApi.connect();
         }
         Log.i(TAG, "onCreate");
@@ -174,13 +158,9 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         Log.i(TAG, "onDestroy");
     }
 
-    private void resetTitle() {
-        setTitle(getContext().getString(R.string.app_title));
-    }
-
     private void showFragment(Fragment fragment) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.contents, fragment)
+                .replace(R.id.kitchen_content, fragment)
                 .commit();
     }
 
@@ -210,129 +190,143 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         }
     };
 
-    private final class MyCarMenuCallbacks extends CarMenuCallbacks {
-        /** Id for the root menu */
-        private static final String ROOT = "ROOT";
+    public Car getCar() {
+        return mCarApi;
+    }
 
-        @Override
-        public RootMenu onGetRoot(Bundle hints) {
-            return new RootMenu(ROOT);
+    private final class DrawerAdapter extends CarDrawerAdapter {
+
+        private final String mAllMenus[] = {
+                MENU_AUDIO, MENU_RADIO, MENU_CAMERA, MENU_HVAC, MENU_JOB,
+                MENU_CLUSTER, MENU_INPUT_TEST, MENU_SENSORS, MENU_VOLUME_TEST,
+                MENU_TOUCH_TEST, MENU_CUBES_TEST, MENU_CAR_SETTINGS, MENU_ORIENTATION,
+                MENU_BLUETOOTH_HEADSET, MENU_MAP_MESSAGING, MENU_QUIT
+        };
+
+        public DrawerAdapter() {
+            super(KitchenSinkActivity.this, true /* showDisabledOnListOnEmpty */,
+                    true /* smallLayout */);
+            setTitle(getString(R.string.app_title));
         }
 
         @Override
-        public void onLoadChildren(String parentId, CarMenu result) {
-            List<CarMenu.Item> items = new ArrayList<>();
-            if (parentId.equals(ROOT)) {
-                String[] allMenus = {
-                        MENU_AUDIO, MENU_RADIO, MENU_CAMERA, MENU_HVAC, MENU_JOB, MENU_KEYBOARD,
-                        MENU_CLUSTER, MENU_INPUT_TEST, MENU_SENSORS, MENU_VOLUME_TEST,
-                        MENU_TOUCH_TEST, MENU_CUBES_TEST, MENU_CAR_SETTINGS, MENU_ORIENTATION,
-                        MENU_BLUETOOTH_HEADSET, MENU_MAP_MESSAGING, MENU_QUIT
-                };
-                for (String menu : allMenus) {
-                    items.add(new CarMenu.Builder(menu).setText(menu).build());
-                }
-            }
-            result.sendResult(items);
+        protected int getActualItemCount() {
+            return mAllMenus.length;
         }
 
         @Override
-        public void onItemClicked(String id) {
-            Log.d(TAG, "onItemClicked id=" + id);
-            if (id.equals(MENU_AUDIO)) {
-                if (mAudioTestFragment == null) {
-                    mAudioTestFragment = new AudioTestFragment();
-                }
-                showFragment(mAudioTestFragment);
-            } else if (id.equals(MENU_RADIO)) {
-                if (mRadioTestFragment == null) {
-                    mRadioTestFragment = new RadioTestFragment();
-                }
-                showFragment(mRadioTestFragment);
-            } else if (id.equals(MENU_SENSORS)) {
-                if (mSensorsTestFragment == null) {
-                    mSensorsTestFragment = new SensorsTestFragment();
-                }
-                showFragment(mSensorsTestFragment);
-            } else if (id.equals(MENU_CAMERA)) {
-                if (mCameraManager != null) {
-                    if (mCameraTestFragment == null) {
-                        mCameraTestFragment = new CameraTestFragment();
-                        mCameraTestFragment.setCameraManager(mCameraManager);
+        protected void populateViewHolder(DrawerItemViewHolder holder, int position) {
+            holder.getTitle().setText(mAllMenus[position]);
+        }
+
+        @Override
+        public void onItemClick(int position) {
+
+            switch (mAllMenus[position]) {
+                case MENU_AUDIO:
+                    if (mAudioTestFragment == null) {
+                        mAudioTestFragment = new AudioTestFragment();
                     }
-                    // Don't allow camera fragment to start if we don't have a manager.
-                    showFragment(mCameraTestFragment);
-                }
-            } else if (id.equals(MENU_HVAC)) {
-                if (mHvacManager != null) {
-                    if (mHvacTestFragment == null) {
-                        mHvacTestFragment = new HvacTestFragment();
-                        mHvacTestFragment.setHvacManager(mHvacManager);
+                    showFragment(mAudioTestFragment);
+                    break;
+                case MENU_RADIO:
+                    if (mRadioTestFragment == null) {
+                        mRadioTestFragment = new RadioTestFragment();
                     }
-                    // Don't allow HVAC fragment to start if we don't have a manager.
-                    showFragment(mHvacTestFragment);
-                }
-            } else if (id.equals(MENU_JOB)) {
-                if (mJobFragment == null) {
-                    mJobFragment = new JobSchedulerFragment();
-                }
-                showFragment(mJobFragment);
-            } else if (id.equals(MENU_KEYBOARD)) {
-                if (mKeyboardFragment == null) {
-                    mKeyboardFragment = new KeyboardFragment();
-                }
-                showFragment(mKeyboardFragment);
-            } else if (id.equals(MENU_CLUSTER)) {
-                if (mInstrumentClusterFragment == null) {
-                    mInstrumentClusterFragment = new InstrumentClusterFragment();
-                }
-                showFragment(mInstrumentClusterFragment);
-            } else if (id.equals(MENU_INPUT_TEST)) {
-                if (mInputTestFragment == null) {
-                    mInputTestFragment = new InputTestFragment();
-                }
-                showFragment(mInputTestFragment);
-            } else if (id.equals(MENU_VOLUME_TEST)) {
-                if (mVolumeTestFragment == null) {
-                    mVolumeTestFragment = new VolumeTestFragment();
-                }
-                showFragment(mVolumeTestFragment);
-            } else if (id.equals(MENU_TOUCH_TEST)) {
-                if (mTouchTestFragment == null) {
-                    mTouchTestFragment = new TouchTestFragment();
-                }
-                showFragment(mTouchTestFragment);
-            } else if (id.equals(MENU_CUBES_TEST)) {
-                if (mCubesTestFragment == null) {
-                    mCubesTestFragment = new CubesTestFragment();
-                }
-                showFragment(mCubesTestFragment);
-            } else if (id.equals(MENU_CAR_SETTINGS)) {
-                Intent intent = new Intent(getContext(), CarServiceSettingsActivity.class);
-                getContext().startActivity(intent);
-            } else if (id.equals(MENU_ORIENTATION)) {
-                if (mOrientationFragment == null) {
-                    mOrientationFragment = new OrientationTestFragment();
-                }
-                showFragment(mOrientationFragment);
-            } else if (id.equals(MENU_BLUETOOTH_HEADSET)) {
-                if (mBluetoothHeadsetFragement == null) {
-                    mBluetoothHeadsetFragement = new BluetoothHeadsetFragment();
-                }
-                showFragment(mBluetoothHeadsetFragement);
-            } else if (id.equals(MENU_MAP_MESSAGING)) {
-                if (mMapMceTestFragment == null) {
-                    mMapMceTestFragment = new MapMceTestFragment();
-                }
-                showFragment(mMapMceTestFragment);
-            }else if (id.equals(MENU_QUIT)) {
-                finish();
+                    showFragment(mRadioTestFragment);
+                    break;
+                case MENU_SENSORS:
+                    if (mSensorsTestFragment == null) {
+                        mSensorsTestFragment = new SensorsTestFragment();
+                    }
+                    showFragment(mSensorsTestFragment);
+                    break;
+                case MENU_CAMERA:
+                    if (mCameraManager != null) {
+                        if (mCameraTestFragment == null) {
+                            mCameraTestFragment = new CameraTestFragment();
+                            mCameraTestFragment.setCameraManager(mCameraManager);
+                        }
+                        // Don't allow camera fragment to start if we don't have a manager.
+                        showFragment(mCameraTestFragment);
+                    }
+                    break;
+                case MENU_HVAC:
+                    if (mHvacManager != null) {
+                        if (mHvacTestFragment == null) {
+                            mHvacTestFragment = new HvacTestFragment();
+                            mHvacTestFragment.setHvacManager(mHvacManager);
+                        }
+                        // Don't allow HVAC fragment to start if we don't have a manager.
+                        showFragment(mHvacTestFragment);
+                    }
+                    break;
+                case MENU_JOB:
+                    if (mJobFragment == null) {
+                        mJobFragment = new JobSchedulerFragment();
+                    }
+                    showFragment(mJobFragment);
+                    break;
+                case MENU_CLUSTER:
+                    if (mInstrumentClusterFragment == null) {
+                        mInstrumentClusterFragment = new InstrumentClusterFragment();
+                    }
+                    showFragment(mInstrumentClusterFragment);
+                    break;
+                case MENU_INPUT_TEST:
+                    if (mInputTestFragment == null) {
+                        mInputTestFragment = new InputTestFragment();
+                    }
+                    showFragment(mInputTestFragment);
+                    break;
+                case MENU_VOLUME_TEST:
+                    if (mVolumeTestFragment == null) {
+                        mVolumeTestFragment = new VolumeTestFragment();
+                    }
+                    showFragment(mVolumeTestFragment);
+                    break;
+                case MENU_TOUCH_TEST:
+                    if (mTouchTestFragment == null) {
+                        mTouchTestFragment = new TouchTestFragment();
+                    }
+                    showFragment(mTouchTestFragment);
+                    break;
+                case MENU_CUBES_TEST:
+                    if (mCubesTestFragment == null) {
+                        mCubesTestFragment = new CubesTestFragment();
+                    }
+                    showFragment(mCubesTestFragment);
+                    break;
+                case MENU_CAR_SETTINGS:
+                    Intent intent = new Intent(KitchenSinkActivity.this,
+                            CarServiceSettingsActivity.class);
+                    startActivity(intent);
+                    break;
+                case MENU_ORIENTATION:
+                    if (mOrientationFragment == null) {
+                        mOrientationFragment = new OrientationTestFragment();
+                    }
+                    showFragment(mOrientationFragment);
+                    break;
+                case MENU_BLUETOOTH_HEADSET:
+                    if (mBluetoothHeadsetFragement == null) {
+                        mBluetoothHeadsetFragement = new BluetoothHeadsetFragment();
+                    }
+                    showFragment(mBluetoothHeadsetFragement);
+                    break;
+                case MENU_MAP_MESSAGING:
+                    if (mMapMceTestFragment == null) {
+                        mMapMceTestFragment = new MapMceTestFragment();
+                    }
+                    showFragment(mMapMceTestFragment);
+                    break;
+                case MENU_QUIT:
+                    finish();
+                    break;
+                default:
+                    Log.wtf(TAG, "Unknown menu item: " + mAllMenus[position]);
             }
-        }
-
-        @Override
-        public void onCarMenuClosed() {
-            resetTitle();
+            closeDrawer();
         }
     }
 }

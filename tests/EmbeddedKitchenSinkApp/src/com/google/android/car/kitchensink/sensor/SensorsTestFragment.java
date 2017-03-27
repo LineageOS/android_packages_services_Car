@@ -24,7 +24,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.car.CarNotConnectedException;
-import android.support.car.app.menu.CarDrawerActivity;
 import android.support.car.hardware.CarSensorEvent;
 import android.support.car.hardware.CarSensorManager;
 import android.support.v4.app.Fragment;
@@ -35,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
 import java.text.DateFormat;
@@ -78,7 +78,7 @@ public class SensorsTestFragment extends Fragment {
     private final Map<Integer, CarSensorEvent> mEventMap = new ConcurrentHashMap<>();
     private final DateFormat mDateFormat = SimpleDateFormat.getDateTimeInstance();
 
-    private CarDrawerActivity mActivity;
+    private KitchenSinkActivity mActivity;
     private TextView mSensorInfo;
     private Car mCar;
     private CarSensorManager mSensorManager;
@@ -96,7 +96,7 @@ public class SensorsTestFragment extends Fragment {
         }
 
         View view = inflater.inflate(R.layout.sensors, container, false);
-        mActivity = (CarDrawerActivity) getHost();
+        mActivity = (KitchenSinkActivity) getHost();
 
         mSensorInfo = (TextView) view.findViewById(R.id.sensor_info);
         mNaString = getContext().getString(R.string.sensor_na);
@@ -149,7 +149,7 @@ public class SensorsTestFragment extends Fragment {
     private Set<String> checkExistingPermissions() {
         Set<String> missingPermissions = new HashSet<String>();
         for (String permission : REQUIRED_PERMISSIONS) {
-            if (mActivity.getContext().checkSelfPermission(permission)
+            if (mActivity.checkSelfPermission(permission)
                 == PackageManager.PERMISSION_GRANTED) {
                 mActivePermissions.add(permission);
             } else {
@@ -179,8 +179,6 @@ public class SensorsTestFragment extends Fragment {
             initSensors();
         }
     }
-
-
 
     private void refreshUi() {
         String summaryString;
