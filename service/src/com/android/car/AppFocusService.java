@@ -49,21 +49,19 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     /** K: appType, V: client owning it */
     private final HashMap<Integer, OwnershipClientInfo> mFocusOwners = new HashMap<>();
     private final Set<Integer> mActiveAppTypes = new HashSet<>();
-    private final HandlerThread mHandlerThread;
-    private final DispatchHandler mDispatchHandler;
     private final CopyOnWriteArrayList<FocusOwnershipCallback> mFocusOwnershipCallbacks =
             new CopyOnWriteArrayList<>();
     private final BinderInterfaceContainer.BinderEventHandler<IAppFocusListener>
             mAllBinderEventHandler = bInterface -> { /* nothing to do.*/ };
+
+    private DispatchHandler mDispatchHandler;
+    private HandlerThread mHandlerThread;
 
     public AppFocusService(Context context,
             SystemActivityMonitoringService systemActivityMonitoringService) {
         mSystemActivityMonitoringService = systemActivityMonitoringService;
         mAllChangeClients = new ClientHolder(mAllBinderEventHandler);
         mAllOwnershipClients = new OwnershipClientHolder(this);
-        mHandlerThread = new HandlerThread(AppFocusService.class.getSimpleName());
-        mHandlerThread.start();
-        mDispatchHandler = new DispatchHandler(mHandlerThread.getLooper());
     }
 
     @Override
@@ -212,12 +210,23 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     @Override
     public void init() {
-        // nothing to do
+        synchronized (this) {
+            mHandlerThread = new HandlerThread(AppFocusService.class.getSimpleName());
+            mHandlerThread.start();
+            mDispatchHandler = new DispatchHandler(mHandlerThread.getLooper());
+        }
     }
 
     @Override
     public void release() {
         synchronized (this) {
+            mHandlerThread.quitSafely();
+            try {
+                mHandlerThread.join(1000);
+            } catch (InterruptedException e) {
+                Log.e(CarLog.TAG_APP_FOCUS, "Timeout while waiting for handler thread to join.");
+            }
+            mDispatchHandler = null;
             mAllChangeClients.clear();
             mAllOwnershipClients.clear();
             mFocusOwners.clear();
