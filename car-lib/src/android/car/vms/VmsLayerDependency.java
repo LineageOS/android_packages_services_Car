@@ -20,8 +20,11 @@ import android.car.annotation.FutureFeature;
 import android.os.Parcel;
 import android.os.Parcelable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A dependency for a VMS layer on other VMS layers.
@@ -31,14 +34,14 @@ import java.util.List;
 @FutureFeature
 public final class VmsLayerDependency implements Parcelable {
     private final VmsLayer mLayer;
-    private final List<VmsLayer> mDependency;
+    private final Set<VmsLayer> mDependency;
 
     /**
      * Construct a dependency for layer on other layers.
      */
-    public VmsLayerDependency(VmsLayer layer, List<VmsLayer> dependencies) {
+    public VmsLayerDependency(VmsLayer layer, Set<VmsLayer> dependencies) {
         mLayer = layer;
-        mDependency = Collections.unmodifiableList(dependencies);
+        mDependency = Collections.unmodifiableSet(dependencies);
     }
 
     /**
@@ -46,7 +49,7 @@ public final class VmsLayerDependency implements Parcelable {
      */
     public VmsLayerDependency(VmsLayer layer) {
         mLayer = layer;
-        mDependency = Collections.emptyList();
+        mDependency = Collections.emptySet();
     }
 
     /**
@@ -63,7 +66,7 @@ public final class VmsLayerDependency implements Parcelable {
     /**
      * Returns the dependencies.
      */
-    public List<VmsLayer> getDependencies() {
+    public Set<VmsLayer> getDependencies() {
         return mDependency;
     }
 
@@ -80,7 +83,7 @@ public final class VmsLayerDependency implements Parcelable {
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeParcelable(mLayer, flags);
-        out.writeParcelableList(mDependency, flags);
+        out.writeParcelableList(new ArrayList<VmsLayer>(mDependency), flags);
     }
 
     @Override
@@ -92,6 +95,6 @@ public final class VmsLayerDependency implements Parcelable {
         mLayer = in.readParcelable(VmsLayer.class.getClassLoader());
         List<VmsLayer> dependency = new ArrayList<>();
         in.readParcelableList(dependency, VmsLayer.class.getClassLoader());
-        mDependency = Collections.unmodifiableList(dependency);
+        mDependency = Collections.unmodifiableSet(new HashSet<VmsLayer>(dependency));
     }
 }
