@@ -15,6 +15,8 @@
  */
 package com.android.car.test;
 
+import com.google.android.collect.Lists;
+
 import android.car.Car;
 import android.car.CarNotConnectedException;
 import android.car.media.CarAudioManager;
@@ -26,27 +28,27 @@ import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.IVolumeController;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.Pair;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 
-import com.google.android.collect.Lists;
-
-import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
-import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
+import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CarVolumeServiceTest extends MockedCarTestBase {
+    private static final String TAG = CarVolumeServiceTest.class.getSimpleName();
+
     private static final int MIN_VOL = 1;
     private static final int MAX_VOL = 20;
     private static final long TIMEOUT_MS = 3000;
@@ -140,8 +142,9 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
             AudioAttributes callAttrib = (new AudioAttributes.Builder()).
                     setUsage(AudioAttributes.USAGE_ALARM).
                     build();
-            mAudioManager.requestAudioFocus(listenerAlarm, callAttrib,
+            res = mAudioManager.requestAudioFocus(listenerAlarm, callAttrib,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
+            assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
             request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
             mAudioFocusPropertyHandler.sendAudioFocusState(
                     VehicleAudioFocusState.STATE_GAIN, request[1],
@@ -381,7 +384,7 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
 
         addProperty(VehicleProperty.AUDIO_FOCUS, mAudioFocusPropertyHandler);
 
-        addProperty(VehicleProperty.AUDIO_ROUTING_POLICY, mAudioFocusPropertyHandler)
+        addProperty(VehicleProperty.AUDIO_ROUTING_POLICY, mAudioRoutingPolicyPropertyHandler)
                         .setAccess(VehiclePropertyAccess.WRITE);
 
         addStaticProperty(VehicleProperty.AUDIO_HW_VARIANT,

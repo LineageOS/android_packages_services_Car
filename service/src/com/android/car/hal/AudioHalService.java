@@ -20,15 +20,16 @@ import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_FOC
 import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_HW_VARIANT;
 import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_PARAMETERS;
 import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_ROUTING_POLICY;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_STREAM_STATE;
 import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_VOLUME;
 import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_VOLUME_LIMIT;
 import static com.android.car.CarServiceUtils.toIntArray;
-import static java.lang.Integer.toHexString;
 
 import android.annotation.Nullable;
 import android.car.VehicleZoneUtil;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioManager.OnParameterChangeListener;
+import android.hardware.automotive.vehicle.V2_0.SubscribeFlags;
 import android.hardware.automotive.vehicle.V2_0.VehicleAudioContextFlag;
 import android.hardware.automotive.vehicle.V2_0.VehicleAudioExtFocusFlag;
 import android.hardware.automotive.vehicle.V2_0.VehicleAudioFocusIndex;
@@ -84,11 +85,8 @@ public class AudioHalService extends HalServiceBase {
     public static final int VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_EXLCUSIVE =
             VehicleAudioFocusState.STATE_LOSS_TRANSIENT_EXLCUSIVE;
 
-    // TODO(pavelm): we don't have internal properties anymore
-//    public static final int VEHICLE_AUDIO_STREAM_STATE_STOPPED =
-//            VehicleAudioStreamState.VEHICLE_AUDIO_STREAM_STATE_STOPPED;
-//    public static final int VEHICLE_AUDIO_STREAM_STATE_STARTED =
-//            VehicleAudioStreamState.VEHICLE_AUDIO_STREAM_STATE_STARTED;
+    public static final int VEHICLE_AUDIO_STREAM_STATE_STOPPED = 0;
+    public static final int VEHICLE_AUDIO_STREAM_STATE_STARTED = 1;
 
     public static final int VEHICLE_AUDIO_EXT_FOCUS_NONE_FLAG =
             VehicleAudioExtFocusFlag.NONE_FLAG;
@@ -573,7 +571,11 @@ public class AudioHalService extends HalServiceBase {
     public synchronized void init() {
         for (VehiclePropConfig config : mProperties.values()) {
             if (VehicleHal.isPropertySubscribable(config)) {
-                mVehicleHal.subscribeProperty(this, config.prop, 0);
+                int subsribeFlag = SubscribeFlags.HAL_EVENT;
+                if (AUDIO_STREAM_STATE == config.prop) {
+                    subsribeFlag |= SubscribeFlags.SET_CALL;
+                }
+                mVehicleHal.subscribeProperty(this, config.prop, 0, subsribeFlag);
             }
         }
         try {
@@ -608,8 +610,7 @@ public class AudioHalService extends HalServiceBase {
                 case VehicleProperty.AUDIO_HW_VARIANT:
                 case VehicleProperty.AUDIO_EXT_ROUTING_HINT:
                 case VehicleProperty.AUDIO_PARAMETERS:
-                    // TODO(pavelm): we don't have internal properties anymore.
-//                case VehicleProperty.INTERNAL_AUDIO_STREAM_STATE:
+                case VehicleProperty.AUDIO_STREAM_STATE:
                     mProperties.put(p.prop, p);
                     break;
             }
@@ -697,17 +698,14 @@ public class AudioHalService extends HalServiceBase {
                         focusListener.onFocusChange(focusState, streams, externalFocus);
                     }
                 } break;
-                // TODO(pavelm): we don't have internal properties anymore
-//                case INTERNAL_AUDIO_STREAM_STATE: {
-//                    int state = v.getInt32Values(
-//                            VehicleAudioStreamStateIndex.VEHICLE_AUDIO_STREAM_STATE_INDEX_STATE);
-//                    int streamNum = v.getInt32Values(
-//                            VehicleAudioStreamStateIndex.VEHICLE_AUDIO_STREAM_STATE_INDEX_STREAM);
-//                    if (focusListener != null) {
-//                        focusListener.onStreamStatusChange(streamNum, state ==
-//                                VehicleAudioStreamState.VEHICLE_AUDIO_STREAM_STATE_STARTED);
-//                    }
-//                } break;
+                case VehicleProperty.AUDIO_STREAM_STATE: {
+                    ArrayList<Integer> vec = v.value.int32Values;
+                    boolean streamStarted = vec.get(0) == VEHICLE_AUDIO_STREAM_STATE_STARTED;
+                    int streamNum = vec.get(1);
+                    if (focusListener != null) {
+                        focusListener.onStreamStatusChange(streamNum, streamStarted);
+                    }
+                } break;
                 case AUDIO_VOLUME: {
                     ArrayList<Integer> vec = v.value.int32Values;
                     int volume = vec.get(VehicleAudioVolumeIndex.INDEX_VOLUME);

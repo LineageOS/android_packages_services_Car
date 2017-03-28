@@ -21,10 +21,14 @@ import static com.android.car.CarServiceUtils.toFloatArray;
 import static com.android.car.CarServiceUtils.toIntArray;
 import static java.lang.Integer.toHexString;
 
+import com.google.android.collect.Lists;
+
 import android.annotation.CheckResult;
 import android.car.annotation.FutureFeature;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
+import android.hardware.automotive.vehicle.V2_0.SubscribeFlags;
+import android.hardware.automotive.vehicle.V2_0.SubscribeOptions;
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -42,8 +46,6 @@ import com.android.car.CarLog;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.internal.annotations.VisibleForTesting;
 
-import com.google.android.collect.Lists;
-
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -52,7 +54,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -90,7 +91,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<>();
     /** This is for iterating all HalServices with fixed order. */
     private final ArrayList<HalServiceBase> mAllServices = new ArrayList<>();
-    private final HashMap<Integer, Float> mSubscribedProperties = new HashMap<>();
+    private final HashMap<Integer, SubscribeOptions> mSubscribedProperties = new HashMap<>();
     private final HashMap<Integer, VehiclePropConfig> mAllProperties = new HashMap<>();
     private final HashMap<Integer, VehiclePropertyEventInfo> mEventLog = new HashMap<>();
 
@@ -187,14 +188,13 @@ public class VehicleHal extends IVehicleCallback.Stub {
             mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(),
                     this /*IVehicleCallback*/);
 
-            for (Entry<Integer, Float> subscription : mSubscribedProperties.entrySet()) {
-                try {
-                    mHalClient.subscribe(subscription.getKey(), subscription.getValue());
-                } catch (RemoteException e) {
-                    throw new RuntimeException("Unable to subscribe to property: 0x"
-                            + toHexString(subscription.getKey()) + " with "
-                            + subscription.getValue() + "Hz", e);
-                }
+            SubscribeOptions[] options = mSubscribedProperties.values()
+                    .toArray(new SubscribeOptions[0]);
+
+            try {
+                mHalClient.subscribe(options);
+            } catch (RemoteException e) {
+                throw new RuntimeException("Failed to subscribe: " + Arrays.asList(options), e);
             }
         }
     }
@@ -302,10 +302,36 @@ public class VehicleHal extends IVehicleCallback.Stub {
     }
 
     /**
+     * Subscribes given properties with sampling rate defaults to 0 and no special flags provided.
+     *
+     * @see #subscribeProperty(HalServiceBase, int, float, int)
+     */
+    public void subscribeProperty(HalServiceBase service, int property)
+            throws IllegalArgumentException {
+        subscribeProperty(service, property, 0f, SubscribeFlags.DEFAULT);
+    }
+
+    /**
+     * Subscribes given properties with default subscribe flag.
+     *
+     * @see #subscribeProperty(HalServiceBase, int, float, int)
+     */
+    public void subscribeProperty(HalServiceBase service, int property, float sampleRateHz)
+            throws IllegalArgumentException {
+        subscribeProperty(service, property, sampleRateHz, SubscribeFlags.DEFAULT);
+    }
+
+    /**
      * Subscribe given property. Only Hal service owning the property can subscribe it.
+     *
+     * @param service HalService that owns this property
+     * @param property property id (VehicleProperty)
+     * @param samplingRateHz sampling rate in Hz for continuous properties
+     * @param flags flags from {@link android.hardware.automotive.vehicle.V2_0.SubscribeFlags}
+     * @throws IllegalArgumentException thrown if property is not supported by VHAL
      */
     public void subscribeProperty(HalServiceBase service, int property,
-            float samplingRateHz) throws IllegalArgumentException {
+            float samplingRateHz, int flags) throws IllegalArgumentException {
         if (DBG) {
             Log.i(CarLog.TAG_HAL, "subscribeProperty, service:" + service
                     + ", property: 0x" + toHexString(property));
@@ -319,12 +345,16 @@ public class VehicleHal extends IVehicleCallback.Stub {
             throw new IllegalArgumentException("subscribe error: config is null for property 0x" +
                     toHexString(property));
         } else if (isPropertySubscribable(config)) {
+            SubscribeOptions opts = new SubscribeOptions();
+            opts.propId = property;
+            opts.sampleRate = samplingRateHz;
+            opts.flags = flags;
             synchronized (this) {
                 assertServiceOwnerLocked(service, property);
-                mSubscribedProperties.put(property, samplingRateHz);
+                mSubscribedProperties.put(property, opts);
             }
             try {
-                mHalClient.subscribe(property, samplingRateHz);
+                mHalClient.subscribe(opts);
             } catch (RemoteException e) {
                 Log.e(CarLog.TAG_HAL, "Failed to subscribe to property: 0x" + property, e);
             }

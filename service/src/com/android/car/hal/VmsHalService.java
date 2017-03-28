@@ -248,7 +248,7 @@ public class VmsHalService extends HalServiceBase {
             Log.d(TAG, "init()");
         }
         if (mIsSupported) {
-            mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID, 0);
+            mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID);
         }
     }
 

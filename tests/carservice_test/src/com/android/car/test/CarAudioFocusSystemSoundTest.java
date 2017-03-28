@@ -16,6 +16,9 @@
 package com.android.car.test;
 
 import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_FOCUS;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AUDIO_STREAM_STATE;
+
+import com.google.android.collect.Lists;
 
 import android.car.Car;
 import android.car.media.CarAudioManager;
@@ -34,11 +37,9 @@ import android.media.AudioManager;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 
-import com.google.android.collect.Lists;
-
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.FailingPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
-import com.android.car.vehiclehal.VehiclePropValueBuilder;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
@@ -71,6 +72,8 @@ public class CarAudioFocusSystemSoundTest extends MockedCarTestBase {
         addProperty(VehicleProperty.AUDIO_ROUTING_POLICY, mAudioRoutingPolicyPropertyHandler)
                 .setAccess(VehiclePropertyAccess.WRITE);
         addProperty(VehicleProperty.AUDIO_FOCUS, mAudioFocusPropertyHandler);
+        addProperty(VehicleProperty.AUDIO_STREAM_STATE);
+
 
         addStaticProperty(VehicleProperty.AUDIO_HW_VARIANT,
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.AUDIO_HW_VARIANT)
@@ -92,11 +95,10 @@ public class CarAudioFocusSystemSoundTest extends MockedCarTestBase {
     }
 
     private void notifyStreamState(int streamNumber, boolean active) {
-        int[] values = { active ? 1 : 0, streamNumber };
-        long now = SystemClock.elapsedRealtimeNanos();
-        // TODO(pavelm): we don't have internal properties anymore.
-//        getMockedVehicleHal().injectEvent(VehiclePropValueUtil.createIntVectorValue(
-//                INTERNAL_AUDIO_STREAM_STATE, values, now));
+        getMockedVehicleHal().injectEvent(VehiclePropValueBuilder.newBuilder(AUDIO_STREAM_STATE)
+                .setTimestamp()
+                .addIntValue(new int[] { active ? 1 : 0, streamNumber })
+                .build());
     }
 
     public void testSystemSoundPlayStop() throws Exception {
