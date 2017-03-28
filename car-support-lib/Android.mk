@@ -26,7 +26,6 @@ LOCAL_AAPT_FLAGS := --auto-add-overlay
 LOCAL_MODULE := android.support.car-prebuilt
 LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SDK_VERSION := 24
 
 LOCAL_MANIFEST_FILE := AndroidManifest.xml
@@ -52,26 +51,6 @@ ifeq ($(BOARD_IS_AUTOMOTIVE), true)
  $(call dist-for-goals,dist_files,$(built_aar):android.support.car.aar)
 endif
 
-# Build the resources.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android.support.car-res
-LOCAL_SDK_VERSION := 24
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_RESOURCE_DIR += frameworks/support/v7/appcompat/res
-LOCAL_RESOURCE_DIR += frameworks/support/v7/recyclerview/res
-LOCAL_RESOURCE_DIR += frameworks/support/v7/cardview/res
-
-LOCAL_AAPT_FLAGS := --auto-add-overlay \
-    --extra-packages android.support.v7.appcompat \
-    --extra-packages android.support.v7.recyclerview \
-    --extra-packages android.support.v7.cardview
-
-LOCAL_JAR_EXCLUDE_FILES := none
-LOCAL_MANIFEST_FILE := AndroidManifest.xml
-
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
 # Build support library.
 # ---------------------------------------------
 include $(CLEAR_VARS)
@@ -88,8 +67,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
                                android-support-v7-cardview \
                                android-support-annotations
 
-LOCAL_JAVA_LIBRARIES += android.car \
-                        android.support.car-res
+LOCAL_JAVA_LIBRARIES += android.car
 
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
@@ -116,7 +94,6 @@ LOCAL_DROIDDOC_SOURCE_PATH := $(LOCAL_PATH)/src
 
 LOCAL_JAVA_LIBRARIES := \
     android.car \
-    android.support.car-res \
     android-support-v4 \
     android-support-v7-appcompat \
     android-support-v7-recyclerview \

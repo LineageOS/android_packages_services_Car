@@ -74,7 +74,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PACKAGES += \
     vehicle_monitor_service \
     CarService \
-    CarUiProvider \
     CarTrustAgentService \
     CarDialerApp \
     CarRadioApp \
