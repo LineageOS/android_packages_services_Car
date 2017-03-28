@@ -21,6 +21,7 @@ import android.media.AudioManager;
 import android.media.IAudioService;
 import android.media.IVolumeController;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteCallbackList;
@@ -98,6 +99,10 @@ public class CarVolumeControllerFactory {
 
         @Override
         void init() {
+        }
+
+        @Override
+        void release() {
         }
 
         @Override
@@ -234,8 +239,8 @@ public class CarVolumeControllerFactory {
         private int[] mSuppressUiForVolume = new int[2];
         @GuardedBy("this")
         private boolean mShouldSuppress = false;
-
-        private final Handler mHandler = new VolumeHandler();
+        private HandlerThread mVolumeThread;
+        private Handler mHandler;
 
         /**
          * Convert an car context to the car stream.
@@ -265,6 +270,9 @@ public class CarVolumeControllerFactory {
          * the internal lock while sending updates.
          */
         private final class VolumeHandler extends Handler {
+            public VolumeHandler(Looper looper) {
+                super(looper);
+            }
             @Override
             public void handleMessage(Message msg) {
                 int stream;
@@ -359,12 +367,24 @@ public class CarVolumeControllerFactory {
             mHasExternalMemory = mHal.isExternalAudioVolumePersistent();
             mMasterVolumeOnly = mHal.isAudioVolumeMasterOnly();
             synchronized (this) {
+                mVolumeThread = new HandlerThread(TAG);
+                mVolumeThread.start();
+                mHandler = new VolumeHandler(mVolumeThread.getLooper());
                 initVolumeLimitLocked();
                 initCurrentVolumeLocked();
             }
             mInputService.setVolumeKeyListener(this);
             mHal.setVolumeListener(this);
             mAudioService.setAudioContextChangeListener(Looper.getMainLooper(), this);
+        }
+
+        @Override
+        void release() {
+            synchronized (this) {
+                if (mVolumeThread != null) {
+                    mVolumeThread.quit();
+                }
+            }
         }
 
         private void initVolumeLimitLocked() {
