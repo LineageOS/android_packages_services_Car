@@ -72,6 +72,10 @@ public class Obd2Connection {
         return true;
     }
 
+    public boolean isConnected() {
+        return mConnection.isConnected();
+    }
+
     static int toDigitValue(char c) {
         if ((c >= '0') && (c <= '9')) return c - '0';
         switch (c) {
