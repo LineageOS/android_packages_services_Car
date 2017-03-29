@@ -42,8 +42,8 @@ import java.util.*;
  * This class is intended to be invoked from the shell.  For a 64KB file
  * written in 1KB chunks, invoke from the host workstation:
  *   adb install -g StressFS.apk
- *   adb shell am startservice \
- *     -n com.android.car.test.stressfs/.WritingService \
+ *   adb shell am start \
+ *     -n com.android.car.test.stressfs/.WritingActivity \
  *     -a com.android.car.test.stressfs.START
  *     -d "stressfs://start?block=1024\&file=65536"
  *
@@ -127,7 +127,9 @@ public class WritingService extends Service {
                 Environment.getExternalStorageState(externalPartitionFile));
 
         Uri data = intent.getData();
-        Log.i(TAG, "Data: " + data.toString());
+        if (data != null) {
+            Log.i(TAG, "Data: " + data.toString());
+        }
         int blockSize = getQueryParam(data, "block", DEFAULT_BLOCK_SIZE);
         int fileSize = getQueryParam(data, "file", DEFAULT_FILE_SIZE);
         Log.i(TAG, "Block Size: " + blockSize);
@@ -162,6 +164,9 @@ public class WritingService extends Service {
 
     /** Parses an integer query parameter from the input Uri. */
     private int getQueryParam(Uri data, String key, int defaultValue) {
+        if (data == null) {
+            return defaultValue;
+        }
         String inValString = data.getQueryParameter(key);
         if (inValString != null) {
             try {

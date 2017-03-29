@@ -84,6 +84,11 @@ def main():
 
   cfg = yaml.load(args.config)
 
+  if args.stressfs:
+    if subprocess.call(ADB_CMD + ' install -r -g ' + args.stressfs, shell=True) != 0:
+      raise Exception('StressFS APK not installed');
+
+
   search_events = {key: re.compile(pattern)
                    for key, pattern in cfg['events'].iteritems()}
   timing_events = {key: re.compile(pattern)
@@ -123,6 +128,10 @@ def main():
       if not k in boottime_points:
         boottime_points[k] = []
       boottime_points[k].append(v)
+
+  if args.stressfs:
+    subprocess.call(ADB_CMD + ' uninstall com.android.car.test.stressfs', shell=True)
+    subprocess.call(ADB_CMD + ' shell "rm -rf /storage/emulated/0/stressfs_data*"', shell=True)
 
   if args.iterate > 1:
     print "-----------------"
@@ -176,7 +185,7 @@ def capture_bugreport(bugreport_hint, boot_complete_time):
 
 def iterate(args, search_events, timings, cfg, error_time, components_to_monitor):
   if args.reboot:
-    reboot(args.fs_check)
+    reboot(args.fs_check, args.stressfs != '')
 
   dmesg_events, e = collect_events(search_events, ADB_CMD + ' shell su root dmesg -w', {},\
                                    [ KERNEL_BOOT_COMPLETE ])
@@ -357,6 +366,10 @@ def init_arguments():
   parser.add_argument('-c', '--config', dest='config',
                       default='config.yaml', type=argparse.FileType('r'),
                       help='config file for the tool', )
+  parser.add_argument('-s', '--stressfs', dest='stressfs',
+                      default='', type=str,
+                      help='APK file for the stressfs tool used to write to the data partition ' +\
+                           'during shutdown')
   parser.add_argument('-n', '--iterate', dest='iterate', type=int, default=1,
                       help='number of time to repeat the measurement', )
   parser.add_argument('-g', '--ignore', dest='ignore', action='store_true',
@@ -502,7 +515,14 @@ def extract_time(events, pattern, date_transform_function):
 
 
 
-def reboot(use_adb_reboot):
+def reboot(use_adb_reboot, use_stressfs):
+  if use_stressfs:
+    print 'Starting write to data partition'
+    subprocess.call(ADB_CMD + ' shell am start' +\
+                              ' -n com.android.car.test.stressfs/.WritingActivity' +\
+                              ' -a com.android.car.test.stressfs.START', shell=True)
+    # Give this app some time to start.
+    time.sleep(1)
   if use_adb_reboot:
     print 'Rebooting the device using adb reboot'
     subprocess.call(ADB_CMD + ' reboot', shell=True)
