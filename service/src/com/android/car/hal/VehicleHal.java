@@ -150,7 +150,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mVendorExtensionHal = null;
 
         if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
-            // TODO(antoniocortes): do we need a test version of VmsHalService?
             mVmsHal = null;
         }
         if(FeatureConfiguration.ENABLE_DIAGNOSTIC) {
@@ -177,7 +176,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
             mHvacHal = hvacHal;
             mInputHal = null;
             mVendorExtensionHal = null;
-            // TODO(antoniocortes): do we need a test version of VmsHalService?
             mVmsHal = null;
             mHalClient = halClient;
             mDiagnosticHal = diagnosticHal;
