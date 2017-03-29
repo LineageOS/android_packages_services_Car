@@ -108,5 +108,10 @@ public class VmsSubscriberClientSampleActivity extends Activity {
                 public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
                     mTextView.setText(String.valueOf(availableLayers));
                 }
+
+                @Override
+                public void onCarDisconnected() {
+
+                }
             };
 }

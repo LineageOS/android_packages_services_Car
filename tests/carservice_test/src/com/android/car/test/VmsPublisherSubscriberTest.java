@@ -134,6 +134,11 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
             //  and update VmsPublisherClientMockService
         }
 
+        @Override
+        public void onCarDisconnected() {
+
+        }
+
         public VmsLayer getLayer() {
             return mLayer;
         }

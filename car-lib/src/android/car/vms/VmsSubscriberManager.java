@@ -57,6 +57,9 @@ public final class VmsSubscriberManager implements CarManagerBase {
 
         /** Called when layers availability change */
         void onLayersAvailabilityChange(List<VmsLayer> availableLayers);
+
+        /** Notifies the client of the disconnect event */
+        void onCarDisconnected();
     }
 
     /**
@@ -136,6 +139,8 @@ public final class VmsSubscriberManager implements CarManagerBase {
      * Therefore, notifications from the {@link com.android.car.VmsSubscriberService} are received
      * by the {@link #mIListener} and then forwarded to the {@link #mListener}.
      *
+     * It is expected that this method is invoked just once during the lifetime of the object.
+     *
      * @param listener subscriber listener that will handle onVmsMessageReceived events.
      * @throws IllegalStateException if the listener was already set.
      */
@@ -149,16 +154,6 @@ public final class VmsSubscriberManager implements CarManagerBase {
             }
             mListener = listener;
         }
-    }
-
-    /**
-     * Removes the listener and unsubscribes from all the layer/version.
-     */
-    public void clearListener() {
-        synchronized (mListenerLock) {
-            mListener = null;
-        }
-        // TODO(antoniocortes): logic to unsubscribe from all the layer/version pairs.
     }
 
     /**
@@ -244,6 +239,29 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
     }
 
+    public void unsubscribeAll() throws CarNotConnectedException {
+        if (DBG) {
+            Log.d(TAG, "Unsubscribing passively from all data messages");
+        }
+        VmsSubscriberClientListener listener;
+        synchronized (mListenerLock) {
+            listener = mListener;
+        }
+        if (listener == null) {
+            Log.w(TAG, "subscribe: listener was not set, " +
+                    "setListener must be called first.");
+            throw new IllegalStateException("Listener was not set.");
+        }
+        try {
+            mVmsSubscriberService.removeVmsSubscriberClientPassiveListener(mIListener);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not connect: ", e);
+            throw new CarNotConnectedException(e);
+        } catch (IllegalStateException ex) {
+            Car.checkCarNotConnectedExceptionFromCarService(ex);
+        }
+    }
+
     private void dispatchOnReceiveMessage(VmsLayer layer, byte[] payload) {
         VmsSubscriberClientListener listener;
         synchronized (mListenerLock) {
@@ -271,7 +289,15 @@ public final class VmsSubscriberManager implements CarManagerBase {
     /** @hide */
     @Override
     public void onCarDisconnected() {
-        clearListener();
+        VmsSubscriberClientListener listener;
+        synchronized (mListenerLock) {
+            listener = mListener;
+        }
+        if (listener == null) {
+            Log.e(TAG, "Listener died, not dispatching event.");
+            return;
+        }
+        listener.onCarDisconnected();
     }
 
     private static final class VmsDataMessage {
