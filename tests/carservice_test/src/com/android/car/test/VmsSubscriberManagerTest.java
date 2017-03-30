@@ -63,13 +63,21 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
     @Override
     protected void setUp() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
         super.setUp();
         mSubscriberSemaphore = new Semaphore(0);
         mHalHandlerSemaphore = new Semaphore(0);
     }
 
+    @Override
+    protected synchronized void tearDown() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
+        super.tearDown();
+    }
+
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
     public void testSubscribe() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();
@@ -98,6 +106,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
     public void testSubscribeAll() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
             Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();

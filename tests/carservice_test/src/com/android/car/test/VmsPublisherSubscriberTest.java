@@ -41,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     private static final int LAYER_ID = 88;
     private static final int LAYER_VERSION = 19;
+    private static final String TAG = "VmsPubSubTest";
+
     public static final VmsLayer LAYER = new VmsLayer(LAYER_ID, LAYER_VERSION);
     public static final byte[] PAYLOAD = new byte[]{2, 3, 5, 7, 11, 13, 17};
 
@@ -87,8 +89,15 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
 
     @Override
     protected void setUp() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
         super.setUp();
         mSubscriberSemaphore = new Semaphore(0);
+    }
+
+    @Override
+    protected synchronized void tearDown() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
+        super.tearDown();
     }
 
     /**
@@ -100,6 +109,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
      * a message, which is validated in this test.
      */
     public void testPublisherToSubscriber() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();
