@@ -104,6 +104,7 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
 
     @Override
     protected void setUp() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
         /**
          * First init the semaphore, setUp will start a series of events that will ultimately
          * update the HAL layer and release this semaphore.
@@ -116,6 +117,12 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
         mHal.injectEvent(getHalSubscriptionRequest());
     }
 
+    @Override
+    protected synchronized void tearDown() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
+        super.tearDown();
+    }
+
     /**
      * The method setUp initializes all the Car services, including the VmsPublisherService.
      * The VmsPublisherService will start and configure its list of clients. This list was
@@ -125,6 +132,7 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
      * this test.
      */
     public void testPublish() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
         //TODO: This test is using minial synchronisation between clients.
         //      If more complexity is added this may result in publisher
         //      publishing before the subscriber subscribed, in which case
