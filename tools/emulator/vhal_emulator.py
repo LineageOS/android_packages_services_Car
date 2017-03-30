@@ -23,11 +23,11 @@
 
     Example Usage:
 
-        import vhal_consts_1_0 as c
+        import vhal_consts_2_0 as c
         from vhal_emulator import Vhal
 
         # Create an instance of vhal class.  Need to pass the vhal_types constants.
-        v = Vhal(c.vhal_types_1_0)
+        v = Vhal(c.vhal_types_2_0)
 
         # Get the property config (if desired)
         v.getConfig(c.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET)
@@ -84,6 +84,18 @@ import subprocess
 #   protoc -I=proto --python_out=proto proto/VehicleHalProto.proto
 import VehicleHalProto_pb2
 
+# If container is a dictionary, retrieve the value for key item;
+# Otherwise, get the attribute named item out of container
+def getByAttributeOrKey(container, item, default=None):
+    if isinstance(container, dict):
+        try:
+            return container[item]
+        except KeyError as e:
+            return default
+    try:
+        return getattr(container, item)
+    except AttributeError as e:
+        return default
 
 class Vhal:
     """
@@ -215,6 +227,17 @@ class Vhal:
             propValue.int32_values.extend(value)
         elif valType in self._types.TYPE_FLOATS:
             propValue.float_values.extend(value)
+        elif valType in self._types.TYPE_COMPLEX:
+            propValue.string_value = \
+                getByAttributeOrKey(value, 'string_value', '')
+            propValue.bytes_value = \
+                getByAttributeOrKey(value, 'bytes_value', '')
+            for newValue in getByAttributeOrKey(value, 'int32_values', []):
+                propValue.int32_values.append(newValue)
+            for newValue in getByAttributeOrKey(value, 'int64_values', []):
+                propValue.int64_values.append(newValue)
+            for newValue in getByAttributeOrKey(value, 'float_values', []):
+                propValue.float_values.append(newValue)
         else:
             raise ValueError('value type not recognized:', valType)
             return
@@ -231,4 +254,3 @@ class Vhal:
         # Parse the list of configs to generate a dictionary of prop_id to type
         for cfg in msg.config:
             self._propToType[cfg.prop] = cfg.value_type
-
