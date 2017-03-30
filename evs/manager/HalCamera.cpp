@@ -18,6 +18,7 @@
 
 #include "HalCamera.h"
 #include "VirtualCamera.h"
+#include "Enumerator.h"
 
 #include <ui/GraphicBufferAllocator.h>
 #include <ui/GraphicBufferMapper.h>
