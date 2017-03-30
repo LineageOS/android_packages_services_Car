@@ -26,6 +26,7 @@ LOCAL_AAPT_FLAGS := --auto-add-overlay
 LOCAL_MODULE := android.support.car-prebuilt
 LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SDK_VERSION := 24
 
 LOCAL_MANIFEST_FILE := AndroidManifest.xml
