@@ -170,6 +170,11 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
             Log.d(TAG, "onLayersAvailabilityChange: Layers: " + availableLayers);
         }
 
+        @Override
+        public void onCarDisconnected() {
+
+        }
+
         public VmsLayer getLayer() {
             return mLayer;
         }
