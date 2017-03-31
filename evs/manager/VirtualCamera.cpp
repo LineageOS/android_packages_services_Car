@@ -18,6 +18,7 @@
 
 #include "VirtualCamera.h"
 #include "HalCamera.h"
+#include "Enumerator.h"
 
 #include <ui/GraphicBufferAllocator.h>
 #include <ui/GraphicBufferMapper.h>
@@ -30,10 +31,22 @@ namespace V1_0 {
 namespace implementation {
 
 
-// If the client dies before closing the camera, this is our chance to clean up...
+VirtualCamera::VirtualCamera(sp<HalCamera> halCamera) :
+    mHalCamera(halCamera) {
+}
+
+
 VirtualCamera::~VirtualCamera() {
-    // If we have been connected to a camera device we have some cleanup to do...
-    if (mHalCamera != nullptr) {
+    shutdown();
+}
+
+
+void VirtualCamera::shutdown() {
+    // In normal operation, the stream should already be stopped by the time we get here
+    if (mStreamState != STOPPED) {
+        // Note that if we hit this case, no terminating frame will be sent to the client,
+        // but they're probably already dead anyway.
+        ALOGW("Virtual camera being shutdown while stream is running");
         mStreamState = STOPPED;
 
         if (mFramesHeld.size() > 0) {
@@ -46,18 +59,10 @@ VirtualCamera::~VirtualCamera() {
             }
             mFramesHeld.clear();
         }
-
-        // Give the underlying hardware camera the heads up that it might be time to stop
-        mHalCamera->clientStreamEnding();
-
-        // Disconnect ourselves from the underlying hardware camera so it can adjust it's resources
-        mHalCamera->disownVirtualCamera(this);
     }
-}
 
-
-void VirtualCamera::shutdown() {
-    mHalCamera=nullptr;
+    // Drop our reference to our associated hardware camera
+    mHalCamera = nullptr;
 }
 
 
@@ -95,9 +100,9 @@ bool VirtualCamera::deliverFrame(const BufferDesc& buffer) {
 
 
 // Methods from ::android::hardware::automotive::evs::V1_0::IEvsCamera follow.
-Return<void> VirtualCamera::getId(getId_cb id_cb) {
+Return<void> VirtualCamera::getCameraInfo(getCameraInfo_cb info_cb) {
     // Straight pass through to hardware layer
-    return mHalCamera->getHwCamera()->getId(id_cb);
+    return mHalCamera->getHwCamera()->getCameraInfo(info_cb);
 }
 
 
