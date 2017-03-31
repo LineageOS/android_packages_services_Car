@@ -35,19 +35,9 @@
 static const unsigned kBytesPerPixel = 4;   // assuming 4 byte RGBx pixels
 
 
-StreamHandler::StreamHandler(android::sp <IEvsCamera>  pCamera,  CameraDesc  cameraInfo,
-                             android::sp <IEvsDisplay> pDisplay, DisplayDesc displayInfo) :
+StreamHandler::StreamHandler(android::sp<IEvsCamera> pCamera, android::sp<IEvsDisplay> pDisplay) :
     mCamera(pCamera),
-    mCameraInfo(cameraInfo),
-    mDisplay(pDisplay),
-    mDisplayInfo(displayInfo) {
-
-    // Post a warning message if resolutions don't match since we handle it, but only
-    // with simple/ugly results in copyBufferContents below.
-    if ((mDisplayInfo.defaultHorResolution != cameraInfo.defaultHorResolution) ||
-        (mDisplayInfo.defaultVerResolution != cameraInfo.defaultVerResolution)) {
-        ALOGW("Camera and Display resolutions don't match -- images will be clipped");
-    }
+    mDisplay(pDisplay) {
 }
 
 
@@ -100,26 +90,18 @@ unsigned StreamHandler::getFramesCompleted() {
 Return<void> StreamHandler::deliverFrame(const BufferDesc& bufferArg) {
     ALOGD("Received a frame from the camera (%p)", bufferArg.memHandle.getNativeHandle());
 
+    // Local flag we use to keep track of when the stream is stopping
+    bool timeToStop = false;
+
     // TODO:  Why do we get a gralloc crash if we don't clone the buffer here?
     BufferDesc buffer(bufferArg);
     ALOGD("Clone the received frame as %p", buffer.memHandle.getNativeHandle());
 
     if (buffer.memHandle.getNativeHandle() == nullptr) {
-        printf("Got end of stream notification\n");
-
-        // Signal that the last frame has been received and the stream is stopped
-        mLock.lock();
-        mRunning = false;
-        mLock.unlock();
-        mSignal.notify_all();
-
+        // Signal that the last frame has been received and that the stream should stop
+        timeToStop = true;
         ALOGI("End of stream signaled");
     } else {
-        // Quick and dirty so that we can monitor frame delivery for testing
-        mLock.lock();
-        mFramesReceived++;
-        mLock.unlock();
-
         // Get the output buffer we'll use to display the imagery
         BufferDesc tgtBuffer = {};
         mDisplay->getTargetBuffer([&tgtBuffer]
@@ -182,6 +164,18 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc& bufferArg) {
 
         ALOGD("Frame handling complete");
     }
+
+
+    // Update our received frame count and notify anybody who cares that things have changed
+    mLock.lock();
+    if (timeToStop) {
+        mRunning = false;
+    } else {
+        mFramesReceived++;
+    }
+    mLock.unlock();
+    mSignal.notify_all();
+
 
     return Void();
 }

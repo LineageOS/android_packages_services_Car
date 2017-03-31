@@ -31,8 +31,8 @@ using ::android::sp;
 
 class StreamHandler : public IEvsCameraStream {
 public:
-    StreamHandler(android::sp <IEvsCamera>  pCamera,  CameraDesc  cameraInfo,
-                  android::sp <IEvsDisplay> pDisplay, DisplayDesc displayInfo);
+    StreamHandler(android::sp <IEvsCamera>  pCamera,
+                  android::sp <IEvsDisplay> pDisplay);
 
     void startStream();
     void asyncStopStream();
@@ -53,9 +53,7 @@ private:
     void unregisterBufferHelper(const BufferDesc& buffer);
 
     android::sp <IEvsCamera>    mCamera;
-    CameraDesc                  mCameraInfo;
     android::sp <IEvsDisplay>   mDisplay;
-    DisplayDesc                 mDisplayInfo;
 
     std::mutex                  mLock;
     std::condition_variable     mSignal;

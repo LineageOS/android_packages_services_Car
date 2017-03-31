@@ -24,6 +24,7 @@
 #include <thread>
 #include <list>
 
+
 using namespace ::android::hardware::automotive::evs::V1_0;
 using ::android::hardware::Return;
 using ::android::hardware::hidl_handle;
@@ -35,8 +36,7 @@ namespace V1_0 {
 namespace implementation {
 
 
-// From VirtualCamera.h
-class VirtualCamera;
+class VirtualCamera;    // From VirtualCamera.h
 
 
 // This class wraps the actual hardware IEvsCamera objects.  There is a one to many
@@ -71,7 +71,7 @@ private:
         STOPPED,
         RUNNING,
         STOPPING,
-    }                               mStreamState    = STOPPED;
+    }                               mStreamState = STOPPED;
 
     struct FrameRecord {
         uint32_t    frameId;
