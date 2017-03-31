@@ -76,22 +76,17 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
             }
         });
 
-        List<Integer> mins = new ArrayList<>();
         List<Integer> maxs = new ArrayList<>();
-        mins.add(MIN_VOL);
-        mins.add(MIN_VOL);
-
         maxs.add(MAX_VOL);
         maxs.add(MAX_VOL);
 
         // TODO: add tests for audio context supported cases.
-        startVolumeEmulation(0 /*supported audio context*/, maxs, mins);
+        startVolumeEmulation(0 /*supported audio context*/, maxs);
         mCarAudioManager = (CarAudioManager) getCar().getCarManager(Car.AUDIO_SERVICE);
     }
 
     public void testVolumeLimits() throws Exception {
         for (int stream : LOGICAL_STREAMS) {
-            assertEquals(MIN_VOL, mCarAudioManager.getStreamMinVolume(stream));
             assertEquals(MAX_VOL, mCarAudioManager.getStreamMaxVolume(stream));
         }
     }
@@ -257,18 +252,16 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
     }
 
     private class SingleChannelVolumeHandler implements VehicleHalPropertyHandler {
-        private final List<Integer> mMins;
         private final List<Integer> mMaxs;
         private final SparseIntArray mCurrent;
 
-        public SingleChannelVolumeHandler(List<Integer> mins, List<Integer> maxs) {
-            assertEquals(mins.size(), maxs.size());
-            mMins = mins;
+        public SingleChannelVolumeHandler(List<Integer> maxs) {
             mMaxs = maxs;
-            mCurrent = new SparseIntArray(mMins.size());
+            int size = maxs.size();
+            mCurrent = new SparseIntArray(size);
             // initialize the vol to be the min volume.
-            for (int i = 0; i < mMins.size(); i++) {
-                mCurrent.put(i, mMins.get(i));
+            for (int i = 0; i < size; i++) {
+                mCurrent.put(i, mMaxs.get(i));
             }
         }
 
@@ -358,10 +351,9 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
                 }
             };
 
-    private void startVolumeEmulation(int supportedAudioVolumeContext,
-                                      List<Integer> maxs, List<Integer> mins) {
+    private void startVolumeEmulation(int supportedAudioVolumeContext, List<Integer> maxs) {
         SingleChannelVolumeHandler singleChannelVolumeHandler =
-                new SingleChannelVolumeHandler(mins, maxs);
+                new SingleChannelVolumeHandler(maxs);
         int zones = (1<<maxs.size()) - 1;
 
         ArrayList<Integer> audioVolumeConfigArray =
