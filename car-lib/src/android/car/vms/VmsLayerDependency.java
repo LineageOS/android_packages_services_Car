@@ -80,6 +80,10 @@ public final class VmsLayerDependency implements Parcelable {
             }
         };
 
+    public String toString() {
+        return "VmsLayerDependency{ Layer: " + mLayer + " Dependency: " + mDependency + "}";
+    }
+
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeParcelable(mLayer, flags);

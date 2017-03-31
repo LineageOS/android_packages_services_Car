@@ -18,8 +18,12 @@ package com.android.car.test;
 
 import android.car.annotation.FutureFeature;
 import android.car.vms.VmsLayer;
+import android.car.vms.VmsLayerDependency;
+import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsPublisherClientService;
 import android.car.vms.VmsSubscriptionState;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * This service is launched during the tests in VmsPublisherSubscriberTest. It publishes a property
@@ -36,12 +40,14 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
     public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState) {
         // Case when the publisher finished initialization before the subscription request.
         publishIfNeeded(subscriptionState);
+        declareOffering(subscriptionState);
     }
 
     @Override
     public void onVmsPublisherServiceReady() {
         // Case when the subscription request was sent before the publisher was ready.
-        publishIfNeeded(getSubscriptions());
+        VmsSubscriptionState subscriptionState = getSubscriptions();
+        publishIfNeeded(subscriptionState);
     }
 
     private void publishIfNeeded(VmsSubscriptionState subscriptionState) {
@@ -50,5 +56,14 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
                 publish(VmsPublisherSubscriberTest.LAYER, VmsPublisherSubscriberTest.PAYLOAD);
             }
         }
+    }
+
+    private void declareOffering(VmsSubscriptionState subscriptionState) {
+        List<VmsLayerDependency> dependencies = new ArrayList<>();
+        for( VmsLayer layer : subscriptionState.getLayers()) {
+            dependencies.add(new VmsLayerDependency(layer));
+        }
+        VmsLayersOffering offering = new VmsLayersOffering(dependencies);
+        setLayersOffering(offering);
     }
 }

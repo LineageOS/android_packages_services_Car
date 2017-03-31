@@ -24,8 +24,10 @@ import java.util.Objects;
 
 /**
  * A VMS Layer which can be subscribed to by VMS clients.
- * Consists of the layer ID and the layer version.
+ * Consists of the layer ID and the layer major version.
  *
+ * This class does not contain the minor version since all minor version are backward and forward
+ * compatible and should not be used for routing messages.
  * @hide
  */
 @FutureFeature

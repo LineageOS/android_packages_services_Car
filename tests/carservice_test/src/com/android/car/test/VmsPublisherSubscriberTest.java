@@ -32,7 +32,9 @@ import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -45,10 +47,12 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
 
     public static final VmsLayer LAYER = new VmsLayer(LAYER_ID, LAYER_VERSION);
     public static final byte[] PAYLOAD = new byte[]{2, 3, 5, 7, 11, 13, 17};
+    private static final List<VmsLayer> AVAILABLE_LAYERS = new ArrayList<>(Arrays.asList(LAYER));
 
     private HalHandler mHalHandler;
     // Used to block until a value is propagated to the TestListener.onVmsMessageReceived.
     private Semaphore mSubscriberSemaphore;
+    private Semaphore mAvailabilitySemaphore;
 
     @Override
     protected synchronized void configureMockedHal() {
@@ -92,6 +96,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         if (!VmsTestUtils.canRunTest(TAG)) return;
         super.setUp();
         mSubscriberSemaphore = new Semaphore(0);
+        mAvailabilitySemaphore = new Semaphore(0);
     }
 
     @Override
@@ -121,12 +126,30 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         assertTrue(Arrays.equals(PAYLOAD, listener.getPayload()));
     }
 
+    /**
+     * The Mock service offers all the subscribed layers as available layers, so in this
+     * test the listener subscribes to a layer and verifies that it gets the notification that it
+     * is available.
+     */
+    public void testAvailability() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
+        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
+            Car.VMS_SUBSCRIBER_SERVICE);
+        TestListener listener = new TestListener();
+        vmsSubscriberManager.setListener(listener);
+        vmsSubscriberManager.subscribe(LAYER);
+
+        assertTrue(mAvailabilitySemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+        assertEquals(AVAILABLE_LAYERS, listener.getAvailalbeLayers());
+    }
+
     private class HalHandler implements MockedVehicleHal.VehicleHalPropertyHandler {
     }
 
     private class TestListener implements VmsSubscriberManager.VmsSubscriberClientListener {
         private VmsLayer mLayer;
         private byte[] mPayload;
+        private List<VmsLayer> mAvailableLayers;
 
         @Override
         public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
@@ -139,9 +162,9 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
 
         @Override
         public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
-            //TODO(asafro): test availability changes on publisher update when logic is implemented.
-            //  for that need to add Offering support in VmsPublisherClientService
-            //  and update VmsPublisherClientMockService
+            assertEquals(AVAILABLE_LAYERS, availableLayers);
+            mAvailableLayers = availableLayers;
+            mAvailabilitySemaphore.release();
         }
 
         @Override
@@ -155,6 +178,10 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
 
         public byte[] getPayload() {
             return mPayload;
+        }
+
+        public List<VmsLayer> getAvailalbeLayers() {
+            return mAvailableLayers;
         }
     }
 }

@@ -55,6 +55,11 @@ public final class VmsLayersOffering implements Parcelable {
         };
 
     @Override
+    public String toString() {
+        return "VmsLayersOffering{" + mDependencies+ "}";
+    }
+
+    @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeParcelableList(mDependencies, flags);
     }

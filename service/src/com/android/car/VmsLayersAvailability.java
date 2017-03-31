@@ -83,7 +83,7 @@ public class VmsLayersAvailability {
     /**
      * Returns a collection of all the layers which may be published.
      */
-    public Collection<VmsLayer> getAvailableLayers() {
+    public Set<VmsLayer> getAvailableLayers() {
         synchronized (mLock) {
             return mAvailableLayers;
         }
@@ -93,7 +93,7 @@ public class VmsLayersAvailability {
      * Returns a collection of all the layers which publishers could have published if the
      * dependencies were satisfied.
      */
-    public Collection<VmsLayer> getUnavailableLayers() {
+    public Set<VmsLayer> getUnavailableLayers() {
         synchronized (mLock) {
             return mUnavailableLayers;
         }

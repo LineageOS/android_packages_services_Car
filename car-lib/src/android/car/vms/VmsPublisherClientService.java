@@ -106,6 +106,41 @@ public abstract class VmsPublisherClientService extends Service {
         if (DBG) {
             Log.d(TAG, "Publishing for layer : " + layer);
         }
+
+        IBinder token = getTokenForPublisherServiceThreadSafe();
+
+        try {
+            mVmsPublisherService.publish(token, layer, payload);
+            return true;
+        } catch (RemoteException e) {
+            Log.e(TAG, "unable to publish message: " + payload, e);
+        }
+        return false;
+    }
+
+    /**
+     * Uses the VmsPublisherService binder to set the layers offering.
+     *
+     * @param offering the layers that the publisher may publish.
+     * @return if the call to VmsPublisherService.setLayersOffering was successful.
+     */
+    public final boolean setLayersOffering(VmsLayersOffering offering) {
+        if (DBG) {
+            Log.d(TAG, "Setting layers offering : " + offering);
+        }
+
+        IBinder token = getTokenForPublisherServiceThreadSafe();
+
+        try {
+            mVmsPublisherService.setLayersOffering(token, offering);
+            return true;
+        } catch (RemoteException e) {
+            Log.e(TAG, "unable to set layers offering: " + offering, e);
+        }
+        return false;
+    }
+
+    private IBinder getTokenForPublisherServiceThreadSafe() {
         if (mVmsPublisherService == null) {
             throw new IllegalStateException("VmsPublisherService not set.");
         }
@@ -117,13 +152,7 @@ public abstract class VmsPublisherClientService extends Service {
         if (token == null) {
             throw new IllegalStateException("VmsPublisherService does not have a valid token.");
         }
-        try {
-            mVmsPublisherService.publish(token, layer, payload);
-            return true;
-        } catch (RemoteException e) {
-            Log.e(TAG, "unable to publish message: " + payload, e);
-        }
-        return false;
+        return token;
     }
 
     /**

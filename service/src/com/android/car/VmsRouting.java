@@ -20,15 +20,13 @@ import android.car.annotation.FutureFeature;
 import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriptionState;
-
+import com.android.internal.annotations.GuardedBy;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.android.internal.annotations.GuardedBy;
 
 /**
  * Manages all the VMS subscriptions:
@@ -62,6 +60,7 @@ public class VmsRouting {
      * @param layer the layer subscribing to.
      */
     public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
+        //TODO(b/36902947): revise if need to sync, and return value.
         synchronized (mLock) {
             ++mSequenceNumber;
             // Get or create the list of listeners for layer and version.
@@ -142,8 +141,8 @@ public class VmsRouting {
     }
 
     /**
-     * Returns all the listeners for a layer and version. This include the subscribers which
-     * explicitly subscribed to this layer and version and the promiscuous subscribers.
+     * Returns a list with all the listeners for a layer and version. This include the subscribers
+     * which explicitly subscribed to this layer and version and the promiscuous subscribers.
      *
      * @param layer to get listeners to.
      * @return a list of the listeners.
@@ -153,6 +152,21 @@ public class VmsRouting {
         synchronized (mLock) {
             // Add the subscribers which explicitly subscribed to this layer and version
             if (mLayerSubscriptions.containsKey(layer)) {
+                listeners.addAll(mLayerSubscriptions.get(layer));
+            }
+            // Add the promiscuous subscribers.
+            listeners.addAll(mPromiscuousSubscribers);
+        }
+        return listeners;
+    }
+
+    /**
+     * Returns a list with all the listeners.
+     */
+    public Set<IVmsSubscriberClient> getAllListeners() {
+        Set<IVmsSubscriberClient> listeners = new HashSet<>();
+        synchronized (mLock) {
+            for (VmsLayer layer : mLayerSubscriptions.keySet()) {
                 listeners.addAll(mLayerSubscriptions.get(layer));
             }
             // Add the promiscuous subscribers.
