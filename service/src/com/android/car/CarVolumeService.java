@@ -72,6 +72,10 @@ public class CarVolumeService {
         mInputService.setVolumeKeyListener(mCarVolumeController);
     }
 
+    public synchronized void release() {
+        mCarVolumeController.release();
+    }
+
     public void setStreamVolume(int streamType, int index, int flags) {
         getController().setStreamVolume(streamType, index, flags);
     }
@@ -107,6 +111,7 @@ public class CarVolumeService {
      */
     public static abstract class CarVolumeController implements CarInputService.KeyEventListener {
         abstract void init();
+        abstract void release();
         abstract public void setStreamVolume(int stream, int index, int flags);
         abstract public void setVolumeController(IVolumeController controller);
         abstract public int getStreamMaxVolume(int stream);
