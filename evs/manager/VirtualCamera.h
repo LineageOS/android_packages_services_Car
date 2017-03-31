@@ -37,8 +37,7 @@ namespace V1_0 {
 namespace implementation {
 
 
-// From HalCamera.h
-class HalCamera;
+class HalCamera;        // From HalCamera.h
 
 
 // This class represents an EVS camera to the client application.  As such it presents
@@ -46,28 +45,28 @@ class HalCamera;
 // IEvsCameraStream object.
 class VirtualCamera : public IEvsCamera {
 public:
-    explicit VirtualCamera(sp<HalCamera> halCamera) : mHalCamera(halCamera) {};
+    explicit VirtualCamera(sp<HalCamera> halCamera);
     virtual ~VirtualCamera();
-    void              shutdown();
+    void                shutdown();
 
-    sp<HalCamera>     getHalCamera() { return mHalCamera; };
-    unsigned          getAllowedBuffers() { return mFramesAllowed; };
-    bool              isStreaming()  { return mStreamState == RUNNING; }
+    sp<HalCamera>       getHalCamera()      { return mHalCamera; };
+    unsigned            getAllowedBuffers() { return mFramesAllowed; };
+    bool                isStreaming()       { return mStreamState == RUNNING; }
 
     // Proxy to receive frames and forward them to the client's stream
-    bool              deliverFrame(const BufferDesc& buffer);
+    bool                deliverFrame(const BufferDesc& buffer);
 
     // Methods from ::android::hardware::automotive::evs::V1_0::IEvsCamera follow.
-    Return<void>      getId(getId_cb id_cb)  override;
-    Return<EvsResult> setMaxFramesInFlight(uint32_t bufferCount)  override;
-    Return<EvsResult> startVideoStream(const ::android::sp<IEvsCameraStream>& stream)  override;
-    Return<void>      doneWithFrame(const BufferDesc& buffer)  override;
-    Return<void>      stopVideoStream()  override;
-    Return<int32_t>   getExtendedInfo(uint32_t opaqueIdentifier)  override;
-    Return<EvsResult> setExtendedInfo(uint32_t opaqueIdentifier, int32_t opaqueValue)  override;
+    Return<void>        getCameraInfo(getCameraInfo_cb _hidl_cb)  override;
+    Return<EvsResult>   setMaxFramesInFlight(uint32_t bufferCount) override;
+    Return<EvsResult>   startVideoStream(const ::android::sp<IEvsCameraStream>& stream) override;
+    Return<void>        doneWithFrame(const BufferDesc& buffer) override;
+    Return<void>        stopVideoStream() override;
+    Return<int32_t>     getExtendedInfo(uint32_t opaqueIdentifier) override;
+    Return<EvsResult>   setExtendedInfo(uint32_t opaqueIdentifier, int32_t opaqueValue) override;
 
 private:
-    sp<HalCamera>           mHalCamera;
+    sp<HalCamera>           mHalCamera;     // The low level camera interface that backs this proxy
     sp<IEvsCameraStream>    mStream;
 
     std::deque<BufferDesc>  mFramesHeld;

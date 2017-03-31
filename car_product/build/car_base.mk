@@ -82,6 +82,11 @@ PRODUCT_PACKAGES += \
     wifi-service \
     A2dpSinkService \
 
+# EVS resources
+PRODUCT_PACKAGES += android.hardware.automotive.evs@1.0-service
+PRODUCT_PACKAGES += android.automotive.evs.manager@1.0
+PRODUCT_PACKAGES += evs_app
+
 ifeq ($(TARGET_USES_CAR_FUTURE_FEATURES),true)
 PRODUCT_PACKAGES += android.hardware.automotive.vehicle@2.1-service
 else

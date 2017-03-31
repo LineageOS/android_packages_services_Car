@@ -52,8 +52,8 @@ Return<sp<IEvsCamera>> Enumerator::openCamera(const hidl_string& cameraId) {
     sp<HalCamera> hwCamera;
     for (auto &&cam : mCameras) {
         bool match = false;
-        cam->getHwCamera()->getId([cameraId, &match](hidl_string id) {
-                                      if (id == cameraId) {
+        cam->getHwCamera()->getCameraInfo([cameraId, &match](CameraDesc desc) {
+                                      if (desc.cameraId == cameraId) {
                                           match = true;
                                       }
                                   }
@@ -106,7 +106,6 @@ Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera>& clientCame
     }
 
     // All our client cameras are actually VirtualCamera objects
-    // TODO (b/33492405):  This will likely crash until pointers make proper round trips
     sp<VirtualCamera> virtualCamera = reinterpret_cast<VirtualCamera*>(clientCamera.get());
 
     // Find the parent camera that backs this virtual camera
@@ -119,10 +118,7 @@ Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera>& clientCame
 
     // Did we just remove the last client of this camera?
     if (halCamera->getClientCount() == 0) {
-        // Close the hardware camera before we go any further
-        mHwEnumerator->closeCamera(halCamera->getHwCamera());
-
-        // Take this now closed camera out of our list
+        // Take this now unused camera out of our list
         // NOTE:  This should drop our last reference to the camera, resulting in its
         //        destruction.
         mCameras.remove(halCamera);
@@ -135,22 +131,21 @@ Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera>& clientCame
 Return<sp<IEvsDisplay>> Enumerator::openDisplay() {
     ALOGD("openDisplay");
 
-    // If we already have a display active, then this request must be denied
-    sp<IEvsDisplay> pActiveDisplay = mActiveDisplay.promote();
-    if (pActiveDisplay != nullptr) {
-        ALOGW("Rejecting openDisplay request because the display is already in use.");
-        return nullptr;
-    } else {
-        // Request exclusive access to the EVS display
-        ALOGI("Acquiring EVS Display");
-        pActiveDisplay = mHwEnumerator->openDisplay();
-        if (pActiveDisplay == nullptr) {
-            ALOGE("EVS Display unavailable");
-        }
-
-        mActiveDisplay = pActiveDisplay;
-        return pActiveDisplay;
+    // We simply keep track of the most recently opened display instance.
+    // In the underlying layers we expect that a new open will cause the previous
+    // object to be destroyed.  This avoids any race conditions associated with
+    // create/destroy order and provides a cleaner restart sequence if the previous owner
+    // is non-responsive for some reason.
+    // Request exclusive access to the EVS display
+    sp<IEvsDisplay> pActiveDisplay = mHwEnumerator->openDisplay();
+    if (pActiveDisplay == nullptr) {
+        ALOGE("EVS Display unavailable");
     }
+
+    // Remember (via weak pointer) who we think the most recently opened display is so that
+    // we can proxy state requests from other callers to it.
+    mActiveDisplay = pActiveDisplay;
+    return pActiveDisplay;
 }
 
 
@@ -188,9 +183,6 @@ Return<DisplayState> Enumerator::getDisplayState()  {
         return DisplayState::NOT_OPEN;
     }
 }
-
-
-// TODO(b/31632518):  Need to get notification when our client dies so we can close the camera.
 
 
 } // namespace implementation

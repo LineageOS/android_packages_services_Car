@@ -6,6 +6,8 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
     evs_app.cpp \
     EvsStateControl.cpp \
+    StreamHandler.cpp \
+    ConfigManager.cpp \
 
 LOCAL_C_INCLUDES += \
     frameworks/base/include \
@@ -15,6 +17,7 @@ LOCAL_SHARED_LIBRARIES := \
     libcutils \
     liblog \
     libutils \
+    libui \
     libhwbinder \
     libhidlbase \
     libhidltransport \
@@ -24,6 +27,9 @@ LOCAL_SHARED_LIBRARIES := \
     libhardware \
     android.hardware.automotive.evs@1.0 \
     android.hardware.automotive.vehicle@2.0 \
+
+LOCAL_STATIC_LIBRARIES := \
+    libjsoncpp \
 
 LOCAL_STRIP_MODULE := keep_symbols
 

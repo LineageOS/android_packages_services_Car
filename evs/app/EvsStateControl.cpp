@@ -34,7 +34,8 @@ inline constexpr VehiclePropertyType getPropType(VehicleProperty prop) {
 
 EvsStateControl::EvsStateControl(android::sp <IVehicle>       pVnet,
                                  android::sp <IEvsEnumerator> pEvs,
-                                 android::sp <IEvsDisplay>    pDisplay) :
+                                 android::sp <IEvsDisplay>    pDisplay,
+                                 const ConfigManager&         config) :
     mVehicle(pVnet),
     mEvs(pEvs),
     mDisplay(pDisplay),
@@ -51,22 +52,37 @@ EvsStateControl::EvsStateControl(android::sp <IVehicle>       pVnet,
 
     // Build our set of cameras for the states we support
     ALOGD("Requesting camera list");
-    mEvs->getCameraList([this]
+    mEvs->getCameraList([this, &config]
                         (hidl_vec<CameraDesc> cameraList) {
                             ALOGI("Camera list callback received %zu cameras",
                                   cameraList.size());
-                            for(auto&& cam: cameraList) {
-                                if ((cam.hints & UsageHint::USAGE_HINT_REVERSE) != 0) {
-                                    mCameraInfo[State::REVERSE] = cam;
-                                }
-                                if ((cam.hints & UsageHint::USAGE_HINT_RIGHT_TURN) != 0) {
-                                    mCameraInfo[State::RIGHT] = cam;
-                                }
-                                if ((cam.hints & UsageHint::USAGE_HINT_LEFT_TURN) != 0) {
-                                    mCameraInfo[State::LEFT] = cam;
-                                }
-
+                            for (auto&& cam: cameraList) {
                                 ALOGD("Found camera %s", cam.cameraId.c_str());
+                                bool cameraConfigFound = false;
+
+                                // Check our configuration for information about this camera
+                                // Note that a camera can have a compound function string
+                                // such that a camera can be "right/reverse" and be used for both.
+                                for (auto&& info: config.getCameras()) {
+                                    if (cam.cameraId == info.cameraId) {
+                                        // We found a match!
+                                        if (info.function.find("reverse") != std::string::npos) {
+                                            mCameraInfo[State::REVERSE] = info;
+                                        }
+                                        if (info.function.find("right") != std::string::npos) {
+                                            mCameraInfo[State::RIGHT] = info;
+                                        }
+                                        if (info.function.find("left") != std::string::npos) {
+                                            mCameraInfo[State::LEFT] = info;
+                                        }
+                                        cameraConfigFound = true;
+                                        break;
+                                    }
+                                }
+                                if (!cameraConfigFound) {
+                                    ALOGW("No config information for hardware camera %s",
+                                          cam.cameraId.c_str());
+                                }
                             }
                         }
     );
@@ -155,9 +171,6 @@ StatusCode EvsStateControl::invokeGet(VehiclePropValue *pRequestedPropValue) {
 bool EvsStateControl::configureEvsPipeline(State desiredState) {
     ALOGD("configureEvsPipeline");
 
-    // Protect access to mCurrentState which is shared with the deliverFrame callback
-    std::unique_lock<std::mutex> lock(mAccessLock);
-
     if (mCurrentState == desiredState) {
         // Nothing to do here...
         return true;
@@ -173,13 +186,13 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
 
         // Yup, we need to change cameras, so close the previous one, if necessary.
         if (mCurrentCamera != nullptr) {
-            mEvs->closeCamera(mCurrentCamera);
+            mCurrentStreamHandler->blockingStopStream();
+            mCurrentStreamHandler = nullptr;
             mCurrentCamera = nullptr;
         }
 
         // Now do we need a new camera?
         if (!mCameraInfo[desiredState].cameraId.empty()) {
-
             // Need a new camera, so open it
             ALOGD("Open camera %s", mCameraInfo[desiredState].cameraId.c_str());
             mCurrentCamera = mEvs->openCamera(mCameraInfo[desiredState].cameraId);
@@ -196,16 +209,16 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
             ALOGD("Turning off the display");
             mDisplay->setDisplayState(DisplayState::NOT_VISIBLE);
         } else {
+            // Create the stream handler object to receive and forward the video frames
+            mCurrentStreamHandler = new StreamHandler(mCurrentCamera, mDisplay);
+
             // Start the camera stream
             ALOGD("Starting camera stream");
-            mCurrentCamera->startVideoStream(this);
+            mCurrentStreamHandler->startStream();
 
             // Activate the display
             ALOGD("Arming the display");
             mDisplay->setDisplayState(DisplayState::VISIBLE_ON_NEXT_FRAME);
-
-            // TODO:  Detect and exit if we encounter a stalled stream or unresponsive driver?
-            // Consider using a timer and watching for frame arrival?
         }
     }
 
@@ -214,56 +227,4 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
     mCurrentState = desiredState;
 
     return true;
-}
-
-
-Return<void> EvsStateControl::deliverFrame(const BufferDesc& buffer) {
-    ALOGD("Received a frame from the camera (%p)", buffer.memHandle.getNativeHandle());
-
-    if (buffer.memHandle == nullptr) {
-        // This is the end of the stream.  Transition back to the "off" state.
-        std::unique_lock<std::mutex> lock(mAccessLock);
-        mCurrentState = State::OFF;
-        lock.unlock();
-    } else {
-        // Get the output buffer we'll use to display the imagery
-        BufferDesc tgtBuffer = {};
-        mDisplay->getTargetBuffer([&tgtBuffer]
-                                  (const BufferDesc& buff) {
-                                      tgtBuffer = buff;
-                                      ALOGD("Got output buffer (%p) with id %d cloned as (%p)",
-                                            buff.memHandle.getNativeHandle(),
-                                            tgtBuffer.bufferId,
-                                            tgtBuffer.memHandle.getNativeHandle());
-                                  }
-        );
-
-        if (tgtBuffer.memHandle == nullptr) {
-            ALOGE("Didn't get requested output buffer -- skipping this frame.");
-        } else {
-            // TODO:  Copy the contents of the of bufferHandle into tgtBuffer
-            // TODO:  Add a bit of overlay graphics?
-            // TODO:  Use OpenGL to render from texture?
-
-            // Send the target buffer back for display
-            ALOGD("Calling returnTargetBufferForDisplay (%p)", tgtBuffer.memHandle.getNativeHandle());
-            Return<EvsResult> result = mDisplay->returnTargetBufferForDisplay(tgtBuffer);
-            if (!result.isOk()) {
-                ALOGE("Error making the remote function call.  HIDL said %s",
-                      result.description().c_str());
-            }
-            if (result != EvsResult::OK) {
-                ALOGE("We encountered error %d when returning a buffer to the display!",
-                      (EvsResult)result);
-            }
-        }
-
-        // Send the camera buffer back now that we're done with it
-        ALOGD("Calling doneWithFrame");
-        mCurrentCamera->doneWithFrame(buffer);
-
-        ALOGD("Frame handling complete");
-    }
-
-    return Void();
 }

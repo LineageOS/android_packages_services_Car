@@ -21,7 +21,9 @@
 #include <android/hardware/automotive/evs/1.0/IEvsEnumerator.h>
 #include <android/hardware/automotive/evs/1.0/IEvsDisplay.h>
 #include <android/hardware/automotive/evs/1.0/IEvsCamera.h>
-#include <android/hardware/automotive/evs/1.0/IEvsCameraStream.h>
+
+#include "StreamHandler.h"
+#include "ConfigManager.h"
 
 
 using namespace ::android::hardware::automotive::evs::V1_0;
@@ -33,13 +35,12 @@ using ::android::hardware::hidl_handle;
 using ::android::sp;
 
 
-class EvsStateControl : public IEvsCameraStream {
+class EvsStateControl {
 public:
     EvsStateControl(android::sp <IVehicle>       pVnet,
                     android::sp <IEvsEnumerator> pEvs,
-                    android::sp <IEvsDisplay>    pDisplay);
-
-    bool configureForVehicleState();
+                    android::sp <IEvsDisplay>    pDisplay,
+                    const ConfigManager&         config);
 
     enum State {
         REVERSE = 0,
@@ -49,12 +50,11 @@ public:
         NUM_STATES  // Must come last
     };
 
+    bool configureForVehicleState();
+
 private:
     StatusCode invokeGet(VehiclePropValue *pRequestedPropValue);
     bool configureEvsPipeline(State desiredState);
-
-    // Methods from ::android::hardware::automotive::evs::V1_0::ICarCameraStream follow.
-    Return<void> deliverFrame(const BufferDesc& buffer)  override;
 
     sp<IVehicle>                mVehicle;
     sp<IEvsEnumerator>          mEvs;
@@ -63,11 +63,11 @@ private:
     VehiclePropValue            mGearValue;
     VehiclePropValue            mTurnSignalValue;
 
-    CameraDesc                  mCameraInfo[State::NUM_STATES];
+    ConfigManager::CameraInfo   mCameraInfo[State::NUM_STATES];
     State                       mCurrentState;
     sp<IEvsCamera>              mCurrentCamera;
 
-    std::mutex                  mAccessLock;
+    sp<StreamHandler>           mCurrentStreamHandler;
 };
 
 

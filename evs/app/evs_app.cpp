@@ -32,6 +32,7 @@
 
 #include "EvsStateControl.h"
 #include "EvsVehicleListener.h"
+#include "ConfigManager.h"
 
 
 // libhidl:
@@ -47,6 +48,10 @@ const static char kEvsServiceName[] = "EvsSharedEnumerator";
 int main(int /* argc */, char** /* argv */)
 {
     printf("EVS app starting\n");
+
+    // Load our configuration information
+    ConfigManager config;
+    config.initialize("config.json");
 
     // Set thread pool size to one to avoid concurrent events from the HAL.
     // This pool will handle the EvsCameraStream callbacks.
@@ -109,7 +114,7 @@ int main(int /* argc */, char** /* argv */)
 
     // Configure ourselves for the current vehicle state at startup
     ALOGI("Constructing state controller");
-    EvsStateControl *pStateController = new EvsStateControl(pVnet, pEvs, pDisplay);
+    EvsStateControl *pStateController = new EvsStateControl(pVnet, pEvs, pDisplay, config);
     if (!pStateController->configureForVehicleState()) {
         ALOGE("Initial configuration failed.  Exiting.");
         return 1;
