@@ -162,8 +162,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
      * @param layer the layer to subscribe to.
      * @throws IllegalStateException if the listener was not set via {@link #setListener}.
      */
-    public void subscribe(VmsLayer layer)
-            throws CarNotConnectedException {
+    public void subscribe(VmsLayer layer) throws CarNotConnectedException {
         if (DBG) {
             Log.d(TAG, "Subscribing to layer: " + layer);
         }
@@ -186,8 +185,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
     }
 
-    public void subscribeAll()
-        throws CarNotConnectedException {
+    public void subscribeAll() throws CarNotConnectedException {
         if (DBG) {
             Log.d(TAG, "Subscribing passively to all data messages");
         }
@@ -239,7 +237,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
     }
 
-    public void unsubscribeAll() throws CarNotConnectedException {
+    public void unsubscribeAll() {
         if (DBG) {
             Log.d(TAG, "Unsubscribing passively from all data messages");
         }
@@ -248,17 +246,17 @@ public final class VmsSubscriberManager implements CarManagerBase {
             listener = mListener;
         }
         if (listener == null) {
-            Log.w(TAG, "subscribe: listener was not set, " +
+            Log.w(TAG, "unsubscribeAll: listener was not set, " +
                     "setListener must be called first.");
             throw new IllegalStateException("Listener was not set.");
         }
         try {
             mVmsSubscriberService.removeVmsSubscriberClientPassiveListener(mIListener);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not connect: ", e);
-            throw new CarNotConnectedException(e);
+            Log.e(TAG, "Failed to unregister subscriber ", e);
+            // ignore
         } catch (IllegalStateException ex) {
-            Car.checkCarNotConnectedExceptionFromCarService(ex);
+            Car.hideCarNotConnectedExceptionFromCarService(ex);
         }
     }
 
