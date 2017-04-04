@@ -197,8 +197,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         };
 
         public DrawerAdapter() {
-            super(KitchenSinkActivity.this, true /* showDisabledOnListOnEmpty */,
-                    true /* smallLayout */);
+            super(KitchenSinkActivity.this, true /* showDisabledOnListOnEmpty */);
             setTitle(getString(R.string.app_title));
         }
 
