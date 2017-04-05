@@ -48,8 +48,6 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         vehicle-hal-support-lib \
         car-systemtest \
 
-LOCAL_JNI_SHARED_LIBRARIES := libjni_car_service
-
 include $(BUILD_PACKAGE)
 
 #####################################################################################

@@ -16,7 +16,6 @@
 
 package com.google.android.car.kitchensink;
 
-import android.car.hardware.camera.CarCameraManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -36,7 +35,6 @@ import com.android.car.app.DrawerItemViewHolder;
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
 import com.google.android.car.kitchensink.bluetooth.BluetoothHeadsetFragment;
 import com.google.android.car.kitchensink.bluetooth.MapMceTestFragment;
-import com.google.android.car.kitchensink.camera.CameraTestFragment;
 import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
 import com.google.android.car.kitchensink.cube.CubesTestFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
@@ -53,7 +51,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String TAG = "KitchenSinkActivity";
 
     private static final String MENU_AUDIO = "audio";
-    private static final String MENU_CAMERA = "camera";
     private static final String MENU_HVAC = "hvac";
     private static final String MENU_QUIT = "quit";
     private static final String MENU_JOB = "job_scheduler";
@@ -70,7 +67,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String MENU_MAP_MESSAGING = "bluetooth messaging test";
 
     private Car mCarApi;
-    private CarCameraManager mCameraManager;
     private CarHvacManager mHvacManager;
     private CarSensorManager mCarSensorManager;
     private CarAppFocusManager mCarAppFocusManager;
@@ -78,7 +74,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private AudioTestFragment mAudioTestFragment;
     private RadioTestFragment mRadioTestFragment;
     private SensorsTestFragment mSensorsTestFragment;
-    private CameraTestFragment mCameraTestFragment;
     private HvacTestFragment mHvacTestFragment;
     private JobSchedulerFragment mJobFragment;
     private InstrumentClusterFragment mInstrumentClusterFragment;
@@ -170,8 +165,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         public void onConnected(Car car) {
             Log.d(TAG, "Connected to Car Service");
             try {
-                mCameraManager = (CarCameraManager) mCarApi.getCarManager(android.car.Car
-                        .CAMERA_SERVICE);
                 mHvacManager = (CarHvacManager) mCarApi.getCarManager(android.car.Car.HVAC_SERVICE);
                 mCarSensorManager = (CarSensorManager) mCarApi.getCarManager(Car.SENSOR_SERVICE);
                 mCarSensorManager.addListener(mListener,
@@ -197,7 +190,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private final class DrawerAdapter extends CarDrawerAdapter {
 
         private final String mAllMenus[] = {
-                MENU_AUDIO, MENU_RADIO, MENU_CAMERA, MENU_HVAC, MENU_JOB,
+                MENU_AUDIO, MENU_RADIO, MENU_HVAC, MENU_JOB,
                 MENU_CLUSTER, MENU_INPUT_TEST, MENU_SENSORS, MENU_VOLUME_TEST,
                 MENU_TOUCH_TEST, MENU_CUBES_TEST, MENU_CAR_SETTINGS, MENU_ORIENTATION,
                 MENU_BLUETOOTH_HEADSET, MENU_MAP_MESSAGING, MENU_QUIT
@@ -240,16 +233,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                         mSensorsTestFragment = new SensorsTestFragment();
                     }
                     showFragment(mSensorsTestFragment);
-                    break;
-                case MENU_CAMERA:
-                    if (mCameraManager != null) {
-                        if (mCameraTestFragment == null) {
-                            mCameraTestFragment = new CameraTestFragment();
-                            mCameraTestFragment.setCameraManager(mCameraManager);
-                        }
-                        // Don't allow camera fragment to start if we don't have a manager.
-                        showFragment(mCameraTestFragment);
-                    }
                     break;
                 case MENU_HVAC:
                     if (mHvacManager != null) {
