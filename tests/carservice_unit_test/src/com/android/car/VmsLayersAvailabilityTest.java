@@ -20,11 +20,13 @@ import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-
+@SmallTest
 public class VmsLayersAvailabilityTest extends AndroidTestCase {
 
     private static final VmsLayer LAYER_X = new VmsLayer(1, 2);
