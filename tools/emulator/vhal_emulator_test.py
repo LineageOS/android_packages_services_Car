@@ -27,6 +27,8 @@
             protoc -I=proto --python_out=proto proto/VehicleHalProto.proto
 """
 
+from __future__ import print_function
+
 # Suppress .pyc files
 import sys
 sys.dont_write_bytecode = True
@@ -54,7 +56,7 @@ class VhalTest:
             testValue = "test string"
         elif valType in self._types.TYPE_BYTES:
             # Generate array of integers counting from 0
-            testValue = range(len(origValue))
+            testValue = list(range(len(origValue)))
         elif valType == vhal_consts_2_0.VEHICLE_VALUE_TYPE_BOOLEAN:
             testValue = origValue ^ 1
         elif valType in self._types.TYPE_INT32:
@@ -216,7 +218,7 @@ class VhalTest:
                 newValue = self._getValueFromMsg(rxMsg)
                 if newValue != testValue:
                     self._log.error("testGetSet: set failed for propId=%d, area=%d", cfg.prop, area)
-                    print "testValue= ", testValue, "newValue= ", newValue
+                    print("testValue= ", testValue, "newValue= ", newValue)
                     continue
 
                 # Reset the value to what it was before
@@ -287,4 +289,3 @@ class VhalTest:
 if __name__ == '__main__':
     v = VhalTest(vhal_consts_2_0.vhal_types_2_0)
     v.runTests()
-

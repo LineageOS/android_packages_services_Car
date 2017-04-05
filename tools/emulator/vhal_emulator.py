@@ -34,21 +34,21 @@
 
         # Get the response message to getConfig()
         reply = v.rxMsg()
-        print reply
+        print(reply)
 
         # Set left temperature to 70 degrees
         v.setProperty(c.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET, c.VEHICLE_ZONE_ROW_1_LEFT, 70)
 
         # Get the response message to setProperty()
         reply = v.rxMsg()
-        print reply
+        print(reply)
 
         # Get the left temperature value
         v.getProperty(c.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET, c.VEHICLE_ZONE_ROW_1_LEFT)
 
         # Get the response message to getProperty()
         reply = v.rxMsg()
-        print reply
+        print(reply)
 
     NOTE:  The rxMsg() is a blocking call, so it may be desirable to set up a separate RX thread
             to handle any asynchronous messages coming from the device.
@@ -72,6 +72,8 @@
             protoc -I=<proto_dir> --python_out=<out_dir> <proto_dir>/VehicleHalProto.proto
 """
 
+from __future__ import print_function
+
 # Suppress .pyc files
 import sys
 sys.dont_write_bytecode = True
@@ -80,7 +82,9 @@ import socket
 import struct
 import subprocess
 
-# Generate the protobuf file from vendor/auto/embedded/lib/vehicle_hal:
+# Generate the protobuf file from hardware/interfaces/automotive/vehicle/2.0/default/impl/vhal_v2_0
+# It is recommended to use the protoc provided in: prebuilts/tools/common/m2/repository/com/google/protobuf/protoc/3.0.0
+# or a later version, in order to provide Python 3 compatibility
 #   protoc -I=proto --python_out=proto proto/VehicleHalProto.proto
 import VehicleHalProto_pb2
 
@@ -123,7 +127,7 @@ class Vhal:
         """
             For debugging, print the protobuf message string in hex.
         """
-        print "len = ", len(data), "str = ", ":".join("{:02x}".format(ord(d)) for d in data)
+        print("len = ", len(data), "str = ", ":".join("{:02x}".format(ord(d)) for d in data))
 
     def openSocket(self):
         """
