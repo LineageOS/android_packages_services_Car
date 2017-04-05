@@ -17,10 +17,12 @@ package com.android.car;
 
 
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.util.MutableBoolean;
 
 import com.android.car.CarService.CrashTracker;
 
+@SmallTest
 public class CrashTrackerTest extends AndroidTestCase {
 
     public void testCrashingTooManyTimes() throws InterruptedException {
