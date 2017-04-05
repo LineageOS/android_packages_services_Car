@@ -17,6 +17,7 @@
 package com.android.car;
 
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
 import com.android.car.CarPowerManagementService.PowerEventProcessingHandler;
@@ -27,6 +28,7 @@ import com.android.car.hal.PowerHalService.PowerState;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@SmallTest
 public class CarPowerManagementServiceTest extends AndroidTestCase {
     private static final String TAG = CarPowerManagementServiceTest.class.getSimpleName();
     private static final long WAIT_TIMEOUT_MS = 2000;
