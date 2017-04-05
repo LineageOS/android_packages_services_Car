@@ -25,8 +25,8 @@ import android.util.JsonReader;
 import java.io.IOException;
 
 public class DiagnosticJsonReader {
-    public static final int FRAME_TYPE_LIVE = 1;
-    public static final int FRAME_TYPE_FREEZE = 2;
+    public static final String FRAME_TYPE_LIVE = "live";
+    public static final String FRAME_TYPE_FREEZE = "freeze";
 
     private final DiagnosticEventBuilder mLiveFrameBuilder;
     private final DiagnosticEventBuilder mFreezeFrameBuilder;
@@ -50,7 +50,7 @@ public class DiagnosticJsonReader {
     }
 
     public VehiclePropValue build(JsonReader jsonReader) throws IOException {
-        DiagnosticJson diagnosticJson = DiagnosticJson.Builder.build(jsonReader);
+        DiagnosticJson diagnosticJson = DiagnosticJson.build(jsonReader);
         switch (diagnosticJson.type) {
             case FRAME_TYPE_LIVE:
                 return diagnosticJson.build(mLiveFrameBuilder);

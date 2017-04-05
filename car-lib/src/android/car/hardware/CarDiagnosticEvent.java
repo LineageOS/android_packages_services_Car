@@ -21,8 +21,10 @@ import android.annotation.Nullable;
 import android.car.annotation.FutureFeature;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.JsonWriter;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
@@ -78,7 +80,7 @@ public class CarDiagnosticEvent implements Parcelable {
             int value = in.readInt();
             intValues.put(key, value);
         }
-        dtc = (String)in.readValue(String.class.getClassLoader());
+        dtc = (String) in.readValue(String.class.getClassLoader());
         // version 1 up to here
     }
 
@@ -104,6 +106,48 @@ public class CarDiagnosticEvent implements Parcelable {
             dest.writeInt(intValues.get(key));
         }
         dest.writeValue(dtc);
+    }
+
+    public void writeToJson(JsonWriter jsonWriter) throws IOException {
+        jsonWriter.beginObject();
+
+        jsonWriter.name("type");
+        switch (frameType) {
+            case CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE:
+                jsonWriter.value("live");
+                break;
+            case CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE:
+                jsonWriter.value("freeze");
+                break;
+            default:
+                throw new IllegalStateException("unknown frameType " + frameType);
+        }
+
+        jsonWriter.name("timestamp").value(timestamp);
+
+        jsonWriter.name("intValues").beginArray();
+        for (int i = 0; i < intValues.size(); ++i) {
+            jsonWriter.beginObject();
+            jsonWriter.name("id").value(intValues.keyAt(i));
+            jsonWriter.name("value").value(intValues.valueAt(i));
+            jsonWriter.endObject();
+        }
+        jsonWriter.endArray();
+
+        jsonWriter.name("floatValues").beginArray();
+        for (int i = 0; i < floatValues.size(); ++i) {
+            jsonWriter.beginObject();
+            jsonWriter.name("id").value(floatValues.keyAt(i));
+            jsonWriter.name("value").value(floatValues.valueAt(i));
+            jsonWriter.endObject();
+        }
+        jsonWriter.endArray();
+
+        if (dtc != null) {
+            jsonWriter.name("stringValue").value(dtc);
+        }
+
+        jsonWriter.endObject();
     }
 
     public static final Parcelable.Creator<CarDiagnosticEvent> CREATOR =
@@ -176,18 +220,19 @@ public class CarDiagnosticEvent implements Parcelable {
 
     /**
      * Returns a copy of this CarDiagnosticEvent with all vendor-specific sensors removed.
+     *
      * @hide
      */
     public CarDiagnosticEvent withVendorSensorsRemoved() {
         SparseIntArray newIntValues = intValues.clone();
         SparseArray<Float> newFloatValues = floatValues.clone();
-        for(int i = 0; i < intValues.size(); ++i) {
+        for (int i = 0; i < intValues.size(); ++i) {
             int key = intValues.keyAt(i);
             if (key >= CarDiagnosticSensorIndices.Obd2IntegerSensorIndex.LAST_SYSTEM) {
                 newIntValues.delete(key);
             }
         }
-        for(int i = 0; i < floatValues.size(); ++i) {
+        for (int i = 0; i < floatValues.size(); ++i) {
             int key = floatValues.keyAt(i);
             if (key >= CarDiagnosticSensorIndices.Obd2FloatSensorIndex.LAST_SYSTEM) {
                 newFloatValues.delete(key);
@@ -244,11 +289,13 @@ public class CarDiagnosticEvent implements Parcelable {
                 floatValues.toString());
     }
 
-    public int getSystemIntegerSensor(@CarDiagnosticSensorIndices.IntegerSensorIndex int sensor, int defaultValue) {
+    public int getSystemIntegerSensor(
+            @CarDiagnosticSensorIndices.IntegerSensorIndex int sensor, int defaultValue) {
         return intValues.get(sensor, defaultValue);
     }
 
-    public float getSystemFloatSensor(@CarDiagnosticSensorIndices.FloatSensorIndex int sensor, float defaultValue) {
+    public float getSystemFloatSensor(
+            @CarDiagnosticSensorIndices.FloatSensorIndex int sensor, float defaultValue) {
         return floatValues.get(sensor, defaultValue);
     }
 
@@ -260,33 +307,35 @@ public class CarDiagnosticEvent implements Parcelable {
         return floatValues.get(sensor, defaultValue);
     }
 
-    public @Nullable Integer getSystemIntegerSensor(@CarDiagnosticSensorIndices.IntegerSensorIndex int sensor) {
+    public @Nullable Integer getSystemIntegerSensor(
+            @CarDiagnosticSensorIndices.IntegerSensorIndex int sensor) {
         int index = intValues.indexOfKey(sensor);
-        if(index < 0) return null;
+        if (index < 0) return null;
         return intValues.valueAt(index);
     }
 
-    public @Nullable Float getSystemFloatSensor(@CarDiagnosticSensorIndices.FloatSensorIndex int sensor) {
+    public @Nullable Float getSystemFloatSensor(
+            @CarDiagnosticSensorIndices.FloatSensorIndex int sensor) {
         int index = floatValues.indexOfKey(sensor);
-        if(index < 0) return null;
+        if (index < 0) return null;
         return floatValues.valueAt(index);
     }
 
     public @Nullable Integer getVendorIntegerSensor(int sensor) {
         int index = intValues.indexOfKey(sensor);
-        if(index < 0) return null;
+        if (index < 0) return null;
         return intValues.valueAt(index);
     }
 
     public @Nullable Float getVendorFloatSensor(int sensor) {
         int index = floatValues.indexOfKey(sensor);
-        if(index < 0) return null;
+        if (index < 0) return null;
         return floatValues.valueAt(index);
     }
 
     /**
-     * Represents possible states of the fuel system;
-     * see {@link CarDiagnosticSensorIndices.Obd2IntegerSensorIndex#FUEL_SYSTEM_STATUS}
+     * Represents possible states of the fuel system; see {@link
+     * CarDiagnosticSensorIndices.Obd2IntegerSensorIndex#FUEL_SYSTEM_STATUS}
      */
     public static final class FuelSystemStatus {
         private FuelSystemStatus() {}
@@ -309,8 +358,8 @@ public class CarDiagnosticEvent implements Parcelable {
     }
 
     /**
-     * Represents possible states of the secondary air system;
-     * see {@link CarDiagnosticSensorIndices.Obd2IntegerSensorIndex#COMMANDED_SECONDARY_AIR_STATUS}
+     * Represents possible states of the secondary air system; see {@link
+     * CarDiagnosticSensorIndices.Obd2IntegerSensorIndex#COMMANDED_SECONDARY_AIR_STATUS}
      */
     public static final class SecondaryAirStatus {
         private SecondaryAirStatus() {}
@@ -331,8 +380,8 @@ public class CarDiagnosticEvent implements Parcelable {
     }
 
     /**
-     * Represents possible types of fuel;
-     * see {@link CarDiagnosticSensorIndices.Obd2IntegerSensorIndex#FUEL_TYPE}
+     * Represents possible types of fuel; see {@link
+     * CarDiagnosticSensorIndices.Obd2IntegerSensorIndex#FUEL_TYPE}
      */
     public static final class FuelType {
         private FuelType() {}
@@ -393,9 +442,9 @@ public class CarDiagnosticEvent implements Parcelable {
     }
 
     /**
-     * Represents possible states of the ignition monitors on the vehicle;
-     * see {@link CarDiagnosticSensorIndices.Obd2IntegerSensorIndex#IGNITION_MONITORS_SUPPORTED}
-     * see {@link CarDiagnosticSensorIndices.Obd2IntegerSensorIndex#IGNITION_SPECIFIC_MONITORS}
+     * Represents possible states of the ignition monitors on the vehicle; see {@link
+     * CarDiagnosticSensorIndices.Obd2IntegerSensorIndex#IGNITION_MONITORS_SUPPORTED} see {@link
+     * CarDiagnosticSensorIndices.Obd2IntegerSensorIndex#IGNITION_SPECIFIC_MONITORS}
      */
     public static final class IgnitionMonitors {
         public static final class IgnitionMonitor {
@@ -407,26 +456,16 @@ public class CarDiagnosticEvent implements Parcelable {
                 this.incomplete = incomplete;
             }
 
-            public static final class Builder {
-                private int mAvailableBitmask;
-                private int mIncompleteBitmask;
+            public static final class Decoder {
+                private final int mAvailableBitmask;
+                private final int mIncompleteBitmask;
 
-                Builder() {
-                    mAvailableBitmask = 0;
-                    mIncompleteBitmask = 0;
+                Decoder(int availableBitmask, int incompleteBitmask) {
+                    mAvailableBitmask = availableBitmask;
+                    mIncompleteBitmask = incompleteBitmask;
                 }
 
-                public Builder withAvailableBitmask(int bitmask) {
-                    mAvailableBitmask = bitmask;
-                    return this;
-                }
-
-                public Builder withIncompleteBitmask(int bitmask) {
-                    mIncompleteBitmask = bitmask;
-                    return this;
-                }
-
-                public IgnitionMonitor buildForValue(int value) {
+                public IgnitionMonitor fromValue(int value) {
                     boolean available = (0 != (value & mAvailableBitmask));
                     boolean incomplete = (0 != (value & mIncompleteBitmask));
 
@@ -449,36 +488,29 @@ public class CarDiagnosticEvent implements Parcelable {
             static final int MISFIRE_AVAILABLE = 0x1 << 4;
             static final int MISFIRE_INCOMPLETE = 0x1 << 5;
 
-            static final IgnitionMonitor.Builder COMPONENTS_BUILDER =
-                    new IgnitionMonitor.Builder()
-                            .withAvailableBitmask(COMPONENTS_AVAILABLE)
-                            .withIncompleteBitmask(COMPONENTS_INCOMPLETE);
+            static final IgnitionMonitor.Decoder COMPONENTS_DECODER =
+                    new IgnitionMonitor.Decoder(COMPONENTS_AVAILABLE, COMPONENTS_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder FUEL_SYSTEM_BUILDER =
-                    new IgnitionMonitor.Builder()
-                            .withAvailableBitmask(FUEL_SYSTEM_AVAILABLE)
-                            .withIncompleteBitmask(FUEL_SYSTEM_INCOMPLETE);
+            static final IgnitionMonitor.Decoder FUEL_SYSTEM_DECODER =
+                    new IgnitionMonitor.Decoder(FUEL_SYSTEM_AVAILABLE, FUEL_SYSTEM_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder MISFIRE_BUILDER =
-                    new IgnitionMonitor.Builder()
-                            .withAvailableBitmask(MISFIRE_AVAILABLE)
-                            .withIncompleteBitmask(MISFIRE_INCOMPLETE);
+            static final IgnitionMonitor.Decoder MISFIRE_DECODER =
+                    new IgnitionMonitor.Decoder(MISFIRE_AVAILABLE, MISFIRE_INCOMPLETE);
 
             CommonIgnitionMonitors(int bitmask) {
-                components = COMPONENTS_BUILDER.buildForValue(bitmask);
-                fuelSystem = FUEL_SYSTEM_BUILDER.buildForValue(bitmask);
-                misfire = MISFIRE_BUILDER.buildForValue(bitmask);
+                components = COMPONENTS_DECODER.fromValue(bitmask);
+                fuelSystem = FUEL_SYSTEM_DECODER.fromValue(bitmask);
+                misfire = MISFIRE_DECODER.fromValue(bitmask);
             }
 
             public @Nullable SparkIgnitionMonitors asSparkIgnitionMonitors() {
-                if (this instanceof SparkIgnitionMonitors)
-                    return (SparkIgnitionMonitors)this;
+                if (this instanceof SparkIgnitionMonitors) return (SparkIgnitionMonitors) this;
                 return null;
             }
 
             public @Nullable CompressionIgnitionMonitors asCompressionIgnitionMonitors() {
                 if (this instanceof CompressionIgnitionMonitors)
-                    return (CompressionIgnitionMonitors)this;
+                    return (CompressionIgnitionMonitors) this;
                 return null;
             }
         }
@@ -517,56 +549,45 @@ public class CarDiagnosticEvent implements Parcelable {
             static final int CATALYST_AVAILABLE = 0x1 << 20;
             static final int CATALYST_INCOMPLETE = 0x1 << 21;
 
-            static final IgnitionMonitor.Builder EGR_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(EGR_AVAILABLE)
-                    .withIncompleteBitmask(EGR_INCOMPLETE);
+            static final IgnitionMonitor.Decoder EGR_DECODER =
+                    new IgnitionMonitor.Decoder(EGR_AVAILABLE, EGR_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder OXYGEN_SENSOR_HEATER_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(OXYGEN_SENSOR_HEATER_AVAILABLE)
-                    .withIncompleteBitmask(OXYGEN_SENSOR_HEATER_INCOMPLETE);
+            static final IgnitionMonitor.Decoder OXYGEN_SENSOR_HEATER_DECODER =
+                    new IgnitionMonitor.Decoder(OXYGEN_SENSOR_HEATER_AVAILABLE,
+                            OXYGEN_SENSOR_HEATER_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder OXYGEN_SENSOR_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(OXYGEN_SENSOR_AVAILABLE)
-                    .withIncompleteBitmask(OXYGEN_SENSOR_INCOMPLETE);
+            static final IgnitionMonitor.Decoder OXYGEN_SENSOR_DECODER =
+                    new IgnitionMonitor.Decoder(OXYGEN_SENSOR_AVAILABLE, OXYGEN_SENSOR_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder AC_REFRIGERANT_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(AC_REFRIGERANT_AVAILABLE)
-                    .withIncompleteBitmask(AC_REFRIGERANT_INCOMPLETE);
+            static final IgnitionMonitor.Decoder AC_REFRIGERANT_DECODER =
+                    new IgnitionMonitor.Decoder(AC_REFRIGERANT_AVAILABLE,
+                            AC_REFRIGERANT_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder SECONDARY_AIR_SYSTEM_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(SECONDARY_AIR_SYSTEM_AVAILABLE)
-                    .withIncompleteBitmask(SECONDARY_AIR_SYSTEM_INCOMPLETE);
+            static final IgnitionMonitor.Decoder SECONDARY_AIR_SYSTEM_DECODER =
+                    new IgnitionMonitor.Decoder(SECONDARY_AIR_SYSTEM_AVAILABLE,
+                            SECONDARY_AIR_SYSTEM_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder EVAPORATIVE_SYSTEM_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(EVAPORATIVE_SYSTEM_AVAILABLE)
-                    .withIncompleteBitmask(EVAPORATIVE_SYSTEM_INCOMPLETE);
+            static final IgnitionMonitor.Decoder EVAPORATIVE_SYSTEM_DECODER =
+                    new IgnitionMonitor.Decoder(EVAPORATIVE_SYSTEM_AVAILABLE,
+                            EVAPORATIVE_SYSTEM_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder HEATED_CATALYST_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(HEATED_CATALYST_AVAILABLE)
-                    .withIncompleteBitmask(HEATED_CATALYST_INCOMPLETE);
+            static final IgnitionMonitor.Decoder HEATED_CATALYST_DECODER =
+                    new IgnitionMonitor.Decoder(HEATED_CATALYST_AVAILABLE,
+                            HEATED_CATALYST_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder CATALYST_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(CATALYST_AVAILABLE)
-                    .withIncompleteBitmask(CATALYST_INCOMPLETE);
+            static final IgnitionMonitor.Decoder CATALYST_DECODER =
+                    new IgnitionMonitor.Decoder(CATALYST_AVAILABLE, CATALYST_INCOMPLETE);
 
             SparkIgnitionMonitors(int bitmask) {
                 super(bitmask);
-                EGR = EGR_BUILDER.buildForValue(bitmask);
-                oxygenSensorHeater = OXYGEN_SENSOR_HEATER_BUILDER.buildForValue(bitmask);
-                oxygenSensor = OXYGEN_SENSOR_BUILDER.buildForValue(bitmask);
-                ACRefrigerant = AC_REFRIGERANT_BUILDER.buildForValue(bitmask);
-                secondaryAirSystem = SECONDARY_AIR_SYSTEM_BUILDER.buildForValue(bitmask);
-                evaporativeSystem = EVAPORATIVE_SYSTEM_BUILDER.buildForValue(bitmask);
-                heatedCatalyst = HEATED_CATALYST_BUILDER.buildForValue(bitmask);
-                catalyst = CATALYST_BUILDER.buildForValue(bitmask);
+                EGR = EGR_DECODER.fromValue(bitmask);
+                oxygenSensorHeater = OXYGEN_SENSOR_HEATER_DECODER.fromValue(bitmask);
+                oxygenSensor = OXYGEN_SENSOR_DECODER.fromValue(bitmask);
+                ACRefrigerant = AC_REFRIGERANT_DECODER.fromValue(bitmask);
+                secondaryAirSystem = SECONDARY_AIR_SYSTEM_DECODER.fromValue(bitmask);
+                evaporativeSystem = EVAPORATIVE_SYSTEM_DECODER.fromValue(bitmask);
+                heatedCatalyst = HEATED_CATALYST_DECODER.fromValue(bitmask);
+                catalyst = CATALYST_DECODER.fromValue(bitmask);
             }
         }
 
@@ -596,69 +617,66 @@ public class CarDiagnosticEvent implements Parcelable {
             static final int NMHC_CATALYST_AVAILABLE = 0x1 << 16;
             static final int NMHC_CATALYST_INCOMPLETE = 0x1 << 17;
 
-            static final IgnitionMonitor.Builder EGR_OR_VVT_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(EGR_OR_VVT_AVAILABLE)
-                    .withIncompleteBitmask(EGR_OR_VVT_INCOMPLETE);
+            static final IgnitionMonitor.Decoder EGR_OR_VVT_DECODER =
+                    new IgnitionMonitor.Decoder(EGR_OR_VVT_AVAILABLE, EGR_OR_VVT_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder PM_FILTER_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(PM_FILTER_AVAILABLE)
-                    .withIncompleteBitmask(PM_FILTER_INCOMPLETE);
+            static final IgnitionMonitor.Decoder PM_FILTER_DECODER =
+                    new IgnitionMonitor.Decoder(PM_FILTER_AVAILABLE, PM_FILTER_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder EXHAUST_GAS_SENSOR_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(EXHAUST_GAS_SENSOR_AVAILABLE)
-                    .withIncompleteBitmask(EXHAUST_GAS_SENSOR_INCOMPLETE);
+            static final IgnitionMonitor.Decoder EXHAUST_GAS_SENSOR_DECODER =
+                    new IgnitionMonitor.Decoder(EXHAUST_GAS_SENSOR_AVAILABLE,
+                            EXHAUST_GAS_SENSOR_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder BOOST_PRESSURE_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(BOOST_PRESSURE_AVAILABLE)
-                    .withIncompleteBitmask(BOOST_PRESSURE_INCOMPLETE);
+            static final IgnitionMonitor.Decoder BOOST_PRESSURE_DECODER =
+                    new IgnitionMonitor.Decoder(BOOST_PRESSURE_AVAILABLE,
+                            BOOST_PRESSURE_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder NOx_SCR_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(NOx_SCR_AVAILABLE)
-                    .withIncompleteBitmask(NOx_SCR_INCOMPLETE);
+            static final IgnitionMonitor.Decoder NOx_SCR_DECODER =
+                    new IgnitionMonitor.Decoder(NOx_SCR_AVAILABLE, NOx_SCR_INCOMPLETE);
 
-            static final IgnitionMonitor.Builder NMHC_CATALYST_BUILDER =
-                new IgnitionMonitor.Builder()
-                    .withAvailableBitmask(NMHC_CATALYST_AVAILABLE)
-                    .withIncompleteBitmask(NMHC_CATALYST_INCOMPLETE);
+            static final IgnitionMonitor.Decoder NMHC_CATALYST_DECODER =
+                    new IgnitionMonitor.Decoder(NMHC_CATALYST_AVAILABLE, NMHC_CATALYST_INCOMPLETE);
 
             CompressionIgnitionMonitors(int bitmask) {
                 super(bitmask);
-                EGROrVVT = EGR_OR_VVT_BUILDER.buildForValue(bitmask);
-                PMFilter = PM_FILTER_BUILDER.buildForValue(bitmask);
-                exhaustGasSensor = EXHAUST_GAS_SENSOR_BUILDER.buildForValue(bitmask);
-                boostPressure = BOOST_PRESSURE_BUILDER.buildForValue(bitmask);
-                NOxSCR = NOx_SCR_BUILDER.buildForValue(bitmask);
-                NMHCCatalyst = NMHC_CATALYST_BUILDER.buildForValue(bitmask);
+                EGROrVVT = EGR_OR_VVT_DECODER.fromValue(bitmask);
+                PMFilter = PM_FILTER_DECODER.fromValue(bitmask);
+                exhaustGasSensor = EXHAUST_GAS_SENSOR_DECODER.fromValue(bitmask);
+                boostPressure = BOOST_PRESSURE_DECODER.fromValue(bitmask);
+                NOxSCR = NOx_SCR_DECODER.fromValue(bitmask);
+                NMHCCatalyst = NMHC_CATALYST_DECODER.fromValue(bitmask);
             }
         }
     }
 
     public @Nullable @FuelSystemStatus.Status Integer getFuelSystemStatus() {
-        return getSystemIntegerSensor(CarDiagnosticSensorIndices.Obd2IntegerSensorIndex.FUEL_SYSTEM_STATUS);
+        return getSystemIntegerSensor(
+                CarDiagnosticSensorIndices.Obd2IntegerSensorIndex.FUEL_SYSTEM_STATUS);
     }
 
     public @Nullable @SecondaryAirStatus.Status Integer getSecondaryAirStatus() {
-        return getSystemIntegerSensor(CarDiagnosticSensorIndices.Obd2IntegerSensorIndex.COMMANDED_SECONDARY_AIR_STATUS);
+        return getSystemIntegerSensor(
+                CarDiagnosticSensorIndices.Obd2IntegerSensorIndex.COMMANDED_SECONDARY_AIR_STATUS);
     }
 
     public @Nullable IgnitionMonitors.CommonIgnitionMonitors getIgnitionMonitors() {
-        Integer ignitionMonitorsType = getSystemIntegerSensor(
-            CarDiagnosticSensorIndices.Obd2IntegerSensorIndex.IGNITION_MONITORS_SUPPORTED);
-        Integer ignitionMonitorsBitmask = getSystemIntegerSensor(
-            CarDiagnosticSensorIndices.Obd2IntegerSensorIndex.IGNITION_SPECIFIC_MONITORS);
+        Integer ignitionMonitorsType =
+                getSystemIntegerSensor(
+                        CarDiagnosticSensorIndices.Obd2IntegerSensorIndex
+                                .IGNITION_MONITORS_SUPPORTED);
+        Integer ignitionMonitorsBitmask =
+                getSystemIntegerSensor(
+                        CarDiagnosticSensorIndices.Obd2IntegerSensorIndex
+                                .IGNITION_SPECIFIC_MONITORS);
         if (null == ignitionMonitorsType) return null;
         if (null == ignitionMonitorsBitmask) return null;
         switch (ignitionMonitorsType) {
-            case 0: return new IgnitionMonitors.SparkIgnitionMonitors(
-                    ignitionMonitorsBitmask);
-            case 1: return new IgnitionMonitors.CompressionIgnitionMonitors(
-                    ignitionMonitorsBitmask);
-            default: return null;
+            case 0:
+                return new IgnitionMonitors.SparkIgnitionMonitors(ignitionMonitorsBitmask);
+            case 1:
+                return new IgnitionMonitors.CompressionIgnitionMonitors(ignitionMonitorsBitmask);
+            default:
+                return null;
         }
     }
 
