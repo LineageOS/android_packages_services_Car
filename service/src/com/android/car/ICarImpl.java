@@ -47,16 +47,6 @@ public class ICarImpl extends ICar.Stub {
     public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
             "system_activity_monitoring";
 
-    // load jni for all services here
-    static {
-        try {
-            System.loadLibrary("jni_car_service");
-        } catch (UnsatisfiedLinkError ex) {
-            // Unable to load native library when loaded from the testing framework.
-            Log.e(CarLog.TAG_SERVICE, "Failed to load jni_car_service library: " + ex.getMessage());
-        }
-    }
-
     private final Context mContext;
     private final VehicleHal mHal;
 
