@@ -23,6 +23,7 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -62,6 +63,15 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
         mLayersAvailability = new VmsLayersAvailability();
         mOfferings = new HashSet<>();
         super.setUp();
+    }
+
+    public void testNoOffering() {
+        assertTrue(mLayersAvailability.getAvailableLayers().isEmpty());
+    }
+
+    public void testEmptyOffering() {
+        mLayersAvailability.setPublishersOffering(Collections.EMPTY_LIST);
+        assertTrue(mLayersAvailability.getAvailableLayers().isEmpty());
     }
 
     public void testSingleLayerNoDeps() throws Exception {

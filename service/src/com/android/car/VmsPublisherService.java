@@ -56,7 +56,6 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
     private final Context mContext;
     private final VmsHalService mHal;
     private final VmsPublisherManager mPublisherManager;
-    private final Map<IBinder, VmsLayersOffering> mRawOffering = new HashMap<>();
 
     public VmsPublisherService(Context context, VmsHalService hal) {
         mContext = context;
@@ -96,12 +95,7 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
 
     @Override
     public void setLayersOffering(IBinder token, VmsLayersOffering offering) {
-        // Store the raw dependencies
-        mRawOffering.put(token, offering);
-
-        //TODO(asafro): Calculate the new available layers
-
-        //TODO(asafro): Notify the subscribers that there is a change in availability
+        mHal.setPublisherLayersOffering(token, offering);
     }
 
     // Implements IVmsPublisherService interface.

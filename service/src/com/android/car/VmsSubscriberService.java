@@ -269,17 +269,12 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     // Implements VmsHalSubscriberListener interface
     @Override
-    public void onChange(VmsLayer layer, byte[] payload) {
+    public void onDataMessage(VmsLayer layer, byte[] payload) {
         if(DBG) {
             Log.d(TAG, "Publishing a message for layer: " + layer);
         }
 
         Set<IVmsSubscriberClient> listeners = mHal.getListeners(layer);
-
-        // If there are no listeners we're done.
-        if ((listeners == null)) {
-            return;
-        }
 
         for (IVmsSubscriberClient subscriber : listeners) {
             try {
@@ -290,6 +285,24 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
                 Log.e(TAG, "onVmsMessageReceived calling failed: ", e);
             }
         }
+    }
 
+    @Override
+    public void onLayersAvaiabilityChange(List<VmsLayer> availableLayers) {
+        if(DBG) {
+            Log.d(TAG, "Publishing layers availability change: " + availableLayers);
+        }
+
+        Set<IVmsSubscriberClient> listeners = mHal.getAllListeners();
+
+        for (IVmsSubscriberClient subscriber : listeners) {
+            try {
+                subscriber.onLayersAvailabilityChange(availableLayers);
+            } catch (RemoteException e) {
+                // If we could not send a record, its likely the connection snapped. Let the binder
+                // death handle the situation.
+                Log.e(TAG, "onLayersAvailabilityChange calling failed: ", e);
+            }
+        }
     }
 }
