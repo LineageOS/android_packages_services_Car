@@ -185,7 +185,7 @@ def capture_bugreport(bugreport_hint, boot_complete_time):
 
 def iterate(args, search_events, timings, cfg, error_time, components_to_monitor):
   if args.reboot:
-    reboot(args.fs_check, args.stressfs != '')
+    reboot(args.serial, args.stressfs != '', args.permissive, args.adb_reboot)
 
   dmesg_events, e = collect_events(search_events, ADB_CMD + ' shell su root dmesg -w', {},\
                                    [ KERNEL_BOOT_COMPLETE ])
@@ -386,6 +386,12 @@ def init_arguments():
   parser.add_argument('-f', '--fs_check', dest='fs_check',
                       action='store_true',
                       help='check fs_stat after reboot', )
+  parser.add_argument('-a', '--adb_reboot', dest='adb_reboot',
+                      action='store_true',
+                      help='reboot with adb reboot', )
+  parser.add_argument('-v', '--permissive', dest='permissive',
+                      action='store_true',
+                      help='set selinux into permissive before reboot', )
   parser.add_argument('-m', '--componentmonitor', dest='componentmonitor', action='store',
                       help='capture bugreport if specified timing component is taking more than ' +\
                            'certain time. Unlike errortime, the result will not be rejected in' +\
@@ -514,8 +520,26 @@ def extract_time(events, pattern, date_transform_function):
   return result
 
 
+def do_reboot(serial, use_adb_reboot):
+  original_devices = subprocess.check_output("adb devices", shell=True)
+  if use_adb_reboot:
+    print 'Rebooting the device using adb reboot'
+    subprocess.call(ADB_CMD + ' reboot', shell=True)
+  else:
+    print 'Rebooting the device using svc power reboot'
+    subprocess.call(ADB_CMD + ' shell su root svc power reboot', shell=True)
+  # Wait for the device to go away
+  retry = 0
+  while retry < 20:
+    current_devices = subprocess.check_output("adb devices", shell=True)
+    if original_devices != current_devices:
+      if not serial or (serial and current_devices.find(serial) < 0):
+        return True
+    time.sleep(1)
+    retry += 1
+  return False
 
-def reboot(use_adb_reboot, use_stressfs):
+def reboot(serial, use_stressfs, permissive, use_adb_reboot):
   if use_stressfs:
     print 'Starting write to data partition'
     subprocess.call(ADB_CMD + ' shell am start' +\
@@ -523,12 +547,15 @@ def reboot(use_adb_reboot, use_stressfs):
                               ' -a com.android.car.test.stressfs.START', shell=True)
     # Give this app some time to start.
     time.sleep(1)
-  if use_adb_reboot:
-    print 'Rebooting the device using adb reboot'
-    subprocess.call(ADB_CMD + ' reboot', shell=True)
-  else:
-    print 'Rebooting the device using svc power reboot'
-    subprocess.call(ADB_CMD + ' shell su root svc power reboot', shell=True)
+  if permissive:
+    subprocess.call(ADB_CMD + ' shell su root setenforce 0', shell=True)
+
+  retry = 0
+  while retry < 5:
+    if do_reboot(serial, use_adb_reboot):
+      break
+    retry += 1
+
   print 'Waiting the device'
   subprocess.call(ADB_CMD + ' wait-for-device', shell=True)
 
