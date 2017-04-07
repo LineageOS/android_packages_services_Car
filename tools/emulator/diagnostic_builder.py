@@ -26,13 +26,17 @@ class DiagnosticEventBuilder(object):
     class ByteArray(object):
         def __init__(self, numElements):
             self.count = numElements
-            self.data = bytearray(numElements)
+            if 0 == (numElements % 8):
+                self.data = bytearray(numElements/8)
+            else:
+                # if not a multiple of 8, add one extra byte
+                self.data = bytearray(1+numElements/8)
 
         def _getIndices(self, bit):
             if (bit < 0) or (bit >= self.count):
                 raise IndexError("index %d not in range [0,%d)" % (bit, self.count))
             byteIdx = bit / 8
-            bitIdx = 7 - (bit % 8)
+            bitIdx = (bit % 8)
             return byteIdx, bitIdx
 
         def setBit(self, bit):
@@ -75,5 +79,5 @@ class DiagnosticEventBuilder(object):
         return self
 
     def build(self):
-        self.bytes = str(self.bitmask)
+        self.bytes_value = str(self.bitmask)
         return self
