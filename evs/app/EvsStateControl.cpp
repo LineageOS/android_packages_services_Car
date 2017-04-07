@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <android/log.h>
+#include <log/log.h>
 
 
 // TODO:  Seems like it'd be nice if the Vehicle HAL provided such helpers (but how & where?)
