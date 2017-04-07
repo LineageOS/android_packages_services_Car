@@ -33,11 +33,16 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.util.JsonReader;
+import android.util.JsonWriter;
 import android.util.Log;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.car.vehiclehal.DiagnosticEventBuilder;
+import com.android.car.vehiclehal.DiagnosticJson;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -530,6 +535,59 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 FuelType.BIFUEL_RUNNING_LPG,
                 liveFrame.getSystemIntegerSensor(Obd2IntegerSensorIndex.FUEL_TYPE).intValue());
         assertEquals(FuelType.BIFUEL_RUNNING_LPG, liveFrame.getFuelType().intValue());
+    }
+
+    public void testDiagnosticJson() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testDiagnosticJson as diagnostics API is not enabled");
+            return;
+        }
+
+        Listener listener = new Listener();
+        mCarDiagnosticManager.registerListener(
+                listener,
+                CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE,
+                android.car.hardware.CarSensorManager.SENSOR_RATE_NORMAL);
+
+        mLiveFrameEventBuilder.addIntSensor(Obd2IntegerSensorIndex.ENGINE_OIL_TEMPERATURE, 74);
+        mLiveFrameEventBuilder.addFloatSensor(Obd2FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE, 0.125f);
+
+        long timestamp = SystemClock.elapsedRealtimeNanos();
+        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
+
+        assertTrue(listener.waitForEvent(timestamp));
+
+        CarDiagnosticEvent liveFrame = listener.getLastEvent();
+        assertNotNull(liveFrame);
+
+        assertEquals(
+                74,
+                liveFrame
+                        .getSystemIntegerSensor(Obd2IntegerSensorIndex.ENGINE_OIL_TEMPERATURE)
+                        .intValue());
+        assertEquals(
+                0.125f,
+                liveFrame.getSystemFloatSensor(Obd2FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE));
+
+        StringWriter stringWriter = new StringWriter();
+        JsonWriter jsonWriter = new JsonWriter(stringWriter);
+
+        liveFrame.writeToJson(jsonWriter);
+        jsonWriter.flush();
+
+        StringReader stringReader = new StringReader(stringWriter.toString());
+        JsonReader jsonReader = new JsonReader(stringReader);
+        DiagnosticJson diagnosticJson = DiagnosticJson.build(jsonReader);
+
+        assertEquals(
+                74,
+                diagnosticJson
+                        .intValues
+                        .get(Obd2IntegerSensorIndex.ENGINE_OIL_TEMPERATURE)
+                        .intValue());
+        assertEquals(
+                0.125f,
+                diagnosticJson.floatValues.get(Obd2FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE));
     }
 
     public void testMultipleListeners() throws Exception {

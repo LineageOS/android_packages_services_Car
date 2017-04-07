@@ -58,7 +58,7 @@ class DiagnosticHalWrapper(object):
         self.liveFrameConfig = self.chat(
             lambda hal: hal.getConfig(c.VEHICLE_PROPERTY_OBD2_LIVE_FRAME))
         self.eventTypeData = {
-            1 : {
+            'live' : {
                 'builder'  : lambda: DiagnosticEventBuilder(self.liveFrameConfig),
                 'property' :  c.VEHICLE_PROPERTY_OBD2_LIVE_FRAME
             },
