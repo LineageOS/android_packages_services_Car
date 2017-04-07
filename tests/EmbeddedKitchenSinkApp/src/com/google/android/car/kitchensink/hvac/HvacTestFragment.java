@@ -18,6 +18,7 @@ package com.google.android.car.kitchensink.hvac;
 
 import static java.lang.Integer.toHexString;
 
+import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
 import android.car.CarNotConnectedException;
@@ -165,6 +166,10 @@ public class HvacTestFragment extends Fragment {
                             + ", zone=0x" + toHexString(zone));
                 }
             };
+
+    public HvacTestFragment() {
+        setHvacManager( ((KitchenSinkActivity)getActivity()).getHvacManager() );
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
