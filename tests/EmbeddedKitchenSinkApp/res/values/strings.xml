@@ -237,4 +237,7 @@
     <string name="usb_pref_delete_yes">Yes</string>
     <string name="usb_pref_delete_cancel">Cancel</string>
     <string name="usb_resolving_handlers">Getting supported handlers</string>
+
+    <!-- Action to start assistant activity -->
+    <string name="assistant_activity_action" translatable="false">"com.google.android.demandspace.START"</string>
 </resources>
