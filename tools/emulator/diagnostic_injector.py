@@ -91,11 +91,11 @@ class DiagnosticHalWrapper(object):
                 floatSensorsMapping[floatValue['id']](builder, floatValue['value'])
             builtEvent = builder.build()
             # and send it
-            print self.chat(
+            print(self.chat(
                 lambda hal:
                     hal.setProperty(eventTypeData['property'],
                         0,
-                        builtEvent))
+                        builtEvent)))
 
 if len(sys.argv) < 2:
     print("Syntax: diagnostic_injector.py <path/to/diagnostic.json>")
