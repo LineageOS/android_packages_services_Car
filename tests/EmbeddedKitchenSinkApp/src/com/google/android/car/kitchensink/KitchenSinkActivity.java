@@ -27,11 +27,14 @@ import android.support.car.CarNotConnectedException;
 import android.support.car.hardware.CarSensorManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.HapticFeedbackConstants;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.android.car.app.CarDrawerActivity;
 import com.android.car.app.CarDrawerAdapter;
 import com.android.car.app.DrawerItemViewHolder;
-
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
 import com.google.android.car.kitchensink.bluetooth.BluetoothHeadsetFragment;
 import com.google.android.car.kitchensink.bluetooth.MapMceTestFragment;
@@ -84,6 +87,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private OrientationTestFragment mOrientationFragment;
     private MapMceTestFragment mMapMceTestFragment;
     private BluetoothHeadsetFragment mBluetoothHeadsetFragement;
+    private ImageView mMic;
 
     private final CarSensorManager.OnSensorChangedListener mListener = (manager, event) -> {
         switch (event.sensorType) {
@@ -102,6 +106,22 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setMainContent(R.layout.kitchen_content);
+        mMic = (ImageView) findViewById(R.id.voice_button);
+        mMic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                Intent intent = new Intent();
+                intent.setAction(
+                        KitchenSinkActivity.this.getString(R.string.assistant_activity_action));
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(KitchenSinkActivity.this,
+                            "Assistant app is not available.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         // Connection to Car Service does not work for non-automotive yet.
         if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
