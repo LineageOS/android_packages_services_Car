@@ -22,11 +22,6 @@ ifneq ($(TARGET_BUILD_PDK),true)
 LOCAL_PATH:= $(call my-dir)
 
 car_service_sources := $(call all-java-files-under, src)
-ifeq ($(TARGET_USES_CAR_FUTURE_FEATURES),true)
-car_service_sources += $(call all-java-files-under, src_feature_future)
-else
-car_service_sources += $(call all-java-files-under, src_feature_current)
-endif
 
 include $(CLEAR_VARS)
 
