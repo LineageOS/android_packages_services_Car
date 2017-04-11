@@ -16,63 +16,43 @@
 
 package com.android.car.vehiclehal.test;
 
-import static com.android.car.vehiclehal.test.Utils.dumpVehiclePropValue;
 import static com.android.car.vehiclehal.test.Utils.isVhalPropertyAvailable;
 import static com.android.car.vehiclehal.test.Utils.readVhalProperty;
-import static com.android.car.vehiclehal.test.Utils.tryWithDeadline;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
-import android.annotation.Nullable;
+import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.StatusCode;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_1.IVehicle;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 import android.os.RemoteException;
 import android.util.Log;
-import java.util.Objects;
+
 import org.junit.Before;
 import org.junit.Test;
 
 /** Test retrieving the OBD2_LIVE_FRAME property from VHAL */
 public class Obd2LiveFrameTest {
-    private static final String TAG = Obd2LiveFrameTest.class.getSimpleName();
-    private static final long WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS = 10_000;
+    private static final String TAG = Utils.concatTag(Obd2LiveFrameTest.class);
 
     private IVehicle mVehicle = null;
 
     @Before
     public void setUp() throws Exception {
-        mVehicle = Objects.requireNonNull(getVehicle(WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS));
-    }
-
-    @Nullable
-    private IVehicle getVehicle(long waitMilliseconds) {
-        return tryWithDeadline(
-                waitMilliseconds,
-                () -> {
-                    try {
-                        return IVehicle.getService();
-                    } catch (RemoteException e) {
-                        Log.w(TAG, "attempt to get IVehicle service " +
-                                   " caused RemoteException: ", e);
-                        return null;
-                    }
-                });
+        mVehicle = Utils.getVehicle();
+        assumeTrue("Live frame not available, test-case ignored.", isLiveFrameAvailable());
     }
 
     @Test
     public void testLiveFrame() throws RemoteException {
-        if (!isLiveFrameAvailable()) {
-            Log.i(TAG, "live frame not available; returning - our job here is done");
-            return;
-        }
         readVhalProperty(
                 mVehicle,
                 VehicleProperty.OBD2_LIVE_FRAME,
                 (Integer status, VehiclePropValue value) -> {
                     assertEquals(StatusCode.OK, status.intValue());
                     assertNotNull("OBD2_LIVE_FRAME is supported; should not be null", value);
-                    Log.i(TAG, "dump of OBD2_LIVE_FRAME:\n" + dumpVehiclePropValue(value));
+                    Log.i(TAG, "dump of OBD2_LIVE_FRAME:\n" + value);
                     return true;
                 });
     }
