@@ -327,6 +327,10 @@ public class VmsHalService extends HalServiceBase {
         return taken;
     }
 
+    /**
+     * Consumes/produces HAL messages. The format of these messages is defined in:
+     * hardware/interfaces/automotive/vehicle/2.1/types.hal
+     */
     @Override
     public void handleHalEvents(List<VehiclePropValue> values) {
         if (DBG) {
@@ -355,12 +359,24 @@ public class VmsHalService extends HalServiceBase {
                 case VmsMessageType.AVAILABILITY:
                     handleAvailabilityEvent();
                     break;
+                case VmsMessageType.SUBSCRIPTION_REQUEST:
+                    handleSubscriptionRequestEvent();
+                    break;
                 default:
                     throw new IllegalArgumentException("Unexpected message type: " + messageType);
             }
         }
     }
 
+    /**
+     * Data message format:
+     * <ul>
+     * <li>Message type.
+     * <li>Layer id.
+     * <li>Layer version.
+     * <li>Payload.
+     * </ul>
+     */
     private void handleDataEvent(List<Integer> integerValues, byte[] payload) {
         int layerId = integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_ID);
         int layerVersion = integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_VERSION);
@@ -376,6 +392,14 @@ public class VmsHalService extends HalServiceBase {
         }
     }
 
+    /**
+     * Subscribe message format:
+     * <ul>
+     * <li>Message type.
+     * <li>Layer id.
+     * <li>Layer version.
+     * </ul>
+     */
     private void handleSubscribeEvent(List<Integer> integerValues) {
         int layerId = integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_ID);
         int layerVersion = integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_VERSION);
@@ -387,6 +411,14 @@ public class VmsHalService extends HalServiceBase {
         addHalSubscription(new VmsLayer(layerId, layerVersion));
     }
 
+    /**
+     * Unsubscribe message format:
+     * <ul>
+     * <li>Message type.
+     * <li>Layer id.
+     * <li>Layer version.
+     * </ul>
+     */
     private void handleUnsubscribeEvent(List<Integer> integerValues) {
         int layerId = integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_ID);
         int layerVersion = integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_VERSION);
@@ -398,6 +430,20 @@ public class VmsHalService extends HalServiceBase {
         removeHalSubscription(new VmsLayer(layerId, layerVersion));
     }
 
+    /**
+     * Offering message format:
+     * <ul>
+     * <li>Message type.
+     * <li>Number of offerings.
+     * <li>Each offering consists of:
+     *   <ul>
+     *   <li>Layer id.
+     *   <li>Layer version.
+     *   <li>Number of layer dependencies.
+     *   <li>Layer type/version pairs.
+     *   </ul>
+     * </ul>
+     */
     private void handleOfferingEvent(List<Integer> integerValues) {
         int numLayersDependencies =
             integerValues.get(VmsOfferingMessageIntegerValuesIndex.VMS_NUMBER_OF_LAYERS_DEPENDENCIES);
@@ -434,6 +480,14 @@ public class VmsHalService extends HalServiceBase {
         }
     }
 
+    /**
+     * Availability message format:
+     * <ul>
+     * <li>Message type.
+     * <li>Number of layers.
+     * <li>Layer type/version pairs.
+     * </ul>
+     */
     private void handleAvailabilityEvent() {
         synchronized (mAvailabilityLock) {
             Collection<VmsLayer> availableLayers = mAvailableLayers.getAvailableLayers();
@@ -441,6 +495,34 @@ public class VmsHalService extends HalServiceBase {
                 VmsMessageType.AVAILABILITY, availableLayers);
             setPropertyValue(vehiclePropertyValue);
         }
+    }
+
+    /**
+     * VmsSubscriptionRequestFormat:
+     * <ul>
+     * <li>Message type.
+     * </ul>
+     *
+     * VmsSubscriptionResponseFormat:
+     * <ul>
+     * <li>Message type.
+     * <li>Sequence number.
+     * <li>Number of layers.
+     * <li>Layer type/version pairs.
+     * </ul>
+     */
+    private void handleSubscriptionRequestEvent() {
+        VmsSubscriptionState subscription = getSubscriptionState();
+        VehiclePropValue vehicleProp = toVehiclePropValue(VmsMessageType.SUBSCRIPTION_RESPONSE);
+        VehiclePropValue.RawValue v = vehicleProp.value;
+        v.int32Values.add(subscription.getSequenceNumber());
+        List<VmsLayer> layers = subscription.getLayers();
+        v.int32Values.add(layers.size());
+        for (VmsLayer layer : layers) {
+            v.int32Values.add(layer.getId());
+            v.int32Values.add(layer.getVersion());
+        }
+        setPropertyValue(vehicleProp);
     }
 
     private void updateOffering(IBinder publisherToken, VmsLayersOffering offering) {
