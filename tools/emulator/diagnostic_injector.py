@@ -24,7 +24,7 @@ import sys
 import json
 import time
 
-import vhal_consts_2_0 as c
+import vhal_consts_2_1 as c
 
 from vhal_emulator import Vhal
 from diagnostic_builder import DiagnosticEventBuilder
