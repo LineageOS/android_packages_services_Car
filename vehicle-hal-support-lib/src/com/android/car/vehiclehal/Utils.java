@@ -17,14 +17,14 @@
 package com.android.car.vehiclehal;
 
 import android.util.SparseArray;
-import com.android.car.vehiclehal.Utils.SparseArrayIterator.SparseArrayEntry;
 import java.util.Iterator;
 
 class Utils {
     private Utils() {}
 
     static class SparseArrayIterator<T>
-            implements Iterable<SparseArrayEntry<T>>, Iterator<SparseArrayEntry<T>> {
+            implements Iterable<SparseArrayIterator.SparseArrayEntry<T>>,
+                Iterator<SparseArrayIterator.SparseArrayEntry<T>> {
         static class SparseArrayEntry<U> {
             public final int key;
             public final U value;
