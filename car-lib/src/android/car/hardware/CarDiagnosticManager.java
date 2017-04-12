@@ -33,6 +33,7 @@ import com.android.car.internal.CarRatedListeners;
 import com.android.car.internal.SingleMessageHandler;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -60,8 +61,10 @@ public final class CarDiagnosticManager implements CarManagerBase {
             MSG_DIAGNOSTIC_EVENTS) {
             @Override
             protected void handleEvent(CarDiagnosticEvent event) {
-                CarDiagnosticListeners listeners =
-                    mActiveListeners.get(event.frameType);
+                CarDiagnosticListeners listeners;
+                synchronized (mActiveListeners) {
+                    listeners = mActiveListeners.get(event.frameType);
+                }
                 if (listeners != null) {
                     listeners.onDiagnosticEvent(event);
                 }
@@ -292,7 +295,12 @@ public final class CarDiagnosticManager implements CarManagerBase {
             final CarDiagnosticEvent eventToDispatch = hasVendorExtensionPermission ?
                     event :
                     event.withVendorSensorsRemoved();
-            getListeners().forEach(new Consumer<OnDiagnosticEventListener>() {
+            List<OnDiagnosticEventListener> listeners;
+            synchronized (mActiveListeners) {
+                listeners = new ArrayList<>(getListeners());
+            }
+            listeners.forEach(new Consumer<OnDiagnosticEventListener>() {
+
                 @Override
                 public void accept(OnDiagnosticEventListener listener) {
                     listener.onDiagnosticEvent(eventToDispatch);
