@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+#ifndef SHADER_H
+#define SHADER_H
 
-// This is the name as which we'll register ourselves
-const static char kManagedEnumeratorName[] = "default";
+#include <GLES2/gl2.h>
 
-// This is the name of the hardware provider to which we'll bind
-// TODO:  How should we configure these values to target appropriate hardware?
-const static char kHardwareEnumeratorName[]  = "EvsEnumeratorHw-Mock";
 
+// Create a program object given vertex and pixels shader source
+GLuint buildShaderProgram(const char* vtxSrc, const char* pxlSrc, const char* name);
+
+#endif // SHADER_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef TEXWRAPPER_H
+#define TEXWRAPPER_H
+
+#include <GLES2/gl2.h>
 
 
-// This is the name as which we'll register ourselves
-const static char kManagedEnumeratorName[] = "default";
+class TexWrapper {
+public:
+    TexWrapper(GLuint textureId, unsigned width, unsigned height);
+    virtual ~TexWrapper();
 
-// This is the name of the hardware provider to which we'll bind
-// TODO:  How should we configure these values to target appropriate hardware?
-const static char kHardwareEnumeratorName[]  = "EvsEnumeratorHw-Mock";
+    GLuint glId()       { return id; };
+    unsigned width()    { return w; };
+    unsigned height()   { return h; };
 
+protected:
+    TexWrapper();
+
+    GLuint id;
+    unsigned w;
+    unsigned h;
+};
+
+
+TexWrapper* createTextureFromPng(const char* filename);
+
+#endif // TEXWRAPPER_H
