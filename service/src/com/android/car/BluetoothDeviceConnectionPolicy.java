@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import android.app.ActivityManager;
 import android.bluetooth.BluetoothA2dpSink;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -30,20 +31,24 @@ import android.car.hardware.ICarSensorEventListener;
 import android.car.hardware.cabin.CarCabinManager;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.ICarBluetoothUserService;
+import android.car.ICarUserService;
+
+import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES;
+import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES;
+import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES;
+
+import android.os.UserHandle;
+import android.provider.Settings;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.RemoteException;
-import android.util.AtomicFile;
 import android.util.Log;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.lang.StringBuilder;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,21 +56,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
+
 
 /**
  * A Bluetooth Device Connection policy that is specific to the use cases of a Car.  A car's
- * bluetooth capabilities in terms of the profiles it supports and its use cases are unique.  Hence
- * the CarService manages the policy that drives when and what to connect to.
+ * bluetooth capabilities in terms of the profiles it supports and its use cases are unique.
+ * Hence the CarService manages the policy that drives when and what to connect to.
  *
  * When to connect:
- * The policy can be configured to listen to various vehicle events that are appropriate to trigger
- * a connection attempt.  Signals like door unlock/open, ignition state changes indicate user entry
- * and there by attempt to connect to their devices. This removes the need for the user to manually
- * connect his device everytime they get in a car.
+ * The policy can be configured to listen to various vehicle events that are appropriate to
+ * trigger a connection attempt.  Signals like door unlock/open, ignition state changes indicate
+ * user entry and there by attempt to connect to their devices. This removes the need for the user
+ * to manually connect his device everytime they get in a car.
  *
  * Which device to connect:
- * The policy also keeps track of the {Profile : DevicesThatCanConnectOnTheProfile} and when it is
- * time to connect, picks the device that is appropriate and available.
+ * The policy also keeps track of the {Profile : DevicesThatCanConnectOnTheProfile} and when
+ * it is time to connect, picks the device that is appropriate and available.
  * For every profile, the policy attempts to connect to the last connected device first. The policy
  * maintains a list of connect-able devices for every profile, in the order of how recently they
  * connected.  The device that successfully connects on a profile is moved to the top of the list
@@ -75,19 +82,30 @@ import java.util.Set;
 
 public class BluetoothDeviceConnectionPolicy {
     private static final String TAG = "BTDevConnectionPolicy";
+    private static final String SETTINGS_DELIMITER = ",";
     private static final boolean DBG = false;
-    private Context mContext;
-
+    private final Context mContext;
     private boolean mInitialized = false;
 
-    // The main datastructure that holds on to the {profile:list of known and connectible devices}
+    // The main data structure that holds on to the {profile:list of known and connectible devices}
     private HashMap<Integer, BluetoothDevicesInfo> mProfileToConnectableDevicesMap;
-    // mProfileToConnectableDevicesInfo - holds information to serialize and write
-    // to file, that can be used to rebuild the mProfileToConnectableDevicesMap on a reboot.
-    private HashMap<Integer, List<String>> mProfileToConnectableDevicesInfo;
+
+    // The foll. number of connections are what the Bluetooth services and stack supports
+    // and has been tested with.  MAP and A2DP are limited to one connection only.  HFP and PBAP,
+    // though having the capability to support more than 2, has been tested with 2 connections.
+    private static final int NUM_SUPPORTED_PHONE_CONNECTIONS = 2; // num of HFP and PBAP connections
+    private static final int NUM_SUPPORTED_MSG_CONNECTIONS = 1; // num of MAP connections
+    private static final int NUM_SUPPORTED_MUSIC_CONNECTIONS = 1; // num of A2DP connections
+    private Map<Integer, Integer> mNumSupportedActiveConnections;
+
     private BluetoothAutoConnectStateMachine mBluetoothAutoConnectStateMachine;
     private final BluetoothAdapter mBluetoothAdapter;
-    private BroadcastReceiver mReceiver;
+    private BroadcastReceiver mBluetoothBroadcastReceiver;
+
+    private ICarUserService mCarUserService;
+    private PerUserCarServiceHelper mUserServiceHelper;
+    private ICarBluetoothUserService mCarBluetoothUserService;
+    private ReentrantLock mCarUserServiceAccessLock;
 
     // Events that are listened to for triggering an auto-connect:
     // Cabin events like Door unlock coming from the Cabin Service.
@@ -97,40 +115,64 @@ public class BluetoothDeviceConnectionPolicy {
     private final CarSensorService mCarSensorService;
     private final CarSensorEventListener mCarSensorEventListener;
 
-    // Profile Proxies.
-    private BluetoothHeadsetClient mBluetoothHeadsetClient;
-    private BluetoothA2dpSink mBluetoothA2dpSink;
-    private BluetoothPbapClient mBluetoothPbapClient;
-    private BluetoothMapClient mBluetoothMapClient;
+    // PerUserCarService related listeners
+    private final UserServiceConnectionCallback mServiceCallback;
 
-    // The Bluetooth profiles that the CarService will try to autoconnect on.
+    // The Bluetooth profiles that the CarService will try to auto-connect on.
     private final List<Integer> mProfilesToConnect;
     private static final int MAX_CONNECT_RETRIES = 1;
 
-    // File to write connectable devices for a profile information
-    private static final String DEVICE_INFO_FILE = "BluetoothDevicesInfo.map";
     private static final int PROFILE_NOT_AVAILABLE = -1;
 
     // Device & Profile currently being connected on
     private ConnectionParams mConnectionInFlight;
 
     public static BluetoothDeviceConnectionPolicy create(Context context,
-            CarCabinService carCabinService, CarSensorService carSensorService) {
-        return new BluetoothDeviceConnectionPolicy(context, carCabinService, carSensorService);
+            CarCabinService carCabinService, CarSensorService carSensorService,
+            PerUserCarServiceHelper userServiceHelper) {
+        return new BluetoothDeviceConnectionPolicy(context, carCabinService, carSensorService,
+                userServiceHelper);
     }
 
     private BluetoothDeviceConnectionPolicy(Context context, CarCabinService carCabinService,
-            CarSensorService carSensorService) {
+            CarSensorService carSensorService, PerUserCarServiceHelper userServiceHelper) {
         mContext = context;
         mCarCabinService = carCabinService;
         mCarSensorService = carSensorService;
+        mUserServiceHelper = userServiceHelper;
+        mCarUserServiceAccessLock = new ReentrantLock();
         mProfilesToConnect = Arrays.asList(
-                BluetoothProfile.HEADSET_CLIENT,
-                BluetoothProfile.PBAP_CLIENT,
-                BluetoothProfile.A2DP_SINK,
-                BluetoothProfile.MAP_CLIENT);
+                BluetoothProfile.HEADSET_CLIENT, BluetoothProfile.A2DP_SINK,
+                BluetoothProfile.PBAP_CLIENT, BluetoothProfile.MAP_CLIENT);
+        // mNumSupportedActiveConnections is a HashMap of mProfilesToConnect and the number of
+        // connections each profile supports currently.
+        mNumSupportedActiveConnections = new HashMap<>(mProfilesToConnect.size());
+        for (Integer profile: mProfilesToConnect) {
+            switch (profile) {
+                case BluetoothProfile.HEADSET_CLIENT:
+                    mNumSupportedActiveConnections.put(BluetoothProfile.HEADSET_CLIENT,
+                            NUM_SUPPORTED_PHONE_CONNECTIONS);
+                    break;
+                case BluetoothProfile.PBAP_CLIENT:
+                    mNumSupportedActiveConnections.put(BluetoothProfile.PBAP_CLIENT,
+                            NUM_SUPPORTED_PHONE_CONNECTIONS);
+                    break;
+                case BluetoothProfile.A2DP_SINK:
+                    mNumSupportedActiveConnections.put(BluetoothProfile.A2DP_SINK,
+                            NUM_SUPPORTED_MUSIC_CONNECTIONS);
+                    break;
+                case BluetoothProfile.MAP_CLIENT:
+                    mNumSupportedActiveConnections.put(BluetoothProfile.MAP_CLIENT,
+                            NUM_SUPPORTED_MSG_CONNECTIONS);
+                    break;
+            }
+        }
+
+        // Listen to Cabin events for triggering auto connect
         mCabinEventListener = new CarPropertyListener();
         mCarSensorEventListener = new CarSensorEventListener();
+        // Listen to User switching to connect to per User device.
+        mServiceCallback = new UserServiceConnectionCallback();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             Log.w(TAG, "No Bluetooth Adapter Available");
@@ -156,7 +198,7 @@ public class BluetoothDeviceConnectionPolicy {
             mBluetoothProfile = profile;
         }
 
-        public ConnectionParams(BluetoothDevice device, Integer profile) {
+        public ConnectionParams(Integer profile, BluetoothDevice device) {
             mBluetoothProfile = profile;
             mBluetoothDevice = device;
         }
@@ -190,10 +232,14 @@ public class BluetoothDeviceConnectionPolicy {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (DBG) {
-                Log.d(TAG, "Received Intent " + action);
-            }
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            if (DBG) {
+                if (device != null) {
+                    Log.d(TAG, "Received Intent for device: " + device.getName() + action);
+                } else {
+                    Log.d(TAG, "Received Intent no device: " + action);
+                }
+            }
             ConnectionParams connectParams;
             if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
                 int bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE,
@@ -201,47 +247,134 @@ public class BluetoothDeviceConnectionPolicy {
                 updateBondState(device, bondState);
 
             } else if (BluetoothA2dpSink.ACTION_CONNECTION_STATE_CHANGED.equals(action)) {
-                connectParams = new ConnectionParams(device, BluetoothProfile.A2DP_SINK);
+                connectParams = new ConnectionParams(BluetoothProfile.A2DP_SINK, device);
                 int currState = intent.getIntExtra(BluetoothProfile.EXTRA_STATE,
                         BluetoothProfile.STATE_DISCONNECTED);
                 notifyConnectionStatus(connectParams, currState);
 
             } else if (BluetoothHeadsetClient.ACTION_CONNECTION_STATE_CHANGED.equals(action)) {
-                connectParams = new ConnectionParams(device, BluetoothProfile.HEADSET_CLIENT);
+                connectParams = new ConnectionParams(BluetoothProfile.HEADSET_CLIENT, device);
                 int currState = intent.getIntExtra(BluetoothProfile.EXTRA_STATE,
                         BluetoothProfile.STATE_DISCONNECTED);
                 notifyConnectionStatus(connectParams, currState);
 
             } else if (BluetoothPbapClient.ACTION_CONNECTION_STATE_CHANGED.equals(action)) {
-                connectParams = new ConnectionParams(device, BluetoothProfile.PBAP_CLIENT);
+                connectParams = new ConnectionParams(BluetoothProfile.PBAP_CLIENT, device);
                 int currState = intent.getIntExtra(BluetoothProfile.EXTRA_STATE,
                         BluetoothProfile.STATE_DISCONNECTED);
                 notifyConnectionStatus(connectParams, currState);
 
             } else if (BluetoothMapClient.ACTION_CONNECTION_STATE_CHANGED.equals(action)) {
-                connectParams = new ConnectionParams(device, BluetoothProfile.MAP_CLIENT);
+                connectParams = new ConnectionParams(BluetoothProfile.MAP_CLIENT, device);
                 int currState = intent.getIntExtra(BluetoothProfile.EXTRA_STATE,
                         BluetoothProfile.STATE_DISCONNECTED);
                 notifyConnectionStatus(connectParams, currState);
 
             } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                int currState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-                        -1);
+                int currState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
                 if (DBG) {
                     Log.d(TAG, "Bluetooth Adapter State: " + currState);
                 }
                 if (currState == BluetoothAdapter.STATE_ON) {
-                    // Initialize and populate (from file if available) the
+                    // Read from Settings which devices to connect to and populate
                     // mProfileToConnectableDevicesMap
-                    rebuildDeviceMapFromDeviceInfoLocked();
+                    readAndRebuildDeviceMapFromSettings();
                     initiateConnection();
                 } else if (currState == BluetoothAdapter.STATE_OFF) {
                     // Write currently connected device snapshot to file.
-                    writeDeviceInfoToFile();
+                    writeDeviceInfoToSettings();
                     resetBluetoothDevicesConnectionInfo();
                 }
             }
         }
+    }
+
+    /**
+     * Cleanup state and reinitialize whenever we connect to the PerUserCarService.
+     * This happens in init() and whenever the PerUserCarService is restarted on User Switch Events
+     */
+    private class UserServiceConnectionCallback implements PerUserCarServiceHelper.ServiceCallback {
+        @Override
+        public void onServiceConnected(ICarUserService carUserService) {
+            if (mCarUserServiceAccessLock != null) {
+                mCarUserServiceAccessLock.lock();
+                try {
+                    mCarUserService = carUserService;
+                } finally {
+                    mCarUserServiceAccessLock.unlock();
+                }
+            }
+            if (DBG) {
+                Log.d(TAG, "Connected to PerUserCarService");
+            }
+            // Clean up information related to user who went background.
+            cleanupUserSpecificInfo();
+            // re-initialize for current user.
+            initializeUserSpecificInfo();
+        }
+
+        @Override
+        public void onPreUnbind() {
+            if (DBG) {
+                Log.d(TAG, "Before Unbinding from UserService");
+            }
+            try {
+                if (mCarBluetoothUserService != null) {
+                    mCarBluetoothUserService.closeBluetoothConnectionProxy();
+                }
+            } catch (RemoteException e) {
+                Log.e(TAG,
+                        "Remote Exception during closeBluetoothConnectionProxy(): " + e.getMessage());
+            }
+
+        }
+        @Override
+        public void onServiceDisconnected() {
+            if (DBG) {
+                Log.d(TAG, "Disconnected from PerUserCarService");
+            }
+            if (mCarUserServiceAccessLock != null) {
+                mCarUserServiceAccessLock.lock();
+                try {
+                    mCarBluetoothUserService = null;
+                    mCarUserService = null;
+                } finally {
+                    mCarUserServiceAccessLock.unlock();
+                }
+            }
+        }
+    }
+
+    /**
+     * Gets the Per User Car Bluetooth Service (ICarBluetoothService) from the PerUserCarService
+     * which acts as a top level Service running in the current user context.
+     * Also sets up the connection proxy objects required to communicate with the Bluetooth
+     * Profile Services.
+     * @return ICarBluetoothUserService running in current user
+     */
+    private ICarBluetoothUserService setupBluetoothUserService() {
+        ICarBluetoothUserService carBluetoothUserService = null;
+
+        if (mCarUserService != null) {
+            try {
+                carBluetoothUserService = mCarUserService.getBluetoothUserService();
+                if (carBluetoothUserService != null) {
+                    if (DBG) {
+                        Log.d(TAG, "Got CarBTUsrSvc");
+                    }
+                    carBluetoothUserService.setupBluetoothConnectionProxy();
+                }
+
+            } catch (RemoteException e) {
+                Log.e(TAG, "Remote Service Exception on ServiceConnection Callback: "
+                        + e.getMessage());
+            }
+        } else {
+            if (DBG) {
+                Log.d(TAG, "PerUserCarService not connected");
+            }
+        }
+        return carBluetoothUserService;
     }
 
     /**
@@ -252,31 +385,42 @@ public class BluetoothDeviceConnectionPolicy {
         if (DBG) {
             Log.d(TAG, "init()");
         }
-        initDeviceMap();
         // Register for various intents from the Bluetooth service.
-        mReceiver = new BluetoothBroadcastReceiver();
-        // Create a new ConnectionParams object to keep track of device & profile that are being
-        // connected to.
-        mConnectionInFlight = new ConnectionParams();
-        setupIntentFilter();
-        // Make connections to Profile Services.
-        setupProfileProxy();
-        mBluetoothAutoConnectStateMachine = BluetoothAutoConnectStateMachine.make(this);
+        mBluetoothBroadcastReceiver = new BluetoothBroadcastReceiver();
+        // Initialize information specific to current user.
+        initializeUserSpecificInfo();
         // Listen to various events coming from the vehicle.
-        setupEventListeners();
-
+        setupEventListenersLocked();
         mInitialized = true;
     }
 
     /**
-     * Setting up the intent filter to the connection and bonding state changes we are interested
-     * in.
+     * Setup and initialize information that is specific per User account, which involves:
+     * 1. Reading the list of devices to connect for current user and initialize the deviceMap
+     * with that information.
+     * 2. Register a BroadcastReceiver for bluetooth related events for the current user.
+     * 3. Start and bind to {@link PerUserCarService} as current user.
+     * 4. Start the {@link BluetoothAutoConnectStateMachine}
+     */
+    private synchronized void initializeUserSpecificInfo() {
+        readAndRebuildDeviceMapFromSettings();
+        setupBluetoothEventsIntentFilter();
+
+        mBluetoothAutoConnectStateMachine = BluetoothAutoConnectStateMachine.make(this);
+        mConnectionInFlight = new ConnectionParams();
+        // Get the BluetoothUserService and also setup the Bluetooth Connection Proxy for
+        // all profiles.
+        mCarBluetoothUserService = setupBluetoothUserService();
+    }
+
+    /**
+     * Setting up the Intent filter for Bluetooth related broadcasts
      * This includes knowing when the
      * 1. Bluetooth Adapter turned on/off
      * 2. Bonding State of a device changes
      * 3. A specific profile's connection state changes.
      */
-    private void setupIntentFilter() {
+    private void setupBluetoothEventsIntentFilter() {
         IntentFilter profileFilter = new IntentFilter();
         profileFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         profileFilter.addAction(BluetoothA2dpSink.ACTION_CONNECTION_STATE_CHANGED);
@@ -284,10 +428,8 @@ public class BluetoothDeviceConnectionPolicy {
         profileFilter.addAction(BluetoothPbapClient.ACTION_CONNECTION_STATE_CHANGED);
         profileFilter.addAction(BluetoothMapClient.ACTION_CONNECTION_STATE_CHANGED);
         profileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        mContext.registerReceiver(mReceiver, profileFilter);
-        if (DBG) {
-            Log.d(TAG, "Intent Receiver Registered");
-        }
+        mContext.registerReceiverAsUser(mBluetoothBroadcastReceiver, UserHandle.CURRENT,
+                profileFilter, null, null);
     }
 
     /**
@@ -296,30 +438,17 @@ public class BluetoothDeviceConnectionPolicy {
      * method retrieves it from persistent memory.
      */
     private synchronized void initDeviceMap() {
-        boolean result = readDeviceInfoFromFile();
-        if (!result && mProfileToConnectableDevicesMap == null) {
+        if (mProfileToConnectableDevicesMap == null) {
             mProfileToConnectableDevicesMap = new HashMap<>();
             for (Integer profile : mProfilesToConnect) {
-                mProfileToConnectableDevicesMap.put(profile, new BluetoothDevicesInfo(profile));
+                // Build the BluetoothDevicesInfo for this profile.
+                BluetoothDevicesInfo devicesInfo = new BluetoothDevicesInfo(profile,
+                        mNumSupportedActiveConnections.get(profile));
+                mProfileToConnectableDevicesMap.put(profile, devicesInfo);
             }
             if (DBG) {
-                Log.d(TAG, "new Device Map created");
+                Log.d(TAG, "Created a new empty Device Map");
             }
-        }
-    }
-
-    /**
-     * Setup connections to the profile proxy object to talk to the Bluetooth profile services
-     */
-    private void setupProfileProxy() {
-        if (DBG) {
-            Log.d(TAG, "setupProfileProxy()");
-        }
-        if (mBluetoothAdapter == null) {
-            return;
-        }
-        for (Integer profile : mProfilesToConnect) {
-            mBluetoothAdapter.getProfileProxy(mContext, mProfileListener, profile);
         }
     }
 
@@ -327,13 +456,15 @@ public class BluetoothDeviceConnectionPolicy {
      * Setting up Listeners to the various events we are interested in listening to for initiating
      * Bluetooth connection attempts.
      */
-    private void setupEventListeners() {
+    private void setupEventListenersLocked() {
         // Setting up a listener for events from CarCabinService
         // For now, we listen to door unlock signal coming from {@link CarCabinService},
         // and Ignition state START from {@link CarSensorService}
         mCarCabinService.registerListener(mCabinEventListener);
         mCarSensorService.registerOrUpdateSensorListener(
                 CarSensorManager.SENSOR_TYPE_IGNITION_STATE, 0, mCarSensorEventListener);
+
+        mUserServiceHelper.registerServiceCallback(mServiceCallback);
     }
 
     /**
@@ -373,11 +504,10 @@ public class BluetoothDeviceConnectionPolicy {
      * Upon receiving the event that is of interest, initiate a connection attempt by calling
      * the policy {@link BluetoothDeviceConnectionPolicy}
      */
-
     private class CarSensorEventListener extends ICarSensorEventListener.Stub {
         @Override
         public void onSensorChanged(List<CarSensorEvent> events) throws RemoteException {
-            if (events != null && !events.isEmpty()) {
+            if (events != null & !events.isEmpty()) {
                 CarSensorEvent event = events.get(0);
                 if (DBG) {
                     Log.d(TAG, "Sensor event Type : " + event.sensorType);
@@ -403,14 +533,20 @@ public class BluetoothDeviceConnectionPolicy {
             Log.d(TAG, "release()");
         }
         mInitialized = false;
-
-        writeDeviceInfoToFile();
+        writeDeviceInfoToSettings();
+        cleanupUserSpecificInfo();
         closeEventListeners();
-        // Closing the connections to the Profile Services
-        closeProfileProxy();
-        mConnectionInFlight = null;
+    }
+
+    /**
+     * Clean up information related to user who went background.
+     */
+    private synchronized void cleanupUserSpecificInfo() {
         // quit the state machine
         mBluetoothAutoConnectStateMachine.doQuit();
+        mProfileToConnectableDevicesMap = null;
+        mConnectionInFlight = null;
+        mContext.unregisterReceiver(mBluetoothBroadcastReceiver);
     }
 
     /**
@@ -418,27 +554,10 @@ public class BluetoothDeviceConnectionPolicy {
      * CarService
      */
     private void closeEventListeners() {
-        // b/34723490 - Need to add more events other than the Cabin Event.
         if (mCabinEventListener != null) {
             mCarCabinService.unregisterListener(mCabinEventListener);
         }
-    }
-
-    /**
-     * Close connections to the profile proxy object
-     */
-    private void closeProfileProxy() {
-        if (mBluetoothAdapter == null) {
-            return;
-        }
-        if (DBG) {
-            Log.d(TAG, "closeProfileProxy()");
-        }
-        mBluetoothAdapter.closeProfileProxy(BluetoothProfile.A2DP_SINK, mBluetoothA2dpSink);
-        mBluetoothAdapter.closeProfileProxy(BluetoothProfile.HEADSET_CLIENT,
-                mBluetoothHeadsetClient);
-        mBluetoothAdapter.closeProfileProxy(BluetoothProfile.PBAP_CLIENT, mBluetoothPbapClient);
-        mBluetoothAdapter.closeProfileProxy(BluetoothProfile.MAP_CLIENT, mBluetoothMapClient);
+        mUserServiceHelper.unregisterServiceCallback(mServiceCallback);
     }
 
     /**
@@ -446,7 +565,7 @@ public class BluetoothDeviceConnectionPolicy {
      * a clean slate.  The ConnectionInfo has all the book keeping information regarding the state
      * of connection attempts - like which device in the device list for the profile is the next
      * to try connecting etc.
-     * This method does not clear the {@link BluetoothDevicesInfo#mDeviceList} like the {@link
+     * This method does not clear the {@link BluetoothDevicesInfo#mDeviceInfoList} like the {@link
      * #resetProfileToConnectableDevicesMap()} method does.
      */
     private synchronized void resetBluetoothDevicesConnectionInfo() {
@@ -556,59 +675,21 @@ public class BluetoothDeviceConnectionPolicy {
         if (mBluetoothAdapter.isEnabled()) {
             if (isDeviceMapEmpty()) {
                 if (DBG) {
-                    Log.d(TAG, "Device Map is empty. Querying bonded devices");
+                    Log.d(TAG, "Device Map is empty. Nothing to connect to");
                 }
-                if (populateDeviceMapFromBondedDevices() == false) {
-                    if (DBG) {
-                        Log.d(TAG, "No bonded devices");
-                    }
-                    return;
-                }
+                return;
             }
             resetDeviceAvailableToConnect();
             if (DBG) {
                 Log.d(TAG, "initiateConnection() Reset Device Availability");
             }
-            mBluetoothAutoConnectStateMachine.sendMessage(BluetoothAutoConnectStateMachine.CONNECT);
+            mBluetoothAutoConnectStateMachine.sendMessage(BluetoothAutoConnectStateMachine
+                    .CONNECT);
         } else {
             if (DBG) {
                 Log.d(TAG, "Bluetooth Adapter not enabled.");
             }
         }
-    }
-
-    /**
-     * If, for some reason, the {@link #mProfileToConnectableDevicesMap} is empty, query the
-     * Bluetooth stack
-     * for the list of bonded devices and use it to populate the {@link
-     * #mProfileToConnectableDevicesMap}.
-     *
-     * @return true if devices were added
-     * false if the bonded device list is also empty.
-     */
-    private synchronized boolean populateDeviceMapFromBondedDevices() {
-        if (mBluetoothAdapter == null) {
-            return false;
-        }
-        Set<BluetoothDevice> bondedDevices = mBluetoothAdapter.getBondedDevices();
-        if (bondedDevices == null || bondedDevices.isEmpty()) {
-            if (DBG) {
-                Log.d(TAG, "populateDeviceMapFromBondedDevices() - No bonded devices");
-            }
-            return false;
-        }
-
-        for (BluetoothDevice bd : bondedDevices) {
-            for (Integer profile : mProfilesToConnect) {
-                if (bd != null) {
-                    if (DBG) {
-                        Log.d(TAG, "Adding device: " + bd.getName() + " profile: " + profile);
-                    }
-                    mProfileToConnectableDevicesMap.get(profile).addDeviceLocked(bd);
-                }
-            }
-        }
-        return true;
     }
 
     /**
@@ -622,9 +703,16 @@ public class BluetoothDeviceConnectionPolicy {
     public synchronized boolean findDeviceToConnect() {
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()
                 || mProfileToConnectableDevicesMap == null || !mInitialized) {
+            if (DBG) {
+                if (mProfileToConnectableDevicesMap == null) {
+                    Log.d(TAG, "findDeviceToConnect(): Device Map null");
+                } else {
+                    Log.d(TAG, "findDeviceToConnect(): BT Adapter not enabled");
+                }
+            }
             return false;
         }
-        boolean deviceFound = false;
+        boolean connectingToADevice = false;
         // Get the first unconnected profile that we can try to make a connection
         Integer nextProfile = getNextProfileToConnectLocked();
         // Keep going through the profiles until we find a device that we can connect to
@@ -633,16 +721,17 @@ public class BluetoothDeviceConnectionPolicy {
                 Log.d(TAG, "connectToProfile(): " + nextProfile);
             }
             // find a device that is next in line for a connection attempt for that profile
-            deviceFound = tryNextDeviceInQueueLocked(nextProfile);
+            // and try connecting to it.
+            connectingToADevice = connectToNextDeviceInQueueLocked(nextProfile);
             // If we found a device to connect, break out of the loop
-            if (deviceFound) {
+            if (connectingToADevice) {
                 if (DBG) {
                     Log.d(TAG, "Found device to connect to");
                 }
                 BluetoothDeviceConnectionPolicy.ConnectionParams btParams =
                         new BluetoothDeviceConnectionPolicy.ConnectionParams(
-                                mConnectionInFlight.getBluetoothDevice(),
-                                mConnectionInFlight.getBluetoothProfile());
+                                mConnectionInFlight.getBluetoothProfile(),
+                                mConnectionInFlight.getBluetoothDevice());
                 // set up a time out
                 mBluetoothAutoConnectStateMachine.sendMessageDelayed(
                         BluetoothAutoConnectStateMachine.CONNECT_TIMEOUT, btParams,
@@ -658,7 +747,7 @@ public class BluetoothDeviceConnectionPolicy {
                 nextProfile = getNextProfileToConnectLocked();
             }
         }
-        return deviceFound;
+        return connectingToADevice;
     }
 
     /**
@@ -673,8 +762,7 @@ public class BluetoothDeviceConnectionPolicy {
         for (Integer profile : mProfilesToConnect) {
             BluetoothDevicesInfo devInfo = mProfileToConnectableDevicesMap.get(profile);
             if (devInfo != null) {
-                if (devInfo.isConnectedLocked() == false
-                        && devInfo.isDeviceAvailableToConnectLocked() == true) {
+                if (devInfo.isProfileConnectableLocked()) {
                     return profile;
                 }
             } else {
@@ -682,6 +770,9 @@ public class BluetoothDeviceConnectionPolicy {
             }
         }
         // Reaching here denotes all profiles are connected or No devices available for any profile
+        if (DBG) {
+            Log.d(TAG, "No disconnected profiles");
+        }
         return PROFILE_NOT_AVAILABLE;
     }
 
@@ -692,110 +783,85 @@ public class BluetoothDeviceConnectionPolicy {
      * @return - true if we found a device to connect on for this profile
      * false - if we cannot find a device to connect to.
      */
-
-    private boolean tryNextDeviceInQueueLocked(Integer profile) {
+    private boolean connectToNextDeviceInQueueLocked(Integer profile) {
         // Get the Device Information for the given profile and find the next device to connect on
-        boolean deviceAvailable = true;
+        boolean connecting = true;
+        boolean proxyAvailable = true;
+        BluetoothDevice devToConnect = null;
         BluetoothDevicesInfo devInfo = mProfileToConnectableDevicesMap.get(profile);
         if (devInfo == null) {
             Log.e(TAG, "Unexpected: No device Queue for this profile: " + profile);
             return false;
         }
-        BluetoothDevice devToConnect = devInfo.getNextDeviceInQueueLocked();
-        if (devToConnect != null) {
-            switch (profile) {
-                case BluetoothProfile.A2DP_SINK:
-                    if (mBluetoothA2dpSink != null) {
-                        if (DBG) {
-                            Log.d(TAG,
-                                    "Connecting device " + devToConnect.getName() + " on A2DPSink");
-                        }
-                        mBluetoothA2dpSink.connect(devToConnect);
-                    } else {
-                        if (DBG) {
-                            Log.d(TAG, "Unexpected: BluetoothA2dpSink Profile proxy null");
-                        }
-                        deviceAvailable = false;
-                    }
-                    break;
-
-                case BluetoothProfile.HEADSET_CLIENT:
-                    if (mBluetoothHeadsetClient != null) {
-                        if (DBG) {
-                            Log.d(TAG, "Connecting device " + devToConnect.getName()
-                                    + " on HeadSetClient");
-                        }
-                        mBluetoothHeadsetClient.connect(devToConnect);
-                    } else {
-                        if (DBG) {
-                            Log.d(TAG, "Unexpected: BluetoothHeadsetClient Profile proxy null");
-                        }
-                        deviceAvailable = false;
-                    }
-                    break;
-
-                case BluetoothProfile.PBAP_CLIENT:
-                    if (mBluetoothPbapClient != null) {
-                        if (DBG) {
-                            Log.d(TAG, "Connecting device " + devToConnect.getName()
-                                    + " on PbapClient");
-                        }
-                        mBluetoothPbapClient.connect(devToConnect);
-                    } else {
-                        if (DBG) {
-                            Log.d(TAG, "Unexpected: BluetoothPbapClient Profile proxy null");
-                        }
-                        deviceAvailable = false;
-                    }
-                    break;
-
-                case BluetoothProfile.MAP_CLIENT:
-                    if (mBluetoothMapClient != null) {
-                        if (DBG) {
-                            Log.d(TAG, "Connecting device " + devToConnect.getName()
-                                    + " on MAPClient");
-                        }
-                        mBluetoothMapClient.connect(devToConnect);
-                    } else {
-                        if (DBG) {
-                            Log.d(TAG, "Unexpected: BluetoothMAPClient Profile proxy null");
-                        }
-                        deviceAvailable = false;
-                    }
-                    break;
-
-                default:
+        // Check if the Bluetooth profile service's proxy object is available before
+        // attempting to connect.
+        if (mCarBluetoothUserService == null) {
+            mCarBluetoothUserService = setupBluetoothUserService();
+        }
+        if (mCarBluetoothUserService != null) {
+            try {
+                if (!mCarBluetoothUserService.isBluetoothConnectionProxyAvailable(profile)) {
+                    // proxy unavailable.
                     if (DBG) {
-                        Log.d(TAG, "Unsupported Bluetooth profile being tried for connection: "
-                                + profile);
+                        Log.d(TAG,
+                                "Proxy for Bluetooth Profile Service Unavailable: " + profile);
                     }
-                    break;
-            }
-            // Increment the retry count & cache what is being connected to
-            if (deviceAvailable) {
-                // This method is already called from a synchronized context.
-                mConnectionInFlight.setBluetoothDevice(devToConnect);
-                mConnectionInFlight.setBluetoothProfile(profile);
-                devInfo.incrementRetryCountLocked();
-                if (DBG) {
-                    Log.d(TAG, "Increment Retry to: " + devInfo.getRetryCountLocked());
+                    proxyAvailable = false;
                 }
-            } else {
-                if (DBG) {
-                    Log.d(TAG, "Not incrementing retry.");
-                }
+            } catch (RemoteException e) {
+                Log.e(TAG, "Car BT Service Remote Exception.");
+                proxyAvailable = false;
             }
         } else {
-            if (DBG) {
-                Log.d(TAG, "No paired nearby device to connect to for profile: " + profile);
+            Log.d(TAG, "CarBluetoothUserSvc null.  Car service not bound to PerUserCarSvc.");
+            proxyAvailable = false;
+        }
+
+        if (proxyAvailable) {
+            // Get the next device in the device list for this profile.
+            devToConnect = devInfo.getNextDeviceInQueueLocked();
+            if (devToConnect != null) {
+                // deviceAvailable && proxyAvailable
+                try {
+                    if (mCarBluetoothUserService != null) {
+                        mCarBluetoothUserService.bluetoothConnectToProfile((int) profile,
+                                devToConnect);
+                    } else {
+                        Log.e(TAG, "CarBluetoothUserSvc null");
+                        connecting = false;
+                    }
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Remote User Service stopped responding: " + e.getMessage());
+                    connecting = false;
+                }
+            } else {
+                // device unavailable
+                if (DBG) {
+                    Log.d(TAG, "No paired nearby device to connect to for profile: " + profile);
+                }
+                connecting = false;
             }
+        } else {
+            connecting = false;
+        }
+
+        if (connecting && devToConnect != null) {
+            devInfo.setConnectionStateLocked(devToConnect, BluetoothProfile.STATE_CONNECTING);
+            // Increment the retry count & cache what is being connected to
+            // This method is already called from a synchronized context.
+            mConnectionInFlight.setBluetoothDevice(devToConnect);
+            mConnectionInFlight.setBluetoothProfile(profile);
+            devInfo.incrementRetryCountLocked();
+            if (DBG) {
+                Log.d(TAG, "Increment Retry to: " + devInfo.getRetryCountLocked());
+            }
+        } else {
             // reset the mConnectionInFlight
             mConnectionInFlight.setBluetoothProfile(0);
             mConnectionInFlight.setBluetoothDevice(null);
             devInfo.setDeviceAvailableToConnectLocked(false);
-            deviceAvailable = false;
         }
-        return deviceAvailable;
+        return connecting;
     }
 
     /**
@@ -879,8 +945,9 @@ public class BluetoothDeviceConnectionPolicy {
 
             if (mConnectionInFlight != null && mConnectionInFlight.getBluetoothDevice() != null) {
                 if (deviceThatConnected.equals(mConnectionInFlight.getBluetoothDevice()) == false) {
-                    Log.d(TAG, "Connected device " + deviceThatConnected.getName()
-                            + " different from connection in flight");
+                    Log.d(TAG, "Updating device: " + deviceThatConnected.getName()
+                            + " different from connection in flight: "
+                            + mConnectionInFlight.getBluetoothDevice().getName());
 
                 }
             }
@@ -900,7 +967,7 @@ public class BluetoothDeviceConnectionPolicy {
         }
         devInfo.updateConnectionStatusLocked(deviceThatConnected, didConnect, retry);
         // Write to persistent memory to have the latest snapshot available
-        writeDeviceInfoToFile();
+        writeDeviceInfoToSettings(params);
         return true;
     }
 
@@ -975,162 +1042,130 @@ public class BluetoothDeviceConnectionPolicy {
         if (mProfileToConnectableDevicesMap == null) {
             return;
         }
-        writer.println("Bluetooth Profile -> Connectable Device List ");
         for (BluetoothDevicesInfo devInfo : mProfileToConnectableDevicesMap.values()) {
-            writer.println("Profile: " + devInfo.getProfileLocked() + "\t");
-            writer.print("Connected: " + devInfo.isConnectedLocked() +
-                    "\t Device Available: " + devInfo.isDeviceAvailableToConnectLocked());
+            writer.print("Profile: " + devInfo.getProfileLocked() + "\t");
+            writer.print("Active Connections: " + devInfo.getNumberOfActiveConnectionsLocked());
             writer.println();
-            writer.println("Device List:");
-            List<BluetoothDevice> deviceList = devInfo.getDeviceList();
-            if (deviceList != null) {
-                for (BluetoothDevice device : deviceList) {
-                    writer.print(device.getName() + "\t");
+            List<BluetoothDevicesInfo.DeviceInfo> deviceInfoList = devInfo.getDeviceInfoList();
+            if (deviceInfoList != null) {
+                for (BluetoothDevicesInfo.DeviceInfo devicesInfo : deviceInfoList) {
+                    if (devicesInfo.getBluetoothDevice() != null) {
+                        writer.print(devicesInfo.getBluetoothDevice().getName() + ":");
+                        writer.print(devicesInfo.getConnectionState() + "\t");
+                    }
                 }
+                writer.println();
             }
         }
     }
 
     /**
-     * Utility function - could be called from a adb shell dump command to dump the
-     * {@link #mProfileToConnectableDevicesInfo}
-     *
-     * @param writer - PrintWriter
-     */
-    public synchronized void printDeviceInfo(PrintWriter writer) {
-        if (mProfileToConnectableDevicesInfo == null) {
-            Log.d(TAG, "mProfileToConnectableDevicesInfo null");
-            return;
-        }
-        writer.println("Bluetooth Profile -> device Info");
-        for (Map.Entry<Integer, List<String>> entry : mProfileToConnectableDevicesInfo.entrySet()) {
-            writer.println("Profile: " + entry.getKey());
-            for (String devname : entry.getValue()) {
-                writer.print(devname + "\t");
-            }
-            writer.println();
-        }
-    }
-
-    /**
-     * Write information about which devices connected on which profile to persistent memory.
-     * Essentially the list of devices that a profile can connect on the next auto-connect
-     * attempt.
+     * Write the device list for all bluetooth profiles that connected.
      *
      * @return true if the write was successful, false otherwise
      */
-    public synchronized boolean writeDeviceInfoToFile() {
+    private synchronized boolean writeDeviceInfoToSettings() {
+        ConnectionParams params;
+        boolean writeResult;
+        for (Integer profile : mProfilesToConnect) {
+            params = new ConnectionParams(profile);
+            writeResult = writeDeviceInfoToSettings(params);
+            if (!writeResult) {
+                Log.e(TAG, "Error writing Device Info for profile:" + profile);
+                return writeResult;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Write information about which devices connected on which profile to Settings.Secure.
+     * Essentially the list of devices that a profile can connect on the next auto-connect
+     * attempt.
+     *
+     * @param params - ConnectionParams indicating which bluetooth profile to write this
+     *               information
+     *               for.
+     * @return true if the write was successful, false otherwise
+     */
+    public synchronized boolean writeDeviceInfoToSettings(ConnectionParams params) {
         boolean writeSuccess = true;
+        Integer profileToUpdate = params.getBluetoothProfile();
+
         if (mProfileToConnectableDevicesMap == null) {
             writeSuccess = false;
         } else {
-            extractDeviceInfoFromDeviceMapLocked();
-            try {
-                AtomicFile oFile = new AtomicFile(
-                        new File(mContext.getFilesDir(), DEVICE_INFO_FILE));
-                FileOutputStream outFile = oFile.startWrite();
-                ObjectOutputStream ostream = new ObjectOutputStream(outFile);
-                ostream.writeObject(mProfileToConnectableDevicesInfo);
-                ostream.flush();
-                ostream.close();
-                oFile.finishWrite(outFile);
-                outFile.close();
-                if (DBG) {
-                    Log.d(TAG, "Writing successful");
+            List<String> deviceNames = new ArrayList<>();
+            BluetoothDevicesInfo devicesInfo = mProfileToConnectableDevicesMap.get(profileToUpdate);
+            StringBuilder sb = new StringBuilder();
+            String delimiter = ""; // start off with no delimiter.
+
+            // Iterate through the List<BluetoothDevice> and build a String that is
+            // names of all devices to be connected for this profile joined together and
+            // delimited by a delimiter (its a ',' here)
+            if (devicesInfo != null && devicesInfo.getDeviceList() != null) {
+                for (BluetoothDevice device : devicesInfo.getDeviceList()) {
+                    sb.append(delimiter);
+                    sb.append(device.getAddress());
+                    delimiter = SETTINGS_DELIMITER;
                 }
-            } catch (IOException e) {
-                Log.e(TAG, e.getMessage());
-                writeSuccess = false;
+
+            }
+            // joinedDeviceNames has something like "22:22:33:44:55:AB,22:23:xx:xx:xx:xx"
+            // mac addresses of connectable devices separated by a delimiter
+            String joinedDeviceNames = sb.toString();
+            Log.d(TAG, "Profile: " + profileToUpdate + " Writing: " + joinedDeviceNames);
+
+            long userId = ActivityManager.getCurrentUser();
+            switch (profileToUpdate) {
+                case BluetoothProfile.A2DP_SINK:
+                    Settings.Secure.putStringForUser(mContext.getContentResolver(),
+                            KEY_BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES,
+                            joinedDeviceNames, (int) userId);
+                    break;
+
+                case BluetoothProfile.HEADSET_CLIENT:
+                    Settings.Secure.putStringForUser(mContext.getContentResolver(),
+                            KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES,
+                            joinedDeviceNames, (int) userId);
+                    break;
+
+                case BluetoothProfile.PBAP_CLIENT:
+                    // use the phone
+                    break;
+
+                case BluetoothProfile.MAP_CLIENT:
+                    Settings.Secure.putStringForUser(mContext.getContentResolver(),
+                            KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES,
+                            joinedDeviceNames, (int) userId);
+                    break;
+
             }
         }
         return writeSuccess;
     }
 
-
     /**
-     * Extracts {@link #mProfileToConnectableDevicesInfo} from
-     * {@link #mProfileToConnectableDevicesMap}
-     * {@link #mProfileToConnectableDevicesInfo} is a map of Profiles to List of names of
-     * Connectable
-     * devices that gets written to a file.
-     */
-    private void extractDeviceInfoFromDeviceMapLocked() {
-        mProfileToConnectableDevicesInfo = new HashMap<Integer, List<String>>();
-
-        for (Map.Entry<Integer, BluetoothDevicesInfo> entry : mProfileToConnectableDevicesMap
-                .entrySet()) {
-            // for every entry, extract the Profile and the list of device names
-            Integer profile = entry.getKey();
-            if (DBG) {
-                Log.d(TAG, "Extracting for profile " + profile);
-            }
-            List<String> deviceNames = new ArrayList<>();
-            BluetoothDevicesInfo devicesInfo = entry.getValue();
-            // Iterate through the List<BluetoothDevice> and build List<DeviceNames>
-            if (devicesInfo != null && devicesInfo.getDeviceList() != null) {
-                for (BluetoothDevice device : devicesInfo.getDeviceList()) {
-                    deviceNames.add(device.getName());
-                    if (DBG) {
-                        Log.d(TAG, "Device: " + device.getName());
-                    }
-                }
-            }
-            mProfileToConnectableDevicesInfo.put(profile, deviceNames);
-        }
-    }
-
-    /**
-     * Read the device information from file and populate the
+     * Read the device information from Settings.Secure and populate the
      * {@link #mProfileToConnectableDevicesMap}
      *
-     * @return - true if the read was successful, false if not.
-     */
-    public synchronized boolean readDeviceInfoFromFile() {
-        boolean readSuccess = true;
-        try {
-            AtomicFile iFile = new AtomicFile(new File(mContext.getFilesDir(), DEVICE_INFO_FILE));
-            if (DBG) {
-                Log.d(TAG, "Reading from file");
-            }
-            FileInputStream inFile = iFile.openRead();
-            ObjectInputStream istream = new ObjectInputStream(inFile);
-            mProfileToConnectableDevicesInfo =
-                    (HashMap<Integer, List<String>>) istream.readObject();
-            istream.close();
-            inFile.close();
-        } catch (IOException | ClassNotFoundException e) {
-            Log.e(TAG, e.getMessage());
-            if (DBG) {
-                Log.d(TAG, "No previously connected device information available");
-            }
-            readSuccess = false;
-        }
-
-        if (readSuccess) {
-            readSuccess = rebuildDeviceMapFromDeviceInfoLocked();
-        }
-        return readSuccess;
-    }
-
-    /**
-     * Rebuild the {@link #mProfileToConnectableDevicesMap} from the {@link
-     * #mProfileToConnectableDevicesInfo}
+     * Device MAC addresses are written to Settings.Secure delimited by a ','.
+     * Ex: android.car.BLUETOOTH_AUTOCONNECT_PHONE_DEVICES: xx:xx:xx:xx:xx:xx,yy:yy:yy:yy:yy
+     * denotes that two devices with addresses xx:xx:xx:xx:xx:xx & yy:yy:yy:yy:yy:yy were connected
+     * as phones (in HFP and PBAP profiles) the last time this user was logged in.
      *
-     * @return true if the reconstruction was successful, false if not.
+     * @return - true if the read was successful, false if 1. BT Adapter not enabled 2. No prior
+     * bonded devices 3. No information stored in Settings for this user.
      */
-    private boolean rebuildDeviceMapFromDeviceInfoLocked() {
-        if (DBG) {
-            Log.d(TAG, "Rebuilding device map");
-        }
-
-        if (mProfileToConnectableDevicesInfo == null) {
-            Log.w(TAG, "No Device Info to rebuild the Device Map");
-            return false;
-        }
-
+    public synchronized boolean readAndRebuildDeviceMapFromSettings() {
+        List<String> deviceList;
+        String devices = null;
+        // Create and initialize mProfileToConnectableDevicesMap if needed.
+        initDeviceMap();
         if (mBluetoothAdapter != null) {
             if (DBG) {
-                Log.d(TAG, "Bonded devices size:" + mBluetoothAdapter.getBondedDevices().size());
+                Log.d(TAG,
+                        "Number of Bonded devices:" + mBluetoothAdapter.getBondedDevices().size());
             }
             if (mBluetoothAdapter.getBondedDevices().isEmpty()) {
                 if (DBG) {
@@ -1139,32 +1174,65 @@ public class BluetoothDeviceConnectionPolicy {
                 return false;
             }
         }
+        // Read from Settings.Secure for the current user.  There are 3 keys 1 each for Phone
+        // (HFP & PBAP), 1 for Music (A2DP) and 1 for Messaging device (MAP)
+        long userId = ActivityManager.getCurrentUser();
+        for (Integer profile : mProfilesToConnect) {
+            switch (profile) {
+                case BluetoothProfile.A2DP_SINK:
+                    devices = Settings.Secure.getStringForUser(mContext.getContentResolver(),
+                            KEY_BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES, (int) userId);
+                    break;
+                case BluetoothProfile.PBAP_CLIENT:
+                    // fall through
+                case BluetoothProfile.HEADSET_CLIENT:
+                    devices = Settings.Secure.getStringForUser(mContext.getContentResolver(),
+                            KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES, (int) userId);
+                    break;
+                case BluetoothProfile.MAP_CLIENT:
+                    devices = Settings.Secure.getStringForUser(mContext.getContentResolver(),
+                            KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES, (int) userId);
+                    break;
+                default:
+                    Log.e(TAG, "Unexpected profile");
+                    break;
+            }
 
-        // Iterate through the Map's entries and build the {@link #mProfileToConnectableDevicesMap}
-        if (mProfileToConnectableDevicesMap == null) {
-            mProfileToConnectableDevicesMap = new HashMap<>();
-        }
-
-        for (Map.Entry<Integer, List<String>> entry : mProfileToConnectableDevicesInfo.entrySet()) {
-            Integer profile = entry.getKey();
-            List<String> deviceList = entry.getValue();
-            // Build the BluetoothDevicesInfo for this profile.
-            BluetoothDevicesInfo devicesInfo = new BluetoothDevicesInfo(profile);
+            if (devices == null) {
+                if (DBG) {
+                    Log.d(TAG, "No device information stored in Settings");
+                }
+                return false;
+            }
+            if (DBG) {
+                Log.d(TAG, "Devices: " + devices);
+            }
+            // Get a list of Device Mac Addresses from the value
+            deviceList = Arrays.asList(devices.split(SETTINGS_DELIMITER));
+            if (deviceList == null) {
+                return false;
+            }
+            BluetoothDevicesInfo devicesInfo = mProfileToConnectableDevicesMap.get(profile);
             // Do we have a bonded device with this name?  If so, get it and populate the device
             // map.
-            for (String name : deviceList) {
-                BluetoothDevice deviceToAdd = getBondedDeviceWithGivenName(name);
+            for (String address : deviceList) {
+                if (DBG) {
+                    Log.d(TAG, "Rebuilding - looking for " + address + " profile :" + profile);
+                }
+                BluetoothDevice deviceToAdd = getBondedDeviceWithGivenName(address);
                 if (deviceToAdd != null) {
+                    if (DBG) {
+                        Log.d(TAG, "Adding device " + deviceToAdd.getName());
+                    }
                     devicesInfo.addDeviceLocked(deviceToAdd);
                 } else {
                     if (DBG) {
-                        Log.d(TAG, "No device with name " + name + " found in bonded devices");
+                        Log.d(TAG, "No device with name " + address + " found in bonded devices");
                     }
                 }
             }
             mProfileToConnectableDevicesMap.put(profile, devicesInfo);
         }
-
         return true;
     }
 
@@ -1191,7 +1259,7 @@ public class BluetoothDeviceConnectionPolicy {
         BluetoothDevice btDevice = null;
         Set<BluetoothDevice> bondedDevices = mBluetoothAdapter.getBondedDevices();
         for (BluetoothDevice bd : bondedDevices) {
-            if (name.equals(bd.getName())) {
+            if (name.equals(bd.getAddress())) {
                 btDevice = bd;
                 break;
             }
@@ -1199,70 +1267,6 @@ public class BluetoothDeviceConnectionPolicy {
         return btDevice;
     }
 
-    /**
-     * All the BluetoothProfile.ServiceListeners to get the Profile Proxy objects
-     */
-    private BluetoothProfile.ServiceListener mProfileListener =
-            new BluetoothProfile.ServiceListener() {
-                public void onServiceConnected(int profile, BluetoothProfile proxy) {
-                    if (DBG) {
-                        Log.d(TAG, "OnServiceConnected profile: " + profile);
-                    }
-                    switch (profile) {
-                        case BluetoothProfile.A2DP_SINK:
-                            mBluetoothA2dpSink = (BluetoothA2dpSink) proxy;
-                            break;
-
-                        case BluetoothProfile.HEADSET_CLIENT:
-                            mBluetoothHeadsetClient = (BluetoothHeadsetClient) proxy;
-                            break;
-
-                        case BluetoothProfile.PBAP_CLIENT:
-                            mBluetoothPbapClient = (BluetoothPbapClient) proxy;
-                            break;
-
-                        case BluetoothProfile.MAP_CLIENT:
-                            mBluetoothMapClient = (BluetoothMapClient) proxy;
-                            break;
-
-                        default:
-                            if (DBG) {
-                                Log.d(TAG, "Unhandled profile");
-                            }
-                            break;
-                    }
-
-                }
-
-                public void onServiceDisconnected(int profile) {
-                    if (DBG) {
-                        Log.d(TAG, "onServiceDisconnected profile: " + profile);
-                    }
-                    switch (profile) {
-                        case BluetoothProfile.A2DP_SINK:
-                            mBluetoothA2dpSink = null;
-                            break;
-
-                        case BluetoothProfile.HEADSET_CLIENT:
-                            mBluetoothHeadsetClient = null;
-                            break;
-
-                        case BluetoothProfile.PBAP_CLIENT:
-                            mBluetoothPbapClient = null;
-                            break;
-
-                        case BluetoothProfile.MAP_CLIENT:
-                            mBluetoothMapClient = null;
-                            break;
-
-                        default:
-                            if (DBG) {
-                                Log.d(TAG, "Unhandled profile");
-                            }
-                            break;
-                    }
-                }
-            };
 
     public void dump(PrintWriter writer) {
         writer.println("*BluetoothDeviceConnectionPolicy*");

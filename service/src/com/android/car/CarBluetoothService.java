@@ -35,10 +35,10 @@ public class CarBluetoothService implements CarServiceBase {
     private final BluetoothDeviceConnectionPolicy mBluetoothDeviceConnectionPolicy;
 
     public CarBluetoothService(Context context, CarCabinService carCabinService,
-            CarSensorService carSensorService) {
+            CarSensorService carSensorService, PerUserCarServiceHelper userSwitchService) {
         mContext = context;
         mBluetoothDeviceConnectionPolicy = BluetoothDeviceConnectionPolicy.create(mContext,
-                carCabinService, carSensorService);
+                carCabinService, carSensorService, userSwitchService);
     }
 
     @Override
