@@ -122,7 +122,7 @@ public class RadioHalService extends HalServiceBase {
         mListener = listener;
 
         // Subscribe to all radio properties.
-        mHal.subscribeProperty(this, VehicleProperty.RADIO_PRESET, 0);
+        mHal.subscribeProperty(this, VehicleProperty.RADIO_PRESET);
     }
 
     public synchronized void unregisterListener() {

@@ -21,7 +21,6 @@ import static android.os.SystemClock.elapsedRealtime;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
 import android.hardware.automotive.vehicle.V2_0.StatusCode;
-import android.hardware.automotive.vehicle.V2_0.SubscribeFlags;
 import android.hardware.automotive.vehicle.V2_0.SubscribeOptions;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -34,6 +33,7 @@ import android.util.Log;
 import com.android.car.CarLog;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Vehicle HAL client. Interacts directly with Vehicle HAL interface {@link IVehicle}. Contains
@@ -69,14 +69,8 @@ class  HalClient {
         return mVehicle.getAllPropConfigs();
     }
 
-    public void subscribe(int prop, float sampleRateHz) throws RemoteException {
-        SubscribeOptions opt = new SubscribeOptions();
-        opt.propId = prop;
-        opt.sampleRate = sampleRateHz;
-        opt.flags = SubscribeFlags.HAL_EVENT;
-        ArrayList<SubscribeOptions> options = new ArrayList<>(1);
-        options.add(opt);
-        mVehicle.subscribe(mInternalCallback, options);
+    public void subscribe(SubscribeOptions... options) throws RemoteException {
+        mVehicle.subscribe(mInternalCallback, new ArrayList<>(Arrays.asList(options)));
     }
 
     public void unsubscribe(int prop) throws RemoteException {
