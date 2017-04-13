@@ -137,4 +137,33 @@ public class CarSettings {
      * @hide
      */
     public static final int DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW = 10 * 60 * 1000; // 10 mins
+
+    /**
+     * @hide
+     */
+    public static final class Secure {
+
+        /**
+         * Key for a list of devices to automatically connect on Bluetooth A2dp/Avrcp profiles
+         *
+         * @hide
+         */
+        public static final String KEY_BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES =
+                "android.car.BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES";
+        /**
+         * Key for a list of devices to automatically connect on Bluetooth HFP & PBAP profiles
+         *
+         * @hide
+         */
+        public static final String KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES =
+                "android.car.BLUETOOTH_AUTOCONNECT_PHONE_DEVICES";
+        /**
+         * Key for a list of devices to automatically connect on Bluetooth MAP profile
+         *
+         * @hide
+         */
+        public static final String KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES =
+                "android.car.BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES";
+
+    }
 }
