@@ -20,11 +20,13 @@ import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriptionState;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
+@SmallTest
 public class VmsRoutingTest extends AndroidTestCase {
     private static VmsLayer LAYER_WITH_SUBSCRIPTION_1= new VmsLayer(1, 2);
     private static VmsLayer LAYER_WITH_SUBSCRIPTION_2= new VmsLayer(1, 3);
