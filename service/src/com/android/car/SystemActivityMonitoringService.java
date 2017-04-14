@@ -319,6 +319,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         mContext.startActivity(launcherIntent);
 
         newActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
         mContext.startActivityAsUser(newActivityIntent,
                 new UserHandle(currentTask.stackInfo.userId));
         // now make stack with new activity focused.
