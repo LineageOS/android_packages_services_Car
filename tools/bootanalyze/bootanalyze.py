@@ -341,8 +341,10 @@ def iterate(args, search_events, timings, cfg, error_time, components_to_monitor
         fs_stat = m.group(1)
     print 'fs_stat:', fs_stat
 
-    if fs_stat and fs_stat != "0x5" and fs_stat != "0x15":
-      capture_bugreport("fs_stat_" + fs_stat, events[LOGCAT_BOOT_COMPLETE])
+    if fs_stat:
+      fs_stat_val = int(fs_stat, 0)
+      if (fs_stat_val & ~0x17) != 0:
+        capture_bugreport("fs_stat_" + fs_stat, events[LOGCAT_BOOT_COMPLETE])
 
   return data_points, timing_points, boottime_events
 
