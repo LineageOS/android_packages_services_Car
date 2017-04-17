@@ -22,9 +22,9 @@ import android.annotation.Nullable;
 import android.car.hardware.CarSensorEvent;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-
 import android.util.Log;
 import android.util.SparseArray;
+import com.android.car.CarLog;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +37,9 @@ import java.util.List;
  * the {@link #requestSensorStart(int, int)} call.
  */
 public abstract class SensorHalServiceBase extends HalServiceBase implements SensorBase {
-    private static final String TAG = "SensorHalServiceBase";
+    private static final String TAG = CarLog.concatTag(CarLog.TAG_SENSOR,
+                                                       SensorHalServiceBase.class);
+    protected static final boolean DBG = false;
 
     private boolean mIsReady = false;
 
@@ -49,13 +51,21 @@ public abstract class SensorHalServiceBase extends HalServiceBase implements Sen
         mHal = hal;
     }
 
+
     @Override
     public synchronized Collection<VehiclePropConfig> takeSupportedProperties(
         Collection<VehiclePropConfig> allProperties) {
+        if (DBG) Log.d(TAG, "takeSupportedProperties");
         LinkedList<VehiclePropConfig> supportedProperties = new LinkedList<>();
         for (VehiclePropConfig halProperty : allProperties) {
             int sensor = getTokenForProperty(halProperty);
-            if (sensor != SENSOR_TYPE_INVALID) {
+            boolean mapped = sensor != SENSOR_TYPE_INVALID;
+            if (DBG) {
+                Log.d(TAG, "takeSupportedProperties, hal property "
+                        + " 0x" + toHexString(halProperty.prop) +
+                        (mapped ? (" mapped to " + sensor) : " ignored"));
+            }
+            if (mapped) {
                 supportedProperties.add(halProperty);
                 mSensorToPropConfig.append(sensor, halProperty);
             }
@@ -97,8 +107,10 @@ public abstract class SensorHalServiceBase extends HalServiceBase implements Sen
 
     @Override
     public synchronized boolean requestSensorStart(int sensorType, int rate) {
+        if (DBG) Log.d(TAG, "requestSensorStart, sensorType: " + sensorType + ", rate: " + rate);
         VehiclePropConfig config = mSensorToPropConfig.get(sensorType);
         if (config == null) {
+            Log.e(TAG, "requesting to start sensor " + sensorType + ", but VHAL config not found");
             return false;
         }
         //TODO calculate sampling rate properly, bug: 32095903
@@ -108,6 +120,7 @@ public abstract class SensorHalServiceBase extends HalServiceBase implements Sen
 
     @Override
     public synchronized void requestSensorStop(int sensorType) {
+        if (DBG) Log.d(TAG, "requestSensorStop, sensorType: " + sensorType);
         VehiclePropConfig config = mSensorToPropConfig.get(sensorType);
         if (config == null) {
             return;
@@ -122,8 +135,7 @@ public abstract class SensorHalServiceBase extends HalServiceBase implements Sen
             config = mSensorToPropConfig.get(sensorType);
         }
         if (config == null) {
-            Log.e(TAG, "sensor type not available 0x" +
-                toHexString(sensorType));
+            Log.e(TAG, "sensor type not available 0x" + toHexString(sensorType));
             return null;
         }
         try {

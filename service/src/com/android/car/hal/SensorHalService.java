@@ -30,14 +30,10 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.util.Log;
-import android.util.SparseArray;
 import android.util.SparseIntArray;
-
 import com.android.car.CarLog;
 import com.android.car.CarSensorEventFactory;
-
 import java.io.PrintWriter;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,6 +41,9 @@ import java.util.List;
  * Sensor HAL implementation for physical sensors in car.
  */
 public class SensorHalService extends SensorHalServiceBase {
+    private static final String TAG = CarLog.concatTag(CarLog.TAG_SENSOR, SensorHalService.class);
+    private static final boolean DBG_EVENTS = false;
+
     /**
      * Listener for monitoring sensor event. Only sensor service will implement this.
      */
@@ -56,13 +55,12 @@ public class SensorHalService extends SensorHalServiceBase {
         void onSensorEvents(List<CarSensorEvent> events);
     }
 
-    private static final boolean DBG_EVENTS = false;
-    private final LinkedList<CarSensorEvent> mDispatchQ = new LinkedList<>();
-
     // Manager property Id to HAL property Id mapping.
     private final static ManagerToHalPropIdMap mManagerToHalPropIdMap =
             ManagerToHalPropIdMap.create(
                     CarSensorManager.SENSOR_TYPE_CAR_SPEED, VehicleProperty.PERF_VEHICLE_SPEED,
+                    CarSensorManager.SENSOR_TYPE_RPM, VehicleProperty.ENGINE_RPM,
+                    CarSensorManager.SENSOR_TYPE_ODOMETER, VehicleProperty.PERF_ODOMETER,
                     CarSensorManager.SENSOR_TYPE_GEAR, VehicleProperty.GEAR_SELECTION,
                     CarSensorManager.SENSOR_TYPE_NIGHT, VehicleProperty.NIGHT_MODE,
                     CarSensorManager.SENSOR_TYPE_PARKING_BRAKE, VehicleProperty.PARKING_BRAKE_ON,
@@ -124,27 +122,15 @@ public class SensorHalService extends SensorHalServiceBase {
                 mEventsToDispatch.add(event);
             }
         }
-        SensorListener sensorListener = null;
+        SensorListener sensorListener;
         synchronized (this) {
             sensorListener = mSensorListener;
         }
+        if (DBG_EVENTS) Log.d(TAG, "handleHalEvents, listener: " + sensorListener);
         if (sensorListener != null) {
             sensorListener.onSensorEvents(mEventsToDispatch);
         }
         mEventsToDispatch.clear();
-    }
-
-    /**
-     * Utility to help service to send one event as listener only takes list form.
-     * @param listener
-     * @param event
-     */
-    protected void dispatchCarSensorEvent(SensorListener listener, CarSensorEvent event) {
-        synchronized (mDispatchQ) {
-            mDispatchQ.add(event);
-            listener.onSensorEvents(mDispatchQ);
-            mDispatchQ.clear();
-        }
     }
 
     @Nullable
@@ -163,6 +149,7 @@ public class SensorHalService extends SensorHalServiceBase {
         return mgrValue == -1 ? null : mgrValue;
     }
 
+    @Nullable
     private CarSensorEvent createCarSensorEvent(VehiclePropValue v) {
         int property = v.prop;
         int sensorType = mManagerToHalPropIdMap.getManagerPropId(property);
@@ -172,35 +159,27 @@ public class SensorHalService extends SensorHalServiceBase {
 
         int dataType = property & VehiclePropertyType.MASK;
 
+        CarSensorEvent event = null;
         switch (dataType) {
             case VehiclePropertyType.BOOLEAN:
-                if (DBG_EVENTS) {
-                    Log.i(CarLog.TAG_SENSOR, "boolean event, property:" +
-                            toHexString(property) + " value:" + v.value.int32Values.get(0));
-                }
-                return CarSensorEventFactory.createBooleanEvent(sensorType, v.timestamp,
+                event = CarSensorEventFactory.createBooleanEvent(sensorType, v.timestamp,
                         v.value.int32Values.get(0) == 1);
+                break;
             case VehiclePropertyType.INT32:
-                if (DBG_EVENTS) {
-                    Log.i(CarLog.TAG_SENSOR, "int event, property:" +
-                            toHexString(property) + " value:" + v.value.int32Values.get(0));
-                }
                 Integer mgrVal = mapHalEnumValueToMgr(property, v.value.int32Values.get(0));
-                return mgrVal == null ? null
+                event =  mgrVal == null ? null
                         : CarSensorEventFactory.createIntEvent(sensorType, v.timestamp, mgrVal);
+                break;
             case VehiclePropertyType.FLOAT: {
-                if (DBG_EVENTS) {
-                    Log.i(CarLog.TAG_SENSOR, "float event, property:" +
-                            toHexString(property) + " value:" + v.value.floatValues.get(0));
-                }
-                return CarSensorEventFactory.createFloatEvent(sensorType, v.timestamp,
+                event = CarSensorEventFactory.createFloatEvent(sensorType, v.timestamp,
                         v.value.floatValues.get(0));
+                break;
             }
             default:
-                Log.w(CarLog.TAG_SENSOR, "createCarSensorEvent: unsupported type: 0x"
-                        + toHexString(dataType));
+                Log.w(TAG, "createCarSensorEvent: unsupported type: 0x" + toHexString(dataType));
         }
-        return null;
+        if (DBG_EVENTS) Log.i(TAG, "Sensor event created: " + event);
+        return event;
     }
 
     @Nullable

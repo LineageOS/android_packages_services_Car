@@ -16,64 +16,45 @@
 
 package com.android.car.vehiclehal.test;
 
-import static com.android.car.vehiclehal.test.Utils.dumpVehiclePropValue;
 import static com.android.car.vehiclehal.test.Utils.isVhalPropertyAvailable;
 import static com.android.car.vehiclehal.test.Utils.readVhalProperty;
-import static com.android.car.vehiclehal.test.Utils.tryWithDeadline;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
-import android.annotation.Nullable;
+import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.StatusCode;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_1.IVehicle;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 import android.os.RemoteException;
 import android.util.Log;
+
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import java.util.Objects;
+
 import org.junit.Before;
 import org.junit.Test;
 
 /** Test retrieving the OBD2_FREEZE_FRAME property from VHAL */
 public class Obd2FreezeFrameTest {
-    private static final String TAG = Obd2FreezeFrameTest.class.getSimpleName();
-    private static final long WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS = 10_000;
+    private static final String TAG = Utils.concatTag(Obd2FreezeFrameTest.class);
 
     private IVehicle mVehicle = null;
 
     @Before
     public void setUp() throws Exception {
-        mVehicle = Objects.requireNonNull(getVehicle(WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS));
-    }
-
-    @Nullable
-    private IVehicle getVehicle(long waitMilliseconds) {
-        return tryWithDeadline(
-                waitMilliseconds,
-                () -> {
-                    try {
-                        return IVehicle.getService();
-                    } catch (RemoteException e) {
-                        Log.w(TAG, "attempt to get IVehicle service " +
-                                   " caused RemoteException: ", e);
-                        return null;
-                    }
-                });
+        mVehicle = Utils.getVehicle();
+        assumeTrue("Freeze frame not available, test-case ignored.", isFreezeFrameAvailable());
     }
 
     @Test
     public void testFreezeFrame() throws RemoteException {
-        if (!isFreezeFrameAvailable()) {
-            Log.i(TAG, "freeze frame not available; returning - our job here is done");
-            return;
-        }
         readVhalProperty(
                 mVehicle,
                 VehicleProperty.OBD2_FREEZE_FRAME_INFO,
                 (Integer status, VehiclePropValue value) -> {
                     assertEquals(StatusCode.OK, status.intValue());
                     assertNotNull("OBD2_FREEZE_FRAME_INFO is supported; should not be null", value);
-                    Log.i(TAG, "dump of OBD2_FREEZE_FRAME_INFO:\n" + dumpVehiclePropValue(value));
+                    Log.i(TAG, "dump of OBD2_FREEZE_FRAME_INFO:\n" + value);
                     for(long timestamp: value.value.int64Values) {
                       Log.i(TAG, "timestamp: " + timestamp);
                       readVhalProperty(
@@ -83,8 +64,9 @@ public class Obd2FreezeFrameTest {
                                 .build(),
                           (Integer frameStatus, VehiclePropValue freezeFrame) -> {
                               if (StatusCode.OK == frameStatus.intValue()) {
-                                  assertNotNull("OBD2_FREEZE_FRAME read OK; should not be null", freezeFrame);
-                                  Log.i(TAG, "dump of OBD2_FREEZE_FRAME:\n" + dumpVehiclePropValue(freezeFrame));
+                                  assertNotNull("OBD2_FREEZE_FRAME read OK; should not be null",
+                                          freezeFrame);
+                                  Log.i(TAG, "dump of OBD2_FREEZE_FRAME:\n" + freezeFrame);
                                   assertEquals(freezeFrame.timestamp, timestamp);
                               }
                               return true;

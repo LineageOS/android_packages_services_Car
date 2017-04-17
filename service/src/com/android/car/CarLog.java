@@ -17,6 +17,8 @@
 package com.android.car;
 
 public class CarLog {
+    private static final int MAX_TAG_LEN = 23;
+
     public static final String TAG_AM = "CAR.AM";
     public static final String TAG_APP_FOCUS = "CAR.APP_FOCUS";
     public static final String TAG_AUDIO = "CAR.AUDIO";
@@ -41,4 +43,12 @@ public class CarLog {
     public static final String TAG_SYS = "CAR.SYS";
     public static final String TAG_TEST = "CAR.TEST";
     public static final String TAG_DIAGNOSTIC = "CAR.DIAGNOSTIC";
+
+    public static String concatTag(String tagPrefix, Class clazz) {
+        String tag = tagPrefix + "." + clazz.getSimpleName();
+        if (tag.length() > MAX_TAG_LEN) {
+            tag = tag.substring(0, MAX_TAG_LEN);
+        }
+        return tag;
+    }
 }
