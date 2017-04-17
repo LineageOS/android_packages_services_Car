@@ -198,24 +198,6 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
         processDiagnosticData(events);
     }
 
-    private List<CarDiagnosticEvent> getCachedEventsLocked(int frameType) {
-        ArrayList<CarDiagnosticEvent> events = new ArrayList<>();
-        switch (frameType) {
-            case CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE:
-                mLiveFrameDiagnosticRecord.lock();
-                events.add(mLiveFrameDiagnosticRecord.getLastEvent());
-                mLiveFrameDiagnosticRecord.unlock();
-                break;
-            case CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE:
-                mFreezeFrameDiagnosticRecords.lock();
-                mFreezeFrameDiagnosticRecords.getEvents().forEach(events::add);
-                mFreezeFrameDiagnosticRecords.unlock();
-                break;
-            default: break;
-        }
-        return events;
-    }
-
     @Override
     public boolean registerOrUpdateDiagnosticListener(int frameType, int rate,
                 ICarDiagnosticEventListener listener) {
@@ -242,8 +224,6 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
                 }
                 mClients.add(diagnosticClient);
             }
-            // If we have a cached event for this diagnostic, send the event.
-            diagnosticClient.dispatchDiagnosticUpdate(getCachedEventsLocked(frameType));
             diagnosticListeners = mDiagnosticListeners.get(frameType);
             if (diagnosticListeners == null) {
                 diagnosticListeners = new Listeners<>(rate);
