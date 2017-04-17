@@ -16,6 +16,7 @@
 
 package com.android.car.internal;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +26,8 @@ import java.util.Map;
  * @hide
  */
 public class CarRatedListeners<EventListenerType> {
-    private final Map<EventListenerType, Integer> mListenersToRate = new HashMap<>();
+    private final Map<EventListenerType, Integer> mListenersToRate = new HashMap<>(4);
+
     private int mUpdateRate;
 
     protected long mLastUpdateTime = -1;
@@ -83,7 +85,7 @@ public class CarRatedListeners<EventListenerType> {
         return false;
     }
 
-    public Iterable<EventListenerType> getListeners() {
+    public Collection<EventListenerType> getListeners() {
         return mListenersToRate.keySet();
     }
 }
