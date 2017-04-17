@@ -103,7 +103,7 @@ import java.util.List;
         int areaType = getVehicleAreaType(p.prop & VehicleArea.MASK);
 
         Class<?> clazz = getJavaClass(p.prop & VehiclePropertyType.MASK);
-        if (clazz == Boolean.class || clazz == byte[].class || clazz == String.class) {
+        if (p.areaConfigs.isEmpty()) {
             return CarPropertyConfig
                     .newBuilder(clazz, propertyId, areaType, /* capacity */ 1)
                     .addAreas(areas)
@@ -162,6 +162,8 @@ import java.util.List;
                 return String.class;
             case VehiclePropertyType.BYTES:
                 return byte[].class;
+            case VehiclePropertyType.COMPLEX:
+                return Object.class;
             default:
                 throw new IllegalArgumentException("Unexpected type: " + toHexString(halType));
         }

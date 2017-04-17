@@ -16,65 +16,25 @@
 
 package com.android.car.vehiclehal.test;
 
-import static android.os.SystemClock.elapsedRealtime;
-
 import android.annotation.Nullable;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.RemoteException;
 import android.util.Log;
+
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
+
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 final class Utils {
     private Utils() {}
 
-    private static final String TAG = Utils.class.getSimpleName();
+    private static final String TAG = concatTag(Utils.class);
 
-    @Nullable
-    static <T> T tryWithDeadline(long waitMilliseconds, java.util.function.Supplier<T> f) {
-        f = Objects.requireNonNull(f);
-        T object = f.get();
-        long start = elapsedRealtime();
-        while (object == null && (start + waitMilliseconds) > elapsedRealtime()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Sleep was interrupted", e);
-            }
-
-            object = f.get();
-        }
-        return object;
-    }
-
-    static String dumpVehiclePropValue(VehiclePropValue vpv) {
-        vpv = Objects.requireNonNull(vpv);
-        return "prop = "
-                + vpv.prop
-                + '\n'
-                + "areaId = "
-                + vpv.areaId
-                + '\n'
-                + "timestamp = "
-                + vpv.timestamp
-                + '\n'
-                + "int32Values = "
-                + vpv.value.int32Values
-                + '\n'
-                + "floatValues = "
-                + vpv.value.floatValues
-                + '\n'
-                + "int64Values ="
-                + vpv.value.int64Values
-                + '\n'
-                + "bytes = "
-                + vpv.value.bytes
-                + '\n'
-                + "string = "
-                + vpv.value.stringValue
-                + '\n';
+    static String concatTag(Class clazz) {
+        return "VehicleHalTest." + clazz.getSimpleName();
     }
 
     static boolean isVhalPropertyAvailable(IVehicle vehicle, int prop) throws RemoteException {
@@ -99,8 +59,7 @@ final class Utils {
                     }
                 });
         } catch (RemoteException e) {
-            Log.w(TAG, "attempt to read VHAL property " +
-                    dumpVehiclePropValue(request) + " caused RemoteException: ", e);
+            Log.w(TAG, "attempt to read VHAL property " + request + " caused RemoteException: ", e);
         }
         return vpv[0];
     }
@@ -120,5 +79,18 @@ final class Utils {
         VehiclePropValue request =
             VehiclePropValueBuilder.newBuilder(propertyId).setAreaId(areaId).build();
         return readVhalProperty(vehicle, request, f);
+    }
+
+    @Nullable
+    static IVehicle getVehicle() throws RemoteException {
+        IVehicle service;
+        try {
+            service = android.hardware.automotive.vehicle.V2_0.IVehicle.getService();
+        } catch (NoSuchElementException ex) {
+            Log.d(TAG, "Couldn't connect to vehicle@2.1, connecting to vehicle@2.0...");
+            service =  IVehicle.getService();
+        }
+        Log.d(TAG, "Connected to IVehicle service: " + service);
+        return service;
     }
 }

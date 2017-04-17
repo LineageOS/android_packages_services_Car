@@ -42,6 +42,8 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.google.android.collect.Lists;
+
 import com.android.car.CarLog;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.internal.annotations.VisibleForTesting;
@@ -492,10 +494,9 @@ public class VehicleHal extends IVehicleCallback.Stub {
             for (VehiclePropValue v : propValues) {
                 HalServiceBase service = mPropertyHandlers.get(v.prop);
                 if(service == null) {
-                    if (DBG) {
-                        Log.d(CarLog.TAG_HAL, "HalService is null for " + v.prop);
-                    }
-                    return;
+                    Log.e(CarLog.TAG_HAL, "HalService not found for prop: 0x"
+                        + toHexString(v.prop));
+                    continue;
                 }
                 service.getDispatchList().add(v);
                 mServicesToDispatch.add(service);
