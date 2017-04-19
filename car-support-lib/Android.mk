@@ -27,16 +27,11 @@ LOCAL_MODULE := android.support.car-prebuilt
 LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_SDK_VERSION := 24
 
 LOCAL_MANIFEST_FILE := AndroidManifest.xml
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 LOCAL_JAVA_LIBRARIES += android.car\
-						android-support-v4 \
-                        android-support-v7-appcompat \
-                        android-support-v7-recyclerview \
-                        android-support-v7-cardview \
                         android-support-annotations
 # Specify 1.7 for backwards compatibility.
 # Otherwise the lib won't be usable on pre-N devices
@@ -58,15 +53,9 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := android.support.car
 
-LOCAL_SDK_VERSION := 24
-
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
-                               android-support-v7-appcompat \
-                               android-support-v7-recyclerview \
-                               android-support-v7-cardview \
-                               android-support-annotations
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-annotations
 
 LOCAL_JAVA_LIBRARIES += android.car
 
@@ -95,10 +84,6 @@ LOCAL_DROIDDOC_SOURCE_PATH := $(LOCAL_PATH)/src
 
 LOCAL_JAVA_LIBRARIES := \
     android.car \
-    android-support-v4 \
-    android-support-v7-appcompat \
-    android-support-v7-recyclerview \
-    android-support-v7-cardview \
     android-support-annotations
 
 LOCAL_MODULE := android.support.car
