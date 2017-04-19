@@ -13,14 +13,11 @@ package android.car {
     field public static final java.lang.String AUDIO_SERVICE = "audio";
     field public static final java.lang.String CABIN_SERVICE = "cabin";
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
-    field public static final java.lang.String DIAGNOSTIC_SERVICE = "diagnostic";
     field public static final java.lang.String HVAC_SERVICE = "hvac";
     field public static final java.lang.String INFO_SERVICE = "info";
     field public static final java.lang.String PACKAGE_SERVICE = "package";
     field public static final java.lang.String PERMISSION_CAR_CABIN = "android.car.permission.CAR_CABIN";
     field public static final java.lang.String PERMISSION_CAR_CONTROL_AUDIO_VOLUME = "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
-    field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.DIAGNOSTIC_CLEAR";
-    field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_READ = "android.car.permission.DIAGNOSTIC_READ";
     field public static final java.lang.String PERMISSION_CAR_HVAC = "android.car.permission.CAR_HVAC";
     field public static final java.lang.String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final java.lang.String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
