@@ -27,7 +27,6 @@ LOCAL_MODULE := android.support.car-prebuilt
 LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_SDK_VERSION := 24
 
 LOCAL_MANIFEST_FILE := AndroidManifest.xml
 
@@ -55,7 +54,6 @@ endif
 # Build the resources.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android.support.car-res
-LOCAL_SDK_VERSION := 24
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_RESOURCE_DIR += frameworks/support/v7/appcompat/res
 LOCAL_RESOURCE_DIR += frameworks/support/v7/recyclerview/res
@@ -77,8 +75,6 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := android.support.car
-
-LOCAL_SDK_VERSION := 24
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 
