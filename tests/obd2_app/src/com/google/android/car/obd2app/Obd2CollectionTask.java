@@ -22,11 +22,10 @@ import android.os.Environment;
 import android.os.SystemClock;
 import android.util.JsonWriter;
 import android.util.Log;
-
 import com.android.car.obd2.Obd2Connection;
+import com.android.car.obd2.Obd2FreezeFrameGenerator;
 import com.android.car.obd2.Obd2LiveFrameGenerator;
 import com.android.car.obd2.connections.BluetoothConnection;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,6 +36,7 @@ import java.util.TimerTask;
 public class Obd2CollectionTask extends TimerTask {
     private final Obd2Connection mConnection;
     private final Obd2LiveFrameGenerator mLiveFrameGenerator;
+    private final Obd2FreezeFrameGenerator mFreezeFrameGenerator;
     private final StatusNotification mStatusNotification;
     private final JsonWriter mJsonWriter;
 
@@ -79,6 +79,7 @@ public class Obd2CollectionTask extends TimerTask {
         try {
             synchronized (mJsonWriter) {
                 mLiveFrameGenerator.generate(mJsonWriter);
+                mFreezeFrameGenerator.generate(mJsonWriter);
                 mJsonWriter.flush();
             }
             mStatusNotification.notifyDataCapture();
@@ -88,7 +89,7 @@ public class Obd2CollectionTask extends TimerTask {
     }
 
     Obd2CollectionTask(Context context, StatusNotification statusNotification, String deviceAddress)
-        throws IOException, InterruptedException {
+            throws IOException, InterruptedException {
         if (!isExternalStorageWriteable())
             throw new IOException("Cannot write data to external storage");
         mStatusNotification = statusNotification;
@@ -99,10 +100,11 @@ public class Obd2CollectionTask extends TimerTask {
         }
         mConnection = new Obd2Connection(bluetoothConnection);
         mLiveFrameGenerator = new Obd2LiveFrameGenerator(mConnection);
+        mFreezeFrameGenerator = new Obd2FreezeFrameGenerator(mConnection);
         mJsonWriter =
-            new JsonWriter(
-                new OutputStreamWriter(
-                    new FileOutputStream(getFilenameForStorage(context))));
+                new JsonWriter(
+                        new OutputStreamWriter(
+                                new FileOutputStream(getFilenameForStorage(context))));
         mJsonWriter.beginArray();
     }
 
