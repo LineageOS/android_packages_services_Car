@@ -94,7 +94,6 @@ public final class Car {
     /**
      * @hide
      */
-    @SystemApi
     public static final String DIAGNOSTIC_SERVICE = "diagnostic";
 
     /**
@@ -250,7 +249,6 @@ public final class Car {
      * @hide
      */
     @FutureFeature
-    @SystemApi
     public static final String PERMISSION_CAR_DIAGNOSTIC_READ = "android.car.permission.DIAGNOSTIC_READ";
 
     /**
@@ -259,7 +257,6 @@ public final class Car {
      * @hide
      */
     @FutureFeature
-    @SystemApi
     public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.DIAGNOSTIC_CLEAR";
 
     /** Type of car connection: platform runs directly in car. */
