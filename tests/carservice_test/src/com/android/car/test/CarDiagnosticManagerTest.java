@@ -618,6 +618,15 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
         CarDiagnosticEvent event1 = listener1.getLastEvent();
         CarDiagnosticEvent event2 = listener2.getLastEvent();
+
+        assertTrue(event1.equals(event1));
+        assertTrue(event2.equals(event2));
+        assertTrue(event1.equals(event2));
+        assertTrue(event2.equals(event1));
+
+        assertTrue(event1.hashCode() == event1.hashCode());
+        assertTrue(event1.hashCode() == event2.hashCode());
+
         assertEquals(
                 5000,
                 event1.getSystemIntegerSensor(Obd2IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START)
@@ -641,6 +650,8 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         event2 = listener2.getLastEvent();
 
         assertTrue(event1.isEarlierThan(event2));
+        assertFalse(event1.equals(event2));
+        assertFalse(event2.equals(event1));
 
         assertEquals(
                 5000,

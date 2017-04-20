@@ -275,6 +275,82 @@ public class CarDiagnosticEvent implements Parcelable {
     }
 
     @Override
+    public boolean equals(Object otherObject) {
+        if (this == otherObject) {
+            return true;
+        }
+        if (null == otherObject) {
+            return false;
+        }
+        if (!(otherObject instanceof CarDiagnosticEvent)) {
+            return false;
+        }
+        CarDiagnosticEvent otherEvent = (CarDiagnosticEvent)otherObject;
+        if (otherEvent.frameType != frameType)
+            return false;
+        if (otherEvent.timestamp != timestamp)
+            return false;
+        if (otherEvent.intValues.size() != intValues.size())
+            return false;
+        if (otherEvent.floatValues.size() != floatValues.size())
+            return false;
+        if (!Objects.equals(dtc, otherEvent.dtc))
+            return false;
+        for (int i = 0; i < intValues.size(); ++i) {
+            int key = intValues.keyAt(i);
+            int otherKey = otherEvent.intValues.keyAt(i);
+            if (key != otherKey) {
+                return false;
+            }
+            int value = intValues.valueAt(i);
+            int otherValue = otherEvent.intValues.valueAt(i);
+            if (value != otherValue) {
+                return false;
+            }
+        }
+        for (int i = 0; i < floatValues.size(); ++i) {
+            int key = floatValues.keyAt(i);
+            int otherKey = otherEvent.floatValues.keyAt(i);
+            if (key != otherKey) {
+                return false;
+            }
+            float value = floatValues.valueAt(i);
+            float otherValue = otherEvent.floatValues.valueAt(i);
+            if (value != otherValue) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        Integer[] intKeys = new Integer[intValues.size()];
+        Integer[] floatKeys = new Integer[floatValues.size()];
+        Integer[] intValues = new Integer[intKeys.length];
+        Float[] floatValues = new Float[floatKeys.length];
+        for (int i = 0; i < intKeys.length; ++i) {
+            intKeys[i] = this.intValues.keyAt(i);
+            intValues[i] = this.intValues.valueAt(i);
+        }
+        for (int i = 0; i < floatKeys.length; ++i) {
+            floatKeys[i] = this.floatValues.keyAt(i);
+            floatValues[i] = this.floatValues.valueAt(i);
+        }
+        int intKeysHash = Objects.hash((Object[])intKeys);
+        int intValuesHash = Objects.hash((Object[])intValues);
+        int floatKeysHash = Objects.hash((Object[])floatKeys);
+        int floatValuesHash = Objects.hash((Object[])floatValues);
+        return Objects.hash(frameType,
+                timestamp,
+                dtc,
+                intKeysHash,
+                intValuesHash,
+                floatKeysHash,
+                floatValuesHash);
+    }
+
+    @Override
     public String toString() {
         return String.format(
                 "%s diagnostic frame {\n"
