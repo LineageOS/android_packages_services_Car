@@ -12,34 +12,29 @@ package android.car {
     field public static final java.lang.String APP_FOCUS_SERVICE = "app_focus";
     field public static final java.lang.String AUDIO_SERVICE = "audio";
     field public static final java.lang.String CABIN_SERVICE = "cabin";
+    field public static final java.lang.String CAMERA_SERVICE = "camera";
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
-    field public static final java.lang.String DIAGNOSTIC_SERVICE = "diagnostic";
     field public static final java.lang.String HVAC_SERVICE = "hvac";
     field public static final java.lang.String INFO_SERVICE = "info";
     field public static final java.lang.String PACKAGE_SERVICE = "package";
     field public static final java.lang.String PERMISSION_CAR_CABIN = "android.car.permission.CAR_CABIN";
+    field public static final java.lang.String PERMISSION_CAR_CAMERA = "android.car.permission.CAR_CAMERA";
     field public static final java.lang.String PERMISSION_CAR_CONTROL_AUDIO_VOLUME = "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
-    field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.DIAGNOSTIC_CLEAR";
-    field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_READ = "android.car.permission.DIAGNOSTIC_READ";
     field public static final java.lang.String PERMISSION_CAR_HVAC = "android.car.permission.CAR_HVAC";
     field public static final java.lang.String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final java.lang.String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
-    field public static final java.lang.String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
     field public static final java.lang.String PERMISSION_CONTROL_APP_BLOCKING = "android.car.permission.CONTROL_APP_BLOCKING";
     field public static final java.lang.String PERMISSION_FUEL = "android.car.permission.CAR_FUEL";
     field public static final java.lang.String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
-    field public static final deprecated java.lang.String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
+    field public static final java.lang.String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
     field public static final java.lang.String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
     field public static final java.lang.String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
-    field public static final java.lang.String PERMISSION_VMS_PUBLISHER = "android.car.permission.VMS_PUBLISHER";
-    field public static final java.lang.String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
     field public static final java.lang.String PROJECTION_SERVICE = "projection";
     field public static final java.lang.String RADIO_SERVICE = "radio";
     field public static final java.lang.String SENSOR_SERVICE = "sensor";
     field public static final java.lang.String TEST_SERVICE = "car-service-test";
     field public static final java.lang.String VENDOR_EXTENSION_SERVICE = "vendor_extension";
-    field public static final int VERSION = 2; // 0x2
-    field public static final java.lang.String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
+    field public static final int VERSION = 1; // 0x1
   }
 
   public final class CarAppFocusManager {
@@ -441,12 +436,6 @@ package android.car.hardware {
     field public static final int GEAR_SIXTH = 6; // 0x6
     field public static final int GEAR_TENTH = 10; // 0xa
     field public static final int GEAR_THIRD = 3; // 0x3
-    field public static final int IGNITION_STATE_ACC = 3; // 0x3
-    field public static final int IGNITION_STATE_LOCK = 1; // 0x1
-    field public static final int IGNITION_STATE_OFF = 2; // 0x2
-    field public static final int IGNITION_STATE_ON = 4; // 0x4
-    field public static final int IGNITION_STATE_START = 5; // 0x5
-    field public static final int IGNITION_STATE_UNDEFINED = 0; // 0x0
     field public static final int INDEX_ENVIRONMENT_PRESSURE = 1; // 0x1
     field public static final int INDEX_ENVIRONMENT_TEMPERATURE = 0; // 0x0
     field public static final int INDEX_FUEL_LEVEL_IN_DISTANCE = 1; // 0x1
@@ -481,7 +470,6 @@ package android.car.hardware {
     field public static final int SENSOR_TYPE_ENVIRONMENT = 12; // 0xc
     field public static final int SENSOR_TYPE_FUEL_LEVEL = 5; // 0x5
     field public static final int SENSOR_TYPE_GEAR = 7; // 0x7
-    field public static final int SENSOR_TYPE_IGNITION_STATE = 22; // 0x16
     field public static final int SENSOR_TYPE_NIGHT = 9; // 0x9
     field public static final int SENSOR_TYPE_ODOMETER = 4; // 0x4
     field public static final int SENSOR_TYPE_PARKING_BRAKE = 6; // 0x6
@@ -573,6 +561,58 @@ package android.car.hardware.cabin {
 
 }
 
+package android.car.hardware.camera {
+
+  public class CarCamera {
+    ctor public CarCamera(android.car.hardware.camera.ICarCamera, int);
+    method public android.graphics.Rect getCameraCrop() throws android.car.CarNotConnectedException;
+    method public android.graphics.Rect getCameraPosition() throws android.car.CarNotConnectedException;
+    method public android.car.hardware.camera.CarCameraState getCameraState() throws android.car.CarNotConnectedException;
+    method public int getCapabilities() throws android.car.CarNotConnectedException;
+    method public void setCameraCrop(android.graphics.Rect) throws android.car.CarNotConnectedException;
+    method public void setCameraPosition(android.graphics.Rect) throws android.car.CarNotConnectedException;
+    method public void setCameraState(android.car.hardware.camera.CarCameraState) throws android.car.CarNotConnectedException;
+    field public static final java.lang.String TAG;
+    field public final int mCameraType;
+  }
+
+  public final class CarCameraManager {
+    method public void closeCamera(android.car.hardware.camera.CarCamera);
+    method public int getCameraCapabilities(int) throws android.car.CarNotConnectedException;
+    method public int[] getCameraList() throws android.car.CarNotConnectedException;
+    method public android.car.hardware.camera.CarCamera openCamera(int) throws android.car.CarNotConnectedException;
+    field public static final int ANDROID_OVERLAY_SUPPORT_FLAG = 1; // 0x1
+    field public static final int CAMERA_CROP_SUPPORT_FLAG = 2; // 0x2
+    field public static final int CAMERA_POSITIONING_SUPPORT_FLAG = 4; // 0x4
+    field public static final int CAR_CAMERA_TYPE_NONE = 0; // 0x0
+    field public static final int CAR_CAMERA_TYPE_RVC = 1; // 0x1
+  }
+
+  public class CarCameraState implements android.os.Parcelable {
+    ctor public CarCameraState(android.car.hardware.camera.CarCameraState);
+    ctor public CarCameraState(boolean, boolean);
+    method public int describeContents();
+    method public boolean getCameraIsOn();
+    method public boolean getOverlayIsOn();
+    method public void setCameraIsOn(boolean);
+    method public void setOverlayIsOn(boolean);
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.hardware.camera.CarCameraState> CREATOR;
+  }
+
+  public abstract interface ICarCamera implements android.os.IInterface {
+    method public abstract android.graphics.Rect getCameraCrop(int) throws android.os.RemoteException;
+    method public abstract int[] getCameraList() throws android.os.RemoteException;
+    method public abstract android.graphics.Rect getCameraPosition(int) throws android.os.RemoteException;
+    method public abstract android.car.hardware.camera.CarCameraState getCameraState(int) throws android.os.RemoteException;
+    method public abstract int getCapabilities(int) throws android.os.RemoteException;
+    method public abstract void setCameraCrop(int, android.graphics.Rect) throws android.os.RemoteException;
+    method public abstract void setCameraPosition(int, android.graphics.Rect) throws android.os.RemoteException;
+    method public abstract void setCameraState(int, android.car.hardware.camera.CarCameraState) throws android.os.RemoteException;
+  }
+
+}
+
 package android.car.hardware.hvac {
 
   public final class CarHvacManager {
@@ -586,11 +626,6 @@ package android.car.hardware.hvac {
     method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
     method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
     method public synchronized void unregisterCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback);
-    field public static final int FAN_POSITION_DEFROST = 4; // 0x4
-    field public static final int FAN_POSITION_DEFROST_AND_FLOOR = 5; // 0x5
-    field public static final int FAN_POSITION_FACE = 1; // 0x1
-    field public static final int FAN_POSITION_FACE_AND_FLOOR = 3; // 0x3
-    field public static final int FAN_POSITION_FLOOR = 2; // 0x2
     field public static final int ID_MIRROR_DEFROSTER_ON = 1; // 0x1
     field public static final int ID_OUTSIDE_AIR_TEMP = 3; // 0x3
     field public static final int ID_STEERING_WHEEL_TEMP = 2; // 0x2
