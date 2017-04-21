@@ -57,10 +57,16 @@ class DiagnosticHalWrapper(object):
         self.vhal = Vhal(c.vhal_types_2_0)
         self.liveFrameConfig = self.chat(
             lambda hal: hal.getConfig(c.VEHICLE_PROPERTY_OBD2_LIVE_FRAME))
+        self.freezeFrameConfig = self.chat(
+            lambda hal: hal.getConfig(c.VEHICLE_PROPERTY_OBD2_FREEZE_FRAME))
         self.eventTypeData = {
             'live' : {
                 'builder'  : lambda: DiagnosticEventBuilder(self.liveFrameConfig),
                 'property' :  c.VEHICLE_PROPERTY_OBD2_LIVE_FRAME
+            },
+            'freeze' : {
+                'builder'  : lambda: DiagnosticEventBuilder(self.freezeFrameConfig),
+                'property' :  c.VEHICLE_PROPERTY_OBD2_FREEZE_FRAME
             },
         }
 
@@ -73,6 +79,8 @@ class DiagnosticHalWrapper(object):
         lastTimestamp = 0
         for event in data:
             currentTimestamp = event['timestamp']
+            # time travel isn't supported (yet)
+            assert currentTimestamp >= lastTimestamp
             # wait the delta between this event and the previous one
             # before sending it out; but on the first event, send now
             # or we'd wait for a long long long time
