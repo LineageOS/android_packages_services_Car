@@ -198,11 +198,13 @@ public class SensorHalService extends SensorHalServiceBase {
         float rate = 1.0f;
         switch (carSensorManagerRate) {
             case CarSensorManager.SENSOR_RATE_FASTEST:
+                rate = prop.maxSampleRate;
+                break;
             case CarSensorManager.SENSOR_RATE_FAST:
-                rate = 10f;
+                rate = 10f;  // every 100ms
                 break;
             case CarSensorManager.SENSOR_RATE_UI:
-                rate = 5f;
+                rate = 5f;   // every 200ms
                 break;
             default: // fall back to default.
                 break;
