@@ -114,41 +114,8 @@ public class DiagnosticHalService extends SensorHalServiceBase {
     }
 
     @Override
-    public synchronized void init() {
-        for (int i = 0; i < mVehiclePropertyToConfig.size(); ++i) {
-            int propertyId = mVehiclePropertyToConfig.keyAt(i);
-            switch (propertyId) {
-                case VehicleProperty.OBD2_LIVE_FRAME:
-                case VehicleProperty.OBD2_FREEZE_FRAME:
-                case VehicleProperty.OBD2_FREEZE_FRAME_INFO:
-                    Log.i(CarLog.TAG_DIAGNOSTIC,
-                            String.format("subscribing to property 0x%x", propertyId));
-                    mHal.subscribeProperty(this, propertyId);
-                    break;
-                default:
-                    break;
-            }
-        }
-        super.init();
-    }
-
-    @Override
     public synchronized void release() {
         super.release();
-        for (int i = 0; i < mVehiclePropertyToConfig.size(); ++i) {
-            int propertyId = mVehiclePropertyToConfig.keyAt(i);
-            switch (propertyId) {
-                case VehicleProperty.OBD2_LIVE_FRAME:
-                case VehicleProperty.OBD2_FREEZE_FRAME:
-                case VehicleProperty.OBD2_FREEZE_FRAME_INFO:
-                    Log.i(CarLog.TAG_DIAGNOSTIC,
-                            String.format("unsubscribing from property 0x%x", propertyId));
-                    mHal.unsubscribeProperty(this, propertyId);
-                    break;
-                default:
-                    break;
-            }
-        }
         mDiagnosticCapabilities.clear();
     }
 
