@@ -124,7 +124,6 @@ public final class Car {
      * @FutureFeature Cannot drop due to usage in non-flag protected place.
      * @hide
      */
-    @SystemApi
     public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
 
     /**
@@ -231,7 +230,6 @@ public final class Car {
      * @hide
      */
     @FutureFeature
-    @SystemApi
     public static final String PERMISSION_VMS_PUBLISHER = "android.car.permission.VMS_PUBLISHER";
 
     /**
@@ -240,7 +238,6 @@ public final class Car {
      * @hide
      */
     @FutureFeature
-    @SystemApi
     public static final String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
 
     /**
