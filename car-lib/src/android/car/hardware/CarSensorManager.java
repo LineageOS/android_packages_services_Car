@@ -298,9 +298,12 @@ public final class CarSensorManager implements CarManagerBase {
      * @param listener
      * @param sensorType sensor type to subscribe.
      * @param rate how fast the sensor events are delivered. It should be one of
-     *        {@link #SENSOR_RATE_FASTEST} or {@link #SENSOR_RATE_NORMAL}. Rate may not be respected
-     *        especially when the same sensor is registered with different listener with different
-     *        rates.
+     *        {@link #SENSOR_RATE_FASTEST}, {@link #SENSOR_RATE_FAST}, {@link #SENSOR_RATE_UI},
+     *        {@link #SENSOR_RATE_NORMAL}. Rate may not be respected especially when the same sensor
+     *        is registered with different listener with different rates. Also, rate might be
+     *        ignored when vehicle property raises events only when the value is actually changed,
+     *        for example {@link #SENSOR_TYPE_PARKING_BRAKE} will raise an event only when parking
+     *        brake was engaged or disengaged.
      * @return if the sensor was successfully enabled.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      * @throws IllegalArgumentException for wrong argument like wrong rate
@@ -311,7 +314,8 @@ public final class CarSensorManager implements CarManagerBase {
     public boolean registerListener(OnSensorChangedListener listener, @SensorType int sensorType,
             @SensorRate int rate) throws CarNotConnectedException, IllegalArgumentException {
         assertSensorType(sensorType);
-        if (rate != SENSOR_RATE_FASTEST && rate != SENSOR_RATE_NORMAL) {
+        if (rate != SENSOR_RATE_FASTEST && rate != SENSOR_RATE_NORMAL
+                && rate != SENSOR_RATE_UI && rate != SENSOR_RATE_FAST) {
             throw new IllegalArgumentException("wrong rate " + rate);
         }
         synchronized(mActiveSensorListeners) {

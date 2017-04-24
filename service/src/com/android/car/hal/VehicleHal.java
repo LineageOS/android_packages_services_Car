@@ -21,8 +21,6 @@ import static com.android.car.CarServiceUtils.toFloatArray;
 import static com.android.car.CarServiceUtils.toIntArray;
 import static java.lang.Integer.toHexString;
 
-import com.google.android.collect.Lists;
-
 import android.annotation.CheckResult;
 import android.car.annotation.FutureFeature;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -406,8 +404,10 @@ public class VehicleHal extends IVehicleCallback.Stub {
     }
 
     public VehiclePropValue get(int propertyId, int areaId) throws PropertyTimeoutException {
-        Log.i(CarLog.TAG_HAL, "get, property: 0x" + toHexString(propertyId)
-                + ", areaId: 0x" + toHexString(areaId));
+        if (DBG) {
+            Log.i(CarLog.TAG_HAL, "get, property: 0x" + toHexString(propertyId)
+                    + ", areaId: 0x" + toHexString(areaId));
+        }
         VehiclePropValue propValue = new VehiclePropValue();
         propValue.prop = propertyId;
         propValue.areaId = areaId;
