@@ -95,7 +95,8 @@ def main():
                    for key, pattern in cfg['timings'].iteritems()}
 
   data_points = {}
-  timing_points = collections.OrderedDict()
+  kernel_timing_points = collections.OrderedDict()
+  logcat_timing_points = collections.OrderedDict()
   boottime_points = collections.OrderedDict()
   for it in range(0, args.iterate):
     if args.iterate > 1:
@@ -106,7 +107,7 @@ def main():
     boottime_events = None
     while attempt <= MAX_RETRIES and processing_data is None:
       attempt += 1
-      processing_data, timings, boottime_events = iterate(
+      processing_data, kernel_timings, logcat_timings, boottime_events = iterate(
         args, search_events, timing_events, cfg, error_time, components_to_monitor)
 
     if not processing_data or not boottime_events:
@@ -118,11 +119,16 @@ def main():
         data_points[k] = []
       data_points[k].append(v['value'])
 
-    if timings is not None:
-      for k, v in timings.iteritems():
-        if k not in timing_points:
-          timing_points[k] = []
-        timing_points[k].append(v)
+    if kernel_timings is not None:
+      for k, v in kernel_timings.iteritems():
+        if k not in kernel_timing_points:
+          kernel_timing_points[k] = []
+        kernel_timing_points[k].append(v)
+    if logcat_timings is not None:
+      for k, v in logcat_timings.iteritems():
+        if k not in logcat_timing_points:
+          logcat_timing_points[k] = []
+        logcat_timing_points[k].append(v)
 
     for k, v in boottime_events.iteritems():
       if not k in boottime_points:
@@ -136,45 +142,54 @@ def main():
   if args.iterate > 1:
     print "-----------------"
     print "ro.boottime.* after {0} runs".format(args.iterate)
-    print '{0:30}: {1:<7} {2:<7}'.format("Event", "Mean", "stddev")
+    print '{0:30}: {1:<7} {2:<7} {3}'.format("Event", "Mean", "stddev", "#runs")
     for item in boottime_points.items():
-        print '{0:30}: {1:<7.5} {2:<7.5} {3}'.format(
-          item[0], sum(item[1])/len(item[1]), stddev(item[1]),\
-          "*time taken" if item[0].startswith("init.") else "")
+        num_runs = len(item[1])
+        print '{0:30}: {1:<7.5} {2:<7.5} {3} {4}'.format(
+          item[0], sum(item[1])/num_runs, stddev(item[1]),\
+          "*time taken" if item[0].startswith("init.") else "",\
+          num_runs if num_runs != args.iterate else "")
 
-    if timing_points and args.timings:
+    if args.timings:
+      dump_timings_points_summary("Kernel", kernel_timing_points, args)
+      dump_timings_points_summary("Logcat", logcat_timing_points, args)
+
+
+    print "-----------------"
+    print "Avg values after {0} runs".format(args.iterate)
+    print '{0:30}: {1:<7} {2:<7} {3}'.format("Event", "Mean", "stddev", "#runs")
+
+    average_with_stddev = []
+    for item in data_points.items():
+      average_with_stddev.append((item[0], sum(item[1])/len(item[1]), stddev(item[1]),\
+                                  len(item[1])))
+    for item in sorted(average_with_stddev, key=lambda entry: entry[1]):
+      print '{0:30}: {1:<7.5} {2:<7.5} {3}'.format(
+        item[0], item[1], item[2], item[3] if item[3] != args.iterate else "")
+
+
+def dump_timings_points_summary(msg_header, timing_points, args):
       averaged_timing_points = []
       for item in timing_points.items():
         average = sum(item[1])/len(item[1])
         std_dev = stddev(item[1])
-        averaged_timing_points.append((item[0], average, std_dev))
+        averaged_timing_points.append((item[0], average, std_dev, len(item[1])))
 
       print "-----------------"
-      print "Timing in order, Avg time values after {0} runs".format(args.iterate)
-      print '{0:30}: {1:<7} {2:<7}'.format("Event", "Mean", "stddev")
+      print msg_header + " timing in order, Avg time values after {0} runs".format(args.iterate)
+      print '{0:30}: {1:<7} {2:<7} {3}'.format("Event", "Mean", "stddev", "#runs")
       for item in averaged_timing_points:
-        print '{0:30}: {1:<7.5} {2:<7.5}'.format(
-          item[0], item[1], item[2])
+        print '{0:30}: {1:<7.5} {2:<7.5} {3}'.format(
+          item[0], item[1], item[2], item[3] if item[3] != args.iterate else "")
 
       print "-----------------"
-      print "Timing top items, Avg time values after {0} runs".format(args.iterate)
-      print '{0:30}: {1:<7} {2:<7}'.format("Event", "Mean", "stddev")
+      print msg_header + " timing top items, Avg time values after {0} runs".format(args.iterate)
+      print '{0:30}: {1:<7} {2:<7} {3}'.format("Event", "Mean", "stddev", "#runs")
       for item in sorted(averaged_timing_points, key=lambda entry: entry[1], reverse=True):
         if item[1] < TIMING_THRESHOLD:
           break
-        print '{0:30}: {1:<7.5} {2:<7.5}'.format(
-          item[0], item[1], item[2])
-
-    print "-----------------"
-    print "Avg values after {0} runs".format(args.iterate)
-    print '{0:30}: {1:<7} {2:<7}'.format("Event", "Mean", "stddev")
-
-    average_with_stddev = []
-    for item in data_points.items():
-      average_with_stddev.append((item[0], sum(item[1])/len(item[1]), stddev(item[1])))
-    for item in sorted(average_with_stddev, key=lambda entry: entry[1]):
-      print '{0:30}: {1:<7.5} {2:<7.5}'.format(
-        item[0], item[1], item[2])
+        print '{0:30}: {1:<7.5} {2:<7.5} {3}'.format(
+          item[0], item[1], item[2], item[3] if item[3] != args.iterate else "")
 
 def capture_bugreport(bugreport_hint, boot_complete_time):
     now = datetime.now()
@@ -183,18 +198,52 @@ def capture_bugreport(bugreport_hint, boot_complete_time):
     print "Boot up time too big, will capture bugreport %s" % (bugreport_file)
     os.system(ADB_CMD + " bugreport " + bugreport_file)
 
+def generate_timing_points(timing_events, timings):
+  timing_points = collections.OrderedDict()
+  for k, l in timing_events.iteritems():
+      for v in l:
+        name, time_v = extract_timing(v, timings)
+        if name and time_v:
+          if v.find("SystemServerTimingAsync") > 0:
+            name = "(" + name + ")"
+          new_name = name
+          name_index = 0
+          while timing_points.get(new_name): # if the name is already taken, append #digit
+            name_index += 1
+            new_name = name + "#" + str(name_index)
+          name = new_name
+          if k.endswith("_secs"):
+            timing_points[name] = time_v * 1000.0
+          else:
+            timing_points[name] = time_v
+  return timing_points
+
+def dump_timing_points(msg_header, timing_points):
+    print msg_header + " event timing in time order, key: time"
+    for item in timing_points.items():
+      print '{0:30}: {1:<7.5}'.format(item[0], item[1])
+    print "-----------------"
+    print msg_header + " event timing top items"
+    for item in sorted(timing_points.items(), key=operator.itemgetter(1), reverse = True):
+      if item[1] < TIMING_THRESHOLD:
+        break
+      print '{0:30}: {1:<7.5}'.format(
+        item[0], item[1])
+    print "-----------------"
+
 def iterate(args, search_events, timings, cfg, error_time, components_to_monitor):
   if args.reboot:
     reboot(args.serial, args.stressfs != '', args.permissive, args.adb_reboot)
 
-  dmesg_events, e = collect_events(search_events, ADB_CMD + ' shell su root dmesg -w', {},\
-                                   [ KERNEL_BOOT_COMPLETE ])
+  dmesg_events, kernel_timing_events = collect_events(search_events, ADB_CMD +\
+                                                      ' shell su root dmesg -w', timings,\
+                                                      [ KERNEL_BOOT_COMPLETE ], True)
 
   logcat_stop_events = [ LOGCAT_BOOT_COMPLETE, KERNEL_BOOT_COMPLETE, LAUNCHER_START]
   if args.fs_check:
     logcat_stop_events.append("FsStat")
   logcat_events, logcat_timing_events = collect_events(
-    search_events, ADB_CMD + ' logcat -b all -v epoch', timings, logcat_stop_events)
+    search_events, ADB_CMD + ' logcat -b all -v epoch', timings, logcat_stop_events, False)
   logcat_event_time = extract_time(
     logcat_events, TIME_LOGCAT, float);
   logcat_original_time = extract_time(
@@ -268,8 +317,6 @@ def iterate(args, search_events, timings, cfg, error_time, components_to_monitor
           events[k] = 0.0
 
   data_points = {}
-  timing_points = collections.OrderedDict()
-
 
   print "-----------------"
   print "ro.boottime.*: time"
@@ -279,37 +326,10 @@ def iterate(args, search_events, timings, cfg, error_time, components_to_monitor
   print "-----------------"
 
   if args.timings:
-    timing_abs_times = []
-    for k, l in logcat_timing_events.iteritems():
-      for v in l:
-        name, time_v = extract_timing(v, timings)
-        time_abs = extract_a_time(v, TIME_LOGCAT, float)
-        if name and time_abs:
-          if v.find("SystemServerTimingAsync") > 0:
-            name = "(" + name + ")"
-          timing_points[name] = time_v
-          timing_abs_times.append(time_abs * 1000.0)
-    timing_delta = []
-    if len(timing_points.items()) > 0:
-      timing_delta.append(timing_points.items()[0][1])
-    for i in range(1, len(timing_abs_times)):
-      timing_delta.append(timing_abs_times[i] -  timing_abs_times[i - 1])
-    print "Event timing in time order, key: time (delta from prev too big)"
-    for item in timing_points.items():
-      delta = timing_delta.pop(0)
-      msg = ""
-      if (delta - item[1]) > TIMING_THRESHOLD:
-        msg = "**big delta from prev step:" + str(delta)
-      print '{0:30}: {1:<7.5} {2}'.format(
-        item[0], item[1], msg)
-    print "-----------------"
-    print "Event timing top items"
-    for item in sorted(timing_points.items(), key=operator.itemgetter(1), reverse = True):
-      if item[1] < TIMING_THRESHOLD:
-        break
-      print '{0:30}: {1:<7.5}'.format(
-        item[0], item[1])
-    print "-----------------"
+    kernel_timing_points = generate_timing_points(kernel_timing_events, timings)
+    logcat_timing_points = generate_timing_points(logcat_timing_events, timings)
+    dump_timing_points("Kernel", kernel_timing_points)
+    dump_timing_points("Logcat", logcat_timing_points)
 
   for item in sorted(events.items(), key=operator.itemgetter(1)):
     data_points[item[0]] = {
@@ -327,9 +347,17 @@ def iterate(args, search_events, timings, cfg, error_time, components_to_monitor
     capture_bugreport("bootuptoolong", events[LOGCAT_BOOT_COMPLETE])
 
   for k, v in components_to_monitor.iteritems():
-    value_measured = timing_points.get(k)
-    if value_measured and value_measured > v:
-      capture_bugreport(k + "-" + str(value_measured), events[LOGCAT_BOOT_COMPLETE])
+    logcat_value_measured = logcat_timing_points.get(k)
+    kernel_value_measured = kernel_timing_points.get(k)
+    data_from_data_points = data_points.get(k)
+    if logcat_value_measured and logcat_value_measured > v:
+      capture_bugreport(k + "-" + str(logcat_value_measured), events[LOGCAT_BOOT_COMPLETE])
+      break
+    elif kernel_value_measured and kernel_value_measured > v:
+      capture_bugreport(k + "-" + str(kernel_value_measured), events[LOGCAT_BOOT_COMPLETE])
+      break
+    elif data_from_data_points and data_from_data_points['value'] * 1000.0 > v:
+      capture_bugreport(k + "-" + str(data_from_data_points['value']), events[LOGCAT_BOOT_COMPLETE])
       break
 
   if args.fs_check:
@@ -346,7 +374,7 @@ def iterate(args, search_events, timings, cfg, error_time, components_to_monitor
       if (fs_stat_val & ~0x17) != 0:
         capture_bugreport("fs_stat_" + fs_stat, events[LOGCAT_BOOT_COMPLETE])
 
-  return data_points, timing_points, boottime_events
+  return data_points, kernel_timing_points, logcat_timing_points, boottime_events
 
 def debug(string):
   if DEBUG:
@@ -432,7 +460,7 @@ def handle_zygote_event(zygote_pids, events, event, line):
       zygote_pids.append(pid)
   events[event] = line
 
-def collect_events(search_events, command, timings, stop_events):
+def collect_events(search_events, command, timings, stop_events, disable_timing_after_zygote):
   events = collections.OrderedDict()
   timing_events = {}
   process = subprocess.Popen(command, shell=True,
@@ -440,6 +468,7 @@ def collect_events(search_events, command, timings, stop_events):
   data_available = stop_events is None
   zygote_pids = []
   start_time = time.time()
+  zygote_found = False
 
   line = None
   read_poll = select.poll()
@@ -461,7 +490,10 @@ def collect_events(search_events, command, timings, stop_events):
     event = get_boot_event(line, search_events);
     if event:
       debug("event[{0}] captured: {1}".format(event, line))
-      if event.startswith("zygote"):
+      if event == "starting_zygote":
+        events[event] = line
+        zygote_found = True
+      elif event.startswith("zygote"):
         handle_zygote_event(zygote_pids, events, event, line)
       else:
         events[event] = line
@@ -472,7 +504,7 @@ def collect_events(search_events, command, timings, stop_events):
           break;
 
     timing_event = get_boot_event(line, timings);
-    if timing_event:
+    if timing_event and (not disable_timing_after_zygote or not zygote_found):
       if timing_event not in timing_events:
         timing_events[timing_event] = []
       timing_events[timing_event].append(line)
@@ -491,7 +523,10 @@ def fetch_boottime_property():
   for line in out:
     match = pattern.match(line)
     if match:
-      events[match.group(1)] = float(match.group(2)) / 1000000000.0 #ns to s
+      if match.group(1).startswith("init."):
+        events[match.group(1)] = float(match.group(2)) / 1000.0 #ms to s
+      else:
+        events[match.group(1)] = float(match.group(2)) / 1000000000.0 #ns to s
   ordered_event = collections.OrderedDict()
   for item in sorted(events.items(), key=operator.itemgetter(1)):
     ordered_event[item[0]] = item[1]
