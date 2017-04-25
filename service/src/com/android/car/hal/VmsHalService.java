@@ -356,7 +356,7 @@ public class VmsHalService extends HalServiceBase {
                 case VmsMessageType.OFFERING:
                     handleOfferingEvent(vec);
                     break;
-                case VmsMessageType.AVAILABILITY:
+                case VmsMessageType.AVAILABILITY_REQUEST:
                     handleAvailabilityEvent();
                     break;
                 case VmsMessageType.SUBSCRIPTION_REQUEST:
@@ -492,7 +492,7 @@ public class VmsHalService extends HalServiceBase {
         synchronized (mAvailabilityLock) {
             Collection<VmsLayer> availableLayers = mAvailableLayers.getAvailableLayers();
             VehiclePropValue vehiclePropertyValue = toVehiclePropValue(
-                VmsMessageType.AVAILABILITY, availableLayers);
+                VmsMessageType.AVAILABILITY_RESPONSE, availableLayers);
             setPropertyValue(vehiclePropertyValue);
         }
     }
@@ -565,7 +565,8 @@ public class VmsHalService extends HalServiceBase {
     }
 
     public boolean setAvailableLayers(Collection<VmsLayer> availableLayers) {
-        VehiclePropValue vehiclePropertyValue = toVehiclePropValue(VmsMessageType.AVAILABILITY,
+        VehiclePropValue vehiclePropertyValue =
+                toVehiclePropValue(VmsMessageType.AVAILABILITY_RESPONSE,
             availableLayers);
 
         return setPropertyValue(vehiclePropertyValue);
