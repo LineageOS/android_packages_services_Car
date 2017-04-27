@@ -151,8 +151,8 @@ public final class CarDiagnosticManager implements CarManagerBase {
         }
     }
 
-    private void doUnregisterListenerLocked(OnDiagnosticEventListener listener, int sensor) {
-        CarDiagnosticListeners listeners = mActiveListeners.get(sensor);
+    private void doUnregisterListenerLocked(OnDiagnosticEventListener listener, int frameType) {
+        CarDiagnosticListeners listeners = mActiveListeners.get(frameType);
         if (listeners != null) {
             boolean needsServerUpdate = false;
             if (listeners.contains(listener)) {
@@ -160,15 +160,15 @@ public final class CarDiagnosticManager implements CarManagerBase {
             }
             if (listeners.isEmpty()) {
                 try {
-                    mService.unregisterDiagnosticListener(sensor,
+                    mService.unregisterDiagnosticListener(frameType,
                         mListenerToService);
                 } catch (RemoteException e) {
                     //ignore
                 }
-                mActiveListeners.remove(sensor);
+                mActiveListeners.remove(frameType);
             } else if (needsServerUpdate) {
                 try {
-                    registerOrUpdateDiagnosticListener(sensor, listeners.getRate());
+                    registerOrUpdateDiagnosticListener(frameType, listeners.getRate());
                 } catch (CarNotConnectedException e) {
                     // ignore
                 }
@@ -284,10 +284,10 @@ public final class CarDiagnosticManager implements CarManagerBase {
         }
 
         void onDiagnosticEvent(final CarDiagnosticEvent event) {
-            // throw away old sensor data as oneway binder call can change order.
+            // throw away old data as oneway binder call can change order.
             long updateTime = event.timestamp;
             if (updateTime < mLastUpdateTime) {
-                Log.w(CarLibLog.TAG_DIAGNOSTIC, "dropping old sensor data");
+                Log.w(CarLibLog.TAG_DIAGNOSTIC, "dropping old data");
                 return;
             }
             mLastUpdateTime = updateTime;

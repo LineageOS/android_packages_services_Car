@@ -310,7 +310,7 @@ public class DiagnosticHalService extends SensorHalServiceBase {
             VehiclePropValue value = mHal.get(builder.build());
             return createCarDiagnosticEvent(value);
         } catch (PropertyTimeoutException e) {
-            Log.e(CarLog.TAG_DIAGNOSTIC, "timeout trying to read OBD2_DTC_INFO");
+            Log.e(CarLog.TAG_DIAGNOSTIC, "timeout trying to read OBD2_FREEZE_FRAME");
             return null;
         } catch (IllegalArgumentException e) {
             Log.e(CarLog.TAG_DIAGNOSTIC,
