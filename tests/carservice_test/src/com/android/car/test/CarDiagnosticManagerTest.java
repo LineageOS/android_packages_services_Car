@@ -758,6 +758,49 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertNull(mCarDiagnosticManager.getFreezeFrame(injectedEvent.timestamp));
     }
 
+    public void testListenerUnregister() throws Exception {
+        if (!isFeatureEnabled()) {
+            Log.i(TAG, "skipping testListenerUnregister as diagnostics API is not enabled");
+            return;
+        }
+
+        Listener listener1 = new Listener();
+        Listener listener2 = new Listener();
+        mCarDiagnosticManager.registerListener(
+            listener1,
+            CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE,
+            android.car.hardware.CarSensorManager.SENSOR_RATE_NORMAL);
+        mCarDiagnosticManager.registerListener(
+            listener1,
+            CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE,
+            android.car.hardware.CarSensorManager.SENSOR_RATE_NORMAL);
+
+        mCarDiagnosticManager.unregisterListener(listener1);
+
+        // you need a listener to be registered before MockedVehicleHal will actually dispatch
+        // your events - add one, but do it *after* unregistering the first listener
+        mCarDiagnosticManager.registerListener(
+            listener2,
+            CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE,
+            android.car.hardware.CarSensorManager.SENSOR_RATE_NORMAL);
+        mCarDiagnosticManager.registerListener(
+            listener2,
+            CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE,
+            android.car.hardware.CarSensorManager.SENSOR_RATE_NORMAL);
+
+        VehiclePropValue injectedEvent =
+            mFreezeFrameProperties.addNewEvent(mFreezeFrameEventBuilder);
+        long time = injectedEvent.timestamp;
+        getMockedVehicleHal().injectEvent(injectedEvent);
+        assertFalse(listener1.waitForEvent(time));
+        assertTrue(listener2.waitForEvent(time));
+
+        time += 1000;
+        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
+        assertFalse(listener1.waitForEvent(time));
+        assertTrue(listener2.waitForEvent(time));
+    }
+
     class Listener implements CarDiagnosticManager.OnDiagnosticEventListener {
         private final Object mSync = new Object();
 
