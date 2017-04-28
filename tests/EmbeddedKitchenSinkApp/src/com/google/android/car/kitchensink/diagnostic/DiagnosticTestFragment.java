@@ -98,12 +98,12 @@ public class DiagnosticTestFragment extends Fragment {
                     (CarDiagnosticManager)mActivity.getCar().getCarManager(Car.DIAGNOSTIC_SERVICE);
             if (mLiveListener != null) {
                 mDiagnosticManager.registerListener(mLiveListener,
-                    CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE,
+                    CarDiagnosticManager.FRAME_TYPE_LIVE,
                     CarSensorManager.SENSOR_RATE_NORMAL);
             }
             if (mFreezeListener != null) {
                 mDiagnosticManager.registerListener(mFreezeListener,
-                    CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE,
+                    CarDiagnosticManager.FRAME_TYPE_FREEZE,
                     CarSensorManager.SENSOR_RATE_NORMAL);
             }
         } catch (android.car.CarNotConnectedException|android.support.car.CarNotConnectedException e) {

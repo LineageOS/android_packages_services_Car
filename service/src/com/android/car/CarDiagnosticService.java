@@ -161,10 +161,10 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
             if (event.isLiveFrame()) {
                 // record recent-most live frame information
                 setRecentmostLiveFrame(event);
-                listeners = mDiagnosticListeners.get(CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE);
+                listeners = mDiagnosticListeners.get(CarDiagnosticManager.FRAME_TYPE_LIVE);
             } else if (event.isFreezeFrame()) {
                 setRecentmostFreezeFrame(event);
-                listeners = mDiagnosticListeners.get(CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE);
+                listeners = mDiagnosticListeners.get(CarDiagnosticManager.FRAME_TYPE_FREEZE);
             } else {
                 Log.w(
                         CarLog.TAG_DIAGNOSTIC,
@@ -286,21 +286,21 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
                 return false;
             }
             switch (frameType) {
-                case CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE:
+                case CarDiagnosticManager.FRAME_TYPE_LIVE:
                     if (mLiveFrameDiagnosticRecord.isEnabled()) {
                         return true;
                     }
-                    if (diagnosticHal.requestSensorStart(CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE,
+                    if (diagnosticHal.requestSensorStart(CarDiagnosticManager.FRAME_TYPE_LIVE,
                             rate)) {
                         mLiveFrameDiagnosticRecord.enable();
                         return true;
                     }
                     break;
-                case CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE:
+                case CarDiagnosticManager.FRAME_TYPE_FREEZE:
                     if (mFreezeFrameDiagnosticRecords.isEnabled()) {
                         return true;
                     }
-                    if (diagnosticHal.requestSensorStart(CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE,
+                    if (diagnosticHal.requestSensorStart(CarDiagnosticManager.FRAME_TYPE_FREEZE,
                             rate)) {
                         mFreezeFrameDiagnosticRecords.enable();
                         return true;
@@ -374,13 +374,13 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
             return;
         }
         switch (frameType) {
-            case CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE:
+            case CarDiagnosticManager.FRAME_TYPE_LIVE:
                 if (mLiveFrameDiagnosticRecord.disableIfNeeded())
-                    diagnosticHal.requestSensorStop(CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE);
+                    diagnosticHal.requestSensorStop(CarDiagnosticManager.FRAME_TYPE_LIVE);
                 break;
-            case CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE:
+            case CarDiagnosticManager.FRAME_TYPE_FREEZE:
                 if (mFreezeFrameDiagnosticRecords.disableIfNeeded())
-                    diagnosticHal.requestSensorStop(CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE);
+                    diagnosticHal.requestSensorStop(CarDiagnosticManager.FRAME_TYPE_FREEZE);
                 break;
         }
     }

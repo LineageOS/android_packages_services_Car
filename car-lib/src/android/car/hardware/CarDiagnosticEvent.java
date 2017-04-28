@@ -113,10 +113,10 @@ public class CarDiagnosticEvent implements Parcelable {
 
         jsonWriter.name("type");
         switch (frameType) {
-            case CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE:
+            case CarDiagnosticManager.FRAME_TYPE_LIVE:
                 jsonWriter.value("live");
                 break;
-            case CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE:
+            case CarDiagnosticManager.FRAME_TYPE_FREEZE:
                 jsonWriter.value("freeze");
                 break;
             default:
@@ -175,7 +175,7 @@ public class CarDiagnosticEvent implements Parcelable {
     }
 
     public static class Builder {
-        private int mType = CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE;
+        private int mType = CarDiagnosticManager.FRAME_TYPE_LIVE;
         private long mTimestamp = 0;
         private SparseArray<Float> mFloatValues = new SparseArray<>();
         private SparseIntArray mIntValues = new SparseIntArray();
@@ -186,11 +186,11 @@ public class CarDiagnosticEvent implements Parcelable {
         }
 
         public static Builder newLiveFrameBuilder() {
-            return new Builder(CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE);
+            return new Builder(CarDiagnosticManager.FRAME_TYPE_LIVE);
         }
 
         public static Builder newFreezeFrameBuilder() {
-            return new Builder(CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE);
+            return new Builder(CarDiagnosticManager.FRAME_TYPE_FREEZE);
         }
 
         public Builder atTimestamp(long timestamp) {
@@ -242,11 +242,11 @@ public class CarDiagnosticEvent implements Parcelable {
     }
 
     public boolean isLiveFrame() {
-        return CarDiagnosticManager.FRAME_TYPE_FLAG_LIVE == frameType;
+        return CarDiagnosticManager.FRAME_TYPE_LIVE == frameType;
     }
 
     public boolean isFreezeFrame() {
-        return CarDiagnosticManager.FRAME_TYPE_FLAG_FREEZE == frameType;
+        return CarDiagnosticManager.FRAME_TYPE_FREEZE == frameType;
     }
 
     public boolean isEmptyFrame() {
