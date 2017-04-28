@@ -48,6 +48,7 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
         // Case when the subscription request was sent before the publisher was ready.
         VmsSubscriptionState subscriptionState = getSubscriptions();
         publishIfNeeded(subscriptionState);
+        declareOffering(subscriptionState);
     }
 
     private void publishIfNeeded(VmsSubscriptionState subscriptionState) {
