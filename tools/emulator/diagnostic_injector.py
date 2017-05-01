@@ -29,29 +29,6 @@ import vhal_consts_2_1 as c
 from vhal_emulator import Vhal
 from diagnostic_builder import DiagnosticEventBuilder
 
-# these define the mapping between OBD2 sensors and VHAL indices
-# TODO(egranata): can we autogenerate this?
-intSensorsMapping = {
-    0x03 : lambda builder,value: builder.addIntSensor(0, value),
-    0x05 : lambda builder,value: builder.addFloatSensor(1, value),
-    0x0A : lambda builder,value: builder.addIntSensor(22, value),
-    0x0C : lambda builder,value: builder.addFloatSensor(8, value),
-    0x0D : lambda builder,value: builder.addFloatSensor(9, value),
-    0x1F : lambda builder,value: builder.addIntSensor(7, value),
-    0x5C : lambda builder,value: builder.addIntSensor(23, value),
-}
-
-floatSensorsMapping = {
-    0x04 : lambda builder, value: builder.addFloatSensor(0, value),
-    0x06 : lambda builder, value: builder.addFloatSensor(2, value),
-    0x07 : lambda builder, value: builder.addFloatSensor(3, value),
-    0x08 : lambda builder, value: builder.addFloatSensor(4, value),
-    0x09 : lambda builder, value: builder.addFloatSensor(5, value),
-    0x11 : lambda builder, value: builder.addFloatSensor(12, value),
-    0x2F : lambda builder, value: builder.addFloatSensor(42, value),
-    0x46 : lambda builder, value: builder.addIntSensor(13, int(value)),
-}
-
 class DiagnosticHalWrapper(object):
     def __init__(self):
         self.vhal = Vhal(c.vhal_types_2_0)
@@ -94,9 +71,9 @@ class DiagnosticHalWrapper(object):
             builder = eventTypeData['builder']()
             builder.setStringValue(event.get('stringValue', ''))
             for intValue in event['intValues']:
-                intSensorsMapping[intValue['id']](builder, intValue['value'])
+                builder.addIntSensor(intValue['id'], intValue['value'])
             for floatValue in event['floatValues']:
-                floatSensorsMapping[floatValue['id']](builder, floatValue['value'])
+                builder.addFloatSensor(floatValue['id'], floatValue['value'])
             builtEvent = builder.build()
             # and send it
             print(self.chat(
