@@ -3,6 +3,9 @@ time_correction_key: correction
 timings:
   system_server: SystemServerTiming(Async)?\s*:\s*(?P<name>[^\s]+) took to complete:\s(?P<time>[0-9]+)ms
   fs_shutdown: (?P<name>boot_fs_shutdown),(?P<time>[0-9]+),([0-9]+)
+  ueventd_secs: ueventd:\s(?P<name>[^\s].+)\stook\s(?P<time>[.0-9]+)\sseconds
+  init_command_ms: init:\sCommand\s(?P<name>[^\s].+)\sreturned.*took\s(?P<time>[.0-9]+)ms
+  init_service_exec_secs: init:\sService\s.*exec\s[^\s]+\s\((?P<name>[^\s].+)\).*pid.*\swaiting\stook\s(?P<time>[.0-9]+)\sseconds
 
 events:
   kernel: Linux version
