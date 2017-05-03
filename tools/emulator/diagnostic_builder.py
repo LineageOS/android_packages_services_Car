@@ -81,3 +81,9 @@ class DiagnosticEventBuilder(object):
     def build(self):
         self.bytes_value = str(self.bitmask)
         return self
+
+    def __str__(self):
+        s = "diagnostic event {\n"
+        for x in ['string_value', 'int32_values', 'float_values']:
+            s = s + "\t%s: %s\n" % (x, self.__dict__[x])
+        return s  + "}"

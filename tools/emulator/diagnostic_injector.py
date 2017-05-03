@@ -88,9 +88,9 @@ class DiagnosticHalWrapper(object):
                 # also, timestamps are in nanoseconds, but sleep() uses seconds
                 time.sleep((currentTimestamp-lastTimestamp)/1000000000)
             lastTimestamp = currentTimestamp
-            print ("Sending event at %d" % currentTimestamp),
             # now build the event
-            eventTypeData = self.eventTypeData[event['type']]
+            eventType = event['type'].encode('utf-8')
+            eventTypeData = self.eventTypeData[eventType]
             builder = eventTypeData['builder']()
             builder.setStringValue(event.get('stringValue', ''))
             for intValue in event['intValues']:
@@ -98,12 +98,17 @@ class DiagnosticHalWrapper(object):
             for floatValue in event['floatValues']:
                 floatSensorsMapping[floatValue['id']](builder, floatValue['value'])
             builtEvent = builder.build()
-            # and send it
-            print(self.chat(
+            print ("Sending %s %s..." % (eventType, builtEvent)),
+        # and send it
+            status = self.chat(
                 lambda hal:
                     hal.setProperty(eventTypeData['property'],
                         0,
-                        builtEvent)))
+                        builtEvent)).status
+            if status == 0:
+                print("ok!")
+            else:
+                print("fail: %s" % status)
 
 if len(sys.argv) < 2:
     print("Syntax: diagnostic_injector.py <path/to/diagnostic.json>")
