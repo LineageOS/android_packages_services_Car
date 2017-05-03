@@ -119,7 +119,7 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
 
 
 #if 0
-    static TexWrapper* sTestTexture = createTextureFromPng("CarFromTop.png");
+    static TexWrapper* sTestTexture = createTextureFromPng("/system/etc/automotive/evs/CarFromTop.png");
     if (sTestTexture) {
         static int tickTock = 0;
         tickTock =~tickTock;
