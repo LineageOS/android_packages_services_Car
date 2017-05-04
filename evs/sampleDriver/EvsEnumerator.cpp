@@ -20,6 +20,9 @@
 #include "EvsV4lCamera.h"
 #include "EvsGlDisplay.h"
 
+#include <dirent.h>
+
+
 namespace android {
 namespace hardware {
 namespace automotive {
@@ -38,11 +41,37 @@ wp<EvsGlDisplay>                           EvsEnumerator::sActiveDisplay;
 EvsEnumerator::EvsEnumerator() {
     ALOGD("EvsEnumerator created");
 
-    // Hardwired for now.
-    // We could walk and query all devices matching /dev/video* but that would take some time,
-    // especially if any devices time out.  Perhaps best if each platform populates this with
-    // their set of known values.
-    sCameraList.emplace_back("/dev/video0");
+    unsigned videoCount   = 0;
+    unsigned captureCount = 0;
+
+    // For every video* entry in the dev folder, see if it reports suitable capabilities
+    // WARNING:  Depending on the driver implementations this could be slow, especially if
+    //           there are timeouts or round trips to hardware required to collect the needed
+    //           information.  Platform implementers should consider hard coding this list of
+    //           known good devices to speed up the startup time of their EVS implementation.
+    //           For example, this code might be replaced with nothing more than:
+    //                   sCameraList.emplace_back("/dev/video0");
+    //                   sCameraList.emplace_back("/dev/video1");
+    ALOGI("Starting dev/video* enumeration");
+    DIR* dir = opendir("/dev");
+    if (!dir) {
+        LOG_FATAL("Failed to open /dev folder\n");
+    }
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        // We're only looking for entries starting with 'video'
+        if (strncmp(entry->d_name, "video", 5) == 0) {
+            std::string deviceName("/dev/");
+            deviceName += entry->d_name;
+            videoCount++;
+            if (qualifyCaptureDevice(deviceName.c_str())) {
+                sCameraList.emplace_back(deviceName.c_str());
+                captureCount++;
+            }
+        }
+    }
+
+    ALOGI("Found %d qualified video capture devices of %d checked\n", captureCount, videoCount);
 }
 
 
@@ -186,6 +215,60 @@ Return<DisplayState> EvsEnumerator::getDisplayState()  {
     } else {
         return DisplayState::NOT_OPEN;
     }
+}
+
+
+bool EvsEnumerator::qualifyCaptureDevice(const char* deviceName) {
+    class FileHandleWrapper {
+    public:
+        FileHandleWrapper(int fd)   { mFd = fd; }
+        ~FileHandleWrapper()        { if (mFd > 0) close(mFd); }
+        operator int() const        { return mFd; }
+    private:
+        int mFd = -1;
+    };
+
+
+    FileHandleWrapper fd = open(deviceName, O_RDWR, 0);
+    if (fd < 0) {
+        return false;
+    }
+
+    v4l2_capability caps;
+    int result = ioctl(fd, VIDIOC_QUERYCAP, &caps);
+    if (result  < 0) {
+        return false;
+    }
+    if (((caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) == 0) ||
+        ((caps.capabilities & V4L2_CAP_STREAMING)     == 0)) {
+        return false;
+    }
+
+    // Enumerate the available capture formats (if any)
+    v4l2_fmtdesc formatDescription;
+    formatDescription.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    for (int i=0; true; i++) {
+        formatDescription.index = i;
+        if (ioctl(fd, VIDIOC_ENUM_FMT, &formatDescription) == 0) {
+            switch (formatDescription.pixelformat)
+            {
+                case V4L2_PIX_FMT_YUYV:     return true;
+                case V4L2_PIX_FMT_NV21:     return true;
+                case V4L2_PIX_FMT_NV16:     return true;
+                case V4L2_PIX_FMT_YVU420:   return true;
+                case V4L2_PIX_FMT_RGB32:    return true;
+                case V4L2_PIX_FMT_ARGB32:   return true;
+                case V4L2_PIX_FMT_XRGB32:   return true;
+                default:                    break;
+            }
+        } else {
+            // No more formats available
+            break;
+        }
+    }
+
+    // If we get here, we didn't find a usable output format
+    return false;
 }
 
 
