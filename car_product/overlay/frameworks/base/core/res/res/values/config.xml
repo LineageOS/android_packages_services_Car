@@ -48,4 +48,7 @@
     <integer name="config_jobSchedulerIdleWindowSlop">0</integer>
 
     <bool name="config_supportsMultiWindow">false</bool>
+    <!-- Automotive Bluetooth pairing option -->
+    <bool name="enable_pbap_pce_profile">true</bool>
+
 </resources>
