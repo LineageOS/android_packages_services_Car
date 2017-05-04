@@ -86,6 +86,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += android.hardware.automotive.evs@1.0-service
 PRODUCT_PACKAGES += android.automotive.evs.manager@1.0
 PRODUCT_PACKAGES += evs_app
+PRODUCT_COPY_FILES += \
+    packages/services/Car/evs/app/config.json:system/etc/automotive/evs/config.json \
+    packages/services/Car/evs/app/CarFromTop.png:system/etc/automotive/evs/CarFromTop.png
 
 ifeq ($(TARGET_USES_CAR_FUTURE_FEATURES),true)
 PRODUCT_PACKAGES += android.hardware.automotive.vehicle@2.1-service
