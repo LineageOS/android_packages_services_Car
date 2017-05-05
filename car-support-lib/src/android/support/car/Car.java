@@ -44,8 +44,9 @@ import java.util.Set;
  * {@link CarConnectionCallback} will respond with an {@link CarConnectionCallback#onConnected(Car)}
  * or {@link CarConnectionCallback#onDisconnected(Car)} message.  Nothing can be done with the
  * car until onConnected is called.  When the car disconnects then reconnects you may still use
- * the Car object but any manages retried from it should be considered invalid and will need to
- * be retrieved.
+ * the Car object but any manages retrieved from it should be considered invalid and will need to
+ * be retried. Also, you must call {@link #disconnect} before an instance of Car goes out of scope
+ * to avoid leaking resources.
  *
  * <p/>
  * Once connected, {@link #getCarManager(String)} or {@link #getCarManager(Class)} can be used to
@@ -366,9 +367,6 @@ public class Car {
      */
     public void disconnect() {
         synchronized (this) {
-            if (mConnectionState == STATE_DISCONNECTED) {
-                return;
-            }
             tearDownCarManagers();
             mConnectionState = STATE_DISCONNECTED;
             mCarServiceLoader.disconnect();
