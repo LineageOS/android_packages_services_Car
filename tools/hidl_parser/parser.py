@@ -25,6 +25,8 @@
 
 # It requires 'ply' (Python Lex/Yacc).
 
+from __future__ import print_function
+
 import ply
 
 tokens = ('package', 'import', 'enum', 'struct',

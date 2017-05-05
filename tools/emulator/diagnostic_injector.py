@@ -26,7 +26,25 @@ import time
 
 import vhal_consts_2_1 as c
 
-from vhal_emulator import Vhal
+# vhal_emulator depends on a custom Python package that requires installation
+# give user guidance should the import fail
+try:
+    from vhal_emulator import Vhal
+except ImportError as e:
+    isProtobuf = False
+    pipTool = "pip%s" % ("3" if sys.version_info > (3,0) else "")
+    if hasattr(e, 'name'):
+        if e.name == 'google': isProtobuf = True
+    elif hasattr(e, 'message'):
+        if e.message.endswith('symbol_database'):
+            isProtobuf = True
+    if isProtobuf:
+        print('could not find protobuf.')
+        print('protobuf can be installed via "sudo %s install --upgrade protobuf"' % pipTool)
+        sys.exit(1)
+    else:
+        raise e
+
 from diagnostic_builder import DiagnosticEventBuilder
 
 class DiagnosticHalWrapper(object):

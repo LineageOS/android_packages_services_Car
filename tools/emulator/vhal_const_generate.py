@@ -23,6 +23,8 @@
 # to itself vhal_consts_x.y.py for any version of Vehicle HAL that it knows about
 # Those files can then be used with vhal_emulator.py as per that script's documentation
 
+from __future__ import print_function
+
 import datetime
 
 def printHeader(dest):
@@ -59,7 +61,24 @@ script_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 parent_location = os.path.abspath(os.path.join(script_directory, '..'))
 sys.path.append(parent_location)
 
-from hidl_parser import parser
+# hidl_parser depends on a custom Python package that requires installation
+# give user guidance should the import fail
+try:
+    from hidl_parser import parser
+except ImportError as e:
+    isPly = False
+    pipTool = "pip%s" % ("3" if sys.version_info > (3,0) else "")
+    if hasattr(e, 'name'):
+        if e.name == 'ply': isPly = True
+    elif hasattr(e, 'message'):
+        if e.message.endswith('ply'): isPly = True
+    if isPly:
+        print('could not import ply.')
+        print('ply is available as part of an Android checkout in external/ply')
+        print('or it can be installed via "sudo %s install ply"' % pipTool)
+        sys.exit(1)
+    else:
+        raise e
 
 android_build_top = os.environ.get("ANDROID_BUILD_TOP", None)
 if android_build_top is not None:
