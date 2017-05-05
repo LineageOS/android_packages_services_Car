@@ -57,6 +57,7 @@ private:
     };
 
 
+    static bool qualifyCaptureDevice(const char* deviceName);
     static CameraRecord* findCameraById(const std::string& cameraId);
 
 
