@@ -579,9 +579,7 @@ public final class Car {
                 manager = new CarCabinManager(binder, mContext, mEventHandler);
                 break;
             case DIAGNOSTIC_SERVICE:
-                if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
-                    manager = new CarDiagnosticManager(binder, mContext, mEventHandler);
-                }
+                manager = new CarDiagnosticManager(binder, mContext, mEventHandler);
                 break;
             case HVAC_SERVICE:
                 manager = new CarHvacManager(binder, mContext, mEventHandler);

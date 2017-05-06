@@ -203,10 +203,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 mFreezeFrameProperties.mFreezeFrameClearHandler);
     }
 
-    private boolean isFeatureEnabled() {
-        return FeatureConfiguration.ENABLE_DIAGNOSTIC;
-    }
-
     @Override
     protected void setUp() throws Exception {
         mLiveFrameEventBuilder.addIntSensor(Obd2IntegerSensorIndex.AMBIENT_AIR_TEMPERATURE, 30);
@@ -230,21 +226,12 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
         super.setUp();
 
-        if (isFeatureEnabled()) {
-            Log.i(TAG, "attempting to get DIAGNOSTIC_SERVICE");
-            mCarDiagnosticManager =
-                    (CarDiagnosticManager) getCar().getCarManager(Car.DIAGNOSTIC_SERVICE);
-        } else {
-            Log.i(TAG, "skipping diagnostic tests as ENABLE_DIAGNOSTIC flag is false");
-        }
+        Log.i(TAG, "attempting to get DIAGNOSTIC_SERVICE");
+        mCarDiagnosticManager =
+                (CarDiagnosticManager) getCar().getCarManager(Car.DIAGNOSTIC_SERVICE);
     }
 
     public void testLiveFrameRead() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testLiveFrameRead as diagnostics API is not enabled");
-            return;
-        }
-
         CarDiagnosticEvent liveFrame = mCarDiagnosticManager.getLatestLiveFrame();
 
         assertNotNull(liveFrame);
@@ -278,11 +265,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testLiveFrameEvent() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testLiveFrameEvent as diagnostics API is not enabled");
-            return;
-        }
-
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -307,11 +289,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testMissingSensorRead() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testMissingSensorRead as diagnostics API is not enabled");
-            return;
-        }
-
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -346,11 +323,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testFuelSystemStatus() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testFuelSystemStatus as diagnostics API is not enabled");
-            return;
-        }
-
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -374,11 +346,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testSecondaryAirStatus() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testSecondaryAirStatus as diagnostics API is not enabled");
-            return;
-        }
-
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -408,11 +375,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testIgnitionMonitors() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testIgnitionMonitors as diagnostics API is not enabled");
-            return;
-        }
-
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -510,11 +472,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testFuelType() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testFuelType as diagnostics API is not enabled");
-            return;
-        }
-
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -538,11 +495,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testDiagnosticJson() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testDiagnosticJson as diagnostics API is not enabled");
-            return;
-        }
-
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -591,11 +543,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testMultipleListeners() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testMultipleListeners as diagnostics API is not enabled");
-            return;
-        }
-
         Listener listener1 = new Listener();
         Listener listener2 = new Listener();
 
@@ -660,11 +607,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testFreezeFrameEvent() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testFreezeFrameEvent as diagnostics API is not enabled");
-            return;
-        }
-
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -703,11 +645,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testFreezeFrameTimestamps() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testFreezeFrameTimestamps as diagnostics API is not enabled");
-            return;
-        }
-
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -737,11 +674,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testClearFreezeFrameTimestamps() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testClearFreezeFrameTimestamps as diagnostics API is not enabled");
-            return;
-        }
-
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -759,11 +691,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     public void testListenerUnregister() throws Exception {
-        if (!isFeatureEnabled()) {
-            Log.i(TAG, "skipping testListenerUnregister as diagnostics API is not enabled");
-            return;
-        }
-
         Listener listener1 = new Listener();
         Listener listener2 = new Listener();
         mCarDiagnosticManager.registerListener(

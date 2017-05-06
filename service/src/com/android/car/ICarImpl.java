@@ -116,10 +116,7 @@ public class ICarImpl extends ICar.Stub {
             mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
             mVmsPublisherService = new VmsPublisherService(serviceContext, mHal.getVmsHal());
         }
-        if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
-            mCarDiagnosticService = new CarDiagnosticService(serviceContext,
-                    mHal.getDiagnosticHal());
-        }
+        mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>(Arrays.asList(
@@ -140,14 +137,12 @@ public class ICarImpl extends ICar.Stub {
                 mCarProjectionService,
                 mSystemStateControllerService,
                 mCarVendorExtensionService,
-                mCarBluetoothService
+                mCarBluetoothService,
+                mCarDiagnosticService
         ));
         if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
             allServices.add(mVmsSubscriberService);
             allServices.add(mVmsPublisherService);
-        }
-        if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
-            allServices.add(mCarDiagnosticService);
         }
         mAllServices = allServices.toArray(new CarServiceBase[0]);
     }
@@ -193,11 +188,8 @@ public class ICarImpl extends ICar.Stub {
                 assertCabinPermission(mContext);
                 return mCarCabinService;
             case Car.DIAGNOSTIC_SERVICE:
-                FeatureUtil.assertFeature(FeatureConfiguration.ENABLE_DIAGNOSTIC);
-                if (FeatureConfiguration.ENABLE_DIAGNOSTIC) {
-                    assertAnyDiagnosticPermission(mContext);
-                    return mCarDiagnosticService;
-                }
+                assertAnyDiagnosticPermission(mContext);
+                return mCarDiagnosticService;
             case Car.HVAC_SERVICE:
                 assertHvacPermission(mContext);
                 return mCarHvacService;
