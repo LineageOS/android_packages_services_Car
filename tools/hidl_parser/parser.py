@@ -246,7 +246,7 @@ class EnumValueLocalRef(EnumValue):
         for case in enum.cases:
             if case.name == self.ref: return case.value.resolve(enum, document)
 
-class EnumValueRShift(EnumValue):
+class EnumValueLShift(EnumValue):
     def __init__(self, base, offset):
         self.base = base
         self.offset = offset
@@ -368,7 +368,7 @@ def p_enum_value_1(t):
     t[0] = EnumValueConstant(t[1])
 def p_enum_value_2(t):
     'enum_value : enum_value SHIFT NUMBER'
-    t[0] = EnumValueRShift(t[1], t[3])
+    t[0] = EnumValueLShift(t[1], EnumValueConstant(t[3]))
 def p_enum_value_3(t):
     'enum_value : enum_value OR enum_value'
     t[0] = EnumValueOr(t[1], t[3])
