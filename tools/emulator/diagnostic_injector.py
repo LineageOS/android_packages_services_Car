@@ -51,17 +51,17 @@ class DiagnosticHalWrapper(object):
     def __init__(self):
         self.vhal = Vhal(c.vhal_types_2_0)
         self.liveFrameConfig = self.chat(
-            lambda hal: hal.getConfig(c.VEHICLE_PROPERTY_OBD2_LIVE_FRAME))
+            lambda hal: hal.getConfig(c.VEHICLEPROPERTY_OBD2_LIVE_FRAME))
         self.freezeFrameConfig = self.chat(
-            lambda hal: hal.getConfig(c.VEHICLE_PROPERTY_OBD2_FREEZE_FRAME))
+            lambda hal: hal.getConfig(c.VEHICLEPROPERTY_OBD2_FREEZE_FRAME))
         self.eventTypeData = {
             'live' : {
                 'builder'  : lambda: DiagnosticEventBuilder(self.liveFrameConfig),
-                'property' :  c.VEHICLE_PROPERTY_OBD2_LIVE_FRAME
+                'property' :  c.VEHICLEPROPERTY_OBD2_LIVE_FRAME
             },
             'freeze' : {
                 'builder'  : lambda: DiagnosticEventBuilder(self.freezeFrameConfig),
-                'property' :  c.VEHICLE_PROPERTY_OBD2_FREEZE_FRAME
+                'property' :  c.VEHICLEPROPERTY_OBD2_FREEZE_FRAME
             },
         }
 

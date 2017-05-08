@@ -18,7 +18,7 @@
 
 """
     This module provides a vhal class which sends and receives messages to the vehicle HAL module
-    on an Android Auto device.  It uses port forwarding via ADB to communicted with the Android
+    on an Android Auto device.  It uses port forwarding via ADB to communicate with the Android
     device.
 
     Example Usage:
@@ -30,21 +30,21 @@
         v = Vhal(c.vhal_types_2_0)
 
         # Get the property config (if desired)
-        v.getConfig(c.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET)
+        v.getConfig(c.VEHICLEPROPERTY_HVAC_TEMPERATURE_SET)
 
         # Get the response message to getConfig()
         reply = v.rxMsg()
         print(reply)
 
         # Set left temperature to 70 degrees
-        v.setProperty(c.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET, c.VEHICLE_ZONE_ROW_1_LEFT, 70)
+        v.setProperty(c.VEHICLEPROPERTY_HVAC_TEMPERATURE_SET, c.VEHICLEAREAZONE_ROW_1_LEFT, 70)
 
         # Get the response message to setProperty()
         reply = v.rxMsg()
         print(reply)
 
         # Get the left temperature value
-        v.getProperty(c.VEHICLE_PROPERTY_HVAC_TEMPERATURE_SET, c.VEHICLE_ZONE_ROW_1_LEFT)
+        v.getProperty(c.VEHICLEPROPERTY_HVAC_TEMPERATURE_SET, c.VEHICLEAREAZONE_ROW_1_LEFT)
 
         # Get the response message to getProperty()
         reply = v.rxMsg()
