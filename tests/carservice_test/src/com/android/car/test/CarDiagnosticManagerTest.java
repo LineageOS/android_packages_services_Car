@@ -801,6 +801,13 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertTrue(listener2.waitForEvent(time));
     }
 
+    public void testIsSupportedApiCalls() throws Exception {
+        assertTrue(mCarDiagnosticManager.isLiveFrameSupported());
+        assertTrue(mCarDiagnosticManager.isFreezeFrameSupported());
+        assertTrue(mCarDiagnosticManager.isFreezeFrameTimestampSupported());
+        assertTrue(mCarDiagnosticManager.isFreezeFrameClearSupported());
+    }
+
     class Listener implements CarDiagnosticManager.OnDiagnosticEventListener {
         private final Object mSync = new Object();
 
