@@ -138,7 +138,8 @@ public class ICarImpl extends ICar.Stub {
                 mSystemStateControllerService,
                 mCarVendorExtensionService,
                 mCarBluetoothService,
-                mCarDiagnosticService
+                mCarDiagnosticService,
+                mPerUserCarServiceHelper
         ));
         if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
             allServices.add(mVmsSubscriberService);
@@ -152,7 +153,6 @@ public class ICarImpl extends ICar.Stub {
         for (CarServiceBase service : mAllServices) {
             service.init();
         }
-        mPerUserCarServiceHelper.init();
     }
 
     public void release() {
@@ -161,7 +161,6 @@ public class ICarImpl extends ICar.Stub {
             mAllServices[i].release();
         }
         mHal.release();
-        mPerUserCarServiceHelper.release();
     }
 
     public void vehicleHalReconnected(IVehicle vehicle) {

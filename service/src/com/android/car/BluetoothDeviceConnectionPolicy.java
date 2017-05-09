@@ -86,6 +86,8 @@ public class BluetoothDeviceConnectionPolicy {
     private static final boolean DBG = false;
     private final Context mContext;
     private boolean mInitialized = false;
+    private boolean mUserSpecificInfoInitialized = false;
+    private final Object mSetupLock = new Object();
 
     // The main data structure that holds on to the {profile:list of known and connectible devices}
     private HashMap<Integer, BluetoothDevicesInfo> mProfileToConnectableDevicesMap;
@@ -307,8 +309,6 @@ public class BluetoothDeviceConnectionPolicy {
             if (DBG) {
                 Log.d(TAG, "Connected to PerUserCarService");
             }
-            // Clean up information related to user who went background.
-            cleanupUserSpecificInfo();
             // re-initialize for current user.
             initializeUserSpecificInfo();
         }
@@ -326,7 +326,8 @@ public class BluetoothDeviceConnectionPolicy {
                 Log.e(TAG,
                         "Remote Exception during closeBluetoothConnectionProxy(): " + e.getMessage());
             }
-
+            // Clean up information related to user who went background.
+            cleanupUserSpecificInfo();
         }
         @Override
         public void onServiceDisconnected() {
@@ -354,7 +355,6 @@ public class BluetoothDeviceConnectionPolicy {
      */
     private ICarBluetoothUserService setupBluetoothUserService() {
         ICarBluetoothUserService carBluetoothUserService = null;
-
         if (mCarUserService != null) {
             try {
                 carBluetoothUserService = mCarUserService.getBluetoothUserService();
@@ -364,7 +364,6 @@ public class BluetoothDeviceConnectionPolicy {
                     }
                     carBluetoothUserService.setupBluetoothConnectionProxy();
                 }
-
             } catch (RemoteException e) {
                 Log.e(TAG, "Remote Service Exception on ServiceConnection Callback: "
                         + e.getMessage());
@@ -385,8 +384,6 @@ public class BluetoothDeviceConnectionPolicy {
         if (DBG) {
             Log.d(TAG, "init()");
         }
-        // Register for various intents from the Bluetooth service.
-        mBluetoothBroadcastReceiver = new BluetoothBroadcastReceiver();
         // Initialize information specific to current user.
         initializeUserSpecificInfo();
         // Listen to various events coming from the vehicle.
@@ -402,15 +399,27 @@ public class BluetoothDeviceConnectionPolicy {
      * 3. Start and bind to {@link PerUserCarService} as current user.
      * 4. Start the {@link BluetoothAutoConnectStateMachine}
      */
-    private synchronized void initializeUserSpecificInfo() {
-        readAndRebuildDeviceMapFromSettings();
-        setupBluetoothEventsIntentFilter();
+    private void initializeUserSpecificInfo() {
+        synchronized (mSetupLock) {
+            if (DBG) {
+                Log.d(TAG, "initializeUserSpecificInfo()");
+            }
+            if (mUserSpecificInfoInitialized) {
+                if (DBG) {
+                    Log.d(TAG, "Already Initialized");
+                }
+                return;
+            }
+            mBluetoothAutoConnectStateMachine = BluetoothAutoConnectStateMachine.make(this);
+            readAndRebuildDeviceMapFromSettings();
+            setupBluetoothEventsIntentFilterLocked();
 
-        mBluetoothAutoConnectStateMachine = BluetoothAutoConnectStateMachine.make(this);
-        mConnectionInFlight = new ConnectionParams();
-        // Get the BluetoothUserService and also setup the Bluetooth Connection Proxy for
-        // all profiles.
-        mCarBluetoothUserService = setupBluetoothUserService();
+            mConnectionInFlight = new ConnectionParams();
+            // Get the BluetoothUserService and also setup the Bluetooth Connection Proxy for
+            // all profiles.
+            mCarBluetoothUserService = setupBluetoothUserService();
+            mUserSpecificInfoInitialized = true;
+        }
     }
 
     /**
@@ -420,7 +429,8 @@ public class BluetoothDeviceConnectionPolicy {
      * 2. Bonding State of a device changes
      * 3. A specific profile's connection state changes.
      */
-    private void setupBluetoothEventsIntentFilter() {
+    private void setupBluetoothEventsIntentFilterLocked() {
+        mBluetoothBroadcastReceiver = new BluetoothBroadcastReceiver();
         IntentFilter profileFilter = new IntentFilter();
         profileFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         profileFilter.addAction(BluetoothA2dpSink.ACTION_CONNECTION_STATE_CHANGED);
@@ -463,7 +473,6 @@ public class BluetoothDeviceConnectionPolicy {
         mCarCabinService.registerListener(mCabinEventListener);
         mCarSensorService.registerOrUpdateSensorListener(
                 CarSensorManager.SENSOR_TYPE_IGNITION_STATE, 0, mCarSensorEventListener);
-
         mUserServiceHelper.registerServiceCallback(mServiceCallback);
     }
 
@@ -541,12 +550,27 @@ public class BluetoothDeviceConnectionPolicy {
     /**
      * Clean up information related to user who went background.
      */
-    private synchronized void cleanupUserSpecificInfo() {
-        // quit the state machine
-        mBluetoothAutoConnectStateMachine.doQuit();
-        mProfileToConnectableDevicesMap = null;
-        mConnectionInFlight = null;
-        mContext.unregisterReceiver(mBluetoothBroadcastReceiver);
+    private void cleanupUserSpecificInfo() {
+        synchronized (mSetupLock) {
+            if (DBG) {
+                Log.d(TAG, "cleanupUserSpecificInfo()");
+            }
+            if (!mUserSpecificInfoInitialized) {
+                if (DBG) {
+                    Log.d(TAG, "User specific Info Not initialized..Not cleaning up");
+                }
+                return;
+            }
+            mUserSpecificInfoInitialized = false;
+            // quit the state machine
+            mBluetoothAutoConnectStateMachine.doQuit();
+            mProfileToConnectableDevicesMap = null;
+            mConnectionInFlight = null;
+            if (mBluetoothBroadcastReceiver != null) {
+                mContext.unregisterReceiver(mBluetoothBroadcastReceiver);
+                mBluetoothBroadcastReceiver = null;
+            }
+        }
     }
 
     /**
@@ -554,9 +578,12 @@ public class BluetoothDeviceConnectionPolicy {
      * CarService
      */
     private void closeEventListeners() {
-        if (mCabinEventListener != null) {
-            mCarCabinService.unregisterListener(mCabinEventListener);
+        if (DBG) {
+            Log.d(TAG, "closeEventListeners()");
         }
+        mCarCabinService.unregisterListener(mCabinEventListener);
+        mCarSensorService.unregisterSensorListener(CarSensorManager.SENSOR_TYPE_IGNITION_STATE,
+                mCarSensorEventListener);
         mUserServiceHelper.unregisterServiceCallback(mServiceCallback);
     }
 
@@ -1205,7 +1232,7 @@ public class BluetoothDeviceConnectionPolicy {
                 return false;
             }
             if (DBG) {
-                Log.d(TAG, "Devices: " + devices);
+                Log.d(TAG, "Devices in Settings: " + devices);
             }
             // Get a list of Device Mac Addresses from the value
             deviceList = Arrays.asList(devices.split(SETTINGS_DELIMITER));
@@ -1216,14 +1243,8 @@ public class BluetoothDeviceConnectionPolicy {
             // Do we have a bonded device with this name?  If so, get it and populate the device
             // map.
             for (String address : deviceList) {
-                if (DBG) {
-                    Log.d(TAG, "Rebuilding - looking for " + address + " profile :" + profile);
-                }
                 BluetoothDevice deviceToAdd = getBondedDeviceWithGivenName(address);
                 if (deviceToAdd != null) {
-                    if (DBG) {
-                        Log.d(TAG, "Adding device " + deviceToAdd.getName());
-                    }
                     devicesInfo.addDeviceLocked(deviceToAdd);
                 } else {
                     if (DBG) {

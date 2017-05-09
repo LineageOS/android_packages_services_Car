@@ -27,6 +27,7 @@ import android.os.IBinder;
 import android.os.UserHandle;
 import android.util.Log;
 
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -36,7 +37,7 @@ import java.util.ArrayList;
  * 2. Set up a listener to UserSwitch Broadcasts and call clients that have registered callbacks.
  *
  */
-public class PerUserCarServiceHelper {
+public class PerUserCarServiceHelper implements CarServiceBase {
     private static final String TAG = "PerUserCarSvcHelper";
     private static boolean DBG = false;
     private Context mContext;
@@ -54,13 +55,16 @@ public class PerUserCarServiceHelper {
         setupUserSwitchListener();
     }
 
+    @Override
     public synchronized void init() {
         bindToPerUserCarService();
     }
 
+    @Override
     public synchronized void release() {
         unbindFromPerUserCarService();
     }
+
     /**
      * Setting up the intent filter for
      * 2. UserSwitch events
@@ -163,6 +167,7 @@ public class PerUserCarServiceHelper {
         // Try binding - if valid connection not obtained, unbind
         if (!mContext.bindServiceAsUser(startIntent, mUserServiceConnection,
                 mContext.BIND_AUTO_CREATE, UserHandle.CURRENT)) {
+            Log.e(TAG, "bindToPerUserCarService() failed to get valid connection");
             unbindFromPerUserCarService();
         }
     }
@@ -219,5 +224,12 @@ public class PerUserCarServiceHelper {
         // When Service crashed or disconnected
         void onServiceDisconnected();
     }
+
+    @Override
+    public synchronized void dump(PrintWriter writer) {
+
+    }
+
+
 }
 
