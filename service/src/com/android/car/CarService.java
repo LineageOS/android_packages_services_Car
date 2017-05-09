@@ -16,7 +16,6 @@
 package com.android.car;
 
 import static android.os.SystemClock.elapsedRealtime;
-import static com.android.car.internal.FeatureConfiguration.ENABLE_VEHICLE_HAL_V2_1;
 
 import android.annotation.Nullable;
 import android.app.Service;
@@ -178,7 +177,7 @@ public class CarService extends Service {
         try {
             boolean anyVersion = interfaceName == null || interfaceName.isEmpty();
             IVehicle vehicle = null;
-            if (ENABLE_VEHICLE_HAL_V2_1 && (anyVersion || IVHAL_21.equals(interfaceName))) {
+            if (anyVersion || IVHAL_21.equals(interfaceName)) {
                 vehicle = android.hardware.automotive.vehicle.V2_1.IVehicle
                         .getService();
             }
