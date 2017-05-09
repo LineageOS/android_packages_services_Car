@@ -40,6 +40,33 @@ using android::hardware::configureRpcThreadpool;
 using android::hardware::joinRpcThreadpool;
 
 
+// Helper to subscribe to VHal notifications
+static bool subscribeToVHal(sp<IVehicle> pVnet,
+                            sp<IVehicleCallback> listener,
+                            VehicleProperty propertyId) {
+    assert(pVnet != nullptr);
+    assert(listener != nullptr);
+
+    // Register for vehicle state change callbacks we care about
+    // Changes in these values are what will trigger a reconfiguration of the EVS pipeline
+    SubscribeOptions optionsData[] = {
+        {
+            .propId = static_cast<int32_t>(propertyId),
+            .flags  = SubscribeFlags::DEFAULT
+        },
+    };
+    hidl_vec <SubscribeOptions> options;
+    options.setToExternal(optionsData, arraysize(optionsData));
+    StatusCode status = pVnet->subscribe(listener, options);
+    if (status != StatusCode::OK) {
+        ALOGW("VHAL subscription for property 0x%08X failed with code %d.", propertyId, status);
+        return false;
+    }
+
+    return true;
+}
+
+
 // Main entry point
 int main(int argc, char** argv)
 {
@@ -91,7 +118,7 @@ int main(int argc, char** argv)
     }
 
     // Connect to the Vehicle HAL so we can monitor state
-    android::sp <IVehicle> pVnet;
+    sp<IVehicle> pVnet;
     if (useVehicleHal) {
         ALOGI("Connecting to Vehicle HAL");
         pVnet = IVehicle::getService();
@@ -101,23 +128,12 @@ int main(int argc, char** argv)
         } else {
             // Register for vehicle state change callbacks we care about
             // Changes in these values are what will trigger a reconfiguration of the EVS pipeline
-            SubscribeOptions optionsData[2] = {
-                    {
-                            .propId = static_cast<int32_t>(VehicleProperty::GEAR_SELECTION),
-                            .flags = SubscribeFlags::DEFAULT
-                    },
-                    {
-                            .propId = static_cast<int32_t>(VehicleProperty::TURN_SIGNAL_STATE),
-                            .flags = SubscribeFlags::DEFAULT
-                    },
-            };
-            hidl_vec <SubscribeOptions> options;
-            options.setToExternal(optionsData, arraysize(optionsData));
-            StatusCode status = pVnet->subscribe(pEvsListener, options);
-            if (status != StatusCode::OK) {
-                ALOGE("Subscription to vehicle notifications failed with code %d.  Exiting.",
-                      status);
+            if (!subscribeToVHal(pVnet, pEvsListener, VehicleProperty::GEAR_SELECTION)) {
+                ALOGE("Without gear notification, we can't support EVS.  Exiting.");
                 return 1;
+            }
+            if (!subscribeToVHal(pVnet, pEvsListener, VehicleProperty::TURN_SIGNAL_STATE)) {
+                ALOGW("Didn't get turn signal notificaitons, so we'll ignore those.");
             }
         }
     } else {
