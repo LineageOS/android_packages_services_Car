@@ -52,4 +52,24 @@ interface ICarDiagnostic {
      */
      void unregisterDiagnosticListener(int frameType,
          in ICarDiagnosticEventListener callback) = 6;
+
+    /**
+     * Returns whether the underlying HAL supports live frames.
+     */
+     boolean isLiveFrameSupported() = 7;
+
+    /**
+     * Returns whether the underlying HAL supports freeze frames.
+     */
+     boolean isFreezeFrameSupported() = 8;
+
+    /**
+     * Returns whether the underlying HAL supports retrieving freeze frame timestamps.
+     */
+     boolean isFreezeFrameTimestampSupported() = 9;
+
+    /**
+     * Returns whether the underlying HAL supports clearing freeze frames.
+     */
+     boolean isFreezeFrameClearSupported() = 10;
 }

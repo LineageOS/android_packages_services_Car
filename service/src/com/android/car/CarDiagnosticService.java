@@ -29,6 +29,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
 import android.util.Log;
+import com.android.car.hal.DiagnosticHalService.DiagnosticCapabilities;
 import com.android.car.internal.CarPermission;
 import com.android.car.Listeners.ClientWithRate;
 import com.android.car.hal.DiagnosticHalService;
@@ -387,6 +388,29 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
 
     private DiagnosticHalService getDiagnosticHal() {
         return mDiagnosticHal;
+    }
+
+    // Expose DiagnosticCapabilities
+    public boolean isLiveFrameSupported() {
+        return getDiagnosticHal().getDiagnosticCapabilities().isLiveFrameSupported();
+    }
+
+    public boolean isFreezeFrameSupported() {
+        return getDiagnosticHal().getDiagnosticCapabilities().isFreezeFrameSupported();
+    }
+
+    public boolean isFreezeFrameTimestampSupported() {
+        DiagnosticCapabilities diagnosticCapabilities =
+                getDiagnosticHal().getDiagnosticCapabilities();
+        return diagnosticCapabilities.isFreezeFrameInfoSupported() &&
+                diagnosticCapabilities.isFreezeFrameSupported();
+    }
+
+    public boolean isFreezeFrameClearSupported() {
+        DiagnosticCapabilities diagnosticCapabilities =
+            getDiagnosticHal().getDiagnosticCapabilities();
+        return diagnosticCapabilities.isFreezeFrameClearSupported() &&
+            diagnosticCapabilities.isFreezeFrameSupported();
     }
 
     // ICarDiagnostic implementations
