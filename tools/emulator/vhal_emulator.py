@@ -172,7 +172,7 @@ class Vhal:
 
     def getConfigAll(self):
         """
-            Sends a getConfigAll message to the host.  This will return all configs avaialable.
+            Sends a getConfigAll message to the host.  This will return all configs available.
         """
         cmd = VehicleHalProto_pb2.EmulatorMessage()
         cmd.msg_type = VehicleHalProto_pb2.GET_CONFIG_ALL_CMD
@@ -191,7 +191,7 @@ class Vhal:
 
     def getPropertyAll(self):
         """
-            Sends a getPropertyAll message to the host.  This will return all properties avaialable.
+            Sends a getPropertyAll message to the host.  This will return all properties available.
         """
         cmd = VehicleHalProto_pb2.EmulatorMessage()
         cmd.msg_type = VehicleHalProto_pb2.GET_PROPERTY_ALL_CMD
