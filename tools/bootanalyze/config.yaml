@@ -43,7 +43,11 @@ events:
   CarLauncherReady: Em.Overview:\s*onResume
   CarService_start: for service com.android.car/.CarService
   BootAnimStart: starting service 'bootanim'
+  BootAnimStopRequest: TELLING SURFACE FLINGER WE ARE BOOTED
   BootAnimEnd: Service 'bootanim'
+  KeyguardStart: KeyguardServiceDelegate.*\*\*\* Keyguard started
+  KeyguardConnected: KeyguardServiceDelegate.*\*\*\* Keyguard connected
+  KeyguardShown: KeyguardServiceDelegate.*\*\*\*\* SHOWN CALLED \*\*\*\*
   BootComplete: Starting phase 1000
   BootComplete_kernel: processing action \(sys\.boot_completed=1\)
   LauncherStart: START.*HOME.*(NexusLauncherActivity|GEL)
