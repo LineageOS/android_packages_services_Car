@@ -118,9 +118,9 @@ class Vhal:
         # Convert the message length into int32 byte array
         msgHdr = struct.pack('!I', msgLen)
         # Send the message length first
-        self.sock.send(msgHdr)
+        self.sock.sendall(msgHdr)
         # Then send the protobuf
-        self.sock.send(msgStr)
+        self.sock.sendall(msgStr)
 
     ### Public Functions
     def printHex(self, data):
@@ -159,6 +159,8 @@ class Vhal:
                     msg = VehicleHalProto_pb2.EmulatorMessage()
                     msg.ParseFromString(b)
                     return msg
+                else:
+                    print("Ignored message fragment")
 
     def getConfig(self, prop):
         """
