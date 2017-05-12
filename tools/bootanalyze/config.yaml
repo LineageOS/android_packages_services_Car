@@ -50,6 +50,6 @@ events:
   KeyguardShown: KeyguardServiceDelegate.*\*\*\*\* SHOWN CALLED \*\*\*\*
   BootComplete: Starting phase 1000
   BootComplete_kernel: processing action \(sys\.boot_completed=1\)
-  LauncherStart: START.*HOME.*(NexusLauncherActivity|GEL)
+  LauncherStart: START.*HOME.*(NexusLauncherActivity|GEL|LensPickerTrampolineActivity)
   FsStat: fs_stat, partition:userdata stat:(0x\S+)
 
