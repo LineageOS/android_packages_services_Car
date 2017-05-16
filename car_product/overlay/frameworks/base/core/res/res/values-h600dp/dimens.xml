@@ -30,4 +30,10 @@ limitations under the License.
          is smaller than the notification_header_height to bring the text closer. Otherwise,
          spacing in the font itself makes the space look too large. -->
     <dimen name="notification_content_margin_top">68dp</dimen>
+
+    <!-- The height of the notification action list. -->
+    <dimen name="notification_action_list_height">96dp</dimen>
+
+    <!-- The size of the media actions in the media notification. -->
+    <dimen name="media_notification_action_button_size">56dp</dimen>
 </resources>

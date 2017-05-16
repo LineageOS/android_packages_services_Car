@@ -89,4 +89,13 @@
 
     <!-- The margin on top of the text of the notification. -->
     <dimen name="notification_text_margin_top">0dp</dimen>
+
+    <!-- The height of the notification action list. -->
+    <dimen name="notification_action_list_height">76dp</dimen>
+
+    <!-- The size of the media actions in the media notification. -->
+    <dimen name="media_notification_action_button_size">36dp</dimen>
+
+    <!-- The bottom padding for the media actions container. -->
+    <dimen name="media_notification_actions_padding_bottom">0dp</dimen>
 </resources>
