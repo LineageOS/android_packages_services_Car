@@ -36,7 +36,7 @@ GLuint       RenderBase::sDepthBuffer = -1;
 EGLImageKHR  RenderBase::sKHRimage = EGL_NO_IMAGE_KHR;
 unsigned     RenderBase::sWidth  = 0;
 unsigned     RenderBase::sHeight = 0;
-
+float        RenderBase::sAspectRatio = 0.0f;
 
 
 bool RenderBase::prepareGL() {
@@ -182,27 +182,27 @@ bool RenderBase::attachRenderTarget(const BufferDesc& tgtBuffer) {
         return false;
     }
 
-#if 0  // Do we need a z-buffer?  Does this code work correctly?
-    // Request a (local) depth buffer so we can z-test while drawing
-    glBindRenderbuffer(GL_RENDERBUFFER, sDepthBuffer);
-    if ((sWidth != tgtBuffer.width) || (sHeight != tgtBuffer.height)) {
-        // We can't reuse the depth buffer, so make a new one
-        sWidth = tgtBuffer.width;
-        sHeight = tgtBuffer.height;
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, sWidth, sHeight);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER,
-                                  GL_DEPTH_ATTACHMENT,
-                                  GL_RENDERBUFFER,
-                                  sDepthBuffer);
-    }
-#endif
-
     GLenum checkResult = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (checkResult != GL_FRAMEBUFFER_COMPLETE) {
         ALOGE("Offscreen framebuffer not configured successfully (%d: %s)",
               checkResult, getGLFramebufferError());
         return false;
     }
+
+    // Store the size of our target buffer
+    sWidth = tgtBuffer.width;
+    sHeight = tgtBuffer.height;
+    sAspectRatio = (float)sWidth / sHeight;
+
+    // Set the viewport
+    glViewport(0, 0, sWidth, sHeight);
+
+#if 1   // We don't actually need the clear if we're going to cover the whole screen anyway
+    // Clear the color buffer
+    glClearColor(0.8f, 0.1f, 0.2f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+#endif
+
 
     return true;
 }

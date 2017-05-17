@@ -35,8 +35,8 @@ class RenderDirectView: public RenderBase {
 public:
     RenderDirectView(sp<IEvsEnumerator> enumerator, const ConfigManager::CameraInfo& cam);
 
-    virtual bool activate();
-    virtual void deactivate();
+    virtual bool activate() override;
+    virtual void deactivate() override;
 
     virtual bool drawFrame(const BufferDesc& tgtBuffer);
 
@@ -47,7 +47,6 @@ protected:
     std::unique_ptr<VideoTex>       mTexture;
 
     GLuint                          mShaderProgram = 0;
-    GLuint                          mShaderTestColors = 0;
 };
 
 

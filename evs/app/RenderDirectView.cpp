@@ -19,10 +19,8 @@
 #include "glError.h"
 #include "shader.h"
 #include "shader_simpleTex.h"
-#include "shader_testColors.h"
 
 #include <log/log.h>
-
 #include <math/mat4.h>
 
 
@@ -51,23 +49,13 @@ bool RenderDirectView::activate() {
         }
     }
 
-    // TODO:  Remove this once we're done testing with it
-    if (!mShaderTestColors) {
-        mShaderTestColors = buildShaderProgram(vtxShader_testColors,
-                                               pixShader_testColors,
-                                               "testColors");
-        if (!mShaderTestColors) {
-            ALOGE("Error building shader program");
-            return false;
-        }
-    }
-
     // Construct our video texture
     mTexture.reset(createVideoTexture(mEnumerator, mCameraInfo.cameraId.c_str(), sDisplay));
     if (!mTexture) {
         ALOGE("Failed to set up video texture for %s (%s)",
               mCameraInfo.cameraId.c_str(), mCameraInfo.function.c_str());
-        return false;
+// TODO:  For production use, we may actually want to fail in this case, but not yet...
+//       return false;
     }
 
     return true;
@@ -89,15 +77,6 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
         return false;
     }
 
-    // Set the viewport
-    glViewport(0, 0, tgtBuffer.width, tgtBuffer.height);
-
-#if 0   // We don't actually need the clear if we're going to cover the whole screen anyway
-    // Clear the color buffer
-    glClearColor(0.8f, 0.1f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-#endif
-
     // Select our screen space simple texture shader
     glUseProgram(mShaderProgram);
 
@@ -108,7 +87,7 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
         return false;
     } else {
         const android::mat4 identityMatrix;
-        glUniformMatrix4fv(loc, 1, false, &identityMatrix[0][0]);
+        glUniformMatrix4fv(loc, 1, false, identityMatrix.asArray());
     }
 
 
@@ -117,20 +96,6 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mTexture->glId());
 
-
-#if 0
-    static TexWrapper* sTestTexture = createTextureFromPng("/system/etc/automotive/evs/CarFromTop.png");
-    if (sTestTexture) {
-        static int tickTock = 0;
-        tickTock =~tickTock;
-        if (tickTock) {
-            printf("tick...");
-            glBindTexture(GL_TEXTURE_2D, sTestTexture->glId());
-        } else {
-            printf("tock\n");
-        }
-    }
-#endif
 
     GLint sampler = glGetUniformLocation(mShaderProgram, "tex");
     if (sampler < 0) {
@@ -146,20 +111,11 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
 
 
     // Draw a rectangle on the screen
-    // TODO:  We pulled in from the edges for now for diagnostic purposes...
-#if 1
     GLfloat vertsCarPos[] = { -1.0,  1.0, 0.0f,   // left top in window space
                                1.0,  1.0, 0.0f,   // right top
                               -1.0, -1.0, 0.0f,   // left bottom
                                1.0, -1.0, 0.0f    // right bottom
     };
-#else
-    GLfloat vertsCarPos[] = { -0.8,  0.8, 0.0f,   // left top in window space
-                               0.8,  0.8, 0.0f,   // right top
-                              -0.8, -0.8, 0.0f,   // left bottom
-                               0.8, -0.8, 0.0f    // right bottom
-    };
-#endif
     // TODO:  We're flipping horizontally here, but should do it only for specified cameras!
     GLfloat vertsCarTex[] = { 1.0f, 1.0f,   // left top
                               0.0f, 1.0f,   // right top

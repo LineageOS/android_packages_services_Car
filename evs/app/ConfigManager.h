@@ -56,7 +56,7 @@ public:
     };
     float getDisplayRightLocation(float aspectRatio) const   {
         // Given the display aspect ratio (width over height), how far can we see to the right?
-        return (getDisplayTopLocation() - getDisplayBottomLocation()) * 0.5f / aspectRatio;
+        return (getDisplayTopLocation() - getDisplayBottomLocation()) * 0.5f * aspectRatio;
     };
     float getDisplayLeftLocation(float aspectRatio) const {
         // Given the display aspect ratio (width over height), how far can we see to the left?

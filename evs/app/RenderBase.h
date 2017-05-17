@@ -61,6 +61,7 @@ protected:
 
     static unsigned     sWidth;
     static unsigned     sHeight;
+    static float        sAspectRatio;
 };
 
 

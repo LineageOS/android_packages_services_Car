@@ -8,7 +8,7 @@ LOCAL_SRC_FILES := \
     EvsStateControl.cpp \
     RenderBase.cpp \
     RenderDirectView.cpp \
-    RenderPixelCopy.cpp \
+    RenderTopView.cpp \
     ConfigManager.cpp \
     glError.cpp \
     shader.cpp \

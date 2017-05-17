@@ -35,8 +35,8 @@ class RenderPixelCopy: public RenderBase {
 public:
     RenderPixelCopy(sp<IEvsEnumerator> enumerator, const ConfigManager::CameraInfo& cam);
 
-    virtual bool activate();
-    virtual void deactivate();
+    virtual bool activate() override;
+    virtual void deactivate() override;
 
     virtual bool drawFrame(const BufferDesc& tgtBuffer);
 
