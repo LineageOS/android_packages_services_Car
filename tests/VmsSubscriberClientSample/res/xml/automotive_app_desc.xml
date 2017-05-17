@@ -16,5 +16,5 @@
 <automotiveApp>
     <uses name="service" />
     <uses name="projection" />
-    <uses name="activity" class="com.google.android.car.vms.VmsSubscriberClientSampleActivity" />
+    <uses name="activity" class="com.google.android.car.vms.subscriber.VmsSubscriberClientSampleActivity" />
 </automotiveApp>
