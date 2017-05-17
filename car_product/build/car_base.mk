@@ -88,7 +88,8 @@ PRODUCT_PACKAGES += android.automotive.evs.manager@1.0
 PRODUCT_PACKAGES += evs_app
 PRODUCT_COPY_FILES += \
     packages/services/Car/evs/app/config.json:system/etc/automotive/evs/config.json \
-    packages/services/Car/evs/app/CarFromTop.png:system/etc/automotive/evs/CarFromTop.png
+    packages/services/Car/evs/app/CarFromTop.png:system/etc/automotive/evs/CarFromTop.png \
+    packages/services/Car/evs/app/LabeledChecker.png:system/etc/automotive/evs/LabeledChecker.png
 
 PRODUCT_PACKAGES += android.hardware.automotive.vehicle@2.1-service
 
