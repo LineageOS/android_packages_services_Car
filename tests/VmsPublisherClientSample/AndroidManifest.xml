@@ -15,8 +15,11 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.google.android.car.vms.publisher"
-          android:sharedUserId="android.uid.system">
+          package="com.google.android.car.vms.publisher">
+
+    <uses-permission android:name="android.car.permission.VMS_PUBLISHER" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <uses-sdk android:minSdkVersion="25" android:targetSdkVersion='25'/>
 
@@ -24,7 +27,8 @@
                  android:icon="@mipmap/ic_launcher"
                  android:directBootAware="true">
         <service android:name=".VmsPublisherClientSampleService"
-                 android:exported="false">
+                 android:exported="true"
+                 android:singleUser="true">
         </service>
     </application>
 </manifest>
