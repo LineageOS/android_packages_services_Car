@@ -16,6 +16,7 @@
 package com.android.car;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
@@ -30,7 +31,7 @@ import java.util.Set;
  * Class used to notify user about CAN bus failure.
  */
 final class CanBusErrorNotifier {
-    private static final String TAG = CarLog.TAG_CAN_BUS + ".ERROR.NOTIFIER";
+    private static final String TAG = CarLog.TAG_CAN_BUS + ".NOTIFIER";
     private static final int NOTIFICATION_ID = 1;
     private static final boolean IS_RELEASE_BUILD = "user".equals(Build.TYPE);
 
@@ -41,9 +42,6 @@ final class CanBusErrorNotifier {
     // this set is empty (all reported objects are in love and peace with the vehicle).
     @GuardedBy("this")
     private final Set<Object> mReportedObjects = new HashSet<>();
-
-    @GuardedBy("this")
-    private Notification mNotification;
 
     CanBusErrorNotifier(Context context) {
         mNotificationManager = (NotificationManager) context.getSystemService(
@@ -71,7 +69,10 @@ final class CanBusErrorNotifier {
 
             shouldShowNotification = !mReportedObjects.isEmpty();
         }
-        Log.i(TAG, "Changing CAN bus failure state to " + shouldShowNotification);
+
+        if (Log.isLoggable(TAG, Log.INFO)) {
+            Log.i(TAG, "Changing CAN bus failure state to " + shouldShowNotification);
+        }
 
         if (shouldShowNotification) {
             showNotification();
@@ -85,18 +86,13 @@ final class CanBusErrorNotifier {
             // TODO: for user, we should show message to take car to the dealer. bug:32096297
             return;
         }
-        Notification notification;
-        synchronized (this) {
-            if (mNotification == null) {
-                mNotification = new Notification.Builder(mContext)
+        Notification notification =
+                new Notification.Builder(mContext, NotificationChannel.DEFAULT_CHANNEL_ID)
                         .setContentTitle(mContext.getString(R.string.car_can_bus_failure))
                         .setContentText(mContext.getString(R.string.car_can_bus_failure_desc))
                         .setSmallIcon(R.drawable.car_ic_error)
                         .setOngoing(true)
                         .build();
-            }
-            notification = mNotification;
-        }
         mNotificationManager.notify(TAG, NOTIFICATION_ID, notification);
     }
 

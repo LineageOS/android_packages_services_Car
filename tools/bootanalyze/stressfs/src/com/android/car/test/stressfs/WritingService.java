@@ -17,6 +17,7 @@ package com.android.car.test.stressfs;
 
 import android.app.Service;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -112,11 +113,13 @@ public class WritingService extends Service {
     /** Raises service priority and starts the writing threads. */
     @Override
     public IBinder onBind(Intent intent) {
+        Notification notification =
+                new Notification.Builder(this, NotificationChannel.DEFAULT_CHANNEL_ID)
+                        .setContentTitle("Stress Filesystem service running.")
+                        .setSmallIcon(drawable.ic_menu_save)
+                        .build();
+
         // Raise priority of this service.
-        Notification notification = new Notification.Builder(this)
-            .setContentTitle("Stress Filesystem service running.")
-            .setSmallIcon(drawable.ic_menu_save)
-            .build();
         startForeground(NOTIFICATION_ID, notification);
 
         File dataPartitionFile = getFileStreamPath(FILENAME_PREFIX + UUID.randomUUID());
