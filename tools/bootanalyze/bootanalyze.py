@@ -48,6 +48,7 @@ DEBUG = False
 ADB_CMD = "adb"
 TIMING_THRESHOLD = 5.0
 BOOT_PROP = "\[ro\.boottime\.([^\]]+)\]:\s+\[(\d+)\]"
+BOOTLOADER_TIME_PROP = "\[ro\.boot\.boottime\]:\s+\[([^\]]+)\]"
 
 max_wait_time = BOOT_TIME_TOO_BIG
 
@@ -278,7 +279,7 @@ def iterate(args, search_events, timings, cfg, error_time, components_to_monitor
 
   if not logcat_event_time.get(KERNEL_TIME_KEY):
     print "kernel time not captured in logcat, cannot get time diff"
-    return None, None, None
+    return None, None, None, None
   diffs = []
   diffs.append((logcat_event_time[KERNEL_TIME_KEY], logcat_event_time[KERNEL_TIME_KEY]))
   if logcat_event_time.get(BOOT_ANIM_END_TIME_KEY) and dmesg_event_time.get(BOOT_ANIM_END_TIME_KEY):
@@ -288,7 +289,7 @@ def iterate(args, search_events, timings, cfg, error_time, components_to_monitor
   if not dmesg_event_time.get(KERNEL_BOOT_COMPLETE):
       print "BootAnimEnd time or BootComplete-kernel not captured in both log" +\
         ", cannot get time diff"
-      return None, None, None
+      return None, None, None, None
   diffs.append((logcat_event_time[KERNEL_BOOT_COMPLETE],\
                 logcat_event_time[KERNEL_BOOT_COMPLETE] - dmesg_event_time[KERNEL_BOOT_COMPLETE]))
 
@@ -316,7 +317,7 @@ def iterate(args, search_events, timings, cfg, error_time, components_to_monitor
         else:
           events[k] = 0.0
 
-  data_points = {}
+  data_points = collections.OrderedDict()
 
   print "-----------------"
   print "ro.boottime.*: time"
@@ -337,9 +338,24 @@ def iterate(args, search_events, timings, cfg, error_time, components_to_monitor
       'from_dmesg': item[0] in replaced_from_dmesg,
       'logcat_value': logcat_original_time[item[0]]
     }
+  # add times with bootloader
+  if events.get("BootComplete") and boottime_events.get("bootloader"):
+    total = events["BootComplete"] + boottime_events["bootloader"]
+    data_points["*BootComplete+Bootloader"] = {
+      'value': total,
+      'from_dmesg': False,
+      'logcat_value': 0.0
+    }
+  if events.get("LauncherStart") and boottime_events.get("bootloader"):
+    total = events["LauncherStart"] + boottime_events["bootloader"]
+    data_points["*LauncherStart+Bootloader"] = {
+      'value': total,
+      'from_dmesg': False,
+      'logcat_value': 0.0
+    }
+  for k, v in data_points.iteritems():
     print '{0:30}: {1:<7.5} {2:1} ({3})'.format(
-      item[0], item[1], '*' if item[0] in replaced_from_dmesg else '',
-      logcat_original_time[item[0]])
+      k, v['value'], '*' if v['from_dmesg'] else '', v['logcat_value'])
 
   print '\n* - event time was obtained from dmesg log\n'
 
@@ -520,6 +536,8 @@ def fetch_boottime_property():
                              stdout=subprocess.PIPE);
   out = process.stdout
   pattern = re.compile(BOOT_PROP)
+  pattern_bootloader = re.compile(BOOTLOADER_TIME_PROP)
+  bootloader_time = 0.0
   for line in out:
     match = pattern.match(line)
     if match:
@@ -527,7 +545,18 @@ def fetch_boottime_property():
         events[match.group(1)] = float(match.group(2)) / 1000.0 #ms to s
       else:
         events[match.group(1)] = float(match.group(2)) / 1000000000.0 #ns to s
+    match = pattern_bootloader.match(line)
+    if match:
+      items = match.group(1).split(",")
+      for item in items:
+        entry_pair = item.split(":")
+        entry_name = entry_pair[0]
+        time_spent = float(entry_pair[1]) / 1000 #ms to s
+        if entry_name != "SW":
+          bootloader_time = bootloader_time + time_spent
   ordered_event = collections.OrderedDict()
+  if bootloader_time != 0.0:
+    ordered_event["bootloader"] = bootloader_time;
   for item in sorted(events.items(), key=operator.itemgetter(1)):
     ordered_event[item[0]] = item[1]
   return ordered_event
