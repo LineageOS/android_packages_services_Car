@@ -52,8 +52,12 @@ interface IVmsSubscriberService {
             in IVmsSubscriberClient listener) = 3;
 
     /**
-     * Tells the VmsSubscriberService a client requests the list of available layers.
-     * The service should call the client's onLayersAvailabilityChange in response.
+     * Returns a list of available layers from the closure of the publishers offerings.
      */
     List<VmsLayer> getAvailableLayers() = 4;
+
+    /**
+     *  Returns a the publisher information for a publisher ID.
+     */
+    byte[] getPublisherInfo(in int publisherId) = 5;
 }

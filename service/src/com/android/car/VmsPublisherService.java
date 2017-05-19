@@ -135,6 +135,12 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
         return mHal.getSubscriptionState();
     }
 
+    @Override
+    public int getPublisherStaticId(byte[] publisherInfo) {
+        ICarImpl.assertVmsPublisherPermission(mContext);
+        return mHal.getPublisherStaticId(publisherInfo);
+    }
+
     // Implements VmsHalListener interface
     /**
      * This method is only invoked by VmsHalService.notifyPublishers which is synchronized.

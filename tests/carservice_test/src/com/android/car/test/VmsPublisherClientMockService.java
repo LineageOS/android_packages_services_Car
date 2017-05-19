@@ -22,6 +22,7 @@ import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsPublisherClientService;
 import android.car.vms.VmsSubscriptionState;
+import android.util.Log;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -35,18 +36,24 @@ import java.util.ArrayList;
  */
 @FutureFeature
 public class VmsPublisherClientMockService extends VmsPublisherClientService {
+    private static final String TAG = "VmsPublisherClientMockService";
 
     @Override
     public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState) {
         // Case when the publisher finished initialization before the subscription request.
-        publishIfNeeded(subscriptionState);
-        declareOffering(subscriptionState);
+        initializeMockPublisher(subscriptionState);
     }
 
     @Override
     public void onVmsPublisherServiceReady() {
         // Case when the subscription request was sent before the publisher was ready.
         VmsSubscriptionState subscriptionState = getSubscriptions();
+        initializeMockPublisher(subscriptionState);
+    }
+
+    private void initializeMockPublisher(VmsSubscriptionState subscriptionState) {
+        Log.d(TAG, "Initializing Mock publisher");
+        getPublisherStaticId(VmsPublisherSubscriberTest.PAYLOAD);
         publishIfNeeded(subscriptionState);
         declareOffering(subscriptionState);
     }

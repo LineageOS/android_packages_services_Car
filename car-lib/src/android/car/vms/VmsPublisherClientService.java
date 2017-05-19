@@ -155,6 +155,23 @@ public abstract class VmsPublisherClientService extends Service {
         return token;
     }
 
+    public final int getPublisherStaticId(byte[] publisherInfo) {
+        if (mVmsPublisherService == null) {
+            throw new IllegalStateException("VmsPublisherService not set.");
+        }
+        Integer publisherStaticId = null;
+        try {
+            Log.i(TAG, "Getting publisher static ID");
+            publisherStaticId = mVmsPublisherService.getPublisherStaticId(publisherInfo);
+        } catch (RemoteException e) {
+            Log.e(TAG, "unable to invoke binder method.", e);
+        }
+        if (publisherStaticId == null) {
+            throw new IllegalStateException("VmsPublisherService cannot get a publisher static ID.");
+        }
+        return publisherStaticId;
+    }
+
     /**
      * Uses the VmsPublisherService binder to get the list of layer/version that have any
      * subscribers.
