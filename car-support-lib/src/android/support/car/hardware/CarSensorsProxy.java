@@ -127,17 +127,17 @@ class CarSensorsProxy {
                 synchronized (CarSensorsProxy.this) {
                     switch (type) {
                         case Sensor.TYPE_GYROSCOPE:
-                            System.arraycopy(event.values, 0, mLastGyroscopeData, 0, 3);
+                            System.arraycopy((Object) event.values, 0, (Object) mLastGyroscopeData, 0, 3);
                             mLastGyroscopeDataTime = System.nanoTime();
                             pushSensorChanges(CarSensorManager.SENSOR_TYPE_GYROSCOPE);
                             break;
                         case Sensor.TYPE_MAGNETIC_FIELD:
-                            System.arraycopy(event.values, 0, mLastMagneticFieldData, 0, 3);
+                            System.arraycopy((Object) event.values, 0, (Object) mLastMagneticFieldData, 0, 3);
                             mLastMagneticFieldDataTime = System.nanoTime();
                             pushSensorChanges(CarSensorManager.SENSOR_TYPE_COMPASS);
                             break;
                         case Sensor.TYPE_ACCELEROMETER:
-                            System.arraycopy(event.values, 0, mLastAccelerometerData, 0, 3);
+                            System.arraycopy((Object) event.values, 0, (Object) mLastAccelerometerData, 0, 3);
                             mLastAccelerometerDataTime = System.nanoTime();
                             pushSensorChanges(CarSensorManager.SENSOR_TYPE_ACCELEROMETER);
                             pushSensorChanges(CarSensorManager.SENSOR_TYPE_COMPASS);

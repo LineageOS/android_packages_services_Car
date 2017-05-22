@@ -28,6 +28,9 @@ LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
+# Build against the current public APIs of the SDK
+LOCAL_SDK_VERSION := current
+
 LOCAL_MANIFEST_FILE := AndroidManifest.xml
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
@@ -52,6 +55,7 @@ endif
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := android.support.car
+LOCAL_SDK_VERSION := current
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 
