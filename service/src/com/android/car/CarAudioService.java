@@ -118,11 +118,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             new MediaMuteAudioFocusListener();
 
     @GuardedBy("mLock")
-    private int mBottomFocusState;
-    @GuardedBy("mLock")
     private boolean mRadioOrExtSourceActive = false;
-    @GuardedBy("mLock")
-    private boolean mCallActive = false;
     @GuardedBy("mLock")
     private int mCurrentAudioContexts = 0;
     @GuardedBy("mLock")
@@ -209,11 +205,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             int r = mAudioManager.requestAudioFocus(mBottomAudioFocusListener, mAttributeBottom,
                     AudioManager.AUDIOFOCUS_GAIN, AudioManager.AUDIOFOCUS_FLAG_DELAY_OK);
             synchronized (mLock) {
-                if (r == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                    mBottomFocusState = AudioManager.AUDIOFOCUS_GAIN;
-                } else {
-                    mBottomFocusState = AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
-                }
                 mCurrentFocusState = currentState;
                 mCurrentAudioContexts = 0;
             }
@@ -458,7 +449,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                     " mLastFocusRequestToCar:" + mLastFocusRequestToCar);
             writer.println(" mCurrentAudioContexts:0x" +
                     Integer.toHexString(mCurrentAudioContexts));
-            writer.println(" mCallActive:" + mCallActive + " mRadioOrExtSourceActive:" +
+            writer.println(" mRadioOrExtSourceActive:" +
                     mRadioOrExtSourceActive);
             writer.println(" mCurrentPrimaryAudioContext:" + mCurrentPrimaryAudioContext +
                     " mCurrentPrimaryPhysicalStream:" + mCurrentPrimaryPhysicalStream);
@@ -984,11 +975,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         if (logicalStreamTypeForTop ==
                 CarAudioAttributesUtil.CAR_AUDIO_USAGE_CARSERVICE_MEDIA_MUTE) {
                 muteMedia = true;
-        }
-        if (logicalStreamTypeForTop == CarAudioManager.CAR_AUDIO_USAGE_VOICE_CALL) {
-            mCallActive = true;
-        } else {
-            mCallActive = false;
         }
         // other apps having focus
         int focusToRequest = AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE;
@@ -1578,9 +1564,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
     private class BottomAudioFocusListener implements AudioManager.OnAudioFocusChangeListener {
         @Override
         public void onAudioFocusChange(int focusChange) {
-            synchronized (mLock) {
-                mBottomFocusState = focusChange;
-            }
         }
     }
 
