@@ -476,6 +476,16 @@ def handle_zygote_event(zygote_pids, events, event, line):
       zygote_pids.append(pid)
   events[event] = line
 
+def update_name_if_already_exist(events, name):
+  existing_event = events.get(name)
+  i = 0
+  new_name = name
+  while existing_event:
+    i += 1
+    new_name = name + "_" + str(i)
+    existing_event = events.get(new_name)
+  return new_name
+
 def collect_events(search_events, command, timings, stop_events, disable_timing_after_zygote):
   events = collections.OrderedDict()
   timing_events = {}
@@ -512,7 +522,8 @@ def collect_events(search_events, command, timings, stop_events, disable_timing_
       elif event.startswith("zygote"):
         handle_zygote_event(zygote_pids, events, event, line)
       else:
-        events[event] = line
+        new_event = update_name_if_already_exist(events, event)
+        events[new_event] = line
       if event in stop_events:
         stop_events.remove(event)
         print "remaining stop_events:", stop_events
