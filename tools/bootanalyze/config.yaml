@@ -43,6 +43,8 @@ events:
   CarLauncherReady: Em.Overview:\s*onResume
   CarService_start: for service com.android.car/.CarService
   BootAnimStart: starting service 'bootanim'
+  BootAnimSfWait: BootAnimation:\sWaiting\sfor\sSurfaceFlinger\stook\s
+  BootAnimShowStart: BootAnimation:\sBootAnimationShownTiming\sstart\stime
   BootAnimStopRequest: TELLING SURFACE FLINGER WE ARE BOOTED
   BootAnimEnd: Service 'bootanim'
   KeyguardStart: KeyguardServiceDelegate.*\*\*\* Keyguard started
