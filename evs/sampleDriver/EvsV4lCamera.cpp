@@ -161,7 +161,8 @@ Return<EvsResult> EvsV4lCamera::startVideoStream(const ::android::sp<IEvsCameraS
     // Choose which image transfer function we need
     // Map from V4L2 to Android graphic buffer format
     const uint32_t videoSrcFormat = mVideo.getV4LFormat();
-    ALOGI("Configuring to accept %4.4s camera data and convert to NV21", (char*)&videoSrcFormat);
+    ALOGI("Configuring to accept %4.4s camera data and convert to %4.4s",
+          (char*)&videoSrcFormat, (char*)&mFormat);
 
     // TODO:  Simplify this by supporting only ONE fixed output format
     switch (mFormat) {
@@ -192,6 +193,7 @@ Return<EvsResult> EvsV4lCamera::startVideoStream(const ::android::sp<IEvsCameraS
     case HAL_PIXEL_FORMAT_YCBCR_422_I:
         switch (videoSrcFormat) {
         case V4L2_PIX_FMT_YUYV:     mFillBufferFromVideo = fillYUYVFromYUYV;    break;
+        case V4L2_PIX_FMT_UYVY:     mFillBufferFromVideo = fillYUYVFromUYVY;    break;
         default:
             // TODO:  Are there other V4L2 formats we must support?
             ALOGE("Unhandled camera format %4.4s", (char*)&videoSrcFormat);

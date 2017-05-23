@@ -84,6 +84,7 @@ PRODUCT_PACKAGES += \
 
 # EVS resources
 PRODUCT_PACKAGES += android.hardware.automotive.evs@1.0-service
+PRODUCT_PACKAGES += android.hardware.automotive.evs@1.0-sample
 PRODUCT_PACKAGES += android.automotive.evs.manager@1.0
 PRODUCT_PACKAGES += evs_app
 PRODUCT_COPY_FILES += \

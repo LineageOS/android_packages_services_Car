@@ -15,26 +15,26 @@
   },
   "cameras" : [
     {
-      "cameraId" : "/dev/video45",
+      "cameraId" : "/dev/video32",
       "function" : "reverse,park",
       "x" : 0.0,
       "y" : -40.0,
       "z" : 48,
       "yaw" : 180,
       "pitch" : -30,
-      "hfov" : 90,
-      "vfov" : 60
+      "hfov" : 125,
+      "vfov" :103 
     },
     {
-      "cameraId" : "/dev/video1",
+      "cameraId" : "/dev/video45",
       "function" : "front,park",
       "x" : 0.0,
       "y" : 100.0,
       "z" : 48,
       "yaw" : 0,
       "pitch" : -10,
-      "hfov" : 60,
-      "vfov" : 42
+      "hfov" : 70,
+      "vfov" : 43
     },
     {
       "cameraId" : "/dev/video0",

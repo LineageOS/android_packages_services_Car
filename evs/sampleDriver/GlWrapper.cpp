@@ -197,7 +197,11 @@ bool GlWrapper::initialize() {
     //
     status_t err;
 
-    mFlinger = new SurfaceComposerClient;
+    mFlinger = new SurfaceComposerClient();
+    if (mFlinger == nullptr) {
+        ALOGE("SurfaceComposerClient couldn't be allocated");
+        return false;
+    }
     err = mFlinger->initCheck();
     if (err != NO_ERROR) {
         ALOGE("SurfaceComposerClient::initCheck error: %#x", err);

@@ -194,6 +194,41 @@ void fillYUYVFromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, un
 }
 
 
+void fillYUYVFromUYVY(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned imgStride) {
+    unsigned width = tgtBuff.width;
+    unsigned height = tgtBuff.height;
+    uint32_t* src = (uint32_t*)imgData;
+    uint32_t* dst = (uint32_t*)tgt;
+    unsigned srcStridePixels = imgStride / 2;
+    unsigned dstStridePixels = tgtBuff.stride;
+
+    const int srcRowPadding32 = srcStridePixels/2 - width/2;  // 2 bytes per pixel, 4 bytes per word
+    const int dstRowPadding32 = dstStridePixels/2 - width/2;  // 2 bytes per pixel, 4 bytes per word
+
+    for (unsigned r=0; r<height; r++) {
+        for (unsigned c=0; c<width/2; c++) {
+            // Note:  we're walking two pixels at a time here (even/odd)
+            uint32_t srcPixel = *src++;
+
+            uint8_t Y1 = (srcPixel)       & 0xFF;
+            uint8_t U  = (srcPixel >> 8)  & 0xFF;
+            uint8_t Y2 = (srcPixel >> 16) & 0xFF;
+            uint8_t V  = (srcPixel >> 24) & 0xFF;
+
+            // Now we write back the pair of pixels with the components swizzled
+            *dst++ = (U)        |
+                     (Y1 << 8)  |
+                     (V  << 16) |
+                     (Y2 << 24);
+        }
+
+        // Skip over any extra data or end of row alignment padding
+        src += srcRowPadding32;
+        dst += dstRowPadding32;
+    }
+}
+
+
 } // namespace implementation
 } // namespace V1_0
 } // namespace evs
