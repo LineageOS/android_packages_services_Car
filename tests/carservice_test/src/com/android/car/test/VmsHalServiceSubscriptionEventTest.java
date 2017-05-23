@@ -62,7 +62,7 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
 
     @Override
     protected void setUp() throws Exception {
-        assumeTrue(VmsTestUtils.canRunTest(TAG));
+        if (!VmsTestUtils.canRunTest(TAG)) return;
         super.setUp();
         mHal = getMockedVehicleHal();
         mHalHandlerSemaphore = new Semaphore(0);
