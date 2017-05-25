@@ -29,13 +29,12 @@ import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
-
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     private static final int LAYER_ID = 88;
     private static final int LAYER_VERSION = 19;
+    private static final int EXPECTED_PUBLISHER_ID = 0;
     private static final String TAG = "VmsPubSubTest";
 
     public static final VmsLayer LAYER = new VmsLayer(LAYER_ID, LAYER_VERSION);
@@ -124,6 +124,27 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         assertEquals(LAYER, listener.getLayer());
         assertTrue(Arrays.equals(PAYLOAD, listener.getPayload()));
+    }
+
+    /**
+     * The Mock service will get a publisher ID by sending its information when it will get
+     * ServiceReady as well as on SubscriptionChange. Since clients are not notified when
+     * publishers are assigned IDs, this test waits until the availability is changed which indicates
+     * that the Mock service has gotten its ServiceReady and publisherId.
+     */
+    public void testPublisherInfo() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
+        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
+                Car.VMS_SUBSCRIBER_SERVICE);
+        // Subscribe to layer as a way to make sure the mock client completed setting the information.
+        TestListener listener = new TestListener();
+        vmsSubscriberManager.setListener(listener);
+        vmsSubscriberManager.subscribe(LAYER);
+
+        assertTrue(mAvailabilitySemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+
+        byte[] info = vmsSubscriberManager.getPublisherInfo(EXPECTED_PUBLISHER_ID);
+        assertTrue(Arrays.equals(PAYLOAD, info));
     }
 
     /**

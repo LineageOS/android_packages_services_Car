@@ -262,6 +262,13 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     }
 
     @Override
+    public byte[] getPublisherInfo(int publisherId) {
+        synchronized (mSubscriberServiceLock) {
+            return mHal.getPublisherInfo(publisherId);
+        }
+    }
+
+    @Override
     public List<VmsLayer> getAvailableLayers() {
         //TODO(asafro): return the list of available layers once logic is implemented.
         return Collections.emptyList();

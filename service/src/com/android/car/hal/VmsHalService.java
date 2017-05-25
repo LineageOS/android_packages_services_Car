@@ -37,6 +37,7 @@ import android.os.IBinder;
 import android.util.Log;
 import com.android.car.CarLog;
 import com.android.car.VmsLayersAvailability;
+import com.android.car.VmsPublishersInfo;
 import com.android.car.VmsRouting;
 import com.android.internal.annotations.GuardedBy;
 import java.io.PrintWriter;
@@ -71,13 +72,13 @@ public class VmsHalService extends HalServiceBase {
     private final IBinder mHalPublisherToken = new Binder();
     private final VehicleHal mVehicleHal;
 
-    private final Object mRoutingLock = new Object();
+    private final Object mLock = new Object();
     private final VmsRouting mRouting = new VmsRouting();
-    private final Object mAvailabilityLock = new Object();
-    @GuardedBy("mAvailabilityLock")
+    @GuardedBy("mLock")
     private final Map<IBinder, VmsLayersOffering> mOfferings = new HashMap<>();
-    @GuardedBy("mAvailabilityLock")
+    @GuardedBy("mLock")
     private final VmsLayersAvailability mAvailableLayers = new VmsLayersAvailability();
+    private final VmsPublishersInfo mPublishersInfo = new VmsPublishersInfo();
 
     /**
      * The VmsPublisherService implements this interface to receive data from the HAL.
@@ -125,7 +126,7 @@ public class VmsHalService extends HalServiceBase {
 
     public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         boolean firstSubscriptionForLayer = false;
-        synchronized (mRoutingLock) {
+        synchronized (mLock) {
             // Check if publishers need to be notified about this change in subscriptions.
             firstSubscriptionForLayer = !mRouting.hasLayerSubscriptions(layer);
 
@@ -139,7 +140,7 @@ public class VmsHalService extends HalServiceBase {
 
     public void removeSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         boolean layerHasSubscribers = true;
-        synchronized (mRoutingLock) {
+        synchronized (mLock) {
             if (!mRouting.hasLayerSubscriptions(layer)) {
                 Log.i(TAG, "Trying to remove a layer with no subscription: " + layer);
                 return;
@@ -157,50 +158,74 @@ public class VmsHalService extends HalServiceBase {
     }
 
     public void addSubscription(IVmsSubscriberClient listener) {
-        synchronized (mRoutingLock) {
+        synchronized (mLock) {
             mRouting.addSubscription(listener);
         }
     }
 
     public void removeSubscription(IVmsSubscriberClient listener) {
-        synchronized (mRoutingLock) {
+        synchronized (mLock) {
             mRouting.removeSubscription(listener);
         }
     }
 
     public void removeDeadListener(IVmsSubscriberClient listener) {
-        synchronized (mRoutingLock) {
+        synchronized (mLock) {
             mRouting.removeDeadListener(listener);
         }
     }
 
     public Set<IVmsSubscriberClient> getListeners(VmsLayer layer) {
-        synchronized (mRoutingLock) {
+        synchronized (mLock) {
             return mRouting.getListeners(layer);
         }
     }
 
     public Set<IVmsSubscriberClient> getAllListeners() {
-        synchronized (mRoutingLock) {
+        synchronized (mLock) {
             return mRouting.getAllListeners();
         }
     }
 
     public boolean isHalSubscribed(VmsLayer layer) {
-        synchronized (mRoutingLock) {
+        synchronized (mLock) {
             return mRouting.isHalSubscribed(layer);
         }
     }
 
     public VmsSubscriptionState getSubscriptionState() {
-        synchronized (mRoutingLock) {
+        synchronized (mLock) {
             return mRouting.getSubscriptionState();
+        }
+    }
+
+    /**
+     * Assigns an idempotent ID for publisherInfo and stores it. The idempotency in this case means
+     * that the same publisherInfo will always, within a trip of the vehicle, return the same ID.
+     * The publisherInfo should be static for a binary and should only change as part of a software
+     * update. The publisherInfo is a serialized proto message which VMS clients can interpret.
+     */
+    public int getPublisherStaticId(byte[] publisherInfo) {
+        if (DBG) {
+            Log.i(TAG, "Getting publisher static ID");
+        }
+        synchronized (mLock) {
+            return mPublishersInfo.getIdForInfo(publisherInfo);
+        }
+    }
+
+    public byte[] getPublisherInfo(int publisherId) {
+        if (DBG) {
+            Log.i(TAG, "Getting information for publisher ID: " + publisherId);
+        }
+        synchronized (mLock) {
+            return mPublishersInfo.getPublisherInfo(publisherId);
         }
     }
 
     public void addHalSubscription(VmsLayer layer) {
         boolean firstSubscriptionForLayer = true;
-        synchronized (mRoutingLock) {
+        synchronized (mLock) {
             // Check if publishers need to be notified about this change in subscriptions.
             firstSubscriptionForLayer = !mRouting.hasLayerSubscriptions(layer);
 
@@ -214,7 +239,7 @@ public class VmsHalService extends HalServiceBase {
 
     public void removeHalSubscription(VmsLayer layer) {
         boolean layerHasSubscribers = true;
-        synchronized (mRoutingLock) {
+        synchronized (mLock) {
             if (!mRouting.hasLayerSubscriptions(layer)) {
                 Log.i(TAG, "Trying to remove a layer with no subscription: " + layer);
                 return;
@@ -232,14 +257,14 @@ public class VmsHalService extends HalServiceBase {
     }
 
     public boolean containsListener(IVmsSubscriberClient listener) {
-        synchronized (mRoutingLock) {
+        synchronized (mLock) {
             return mRouting.containsListener(listener);
         }
     }
 
     public void setPublisherLayersOffering(IBinder publisherToken, VmsLayersOffering offering){
         Set<VmsLayer> availableLayers = Collections.EMPTY_SET;
-        synchronized (mAvailabilityLock) {
+        synchronized (mLock) {
             updateOffering(publisherToken, offering);
             availableLayers = mAvailableLayers.getAvailableLayers();
         }
@@ -248,7 +273,7 @@ public class VmsHalService extends HalServiceBase {
 
     public Set<VmsLayer> getAvailableLayers() {
         //TODO(b/36872877): wrap available layers in VmsAvailabilityState similar to VmsSubscriptionState.
-        synchronized (mAvailabilityLock) {
+        synchronized (mLock) {
             return mAvailableLayers.getAvailableLayers();
         }
     }
@@ -475,7 +500,7 @@ public class VmsHalService extends HalServiceBase {
         }
         // Store the HAL offering.
         VmsLayersOffering offering = new VmsLayersOffering(offeredLayers);
-        synchronized (mAvailabilityLock) {
+        synchronized (mLock) {
             updateOffering(mHalPublisherToken, offering);
         }
     }
@@ -489,7 +514,7 @@ public class VmsHalService extends HalServiceBase {
      * </ul>
      */
     private void handleAvailabilityEvent() {
-        synchronized (mAvailabilityLock) {
+        synchronized (mLock) {
             Collection<VmsLayer> availableLayers = mAvailableLayers.getAvailableLayers();
             VehiclePropValue vehiclePropertyValue = toVehiclePropValue(
                 VmsMessageType.AVAILABILITY_RESPONSE, availableLayers);
@@ -527,7 +552,7 @@ public class VmsHalService extends HalServiceBase {
 
     private void updateOffering(IBinder publisherToken, VmsLayersOffering offering) {
         Set<VmsLayer> availableLayers = Collections.EMPTY_SET;
-        synchronized (mAvailabilityLock) {
+        synchronized (mLock) {
             mOfferings.put(publisherToken, offering);
 
             // Update layers availability.

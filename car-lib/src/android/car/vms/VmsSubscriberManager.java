@@ -157,6 +157,24 @@ public final class VmsSubscriberManager implements CarManagerBase {
     }
 
     /**
+     * Returns a serialized publisher information for a publisher ID.
+     */
+    public byte[] getPublisherInfo(int publisherId) throws CarNotConnectedException, IllegalStateException {
+        if (DBG) {
+            Log.d(TAG, "Getting all publishers info.");
+        }
+        try {
+            return mVmsSubscriberService.getPublisherInfo(publisherId);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not connect: ", e);
+            throw new CarNotConnectedException(e);
+        } catch (IllegalStateException ex) {
+            Car.checkCarNotConnectedExceptionFromCarService(ex);
+            throw new IllegalStateException(ex);
+        }
+    }
+
+    /**
      * Subscribes to listen to the layer specified.
      *
      * @param layer the layer to subscribe to.
