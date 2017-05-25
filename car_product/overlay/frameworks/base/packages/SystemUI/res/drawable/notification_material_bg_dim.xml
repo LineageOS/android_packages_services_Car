@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-        android:color="#28000000">
+        android:color="@color/notification_ripple_untinted_color">
     <item>
         <shape xmlns:android="http://schemas.android.com/apk/res/android">
-          <solid android:color="#fffafafa" />
+          <solid android:color="@color/notification_material_background_color" />
           <corners
               android:radius="@dimen/notification_shadow_radius"/>
       </shape>

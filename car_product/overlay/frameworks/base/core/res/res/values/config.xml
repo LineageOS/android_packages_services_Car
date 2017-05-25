@@ -60,4 +60,10 @@
          notification. If false, then the expand icon has to be clicked in order for the expand
          to occur. -->
     <bool name="config_notificationHeaderClickableForExpand">true</bool>
+
+    <!-- Night mode should be enabled. -->
+    <bool name="config_enableNightMode">true</bool>
+
+    <!-- The action buttons should always take the default color. -->
+    <bool name="config_tintNotificationActionButtons">false</bool>
 </resources>
