@@ -91,6 +91,10 @@ PRODUCT_COPY_FILES += \
     packages/services/Car/evs/app/CarFromTop.png:system/etc/automotive/evs/CarFromTop.png \
     packages/services/Car/evs/app/LabeledChecker.png:system/etc/automotive/evs/LabeledChecker.png
 
+# Device running Android is a car
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/android.hardware.type.automotive.xml:system/etc/permissions/android.hardware.type.automotive.xml
+
 PRODUCT_PACKAGES += android.hardware.automotive.vehicle@2.1-service
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_minimal.mk)
