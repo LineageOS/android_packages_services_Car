@@ -40,6 +40,9 @@ void fillRGBAFromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt,
 void fillYUYVFromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt,
                       void* imgData, unsigned imgStride);
 
+void fillYUYVFromUYVY(const BufferDesc& tgtBuff, uint8_t* tgt,
+                      void* imgData, unsigned imgStride);
+
 } // namespace implementation
 } // namespace V1_0
 } // namespace evs

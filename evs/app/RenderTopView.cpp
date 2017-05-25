@@ -265,8 +265,6 @@ void RenderTopView::renderCarTopView() {
     glUniformMatrix4fv(loc, 1, false, orthoMatrix.asArray());
     glBindTexture(GL_TEXTURE_2D, mTexAssets.carTopView->glId());
 
-    printf("top view tex=%u\n", mTexAssets.carTopView->glId());
-
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 
@@ -332,11 +330,9 @@ void RenderTopView::renderCameraOntoGroundPlane(const ActiveCamera& cam) {
     } else {
         texId = mTexAssets.checkerBoard->glId();
     }
-    printf("projected tex=%u\n", texId);
     glBindTexture(GL_TEXTURE_2D, texId);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    //   glDrawArrays(GL_LINE_STRIP, 0, 4);
 
 
     glDisableVertexAttribArray(0);
