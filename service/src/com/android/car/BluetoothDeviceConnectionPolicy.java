@@ -652,6 +652,9 @@ public class BluetoothDeviceConnectionPolicy {
         // profile.  When unpaired, we remove the device from all of the profiles' device list.
         if (bondState == BluetoothDevice.BOND_NONE) {
             for (Integer profile : mProfilesToConnect) {
+                if (DBG) {
+                    Log.d(TAG, "Removing " + device + " from profile: " + profile);
+                }
                 removeDeviceFromProfile(device, profile);
             }
         }
@@ -1071,6 +1074,8 @@ public class BluetoothDeviceConnectionPolicy {
         }
         for (BluetoothDevicesInfo devInfo : mProfileToConnectableDevicesMap.values()) {
             writer.print("Profile: " + devInfo.getProfileLocked() + "\t");
+            writer.print(
+                    "Num of Paired devices: " + devInfo.getNumberOfPairedDevicesLocked() + "\t");
             writer.print("Active Connections: " + devInfo.getNumberOfActiveConnectionsLocked());
             writer.println();
             List<BluetoothDevicesInfo.DeviceInfo> deviceInfoList = devInfo.getDeviceInfoList();
