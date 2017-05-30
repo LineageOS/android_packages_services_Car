@@ -1279,6 +1279,29 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         }
     }
 
+    private void doSendFocusRequestToCarLocked(int focusToRequest,
+            int streamsToRequest, int extFocus, int audioContexts) {
+        if (DBG) {
+            Log.d(TAG_FOCUS, String.format("audio focus request. focusToRequest = %d, " +
+                "streamsToRequest = 0x%x, extFocus = 0x%x, audioContexts = 0x%x",
+                focusToRequest, streamsToRequest, extFocus, audioContexts));
+        }
+        try {
+            mAudioHal.requestAudioFocusChange(
+                    focusToRequest,
+                    streamsToRequest,
+                    extFocus,
+                    audioContexts);
+        } catch (IllegalArgumentException e) {
+            // can happen when mocking ends. ignore. timeout will handle it properly.
+        }
+        try {
+            mLock.wait(mFocusResponseWaitTimeoutMs);
+        } catch (InterruptedException e) {
+            // ignore
+        }
+    }
+
     private boolean sendFocusRequestToCarIfNecessaryLocked(int focusToRequest,
             int streamsToRequest, int extFocus, int audioContexts, boolean forceSend) {
         if (needsToSendFocusRequestLocked(focusToRequest, streamsToRequest, extFocus,
@@ -1299,17 +1322,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 Log.d(TAG_FOCUS, "focus request to car:" + mLastFocusRequestToCar + " context:0x" +
                         Integer.toHexString(audioContexts));
             }
-            try {
-                mAudioHal.requestAudioFocusChange(focusToRequest, streamsToRequest, extFocus,
-                        audioContexts);
-            } catch (IllegalArgumentException e) {
-                // can happen when mocking ends. ignore. timeout will handle it properly.
-            }
-            try {
-                mLock.wait(mFocusResponseWaitTimeoutMs);
-            } catch (InterruptedException e) {
-                //ignore
-            }
+            doSendFocusRequestToCarLocked(focusToRequest, streamsToRequest, extFocus,
+                    audioContexts);
             return true;
         }
         return false;
@@ -1445,20 +1459,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 }
                 mLastFocusRequestToCar = FocusRequest.STATE_RELEASE;
                 sent = true;
-                try {
-                    if (mExternalRoutingHintSupported) {
-                        mAudioHal.setExternalRoutingSource(mExternalRoutingsForFocusRelease);
-                    }
-                    mAudioHal.requestAudioFocusChange(
-                            AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE, 0, 0);
-                } catch (IllegalArgumentException e) {
-                    // can happen when mocking ends. ignore. timeout will handle it properly.
+                if (mExternalRoutingHintSupported) {
+                    mAudioHal.setExternalRoutingSource(mExternalRoutingsForFocusRelease);
                 }
-                try {
-                    mLock.wait(mFocusResponseWaitTimeoutMs);
-                } catch (InterruptedException e) {
-                    //ignore
-                }
+                doSendFocusRequestToCarLocked(AudioHalService.VEHICLE_AUDIO_FOCUS_REQUEST_RELEASE,
+                        0, 0, 0);
                 mCurrentPrimaryAudioContext = 0;
                 mCurrentPrimaryPhysicalStream = 0;
                 if (mCarAudioContextChangeHandler != null) {
