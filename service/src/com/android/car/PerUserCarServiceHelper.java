@@ -27,6 +27,8 @@ import android.os.IBinder;
 import android.os.UserHandle;
 import android.util.Log;
 
+import com.android.internal.annotations.GuardedBy;
+
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.ArrayList;
@@ -47,6 +49,9 @@ public class PerUserCarServiceHelper implements CarServiceBase {
     private UserSwitchBroadcastReceiver mReceiver;
     private IntentFilter mUserSwitchFilter;
     private static final String EXTRA_USER_HANDLE = "android.intent.extra.user_handle";
+    private final Object mServiceBindLock = new Object();
+    @GuardedBy("mServiceBindLock")
+    private boolean mBound = false;
 
     public PerUserCarServiceHelper(Context context) {
         mContext = context;
@@ -164,11 +169,15 @@ public class PerUserCarServiceHelper implements CarServiceBase {
             Log.d(TAG, "Binding to User service");
         }
         Intent startIntent = new Intent(mContext, PerUserCarService.class);
-        // Try binding - if valid connection not obtained, unbind
-        if (!mContext.bindServiceAsUser(startIntent, mUserServiceConnection,
-                mContext.BIND_AUTO_CREATE, UserHandle.CURRENT)) {
-            Log.e(TAG, "bindToPerUserCarService() failed to get valid connection");
-            unbindFromPerUserCarService();
+        synchronized (mServiceBindLock) {
+            mBound = true;
+            boolean bindSuccess = mContext.bindServiceAsUser(startIntent, mUserServiceConnection,
+                    mContext.BIND_AUTO_CREATE, UserHandle.CURRENT);
+            // If valid connection not obtained, unbind
+            if (!bindSuccess) {
+                Log.e(TAG, "bindToPerUserCarService() failed to get valid connection");
+                unbindFromPerUserCarService();
+            }
         }
     }
 
@@ -176,10 +185,16 @@ public class PerUserCarServiceHelper implements CarServiceBase {
      * Unbind from the {@link PerUserCarService} running as the Current user.
      */
     private void unbindFromPerUserCarService() {
-        if (DBG) {
-            Log.d(TAG, "Unbinding from User Service");
+        synchronized (mServiceBindLock) {
+            // mBound flag makes sure we are unbinding only when the service is bound.
+            if (mBound) {
+                if (DBG) {
+                    Log.d(TAG, "Unbinding from User Service");
+                }
+                mContext.unbindService(mUserServiceConnection);
+                mBound = false;
+            }
         }
-        mContext.unbindService(mUserServiceConnection);
     }
 
     /**
