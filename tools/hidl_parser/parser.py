@@ -18,10 +18,10 @@
 # A parser for enum types defined in HIDL.
 # This script can parse HIDL files and generate a parse tree.
 # To use, import and call parse("path/to/file.hal")
-# It will return a Python dictionary with two keys:
+# It will return a Python dictionary with three keys:
 #  - header: an instance of Header
 #  - enums: a dictionary of EnumDecl objects by name
-# This script cannot parse structs for now, but that would be easy to add.
+#  - structs: a dictionary of StructDecl objects by name
 
 # It requires 'ply' (Python Lex/Yacc).
 
