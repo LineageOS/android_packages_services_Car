@@ -1,0 +1,10 @@
+service evs_manager /system/bin/android.automotive.evs.manager@1.0
+    class hal
+    priority -20
+    user automotive_evs
+    group automotive_evs
+    onrestart restart evs_app
+
+#on post-fs
+#on boot
+#    start evs_manager

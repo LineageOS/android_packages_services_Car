@@ -1,0 +1,14 @@
+# evs app
+type evs_app, domain;
+type evs_app_exec, exec_type, file_type;
+
+allow evs_app evs_app_exec:dir search;
+allow evs_app evs_driver:binder call;
+allow evs_app evs_mock:binder call;
+allow evs_app gpu_device:chr_file ioctl;
+allow evs_app hal_graphics_allocator_default:fd use;
+allow evs_app hal_vehicle_default:binder call;
+
+init_daemon_domain(evs_app)
+
+binder_use(evs_app);

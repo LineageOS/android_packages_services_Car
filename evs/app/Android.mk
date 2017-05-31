@@ -43,6 +43,8 @@ LOCAL_STATIC_LIBRARIES := \
 
 LOCAL_STRIP_MODULE := keep_symbols
 
+LOCAL_INIT_RC := evs_app.rc
+
 LOCAL_MODULE:= evs_app
 LOCAL_MODULE_TAGS := optional
 

@@ -1,0 +1,10 @@
+service evs_driver /system/bin/android.hardware.automotive.evs@1.0-sample
+    class hal
+    priority -20
+    user automotive_evs
+    group automotive_evs
+    onrestart restart evs_manager
+
+#on post-fs
+#on boot
+#    start evs_driver
