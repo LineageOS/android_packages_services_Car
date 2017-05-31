@@ -505,7 +505,7 @@ def collect_events(search_events, command, timings, stop_events, disable_timing_
       print "timeout waiting for event, continue", time_left
       break
     read_r = read_poll.poll(time_left * 1000.0)
-    if read_r:
+    if len(read_r) > 0 and read_r[0][1] == select.POLLIN:
         line = process.stdout.readline()
     else:
       print "poll timeout waiting for event, continue", time_left
