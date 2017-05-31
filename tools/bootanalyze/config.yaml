@@ -6,7 +6,8 @@ timings:
   ueventd_secs: ueventd:\s(?P<name>[^\s].+)\stook\s(?P<time>[.0-9]+)\sseconds
   init_command_ms: init:\sCommand\s(?P<name>[^\s].+)\sreturned.*took\s(?P<time>[.0-9]+)ms
   init_service_exec_secs: init:\sService\s.*exec\s[^\s]+\s\((?P<name>[^\s].+)\).*pid.*\swaiting\stook\s(?P<time>[.0-9]+)\sseconds
-
+  zygote64_timing: (?P<name>Zygote64Timing\:\s[^\s]+)\stook\sto\scomplete\:\s(?P<time>[0-9]+)ms
+  zygote32_timing: (?P<name>Zygote32Timing\:\s[^\s]+)\stook\sto\scomplete\:\s(?P<time>[0-9]+)ms
 events:
   kernel: Linux version
   android_init_1st_stage: init first stage started
@@ -29,6 +30,8 @@ events:
   correction: Updating system time diff=([0-9]+\.?[0-9]*), cuttime=([0-9]+)
   servicemanager_start_by_init: starting service 'servicemanager'
   zygoteInit: START com.android.internal.os.ZygoteInit
+  ZygoteMainSystemServer: app_process\smain\swith\sargv.*\-\-start\-system\-server
+  ZygoteMainOthers: app_process\smain\swith\sargv
   zygote_preload_start: Zygote\s*:\s*begin preload
   zygote_preload_classes_start: Zygote\s*:\s*Preloading classes...
   zygote_preload_res_start: Zygote\s*:\s*Preloading resources...
