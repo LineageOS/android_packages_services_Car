@@ -24,6 +24,7 @@ import android.bluetooth.BluetoothHeadsetClient;
 import android.bluetooth.BluetoothMapClient;
 import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.BluetoothUuid;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
@@ -38,6 +39,8 @@ import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES;
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES;
 
+import android.os.ParcelUuid;
+import android.os.Parcelable;
 import android.os.UserHandle;
 import android.provider.Settings;
 
@@ -237,7 +240,7 @@ public class BluetoothDeviceConnectionPolicy {
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (DBG) {
                 if (device != null) {
-                    Log.d(TAG, "Received Intent for device: " + device.getName() + action);
+                    Log.d(TAG, "Received Intent for device: " + device + " " + action);
                 } else {
                     Log.d(TAG, "Received Intent no device: " + action);
                 }
@@ -287,6 +290,91 @@ public class BluetoothDeviceConnectionPolicy {
                     writeDeviceInfoToSettings();
                     resetBluetoothDevicesConnectionInfo();
                 }
+            } else if (BluetoothDevice.ACTION_UUID.equals(action)) {
+                // Received during pairing with the UUIDs of the Bluetooth profiles supported by
+                // the remote device.
+                if (DBG) {
+                    Log.d(TAG, "Received UUID intent for device " + device);
+                }
+                Parcelable[] uuids = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
+                if (uuids != null) {
+                    ParcelUuid[] uuidsToSend = new ParcelUuid[uuids.length];
+                    for (int i = 0; i < uuidsToSend.length; i++) {
+                        uuidsToSend[i] = (ParcelUuid)uuids[i];
+                    }
+                    setProfilePriorities(device, uuidsToSend, BluetoothProfile.PRIORITY_ON);
+                }
+
+            }
+        }
+    }
+
+    /**
+     * Set priority for the Bluetooth profiles.
+     *
+     * The Bluetooth service stores the priority of a Bluetooth profile per device as a key value
+     * pair - BluetoothProfile_device:<Priority>.
+     * When we pair a device from the Settings App, the expected behavior is for the app to connect
+     * on all appropriate profiles after successful pairing automatically, without the user having
+     * to explicitly issue a connect. The settings app checks for the priority of the device from
+     * the above key-value pair and if the priority is set to PRIORITY_OFF or PRIORITY_UNDEFINED,
+     * the settings app will stop with just pairing and not connect.
+     * This scenario will happen when we pair a device, then unpair it and then pair it again.  When
+     * the device is unpaired, the BT stack sets the priority for that device to PRIORITY_UNDEFINED
+     * ( as a way of resetting).  So, the next time the same device is paired, the Settings app will
+     * stop with just pairing and not connect as explained above. Here, we register to receive the
+     * ACTION_UUID intent, which will broadcast the UUIDs corresponding to the profiles supported by
+     * the remote device which is successfully paired and we turn on the priority so when the
+     * Settings app tries to check before connecting, the priority is set to the expected value.
+     *
+     * @param device   - Remote Bluetooth device
+     * @param uuids    - UUIDs of the Bluetooth Profiles supported by the remote device
+     * @param priority - priority to set
+     */
+    private void setProfilePriorities(BluetoothDevice device, ParcelUuid[] uuids, int priority) {
+        // need the BluetoothProfile proxy to be able to call the setPriority API
+        if (mCarBluetoothUserService == null) {
+            mCarBluetoothUserService = setupBluetoothUserService();
+        }
+        if (mCarBluetoothUserService != null) {
+            for (Integer profile : mProfilesToConnect) {
+                setBluetoothProfilePriorityIfUuidFound(uuids, profile, device, priority);
+            }
+        }
+    }
+
+    private void setBluetoothProfilePriorityIfUuidFound(ParcelUuid[] uuids, int profile,
+            BluetoothDevice device, int priority) {
+        if (mCarBluetoothUserService == null || device == null) {
+            return;
+        }
+        // Build a list of UUIDs that represent a profile.
+        List<ParcelUuid> uuidsToCheck = new ArrayList<>();
+        switch (profile) {
+            case BluetoothProfile.A2DP_SINK:
+                uuidsToCheck.add(BluetoothUuid.AudioSource);
+                break;
+            case BluetoothProfile.HEADSET_CLIENT:
+                uuidsToCheck.add(BluetoothUuid.Handsfree_AG);
+                uuidsToCheck.add(BluetoothUuid.HSP_AG);
+                break;
+            case BluetoothProfile.PBAP_CLIENT:
+                uuidsToCheck.add(BluetoothUuid.PBAP_PSE);
+                break;
+            case BluetoothProfile.MAP_CLIENT:
+                uuidsToCheck.add(BluetoothUuid.MAS);
+                break;
+        }
+
+        for (ParcelUuid uuid : uuidsToCheck) {
+            if (BluetoothUuid.isUuidPresent(uuids, uuid)) {
+                try {
+                    mCarBluetoothUserService.setProfilePriority(profile, device, priority);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "RemoteException calling setProfilePriority");
+                }
+                // if any one of the uuid in uuidsTocheck is present, set the priority and break
+                break;
             }
         }
     }
@@ -309,6 +397,9 @@ public class BluetoothDeviceConnectionPolicy {
             if (DBG) {
                 Log.d(TAG, "Connected to PerUserCarService");
             }
+            // Get the BluetoothUserService and also setup the Bluetooth Connection Proxy for
+            // all profiles.
+            mCarBluetoothUserService = setupBluetoothUserService();
             // re-initialize for current user.
             initializeUserSpecificInfo();
         }
@@ -415,9 +506,6 @@ public class BluetoothDeviceConnectionPolicy {
             setupBluetoothEventsIntentFilterLocked();
 
             mConnectionInFlight = new ConnectionParams();
-            // Get the BluetoothUserService and also setup the Bluetooth Connection Proxy for
-            // all profiles.
-            mCarBluetoothUserService = setupBluetoothUserService();
             mUserSpecificInfoInitialized = true;
         }
     }
@@ -438,8 +526,11 @@ public class BluetoothDeviceConnectionPolicy {
         profileFilter.addAction(BluetoothPbapClient.ACTION_CONNECTION_STATE_CHANGED);
         profileFilter.addAction(BluetoothMapClient.ACTION_CONNECTION_STATE_CHANGED);
         profileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        mContext.registerReceiverAsUser(mBluetoothBroadcastReceiver, UserHandle.CURRENT,
-                profileFilter, null, null);
+        profileFilter.addAction(BluetoothDevice.ACTION_UUID);
+        if (mContext != null) {
+            mContext.registerReceiverAsUser(mBluetoothBroadcastReceiver, UserHandle.CURRENT,
+                    profileFilter, null, null);
+        }
     }
 
     /**
@@ -646,7 +737,7 @@ public class BluetoothDeviceConnectionPolicy {
             return;
         }
         if (DBG) {
-            Log.d(TAG, "BondState :" + bondState + " Device: " + device.getName());
+            Log.d(TAG, "BondState :" + bondState + " Device: " + device);
         }
         // Bonded devices are added to a profile's device list after the device CONNECTS on the
         // profile.  When unpaired, we remove the device from all of the profiles' device list.
