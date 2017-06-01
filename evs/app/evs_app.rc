@@ -3,7 +3,3 @@ service evs_app /system/bin/evs_app
     priority -20
     user automotive_evs
     group automotive_evs
-
-#on post-fs
-#on boot
-#    start evs_app
