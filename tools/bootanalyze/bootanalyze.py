@@ -86,9 +86,11 @@ def main():
   cfg = yaml.load(args.config)
 
   if args.stressfs:
-    if subprocess.call(ADB_CMD + ' install -r -g ' + args.stressfs, shell=True) != 0:
+    if run_adb_cmd('install -r -g ' + args.stressfs) != 0:
       raise Exception('StressFS APK not installed');
 
+  if args.iterate > 1 and args.bootchart:
+    run_adb_shell_cmd_as_root('touch /data/bootchart/enabled')
 
   search_events = {key: re.compile(pattern)
                    for key, pattern in cfg['events'].iteritems()}
@@ -99,9 +101,11 @@ def main():
   kernel_timing_points = collections.OrderedDict()
   logcat_timing_points = collections.OrderedDict()
   boottime_points = collections.OrderedDict()
+  boot_chart_file_name_prefix = "bootchart-" + datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+  systrace_file_name_prefix = "systrace-" + datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
   for it in range(0, args.iterate):
     if args.iterate > 1:
-      print "Run: {0}".format(it + 1)
+      print "Run: {0}".format(it)
     attempt = 1
     processing_data = None
     timings = None
@@ -113,8 +117,13 @@ def main():
 
     if not processing_data or not boottime_events:
       # Processing error
-      print "Failed to collect valid samples for run {0}".format(it + 1)
+      print "Failed to collect valid samples for run {0}".format(it)
       continue
+    if args.bootchart:
+      grab_bootchart(boot_chart_file_name_prefix + "_run_" + str(it))
+
+    if args.systrace:
+      grab_systrace(systrace_file_name_prefix + "_run_" + str(it))
     for k, v in processing_data.iteritems():
       if k not in data_points:
         data_points[k] = []
@@ -137,8 +146,8 @@ def main():
       boottime_points[k].append(v)
 
   if args.stressfs:
-    subprocess.call(ADB_CMD + ' uninstall com.android.car.test.stressfs', shell=True)
-    subprocess.call(ADB_CMD + ' shell "rm -rf /storage/emulated/0/stressfs_data*"', shell=True)
+    run_adb_cmd('uninstall com.android.car.test.stressfs')
+    run_adb_shell_cmd('"rm -rf /storage/emulated/0/stressfs_data*"')
 
   if args.iterate > 1:
     print "-----------------"
@@ -167,6 +176,8 @@ def main():
     for item in sorted(average_with_stddev, key=lambda entry: entry[1]):
       print '{0:30}: {1:<7.5} {2:<7.5} {3}'.format(
         item[0], item[1], item[2], item[3] if item[3] != args.iterate else "")
+
+    run_adb_shell_cmd_as_root('rm /data/bootchart/enabled')
 
 
 def dump_timings_points_summary(msg_header, timing_points, args):
@@ -442,6 +453,12 @@ def init_arguments():
                       help='capture bugreport if specified timing component is taking more than ' +\
                            'certain time. Unlike errortime, the result will not be rejected in' +\
                            'averaging. Format is key1=time1,key2=time2...')
+  parser.add_argument('-b', '--bootchart', dest='bootchart',
+                      action='store_true',
+                      help='collect bootchart from the device.', )
+  parser.add_argument('-y', '--systrace', dest='systrace',
+                      action='store_true',
+                      help='collect systrace from the device. kernel trace should be already enabled', )
   return parser.parse_args()
 
 def handle_zygote_event(zygote_pids, events, event, line):
@@ -601,10 +618,10 @@ def do_reboot(serial, use_adb_reboot):
   original_devices = subprocess.check_output("adb devices", shell=True)
   if use_adb_reboot:
     print 'Rebooting the device using adb reboot'
-    subprocess.call(ADB_CMD + ' reboot', shell=True)
+    run_adb_cmd('reboot')
   else:
     print 'Rebooting the device using svc power reboot'
-    subprocess.call(ADB_CMD + ' shell su root svc power reboot', shell=True)
+    run_adb_shell_cmd_as_root('svc power reboot')
   # Wait for the device to go away
   retry = 0
   while retry < 20:
@@ -619,13 +636,13 @@ def do_reboot(serial, use_adb_reboot):
 def reboot(serial, use_stressfs, permissive, use_adb_reboot):
   if use_stressfs:
     print 'Starting write to data partition'
-    subprocess.call(ADB_CMD + ' shell am start' +\
-                              ' -n com.android.car.test.stressfs/.WritingActivity' +\
-                              ' -a com.android.car.test.stressfs.START', shell=True)
+    run_adb_shell_cmd('am start' +\
+                      ' -n com.android.car.test.stressfs/.WritingActivity' +\
+                      ' -a com.android.car.test.stressfs.START')
     # Give this app some time to start.
     time.sleep(1)
   if permissive:
-    subprocess.call(ADB_CMD + ' shell su root setenforce 0', shell=True)
+    run_adb_shell_cmd_as_root('setenforce 0')
 
   retry = 0
   while retry < 5:
@@ -634,7 +651,16 @@ def reboot(serial, use_stressfs, permissive, use_adb_reboot):
     retry += 1
 
   print 'Waiting the device'
-  subprocess.call(ADB_CMD + ' wait-for-device', shell=True)
+  run_adb_cmd('wait-for-device')
+
+def run_adb_cmd(cmd):
+  return subprocess.call(ADB_CMD + ' ' + cmd, shell=True)
+
+def run_adb_shell_cmd(cmd):
+  return subprocess.call(ADB_CMD + ' shell ' + cmd, shell=True)
+
+def run_adb_shell_cmd_as_root(cmd):
+  return subprocess.call(ADB_CMD + ' shell su root ' + cmd, shell=True)
 
 def logcat_time_func(offset_year):
   def f(date_str):
@@ -652,6 +678,22 @@ def stddev(data):
   sq_diffs_sum = sum([(v - avg) ** 2 for v in data])
   variance = sq_diffs_sum / items_count
   return math.sqrt(variance)
+
+def grab_bootchart(boot_chart_file_name):
+  subprocess.call("./system/core/init/grab-bootchart.sh --no-viewer", shell=True)
+  print "Saving boot chart as " + boot_chart_file_name + ".tgz"
+  subprocess.call('cp /tmp/android-bootchart/bootchart.tgz ./' + boot_chart_file_name + '.tgz',\
+                  shell=True)
+  subprocess.call('cp ./bootchart.png ./' + boot_chart_file_name + '.png', shell=True)
+
+def grab_systrace(systrace_file_name):
+  trace_file = systrace_file_name + "_trace.txt"
+  with open(trace_file, 'w') as f:
+    f.write("TRACE:\n")
+  run_adb_shell_cmd_as_root("cat /d/tracing/trace >> " + trace_file)
+  html_file = systrace_file_name + ".html"
+  subprocess.call("./external/chromium-trace/systrace.py --from-file=" + trace_file + " -o " +\
+                  html_file, shell=True)
 
 if __name__ == '__main__':
   main()
