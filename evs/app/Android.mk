@@ -18,10 +18,6 @@ LOCAL_SRC_FILES := \
     WindowSurface.cpp \
     FormatConvert.cpp \
 
-LOCAL_C_INCLUDES += \
-    frameworks/base/include \
-    packages/services/Car/evs/app \
-
 LOCAL_SHARED_LIBRARIES := \
     libcutils \
     liblog \
@@ -57,20 +53,28 @@ include $(BUILD_EXECUTABLE)
 include $(CLEAR_VARS)
 LOCAL_MODULE := config.json
 LOCAL_MODULE_CLASS := ETC
-LOCAL_MODULE_PATH  := $(TARGET_ROOT_OUT)/system/etc/automotive/evs
+LOCAL_MODULE_PATH := $(TARGET_OUT_ETC)/automotive/evs
 LOCAL_SRC_FILES := $(LOCAL_MODULE)
 include $(BUILD_PREBUILT)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := CarFromTop.png
 LOCAL_MODULE_CLASS := ETC
-LOCAL_MODULE_PATH  := $(TARGET_ROOT_OUT)/system/etc/automotive/evs
+LOCAL_MODULE_PATH := $(TARGET_OUT_ETC)/automotive/evs
 LOCAL_SRC_FILES := $(LOCAL_MODULE)
 include $(BUILD_PREBUILT)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := LabeledChecker.png
 LOCAL_MODULE_CLASS := ETC
-LOCAL_MODULE_PATH  := $(TARGET_ROOT_OUT)/system/etc/automotive/evs
+LOCAL_MODULE_PATH := $(TARGET_OUT_ETC)/automotive/evs
 LOCAL_SRC_FILES := $(LOCAL_MODULE)
 include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := evs_app_default_resources
+LOCAL_REQUIRED_MODULES := \
+    config.json \
+    CarFromTop.png \
+    LabeledChecker.png
+include $(BUILD_PHONY_PACKAGE)
