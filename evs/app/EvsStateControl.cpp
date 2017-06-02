@@ -203,7 +203,7 @@ void EvsStateControl::updateLoop() {
 
 
 bool EvsStateControl::selectStateForCurrentConditions() {
-    ALOGD("selectStateForCurrentConditions");
+    ALOGV("selectStateForCurrentConditions");
 
     static int32_t sDummyGear   = int32_t(VehicleGear::GEAR_REVERSE);
     static int32_t sDummySignal = int32_t(VehicleTurnSignal::NONE);
@@ -248,7 +248,7 @@ bool EvsStateControl::selectStateForCurrentConditions() {
         desiredState = PARKING;
     }
 
-    ALOGV("Selected state %d.", desiredState);
+    ALOGD("Selected state %d.", desiredState);
 
     // Apply the desire state
     return configureEvsPipeline(desiredState);
@@ -256,7 +256,7 @@ bool EvsStateControl::selectStateForCurrentConditions() {
 
 
 StatusCode EvsStateControl::invokeGet(VehiclePropValue *pRequestedPropValue) {
-    ALOGD("invokeGet");
+    ALOGV("invokeGet");
 
     StatusCode status = StatusCode::TRY_AGAIN;
 
@@ -274,7 +274,7 @@ StatusCode EvsStateControl::invokeGet(VehiclePropValue *pRequestedPropValue) {
 
 
 bool EvsStateControl::configureEvsPipeline(State desiredState) {
-    ALOGD("configureEvsPipeline");
+    ALOGV("configureEvsPipeline");
 
     if (mCurrentState == desiredState) {
         // Nothing to do here...
