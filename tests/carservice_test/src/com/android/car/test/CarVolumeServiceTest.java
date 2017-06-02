@@ -15,6 +15,8 @@
  */
 package com.android.car.test;
 
+import static com.android.car.test.AudioTestUtils.doRequestFocus;
+
 import com.google.android.collect.Lists;
 
 import android.car.Car;
@@ -121,7 +123,7 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
             // first give focus to system sound
             CarAudioFocusTest.AudioFocusListener listenerMusic =
                     new CarAudioFocusTest.AudioFocusListener();
-            int res = mAudioManager.requestAudioFocus(listenerMusic,
+            int res = doRequestFocus(mAudioManager, listenerMusic,
                     AudioManager.STREAM_SYSTEM,
                     AudioManager.AUDIOFOCUS_GAIN);
             assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
@@ -137,8 +139,8 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
             AudioAttributes callAttrib = (new AudioAttributes.Builder()).
                     setUsage(AudioAttributes.USAGE_ALARM).
                     build();
-            res = mAudioManager.requestAudioFocus(listenerAlarm, callAttrib,
-                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
+            res = doRequestFocus(mAudioManager, listenerAlarm, callAttrib,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
             assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
             request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
             mAudioFocusPropertyHandler.sendAudioFocusState(
@@ -169,7 +171,7 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
 
             CarAudioFocusTest.AudioFocusListener listenerMusic =
                     new CarAudioFocusTest.AudioFocusListener();
-            int res = mAudioManager.requestAudioFocus(listenerMusic,
+            int res = doRequestFocus(mAudioManager, listenerMusic,
                     AudioManager.STREAM_MUSIC,
                     AudioManager.AUDIOFOCUS_GAIN);
             assertEquals(AudioManager.AUDIOFOCUS_REQUEST_GRANTED, res);
@@ -191,8 +193,8 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
             AudioAttributes callAttrib = (new AudioAttributes.Builder()).
                     setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION).
                     build();
-            mAudioManager.requestAudioFocus(listenerCall, callAttrib,
-                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 0);
+            doRequestFocus(mAudioManager, listenerCall, callAttrib,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
             request = mAudioFocusPropertyHandler.waitForAudioFocusRequest(TIMEOUT_MS);
             mAudioFocusPropertyHandler.sendAudioFocusState(
                     VehicleAudioFocusState.STATE_GAIN, request[1],
