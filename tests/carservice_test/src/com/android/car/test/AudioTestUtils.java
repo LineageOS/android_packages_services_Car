@@ -38,8 +38,18 @@ final class AudioTestUtils {
             OnAudioFocusChangeListener listener,
             AudioAttributes attributes,
             int androidFocus) {
+        return doRequestFocus(audioManager, listener, attributes, androidFocus, false);
+    }
+
+    static int doRequestFocus(
+        AudioManager audioManager,
+        OnAudioFocusChangeListener listener,
+        AudioAttributes attributes,
+        int androidFocus,
+        boolean acceptsDelayedFocus) {
         AudioFocusRequest.Builder focusBuilder = new AudioFocusRequest.Builder(androidFocus);
-        focusBuilder.setOnAudioFocusChangeListener(listener).setAcceptsDelayedFocusGain(false);
+        focusBuilder.setOnAudioFocusChangeListener(listener).setAcceptsDelayedFocusGain(
+                acceptsDelayedFocus);
         focusBuilder.setAudioAttributes(attributes);
 
         return audioManager.requestAudioFocus(focusBuilder.build());
