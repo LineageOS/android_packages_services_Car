@@ -44,18 +44,24 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     private static final String TAG = "VmsSubscriberManagerTest";
     private static final int SUBSCRIPTION_LAYER_ID = 2;
     private static final int SUBSCRIPTION_LAYER_VERSION = 3;
+    private static final int MOCK_PUBLISHER_LAYER_SUB_TYPE = 4;
     private static final VmsLayer SUBSCRIPTION_LAYER = new VmsLayer(SUBSCRIPTION_LAYER_ID,
-            SUBSCRIPTION_LAYER_VERSION);
+            SUBSCRIPTION_LAYER_VERSION,
+            MOCK_PUBLISHER_LAYER_SUB_TYPE);
 
     private static final int SUBSCRIPTION_DEPENDANT_LAYER_ID_1 = 4;
     private static final int SUBSCRIPTION_DEPENDANT_LAYER_VERSION_1 = 5;
     private static final VmsLayer SUBSCRIPTION_DEPENDANT_LAYER_1 =
-        new VmsLayer(SUBSCRIPTION_DEPENDANT_LAYER_ID_1, SUBSCRIPTION_DEPENDANT_LAYER_VERSION_1);
+            new VmsLayer(SUBSCRIPTION_DEPENDANT_LAYER_ID_1,
+                    SUBSCRIPTION_DEPENDANT_LAYER_VERSION_1,
+                    MOCK_PUBLISHER_LAYER_SUB_TYPE);
 
     private static final int SUBSCRIPTION_DEPENDANT_LAYER_ID_2 = 6;
     private static final int SUBSCRIPTION_DEPENDANT_LAYER_VERSION_2 = 7;
     private static final VmsLayer SUBSCRIPTION_DEPENDANT_LAYER_2 =
-        new VmsLayer(SUBSCRIPTION_DEPENDANT_LAYER_ID_2, SUBSCRIPTION_DEPENDANT_LAYER_VERSION_2);
+            new VmsLayer(SUBSCRIPTION_DEPENDANT_LAYER_ID_2,
+                    SUBSCRIPTION_DEPENDANT_LAYER_VERSION_2,
+                    MOCK_PUBLISHER_LAYER_SUB_TYPE);
 
     private static final int SUBSCRIPTION_UNSUPPORTED_LAYER_ID = 100;
     private static final int SUBSCRIPTION_UNSUPPORTED_LAYER_VERSION = 200;
@@ -107,6 +113,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         v.value.int32Values.add(VmsMessageType.DATA); // MessageType
         v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
         v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
+        v.value.int32Values.add(MOCK_PUBLISHER_LAYER_SUB_TYPE);
         v.value.bytes.add((byte) 0xa);
         v.value.bytes.add((byte) 0xb);
         assertEquals(0, mSubscriberSemaphore.availablePermits());
@@ -136,6 +143,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         v.value.int32Values.add(VmsMessageType.DATA); // MessageType
         v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
         v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
+        v.value.int32Values.add(MOCK_PUBLISHER_LAYER_SUB_TYPE);
         v.value.bytes.add((byte) 0xa);
         v.value.bytes.add((byte) 0xb);
         assertEquals(0, mSubscriberSemaphore.availablePermits());
@@ -178,6 +186,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
                 SUBSCRIPTION_LAYER_ID,
                 SUBSCRIPTION_LAYER_VERSION,
+                MOCK_PUBLISHER_LAYER_SUB_TYPE,
                 0 // number of dependencies for layer
             )
         );
@@ -225,27 +234,35 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
                 SUBSCRIPTION_LAYER_ID,
                 SUBSCRIPTION_LAYER_VERSION,
+                MOCK_PUBLISHER_LAYER_SUB_TYPE,
                 0, // number of dependencies for layer
 
                 SUBSCRIPTION_DEPENDANT_LAYER_ID_1,
                 SUBSCRIPTION_DEPENDANT_LAYER_VERSION_1,
+                MOCK_PUBLISHER_LAYER_SUB_TYPE,
                 1, // number of dependencies for layer
                 SUBSCRIPTION_LAYER_ID,
                 SUBSCRIPTION_LAYER_VERSION,
+                MOCK_PUBLISHER_LAYER_SUB_TYPE,
 
                 SUBSCRIPTION_DEPENDANT_LAYER_ID_2,
                 SUBSCRIPTION_DEPENDANT_LAYER_VERSION_2,
+                MOCK_PUBLISHER_LAYER_SUB_TYPE,
                 2, // number of dependencies for layer
                 SUBSCRIPTION_LAYER_ID,
                 SUBSCRIPTION_LAYER_VERSION,
+                MOCK_PUBLISHER_LAYER_SUB_TYPE,
                 SUBSCRIPTION_DEPENDANT_LAYER_ID_1,
                 SUBSCRIPTION_DEPENDANT_LAYER_VERSION_1,
+                MOCK_PUBLISHER_LAYER_SUB_TYPE,
 
                 SUBSCRIPTION_DEPENDANT_LAYER_ID_2,
                 SUBSCRIPTION_DEPENDANT_LAYER_VERSION_2,
+                MOCK_PUBLISHER_LAYER_SUB_TYPE,
                 1, // number of dependencies for layer
                 SUBSCRIPTION_UNSUPPORTED_LAYER_ID,
-                SUBSCRIPTION_UNSUPPORTED_LAYER_VERSION
+                SUBSCRIPTION_UNSUPPORTED_LAYER_VERSION,
+                MOCK_PUBLISHER_LAYER_SUB_TYPE
             )
         );
 

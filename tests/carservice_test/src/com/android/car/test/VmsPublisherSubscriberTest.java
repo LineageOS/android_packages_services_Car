@@ -42,10 +42,11 @@ import java.util.concurrent.TimeUnit;
 public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     private static final int LAYER_ID = 88;
     private static final int LAYER_VERSION = 19;
+    private static final int LAYER_SUB_TYPE = 55;
     private static final int EXPECTED_PUBLISHER_ID = 0;
     private static final String TAG = "VmsPubSubTest";
 
-    public static final VmsLayer LAYER = new VmsLayer(LAYER_ID, LAYER_VERSION);
+    public static final VmsLayer LAYER = new VmsLayer(LAYER_ID, LAYER_VERSION, LAYER_SUB_TYPE);
     public static final byte[] PAYLOAD = new byte[]{2, 3, 5, 7, 11, 13, 17};
     private static final List<VmsLayer> AVAILABLE_LAYERS = new ArrayList<>(Arrays.asList(LAYER));
 

@@ -30,9 +30,9 @@ import java.util.Set;
 @SmallTest
 public class VmsLayersAvailabilityTest extends AndroidTestCase {
 
-    private static final VmsLayer LAYER_X = new VmsLayer(1, 2);
-    private static final VmsLayer LAYER_Y = new VmsLayer(3, 4);
-    private static final VmsLayer LAYER_Z = new VmsLayer(5, 6);
+    private static final VmsLayer LAYER_X = new VmsLayer(1, 2, 1);
+    private static final VmsLayer LAYER_Y = new VmsLayer(3, 4, 2);
+    private static final VmsLayer LAYER_Z = new VmsLayer(5, 6, 3);
 
     private static final VmsLayerDependency X_DEPENDS_ON_Y =
         new VmsLayerDependency(LAYER_X, new HashSet<VmsLayer>(Arrays.asList(LAYER_Y)));

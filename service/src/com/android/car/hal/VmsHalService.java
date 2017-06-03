@@ -393,6 +393,12 @@ public class VmsHalService extends HalServiceBase {
         }
     }
 
+    private VmsLayer parseVmsLayerFromSimpleMessageIntegerValues(List<Integer> integerValues) {
+        return new VmsLayer(integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_ID),
+            integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_VERSION),
+            integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_SUB_TYPE));
+    }
+
     /**
      * Data message format:
      * <ul>
@@ -403,17 +409,15 @@ public class VmsHalService extends HalServiceBase {
      * </ul>
      */
     private void handleDataEvent(List<Integer> integerValues, byte[] payload) {
-        int layerId = integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_ID);
-        int layerVersion = integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_VERSION);
+        VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
         if (DBG) {
             Log.d(TAG,
-                "Handling a data event for Layer Id: " + layerId +
-                    " Version: " + layerVersion);
+                "Handling a data event for Layer: " + vmsLayer);
         }
 
         // Send the message.
         for (VmsHalSubscriberListener listener : mSubscriberListeners) {
-            listener.onDataMessage(new VmsLayer(layerId, layerVersion), payload);
+            listener.onDataMessage(vmsLayer, payload);
         }
     }
 
@@ -426,14 +430,12 @@ public class VmsHalService extends HalServiceBase {
      * </ul>
      */
     private void handleSubscribeEvent(List<Integer> integerValues) {
-        int layerId = integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_ID);
-        int layerVersion = integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_VERSION);
+        VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
         if (DBG) {
             Log.d(TAG,
-                "Handling a subscribe event for Layer Id: " + layerId +
-                    " Version: " + layerVersion);
+                "Handling a subscribe event for Layer: " + vmsLayer);
         }
-        addHalSubscription(new VmsLayer(layerId, layerVersion));
+        addHalSubscription(vmsLayer);
     }
 
     /**
@@ -445,14 +447,20 @@ public class VmsHalService extends HalServiceBase {
      * </ul>
      */
     private void handleUnsubscribeEvent(List<Integer> integerValues) {
-        int layerId = integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_ID);
-        int layerVersion = integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_VERSION);
+        VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
         if (DBG) {
             Log.d(TAG,
-                "Handling an unsubscribe event for Layer Id: " + layerId +
-                    " Version: " + layerVersion);
+                "Handling an unsubscribe event for Layer: " + vmsLayer);
         }
-        removeHalSubscription(new VmsLayer(layerId, layerVersion));
+        removeHalSubscription(vmsLayer);
+    }
+
+    private static int NUM_INTEGERS_IN_VMS_LAYER = 3;
+
+    private VmsLayer parseVmsLayerFromIndex(List<Integer> integerValues, int index) {
+        return new VmsLayer(integerValues.get(index++),
+            integerValues.get(index++),
+            integerValues.get(index++));
     }
 
     /**
@@ -476,11 +484,10 @@ public class VmsHalService extends HalServiceBase {
 
         List<VmsLayerDependency> offeredLayers = new ArrayList<>();
 
-        // An offering is layerId, LayerVersion, NumDeps, <LayerId, LayerVersion> X NumDeps.
+        // An offering is layerId, LayerVersion, LayerType, NumDeps, <LayerId, LayerVersion> X NumDeps.
         for (int i = 0; i < numLayersDependencies; i++) {
-            int layerId = integerValues.get(idx++);
-            int layerVersion = integerValues.get(idx++);
-            VmsLayer offeredLayer = new VmsLayer(layerId, layerVersion);
+            VmsLayer offeredLayer = parseVmsLayerFromIndex(integerValues, idx);
+            idx += NUM_INTEGERS_IN_VMS_LAYER;
 
             int numDependenciesForLayer = integerValues.get(idx++);
             if (numDependenciesForLayer == 0) {
@@ -489,10 +496,8 @@ public class VmsHalService extends HalServiceBase {
                 Set<VmsLayer> dependencies = new HashSet<>();
 
                 for (int j = 0; j < numDependenciesForLayer; j++) {
-                    int dependantLayerId = integerValues.get(idx++);
-                    int dependantLayerVersion = integerValues.get(idx++);
-
-                    VmsLayer dependantLayer = new VmsLayer(dependantLayerId, dependantLayerVersion);
+                    VmsLayer dependantLayer = parseVmsLayerFromIndex(integerValues, idx);
+                    idx += NUM_INTEGERS_IN_VMS_LAYER;
                     dependencies.add(dependantLayer);
                 }
                 offeredLayers.add(new VmsLayerDependency(offeredLayer, dependencies));
@@ -546,6 +551,7 @@ public class VmsHalService extends HalServiceBase {
         for (VmsLayer layer : layers) {
             v.int32Values.add(layer.getId());
             v.int32Values.add(layer.getVersion());
+            v.int32Values.add(layer.getSubType());
         }
         setPropertyValue(vehicleProp);
     }
@@ -624,6 +630,7 @@ public class VmsHalService extends HalServiceBase {
         VehiclePropValue.RawValue v = vehicleProp.value;
         v.int32Values.add(layer.getId());
         v.int32Values.add(layer.getVersion());
+        v.int32Values.add(layer.getSubType());
         return vehicleProp;
     }
 

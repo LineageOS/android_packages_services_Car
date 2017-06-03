@@ -50,8 +50,11 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
     private static final String TAG = "VmsPublisherTest";
     private static final int MOCK_PUBLISHER_LAYER_ID = 12;
     private static final int MOCK_PUBLISHER_LAYER_VERSION = 34;
-    public static final VmsLayer MOCK_PUBLISHER_LAYER = new VmsLayer(MOCK_PUBLISHER_LAYER_ID,
-            MOCK_PUBLISHER_LAYER_VERSION);
+    private static final int MOCK_PUBLISHER_LAYER_SUB_TYPE = 56;
+    public static final VmsLayer MOCK_PUBLISHER_LAYER =
+            new VmsLayer(MOCK_PUBLISHER_LAYER_ID,
+                    MOCK_PUBLISHER_LAYER_VERSION,
+                    MOCK_PUBLISHER_LAYER_SUB_TYPE);
     public static final byte[] PAYLOAD = new byte[]{1, 1, 2, 3, 5, 8, 13};
 
     private HalHandler mHalHandler;
@@ -100,6 +103,7 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
             .addIntValue(VmsMessageType.SUBSCRIBE)
             .addIntValue(MOCK_PUBLISHER_LAYER_ID)
             .addIntValue(MOCK_PUBLISHER_LAYER_VERSION)
+            .addIntValue(MOCK_PUBLISHER_LAYER_SUB_TYPE)
             .build();
     }
 

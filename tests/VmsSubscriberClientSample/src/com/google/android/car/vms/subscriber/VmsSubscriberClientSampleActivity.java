@@ -36,7 +36,7 @@ public class VmsSubscriberClientSampleActivity extends Activity {
     private static final String TAG = "VmsSampleActivity";
     // The layer id and version should match the ones defined in
     // com.google.android.car.vms.publisher.VmsPublisherClientSampleService
-    public static final VmsLayer TEST_LAYER = new VmsLayer(0, 0);
+    public static final VmsLayer TEST_LAYER = new VmsLayer(0, 0, 0);
 
     private Car mCarApi;
     private TextView mTextView;
