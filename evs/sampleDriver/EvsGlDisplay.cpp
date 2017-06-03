@@ -153,7 +153,7 @@ Return<DisplayState> EvsGlDisplay::getDisplayState()  {
  * display is no longer visible.
  */
 Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
-    ALOGD("getTargetBuffer");
+    ALOGV("getTargetBuffer");
     std::lock_guard<std::mutex> lock(mAccessLock);
 
     if (mRequestedState == DisplayState::DEAD) {
@@ -230,7 +230,7 @@ Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
         mFrameBusy = true;
 
         // Send the buffer to the client
-        ALOGD("Providing display buffer handle %p as id %d",
+        ALOGV("Providing display buffer handle %p as id %d",
               mBuffer.memHandle.getNativeHandle(), mBuffer.bufferId);
         _hidl_cb(mBuffer);
         return Void();
@@ -243,7 +243,7 @@ Return<void> EvsGlDisplay::getTargetBuffer(getTargetBuffer_cb _hidl_cb)  {
  * The buffer is no longer valid for use by the client after this call.
  */
 Return<EvsResult> EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc& buffer)  {
-    ALOGD("returnTargetBufferForDisplay %p", buffer.memHandle.getNativeHandle());
+    ALOGV("returnTargetBufferForDisplay %p", buffer.memHandle.getNativeHandle());
     std::lock_guard<std::mutex> lock(mAccessLock);
 
     // Nobody should call us with a null handle
