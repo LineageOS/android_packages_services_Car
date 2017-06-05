@@ -31,7 +31,7 @@ import java.util.List;
 
 
 public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
-    private static final boolean DBG = false;
+    private static final boolean DBG = true;
     private static final String TAG = "CarBluetoothUsrSvc";
     private BluetoothAdapter mBluetoothAdapter = null;
     private final PerUserCarService mService;
@@ -163,6 +163,36 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         return;
     }
 
+    /**
+     * Set the priority of the given Bluetooth profile for the given remote device
+     * @param profile - Bluetooth profile
+     * @param device - remote Bluetooth device
+     * @param priority - priority to set
+     */
+    @Override
+    public void setProfilePriority(int profile, BluetoothDevice device, int priority) {
+        if (!isBluetoothConnectionProxyAvailable(profile)) {
+            Log.e(TAG, "Cannot connect to Profile. Proxy Unavailable");
+            return;
+        }
+        switch (profile) {
+            case BluetoothProfile.A2DP_SINK:
+                mBluetoothA2dpSink.setPriority(device, priority);
+                break;
+            case BluetoothProfile.HEADSET_CLIENT:
+                mBluetoothHeadsetClient.setPriority(device, priority);
+                break;
+            case BluetoothProfile.MAP_CLIENT:
+                mBluetoothMapClient.setPriority(device, priority);
+                break;
+            case BluetoothProfile.PBAP_CLIENT:
+                mBluetoothPbapClient.setPriority(device, priority);
+                break;
+            default:
+                Log.d(TAG, "Unknown Profile");
+                break;
+        }
+    }
     /**
      * All the BluetoothProfile.ServiceListeners to get the Profile Proxy objects
      */
