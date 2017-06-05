@@ -680,7 +680,7 @@ def stddev(data):
   return math.sqrt(variance)
 
 def grab_bootchart(boot_chart_file_name):
-  subprocess.call("./system/core/init/grab-bootchart.sh --no-viewer", shell=True)
+  subprocess.call("./system/core/init/grab-bootchart.sh", shell=True)
   print "Saving boot chart as " + boot_chart_file_name + ".tgz"
   subprocess.call('cp /tmp/android-bootchart/bootchart.tgz ./' + boot_chart_file_name + '.tgz',\
                   shell=True)
