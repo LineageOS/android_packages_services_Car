@@ -168,12 +168,6 @@
             </intent-filter>
         </service>
         <service android:name=".PerUserCarService" android:exported="false" />
-        <receiver android:name=".BootReceiver">
-            <intent-filter android:priority="1000">
-                <action android:name="android.intent.action.PRE_BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-            </intent-filter>
-        </receiver>
         <activity android:name="com.android.car.pm.ActivityBlockingActivity"
                   android:excludeFromRecents="true"
                   android:exported="false">

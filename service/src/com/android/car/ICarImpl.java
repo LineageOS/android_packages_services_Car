@@ -26,7 +26,9 @@ import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaDoor;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.os.Binder;
 import android.os.IBinder;
+import android.os.Process;
 import android.util.Log;
 
 import com.android.car.cluster.InstrumentClusterService;
@@ -35,6 +37,7 @@ import com.android.car.internal.FeatureConfiguration;
 import com.android.car.internal.FeatureUtil;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.car.ICarServiceHelper;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -81,6 +84,9 @@ public class ICarImpl extends ICar.Stub {
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
     private CarTestService mCarTestService;
+
+    @GuardedBy("this")
+    private ICarServiceHelper mICarServiceHelper;
 
     public ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
             CanBusErrorNotifier errorNotifier) {
@@ -167,6 +173,17 @@ public class ICarImpl extends ICar.Stub {
         mHal.vehicleHalReconnected(vehicle);
         for (CarServiceBase service : mAllServices) {
             service.vehicleHalReconnected();
+        }
+    }
+
+    @Override
+    public void setCarServiceHelper(IBinder helper) {
+        int uid = Binder.getCallingUid();
+        if (uid != Process.SYSTEM_UID) {
+            throw new SecurityException("Only allowed from system");
+        }
+        synchronized (this) {
+            mICarServiceHelper = ICarServiceHelper.Stub.asInterface(helper);
         }
     }
 
