@@ -18,12 +18,26 @@
 # A simple GUI to remotely actuate the Vehicle HAL via the eumalator
 
 import sys
-import vhal_consts_2_1 as c
-
+from threading import Thread
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
+import VehicleHalProto_pb2
 from vhal_emulator import Vhal
+import vhal_consts_2_1 as c
+
+
+# Define a simple thread that receives messages from a vhal object (v) and prints them
+def rxThread(v):
+    while(1):
+        msg = v.rxMsg()
+        if (msg.msg_type == VehicleHalProto_pb2.SET_PROPERTY_RESP):
+            if msg.status == 0:
+                print "Success ("+str(msg.status)+")"
+            else:
+                print "Error ("+str(msg.status)+")"
+        else:
+            print msg;
 
 
 # Main window setup
@@ -106,14 +120,19 @@ def sliderMove(slider, gearDisplay):
         vhal.setProperty(c.VEHICLEPROPERTY_GEAR_SELECTION, 0, c.VEHICLEGEAR_GEAR_DRIVE)
     else:
         gearName = "UNK"
-    print "slider "+slider.objectName()+" is now "+str(slider.value())+" = "+gearName
+    print "slider "+slider.objectName()+" requested "+str(slider.value())+" = "+gearName
     gearDisplay.setText(gearName)
 
 
 if __name__ == '__main__':
     print "Starting VHal driver GUI"
-
     vhal = Vhal(c.vhal_types_2_0)
+
+    # Start a receive thread to consume any replies from the vhal
+    print "Starting receiver thread"
+    rx = Thread(target=rxThread, args=(vhal,))
+    rx.setDaemon(True)
+    rx.start()
 
     # Put the car in park so we start in a known state (consistent with the GUI default state)
     vhal.setProperty(c.VEHICLEPROPERTY_GEAR_SELECTION, 0, c.VEHICLEGEAR_GEAR_PARK)
