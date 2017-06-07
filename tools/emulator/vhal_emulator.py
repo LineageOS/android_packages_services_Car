@@ -57,7 +57,7 @@
 
         from threading import Thread
 
-        # Define a simple thread that receives messags from a vhal object (v) and prints them
+        # Define a simple thread that receives messages from a vhal object (v) and prints them
         def rxThread(v):
             while(1):
                 print v.rxMsg()
