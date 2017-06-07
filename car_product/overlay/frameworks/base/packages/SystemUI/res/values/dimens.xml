@@ -82,19 +82,19 @@
     <dimen name="qs_panel_width">-1px</dimen>
 
     <!-- Height of a small notification in the status bar-->
-    <dimen name="notification_min_height">600dp</dimen>
+    <dimen name="notification_min_height">192dp</dimen>
 
     <!-- Height of a small notification in the status bar which was used before android N -->
-    <dimen name="notification_min_height_legacy">600dp</dimen>
+    <dimen name="notification_min_height_legacy">192dp</dimen>
 
     <!-- Height of a large notification in the status bar -->
-    <dimen name="notification_max_height">600dp</dimen>
+    <dimen name="notification_max_height">400dp</dimen>
 
     <!-- Height of a heads up notification in the status bar for legacy custom views -->
-    <dimen name="notification_max_heads_up_height_legacy">600dp</dimen>
+    <dimen name="notification_max_heads_up_height_legacy">400dp</dimen>
 
     <!-- Height of a heads up notification in the status bar -->
-    <dimen name="notification_max_heads_up_height">600dp</dimen>
+    <dimen name="notification_max_heads_up_height">400dp</dimen>
 
     <!-- Height of the status bar header bar -->
     <dimen name="status_bar_header_height">54dp</dimen>
