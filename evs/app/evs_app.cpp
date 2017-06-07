@@ -74,6 +74,7 @@ int main(int argc, char** argv)
 
     // Set up default behavior, then check for command line options
     bool useVehicleHal = true;
+    bool printHelp = false;
     const char* evsServiceName = "default";
     for (int i=1; i< argc; i++) {
         if (strcmp(argv[i], "--test") == 0) {
@@ -82,9 +83,18 @@ int main(int argc, char** argv)
             evsServiceName = "EvsEnumeratorHw";
         } else if (strcmp(argv[i], "--mock") == 0) {
             evsServiceName = "EvsEnumeratorHw-Mock";
+        } else if (strcmp(argv[i], "--help") == 0) {
+            printHelp = true;
         } else {
             printf("Ignoring unrecognized command line arg '%s'\n", argv[i]);
+            printHelp = true;
         }
+    }
+    if (printHelp) {
+        printf("Options include:\n");
+        printf("  --test   Do not talk to Vehicle Hal, but simulate 'reverse' instead\n");
+        printf("  --hw     Bypass EvsManager by connecting directly to EvsEnumeratorHw\n");
+        printf("  --mock   Connect directly to EvsEnumeratorHw-Mock\n");
     }
 
     // Load our configuration information
