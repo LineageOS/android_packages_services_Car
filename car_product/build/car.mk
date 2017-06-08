@@ -82,7 +82,6 @@ PRODUCT_PACKAGES += \
     LocalMediaPlayer \
     CarMediaApp \
     CarMessengerApp \
-    Stream \
     CarHvacApp \
     CarMapsPlaceholder \
     CarLatinIME \
