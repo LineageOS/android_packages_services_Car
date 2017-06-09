@@ -2,10 +2,10 @@
 type evs_mock, domain;
 type evs_mock_exec, exec_type, file_type;
 
+allow evs_mock hwservicemanager:binder { call transfer };
+allow evs_mock hwservicemanager_prop:file { getattr open read };
 allow evs_mock hal_graphics_allocator_default:fd use;
-
-get_prop(evs_driver, hwservicemanager_prop)
 
 init_daemon_domain(evs_mock)
 
-hwbinder_use(evs_mock);
+binder_use(evs_mock);
