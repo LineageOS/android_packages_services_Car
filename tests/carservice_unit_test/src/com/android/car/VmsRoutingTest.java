@@ -28,9 +28,9 @@ import java.util.Set;
 
 @SmallTest
 public class VmsRoutingTest extends AndroidTestCase {
-    private static VmsLayer LAYER_WITH_SUBSCRIPTION_1= new VmsLayer(1, 2);
-    private static VmsLayer LAYER_WITH_SUBSCRIPTION_2= new VmsLayer(1, 3);
-    private static VmsLayer LAYER_WITHOUT_SUBSCRIPTION= new VmsLayer(1, 4);
+    private static VmsLayer LAYER_WITH_SUBSCRIPTION_1= new VmsLayer(1, 2, 1);
+    private static VmsLayer LAYER_WITH_SUBSCRIPTION_2= new VmsLayer(1, 3, 3);
+    private static VmsLayer LAYER_WITHOUT_SUBSCRIPTION= new VmsLayer(1, 4, 7);
     private VmsRouting mRouting;
 
     @Override

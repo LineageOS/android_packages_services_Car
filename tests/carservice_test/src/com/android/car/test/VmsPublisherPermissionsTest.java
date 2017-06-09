@@ -44,6 +44,7 @@ public class VmsPublisherPermissionsTest extends MockedCarTestBase {
     private static final String TAG = "VmsPublisherTest";
     private static final int MOCK_PUBLISHER_LAYER_ID = 0;
     private static final int MOCK_PUBLISHER_LAYER_VERSION = 0;
+    private static final int MOCK_PUBLISHER_LAYER_FUSION_INT_VALUE = 0;
 
     private HalHandler mHalHandler;
     // Used to block until the HAL property is updated in HalHandler.onPropertySet.
@@ -95,6 +96,7 @@ public class VmsPublisherPermissionsTest extends MockedCarTestBase {
                 .addIntValue(VmsMessageType.SUBSCRIBE)
                 .addIntValue(MOCK_PUBLISHER_LAYER_ID)
                 .addIntValue(MOCK_PUBLISHER_LAYER_VERSION)
+                .addIntValue(MOCK_PUBLISHER_LAYER_FUSION_INT_VALUE)
                 .build();
     }
 

@@ -82,18 +82,18 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
 
     public void testOneSubscription() throws Exception {
         if (!VmsTestUtils.canRunTest(TAG)) return;
-        List<VmsLayer> layers = Arrays.asList(new VmsLayer(8, 3));
+        List<VmsLayer> layers = Arrays.asList(new VmsLayer(8, 3, 0));
         subscriptionTestLogic(layers);
     }
 
-    public void testManySubscriptions() throws Exception {
+    public void t1estManySubscriptions() throws Exception {
         if (!VmsTestUtils.canRunTest(TAG)) return;
         List<VmsLayer> layers = Arrays.asList(
-                new VmsLayer(8, 3),
-                new VmsLayer(5, 1),
-                new VmsLayer(3, 9),
-                new VmsLayer(2, 7),
-                new VmsLayer(9, 3));
+                new VmsLayer(8, 3, 1),
+                new VmsLayer(5, 1, 2),
+                new VmsLayer(3, 9, 3),
+                new VmsLayer(2, 7, 4),
+                new VmsLayer(9, 3, 5));
         subscriptionTestLogic(layers);
     }
 
@@ -123,7 +123,8 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
         while (start < end) {
             int id = v.get(start++);
             int version = v.get(start++);
-            receivedLayers.add(new VmsLayer(id, version));
+            int subType = v.get(start++);
+            receivedLayers.add(new VmsLayer(id, version, subType));
         }
         assertEquals(new HashSet<>(layers), new HashSet<>(receivedLayers));
     }
@@ -142,6 +143,7 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
         int messsageType = v.get(VmsSimpleMessageIntegerValuesIndex.VMS_MESSAGE_TYPE);
         int layerId = v.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_ID);
         int layerVersion = v.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_VERSION);
+        int fused = v.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_SUB_TYPE);
         assertEquals(VmsMessageType.SUBSCRIBE, messsageType);
         assertEquals(layer.getId(), layerId);
         assertEquals(layer.getVersion(), layerVersion);
@@ -152,6 +154,7 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
                 .addIntValue(VmsMessageType.SUBSCRIBE)
                 .addIntValue(layer.getId())
                 .addIntValue(layer.getVersion())
+                .addIntValue(0)
                 .build();
     }
 
