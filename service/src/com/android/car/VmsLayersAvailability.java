@@ -17,11 +17,13 @@
 package com.android.car;
 
 import android.car.annotation.FutureFeature;
+import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
 import android.util.Log;
 import com.android.internal.annotations.GuardedBy;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,7 +36,7 @@ import java.util.stream.Collectors;
 
 /**
  * Manages VMS availability for layers.
- *
+ * <p>
  * Each VMS publisher sets its layers offering which are a list of layers the publisher claims
  * it might publish. VmsLayersAvailability calculates from all the offering what are the
  * available layers.
@@ -49,13 +51,13 @@ public class VmsLayersAvailability {
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final Map<VmsLayer, Set<Set<VmsLayer>>> mPotentialLayersAndDependencies =
-        new HashMap<>();
+            new HashMap<>();
     @GuardedBy("mLock")
-    private final Set<VmsLayer> mCyclicAvoidanceSet = new HashSet<>();
+    private Set<VmsAssociatedLayer> mAvailableAssociatedLayers = Collections.EMPTY_SET;
     @GuardedBy("mLock")
-    private Set<VmsLayer> mAvailableLayers = Collections.EMPTY_SET;
+    private Set<VmsAssociatedLayer> mUnavailableAssociatedLayers = Collections.EMPTY_SET;
     @GuardedBy("mLock")
-    private Set<VmsLayer> mUnavailableLayers = Collections.EMPTY_SET;
+    private Map<VmsLayer, Set<Integer>> mPotentialLayersAndPublishers = new HashMap<>();
 
     /**
      * Setting the current layers offerings as reported by publishers.
@@ -67,8 +69,19 @@ public class VmsLayersAvailability {
             for (VmsLayersOffering offering : publishersLayersOfferings) {
                 for (VmsLayerDependency dependency : offering.getDependencies()) {
                     VmsLayer layer = dependency.getLayer();
+
+                    // Associate publishers with layers.
+                    Set<Integer> curPotentialLayerAndPublishers =
+                            mPotentialLayersAndPublishers.get(layer);
+                    if (curPotentialLayerAndPublishers == null) {
+                        curPotentialLayerAndPublishers = new HashSet<>();
+                        mPotentialLayersAndPublishers.put(layer, curPotentialLayerAndPublishers);
+                    }
+                    curPotentialLayerAndPublishers.add(offering.getPublisherStaticId());
+
+                    // Add dependencies for availability calculation.
                     Set<Set<VmsLayer>> curDependencies =
-                        mPotentialLayersAndDependencies.get(layer);
+                            mPotentialLayersAndDependencies.get(layer);
                     if (curDependencies == null) {
                         curDependencies = new HashSet<>();
                         mPotentialLayersAndDependencies.put(layer, curDependencies);
@@ -83,9 +96,9 @@ public class VmsLayersAvailability {
     /**
      * Returns a collection of all the layers which may be published.
      */
-    public Set<VmsLayer> getAvailableLayers() {
+    public Set<VmsAssociatedLayer> getAvailableLayers() {
         synchronized (mLock) {
-            return mAvailableLayers;
+            return mAvailableAssociatedLayers;
         }
     }
 
@@ -93,80 +106,95 @@ public class VmsLayersAvailability {
      * Returns a collection of all the layers which publishers could have published if the
      * dependencies were satisfied.
      */
-    public Set<VmsLayer> getUnavailableLayers() {
+    public Set<VmsAssociatedLayer> getUnavailableLayers() {
         synchronized (mLock) {
-            return mUnavailableLayers;
+            return mUnavailableAssociatedLayers;
         }
     }
 
     private void reset() {
         synchronized (mLock) {
-            mCyclicAvoidanceSet.clear();
             mPotentialLayersAndDependencies.clear();
-            mAvailableLayers = Collections.EMPTY_SET;
-            mUnavailableLayers = Collections.EMPTY_SET;
+            mPotentialLayersAndPublishers.clear();
+            mAvailableAssociatedLayers = Collections.EMPTY_SET;
+            mUnavailableAssociatedLayers = Collections.EMPTY_SET;
         }
     }
 
     private void calculateLayers() {
         synchronized (mLock) {
-            final Set<VmsLayer> availableLayers = new HashSet<>();
+            Set<VmsLayer> availableLayersSet = new HashSet<>();
+            Set<VmsLayer> cyclicAvoidanceAuxiliarySet = new HashSet<>();
 
-            availableLayers.addAll(
-                mPotentialLayersAndDependencies.keySet()
-                    .stream()
-                    .filter(layer -> isLayerSupportedLocked(layer, availableLayers))
-                    .collect(Collectors.toSet()));
+            for (VmsLayer layer : mPotentialLayersAndDependencies.keySet()) {
+                addLayerToAvailabilityCalculationLocked(layer,
+                        availableLayersSet,
+                        cyclicAvoidanceAuxiliarySet);
+            }
 
-            mAvailableLayers = Collections.unmodifiableSet(availableLayers);
-            mUnavailableLayers = Collections.unmodifiableSet(
-                mPotentialLayersAndDependencies.keySet()
-                    .stream()
-                    .filter(layer -> !availableLayers.contains(layer))
-                    .collect(Collectors.toSet()));
+            mAvailableAssociatedLayers = Collections.unmodifiableSet(
+                    availableLayersSet
+                            .stream()
+                            .map(l -> new VmsAssociatedLayer(l, mPotentialLayersAndPublishers.get(l)))
+                            .collect(Collectors.toSet()));
+
+            mUnavailableAssociatedLayers = Collections.unmodifiableSet(
+                    mPotentialLayersAndDependencies.keySet()
+                            .stream()
+                            .filter(l -> !availableLayersSet.contains(l))
+                            .map(l -> new VmsAssociatedLayer(l, mPotentialLayersAndPublishers.get(l)))
+                            .collect(Collectors.toSet()));
         }
     }
 
-    private boolean isLayerSupportedLocked(VmsLayer layer, Set<VmsLayer> currentAvailableLayers) {
+    private void addLayerToAvailabilityCalculationLocked(VmsLayer layer,
+                                                         Set<VmsLayer> currentAvailableLayers,
+                                                         Set<VmsLayer> cyclicAvoidanceSet) {
         if (DBG) {
-            Log.d(TAG, "isLayerSupported: checking layer: " + layer);
+            Log.d(TAG, "addLayerToAvailabilityCalculationLocked: checking layer: " + layer);
         }
         // If we already know that this layer is supported then we are done.
         if (currentAvailableLayers.contains(layer)) {
-            return true;
+            return;
         }
         // If there is no offering for this layer we're done.
         if (!mPotentialLayersAndDependencies.containsKey(layer)) {
-            return false;
+            return;
         }
         // Avoid cyclic dependency.
-        if (mCyclicAvoidanceSet.contains(layer)) {
-            Log.e(TAG, "Detected a cyclic dependency: " + mCyclicAvoidanceSet + " -> " + layer);
-            return false;
+        if (cyclicAvoidanceSet.contains(layer)) {
+            Log.e(TAG, "Detected a cyclic dependency: " + cyclicAvoidanceSet + " -> " + layer);
+            return;
         }
+        // A layer may have multiple dependency sets. The layer is available if any dependency
+        // set is satisfied
         for (Set<VmsLayer> dependencies : mPotentialLayersAndDependencies.get(layer)) {
             // If layer does not have any dependencies then add to supported.
             if (dependencies == null || dependencies.isEmpty()) {
                 currentAvailableLayers.add(layer);
-                return true;
+                return;
             }
             // Add the layer to cyclic avoidance set
-            mCyclicAvoidanceSet.add(layer);
+            cyclicAvoidanceSet.add(layer);
 
             boolean isSupported = true;
             for (VmsLayer dependency : dependencies) {
-                if (!isLayerSupportedLocked(dependency, currentAvailableLayers)) {
+                addLayerToAvailabilityCalculationLocked(dependency,
+                        currentAvailableLayers,
+                        cyclicAvoidanceSet);
+
+                if (!currentAvailableLayers.contains(dependency)) {
                     isSupported = false;
                     break;
                 }
             }
-            mCyclicAvoidanceSet.remove(layer);
+            cyclicAvoidanceSet.remove(layer);
 
             if (isSupported) {
                 currentAvailableLayers.add(layer);
-                return true;
+                return;
             }
         }
-        return false;
+        return;
     }
 }

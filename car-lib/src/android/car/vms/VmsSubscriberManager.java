@@ -124,7 +124,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             }
 
             @Override
-            public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
+            public void onLayersAvailabilityChange(List<VmsAssociatedLayer> availableLayers) {
                 mHandler.sendMessage(
                     mHandler.obtainMessage(
                         VmsEventHandler.ON_AVAILABILITY_CHANGE_EVENT,

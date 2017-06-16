@@ -114,7 +114,7 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
         int messageType = v.get(VmsSubscriptionResponseFormat.VMS_MESSAGE_TYPE);
         int sequenceNumber = v.get(VmsSubscriptionResponseFormat.SEQUENCE_NUMBER);
         int numberLayers = v.get(VmsSubscriptionResponseFormat.NUMBER_OF_LAYERS);
-        assertEquals(VmsMessageType.SUBSCRIPTION_RESPONSE, messageType);
+        assertEquals(VmsMessageType.SUBSCRIPTIONS_RESPONSE, messageType);
         assertEquals(layers.size(), sequenceNumber);
         assertEquals(layers.size(), numberLayers);
         List<VmsLayer> receivedLayers = new ArrayList<>();
@@ -160,7 +160,7 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
 
     private VehiclePropValue createHalSubscriptionRequest() {
         return VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .addIntValue(VmsMessageType.SUBSCRIPTION_REQUEST)
+                .addIntValue(VmsMessageType.SUBSCRIPTIONS_REQUEST)
                 .build();
     }
 

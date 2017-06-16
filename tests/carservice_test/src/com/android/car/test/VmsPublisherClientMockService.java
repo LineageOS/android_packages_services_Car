@@ -53,9 +53,9 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
 
     private void initializeMockPublisher(VmsSubscriptionState subscriptionState) {
         Log.d(TAG, "Initializing Mock publisher");
-        getPublisherStaticId(VmsPublisherSubscriberTest.PAYLOAD);
+        int publisherId = getPublisherStaticId(VmsPublisherSubscriberTest.PAYLOAD);
         publishIfNeeded(subscriptionState);
-        declareOffering(subscriptionState);
+        declareOffering(subscriptionState, publisherId);
     }
 
     private void publishIfNeeded(VmsSubscriptionState subscriptionState) {
@@ -66,12 +66,12 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
         }
     }
 
-    private void declareOffering(VmsSubscriptionState subscriptionState) {
+    private void declareOffering(VmsSubscriptionState subscriptionState, int publisherId) {
         List<VmsLayerDependency> dependencies = new ArrayList<>();
         for( VmsLayer layer : subscriptionState.getLayers()) {
             dependencies.add(new VmsLayerDependency(layer));
         }
-        VmsLayersOffering offering = new VmsLayersOffering(dependencies);
+        VmsLayersOffering offering = new VmsLayersOffering(dependencies, publisherId);
         setLayersOffering(offering);
     }
 }

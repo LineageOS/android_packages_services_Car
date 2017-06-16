@@ -20,6 +20,7 @@ import android.car.Car;
 import android.car.annotation.FutureFeature;
 import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.IVmsSubscriberService;
+import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
 import android.content.Context;
 import android.os.IBinder;
@@ -295,7 +296,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     }
 
     @Override
-    public void onLayersAvaiabilityChange(List<VmsLayer> availableLayers) {
+    public void onLayersAvaiabilityChange(List<VmsAssociatedLayer> availableLayers) {
         if(DBG) {
             Log.d(TAG, "Publishing layers availability change: " + availableLayers);
         }
