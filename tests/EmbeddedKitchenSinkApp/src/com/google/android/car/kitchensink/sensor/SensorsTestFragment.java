@@ -219,7 +219,7 @@ public class SensorsTestFragment extends Fragment {
                                 getTimestamp(event), level, range, lowFuelWarning));
                         break;
                     case CarSensorManager.SENSOR_TYPE_PARKING_BRAKE:
-                        summary.add(getContext().getString(R.string.sensor_parking_break,
+                        summary.add(getContext().getString(R.string.sensor_parking_brake,
                                 getTimestamp(event),
                                 event == null ? mNaString :
                                 event.getParkingBrakeData().isEngaged));
