@@ -31,7 +31,6 @@ import android.util.Log;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 /**
  * Services that need VMS publisher services need to inherit from this class and also need to be
@@ -133,6 +132,7 @@ public abstract class VmsPublisherClientService extends Service {
 
         try {
             mVmsPublisherService.setLayersOffering(token, offering);
+            VmsOperationRecorder.get().setLayersOffering(offering);
             return true;
         } catch (RemoteException e) {
             Log.e(TAG, "unable to set layers offering: " + offering, e);
@@ -168,6 +168,8 @@ public abstract class VmsPublisherClientService extends Service {
         }
         if (publisherStaticId == null) {
             throw new IllegalStateException("VmsPublisherService cannot get a publisher static ID.");
+        } else {
+            VmsOperationRecorder.get().getPublisherStaticId(publisherStaticId);
         }
         return publisherStaticId;
     }

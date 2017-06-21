@@ -19,8 +19,11 @@ package com.android.car;
 import android.car.annotation.FutureFeature;
 import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
+import android.car.vms.VmsOperationRecorder;
 import android.car.vms.VmsSubscriptionState;
+
 import com.android.internal.annotations.GuardedBy;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,12 +42,10 @@ public class VmsRouting {
     private final Object mLock = new Object();
     // A map of Layer + Version to listeners.
     @GuardedBy("mLock")
-    private Map<VmsLayer, Set<IVmsSubscriberClient>> mLayerSubscriptions =
-        new HashMap<>();
+    private Map<VmsLayer, Set<IVmsSubscriberClient>> mLayerSubscriptions = new HashMap<>();
     // A set of listeners that are interested in any layer + version.
     @GuardedBy("mLock")
-    private Set<IVmsSubscriberClient> mPromiscuousSubscribers =
-        new HashSet<>();
+    private Set<IVmsSubscriberClient> mPromiscuousSubscribers = new HashSet<>();
     // A set of all the layers + versions the HAL is subscribed to.
     @GuardedBy("mLock")
     private Set<VmsLayer> mHalSubscriptions = new HashSet<>();
@@ -57,7 +58,7 @@ public class VmsRouting {
      * Add a listener subscription to a data messages from layer + version.
      *
      * @param listener a VMS subscriber.
-     * @param layer the layer subscribing to.
+     * @param layer    the layer subscribing to.
      */
     public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         //TODO(b/36902947): revise if need to sync, and return value.
@@ -72,6 +73,7 @@ public class VmsRouting {
             }
             // Add the listener to the list.
             listeners.add(listener);
+            VmsOperationRecorder.get().addSubscription(mSequenceNumber, layer);
         }
     }
 
@@ -84,6 +86,7 @@ public class VmsRouting {
         synchronized (mLock) {
             ++mSequenceNumber;
             mPromiscuousSubscribers.add(listener);
+            VmsOperationRecorder.get().addPromiscuousSubscription(mSequenceNumber);
         }
     }
 
@@ -92,7 +95,7 @@ public class VmsRouting {
      * more subscribers.
      *
      * @param listener to remove.
-     * @param layer of the subscription.
+     * @param layer    of the subscription.
      */
     public void removeSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         synchronized (mLock) {
@@ -104,6 +107,7 @@ public class VmsRouting {
                 return;
             }
             listeners.remove(listener);
+            VmsOperationRecorder.get().removeSubscription(mSequenceNumber, layer);
 
             // If there are no more listeners then remove the list.
             if (listeners.isEmpty()) {
@@ -121,6 +125,7 @@ public class VmsRouting {
         synchronized (mLock) {
             ++mSequenceNumber;
             mPromiscuousSubscribers.remove(listener);
+            VmsOperationRecorder.get().removePromiscuousSubscription(mSequenceNumber);
         }
     }
 
@@ -177,13 +182,14 @@ public class VmsRouting {
 
     /**
      * Checks if a listener is subscribed to any messages.
+     *
      * @param listener that may have subscription.
      * @return true if the listener uis subscribed to messages.
      */
     public boolean containsListener(IVmsSubscriberClient listener) {
         synchronized (mLock) {
             // Check if listener is subscribed to a layer.
-            for (Set<IVmsSubscriberClient> layerListeners: mLayerSubscriptions.values()) {
+            for (Set<IVmsSubscriberClient> layerListeners : mLayerSubscriptions.values()) {
                 if (layerListeners.contains(listener)) {
                     return true;
                 }
@@ -195,29 +201,33 @@ public class VmsRouting {
 
     /**
      * Add a layer and version to the HAL subscriptions.
+     *
      * @param layer the HAL subscribes to.
      */
     public void addHalSubscription(VmsLayer layer) {
         synchronized (mLock) {
             ++mSequenceNumber;
             mHalSubscriptions.add(layer);
+            VmsOperationRecorder.get().addHalSubscription(mSequenceNumber, layer);
         }
     }
 
     /**
      * remove a layer and version to the HAL subscriptions.
+     *
      * @param layer the HAL unsubscribes from.
      */
     public void removeHalSubscription(VmsLayer layer) {
         synchronized (mLock) {
             ++mSequenceNumber;
             mHalSubscriptions.remove(layer);
+            VmsOperationRecorder.get().removeHalSubscription(mSequenceNumber, layer);
         }
     }
 
     /**
      * checks if the HAL is subscribed to a layer.
-     * @param layer
+     *
      * @return true if the HAL is subscribed to layer.
      */
     public boolean isHalSubscribed(VmsLayer layer) {
@@ -228,7 +238,7 @@ public class VmsRouting {
 
     /**
      * checks if there are subscribers to a layer.
-     * @param layer
+     *
      * @return true if there are subscribers to layer.
      */
     public boolean hasLayerSubscriptions(VmsLayer layer) {

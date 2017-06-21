@@ -25,6 +25,7 @@ import android.car.vms.VmsLayer;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
+import android.car.vms.VmsOperationRecorder;
 import android.car.vms.VmsSubscriptionState;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -274,6 +275,7 @@ public class VmsHalService extends HalServiceBase {
         Set<VmsAssociatedLayer> availableLayers = Collections.EMPTY_SET;
         synchronized (mLock) {
             updateOffering(publisherToken, offering);
+            VmsOperationRecorder.get().setPublisherLayersOffering(offering);
             availableLayers = mAvailableLayers.getAvailableLayers();
         }
         notifyOfAvailabilityChange(availableLayers);
@@ -517,6 +519,7 @@ public class VmsHalService extends HalServiceBase {
         VmsLayersOffering offering = new VmsLayersOffering(offeredLayers, publisherId);
         synchronized (mLock) {
             updateOffering(mHalPublisherToken, offering);
+            VmsOperationRecorder.get().setHalPublisherLayersOffering(offering);
         }
     }
 

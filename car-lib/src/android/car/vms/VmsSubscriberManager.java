@@ -26,7 +26,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
+
 import com.android.internal.annotations.GuardedBy;
+
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -88,7 +90,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
 
                         // Dispatch the parsed message
                         mgr.dispatchOnReceiveMessage(vmsDataMessage.getLayer(),
-                                                     vmsDataMessage.getPayload());
+                                vmsDataMessage.getPayload());
                     }
                     break;
                 case ON_AVAILABILITY_CHANGE_EVENT:
@@ -114,21 +116,21 @@ public final class VmsSubscriberManager implements CarManagerBase {
         mIListener = new IVmsSubscriberClient.Stub() {
             @Override
             public void onVmsMessageReceived(VmsLayer layer, byte[] payload)
-                throws RemoteException {
+                    throws RemoteException {
                 // Create the data message
                 VmsDataMessage vmsDataMessage = new VmsDataMessage(layer, payload);
                 mHandler.sendMessage(
                         mHandler.obtainMessage(
-                            VmsEventHandler.ON_RECEIVE_MESSAGE_EVENT,
-                            vmsDataMessage));
+                                VmsEventHandler.ON_RECEIVE_MESSAGE_EVENT,
+                                vmsDataMessage));
             }
 
             @Override
             public void onLayersAvailabilityChange(List<VmsAssociatedLayer> availableLayers) {
                 mHandler.sendMessage(
-                    mHandler.obtainMessage(
-                        VmsEventHandler.ON_AVAILABILITY_CHANGE_EVENT,
-                        availableLayers));
+                        mHandler.obtainMessage(
+                                VmsEventHandler.ON_AVAILABILITY_CHANGE_EVENT,
+                                availableLayers));
             }
         };
     }
@@ -159,7 +161,8 @@ public final class VmsSubscriberManager implements CarManagerBase {
     /**
      * Returns a serialized publisher information for a publisher ID.
      */
-    public byte[] getPublisherInfo(int publisherId) throws CarNotConnectedException, IllegalStateException {
+    public byte[] getPublisherInfo(int publisherId)
+            throws CarNotConnectedException, IllegalStateException {
         if (DBG) {
             Log.d(TAG, "Getting all publishers info.");
         }
@@ -195,6 +198,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
         try {
             mVmsSubscriberService.addVmsSubscriberClientListener(mIListener, layer);
+            VmsOperationRecorder.get().subscribe(layer);
         } catch (RemoteException e) {
             Log.e(TAG, "Could not connect: ", e);
             throw new CarNotConnectedException(e);
@@ -213,11 +217,12 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
         if (listener == null) {
             Log.w(TAG, "subscribe: listener was not set, " +
-                "setListener must be called first.");
+                    "setListener must be called first.");
             throw new IllegalStateException("Listener was not set.");
         }
         try {
             mVmsSubscriberService.addVmsSubscriberClientPassiveListener(mIListener);
+            VmsOperationRecorder.get().subscribeAll();
         } catch (RemoteException e) {
             Log.e(TAG, "Could not connect: ", e);
             throw new CarNotConnectedException(e);
@@ -229,7 +234,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
     /**
      * Unsubscribes from the layer/version specified.
      *
-     * @param layer   the layer to unsubscribe from.
+     * @param layer the layer to unsubscribe from.
      * @throws IllegalStateException if the listener was not set via {@link #setListener}.
      */
     public void unsubscribe(VmsLayer layer) {
@@ -247,6 +252,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
         try {
             mVmsSubscriberService.removeVmsSubscriberClientListener(mIListener, layer);
+            VmsOperationRecorder.get().unsubscribe(layer);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to unregister subscriber", e);
             // ignore
@@ -270,6 +276,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
         try {
             mVmsSubscriberService.removeVmsSubscriberClientPassiveListener(mIListener);
+            VmsOperationRecorder.get().unsubscribeAll();
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to unregister subscriber ", e);
             // ignore
@@ -328,6 +335,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         public VmsLayer getLayer() {
             return mLayer;
         }
+
         public byte[] getPayload() {
             return mPayload;
         }
