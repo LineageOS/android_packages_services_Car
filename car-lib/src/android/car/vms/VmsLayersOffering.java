@@ -33,8 +33,11 @@ public final class VmsLayersOffering implements Parcelable {
 
     private final List<VmsLayerDependency> mDependencies;
 
-    public VmsLayersOffering(List<VmsLayerDependency> dependencies) {
+    private final int mPublisherStaticId;
+
+    public VmsLayersOffering(List<VmsLayerDependency> dependencies, int publisherStaticId) {
         mDependencies = Collections.unmodifiableList(dependencies);
+        mPublisherStaticId = publisherStaticId;
     }
 
     /**
@@ -42,6 +45,10 @@ public final class VmsLayersOffering implements Parcelable {
      */
     public List<VmsLayerDependency> getDependencies() {
         return mDependencies;
+    }
+
+    public int getPublisherStaticId() {
+        return mPublisherStaticId;
     }
 
     public static final Parcelable.Creator<VmsLayersOffering> CREATOR = new
@@ -62,6 +69,7 @@ public final class VmsLayersOffering implements Parcelable {
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeParcelableList(mDependencies, flags);
+        out.writeInt(mPublisherStaticId);
     }
 
     @Override
@@ -73,5 +81,6 @@ public final class VmsLayersOffering implements Parcelable {
         List<VmsLayerDependency> dependencies = new ArrayList<>();
         in.readParcelableList(dependencies, VmsLayerDependency.class.getClassLoader());
         mDependencies = Collections.unmodifiableList(dependencies);
+        mPublisherStaticId = in.readInt();
     }
 }

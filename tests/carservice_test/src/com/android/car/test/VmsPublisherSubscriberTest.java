@@ -20,6 +20,7 @@ import android.annotation.ArrayRes;
 import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.annotation.FutureFeature;
+import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriberManager;
 import android.content.Context;
@@ -33,8 +34,8 @@ import com.android.car.vehiclehal.test.MockedVehicleHal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -47,8 +48,12 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     private static final String TAG = "VmsPubSubTest";
 
     public static final VmsLayer LAYER = new VmsLayer(LAYER_ID, LAYER_VERSION, LAYER_SUB_TYPE);
+    public static final VmsAssociatedLayer ASSOCIATED_LAYER =
+            new VmsAssociatedLayer(LAYER, new HashSet<>(Arrays.asList(EXPECTED_PUBLISHER_ID)));
     public static final byte[] PAYLOAD = new byte[]{2, 3, 5, 7, 11, 13, 17};
-    private static final List<VmsLayer> AVAILABLE_LAYERS = new ArrayList<>(Arrays.asList(LAYER));
+
+    private static final List<VmsAssociatedLayer> AVAILABLE_ASSOCIATED_LAYERS =
+            new ArrayList<>(Arrays.asList(ASSOCIATED_LAYER));
 
     private HalHandler mHalHandler;
     // Used to block until a value is propagated to the TestListener.onVmsMessageReceived.
@@ -162,7 +167,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         vmsSubscriberManager.subscribe(LAYER);
 
         assertTrue(mAvailabilitySemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(AVAILABLE_LAYERS, listener.getAvailalbeLayers());
+        assertEquals(AVAILABLE_ASSOCIATED_LAYERS, listener.getAvailalbeLayers());
     }
 
     private class HalHandler implements MockedVehicleHal.VehicleHalPropertyHandler {
@@ -184,7 +189,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
 
         @Override
         public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
-            assertEquals(AVAILABLE_LAYERS, availableLayers);
+            assertEquals(AVAILABLE_ASSOCIATED_LAYERS, availableLayers);
             mAvailableLayers = availableLayers;
             mAvailabilitySemaphore.release();
         }
