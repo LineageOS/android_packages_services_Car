@@ -203,8 +203,6 @@ void EvsStateControl::updateLoop() {
 
 
 bool EvsStateControl::selectStateForCurrentConditions() {
-    ALOGV("selectStateForCurrentConditions");
-
     static int32_t sDummyGear   = int32_t(VehicleGear::GEAR_REVERSE);
     static int32_t sDummySignal = int32_t(VehicleTurnSignal::NONE);
 
@@ -214,9 +212,10 @@ bool EvsStateControl::selectStateForCurrentConditions() {
             ALOGE("GEAR_SELECTION not available from vehicle.  Exiting.");
             return false;
         }
-        if (invokeGet(&mTurnSignalValue) != StatusCode::OK) {
+        if ((mTurnSignalValue.prop == 0) || (invokeGet(&mTurnSignalValue) != StatusCode::OK)) {
             // Silently treat missing turn signal state as no turn signal active
             mTurnSignalValue.value.int32Values.setToExternal(&sDummySignal, 1);
+            mTurnSignalValue.prop = 0;
         }
     } else {
         // While testing without a vehicle, behave as if we're in reverse for the first 20 seconds
@@ -236,7 +235,7 @@ bool EvsStateControl::selectStateForCurrentConditions() {
     }
 
     // Choose our desired EVS state based on the current car state
-    // TODO:  Update this logic, and include user input when choosing if a view should be presented
+    // TODO:  Update this logic, and consider user input when choosing if a view should be presented
     State desiredState = OFF;
     if (mGearValue.value.int32Values[0] == int32_t(VehicleGear::GEAR_REVERSE)) {
         desiredState = REVERSE;
@@ -248,16 +247,12 @@ bool EvsStateControl::selectStateForCurrentConditions() {
         desiredState = PARKING;
     }
 
-    ALOGD("Selected state %d.", desiredState);
-
     // Apply the desire state
     return configureEvsPipeline(desiredState);
 }
 
 
 StatusCode EvsStateControl::invokeGet(VehiclePropValue *pRequestedPropValue) {
-    ALOGV("invokeGet");
-
     StatusCode status = StatusCode::TRY_AGAIN;
 
     // Call the Vehicle HAL, which will block until the callback is complete
@@ -265,7 +260,9 @@ StatusCode EvsStateControl::invokeGet(VehiclePropValue *pRequestedPropValue) {
                   [pRequestedPropValue, &status]
                   (StatusCode s, const VehiclePropValue& v) {
                        status = s;
-                       *pRequestedPropValue = v;
+                       if (s == StatusCode::OK) {
+                           *pRequestedPropValue = v;
+                       }
                   }
     );
 
@@ -274,13 +271,12 @@ StatusCode EvsStateControl::invokeGet(VehiclePropValue *pRequestedPropValue) {
 
 
 bool EvsStateControl::configureEvsPipeline(State desiredState) {
-    ALOGV("configureEvsPipeline");
-
     if (mCurrentState == desiredState) {
         // Nothing to do here...
         return true;
     }
 
+    ALOGD("Switching to state %d.", desiredState);
     ALOGD("  Current state %d has %zu cameras", mCurrentState,
           mCameraList[mCurrentState].size());
     ALOGD("  Desired state %d has %zu cameras", desiredState,
