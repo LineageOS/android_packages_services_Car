@@ -598,6 +598,7 @@ package android.car.hardware.hvac {
     field public static final int ID_ZONED_FAN_POSITION_AVAILABLE = 16390; // 0x4006
     field public static final int ID_ZONED_FAN_SPEED_RPM = 16389; // 0x4005
     field public static final int ID_ZONED_FAN_SPEED_SETPOINT = 16388; // 0x4004
+    field public static final int ID_ZONED_HVAC_AUTO_RECIRC_ON = 16399; // 0x400f
     field public static final int ID_ZONED_HVAC_POWER_ON = 16387; // 0x4003
     field public static final int ID_ZONED_MAX_AC_ON = 16396; // 0x400c
     field public static final int ID_ZONED_MAX_DEFROST_ON = 16398; // 0x400e
