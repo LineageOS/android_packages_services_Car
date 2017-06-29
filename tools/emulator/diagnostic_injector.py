@@ -20,8 +20,9 @@
 # Use thusly:
 # $ ./diagnostic_injector.py <path/to/diagnostic.json>
 
-import sys
+import argparse
 import json
+import sys
 import time
 
 import vhal_consts_2_1 as c
@@ -48,8 +49,8 @@ except ImportError as e:
 from diagnostic_builder import DiagnosticEventBuilder
 
 class DiagnosticHalWrapper(object):
-    def __init__(self):
-        self.vhal = Vhal(c.vhal_types_2_0)
+    def __init__(self, device):
+        self.vhal = Vhal(c.vhal_types_2_0, device)
         self.liveFrameConfig = self.chat(
             lambda hal: hal.getConfig(c.VEHICLEPROPERTY_OBD2_LIVE_FRAME))
         self.freezeFrameConfig = self.chat(
@@ -105,11 +106,17 @@ class DiagnosticHalWrapper(object):
             else:
                 print("fail: %s" % status)
 
-if len(sys.argv) < 2:
+parser = argparse.ArgumentParser(description='Diagnostic Events Injector')
+parser.add_argument('jsondoc', action='append', default=[], nargs='+')
+parser.add_argument('-s', action='store', dest='deviceid', default=None)
+
+args = parser.parse_args()
+
+if len(args.jsondoc) == 0:
     print("Syntax: diagnostic_injector.py <path/to/diagnostic.json>")
     sys.exit(1)
 
-halWrapper = DiagnosticHalWrapper()
+halWrapper = DiagnosticHalWrapper(device=args.deviceid)
 
 for arg in sys.argv[1:]:
     halWrapper.inject(arg)
