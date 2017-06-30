@@ -240,11 +240,11 @@ public class RadioTestFragment extends Fragment {
                 Log.d(TAG, "loading band: " + band.toString());
             }
 
-            if (mFmDescriptor == null && band.getType() == RadioManager.BAND_FM) {
+            if (mFmDescriptor == null && band.isFmBand()) {
                 mFmDescriptor = (RadioManager.FmBandDescriptor) band;
             }
 
-            if (mAmDescriptor == null && band.getType() == RadioManager.BAND_AM) {
+            if (mAmDescriptor == null && band.isAmBand()) {
                 mAmDescriptor = (RadioManager.AmBandDescriptor) band;
             }
         }
