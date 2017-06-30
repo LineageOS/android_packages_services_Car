@@ -107,16 +107,13 @@ class DiagnosticHalWrapper(object):
                 print("fail: %s" % status)
 
 parser = argparse.ArgumentParser(description='Diagnostic Events Injector')
-parser.add_argument('jsondoc', action='append', default=[], nargs='+')
+parser.add_argument('jsondoc', nargs='+')
 parser.add_argument('-s', action='store', dest='deviceid', default=None)
 
 args = parser.parse_args()
 
-if len(args.jsondoc) == 0:
-    print("Syntax: diagnostic_injector.py <path/to/diagnostic.json>")
-    sys.exit(1)
-
 halWrapper = DiagnosticHalWrapper(device=args.deviceid)
 
-for arg in sys.argv[1:]:
+for arg in args.jsondoc:
+    print("Injecting %s" % arg)
     halWrapper.inject(arg)
