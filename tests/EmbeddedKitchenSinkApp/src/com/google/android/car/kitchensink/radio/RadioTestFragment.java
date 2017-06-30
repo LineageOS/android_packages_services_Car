@@ -92,7 +92,7 @@ public class RadioTestFragment extends Fragment {
             }
             mArtist = metadata.getString(RadioMetadata.METADATA_KEY_ARTIST);
             mSong = metadata.getString(RadioMetadata.METADATA_KEY_TITLE);
-            mStation = metadata.getString(RadioMetadata.METADATA_KEY_RDS_PI);
+            mStation = metadata.getString(RadioMetadata.METADATA_KEY_RDS_PS);
             updateMessages();
         }
 
