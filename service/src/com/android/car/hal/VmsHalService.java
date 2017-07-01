@@ -563,7 +563,7 @@ public class VmsHalService extends HalServiceBase {
                 toTypedVmsVehiclePropValue(VmsMessageType.SUBSCRIPTIONS_RESPONSE);
         VehiclePropValue.RawValue v = vehicleProp.value;
         v.int32Values.add(subscription.getSequenceNumber());
-        List<VmsLayer> layers = subscription.getLayers();
+        Set<VmsLayer> layers = subscription.getSubscribedLayersFromAll();
         v.int32Values.add(layers.size());
         for (VmsLayer layer : layers) {
             v.int32Values.add(layer.getId());

@@ -19,9 +19,13 @@ package android.car.vms;
 import android.car.annotation.FutureFeature;
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 
 /**
  * The list of layers with subscribers.
@@ -31,22 +35,31 @@ import java.util.List;
 @FutureFeature
 public final class VmsSubscriptionState implements Parcelable {
     private final int mSequenceNumber;
-    private final List<VmsLayer> mLayers;
+    private final Set<VmsLayer> mLayers;
+    private final Set<VmsAssociatedLayer> mSubscribedLayersFromPublishers;
 
     /**
-     * Construct a dependency for layer on other layers.
+     * Construcs a summary of the state of the current subscriptions for publishers to consume
+     * and adjust which layers that the are publishing.
      */
-    public VmsSubscriptionState(int sequenceNumber, List<VmsLayer> dependencies) {
+    public VmsSubscriptionState(int sequenceNumber,
+                                Set<VmsLayer> subscribedLayers,
+                                Set<VmsAssociatedLayer> layersFromPublishers) {
         mSequenceNumber = sequenceNumber;
-        mLayers = Collections.unmodifiableList(dependencies);
+        mLayers = Collections.unmodifiableSet(subscribedLayers);
+        mSubscribedLayersFromPublishers = Collections.unmodifiableSet(layersFromPublishers);
     }
 
     public int getSequenceNumber() {
         return mSequenceNumber;
     }
 
-    public List<VmsLayer> getLayers() {
+    public Set<VmsLayer> getSubscribedLayersFromAll() {
         return mLayers;
+    }
+
+    public Set<VmsAssociatedLayer> getSubscribedLayersFromPublishers() {
+        return mSubscribedLayersFromPublishers;
     }
 
     @Override
@@ -54,7 +67,12 @@ public final class VmsSubscriptionState implements Parcelable {
         StringBuilder sb = new StringBuilder();
         sb.append("sequence number=").append(mSequenceNumber);
         sb.append("; layers={");
-        for(VmsLayer layer : mLayers) {
+        for (VmsLayer layer : mLayers) {
+            sb.append(layer).append(",");
+        }
+        sb.append("}");
+        sb.append("; associatedLayers={");
+        for (VmsAssociatedLayer layer : mSubscribedLayersFromPublishers) {
             sb.append(layer).append(",");
         }
         sb.append("}");
@@ -62,19 +80,21 @@ public final class VmsSubscriptionState implements Parcelable {
     }
 
     public static final Parcelable.Creator<VmsSubscriptionState> CREATOR = new
-        Parcelable.Creator<VmsSubscriptionState>() {
-            public VmsSubscriptionState createFromParcel(Parcel in) {
-                return new VmsSubscriptionState(in);
-            }
-            public VmsSubscriptionState[] newArray(int size) {
-                return new VmsSubscriptionState[size];
-            }
-        };
+            Parcelable.Creator<VmsSubscriptionState>() {
+                public VmsSubscriptionState createFromParcel(Parcel in) {
+                    return new VmsSubscriptionState(in);
+                }
+
+                public VmsSubscriptionState[] newArray(int size) {
+                    return new VmsSubscriptionState[size];
+                }
+            };
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(mSequenceNumber);
-        out.writeParcelableList(mLayers, flags);
+        out.writeParcelableList(new ArrayList(mLayers), flags);
+        out.writeParcelableList(new ArrayList(mSubscribedLayersFromPublishers), flags);
     }
 
     @Override
@@ -84,8 +104,13 @@ public final class VmsSubscriptionState implements Parcelable {
 
     private VmsSubscriptionState(Parcel in) {
         mSequenceNumber = in.readInt();
+
         List<VmsLayer> layers = new ArrayList<>();
         in.readParcelableList(layers, VmsLayer.class.getClassLoader());
-        mLayers = Collections.unmodifiableList(layers);
+        mLayers = Collections.unmodifiableSet(new HashSet(layers));
+
+        List<VmsAssociatedLayer> associatedLayers = new ArrayList<>();
+        in.readParcelableList(associatedLayers, VmsAssociatedLayer.class.getClassLoader());
+        mSubscribedLayersFromPublishers = Collections.unmodifiableSet(new HashSet(associatedLayers));
     }
 }

@@ -23,15 +23,21 @@ import android.car.vms.VmsSubscriptionState;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 @SmallTest
 public class VmsRoutingTest extends AndroidTestCase {
-    private static VmsLayer LAYER_WITH_SUBSCRIPTION_1= new VmsLayer(1, 2, 1);
-    private static VmsLayer LAYER_WITH_SUBSCRIPTION_2= new VmsLayer(1, 3, 3);
-    private static VmsLayer LAYER_WITHOUT_SUBSCRIPTION= new VmsLayer(1, 4, 7);
+    private static VmsLayer LAYER_WITH_SUBSCRIPTION_1 = new VmsLayer(1, 2, 1);
+    private static VmsLayer LAYER_WITH_SUBSCRIPTION_2 = new VmsLayer(1, 3, 3);
+    private static VmsLayer LAYER_WITHOUT_SUBSCRIPTION = new VmsLayer(1, 4, 7);
+    private static int PUBLISHER_ID_1 = 123;
+    private static int PUBLISHER_ID_2 = 456;
     private VmsRouting mRouting;
 
     @Override
@@ -54,11 +60,12 @@ public class VmsRoutingTest extends AndroidTestCase {
         expectedSubscriptions.add(LAYER_WITH_SUBSCRIPTION_2);
         VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
         assertEquals(2, subscriptionState.getSequenceNumber());
-        assertEquals(expectedSubscriptions, new HashSet<>(subscriptionState.getLayers()));
+        assertEquals(expectedSubscriptions,
+                new HashSet<>(subscriptionState.getSubscribedLayersFromAll()));
 
         // Verify there is only a single listener.
         assertEquals(1,
-            mRouting.getListeners(LAYER_WITH_SUBSCRIPTION_1).size());
+                mRouting.getListeners(LAYER_WITH_SUBSCRIPTION_1).size());
     }
 
     public void testAddingSubscribersAndHalLayersWithOverlap() throws Exception {
@@ -76,7 +83,8 @@ public class VmsRoutingTest extends AndroidTestCase {
         expectedSubscriptions.add(LAYER_WITH_SUBSCRIPTION_2);
         VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
         assertEquals(3, subscriptionState.getSequenceNumber());
-        assertEquals(expectedSubscriptions, new HashSet<>(subscriptionState.getLayers()));
+        assertEquals(expectedSubscriptions,
+                new HashSet<>(subscriptionState.getSubscribedLayersFromAll()));
     }
 
     public void testAddingAndRemovingLayers() throws Exception {
@@ -96,7 +104,7 @@ public class VmsRoutingTest extends AndroidTestCase {
         // Verify there are no subscribers in the routing manager.
         VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
         assertEquals(4, subscriptionState.getSequenceNumber());
-        assertTrue(subscriptionState.getLayers().isEmpty());
+        assertTrue(subscriptionState.getSubscribedLayersFromAll().isEmpty());
     }
 
     public void testAddingBothTypesOfSubscribers() throws Exception {
@@ -106,18 +114,18 @@ public class VmsRoutingTest extends AndroidTestCase {
 
         // Add a subscription without a layer.
         MockVmsListener listenerWithoutLayer = new MockVmsListener();
-        mRouting.addSubscription(listenerWithoutLayer );
+        mRouting.addSubscription(listenerWithoutLayer);
 
         // Verify 2 subscribers for the layer.
         assertEquals(2,
-            mRouting.getListeners(LAYER_WITH_SUBSCRIPTION_1).size());
+                mRouting.getListeners(LAYER_WITH_SUBSCRIPTION_1).size());
 
         // Add the listener with layer as also a listener without layer
         mRouting.addSubscription(listenerForLayer);
 
         // The number of listeners for the layer should remain the same as before.
         assertEquals(2,
-            mRouting.getListeners(LAYER_WITH_SUBSCRIPTION_1).size());
+                mRouting.getListeners(LAYER_WITH_SUBSCRIPTION_1).size());
     }
 
     public void testOnlyRelevantSubscribers() throws Exception {
@@ -133,14 +141,126 @@ public class VmsRoutingTest extends AndroidTestCase {
         Set<MockVmsListener> expectedListeneres = new HashSet<MockVmsListener>();
         expectedListeneres.add(listenerWithoutLayer);
         assertEquals(expectedListeneres,
-            mRouting.getListeners(LAYER_WITHOUT_SUBSCRIPTION));
+                mRouting.getListeners(LAYER_WITHOUT_SUBSCRIPTION));
+    }
+
+    public void testAddingSubscribersAndHalLayersAndSubscribersToPublishers() throws Exception {
+        // Add a subscription to a layer.
+        MockVmsListener listener = new MockVmsListener();
+        mRouting.addSubscription(listener, LAYER_WITH_SUBSCRIPTION_1);
+
+        // Add a HAL subscription.
+        mRouting.addHalSubscription(LAYER_WITH_SUBSCRIPTION_2);
+
+        mRouting.addSubscription(listener, LAYER_WITH_SUBSCRIPTION_1, PUBLISHER_ID_1);
+        mRouting.addSubscription(listener, LAYER_WITH_SUBSCRIPTION_1, PUBLISHER_ID_2);
+        mRouting.addSubscription(listener, LAYER_WITH_SUBSCRIPTION_2, PUBLISHER_ID_2);
+
+        // Verify expected subscriptions are in routing manager.
+        Set<VmsLayer> expectedSubscriptions = new HashSet<>();
+        expectedSubscriptions.add(LAYER_WITH_SUBSCRIPTION_1);
+        expectedSubscriptions.add(LAYER_WITH_SUBSCRIPTION_2);
+
+        Set<VmsAssociatedLayer> expectedSubscriptionsToPublishers = new HashSet<>();
+        expectedSubscriptionsToPublishers.add(new VmsAssociatedLayer(LAYER_WITH_SUBSCRIPTION_1,
+                new HashSet(Arrays.asList(PUBLISHER_ID_1, PUBLISHER_ID_2))));
+        expectedSubscriptionsToPublishers.add(new VmsAssociatedLayer(LAYER_WITH_SUBSCRIPTION_2,
+                new HashSet(Arrays.asList(PUBLISHER_ID_2))));
+
+        VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
+        assertEquals(5, subscriptionState.getSequenceNumber());
+        assertEquals(expectedSubscriptions,
+                new HashSet<>(subscriptionState.getSubscribedLayersFromAll()));
+
+        assertEquals(expectedSubscriptionsToPublishers,
+                subscriptionState.getSubscribedLayersFromPublishers());
+
+        // Verify there is only a single listener.
+        assertEquals(1,
+                mRouting.getListeners(LAYER_WITH_SUBSCRIPTION_1).size());
+    }
+
+
+    public void testRemovalOfSubscribersToPublishers() throws Exception {
+        // Add a subscription to a layer.
+        MockVmsListener listener = new MockVmsListener();
+        mRouting.addSubscription(listener, LAYER_WITH_SUBSCRIPTION_1);
+
+        // Add a HAL subscription.
+        mRouting.addHalSubscription(LAYER_WITH_SUBSCRIPTION_2);
+
+        mRouting.addSubscription(listener, LAYER_WITH_SUBSCRIPTION_1, PUBLISHER_ID_1);
+        mRouting.addSubscription(listener, LAYER_WITH_SUBSCRIPTION_1, PUBLISHER_ID_2);
+        mRouting.addSubscription(listener, LAYER_WITH_SUBSCRIPTION_2, PUBLISHER_ID_2);
+        mRouting.removeSubscription(listener, LAYER_WITH_SUBSCRIPTION_2, PUBLISHER_ID_2);
+
+        // Verify expected subscriptions are in routing manager.
+        Set<VmsLayer> expectedSubscriptions = new HashSet<>();
+        expectedSubscriptions.add(LAYER_WITH_SUBSCRIPTION_1);
+        expectedSubscriptions.add(LAYER_WITH_SUBSCRIPTION_2);
+
+
+        Set<VmsAssociatedLayer> expectedSubscriptionsToPublishers = new HashSet<>();
+        expectedSubscriptionsToPublishers.add(new VmsAssociatedLayer(LAYER_WITH_SUBSCRIPTION_1,
+                new HashSet(Arrays.asList(PUBLISHER_ID_1, PUBLISHER_ID_2))));
+
+        VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
+        assertEquals(6, subscriptionState.getSequenceNumber());
+        assertEquals(expectedSubscriptions,
+                new HashSet<>(subscriptionState.getSubscribedLayersFromAll()));
+
+        assertEquals(expectedSubscriptionsToPublishers,
+                subscriptionState.getSubscribedLayersFromPublishers());
+
+        // Verify there is only a single listener.
+        assertEquals(1,
+                mRouting.getListeners(LAYER_WITH_SUBSCRIPTION_1).size());
+    }
+
+    public void testRemovalOfSubscribersToPublishersClearListForPublisher() throws Exception {
+        // Add a subscription to a layer.
+        MockVmsListener listener = new MockVmsListener();
+        mRouting.addSubscription(listener, LAYER_WITH_SUBSCRIPTION_1);
+
+        // Add a HAL subscription.
+        mRouting.addHalSubscription(LAYER_WITH_SUBSCRIPTION_2);
+
+        mRouting.addSubscription(listener, LAYER_WITH_SUBSCRIPTION_1, PUBLISHER_ID_1);
+        mRouting.addSubscription(listener, LAYER_WITH_SUBSCRIPTION_1, PUBLISHER_ID_2);
+        mRouting.addSubscription(listener, LAYER_WITH_SUBSCRIPTION_2, PUBLISHER_ID_2);
+        mRouting.removeSubscription(listener, LAYER_WITH_SUBSCRIPTION_1, PUBLISHER_ID_1);
+
+        // Verify expected subscriptions are in routing manager.
+        Set<VmsLayer> expectedSubscriptions = new HashSet<>();
+        expectedSubscriptions.add(LAYER_WITH_SUBSCRIPTION_1);
+        expectedSubscriptions.add(LAYER_WITH_SUBSCRIPTION_2);
+
+        Set<VmsAssociatedLayer> expectedSubscriptionsToPublishers = new HashSet<>();
+        expectedSubscriptionsToPublishers.add(new VmsAssociatedLayer(LAYER_WITH_SUBSCRIPTION_1,
+                new HashSet(Arrays.asList(PUBLISHER_ID_2))));
+        expectedSubscriptionsToPublishers.add(new VmsAssociatedLayer(LAYER_WITH_SUBSCRIPTION_2,
+                new HashSet(Arrays.asList(PUBLISHER_ID_2))));
+
+        VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
+        assertEquals(6, subscriptionState.getSequenceNumber());
+        assertEquals(expectedSubscriptions,
+                new HashSet<>(subscriptionState.getSubscribedLayersFromAll()));
+
+        assertEquals(expectedSubscriptionsToPublishers,
+                subscriptionState.getSubscribedLayersFromPublishers());
+
+        // Verify there is only a single listener.
+        assertEquals(1,
+                mRouting.getListeners(LAYER_WITH_SUBSCRIPTION_1).size());
     }
 
     class MockVmsListener extends IVmsSubscriberClient.Stub {
         @Override
-        public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {}
+        public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
+        }
 
         @Override
-        public void onLayersAvailabilityChange(List<VmsAssociatedLayer> availableLayers) {}
+        public void onLayersAvailabilityChange(List<VmsAssociatedLayer> availableLayers) {
+        }
     }
 }

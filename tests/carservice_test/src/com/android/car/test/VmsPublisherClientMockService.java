@@ -59,7 +59,7 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
     }
 
     private void publishIfNeeded(VmsSubscriptionState subscriptionState) {
-        for (VmsLayer layer : subscriptionState.getLayers()) {
+        for (VmsLayer layer : subscriptionState.getSubscribedLayersFromAll()) {
             if (layer.equals(VmsPublisherSubscriberTest.LAYER)) {
                 publish(VmsPublisherSubscriberTest.LAYER, VmsPublisherSubscriberTest.PAYLOAD);
             }
@@ -68,7 +68,7 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
 
     private void declareOffering(VmsSubscriptionState subscriptionState, int publisherId) {
         List<VmsLayerDependency> dependencies = new ArrayList<>();
-        for( VmsLayer layer : subscriptionState.getLayers()) {
+        for( VmsLayer layer : subscriptionState.getSubscribedLayersFromAll()) {
             dependencies.add(new VmsLayerDependency(layer));
         }
         VmsLayersOffering offering = new VmsLayersOffering(dependencies, publisherId);
