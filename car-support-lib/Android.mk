@@ -19,7 +19,8 @@ ifneq ($(TARGET_BUILD_PDK),true)
 
 LOCAL_PATH:= $(call my-dir)
 
-#Build prebuilt android.support.car library
+# Build prebuilt android.support.car library
+# ---------------------------------------------
 include $(CLEAR_VARS)
 
 LOCAL_AAPT_FLAGS := --auto-add-overlay
@@ -47,7 +48,36 @@ LOCAL_PROGUARD_FLAG_FILES := proguard-release.flags proguard-extra-keeps.flags
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 ifeq ($(BOARD_IS_AUTOMOTIVE), true)
- $(call dist-for-goals,dist_files,$(built_aar):android.support.car.aar)
+    $(call dist-for-goals, dist_files, $(built_aar):android.support.car.aar)
+endif
+
+# Same as above, except without proguard.
+# ---------------------------------------------
+include $(CLEAR_VARS)
+
+LOCAL_AAPT_FLAGS := --auto-add-overlay
+LOCAL_MODULE := android.support.car-1p-prebuilt
+LOCAL_MODULE_CLASS := JAVA_LIBRARIES
+
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+
+# Build against the current public APIs of the SDK
+LOCAL_SDK_VERSION := current
+
+LOCAL_MANIFEST_FILE := AndroidManifest.xml
+
+LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
+LOCAL_JAVA_LIBRARIES += android.car\
+                        android-support-annotations
+# Specify 1.7 for backwards compatibility.
+# Otherwise the lib won't be usable on pre-N devices
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+
+LOCAL_PROGUARD_ENABLED := disabled
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+ifeq ($(BOARD_IS_AUTOMOTIVE), true)
+    $(call dist-for-goals, dist_files, $(built_aar):android.support.car-1p.aar)
 endif
 
 # Build support library.
