@@ -36,7 +36,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 
 /**
- * APIs for handling car specific audio stuffs.
+ * APIs for handling car specific audio stuff.
  */
 public final class CarAudioManager implements CarManagerBase {
 
