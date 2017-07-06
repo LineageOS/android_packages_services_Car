@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.car.annotation.FutureFeature;
 import android.car.vms.IVmsSubscriberClient;
+import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsOperationRecorder;
 import android.car.vms.VmsSubscriptionState;
@@ -30,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Manages all the VMS subscriptions:
@@ -43,19 +45,27 @@ public class VmsRouting {
     // A map of Layer + Version to listeners.
     @GuardedBy("mLock")
     private Map<VmsLayer, Set<IVmsSubscriberClient>> mLayerSubscriptions = new HashMap<>();
+
+    @GuardedBy("mLock")
+    private Map<VmsLayer, Map<Integer, Set<IVmsSubscriberClient>>> mLayerSubscriptionsToPublishers =
+            new HashMap<>();
     // A set of listeners that are interested in any layer + version.
     @GuardedBy("mLock")
     private Set<IVmsSubscriberClient> mPromiscuousSubscribers = new HashSet<>();
+
     // A set of all the layers + versions the HAL is subscribed to.
     @GuardedBy("mLock")
     private Set<VmsLayer> mHalSubscriptions = new HashSet<>();
+
+    @GuardedBy("mLock")
+    private Map<VmsLayer, Set<Integer>> mHalSubscriptionsToPublishers = new HashMap<>();
     // A sequence number that is increased every time the subscription state is modified. Note that
     // modifying the list of promiscuous subscribers does not affect the subscription state.
     @GuardedBy("mLock")
     private int mSequenceNumber = 0;
 
     /**
-     * Add a listener subscription to a data messages from layer + version.
+     * Add a listener subscription to data messages from a VMS layer.
      *
      * @param listener a VMS subscriber.
      * @param layer    the layer subscribing to.
@@ -87,6 +97,38 @@ public class VmsRouting {
             ++mSequenceNumber;
             mPromiscuousSubscribers.add(listener);
             VmsOperationRecorder.get().addPromiscuousSubscription(mSequenceNumber);
+        }
+    }
+
+    /**
+     * Add a listener subscription to data messages from a VMS layer from a specific publisher.
+     *
+     * @param listener    a VMS subscriber.
+     * @param layer       the layer to subscribing to.
+     * @param publisherId the publisher ID.
+     */
+    public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer, int publisherId) {
+        synchronized (mLock) {
+            ++mSequenceNumber;
+
+            Map<Integer, Set<IVmsSubscriberClient>> publisherIdsToListenersForLayer =
+                    mLayerSubscriptionsToPublishers.get(layer);
+
+            if (publisherIdsToListenersForLayer == null) {
+                publisherIdsToListenersForLayer = new HashMap<>();
+                mLayerSubscriptionsToPublishers.put(layer, publisherIdsToListenersForLayer);
+            }
+
+            Set<IVmsSubscriberClient> listenersForPublisher =
+                    publisherIdsToListenersForLayer.get(publisherId);
+
+            if (listenersForPublisher == null) {
+                listenersForPublisher = new HashSet<>();
+                publisherIdsToListenersForLayer.put(publisherId, listenersForPublisher);
+            }
+
+            // Add the listener to the list.
+            listenersForPublisher.add(listener);
         }
     }
 
@@ -126,6 +168,41 @@ public class VmsRouting {
             ++mSequenceNumber;
             mPromiscuousSubscribers.remove(listener);
             VmsOperationRecorder.get().removePromiscuousSubscription(mSequenceNumber);
+        }
+    }
+
+    /**
+     * Remove a subscription to data messages from a VMS layer from a specific publisher.
+     *
+     * @param listener    a VMS subscriber.
+     * @param layer       the layer to unsubscribing from.
+     * @param publisherId the publisher ID.
+     */
+    public void removeSubscription(IVmsSubscriberClient listener, VmsLayer layer, int publisherId) {
+        synchronized (mLock) {
+            ++mSequenceNumber;
+
+            Map<Integer, Set<IVmsSubscriberClient>> listenersToPublishers =
+                    mLayerSubscriptionsToPublishers.get(layer);
+
+            if (listenersToPublishers == null) {
+                return;
+            }
+
+            Set<IVmsSubscriberClient> listeners = listenersToPublishers.get(publisherId);
+
+            if (listeners == null) {
+                return;
+            }
+            listeners.remove(listener);
+
+            if (listeners.isEmpty()) {
+                listenersToPublishers.remove(publisherId);
+            }
+
+            if (listenersToPublishers.isEmpty()) {
+                mLayerSubscriptionsToPublishers.remove(layer);
+            }
         }
     }
 
@@ -212,6 +289,19 @@ public class VmsRouting {
         }
     }
 
+    public void addHalSubscriptionToPublisher(VmsLayer layer, int publisherId) {
+        synchronized (mLock) {
+            ++mSequenceNumber;
+
+            Set<Integer> publisherIdsForLayer = mHalSubscriptionsToPublishers.get(layer);
+            if (publisherIdsForLayer == null) {
+                publisherIdsForLayer = new HashSet<>();
+                mHalSubscriptionsToPublishers.put(layer, publisherIdsForLayer);
+            }
+            publisherIdsForLayer.add(publisherId);
+        }
+    }
+
     /**
      * remove a layer and version to the HAL subscriptions.
      *
@@ -225,9 +315,26 @@ public class VmsRouting {
         }
     }
 
+    public void removeHalSubscriptionToPublisher(VmsLayer layer, int publisherId) {
+        synchronized (mLock) {
+            ++mSequenceNumber;
+
+            Set<Integer> publisherIdsForLayer = mHalSubscriptionsToPublishers.get(layer);
+            if (publisherIdsForLayer == null) {
+                return;
+            }
+            publisherIdsForLayer.remove(publisherId);
+
+            if (publisherIdsForLayer.isEmpty()) {
+                mHalSubscriptionsToPublishers.remove(layer);
+            }
+        }
+    }
+
     /**
      * checks if the HAL is subscribed to a layer.
      *
+     * @param layer
      * @return true if the HAL is subscribed to layer.
      */
     public boolean isHalSubscribed(VmsLayer layer) {
@@ -239,6 +346,7 @@ public class VmsRouting {
     /**
      * checks if there are subscribers to a layer.
      *
+     * @param layer
      * @return true if there are subscribers to layer.
      */
     public boolean hasLayerSubscriptions(VmsLayer layer) {
@@ -248,14 +356,46 @@ public class VmsRouting {
     }
 
     /**
+     * returns true if there is already a subscription for the layer from publisherId.
+     *
+     * @param layer
+     * @param publisherId
+     * @return
+     */
+    public boolean hasLayerFromPublisherSubscriptions(VmsLayer layer, int publisherId) {
+        synchronized (mLock) {
+            boolean hasClientSubscription =
+                    mLayerSubscriptionsToPublishers.containsKey(layer) &&
+                            mLayerSubscriptionsToPublishers.get(layer).containsKey(publisherId);
+
+            boolean hasHalSubscription = mHalSubscriptionsToPublishers.containsKey(layer) &&
+                    mHalSubscriptionsToPublishers.get(layer).contains(publisherId);
+
+            return hasClientSubscription || hasHalSubscription;
+        }
+    }
+
+    /**
      * @return a Set of layers and versions which VMS clients are subscribed to.
      */
     public VmsSubscriptionState getSubscriptionState() {
         synchronized (mLock) {
-            List<VmsLayer> layers = new ArrayList<>();
+            Set<VmsLayer> layers = new HashSet<>();
             layers.addAll(mLayerSubscriptions.keySet());
             layers.addAll(mHalSubscriptions);
-            return new VmsSubscriptionState(mSequenceNumber, layers);
+
+
+            Set<VmsAssociatedLayer> layersFromPublishers = new HashSet<>();
+            layersFromPublishers.addAll(mLayerSubscriptionsToPublishers.entrySet()
+                    .stream()
+                    .map(e -> new VmsAssociatedLayer(e.getKey(), e.getValue().keySet()))
+                    .collect(Collectors.toSet()));
+            layersFromPublishers.addAll(mHalSubscriptionsToPublishers.entrySet()
+                    .stream()
+                    .map(e -> new VmsAssociatedLayer(e.getKey(), e.getValue()))
+                    .collect(Collectors.toSet()));
+
+            return new VmsSubscriptionState(mSequenceNumber, layers, layersFromPublishers);
         }
     }
 }
