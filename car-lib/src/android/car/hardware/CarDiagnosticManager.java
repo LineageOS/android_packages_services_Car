@@ -17,6 +17,7 @@
 package android.car.hardware;
 
 import android.annotation.IntDef;
+import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarApiUtil;
 import android.car.CarLibLog;
@@ -40,8 +41,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-/** API for monitoring car diagnostic data. */
-/** @hide */
+/**
+ * API for monitoring car diagnostic data.
+ *
+ * @hide
+ */
+@SystemApi
 public final class CarDiagnosticManager implements CarManagerBase {
     public static final int FRAME_TYPE_LIVE = 0;
     public static final int FRAME_TYPE_FREEZE = 1;

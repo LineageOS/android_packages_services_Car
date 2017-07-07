@@ -18,7 +18,7 @@ package android.car.hardware;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
-import android.car.annotation.FutureFeature;
+import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.JsonWriter;
@@ -34,7 +34,7 @@ import java.util.Objects;
  *
  * @hide
  */
-@FutureFeature
+@SystemApi
 public class CarDiagnosticEvent implements Parcelable {
     /** Whether this frame represents a live or a freeze frame */
     public final int frameType;
