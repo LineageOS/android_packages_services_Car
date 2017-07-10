@@ -23,6 +23,7 @@ import android.car.CarLibLog;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -178,6 +179,12 @@ public abstract class InstrumentClusterRenderingService extends Service {
             assertContextOwnership();
             mNavigationRenderer.onNextTurnDistanceChanged(distanceMeters, timeSeconds,
                     displayDistanceMillis, displayDistanceUnit);
+        }
+
+        @Override
+        public void onEvent(int eventType, Bundle bundle) throws RemoteException {
+            assertContextOwnership();
+            mNavigationRenderer.onEvent(eventType, bundle);
         }
 
         @Override
