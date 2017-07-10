@@ -94,6 +94,7 @@ public final class Car {
     /**
      * @hide
      */
+    @SystemApi
     public static final String DIAGNOSTIC_SERVICE = "diagnostic";
 
     /**
@@ -241,19 +242,20 @@ public final class Car {
     public static final String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
 
     /**
-     * Permissions necessary to read diagnostic information.
+     * Permissions necessary to read diagnostic information, including vendor-specific bits.
      *
      * @hide
      */
-    @FutureFeature
-    public static final String PERMISSION_CAR_DIAGNOSTIC_READ = "android.car.permission.DIAGNOSTIC_READ";
+    @SystemApi
+    public static final String PERMISSION_CAR_DIAGNOSTIC_READ_ALL =
+        "android.car.permission.DIAGNOSTIC_READ_ALL";
 
     /**
      * Permissions necessary to clear diagnostic information.
      *
      * @hide
      */
-    @FutureFeature
+    @SystemApi
     public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.DIAGNOSTIC_CLEAR";
 
     /** Type of car connection: platform runs directly in car. */

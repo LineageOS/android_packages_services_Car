@@ -17,6 +17,7 @@
 package android.car.hardware;
 
 import android.annotation.IntDef;
+import android.annotation.SystemApi;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -28,6 +29,7 @@ import java.lang.annotation.RetentionPolicy;
  *
  * @hide
  */
+@SystemApi
 public final class CarDiagnosticSensorIndices {
     public static final class Obd2IntegerSensorIndex {
         private Obd2IntegerSensorIndex() {}

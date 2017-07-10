@@ -293,7 +293,7 @@ public class ICarImpl extends ICar.Stub {
     @FutureFeature
     public static void assertAnyDiagnosticPermission(Context context) {
         assertAnyPermission(context,
-                Car.PERMISSION_CAR_DIAGNOSTIC_READ,
+                Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
                 Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR);
     }
 

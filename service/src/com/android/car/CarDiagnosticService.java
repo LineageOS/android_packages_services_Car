@@ -81,7 +81,8 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
     public CarDiagnosticService(Context context, DiagnosticHalService diagnosticHal) {
         mContext = context;
         mDiagnosticHal = diagnosticHal;
-        mDiagnosticReadPermission = new CarPermission(mContext, Car.PERMISSION_CAR_DIAGNOSTIC_READ);
+        mDiagnosticReadPermission = new CarPermission(mContext,
+                Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL);
         mDiagnosticClearPermission = new CarPermission(mContext,
                 Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR);
     }
