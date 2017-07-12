@@ -30,6 +30,8 @@ import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
+import android.test.suitebuilder.annotation.MediumTest;
+
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @FutureFeature
+@MediumTest
 public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     private static final int LAYER_ID = 88;
     private static final int LAYER_VERSION = 19;

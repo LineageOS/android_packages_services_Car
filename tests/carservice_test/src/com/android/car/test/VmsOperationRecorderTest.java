@@ -20,6 +20,7 @@ import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsOperationRecorder;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import junit.framework.TestCase;
 
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
+@MediumTest
 public class VmsOperationRecorderTest extends TestCase {
 
     /** Capture messages that VmsOperationRecorder.Writer would normally pass to Log.d(...). */

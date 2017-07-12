@@ -35,6 +35,7 @@ import android.media.AudioManager;
 import android.media.IVolumeController;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseIntArray;
@@ -48,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@MediumTest
 public class CarVolumeServiceTest extends MockedCarTestBase {
     private static final String TAG = CarVolumeServiceTest.class.getSimpleName();
 

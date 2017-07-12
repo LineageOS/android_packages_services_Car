@@ -29,6 +29,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.os.SystemClock;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -44,6 +45,7 @@ import java.util.Random;
 /**
  * Tests for {@link CarVendorExtensionManager}
  */
+@MediumTest
 public class CarVendorExtensionManagerTest extends MockedCarTestBase {
 
     private static final String TAG = CarVendorExtensionManager.class.getSimpleName();

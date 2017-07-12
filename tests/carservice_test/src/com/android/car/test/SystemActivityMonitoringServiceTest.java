@@ -23,6 +23,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.os.SystemClock;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import com.android.car.SystemActivityMonitoringService;
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@MediumTest
 public class SystemActivityMonitoringServiceTest extends MockedCarTestBase {
     private static final long TIMEOUT_MS = 3000;
     private static final long POLL_INTERVAL_MS = 50;

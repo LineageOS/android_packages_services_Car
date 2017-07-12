@@ -29,6 +29,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_1.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_1.VmsMessageType;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import com.android.car.R;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
@@ -40,6 +41,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @FutureFeature
+@MediumTest
 public class VmsPublisherPermissionsTest extends MockedCarTestBase {
     private static final String TAG = "VmsPublisherTest";
     private static final int MOCK_PUBLISHER_LAYER_ID = 0;

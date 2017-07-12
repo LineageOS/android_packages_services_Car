@@ -22,6 +22,7 @@ import android.support.car.CarConnectionCallback;
 import android.support.car.hardware.CarSensorEvent;
 import android.support.car.hardware.CarSensorManager;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-
+@MediumTest
 public class CarSensorManagerTest extends AndroidTestCase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
 
