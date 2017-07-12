@@ -45,7 +45,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Diagnostic HAL service supporting gathering diagnostic info from VHAL and translating it into
  * higher-level semantic information
  */
-@FutureFeature
 public class DiagnosticHalService extends SensorHalServiceBase {
     public static class DiagnosticCapabilities {
         private final CopyOnWriteArraySet<Integer> mProperties = new CopyOnWriteArraySet<>();

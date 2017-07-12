@@ -46,7 +46,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
-@FutureFeature
 /** @hide */
 public class CarDiagnosticService extends ICarDiagnostic.Stub
         implements CarServiceBase, DiagnosticHalService.DiagnosticListener {
@@ -501,12 +500,9 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
 
         @Override
         public boolean equals(Object o) {
-            if (o instanceof CarDiagnosticService.DiagnosticClient
-                    && mListener.asBinder()
-                            == ((CarDiagnosticService.DiagnosticClient) o).mListener.asBinder()) {
-                return true;
-            }
-            return false;
+            return o instanceof DiagnosticClient
+                && mListener.asBinder()
+                == ((DiagnosticClient) o).mListener.asBinder();
         }
 
         boolean isHoldingListenerBinder(IBinder listenerBinder) {
@@ -541,16 +537,12 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
         }
 
         void dispatchDiagnosticUpdate(List<CarDiagnosticEvent> events) {
-            if (events.size() == 0) {
-                return;
-            }
-            if (mActive) {
+            if (events.size() != 0 && mActive) {
                 try {
                     mListener.onDiagnosticEvents(events);
                 } catch (RemoteException e) {
                     //ignore. crash will be handled by death handler
                 }
-            } else {
             }
         }
 
