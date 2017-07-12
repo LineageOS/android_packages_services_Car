@@ -140,6 +140,8 @@
     <!-- radio test -->
     <string name="radio_open">Open</string>
     <string name="radio_close">Close</string>
+    <string name="radio_muted">Muted</string>
+    <string name="radio_unmuted">Unmuted</string>
     <string name="radio_get_radio_focus">Get Radio focus</string>
     <string name="radio_release_radio_focus">Release Radio focus</string>
     <string name="radio_get_focus">Get Audio focus</string>
@@ -147,6 +149,10 @@
     <string name="radio_next">Next</string>
     <string name="radio_prev">Previous</string>
     <string name="radio_scan_cancel">Cancel scan</string>
+    <string name="radio_tune_to_station">Tune to Station</string>
+    <string name="radio_step_up">Step Up</string>
+    <string name="radio_step_down">Step Down</string>
+    <string name="radio_enter_station_hint">Enter Station Frequency (kHz)</string>
     <string name="radio_get_program_info">getProgramInformation</string>
     <string name="radio_am">AM</string>
     <string name="radio_fm">FM</string>
