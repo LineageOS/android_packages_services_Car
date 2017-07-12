@@ -114,11 +114,20 @@ public final class CarNavigationStatusManager implements CarManagerBase {
     @Retention(RetentionPolicy.SOURCE)
     public @interface TurnEvent {}
 
-    /** Event type that holds information about next maneuver. */
+    /**
+     * Event type that holds information about next maneuver.
+     * @hide
+     */
     public static final int EVENT_TYPE_NEXT_MANEUVER_INFO = 1;
-    /** Event type that holds information regarding distance/time to the next maneuver. */
+    /**
+     * Event type that holds information regarding distance/time to the next maneuver.
+     * @hide
+     */
     public static final int EVENT_TYPE_NEXT_MANEUVER_COUNTDOWN = 2;
-    /** All custom (vendor-specific) event types should be equal or greater than this constant. */
+    /**
+     * All custom (vendor-specific) event types should be equal or greater than this constant.
+     * @hide
+     */
     public static final int EVENT_TYPE_VENDOR_FIRST = 1024;
 
     /* Turn Side */

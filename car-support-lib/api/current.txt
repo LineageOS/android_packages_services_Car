@@ -211,9 +211,9 @@ package android.support.car.navigation {
     ctor public CarNavigationStatusManager();
     method public abstract void addListener(android.support.car.navigation.CarNavigationStatusManager.CarNavigationCallback) throws android.support.car.CarNotConnectedException;
     method public abstract void removeListener();
-    method public abstract void sendNavigationStatus(int) throws android.support.car.CarNotConnectedException;
-    method public abstract void sendNavigationTurnDistanceEvent(int, int, int, int) throws android.support.car.CarNotConnectedException;
-    method public abstract void sendNavigationTurnEvent(int, java.lang.CharSequence, int, int, int) throws android.support.car.CarNotConnectedException;
+    method public abstract deprecated void sendNavigationStatus(int) throws android.support.car.CarNotConnectedException;
+    method public abstract deprecated void sendNavigationTurnDistanceEvent(int, int, int, int) throws android.support.car.CarNotConnectedException;
+    method public abstract deprecated void sendNavigationTurnEvent(int, java.lang.CharSequence, int, int, int) throws android.support.car.CarNotConnectedException;
     field public static final int DISTANCE_FEET = 4; // 0x4
     field public static final int DISTANCE_KILOMETERS = 2; // 0x2
     field public static final int DISTANCE_METERS = 1; // 0x1
