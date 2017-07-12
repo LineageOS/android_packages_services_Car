@@ -143,6 +143,10 @@ public final class Car {
     /** Permission necessary to access car's speed. */
     public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
 
+    /** Permission necessary to access car's dynamics state. */
+    public static final String PERMISSION_VEHICLE_DYNAMICS_STATE =
+        "android.car.permission.VEHICLE_DYNAMICS_STATE";
+
     /**
      * Permission necessary to change car audio volume through {@link CarAudioManager}.
      */

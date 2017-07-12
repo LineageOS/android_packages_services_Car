@@ -173,7 +173,7 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
             return null;
         }
         return new CarSensorEvent(event.sensorType, event.timestamp, event.floatValues,
-                event.intValues);
+                event.intValues, event.longValues);
     }
 
     private static class OnSensorChangedListenerProxy
