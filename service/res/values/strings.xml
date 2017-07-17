@@ -81,6 +81,11 @@
          cluster [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_navigation_manager">Report navigation data to instrument
         cluster</string>
+    <string name="car_permission_car_display_in_cluster">Direct rendering to instrument cluster</string>
+    <string name="car_permission_desc_car_display_in_cluster">Allow an application to declare
+      activities to be displayed in the instrument cluster</string>
+    <string name="car_permission_car_cluster_control">Instrument cluster control</string>
+    <string name="car_permission_desc_car_cluster_control">Launch apps in the instrument cluster</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering">Instrument Cluster Rendering</string>
     <string name="car_permission_desc_bind_instrument_cluster_rendering">Receive instrument cluster data</string>
 

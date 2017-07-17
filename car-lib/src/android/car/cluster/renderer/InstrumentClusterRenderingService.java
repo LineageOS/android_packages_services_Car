@@ -18,8 +18,10 @@ package android.car.cluster.renderer;
 import android.annotation.CallSuper;
 import android.annotation.MainThread;
 import android.annotation.SystemApi;
+import android.app.ActivityOptions;
 import android.app.Service;
 import android.car.CarLibLog;
+import android.car.CarNotConnectedException;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -32,6 +34,8 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
+
+import com.android.internal.annotations.GuardedBy;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -60,11 +64,28 @@ public abstract class InstrumentClusterRenderingService extends Service {
 
     private RendererBinder mRendererBinder;
 
+    /** @hide */
+    public static final String EXTRA_KEY_CALLBACK_SERVICE =
+            "android.car.cluster.IInstrumentClusterCallback";
+
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private IInstrumentClusterCallback mCallback;
+
     @Override
     @CallSuper
     public IBinder onBind(Intent intent) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onBind, intent: " + intent);
+        }
+
+        if (intent.getExtras().containsKey(EXTRA_KEY_CALLBACK_SERVICE)) {
+            IBinder callbackBinder = intent.getExtras().getBinder(EXTRA_KEY_CALLBACK_SERVICE);
+            synchronized (mLock) {
+                mCallback = IInstrumentClusterCallback.Stub.asInterface(callbackBinder);
+            }
+        } else {
+            Log.w(TAG, "onBind, no callback in extra!");
         }
 
         if (mRendererBinder == null) {
@@ -83,6 +104,55 @@ public abstract class InstrumentClusterRenderingService extends Service {
     protected void onKeyEvent(KeyEvent keyEvent) {
     }
 
+    /**
+     *
+     * Sets configuration for activities that should be launched directly in the instrument
+     * cluster.
+     *
+     * @param category category of cluster activity
+     * @param activityOptions contains information of how to start cluster activity (on what display
+     *                        or activity stack.
+     *
+     * @hide
+     */
+    public void setClusterActivityLaunchOptions(String category,
+            ActivityOptions activityOptions) throws CarNotConnectedException {
+        IInstrumentClusterCallback cb;
+        synchronized (mLock) {
+            cb = mCallback;
+        }
+        if (cb == null) throw new CarNotConnectedException();
+        try {
+            cb.setClusterActivityLaunchOptions(category, activityOptions.toBundle());
+        } catch (RemoteException e) {
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     *
+     * @param category cluster activity category,
+     *        see {@link android.car.cluster.CarInstrumentClusterManager}
+     * @param state pass information about activity state,
+     *        see {@link android.car.cluster.ClusterActivityState}
+     * @return true if information was sent to Car Service
+     * @throws CarNotConnectedException
+     */
+    public void setClusterActivityState(String category, Bundle state)
+            throws CarNotConnectedException {
+        IInstrumentClusterCallback cb;
+        synchronized (mLock) {
+            cb = mCallback;
+        }
+        if (cb == null) throw new CarNotConnectedException();
+        try {
+            cb.setClusterActivityState(category, state);
+        } catch (RemoteException e) {
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+
     @Override
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         writer.println("**" + getClass().getSimpleName() + "**");
@@ -90,12 +160,19 @@ public abstract class InstrumentClusterRenderingService extends Service {
         if (mRendererBinder != null) {
             writer.println("navigation renderer: " + mRendererBinder.mNavigationRenderer);
             String owner = "none";
-            if (mRendererBinder.mNavContextOwner != null) {
-                owner = "[uid: " + mRendererBinder.mNavContextOwner.first
-                        + ", pid: " + mRendererBinder.mNavContextOwner.second + "]";
+            synchronized (mLock) {
+                if (mRendererBinder.mNavContextOwner != null) {
+                    owner = "[uid: " + mRendererBinder.mNavContextOwner.first
+                            + ", pid: " + mRendererBinder.mNavContextOwner.second + "]";
+                }
             }
             writer.println("navigation focus owner: " + owner);
         }
+        IInstrumentClusterCallback cb;
+        synchronized (mLock) {
+            cb = mCallback;
+        }
+        writer.println("callback: " + cb);
     }
 
     private class RendererBinder extends IInstrumentCluster.Stub {
@@ -103,8 +180,10 @@ public abstract class InstrumentClusterRenderingService extends Service {
         private final NavigationRenderer mNavigationRenderer;
         private final UiHandler mUiHandler;
 
-        private volatile NavigationBinder mNavigationBinder;
-        private volatile Pair<Integer, Integer> mNavContextOwner;
+        @GuardedBy("mLock")
+        private NavigationBinder mNavigationBinder;
+        @GuardedBy("mLock")
+        private Pair<Integer, Integer> mNavContextOwner;
 
         RendererBinder(NavigationRenderer navigationRenderer) {
             mNavigationRenderer = navigationRenderer;
@@ -113,21 +192,25 @@ public abstract class InstrumentClusterRenderingService extends Service {
 
         @Override
         public IInstrumentClusterNavigation getNavigationService() throws RemoteException {
-            if (mNavigationBinder == null) {
-                mNavigationBinder = new NavigationBinder(mNavigationRenderer);
-                if (mNavContextOwner != null) {
-                    mNavigationBinder.setNavigationContextOwner(
-                            mNavContextOwner.first, mNavContextOwner.second);
+            synchronized (mLock) {
+                if (mNavigationBinder == null) {
+                    mNavigationBinder = new NavigationBinder(mNavigationRenderer);
+                    if (mNavContextOwner != null) {
+                        mNavigationBinder.setNavigationContextOwner(
+                                mNavContextOwner.first, mNavContextOwner.second);
+                    }
                 }
+                return mNavigationBinder;
             }
-            return mNavigationBinder;
         }
 
         @Override
         public void setNavigationContextOwner(int uid, int pid) throws RemoteException {
-            mNavContextOwner = new Pair<>(uid, pid);
-            if (mNavigationBinder != null) {
-                mNavigationBinder.setNavigationContextOwner(uid, pid);
+            synchronized (mLock) {
+                mNavContextOwner = new Pair<>(uid, pid);
+                if (mNavigationBinder != null) {
+                    mNavigationBinder.setNavigationContextOwner(uid, pid);
+                }
             }
         }
 

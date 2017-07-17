@@ -24,13 +24,10 @@ import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
-import android.hardware.automotive.vehicle.V2_0.VehicleAreaDoor;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Process;
 import android.util.Log;
-
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
@@ -38,7 +35,6 @@ import com.android.car.internal.FeatureUtil;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.car.ICarServiceHelper;
-
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -216,6 +212,9 @@ public class ICarImpl extends ICar.Stub {
                 IInstrumentClusterNavigation navService =
                         mInstrumentClusterService.getNavigationService();
                 return navService == null ? null : navService.asBinder();
+            case Car.CAR_INSTRUMENT_CLUSTER_SERVICE:
+                assertClusterManagerPermission(mContext);
+                return mInstrumentClusterService.getManagerService();
             case Car.PROJECTION_SERVICE:
                 assertProjectionPermission(mContext);
                 return mCarProjectionService;
@@ -271,6 +270,10 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertNavigationManagerPermission(Context context) {
         assertPermission(context, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
+    }
+
+    public static void assertClusterManagerPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
     }
 
     public static void assertHvacPermission(Context context) {

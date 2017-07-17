@@ -278,18 +278,6 @@ package android.car.app.menu {
 
 package android.car.cluster.renderer {
 
-  public class DisplayConfiguration implements android.os.Parcelable {
-    ctor public DisplayConfiguration(android.os.Parcel);
-    ctor public DisplayConfiguration(android.graphics.Rect);
-    ctor public DisplayConfiguration(android.graphics.Rect, android.graphics.Rect);
-    method public int describeContents();
-    method public android.graphics.Rect getPrimaryRegion();
-    method public android.graphics.Rect getSecondaryRegion();
-    method public boolean hasSecondaryRegion();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.cluster.renderer.DisplayConfiguration> CREATOR;
-  }
-
   public abstract class InstrumentClusterRenderer {
     ctor public InstrumentClusterRenderer();
     method protected abstract android.car.cluster.renderer.NavigationRenderer createNavigationRenderer();
@@ -305,6 +293,7 @@ package android.car.cluster.renderer {
     method protected abstract android.car.cluster.renderer.NavigationRenderer getNavigationRenderer();
     method public android.os.IBinder onBind(android.content.Intent);
     method protected void onKeyEvent(android.view.KeyEvent);
+    method public void setClusterActivityState(java.lang.String, android.os.Bundle) throws android.car.CarNotConnectedException;
   }
 
   public abstract class NavigationRenderer {

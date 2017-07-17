@@ -113,10 +113,11 @@
     <string name="open_kb_button">Hide/Show Input</string>
 
     <!-- instrument cluster -->
-    <string name="cluster_start">Start Nav</string>
-    <string name="cluster_turn_left">Turn left</string>
-    <string name="cluster_stop">Stop Nav</string>
+    <string name="cluster_start">Start metadata</string>
+    <string name="cluster_turn_left">Send turn-by-turn</string>
+    <string name="cluster_stop">Stop metadata</string>
     <string name="cluster_nav_app_context_loss">Navigation app context lost!</string>
+    <string name="cluster_start_activity">Start Nav Activity</string>
 
     <!--  input test -->
     <string name="volume_up">Volume +</string>

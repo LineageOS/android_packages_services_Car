@@ -33,7 +33,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     EmbeddedKitchenSinkApp \
     VmsPublisherClientSample \
-    VmsSubscriberClientSample
+    VmsSubscriberClientSample \
+    android.car.cluster.loggingrenderer \
+    DirectRenderingClusterSample \
 
 PRODUCT_COPY_FILES := \
     frameworks/av/media/libeffects/data/audio_effects.conf:system/etc/audio_effects.conf \

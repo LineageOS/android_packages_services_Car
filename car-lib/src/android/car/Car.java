@@ -20,6 +20,7 @@ import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.annotation.FutureFeature;
+import android.car.cluster.CarInstrumentClusterManager;
 import android.car.content.pm.CarPackageManager;
 import android.car.hardware.CarDiagnosticManager;
 import android.car.hardware.CarSensorManager;
@@ -44,7 +45,6 @@ import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.car.internal.FeatureConfiguration;
-import com.android.car.internal.FeatureUtil;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
@@ -85,6 +85,11 @@ public final class Car {
      * @hide
      */
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
+    /**
+     * Service name for {@link CarInstrumentClusterManager}
+     * @hide
+     */
+    public static final String CAR_INSTRUMENT_CLUSTER_SERVICE = "cluster_service";
 
     /**
      * @hide
@@ -168,6 +173,24 @@ public final class Car {
      */
     public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
             "android.car.permission.CAR_NAVIGATION_MANAGER";
+
+    /**
+     * Permission necessary to start activities in the instrument cluster through
+     * {@link CarInstrumentClusterManager}
+     *
+     * @hide
+     */
+    public static final String PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL =
+            "android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
+
+    /**
+     * Application must have this permission in order to be launched in the instrument cluster
+     * display.
+     *
+     * @hide
+     */
+    public static final String PERMISSION_CAR_DISPLAY_IN_CLUSTER =
+            "android.car.permission.CAR_DISPLAY_IN_CLUSTER";
 
     /**
      * Permission necessary to access car specific communication channel.
@@ -599,6 +622,9 @@ public final class Car {
                 break;
             case VENDOR_EXTENSION_SERVICE:
                 manager = new CarVendorExtensionManager(binder, mEventHandler);
+                break;
+            case CAR_INSTRUMENT_CLUSTER_SERVICE:
+                manager = new CarInstrumentClusterManager(binder, mEventHandler);
                 break;
             case TEST_SERVICE:
                 /* CarTestManager exist in static library. So instead of constructing it here,
