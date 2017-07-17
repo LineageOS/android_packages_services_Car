@@ -50,6 +50,10 @@ package android.support.car {
   public abstract class CarInfoManager {
     ctor public CarInfoManager();
     method public abstract int getDriverPosition() throws android.support.car.CarNotConnectedException;
+    method public abstract float getEvBatteryCapacity() throws android.support.car.CarNotConnectedException;
+    method public abstract int[] getEvConnectorTypes() throws android.support.car.CarNotConnectedException;
+    method public abstract float getFuelCapacity() throws android.support.car.CarNotConnectedException;
+    method public abstract int[] getFuelTypes() throws android.support.car.CarNotConnectedException;
     method public abstract java.lang.String getHeadunitManufacturer() throws android.support.car.CarNotConnectedException;
     method public abstract java.lang.String getHeadunitModel() throws android.support.car.CarNotConnectedException;
     method public abstract java.lang.String getHeadunitSoftwareBuild() throws android.support.car.CarNotConnectedException;
@@ -153,6 +157,12 @@ package android.support.car.hardware {
     field public static final int SENSOR_TYPE_ABS_ACTIVE = 24; // 0x18
     field public static final int SENSOR_TYPE_COMPASS = 1; // 0x1
     field public static final int SENSOR_TYPE_DRIVING_STATUS = 11; // 0xb
+    field public static final int SENSOR_TYPE_ENGINE_ON = 26; // 0x1a
+    field public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE = 31; // 0x1f
+    field public static final int SENSOR_TYPE_EV_BATTERY_LEVEL = 28; // 0x1c
+    field public static final int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED = 30; // 0x1e
+    field public static final int SENSOR_TYPE_EV_CHARGE_PORT_OPEN = 29; // 0x1d
+    field public static final int SENSOR_TYPE_FUEL_DOOR_OPEN = 27; // 0x1b
     field public static final int SENSOR_TYPE_NIGHT = 9; // 0x9
     field public static final int SENSOR_TYPE_PARKING_BRAKE = 6; // 0x6
     field public static final int SENSOR_TYPE_TRACTION_CONTROL_ACTIVE = 25; // 0x19

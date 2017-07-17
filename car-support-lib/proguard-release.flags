@@ -5171,6 +5171,10 @@
     <init>();
 
     public abstract int getDriverPosition();
+    public abstract float getEvBatteryCapacity();
+    public abstract int[] getEvConnectorTypes();
+    public abstract float getFuelCapacity();
+    public abstract int[] getFuelTypes();
     public abstract java.lang.String getHeadunitManufacturer();
     public abstract java.lang.String getHeadunitModel();
     public abstract java.lang.String getHeadunitSoftwareBuild();
@@ -5295,6 +5299,12 @@
     public static int SENSOR_TYPE_ABS_ACTIVE;
     public static int SENSOR_TYPE_COMPASS;
     public static int SENSOR_TYPE_DRIVING_STATUS;
+    public static int SENSOR_TYPE_ENGINE_ON;
+    public static int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE;
+    public static int SENSOR_TYPE_EV_BATTERY_LEVEL;
+    public static int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED;
+    public static int SENSOR_TYPE_EV_CHARGE_PORT_OPEN;
+    public static int SENSOR_TYPE_FUEL_DOOR_OPEN;
     public static int SENSOR_TYPE_NIGHT;
     public static int SENSOR_TYPE_PARKING_BRAKE;
     public static int SENSOR_TYPE_TRACTION_CONTROL_ACTIVE;

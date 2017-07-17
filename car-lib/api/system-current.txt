@@ -68,6 +68,10 @@ package android.car {
   }
 
   public final class CarInfoManager {
+    method public float getEvBatteryCapacity() throws android.car.CarNotConnectedException;
+    method public int[] getEvConnectorTypes() throws android.car.CarNotConnectedException;
+    method public float getFuelCapacity() throws android.car.CarNotConnectedException;
+    method public int[] getFuelTypes() throws android.car.CarNotConnectedException;
     method public java.lang.String getManufacturer() throws android.car.CarNotConnectedException;
     method public java.lang.String getModel() throws android.car.CarNotConnectedException;
     method public java.lang.String getModelYear() throws android.car.CarNotConnectedException;
@@ -699,9 +703,6 @@ package android.car.hardware {
     field public static final int IGNITION_STATE_UNDEFINED = 0; // 0x0
     field public static final int INDEX_ENVIRONMENT_PRESSURE = 1; // 0x1
     field public static final int INDEX_ENVIRONMENT_TEMPERATURE = 0; // 0x0
-    field public static final int INDEX_FUEL_LEVEL_IN_DISTANCE = 1; // 0x1
-    field public static final int INDEX_FUEL_LEVEL_IN_PERCENTILE = 0; // 0x0
-    field public static final int INDEX_FUEL_LOW_WARNING = 0; // 0x0
     field public static final int INDEX_WHEEL_DISTANCE_FRONT_LEFT = 1; // 0x1
     field public static final int INDEX_WHEEL_DISTANCE_FRONT_RIGHT = 2; // 0x2
     field public static final int INDEX_WHEEL_DISTANCE_REAR_LEFT = 4; // 0x4
@@ -735,7 +736,13 @@ package android.car.hardware {
     field public static final int SENSOR_TYPE_ABS_ACTIVE = 24; // 0x18
     field public static final int SENSOR_TYPE_CAR_SPEED = 2; // 0x2
     field public static final int SENSOR_TYPE_DRIVING_STATUS = 11; // 0xb
+    field public static final int SENSOR_TYPE_ENGINE_ON = 26; // 0x1a
     field public static final int SENSOR_TYPE_ENVIRONMENT = 12; // 0xc
+    field public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE = 31; // 0x1f
+    field public static final int SENSOR_TYPE_EV_BATTERY_LEVEL = 28; // 0x1c
+    field public static final int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED = 30; // 0x1e
+    field public static final int SENSOR_TYPE_EV_CHARGE_PORT_OPEN = 29; // 0x1d
+    field public static final int SENSOR_TYPE_FUEL_DOOR_OPEN = 27; // 0x1b
     field public static final int SENSOR_TYPE_FUEL_LEVEL = 5; // 0x5
     field public static final int SENSOR_TYPE_GEAR = 7; // 0x7
     field public static final int SENSOR_TYPE_IGNITION_STATE = 22; // 0x16

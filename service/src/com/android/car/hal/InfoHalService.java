@@ -19,6 +19,7 @@ import android.car.CarInfoManager;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -63,6 +64,18 @@ public class InfoHalService extends HalServiceBase {
                 case VehicleProperty.INFO_MODEL_YEAR:
                     readPropertyToBundle(p.prop, CarInfoManager.BASIC_INFO_KEY_MODEL_YEAR);
                     break;
+                case VehicleProperty.INFO_FUEL_CAPACITY:
+                    readPropertyToBundle(p.prop, CarInfoManager.BASIC_INFO_FUEL_CAPACITY);
+                    break;
+                case VehicleProperty.INFO_FUEL_TYPE:
+                    readPropertyToBundle(p.prop, CarInfoManager.BASIC_INFO_FUEL_TYPES);
+                    break;
+                case VehicleProperty.INFO_EV_BATTERY_CAPACITY:
+                    readPropertyToBundle(p.prop, CarInfoManager.BASIC_INFO_EV_BATTERY_CAPACITY);
+                    break;
+                case VehicleProperty.INFO_EV_CONNECTOR_TYPE:
+                    readPropertyToBundle(p.prop, CarInfoManager.BASIC_INFO_EV_CONNECTOR_TYPES);
+                    break;
                 default: // not supported
                     break;
             }
@@ -71,13 +84,29 @@ public class InfoHalService extends HalServiceBase {
     }
 
     private void readPropertyToBundle(int prop, String key) {
-        String value = "";
         try {
-            value = mHal.get(String.class, prop);
+            int propType =  prop & VehiclePropertyType.MASK;
+
+            switch(propType) {
+                case VehiclePropertyType.STRING:
+                    mBasicInfo.putString(key, mHal.get(String.class, prop));
+                    break;
+                case VehiclePropertyType.FLOAT:
+                    mBasicInfo.putFloat(key, mHal.get(float.class, prop));
+                    break;
+                case VehiclePropertyType.INT32:
+                    mBasicInfo.putInt(key, mHal.get(int.class, prop));
+                    break;
+                case VehiclePropertyType.INT32_VEC:
+                    mBasicInfo.putIntArray(key, mHal.get(int[].class, prop));
+                    break;
+                default: // not supported
+                    throw(new IllegalArgumentException("Property type " + propType + " is not" +
+                        "supported"));
+            }
         } catch (PropertyTimeoutException e) {
             Log.e(CarLog.TAG_INFO, "Unable to read property", e);
         }
-        mBasicInfo.putString(key, value);
     }
 
     @Override

@@ -67,12 +67,7 @@ public final class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_ODOMETER                    = 4;
     /**
      * Indicates fuel level of the car.
-     * In {@link CarSensorEvent}, floatValues[{@link CarSensorEvent#INDEX_FUEL_LEVEL_IN_PERCENTILE}]
-     * represents fuel level in percentile (0 to 100) while
-     * floatValues[{@link CarSensorEvent#INDEX_FUEL_LEVEL_IN_DISTANCE}] represents estimated range
-     * in Kilometer with the remaining fuel.
-     * Note that the gas mileage used for the estimation may not represent the current driving
-     * condition.
+     * In {@link CarSensorEvent}, represents fuel level in milliliters.
      * This requires {@link Car#PERMISSION_FUEL} permission.
      */
     public static final int SENSOR_TYPE_FUEL_LEVEL                  = 5;
@@ -147,12 +142,43 @@ public final class CarSensorManager implements CarManagerBase {
      * This requires {@link Car#PERMISSION_VEHICLE_DYNAMICS_STATE} permission.
      */
     public static final int SENSOR_TYPE_TRACTION_CONTROL_ACTIVE     = 25;
+    /**
+     * Set to true if the engine is on.
+     */
+    public static final int SENSOR_TYPE_ENGINE_ON                   = 26;
+    /**
+     * Set to true if the fuel door is open.
+     */
+    public static final int SENSOR_TYPE_FUEL_DOOR_OPEN              = 27;
+
+    /**
+     * Indicates battery level of the car.
+     * In {@link CarSensorEvent}, represents battery level in WH.  floatValues[{@link
+     * CarSensorEvent#INDEX_EV_BATTERY_CAPACITY_ACTUAL}] represents the actual battery capacity in
+     * WH.  The battery degrades over time, so this value is expected to drop slowly over the life
+     * of the vehicle.
+     * This requires {@link Car#PERMISSION_FUEL} permission.
+     */
+    public static final int SENSOR_TYPE_EV_BATTERY_LEVEL            = 28;
+    /**
+     * Set to true if EV charging port is open.
+     */
+    public static final int SENSOR_TYPE_EV_CHARGE_PORT_OPEN         = 29;
+    /**
+     * Set to true if EV charging port is connected.
+     */
+    public static final int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED    = 30;
+    /**
+     *  Indicates the instantaneous battery charging rate in mW.
+     *  This requires {@link Car#PERMISSION_FUEL} permission.
+     */
+    public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE      = 31;
 
     /**
      * Sensor type bigger than this is invalid. Always update this after adding a new sensor.
      * @hide
      */
-    private static final int SENSOR_TYPE_MAX = SENSOR_TYPE_TRACTION_CONTROL_ACTIVE;
+    private static final int SENSOR_TYPE_MAX = SENSOR_TYPE_EV_BATTERY_CHARGE_RATE;
 
     /**
      * Sensors defined in this range [{@link #SENSOR_TYPE_VENDOR_EXTENSION_START},
@@ -183,6 +209,12 @@ public final class CarSensorManager implements CarManagerBase {
         SENSOR_TYPE_WHEEL_TICK_DISTANCE,
         SENSOR_TYPE_ABS_ACTIVE,
         SENSOR_TYPE_TRACTION_CONTROL_ACTIVE,
+        SENSOR_TYPE_ENGINE_ON,
+        SENSOR_TYPE_FUEL_DOOR_OPEN,
+        SENSOR_TYPE_EV_BATTERY_LEVEL,
+        SENSOR_TYPE_EV_CHARGE_PORT_OPEN,
+        SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED,
+        SENSOR_TYPE_EV_BATTERY_CHARGE_RATE,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface SensorType {}
@@ -315,7 +347,8 @@ public final class CarSensorManager implements CarManagerBase {
      * Requires {@link Car#PERMISSION_SPEED} for {@link #SENSOR_TYPE_CAR_SPEED} and
      *  {@link #SENSOR_TYPE_WHEEL_TICK_DISTANCE}, {@link Car#PERMISSION_MILEAGE} for
      *  {@link #SENSOR_TYPE_ODOMETER}, {@link Car#PERMISSION_FUEL} for
-     *  {@link #SENSOR_TYPE_FUEL_LEVEL}, or {@link Car#PERMISSION_VEHICLE_DYNAMICS_STATE} for
+     *  {@link #SENSOR_TYPE_FUEL_LEVEL} and (@link #SENSOR_TYPE_EV_BATTERY_LEVEL and
+     *  {@link #SENSOR_TYPE_EV_CHARGE_RATE}, {@link Car#PERMISSION_VEHICLE_DYNAMICS_STATE} for
      *  {@link #SENSOR_TYPE_ABS_ACTIVE} and {@link #SENSOR_TYPE_TRACTION_CONTROL_ACTIVE}
      *
      * @param listener
