@@ -24,6 +24,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.car.CarNotConnectedException;
+import android.support.car.hardware.CarSensorConfig;
 import android.support.car.hardware.CarSensorEvent;
 import android.support.car.hardware.CarSensorManager;
 import android.support.v4.app.Fragment;
@@ -284,6 +285,19 @@ public class SensorsTestFragment extends Fragment {
                             summary.add(getContext().getString(R.string.sensor_wheel_ticks,
                                 getTimestamp(event), mNaString, mNaString, mNaString, mNaString,
                                 mNaString));
+                        }
+                        // Get the config data
+                        try {
+                            CarSensorConfig c = mSensorManager.getSensorConfig(
+                                CarSensorManager.SENSOR_TYPE_WHEEL_TICK_DISTANCE);
+                            summary.add(getContext().getString(R.string.sensor_wheel_ticks_cfg,
+                                c.getInt(CarSensorConfig.WHEEL_TICK_DISTANCE_SUPPORTED_WHEELS),
+                                c.getInt(CarSensorConfig.WHEEL_TICK_DISTANCE_FRONT_LEFT_UM_PER_TICK),
+                                c.getInt(CarSensorConfig.WHEEL_TICK_DISTANCE_FRONT_RIGHT_UM_PER_TICK),
+                                c.getInt(CarSensorConfig.WHEEL_TICK_DISTANCE_REAR_LEFT_UM_PER_TICK),
+                                c.getInt(CarSensorConfig.WHEEL_TICK_DISTANCE_REAR_RIGHT_UM_PER_TICK)));
+                        } catch (CarNotConnectedException e) {
+                            Log.e(TAG, "Car not connected or not supported", e);
                         }
                         break;
                     case CarSensorManager.SENSOR_TYPE_ABS_ACTIVE:
