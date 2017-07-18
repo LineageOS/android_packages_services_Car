@@ -19,7 +19,7 @@
 #include <hardware/hardware.h>
 #include <hardware/vehicle_camera.h>
 #include <jni.h>
-#include <JNIHelp.h>
+#include <nativehelper/JNIHelp.h>
 #include <system/window.h>
 
 namespace android {

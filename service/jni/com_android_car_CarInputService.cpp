@@ -21,7 +21,7 @@
 #include <sys/time.h>
 #include <linux/input.h>
 #include <jni.h>
-#include <JNIHelp.h>
+#include <nativehelper/JNIHelp.h>
 #include <android/keycodes.h>
 #include <cutils/log.h>
 #include <utils/Errors.h>
