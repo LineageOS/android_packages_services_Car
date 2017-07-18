@@ -72,7 +72,6 @@ public class ICarImpl extends ICar.Stub {
     private final CarVendorExtensionService mCarVendorExtensionService;
     private final CarBluetoothService mCarBluetoothService;
     private final PerUserCarServiceHelper mPerUserCarServiceHelper;
-    @FutureFeature
     private CarDiagnosticService mCarDiagnosticService;
     @FutureFeature
     private VmsSubscriberService mVmsSubscriberService;
@@ -290,7 +289,6 @@ public class ICarImpl extends ICar.Stub {
         assertPermission(context, Car.PERMISSION_VENDOR_EXTENSION);
     }
 
-    @FutureFeature
     public static void assertAnyDiagnosticPermission(Context context) {
         assertAnyPermission(context,
                 Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
