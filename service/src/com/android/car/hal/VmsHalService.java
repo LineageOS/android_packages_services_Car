@@ -32,6 +32,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_1.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_1.VmsMessageType;
+import android.hardware.automotive.vehicle.V2_1.VmsDataMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_1.VmsOfferingMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_1.VmsSimpleMessageIntegerValuesIndex;
 import android.os.Binder;
@@ -100,10 +101,10 @@ public class VmsHalService extends HalServiceBase {
      * The VmsSubscriberService implements this interface to receive data from the HAL.
      */
     public interface VmsHalSubscriberListener {
-        // Notify listener on a data Message.
-        void onDataMessage(VmsLayer layer, byte[] payload);
+        // Notifies the listener on a data Message from a publisher.
+        void onDataMessage(VmsLayer layer, int publisherId, byte[] payload);
 
-        // Notify listener on a change in available layers.
+        // Notifies the listener on a change in available layers.
         void onLayersAvaiabilityChange(List<VmsAssociatedLayer> availableLayers);
     }
 
@@ -178,21 +179,22 @@ public class VmsHalService extends HalServiceBase {
         }
     }
 
-    public void removeDeadListener(IVmsSubscriberClient listener) {
+    public void removeDeadSubscriber(IVmsSubscriberClient listener) {
         synchronized (mLock) {
-            mRouting.removeDeadListener(listener);
+            mRouting.removeDeadSubscriber(listener);
         }
     }
 
-    public Set<IVmsSubscriberClient> getListeners(VmsLayer layer) {
+    public Set<IVmsSubscriberClient> getSubscribersForLayerFromPublisher(VmsLayer layer,
+                                                                         int publisherId) {
         synchronized (mLock) {
-            return mRouting.getListeners(layer);
+            return mRouting.getSubscribersForLayerFromPublisher(layer, publisherId);
         }
     }
 
-    public Set<IVmsSubscriberClient> getAllListeners() {
+    public Set<IVmsSubscriberClient> getAllSubscribers() {
         synchronized (mLock) {
-            return mRouting.getAllListeners();
+            return mRouting.getAllSubscribers();
         }
     }
 
@@ -265,9 +267,9 @@ public class VmsHalService extends HalServiceBase {
         }
     }
 
-    public boolean containsListener(IVmsSubscriberClient listener) {
+    public boolean containsSubscriber(IVmsSubscriberClient subscriber) {
         synchronized (mLock) {
-            return mRouting.containsListener(listener);
+            return mRouting.containsSubscriber(subscriber);
         }
     }
 
@@ -409,25 +411,36 @@ public class VmsHalService extends HalServiceBase {
                 integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_SUB_TYPE));
     }
 
+    private VmsLayer parseVmsLayerFromDataMessageIntegerValues(List<Integer> integerValues) {
+        return parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
+    }
+
+    private int parsePublisherIdFromDataMessageIntegerValues(List<Integer> integerValues) {
+        return integerValues.get(VmsDataMessageIntegerValuesIndex.VMS_PUBLISHER_ID);
+    }
+
+
     /**
      * Data message format:
      * <ul>
      * <li>Message type.
      * <li>Layer id.
      * <li>Layer version.
+     * <li>Layer subtype.
+     * <li>Publisher ID.
      * <li>Payload.
      * </ul>
      */
     private void handleDataEvent(List<Integer> integerValues, byte[] payload) {
-        VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
+        VmsLayer vmsLayer = parseVmsLayerFromDataMessageIntegerValues(integerValues);
+        int publisherId = parsePublisherIdFromDataMessageIntegerValues(integerValues);
         if (DBG) {
-            Log.d(TAG,
-                    "Handling a data event for Layer: " + vmsLayer);
+            Log.d(TAG, "Handling a data event for Layer: " + vmsLayer);
         }
 
         // Send the message.
         for (VmsHalSubscriberListener listener : mSubscriberListeners) {
-            listener.onDataMessage(vmsLayer, payload);
+            listener.onDataMessage(vmsLayer, publisherId, payload);
         }
     }
 
@@ -442,8 +455,7 @@ public class VmsHalService extends HalServiceBase {
     private void handleSubscribeEvent(List<Integer> integerValues) {
         VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
         if (DBG) {
-            Log.d(TAG,
-                    "Handling a subscribe event for Layer: " + vmsLayer);
+            Log.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer);
         }
         addHalSubscription(vmsLayer);
     }
@@ -459,8 +471,7 @@ public class VmsHalService extends HalServiceBase {
     private void handleUnsubscribeEvent(List<Integer> integerValues) {
         VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
         if (DBG) {
-            Log.d(TAG,
-                    "Handling an unsubscribe event for Layer: " + vmsLayer);
+            Log.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer);
         }
         removeHalSubscription(vmsLayer);
     }
@@ -491,7 +502,8 @@ public class VmsHalService extends HalServiceBase {
     private void handleOfferingEvent(List<Integer> integerValues) {
         int publisherId = integerValues.get(VmsOfferingMessageIntegerValuesIndex.PUBLISHER_ID);
         int numLayersDependencies =
-                integerValues.get(VmsOfferingMessageIntegerValuesIndex.VMS_NUMBER_OF_LAYERS_DEPENDENCIES);
+                integerValues.get(
+                        VmsOfferingMessageIntegerValuesIndex.VMS_NUMBER_OF_LAYERS_DEPENDENCIES);
         int idx = VmsOfferingMessageIntegerValuesIndex.FIRST_DEPENDENCIES_INDEX;
 
         List<VmsLayerDependency> offeredLayers = new ArrayList<>();

@@ -129,6 +129,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
         v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
         v.value.int32Values.add(MOCK_PUBLISHER_LAYER_SUB_TYPE);
+        v.value.int32Values.add(PUBLISHER_ID);
         v.value.bytes.add((byte) 0xa);
         v.value.bytes.add((byte) 0xb);
         assertEquals(0, mSubscriberSemaphore.availablePermits());
@@ -159,6 +160,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
         v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
         v.value.int32Values.add(MOCK_PUBLISHER_LAYER_SUB_TYPE);
+        v.value.int32Values.add(PUBLISHER_ID);
         v.value.bytes.add((byte) 0xa);
         v.value.bytes.add((byte) 0xb);
         assertEquals(0, mSubscriberSemaphore.availablePermits());
