@@ -44,6 +44,10 @@
     <string name="car_permission_label_speed">Car speed</string>
     <!-- Permission text: can access your car's speed [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_speed">Access your car\'s speed.</string>
+    <!-- Permission text: can access your car's dynamics state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_vehicle_dynamics_state">Vehicle dynamics state</string>
+    <!-- Permission text: can access your car's dynamic state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_vehicle_dynamics_state">Access your car\'s dynamics state</string>
     <!-- Permission text: apps can access car-manufacturer specific data [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_vendor_extension">Car vendor channel</string>
     <!-- Permission text: apps can access car-manufacturer specific data [CHAR LIMIT=NONE] -->

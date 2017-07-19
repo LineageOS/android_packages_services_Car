@@ -61,6 +61,12 @@
         android:label="@string/car_permission_label_speed"
         android:description="@string/car_permission_desc_speed" />
     <permission
+        android:name="android.car.permission.VEHICLE_DYNAMICS_STATE"
+        android:permissionGroup="android.permission-group.CAR_INFORMATION"
+        android:protectionLevel="dangerous"
+        android:label="@string/car_permission_label_vehicle_dynamics_state"
+        android:description="@string/car_permission_desc_vehicle_dynamics_state" />
+    <permission
         android:name="android.car.permission.CAR_VENDOR_EXTENSION"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_vendor_extension"

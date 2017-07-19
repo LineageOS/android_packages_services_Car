@@ -58,7 +58,8 @@ public class SensorsTestFragment extends Fragment {
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Car.PERMISSION_MILEAGE,
         Car.PERMISSION_FUEL,
-        Car.PERMISSION_SPEED
+        Car.PERMISSION_SPEED,
+        Car.PERMISSION_VEHICLE_DYNAMICS_STATE
     };
 
     private final CarSensorManager.OnSensorChangedListener mOnSensorChangedListener =
@@ -270,6 +271,32 @@ public class SensorsTestFragment extends Fragment {
                         break;
                     case CarSensorManager.SENSOR_TYPE_GYROSCOPE:
                         summary.add(getGyroscopeString(event));
+                        break;
+                    case CarSensorManager.SENSOR_TYPE_WHEEL_TICK_DISTANCE:
+                        if(event != null) {
+                            CarSensorEvent.CarWheelTickDistanceData d =
+                                event.getCarWheelTickDistanceData();
+                            summary.add(getContext().getString(R.string.sensor_wheel_ticks,
+                                getTimestamp(event), d.sensorResetCount, d.frontLeftWheelDistanceMm,
+                                d.frontRightWheelDistanceMm, d.rearLeftWheelDistanceMm,
+                                d.rearRightWheelDistanceMm));
+                        } else {
+                            summary.add(getContext().getString(R.string.sensor_wheel_ticks,
+                                getTimestamp(event), mNaString, mNaString, mNaString, mNaString,
+                                mNaString));
+                        }
+                        break;
+                    case CarSensorManager.SENSOR_TYPE_ABS_ACTIVE:
+                        summary.add(getContext().getString(R.string.sensor_abs_is_active,
+                            getTimestamp(event), event == null ? mNaString :
+                            event.getCarAbsActiveData().absIsActive));
+                        break;
+
+                    case CarSensorManager.SENSOR_TYPE_TRACTION_CONTROL_ACTIVE:
+                        summary.add(
+                            getContext().getString(R.string.sensor_traction_control_is_active,
+                            getTimestamp(event), event == null ? mNaString :
+                            event.getCarTractionControlActiveData().tractionControlIsActive));
                         break;
                     default:
                         // Should never happen.

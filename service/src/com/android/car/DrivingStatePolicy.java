@@ -204,7 +204,8 @@ public class DrivingStatePolicy extends CarSensorService.LogicalSensor {
                 CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
                 timestamp,
                 0 /* float values */,
-                1 /* int values */);
+                1 /* int values */,
+                0 /* long values */);
         event.intValues[0] = drivingState;
         return event;
     }

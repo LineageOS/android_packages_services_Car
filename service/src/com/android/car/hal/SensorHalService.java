@@ -25,7 +25,7 @@ import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
@@ -66,7 +66,12 @@ public class SensorHalService extends SensorHalServiceBase {
                     CarSensorManager.SENSOR_TYPE_PARKING_BRAKE, VehicleProperty.PARKING_BRAKE_ON,
                     CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, VehicleProperty.DRIVING_STATUS,
                     CarSensorManager.SENSOR_TYPE_FUEL_LEVEL, VehicleProperty.FUEL_LEVEL_LOW,
-                    CarSensorManager.SENSOR_TYPE_IGNITION_STATE, VehicleProperty.IGNITION_STATE);
+                    CarSensorManager.SENSOR_TYPE_IGNITION_STATE, VehicleProperty.IGNITION_STATE,
+                    CarSensorManager.SENSOR_TYPE_WHEEL_TICK_DISTANCE, VehicleProperty.WHEEL_TICK,
+                    CarSensorManager.SENSOR_TYPE_ABS_ACTIVE, VehicleProperty.ABS_ACTIVE,
+                    CarSensorManager.SENSOR_TYPE_TRACTION_CONTROL_ACTIVE,
+                        VehicleProperty.TRACTION_CONTROL_ACTIVE
+                );
 
     private final static SparseIntArray mMgrGearToHalMap = initSparseIntArray(
             VehicleGear.GEAR_NEUTRAL, CarSensorEvent.GEAR_NEUTRAL,
@@ -92,6 +97,24 @@ public class SensorHalService extends SensorHalServiceBase {
             VehicleIgnitionState.START, CarSensorEvent.IGNITION_STATE_START);
 
     private SensorListener mSensorListener;
+
+    private int[] mMicrometersPerWheelTick = {0, 0, 0, 0};
+
+    @Override
+    public void init() {
+        // Populate internal values if available
+        VehiclePropConfig config = mSensorToPropConfig.get(
+            CarSensorManager.SENSOR_TYPE_WHEEL_TICK_DISTANCE);
+        if (config == null) {
+            Log.e(TAG, "init:  unable to get property config for SENSOR_TYPE_WHEEL_TICK_DISTANCE");
+        } else {
+            for (int i=0; i<4; i++) {
+                // ConfigArray starts with Wheels enum at idx 0
+                mMicrometersPerWheelTick[i] = config.configArray.get(i+1);
+            }
+        }
+        super.init();
+    }
 
     public SensorHalService(VehicleHal hal) {
         super(hal);
@@ -156,27 +179,45 @@ public class SensorHalService extends SensorHalServiceBase {
         if (sensorType == SENSOR_TYPE_INVALID) {
             throw new RuntimeException("no sensor defined for property 0x" + toHexString(property));
         }
-
+        // Handle the valid sensor
         int dataType = property & VehiclePropertyType.MASK;
-
         CarSensorEvent event = null;
         switch (dataType) {
             case VehiclePropertyType.BOOLEAN:
                 event = CarSensorEventFactory.createBooleanEvent(sensorType, v.timestamp,
-                        v.value.int32Values.get(0) == 1);
+                    v.value.int32Values.get(0) == 1);
+                break;
+            case VehiclePropertyType.COMPLEX:
+                event = CarSensorEventFactory.createComplexEvent(sensorType, v.timestamp, v);
                 break;
             case VehiclePropertyType.INT32:
                 Integer mgrVal = mapHalEnumValueToMgr(property, v.value.int32Values.get(0));
                 event =  mgrVal == null ? null
-                        : CarSensorEventFactory.createIntEvent(sensorType, v.timestamp, mgrVal);
+                    : CarSensorEventFactory.createIntEvent(sensorType, v.timestamp, mgrVal);
                 break;
-            case VehiclePropertyType.FLOAT: {
+            case VehiclePropertyType.FLOAT:
                 event = CarSensorEventFactory.createFloatEvent(sensorType, v.timestamp,
-                        v.value.floatValues.get(0));
+                    v.value.floatValues.get(0));
                 break;
-            }
             default:
                 Log.w(TAG, "createCarSensorEvent: unsupported type: 0x" + toHexString(dataType));
+                break;
+        }
+        // Perform property specific actions
+        switch (property) {
+            case VehicleProperty.WHEEL_TICK:
+                // Apply the um/tick scaling factor, then divide by 1000 to generate mm
+                for (int i = 0; i < 4; i++) {
+                    // ResetCounts is at longValues[0]
+                    if (event.longValues[i + CarSensorEvent.INDEX_WHEEL_DISTANCE_FRONT_LEFT] !=
+                        Long.MAX_VALUE) {
+                        event.longValues[i + CarSensorEvent.INDEX_WHEEL_DISTANCE_FRONT_LEFT] *=
+                            mMicrometersPerWheelTick[i];
+                        event.longValues[i + CarSensorEvent.INDEX_WHEEL_DISTANCE_FRONT_LEFT] /=
+                            1000;
+                    }
+                }
+                break;
         }
         if (DBG_EVENTS) Log.i(TAG, "Sensor event created: " + event);
         return event;
@@ -224,6 +265,9 @@ public class SensorHalService extends SensorHalServiceBase {
         writer.println("**Supported properties**");
         for (int i = 0; i < mSensorToPropConfig.size(); i++) {
             writer.println(mSensorToPropConfig.valueAt(i).toString());
+        }
+        for (int i = 0; i < mMicrometersPerWheelTick.length; i++) {
+            writer.println("mMicrometersPerWheelTick[" + i + "] = " + mMicrometersPerWheelTick[i]);
         }
     }
 
