@@ -537,6 +537,10 @@ public class BluetoothDevicesInfo {
         return mConnectionInfo.mNumActiveConnections;
     }
 
+    public void resetDeviceIndex() {
+        mConnectionInfo.mDeviceIndex = 0;
+    }
+
     /**
      * Reset the connection related bookkeeping information.
      * Called on a BluetoothAdapter Off to clean slate
