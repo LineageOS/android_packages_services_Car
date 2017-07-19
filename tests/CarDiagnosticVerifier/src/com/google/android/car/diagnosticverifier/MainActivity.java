@@ -30,6 +30,8 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.JsonWriter;
 import android.util.Log;
 import android.widget.TextView;
@@ -41,6 +43,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -77,6 +80,8 @@ public class MainActivity extends Activity {
     private BroadcastReceiver mBroadcastReceiver;
     private DiagnosticVerifier mVerifier;
     private TextView mStatusBar;
+    private RecyclerView mRecyclerView;
+    private VerificationResultAdapter mResultAdapter;
     private boolean mListening = false;
 
     private final ServiceConnection mCarConnectionListener =
@@ -136,19 +141,29 @@ public class MainActivity extends Activity {
 
         mStatusBar = (TextView) findViewById(R.id.status_bar);
 
+        //Setting up RecyclerView to show verification result messages
+        mRecyclerView = (RecyclerView) findViewById(R.id.verification_results);
+        LinearLayoutManager layoutManager =
+                new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mResultAdapter = new VerificationResultAdapter();
+        mRecyclerView.setAdapter(mResultAdapter);
+
+        //Connect to car service
         mCar = Car.createCar(this, mCarConnectionListener);
         mCar.connect();
 
+        //Initialize broadcast intent receiver
         mBroadcastReceiver = new VerifierMsgReceiver();
         IntentFilter filter = new IntentFilter(ACTION_START_LISTEN);
         filter.addAction(ACTION_STOP_LISTEN);
         this.registerReceiver(mBroadcastReceiver, filter);
 
+        //Read golden diagnostics JSON file
         String jsonPath = this.getIntent().getStringExtra(JSON_PATH_KEY);
         if (jsonPath == null || jsonPath.isEmpty()) {
             jsonPath = DEFAULT_JSON_PATH;
         }
-
         List<CarDiagnosticEvent> events;
         try {
             events = DiagnosticJsonConverter.readFromJson(new FileInputStream(jsonPath));
@@ -225,10 +240,7 @@ public class MainActivity extends Activity {
             return;
         }
 
-        //TODO: Use a scrollable view
-        TextView resultView = (TextView) findViewById(R.id.results);
-        resultView.setText("");
-
+        List<String> resultMessages = new ArrayList<>();
         try {
             File resultJson = getResultJsonFile();
             JsonWriter writer = new JsonWriter(
@@ -236,10 +248,9 @@ public class MainActivity extends Activity {
 
             writer.beginArray();
             for (VerificationResult result : results) {
-                resultView.append("Test case: " + result.testCase + "\n");
-                resultView.append("Result: " + result.success + "\n");
-                resultView.append(result.errorMessage);
-                resultView.append("\n");
+                resultMessages.add("Test case: " + result.testCase);
+                resultMessages.add("Result: " + result.success);
+                resultMessages.add(result.errorMessage);
                 result.writeToJson(writer);
             }
             writer.endArray();
@@ -249,6 +260,7 @@ public class MainActivity extends Activity {
         } catch (IOException e) {
             Log.e(TAG, "Failed to save verification result.", e);
         }
+        mResultAdapter.setResultMessages(resultMessages);
     }
 }
 
