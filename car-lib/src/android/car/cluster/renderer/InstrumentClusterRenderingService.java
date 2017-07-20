@@ -137,6 +137,8 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *        see {@link android.car.cluster.ClusterActivityState}
      * @return true if information was sent to Car Service
      * @throws CarNotConnectedException
+     *
+     * @hide
      */
     public void setClusterActivityState(String category, Bundle state)
             throws CarNotConnectedException {
