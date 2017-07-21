@@ -293,7 +293,6 @@ package android.car.cluster.renderer {
     method protected abstract android.car.cluster.renderer.NavigationRenderer getNavigationRenderer();
     method public android.os.IBinder onBind(android.content.Intent);
     method protected void onKeyEvent(android.view.KeyEvent);
-    method public void setClusterActivityState(java.lang.String, android.os.Bundle) throws android.car.CarNotConnectedException;
   }
 
   public abstract class NavigationRenderer {
