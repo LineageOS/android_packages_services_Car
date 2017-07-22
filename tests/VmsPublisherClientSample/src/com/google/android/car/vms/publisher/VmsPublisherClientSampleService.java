@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class VmsPublisherClientSampleService extends VmsPublisherClientService {
     public static final int PUBLISH_EVENT = 0;
     public static final VmsLayer TEST_LAYER = new VmsLayer(0, 0, 0);
+    public static final int PUBLISHER_ID = 1;
 
     private byte mCounter = 0;
     private AtomicBoolean mInitialized = new AtomicBoolean(false);
@@ -73,7 +74,7 @@ public class VmsPublisherClientSampleService extends VmsPublisherClientService {
     }
 
     private void periodicPublish() {
-        publish(TEST_LAYER, new byte[]{mCounter});
+        publish(TEST_LAYER, PUBLISHER_ID, new byte[]{mCounter});
         ++mCounter;
         mHandler.sendEmptyMessageDelayed(PUBLISH_EVENT, 1000);
     }

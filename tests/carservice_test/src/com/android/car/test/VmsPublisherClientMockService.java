@@ -61,7 +61,9 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
     private void publishIfNeeded(VmsSubscriptionState subscriptionState) {
         for (VmsLayer layer : subscriptionState.getSubscribedLayersFromAll()) {
             if (layer.equals(VmsPublisherSubscriberTest.LAYER)) {
-                publish(VmsPublisherSubscriberTest.LAYER, VmsPublisherSubscriberTest.PAYLOAD);
+                publish(VmsPublisherSubscriberTest.LAYER,
+                        VmsPublisherSubscriberTest.EXPECTED_PUBLISHER_ID,
+                        VmsPublisherSubscriberTest.PAYLOAD);
             }
         }
     }
