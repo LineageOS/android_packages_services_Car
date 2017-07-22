@@ -47,9 +47,10 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     private static final int LAYER_ID = 88;
     private static final int LAYER_VERSION = 19;
     private static final int LAYER_SUB_TYPE = 55;
-    private static final int EXPECTED_PUBLISHER_ID = 0;
     private static final String TAG = "VmsPubSubTest";
 
+    // The expected publisher ID is 0 since it the expected assigned ID from the VMS core.
+    public static final int EXPECTED_PUBLISHER_ID = 0;
     public static final VmsLayer LAYER = new VmsLayer(LAYER_ID, LAYER_VERSION, LAYER_SUB_TYPE);
     public static final VmsAssociatedLayer ASSOCIATED_LAYER =
             new VmsAssociatedLayer(LAYER, new HashSet<>(Arrays.asList(EXPECTED_PUBLISHER_ID)));

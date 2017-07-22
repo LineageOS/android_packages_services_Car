@@ -57,24 +57,24 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     private final Object mSubscriberServiceLock = new Object();
 
     /**
-     * Keeps track of listeners of this service.
+     * Keeps track of subscribers of this service.
      */
     class VmsListenerManager {
         /**
-         * Allows to modify mListenerMap and mListenerDeathRecipientMap as a single unit.
+         * Allows to modify mSubscriberMap and mListenerDeathRecipientMap as a single unit.
          */
         private final Object mListenerManagerLock = new Object();
         @GuardedBy("mListenerManagerLock")
         private final Map<IBinder, ListenerDeathRecipient> mListenerDeathRecipientMap =
                 new HashMap<>();
         @GuardedBy("mListenerManagerLock")
-        private final Map<IBinder, IVmsSubscriberClient> mListenerMap = new HashMap<>();
+        private final Map<IBinder, IVmsSubscriberClient> mSubscriberMap = new HashMap<>();
 
         class ListenerDeathRecipient implements IBinder.DeathRecipient {
-            private IBinder mListenerBinder;
+            private IBinder mSubscriberBinder;
 
-            ListenerDeathRecipient(IBinder listenerBinder) {
-                mListenerBinder = listenerBinder;
+            ListenerDeathRecipient(IBinder subscriberBinder) {
+                mSubscriberBinder = subscriberBinder;
             }
 
             /**
@@ -83,27 +83,27 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
             @Override
             public void binderDied() {
                 if (DBG) {
-                    Log.d(TAG, "binderDied " + mListenerBinder);
+                    Log.d(TAG, "binderDied " + mSubscriberBinder);
                 }
 
                 // Get the Listener from the Binder
-                IVmsSubscriberClient listener = mListenerMap.get(mListenerBinder);
+                IVmsSubscriberClient subscriber = mSubscriberMap.get(mSubscriberBinder);
 
-                // Remove the listener subscriptions.
-                if (listener != null) {
-                    Log.d(TAG, "Removing subscriptions for dead listener: " + listener);
-                    mHal.removeDeadListener(listener);
+                // Remove the subscriber subscriptions.
+                if (subscriber != null) {
+                    Log.d(TAG, "Removing subscriptions for dead subscriber: " + subscriber);
+                    mHal.removeDeadSubscriber(subscriber);
                 } else {
-                    Log.d(TAG, "Handling dead binder with no matching listener");
+                    Log.d(TAG, "Handling dead binder with no matching subscriber");
 
                 }
 
                 // Remove binder
-                VmsListenerManager.this.removeListener(mListenerBinder);
+                VmsListenerManager.this.removeListener(mSubscriberBinder);
             }
 
             void release() {
-                mListenerBinder.unlinkToDeath(this, 0);
+                mSubscriberBinder.unlinkToDeath(this, 0);
             }
         }
 
@@ -112,85 +112,86 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
                 recipient.release();
             }
             mListenerDeathRecipientMap.clear();
-            mListenerMap.clear();
+            mSubscriberMap.clear();
         }
 
         /**
-         * Adds the listener and a death recipient associated to it.
+         * Adds the subscriber and a death recipient associated to it.
          *
-         * @param listener to be added.
-         * @throws IllegalArgumentException if the listener is null.
+         * @param subscriber to be added.
+         * @throws IllegalArgumentException if the subscriber is null.
          * @throws IllegalStateException    if it was not possible to link a death recipient to the
-         *                                  listener.
+         *                                  subscriber.
          */
-        public void add(IVmsSubscriberClient listener) {
+        public void add(IVmsSubscriberClient subscriber) {
             ICarImpl.assertPermission(mContext, PERMISSION);
-            if (listener == null) {
-                Log.e(TAG, "register: listener is null.");
-                throw new IllegalArgumentException("listener cannot be null.");
+            if (subscriber == null) {
+                Log.e(TAG, "register: subscriber is null.");
+                throw new IllegalArgumentException("subscriber cannot be null.");
             }
             if (DBG) {
-                Log.d(TAG, "register: " + listener);
+                Log.d(TAG, "register: " + subscriber);
             }
-            IBinder listenerBinder = listener.asBinder();
+            IBinder subscriberBinder = subscriber.asBinder();
             synchronized (mListenerManagerLock) {
-                if (mListenerMap.containsKey(listenerBinder)) {
+                if (mSubscriberMap.containsKey(subscriberBinder)) {
                     // Already registered, nothing to do.
                     return;
                 }
-                ListenerDeathRecipient deathRecipient = new ListenerDeathRecipient(listenerBinder);
+                ListenerDeathRecipient deathRecipient =
+                        new ListenerDeathRecipient(subscriberBinder);
                 try {
-                    listenerBinder.linkToDeath(deathRecipient, 0);
+                    subscriberBinder.linkToDeath(deathRecipient, 0);
                 } catch (RemoteException e) {
                     Log.e(TAG, "Failed to link death for recipient. ", e);
                     throw new IllegalStateException(Car.CAR_NOT_CONNECTED_EXCEPTION_MSG);
                 }
-                mListenerDeathRecipientMap.put(listenerBinder, deathRecipient);
-                mListenerMap.put(listenerBinder, listener);
+                mListenerDeathRecipientMap.put(subscriberBinder, deathRecipient);
+                mSubscriberMap.put(subscriberBinder, subscriber);
             }
         }
 
         /**
-         * Removes the listener and associated death recipient.
+         * Removes the subscriber and associated death recipient.
          *
-         * @param listener to be removed.
-         * @throws IllegalArgumentException if listener is null.
+         * @param subscriber to be removed.
+         * @throws IllegalArgumentException if subscriber is null.
          */
-        public void remove(IVmsSubscriberClient listener) {
+        public void remove(IVmsSubscriberClient subscriber) {
             if (DBG) {
                 Log.d(TAG, "unregisterListener");
             }
             ICarImpl.assertPermission(mContext, PERMISSION);
-            if (listener == null) {
-                Log.e(TAG, "unregister: listener is null.");
+            if (subscriber == null) {
+                Log.e(TAG, "unregister: subscriber is null.");
                 throw new IllegalArgumentException("Listener is null");
             }
-            IBinder listenerBinder = listener.asBinder();
-            removeListener(listenerBinder);
+            IBinder subscriberBinder = subscriber.asBinder();
+            removeListener(subscriberBinder);
         }
 
-        // Removes the listenerBinder from the current state.
-        // The function assumes that binder will exist both in listeners and death recipients list.
-        private void removeListener(IBinder listenerBinder) {
+        // Removes the subscriberBinder from the current state.
+        // The function assumes that binder will exist both in subscriber and death recipients list.
+        private void removeListener(IBinder subscriberBinder) {
             synchronized (mListenerManagerLock) {
-                boolean found = mListenerMap.remove(listenerBinder) != null;
+                boolean found = mSubscriberMap.remove(subscriberBinder) != null;
                 if (found) {
-                    mListenerDeathRecipientMap.get(listenerBinder).release();
-                    mListenerDeathRecipientMap.remove(listenerBinder);
+                    mListenerDeathRecipientMap.get(subscriberBinder).release();
+                    mListenerDeathRecipientMap.remove(subscriberBinder);
                 } else {
-                    Log.e(TAG, "removeListener: listener was not previously registered.");
+                    Log.e(TAG, "removeListener: subscriber was not previously registered.");
                 }
             }
         }
 
         /**
-         * Returns list of listeners currently registered.
+         * Returns list of subscribers currently registered.
          *
-         * @return list of listeners.
+         * @return list of subscribers.
          */
         public List<IVmsSubscriberClient> getListeners() {
             synchronized (mListenerManagerLock) {
-                return new ArrayList<>(mListenerMap.values());
+                return new ArrayList<>(mSubscriberMap.values());
             }
         }
     }
@@ -218,46 +219,46 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     // Implements IVmsService interface.
     @Override
-    public void addVmsSubscriberClientListener(IVmsSubscriberClient listener, VmsLayer layer) {
+    public void addVmsSubscriberClientListener(IVmsSubscriberClient subscriber, VmsLayer layer) {
         synchronized (mSubscriberServiceLock) {
-            // Add the listener so it can subscribe.
-            mMessageReceivedManager.add(listener);
+            // Add the subscriber so it can subscribe.
+            mMessageReceivedManager.add(subscriber);
 
             // Add the subscription for the layer.
-            mHal.addSubscription(listener, layer);
+            mHal.addSubscription(subscriber, layer);
         }
     }
 
     @Override
-    public void removeVmsSubscriberClientListener(IVmsSubscriberClient listener, VmsLayer layer) {
+    public void removeVmsSubscriberClientListener(IVmsSubscriberClient subscriber, VmsLayer layer) {
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
-            mHal.removeSubscription(listener, layer);
+            mHal.removeSubscription(subscriber, layer);
 
-            // Remove the listener if it has no more subscriptions.
-            if (!mHal.containsListener(listener)) {
-                mMessageReceivedManager.remove(listener);
+            // Remove the subscriber if it has no more subscriptions.
+            if (!mHal.containsSubscriber(subscriber)) {
+                mMessageReceivedManager.remove(subscriber);
             }
         }
     }
 
     @Override
-    public void addVmsSubscriberClientPassiveListener(IVmsSubscriberClient listener) {
+    public void addVmsSubscriberClientPassiveListener(IVmsSubscriberClient subscriber) {
         synchronized (mSubscriberServiceLock) {
-            mMessageReceivedManager.add(listener);
-            mHal.addSubscription(listener);
+            mMessageReceivedManager.add(subscriber);
+            mHal.addSubscription(subscriber);
         }
     }
 
     @Override
-    public void removeVmsSubscriberClientPassiveListener(IVmsSubscriberClient listener) {
+    public void removeVmsSubscriberClientPassiveListener(IVmsSubscriberClient subscriber) {
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
-            mHal.removeSubscription(listener);
+            mHal.removeSubscription(subscriber);
 
-            // Remove the listener if it has no more subscriptions.
-            if (!mHal.containsListener(listener)) {
-                mMessageReceivedManager.remove(listener);
+            // Remove the subscriber if it has no more subscriptions.
+            if (!mHal.containsSubscriber(subscriber)) {
+                mMessageReceivedManager.remove(subscriber);
             }
         }
     }
@@ -277,14 +278,15 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     // Implements VmsHalSubscriberListener interface
     @Override
-    public void onDataMessage(VmsLayer layer, byte[] payload) {
+    public void onDataMessage(VmsLayer layer, int publisherId, byte[] payload) {
         if(DBG) {
             Log.d(TAG, "Publishing a message for layer: " + layer);
         }
 
-        Set<IVmsSubscriberClient> listeners = mHal.getListeners(layer);
+        Set<IVmsSubscriberClient> subscribers =
+                mHal.getSubscribersForLayerFromPublisher(layer, publisherId);
 
-        for (IVmsSubscriberClient subscriber : listeners) {
+        for (IVmsSubscriberClient subscriber : subscribers) {
             try {
                 subscriber.onVmsMessageReceived(layer, payload);
             } catch (RemoteException e) {
@@ -301,9 +303,9 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
             Log.d(TAG, "Publishing layers availability change: " + availableLayers);
         }
 
-        Set<IVmsSubscriberClient> listeners = mHal.getAllListeners();
+        Set<IVmsSubscriberClient> subscribers = mHal.getAllSubscribers();
 
-        for (IVmsSubscriberClient subscriber : listeners) {
+        for (IVmsSubscriberClient subscriber : subscribers) {
             try {
                 subscriber.onLayersAvailabilityChange(availableLayers);
             } catch (RemoteException e) {

@@ -99,9 +99,11 @@ public abstract class VmsPublisherClientService extends Service {
      *
      * @param layer   the layer to publish to.
      * @param payload the message to be sent.
+     * @param publisherId the ID that got assigned to the publisher that published the message by
+     *                    VMS core.
      * @return if the call to the method VmsPublisherService.publish was successful.
      */
-    public final boolean publish(VmsLayer layer, byte[] payload) {
+    public final boolean publish(VmsLayer layer, int publisherId, byte[] payload) {
         if (DBG) {
             Log.d(TAG, "Publishing for layer : " + layer);
         }
@@ -109,7 +111,7 @@ public abstract class VmsPublisherClientService extends Service {
         IBinder token = getTokenForPublisherServiceThreadSafe();
 
         try {
-            mVmsPublisherService.publish(token, layer, payload);
+            mVmsPublisherService.publish(token, layer, publisherId, payload);
             return true;
         } catch (RemoteException e) {
             Log.e(TAG, "unable to publish message: " + payload, e);
