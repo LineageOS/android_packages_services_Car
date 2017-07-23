@@ -144,7 +144,8 @@ public class VmsHalService extends HalServiceBase {
             mRouting.addSubscription(listener, layer);
         }
         if (firstSubscriptionForLayer) {
-            notifyPublishers(layer, true);
+            notifyHalPublishers(layer, true);
+            notifyClientPublishers();
         }
     }
 
@@ -163,7 +164,8 @@ public class VmsHalService extends HalServiceBase {
             layerHasSubscribers = mRouting.hasLayerSubscriptions(layer);
         }
         if (!layerHasSubscribers) {
-            notifyPublishers(layer, false);
+            notifyHalPublishers(layer, false);
+            notifyClientPublishers();
         }
     }
 
@@ -176,6 +178,44 @@ public class VmsHalService extends HalServiceBase {
     public void removeSubscription(IVmsSubscriberClient listener) {
         synchronized (mLock) {
             mRouting.removeSubscription(listener);
+        }
+    }
+
+    public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer, int publisherId) {
+        boolean firstSubscriptionForLayer = false;
+        synchronized (mLock) {
+            // Check if publishers need to be notified about this change in subscriptions.
+            firstSubscriptionForLayer = !(mRouting.hasLayerSubscriptions(layer) ||
+                    mRouting.hasLayerFromPublisherSubscriptions(layer, publisherId));
+
+            // Add the listeners subscription to the layer
+            mRouting.addSubscription(listener, layer, publisherId);
+        }
+        if (firstSubscriptionForLayer) {
+            notifyHalPublishers(layer, true);
+            notifyClientPublishers();
+        }
+    }
+
+    public void removeSubscription(IVmsSubscriberClient listener, VmsLayer layer, int publisherId) {
+        boolean layerHasSubscribers = true;
+        synchronized (mLock) {
+            if (!mRouting.hasLayerFromPublisherSubscriptions(layer, publisherId)) {
+                Log.i(TAG, "Trying to remove a layer with no subscription: " +
+                        layer + ", publisher ID:" + publisherId);
+                return;
+            }
+
+            // Remove the listeners subscription to the layer
+            mRouting.removeSubscription(listener, layer, publisherId);
+
+            // Check if publishers need to be notified about this change in subscriptions.
+            layerHasSubscribers = mRouting.hasLayerSubscriptions(layer) ||
+                    mRouting.hasLayerFromPublisherSubscriptions(layer, publisherId);
+        }
+        if (!layerHasSubscribers) {
+            notifyHalPublishers(layer, false);
+            notifyClientPublishers();
         }
     }
 
@@ -234,7 +274,7 @@ public class VmsHalService extends HalServiceBase {
         }
     }
 
-    public void addHalSubscription(VmsLayer layer) {
+    private void addHalSubscription(VmsLayer layer) {
         boolean firstSubscriptionForLayer = true;
         synchronized (mLock) {
             // Check if publishers need to be notified about this change in subscriptions.
@@ -244,11 +284,28 @@ public class VmsHalService extends HalServiceBase {
             mRouting.addHalSubscription(layer);
         }
         if (firstSubscriptionForLayer) {
-            notifyPublishers(layer, true);
+            notifyHalPublishers(layer, true);
+            notifyClientPublishers();
         }
     }
 
-    public void removeHalSubscription(VmsLayer layer) {
+    private void addHalSubscriptionToPublisher(VmsLayer layer, int publisherId) {
+        boolean firstSubscriptionForLayer = true;
+        synchronized (mLock) {
+            // Check if publishers need to be notified about this change in subscriptions.
+            firstSubscriptionForLayer = !(mRouting.hasLayerSubscriptions(layer) ||
+                    mRouting.hasLayerFromPublisherSubscriptions(layer, publisherId));
+
+            // Add the listeners subscription to the layer
+            mRouting.addHalSubscriptionToPublisher(layer, publisherId);
+        }
+        if (firstSubscriptionForLayer) {
+            notifyHalPublishers(layer, publisherId, true);
+            notifyClientPublishers();
+        }
+    }
+
+    private void removeHalSubscription(VmsLayer layer) {
         boolean layerHasSubscribers = true;
         synchronized (mLock) {
             if (!mRouting.hasLayerSubscriptions(layer)) {
@@ -263,7 +320,29 @@ public class VmsHalService extends HalServiceBase {
             layerHasSubscribers = mRouting.hasLayerSubscriptions(layer);
         }
         if (!layerHasSubscribers) {
-            notifyPublishers(layer, false);
+            notifyHalPublishers(layer, false);
+            notifyClientPublishers();
+        }
+    }
+
+    public void removeHalSubscriptionFromPublisher(VmsLayer layer, int publisherId) {
+        boolean layerHasSubscribers = true;
+        synchronized (mLock) {
+            if (!mRouting.hasLayerSubscriptions(layer)) {
+                Log.i(TAG, "Trying to remove a layer with no subscription: " + layer);
+                return;
+            }
+
+            // Remove the listeners subscription to the layer
+            mRouting.removeHalSubscriptionToPublisher(layer, publisherId);
+
+            // Check if publishers need to be notified about this change in subscriptions.
+            layerHasSubscribers = mRouting.hasLayerSubscriptions(layer) ||
+                    mRouting.hasLayerFromPublisherSubscriptions(layer, publisherId);
+        }
+        if (!layerHasSubscribers) {
+            notifyHalPublishers(layer, publisherId, false);
+            notifyClientPublishers();
         }
     }
 
@@ -297,10 +376,17 @@ public class VmsHalService extends HalServiceBase {
      * @param layer          layer which is being subscribed to or unsubscribed from.
      * @param hasSubscribers indicates if the notification is for subscription or unsubscription.
      */
-    private void notifyPublishers(VmsLayer layer, boolean hasSubscribers) {
+    private void notifyHalPublishers(VmsLayer layer, boolean hasSubscribers) {
         // notify the HAL
         setSubscriptionRequest(layer, hasSubscribers);
+    }
 
+    private void notifyHalPublishers(VmsLayer layer, int publisherId, boolean hasSubscribers) {
+        // notify the HAL
+        setSubscriptionToPublisherRequest(layer, publisherId, hasSubscribers);
+    }
+
+    private void notifyClientPublishers() {
         // Notify the App publishers
         for (VmsHalPublisherListener listener : mPublisherListeners) {
             // Besides the list of layers, also a timestamp is provided to the clients.
@@ -390,6 +476,12 @@ public class VmsHalService extends HalServiceBase {
                 case VmsMessageType.UNSUBSCRIBE:
                     handleUnsubscribeEvent(vec);
                     break;
+                case VmsMessageType.SUBSCRIBE_TO_PUBLISHER:
+                    handleSubscribeToPublisherEvent(vec);
+                    break;
+                case VmsMessageType.UNSUBSCRIBE_TO_PUBLISHER:
+                    handleUnsubscribeFromPublisherEvent(vec);
+                    break;
                 case VmsMessageType.OFFERING:
                     handleOfferingEvent(vec);
                     break;
@@ -450,6 +542,7 @@ public class VmsHalService extends HalServiceBase {
      * <li>Message type.
      * <li>Layer id.
      * <li>Layer version.
+     * <li>Layer subtype.
      * </ul>
      */
     private void handleSubscribeEvent(List<Integer> integerValues) {
@@ -458,6 +551,27 @@ public class VmsHalService extends HalServiceBase {
             Log.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer);
         }
         addHalSubscription(vmsLayer);
+    }
+
+    /**
+     * Subscribe message format:
+     * <ul>
+     * <li>Message type.
+     * <li>Layer id.
+     * <li>Layer version.
+     * <li>Layer subtype.
+     * <li>Publisher ID
+     * </ul>
+     */
+    private void handleSubscribeToPublisherEvent(List<Integer> integerValues) {
+        VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
+        if (DBG) {
+            Log.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer);
+        }
+        int publisherId =
+                //integerValues.get(/*VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_SUB_TYPE*/0);
+                integerValues.get(VmsMessageWithLayerAndPublisherIdIntegerValuesIndex.PUBLISHER_ID);
+        addHalSubscriptionToPublisher(vmsLayer, publisherId);
     }
 
     /**
@@ -474,6 +588,25 @@ public class VmsHalService extends HalServiceBase {
             Log.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer);
         }
         removeHalSubscription(vmsLayer);
+    }
+
+    /**
+     * Unsubscribe message format:
+     * <ul>
+     * <li>Message type.
+     * <li>Layer id.
+     * <li>Layer version.
+     * </ul>
+     */
+    private void handleUnsubscribeFromPublisherEvent(List<Integer> integerValues) {
+        VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
+        int publisherId =
+                //integerValues.get(/*VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_SUB_TYPE*/0);
+                integerValues.get(VmsMessageWithLayerAndPublisherIdIntegerValuesIndex.PUBLISHER_ID);
+        if (DBG) {
+            Log.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer);
+        }
+        removeHalSubscriptionFromPublisher(vmsLayer, publisherId);
     }
 
     private static int NUM_INTEGERS_IN_VMS_LAYER = 3;
@@ -619,6 +752,17 @@ public class VmsHalService extends HalServiceBase {
     public boolean setSubscriptionRequest(VmsLayer layer, boolean hasSubscribers) {
         VehiclePropValue vehiclePropertyValue = toTypedVmsVehiclePropValueWithLayer(
                 hasSubscribers ? VmsMessageType.SUBSCRIBE : VmsMessageType.UNSUBSCRIBE, layer);
+        return setPropertyValue(vehiclePropertyValue);
+    }
+
+    public boolean setSubscriptionToPublisherRequest(VmsLayer layer,
+                                                     int publisherId,
+                                                     boolean hasSubscribers) {
+        VehiclePropValue vehiclePropertyValue = toTypedVmsVehiclePropValueWithLayer(
+                hasSubscribers ?
+                        VmsMessageType.SUBSCRIBE_TO_PUBLISHER :
+                        VmsMessageType.UNSUBSCRIBE_TO_PUBLISHER, layer);
+        vehiclePropertyValue.value.int32Values.add(publisherId);
         return setPropertyValue(vehiclePropertyValue);
     }
 

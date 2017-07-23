@@ -50,6 +50,14 @@ public final class VmsOperationRecorder {
         recordOp("unsubscribe", layer);
     }
 
+    public void subscribe(VmsLayer layer, int publisherId) {
+        recordOp("subscribe", "publisherId", publisherId, layer);
+    }
+
+    public void unsubscribe(VmsLayer layer, int publisherId) {
+        recordOp("unsubscribe", "publisherId", publisherId, layer);
+    }
+
     public void subscribeAll() {
         recordOp("subscribeAll");
     }
