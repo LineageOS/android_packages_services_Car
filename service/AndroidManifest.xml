@@ -92,7 +92,7 @@
         android:label="@string/car_permission_car_navigation_manager"
         android:description="@string/car_permission_desc_car_navigation_manager" />
     <permission
-      android:name="android.car.permission.DIAGNOSTIC_READ"
+      android:name="android.car.permission.DIAGNOSTIC_READ_ALL"
       android:protectionLevel="system|signature"
       android:label="@string/car_permission_label_diag_read"
       android:description="@string/car_permission_desc_diag_read" />
