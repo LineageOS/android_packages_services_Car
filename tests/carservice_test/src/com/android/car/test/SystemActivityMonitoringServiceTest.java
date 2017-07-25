@@ -54,6 +54,11 @@ public class SystemActivityMonitoringServiceTest extends MockedCarTestBase {
         // blocking activity.
         mDrivingStatusHandler.setDrivingStatusRestricted(drivingStatusRestricted);
 
+        // Due to asynchronous nature of Car Service initialization, if we won't wait we may inject
+        // an event while SensorHalService is not subscribed yet.
+        assertTrue(getMockedVehicleHal()
+                .waitForSubscriber(VehicleProperty.DRIVING_STATUS, TIMEOUT_MS));
+
         VehiclePropValue injectValue =
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.DRIVING_STATUS)
                         .setTimestamp(SystemClock.elapsedRealtimeNanos())
