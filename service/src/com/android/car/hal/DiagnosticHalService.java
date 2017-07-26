@@ -24,8 +24,8 @@ import android.car.hardware.CarSensorManager;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
-import android.hardware.automotive.vehicle.V2_1.Obd2FloatSensorIndex;
-import android.hardware.automotive.vehicle.V2_1.Obd2IntegerSensorIndex;
+import android.hardware.automotive.vehicle.V2_1.DiagnosticFloatSensorIndex;
+import android.hardware.automotive.vehicle.V2_1.DiagnosticIntegerSensorIndex;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 import android.util.Log;
 import android.util.SparseArray;
@@ -128,7 +128,7 @@ public class DiagnosticHalService extends SensorHalServiceBase {
     }
 
     private int getNumIntegerSensors(int halPropId) {
-        int count = Obd2IntegerSensorIndex.LAST_SYSTEM_INDEX + 1;
+        int count = DiagnosticIntegerSensorIndex.LAST_SYSTEM_INDEX + 1;
         List<Integer> configArray = getPropConfigArray(halPropId);
         if(configArray.size() < 2) {
             Log.e(CarLog.TAG_DIAGNOSTIC, String.format(
@@ -142,7 +142,7 @@ public class DiagnosticHalService extends SensorHalServiceBase {
     }
 
     private int getNumFloatSensors(int halPropId) {
-        int count = Obd2FloatSensorIndex.LAST_SYSTEM_INDEX + 1;
+        int count = DiagnosticFloatSensorIndex.LAST_SYSTEM_INDEX + 1;
         List<Integer> configArray = getPropConfigArray(halPropId);
         if(configArray.size() < 2) {
             Log.e(CarLog.TAG_DIAGNOSTIC, String.format(

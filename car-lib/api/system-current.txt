@@ -512,13 +512,7 @@ package android.car.hardware {
     ctor public CarDiagnosticSensorIndices();
   }
 
-  public static abstract class CarDiagnosticSensorIndices.FloatSensorIndex implements java.lang.annotation.Annotation {
-  }
-
-  public static abstract class CarDiagnosticSensorIndices.IntegerSensorIndex implements java.lang.annotation.Annotation {
-  }
-
-  public static final class CarDiagnosticSensorIndices.Obd2FloatSensorIndex {
+  public static final class CarDiagnosticSensorIndices.FloatSensorIndex {
     field public static final int ABSOLUTE_EVAPORATION_SYSTEM_VAPOR_PRESSURE = 58; // 0x3a
     field public static final int ABSOLUTE_LOAD_VALUE = 48; // 0x30
     field public static final int ABSOLUTE_THROTTLE_POSITION_B = 51; // 0x33
@@ -594,7 +588,7 @@ package android.car.hardware {
     field public static final int VENDOR_START = 71; // 0x47
   }
 
-  public static final class CarDiagnosticSensorIndices.Obd2IntegerSensorIndex {
+  public static final class CarDiagnosticSensorIndices.IntegerSensorIndex {
     field public static final int ABSOLUTE_BAROMETRIC_PRESSURE = 11; // 0xb
     field public static final int AMBIENT_AIR_TEMPERATURE = 13; // 0xd
     field public static final int COMMANDED_SECONDARY_AIR_STATUS = 5; // 0x5
