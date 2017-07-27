@@ -489,9 +489,9 @@ package android.car.hardware {
     method public android.car.hardware.CarDiagnosticEvent getFreezeFrame(long) throws android.car.CarNotConnectedException;
     method public long[] getFreezeFrameTimestamps() throws android.car.CarNotConnectedException;
     method public android.car.hardware.CarDiagnosticEvent getLatestLiveFrame() throws android.car.CarNotConnectedException;
-    method public boolean isFreezeFrameClearSupported() throws android.car.CarNotConnectedException;
-    method public boolean isFreezeFrameSupported() throws android.car.CarNotConnectedException;
-    method public boolean isFreezeFrameTimestampSupported() throws android.car.CarNotConnectedException;
+    method public boolean isClearFreezeFramesSupported() throws android.car.CarNotConnectedException;
+    method public boolean isFreezeFrameNotificationSupported() throws android.car.CarNotConnectedException;
+    method public boolean isGetFreezeFrameSupported() throws android.car.CarNotConnectedException;
     method public boolean isLiveFrameSupported() throws android.car.CarNotConnectedException;
     method public void onCarDisconnected();
     method public boolean registerListener(android.car.hardware.CarDiagnosticManager.OnDiagnosticEventListener, int, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;

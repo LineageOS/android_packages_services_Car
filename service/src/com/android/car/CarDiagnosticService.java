@@ -395,18 +395,18 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
         return getDiagnosticHal().getDiagnosticCapabilities().isLiveFrameSupported();
     }
 
-    public boolean isFreezeFrameSupported() {
+    public boolean isFreezeFrameNotificationSupported() {
         return getDiagnosticHal().getDiagnosticCapabilities().isFreezeFrameSupported();
     }
 
-    public boolean isFreezeFrameTimestampSupported() {
+    public boolean isGetFreezeFrameSupported() {
         DiagnosticCapabilities diagnosticCapabilities =
                 getDiagnosticHal().getDiagnosticCapabilities();
         return diagnosticCapabilities.isFreezeFrameInfoSupported() &&
                 diagnosticCapabilities.isFreezeFrameSupported();
     }
 
-    public boolean isFreezeFrameClearSupported() {
+    public boolean isClearFreezeFramesSupported() {
         DiagnosticCapabilities diagnosticCapabilities =
             getDiagnosticHal().getDiagnosticCapabilities();
         return diagnosticCapabilities.isFreezeFrameClearSupported() &&
