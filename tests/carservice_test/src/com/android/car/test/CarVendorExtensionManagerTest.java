@@ -161,7 +161,7 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
 
     public void testLargeByteArrayProperty() throws Exception {
         // Allocate array of byte which is greater than binder transaction buffer limitation.
-        byte[] expectedData = new byte[3 * MILLION];
+        byte[] expectedData = new byte[2 * MILLION];
 
         new Random(SystemClock.elapsedRealtimeNanos())
             .nextBytes(expectedData);
@@ -254,7 +254,8 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
             result.areaId = requestedPropValue.areaId;
 
             if (requestedPropValue.prop == CUSTOM_BYTES_PROP_ID_2 && mBytes != null) {
-                Log.d(TAG, "Returning byte array property, value: " + Arrays.toString(mBytes));
+                Log.d(TAG, "Returning byte array property, value size " + mBytes.length);
+                result.value.bytes.ensureCapacity(mBytes.length);
                 for (byte b : mBytes) {
                     result.value.bytes.add(b);
                 }
