@@ -370,7 +370,6 @@ package android.car.hardware {
     method public java.lang.Float getVendorFloatSensor(int);
     method public int getVendorIntegerSensor(int, int);
     method public java.lang.Integer getVendorIntegerSensor(int);
-    method public boolean isEmptyFrame();
     method public boolean isFreezeFrame();
     method public boolean isLiveFrame();
     method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
@@ -386,7 +385,7 @@ package android.car.hardware {
     method public android.car.hardware.CarDiagnosticEvent build();
     method public static android.car.hardware.CarDiagnosticEvent.Builder newFreezeFrameBuilder();
     method public static android.car.hardware.CarDiagnosticEvent.Builder newLiveFrameBuilder();
-    method public android.car.hardware.CarDiagnosticEvent.Builder withDTC(java.lang.String);
+    method public android.car.hardware.CarDiagnosticEvent.Builder withDtc(java.lang.String);
     method public android.car.hardware.CarDiagnosticEvent.Builder withFloatValue(int, float);
     method public android.car.hardware.CarDiagnosticEvent.Builder withIntValue(int, int);
   }
@@ -484,7 +483,6 @@ package android.car.hardware {
   }
 
   public final class CarDiagnosticManager {
-    ctor public CarDiagnosticManager(android.os.IBinder, android.content.Context, android.os.Handler);
     method public boolean clearFreezeFrames(long...) throws android.car.CarNotConnectedException;
     method public android.car.hardware.CarDiagnosticEvent getFreezeFrame(long) throws android.car.CarNotConnectedException;
     method public long[] getFreezeFrameTimestamps() throws android.car.CarNotConnectedException;
@@ -496,7 +494,6 @@ package android.car.hardware {
     method public void onCarDisconnected();
     method public boolean registerListener(android.car.hardware.CarDiagnosticManager.OnDiagnosticEventListener, int, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public void unregisterListener(android.car.hardware.CarDiagnosticManager.OnDiagnosticEventListener);
-    field public static final int[] FRAME_TYPES;
     field public static final int FRAME_TYPE_FREEZE = 1; // 0x1
     field public static final int FRAME_TYPE_LIVE = 0; // 0x0
   }
