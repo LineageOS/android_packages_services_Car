@@ -109,9 +109,9 @@ class JavaSensorPolicy(SensorPolicy):
             str(sensorId) + ";"
 
     def prefix(self, theSensors):
-        s = "    public static final class Obd2%sSensorIndex {\n" % \
+        s = "    public static final class %sSensorIndex {\n" % \
             theSensors.descriptor
-        s += "        private Obd2%sSensorIndex() {}\n" % \
+        s += "        private %sSensorIndex() {}\n" % \
             theSensors.descriptor
         return s
 
@@ -124,7 +124,7 @@ class JavaSensorPolicy(SensorPolicy):
 class PythonSensorPolicy(SensorPolicy):
     """The sensor policy that emits Python sensor descriptions."""
     def sensor(self, theSensor, theSensors):
-        return "OBD2_SENSOR_%s_%s = %s" % (
+        return "DIAGNOSTIC_SENSOR_%s_%s = %s" % (
             theSensors.descriptor.upper(),
             theSensor.name.upper(),
             self.adjustSensorId(theSensors.descriptor.upper(), str(theSensor.id))
@@ -132,13 +132,13 @@ class PythonSensorPolicy(SensorPolicy):
 
     def adjustSensorId(self, descriptor, sensorId):
         if sensorId.isdigit(): return sensorId
-        return "OBD2_SENSOR_%s_%s" % (descriptor, sensorId.upper())
+        return "DIAGNOSTIC_SENSOR_%s_%s" % (descriptor, sensorId.upper())
 
 class IntDefSensorPolicy(SensorPolicy):
     """The sensor policy that emits @IntDef sensor descriptions."""
     def sensor(self, theSensor, theSensors):
         sensorName = theSensor.name.replace("_INDEX", "")
-        return "Obd2%sSensorIndex.%s," % (theSensors.descriptor,sensorName)
+        return "%sSensorIndex.%s," % (theSensors.descriptor,sensorName)
 
     def prefix(self, theSensors):
         return "    @Retention(RetentionPolicy.SOURCE)\n    @IntDef({"
@@ -147,7 +147,7 @@ class IntDefSensorPolicy(SensorPolicy):
         return 8
 
     def suffix(self, theSensors):
-        return "    })\n    public @interface %sSensorIndex {}" % \
+        return "    })\n    public @interface Diagnostic%sSensorIndex {}" % \
             theSensors.descriptor
 
 class SensorMeta(type):
@@ -216,6 +216,7 @@ def generateJava(filepath):
     print("package android.car.hardware;", file=destfile)
     print("", file=destfile)
     print("import android.annotation.IntDef;", file=destfile)
+    print("import android.annotation.SystemApi;", file=destfile)
     print("import java.lang.annotation.Retention;", file=destfile)
     print("import java.lang.annotation.RetentionPolicy;", file=destfile)
     print("", file=destfile)
@@ -227,6 +228,7 @@ def generateJava(filepath):
     print(" *", file=destfile)
     print(" * @hide", file=destfile)
     print(" */", file=destfile)
+    print("@SystemApi", file=destfile)
     print("public final class CarDiagnosticSensorIndices {", file=destfile)
     java(destfile)
     intdef(destfile)
@@ -258,8 +260,8 @@ def generatePython(filepath):
 def load(filepath):
     """Load sensor data from Vehicle HAL."""
     ast = hidl_parser.parser.parse(filepath)
-    integerSensors = ast['enums']['Obd2IntegerSensorIndex']
-    floatSensors = ast['enums']['Obd2FloatSensorIndex']
+    integerSensors = ast['enums']['DiagnosticIntegerSensorIndex']
+    floatSensors = ast['enums']['DiagnosticFloatSensorIndex']
     for case in integerSensors.cases:
         intSensor(name=case.name, id=case.value)
     for case in floatSensors.cases:
