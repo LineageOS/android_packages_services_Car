@@ -151,7 +151,7 @@ public class VmsPublisherPermissionsTest extends MockedCarTestBase {
         public synchronized void onPropertySet(VehiclePropValue value) {
             // If this is the data message release the semaphore so the test can continue.
             ArrayList<Integer> int32Values = value.value.int32Values;
-            if (int32Values.get(VmsBaseMessageIntegerValuesIndex.VMS_MESSAGE_TYPE) ==
+            if (int32Values.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE) ==
                     VmsMessageType.DATA) {
                 mHalHandlerSemaphore.release();
             }
