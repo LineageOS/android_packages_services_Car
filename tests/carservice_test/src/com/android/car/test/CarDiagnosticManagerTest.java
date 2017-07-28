@@ -730,9 +730,9 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
     public void testIsSupportedApiCalls() throws Exception {
         assertTrue(mCarDiagnosticManager.isLiveFrameSupported());
-        assertTrue(mCarDiagnosticManager.isFreezeFrameSupported());
-        assertTrue(mCarDiagnosticManager.isFreezeFrameTimestampSupported());
-        assertTrue(mCarDiagnosticManager.isFreezeFrameClearSupported());
+        assertTrue(mCarDiagnosticManager.isFreezeFrameNotificationSupported());
+        assertTrue(mCarDiagnosticManager.isGetFreezeFrameSupported());
+        assertTrue(mCarDiagnosticManager.isClearFreezeFramesSupported());
     }
 
     class Listener implements CarDiagnosticManager.OnDiagnosticEventListener {
