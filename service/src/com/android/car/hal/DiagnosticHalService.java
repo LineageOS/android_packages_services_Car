@@ -184,7 +184,7 @@ public class DiagnosticHalService extends SensorHalServiceBase {
             }
         }
 
-        builder.withDTC(value.value.stringValue);
+        builder.withDtc(value.value.stringValue);
 
         return builder.build();
     }

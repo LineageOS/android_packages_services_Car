@@ -17,6 +17,7 @@
 package android.car.hardware;
 
 import android.annotation.IntDef;
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarApiUtil;
@@ -53,8 +54,10 @@ public final class CarDiagnosticManager implements CarManagerBase {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({FRAME_TYPE_LIVE, FRAME_TYPE_FREEZE})
+    /** @hide */
     public @interface FrameType {}
 
+    /** @hide */
     public static final @FrameType int FRAME_TYPES[] = {
         FRAME_TYPE_LIVE,
         FRAME_TYPE_FREEZE
@@ -72,6 +75,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
 
     private final CarPermission mVendorExtensionPermission;
 
+    /** @hide */
     public CarDiagnosticManager(IBinder service, Context context, Handler handler) {
         mService = ICarDiagnostic.Stub.asInterface(service);
         mHandlerCallback = new SingleMessageHandler<CarDiagnosticEvent>(handler.getLooper(),
@@ -91,6 +95,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
     }
 
     @Override
+    /** @hide */
     public void onCarDisconnected() {
         synchronized(mActiveListeners) {
             mActiveListeners.clear();
@@ -212,10 +217,11 @@ public final class CarDiagnosticManager implements CarManagerBase {
 
     /**
      * Retrieve the most-recently acquired live frame data from the car.
-     * @return
+     * @return A CarDiagnostic event for the most recently known live frame if one is present.
+     *         null if no live frame has been recorded by the vehicle.
      * @throws CarNotConnectedException
      */
-    public CarDiagnosticEvent getLatestLiveFrame() throws CarNotConnectedException {
+    public @Nullable CarDiagnosticEvent getLatestLiveFrame() throws CarNotConnectedException {
         try {
             return mService.getLatestLiveFrame();
         } catch (IllegalStateException e) {
@@ -228,7 +234,12 @@ public final class CarDiagnosticManager implements CarManagerBase {
 
     /**
      * Return the list of the timestamps for which a freeze frame is currently stored.
-     * @return
+     * @return An array containing timestamps at which, at the current time, the vehicle has
+     *         a freeze frame stored. If no freeze frames are currently stored, an empty
+     *         array will be returned.
+     * Because vehicles might have a limited amount of storage for frames, clients cannot
+     * assume that a timestamp obtained via this call will be indefinitely valid for retrieval
+     * of the actual diagnostic data, and must be prepared to handle a missing frame.
      * @throws CarNotConnectedException
      */
     public long[] getFreezeFrameTimestamps() throws CarNotConnectedException {
@@ -245,10 +256,15 @@ public final class CarDiagnosticManager implements CarManagerBase {
     /**
      * Retrieve the freeze frame event data for a given timestamp, if available.
      * @param timestamp
-     * @return
+     * @return A CarDiagnostic event for the frame at the given timestamp, if one is
+     *         available. null is returned otherwise.
+     * Storage constraints might cause frames to be deleted from vehicle memory.
+     * For this reason it cannot be assumed that a timestamp will yield a valid frame,
+     * even if it was initially obtained via a call to getFreezeFrameTimestamps().
      * @throws CarNotConnectedException
      */
-    public CarDiagnosticEvent getFreezeFrame(long timestamp) throws CarNotConnectedException {
+    public @Nullable CarDiagnosticEvent getFreezeFrame(long timestamp)
+        throws CarNotConnectedException {
         try {
             return mService.getFreezeFrame(timestamp);
         } catch (IllegalStateException e) {
@@ -261,8 +277,13 @@ public final class CarDiagnosticManager implements CarManagerBase {
 
     /**
      * Clear the freeze frame information from vehicle memory at the given timestamps.
-     * @param timestamps
-     * @return
+     * @param timestamps A list of timestamps to delete freeze frames at, or an empty array
+     *                   to delete all freeze frames from vehicle memory.
+     * @return true if all the required frames were deleted (including if no timestamps are
+     *         provided and all frames were cleared); false otherwise.
+     * Due to storage constraints, timestamps cannot be assumed to be indefinitely valid, and
+     * a false return from this method should be used by the client as cause for invalidating
+     * its local knowledge of the vehicle diagnostic state.
      * @throws CarNotConnectedException
      */
     public boolean clearFreezeFrames(long... timestamps) throws CarNotConnectedException {
