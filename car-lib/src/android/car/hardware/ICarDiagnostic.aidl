@@ -59,17 +59,19 @@ interface ICarDiagnostic {
      boolean isLiveFrameSupported() = 7;
 
     /**
-     * Returns whether the underlying HAL supports freeze frames.
+     * Returns whether the underlying HAL supports sending notifications to
+     * registered listeners when new freeze frames happen.
      */
-     boolean isFreezeFrameSupported() = 8;
+     boolean isFreezeFrameNotificationSupported() = 8;
 
     /**
-     * Returns whether the underlying HAL supports retrieving freeze frame timestamps.
+     * Returns whether the underlying HAL supports retrieving freeze frames
+     * stored in vehicle memory using timestamp.
      */
-     boolean isFreezeFrameTimestampSupported() = 9;
+     boolean isGetFreezeFrameSupported() = 9;
 
     /**
      * Returns whether the underlying HAL supports clearing freeze frames.
      */
-     boolean isFreezeFrameClearSupported() = 10;
+     boolean isClearFreezeFramesSupported() = 10;
 }
