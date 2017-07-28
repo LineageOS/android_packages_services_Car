@@ -78,7 +78,7 @@ public class DiagnosticJsonConverter {
                     diagnosticJson.floatValues.valueAt(i));
         }
         //Always set dtc to null if it is empty string
-        builder.withDTC("".equals(diagnosticJson.dtc) ? null : diagnosticJson.dtc);
+        builder.withDtc("".equals(diagnosticJson.dtc) ? null : diagnosticJson.dtc);
 
         return builder.build();
     }
