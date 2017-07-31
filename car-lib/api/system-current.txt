@@ -360,7 +360,7 @@ package android.car.hardware {
     method public int describeContents();
     method public java.lang.Integer getFuelSystemStatus();
     method public java.lang.Integer getFuelType();
-    method public android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.CommonIgnitionMonitors getIgnitionMonitors();
+    method public android.car.hardware.CarDiagnosticEvent.CommonIgnitionMonitors getIgnitionMonitors();
     method public java.lang.Integer getSecondaryAirStatus();
     method public float getSystemFloatSensor(int, float);
     method public java.lang.Float getSystemFloatSensor(int);
@@ -388,6 +388,23 @@ package android.car.hardware {
     method public android.car.hardware.CarDiagnosticEvent.Builder withDtc(java.lang.String);
     method public android.car.hardware.CarDiagnosticEvent.Builder withFloatValue(int, float);
     method public android.car.hardware.CarDiagnosticEvent.Builder withIntValue(int, int);
+  }
+
+  public static class CarDiagnosticEvent.CommonIgnitionMonitors {
+    method public android.car.hardware.CarDiagnosticEvent.CompressionIgnitionMonitors asCompressionIgnitionMonitors();
+    method public android.car.hardware.CarDiagnosticEvent.SparkIgnitionMonitors asSparkIgnitionMonitors();
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor components;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor fuelSystem;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor misfire;
+  }
+
+  public static final class CarDiagnosticEvent.CompressionIgnitionMonitors extends android.car.hardware.CarDiagnosticEvent.CommonIgnitionMonitors {
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor EGROrVVT;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor NMHCCatalyst;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor NOxSCR;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor PMFilter;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor boostPressure;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor exhaustGasSensor;
   }
 
   public static final class CarDiagnosticEvent.FuelSystemStatus {
@@ -431,45 +448,9 @@ package android.car.hardware {
   public static abstract class CarDiagnosticEvent.FuelType.Type implements java.lang.annotation.Annotation {
   }
 
-  public static final class CarDiagnosticEvent.IgnitionMonitors {
-    ctor public CarDiagnosticEvent.IgnitionMonitors();
-  }
-
-  public static class CarDiagnosticEvent.IgnitionMonitors.CommonIgnitionMonitors {
-    method public android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.CompressionIgnitionMonitors asCompressionIgnitionMonitors();
-    method public android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.SparkIgnitionMonitors asSparkIgnitionMonitors();
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor components;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor fuelSystem;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor misfire;
-  }
-
-  public static final class CarDiagnosticEvent.IgnitionMonitors.CompressionIgnitionMonitors extends android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.CommonIgnitionMonitors {
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor EGROrVVT;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor NMHCCatalyst;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor NOxSCR;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor PMFilter;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor boostPressure;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor exhaustGasSensor;
-  }
-
-  public static final class CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor {
+  public static final class CarDiagnosticEvent.IgnitionMonitor {
     field public final boolean available;
     field public final boolean incomplete;
-  }
-
-  public static final class CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor.Decoder {
-    method public android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor fromValue(int);
-  }
-
-  public static final class CarDiagnosticEvent.IgnitionMonitors.SparkIgnitionMonitors extends android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.CommonIgnitionMonitors {
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor ACRefrigerant;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor EGR;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor catalyst;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor evaporativeSystem;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor heatedCatalyst;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor oxygenSensor;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor oxygenSensorHeater;
-    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.IgnitionMonitor secondaryAirSystem;
   }
 
   public static final class CarDiagnosticEvent.SecondaryAirStatus {
@@ -480,6 +461,17 @@ package android.car.hardware {
   }
 
   public static abstract class CarDiagnosticEvent.SecondaryAirStatus.Status implements java.lang.annotation.Annotation {
+  }
+
+  public static final class CarDiagnosticEvent.SparkIgnitionMonitors extends android.car.hardware.CarDiagnosticEvent.CommonIgnitionMonitors {
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor ACRefrigerant;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor EGR;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor catalyst;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor evaporativeSystem;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor heatedCatalyst;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor oxygenSensor;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor oxygenSensorHeater;
+    field public final android.car.hardware.CarDiagnosticEvent.IgnitionMonitor secondaryAirSystem;
   }
 
   public final class CarDiagnosticManager {
