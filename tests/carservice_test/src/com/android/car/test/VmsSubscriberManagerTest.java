@@ -127,8 +127,8 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
                 .build();
         v.value.int32Values.add(VmsMessageType.DATA); // MessageType
         v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
-        v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
         v.value.int32Values.add(MOCK_PUBLISHER_LAYER_SUB_TYPE);
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
         v.value.int32Values.add(PUBLISHER_ID);
         v.value.bytes.add((byte) 0xa);
         v.value.bytes.add((byte) 0xb);
@@ -141,25 +141,24 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assertTrue(Arrays.equals(expectedPayload, listener.getPayload()));
     }
 
-
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
     public void testSubscribeAll() throws Exception {
         if (!VmsTestUtils.canRunTest(TAG)) return;
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
-            Car.VMS_SUBSCRIBER_SERVICE);
+                Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();
         vmsSubscriberManager.setListener(listener);
         vmsSubscriberManager.subscribeAll();
 
         // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-            .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
-            .setTimestamp(SystemClock.elapsedRealtimeNanos())
-            .build();
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .build();
         v.value.int32Values.add(VmsMessageType.DATA); // MessageType
         v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
-        v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
         v.value.int32Values.add(MOCK_PUBLISHER_LAYER_SUB_TYPE);
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
         v.value.int32Values.add(PUBLISHER_ID);
         v.value.bytes.add((byte) 0xa);
         v.value.bytes.add((byte) 0xb);
@@ -172,21 +171,20 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assertTrue(Arrays.equals(expectedPayload, listener.getPayload()));
     }
 
-
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
     public void testSimpleAvailableLayers() throws Exception {
         if (!VmsTestUtils.canRunTest(TAG)) return;
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
-            Car.VMS_SUBSCRIBER_SERVICE);
+                Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();
         vmsSubscriberManager.setListener(listener);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
 
         // Inject a value and wait for its callback in TestListener.onLayersAvailabilityChange.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-            .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
-            .setTimestamp(SystemClock.elapsedRealtimeNanos())
-            .build();
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .build();
         /*
         Offering:
         Layer             | Dependency
@@ -197,16 +195,16 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         {(2, 3, 444 [17])}
          */
         v.value.int32Values.addAll(
-            Arrays.asList(
-                VmsMessageType.OFFERING, // MessageType
-                PUBLISHER_ID,
-                1, // Number of offered layers
+                Arrays.asList(
+                        VmsMessageType.OFFERING, // MessageType
+                        PUBLISHER_ID,
+                        1, // Number of offered layers
 
-                SUBSCRIPTION_LAYER_ID,
-                SUBSCRIPTION_LAYER_VERSION,
-                MOCK_PUBLISHER_LAYER_SUB_TYPE,
-                0 // number of dependencies for layer
-            )
+                        SUBSCRIPTION_LAYER_ID,
+                        SUBSCRIPTION_LAYER_VERSION,
+                        MOCK_PUBLISHER_LAYER_SUB_TYPE,
+                        0 // number of dependencies for layer
+                )
         );
 
         assertEquals(0, mSubscriberSemaphore.availablePermits());
@@ -223,16 +221,16 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     public void testComplexAvailableLayers() throws Exception {
         if (!VmsTestUtils.canRunTest(TAG)) return;
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
-            Car.VMS_SUBSCRIBER_SERVICE);
+                Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();
         vmsSubscriberManager.setListener(listener);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
 
         // Inject a value and wait for its callback in TestListener.onLayersAvailabilityChange.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-            .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
-            .setTimestamp(SystemClock.elapsedRealtimeNanos())
-            .build();
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .build();
         /*
         Offering:
         Layer  | Dependency
@@ -247,53 +245,53 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
          */
 
         v.value.int32Values.addAll(
-            Arrays.asList(
-                VmsMessageType.OFFERING, // MessageType
-                PUBLISHER_ID,
-                4, // Number of offered layers
+                Arrays.asList(
+                        VmsMessageType.OFFERING, // MessageType
+                        PUBLISHER_ID,
+                        4, // Number of offered layers
 
-                SUBSCRIPTION_LAYER_ID,
-                SUBSCRIPTION_LAYER_VERSION,
-                MOCK_PUBLISHER_LAYER_SUB_TYPE,
-                0, // number of dependencies for layer
+                        SUBSCRIPTION_LAYER_ID,
+                        SUBSCRIPTION_LAYER_VERSION,
+                        MOCK_PUBLISHER_LAYER_SUB_TYPE,
+                        0, // number of dependencies for layer
 
-                SUBSCRIPTION_DEPENDANT_LAYER_ID_1,
-                SUBSCRIPTION_DEPENDANT_LAYER_VERSION_1,
-                MOCK_PUBLISHER_LAYER_SUB_TYPE,
-                1, // number of dependencies for layer
-                SUBSCRIPTION_LAYER_ID,
-                SUBSCRIPTION_LAYER_VERSION,
-                MOCK_PUBLISHER_LAYER_SUB_TYPE,
+                        SUBSCRIPTION_DEPENDANT_LAYER_ID_1,
+                        SUBSCRIPTION_DEPENDANT_LAYER_VERSION_1,
+                        MOCK_PUBLISHER_LAYER_SUB_TYPE,
+                        1, // number of dependencies for layer
+                        SUBSCRIPTION_LAYER_ID,
+                        SUBSCRIPTION_LAYER_VERSION,
+                        MOCK_PUBLISHER_LAYER_SUB_TYPE,
 
-                SUBSCRIPTION_DEPENDANT_LAYER_ID_2,
-                SUBSCRIPTION_DEPENDANT_LAYER_VERSION_2,
-                MOCK_PUBLISHER_LAYER_SUB_TYPE,
-                2, // number of dependencies for layer
-                SUBSCRIPTION_LAYER_ID,
-                SUBSCRIPTION_LAYER_VERSION,
-                MOCK_PUBLISHER_LAYER_SUB_TYPE,
-                SUBSCRIPTION_DEPENDANT_LAYER_ID_1,
-                SUBSCRIPTION_DEPENDANT_LAYER_VERSION_1,
-                MOCK_PUBLISHER_LAYER_SUB_TYPE,
+                        SUBSCRIPTION_DEPENDANT_LAYER_ID_2,
+                        SUBSCRIPTION_DEPENDANT_LAYER_VERSION_2,
+                        MOCK_PUBLISHER_LAYER_SUB_TYPE,
+                        2, // number of dependencies for layer
+                        SUBSCRIPTION_LAYER_ID,
+                        SUBSCRIPTION_LAYER_VERSION,
+                        MOCK_PUBLISHER_LAYER_SUB_TYPE,
+                        SUBSCRIPTION_DEPENDANT_LAYER_ID_1,
+                        SUBSCRIPTION_DEPENDANT_LAYER_VERSION_1,
+                        MOCK_PUBLISHER_LAYER_SUB_TYPE,
 
-                SUBSCRIPTION_DEPENDANT_LAYER_ID_2,
-                SUBSCRIPTION_DEPENDANT_LAYER_VERSION_2,
-                MOCK_PUBLISHER_LAYER_SUB_TYPE,
-                1, // number of dependencies for layer
-                SUBSCRIPTION_UNSUPPORTED_LAYER_ID,
-                SUBSCRIPTION_UNSUPPORTED_LAYER_VERSION,
-                MOCK_PUBLISHER_LAYER_SUB_TYPE
-            )
+                        SUBSCRIPTION_DEPENDANT_LAYER_ID_2,
+                        SUBSCRIPTION_DEPENDANT_LAYER_VERSION_2,
+                        MOCK_PUBLISHER_LAYER_SUB_TYPE,
+                        1, // number of dependencies for layer
+                        SUBSCRIPTION_UNSUPPORTED_LAYER_ID,
+                        SUBSCRIPTION_UNSUPPORTED_LAYER_VERSION,
+                        MOCK_PUBLISHER_LAYER_SUB_TYPE
+                )
         );
 
         assertEquals(0, mSubscriberSemaphore.availablePermits());
 
         List<VmsAssociatedLayer> expectedAvailableLayers =
-            new ArrayList<>(Arrays.asList(
-                SUBSCRIPTION_ASSOCIATED_LAYER,
-                SUBSCRIPTION_DEPENDANT_ASSOCIATED_LAYER_1,
-                SUBSCRIPTION_DEPENDANT_ASSOCIATED_LAYER_2
-            ));
+                new ArrayList<>(Arrays.asList(
+                        SUBSCRIPTION_ASSOCIATED_LAYER,
+                        SUBSCRIPTION_DEPENDANT_ASSOCIATED_LAYER_1,
+                        SUBSCRIPTION_DEPENDANT_ASSOCIATED_LAYER_2
+                ));
         getMockedVehicleHal().injectEvent(v);
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         assertTrue(expectedAvailableLayers.containsAll(listener.getAvailableLayers()));
@@ -329,7 +327,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         }
     }
 
-    private class TestListener implements VmsSubscriberClientListener{
+    private class TestListener implements VmsSubscriberClientListener {
         private VmsLayer mLayer;
         private byte[] mPayload;
         private List<VmsLayer> mAvailableLayers = new ArrayList<>();

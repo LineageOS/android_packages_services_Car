@@ -32,9 +32,9 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_1.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_1.VmsMessageType;
-import android.hardware.automotive.vehicle.V2_1.VmsDataMessageIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_1.VmsMessageWithLayerAndPublisherIdIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_1.VmsOfferingMessageIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_1.VmsSimpleMessageIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_1.VmsMessageWithLayerIntegerValuesIndex;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -375,7 +375,7 @@ public class VmsHalService extends HalServiceBase {
         }
         for (VehiclePropValue v : values) {
             ArrayList<Integer> vec = v.value.int32Values;
-            int messageType = vec.get(VmsBaseMessageIntegerValuesIndex.VMS_MESSAGE_TYPE);
+            int messageType = vec.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
 
             if (DBG) {
                 Log.d(TAG, "Handling VMS message type: " + messageType);
@@ -406,9 +406,9 @@ public class VmsHalService extends HalServiceBase {
     }
 
     private VmsLayer parseVmsLayerFromSimpleMessageIntegerValues(List<Integer> integerValues) {
-        return new VmsLayer(integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_ID),
-                integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_VERSION),
-                integerValues.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_SUB_TYPE));
+        return new VmsLayer(integerValues.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_TYPE),
+                integerValues.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_VERSION),
+                integerValues.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_SUBTYPE));
     }
 
     private VmsLayer parseVmsLayerFromDataMessageIntegerValues(List<Integer> integerValues) {
@@ -416,7 +416,7 @@ public class VmsHalService extends HalServiceBase {
     }
 
     private int parsePublisherIdFromDataMessageIntegerValues(List<Integer> integerValues) {
-        return integerValues.get(VmsDataMessageIntegerValuesIndex.VMS_PUBLISHER_ID);
+        return integerValues.get(VmsMessageWithLayerAndPublisherIdIntegerValuesIndex.PUBLISHER_ID);
     }
 
 
@@ -503,8 +503,8 @@ public class VmsHalService extends HalServiceBase {
         int publisherId = integerValues.get(VmsOfferingMessageIntegerValuesIndex.PUBLISHER_ID);
         int numLayersDependencies =
                 integerValues.get(
-                        VmsOfferingMessageIntegerValuesIndex.VMS_NUMBER_OF_LAYERS_DEPENDENCIES);
-        int idx = VmsOfferingMessageIntegerValuesIndex.FIRST_DEPENDENCIES_INDEX;
+                        VmsOfferingMessageIntegerValuesIndex.NUMBER_OF_OFFERS);
+        int idx = VmsOfferingMessageIntegerValuesIndex.OFFERING_START;
 
         List<VmsLayerDependency> offeredLayers = new ArrayList<>();
 
@@ -577,10 +577,15 @@ public class VmsHalService extends HalServiceBase {
         v.int32Values.add(subscription.getSequenceNumber());
         Set<VmsLayer> layers = subscription.getSubscribedLayersFromAll();
         v.int32Values.add(layers.size());
+
+        //TODO(asafro): get the real number of associated layers in the subscriptions
+        //              state and send the associated layers themselves.
+        v.int32Values.add(0);
+
         for (VmsLayer layer : layers) {
             v.int32Values.add(layer.getId());
-            v.int32Values.add(layer.getVersion());
             v.int32Values.add(layer.getSubType());
+            v.int32Values.add(layer.getVersion());
         }
         setPropertyValue(vehicleProp);
     }
@@ -665,8 +670,8 @@ public class VmsHalService extends HalServiceBase {
         VehiclePropValue vehicleProp = toTypedVmsVehiclePropValue(messageType);
         VehiclePropValue.RawValue v = vehicleProp.value;
         v.int32Values.add(layer.getId());
-        v.int32Values.add(layer.getVersion());
         v.int32Values.add(layer.getSubType());
+        v.int32Values.add(layer.getVersion());
         return vehicleProp;
     }
 

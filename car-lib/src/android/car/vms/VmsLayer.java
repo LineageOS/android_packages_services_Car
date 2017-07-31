@@ -108,8 +108,8 @@ public final class VmsLayer implements Parcelable {
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(mId);
-        out.writeInt(mVersion);
         out.writeInt(mSubType);
+        out.writeInt(mVersion);
     }
 
     @Override
@@ -123,7 +123,7 @@ public final class VmsLayer implements Parcelable {
 
     private void readFromParcel(Parcel in) {
         mId = in.readInt();
-        mVersion = in.readInt();
         mSubType = in.readInt();
+        mVersion = in.readInt();
     }
 }
