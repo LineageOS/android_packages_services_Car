@@ -253,13 +253,13 @@ public class CarDiagnosticEvent implements Parcelable {
         SparseArray<Float> newFloatValues = floatValues.clone();
         for (int i = 0; i < intValues.size(); ++i) {
             int key = intValues.keyAt(i);
-            if (key >= CarDiagnosticSensorIndices.IntegerSensorIndex.LAST_SYSTEM) {
+            if (key >= IntegerSensorIndex.LAST_SYSTEM) {
                 newIntValues.delete(key);
             }
         }
         for (int i = 0; i < floatValues.size(); ++i) {
             int key = floatValues.keyAt(i);
-            if (key >= CarDiagnosticSensorIndices.FloatSensorIndex.LAST_SYSTEM) {
+            if (key >= FloatSensorIndex.LAST_SYSTEM) {
                 newFloatValues.delete(key);
             }
         }
@@ -398,7 +398,7 @@ public class CarDiagnosticEvent implements Parcelable {
      * Returns defaultValue otherwise.
      */
     public int getSystemIntegerSensor(
-            @CarDiagnosticSensorIndices.DiagnosticIntegerSensorIndex int sensor, int defaultValue) {
+            @IntegerSensorIndex.SensorIndex int sensor, int defaultValue) {
         return intValues.get(sensor, defaultValue);
     }
 
@@ -407,7 +407,7 @@ public class CarDiagnosticEvent implements Parcelable {
      * Returns defaultValue otherwise.
      */
     public float getSystemFloatSensor(
-            @CarDiagnosticSensorIndices.DiagnosticFloatSensorIndex int sensor, float defaultValue) {
+            @FloatSensorIndex.SensorIndex int sensor, float defaultValue) {
         return floatValues.get(sensor, defaultValue);
     }
 
@@ -432,7 +432,7 @@ public class CarDiagnosticEvent implements Parcelable {
      * Returns null otherwise.
      */
     public @Nullable Integer getSystemIntegerSensor(
-            @CarDiagnosticSensorIndices.DiagnosticIntegerSensorIndex int sensor) {
+            @IntegerSensorIndex.SensorIndex int sensor) {
         int index = intValues.indexOfKey(sensor);
         if (index < 0) return null;
         return intValues.valueAt(index);
@@ -443,7 +443,7 @@ public class CarDiagnosticEvent implements Parcelable {
      * Returns null otherwise.
      */
     public @Nullable Float getSystemFloatSensor(
-            @CarDiagnosticSensorIndices.DiagnosticFloatSensorIndex int sensor) {
+            @FloatSensorIndex.SensorIndex int sensor) {
         int index = floatValues.indexOfKey(sensor);
         if (index < 0) return null;
         return floatValues.valueAt(index);
@@ -471,7 +471,7 @@ public class CarDiagnosticEvent implements Parcelable {
 
     /**
      * Represents possible states of the fuel system; see {@link
-     * CarDiagnosticSensorIndices.IntegerSensorIndex#FUEL_SYSTEM_STATUS}
+     * IntegerSensorIndex#FUEL_SYSTEM_STATUS}
      */
     public static final class FuelSystemStatus {
         private FuelSystemStatus() {}
@@ -496,7 +496,7 @@ public class CarDiagnosticEvent implements Parcelable {
 
     /**
      * Represents possible states of the secondary air system; see {@link
-     * CarDiagnosticSensorIndices.IntegerSensorIndex#COMMANDED_SECONDARY_AIR_STATUS}
+     * IntegerSensorIndex#COMMANDED_SECONDARY_AIR_STATUS}
      */
     public static final class SecondaryAirStatus {
         private SecondaryAirStatus() {}
@@ -519,7 +519,7 @@ public class CarDiagnosticEvent implements Parcelable {
 
     /**
      * Represents possible types of fuel; see {@link
-     * CarDiagnosticSensorIndices.IntegerSensorIndex#FUEL_TYPE}
+     * IntegerSensorIndex#FUEL_TYPE}
      */
     public static final class FuelType {
         private FuelType() {}
@@ -581,7 +581,13 @@ public class CarDiagnosticEvent implements Parcelable {
     }
 
     /**
+<<<<<<< HEAD
      * Represents the state of an ignition monitor on a vehicle.
+=======
+     * Represents possible states of the ignition monitors on the vehicle; see {@link
+     * IntegerSensorIndex#IGNITION_MONITORS_SUPPORTED} see {@link
+     * IntegerSensorIndex#IGNITION_SPECIFIC_MONITORS}
+>>>>>>> 49cfe37f... Remove the CarDiagnosticSensorIndices class as it merely acted as a hollow namespace
      */
     public static final class IgnitionMonitor {
         public final boolean available;
@@ -809,8 +815,7 @@ public class CarDiagnosticEvent implements Parcelable {
      * Returns null otherwise.
      */
     public @Nullable @FuelSystemStatus.Status Integer getFuelSystemStatus() {
-        return getSystemIntegerSensor(
-                CarDiagnosticSensorIndices.IntegerSensorIndex.FUEL_SYSTEM_STATUS);
+        return getSystemIntegerSensor(IntegerSensorIndex.FUEL_SYSTEM_STATUS);
     }
 
     /**
@@ -818,8 +823,7 @@ public class CarDiagnosticEvent implements Parcelable {
      * Returns null otherwise.
      */
     public @Nullable @SecondaryAirStatus.Status Integer getSecondaryAirStatus() {
-        return getSystemIntegerSensor(
-                CarDiagnosticSensorIndices.IntegerSensorIndex.COMMANDED_SECONDARY_AIR_STATUS);
+        return getSystemIntegerSensor(IntegerSensorIndex.COMMANDED_SECONDARY_AIR_STATUS);
     }
 
     /**
@@ -828,13 +832,9 @@ public class CarDiagnosticEvent implements Parcelable {
      */
     public @Nullable CommonIgnitionMonitors getIgnitionMonitors() {
         Integer ignitionMonitorsType =
-                getSystemIntegerSensor(
-                        CarDiagnosticSensorIndices.IntegerSensorIndex
-                                .IGNITION_MONITORS_SUPPORTED);
+                getSystemIntegerSensor(IntegerSensorIndex.IGNITION_MONITORS_SUPPORTED);
         Integer ignitionMonitorsBitmask =
-                getSystemIntegerSensor(
-                        CarDiagnosticSensorIndices.IntegerSensorIndex
-                                .IGNITION_SPECIFIC_MONITORS);
+                getSystemIntegerSensor(IntegerSensorIndex.IGNITION_SPECIFIC_MONITORS);
         if (null == ignitionMonitorsType) return null;
         if (null == ignitionMonitorsBitmask) return null;
         switch (ignitionMonitorsType) {
@@ -852,6 +852,6 @@ public class CarDiagnosticEvent implements Parcelable {
      * Returns null otherwise.
      */
     public @Nullable @FuelType.Type Integer getFuelType() {
-        return getSystemIntegerSensor(CarDiagnosticSensorIndices.IntegerSensorIndex.FUEL_TYPE);
+        return getSystemIntegerSensor(IntegerSensorIndex.FUEL_TYPE);
     }
 }

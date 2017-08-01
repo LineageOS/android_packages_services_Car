@@ -497,123 +497,6 @@ package android.car.hardware {
     method public abstract void onDiagnosticEvent(android.car.hardware.CarDiagnosticEvent);
   }
 
-  public final class CarDiagnosticSensorIndices {
-    ctor public CarDiagnosticSensorIndices();
-  }
-
-  public static final class CarDiagnosticSensorIndices.FloatSensorIndex {
-    field public static final int ABSOLUTE_EVAPORATION_SYSTEM_VAPOR_PRESSURE = 58; // 0x3a
-    field public static final int ABSOLUTE_LOAD_VALUE = 48; // 0x30
-    field public static final int ABSOLUTE_THROTTLE_POSITION_B = 51; // 0x33
-    field public static final int ABSOLUTE_THROTTLE_POSITION_C = 52; // 0x34
-    field public static final int ACCELERATOR_PEDAL_POSITION_D = 53; // 0x35
-    field public static final int ACCELERATOR_PEDAL_POSITION_E = 54; // 0x36
-    field public static final int ACCELERATOR_PEDAL_POSITION_F = 55; // 0x37
-    field public static final int CALCULATED_ENGINE_LOAD = 0; // 0x0
-    field public static final int CATALYST_TEMPERATURE_BANK1_SENSOR1 = 44; // 0x2c
-    field public static final int CATALYST_TEMPERATURE_BANK1_SENSOR2 = 46; // 0x2e
-    field public static final int CATALYST_TEMPERATURE_BANK2_SENSOR1 = 45; // 0x2d
-    field public static final int CATALYST_TEMPERATURE_BANK2_SENSOR2 = 47; // 0x2f
-    field public static final int COMMANDED_EVAPORATIVE_PURGE = 41; // 0x29
-    field public static final int COMMANDED_EXHAUST_GAS_RECIRCULATION = 39; // 0x27
-    field public static final int COMMANDED_THROTTLE_ACTUATOR = 56; // 0x38
-    field public static final int ENGINE_COOLANT_TEMPERATURE = 1; // 0x1
-    field public static final int ENGINE_FUEL_RATE = 70; // 0x46
-    field public static final int ENGINE_RPM = 8; // 0x8
-    field public static final int ETHANOL_FUEL_PERCENTAGE = 57; // 0x39
-    field public static final int EVAPORATION_SYSTEM_VAPOR_PRESSURE = 43; // 0x2b
-    field public static final int EXHAUST_GAS_RECIRCULATION_ERROR = 40; // 0x28
-    field public static final int FUEL_AIR_COMMANDED_EQUIVALENCE_RATIO = 49; // 0x31
-    field public static final int FUEL_INJECTION_TIMING = 69; // 0x45
-    field public static final int FUEL_PRESSURE = 6; // 0x6
-    field public static final int FUEL_RAIL_GAUGE_PRESSURE = 38; // 0x26
-    field public static final int FUEL_RAIL_PRESSURE = 37; // 0x25
-    field public static final int FUEL_TANK_LEVEL_INPUT = 42; // 0x2a
-    field public static final int HYBRID_BATTERY_PACK_REMAINING_LIFE = 68; // 0x44
-    field public static final int INTAKE_MANIFOLD_ABSOLUTE_PRESSURE = 7; // 0x7
-    field public static final int LAST_SYSTEM = 70; // 0x46
-    field public static final int LONG_TERM_FUEL_TRIM_BANK1 = 3; // 0x3
-    field public static final int LONG_TERM_FUEL_TRIM_BANK2 = 5; // 0x5
-    field public static final int LONG_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK1 = 63; // 0x3f
-    field public static final int LONG_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK2 = 64; // 0x40
-    field public static final int LONG_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK3 = 65; // 0x41
-    field public static final int LONG_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK4 = 66; // 0x42
-    field public static final int MAF_AIR_FLOW_RATE = 11; // 0xb
-    field public static final int OXYGEN_SENSOR1_FUEL_AIR_EQUIVALENCE_RATIO = 15; // 0xf
-    field public static final int OXYGEN_SENSOR1_SHORT_TERM_FUEL_TRIM = 14; // 0xe
-    field public static final int OXYGEN_SENSOR1_VOLTAGE = 13; // 0xd
-    field public static final int OXYGEN_SENSOR2_FUEL_AIR_EQUIVALENCE_RATIO = 18; // 0x12
-    field public static final int OXYGEN_SENSOR2_SHORT_TERM_FUEL_TRIM = 17; // 0x11
-    field public static final int OXYGEN_SENSOR2_VOLTAGE = 16; // 0x10
-    field public static final int OXYGEN_SENSOR3_FUEL_AIR_EQUIVALENCE_RATIO = 21; // 0x15
-    field public static final int OXYGEN_SENSOR3_SHORT_TERM_FUEL_TRIM = 20; // 0x14
-    field public static final int OXYGEN_SENSOR3_VOLTAGE = 19; // 0x13
-    field public static final int OXYGEN_SENSOR4_FUEL_AIR_EQUIVALENCE_RATIO = 24; // 0x18
-    field public static final int OXYGEN_SENSOR4_SHORT_TERM_FUEL_TRIM = 23; // 0x17
-    field public static final int OXYGEN_SENSOR4_VOLTAGE = 22; // 0x16
-    field public static final int OXYGEN_SENSOR5_FUEL_AIR_EQUIVALENCE_RATIO = 27; // 0x1b
-    field public static final int OXYGEN_SENSOR5_SHORT_TERM_FUEL_TRIM = 26; // 0x1a
-    field public static final int OXYGEN_SENSOR5_VOLTAGE = 25; // 0x19
-    field public static final int OXYGEN_SENSOR6_FUEL_AIR_EQUIVALENCE_RATIO = 30; // 0x1e
-    field public static final int OXYGEN_SENSOR6_SHORT_TERM_FUEL_TRIM = 29; // 0x1d
-    field public static final int OXYGEN_SENSOR6_VOLTAGE = 28; // 0x1c
-    field public static final int OXYGEN_SENSOR7_FUEL_AIR_EQUIVALENCE_RATIO = 33; // 0x21
-    field public static final int OXYGEN_SENSOR7_SHORT_TERM_FUEL_TRIM = 32; // 0x20
-    field public static final int OXYGEN_SENSOR7_VOLTAGE = 31; // 0x1f
-    field public static final int OXYGEN_SENSOR8_FUEL_AIR_EQUIVALENCE_RATIO = 36; // 0x24
-    field public static final int OXYGEN_SENSOR8_SHORT_TERM_FUEL_TRIM = 35; // 0x23
-    field public static final int OXYGEN_SENSOR8_VOLTAGE = 34; // 0x22
-    field public static final int RELATIVE_ACCELERATOR_PEDAL_POSITION = 67; // 0x43
-    field public static final int RELATIVE_THROTTLE_POSITION = 50; // 0x32
-    field public static final int SHORT_TERM_FUEL_TRIM_BANK1 = 2; // 0x2
-    field public static final int SHORT_TERM_FUEL_TRIM_BANK2 = 4; // 0x4
-    field public static final int SHORT_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK1 = 59; // 0x3b
-    field public static final int SHORT_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK2 = 60; // 0x3c
-    field public static final int SHORT_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK3 = 61; // 0x3d
-    field public static final int SHORT_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK4 = 62; // 0x3e
-    field public static final int THROTTLE_POSITION = 12; // 0xc
-    field public static final int TIMING_ADVANCE = 10; // 0xa
-    field public static final int VEHICLE_SPEED = 9; // 0x9
-    field public static final int VENDOR_START = 71; // 0x47
-  }
-
-  public static final class CarDiagnosticSensorIndices.IntegerSensorIndex {
-    field public static final int ABSOLUTE_BAROMETRIC_PRESSURE = 11; // 0xb
-    field public static final int AMBIENT_AIR_TEMPERATURE = 13; // 0xd
-    field public static final int COMMANDED_SECONDARY_AIR_STATUS = 5; // 0x5
-    field public static final int CONTROL_MODULE_VOLTAGE = 12; // 0xc
-    field public static final int DISTANCE_TRAVELED_SINCE_CODES_CLEARED = 10; // 0xa
-    field public static final int DISTANCE_TRAVELED_WITH_MALFUNCTION_INDICATOR_LIGHT_ON = 8; // 0x8
-    field public static final int DRIVER_DEMAND_PERCENT_TORQUE = 24; // 0x18
-    field public static final int ENGINE_ACTUAL_PERCENT_TORQUE = 25; // 0x19
-    field public static final int ENGINE_OIL_TEMPERATURE = 23; // 0x17
-    field public static final int ENGINE_PERCENT_TORQUE_DATA_IDLE = 27; // 0x1b
-    field public static final int ENGINE_PERCENT_TORQUE_DATA_POINT1 = 28; // 0x1c
-    field public static final int ENGINE_PERCENT_TORQUE_DATA_POINT2 = 29; // 0x1d
-    field public static final int ENGINE_PERCENT_TORQUE_DATA_POINT3 = 30; // 0x1e
-    field public static final int ENGINE_PERCENT_TORQUE_DATA_POINT4 = 31; // 0x1f
-    field public static final int ENGINE_REFERENCE_PERCENT_TORQUE = 26; // 0x1a
-    field public static final int FUEL_RAIL_ABSOLUTE_PRESSURE = 22; // 0x16
-    field public static final int FUEL_SYSTEM_STATUS = 0; // 0x0
-    field public static final int FUEL_TYPE = 21; // 0x15
-    field public static final int IGNITION_MONITORS_SUPPORTED = 2; // 0x2
-    field public static final int IGNITION_SPECIFIC_MONITORS = 3; // 0x3
-    field public static final int INTAKE_AIR_TEMPERATURE = 4; // 0x4
-    field public static final int LAST_SYSTEM = 31; // 0x1f
-    field public static final int MALFUNCTION_INDICATOR_LIGHT_ON = 1; // 0x1
-    field public static final int MAX_AIR_FLOW_RATE_FROM_MASS_AIR_FLOW_SENSOR = 20; // 0x14
-    field public static final int MAX_FUEL_AIR_EQUIVALENCE_RATIO = 16; // 0x10
-    field public static final int MAX_INTAKE_MANIFOLD_ABSOLUTE_PRESSURE = 19; // 0x13
-    field public static final int MAX_OXYGEN_SENSOR_CURRENT = 18; // 0x12
-    field public static final int MAX_OXYGEN_SENSOR_VOLTAGE = 17; // 0x11
-    field public static final int NUM_OXYGEN_SENSORS_PRESENT = 6; // 0x6
-    field public static final int RUNTIME_SINCE_ENGINE_START = 7; // 0x7
-    field public static final int TIME_SINCE_TROUBLE_CODES_CLEARED = 15; // 0xf
-    field public static final int TIME_WITH_MALFUNCTION_LIGHT_ON = 14; // 0xe
-    field public static final int VENDOR_START = 32; // 0x20
-    field public static final int WARMUPS_SINCE_CODES_CLEARED = 9; // 0x9
-  }
-
   public class CarPropertyConfig<T> implements android.os.Parcelable {
     method public int describeContents();
     method public int getAreaCount();
@@ -760,6 +643,119 @@ package android.car.hardware {
   public static abstract interface CarVendorExtensionManager.CarVendorExtensionCallback {
     method public abstract void onChangeEvent(android.car.hardware.CarPropertyValue);
     method public abstract void onErrorEvent(int, int);
+  }
+
+  public final class FloatSensorIndex {
+    field public static final int ABSOLUTE_EVAPORATION_SYSTEM_VAPOR_PRESSURE = 58; // 0x3a
+    field public static final int ABSOLUTE_LOAD_VALUE = 48; // 0x30
+    field public static final int ABSOLUTE_THROTTLE_POSITION_B = 51; // 0x33
+    field public static final int ABSOLUTE_THROTTLE_POSITION_C = 52; // 0x34
+    field public static final int ACCELERATOR_PEDAL_POSITION_D = 53; // 0x35
+    field public static final int ACCELERATOR_PEDAL_POSITION_E = 54; // 0x36
+    field public static final int ACCELERATOR_PEDAL_POSITION_F = 55; // 0x37
+    field public static final int CALCULATED_ENGINE_LOAD = 0; // 0x0
+    field public static final int CATALYST_TEMPERATURE_BANK1_SENSOR1 = 44; // 0x2c
+    field public static final int CATALYST_TEMPERATURE_BANK1_SENSOR2 = 46; // 0x2e
+    field public static final int CATALYST_TEMPERATURE_BANK2_SENSOR1 = 45; // 0x2d
+    field public static final int CATALYST_TEMPERATURE_BANK2_SENSOR2 = 47; // 0x2f
+    field public static final int COMMANDED_EVAPORATIVE_PURGE = 41; // 0x29
+    field public static final int COMMANDED_EXHAUST_GAS_RECIRCULATION = 39; // 0x27
+    field public static final int COMMANDED_THROTTLE_ACTUATOR = 56; // 0x38
+    field public static final int ENGINE_COOLANT_TEMPERATURE = 1; // 0x1
+    field public static final int ENGINE_FUEL_RATE = 70; // 0x46
+    field public static final int ENGINE_RPM = 8; // 0x8
+    field public static final int ETHANOL_FUEL_PERCENTAGE = 57; // 0x39
+    field public static final int EVAPORATION_SYSTEM_VAPOR_PRESSURE = 43; // 0x2b
+    field public static final int EXHAUST_GAS_RECIRCULATION_ERROR = 40; // 0x28
+    field public static final int FUEL_AIR_COMMANDED_EQUIVALENCE_RATIO = 49; // 0x31
+    field public static final int FUEL_INJECTION_TIMING = 69; // 0x45
+    field public static final int FUEL_PRESSURE = 6; // 0x6
+    field public static final int FUEL_RAIL_GAUGE_PRESSURE = 38; // 0x26
+    field public static final int FUEL_RAIL_PRESSURE = 37; // 0x25
+    field public static final int FUEL_TANK_LEVEL_INPUT = 42; // 0x2a
+    field public static final int HYBRID_BATTERY_PACK_REMAINING_LIFE = 68; // 0x44
+    field public static final int INTAKE_MANIFOLD_ABSOLUTE_PRESSURE = 7; // 0x7
+    field public static final int LAST_SYSTEM = 70; // 0x46
+    field public static final int LONG_TERM_FUEL_TRIM_BANK1 = 3; // 0x3
+    field public static final int LONG_TERM_FUEL_TRIM_BANK2 = 5; // 0x5
+    field public static final int LONG_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK1 = 63; // 0x3f
+    field public static final int LONG_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK2 = 64; // 0x40
+    field public static final int LONG_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK3 = 65; // 0x41
+    field public static final int LONG_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK4 = 66; // 0x42
+    field public static final int MAF_AIR_FLOW_RATE = 11; // 0xb
+    field public static final int OXYGEN_SENSOR1_FUEL_AIR_EQUIVALENCE_RATIO = 15; // 0xf
+    field public static final int OXYGEN_SENSOR1_SHORT_TERM_FUEL_TRIM = 14; // 0xe
+    field public static final int OXYGEN_SENSOR1_VOLTAGE = 13; // 0xd
+    field public static final int OXYGEN_SENSOR2_FUEL_AIR_EQUIVALENCE_RATIO = 18; // 0x12
+    field public static final int OXYGEN_SENSOR2_SHORT_TERM_FUEL_TRIM = 17; // 0x11
+    field public static final int OXYGEN_SENSOR2_VOLTAGE = 16; // 0x10
+    field public static final int OXYGEN_SENSOR3_FUEL_AIR_EQUIVALENCE_RATIO = 21; // 0x15
+    field public static final int OXYGEN_SENSOR3_SHORT_TERM_FUEL_TRIM = 20; // 0x14
+    field public static final int OXYGEN_SENSOR3_VOLTAGE = 19; // 0x13
+    field public static final int OXYGEN_SENSOR4_FUEL_AIR_EQUIVALENCE_RATIO = 24; // 0x18
+    field public static final int OXYGEN_SENSOR4_SHORT_TERM_FUEL_TRIM = 23; // 0x17
+    field public static final int OXYGEN_SENSOR4_VOLTAGE = 22; // 0x16
+    field public static final int OXYGEN_SENSOR5_FUEL_AIR_EQUIVALENCE_RATIO = 27; // 0x1b
+    field public static final int OXYGEN_SENSOR5_SHORT_TERM_FUEL_TRIM = 26; // 0x1a
+    field public static final int OXYGEN_SENSOR5_VOLTAGE = 25; // 0x19
+    field public static final int OXYGEN_SENSOR6_FUEL_AIR_EQUIVALENCE_RATIO = 30; // 0x1e
+    field public static final int OXYGEN_SENSOR6_SHORT_TERM_FUEL_TRIM = 29; // 0x1d
+    field public static final int OXYGEN_SENSOR6_VOLTAGE = 28; // 0x1c
+    field public static final int OXYGEN_SENSOR7_FUEL_AIR_EQUIVALENCE_RATIO = 33; // 0x21
+    field public static final int OXYGEN_SENSOR7_SHORT_TERM_FUEL_TRIM = 32; // 0x20
+    field public static final int OXYGEN_SENSOR7_VOLTAGE = 31; // 0x1f
+    field public static final int OXYGEN_SENSOR8_FUEL_AIR_EQUIVALENCE_RATIO = 36; // 0x24
+    field public static final int OXYGEN_SENSOR8_SHORT_TERM_FUEL_TRIM = 35; // 0x23
+    field public static final int OXYGEN_SENSOR8_VOLTAGE = 34; // 0x22
+    field public static final int RELATIVE_ACCELERATOR_PEDAL_POSITION = 67; // 0x43
+    field public static final int RELATIVE_THROTTLE_POSITION = 50; // 0x32
+    field public static final int SHORT_TERM_FUEL_TRIM_BANK1 = 2; // 0x2
+    field public static final int SHORT_TERM_FUEL_TRIM_BANK2 = 4; // 0x4
+    field public static final int SHORT_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK1 = 59; // 0x3b
+    field public static final int SHORT_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK2 = 60; // 0x3c
+    field public static final int SHORT_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK3 = 61; // 0x3d
+    field public static final int SHORT_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_BANK4 = 62; // 0x3e
+    field public static final int THROTTLE_POSITION = 12; // 0xc
+    field public static final int TIMING_ADVANCE = 10; // 0xa
+    field public static final int VEHICLE_SPEED = 9; // 0x9
+    field public static final int VENDOR_START = 71; // 0x47
+  }
+
+  public final class IntegerSensorIndex {
+    field public static final int ABSOLUTE_BAROMETRIC_PRESSURE = 11; // 0xb
+    field public static final int AMBIENT_AIR_TEMPERATURE = 13; // 0xd
+    field public static final int COMMANDED_SECONDARY_AIR_STATUS = 5; // 0x5
+    field public static final int CONTROL_MODULE_VOLTAGE = 12; // 0xc
+    field public static final int DISTANCE_TRAVELED_SINCE_CODES_CLEARED = 10; // 0xa
+    field public static final int DISTANCE_TRAVELED_WITH_MALFUNCTION_INDICATOR_LIGHT_ON = 8; // 0x8
+    field public static final int DRIVER_DEMAND_PERCENT_TORQUE = 24; // 0x18
+    field public static final int ENGINE_ACTUAL_PERCENT_TORQUE = 25; // 0x19
+    field public static final int ENGINE_OIL_TEMPERATURE = 23; // 0x17
+    field public static final int ENGINE_PERCENT_TORQUE_DATA_IDLE = 27; // 0x1b
+    field public static final int ENGINE_PERCENT_TORQUE_DATA_POINT1 = 28; // 0x1c
+    field public static final int ENGINE_PERCENT_TORQUE_DATA_POINT2 = 29; // 0x1d
+    field public static final int ENGINE_PERCENT_TORQUE_DATA_POINT3 = 30; // 0x1e
+    field public static final int ENGINE_PERCENT_TORQUE_DATA_POINT4 = 31; // 0x1f
+    field public static final int ENGINE_REFERENCE_PERCENT_TORQUE = 26; // 0x1a
+    field public static final int FUEL_RAIL_ABSOLUTE_PRESSURE = 22; // 0x16
+    field public static final int FUEL_SYSTEM_STATUS = 0; // 0x0
+    field public static final int FUEL_TYPE = 21; // 0x15
+    field public static final int IGNITION_MONITORS_SUPPORTED = 2; // 0x2
+    field public static final int IGNITION_SPECIFIC_MONITORS = 3; // 0x3
+    field public static final int INTAKE_AIR_TEMPERATURE = 4; // 0x4
+    field public static final int LAST_SYSTEM = 31; // 0x1f
+    field public static final int MALFUNCTION_INDICATOR_LIGHT_ON = 1; // 0x1
+    field public static final int MAX_AIR_FLOW_RATE_FROM_MASS_AIR_FLOW_SENSOR = 20; // 0x14
+    field public static final int MAX_FUEL_AIR_EQUIVALENCE_RATIO = 16; // 0x10
+    field public static final int MAX_INTAKE_MANIFOLD_ABSOLUTE_PRESSURE = 19; // 0x13
+    field public static final int MAX_OXYGEN_SENSOR_CURRENT = 18; // 0x12
+    field public static final int MAX_OXYGEN_SENSOR_VOLTAGE = 17; // 0x11
+    field public static final int NUM_OXYGEN_SENSORS_PRESENT = 6; // 0x6
+    field public static final int RUNTIME_SINCE_ENGINE_START = 7; // 0x7
+    field public static final int TIME_SINCE_TROUBLE_CODES_CLEARED = 15; // 0xf
+    field public static final int TIME_WITH_MALFUNCTION_LIGHT_ON = 14; // 0xe
+    field public static final int VENDOR_START = 32; // 0x20
+    field public static final int WARMUPS_SINCE_CODES_CLEARED = 9; // 0x9
   }
 
 }
