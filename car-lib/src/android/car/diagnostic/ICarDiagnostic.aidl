@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package android.car.hardware;
+package android.car.diagnostic;
 
-import android.car.hardware.CarDiagnosticEvent;
-import android.car.hardware.ICarDiagnosticEventListener;
+import android.car.diagnostic.CarDiagnosticEvent;
+import android.car.diagnostic.ICarDiagnosticEventListener;
 
 /** @hide */
 interface ICarDiagnostic {

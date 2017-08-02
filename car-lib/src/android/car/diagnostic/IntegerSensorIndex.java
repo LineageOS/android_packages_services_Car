@@ -14,7 +14,7 @@
  * limitations under the License.
 */
 
-package android.car.hardware;
+package android.car.diagnostic;
 
 import android.annotation.IntDef;
 import android.annotation.SystemApi;

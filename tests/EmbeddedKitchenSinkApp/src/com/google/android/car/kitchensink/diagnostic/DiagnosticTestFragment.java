@@ -18,12 +18,11 @@ package com.google.android.car.kitchensink.diagnostic;
 
 import android.annotation.Nullable;
 import android.car.Car;
-import android.car.hardware.CarDiagnosticEvent;
-import android.car.hardware.CarDiagnosticManager;
-import android.car.hardware.CarDiagnosticManager.OnDiagnosticEventListener;
+import android.car.diagnostic.CarDiagnosticEvent;
+import android.car.diagnostic.CarDiagnosticManager;
+import android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.car.hardware.CarSensorManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
