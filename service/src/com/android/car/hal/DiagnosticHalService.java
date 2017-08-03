@@ -17,9 +17,8 @@
 package com.android.car.hal;
 
 import android.annotation.Nullable;
-import android.car.annotation.FutureFeature;
-import android.car.hardware.CarDiagnosticEvent;
-import android.car.hardware.CarDiagnosticManager;
+import android.car.diagnostic.CarDiagnosticEvent;
+import android.car.diagnostic.CarDiagnosticManager;
 import android.car.hardware.CarSensorManager;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -33,10 +32,7 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
