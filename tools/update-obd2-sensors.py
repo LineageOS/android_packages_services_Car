@@ -126,7 +126,7 @@ class JavaSensorPolicy(SensorPolicy):
 " * limitations under the License.\n" + \
 "*/\n" + \
 "\n" + \
-"package android.car.hardware;\n" + \
+"package android.car.diagnostic;\n" + \
 "\n" + \
 "import android.annotation.IntDef;\n" + \
 "import android.annotation.SystemApi;\n" + \
@@ -281,9 +281,9 @@ def load(filepath):
 import os
 
 if len(sys.argv) != 4:
-    print('syntax: update-obd2-sensors.py <path/to/types.hal> <path/to/*SensorIndices.java> <path/to/diagnostic_sensors.py>')
+    print('syntax: update-obd2-sensors.py <path/to/types.hal> <path/to/android.car.diagnostic> <path/to/diagnostic_sensors.py>')
     print('This script will parse types.hal, and use the resulting', end='')
-    print('parse tree to generate CarDiagnosticSensorIndices.java.')
+    print('parse tree to generate Java and Python lists of sensor identifiers.')
     sys.exit(1)
 load(sys.argv[1])
 generateJava(sys.argv[2])

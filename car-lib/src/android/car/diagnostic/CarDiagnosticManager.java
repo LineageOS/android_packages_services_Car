@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.hardware;
+package android.car.diagnostic;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
@@ -24,6 +24,7 @@ import android.car.CarApiUtil;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
+import android.car.diagnostic.ICarDiagnosticEventListener.Stub;
 import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
@@ -221,7 +222,8 @@ public final class CarDiagnosticManager implements CarManagerBase {
      *         null if no live frame has been recorded by the vehicle.
      * @throws CarNotConnectedException
      */
-    public @Nullable CarDiagnosticEvent getLatestLiveFrame() throws CarNotConnectedException {
+    public @Nullable
+    CarDiagnosticEvent getLatestLiveFrame() throws CarNotConnectedException {
         try {
             return mService.getLatestLiveFrame();
         } catch (IllegalStateException e) {
@@ -263,7 +265,8 @@ public final class CarDiagnosticManager implements CarManagerBase {
      * even if it was initially obtained via a call to getFreezeFrameTimestamps().
      * @throws CarNotConnectedException
      */
-    public @Nullable CarDiagnosticEvent getFreezeFrame(long timestamp)
+    public @Nullable
+    CarDiagnosticEvent getFreezeFrame(long timestamp)
         throws CarNotConnectedException {
         try {
             return mService.getFreezeFrame(timestamp);
@@ -363,7 +366,7 @@ public final class CarDiagnosticManager implements CarManagerBase {
     }
 
     private static class CarDiagnosticEventListenerToService
-            extends ICarDiagnosticEventListener.Stub {
+            extends Stub {
         private final WeakReference<CarDiagnosticManager> mManager;
 
         public CarDiagnosticEventListenerToService(CarDiagnosticManager manager) {
