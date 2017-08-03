@@ -219,7 +219,9 @@ public class AudioTestFragment extends Fragment {
         mMediaPlay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMusicPlayer.start(false, true, AudioManager.AUDIOFOCUS_GAIN);
+                boolean requestFocus = true;
+                boolean repeat = true;
+                mMusicPlayer.start(requestFocus, repeat, AudioManager.AUDIOFOCUS_GAIN);
             }
         });
         mMediaPlayOnce = (Button) view.findViewById(R.id.button_media_play_once);
