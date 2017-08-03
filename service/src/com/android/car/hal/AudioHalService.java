@@ -101,9 +101,12 @@ public class AudioHalService extends HalServiceBase {
 
     public static final int STREAM_NUM_DEFAULT = 0;
 
-    public static final int FOCUS_STATE_ARRAY_INDEX_STATE = 0;
-    public static final int FOCUS_STATE_ARRAY_INDEX_STREAMS = 1;
-    public static final int FOCUS_STATE_ARRAY_INDEX_EXTERNAL_FOCUS = 2;
+    public static final int FOCUS_STATE_ARRAY_INDEX_STATE =
+            VehicleAudioFocusIndex.FOCUS;
+    public static final int FOCUS_STATE_ARRAY_INDEX_STREAMS =
+            VehicleAudioFocusIndex.STREAMS;
+    public static final int FOCUS_STATE_ARRAY_INDEX_EXTERNAL_FOCUS =
+            VehicleAudioFocusIndex.EXTERNAL_FOCUS_STATE;
 
     public static final int AUDIO_CONTEXT_MUSIC_FLAG =
             VehicleAudioContextFlag.MUSIC_FLAG;
@@ -714,9 +717,9 @@ public class AudioHalService extends HalServiceBase {
                 } break;
                 case AUDIO_VOLUME: {
                     ArrayList<Integer> vec = v.value.int32Values;
-                    int volume = vec.get(VehicleAudioVolumeIndex.INDEX_VOLUME);
-                    int streamNum = vec.get(VehicleAudioVolumeIndex.INDEX_STREAM);
-                    int volumeState = vec.get(VehicleAudioVolumeIndex.INDEX_STATE);
+                    int streamNum = vec.get(VehicleAudioVolumeIndex.STREAM);
+                    int volume = vec.get(VehicleAudioVolumeIndex.VOLUME);
+                    int volumeState = vec.get(VehicleAudioVolumeIndex.STATE);
                     if (volumeListener != null) {
                         volumeListener.onVolumeChange(streamNum, volume, volumeState);
                     }

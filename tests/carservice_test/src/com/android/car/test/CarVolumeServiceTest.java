@@ -327,9 +327,9 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
         @Override
         public void onPropertySet(VehiclePropValue value) {
             ArrayList<Integer> v = value.value.int32Values;
-            int stream = v.get(VehicleAudioVolumeIndex.INDEX_STREAM);
-            int volume = v.get(VehicleAudioVolumeIndex.INDEX_VOLUME);
-            int state = v.get(VehicleAudioVolumeIndex.INDEX_STATE);
+            int stream = v.get(VehicleAudioVolumeIndex.STREAM);
+            int volume = v.get(VehicleAudioVolumeIndex.VOLUME);
+            int state = v.get(VehicleAudioVolumeIndex.STATE);
             Log.d(TAG, "state " + state);
 
             mCurrent.put(stream, volume);
@@ -342,7 +342,7 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
 
         @Override
         public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            int stream = value.value.int32Values.get(VehicleAudioVolumeIndex.INDEX_STREAM);
+            int stream = value.value.int32Values.get(VehicleAudioVolumeIndex.STREAM);
             int volume = mCurrent.get(stream);
             return VehiclePropValueBuilder.newBuilder(VehicleProperty.AUDIO_VOLUME)
                     .setTimestamp(SystemClock.elapsedRealtimeNanos())
