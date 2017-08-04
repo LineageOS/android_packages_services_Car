@@ -284,6 +284,7 @@ package android.car.media {
     field public static final int CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE = 3; // 0x3
     field public static final int CAR_AUDIO_USAGE_NOTIFICATION = 7; // 0x7
     field public static final int CAR_AUDIO_USAGE_RADIO = 2; // 0x2
+    field public static final int CAR_AUDIO_USAGE_RINGTONE = 10; // 0xa
     field public static final int CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT = 9; // 0x9
     field public static final int CAR_AUDIO_USAGE_SYSTEM_SOUND = 8; // 0x8
     field public static final int CAR_AUDIO_USAGE_VOICE_CALL = 4; // 0x4
