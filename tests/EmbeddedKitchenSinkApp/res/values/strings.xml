@@ -252,6 +252,8 @@
     <string name="bluetooth_pick_device">Pick Device</string>
     <string name="bluetooth_quiet_mode_enable">Quiet Mode</string>
     <string name="bluetooth_hold_call">Hold call</string>
+    <string name="bluetooth_voice_recognition_enable">Start Voice Recognition</string>
+    <string name="bluetooth_voice_recognition_disable">Stop Voice Recognition</string>
 
     <!--Car Service Settings-->
     <string name="garage_title">Garage Mode</string>
