@@ -198,28 +198,32 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
 
     @Override
     public void init() {
-        AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
-        builder.setLooper(Looper.getMainLooper());
-        boolean isFocusSupported = mAudioHal.isFocusSupported();
-        if (isFocusSupported) {
-            builder.setAudioPolicyFocusListener(mSystemFocusListener);
-            FocusState currentState = FocusState.create(mAudioHal.getCurrentFocusState());
-            int r = mAudioManager.requestAudioFocus(mBottomAudioFocusListener, mAttributeBottom,
-                    AudioManager.AUDIOFOCUS_GAIN, AudioManager.AUDIOFOCUS_FLAG_DELAY_OK);
-            synchronized (mLock) {
-                mCurrentFocusState = currentState;
-                mCurrentAudioContexts = 0;
-            }
-        }
         int audioHwVariant = mAudioHal.getHwVariant();
         AudioRoutingPolicy audioRoutingPolicy = AudioRoutingPolicy.create(mContext, audioHwVariant);
-        if (mUseDynamicRouting) {
-            setupDynamicRouting(audioRoutingPolicy, builder);
-        }
+
         AudioPolicy audioPolicy = null;
+        boolean isFocusSupported = mAudioHal.isFocusSupported();
+
+        // Do we need to install a custom audio policy?
         if (isFocusSupported || mUseDynamicRouting) {
+            AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
+            builder.setLooper(Looper.getMainLooper());
+            if (isFocusSupported) {
+                builder.setAudioPolicyFocusListener(mSystemFocusListener);
+                FocusState currentState = FocusState.create(mAudioHal.getCurrentFocusState());
+                int r = mAudioManager.requestAudioFocus(mBottomAudioFocusListener, mAttributeBottom,
+                        AudioManager.AUDIOFOCUS_GAIN, AudioManager.AUDIOFOCUS_FLAG_DELAY_OK);
+                synchronized (mLock) {
+                    mCurrentFocusState = currentState;
+                    mCurrentAudioContexts = 0;
+                }
+            }
+            if (mUseDynamicRouting) {
+                setupDynamicRouting(audioRoutingPolicy, builder);
+            }
             audioPolicy = builder.build();
         }
+
         mAudioHal.setFocusListener(this);
         mAudioHal.setAudioRoutingPolicy(audioRoutingPolicy);
         mAudioHal.setOnParameterChangeListener(this);
