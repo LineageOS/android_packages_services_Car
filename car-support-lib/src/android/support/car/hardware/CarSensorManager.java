@@ -280,4 +280,15 @@ public abstract class CarSensorManager implements CarManagerBase {
      */
     public abstract CarSensorEvent getLatestSensorEvent(@SensorType int type)
             throws CarNotConnectedException;
+
+    /**
+     * Get the config data for the given type.
+     * @param sensor type to request
+     * @return CarSensorConfig object
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
+     * @hide
+     */
+    public abstract CarSensorConfig getSensorConfig(@SensorType int type)
+            throws CarNotConnectedException;
+
 }

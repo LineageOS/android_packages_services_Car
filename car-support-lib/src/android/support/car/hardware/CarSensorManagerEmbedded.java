@@ -155,6 +155,16 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
     }
 
     @Override
+    public CarSensorConfig getSensorConfig(@SensorType int type)
+        throws CarNotConnectedException {
+        try {
+            return convert(mManager.getSensorConfig(type));
+        } catch (android.car.CarNotConnectedException e) {
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    @Override
     public void onCarDisconnected() {
         //nothing to do
     }
@@ -174,6 +184,13 @@ public class CarSensorManagerEmbedded extends CarSensorManager {
         }
         return new CarSensorEvent(event.sensorType, event.timestamp, event.floatValues,
                 event.intValues, event.longValues);
+    }
+
+    private static CarSensorConfig convert(android.car.hardware.CarSensorConfig cfg) {
+        if (cfg == null) {
+            return null;
+        }
+        return new CarSensorConfig(cfg.getType(), cfg.getBundle());
     }
 
     private static class OnSensorChangedListenerProxy

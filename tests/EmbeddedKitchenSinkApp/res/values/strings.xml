@@ -182,6 +182,7 @@
     <string name="sensor_gps">GPS Satellites[%1$s]: inView: %2$s, inUse: %3$s. %4$s</string>
     <string name="sensor_single_gps_satellite">(%1$s): usedInFix: %2$s, prn: %3$s, snr: %4$s, azimuth: %5$s, elevation: %6$s</string>
     <string name="sensor_wheel_ticks">Wheel Distance[%1$s]: reset=%2$s, FL=%3$s, FR=%4$s, RL=%5$s, RR=%6$s</string>
+    <string name="sensor_wheel_ticks_cfg">Wheel Distance Config: Wheels=%1$s, FL=%2$s, FR=%3$s, RL=%4$s, RR=%5$s</string>
     <string name="sensor_abs_is_active">ABS[%1$s]: isActive=%2$s</string>
     <string name="sensor_traction_control_is_active">Traction Control[%1$s]: isActive=%2$s</string>
 
