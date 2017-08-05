@@ -27,7 +27,10 @@ import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Process;
+import android.os.Trace;
+import android.util.BootTimingsTraceLog;
 import android.util.Log;
+import android.util.Slog;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
@@ -75,6 +78,11 @@ public class ICarImpl extends ICar.Stub {
     private VmsPublisherService mVmsPublisherService;
 
     private final CarServiceBase[] mAllServices;
+
+    private static final String TAG = "ICarImpl";
+    private static final String VHAL_TIMING_TAG = "VehicleHalTiming";
+    private static final BootTimingsTraceLog mBootTiming = new BootTimingsTraceLog(VHAL_TIMING_TAG,
+        Trace.TRACE_TAG_HAL);
 
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
@@ -150,10 +158,14 @@ public class ICarImpl extends ICar.Stub {
     }
 
     public void init() {
+        traceBegin("VehicleHal.init");
         mHal.init();
+        traceEnd();
+        traceBegin("CarService.initAllServices");
         for (CarServiceBase service : mAllServices) {
             service.init();
         }
+        traceEnd();
     }
 
     public void release() {
@@ -340,6 +352,15 @@ public class ICarImpl extends ICar.Stub {
 
     void execShellCmd(String[] args, PrintWriter writer) {
         new CarShellCommand().exec(args, writer);
+    }
+
+    private static void traceBegin(String name) {
+        Slog.i(TAG, name);
+        mBootTiming.traceBegin(name);
+    }
+
+    private static void traceEnd() {
+        mBootTiming.traceEnd();
     }
 
     private class CarShellCommand {
