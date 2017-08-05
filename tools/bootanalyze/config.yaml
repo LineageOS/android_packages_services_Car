@@ -57,4 +57,23 @@ events:
   BootComplete_kernel: processing action \(sys\.boot_completed=1\)
   LauncherStart: START.*HOME.*(NexusLauncherActivity|GEL|LensPickerTrampolineActivity|SetupWizardActivity)
   FsStat: fs_stat, partition:userdata stat:(0x\S+)
-
+shutdown_events:
+  ShutdownStart: ShutdownThread:\sNotifying thread to start shutdown
+  ShutdownBroadcast: ShutdownThread:\sSending shutdown broadcast
+  ShutdownActivityManagerService: ShutdownThread:\sShutting down activity manager
+  ShutdownPackageManagerService: ShutdownThread:\sShutting down package manager
+  ShutdownNfc: ShutdownThread:\sTurning off NFC
+  ShutdownBt: ShutdownThread:\sDisabling Bluetooth
+  ShutdownRadio: ShutdownThread:\sTurning off cellular radios
+  ShutdownRadiosWait: ShutdownThread:\sWaiting for NFC, Bluetooth and Radio
+  ShutdownBtDone: ShutdownThread:\sBluetooth turned off
+  ShutdownRadioDone: ShutdownThread:\sRadio turned off
+  ShutdownNfcDone: ShutdownThread:\sNFC turned off
+  ShutdownRadiosWaitDone: ShutdownThread:\sNFC, Radio and Bluetooth shutdown complete
+  ShutdownRadiosWaitTimeout: ShutdownThread:\sTimed out waiting for NFC, Radio and Bluetooth shutdown
+  ShutdownStorageManagerSerivce: ShutdownThread:\sShutting down StorageManagerService
+  ShutdownStorageManagerSerivceDone: ShutdownThread:\sResult code [\d]+ from StorageManagerService\.shutdown
+  ShutdownStorageManagerSerivceTimeout: ShutdownThread:\sShutdown wait timed out
+  ShutdownStartDone: ShutdownThread:\sPerforming low-level shutdown
+  ShutdownInitAction: init\s+:\sprocessing action \(sys\.shutdown\.requested
+  ShutdownInitFsShutdown: init\s+:\sShutdown timeout
