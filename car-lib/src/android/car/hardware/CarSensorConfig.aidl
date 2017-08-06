@@ -16,11 +16,4 @@
 
 package android.car.hardware;
 
-import android.car.hardware.CarDiagnosticEvent;
-
-/**
- * @hide
- */
-oneway interface ICarDiagnosticEventListener {
-    void onDiagnosticEvents(in List<CarDiagnosticEvent> events) = 0;
-}
+parcelable CarSensorConfig;

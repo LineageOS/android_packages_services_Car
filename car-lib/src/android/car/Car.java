@@ -22,7 +22,7 @@ import android.annotation.SystemApi;
 import android.car.annotation.FutureFeature;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.content.pm.CarPackageManager;
-import android.car.hardware.CarDiagnosticManager;
+import android.car.diagnostic.CarDiagnosticManager;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.cabin.CarCabinManager;

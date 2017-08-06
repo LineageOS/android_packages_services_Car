@@ -15,7 +15,7 @@
  */
 package com.google.android.car.diagnosticverifier;
 
-import android.car.hardware.CarDiagnosticEvent;
+import android.car.diagnostic.CarDiagnosticEvent;
 import android.util.JsonReader;
 
 import com.android.car.vehiclehal.DiagnosticJson;
