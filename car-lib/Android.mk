@@ -25,6 +25,7 @@ LOCAL_MODULE := android.car
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
+LOCAL_AIDL_INCLUDES += system/bt/binder
 
 include $(BUILD_JAVA_LIBRARY)
 

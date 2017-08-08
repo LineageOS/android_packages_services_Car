@@ -21,6 +21,7 @@ LOCAL_MODULE := bt-map-client-lib
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-subdir-Iaidl-files)
+LOCAL_AIDL_INCLUDES += system/bt/binder
 
 LOCAL_JAVA_LIBRARIES := \
 	javax.obex \
