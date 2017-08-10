@@ -81,17 +81,19 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
                 mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
             }
         });
+    }
 
+    private void setupExternalVolumeEmulation() throws Exception {
         List<Integer> maxs = new ArrayList<>();
         maxs.add(MAX_VOL);
         maxs.add(MAX_VOL);
-
         // TODO: add tests for audio context supported cases.
-        startVolumeEmulation(0 /*supported audio context*/, maxs);
+        startVolumeEmulation(true, 0 /*supported audio context*/, maxs);
         mCarAudioManager = (CarAudioManager) getCar().getCarManager(Car.AUDIO_SERVICE);
     }
 
     public void testVolumeLimits() throws Exception {
+        setupExternalVolumeEmulation();
         for (int stream : LOGICAL_STREAMS) {
             assertEquals(MAX_VOL, mCarAudioManager.getStreamMaxVolume(stream));
         }
@@ -99,6 +101,7 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
 
     public void testVolumeSet() {
         try {
+            setupExternalVolumeEmulation();
             int callVol = 10;
             int musicVol = 15;
             mCarAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, musicVol, 0);
@@ -112,13 +115,33 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
 
             volumeVerificationPoll(createStreamVolPair(AudioManager.STREAM_MUSIC, MAX_VOL),
                     createStreamVolPair(AudioManager.STREAM_VOICE_CALL, callVol));
-        } catch (CarNotConnectedException e) {
-            fail("Car not connected");
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
+
+    public void testMultipleVolumeControllers() {
+        try {
+            startVolumeEmulation(false, 0, new ArrayList<>());
+            mCarAudioManager = (CarAudioManager) getCar().getCarManager(Car.AUDIO_SERVICE);
+            mCarAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+            VolumeController volumeController1 = new VolumeController();
+            VolumeController volumeController2 = new VolumeController();
+            mCarAudioManager.setVolumeController(volumeController1);
+            mCarAudioManager.setVolumeController(volumeController2);
+
+            mCarAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+                    1, AudioManager.FLAG_SHOW_UI);
+            volumeChangeVerificationPoll(AudioManager.STREAM_MUSIC, true, volumeController1);
+            volumeChangeVerificationPoll(AudioManager.STREAM_MUSIC, true, volumeController2);
+        } catch (Exception e) {
+            fail(e.getMessage());
         }
     }
 
     public void testSuppressVolumeUI() {
         try {
+            setupExternalVolumeEmulation();
             VolumeController volumeController = new VolumeController();
             mCarAudioManager.setVolumeController(volumeController);
 
@@ -164,8 +187,9 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
         }
     }
 
-    public void testVolumeKeys() throws Exception {
+    public void testVolumeKeys() {
         try {
+            setupExternalVolumeEmulation();
             int musicVol = 10;
             mCarAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, musicVol, 0);
             int callVol = 12;
@@ -206,7 +230,7 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
             callVol++;
             volumeVerificationPoll(createStreamVolPair(AudioManager.STREAM_MUSIC, musicVol),
                     createStreamVolPair(AudioManager.STREAM_VOICE_CALL, callVol));
-        } catch (CarNotConnectedException | InterruptedException e) {
+        } catch (Exception e) {
             fail(e.toString());
         }
     }
@@ -358,7 +382,8 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
                 }
             };
 
-    private void startVolumeEmulation(int supportedAudioVolumeContext, List<Integer> maxs) {
+    private void startVolumeEmulation(boolean supportExternalVolume,
+            int supportedAudioVolumeContext, List<Integer> maxs) {
         SingleChannelVolumeHandler singleChannelVolumeHandler =
                 new SingleChannelVolumeHandler(maxs);
         int zones = (1<<maxs.size()) - 1;
@@ -371,9 +396,11 @@ public class CarVolumeServiceTest extends MockedCarTestBase {
                         0  /* reserved */);
         audioVolumeConfigArray.addAll(maxs);
 
-        addProperty(VehicleProperty.AUDIO_VOLUME, singleChannelVolumeHandler)
-                        .setConfigArray(audioVolumeConfigArray)
-                        .setSupportedAreas(zones);
+        if (supportExternalVolume) {
+            addProperty(VehicleProperty.AUDIO_VOLUME, singleChannelVolumeHandler)
+                    .setConfigArray(audioVolumeConfigArray)
+                    .setSupportedAreas(zones);
+        }
 
         addProperty(VehicleProperty.HW_KEY_INPUT, mHWKeyHandler)
                 .setAccess(VehiclePropertyAccess.READ);

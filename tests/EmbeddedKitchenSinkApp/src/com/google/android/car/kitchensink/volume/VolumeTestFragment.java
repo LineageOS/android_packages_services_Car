@@ -18,11 +18,14 @@ package com.google.android.car.kitchensink.volume;
 import android.car.Car;
 import android.car.CarNotConnectedException;
 import android.car.media.CarAudioManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.media.IVolumeController;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
@@ -36,10 +39,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 
-import com.google.android.car.kitchensink.CarEmulator;
 import com.google.android.car.kitchensink.R;
 
-public class VolumeTestFragment extends Fragment{
+public class VolumeTestFragment extends Fragment {
     private static final String TAG = "CarVolumeTest";
     private static final int MSG_VOLUME_CHANGED = 0;
     private static final int MSG_REQUEST_FOCUS = 1;
@@ -52,7 +54,6 @@ public class VolumeTestFragment extends Fragment{
 
     private CarAudioManager mCarAudioManager;
     private Car mCar;
-    private CarEmulator mCarEmulator;
 
     private Button mVolumeUp;
     private Button mVolumeDown;
@@ -140,6 +141,26 @@ public class VolumeTestFragment extends Fragment{
             default: return "Unknown";
         }
     }
+    private final ServiceConnection mCarConnectionCallback =
+            new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder binder) {
+                    Log.d(TAG, "Connected to Car Service");
+                    try {
+                        mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
+                        initVolumeInfo();
+                        mCarAudioManager.setVolumeController(mVolumeController);
+
+                    } catch (CarNotConnectedException e) {
+                        Log.e(TAG, "Car is not connected!", e);
+                    }
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                    Log.d(TAG, "Disconnect from Car Service");
+                }
+            };
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -160,33 +181,8 @@ public class VolumeTestFragment extends Fragment{
             }
         });
 
-        mCarEmulator = CarEmulator.create(getContext());
-        mCar = mCarEmulator.getCar();
-        try {
-            mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
-            initVolumeInfo();
-            mCarAudioManager.setVolumeController(mVolumeController);
-        } catch (CarNotConnectedException e) {
-            throw new RuntimeException(e); // Should never occur in car emulator.
-        }
-
-        mVolumeUp = (Button) v.findViewById(R.id.volume_up);
-        mVolumeDown = (Button) v.findViewById(R.id.volume_down);
-
-        mVolumeUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mCarEmulator.injectKey(KeyEvent.KEYCODE_VOLUME_UP);
-            }
-        });
-
-        mVolumeDown.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mCarEmulator.injectKey(KeyEvent.KEYCODE_VOLUME_DOWN);
-            }
-        });
-
+        mCar = Car.createCar(getActivity(), mCarConnectionCallback);
+        mCar.connect();
         return v;
     }
 
@@ -214,7 +210,8 @@ public class VolumeTestFragment extends Fragment{
             return;
         }
         try {
-            mCarAudioManager.setStreamVolume(logicalStream, volume, 0);
+            mCarAudioManager.setStreamVolume(logicalStream, volume,
+                    AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "car not connected", e);
         }
