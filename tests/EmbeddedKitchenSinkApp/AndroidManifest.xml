@@ -102,13 +102,5 @@
                 <category android:name="android.car.cluster.NAVIGATION"/>
             </intent-filter>
         </activity>
-
-        <receiver android:name=".bluetooth.MapReceiver"
-            android:permission="android.permission.READ_SMS">
-            <intent-filter>
-                <action android:name="android.bluetooth.mapmce.profile.action.MESSAGE_RECEIVED"/>
-                <action android:name="android.provider.action.VOICE_SEND_MESSAGE_TO_CONTACTS"/>
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>
