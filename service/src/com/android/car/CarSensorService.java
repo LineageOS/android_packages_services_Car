@@ -17,6 +17,7 @@
 package com.android.car;
 
 import android.car.Car;
+import android.car.hardware.CarSensorConfig;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.ICarSensor;
@@ -563,6 +564,22 @@ public class CarSensorService extends ICarSensor.Stub
         } else if (shouldRestartSensor) {
             startSensor(record, sensorType, newRate);
         }
+    }
+
+    @Override
+    public CarSensorConfig getSensorConfig(int sensorType) {
+        if (Binder.getCallingUid() != Process.myUid()) {
+            switch (getSensorPermission(sensorType)) {
+                case PackageManager.PERMISSION_DENIED:
+                    throw new SecurityException("client does not have permission:"
+                        + getPermissionName(sensorType)
+                        + " pid:" + Binder.getCallingPid()
+                        + " uid:" + Binder.getCallingUid());
+                case PackageManager.PERMISSION_GRANTED:
+                    break;
+            }
+        }
+        return(mSensorHal.getSensorConfig(sensorType));
     }
 
     private void stopSensor(SensorRecord record, int sensorType) {

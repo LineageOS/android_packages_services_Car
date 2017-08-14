@@ -25,6 +25,7 @@ import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -512,5 +513,29 @@ public final class CarSensorManager implements CarManagerBase {
                 }
             });
         }
+    }
+
+    /**
+     * Get the config data for the given type.
+     *
+     * A CarSensorConfig object is returned for every sensor type.  However, if there is no
+     * config, the data will be empty.
+     *
+     * @param sensor type to request
+     * @return CarSensorConfig object
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
+     * @hide
+     */
+    public CarSensorConfig getSensorConfig(@SensorType int type)
+        throws CarNotConnectedException {
+        assertSensorType(type);
+        try {
+            return mService.getSensorConfig(type);
+        } catch (IllegalStateException e) {
+            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
+        } catch(RemoteException e) {
+            handleCarServiceRemoteExceptionAndThrow(e);
+        }
+        return new CarSensorConfig(0, Bundle.EMPTY);
     }
 }
