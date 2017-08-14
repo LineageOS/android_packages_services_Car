@@ -212,6 +212,7 @@
     <string name="bluetooth_sco_disconnect">SCO disconnect</string>
     <string name="bluetooth_pick_device">Pick Device</string>
     <string name="bluetooth_quiet_mode_enable">Quiet Mode</string>
+    <string name="bluetooth_hold_call">Hold call</string>
 
     <!--Car Service Settings-->
     <string name="garage_title">Garage Mode</string>
