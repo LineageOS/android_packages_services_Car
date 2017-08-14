@@ -28,9 +28,9 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.Trace;
-import android.util.BootTimingsTraceLog;
 import android.util.Log;
 import android.util.Slog;
+import android.util.TimingsTraceLog;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
@@ -81,7 +81,7 @@ public class ICarImpl extends ICar.Stub {
 
     private static final String TAG = "ICarImpl";
     private static final String VHAL_TIMING_TAG = "VehicleHalTiming";
-    private static final BootTimingsTraceLog mBootTiming = new BootTimingsTraceLog(VHAL_TIMING_TAG,
+    private static final TimingsTraceLog mBootTiming = new TimingsTraceLog(VHAL_TIMING_TAG,
         Trace.TRACE_TAG_HAL);
 
     /** Test only service. Populate it only when necessary. */
