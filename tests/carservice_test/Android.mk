@@ -41,7 +41,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += car-service-lib-for-test \
                                vehicle-hal-support-lib \
                                car-systemtest \
                                android-support-test \
-                               android.hardware.automotive.vehicle-V2.1-java-static
+                               android.hardware.automotive.vehicle-V2.1-java
 
 LOCAL_JAVA_LIBRARIES := android.car android.test.runner
 
