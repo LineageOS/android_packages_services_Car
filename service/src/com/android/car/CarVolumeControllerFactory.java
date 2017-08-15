@@ -22,6 +22,7 @@ import android.media.IAudioService;
 import android.media.IVolumeController;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteCallbackList;
@@ -89,8 +90,21 @@ public class CarVolumeControllerFactory {
      * support volume controls.
      */
     public static final class SimpleCarVolumeController extends CarVolumeController {
+        private static final String TAG = CarLog.TAG_AUDIO + ".SVolCtrl";
+        private static final int MSG_DISPLAY_SAFE_VOL_WARNING = 0;
+        private static final int MSG_VOL_CHANGED = 1;
+        private static final int MSG_MASTER_MUTE_CHANGED = 2;
+        private static final int MSG_SET_LAYOUT_DIRECTION = 3;
+        private static final int MSG_DISMISS = 4;
+        private static final int MSG_SET_ALLY_MODE = 5;
+
         private final AudioManager mAudioManager;
         private final Context mContext;
+        private RemoteCallbackList<IVolumeController> mVolumeCallbacks = new RemoteCallbackList<>();
+        @GuardedBy("this")
+        private IVolumeController mVolumeCallbackProxy;
+        private HandlerThread mVolumeThread;
+        private Handler mHandler;
 
         public SimpleCarVolumeController(Context context) {
             mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -99,16 +113,27 @@ public class CarVolumeControllerFactory {
 
         @Override
         void init() {
+            synchronized (this) {
+                mVolumeThread = new HandlerThread(TAG);
+                mVolumeThread.start();
+                mHandler = new VolumeHandler(mVolumeThread.getLooper());
+            }
         }
 
         @Override
         void release() {
+            synchronized (this) {
+                if (mVolumeThread != null) {
+                    mVolumeThread.quit();
+                }
+            }
+            mVolumeCallbacks.kill();
         }
 
         @Override
         public void setStreamVolume(int stream, int index, int flags) {
             if (DBG) {
-                Log.d(CarLog.TAG_AUDIO, "setStreamVolume " + stream + " " + index + " " + flags);
+                Log.d(TAG, "setStreamVolume " + stream + " " + index + " " + flags);
             }
             mAudioManager.setStreamVolume(stream, index, flags);
         }
@@ -120,7 +145,13 @@ public class CarVolumeControllerFactory {
 
         @Override
         public void setVolumeController(IVolumeController controller) {
-            mAudioManager.setVolumeController(controller);
+            synchronized (this) {
+                if (mVolumeCallbackProxy == null) {
+                    mVolumeCallbackProxy = new VolumeControllerProxy();
+                    mAudioManager.setVolumeController(mVolumeCallbackProxy);
+                }
+            }
+            mVolumeCallbacks.register(controller);
         }
 
         @Override
@@ -146,6 +177,146 @@ public class CarVolumeControllerFactory {
         public void dump(PrintWriter writer) {
             writer.println("Volume controller:" + SimpleCarVolumeController.class.getSimpleName());
             // nothing else to dump
+        }
+
+        private class VolumeHandler extends Handler {
+
+            public VolumeHandler(Looper looper) {
+                super(looper);
+            }
+
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case MSG_DISPLAY_SAFE_VOL_WARNING:
+                        int count = mVolumeCallbacks.beginBroadcast();
+                        try {
+                            for (int i = 0; i < count; i++) {
+                                try {
+                                    mVolumeCallbacks.getBroadcastItem(i)
+                                            .displaySafeVolumeWarning(msg.arg1);
+                                } catch (RemoteException ignored) {}
+                            }
+                        } finally {
+                            mVolumeCallbacks.finishBroadcast();
+                        }
+                        break;
+                    case MSG_VOL_CHANGED:
+                        count = mVolumeCallbacks.beginBroadcast();
+                        try {
+                            for (int i = 0; i < count; i++) {
+                                try {
+                                    mVolumeCallbacks.getBroadcastItem(i)
+                                            .volumeChanged(msg.arg1, msg.arg2);
+                                } catch (RemoteException ignored) {}
+                            }
+                        } finally {
+                            mVolumeCallbacks.finishBroadcast();
+                        }
+                        break;
+                    case MSG_MASTER_MUTE_CHANGED:
+                        count = mVolumeCallbacks.beginBroadcast();
+                        try {
+                            for (int i = 0; i < count; i++) {
+                                try {
+                                    mVolumeCallbacks.getBroadcastItem(i)
+                                            .masterMuteChanged(msg.arg1);
+                                } catch (RemoteException ignored) {}
+                            }
+                        } finally {
+                            mVolumeCallbacks.finishBroadcast();
+                        }
+                        break;
+                    case MSG_SET_LAYOUT_DIRECTION:
+                        count = mVolumeCallbacks.beginBroadcast();
+                        try {
+                            for (int i = 0; i < count; i++) {
+                                try {
+                                    mVolumeCallbacks.getBroadcastItem(i)
+                                            .setLayoutDirection(msg.arg1);
+                                } catch (RemoteException ignored) {}
+                            }
+                        } finally {
+                            mVolumeCallbacks.finishBroadcast();
+                        }
+                        break;
+                    case MSG_DISMISS:
+                        count = mVolumeCallbacks.beginBroadcast();
+                        try {
+                            for (int i = 0; i < count; i++) {
+                                try {
+                                    mVolumeCallbacks.getBroadcastItem(i)
+                                            .dismiss();
+                                } catch (RemoteException ignored) {}
+                            }
+                        } finally {
+                            mVolumeCallbacks.finishBroadcast();
+                        }
+                        break;
+                    case MSG_SET_ALLY_MODE:
+                        count = mVolumeCallbacks.beginBroadcast();
+                        try {
+                            for (int i = 0; i < count; i++) {
+                                try {
+                                    mVolumeCallbacks.getBroadcastItem(i)
+                                            .setA11yMode(msg.arg1);
+                                } catch (RemoteException ignored) {}
+                            }
+                        } finally {
+                            mVolumeCallbacks.finishBroadcast();
+                        }
+                        break;
+                }
+            }
+        }
+
+        private class VolumeControllerProxy extends IVolumeController.Stub {
+            @Override
+            public void displaySafeVolumeWarning(int flags) throws RemoteException {
+                synchronized (this) {
+                    mHandler.sendMessage(mHandler.obtainMessage(MSG_DISPLAY_SAFE_VOL_WARNING,
+                            flags, 0 /*unused*/));
+                }
+            }
+
+            @Override
+            public void volumeChanged(int streamType, int flags) throws RemoteException {
+                synchronized (this) {
+                    mHandler.sendMessage(
+                            mHandler.obtainMessage(MSG_VOL_CHANGED, streamType, flags));
+                }
+            }
+
+            @Override
+            public void masterMuteChanged(int flags) throws RemoteException {
+                synchronized (this) {
+                    mHandler.sendMessage(
+                            mHandler.obtainMessage(MSG_VOL_CHANGED, flags, 0 /*unused*/));
+                }
+            }
+
+            @Override
+            public void setLayoutDirection(int layoutDirection) throws RemoteException {
+                synchronized (this) {
+                    mHandler.sendMessage(
+                            mHandler.obtainMessage(MSG_VOL_CHANGED, layoutDirection, 0 /*unused*/));
+                }
+            }
+
+            @Override
+            public void dismiss() throws RemoteException {
+                synchronized (this) {
+                    mHandler.sendMessage(mHandler.obtainMessage(MSG_DISMISS));
+                }
+            }
+
+            @Override
+            public void setA11yMode(int mode) throws RemoteException {
+                synchronized (this) {
+                    mHandler.sendMessage(
+                            mHandler.obtainMessage(MSG_SET_ALLY_MODE, mode, 0 /*unused*/));
+                }
+            }
         }
 
         private void handleVolumeKeyDefault(KeyEvent event) {

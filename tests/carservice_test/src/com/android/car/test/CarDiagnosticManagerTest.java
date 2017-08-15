@@ -43,6 +43,7 @@ import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandle
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -190,6 +191,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     @Override
     protected synchronized void configureMockedHal() {
         java.util.Collection<Integer> numVendorSensors = Arrays.asList(0, 0);
+        java.util.Collection<Integer> selectiveClear = Collections.singletonList(1);
         addProperty(VehicleProperty.OBD2_LIVE_FRAME, mLiveFrameEventBuilder.build())
                 .setConfigArray(numVendorSensors);
         addProperty(
@@ -199,7 +201,8 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 .setConfigArray(numVendorSensors);
         addProperty(
                 VehicleProperty.OBD2_FREEZE_FRAME_CLEAR,
-                mFreezeFrameProperties.mFreezeFrameClearHandler);
+                mFreezeFrameProperties.mFreezeFrameClearHandler)
+                .setConfigArray(selectiveClear);
     }
 
     @Override
@@ -732,6 +735,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertTrue(mCarDiagnosticManager.isFreezeFrameNotificationSupported());
         assertTrue(mCarDiagnosticManager.isGetFreezeFrameSupported());
         assertTrue(mCarDiagnosticManager.isClearFreezeFramesSupported());
+        assertTrue(mCarDiagnosticManager.isSelectiveClearFreezeFramesSupported());
     }
 
     class Listener implements CarDiagnosticManager.OnDiagnosticEventListener {

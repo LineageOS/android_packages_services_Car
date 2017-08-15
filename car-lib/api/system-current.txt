@@ -483,6 +483,7 @@ package android.car.diagnostic {
     method public boolean isFreezeFrameNotificationSupported() throws android.car.CarNotConnectedException;
     method public boolean isGetFreezeFrameSupported() throws android.car.CarNotConnectedException;
     method public boolean isLiveFrameSupported() throws android.car.CarNotConnectedException;
+    method public boolean isSelectiveClearFreezeFramesSupported() throws android.car.CarNotConnectedException;
     method public void onCarDisconnected();
     method public boolean registerListener(android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener, int, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public void unregisterListener(android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener);
