@@ -89,7 +89,7 @@
                 android:id="@+id/delete_button"
                 style="@style/NumPadKeyButton"
                 android:gravity="center_vertical"
-                android:src="@drawable/ic_backspace_24dp"
+                android:src="@drawable/ic_backspace_black_24dp"
                 android:clickable="true"
                 android:background="@drawable/ripple_drawable"
                 android:contentDescription="@string/keyboardview_keycode_delete"
