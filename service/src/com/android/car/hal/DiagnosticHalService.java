@@ -42,6 +42,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * higher-level semantic information
  */
 public class DiagnosticHalService extends SensorHalServiceBase {
+    static final int OBD2_SELECTIVE_FRAME_CLEAR = 1;
+
     public static class DiagnosticCapabilities {
         private final CopyOnWriteArraySet<Integer> mProperties = new CopyOnWriteArraySet<>();
 
@@ -67,6 +69,10 @@ public class DiagnosticHalService extends SensorHalServiceBase {
 
         public boolean isFreezeFrameClearSupported() {
             return isSupported(VehicleProperty.OBD2_FREEZE_FRAME_CLEAR);
+        }
+
+        public boolean isSelectiveClearFreezeFramesSupported() {
+            return isSupported(OBD2_SELECTIVE_FRAME_CLEAR);
         }
 
         void clear() {
@@ -102,6 +108,17 @@ public class DiagnosticHalService extends SensorHalServiceBase {
                 return propConfig.prop;
             case VehicleProperty.OBD2_FREEZE_FRAME_CLEAR:
                 mDiagnosticCapabilities.setSupported(propConfig.prop);
+                Log.i(CarLog.TAG_DIAGNOSTIC, String.format(
+                        "configArray for OBD2_FREEZE_FRAME_CLEAR is %s", propConfig.configArray));
+                if (propConfig.configArray.size() < 1) {
+                    Log.e(CarLog.TAG_DIAGNOSTIC, String.format(
+                            "property 0x%x does not specify whether it supports selective " +
+                            "clearing of freeze frames. assuming it does not.", propConfig.prop));
+                } else {
+                    if (propConfig.configArray.get(0) == 1) {
+                        mDiagnosticCapabilities.setSupported(OBD2_SELECTIVE_FRAME_CLEAR);
+                    }
+                }
                 return propConfig.prop;
             default:
                 return SENSOR_TYPE_INVALID;
