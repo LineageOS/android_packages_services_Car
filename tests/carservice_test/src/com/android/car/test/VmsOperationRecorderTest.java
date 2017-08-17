@@ -33,7 +33,9 @@ import java.util.HashSet;
 @MediumTest
 public class VmsOperationRecorderTest extends TestCase {
 
-    /** Capture messages that VmsOperationRecorder.Writer would normally pass to Log.d(...). */
+    /**
+     * Capture messages that VmsOperationRecorder.Writer would normally pass to Log.d(...).
+     */
     class TestWriter extends VmsOperationRecorder.Writer {
         public String mMsg;
 
@@ -155,6 +157,18 @@ public class VmsOperationRecorderTest extends TestCase {
         mRecorder.setHalPublisherLayersOffering(layersOffering1);
         assertJsonMsgEquals("{'setHalPublisherLayersOffering':{'layerDependency':["
                 + "{'layer':{'id':3,'version':4,'subtype':5}}]}}");
+    }
+
+    public void testSubscribeToPublisher() throws Exception {
+        mRecorder.subscribe(layer1, 99);
+        assertJsonMsgEquals(
+                "{'subscribe':{'publisherId':99, 'layer':{'id':1,'version':2,'subtype':3}}}");
+    }
+
+    public void testUnsubscribeToPublisher() throws Exception {
+        mRecorder.unsubscribe(layer1, 99);
+        assertJsonMsgEquals(
+                "{'unsubscribe':{'publisherId':99, 'layer':{'id':1,'version':2,'subtype':3}}}}");
     }
 
     private void assertJsonMsgEquals(String expectJson) throws Exception {

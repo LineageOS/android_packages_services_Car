@@ -219,7 +219,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     // Implements IVmsService interface.
     @Override
-    public void addVmsSubscriberClientListener(IVmsSubscriberClient subscriber, VmsLayer layer) {
+    public void addVmsSubscriber(IVmsSubscriberClient subscriber, VmsLayer layer) {
         synchronized (mSubscriberServiceLock) {
             // Add the subscriber so it can subscribe.
             mMessageReceivedManager.add(subscriber);
@@ -230,7 +230,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     }
 
     @Override
-    public void removeVmsSubscriberClientListener(IVmsSubscriberClient subscriber, VmsLayer layer) {
+    public void removeVmsSubscriber(IVmsSubscriberClient subscriber, VmsLayer layer) {
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
             mHal.removeSubscription(subscriber, layer);
@@ -243,7 +243,35 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     }
 
     @Override
-    public void addVmsSubscriberClientPassiveListener(IVmsSubscriberClient subscriber) {
+    public void addVmsSubscriberToPublisher(IVmsSubscriberClient subscriber,
+                                                  VmsLayer layer,
+                                                  int publisherId) {
+        synchronized (mSubscriberServiceLock) {
+            // Add the subscriber so it can subscribe.
+            mMessageReceivedManager.add(subscriber);
+
+            // Add the subscription for the layer.
+            mHal.addSubscription(subscriber, layer, publisherId);
+        }
+    }
+
+    @Override
+    public void removeVmsSubscriberToPublisher(IVmsSubscriberClient subscriber,
+                                                     VmsLayer layer,
+                                                     int publisherId) {
+        synchronized (mSubscriberServiceLock) {
+            // Remove the subscription.
+            mHal.removeSubscription(subscriber, layer, publisherId);
+
+            // Remove the subscriber if it has no more subscriptions.
+            if (!mHal.containsSubscriber(subscriber)) {
+                mMessageReceivedManager.remove(subscriber);
+            }
+        }
+    }
+
+    @Override
+    public void addVmsSubscriberPassive(IVmsSubscriberClient subscriber) {
         synchronized (mSubscriberServiceLock) {
             mMessageReceivedManager.add(subscriber);
             mHal.addSubscription(subscriber);
@@ -251,7 +279,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     }
 
     @Override
-    public void removeVmsSubscriberClientPassiveListener(IVmsSubscriberClient subscriber) {
+    public void removeVmsSubscriberPassive(IVmsSubscriberClient subscriber) {
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
             mHal.removeSubscription(subscriber);
@@ -279,7 +307,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     // Implements VmsHalSubscriberListener interface
     @Override
     public void onDataMessage(VmsLayer layer, int publisherId, byte[] payload) {
-        if(DBG) {
+        if (DBG) {
             Log.d(TAG, "Publishing a message for layer: " + layer);
         }
 
@@ -299,7 +327,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     @Override
     public void onLayersAvaiabilityChange(List<VmsAssociatedLayer> availableLayers) {
-        if(DBG) {
+        if (DBG) {
             Log.d(TAG, "Publishing layers availability change: " + availableLayers);
         }
 
