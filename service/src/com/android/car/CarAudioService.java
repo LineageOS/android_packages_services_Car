@@ -429,6 +429,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         if (audioPolicy != null) {
             mAudioManager.unregisterAudioPolicyAsync(audioPolicy);
         }
+        mVolumeService.release();
     }
 
     public synchronized void setAudioContextChangeListener(Looper looper,
