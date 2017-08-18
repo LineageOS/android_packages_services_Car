@@ -42,11 +42,13 @@ class FileEvent:
     self.processes.append((open_time, process_name, flags))
     self.reads = []
     self.total_reads = 0
+    self.total_blocks = 0
     self.total_open = 1
     self.blocks = {}
     self.total_rereads = 0
     self.read_size_histogram = {} #key: read size, value: occurrence
     self.single_block_reads = {} # process name, occurrence
+    self.fresh_reads = [] # (offset, size)
 
   def add_open(self, open_time, process_name, flags):
     self.processes.append((open_time, process_name, flags))
@@ -55,9 +57,12 @@ class FileEvent:
   def add_read(self, time, offset, size, process_name):
     self.reads.append((time, offset, size, process_name))
     self.total_reads += size
+    already_read = True
     for i in range(offset, offset + size):
       if not self.blocks.get(i):
         self.blocks[i] = 1
+        already_read = False
+        self.total_blocks += 1
       else:
         self.blocks[i] += 1
         self.total_rereads += 1
@@ -65,6 +70,8 @@ class FileEvent:
       self.read_size_histogram[size] = 1
     else:
       self.read_size_histogram[size] += 1
+    if not already_read:
+      self.fresh_reads.append((offset, size))
     if size == 1:
       if not self.single_block_reads.get(process_name):
         self.single_block_reads[process_name] = 1
@@ -72,8 +79,9 @@ class FileEvent:
         self.single_block_reads[process_name] += 1
 
   def dump(self):
-    print " filename %s, total reads %d, total open %d total rereads %d inode %s" \
-      % (self.file_name, self.total_reads, self.total_open, self.total_rereads, self.inode)
+    print " filename %s, total reads %d, total open %d total rereads %d inode %s blocks %d" \
+      % (self.file_name, self.total_reads, self.total_open, self.total_rereads, self.inode, \
+         self.total_blocks)
     process_names = []
     for opener in self.processes:
       process_names.append(opener[1])
@@ -84,6 +92,7 @@ class FileEvent:
     if len(self.single_block_reads) > 1 and len(self.reads) > 1:
       print "  Single block reads:", collections.OrderedDict( \
         sorted(self.single_block_reads.items(), key = lambda item: item[1], reverse = True))
+    print "  Fresh reads:", self.fresh_reads
 
 class Trace:
   def __init__(self):
@@ -150,7 +159,7 @@ class Trace:
 
 
   def dump_partition(self, partition_name, files):
-    print "**Dump partition:", partition_name, "toal number of files:", len(files)
+    print "**Dump partition:", partition_name, "total number of files:", len(files)
     total_reads = 0
     total_rereads = 0
     vs = files.values()
