@@ -12,6 +12,8 @@ package android.car {
     field public static final java.lang.String APP_FOCUS_SERVICE = "app_focus";
     field public static final java.lang.String AUDIO_SERVICE = "audio";
     field public static final java.lang.String CABIN_SERVICE = "cabin";
+    field public static final java.lang.String CAR_EXTRA_MEDIA_PACKAGE = "android.car.intent.extra.MEDIA_PACKAGE";
+    field public static final java.lang.String CAR_INTENT_ACTION_MEDIA_TEMPLATE = "android.car.intent.action.MEDIA_TEMPLATE";
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
     field public static final java.lang.String DIAGNOSTIC_SERVICE = "diagnostic";
     field public static final java.lang.String HVAC_SERVICE = "hvac";

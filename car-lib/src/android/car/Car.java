@@ -303,6 +303,22 @@ public final class Car {
      */
     public static final String CAR_NOT_CONNECTED_EXCEPTION_MSG = "CarNotConnected";
 
+    /**
+     * Activity Action: Provide media playing through a media template app.
+     * <p>Input: String extra mapped by {@link android.app.SearchManager#QUERY} is the query
+     * used to start the media. String extra mapped by {@link #CAR_EXTRA_MEDIA_PACKAGE} is the
+     * package name of the media app which user wants to play media on.
+     * <p>Output: nothing.
+     */
+    public static final String CAR_INTENT_ACTION_MEDIA_TEMPLATE =
+            "android.car.intent.action.MEDIA_TEMPLATE";
+
+    /**
+     * Used as a string extra field with {@link #CAR_INTENT_ACTION_MEDIA_TEMPLATE} to specify the
+     * media app that user wants to start the media on. Note: this is not the templated media app.
+     */
+    public static final String CAR_EXTRA_MEDIA_PACKAGE = "android.car.intent.extra.MEDIA_PACKAGE";
+
     /** @hide */
     public static final String CAR_SERVICE_INTERFACE_NAME = "android.car.ICar";
 
