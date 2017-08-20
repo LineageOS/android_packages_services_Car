@@ -16,6 +16,8 @@
 
 package com.android.car.test;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.annotation.FutureFeature;
@@ -47,6 +49,7 @@ import java.util.concurrent.TimeUnit;
 public class VmsSubscriberManagerTest extends MockedCarTestBase {
     private static final String TAG = "VmsSubscriberManagerTest";
     private static final int PUBLISHER_ID = 17;
+    private static final int WRONG_PUBLISHER_ID = 26;
     private static final Set<Integer> PUBLISHERS_LIST = new HashSet<Integer>(Arrays.asList(PUBLISHER_ID));
 
     private static final int SUBSCRIPTION_LAYER_ID = 2;
@@ -113,7 +116,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
     public void testSubscribe() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
+        assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();
@@ -141,9 +144,153 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assertTrue(Arrays.equals(expectedPayload, listener.getPayload()));
     }
 
+
+    // Test injecting a value in the HAL and verifying it propagates to a subscriber.
+    public void testSubscribeToPublisher() throws Exception {
+        assumeTrue(VmsTestUtils.canRunTest(TAG));
+        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
+                Car.VMS_SUBSCRIBER_SERVICE);
+        TestListener listener = new TestListener();
+        vmsSubscriberManager.setListener(listener);
+        vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
+
+        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .build();
+        v.value.int32Values.add(VmsMessageType.DATA); // MessageType
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
+        v.value.int32Values.add(MOCK_PUBLISHER_LAYER_SUB_TYPE);
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
+        v.value.int32Values.add(WRONG_PUBLISHER_ID);
+        v.value.bytes.add((byte) 0xa);
+        v.value.bytes.add((byte) 0xb);
+        assertEquals(0, mSubscriberSemaphore.availablePermits());
+
+        getMockedVehicleHal().injectEvent(v);
+
+        assertFalse(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+    }
+
+    // Test injecting a value in the HAL and verifying it propagates to a subscriber.
+    public void testSubscribeFromPublisher() throws Exception {
+        assumeTrue(VmsTestUtils.canRunTest(TAG));
+        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
+                Car.VMS_SUBSCRIBER_SERVICE);
+        TestListener listener = new TestListener();
+        vmsSubscriberManager.setListener(listener);
+        vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
+
+        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .build();
+        v.value.int32Values.add(VmsMessageType.DATA); // MessageType
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
+        v.value.int32Values.add(MOCK_PUBLISHER_LAYER_SUB_TYPE); //<-
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
+        v.value.int32Values.add(PUBLISHER_ID);
+        v.value.bytes.add((byte) 0xa);
+        v.value.bytes.add((byte) 0xb);
+        assertEquals(0, mSubscriberSemaphore.availablePermits());
+
+        getMockedVehicleHal().injectEvent(v);
+        assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+        assertEquals(SUBSCRIPTION_LAYER, listener.getLayer());
+        byte[] expectedPayload = {(byte) 0xa, (byte) 0xb};
+        assertTrue(Arrays.equals(expectedPayload, listener.getPayload()));
+    }
+
+    // Test injecting a value in the HAL and verifying it does not propagate to a subscriber.
+    public void testUnsubscribe() throws Exception {
+        assumeTrue(VmsTestUtils.canRunTest(TAG));
+        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
+                Car.VMS_SUBSCRIBER_SERVICE);
+        TestListener listener = new TestListener();
+        vmsSubscriberManager.setListener(listener);
+        vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
+        vmsSubscriberManager.unsubscribe(SUBSCRIPTION_LAYER);
+
+        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .build();
+        v.value.int32Values.add(VmsMessageType.DATA); // MessageType
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
+        v.value.int32Values.add(MOCK_PUBLISHER_LAYER_SUB_TYPE);
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
+        v.value.int32Values.add(PUBLISHER_ID);
+        v.value.bytes.add((byte) 0xa);
+        v.value.bytes.add((byte) 0xb);
+        assertEquals(0, mSubscriberSemaphore.availablePermits());
+
+        getMockedVehicleHal().injectEvent(v);
+        assertFalse(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+    }
+
+    // Test injecting a value in the HAL and verifying it does not propagate to a subscriber.
+    public void testSubscribeFromWrongPublisher() throws Exception {
+        assumeTrue(VmsTestUtils.canRunTest(TAG));
+        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
+                Car.VMS_SUBSCRIBER_SERVICE);
+        TestListener listener = new TestListener();
+        vmsSubscriberManager.setListener(listener);
+        vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
+
+        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .build();
+        v.value.int32Values.add(VmsMessageType.DATA); // MessageType
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
+        v.value.int32Values.add(MOCK_PUBLISHER_LAYER_SUB_TYPE);
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
+        v.value.int32Values.add(WRONG_PUBLISHER_ID);
+        v.value.bytes.add((byte) 0xa);
+        v.value.bytes.add((byte) 0xb);
+        assertEquals(0, mSubscriberSemaphore.availablePermits());
+
+        getMockedVehicleHal().injectEvent(v);
+        assertFalse(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+    }
+
+    // Test injecting a value in the HAL and verifying it does not propagate to a subscriber.
+    public void testUnsubscribeFromPublisher() throws Exception {
+        assumeTrue(VmsTestUtils.canRunTest(TAG));
+        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
+                Car.VMS_SUBSCRIBER_SERVICE);
+        TestListener listener = new TestListener();
+        vmsSubscriberManager.setListener(listener);
+        vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
+        vmsSubscriberManager.unsubscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
+
+        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .build();
+        v.value.int32Values.add(VmsMessageType.DATA); // MessageType
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_ID);
+        v.value.int32Values.add(MOCK_PUBLISHER_LAYER_SUB_TYPE);
+        v.value.int32Values.add(SUBSCRIPTION_LAYER_VERSION);
+        v.value.int32Values.add(PUBLISHER_ID);
+        v.value.bytes.add((byte) 0xa);
+        v.value.bytes.add((byte) 0xb);
+        assertEquals(0, mSubscriberSemaphore.availablePermits());
+
+        getMockedVehicleHal().injectEvent(v);
+        assertFalse(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+    }
+
+
+
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
     public void testSubscribeAll() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
+        assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();
@@ -173,7 +320,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
     public void testSimpleAvailableLayers() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
+        assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();
@@ -219,7 +366,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
     public void testComplexAvailableLayers() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
+        assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestListener listener = new TestListener();
