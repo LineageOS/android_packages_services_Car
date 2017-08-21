@@ -237,6 +237,7 @@ public class Car {
                         if (mConnectionState == STATE_DISCONNECTED) {
                             return;
                         }
+                        tearDownCarManagers();
                         mConnectionState = STATE_DISCONNECTED;
                     }
                     mCarConnectionCallback.onDisconnected(Car.this);
