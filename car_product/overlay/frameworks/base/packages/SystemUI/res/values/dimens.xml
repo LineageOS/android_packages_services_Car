@@ -136,8 +136,23 @@
          value is smaller than notification_children_container_header_height to bring the first
          child closer so there is less wasted space. -->
     <dimen name="notification_children_container_margin_top">68dp</dimen>
-    
+
     <!-- The height of the quick settings footer that holds the user switcher, settings icon,
          etc. in the car setting.-->
     <dimen name="qs_footer_height">74dp</dimen>
+
+    <dimen name="volume_dialog_side_margin">@dimen/side_margin</dimen>
+
+    <dimen name="volume_dialog_elevation">6dp</dimen>
+
+    <dimen name="volume_dialog_row_margin_end">@dimen/car_keyline_3</dimen>
+
+    <dimen name="volume_dialog_row_padding_end">0dp</dimen>
+
+    <dimen name="line_item_height">128dp</dimen>
+    <dimen name="volume_icon_size">96dp</dimen>
+    <dimen name="side_margin">148dp</dimen>
+    <dimen name="car_keyline_1">24dp</dimen>
+    <dimen name="car_keyline_2">96dp</dimen>
+    <dimen name="car_keyline_3">128dp</dimen>
 </resources>
