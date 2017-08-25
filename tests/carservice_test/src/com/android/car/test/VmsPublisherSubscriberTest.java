@@ -29,7 +29,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
-import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import com.android.car.vehiclehal.test.MockedVehicleHal;

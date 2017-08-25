@@ -27,10 +27,10 @@ import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
-import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
-import android.hardware.automotive.vehicle.V2_1.VmsBaseMessageIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_1.VmsMessageWithLayerIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_1.VmsMessageType;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 

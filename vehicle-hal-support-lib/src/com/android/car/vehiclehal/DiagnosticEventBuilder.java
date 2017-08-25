@@ -18,8 +18,8 @@ package com.android.car.vehiclehal;
 
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_1.DiagnosticFloatSensorIndex;
-import android.hardware.automotive.vehicle.V2_1.DiagnosticIntegerSensorIndex;
+import android.hardware.automotive.vehicle.V2_0.DiagnosticFloatSensorIndex;
+import android.hardware.automotive.vehicle.V2_0.DiagnosticIntegerSensorIndex;
 import android.util.SparseArray;
 import java.util.BitSet;
 import java.util.Iterator;
