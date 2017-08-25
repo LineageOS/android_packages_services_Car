@@ -81,13 +81,12 @@ final class Utils {
         return readVhalProperty(vehicle, request, f);
     }
 
-    @Nullable
     static IVehicle getVehicle() throws RemoteException {
         IVehicle service;
         try {
             service = IVehicle.getService();
         } catch (NoSuchElementException ex) {
-            Log.d(TAG, "Couldn't connect to vehicle@2.0");
+            throw new RuntimeException("Couldn't connect to vehicle@2.0", ex);
         }
         Log.d(TAG, "Connected to IVehicle service: " + service);
         return service;
