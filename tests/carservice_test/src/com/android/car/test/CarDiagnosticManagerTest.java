@@ -30,7 +30,7 @@ import android.car.diagnostic.CarDiagnosticManager;
 import android.car.diagnostic.FloatSensorIndex;
 import android.car.diagnostic.IntegerSensorIndex;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.JsonReader;
