@@ -110,22 +110,24 @@ public class CarSensorManagerTest extends AndroidTestCase {
         }
         StringBuilder builder = new StringBuilder();
         boolean failed = false;
-        for (Field supprotCarSensorType : supportCarSensorTypes) {
+        for (Field supportCarSensorType : supportCarSensorTypes) {
             Field androidCarSensorType = androidCarSensorTypeToField.get(
-                    supprotCarSensorType.getInt(null));
-            assertNotNull("Sensor type:" + supprotCarSensorType.getName() +
+                    supportCarSensorType.getInt(null));
+            assertNotNull("Sensor type:" + supportCarSensorType.getName() +
                     " not defined in android.car", androidCarSensorType);
-            if (supprotCarSensorType.getName().equals(androidCarSensorType.getName())) {
+            if (supportCarSensorType.getName().equals(androidCarSensorType.getName())) {
                 // match ok
             } else if (androidCarSensorType.getName().startsWith("SENSOR_TYPE_RESERVED")) {
                 // not used in android.car, ok
+            } else if (supportCarSensorType.getName().startsWith("SENSOR_TYPE_RESERVED")) {
+                // used in android.car but reserved in support.car
             } else {
                 failed = true;
-                builder.append("android.support sensor has name:" + supprotCarSensorType.getName() +
+                builder.append("android.support sensor has name:" + supportCarSensorType.getName() +
                         " while android.car sensor has name:" + androidCarSensorType.getName() +
                         "\n");
             }
-            androidCarSensorTypeToField.remove(supprotCarSensorType.getInt(null));
+            androidCarSensorTypeToField.remove(supportCarSensorType.getInt(null));
         }
         assertFalse(builder.toString(), failed);
         assertTrue("android Car sensor has additional types defined:" + androidCarSensorTypeToField,
