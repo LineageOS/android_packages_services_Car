@@ -30,6 +30,7 @@ import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.radio.CarRadioManager;
 import android.car.media.CarAudioManager;
 import android.car.navigation.CarNavigationStatusManager;
+import android.car.CarBluetoothManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.car.vms.VmsSubscriberManager;
 import android.content.ComponentName;
@@ -80,6 +81,7 @@ public final class Car {
 
     /** Service name for {@link CarAudioManager} */
     public static final String AUDIO_SERVICE = "audio";
+
     /**
      * Service name for {@link CarNavigationStatusManager}
      * @hide
@@ -126,6 +128,11 @@ public final class Car {
      */
     @SystemApi
     public static final String VENDOR_EXTENSION_SERVICE = "vendor_extension";
+
+    /**
+     * @hide
+     */
+    public static final String BLUETOOTH_SERVICE = "car_bluetooth";
 
     /**
      * @FutureFeature Cannot drop due to usage in non-flag protected place.
@@ -652,6 +659,8 @@ public final class Car {
                     manager = new VmsSubscriberManager(binder, mEventHandler);
                 }
                 break;
+            case BLUETOOTH_SERVICE:
+                manager = new CarBluetoothManager(binder, mContext);
         }
         return manager;
     }
