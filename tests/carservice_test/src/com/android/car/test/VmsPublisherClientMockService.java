@@ -30,6 +30,13 @@ import java.util.ArrayList;
  * This service is launched during the tests in VmsPublisherSubscriberTest. It publishes a property
  * that is going to be verified in the test.
  *
+ * The service makes offering for pre-defined layers which verifies availability notifications for
+ * subscribers without them actively being subscribed to a layer, and also echos all the
+ * subscription requests with an offering for that layer.
+ * For example, without any subscription request from any client, this service will make offering
+ * to layer X. If a client will subscribe later to layer Y, this service will respond with offering
+ * to both layers X and Y.
+ *
  * Note that the subscriber can subscribe before the publisher finishes initialization. To cover
  * both potential scenarios, this service publishes the test message in onVmsSubscriptionChange
  * and in onVmsPublisherServiceReady. See comments below.
@@ -70,9 +77,15 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
 
     private void declareOffering(VmsSubscriptionState subscriptionState, int publisherId) {
         List<VmsLayerDependency> dependencies = new ArrayList<>();
+
+        // Add all layers from the subscription state.
         for( VmsLayer layer : subscriptionState.getSubscribedLayersFromAll()) {
             dependencies.add(new VmsLayerDependency(layer));
         }
+
+        // Add default test layers.
+        dependencies.add(new VmsLayerDependency(VmsPublisherSubscriberTest.LAYER));
+
         VmsLayersOffering offering = new VmsLayersOffering(dependencies, publisherId);
         setLayersOffering(offering);
     }
