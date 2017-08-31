@@ -34,6 +34,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,13 +54,13 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     private final VmsHalService mHal;
 
     @GuardedBy("mSubscriberServiceLock")
-    private final VmsListenerManager mMessageReceivedManager = new VmsListenerManager();
+    private final VmsSubscribersManager mSubscribersManager = new VmsSubscribersManager();
     private final Object mSubscriberServiceLock = new Object();
 
     /**
      * Keeps track of subscribers of this service.
      */
-    class VmsListenerManager {
+    class VmsSubscribersManager {
         /**
          * Allows to modify mSubscriberMap and mListenerDeathRecipientMap as a single unit.
          */
@@ -99,7 +100,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
                 }
 
                 // Remove binder
-                VmsListenerManager.this.removeListener(mSubscriberBinder);
+                VmsSubscribersManager.this.removeListener(mSubscriberBinder);
             }
 
             void release() {
@@ -209,7 +210,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     @Override
     public void release() {
-        mMessageReceivedManager.release();
+        mSubscribersManager.release();
         mHal.removeSubscriberListener(this);
     }
 
@@ -219,10 +220,28 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     // Implements IVmsService interface.
     @Override
+    public void addVmsSubscriberToNotifications(IVmsSubscriberClient subscriber) {
+        synchronized (mSubscriberServiceLock) {
+            // Add the subscriber so it can subscribe.
+            mSubscribersManager.add(subscriber);
+        }
+    }
+
+    @Override
+    public void removeVmsSubscriberToNotifications(IVmsSubscriberClient subscriber) {
+        synchronized (mSubscriberServiceLock) {
+            if (mHal.containsSubscriber(subscriber)) {
+                throw new IllegalArgumentException("Subscriber has active subscriptions.");
+            }
+            mSubscribersManager.remove(subscriber);
+        }
+    }
+
+    @Override
     public void addVmsSubscriber(IVmsSubscriberClient subscriber, VmsLayer layer) {
         synchronized (mSubscriberServiceLock) {
             // Add the subscriber so it can subscribe.
-            mMessageReceivedManager.add(subscriber);
+            mSubscribersManager.add(subscriber);
 
             // Add the subscription for the layer.
             mHal.addSubscription(subscriber, layer);
@@ -234,11 +253,6 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
             mHal.removeSubscription(subscriber, layer);
-
-            // Remove the subscriber if it has no more subscriptions.
-            if (!mHal.containsSubscriber(subscriber)) {
-                mMessageReceivedManager.remove(subscriber);
-            }
         }
     }
 
@@ -248,7 +262,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
                                                   int publisherId) {
         synchronized (mSubscriberServiceLock) {
             // Add the subscriber so it can subscribe.
-            mMessageReceivedManager.add(subscriber);
+            mSubscribersManager.add(subscriber);
 
             // Add the subscription for the layer.
             mHal.addSubscription(subscriber, layer, publisherId);
@@ -262,18 +276,13 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
             mHal.removeSubscription(subscriber, layer, publisherId);
-
-            // Remove the subscriber if it has no more subscriptions.
-            if (!mHal.containsSubscriber(subscriber)) {
-                mMessageReceivedManager.remove(subscriber);
-            }
         }
     }
 
     @Override
     public void addVmsSubscriberPassive(IVmsSubscriberClient subscriber) {
         synchronized (mSubscriberServiceLock) {
-            mMessageReceivedManager.add(subscriber);
+            mSubscribersManager.add(subscriber);
             mHal.addSubscription(subscriber);
         }
     }
@@ -283,11 +292,6 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
             mHal.removeSubscription(subscriber);
-
-            // Remove the subscriber if it has no more subscriptions.
-            if (!mHal.containsSubscriber(subscriber)) {
-                mMessageReceivedManager.remove(subscriber);
-            }
         }
     }
 
@@ -331,7 +335,10 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
             Log.d(TAG, "Publishing layers availability change: " + availableLayers);
         }
 
-        Set<IVmsSubscriberClient> subscribers = mHal.getAllSubscribers();
+        Set<IVmsSubscriberClient> subscribers;
+        synchronized (mSubscriberServiceLock) {
+            subscribers = new HashSet<>(mSubscribersManager.getListeners());
+        }
 
         for (IVmsSubscriberClient subscriber : subscribers) {
             try {

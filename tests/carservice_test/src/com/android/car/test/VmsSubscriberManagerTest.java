@@ -24,7 +24,7 @@ import android.car.annotation.FutureFeature;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriberManager;
-import android.car.vms.VmsSubscriberManager.VmsSubscriberClientListener;
+import android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
@@ -88,7 +88,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     private HalHandler mHalHandler;
     // Used to block until the HAL property is updated in HalHandler.onPropertySet.
     private Semaphore mHalHandlerSemaphore;
-    // Used to block until a value is propagated to the TestListener.onVmsMessageReceived.
+    // Used to block until a value is propagated to the TestClientCallback.onVmsMessageReceived.
     private Semaphore mSubscriberSemaphore;
 
     @Override
@@ -119,11 +119,11 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
-        TestListener listener = new TestListener();
-        vmsSubscriberManager.setListener(listener);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
 
-        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
                 .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
@@ -139,9 +139,9 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         getMockedVehicleHal().injectEvent(v);
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(SUBSCRIPTION_LAYER, listener.getLayer());
+        assertEquals(SUBSCRIPTION_LAYER, clientCallback.getLayer());
         byte[] expectedPayload = {(byte) 0xa, (byte) 0xb};
-        assertTrue(Arrays.equals(expectedPayload, listener.getPayload()));
+        assertTrue(Arrays.equals(expectedPayload, clientCallback.getPayload()));
     }
 
 
@@ -150,11 +150,11 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
-        TestListener listener = new TestListener();
-        vmsSubscriberManager.setListener(listener);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
 
-        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
                 .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
@@ -178,11 +178,11 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
-        TestListener listener = new TestListener();
-        vmsSubscriberManager.setListener(listener);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
 
-        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
                 .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
@@ -198,9 +198,9 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         getMockedVehicleHal().injectEvent(v);
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(SUBSCRIPTION_LAYER, listener.getLayer());
+        assertEquals(SUBSCRIPTION_LAYER, clientCallback.getLayer());
         byte[] expectedPayload = {(byte) 0xa, (byte) 0xb};
-        assertTrue(Arrays.equals(expectedPayload, listener.getPayload()));
+        assertTrue(Arrays.equals(expectedPayload, clientCallback.getPayload()));
     }
 
     // Test injecting a value in the HAL and verifying it does not propagate to a subscriber.
@@ -208,12 +208,12 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
-        TestListener listener = new TestListener();
-        vmsSubscriberManager.setListener(listener);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
         vmsSubscriberManager.unsubscribe(SUBSCRIPTION_LAYER);
 
-        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
                 .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
@@ -236,11 +236,11 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
-        TestListener listener = new TestListener();
-        vmsSubscriberManager.setListener(listener);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
 
-        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
                 .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
@@ -263,12 +263,12 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
-        TestListener listener = new TestListener();
-        vmsSubscriberManager.setListener(listener);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
         vmsSubscriberManager.unsubscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
 
-        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
                 .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
@@ -293,11 +293,11 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
-        TestListener listener = new TestListener();
-        vmsSubscriberManager.setListener(listener);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
         vmsSubscriberManager.subscribeAll();
 
-        // Inject a value and wait for its callback in TestListener.onVmsMessageReceived.
+        // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
                 .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
@@ -313,9 +313,9 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         getMockedVehicleHal().injectEvent(v);
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(SUBSCRIPTION_LAYER, listener.getLayer());
+        assertEquals(SUBSCRIPTION_LAYER, clientCallback.getLayer());
         byte[] expectedPayload = {(byte) 0xa, (byte) 0xb};
-        assertTrue(Arrays.equals(expectedPayload, listener.getPayload()));
+        assertTrue(Arrays.equals(expectedPayload, clientCallback.getPayload()));
     }
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
@@ -323,11 +323,10 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
-        TestListener listener = new TestListener();
-        vmsSubscriberManager.setListener(listener);
-        vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
 
-        // Inject a value and wait for its callback in TestListener.onLayersAvailabilityChange.
+        // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChange.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
                 .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
@@ -360,20 +359,127 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         List<VmsAssociatedLayer> expectedAvailableLayers =
                 new ArrayList<>(Arrays.asList(SUBSCRIPTION_ASSOCIATED_LAYER));
-        assertTrue(expectedAvailableLayers.containsAll(listener.getAvailableLayers()));
-        assertEquals(expectedAvailableLayers.size(), listener.getAvailableLayers().size());
+        assertTrue(expectedAvailableLayers.containsAll(clientCallback.getAvailableLayers()));
+        assertEquals(expectedAvailableLayers.size(), clientCallback.getAvailableLayers().size());
     }
+
+    // Test injecting a value in the HAL and verifying it propagates to a subscriber after it has
+    // subscribed to a layer.
+    public void testSimpleAvailableLayersAfterSubscription() throws Exception {
+        assumeTrue(VmsTestUtils.canRunTest(TAG));
+        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
+                Car.VMS_SUBSCRIBER_SERVICE);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
+
+        // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChange.
+        VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .build();
+        /*
+        Offering:
+        Layer             | Dependency
+        ===============================
+        (2, 3, 444), [17] | {}
+
+        Expected availability:
+        {(2, 3, 444 [17])}
+         */
+        v.value.int32Values.addAll(
+                Arrays.asList(
+                        VmsMessageType.OFFERING, // MessageType
+                        PUBLISHER_ID,
+                        1, // Number of offered layers
+
+                        SUBSCRIPTION_LAYER_ID,
+                        SUBSCRIPTION_LAYER_VERSION,
+                        MOCK_PUBLISHER_LAYER_SUB_TYPE,
+                        0 // number of dependencies for layer
+                )
+        );
+
+        assertEquals(0, mSubscriberSemaphore.availablePermits());
+
+        getMockedVehicleHal().injectEvent(v);
+        assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+        List<VmsAssociatedLayer> expectedAvailableLayers =
+                new ArrayList<>(Arrays.asList(SUBSCRIPTION_ASSOCIATED_LAYER));
+        assertTrue(expectedAvailableLayers.containsAll(clientCallback.getAvailableLayers()));
+        assertEquals(expectedAvailableLayers.size(), clientCallback.getAvailableLayers().size());
+    }
+
+    // Test injecting a value in the HAL and verifying it does not propagates to a subscriber after
+    // it has unregistered its callback.
+    public void testSimpleAvailableLayersAfterUnregister() throws Exception {
+        assumeTrue(VmsTestUtils.canRunTest(TAG));
+        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
+                Car.VMS_SUBSCRIBER_SERVICE);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.unregisterClientCallback();
+
+
+        // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChange.
+        VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                .build();
+        /*
+        Offering:
+        Layer             | Dependency
+        ===============================
+        (2, 3, 444), [17] | {}
+
+        Expected availability:
+        {(2, 3, 444 [17])}
+         */
+        v.value.int32Values.addAll(
+                Arrays.asList(
+                        VmsMessageType.OFFERING, // MessageType
+                        PUBLISHER_ID,
+                        1, // Number of offered layers
+
+                        SUBSCRIPTION_LAYER_ID,
+                        SUBSCRIPTION_LAYER_VERSION,
+                        MOCK_PUBLISHER_LAYER_SUB_TYPE,
+                        0 // number of dependencies for layer
+                )
+        );
+
+        assertEquals(0, mSubscriberSemaphore.availablePermits());
+        getMockedVehicleHal().injectEvent(v);
+        assertFalse(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+    }
+
+    // Test injecting a value in the HAL and verifying it does not propagates to a subscriber after
+    // it has unregistered its callback.
+    public void testSomething() throws Exception {
+        assumeTrue(VmsTestUtils.canRunTest(TAG));
+        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
+                Car.VMS_SUBSCRIBER_SERVICE);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
+        try {
+            vmsSubscriberManager.unregisterClientCallback();
+        }catch (IllegalArgumentException e) {
+            return;
+        }
+        fail();
+    }
+
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
     public void testComplexAvailableLayers() throws Exception {
         assumeTrue(VmsTestUtils.canRunTest(TAG));
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
-        TestListener listener = new TestListener();
-        vmsSubscriberManager.setListener(listener);
-        vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
 
-        // Inject a value and wait for its callback in TestListener.onLayersAvailabilityChange.
+        // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChange.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
                 .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
@@ -441,8 +547,8 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
                 ));
         getMockedVehicleHal().injectEvent(v);
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertTrue(expectedAvailableLayers.containsAll(listener.getAvailableLayers()));
-        assertEquals(expectedAvailableLayers.size(), listener.getAvailableLayers().size());
+        assertTrue(expectedAvailableLayers.containsAll(clientCallback.getAvailableLayers()));
+        assertEquals(expectedAvailableLayers.size(), clientCallback.getAvailableLayers().size());
     }
 
     private class HalHandler implements VehicleHalPropertyHandler {
@@ -474,7 +580,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         }
     }
 
-    private class TestListener implements VmsSubscriberClientListener {
+    private class TestClientCallback implements VmsSubscriberClientCallback {
         private VmsLayer mLayer;
         private byte[] mPayload;
         private List<VmsLayer> mAvailableLayers = new ArrayList<>();
@@ -492,11 +598,6 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
             Log.d(TAG, "onLayersAvailabilityChange: Layers: " + availableLayers);
             mAvailableLayers.addAll(availableLayers);
             mSubscriberSemaphore.release();
-        }
-
-        @Override
-        public void onCarDisconnected() {
-
         }
 
         public VmsLayer getLayer() {
