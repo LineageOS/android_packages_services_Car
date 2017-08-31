@@ -248,6 +248,8 @@ public class ICarImpl extends ICar.Stub {
                     return mCarTestService;
                 }
             }
+            case Car.BLUETOOTH_SERVICE:
+                return mCarBluetoothService;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:" + serviceName);
                 return null;
