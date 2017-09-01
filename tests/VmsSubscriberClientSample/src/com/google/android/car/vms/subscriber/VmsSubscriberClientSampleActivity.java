@@ -106,7 +106,7 @@ public class VmsSubscriberClientSampleActivity extends Activity {
                 }
 
                 @Override
-                public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
+                public void onLayersAvailabilityChanged(List<VmsLayer> availableLayers) {
                     mTextView.setText(String.valueOf(availableLayers));
                 }
             };

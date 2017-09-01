@@ -50,15 +50,19 @@ public final class VmsSubscriptionState implements Parcelable {
         mSubscribedLayersFromPublishers = Collections.unmodifiableSet(layersFromPublishers);
     }
 
+    /**
+     * Returns the sequence number assigned by the VMS service. Sequence numbers are
+     * monotonically increasing and help clients ignore potential out-of-order states.
+     */
     public int getSequenceNumber() {
         return mSequenceNumber;
     }
 
-    public Set<VmsLayer> getSubscribedLayersFromAll() {
+    public Set<VmsLayer> getLayers() {
         return mLayers;
     }
 
-    public Set<VmsAssociatedLayer> getSubscribedLayersFromPublishers() {
+    public Set<VmsAssociatedLayer> getAssociatedLayers() {
         return mSubscribedLayersFromPublishers;
     }
 

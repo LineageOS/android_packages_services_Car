@@ -82,18 +82,18 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
 
     public void testOneSubscription() throws Exception {
         if (!VmsTestUtils.canRunTest(TAG)) return;
-        List<VmsLayer> layers = Arrays.asList(new VmsLayer(8, 3, 0));
+        List<VmsLayer> layers = Arrays.asList(new VmsLayer(8, 0, 3));
         subscriptionTestLogic(layers);
     }
 
     public void testManySubscriptions() throws Exception {
         if (!VmsTestUtils.canRunTest(TAG)) return;
         List<VmsLayer> layers = Arrays.asList(
-                new VmsLayer(8, 3, 1),
-                new VmsLayer(5, 1, 2),
-                new VmsLayer(3, 9, 3),
-                new VmsLayer(2, 7, 4),
-                new VmsLayer(9, 3, 5));
+                new VmsLayer(8, 1, 3),
+                new VmsLayer(5, 2, 1),
+                new VmsLayer(3, 3, 9),
+                new VmsLayer(2, 4, 7),
+                new VmsLayer(9, 5, 3));
         subscriptionTestLogic(layers);
     }
 
@@ -122,10 +122,10 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
         int start = VmsSubscriptionsStateIntegerValuesIndex.SUBSCRIPTIONS_START;
         int end = VmsSubscriptionsStateIntegerValuesIndex.SUBSCRIPTIONS_START + 3 * numberLayers;
         while (start < end) {
-            int id = v.get(start++);
-            int subType = v.get(start++);
+            int type = v.get(start++);
+            int subtype = v.get(start++);
             int version = v.get(start++);
-            receivedLayers.add(new VmsLayer(id, version, subType));
+            receivedLayers.add(new VmsLayer(type, subtype, version));
         }
         assertEquals(new HashSet<>(layers), new HashSet<>(receivedLayers));
     }
@@ -146,15 +146,15 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
         int layerVersion = v.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_VERSION);
         int fused = v.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_SUBTYPE);
         assertEquals(VmsMessageType.SUBSCRIBE, messsageType);
-        assertEquals(layer.getId(), layerId);
+        assertEquals(layer.getType(), layerId);
         assertEquals(layer.getVersion(), layerVersion);
     }
 
     private VehiclePropValue createHalSubscribeRequest(VmsLayer layer) {
         return VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
                 .addIntValue(VmsMessageType.SUBSCRIBE)
-                .addIntValue(layer.getId())
-                .addIntValue(layer.getSubType())
+                .addIntValue(layer.getType())
+                .addIntValue(layer.getSubtype())
                 .addIntValue(layer.getVersion())
                 .build();
     }

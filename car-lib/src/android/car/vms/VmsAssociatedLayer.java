@@ -45,7 +45,7 @@ public final class VmsAssociatedLayer implements Parcelable {
         return mLayer;
     }
 
-    public Collection<Integer> getPublisherIds() {
+    public Set<Integer> getPublisherIds() {
         return mPublisherIds;
     }
 
