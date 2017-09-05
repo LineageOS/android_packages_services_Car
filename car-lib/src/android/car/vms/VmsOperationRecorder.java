@@ -58,20 +58,20 @@ public final class VmsOperationRecorder {
         recordOp("unsubscribe", "publisherId", publisherId, layer);
     }
 
-    public void subscribeAll() {
-        recordOp("subscribeAll");
+    public void startMonitoring() {
+        recordOp("startMonitoring");
     }
 
-    public void unsubscribeAll() {
-        recordOp("unsubscribeAll");
+    public void stopMonitoring() {
+        recordOp("stopMonitoring");
     }
 
     public void setLayersOffering(VmsLayersOffering layersOffering) {
         recordOp("setLayersOffering", layersOffering);
     }
 
-    public void getPublisherStaticId(int publisherStaticId) {
-        recordOp("getPublisherStaticId", "publisherStaticId", publisherStaticId);
+    public void getPublisherId(int publisherId) {
+        recordOp("getPublisherId", "publisherId", publisherId);
     }
 
     // VMS Service operations.
@@ -176,9 +176,9 @@ public final class VmsOperationRecorder {
 
     private static JSONObject toJson(VmsLayer layer) throws JSONException {
         return new JSONObject()
-                .put("id", layer.getId())
-                .put("version", layer.getVersion())
-                .put("subtype", layer.getSubType());
+                .put("type", layer.getType())
+                .put("subtype", layer.getSubtype())
+                .put("version", layer.getVersion());
     }
 
     private static JSONObject toJson(VmsLayerDependency layerDependency) throws JSONException {
@@ -210,6 +210,7 @@ public final class VmsOperationRecorder {
         mWriter.write(object.toString());
     }
 
+    /** @hide */
     @VisibleForTesting
     public static class Writer {
         private static final String TAG = "VMS.RECORD.EVENT";

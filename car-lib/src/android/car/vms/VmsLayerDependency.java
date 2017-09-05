@@ -52,13 +52,6 @@ public final class VmsLayerDependency implements Parcelable {
         mDependency = Collections.emptySet();
     }
 
-    /**
-     * Checks if a layer has a dependency.
-     */
-    public boolean hasDependencies() {
-        return (!mDependency.isEmpty());
-    }
-
     public VmsLayer getLayer() {
         return mLayer;
     }

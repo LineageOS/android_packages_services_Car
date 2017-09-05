@@ -43,8 +43,8 @@ interface IVmsPublisherService {
 
     /**
      * The first time a publisher calls this API it will store the publisher info and assigns the
-     * publisher a static ID. Between reboots, subsequent calls with the same publisher info will
-      * return the same ID so that a restarting process can obtain the same ID as it had before.
+     * publisher an ID. Between reboots, subsequent calls with the same publisher info will
+     * return the same ID so that a restarting process can obtain the same ID as it had before.
      */
-    int getPublisherStaticId(in byte[] publisherInfo) = 3;
+    int getPublisherId(in byte[] publisherInfo) = 3;
 }

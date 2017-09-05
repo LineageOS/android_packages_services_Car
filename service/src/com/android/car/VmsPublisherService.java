@@ -146,9 +146,9 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
     }
 
     @Override
-    public int getPublisherStaticId(byte[] publisherInfo) {
+    public int getPublisherId(byte[] publisherInfo) {
         ICarImpl.assertVmsPublisherPermission(mContext);
-        return mHal.getPublisherStaticId(publisherInfo);
+        return mHal.getPublisherId(publisherInfo);
     }
 
     // Implements VmsHalListener interface
