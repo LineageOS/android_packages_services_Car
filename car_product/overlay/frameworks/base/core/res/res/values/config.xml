@@ -66,4 +66,7 @@
 
     <!-- The action buttons should always take the default color. -->
     <bool name="config_tintNotificationActionButtons">false</bool>
+
+    <!-- Home screen(Launcher) app presence -->
+    <bool name="config_noHomeScreen">true</bool>
 </resources>
