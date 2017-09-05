@@ -46,12 +46,12 @@ import java.util.concurrent.TimeUnit;
 public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     private static final int LAYER_ID = 88;
     private static final int LAYER_VERSION = 19;
-    private static final int LAYER_SUB_TYPE = 55;
+    private static final int LAYER_SUBTYPE = 55;
     private static final String TAG = "VmsPubSubTest";
 
     // The expected publisher ID is 0 since it the expected assigned ID from the VMS core.
     public static final int EXPECTED_PUBLISHER_ID = 0;
-    public static final VmsLayer LAYER = new VmsLayer(LAYER_ID, LAYER_VERSION, LAYER_SUB_TYPE);
+    public static final VmsLayer LAYER = new VmsLayer(LAYER_ID, LAYER_SUBTYPE, LAYER_VERSION);
     public static final VmsAssociatedLayer ASSOCIATED_LAYER =
             new VmsAssociatedLayer(LAYER, new HashSet<>(Arrays.asList(EXPECTED_PUBLISHER_ID)));
     public static final byte[] PAYLOAD = new byte[]{2, 3, 5, 7, 11, 13, 17};
@@ -62,7 +62,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
 
     private static final int SUBSCRIBED_LAYER_ID = 89;
     public static final VmsLayer SUBSCRIBED_LAYER =
-            new VmsLayer(SUBSCRIBED_LAYER_ID, LAYER_VERSION, LAYER_SUB_TYPE);
+            new VmsLayer(SUBSCRIBED_LAYER_ID, LAYER_SUBTYPE, LAYER_VERSION);
     public static final VmsAssociatedLayer ASSOCIATED_SUBSCRIBED_LAYER =
             new VmsAssociatedLayer(SUBSCRIBED_LAYER, new HashSet<>(Arrays.asList(EXPECTED_PUBLISHER_ID)));
     private static final List<VmsAssociatedLayer> AVAILABLE_ASSOCIATED_LAYERS_WITH_SUBSCRIBED_LAYER =
@@ -218,7 +218,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
+        public void onLayersAvailabilityChanged(List<VmsLayer> availableLayers) {
             mAvailableLayers = availableLayers;
             mAvailabilitySemaphore.release();
         }

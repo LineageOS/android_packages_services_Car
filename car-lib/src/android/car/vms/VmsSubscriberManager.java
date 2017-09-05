@@ -64,7 +64,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         /**
          * Called when layers availability change
          */
-        void onLayersAvailabilityChange(List<VmsLayer> availableLayers);
+        void onLayersAvailabilityChanged(List<VmsLayer> availableLayers);
     }
 
     /**
@@ -131,7 +131,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             }
 
             @Override
-            public void onLayersAvailabilityChange(List<VmsAssociatedLayer> availableLayers) {
+            public void onLayersAvailabilityChanged(List<VmsAssociatedLayer> availableLayers) {
                 mHandler.sendMessage(
                         mHandler.obtainMessage(
                                 VmsEventHandler.ON_AVAILABILITY_CHANGE_EVENT,
@@ -245,11 +245,11 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
     }
 
-    public void subscribeAll() throws CarNotConnectedException {
+    public void startMonitoring() throws CarNotConnectedException {
         verifySubscriptionIsAllowed();
         try {
             mVmsSubscriberService.addVmsSubscriberPassive(mSubscriberManagerClient);
-            VmsOperationRecorder.get().subscribeAll();
+            VmsOperationRecorder.get().startMonitoring();
         } catch (RemoteException e) {
             Log.e(TAG, "Could not connect: ", e);
             throw new CarNotConnectedException(e);
@@ -299,10 +299,10 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
     }
 
-    public void unsubscribeAll() {
+    public void stopMonitoring() {
         try {
             mVmsSubscriberService.removeVmsSubscriberPassive(mSubscriberManagerClient);
-            VmsOperationRecorder.get().unsubscribeAll();
+            VmsOperationRecorder.get().stopMonitoring();
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to unregister subscriber ", e);
             // ignore
@@ -326,7 +326,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             Log.e(TAG, "Cannot dispatch availability change message.");
             return;
         }
-        clientCallback.onLayersAvailabilityChange(availableLayers);
+        clientCallback.onLayersAvailabilityChanged(availableLayers);
     }
 
     private VmsSubscriberClientCallback getClientCallbackThreadSafe() {

@@ -58,7 +58,7 @@ public class VmsPublisherClientSampleService extends VmsPublisherClientService {
     @Override
     public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState) {
         if (mInitialized.compareAndSet(false, true)) {
-            for (VmsLayer layer : subscriptionState.getSubscribedLayersFromAll()) {
+            for (VmsLayer layer : subscriptionState.getLayers()) {
                 if (layer.equals(TEST_LAYER)) {
                     mHandler.sendEmptyMessage(PUBLISH_EVENT);
                 }
