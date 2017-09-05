@@ -256,7 +256,7 @@ public class VmsHalService extends HalServiceBase {
      * The publisherInfo should be static for a binary and should only change as part of a software
      * update. The publisherInfo is a serialized proto message which VMS clients can interpret.
      */
-    public int getPublisherStaticId(byte[] publisherInfo) {
+    public int getPublisherId(byte[] publisherInfo) {
         if (DBG) {
             Log.i(TAG, "Getting publisher static ID");
         }
@@ -499,8 +499,8 @@ public class VmsHalService extends HalServiceBase {
 
     private VmsLayer parseVmsLayerFromSimpleMessageIntegerValues(List<Integer> integerValues) {
         return new VmsLayer(integerValues.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_TYPE),
-                integerValues.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_VERSION),
-                integerValues.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_SUBTYPE));
+                integerValues.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_SUBTYPE),
+                integerValues.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_VERSION));
     }
 
     private VmsLayer parseVmsLayerFromDataMessageIntegerValues(List<Integer> integerValues) {
@@ -569,7 +569,6 @@ public class VmsHalService extends HalServiceBase {
             Log.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer);
         }
         int publisherId =
-                //integerValues.get(/*VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_SUB_TYPE*/0);
                 integerValues.get(VmsMessageWithLayerAndPublisherIdIntegerValuesIndex.PUBLISHER_ID);
         addHalSubscriptionToPublisher(vmsLayer, publisherId);
     }
@@ -601,7 +600,6 @@ public class VmsHalService extends HalServiceBase {
     private void handleUnsubscribeFromPublisherEvent(List<Integer> integerValues) {
         VmsLayer vmsLayer = parseVmsLayerFromSimpleMessageIntegerValues(integerValues);
         int publisherId =
-                //integerValues.get(/*VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_SUB_TYPE*/0);
                 integerValues.get(VmsMessageWithLayerAndPublisherIdIntegerValuesIndex.PUBLISHER_ID);
         if (DBG) {
             Log.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer);
@@ -612,9 +610,10 @@ public class VmsHalService extends HalServiceBase {
     private static int NUM_INTEGERS_IN_VMS_LAYER = 3;
 
     private VmsLayer parseVmsLayerFromIndex(List<Integer> integerValues, int index) {
-        return new VmsLayer(integerValues.get(index++),
-                integerValues.get(index++),
-                integerValues.get(index++));
+        int layerType = integerValues.get(index++);
+        int layerSutype = integerValues.get(index++);
+        int layerVersion = integerValues.get(index++);
+        return new VmsLayer(layerType, layerSutype, layerVersion);
     }
 
     /**
@@ -639,7 +638,7 @@ public class VmsHalService extends HalServiceBase {
                         VmsOfferingMessageIntegerValuesIndex.NUMBER_OF_OFFERS);
         int idx = VmsOfferingMessageIntegerValuesIndex.OFFERING_START;
 
-        List<VmsLayerDependency> offeredLayers = new ArrayList<>();
+        Set<VmsLayerDependency> offeredLayers = new HashSet<>();
 
         // An offering is layerId, LayerVersion, LayerType, NumDeps, <LayerId, LayerVersion> X NumDeps.
         for (int i = 0; i < numLayersDependencies; i++) {
@@ -708,7 +707,7 @@ public class VmsHalService extends HalServiceBase {
                 toTypedVmsVehiclePropValue(VmsMessageType.SUBSCRIPTIONS_RESPONSE);
         VehiclePropValue.RawValue v = vehicleProp.value;
         v.int32Values.add(subscription.getSequenceNumber());
-        Set<VmsLayer> layers = subscription.getSubscribedLayersFromAll();
+        Set<VmsLayer> layers = subscription.getLayers();
         v.int32Values.add(layers.size());
 
         //TODO(asafro): get the real number of associated layers in the subscriptions
@@ -716,8 +715,8 @@ public class VmsHalService extends HalServiceBase {
         v.int32Values.add(0);
 
         for (VmsLayer layer : layers) {
-            v.int32Values.add(layer.getId());
-            v.int32Values.add(layer.getSubType());
+            v.int32Values.add(layer.getType());
+            v.int32Values.add(layer.getSubtype());
             v.int32Values.add(layer.getVersion());
         }
         setPropertyValue(vehicleProp);
@@ -813,8 +812,8 @@ public class VmsHalService extends HalServiceBase {
             int messageType, VmsLayer layer) {
         VehiclePropValue vehicleProp = toTypedVmsVehiclePropValue(messageType);
         VehiclePropValue.RawValue v = vehicleProp.value;
-        v.int32Values.add(layer.getId());
-        v.int32Values.add(layer.getSubType());
+        v.int32Values.add(layer.getType());
+        v.int32Values.add(layer.getSubtype());
         v.int32Values.add(layer.getVersion());
         return vehicleProp;
     }
@@ -839,8 +838,8 @@ public class VmsHalService extends HalServiceBase {
         int numLayers = availableAssociatedLayers.size();
         v.int32Values.add(numLayers);
         for (VmsAssociatedLayer layer : availableAssociatedLayers) {
-            v.int32Values.add(layer.getVmsLayer().getId());
-            v.int32Values.add(layer.getVmsLayer().getSubType());
+            v.int32Values.add(layer.getVmsLayer().getType());
+            v.int32Values.add(layer.getVmsLayer().getSubtype());
             v.int32Values.add(layer.getVmsLayer().getVersion());
             v.int32Values.add(layer.getPublisherIds().size());
             for (int publisherId : layer.getPublisherIds()) {

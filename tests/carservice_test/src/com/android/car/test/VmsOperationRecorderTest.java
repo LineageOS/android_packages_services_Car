@@ -54,20 +54,20 @@ public class VmsOperationRecorderTest extends TestCase {
     private TestWriter mWriter;
     private VmsOperationRecorder mRecorder;
 
-    private static final VmsLayer layer1 = new VmsLayer(1, 2, 3);
-    private static final VmsLayer layer2 = new VmsLayer(2, 3, 4);
-    private static final VmsLayer layer3 = new VmsLayer(3, 4, 5);
+    private static final VmsLayer layer1 = new VmsLayer(1, 3, 2);
+    private static final VmsLayer layer2 = new VmsLayer(2, 4, 3);
+    private static final VmsLayer layer3 = new VmsLayer(3, 5, 4);
 
     private static final VmsLayerDependency layerDependency1 = new VmsLayerDependency(layer3);
     private static final VmsLayerDependency layerDependency2 = new VmsLayerDependency(layer1,
             new HashSet<VmsLayer>(Arrays.asList(layer2, layer3)));
 
     private static final VmsLayersOffering layersOffering0 = new VmsLayersOffering(
-            new ArrayList<VmsLayerDependency>(), 66);
+            new HashSet<VmsLayerDependency>(), 66);
     private static final VmsLayersOffering layersOffering1 = new VmsLayersOffering(
-            Arrays.asList(layerDependency1), 66);
+            new HashSet<>(Arrays.asList(layerDependency1)), 66);
     private static final VmsLayersOffering layersOffering2 = new VmsLayersOffering(
-            Arrays.asList(layerDependency1, layerDependency2), 66);
+            new HashSet<>(Arrays.asList(layerDependency1, layerDependency2)), 66);
 
     public void setUp() {
         mWriter = new TestWriter();
@@ -76,22 +76,22 @@ public class VmsOperationRecorderTest extends TestCase {
 
     public void testSubscribe() throws Exception {
         mRecorder.subscribe(layer1);
-        assertJsonMsgEquals("{'subscribe':{'layer':{'id':1,'version':2,'subtype':3}}}");
+        assertJsonMsgEquals("{'subscribe':{'layer':{'type':1,'subtype':3,'version':2}}}");
     }
 
     public void testUnsubscribe() throws Exception {
         mRecorder.unsubscribe(layer1);
-        assertJsonMsgEquals("{'unsubscribe':{'layer':{'id':1,'version':2,'subtype':3}}}");
+        assertJsonMsgEquals("{'unsubscribe':{'layer':{'type':1,'subtype':3,'version':2}}}");
     }
 
-    public void testSubscribeAll() throws Exception {
-        mRecorder.subscribeAll();
-        assertJsonMsgEquals("{'subscribeAll':{}}");
+    public void testStartMonitoring() throws Exception {
+        mRecorder.startMonitoring();
+        assertJsonMsgEquals("{'startMonitoring':{}}");
     }
 
-    public void testUnsubscribeAll() throws Exception {
-        mRecorder.unsubscribeAll();
-        assertJsonMsgEquals("{'unsubscribeAll':{}}");
+    public void testStopMonitoring() throws Exception {
+        mRecorder.stopMonitoring();
+        assertJsonMsgEquals("{'stopMonitoring':{}}");
     }
 
     public void testSetLayersOffering0() throws Exception {
@@ -102,27 +102,28 @@ public class VmsOperationRecorderTest extends TestCase {
     public void testSetLayersOffering2() throws Exception {
         mRecorder.setLayersOffering(layersOffering2);
         assertJsonMsgEquals("{'setLayersOffering':{'layerDependency':["
-                + "{'layer':{'id':3,'version':4,'subtype':5}},"
-                + "{'layer':{'id':1,'version':2,'subtype':3},'dependency':["
-                + "{'id':2,'version':3,'subtype':4},{'id':3,'version':4,'subtype':5}]}]}}");
+                + "{'layer':{'type':3,'subtype':5,'version':4}},"
+                + "{'layer':{'type':1,'subtype':3,'version':2},'dependency':["
+                + "{'type':2,'subtype':4,'version':3},{'type':3,'subtype':5,'version':4}]}"
+                + "]}}");
     }
 
-    public void testGetPublisherStaticId() throws Exception {
-        mRecorder.getPublisherStaticId(9);
-        assertJsonMsgEquals("{'getPublisherStaticId':{'publisherStaticId':9}}");
+    public void testGetPublisherId() throws Exception {
+        mRecorder.getPublisherId(9);
+        assertJsonMsgEquals("{'getPublisherId':{'publisherId':9}}");
     }
 
     public void testAddSubscription() throws Exception {
         mRecorder.addSubscription(42, layer1);
         assertJsonMsgEquals(
-                "{'addSubscription':{'sequenceNumber':42,'layer':{'id':1,'version':2,'subtype':3}}}"
+                "{'addSubscription':{'sequenceNumber':42,'layer':{'type':1,'subtype':3,'version':2}}}"
         );
     }
 
     public void testRemoveSubscription() throws Exception {
         mRecorder.removeSubscription(42, layer1);
         assertJsonMsgEquals("{'removeSubscription':"
-                + "{'sequenceNumber':42,'layer':{'id':1,'version':2,'subtype':3}}}");
+                + "{'sequenceNumber':42,'layer':{'type':1,'subtype':3,'version':2}}}");
     }
 
     public void testAddPromiscuousSubscription() throws Exception {
@@ -138,37 +139,37 @@ public class VmsOperationRecorderTest extends TestCase {
     public void testAddHalSubscription() throws Exception {
         mRecorder.addHalSubscription(42, layer1);
         assertJsonMsgEquals("{'addHalSubscription':"
-                + "{'sequenceNumber':42,'layer':{'id':1,'version':2,'subtype':3}}}");
+                + "{'sequenceNumber':42,'layer':{'type':1,'subtype':3,'version':2}}}");
     }
 
     public void testRemoveHalSubscription() throws Exception {
         mRecorder.removeHalSubscription(42, layer1);
         assertJsonMsgEquals("{'removeHalSubscription':"
-                + "{'sequenceNumber':42,'layer':{'id':1,'version':2,'subtype':3}}}");
+                + "{'sequenceNumber':42,'layer':{'type':1,'subtype':3,'version':2}}}");
     }
 
     public void testSetPublisherLayersOffering() throws Exception {
         mRecorder.setPublisherLayersOffering(layersOffering1);
         assertJsonMsgEquals("{'setPublisherLayersOffering':{'layerDependency':["
-                + "{'layer':{'id':3,'version':4,'subtype':5}}]}}");
+                + "{'layer':{'type':3,'subtype':5,'version':4}}]}}");
     }
 
     public void testSetHalPublisherLayersOffering() throws Exception {
         mRecorder.setHalPublisherLayersOffering(layersOffering1);
         assertJsonMsgEquals("{'setHalPublisherLayersOffering':{'layerDependency':["
-                + "{'layer':{'id':3,'version':4,'subtype':5}}]}}");
+                + "{'layer':{'type':3,'subtype':5,'version':4}}]}}");
     }
 
     public void testSubscribeToPublisher() throws Exception {
         mRecorder.subscribe(layer1, 99);
         assertJsonMsgEquals(
-                "{'subscribe':{'publisherId':99, 'layer':{'id':1,'version':2,'subtype':3}}}");
+                "{'subscribe':{'publisherId':99, 'layer':{'type':1,'subtype':3,'version':2}}}");
     }
 
     public void testUnsubscribeToPublisher() throws Exception {
         mRecorder.unsubscribe(layer1, 99);
         assertJsonMsgEquals(
-                "{'unsubscribe':{'publisherId':99, 'layer':{'id':1,'version':2,'subtype':3}}}}");
+                "{'unsubscribe':{'publisherId':99, 'layer':{'type':1,'subtype':3,'version':2}}}}");
     }
 
     private void assertJsonMsgEquals(String expectJson) throws Exception {

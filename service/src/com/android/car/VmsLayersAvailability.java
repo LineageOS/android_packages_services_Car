@@ -77,7 +77,7 @@ public class VmsLayersAvailability {
                         curPotentialLayerAndPublishers = new HashSet<>();
                         mPotentialLayersAndPublishers.put(layer, curPotentialLayerAndPublishers);
                     }
-                    curPotentialLayerAndPublishers.add(offering.getPublisherStaticId());
+                    curPotentialLayerAndPublishers.add(offering.getPublisherId());
 
                     // Add dependencies for availability calculation.
                     Set<Set<VmsLayer>> curDependencies =
