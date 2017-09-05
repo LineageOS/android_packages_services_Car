@@ -74,6 +74,13 @@ public class CarSettings {
          */
         public static final String KEY_VOLUME_CALL = "android.car.VOLUME_CALL";
         /**
+         * Key for phone ring volume. This is used internally, changing this value will not change
+         * the volume.
+         *
+         * @hide
+         */
+        public static final String KEY_VOLUME_RINGTONE = "android.car.VOLUME_RINGTONE";
+        /**
          * Key for alarm volume. This is used internally, changing this value will not change the
          * volume.
          *
