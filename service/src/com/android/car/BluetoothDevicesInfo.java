@@ -362,10 +362,10 @@ public class BluetoothDevicesInfo {
      * @param device - device to get the bluetooth connection state for
      * @return - Connection State.  If passed device is null, returns DEVICE_NOT_FOUND.
      */
-    public int getConnectionStateLocked(BluetoothDevice device) {
+    public int getCurrentConnectionStateLocked(BluetoothDevice device) {
         int state = DEVICE_NOT_FOUND;
         if (device == null) {
-            Log.e(TAG, "getConnectionStateLocked() device null");
+            Log.e(TAG, "getCurrentConnectionStateLocked() device null");
             return state;
         }
 
@@ -380,6 +380,39 @@ public class BluetoothDevicesInfo {
             }
         }
         return state;
+    }
+
+    /**
+     * Returns the device that is currently in the middle of a connection attempt.
+     *
+     * @return BluetoothDevice that is connecting, null if no device is connecting
+     */
+    public BluetoothDevice getConnectingDeviceLocked() {
+        for (DeviceInfo devInfo : mDeviceInfoList) {
+            if (devInfo.getConnectionState() == BluetoothProfile.STATE_CONNECTING) {
+                return devInfo.getBluetoothDevice();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns a list of connected devices for this profile.
+     *
+     * @return - List of connected devices
+     */
+    public List<BluetoothDevice> getConnectedDevicesLocked() {
+        List<BluetoothDevice> devices = new ArrayList<>();
+        for (DeviceInfo devInfo : mDeviceInfoList) {
+            if (devInfo.getConnectionState() == BluetoothProfile.STATE_CONNECTED) {
+                devices.add(devInfo.getBluetoothDevice());
+            }
+        }
+        if (DBG) {
+            Log.d(TAG, "Active Connections: " + getNumberOfActiveConnectionsLocked());
+            Log.d(TAG, "Connected devices Size: " + devices.size());
+        }
+        return devices;
     }
 
     /**
@@ -423,6 +456,13 @@ public class BluetoothDevicesInfo {
     public BluetoothDevice getNextDeviceInQueueLocked() {
         BluetoothDevice device = null;
         int numberOfPairedDevices = getNumberOfPairedDevicesLocked();
+        // iterate till we find a disconnected device
+        while (mConnectionInfo.mDeviceIndex < numberOfPairedDevices &&
+                mDeviceInfoList.get(mConnectionInfo.mDeviceIndex).getConnectionState()
+                        != BluetoothProfile.STATE_DISCONNECTED) {
+            mConnectionInfo.mDeviceIndex++;
+        }
+
         if (mConnectionInfo.mDeviceIndex >= numberOfPairedDevices) {
             if (DBG) {
                 Log.d(TAG,
@@ -446,6 +486,7 @@ public class BluetoothDevicesInfo {
             mConnectionInfo.mDeviceIndex = 0;
             return null;
         }
+
         device = mDeviceInfoList.get(mConnectionInfo.mDeviceIndex).mBluetoothDevice;
         if (DBG) {
             Log.d(TAG, "Getting device " + mConnectionInfo.mDeviceIndex + " from list: "
@@ -511,11 +552,22 @@ public class BluetoothDevicesInfo {
                 // reset the device Index back to the first in the Queue
                 //mConnectionInfo.mDeviceIndex = 0;
             }
+
+            if (getCurrentConnectionStateLocked(device) != BluetoothProfile.STATE_CONNECTED) {
+                mConnectionInfo.mNumActiveConnections++;
+                if (DBG) {
+                    Log.d(TAG,
+                            "Incrementing Active Connections "
+                                    + mConnectionInfo.mNumActiveConnections);
+                }
+            }
             setConnectionStateLocked(device, BluetoothProfile.STATE_CONNECTED);
             // Reset the retry count
             mConnectionInfo.mRetryAttempt = 0;
-            mConnectionInfo.mNumActiveConnections++;
-            mConnectionInfo.mDeviceIndex++;
+
+            if (getConnectingDeviceLocked() == null) {
+                mConnectionInfo.mDeviceIndex++;
+            }
             if (DBG) {
                 Log.d(TAG,
                         "Profile: " + mConnectionInfo.mProfile + " Number of Active Connections: "
@@ -526,22 +578,42 @@ public class BluetoothDevicesInfo {
             if (DBG) {
                 Log.d(TAG, "Connection fail or Disconnected");
             }
-            // only if the given device was already connected decrement this.
-            if (getConnectionStateLocked(device) == BluetoothProfile.STATE_CONNECTED) {
+            // Decrement Number of Active Connections only if the device is already connected.
+            if (getCurrentConnectionStateLocked(device) == BluetoothProfile.STATE_CONNECTED) {
                 mConnectionInfo.mNumActiveConnections--;
+                if (DBG) {
+                    Log.d(TAG, "Decrementing Active Connections "
+                            + mConnectionInfo.mNumActiveConnections);
+                }
             }
             setConnectionStateLocked(device, BluetoothProfile.STATE_DISCONNECTED);
-            if (!retry) {
-                mConnectionInfo.mDeviceIndex++;
-                if (DBG) {
-                    Log.d(TAG, "Moving to device: " + mConnectionInfo.mDeviceIndex);
+
+            // Update the mDeviceIndex only when there is no other device currently in the middle
+            // of a connection attempt.  This is to safeguard against disconnect intents coming in
+            // for devices other than the one that the policy is currently trying to connect.
+            if (getConnectingDeviceLocked() == null) {
+                if (!retry) {
+                    mConnectionInfo.mDeviceIndex++;
+                    if (DBG) {
+                        Log.d(TAG, "Moving to device: " + mConnectionInfo.mDeviceIndex);
+                    }
+                    // Reset the retry count
+                    mConnectionInfo.mRetryAttempt = 0;
+                } else {
+                    if (DBG) {
+                        Log.d(TAG, "Staying with the same device - retrying: "
+                                + mConnectionInfo.mDeviceIndex);
+                    }
                 }
-                // Reset the retry count
-                mConnectionInfo.mRetryAttempt = 0;
             } else {
-                if (DBG) {
-                    Log.d(TAG, "Staying with the same device - retrying: "
-                            + mConnectionInfo.mDeviceIndex);
+                BluetoothDevice connectingDevice = getConnectingDeviceLocked();
+                if (connectingDevice != null) {
+                    if (DBG) {
+                        Log.d(TAG, "Not moving to next device. " + connectingDevice
+                                + " still connecting");
+                    }
+                } else {
+                    Log.e(TAG, "Unexpected. Status = connecting, but connecting device = null");
                 }
             }
         }
@@ -550,8 +622,8 @@ public class BluetoothDevicesInfo {
     /**
      * Move the given device to its priority slot
      *
-     * @param deviceInfo   - DeviceInfo to move
-     * @param priority - Priority of the device in the list
+     * @param deviceInfo - DeviceInfo to move
+     * @param priority   - Priority of the device in the list
      */
     private void moveDeviceToPrioritySlotsLocked(DeviceInfo deviceInfo, int priority) {
         if (DBG) {
@@ -649,8 +721,14 @@ public class BluetoothDevicesInfo {
                 mConnectionInfo.mNumActiveConnections < mConnectionInfo.mNumConnectionsSupported) {
             return true;
         }
-        return false;
 
+        if (DBG) {
+            Log.d(TAG, "Connected devices for profile " + mConnectionInfo.mProfile);
+            for (BluetoothDevice device : getConnectedDevicesLocked()) {
+                Log.d(TAG, device.getAddress());
+            }
+        }
+        return false;
     }
 
     /**
@@ -687,5 +765,4 @@ public class BluetoothDevicesInfo {
         }
         resetConnectionInfoLocked();
     }
-
 }
