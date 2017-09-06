@@ -21,7 +21,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The state of dependencies for a single publisher.
@@ -31,24 +33,24 @@ import java.util.List;
 @FutureFeature
 public final class VmsLayersOffering implements Parcelable {
 
-    private final List<VmsLayerDependency> mDependencies;
+    private final Set<VmsLayerDependency> mDependencies;
 
-    private final int mPublisherStaticId;
+    private final int mPublisherId;
 
-    public VmsLayersOffering(List<VmsLayerDependency> dependencies, int publisherStaticId) {
-        mDependencies = Collections.unmodifiableList(dependencies);
-        mPublisherStaticId = publisherStaticId;
+    public VmsLayersOffering(Set<VmsLayerDependency> dependencies, int publisherId) {
+        mDependencies = Collections.unmodifiableSet(dependencies);
+        mPublisherId = publisherId;
     }
 
     /**
      * Returns the dependencies.
      */
-    public List<VmsLayerDependency> getDependencies() {
+    public Set<VmsLayerDependency> getDependencies() {
         return mDependencies;
     }
 
-    public int getPublisherStaticId() {
-        return mPublisherStaticId;
+    public int getPublisherId() {
+        return mPublisherId;
     }
 
     public static final Parcelable.Creator<VmsLayersOffering> CREATOR = new
@@ -68,8 +70,9 @@ public final class VmsLayersOffering implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeParcelableList(mDependencies, flags);
-        out.writeInt(mPublisherStaticId);
+
+        out.writeParcelableList(new ArrayList(mDependencies), flags);
+        out.writeInt(mPublisherId);
     }
 
     @Override
@@ -80,7 +83,7 @@ public final class VmsLayersOffering implements Parcelable {
     private VmsLayersOffering(Parcel in) {
         List<VmsLayerDependency> dependencies = new ArrayList<>();
         in.readParcelableList(dependencies, VmsLayerDependency.class.getClassLoader());
-        mDependencies = Collections.unmodifiableList(dependencies);
-        mPublisherStaticId = in.readInt();
+        mDependencies = Collections.unmodifiableSet(new HashSet<>(dependencies));
+        mPublisherId = in.readInt();
     }
 }

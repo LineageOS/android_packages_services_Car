@@ -342,11 +342,11 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
         for (IVmsSubscriberClient subscriber : subscribers) {
             try {
-                subscriber.onLayersAvailabilityChange(availableLayers);
+                subscriber.onLayersAvailabilityChanged(availableLayers);
             } catch (RemoteException e) {
                 // If we could not send a record, its likely the connection snapped. Let the binder
                 // death handle the situation.
-                Log.e(TAG, "onLayersAvailabilityChange calling failed: ", e);
+                Log.e(TAG, "onLayersAvailabilityChanged calling failed: ", e);
             }
         }
     }

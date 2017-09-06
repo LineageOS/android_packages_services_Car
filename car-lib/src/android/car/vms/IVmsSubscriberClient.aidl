@@ -28,5 +28,5 @@ oneway interface IVmsSubscriberClient {
      */
     void onVmsMessageReceived(in VmsLayer layer, in byte[] payload) = 0;
 
-    void onLayersAvailabilityChange(in List<VmsAssociatedLayer> availableLayers) = 1;
+    void onLayersAvailabilityChanged(in List<VmsAssociatedLayer> availableLayers) = 1;
 }

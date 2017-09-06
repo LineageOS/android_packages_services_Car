@@ -33,10 +33,10 @@ import java.util.Map;
 
 @SmallTest
 public class VmsRoutingTest extends AndroidTestCase {
-    private static VmsLayer LAYER_WITH_SUBSCRIPTION_1 = new VmsLayer(1, 2, 1);
+    private static VmsLayer LAYER_WITH_SUBSCRIPTION_1 = new VmsLayer(1, 1, 2);
     private static VmsLayer LAYER_WITH_SUBSCRIPTION_2 = new VmsLayer(1, 3, 3);
     private static VmsLayer LAYER_WITHOUT_SUBSCRIPTION =
-            new VmsLayer(1, 4, 7);
+            new VmsLayer(1, 7, 4);
     private static int PUBLISHER_ID_1 = 123;
     private static int PUBLISHER_ID_2 = 456;
     private static int PUBLISHER_ID_UNLISTED = 789;
@@ -63,7 +63,7 @@ public class VmsRoutingTest extends AndroidTestCase {
         VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
         assertEquals(2, subscriptionState.getSequenceNumber());
         assertEquals(expectedSubscriptions,
-                new HashSet<>(subscriptionState.getSubscribedLayersFromAll()));
+                new HashSet<>(subscriptionState.getLayers()));
 
         // Verify there is only a single subscriber.
         assertEquals(1,
@@ -87,7 +87,7 @@ public class VmsRoutingTest extends AndroidTestCase {
         VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
         assertEquals(3, subscriptionState.getSequenceNumber());
         assertEquals(expectedSubscriptions,
-                new HashSet<>(subscriptionState.getSubscribedLayersFromAll()));
+                new HashSet<>(subscriptionState.getLayers()));
     }
 
     public void testAddingAndRemovingLayers() throws Exception {
@@ -107,7 +107,7 @@ public class VmsRoutingTest extends AndroidTestCase {
         // Verify there are no subscribers in the routing manager.
         VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
         assertEquals(4, subscriptionState.getSequenceNumber());
-        assertTrue(subscriptionState.getSubscribedLayersFromAll().isEmpty());
+        assertTrue(subscriptionState.getLayers().isEmpty());
     }
 
     public void testAddingBothTypesOfSubscribers() throws Exception {
@@ -176,10 +176,10 @@ public class VmsRoutingTest extends AndroidTestCase {
         VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
         assertEquals(5, subscriptionState.getSequenceNumber());
         assertEquals(expectedSubscriptions,
-                new HashSet<>(subscriptionState.getSubscribedLayersFromAll()));
+                new HashSet<>(subscriptionState.getLayers()));
 
         assertEquals(expectedSubscriptionsToPublishers,
-                subscriptionState.getSubscribedLayersFromPublishers());
+                subscriptionState.getAssociatedLayers());
 
         // Verify there is only a single subscriber.
         assertEquals(1,
@@ -248,10 +248,10 @@ public class VmsRoutingTest extends AndroidTestCase {
         VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
         assertEquals(6, subscriptionState.getSequenceNumber());
         assertEquals(expectedSubscriptions,
-                new HashSet<>(subscriptionState.getSubscribedLayersFromAll()));
+                new HashSet<>(subscriptionState.getLayers()));
 
         assertEquals(expectedSubscriptionsToPublishers,
-                subscriptionState.getSubscribedLayersFromPublishers());
+                subscriptionState.getAssociatedLayers());
 
         // Verify there is only a single subscriber.
         assertEquals(1,
@@ -286,10 +286,10 @@ public class VmsRoutingTest extends AndroidTestCase {
         VmsSubscriptionState subscriptionState = mRouting.getSubscriptionState();
         assertEquals(6, subscriptionState.getSequenceNumber());
         assertEquals(expectedSubscriptions,
-                new HashSet<>(subscriptionState.getSubscribedLayersFromAll()));
+                new HashSet<>(subscriptionState.getLayers()));
 
         assertEquals(expectedSubscriptionsToPublishers,
-                subscriptionState.getSubscribedLayersFromPublishers());
+                subscriptionState.getAssociatedLayers());
 
         // Verify there is only a single subscriber.
         assertEquals(1,
@@ -303,7 +303,7 @@ public class VmsRoutingTest extends AndroidTestCase {
         }
 
         @Override
-        public void onLayersAvailabilityChange(List<VmsAssociatedLayer> availableLayers) {
+        public void onLayersAvailabilityChanged(List<VmsAssociatedLayer> availableLayers) {
         }
     }
 }

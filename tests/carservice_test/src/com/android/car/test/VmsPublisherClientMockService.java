@@ -23,8 +23,10 @@ import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsPublisherClientService;
 import android.car.vms.VmsSubscriptionState;
 import android.util.Log;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This service is launched during the tests in VmsPublisherSubscriberTest. It publishes a property
@@ -60,13 +62,13 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
 
     private void initializeMockPublisher(VmsSubscriptionState subscriptionState) {
         Log.d(TAG, "Initializing Mock publisher");
-        int publisherId = getPublisherStaticId(VmsPublisherSubscriberTest.PAYLOAD);
+        int publisherId = getPublisherId(VmsPublisherSubscriberTest.PAYLOAD);
         publishIfNeeded(subscriptionState);
         declareOffering(subscriptionState, publisherId);
     }
 
     private void publishIfNeeded(VmsSubscriptionState subscriptionState) {
-        for (VmsLayer layer : subscriptionState.getSubscribedLayersFromAll()) {
+        for (VmsLayer layer : subscriptionState.getLayers()) {
             if (layer.equals(VmsPublisherSubscriberTest.LAYER)) {
                 publish(VmsPublisherSubscriberTest.LAYER,
                         VmsPublisherSubscriberTest.EXPECTED_PUBLISHER_ID,
@@ -76,10 +78,10 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
     }
 
     private void declareOffering(VmsSubscriptionState subscriptionState, int publisherId) {
-        List<VmsLayerDependency> dependencies = new ArrayList<>();
+        Set<VmsLayerDependency> dependencies = new HashSet<>();
 
         // Add all layers from the subscription state.
-        for( VmsLayer layer : subscriptionState.getSubscribedLayersFromAll()) {
+        for( VmsLayer layer : subscriptionState.getLayers()) {
             dependencies.add(new VmsLayerDependency(layer));
         }
 

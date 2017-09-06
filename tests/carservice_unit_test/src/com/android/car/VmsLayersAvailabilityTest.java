@@ -31,9 +31,9 @@ import java.util.Set;
 @SmallTest
 public class VmsLayersAvailabilityTest extends AndroidTestCase {
 
-    private static final VmsLayer LAYER_X = new VmsLayer(1, 2, 1);
-    private static final VmsLayer LAYER_Y = new VmsLayer(3, 4, 2);
-    private static final VmsLayer LAYER_Z = new VmsLayer(5, 6, 3);
+    private static final VmsLayer LAYER_X = new VmsLayer(1, 1, 2);
+    private static final VmsLayer LAYER_Y = new VmsLayer(3, 2, 4);
+    private static final VmsLayer LAYER_Z = new VmsLayer(5, 3, 6);
 
     private static final int PUBLISHER_ID_1 = 19;
     private static final int PUBLISHER_ID_2 = 28;
@@ -88,7 +88,8 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_2));
 
         VmsLayersOffering offering =
-                new VmsLayersOffering(Arrays.asList(new VmsLayerDependency(LAYER_X)), PUBLISHER_ID_2);
+                new VmsLayersOffering(new HashSet<>(Arrays.asList(new VmsLayerDependency(LAYER_X))),
+                        PUBLISHER_ID_2);
 
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
@@ -104,7 +105,7 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
 
         VmsLayersOffering offering =
                 new VmsLayersOffering(
-                        Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z, Z_DEPENDS_ON_NOTHING),
+                        new HashSet<>(Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z, Z_DEPENDS_ON_NOTHING)),
                         PUBLISHER_ID_1);
 
         mOfferings.add(offering);
@@ -122,11 +123,12 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
 
         VmsLayersOffering offering1 =
                 new VmsLayersOffering(
-                        Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z),
+                        new HashSet<>(Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z)),
                         PUBLISHER_ID_1);
 
         VmsLayersOffering offering2 =
-                new VmsLayersOffering(Arrays.asList(Z_DEPENDS_ON_NOTHING), PUBLISHER_ID_1);
+                new VmsLayersOffering(new HashSet<>(Arrays.asList(Z_DEPENDS_ON_NOTHING)),
+                        PUBLISHER_ID_1);
 
         mOfferings.add(offering1);
         mOfferings.add(offering2);
@@ -139,7 +141,8 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
     public void testChainOfDependencieNotSatisfied() throws Exception {
         Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
         VmsLayersOffering offering =
-                new VmsLayersOffering(Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z), PUBLISHER_ID_1);
+                new VmsLayersOffering(new HashSet<>(Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z)),
+                        PUBLISHER_ID_1);
 
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
@@ -164,7 +167,9 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
 
         VmsLayersOffering offering =
                 new VmsLayersOffering(
-                        Arrays.asList(X_DEPENDS_ON_Y, X_DEPENDS_ON_Z, Z_DEPENDS_ON_NOTHING), PUBLISHER_ID_1);
+                        new HashSet<>(Arrays.asList(
+                                X_DEPENDS_ON_Y, X_DEPENDS_ON_Z, Z_DEPENDS_ON_NOTHING)),
+                        PUBLISHER_ID_1);
 
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
@@ -178,7 +183,9 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
 
         VmsLayersOffering offering =
                 new VmsLayersOffering(
-                        Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z, Z_DEPENDS_ON_X), PUBLISHER_ID_1);
+                        new HashSet<>(
+                                Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z, Z_DEPENDS_ON_X)),
+                        PUBLISHER_ID_1);
 
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
@@ -194,11 +201,13 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Y, PUBLISHERS_2));
 
         VmsLayersOffering offering1 =
-                new VmsLayersOffering(Arrays.asList(X_DEPENDS_ON_Y, Z_DEPENDS_ON_NOTHING),
+                new VmsLayersOffering(
+                        new HashSet<>(Arrays.asList(X_DEPENDS_ON_Y, Z_DEPENDS_ON_NOTHING)),
                         PUBLISHER_ID_1);
 
         VmsLayersOffering offering2 =
-                new VmsLayersOffering(Arrays.asList(Y_DEPENDS_ON_Z, Z_DEPENDS_ON_X), PUBLISHER_ID_2);
+                new VmsLayersOffering(new HashSet<>(Arrays.asList(Y_DEPENDS_ON_Z, Z_DEPENDS_ON_X)),
+                        PUBLISHER_ID_2);
 
         mOfferings.add(offering1);
         mOfferings.add(offering2);
@@ -212,11 +221,13 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Z, PUBLISHERS_1));
 
         VmsLayersOffering offering1 =
-                new VmsLayersOffering(Arrays.asList(X_DEPENDS_ON_Y, Z_DEPENDS_ON_NOTHING),
+                new VmsLayersOffering(
+                        new HashSet<>(
+                                Arrays.asList(X_DEPENDS_ON_Y, Z_DEPENDS_ON_NOTHING)),
                         PUBLISHER_ID_1);
 
         VmsLayersOffering offering2 =
-                new VmsLayersOffering(Arrays.asList(Y_DEPENDS_ON_X), PUBLISHER_ID_2);
+                new VmsLayersOffering(new HashSet<>(Arrays.asList(Y_DEPENDS_ON_X)), PUBLISHER_ID_2);
 
         mOfferings.add(offering1);
         mOfferings.add(offering2);
@@ -237,7 +248,8 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
         Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
 
         VmsLayersOffering offering =
-                new VmsLayersOffering(Arrays.asList(X_DEPENDS_ON_SELF), PUBLISHER_ID_1);
+                new VmsLayersOffering(new HashSet<>(Arrays.asList(X_DEPENDS_ON_SELF)),
+                        PUBLISHER_ID_1);
 
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
