@@ -37,10 +37,11 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.test.AndroidTestCase;
 
-import static org.mockito.Mockito.*;
-
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+
+import static org.mockito.Mockito.*;
+
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.junit.Test;
@@ -225,7 +226,7 @@ public class BluetoothAutoConnectPolicyTest extends AndroidTestCase {
                 Mockito.withSettings().verboseLogging());
     }
 
-     /**
+    /**
      * Mock response to a connection request on a specific device.
      *
      * @param device    - Bluetooth device to mock availability
@@ -580,5 +581,61 @@ public class BluetoothAutoConnectPolicyTest extends AndroidTestCase {
         mReceiver.onReceive(null, createBluetoothBondStateChangedIntent(device2, false));
         mReceiver.onReceive(null, createBluetoothBondStateChangedIntent(device3, false));
         mReceiver.onReceive(null, createBluetoothBondStateChangedIntent(device4, false));
+    }
+
+    /**
+     * When 2 devices are paired and one is connected, test if the second device when brought in
+     * range connects when a vehicle event occurs.
+     * 1. Pair 2 devices.
+     * 2. Keep one connected.
+     * 3. Bring the other device.
+     * 4. Send a vehicle event.
+     * 5. Test if the second device connects (in addition to the already connected first device)
+     * @throws Exception
+     */
+    @Test
+    public void testMultiDeviceConnectWithOneConnected() throws Exception {
+        createAndSetupBluetoothPolicy();
+        BluetoothDevice device1 = mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:01");
+        BluetoothDevice device2 = mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:02");
+        BluetoothDevice[] testDevices = new BluetoothDevice[]{device2, device1};
+
+        // Pair both devices and leave them disconnected.
+        for (BluetoothDevice device : testDevices) {
+            mockDeviceAvailability(device, true);
+            pairDevice(device);
+            sendFakeConnectionStateChange(device, false);
+        }
+
+        // Mock the second device to be unavailable for connection.
+        mockDeviceAvailability(device2, false);
+        triggerFakeVehicleEvent();
+        Thread.sleep(WAIT_FOR_COMPLETION_TIME);
+        // At this point device1 should have connected and device2 disconnected, since it is mocked
+        // to be out of range (unavailable)
+        // Now bring device2 in range (mock it to be available)
+        mockDeviceAvailability(device2, true);
+        triggerFakeVehicleEvent();
+        Thread.sleep(WAIT_FOR_COMPLETION_TIME);
+
+        // Now device2 should be connected on the HFP, but not on A2DP (since it supports only
+        // 1 connection)
+        // There should have been 2 connection attempts on the device2 - the first one unsuccessful
+        // due to its unavailability and the second one successful.
+        verify(mockBluetoothUserService,
+                Mockito.timeout(CONNECTION_REQUEST_TIMEOUT).times(2)).bluetoothConnectToProfile(
+                BluetoothProfile.HEADSET_CLIENT, device2);
+        // There should be only 1 connection attempt on device1 - since it is available to connect
+        // from the beginning.  The first connection attempt on the first vehicle event should have
+        // been successful. For the second vehicle event, we should not have tried to connect on
+        // device1 - this tests if we try to connect on already connected devices.
+        verify(mockBluetoothUserService,
+                Mockito.timeout(CONNECTION_REQUEST_TIMEOUT).times(1)).bluetoothConnectToProfile(
+                BluetoothProfile.HEADSET_CLIENT, device1);
+        verify(mockBluetoothUserService, Mockito.never()).bluetoothConnectToProfile(
+                BluetoothProfile.A2DP_SINK, device2);
+        Thread.sleep(WAIT_FOR_COMPLETION_TIME);
+        mReceiver.onReceive(null, createBluetoothBondStateChangedIntent(device1, false));
+        mReceiver.onReceive(null, createBluetoothBondStateChangedIntent(device2, false));
     }
 }
