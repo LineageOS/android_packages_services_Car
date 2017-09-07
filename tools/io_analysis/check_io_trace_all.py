@@ -23,7 +23,7 @@ import string
 import sys
 
 # ex) <...>-52    [001] ...1     1.362574: block_bio_queue: 8,16 R 0 + 8 [kworker/u8:1]
-RE_BLOCK = r'.+-([0-9]+).*\s+([0-9]+\.[0-9]+):\s+block_bio_queue:\s+([0-9]+)\,([0-9]+)\s+([RW]\S*)\s+([0-9]+)\s+\+\s+([0-9]+)\s+\[([^\]]+)'
+RE_BLOCK = r'.+-([0-9]+).*\s+([0-9]+\.[0-9]+):\s+block_bio_queue:\s+([0-9]+)\,([0-9]+)\s(\S+)\s+([0-9]+)\s+\+\s+([0-9]+)\s+\[([^\]]+)'
 # ex)  <...>-453   [001] d..4     3.181854: sched_blocked_reason: pid=471 iowait=1 caller=__wait_on_buffer+0x24/0x2c
 RE_SCHED_BLOCKED_READSON = r'.+-([0-9]+)\s+\[([0-9]+)\]\s.*\s+([0-9]+\.[0-9]+):\s+sched_blocked_reason:\spid=([0-9]+)\siowait=([01])\scaller=(\S+)'
 # ex) <idle>-0     [000] d..3     3.181864: sched_switch: prev_comm=swapper/0 prev_pid=0 prev_prio=120 prev_state=R ==> next_comm=ueventd next_pid=471 next_prio=120
@@ -150,25 +150,25 @@ class IoTrace:
       self.ios[process] = io
     if major == DM_MAJOR:
       devNum = major * DEV_MAJOR_MULTIPLIER + minor;
-      if operation[0] == 'R':
+      if 'R' in operation[0]:
         if devNum not in self.total_dm_reads:
           self.total_dm_reads[devNum] = 0
         self.total_dm_reads[devNum] += size
         io.add_dm_read(size)
-      elif operation[0] == 'W':
+      elif 'W' in operation[0]:
         if devNum not in self.total_dm_writes:
           self.total_dm_writes[devNum] = 0
         self.total_dm_writes[devNum] += size
         io.add_dm_write(size)
       return
-    if operation[0] == 'R':
+    if 'R' in operation[0]:
       io.add_read_event(major, minor, event)
       self.total_reads += size
       per_device = self.total_reads_per_device.get(devNum)
       if not per_device:
         self.total_reads_per_device[devNum] = 0
       self.total_reads_per_device[devNum] += size
-    elif operation[0] == 'W':
+    elif 'W' in operation[0]:
       io.add_write_event(major, minor, event)
       self.total_writes += size
       per_device = self.total_writes_per_device.get(devNum)
@@ -232,6 +232,7 @@ class SchedProcess:
     self.last_switch_in_time = 0.0
     self.last_core = -1
     self.execution_time_per_core = {} # k: core, v : time
+    self.io_latency_histograms = {} # k : delay in ms, v : count
 
   def handle_reason(self, current_time, iowait, waiting_call):
     #if self.pid == 1232:
@@ -272,6 +273,10 @@ class SchedProcess:
       total_waiting_call_time = self.io_waiting_call_times.get(self.last_waiting_call, 0.0)
       total_waiting_call_time += wait_time
       self.io_waiting_call_times[self.last_waiting_call] = total_waiting_call_time
+      wait_time_ms = int(wait_time*10) / 10.0 # resolution up to 0.1 ms
+      histogram_count = self.io_latency_histograms.get(wait_time_ms, 0)
+      histogram_count += 1
+      self.io_latency_histograms[wait_time_ms] = histogram_count
     else:
       self.total_other_wait_time += wait_time
     self.in_iowait = False
@@ -281,9 +286,18 @@ class SchedProcess:
     print "PID:", self.pid, " name:", self.name
     print " total execution time:", self.total_execution_time,\
       " io wait:", self.total_io_wait_time, " other wait:", self.total_other_wait_time
-    print " Core execution:", self.execution_time_per_core
-    print " Wait calls:", self.waiting_calls
-    print " IO Wait time per wait calls:", self.io_waiting_call_times
+    sorted_data = collections.OrderedDict(sorted(self.execution_time_per_core.items(), \
+      key = lambda item: item[0], reverse = False))
+    print " Core execution:", sorted_data
+    sorted_data = collections.OrderedDict(sorted(self.waiting_calls.items(), \
+      key = lambda item: item[1], reverse = True))
+    print " Wait calls:", sorted_data
+    sorted_data = collections.OrderedDict(sorted(self.io_waiting_call_times.items(), \
+      key = lambda item: item[1], reverse = True))
+    print " IO Wait time per wait calls:", sorted_data
+    sorted_data = collections.OrderedDict(sorted(self.io_latency_histograms.items(), \
+      key = lambda item: item[0], reverse = False))
+    print " Wait time histogram:", sorted_data
 
 class SchedTrace:
   def __init__(self):
