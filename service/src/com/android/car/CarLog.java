@@ -43,6 +43,7 @@ public class CarLog {
     public static final String TAG_SYS = "CAR.SYS";
     public static final String TAG_TEST = "CAR.TEST";
     public static final String TAG_DIAGNOSTIC = "CAR.DIAGNOSTIC";
+    public static final String TAG_STORAGE = "CAR.STORAGE";
 
     public static String concatTag(String tagPrefix, Class clazz) {
         String tag = tagPrefix + "." + clazz.getSimpleName();
