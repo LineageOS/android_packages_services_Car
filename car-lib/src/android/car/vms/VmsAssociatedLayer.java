@@ -16,7 +16,6 @@
 
 package android.car.vms;
 
-import android.car.annotation.FutureFeature;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -27,7 +26,6 @@ import java.util.*;
  *
  * @hide
  */
-@FutureFeature
 public final class VmsAssociatedLayer implements Parcelable {
 
     // The VmsLayer.

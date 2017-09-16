@@ -18,8 +18,8 @@ package com.android.car.hal;
 import static com.android.car.CarServiceUtils.toByteArray;
 import static java.lang.Integer.toHexString;
 
+import android.annotation.SystemApi;
 import android.car.VehicleAreaType;
-import android.car.annotation.FutureFeature;
 import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsAssociatedLayer;
@@ -61,7 +61,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * This is a glue layer between the VehicleHal and the VmsService. It sends VMS properties back and
  * forth.
  */
-@FutureFeature
+@SystemApi
 public class VmsHalService extends HalServiceBase {
 
     private static final boolean DBG = true;

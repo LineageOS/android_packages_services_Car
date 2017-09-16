@@ -16,7 +16,6 @@
 
 package com.android.car.test;
 
-import android.car.annotation.FutureFeature;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
@@ -43,7 +42,6 @@ import java.util.Set;
  * both potential scenarios, this service publishes the test message in onVmsSubscriptionChange
  * and in onVmsPublisherServiceReady. See comments below.
  */
-@FutureFeature
 public class VmsPublisherClientMockService extends VmsPublisherClientService {
     private static final String TAG = "VmsPublisherClientMockService";
 

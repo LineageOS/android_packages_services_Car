@@ -17,8 +17,8 @@
 package android.car.vms;
 
 
+import android.annotation.SystemApi;
 import android.app.Service;
-import android.car.annotation.FutureFeature;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -46,7 +46,7 @@ import java.lang.ref.WeakReference;
  *
  * @hide
  */
-@FutureFeature
+@SystemApi
 public abstract class VmsPublisherClientService extends Service {
     private static final boolean DBG = true;
     private static final String TAG = "VmsPublisherClient";

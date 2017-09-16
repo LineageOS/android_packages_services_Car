@@ -19,7 +19,6 @@ package com.android.car.test;
 import android.annotation.ArrayRes;
 import android.car.Car;
 import android.car.VehicleAreaType;
-import android.car.annotation.FutureFeature;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriberManager;
@@ -41,7 +40,6 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-@FutureFeature
 @MediumTest
 public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     private static final int LAYER_ID = 88;
@@ -113,7 +111,6 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
 
     @Override
     protected void setUp() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         super.setUp();
         mSubscriberSemaphore = new Semaphore(0);
         mAvailabilitySemaphore = new Semaphore(0);
@@ -121,7 +118,6 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
 
     @Override
     protected synchronized void tearDown() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         super.tearDown();
     }
 
@@ -134,7 +130,6 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
      * a message, which is validated in this test.
      */
     public void testPublisherToSubscriber() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
@@ -153,7 +148,6 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
      * that the Mock service has gotten its ServiceReady and publisherId.
      */
     public void testPublisherInfo() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         // Subscribe to layer as a way to make sure the mock client completed setting the information.
@@ -173,7 +167,6 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
      * notification that it is available.
      */
     public void testAvailabilityWithSubscription() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
             Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
@@ -190,7 +183,6 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
      * is available.
      */
     public void testAvailabilityWithoutSubscription() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();

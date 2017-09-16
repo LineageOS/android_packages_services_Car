@@ -16,7 +16,6 @@
 
 package com.android.car;
 
-import android.car.annotation.FutureFeature;
 import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
@@ -39,7 +38,7 @@ import java.util.stream.Collectors;
  * + Subscriptions to all data messages.
  * + HAL subscriptions to layer + version.
  */
-@FutureFeature
+
 public class VmsRouting {
     private final Object mLock = new Object();
     // A map of Layer + Version to subscribers.
