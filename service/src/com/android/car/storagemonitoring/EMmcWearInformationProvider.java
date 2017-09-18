@@ -47,7 +47,7 @@ public class EMmcWearInformationProvider implements WearInformationProvider {
     }
 
     @VisibleForTesting
-    public EMmcWearInformationProvider(@NonNull File lifetimeFile, @NonNull File preEolFile) {
+    EMmcWearInformationProvider(@NonNull File lifetimeFile, @NonNull File preEolFile) {
         mLifetimeFile = lifetimeFile;
         mPreEolFile = preEolFile;
     }

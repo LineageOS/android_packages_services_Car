@@ -30,18 +30,18 @@
 
     <application android:label="CarServiceTest">
         <uses-library android:name="android.test.runner" />
-        <service android:name="com.android.car.test.TestAppBlockingPolicyService"
+        <service android:name="com.android.car.TestAppBlockingPolicyService"
             android:permission="android.car.permission.CONTROL_APP_BLOCKING">
             <intent-filter>
                 <action android:name="android.car.content.pm.CarAppBlockingPolicyService"/>
             </intent-filter>
         </service>
-        <activity android:name="com.android.car.test.SystemActivityMonitoringServiceTest$ActivityA" />
-        <activity android:name="com.android.car.test.SystemActivityMonitoringServiceTest$ActivityB"
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityA" />
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityB"
             android:taskAffinity="com.android.car.carservicetest.activity"/>
-        <activity android:name="com.android.car.test.SystemActivityMonitoringServiceTest$ActivityC"
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityC"
             android:process="com.android.car.carservicetest.activityC"/>
-        <activity android:name="com.android.car.test.SystemActivityMonitoringServiceTest$BlockingActivity"
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$BlockingActivity"
             android:taskAffinity="com.android.car.carservicetest.block"/>
         <service android:name=".SimpleVmsPublisherClientService"
                  android:exported="true"

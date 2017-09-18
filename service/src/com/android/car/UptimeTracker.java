@@ -16,11 +16,16 @@
 
 package com.android.car;
 
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import android.os.SystemClock;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
+
 import com.android.internal.annotations.VisibleForTesting;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -28,9 +33,6 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
-
-import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * A class that can keep track of how long its instances are alive for.
@@ -58,7 +60,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  */
 public class UptimeTracker {
     @VisibleForTesting
-    public interface TimingProvider {
+    interface TimingProvider {
         long getCurrentRealtime();
         void schedule(Runnable r, long delay);
         void cancelAll();
@@ -128,7 +130,7 @@ public class UptimeTracker {
     // and a ScheduledExecutorService provides snapshot synchronization. For testing purposes
     // this constructor allows using a controlled source of time information and scheduling.
     @VisibleForTesting
-    public UptimeTracker(File file,
+    UptimeTracker(File file,
             long snapshotInterval,
             TimingProvider timingProvider) {
         snapshotInterval = Math.max(snapshotInterval, MINIMUM_SNAPSHOT_INTERVAL_MS);
@@ -140,7 +142,7 @@ public class UptimeTracker {
         mTimingProvider.schedule(this::flushSnapshot, snapshotInterval);
     }
 
-    public void onDestroy() {
+    void onDestroy() {
         synchronized (mLock) {
             mTimingProvider.cancelAll();
             flushSnapshot();
@@ -154,7 +156,7 @@ public class UptimeTracker {
      *
      * This is the sum of the uptime stored on disk + the uptime seen since the last snapshot.
      */
-    public long getTotalUptime() {
+    long getTotalUptime() {
         synchronized (mLock) {
             if (mTimingProvider == null) {
                 return 0;

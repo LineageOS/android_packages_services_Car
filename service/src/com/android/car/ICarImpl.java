@@ -153,7 +153,7 @@ public class ICarImpl extends ICar.Stub {
         mAllServices = allServices.toArray(new CarServiceBase[0]);
     }
 
-    public void init() {
+    void init() {
         traceBegin("VehicleHal.init");
         mHal.init();
         traceEnd();
@@ -164,7 +164,7 @@ public class ICarImpl extends ICar.Stub {
         traceEnd();
     }
 
-    public void release() {
+    void release() {
         // release done in opposite order from init
         for (int i = mAllServices.length - 1; i >= 0; i--) {
             mAllServices[i].release();
@@ -172,7 +172,7 @@ public class ICarImpl extends ICar.Stub {
         mHal.release();
     }
 
-    public void vehicleHalReconnected(IVehicle vehicle) {
+    void vehicleHalReconnected(IVehicle vehicle) {
         mHal.vehicleHalReconnected(vehicle);
         for (CarServiceBase service : mAllServices) {
             service.vehicleHalReconnected();
