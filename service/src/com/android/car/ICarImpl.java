@@ -121,10 +121,8 @@ public class ICarImpl extends ICar.Stub {
         mPerUserCarServiceHelper = new PerUserCarServiceHelper(serviceContext);
         mCarBluetoothService = new CarBluetoothService(serviceContext, mCarCabinService,
                 mCarSensorService, mPerUserCarServiceHelper);
-        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
-            mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
-            mVmsPublisherService = new VmsPublisherService(serviceContext, mHal.getVmsHal());
-        }
+        mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
+        mVmsPublisherService = new VmsPublisherService(serviceContext, mHal.getVmsHal());
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
 
         // Be careful with order. Service depending on other service should be inited later.
@@ -148,12 +146,10 @@ public class ICarImpl extends ICar.Stub {
                 mCarVendorExtensionService,
                 mCarBluetoothService,
                 mCarDiagnosticService,
-                mPerUserCarServiceHelper
+                mPerUserCarServiceHelper,
+                mVmsSubscriberService,
+                mVmsPublisherService
         ));
-        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
-            allServices.add(mVmsSubscriberService);
-            allServices.add(mVmsPublisherService);
-        }
         mAllServices = allServices.toArray(new CarServiceBase[0]);
     }
 
@@ -234,11 +230,8 @@ public class ICarImpl extends ICar.Stub {
                 assertVendorExtensionPermission(mContext);
                 return mCarVendorExtensionService;
             case Car.VMS_SUBSCRIBER_SERVICE:
-                FeatureUtil.assertFeature(FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE);
-                if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
-                    assertVmsSubscriberPermission(mContext);
-                    return mVmsSubscriberService;
-                }
+                assertVmsSubscriberPermission(mContext);
+                return mVmsSubscriberService;
             case Car.TEST_SERVICE: {
                 assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
                 synchronized (this) {

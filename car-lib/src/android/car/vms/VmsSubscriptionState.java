@@ -16,7 +16,6 @@
 
 package android.car.vms;
 
-import android.car.annotation.FutureFeature;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -32,7 +31,6 @@ import java.util.Set;
  *
  * @hide
  */
-@FutureFeature
 public final class VmsSubscriptionState implements Parcelable {
     private final int mSequenceNumber;
     private final Set<VmsLayer> mLayers;

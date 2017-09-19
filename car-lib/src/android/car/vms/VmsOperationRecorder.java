@@ -1,6 +1,6 @@
 package android.car.vms;
 
-import android.car.annotation.FutureFeature;
+import android.annotation.SystemApi;
 import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -24,7 +24,7 @@ import org.json.JSONObject;
  *
  * @hide
  */
-@FutureFeature
+@SystemApi
 public final class VmsOperationRecorder {
     private static final String TAG = "VmsOperationRecorder";
     private static final VmsOperationRecorder INSTANCE = new VmsOperationRecorder(new Writer());
