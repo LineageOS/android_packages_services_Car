@@ -95,6 +95,9 @@ public class CarService extends Service {
         super.onCreate();
     }
 
+    // onDestroy is best-effort and might not get called on shutdown/reboot. As such it is not
+    // suitable for permanently saving state or other need-to-happen operation. If you have a
+    // cleanup task that you want to make sure happens on shutdown/reboot, see OnShutdownReboot.
     @Override
     public void onDestroy() {
         Log.i(CarLog.TAG_SERVICE, "Service onDestroy");

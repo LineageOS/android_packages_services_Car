@@ -31,6 +31,7 @@ import android.car.hardware.radio.CarRadioManager;
 import android.car.media.CarAudioManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.CarBluetoothManager;
+import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.car.vms.VmsSubscriberManager;
 import android.content.ComponentName;
@@ -139,6 +140,12 @@ public final class Car {
      * @hide
      */
     public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    public static final String STORAGE_MONITORING_SERVICE = "storage_monitoring";
 
     /**
      * Service for testing. This is system app only feature.
@@ -659,6 +666,8 @@ public final class Car {
                 break;
             case BLUETOOTH_SERVICE:
                 manager = new CarBluetoothManager(binder, mContext);
+            case STORAGE_MONITORING_SERVICE:
+                manager = new CarStorageMonitoringManager(binder);
         }
         return manager;
     }

@@ -71,7 +71,8 @@ public class ICarImpl extends ICar.Stub {
     private final CarVendorExtensionService mCarVendorExtensionService;
     private final CarBluetoothService mCarBluetoothService;
     private final PerUserCarServiceHelper mPerUserCarServiceHelper;
-    private CarDiagnosticService mCarDiagnosticService;
+    private final CarDiagnosticService mCarDiagnosticService;
+    private final CarStorageMonitoringService mCarStorageMonitoringService;
     @FutureFeature
     private VmsSubscriberService mVmsSubscriberService;
     @FutureFeature
@@ -124,6 +125,7 @@ public class ICarImpl extends ICar.Stub {
         mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
         mVmsPublisherService = new VmsPublisherService(serviceContext, mHal.getVmsHal());
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
+        mCarStorageMonitoringService = new CarStorageMonitoringService(serviceContext);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>(Arrays.asList(
@@ -147,6 +149,7 @@ public class ICarImpl extends ICar.Stub {
                 mCarBluetoothService,
                 mCarDiagnosticService,
                 mPerUserCarServiceHelper,
+                mCarStorageMonitoringService,
                 mVmsSubscriberService,
                 mVmsPublisherService
         ));
@@ -243,6 +246,9 @@ public class ICarImpl extends ICar.Stub {
             }
             case Car.BLUETOOTH_SERVICE:
                 return mCarBluetoothService;
+            case Car.STORAGE_MONITORING_SERVICE:
+                // TODO(egranata): enforce permission here
+                return mCarStorageMonitoringService;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:" + serviceName);
                 return null;

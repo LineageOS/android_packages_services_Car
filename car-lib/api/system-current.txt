@@ -37,6 +37,7 @@ package android.car {
     field public static final java.lang.String PROJECTION_SERVICE = "projection";
     field public static final java.lang.String RADIO_SERVICE = "radio";
     field public static final java.lang.String SENSOR_SERVICE = "sensor";
+    field public static final java.lang.String STORAGE_MONITORING_SERVICE = "storage_monitoring";
     field public static final java.lang.String TEST_SERVICE = "car-service-test";
     field public static final java.lang.String VENDOR_EXTENSION_SERVICE = "vendor_extension";
     field public static final int VERSION = 3; // 0x3
@@ -995,6 +996,18 @@ package android.car.settings {
     field public static final java.lang.String KEY_GARAGE_MODE_ENABLED = "android.car.GARAGE_MODE_ENABLED";
     field public static final java.lang.String KEY_GARAGE_MODE_MAINTENANCE_WINDOW = "android.car.GARAGE_MODE_MAINTENANCE_WINDOW";
     field public static final java.lang.String KEY_GARAGE_MODE_WAKE_UP_TIME = "android.car.GARAGE_MODE_WAKE_UP_TIME";
+  }
+
+}
+
+package android.car.storagemonitoring {
+
+  public final class CarStorageMonitoringManager {
+    method public int getPreEolIndicatorStatus() throws android.car.CarNotConnectedException;
+    field public static final int PRE_EOL_INFO_NORMAL = 1; // 0x1
+    field public static final int PRE_EOL_INFO_UNKNOWN = 0; // 0x0
+    field public static final int PRE_EOL_INFO_URGENT = 3; // 0x3
+    field public static final int PRE_EOL_INFO_WARNING = 2; // 0x2
   }
 
 }

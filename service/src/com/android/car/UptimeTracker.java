@@ -64,12 +64,13 @@ public class UptimeTracker {
         void cancelAll();
     }
 
+    // note: this implementation does not account for time spent in "suspend" mode
     private static final class DefaultTimingProvider implements TimingProvider {
         private ScheduledExecutorService mExecutor = newSingleThreadScheduledExecutor();
 
         @Override
         public long getCurrentRealtime() {
-            return SystemClock.elapsedRealtime();
+            return SystemClock.uptimeMillis();
         }
 
         @Override
