@@ -19,7 +19,6 @@ package com.android.car.test;
 import static org.junit.Assume.assumeTrue;
 
 import android.car.VehicleAreaType;
-import android.car.annotation.FutureFeature;
 import android.car.vms.VmsLayer;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
@@ -41,7 +40,6 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-@FutureFeature
 @MediumTest
 public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
     private static final String TAG = "VmsHalServiceTest";
@@ -62,7 +60,6 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
 
     @Override
     protected void setUp() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         super.setUp();
         mHal = getMockedVehicleHal();
         mHalHandlerSemaphore = new Semaphore(0);
@@ -70,24 +67,20 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
 
     @Override
     protected synchronized void tearDown() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         super.tearDown();
     }
 
     public void testEmptySubscriptions() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         List<VmsLayer> layers = new ArrayList<>();
         subscriptionTestLogic(layers);
     }
 
     public void testOneSubscription() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         List<VmsLayer> layers = Arrays.asList(new VmsLayer(8, 0, 3));
         subscriptionTestLogic(layers);
     }
 
     public void testManySubscriptions() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         List<VmsLayer> layers = Arrays.asList(
                 new VmsLayer(8, 1, 3),
                 new VmsLayer(5, 2, 1),

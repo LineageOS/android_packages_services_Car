@@ -18,7 +18,6 @@ package com.android.car.test;
 
 import android.annotation.ArrayRes;
 import android.car.VehicleAreaType;
-import android.car.annotation.FutureFeature;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
@@ -40,7 +39,6 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-@FutureFeature
 @MediumTest
 public class VmsPublisherPermissionsTest extends MockedCarTestBase {
     private static final String TAG = "VmsPublisherTest";
@@ -104,7 +102,6 @@ public class VmsPublisherPermissionsTest extends MockedCarTestBase {
 
     @Override
     protected void setUp() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         /**
          * First init the semaphore, setUp will start a series of events that will ultimately
          * update the HAL layer and release this semaphore.
@@ -119,7 +116,6 @@ public class VmsPublisherPermissionsTest extends MockedCarTestBase {
 
     @Override
     protected synchronized void tearDown() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         super.tearDown();
     }
 
@@ -132,7 +128,6 @@ public class VmsPublisherPermissionsTest extends MockedCarTestBase {
      * this test.
      */
     public void testPermissions() throws Exception {
-        if (!VmsTestUtils.canRunTest(TAG)) return;
         assertTrue(mHalHandlerSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         // At this point the client initialization finished. Let's validate the permissions.
         // The VMS service is only allowed to grant ACCESS_FINE_LOCATION but not CAMERA.

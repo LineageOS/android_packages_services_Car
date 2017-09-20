@@ -16,7 +16,7 @@
 
 package android.car.vms;
 
-import android.car.annotation.FutureFeature;
+import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.Set;
  *
  * @hide
  */
-@FutureFeature
+@SystemApi
 public final class VmsLayerDependency implements Parcelable {
     private final VmsLayer mLayer;
     private final Set<VmsLayer> mDependency;

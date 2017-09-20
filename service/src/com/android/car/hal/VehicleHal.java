@@ -108,9 +108,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mHvacHal = new HvacHalService(this);
         mInputHal = new InputHalService(this);
         mVendorExtensionHal = new VendorExtensionHalService(this);
-        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
-            mVmsHal = new VmsHalService(this);
-        }
+        mVmsHal = new VmsHalService(this);
         mDiagnosticHal = new DiagnosticHalService(this);
         mAllServices.addAll(Arrays.asList(mPowerHal,
                 mSensorHal,
@@ -121,10 +119,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
                 mHvacHal,
                 mInputHal,
                 mVendorExtensionHal,
-                mDiagnosticHal));
-        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
-            mAllServices.add(mVmsHal);
-        }
+                mDiagnosticHal,
+                mVmsHal));
 
         mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(), this /*IVehicleCallback*/);
     }
@@ -145,10 +141,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mInputHal = null;
         mVendorExtensionHal = null;
         mDiagnosticHal = null;
-
-        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
-            mVmsHal = null;
-        }
+        mVmsHal = null;
 
         mHalClient = halClient;
     }

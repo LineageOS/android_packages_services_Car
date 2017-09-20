@@ -16,7 +16,6 @@
 
 package com.android.car;
 
-import android.car.annotation.FutureFeature;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
@@ -40,9 +39,10 @@ import java.util.stream.Collectors;
  * Each VMS publisher sets its layers offering which are a list of layers the publisher claims
  * it might publish. VmsLayersAvailability calculates from all the offering what are the
  * available layers.
+ *
+ * @hide
  */
 
-@FutureFeature
 public class VmsLayersAvailability {
 
     private static final boolean DBG = true;

@@ -16,14 +16,12 @@
 
 package com.android.car;
 
-import android.car.annotation.FutureFeature;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.Arrays;
 import java.util.Map;
 
-@FutureFeature
 @SmallTest
 public class VmsPublishersInfoTest extends AndroidTestCase {
     public static final byte[] MOCK_INFO_0 = new byte[]{2, 3, 5, 7, 11, 13, 17};

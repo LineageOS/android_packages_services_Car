@@ -16,14 +16,12 @@
 
 package com.android.car.test;
 
-import android.car.annotation.FutureFeature;
 import android.car.vms.VmsPublisherClientService;
 import android.car.vms.VmsSubscriptionState;
 
 /**
  * This service is launched during the tests in VmsPublisherClientServiceTest.
  */
-@FutureFeature
 public class SimpleVmsPublisherClientService extends VmsPublisherClientService {
     @Override
     public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState) {

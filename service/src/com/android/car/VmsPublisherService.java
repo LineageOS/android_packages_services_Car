@@ -16,7 +16,7 @@
 
 package com.android.car;
 
-import android.car.annotation.FutureFeature;
+import android.annotation.SystemApi;
 import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.IVmsPublisherClient;
 import android.car.vms.IVmsPublisherService;
@@ -48,11 +48,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * + Receives HAL updates by implementing VmsHalService.VmsHalListener.
- * + Binds to publishers and configures them to use this service.
- * + Notifies publishers of subscription changes.
+ * Receives HAL updates by implementing VmsHalService.VmsHalListener.
+ * Binds to publishers and configures them to use this service.
+ * Notifies publishers of subscription changes.
+ *
+ * @hide
  */
-@FutureFeature
+@SystemApi
 public class VmsPublisherService extends IVmsPublisherService.Stub
         implements CarServiceBase, VmsHalService.VmsHalPublisherListener {
     private static final boolean DBG = true;
