@@ -16,10 +16,18 @@
 
 package com.android.car.storagemonitoring;
 
+import android.car.storagemonitoring.WearEstimate;
+import android.car.storagemonitoring.WearEstimateChange;
+import android.os.Parcel;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import com.android.car.TemporaryFile;
+import android.util.JsonReader;
+import android.util.JsonWriter;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.time.Instant;
 import junit.framework.TestCase;
 
 /**
@@ -70,5 +78,74 @@ public class CarStorageMonitoringTest extends TestCase {
             assertEquals(WearInformation.UNKNOWN_LIFETIME_ESTIMATE,
                     wearInformation.lifetimeEstimateA);
         }
+    }
+
+    public void testWearEstimateEquality() {
+        WearEstimate wearEstimate1 = new WearEstimate(10, 20);
+        WearEstimate wearEstimate2 = new WearEstimate(10, 20);
+        WearEstimate wearEstimate3 = new WearEstimate(20, 30);
+        assertEquals(wearEstimate1, wearEstimate1);
+        assertEquals(wearEstimate1, wearEstimate2);
+        assertNotSame(wearEstimate1, wearEstimate3);
+    }
+
+    public void testWearEstimateParcel() throws Exception {
+        WearEstimate originalWearEstimate = new WearEstimate(10, 20);
+        Parcel p = Parcel.obtain();
+        originalWearEstimate.writeToParcel(p, 0);
+        p.setDataPosition(0);
+        WearEstimate newWearEstimate = new WearEstimate(p);
+        assertEquals(originalWearEstimate, newWearEstimate);
+        p.recycle();
+    }
+
+    public void testWearEstimateChangeEquality() {
+        WearEstimateChange wearEstimateChange1 = new WearEstimateChange(
+                new WearEstimate(10, 20),
+                new WearEstimate(20, 30),
+                5000L,
+                Instant.now(),
+                false);
+        WearEstimateChange wearEstimateChange2 = new WearEstimateChange(
+            new WearEstimate(10, 20),
+            new WearEstimate(20, 30),
+            5000L,
+            wearEstimateChange1.dateAtChange,
+            false);
+        assertEquals(wearEstimateChange1, wearEstimateChange1);
+        assertEquals(wearEstimateChange1, wearEstimateChange2);
+        WearEstimateChange wearEstimateChange3 = new WearEstimateChange(
+            new WearEstimate(10, 30),
+            new WearEstimate(20, 30),
+            3000L,
+            Instant.now(),
+            true);
+        assertNotSame(wearEstimateChange1, wearEstimateChange3);
+    }
+
+    public void testWearEstimateChangeParcel() throws Exception {
+        WearEstimateChange originalWearEstimateChange = new WearEstimateChange(
+                new WearEstimate(10, 0),
+                new WearEstimate(20, 10),
+                123456789L,
+                Instant.now(),
+                false);
+        Parcel p = Parcel.obtain();
+        originalWearEstimateChange.writeToParcel(p, 0);
+        p.setDataPosition(0);
+        WearEstimateChange newWearEstimateChange = new WearEstimateChange(p);
+        assertEquals(originalWearEstimateChange, newWearEstimateChange);
+        p.recycle();
+    }
+
+    public void testWearEstimateJson() throws Exception {
+        WearEstimate originalWearEstimate = new WearEstimate(20, 0);
+        StringWriter stringWriter = new StringWriter(1024);
+        JsonWriter jsonWriter = new JsonWriter(stringWriter);
+        originalWearEstimate.writeToJson(jsonWriter);
+        StringReader stringReader = new StringReader(stringWriter.toString());
+        JsonReader jsonReader = new JsonReader(stringReader);
+        WearEstimate newWearEstimate = new WearEstimate(jsonReader);
+        assertEquals(originalWearEstimate, newWearEstimate);
     }
 }
