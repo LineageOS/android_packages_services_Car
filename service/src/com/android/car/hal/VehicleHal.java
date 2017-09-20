@@ -128,7 +128,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     /** Dummy version only for testing */
     @VisibleForTesting
     public VehicleHal(PowerHalService powerHal, SensorHalService sensorHal, InfoHalService infoHal,
-            AudioHalService audioHal, CabinHalService cabinHal,
+            AudioHalService audioHal, CabinHalService cabinHal, DiagnosticHalService diagnosticHal,
             RadioHalService radioHal, HvacHalService hvacHal, HalClient halClient) {
         mHandlerThread = null;
         mPowerHal = powerHal;
@@ -136,35 +136,14 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mInfoHal = infoHal;
         mAudioHal = audioHal;
         mCabinHal = cabinHal;
+        mDiagnosticHal = diagnosticHal;
         mRadioHal = radioHal;
         mHvacHal = hvacHal;
         mInputHal = null;
         mVendorExtensionHal = null;
-        mDiagnosticHal = null;
         mVmsHal = null;
-
         mHalClient = halClient;
-    }
-
-    /** Dummy version only for testing */
-    @VisibleForTesting
-    public VehicleHal(PowerHalService powerHal, SensorHalService sensorHal, InfoHalService infoHal,
-            AudioHalService audioHal, CabinHalService cabinHal, DiagnosticHalService diagnosticHal,
-            RadioHalService radioHal, HvacHalService hvacHal, HalClient halClient) {
-            mHandlerThread = null;
-            mPowerHal = powerHal;
-            mSensorHal = sensorHal;
-            mInfoHal = infoHal;
-            mAudioHal = audioHal;
-            mCabinHal = cabinHal;
-            mDiagnosticHal = diagnosticHal;
-            mRadioHal = radioHal;
-            mHvacHal = hvacHal;
-            mInputHal = null;
-            mVendorExtensionHal = null;
-            mVmsHal = null;
-            mHalClient = halClient;
-            mDiagnosticHal = diagnosticHal;
+        mDiagnosticHal = diagnosticHal;
     }
 
     public void vehicleHalReconnected(IVehicle vehicle) {
