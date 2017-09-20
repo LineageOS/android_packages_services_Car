@@ -125,7 +125,8 @@ public class ICarImpl extends ICar.Stub {
         mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
         mVmsPublisherService = new VmsPublisherService(serviceContext, mHal.getVmsHal());
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
-        mCarStorageMonitoringService = new CarStorageMonitoringService(serviceContext);
+        mCarStorageMonitoringService = new CarStorageMonitoringService(serviceContext,
+                systemInterface);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>(Arrays.asList(
