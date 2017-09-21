@@ -34,13 +34,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private static final String UPTIME_TRACKER_FILENAME = "service_uptime";
     private static final String WEAR_INFO_FILENAME = "wear_info";
 
-    private static final WearInformationProvider[] WEAR_INFORMATION_PROVIDERS =
-        new WearInformationProvider[] {
-            new EMmcWearInformationProvider(),
-            new UfsWearInformationProvider()
-        };
-
-
+    private final WearInformationProvider[] mWearInformationProviders;
     private final Context mContext;
     private final File mUptimeTrackerFile;
     private final File mWearInfoFile;
@@ -49,12 +43,13 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private UptimeTracker mUptimeTracker;
     private Optional<WearInformation> mWearInformation = Optional.empty();
 
-    public CarStorageMonitoringService(Context context) {
+    public CarStorageMonitoringService(Context context, SystemInterface systemInterface) {
         mContext = context;
         mUptimeTrackerFile = new File(mContext.getFilesDir(), UPTIME_TRACKER_FILENAME);
         mWearInfoFile = new File(mContext.getFilesDir(), WEAR_INFO_FILENAME);
         mOnShutdownReboot = new OnShutdownReboot(mContext);
         mOnShutdownReboot.addAction((Context ctx, Intent intent) -> release());
+        mWearInformationProviders = systemInterface.getFlashWearInformationProviders();
     }
 
     /**
@@ -68,8 +63,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         return value * HOURS_TO_MS / 100;
     }
 
-    private static Optional<WearInformation> loadWearInformation() {
-        for (WearInformationProvider provider : WEAR_INFORMATION_PROVIDERS) {
+    private Optional<WearInformation> loadWearInformation() {
+        for (WearInformationProvider provider : mWearInformationProviders) {
             WearInformation wearInfo = provider.load();
             if (wearInfo != null) {
                 return Optional.of(wearInfo);

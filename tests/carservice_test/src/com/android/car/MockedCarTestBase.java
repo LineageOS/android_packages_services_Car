@@ -31,6 +31,8 @@ import android.os.Looper;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
+import com.android.car.storagemonitoring.WearInformation;
+import com.android.car.storagemonitoring.WearInformationProvider;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 import com.android.car.vehiclehal.test.MockedVehicleHal.DefaultPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.StaticPropertyHandler;
@@ -72,7 +74,18 @@ public class MockedCarTestBase extends AndroidTestCase {
         return mMockedVehicleHal;
     }
 
+    protected synchronized FakeSystemInterface getFakeSystemInterface() {
+        return mFakeSystemInterface;
+    }
+
     protected synchronized void configureMockedHal() {
+    }
+
+    protected synchronized void configureFakeSystemInterface() {
+    }
+
+    protected synchronized void setFlashWearInformation(WearInformation wearInformation) {
+        mFakeSystemInterface.mWearInformationProvider.setWearInformation(wearInformation);
     }
 
     @Override
@@ -85,6 +98,8 @@ public class MockedCarTestBase extends AndroidTestCase {
         configureMockedHal();
 
         mFakeSystemInterface = new FakeSystemInterface();
+        configureFakeSystemInterface();
+
         Context context = getCarServiceContext();
         mCarImpl = new ICarImpl(context, mMockedVehicleHal, mFakeSystemInterface,
                 null /* error notifier */);
@@ -240,6 +255,19 @@ public class MockedCarTestBase extends AndroidTestCase {
 
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
+        private final class FakeWearInformationProvider implements WearInformationProvider {
+            private WearInformation mWearInformation = null;
+            public void setWearInformation(WearInformation wearInformation) {
+                mWearInformation = wearInformation;
+            }
+
+            @Override
+            public WearInformation load() {
+                return mWearInformation;
+            }
+        }
+        private final FakeWearInformationProvider mWearInformationProvider =
+                new FakeWearInformationProvider();
 
         @Override
         public synchronized void setDisplayState(boolean on) {
@@ -289,5 +317,10 @@ public class MockedCarTestBase extends AndroidTestCase {
 
         @Override
         public boolean isWakeupCausedByTimer() { return false; }
+
+        @Override
+        public WearInformationProvider[] getFlashWearInformationProviders() {
+            return new WearInformationProvider[] { mWearInformationProvider };
+        }
     }
 }
