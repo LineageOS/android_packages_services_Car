@@ -67,5 +67,28 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
         }
         return PRE_EOL_INFO_UNKNOWN;
     }
+
+    /**
+     * This method returns the value of the wear estimate indicators for the flash storage
+     * as retrieved during the current boot cycle.
+     *
+     * The indicators are guaranteed to be a lower-bound on the actual wear of the storage.
+     * Current technology in common automotive usage offers estimates in 10% increments.
+     *
+     * If either or both indicators are not available, they will be reported as UNKNOWN.
+     * @return
+     * @throws CarNotConnectedException
+     */
+    public WearEstimate getWearEstimate() throws CarNotConnectedException {
+        try {
+            return mService.getWearEstimate();
+        } catch (IllegalStateException e) {
+            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
+        } catch (RemoteException e) {
+            throw new CarNotConnectedException();
+        }
+        return new WearEstimate(WearEstimate.UNKNOWN, WearEstimate.UNKNOWN);
+    }
+
 }
 

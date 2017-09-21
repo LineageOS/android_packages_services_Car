@@ -300,6 +300,14 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.DIAGNOSTIC_CLEAR";
 
+    /**
+     * Permissions necessary to clear diagnostic information.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_STORAGE_MONITORING = "android.car.permission.STORAGE_MONITORING";
+
     /** Type of car connection: platform runs directly in car. */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
 

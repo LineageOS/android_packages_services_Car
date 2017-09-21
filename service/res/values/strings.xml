@@ -125,4 +125,9 @@
     <string name="car_permission_label_vms_subscriber">VMS subscriber</string>
     <!-- Permission text: apps can receive VMS messages from the car [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_vms_subscriber">Subscribe to vms messages</string>
+
+    <!-- Permission text: apps can monitor flash storage usage [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_storage_monitoring">Flash storage monitoring</string>
+    <!-- Permission text: apps can monitor flash storage usage [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_storage_monitoring">Monitor flash storage usage</string>
 </resources>

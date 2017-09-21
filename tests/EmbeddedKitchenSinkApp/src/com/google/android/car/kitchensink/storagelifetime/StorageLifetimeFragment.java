@@ -64,8 +64,10 @@ public class StorageLifetimeFragment extends Fragment {
             mStorageManager =
                 (CarStorageMonitoringManager) mActivity.getCar().getCarManager(
                         Car.STORAGE_MONITORING_SERVICE);
-            mStorageWearInfo.setText("Pre EOL indicator: " + preEolToString(
-                mStorageManager.getPreEolIndicatorStatus()));
+
+            mStorageWearInfo.setText("Wear estimate: " +
+                mStorageManager.getWearEstimate() + "\nPre EOL indicator: " +
+                preEolToString(mStorageManager.getPreEolIndicatorStatus()));
         } catch (android.car.CarNotConnectedException|
                  android.support.car.CarNotConnectedException e) {
             Log.e(TAG, "Car not connected or not supported", e);

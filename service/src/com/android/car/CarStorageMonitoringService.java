@@ -16,12 +16,13 @@
 
 package com.android.car;
 
+import android.car.Car;
 import android.car.storagemonitoring.ICarStorageMonitoring;
+import android.car.storagemonitoring.WearEstimate;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import com.android.car.storagemonitoring.EMmcWearInformationProvider;
-import com.android.car.storagemonitoring.UfsWearInformationProvider;
+import com.android.car.internal.CarPermission;
 import com.android.car.storagemonitoring.WearInformation;
 import com.android.car.storagemonitoring.WearInformationProvider;
 import java.io.File;
@@ -40,6 +41,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private final File mWearInfoFile;
     private final OnShutdownReboot mOnShutdownReboot;
 
+    private final CarPermission mStorageMonitoringPermission;
+
     private UptimeTracker mUptimeTracker;
     private Optional<WearInformation> mWearInformation = Optional.empty();
 
@@ -50,6 +53,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         mOnShutdownReboot = new OnShutdownReboot(mContext);
         mOnShutdownReboot.addAction((Context ctx, Intent intent) -> release());
         mWearInformationProviders = systemInterface.getFlashWearInformationProviders();
+        mStorageMonitoringPermission =
+                new CarPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
     }
 
     /**
@@ -97,7 +102,18 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
     @Override
     public int getPreEolIndicatorStatus() {
+        mStorageMonitoringPermission.assertGranted();
+
         return mWearInformation.map(wi -> wi.preEolInfo)
                 .orElse(WearInformation.UNKNOWN_PRE_EOL_INFO);
+    }
+
+    @Override
+    public WearEstimate getWearEstimate() {
+        mStorageMonitoringPermission.assertGranted();
+
+        return mWearInformation.map(wi ->
+                new WearEstimate(wi.lifetimeEstimateA,wi.lifetimeEstimateB)).orElse(
+                    new WearEstimate(WearEstimate.UNKNOWN, WearEstimate.UNKNOWN));
     }
 }

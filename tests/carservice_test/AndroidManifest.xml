@@ -24,6 +24,7 @@
     <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING" />
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME" />
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.car.permission.STORAGE_MONITORING" />
     <instrumentation android:name="android.test.InstrumentationTestRunner"
             android:targetPackage="com.android.car.test"
             android:label="Tests for Car APIs"/>

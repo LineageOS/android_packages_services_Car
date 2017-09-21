@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
+import android.car.storagemonitoring.WearEstimate;
 import android.test.suitebuilder.annotation.MediumTest;
 import com.android.car.storagemonitoring.WearInformation;
 
@@ -26,14 +27,14 @@ import com.android.car.storagemonitoring.WearInformation;
 public class CarStorageMonitoringTest extends MockedCarTestBase {
     private static final String TAG = CarStorageMonitoringTest.class.getSimpleName();
 
+    private static final WearInformation DEFAULT_WEAR_INFORMATION =
+        new WearInformation(10, 0, WearInformation.PRE_EOL_INFO_NORMAL);
+
     private CarStorageMonitoringManager mCarStorageMonitoringManager;
 
     @Override
     protected synchronized void configureFakeSystemInterface() {
-        setFlashWearInformation(new WearInformation(
-            WearInformation.UNKNOWN_LIFETIME_ESTIMATE,
-            WearInformation.UNKNOWN_LIFETIME_ESTIMATE,
-            WearInformation.PRE_EOL_INFO_NORMAL));
+        setFlashWearInformation(DEFAULT_WEAR_INFORMATION);
     }
 
     @Override
@@ -45,7 +46,15 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     }
 
     public void testReadPreEolInformation() throws Exception {
-        assertEquals(WearInformation.PRE_EOL_INFO_NORMAL,
+        assertEquals(DEFAULT_WEAR_INFORMATION.preEolInfo,
                 mCarStorageMonitoringManager.getPreEolIndicatorStatus());
+    }
+
+    public void testReadWearEstimate() throws Exception {
+        final WearEstimate wearEstimate = mCarStorageMonitoringManager.getWearEstimate();
+
+        assertNotNull(wearEstimate);
+        assertEquals(DEFAULT_WEAR_INFORMATION.lifetimeEstimateA, wearEstimate.typeA);
+        assertEquals(DEFAULT_WEAR_INFORMATION.lifetimeEstimateB, wearEstimate.typeB);
     }
 }

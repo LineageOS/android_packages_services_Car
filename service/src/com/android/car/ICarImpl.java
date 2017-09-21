@@ -248,7 +248,7 @@ public class ICarImpl extends ICar.Stub {
             case Car.BLUETOOTH_SERVICE:
                 return mCarBluetoothService;
             case Car.STORAGE_MONITORING_SERVICE:
-                // TODO(egranata): enforce permission here
+                assertPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
                 return mCarStorageMonitoringService;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:" + serviceName);

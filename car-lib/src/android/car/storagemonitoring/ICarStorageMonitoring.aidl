@@ -16,10 +16,17 @@
 
 package android.car.storagemonitoring;
 
+import android.car.storagemonitoring.WearEstimate;
+
 /** @hide */
 interface ICarStorageMonitoring {
   /**
    * Returns the value of the PRE_EOL register.
    */
   int getPreEolIndicatorStatus() = 1;
+
+  /**
+   * Returns the current wear estimate indicators.
+   */
+  WearEstimate getWearEstimate() = 2;
 }
