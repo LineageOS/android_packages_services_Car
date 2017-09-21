@@ -145,7 +145,9 @@ public class UptimeTracker {
 
     void onDestroy() {
         synchronized (mLock) {
-            mTimingProvider.cancelAll();
+            if (mTimingProvider != null) {
+                mTimingProvider.cancelAll();
+            }
             flushSnapshot();
             mTimingProvider = null;
             mUptimeFile = null;
