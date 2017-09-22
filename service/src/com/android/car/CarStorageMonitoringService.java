@@ -51,7 +51,6 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         mUptimeTrackerFile = new File(mContext.getFilesDir(), UPTIME_TRACKER_FILENAME);
         mWearInfoFile = new File(mContext.getFilesDir(), WEAR_INFO_FILENAME);
         mOnShutdownReboot = new OnShutdownReboot(mContext);
-        mOnShutdownReboot.addAction((Context ctx, Intent intent) -> release());
         mWearInformationProviders = systemInterface.getFlashWearInformationProviders();
         mStorageMonitoringPermission =
                 new CarPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
@@ -83,12 +82,14 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         Log.i(CarLog.TAG_STORAGE, "starting up CarStorageMonitoringService");
         mUptimeTracker = new UptimeTracker(mUptimeTrackerFile, getUptimeSnapshotIntervalMs());
         mWearInformation = loadWearInformation();
+        mOnShutdownReboot.addAction((Context ctx, Intent intent) -> release());
     }
 
     @Override
     public void release() {
         Log.i(CarLog.TAG_STORAGE, "tearing down CarStorageMonitoringService");
         mUptimeTracker.onDestroy();
+        mOnShutdownReboot.clearActions();
     }
 
     @Override
