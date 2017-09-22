@@ -60,7 +60,7 @@
 
     <string name="instrumentClusterRendererService">android.car.cluster.sample/.SampleClusterServiceImpl</string>
 
-    <!--  Whether to enable Avtivity blocking for safety. When Activity blocking is enabled,
+    <!--  Whether to enable Activity blocking for safety. When Activity blocking is enabled,
           only whitelisted safe Activities will be allowed while car is not parked. -->
     <bool name="enableActivityBlockingForSafety">true</bool>
     <!--  Activity to be presented when un-safe activity is launched. Take a look at the javadoc of the
@@ -81,4 +81,9 @@
     <string-array translatable="false" name="vmsSafePermissions">
         <item>"android.permission.ACCESS_FINE_LOCATION"</item>
     </string-array>
+
+    <!-- Acceptable wear level of the flash storage in the head-unit.
+         This value represents the number of hours of vehicle uptime such that a 10% increase in the
+         wear of the flash storage, as reported by the kernel, is considered acceptable. -->
+    <integer name="uptimeHoursForAcceptableWearIncrease">700</integer>
 </resources>

@@ -71,7 +71,8 @@ public class ICarImpl extends ICar.Stub {
     private final CarVendorExtensionService mCarVendorExtensionService;
     private final CarBluetoothService mCarBluetoothService;
     private final PerUserCarServiceHelper mPerUserCarServiceHelper;
-    private CarDiagnosticService mCarDiagnosticService;
+    private final CarDiagnosticService mCarDiagnosticService;
+    private final CarStorageMonitoringService mCarStorageMonitoringService;
     @FutureFeature
     private VmsSubscriberService mVmsSubscriberService;
     @FutureFeature
@@ -124,6 +125,8 @@ public class ICarImpl extends ICar.Stub {
         mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
         mVmsPublisherService = new VmsPublisherService(serviceContext, mHal.getVmsHal());
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
+        mCarStorageMonitoringService = new CarStorageMonitoringService(serviceContext,
+                systemInterface);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>(Arrays.asList(
@@ -147,13 +150,14 @@ public class ICarImpl extends ICar.Stub {
                 mCarBluetoothService,
                 mCarDiagnosticService,
                 mPerUserCarServiceHelper,
+                mCarStorageMonitoringService,
                 mVmsSubscriberService,
                 mVmsPublisherService
         ));
         mAllServices = allServices.toArray(new CarServiceBase[0]);
     }
 
-    public void init() {
+    void init() {
         traceBegin("VehicleHal.init");
         mHal.init();
         traceEnd();
@@ -164,7 +168,7 @@ public class ICarImpl extends ICar.Stub {
         traceEnd();
     }
 
-    public void release() {
+    void release() {
         // release done in opposite order from init
         for (int i = mAllServices.length - 1; i >= 0; i--) {
             mAllServices[i].release();
@@ -172,7 +176,7 @@ public class ICarImpl extends ICar.Stub {
         mHal.release();
     }
 
-    public void vehicleHalReconnected(IVehicle vehicle) {
+    void vehicleHalReconnected(IVehicle vehicle) {
         mHal.vehicleHalReconnected(vehicle);
         for (CarServiceBase service : mAllServices) {
             service.vehicleHalReconnected();
@@ -243,6 +247,9 @@ public class ICarImpl extends ICar.Stub {
             }
             case Car.BLUETOOTH_SERVICE:
                 return mCarBluetoothService;
+            case Car.STORAGE_MONITORING_SERVICE:
+                assertPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
+                return mCarStorageMonitoringService;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:" + serviceName);
                 return null;

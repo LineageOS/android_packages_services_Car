@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 import android.annotation.Nullable;
@@ -47,6 +48,7 @@ import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
@@ -259,6 +261,27 @@ public class E2ePerformanceTest {
 
         final int EXPECTED_INVOCATIONS = 1000;  // How many time get/set will be called.
         final int EXPECTED_DURATION_MS = 2500;
+        // This is a stress test and it can be flaky because it shares resources with all currently
+        // running process. Let's have this number of attempt before giving up.
+        final int ATTEMPTS = 3;
+
+        for (int curAttempt = 0; curAttempt < ATTEMPTS; curAttempt++) {
+            long missingInvocations = stressTestHvacProperties(mgr, cfg,
+                    EXPECTED_INVOCATIONS, EXPECTED_DURATION_MS);
+            if (missingInvocations == 0) return;  // All done.
+
+            Log.w(TAG, "Failed to invoke get/set " + EXPECTED_INVOCATIONS
+                            + " within " + EXPECTED_DURATION_MS + "ms"
+                            + ", actually invoked: "
+                            + (EXPECTED_INVOCATIONS - missingInvocations));
+        }
+        fail("Failed to invoke get/set " + EXPECTED_INVOCATIONS + " within "
+                + EXPECTED_DURATION_MS + "ms. Number of attempts: " + ATTEMPTS
+                + ". See logs for details.");
+    }
+
+    private long stressTestHvacProperties(CarHvacManager mgr, CarPropertyConfig<Float> cfg,
+            int EXPECTED_INVOCATIONS, int EXPECTED_DURATION_MS) throws InterruptedException {
         CountDownLatch counter = new CountDownLatch(EXPECTED_INVOCATIONS);
 
         List<Thread> threads = new ArrayList<>(Lists.newArrayList(
@@ -271,15 +294,12 @@ public class E2ePerformanceTest {
 
         counter.await(EXPECTED_DURATION_MS, TimeUnit.MILLISECONDS);
         long missingInvocations = counter.getCount();
-        assertTrue("Failed to invoke get/set " + EXPECTED_INVOCATIONS
-                + " within " + EXPECTED_DURATION_MS + "ms"
-                        + ", actually invoked: " + (EXPECTED_INVOCATIONS - missingInvocations),
-                missingInvocations == 0);
 
         for (Thread t : threads) {
             t.join(10000);  // Let thread join to not interfere with other test.
             assertFalse(t.isAlive());
         }
+        return missingInvocations;
     }
 
     private void invokeSetAndGetForHvacFloat(CarHvacManager mgr,

@@ -25,6 +25,7 @@ import com.android.car.CarPowerManagementService.PowerServiceEventListener;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 
+import com.android.car.storagemonitoring.WearInformationProvider;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -338,6 +339,11 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         public synchronized boolean isWakeupCausedByTimer() {
             Log.i(TAG, "isWakeupCausedByTimer:" + mWakeupCausedByTimer);
             return mWakeupCausedByTimer;
+        }
+
+        @Override
+        public WearInformationProvider[] getFlashWearInformationProviders() {
+            return new WearInformationProvider[] {};
         }
 
         public synchronized void setWakeupCausedByTimer(boolean set) {

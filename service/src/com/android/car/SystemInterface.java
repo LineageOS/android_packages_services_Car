@@ -23,6 +23,9 @@ import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Display;
+import com.android.car.storagemonitoring.EMmcWearInformationProvider;
+import com.android.car.storagemonitoring.UfsWearInformationProvider;
+import com.android.car.storagemonitoring.WearInformationProvider;
 
 /**
  * Interface to abstract all system interaction.
@@ -38,6 +41,7 @@ public abstract class SystemInterface {
     public abstract void stopDisplayStateMonitoring();
     public abstract boolean isSystemSupportingDeepSleep();
     public abstract boolean isWakeupCausedByTimer();
+    public abstract WearInformationProvider[] getFlashWearInformationProviders();
 
 
     public static SystemInterface getDefault(Context context) {
@@ -50,6 +54,7 @@ public abstract class SystemInterface {
         private final WakeLock mFullWakeLock;
         private final WakeLock mPartialWakeLock;
         private final DisplayStateListener mDisplayListener;
+        private final WearInformationProvider[] mWearInformationProviders;
         private CarPowerManagementService mService;
         private boolean mDisplayStateSet;
 
@@ -61,6 +66,10 @@ public abstract class SystemInterface {
             mPartialWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                     CarLog.TAG_POWER);
             mDisplayListener = new DisplayStateListener();
+            mWearInformationProviders = new WearInformationProvider[] {
+                    new EMmcWearInformationProvider(),
+                    new UfsWearInformationProvider()
+                };
         }
 
         @Override
@@ -154,6 +163,11 @@ public abstract class SystemInterface {
             // power on will involve GPIO trigger from power controller
             // its own wakeup will involve timer expiration.
             return false;
+        }
+
+        @Override
+        public WearInformationProvider[] getFlashWearInformationProviders() {
+            return mWearInformationProviders;
         }
 
         private void handleMainDisplayChanged() {

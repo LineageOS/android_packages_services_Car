@@ -154,6 +154,11 @@
                 android:label="@string/car_permission_car_cluster_control"
                 android:description="@string/car_permission_desc_car_cluster_control" />
 
+    <permission android:name="android.car.permission.STORAGE_MONITORING"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_storage_monitoring"
+        android:description="@string/car_permission_desc_storage_monitoring" />
+
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.DEVICE_POWER" />
     <uses-permission android:name="android.permission.GRANT_RUNTIME_PERMISSIONS" />
