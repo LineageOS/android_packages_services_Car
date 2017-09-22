@@ -28,17 +28,22 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
+import com.android.car.MockedCarTestBase.FakeSystemInterface.UptimeProvider;
 import com.android.car.storagemonitoring.WearInformation;
 import com.android.car.storagemonitoring.WearInformationProvider;
+import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 import com.android.car.vehiclehal.test.MockedVehicleHal.DefaultPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.StaticPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,6 +93,10 @@ public class MockedCarTestBase extends AndroidTestCase {
         mFakeSystemInterface.mWearInformationProvider.setWearInformation(wearInformation);
     }
 
+    protected synchronized void setUptimeProvider(UptimeProvider uptimeProvider) {
+        mFakeSystemInterface.mUptimeProvider = uptimeProvider;
+    }
+
     @Override
     protected synchronized void setUp() throws Exception {
         super.setUp();
@@ -115,6 +124,8 @@ public class MockedCarTestBase extends AndroidTestCase {
 
         mCar.disconnect();
         mCarImpl.release();
+
+        mFakeSystemInterface.tearDown();
     }
 
     protected Context getCarServiceContext() throws NameNotFoundException {
@@ -251,7 +262,10 @@ public class MockedCarTestBase extends AndroidTestCase {
         }
     }
 
-    private static class FakeSystemInterface extends SystemInterface {
+    static class FakeSystemInterface extends SystemInterface {
+        interface UptimeProvider {
+            long getUptime(boolean includeDeepSleepTime);
+        }
 
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
@@ -268,6 +282,8 @@ public class MockedCarTestBase extends AndroidTestCase {
         }
         private final FakeWearInformationProvider mWearInformationProvider =
                 new FakeWearInformationProvider();
+        private TemporaryDirectory mFilesDir = null;
+        private UptimeProvider mUptimeProvider = null;
 
         @Override
         public synchronized void setDisplayState(boolean on) {
@@ -321,6 +337,37 @@ public class MockedCarTestBase extends AndroidTestCase {
         @Override
         public WearInformationProvider[] getFlashWearInformationProviders() {
             return new WearInformationProvider[] { mWearInformationProvider };
+        }
+
+        @Override
+        public File getFilesDir() {
+            if (mFilesDir == null) {
+                try {
+                    mFilesDir = new TemporaryDirectory(TAG);
+                } catch (IOException e) {
+                    Log.e(TAG, "failed to create temporary directory", e);
+                    fail("failed to create temporary directory. exception was: " + e);
+                }
+            }
+            return mFilesDir.getDirectory();
+        }
+
+        @Override
+        public long getUptime(boolean includeDeepSleepTime) {
+            if (mUptimeProvider != null) {
+                return mUptimeProvider.getUptime(includeDeepSleepTime);
+            }
+            return super.getUptime(includeDeepSleepTime);
+        }
+
+        void tearDown() {
+            if (mFilesDir != null) {
+                try {
+                    mFilesDir.close();
+                } catch (Exception e) {
+                    Log.w(TAG, "could not remove temporary directory", e);
+                }
+            }
         }
     }
 }

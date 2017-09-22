@@ -26,11 +26,15 @@ import android.view.Display;
 import com.android.car.storagemonitoring.EMmcWearInformationProvider;
 import com.android.car.storagemonitoring.UfsWearInformationProvider;
 import com.android.car.storagemonitoring.WearInformationProvider;
+import java.io.File;
 
 /**
  * Interface to abstract all system interaction.
  */
 public abstract class SystemInterface {
+    public static final boolean INCLUDE_DEEP_SLEEP_TIME = true;
+    public static final boolean EXCLUDE_DEEP_SLEEP_TIME = false;
+
     public abstract void setDisplayState(boolean on);
     public abstract void releaseAllWakeLocks();
     public abstract void shutdown();
@@ -42,7 +46,16 @@ public abstract class SystemInterface {
     public abstract boolean isSystemSupportingDeepSleep();
     public abstract boolean isWakeupCausedByTimer();
     public abstract WearInformationProvider[] getFlashWearInformationProviders();
+    public abstract File getFilesDir();
 
+    public final long getUptime() {
+        return getUptime(EXCLUDE_DEEP_SLEEP_TIME);
+    }
+    public long getUptime(boolean includeDeepSleepTime) {
+        return includeDeepSleepTime ?
+            SystemClock.elapsedRealtime() :
+            SystemClock.uptimeMillis();
+    }
 
     public static SystemInterface getDefault(Context context) {
         return new SystemInterfaceImpl(context);
@@ -55,6 +68,7 @@ public abstract class SystemInterface {
         private final WakeLock mPartialWakeLock;
         private final DisplayStateListener mDisplayListener;
         private final WearInformationProvider[] mWearInformationProviders;
+        private final File mFilesDir;
         private CarPowerManagementService mService;
         private boolean mDisplayStateSet;
 
@@ -70,6 +84,7 @@ public abstract class SystemInterface {
                     new EMmcWearInformationProvider(),
                     new UfsWearInformationProvider()
                 };
+            mFilesDir = context.getFilesDir();
         }
 
         @Override
@@ -168,6 +183,11 @@ public abstract class SystemInterface {
         @Override
         public WearInformationProvider[] getFlashWearInformationProviders() {
             return mWearInformationProviders;
+        }
+
+        @Override
+        public File getFilesDir() {
+            return mFilesDir;
         }
 
         private void handleMainDisplayChanged() {

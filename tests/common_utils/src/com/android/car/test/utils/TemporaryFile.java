@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.test.utils;
 
 import android.annotation.Nullable;
 import android.os.SystemClock;
@@ -23,11 +23,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 
 /**
- * A utility class that represents a file that needs to exist for the duration of a test.
+ * A utility class that creates a temporary file.
+ * The file is automatically deleted when calling close().
  *
- * Meant to be used with try-with-resources:
+ * Example usage:
  *
  * try (TemporaryFile tf = new TemporaryFile("myTest")) {
  *     ...
@@ -45,7 +47,7 @@ public final class TemporaryFile implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        mFile.delete();
+        Files.delete(mFile.toPath());
     }
 
     public void write(String s) throws IOException {
