@@ -27,6 +27,7 @@ import com.android.car.storagemonitoring.WearInformation;
 import com.android.car.storagemonitoring.WearInformationProvider;
 import java.io.File;
 import java.io.PrintWriter;
+import java.time.Duration;
 import java.util.Optional;
 
 public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
@@ -48,8 +49,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
     public CarStorageMonitoringService(Context context, SystemInterface systemInterface) {
         mContext = context;
-        mUptimeTrackerFile = new File(mContext.getFilesDir(), UPTIME_TRACKER_FILENAME);
-        mWearInfoFile = new File(mContext.getFilesDir(), WEAR_INFO_FILENAME);
+        mUptimeTrackerFile = new File(systemInterface.getFilesDir(), UPTIME_TRACKER_FILENAME);
+        mWearInfoFile = new File(systemInterface.getFilesDir(), WEAR_INFO_FILENAME);
         mOnShutdownReboot = new OnShutdownReboot(mContext);
         mWearInformationProviders = systemInterface.getFlashWearInformationProviders();
         mStorageMonitoringPermission =
@@ -57,14 +58,20 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     }
 
     /**
+     * The overlay vends this data in hours/1% increase, but the current implementation
+     * works in terms of 10% increases. This method computes the number of milliseconds
+     * that make up an acceptable rate of 10% increases.
+     */
+    static long getAcceptableFlashWearRate() {
+        return 10 * Duration.ofHours(R.integer.acceptableHoursPerOnePercentFlashWear).toMillis();
+    }
+
+    /**
      * We define the proper interval between uptime snapshots to be 1% of
      * the value of uptimeHoursForAcceptableWearIncrease in the overlay.
-     * @return
      */
     private static long getUptimeSnapshotIntervalMs() {
-        final long HOURS_TO_MS =  60*60*1000;
-        long value = (long)R.integer.uptimeHoursForAcceptableWearIncrease;
-        return value * HOURS_TO_MS / 100;
+        return Duration.ofHours(R.integer.uptimeHoursIntervalBetweenUptimeDataWrite).toMillis();
     }
 
     private Optional<WearInformation> loadWearInformation() {

@@ -21,7 +21,7 @@ import android.car.storagemonitoring.WearEstimateChange;
 import android.os.Parcel;
 import android.test.suitebuilder.annotation.MediumTest;
 
-import com.android.car.TemporaryFile;
+import com.android.car.test.utils.TemporaryFile;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 

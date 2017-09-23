@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import android.os.SystemClock;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
@@ -26,6 +27,9 @@ import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 
 import com.android.car.storagemonitoring.WearInformationProvider;
+import com.android.car.test.utils.TemporaryDirectory;
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -54,6 +58,9 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         super.tearDown();
         if (mService != null) {
             mService.release();
+        }
+        if (mSystemInterface != null) {
+            mSystemInterface.tearDown();
         }
     }
 
@@ -267,6 +274,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         private final Semaphore mShutdownWait = new Semaphore(0);
         private final Semaphore mSleepWait = new Semaphore(0);
         private final Semaphore mSleepExitWait = new Semaphore(0);
+        private TemporaryDirectory mFilesDir;
         private int mWakeupTime;
         private boolean mWakeupCausedByTimer = false;
 
@@ -344,6 +352,29 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         @Override
         public WearInformationProvider[] getFlashWearInformationProviders() {
             return new WearInformationProvider[] {};
+        }
+
+        @Override
+        public File getFilesDir() {
+            if (mFilesDir == null) {
+                try {
+                    mFilesDir = new TemporaryDirectory(TAG);
+                } catch (IOException e) {
+                    Log.e(TAG, "failed to create temporary directory", e);
+                    fail("failed to create temporary directory. exception was: " + e);
+                }
+            }
+            return mFilesDir.getDirectory();
+        }
+
+        void tearDown() {
+            if (mFilesDir != null) {
+                try {
+                    mFilesDir.close();
+                } catch (Exception e) {
+                    Log.w(TAG, "could not remove temporary directory", e);
+                }
+            }
         }
 
         public synchronized void setWakeupCausedByTimer(boolean set) {
