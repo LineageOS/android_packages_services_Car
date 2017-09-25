@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * A utility class that creates a temporary file.
@@ -59,4 +60,6 @@ public final class TemporaryFile implements AutoCloseable {
     public File getFile() {
         return mFile;
     }
+
+    public Path getPath() { return mFile.toPath(); }
 }

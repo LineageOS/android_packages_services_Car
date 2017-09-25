@@ -17,6 +17,9 @@ package com.android.car.storagemonitoring;
 
 import static java.util.Objects.hash;
 
+import android.car.storagemonitoring.WearEstimate;
+import java.time.Instant;
+
 public final class WearInformation {
     public static final int UNKNOWN_LIFETIME_ESTIMATE = -1;
 
@@ -76,8 +79,13 @@ public final class WearInformation {
 
     @Override
     public String toString() {
-        return "lifetime estimate A: " + lifetimeToString(lifetimeEstimateA) + '\n' +
-            "lifetime estimate B: " + lifetimeToString(lifetimeEstimateB) + '\n' +
-            "pre EOL info: " + PRE_EOL_STRINGS[preEolInfo] + '\n';
+        return String.format("lifetime estimate: A = %s, B = %s; pre EOL info: %s",
+                lifetimeToString(lifetimeEstimateA),
+                lifetimeToString(lifetimeEstimateB),
+                PRE_EOL_STRINGS[preEolInfo]);
+    }
+
+    public WearEstimate toWearEstimate() {
+        return new WearEstimate(lifetimeEstimateA, lifetimeEstimateB);
     }
 }

@@ -19,57 +19,61 @@ package com.android.car;
 import android.car.Car;
 import android.car.storagemonitoring.ICarStorageMonitoring;
 import android.car.storagemonitoring.WearEstimate;
+import android.car.storagemonitoring.WearEstimateChange;
 import android.content.Context;
 import android.content.Intent;
+import android.util.JsonWriter;
 import android.util.Log;
 import com.android.car.internal.CarPermission;
+import com.android.car.storagemonitoring.WearEstimateRecord;
+import com.android.car.storagemonitoring.WearHistory;
 import com.android.car.storagemonitoring.WearInformation;
 import com.android.car.storagemonitoring.WearInformationProvider;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
+import org.json.JSONException;
 
 public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         implements CarServiceBase {
+    private static final String TAG = CarLog.TAG_STORAGE;
 
-    private static final String UPTIME_TRACKER_FILENAME = "service_uptime";
-    private static final String WEAR_INFO_FILENAME = "wear_info";
+    static final String UPTIME_TRACKER_FILENAME = "service_uptime";
+    static final String WEAR_INFO_FILENAME = "wear_info";
 
     private final WearInformationProvider[] mWearInformationProviders;
     private final Context mContext;
     private final File mUptimeTrackerFile;
     private final File mWearInfoFile;
     private final OnShutdownReboot mOnShutdownReboot;
+    private final SystemInterface mSystemInterface;
 
     private final CarPermission mStorageMonitoringPermission;
 
     private UptimeTracker mUptimeTracker;
     private Optional<WearInformation> mWearInformation = Optional.empty();
+    private List<WearEstimateChange> mWearEstimateChanges;
 
     public CarStorageMonitoringService(Context context, SystemInterface systemInterface) {
         mContext = context;
         mUptimeTrackerFile = new File(systemInterface.getFilesDir(), UPTIME_TRACKER_FILENAME);
         mWearInfoFile = new File(systemInterface.getFilesDir(), WEAR_INFO_FILENAME);
         mOnShutdownReboot = new OnShutdownReboot(mContext);
+        mSystemInterface = systemInterface;
         mWearInformationProviders = systemInterface.getFlashWearInformationProviders();
         mStorageMonitoringPermission =
                 new CarPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
+        mWearEstimateChanges = Collections.emptyList();
     }
 
-    /**
-     * The overlay vends this data in hours/1% increase, but the current implementation
-     * works in terms of 10% increases. This method computes the number of milliseconds
-     * that make up an acceptable rate of 10% increases.
-     */
-    static long getAcceptableFlashWearRate() {
-        return 10 * Duration.ofHours(R.integer.acceptableHoursPerOnePercentFlashWear).toMillis();
-    }
-
-    /**
-     * We define the proper interval between uptime snapshots to be 1% of
-     * the value of uptimeHoursForAcceptableWearIncrease in the overlay.
-     */
     private static long getUptimeSnapshotIntervalMs() {
         return Duration.ofHours(R.integer.uptimeHoursIntervalBetweenUptimeDataWrite).toMillis();
     }
@@ -78,23 +82,88 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         for (WearInformationProvider provider : mWearInformationProviders) {
             WearInformation wearInfo = provider.load();
             if (wearInfo != null) {
+                Log.d(TAG, "retrieved wear info " + wearInfo + " via provider " + provider);
                 return Optional.of(wearInfo);
             }
         }
+
+        Log.d(TAG, "no wear info available");
         return Optional.empty();
+    }
+
+    private WearHistory loadWearHistory() {
+        if (mWearInfoFile.exists()) {
+            try {
+                WearHistory wearHistory = WearHistory.fromJson(mWearInfoFile);
+                Log.d(TAG, "retrieved wear history " + wearHistory);
+                return wearHistory;
+            } catch (IOException | JSONException e) {
+                Log.e(TAG, "unable to read wear info file " + mWearInfoFile, e);
+            }
+        }
+
+        Log.d(TAG, "no wear history available");
+        return new WearHistory();
+    }
+
+    // returns true iff a new event was added (and hence the history needs to be saved)
+    private boolean addEventIfNeeded(WearHistory wearHistory) {
+        if (!mWearInformation.isPresent()) return false;
+
+        WearInformation wearInformation = mWearInformation.get();
+        WearEstimate lastWearEstimate;
+        WearEstimate currentWearEstimate = wearInformation.toWearEstimate();
+
+        if (wearHistory.size() == 0) {
+            lastWearEstimate = WearEstimate.UNKNOWN_ESTIMATE;
+        } else {
+            lastWearEstimate = wearHistory.getLast().getNewWearEstimate();
+        }
+
+        if (currentWearEstimate.equals(lastWearEstimate)) return false;
+
+        WearEstimateRecord newRecord = new WearEstimateRecord(lastWearEstimate,
+            currentWearEstimate,
+            mUptimeTracker.getTotalUptime(),
+            Instant.now());
+        Log.d(TAG, "new wear record generated " + newRecord);
+        wearHistory.add(newRecord);
+        return true;
+    }
+
+    private void storeWearHistory(WearHistory wearHistory) {
+        try (JsonWriter jsonWriter = new JsonWriter(new FileWriter(mWearInfoFile))) {
+            wearHistory.writeToJson(jsonWriter);
+        } catch (IOException e) {
+            Log.e(TAG, "unable to write wear info file" + mWearInfoFile, e);
+        }
     }
 
     @Override
     public void init() {
-        Log.i(CarLog.TAG_STORAGE, "starting up CarStorageMonitoringService");
-        mUptimeTracker = new UptimeTracker(mUptimeTrackerFile, getUptimeSnapshotIntervalMs());
+        Log.i(TAG, "starting up CarStorageMonitoringService");
+
+        mUptimeTracker = new UptimeTracker(mUptimeTrackerFile,
+                getUptimeSnapshotIntervalMs(),
+                mSystemInterface);
         mWearInformation = loadWearInformation();
+
+        // TODO(egranata): can this be done lazily?
+        final WearHistory wearHistory = loadWearHistory();
+        if (addEventIfNeeded(wearHistory)) {
+            storeWearHistory(wearHistory);
+        }
+        Log.d(TAG, "wear history being tracked is " + wearHistory);
+        mWearEstimateChanges = wearHistory.toWearEstimateChanges(
+                mContext.getResources().getInteger(
+                        R.integer.acceptableHoursPerOnePercentFlashWear));
+
         mOnShutdownReboot.addAction((Context ctx, Intent intent) -> release());
     }
 
     @Override
     public void release() {
-        Log.i(CarLog.TAG_STORAGE, "tearing down CarStorageMonitoringService");
+        Log.i(TAG, "tearing down CarStorageMonitoringService");
         mUptimeTracker.onDestroy();
         mOnShutdownReboot.clearActions();
     }
@@ -104,6 +173,9 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         writer.println("*CarStorageMonitoringService*");
         writer.println("last wear information retrieved: " +
             mWearInformation.map(WearInformation::toString).orElse("missing"));
+        writer.println("wear change history: " +
+            mWearEstimateChanges.stream().map(WearEstimateChange::toString).reduce("",
+                (String s, String t) -> s + "\n" + t));
     }
 
     // ICarStorageMonitoring implementation
@@ -122,6 +194,13 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
         return mWearInformation.map(wi ->
                 new WearEstimate(wi.lifetimeEstimateA,wi.lifetimeEstimateB)).orElse(
-                    new WearEstimate(WearEstimate.UNKNOWN, WearEstimate.UNKNOWN));
+                    WearEstimate.UNKNOWN_ESTIMATE);
+    }
+
+    @Override
+    public List<WearEstimateChange> getWearEstimateHistory() {
+        mStorageMonitoringPermission.assertGranted();
+
+        return mWearEstimateChanges;
     }
 }
