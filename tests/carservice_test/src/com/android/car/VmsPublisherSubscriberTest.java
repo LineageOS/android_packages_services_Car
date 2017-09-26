@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.VmsPublisherClientServiceTest.javaClassToComponent;
+
 import android.annotation.ArrayRes;
 import android.car.Car;
 import android.car.VehicleAreaType;
@@ -95,8 +97,11 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
             @Override
             public String[] getStringArray(@ArrayRes int id) throws NotFoundException {
                 if (id == com.android.car.R.array.vmsPublisherClients) {
-                    return new String[]{"com.android.car.test/.VmsPublisherClientMockService"};
+                    return new String[] {
+                            javaClassToComponent(getContext(), VmsPublisherClientMockService.class)
+                    };
                 }
+
                 return super.getStringArray(id);
             }
         };
@@ -174,7 +179,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         vmsSubscriberManager.subscribe(SUBSCRIBED_LAYER);
 
         assertTrue(mAvailabilitySemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(AVAILABLE_ASSOCIATED_LAYERS_WITH_SUBSCRIBED_LAYER, clientCallback.getAvailalbeLayers());
+        assertEquals(AVAILABLE_ASSOCIATED_LAYERS_WITH_SUBSCRIBED_LAYER, clientCallback.getAvailableLayers());
     }
 
     /**
@@ -189,7 +194,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         vmsSubscriberManager.registerClientCallback(clientCallback);
 
         assertTrue(mAvailabilitySemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(AVAILABLE_ASSOCIATED_LAYERS, clientCallback.getAvailalbeLayers());
+        assertEquals(AVAILABLE_ASSOCIATED_LAYERS, clientCallback.getAvailableLayers());
     }
 
     private class HalHandler implements MockedVehicleHal.VehicleHalPropertyHandler {
@@ -223,7 +228,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
             return mPayload;
         }
 
-        public List<VmsLayer> getAvailalbeLayers() {
+        public List<VmsLayer> getAvailableLayers() {
             return mAvailableLayers;
         }
     }

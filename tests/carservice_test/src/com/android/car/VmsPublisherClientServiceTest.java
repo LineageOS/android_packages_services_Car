@@ -24,12 +24,12 @@ import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
+import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
@@ -82,8 +82,12 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
             @Override
             public String[] getStringArray(@ArrayRes int id) throws NotFoundException {
                 if (id == R.array.vmsPublisherClients) {
-                    return new String[]{"com.android.car.test/.SimpleVmsPublisherClientService"};
+                    return new String[] {
+                            javaClassToComponent(
+                                    getContext(), SimpleVmsPublisherClientService.class)
+                    };
                 }
+
                 return super.getStringArray(id);
             }
         };
@@ -124,6 +128,10 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
         super.tearDown();
     }
 
+    static String javaClassToComponent(Context context, Class<?> clazz) {
+        return context.getPackageName() +  "/" + clazz.getName();
+    }
+
     /**
      * The method setUp initializes all the Car services, including the VmsPublisherService.
      * The VmsPublisherService will start and configure its list of clients. This list was
@@ -159,7 +167,7 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
         public synchronized void onPropertySet(VehiclePropValue value) {
             mValue = value;
 
-            // If this is the data message release the semaphone so the test can continue.
+            // If this is the data message release the semaphore so the test can continue.
             ArrayList<Integer> int32Values = value.value.int32Values;
             if (int32Values.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE) ==
                     VmsMessageType.DATA) {
