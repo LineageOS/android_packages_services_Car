@@ -53,8 +53,6 @@ LOCAL_CFLAGS := $(bootio_cflags)
 LOCAL_SHARED_LIBRARIES := $(bootio_shared_libs)
 LOCAL_PROTOC_OPTIMIZE_TYPE := lite
 LOCAL_SRC_FILES := $(bootio_lib_src_files)
-# Clang is required because of C++14
-LOCAL_CLANG := true
 
 include $(BUILD_SHARED_LIBRARY)
 
@@ -72,7 +70,5 @@ LOCAL_SHARED_LIBRARIES := \
 
 LOCAL_INIT_RC := bootio.rc
 LOCAL_SRC_FILES := $(bootio_src_files)
-# Clang is required because of C++14
-LOCAL_CLANG := true
 
 include $(BUILD_EXECUTABLE)
