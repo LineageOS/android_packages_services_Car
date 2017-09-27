@@ -1,5 +1,5 @@
 # bootio command
-type bootio, domain;
+type bootio, domain, coredomain;
 type bootio_exec, exec_type, file_type;
 
 init_daemon_domain(bootio)
