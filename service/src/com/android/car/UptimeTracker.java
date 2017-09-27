@@ -19,6 +19,7 @@ package com.android.car;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.annotation.Nullable;
 import android.os.SystemClock;
 import android.util.JsonReader;
 import android.util.JsonWriter;
@@ -66,13 +67,26 @@ public class UptimeTracker {
         void cancelAll();
     }
 
-    // note: this implementation does not account for time spent in "suspend" mode
     private static final class DefaultTimingProvider implements TimingProvider {
-        private ScheduledExecutorService mExecutor = newSingleThreadScheduledExecutor();
+        @Nullable
+        private final SystemInterface mSystemInterface;
+        private final ScheduledExecutorService mExecutor = newSingleThreadScheduledExecutor();
+
+        DefaultTimingProvider() {
+            this(null);
+        }
+
+        DefaultTimingProvider(SystemInterface systemInterface) {
+            mSystemInterface = systemInterface;
+        }
 
         @Override
         public long getCurrentRealtime() {
-            return SystemClock.uptimeMillis();
+            if (mSystemInterface != null) {
+                return mSystemInterface.getUptime(false);
+            } else {
+                return SystemClock.uptimeMillis();
+            }
         }
 
         @Override
@@ -125,6 +139,10 @@ public class UptimeTracker {
 
     public UptimeTracker(File file, long snapshotInterval) {
         this(file, snapshotInterval, new DefaultTimingProvider());
+    }
+
+    UptimeTracker(File file, long snapshotInterval, SystemInterface systemInterface) {
+        this(file, snapshotInterval, new DefaultTimingProvider(systemInterface));
     }
 
     // By default, SystemClock::elapsedRealtime is used as the source of the uptime clock

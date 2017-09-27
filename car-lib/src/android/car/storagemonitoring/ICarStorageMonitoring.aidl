@@ -17,6 +17,7 @@
 package android.car.storagemonitoring;
 
 import android.car.storagemonitoring.WearEstimate;
+import android.car.storagemonitoring.WearEstimateChange;
 
 /** @hide */
 interface ICarStorageMonitoring {
@@ -29,4 +30,9 @@ interface ICarStorageMonitoring {
    * Returns the current wear estimate indicators.
    */
   WearEstimate getWearEstimate() = 2;
+
+  /**
+   * Returns the list of all observed wear estimate changes.
+   */
+  List<WearEstimateChange> getWearEstimateHistory() = 3;
 }

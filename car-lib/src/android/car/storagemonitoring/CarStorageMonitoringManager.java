@@ -15,12 +15,17 @@
  */
 package android.car.storagemonitoring;
 
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
-import android.car.CarApiUtil;
+import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.os.IBinder;
 import android.os.RemoteException;
+import java.util.Collections;
+import java.util.List;
+
+import static android.car.CarApiUtil.checkCarNotConnectedExceptionFromCarService;
 
 /**
  * API for retrieving information and metrics about the flash storage.
@@ -36,12 +41,16 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
     public static final int PRE_EOL_INFO_WARNING = 2;
     public static final int PRE_EOL_INFO_URGENT = 3;
 
-    /** @hide */
+    /**
+     * @hide
+     */
     public CarStorageMonitoringManager(IBinder service) {
         mService = ICarStorageMonitoring.Stub.asInterface(service);
     }
 
-    /** @hide */
+    /**
+     * @hide
+     */
     @Override
     public void onCarDisconnected() {
     }
@@ -54,14 +63,13 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      *
      * It will return either PRE_EOL_INFO_UNKNOWN if the value can't be determined,
      * or one of PRE_EOL_INFO_{NORMAL|WARNING|URGENT} depending on the device state.
-     * @return
-     * @throws CarNotConnectedException
      */
+    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
     public int getPreEolIndicatorStatus() throws CarNotConnectedException {
         try {
             return mService.getPreEolIndicatorStatus();
         } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
+            checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
             throw new CarNotConnectedException();
         }
@@ -76,19 +84,39 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * Current technology in common automotive usage offers estimates in 10% increments.
      *
      * If either or both indicators are not available, they will be reported as UNKNOWN.
-     * @return
-     * @throws CarNotConnectedException
      */
+    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
     public WearEstimate getWearEstimate() throws CarNotConnectedException {
         try {
             return mService.getWearEstimate();
         } catch (IllegalStateException e) {
-            CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
+            checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
             throw new CarNotConnectedException();
         }
-        return new WearEstimate(WearEstimate.UNKNOWN, WearEstimate.UNKNOWN);
+        return WearEstimate.UNKNOWN_ESTIMATE;
     }
 
+    /**
+     * This method returns a list of all changes in wear estimate indicators detected during the
+     * lifetime of the system.
+     *
+     * The indicators are not guaranteed to persist across a factory reset.
+     *
+     * The indicators are guaranteed to be a lower-bound on the actual wear of the storage.
+     * Current technology in common automotive usage offers estimates in 10% increments.
+     *
+     * If no indicators are available, an empty list will be returned.
+     */
+    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    public List<WearEstimateChange> getWearEstimateHistory() throws CarNotConnectedException {
+        try {
+            return mService.getWearEstimateHistory();
+        } catch (IllegalStateException e) {
+            checkCarNotConnectedExceptionFromCarService(e);
+        } catch (RemoteException e) {
+            throw new CarNotConnectedException();
+        }
+        return Collections.emptyList();
+    }
 }
-
