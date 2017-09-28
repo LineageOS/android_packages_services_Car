@@ -208,7 +208,12 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         }
         int focusedStackId = -1;
         try {
-            focusedStackId = mAm.getFocusedStackId();
+            // TODO(b/66955160): Someone on the Auto-team should probably re-work the code in the
+            // synchronized block below based on this new API.
+            final StackInfo focusedStackInfo = mAm.getFocusedStackInfo();
+            if (focusedStackInfo != null) {
+                focusedStackId = focusedStackInfo.stackId;
+            }
         } catch (RemoteException e) {
             Log.e(CarLog.TAG_AM, "cannot getFocusedStackId", e);
             return;
@@ -251,16 +256,9 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     }
 
     public StackInfo getFocusedStackForTopActivity(ComponentName activity) {
-        int focusedStackId = -1;
-        try {
-            focusedStackId = mAm.getFocusedStackId();
-        } catch (RemoteException e) {
-            Log.e(CarLog.TAG_AM, "cannot getFocusedStackId", e);
-            return null;
-        }
         StackInfo focusedStack;
         try {
-            focusedStack = mAm.getStackInfo(focusedStackId);
+            focusedStack = mAm.getFocusedStackInfo();
         } catch (RemoteException e) {
             Log.e(CarLog.TAG_AM, "cannot getFocusedStackId", e);
             return null;
