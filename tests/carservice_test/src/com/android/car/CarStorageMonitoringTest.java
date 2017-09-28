@@ -162,6 +162,8 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     protected void setUp() throws Exception {
         super.setUp();
 
+        fakeBootCompletedEvent();
+
         mCarStorageMonitoringManager =
             (CarStorageMonitoringManager) getCar().getCarManager(Car.STORAGE_MONITORING_SERVICE);
     }

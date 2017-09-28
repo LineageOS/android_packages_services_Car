@@ -58,9 +58,10 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
     private final CarPermission mStorageMonitoringPermission;
 
-    private UptimeTracker mUptimeTracker;
+    private UptimeTracker mUptimeTracker = null;
     private Optional<WearInformation> mWearInformation = Optional.empty();
-    private List<WearEstimateChange> mWearEstimateChanges;
+    private List<WearEstimateChange> mWearEstimateChanges = Collections.emptyList();
+    private boolean mInitialized = false;
 
     public CarStorageMonitoringService(Context context, SystemInterface systemInterface) {
         mContext = context;
@@ -72,6 +73,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         mStorageMonitoringPermission =
                 new CarPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
         mWearEstimateChanges = Collections.emptyList();
+        systemInterface.scheduleActionForBootCompleted(this::doInitServiceIfNeeded,
+            Duration.ofSeconds(10));
     }
 
     private static long getUptimeSnapshotIntervalMs() {
@@ -141,11 +144,18 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
     @Override
     public void init() {
-        Log.i(TAG, "starting up CarStorageMonitoringService");
+        Log.d(TAG, "CarStorageMonitoringService init()");
 
         mUptimeTracker = new UptimeTracker(mUptimeTrackerFile,
-                getUptimeSnapshotIntervalMs(),
-                mSystemInterface);
+            getUptimeSnapshotIntervalMs(),
+            mSystemInterface);
+    }
+
+    private synchronized void doInitServiceIfNeeded() {
+        if (mInitialized) return;
+
+        Log.d(TAG, "initializing CarStorageMonitoringService");
+
         mWearInformation = loadWearInformation();
 
         // TODO(egranata): can this be done lazily?
@@ -159,17 +169,26 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                         R.integer.acceptableHoursPerOnePercentFlashWear));
 
         mOnShutdownReboot.addAction((Context ctx, Intent intent) -> release());
+
+        Log.i(TAG, "CarStorageMonitoringService is up");
+
+        mInitialized = true;
     }
 
     @Override
     public void release() {
         Log.i(TAG, "tearing down CarStorageMonitoringService");
-        mUptimeTracker.onDestroy();
+        if (mUptimeTracker != null) {
+            mUptimeTracker.onDestroy();
+        }
         mOnShutdownReboot.clearActions();
     }
 
     @Override
     public void dump(PrintWriter writer) {
+        mStorageMonitoringPermission.assertGranted();
+        doInitServiceIfNeeded();
+
         writer.println("*CarStorageMonitoringService*");
         writer.println("last wear information retrieved: " +
             mWearInformation.map(WearInformation::toString).orElse("missing"));
@@ -183,6 +202,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     @Override
     public int getPreEolIndicatorStatus() {
         mStorageMonitoringPermission.assertGranted();
+        doInitServiceIfNeeded();
 
         return mWearInformation.map(wi -> wi.preEolInfo)
                 .orElse(WearInformation.UNKNOWN_PRE_EOL_INFO);
@@ -191,6 +211,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     @Override
     public WearEstimate getWearEstimate() {
         mStorageMonitoringPermission.assertGranted();
+        doInitServiceIfNeeded();
 
         return mWearInformation.map(wi ->
                 new WearEstimate(wi.lifetimeEstimateA,wi.lifetimeEstimateB)).orElse(
@@ -200,6 +221,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     @Override
     public List<WearEstimateChange> getWearEstimateHistory() {
         mStorageMonitoringPermission.assertGranted();
+        doInitServiceIfNeeded();
 
         return mWearEstimateChanges;
     }
