@@ -382,8 +382,8 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  Print this help text.");
             pw.println("\tday-night-mode [day|night|sensor]");
             pw.println("\t  Force into day/night mode or restore to auto.");
-            pw.println("\tinject-event zoned-boolean propertyType zone [true|false]");
-            pw.println("\t  Inject a Boolean HAL Event. ");
+            pw.println("\tday-night-mode [day|night|sensor]");
+            pw.println("\t  Force into day/night mode or restore to auto.");
         }
 
         public void exec(String[] args, PrintWriter writer) {

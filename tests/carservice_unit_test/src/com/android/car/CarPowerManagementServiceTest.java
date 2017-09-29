@@ -30,6 +30,7 @@ import com.android.car.storagemonitoring.WearInformationProvider;
 import com.android.car.test.utils.TemporaryDirectory;
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -366,6 +367,9 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
             }
             return mFilesDir.getDirectory();
         }
+
+        @Override
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {}
 
         void tearDown() {
             if (mFilesDir != null) {

@@ -32,6 +32,7 @@ import android.os.SystemClock;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
+import android.util.Pair;
 import com.android.car.MockedCarTestBase.FakeSystemInterface.UptimeProvider;
 import com.android.car.storagemonitoring.WearInformation;
 import com.android.car.storagemonitoring.WearInformationProvider;
@@ -44,8 +45,14 @@ import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -95,6 +102,10 @@ public class MockedCarTestBase extends AndroidTestCase {
 
     protected synchronized void setUptimeProvider(UptimeProvider uptimeProvider) {
         mFakeSystemInterface.mUptimeProvider = uptimeProvider;
+    }
+
+    protected synchronized void fakeBootCompletedEvent() {
+        mFakeSystemInterface.executeBootCompletedActions();
     }
 
     @Override
@@ -282,6 +293,8 @@ public class MockedCarTestBase extends AndroidTestCase {
         }
         private final FakeWearInformationProvider mWearInformationProvider =
                 new FakeWearInformationProvider();
+        private final List<Pair<Runnable, Duration>> mActionsList = new ArrayList<>();
+
         private TemporaryDirectory mFilesDir = null;
         private UptimeProvider mUptimeProvider = null;
 
@@ -353,11 +366,23 @@ public class MockedCarTestBase extends AndroidTestCase {
         }
 
         @Override
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {
+            mActionsList.add(Pair.create(action, delay));
+            mActionsList.sort(Comparator.comparing(d -> d.second));
+        }
+
+        @Override
         public long getUptime(boolean includeDeepSleepTime) {
             if (mUptimeProvider != null) {
                 return mUptimeProvider.getUptime(includeDeepSleepTime);
             }
             return super.getUptime(includeDeepSleepTime);
+        }
+
+        void executeBootCompletedActions() {
+            for (Pair<Runnable, Duration> action : mActionsList) {
+                action.first.run();
+            }
         }
 
         void tearDown() {
