@@ -90,4 +90,11 @@
          about the total running time of the head-unit. A shutdown or reboot of the head-unit
           will always cause a flush of the uptime information, regardless of this setting. -->
     <integer name="uptimeHoursIntervalBetweenUptimeDataWrite">5</integer>
+
+    <!-- The name of an activity to be launched by CarService whenever it detects a change in the
+         level of wear of the flash storage. Value must either be an empty string, which means that
+         no activity shall be launched, or must be in the format of a flattened ComponentName and
+         reference a valid activity. It is strongly recommended that the chosen activity be
+         protected with the android.car.permission.STORAGE_MONITORING permission. -->
+    <string name="activityHandlerForFlashWearChanges">com.google.android.car.defaultstoragemonitoringcompanionapp/.MainActivity</string>
 </resources>
