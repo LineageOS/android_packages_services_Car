@@ -25,10 +25,14 @@ import com.android.car.test.utils.TemporaryFile;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import java.io.FileWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.time.Instant;
+import java.util.List;
 import junit.framework.TestCase;
+import org.json.JSONObject;
 
 /**
  * Tests the storage monitoring API in CarService.
@@ -147,5 +151,124 @@ public class CarStorageMonitoringTest extends TestCase {
         JsonReader jsonReader = new JsonReader(stringReader);
         WearEstimate newWearEstimate = new WearEstimate(jsonReader);
         assertEquals(originalWearEstimate, newWearEstimate);
+    }
+
+    public void testWearEstimateRecordJson() throws Exception {
+        try (TemporaryFile temporaryFile = new TemporaryFile(TAG)) {
+            WearEstimateRecord originalWearEstimateRecord = new WearEstimateRecord(new WearEstimate(10, 20),
+                new WearEstimate(10, 30), 5000, Instant.ofEpochMilli(1000));
+            try (JsonWriter jsonWriter = new JsonWriter(new FileWriter(temporaryFile.getFile()))) {
+                originalWearEstimateRecord.writeToJson(jsonWriter);
+            }
+            JSONObject jsonObject = new JSONObject(
+                    new String(Files.readAllBytes(temporaryFile.getPath())));
+            WearEstimateRecord newWearEstimateRecord = new WearEstimateRecord(jsonObject);
+            assertEquals(originalWearEstimateRecord, newWearEstimateRecord);
+        }
+    }
+
+    public void testWearEstimateRecordEquality() throws Exception {
+        WearEstimateRecord wearEstimateRecord1 = new WearEstimateRecord(WearEstimate.UNKNOWN_ESTIMATE,
+                new WearEstimate(10, 20), 5000, Instant.ofEpochMilli(2000));
+        WearEstimateRecord wearEstimateRecord2 = new WearEstimateRecord(WearEstimate.UNKNOWN_ESTIMATE,
+            new WearEstimate(10, 20), 5000, Instant.ofEpochMilli(2000));
+        WearEstimateRecord wearEstimateRecord3 = new WearEstimateRecord(WearEstimate.UNKNOWN_ESTIMATE,
+            new WearEstimate(10, 40), 5000, Instant.ofEpochMilli(1000));
+
+        assertEquals(wearEstimateRecord1, wearEstimateRecord1);
+        assertEquals(wearEstimateRecord1, wearEstimateRecord2);
+        assertNotSame(wearEstimateRecord1, wearEstimateRecord3);
+    }
+
+    public void testWearHistoryJson() throws Exception {
+        try (TemporaryFile temporaryFile = new TemporaryFile(TAG)) {
+            WearEstimateRecord wearEstimateRecord1 = new WearEstimateRecord(
+                WearEstimate.UNKNOWN_ESTIMATE,
+                new WearEstimate(10, 20), 5000, Instant.ofEpochMilli(2000));
+            WearEstimateRecord wearEstimateRecord2 = new WearEstimateRecord(
+                wearEstimateRecord1.getOldWearEstimate(),
+                new WearEstimate(10, 40), 9000, Instant.ofEpochMilli(16000));
+            WearEstimateRecord wearEstimateRecord3 = new WearEstimateRecord(
+                wearEstimateRecord2.getOldWearEstimate(),
+                new WearEstimate(20, 40), 12000, Instant.ofEpochMilli(21000));
+            WearHistory originalWearHistory = WearHistory.fromRecords(wearEstimateRecord1,
+                wearEstimateRecord2, wearEstimateRecord3);
+            try (JsonWriter jsonWriter = new JsonWriter(new FileWriter(temporaryFile.getFile()))) {
+                originalWearHistory.writeToJson(jsonWriter);
+            }
+            JSONObject jsonObject = new JSONObject(
+                new String(Files.readAllBytes(temporaryFile.getPath())));
+            WearHistory newWearHistory = new WearHistory(jsonObject);
+            assertEquals(originalWearHistory, newWearHistory);
+        }
+    }
+
+    public void testWearHistoryEquality() throws Exception {
+        WearEstimateRecord wearEstimateRecord1 = new WearEstimateRecord(
+            WearEstimate.UNKNOWN_ESTIMATE,
+            new WearEstimate(10, 20), 5000, Instant.ofEpochMilli(2000));
+        WearEstimateRecord wearEstimateRecord2 = new WearEstimateRecord(
+            wearEstimateRecord1.getOldWearEstimate(),
+            new WearEstimate(10, 40), 9000, Instant.ofEpochMilli(16000));
+        WearEstimateRecord wearEstimateRecord3 = new WearEstimateRecord(
+            wearEstimateRecord2.getOldWearEstimate(),
+            new WearEstimate(20, 40), 12000, Instant.ofEpochMilli(21000));
+        WearEstimateRecord wearEstimateRecord4 = new WearEstimateRecord(
+            wearEstimateRecord3.getOldWearEstimate(),
+            new WearEstimate(30, 50), 17000, Instant.ofEpochMilli(34000));
+        WearEstimateRecord wearEstimateRecord5 = new WearEstimateRecord(
+            wearEstimateRecord3.getOldWearEstimate(),
+            new WearEstimate(20, 50), 15000, Instant.ofEpochMilli(34000));
+
+        WearHistory wearHistory1 = WearHistory.fromRecords(wearEstimateRecord1,
+            wearEstimateRecord2, wearEstimateRecord3, wearEstimateRecord4);
+        WearHistory wearHistory2 = WearHistory.fromRecords(wearEstimateRecord4,
+            wearEstimateRecord1, wearEstimateRecord2, wearEstimateRecord3);
+        WearHistory wearHistory3 = WearHistory.fromRecords(wearEstimateRecord1,
+            wearEstimateRecord2, wearEstimateRecord3, wearEstimateRecord5);
+
+        assertEquals(wearHistory1, wearHistory1);
+        assertEquals(wearHistory1, wearHistory2);
+        assertNotSame(wearHistory1, wearHistory3);
+    }
+
+    public void testWearHistoryToChanges() {
+        WearEstimateRecord wearEstimateRecord1 = new WearEstimateRecord(
+            WearEstimate.UNKNOWN_ESTIMATE,
+            new WearEstimate(10, 20), 3600000, Instant.ofEpochMilli(2000));
+        WearEstimateRecord wearEstimateRecord2 = new WearEstimateRecord(
+            wearEstimateRecord1.getOldWearEstimate(),
+            new WearEstimate(10, 40), 172000000, Instant.ofEpochMilli(16000));
+        WearEstimateRecord wearEstimateRecord3 = new WearEstimateRecord(
+            wearEstimateRecord2.getOldWearEstimate(),
+            new WearEstimate(20, 40), 172000001, Instant.ofEpochMilli(21000));
+
+        WearHistory wearHistory = WearHistory.fromRecords(wearEstimateRecord1,
+            wearEstimateRecord2, wearEstimateRecord3);
+
+        List<WearEstimateChange> wearEstimateChanges = wearHistory.toWearEstimateChanges(1);
+
+        assertEquals(3, wearEstimateChanges.size());
+        WearEstimateChange unknownToOne = wearEstimateChanges.get(0);
+        WearEstimateChange oneToTwo = wearEstimateChanges.get(1);
+        WearEstimateChange twoToThree = wearEstimateChanges.get(2);
+
+        assertEquals(unknownToOne.oldEstimate, wearEstimateRecord1.getOldWearEstimate());
+        assertEquals(unknownToOne.newEstimate, wearEstimateRecord1.getNewWearEstimate());
+        assertEquals(unknownToOne.uptimeAtChange, wearEstimateRecord1.getTotalCarServiceUptime());
+        assertEquals(unknownToOne.dateAtChange, wearEstimateRecord1.getUnixTimestamp());
+        assertTrue(unknownToOne.isAcceptableDegradation);
+
+        assertEquals(oneToTwo.oldEstimate, wearEstimateRecord2.getOldWearEstimate());
+        assertEquals(oneToTwo.newEstimate, wearEstimateRecord2.getNewWearEstimate());
+        assertEquals(oneToTwo.uptimeAtChange, wearEstimateRecord2.getTotalCarServiceUptime());
+        assertEquals(oneToTwo.dateAtChange, wearEstimateRecord2.getUnixTimestamp());
+        assertTrue(oneToTwo.isAcceptableDegradation);
+
+        assertEquals(twoToThree.oldEstimate, wearEstimateRecord3.getOldWearEstimate());
+        assertEquals(twoToThree.newEstimate, wearEstimateRecord3.getNewWearEstimate());
+        assertEquals(twoToThree.uptimeAtChange, wearEstimateRecord3.getTotalCarServiceUptime());
+        assertEquals(twoToThree.dateAtChange, wearEstimateRecord3.getUnixTimestamp());
+        assertFalse(twoToThree.isAcceptableDegradation);
     }
 }

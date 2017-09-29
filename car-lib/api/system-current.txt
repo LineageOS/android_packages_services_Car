@@ -1006,6 +1006,7 @@ package android.car.storagemonitoring {
   public final class CarStorageMonitoringManager {
     method public int getPreEolIndicatorStatus() throws android.car.CarNotConnectedException;
     method public android.car.storagemonitoring.WearEstimate getWearEstimate() throws android.car.CarNotConnectedException;
+    method public java.util.List<android.car.storagemonitoring.WearEstimateChange> getWearEstimateHistory() throws android.car.CarNotConnectedException;
     field public static final int PRE_EOL_INFO_NORMAL = 1; // 0x1
     field public static final int PRE_EOL_INFO_UNKNOWN = 0; // 0x0
     field public static final int PRE_EOL_INFO_URGENT = 3; // 0x3

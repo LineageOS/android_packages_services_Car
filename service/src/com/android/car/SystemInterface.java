@@ -16,17 +16,28 @@
 
 package com.android.car;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.display.DisplayManager;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Display;
 import com.android.car.storagemonitoring.EMmcWearInformationProvider;
 import com.android.car.storagemonitoring.UfsWearInformationProvider;
 import com.android.car.storagemonitoring.WearInformationProvider;
 import java.io.File;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Interface to abstract all system interaction.
@@ -47,6 +58,7 @@ public abstract class SystemInterface {
     public abstract boolean isWakeupCausedByTimer();
     public abstract WearInformationProvider[] getFlashWearInformationProviders();
     public abstract File getFilesDir();
+    public abstract void scheduleActionForBootCompleted(Runnable action, Duration delay);
 
     public final long getUptime() {
         return getUptime(EXCLUDE_DEEP_SLEEP_TIME);
@@ -62,6 +74,9 @@ public abstract class SystemInterface {
     }
 
     private static class SystemInterfaceImpl extends SystemInterface {
+        private final static Duration MIN_BOOT_COMPLETE_ACTION_DELAY = Duration.ofSeconds(10);
+
+        private final Context mContext;
         private final PowerManager mPowerManager;
         private final DisplayManager mDisplayManager;
         private final WakeLock mFullWakeLock;
@@ -71,8 +86,22 @@ public abstract class SystemInterface {
         private final File mFilesDir;
         private CarPowerManagementService mService;
         private boolean mDisplayStateSet;
+        private List<Pair<Runnable, Duration>> mActionsList = new ArrayList<>();
+        private ScheduledExecutorService mExecutorService;
+        private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+                    for (Pair<Runnable, Duration> action : mActionsList) {
+                        mExecutorService.schedule(action.first,
+                            action.second.toMillis(), TimeUnit.MILLISECONDS);
+                    }
+                }
+            }
+        };
 
         private SystemInterfaceImpl(Context context) {
+            mContext = context;
             mPowerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
             mFullWakeLock = mPowerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
@@ -188,6 +217,21 @@ public abstract class SystemInterface {
         @Override
         public File getFilesDir() {
             return mFilesDir;
+        }
+
+        @Override
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {
+            if (MIN_BOOT_COMPLETE_ACTION_DELAY.compareTo(delay) < 0) {
+                // TODO: consider adding some degree of randomness here
+                delay = MIN_BOOT_COMPLETE_ACTION_DELAY;
+            }
+            if (mActionsList.isEmpty()) {
+                final int corePoolSize = 1;
+                mExecutorService = Executors.newScheduledThreadPool(corePoolSize);
+                IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BOOT_COMPLETED);
+                mContext.registerReceiver(mBroadcastReceiver, intentFilter);
+            }
+            mActionsList.add(Pair.create(action, delay));
         }
 
         private void handleMainDisplayChanged() {
