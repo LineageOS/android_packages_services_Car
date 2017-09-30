@@ -20,6 +20,8 @@ import android.car.Car;
 import android.car.storagemonitoring.ICarStorageMonitoring;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.JsonWriter;
@@ -37,6 +39,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -45,6 +48,7 @@ import org.json.JSONException;
 public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         implements CarServiceBase {
     private static final String TAG = CarLog.TAG_STORAGE;
+    private static final int MIN_WEAR_ESTIMATE_OF_CONCERN = 80;
 
     static final String UPTIME_TRACKER_FILENAME = "service_uptime";
     static final String WEAR_INFO_FILENAME = "wear_info";
@@ -151,6 +155,33 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             mSystemInterface);
     }
 
+    private void launchWearChangeActivity() {
+        final String activityPath = mContext.getResources().getString(
+            R.string.activityHandlerForFlashWearChanges);
+        if (activityPath.isEmpty()) return;
+        try {
+            final ComponentName activityComponent =
+                Objects.requireNonNull(ComponentName.unflattenFromString(activityPath));
+            Intent intent = new Intent();
+            intent.setComponent(activityComponent);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivity(intent);
+        } catch (ActivityNotFoundException | NullPointerException e) {
+            Log.e(TAG,
+                "value of activityHandlerForFlashWearChanges invalid non-empty string " +
+                    activityPath, e);
+        }
+    }
+
+    private static void logOnAdverseWearLevel(WearInformation wearInformation) {
+        if (wearInformation.preEolInfo > WearInformation.PRE_EOL_INFO_NORMAL ||
+            Math.max(wearInformation.lifetimeEstimateA,
+                wearInformation.lifetimeEstimateB) >= MIN_WEAR_ESTIMATE_OF_CONCERN) {
+            Log.w(TAG, "flash storage reached wear a level that requires attention: "
+                    + wearInformation);
+        }
+    }
+
     private synchronized void doInitServiceIfNeeded() {
         if (mInitialized) return;
 
@@ -160,7 +191,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
         // TODO(egranata): can this be done lazily?
         final WearHistory wearHistory = loadWearHistory();
-        if (addEventIfNeeded(wearHistory)) {
+        final boolean didWearChangeHappen = addEventIfNeeded(wearHistory);
+        if (didWearChangeHappen) {
             storeWearHistory(wearHistory);
         }
         Log.d(TAG, "wear history being tracked is " + wearHistory);
@@ -169,6 +201,12 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                         R.integer.acceptableHoursPerOnePercentFlashWear));
 
         mOnShutdownReboot.addAction((Context ctx, Intent intent) -> release());
+
+        mWearInformation.ifPresent(CarStorageMonitoringService::logOnAdverseWearLevel);
+
+        if (didWearChangeHappen) {
+            launchWearChangeActivity();
+        }
 
         Log.i(TAG, "CarStorageMonitoringService is up");
 

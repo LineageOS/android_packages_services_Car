@@ -31,6 +31,7 @@ PRODUCT_PACKAGES += \
 
 # This is for testing
 PRODUCT_PACKAGES += \
+    DefaultStorageMonitoringCompanionApp \
     EmbeddedKitchenSinkApp \
     VmsPublisherClientSample \
     VmsSubscriberClientSample \
