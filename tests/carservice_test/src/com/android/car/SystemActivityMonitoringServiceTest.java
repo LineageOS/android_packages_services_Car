@@ -17,210 +17,102 @@ package com.android.car;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
-import android.hardware.automotive.vehicle.V2_0.VehicleDrivingStatus;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
-import android.os.SystemClock;
+import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
-import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @MediumTest
-public class SystemActivityMonitoringServiceTest extends MockedCarTestBase {
-    private static final long TIMEOUT_MS = 3000;
-    private static final long POLL_INTERVAL_MS = 50;
-    private static final Semaphore sAvailable = new Semaphore(0);
+public class SystemActivityMonitoringServiceTest extends AndroidTestCase {
+    private static final long ACTIVITY_TIME_OUT = 5000;
 
-    private final DrivingStatusHandler mDrivingStatusHandler = new DrivingStatusHandler();
+    private SystemActivityMonitoringService mService;
+    private Semaphore mSemaphore = new Semaphore(0);
+
+    private final TopTaskInfoContainer[] mTopTaskInfo = new TopTaskInfoContainer[1];
 
     @Override
-    protected synchronized void configureMockedHal() {
-        addProperty(VehicleProperty.DRIVING_STATUS, mDrivingStatusHandler)
-                .setAccess(VehiclePropertyAccess.READ);
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        mService = new SystemActivityMonitoringService(getContext());
+        mService.registerActivityLaunchListener(topTask -> {
+            if (!getTestContext().getPackageName().equals(topTask.topActivity.getPackageName())) {
+                return; // Ignore activities outside of this test case.
+            }
+            synchronized (mTopTaskInfo) {
+                mTopTaskInfo[0] = topTask;
+            }
+            mSemaphore.release();
+        });
     }
 
-    private void init(boolean drivingStatusRestricted) {
-        // Set no restriction to driving status, to avoid CarPackageManagerService to launch a
-        // blocking activity.
-        mDrivingStatusHandler.setDrivingStatusRestricted(drivingStatusRestricted);
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
 
-        // Due to asynchronous nature of Car Service initialization, if we won't wait we may inject
-        // an event while SensorHalService is not subscribed yet.
-        assertTrue(getMockedVehicleHal()
-                .waitForSubscriber(VehicleProperty.DRIVING_STATUS, TIMEOUT_MS));
-
-        VehiclePropValue injectValue =
-                VehiclePropValueBuilder.newBuilder(VehicleProperty.DRIVING_STATUS)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .addIntValue(0)
-                        .build();
-        getMockedVehicleHal().injectEvent(injectValue);
+        mService.registerActivityLaunchListener(null);
+        mService = null;
     }
 
-    public void testActivityLaunch() {
-        init(false);
-        List<TopTaskInfoContainer> taskList = new ArrayList<>();
-        SystemActivityMonitoringService systemActivityMonitoringService =
-                new SystemActivityMonitoringService(getContext());
-        systemActivityMonitoringService.registerActivityLaunchListener(
-                new SystemActivityMonitoringService.ActivityLaunchListener() {
-                    @Override
-                    public void onActivityLaunch(
-                            SystemActivityMonitoringService.TopTaskInfoContainer topTask) {
-                        taskList.add(topTask);
-                    }
-                });
-        getContext().startActivity(new Intent(getContext(), ActivityA.class));
-        verifyTopActivityPolling(taskList, 0, new ComponentName(getContext().getPackageName(),
-                ActivityA.class.getName()));
-        sAvailable.release();
+    public void testActivityLaunch() throws Exception {
+        ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
+        startActivity(getContext(), activityA);
+        assertTopTaskActivity(activityA);
 
-        verifyTopActivityPolling(taskList, 1, new ComponentName(getContext().getPackageName(),
-                ActivityB.class.getName()));
-        sAvailable.release();
-
-        verifyTopActivityPolling(taskList, 2, new ComponentName(getContext().getPackageName(),
-                ActivityC.class.getName()));
+        ComponentName activityB = toComponentName(getTestContext(), ActivityB.class);
+        startActivity(getContext(), activityB);
+        assertTopTaskActivity(activityB);
     }
 
-    public void testActivityBlocking() {
-        init(false);
-        Semaphore blocked = new Semaphore(0);
-        List<TopTaskInfoContainer> taskList = new ArrayList<>();
-        SystemActivityMonitoringService systemActivityMonitoringService =
-                new SystemActivityMonitoringService(getContext());
+    public void testActivityBlocking() throws Exception {
+        ComponentName blackListedActivity = toComponentName(getTestContext(), ActivityC.class);
+        ComponentName blockingActivity = toComponentName(getTestContext(), BlockingActivity.class);
+        Intent blockingIntent = new Intent();
+        blockingIntent.setComponent(blockingActivity);
 
-        ComponentName blackListedActivity = new ComponentName(getContext().getPackageName(),
-                ActivityC.class.getName());
-        ComponentName blockingActivity = new ComponentName(getContext().getPackageName(),
-                BlockingActivity.class.getName());
-        Intent newActivityIntent = new Intent();
-        newActivityIntent.setComponent(blockingActivity);
-
-        systemActivityMonitoringService.registerActivityLaunchListener(
-                new SystemActivityMonitoringService.ActivityLaunchListener() {
-                    @Override
-                    public void onActivityLaunch(
-                            SystemActivityMonitoringService.TopTaskInfoContainer topTask) {
-                        taskList.add(topTask);
-                        if (topTask.topActivity.equals(blackListedActivity)) {
-                            systemActivityMonitoringService.blockActivity(topTask,
-                                    newActivityIntent);
-                            blocked.release();
-                        }
-                    }
-                });
         // start a black listed activity
-        getContext().startActivity(new Intent(getContext(), ActivityC.class));
-        // wait for the listener to call blockActivity()
-        try {
-            blocked.tryAcquire(2, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            fail(e.getMessage());
-        }
-        // We should first receive the blackListedActivity launch,
-        // and later the blockActivity launch
-        verifyTopActivityPolling(taskList, 0, blackListedActivity);
-        verifyTopActivityPolling(taskList, 1, blockingActivity);
+        startActivity(getContext(), blackListedActivity);
+        assertTopTaskActivity(blackListedActivity);
+
+        // Instead of start activity, invoke blockActivity.
+        mService.blockActivity(mTopTaskInfo[0], blockingIntent);
+        assertTopTaskActivity(blockingActivity);
     }
 
-    private void verifyTopActivityPolling(
-            List<TopTaskInfoContainer> topTaskList, int i, ComponentName activity) {
-        boolean activityVerified = false;
-        int timeElapsedMs = 0;
-        try {
-            while (!activityVerified && timeElapsedMs <= TIMEOUT_MS) {
-                Thread.sleep(POLL_INTERVAL_MS);
-                timeElapsedMs += POLL_INTERVAL_MS;
-                if (topTaskList.size() <= i) continue;
-                TopTaskInfoContainer topTask = topTaskList.get(i);
-                if (topTask != null && topTask.topActivity.equals(activity)) {
-                    activityVerified = true;
-                    break;
-                }
-            }
-            assertEquals(true, activityVerified);
-        } catch (Exception e) {
-            fail(e.toString());
+    /** Activity that closes itself after some timeout to clean up the screen. */
+    public static class TempActivity extends Activity {
+        @Override
+        protected void onResume() {
+            super.onResume();
+            getMainThreadHandler().postDelayed(this::finish, ACTIVITY_TIME_OUT);
         }
     }
 
-    public static class ActivityA extends Activity {
-        @Override
-        protected void onPostResume() {
-            super.onPostResume();
-            // Wait until the activity launch event is consumed by the listener.
-            try {
-                if (!sAvailable.tryAcquire(2, TimeUnit.SECONDS)) {
-                    fail("Time out");
-                }
-            } catch (Exception e) {
-                fail(e.toString());
-            }
-            Intent intent = new Intent(this, ActivityB.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+    public static class ActivityA extends TempActivity {}
+    public static class ActivityB extends TempActivity {}
+    public static class ActivityC extends TempActivity {}
+    public static class BlockingActivity extends TempActivity {}
+
+    private void assertTopTaskActivity(ComponentName activity) throws Exception{
+        assertTrue(mSemaphore.tryAcquire(2, TimeUnit.SECONDS));
+        synchronized (mTopTaskInfo) {
+            assertEquals(activity, mTopTaskInfo[0].topActivity);
         }
     }
 
-    public static class ActivityB extends Activity {
-        @Override
-        protected void onPostResume() {
-            super.onPostResume();
-            // Wait until the activity launch event is consumed by the listener.
-            try {
-                if (!sAvailable.tryAcquire(2, TimeUnit.SECONDS)) {
-                    fail("Time out");
-                }
-            } catch (Exception e) {
-                fail(e.toString());
-            }
-            Intent intent = new Intent(this, ActivityC.class);
-            startActivity(intent);
-        }
+    private static ComponentName toComponentName(Context ctx, Class<?> cls) {
+        return ComponentName.createRelative(ctx, cls.getName());
     }
 
-    public static class ActivityC extends Activity {
-    }
-
-    public static class BlockingActivity extends Activity {
-    }
-
-    private class DrivingStatusHandler implements VehicleHalPropertyHandler {
-        int mDrivingStatus = VehicleDrivingStatus.UNRESTRICTED;
-
-        public void setDrivingStatusRestricted(boolean restricted) {
-            mDrivingStatus = restricted ? VehicleDrivingStatus.NO_VIDEO
-                    : VehicleDrivingStatus.UNRESTRICTED;
-        }
-
-        @Override
-        public void onPropertySet(VehiclePropValue value) {
-        }
-
-        @Override
-        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            return VehiclePropValueBuilder.newBuilder(VehicleProperty.DRIVING_STATUS)
-                    .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                    .addIntValue(mDrivingStatus)
-                    .build();
-        }
-
-        @Override
-        public void onPropertySubscribe(int property, int zones, float sampleRate) {
-        }
-
-        @Override
-        public void onPropertyUnsubscribe(int property) {
-        }
+    private static void startActivity(Context ctx, ComponentName name) {
+        Intent intent = new Intent();
+        intent.setComponent(name);
+        ctx.startActivity(intent);
     }
 }
