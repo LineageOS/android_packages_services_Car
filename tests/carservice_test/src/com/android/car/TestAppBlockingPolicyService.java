@@ -56,6 +56,7 @@ public class TestAppBlockingPolicyService extends CarAppBlockingPolicyService {
         } catch (NameNotFoundException e) {
             return null;
         }
+
         AppBlockingPackageInfo selfInfo = new AppBlockingPackageInfo(packageName, 0, 0, 0,
                 signatures, null);
         AppBlockingPackageInfo[] whitelists = new AppBlockingPackageInfo[] { selfInfo };
