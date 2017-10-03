@@ -37,17 +37,16 @@
                 <action android:name="android.car.content.pm.CarAppBlockingPolicyService"/>
             </intent-filter>
         </service>
-        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityA" />
-        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityB"
-            android:taskAffinity="com.android.car.carservicetest.activity"/>
-        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityC"
-            android:process="com.android.car.carservicetest.activityC"/>
-        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$BlockingActivity"
-            android:taskAffinity="com.android.car.carservicetest.block"/>
         <service android:name="com.android.car.SimpleVmsPublisherClientService"
                  android:exported="true"
         />
         <service android:name="com.android.car.VmsPublisherClientMockService"
                  android:exported="true" />
+
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityA"/>
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityB"/>
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityC"/>
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$BlockingActivity"
+                  android:taskAffinity="com.android.car.carservicetest.block"/>
     </application>
 </manifest>
