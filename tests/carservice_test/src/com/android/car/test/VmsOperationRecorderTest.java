@@ -21,9 +21,12 @@ import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsOperationRecorder;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.util.Log;
 
 import junit.framework.TestCase;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -53,6 +56,7 @@ public class VmsOperationRecorderTest extends TestCase {
 
     private TestWriter mWriter;
     private VmsOperationRecorder mRecorder;
+    private static final String TAG = "VmsOperationRecorderTest";
 
     private static final VmsLayer layer1 = new VmsLayer(1, 3, 2);
     private static final VmsLayer layer2 = new VmsLayer(2, 4, 3);
@@ -76,7 +80,7 @@ public class VmsOperationRecorderTest extends TestCase {
 
     public void testSubscribe() throws Exception {
         mRecorder.subscribe(layer1);
-        assertJsonMsgEquals("{'subscribe':{'layer':{'type':1,'subtype':3,'version':2}}}");
+        assertJsonMsgEquals("{'subscribe':{'layer':{'subtype':3,'type':1,'version':2}}}");
     }
 
     public void testUnsubscribe() throws Exception {
@@ -177,8 +181,65 @@ public class VmsOperationRecorderTest extends TestCase {
         // quotes instead, which gets replaced here.
         JSONObject expect = new JSONObject(expectJson.replace("'", "\""));
         JSONObject got = new JSONObject(mWriter.mMsg);
-        // Comparing the JSON strings works and is not flakey only because the JSON library
-        // generates a consistent string representation when object construction is consistent.
-        assertEquals(expect.toString(), got.toString());
+        assertTrue(similar(expect, got));
+    }
+
+    /*
+     * Determine if two JSONObjects are similar.
+     * They must contain the same set of names which must be associated with
+     * similar values.
+     */
+    private boolean similar(JSONObject expect, JSONObject got) {
+        try {
+            if (!expect.keySet().equals(got.keySet())) {
+                return false;
+            }
+
+            for (String key : expect.keySet()) {
+                Object valueExpect = expect.get(key);
+                Object valueGot = got.get(key);
+
+                if (valueExpect == valueGot) {
+                    continue;
+                }
+
+                if (valueExpect == null) {
+                    return false;
+                }
+
+                if (valueExpect instanceof JSONObject) {
+                    return similar((JSONObject) valueExpect, (JSONObject) valueGot);
+                } else if (valueExpect instanceof JSONArray) {
+                    // Equal JSONArray have the same length and one contains the other.
+                    JSONArray expectArray = (JSONArray) valueExpect;
+                    JSONArray gotArray = (JSONArray) valueGot;
+
+                    if (expectArray.length() != gotArray.length()) {
+                        return false;
+                    }
+
+                    for (int i = 0; i < expectArray.length(); i++) {
+                        boolean gotContainsSimilar = false;
+                        for (int j = 0; j < gotArray.length(); j++) {
+                            if (similar((JSONObject) expectArray.get(i),
+                                    (JSONObject) gotArray.get(j))) {
+                                gotContainsSimilar = true;
+                                break;
+                            }
+                        }
+                        if (!gotContainsSimilar) {
+                            return false;
+                        }
+                    }
+                } else if (!valueExpect.equals(valueGot)) {
+                    return false;
+                }
+            }
+
+        } catch (JSONException e) {
+            Log.d(TAG, "Could not compare JSONObjects: " + e);
+            return false;
+        }
+        return true;
     }
 }
