@@ -25,7 +25,7 @@ import json
 import sys
 import time
 
-import vhal_consts_2_1 as c
+import vhal_consts_2_0 as c
 
 # vhal_emulator depends on a custom Python package that requires installation
 # give user guidance should the import fail
