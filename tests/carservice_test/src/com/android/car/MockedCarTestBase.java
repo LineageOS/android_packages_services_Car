@@ -21,22 +21,26 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.hardware.automotive.vehicle.V2_0.VehicleDrivingStatus;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
 import android.util.Pair;
+import android.util.SparseArray;
+
 import com.android.car.MockedCarTestBase.FakeSystemInterface.UptimeProvider;
 import com.android.car.storagemonitoring.WearInformation;
 import com.android.car.storagemonitoring.WearInformationProvider;
 import com.android.car.test.utils.TemporaryDirectory;
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 import com.android.car.vehiclehal.test.MockedVehicleHal.DefaultPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.StaticPropertyHandler;
@@ -45,8 +49,6 @@ import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +76,10 @@ public class MockedCarTestBase extends AndroidTestCase {
 
     private final Semaphore mWaitForMain = new Semaphore(0);
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+
+    private final Map<VehiclePropConfigBuilder, VehicleHalPropertyHandler> mHalConfig =
+            new HashMap<>();
+    private final SparseArray<VehiclePropConfigBuilder> mPropToConfigBuilder = new SparseArray<>();
 
     private static final IBinder mCarServiceToken = new Binder();
     private static boolean mRealCarServiceReleased = false;
@@ -115,6 +121,10 @@ public class MockedCarTestBase extends AndroidTestCase {
         releaseRealCarService(getContext());
 
         mMockedVehicleHal = createMockedVehicleHal();
+        addProperty(VehicleProperty.DRIVING_STATUS,
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.DRIVING_STATUS)
+                        .addIntValue(VehicleDrivingStatus.UNRESTRICTED)
+                        .build());
         configureMockedHal();
 
         mFakeSystemInterface = new FakeSystemInterface();
@@ -161,26 +171,23 @@ public class MockedCarTestBase extends AndroidTestCase {
         mCarImpl.init();
     }
 
-    private final Map<VehiclePropConfigBuilder, VehicleHalPropertyHandler> mHalConfig =
-            new HashMap<>();
-
     protected synchronized VehiclePropConfigBuilder addProperty(int propertyId,
             VehicleHalPropertyHandler propertyHandler) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId);
-        mHalConfig.put(builder, propertyHandler);
+        setConfigBuilder(builder, propertyHandler);
         return builder;
     }
 
     protected synchronized VehiclePropConfigBuilder addProperty(int propertyId) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId);
-        mHalConfig.put(builder, new DefaultPropertyHandler(builder.build(), null));
+        setConfigBuilder(builder, new DefaultPropertyHandler(builder.build(), null));
         return builder;
     }
 
     protected synchronized VehiclePropConfigBuilder addProperty(int propertyId,
             VehiclePropValue value) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId);
-        mHalConfig.put(builder, new DefaultPropertyHandler(builder.build(), value));
+        setConfigBuilder(builder, new DefaultPropertyHandler(builder.build(), value));
         return builder;
     }
 
@@ -190,8 +197,21 @@ public class MockedCarTestBase extends AndroidTestCase {
                 .setChangeMode(VehiclePropertyChangeMode.STATIC)
                 .setAccess(VehiclePropertyAccess.READ);
 
-        mHalConfig.put(builder, new StaticPropertyHandler(value));
+        setConfigBuilder(builder, new StaticPropertyHandler(value));
         return builder;
+    }
+
+    private void setConfigBuilder(VehiclePropConfigBuilder builder,
+            VehicleHalPropertyHandler propertyHandler) {
+        int propId = builder.build().prop;
+
+        // Override previous property config if exists.
+        VehiclePropConfigBuilder prevBuilder = mPropToConfigBuilder.get(propId);
+        if (prevBuilder != null) {
+            mHalConfig.remove(prevBuilder);
+        }
+        mPropToConfigBuilder.put(propId, builder);
+        mHalConfig.put(builder, propertyHandler);
     }
 
     protected synchronized android.car.Car getCar() {

@@ -246,7 +246,7 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
         @Override
         public synchronized void get(VehiclePropValue requestedPropValue, getCallback cb) {
             if (!isVendorProperty(requestedPropValue.prop)) {
-                cb.onValues(StatusCode.INVALID_ARG, null);
+                super.get(requestedPropValue, cb);
                 return;
             }
             VehiclePropValue result = new VehiclePropValue();
