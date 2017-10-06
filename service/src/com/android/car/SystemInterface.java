@@ -40,40 +40,57 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Interface to abstract all system interaction.
+ * Interface that abstracts all interactions with Android system APIs.
  */
-public abstract class SystemInterface {
+public interface SystemInterface {
     public static final boolean INCLUDE_DEEP_SLEEP_TIME = true;
     public static final boolean EXCLUDE_DEEP_SLEEP_TIME = false;
 
-    public abstract void setDisplayState(boolean on);
-    public abstract void releaseAllWakeLocks();
-    public abstract void shutdown();
-    public abstract void enterDeepSleep(int wakeupTimeSec);
-    public abstract void switchToPartialWakeLock();
-    public abstract void switchToFullWakeLock();
-    public abstract void startDisplayStateMonitoring(CarPowerManagementService service);
-    public abstract void stopDisplayStateMonitoring();
-    public abstract boolean isSystemSupportingDeepSleep();
-    public abstract boolean isWakeupCausedByTimer();
-    public abstract WearInformationProvider[] getFlashWearInformationProviders();
-    public abstract File getFilesDir();
-    public abstract void scheduleActionForBootCompleted(Runnable action, Duration delay);
+    void setDisplayState(boolean on);
+    void releaseAllWakeLocks();
+    void shutdown();
+    void enterDeepSleep(int wakeupTimeSec);
+    void switchToPartialWakeLock();
+    void switchToFullWakeLock();
+    void startDisplayStateMonitoring(CarPowerManagementService service);
+    void stopDisplayStateMonitoring();
+    File getFilesDir();
+    void scheduleActionForBootCompleted(Runnable action, Duration delay);
 
-    public final long getUptime() {
+    default WearInformationProvider[] getFlashWearInformationProviders() {
+        return new WearInformationProvider[] {
+            new EMmcWearInformationProvider(),
+            new UfsWearInformationProvider()
+        };
+    }
+
+    default long getUptime() {
         return getUptime(EXCLUDE_DEEP_SLEEP_TIME);
     }
-    public long getUptime(boolean includeDeepSleepTime) {
+    default long getUptime(boolean includeDeepSleepTime) {
         return includeDeepSleepTime ?
             SystemClock.elapsedRealtime() :
             SystemClock.uptimeMillis();
     }
 
-    public static SystemInterface getDefault(Context context) {
+    default boolean isWakeupCausedByTimer() {
+        //TODO bug: 32061842, check wake up reason and do necessary operation information should
+        // come from kernel. it can be either power on or wake up for maintenance
+        // power on will involve GPIO trigger from power controller
+        // its own wakeup will involve timer expiration.
+        return false;
+    }
+
+    default boolean isSystemSupportingDeepSleep() {
+        //TODO should return by checking some kernel suspend control sysfs, bug: 32061842
+        return false;
+    }
+
+    public static SystemInterface createDefault(Context context) {
         return new SystemInterfaceImpl(context);
     }
 
-    private static class SystemInterfaceImpl extends SystemInterface {
+    class SystemInterfaceImpl implements SystemInterface {
         private final static Duration MIN_BOOT_COMPLETE_ACTION_DELAY = Duration.ofSeconds(10);
 
         private final Context mContext;
@@ -82,7 +99,6 @@ public abstract class SystemInterface {
         private final WakeLock mFullWakeLock;
         private final WakeLock mPartialWakeLock;
         private final DisplayStateListener mDisplayListener;
-        private final WearInformationProvider[] mWearInformationProviders;
         private final File mFilesDir;
         private CarPowerManagementService mService;
         private boolean mDisplayStateSet;
@@ -105,14 +121,10 @@ public abstract class SystemInterface {
             mPowerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
             mFullWakeLock = mPowerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
-                    CarLog.TAG_POWER);
+                CarLog.TAG_POWER);
             mPartialWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                    CarLog.TAG_POWER);
+                CarLog.TAG_POWER);
             mDisplayListener = new DisplayStateListener();
-            mWearInformationProviders = new WearInformationProvider[] {
-                    new EMmcWearInformationProvider(),
-                    new UfsWearInformationProvider()
-                };
             mFilesDir = context.getFilesDir();
         }
 
@@ -160,14 +172,8 @@ public abstract class SystemInterface {
         public void enterDeepSleep(int wakeupTimeSec) {
             //TODO set wake up time, bug: 32061842
             mPowerManager.goToSleep(SystemClock.uptimeMillis(),
-                    PowerManager.GO_TO_SLEEP_REASON_DEVICE_ADMIN,
-                    PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
-        }
-
-        @Override
-        public boolean isSystemSupportingDeepSleep() {
-            //TODO should return by checking some kernel suspend control sysfs, bug: 32061842
-            return false;
+                PowerManager.GO_TO_SLEEP_REASON_DEVICE_ADMIN,
+                PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
         }
 
         @Override
@@ -198,20 +204,6 @@ public abstract class SystemInterface {
             if (mFullWakeLock.isHeld()) {
                 mFullWakeLock.release();
             }
-        }
-
-        @Override
-        public boolean isWakeupCausedByTimer() {
-            //TODO bug: 32061842, check wake up reason and do necessary operation information should
-            // come from kernel. it can be either power on or wake up for maintenance
-            // power on will involve GPIO trigger from power controller
-            // its own wakeup will involve timer expiration.
-            return false;
-        }
-
-        @Override
-        public WearInformationProvider[] getFlashWearInformationProviders() {
-            return mWearInformationProviders;
         }
 
         @Override

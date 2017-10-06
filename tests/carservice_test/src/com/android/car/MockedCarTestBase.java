@@ -28,7 +28,6 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
@@ -45,8 +44,6 @@ import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -273,7 +270,7 @@ public class MockedCarTestBase extends AndroidTestCase {
         }
     }
 
-    static class FakeSystemInterface extends SystemInterface {
+    static class FakeSystemInterface implements SystemInterface {
         interface UptimeProvider {
             long getUptime(boolean includeDeepSleepTime);
         }
@@ -324,11 +321,6 @@ public class MockedCarTestBase extends AndroidTestCase {
         public void enterDeepSleep(int wakeupTimeSec) { }
 
         @Override
-        public boolean isSystemSupportingDeepSleep() {
-            return false;
-        }
-
-        @Override
         public void switchToPartialWakeLock() {
         }
 
@@ -343,9 +335,6 @@ public class MockedCarTestBase extends AndroidTestCase {
         @Override
         public void stopDisplayStateMonitoring() {
         }
-
-        @Override
-        public boolean isWakeupCausedByTimer() { return false; }
 
         @Override
         public WearInformationProvider[] getFlashWearInformationProviders() {
@@ -376,7 +365,7 @@ public class MockedCarTestBase extends AndroidTestCase {
             if (mUptimeProvider != null) {
                 return mUptimeProvider.getUptime(includeDeepSleepTime);
             }
-            return super.getUptime(includeDeepSleepTime);
+            return SystemInterface.super.getUptime(includeDeepSleepTime);
         }
 
         void executeBootCompletedActions() {
