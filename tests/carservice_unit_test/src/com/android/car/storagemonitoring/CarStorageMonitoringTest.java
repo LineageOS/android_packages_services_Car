@@ -16,11 +16,14 @@
 
 package com.android.car.storagemonitoring;
 
+import android.car.storagemonitoring.UidIoStatEntry;
+import android.car.storagemonitoring.UidIoStatEntry.PerStateMetrics;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 import android.os.Parcel;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import android.util.SparseArray;
 import com.android.car.test.utils.TemporaryFile;
 import android.util.JsonReader;
 import android.util.JsonWriter;
@@ -270,5 +273,165 @@ public class CarStorageMonitoringTest extends TestCase {
         assertEquals(twoToThree.uptimeAtChange, wearEstimateRecord3.getTotalCarServiceUptime());
         assertEquals(twoToThree.dateAtChange, wearEstimateRecord3.getUnixTimestamp());
         assertFalse(twoToThree.isAcceptableDegradation);
+    }
+
+    public void testUidIoStatEntry() throws Exception {
+        try (TemporaryFile statsFile = new TemporaryFile(TAG)) {
+            statsFile.write("0 256797495 181736102 362132480 947167232 0 0 0 0 250 0\n"
+                + "1006 489007 196802 0 20480 51474 2048 1024 2048 1 1\n");
+
+            ProcfsUidIoStatsProvider statsProvider = new ProcfsUidIoStatsProvider(
+                    statsFile.getPath());
+
+            SparseArray<UidIoStatEntry> entries = statsProvider.load();
+
+            assertNotNull(entries);
+            assertEquals(2, entries.size());
+
+            UidIoStatEntry entry = entries.get(0);
+            assertNotNull(entry);
+            assertEquals(0, entry.uid);
+            assertEquals(256797495, entry.foreground.bytesRead);
+            assertEquals(181736102, entry.foreground.bytesWritten);
+            assertEquals(362132480, entry.foreground.bytesReadFromStorage);
+            assertEquals(947167232, entry.foreground.bytesWrittenToStorage);
+            assertEquals(250, entry.foreground.fsyncCalls);
+            assertEquals(0, entry.background.bytesRead);
+            assertEquals(0, entry.background.bytesWritten);
+            assertEquals(0, entry.background.bytesReadFromStorage);
+            assertEquals(0, entry.background.bytesWrittenToStorage);
+            assertEquals(0, entry.background.fsyncCalls);
+
+            entry = entries.get(1006);
+            assertNotNull(entry);
+            assertEquals(1006, entry.uid);
+            assertEquals(489007, entry.foreground.bytesRead);
+            assertEquals(196802, entry.foreground.bytesWritten);
+            assertEquals(0, entry.foreground.bytesReadFromStorage);
+            assertEquals(20480, entry.foreground.bytesWrittenToStorage);
+            assertEquals(1, entry.foreground.fsyncCalls);
+            assertEquals(51474, entry.background.bytesRead);
+            assertEquals(2048, entry.background.bytesWritten);
+            assertEquals(1024, entry.background.bytesReadFromStorage);
+            assertEquals(2048, entry.background.bytesWrittenToStorage);
+            assertEquals(1, entry.background.fsyncCalls);
+        }
+    }
+
+    public void testUidIoStatEntryMissingFields() throws Exception {
+        try (TemporaryFile statsFile = new TemporaryFile(TAG)) {
+            statsFile.write("0 256797495 181736102 362132480 947167232 0 0 0 0 250 0\n"
+                + "1 2 3 4 5 6 7 8 9\n");
+
+            ProcfsUidIoStatsProvider statsProvider = new ProcfsUidIoStatsProvider(
+                statsFile.getPath());
+
+            SparseArray<UidIoStatEntry> entries = statsProvider.load();
+
+            assertNull(entries);
+        }
+    }
+
+    public void testUidIoStatEntryNonNumericFields() throws Exception {
+        try (TemporaryFile statsFile = new TemporaryFile(TAG)) {
+            statsFile.write("0 256797495 181736102 362132480 947167232 0 0 0 0 250 0\n"
+                + "notanumber 489007 196802 0 20480 51474 2048 1024 2048 1 1\n");
+
+            ProcfsUidIoStatsProvider statsProvider = new ProcfsUidIoStatsProvider(
+                statsFile.getPath());
+
+            SparseArray<UidIoStatEntry> entries = statsProvider.load();
+
+            assertNull(entries);
+        }
+    }
+
+    public void testUidIoStatEntryEquality() throws Exception {
+        UidIoStatEntry statEntry1 = new UidIoStatEntry(10,
+            new PerStateMetrics(10, 20, 30, 40, 50),
+            new PerStateMetrics(100, 200, 300, 400, 500));
+        UidIoStatEntry statEntry2 = new UidIoStatEntry(10,
+            new PerStateMetrics(10, 20, 30, 40, 50),
+            new PerStateMetrics(100, 200, 300, 400, 500));
+        UidIoStatEntry statEntry3 = new UidIoStatEntry(30,
+            new PerStateMetrics(1, 20, 30, 42, 50),
+            new PerStateMetrics(10, 200, 300, 420, 500));
+        UidIoStatEntry statEntry4 = new UidIoStatEntry(11,
+            new PerStateMetrics(10, 20, 30, 40, 50),
+            new PerStateMetrics(100, 200, 300, 400, 500));
+        UidIoStatEntry statEntry5 = new UidIoStatEntry(10,
+            new PerStateMetrics(10, 20, 30, 40, 0),
+            new PerStateMetrics(100, 200, 300, 400, 500));
+
+        assertEquals(statEntry1, statEntry1);
+        assertEquals(statEntry1, statEntry2);
+        assertNotSame(statEntry1, statEntry3);
+        assertNotSame(statEntry1, statEntry4);
+        assertNotSame(statEntry1, statEntry5);
+    }
+
+    public void testUidIoStatEntryParcel() throws Exception {
+        UidIoStatEntry statEntry = new UidIoStatEntry(10,
+            new PerStateMetrics(10, 20, 30, 40, 50),
+            new PerStateMetrics(100, 200, 300, 400, 500));
+        Parcel p = Parcel.obtain();
+        statEntry.writeToParcel(p, 0);
+        p.setDataPosition(0);
+        UidIoStatEntry other = new UidIoStatEntry(p);
+        assertEquals(other, statEntry);
+    }
+
+    public void testUidIoStatEntryJson() throws Exception {
+        try (TemporaryFile temporaryFile = new TemporaryFile(TAG)) {
+            UidIoStatEntry statEntry = new UidIoStatEntry(10,
+                new PerStateMetrics(10, 20, 30, 40, 50),
+                new PerStateMetrics(100, 200, 300, 400, 500));
+            try (JsonWriter jsonWriter = new JsonWriter(new FileWriter(temporaryFile.getFile()))) {
+                statEntry.writeToJson(jsonWriter);
+            }
+            JSONObject jsonObject = new JSONObject(
+                new String(Files.readAllBytes(temporaryFile.getPath())));
+            UidIoStatEntry other = new UidIoStatEntry(jsonObject);
+            assertEquals(statEntry, other);
+        }
+    }
+
+
+    public void testUidIoStatEntryDelta() throws Exception {
+        UidIoStatEntry statEntry1 = new UidIoStatEntry(10,
+            new PerStateMetrics(10, 20, 30, 40, 50),
+            new PerStateMetrics(60, 70, 80, 90, 100));
+
+        UidIoStatEntry statEntry2 = new UidIoStatEntry(10,
+            new PerStateMetrics(110, 120, 130, 140, 150),
+            new PerStateMetrics(260, 370, 480, 500, 110));
+
+        UidIoStatEntry statEntry3 = new UidIoStatEntry(30,
+            new PerStateMetrics(10, 20, 30, 40, 50),
+            new PerStateMetrics(100, 200, 300, 400, 500));
+
+
+        UidIoStatEntry delta21 = statEntry2.delta(statEntry1);
+        assertNotNull(delta21);
+        assertEquals(statEntry1.uid, delta21.uid);
+
+        assertEquals(100, delta21.foreground.bytesRead);
+        assertEquals(100, delta21.foreground.bytesWritten);
+        assertEquals(100, delta21.foreground.bytesReadFromStorage);
+        assertEquals(100, delta21.foreground.bytesWrittenToStorage);
+        assertEquals(100, delta21.foreground.fsyncCalls);
+
+        assertEquals(200, delta21.background.bytesRead);
+        assertEquals(300, delta21.background.bytesWritten);
+        assertEquals(400, delta21.background.bytesReadFromStorage);
+        assertEquals(410, delta21.background.bytesWrittenToStorage);
+        assertEquals(10, delta21.background.fsyncCalls);
+
+        try {
+            UidIoStatEntry delta31 = statEntry3.delta(statEntry1);
+            fail("delta only allowed on stats for matching user ID");
+        } catch (IllegalArgumentException e) {
+            // test passed
+        }
     }
 }

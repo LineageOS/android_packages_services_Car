@@ -1013,6 +1013,34 @@ package android.car.storagemonitoring {
     field public static final int PRE_EOL_INFO_WARNING = 2; // 0x2
   }
 
+  public final class UidIoStatEntry implements android.os.Parcelable {
+    ctor public UidIoStatEntry(int, android.car.storagemonitoring.UidIoStatEntry.PerStateMetrics, android.car.storagemonitoring.UidIoStatEntry.PerStateMetrics);
+    ctor public UidIoStatEntry(android.os.Parcel);
+    ctor public UidIoStatEntry(org.json.JSONObject) throws org.json.JSONException;
+    method public int describeContents();
+    method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.UidIoStatEntry> CREATOR;
+    field public final android.car.storagemonitoring.UidIoStatEntry.PerStateMetrics background;
+    field public final android.car.storagemonitoring.UidIoStatEntry.PerStateMetrics foreground;
+    field public final int uid;
+  }
+
+  public static final class UidIoStatEntry.PerStateMetrics implements android.os.Parcelable {
+    ctor public UidIoStatEntry.PerStateMetrics(long, long, long, long, long);
+    ctor public UidIoStatEntry.PerStateMetrics(android.os.Parcel);
+    ctor public UidIoStatEntry.PerStateMetrics(org.json.JSONObject) throws org.json.JSONException;
+    method public int describeContents();
+    method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.UidIoStatEntry.PerStateMetrics> CREATOR;
+    field public final long bytesRead;
+    field public final long bytesReadFromStorage;
+    field public final long bytesWritten;
+    field public final long bytesWrittenToStorage;
+    field public final long fsyncCalls;
+  }
+
   public class WearEstimate implements android.os.Parcelable {
     ctor public WearEstimate(int, int);
     ctor public WearEstimate(android.os.Parcel);
