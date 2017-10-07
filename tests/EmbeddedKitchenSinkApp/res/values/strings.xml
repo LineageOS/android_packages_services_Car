@@ -138,6 +138,10 @@
     <string name="music_play">Play</string>
     <string name="music_stop">Stop</string>
 
+    <!-- power test -->
+    <string name="power_shutdown">Shutdown</string>
+    <string name="power_sleep">Sleep</string>
+
     <!-- radio test -->
     <string name="radio_open">Open</string>
     <string name="radio_close">Close</string>
