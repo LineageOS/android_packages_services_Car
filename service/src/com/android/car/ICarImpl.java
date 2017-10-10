@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import android.annotation.MainThread;
 import android.app.UiModeManager;
 import android.car.Car;
 import android.car.ICar;
@@ -157,6 +158,7 @@ public class ICarImpl extends ICar.Stub {
         mAllServices = allServices.toArray(new CarServiceBase[0]);
     }
 
+    @MainThread
     void init() {
         traceBegin("VehicleHal.init");
         mHal.init();
@@ -356,11 +358,13 @@ public class ICarImpl extends ICar.Stub {
         new CarShellCommand().exec(args, writer);
     }
 
+    @MainThread
     private static void traceBegin(String name) {
         Slog.i(TAG, name);
         mBootTiming.traceBegin(name);
     }
 
+    @MainThread
     private static void traceEnd() {
         mBootTiming.traceEnd();
     }
