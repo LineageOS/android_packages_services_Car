@@ -57,6 +57,6 @@
         <item>com.android.car.dialer</item>
         <item>com.android.car.overview</item>
         <item></item>
-        <item>com.android.car.hvac;com.android.settings;com.android.car.settings;com.android.vending;com.google.android.car.bugreport;com.google.android.car.kitchensink;com.android.car.systemupdater;org.chromium.webview_shell;com.android.contacts;org.codeaurora.bluetooth.bttestapp;com.google.android.projection.sink</item>
+        <item>com.android.car.hvac;com.android.settings;com.android.car.settings;com.android.vending;com.google.android.car.bugreport;com.google.android.car.kitchensink;com.android.car.systemupdater;org.chromium.webview_shell;com.android.contacts;org.codeaurora.bluetooth.bttestapp;com.google.android.projection.sink;com.google.android.googlequicksearchbox</item>
     </array>
 </resources>
