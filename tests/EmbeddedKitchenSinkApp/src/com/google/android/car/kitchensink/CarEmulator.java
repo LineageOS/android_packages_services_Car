@@ -66,7 +66,7 @@ public class CarEmulator {
     private CarEmulator(Context context) {
         mHalEmulator = new MockedVehicleHal();
         ICarImpl carService = new ICarImpl(context, mHalEmulator,
-                SystemInterface.getDefault(context), null /* error notifier */);
+                SystemInterface.createDefault(context), null /* error notifier */);
         mCar = new Car(context, carService, null /* Handler */);
     }
 
