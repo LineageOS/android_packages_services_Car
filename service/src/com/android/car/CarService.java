@@ -85,7 +85,7 @@ public class CarService extends Service {
 
         Log.i(CarLog.TAG_SERVICE, "Connected to " + mVehicleInterfaceName);
 
-        mICarImpl = new ICarImpl(this, mVehicle, SystemInterface.getDefault(this),
+        mICarImpl = new ICarImpl(this, mVehicle, SystemInterface.createDefault(this),
                 mCanBusErrorNotifier);
         mICarImpl.init();
         SystemProperties.set("boot.car_service_created", "1");

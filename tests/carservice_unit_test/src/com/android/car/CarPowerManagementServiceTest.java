@@ -268,7 +268,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         }
     }
 
-    private static class SystemInterfaceImpl extends SystemInterface {
+    private static class SystemInterfaceImpl implements SystemInterface {
 
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
@@ -348,11 +348,6 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         public synchronized boolean isWakeupCausedByTimer() {
             Log.i(TAG, "isWakeupCausedByTimer:" + mWakeupCausedByTimer);
             return mWakeupCausedByTimer;
-        }
-
-        @Override
-        public WearInformationProvider[] getFlashWearInformationProviders() {
-            return new WearInformationProvider[] {};
         }
 
         @Override
