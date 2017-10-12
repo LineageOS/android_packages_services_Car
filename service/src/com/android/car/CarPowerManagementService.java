@@ -24,6 +24,7 @@ import android.util.Log;
 
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
+import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

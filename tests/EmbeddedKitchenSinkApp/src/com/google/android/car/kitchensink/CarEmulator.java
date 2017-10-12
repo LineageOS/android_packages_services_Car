@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2015 The Android Open Source Project
  *
@@ -35,7 +36,7 @@ import android.os.SystemClock;
 import android.util.SparseIntArray;
 
 import com.android.car.ICarImpl;
-import com.android.car.SystemInterface;
+import com.android.car.systeminterface.SystemInterface;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
@@ -66,7 +67,8 @@ public class CarEmulator {
     private CarEmulator(Context context) {
         mHalEmulator = new MockedVehicleHal();
         ICarImpl carService = new ICarImpl(context, mHalEmulator,
-                SystemInterface.createDefault(context), null /* error notifier */);
+                SystemInterface.Builder.defaultSystemInterface(context).build(),
+                null /* error notifier */);
         mCar = new Car(context, carService, null /* Handler */);
     }
 

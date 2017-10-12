@@ -36,6 +36,7 @@ import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.car.internal.FeatureUtil;
 import com.android.car.pm.CarPackageManagerService;
+import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.car.ICarServiceHelper;
 import java.io.PrintWriter;

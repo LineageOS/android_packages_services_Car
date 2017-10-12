@@ -31,6 +31,7 @@ import com.android.car.storagemonitoring.WearEstimateRecord;
 import com.android.car.storagemonitoring.WearHistory;
 import com.android.car.storagemonitoring.WearInformation;
 import com.android.car.storagemonitoring.WearInformationProvider;
+import com.android.car.systeminterface.SystemInterface;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -41,8 +42,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
 import org.json.JSONException;
 
 public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub

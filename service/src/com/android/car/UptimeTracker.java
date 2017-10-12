@@ -16,15 +16,13 @@
 
 package com.android.car;
 
-import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
-import android.annotation.Nullable;
-import android.os.SystemClock;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
 
+import com.android.car.systeminterface.SystemInterface;
+
+import com.android.car.systeminterface.TimeInterface;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -33,7 +31,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A class that can keep track of how long its instances are alive for.
@@ -60,46 +57,6 @@ import java.util.concurrent.ScheduledExecutorService;
  * ensure that crashes do not cause more than a certain amount of uptime to go untracked.
  */
 public class UptimeTracker {
-    @VisibleForTesting
-    interface TimingProvider {
-        long getCurrentRealtime();
-        void schedule(Runnable r, long delay);
-        void cancelAll();
-    }
-
-    private static final class DefaultTimingProvider implements TimingProvider {
-        @Nullable
-        private final SystemInterface mSystemInterface;
-        private final ScheduledExecutorService mExecutor = newSingleThreadScheduledExecutor();
-
-        DefaultTimingProvider() {
-            this(null);
-        }
-
-        DefaultTimingProvider(SystemInterface systemInterface) {
-            mSystemInterface = systemInterface;
-        }
-
-        @Override
-        public long getCurrentRealtime() {
-            if (mSystemInterface != null) {
-                return mSystemInterface.getUptime(false);
-            } else {
-                return SystemClock.uptimeMillis();
-            }
-        }
-
-        @Override
-        public void schedule(Runnable r, long delay) {
-            mExecutor.scheduleWithFixedDelay(r, delay, delay, MILLISECONDS);
-        }
-
-        @Override
-        public void cancelAll() {
-            mExecutor.shutdownNow();
-        }
-    }
-
     /**
      * In order to prevent excessive wear-out of the storage, do not allow snapshots to happen
      * more frequently than this value
@@ -131,43 +88,42 @@ public class UptimeTracker {
     /**
      * The source of real-time and scheduling
      */
-    private TimingProvider mTimingProvider;
+    private TimeInterface mTimeInterface;
 
     public UptimeTracker(File file) {
         this(file, DEFAULT_SNAPSHOT_INTERVAL_MS);
     }
 
     public UptimeTracker(File file, long snapshotInterval) {
-        this(file, snapshotInterval, new DefaultTimingProvider());
+        this(file, snapshotInterval, new TimeInterface.DefaultImpl());
     }
 
     UptimeTracker(File file, long snapshotInterval, SystemInterface systemInterface) {
-        this(file, snapshotInterval, new DefaultTimingProvider(systemInterface));
+        this(file, snapshotInterval, systemInterface.getTimeInterface());
     }
 
-    // By default, SystemClock::elapsedRealtime is used as the source of the uptime clock
-    // and a ScheduledExecutorService provides snapshot synchronization. For testing purposes
-    // this constructor allows using a controlled source of time information and scheduling.
+    // This constructor allows one to replace the source of time-based truths with
+    // a mock version. This is mostly useful for testing purposes.
     @VisibleForTesting
     UptimeTracker(File file,
             long snapshotInterval,
-            TimingProvider timingProvider) {
+            TimeInterface timeInterface) {
         snapshotInterval = Math.max(snapshotInterval, MINIMUM_SNAPSHOT_INTERVAL_MS);
         mUptimeFile = Objects.requireNonNull(file);
-        mTimingProvider = timingProvider;
-        mLastRealTimeSnapshot = mTimingProvider.getCurrentRealtime();
+        mTimeInterface = timeInterface;
+        mLastRealTimeSnapshot = mTimeInterface.getUptime(TimeInterface.EXCLUDE_DEEP_SLEEP_TIME);
         mHistoricalUptime = Optional.empty();
 
-        mTimingProvider.schedule(this::flushSnapshot, snapshotInterval);
+        mTimeInterface.scheduleAction(this::flushSnapshot, snapshotInterval);
     }
 
     void onDestroy() {
         synchronized (mLock) {
-            if (mTimingProvider != null) {
-                mTimingProvider.cancelAll();
+            if (mTimeInterface != null) {
+                mTimeInterface.cancelAllActions();
             }
             flushSnapshot();
-            mTimingProvider = null;
+            mTimeInterface = null;
             mUptimeFile = null;
         }
     }
@@ -179,11 +135,12 @@ public class UptimeTracker {
      */
     long getTotalUptime() {
         synchronized (mLock) {
-            if (mTimingProvider == null) {
+            if (mTimeInterface == null) {
                 return 0;
             }
             return getHistoricalUptimeLocked() + (
-                    mTimingProvider.getCurrentRealtime() - mLastRealTimeSnapshot);
+                    mTimeInterface.getUptime(TimeInterface.EXCLUDE_DEEP_SLEEP_TIME)
+                            - mLastRealTimeSnapshot);
         }
     }
 
@@ -216,7 +173,8 @@ public class UptimeTracker {
             try {
                 long newUptime = getTotalUptime();
                 mHistoricalUptime = Optional.of(newUptime);
-                mLastRealTimeSnapshot = mTimingProvider.getCurrentRealtime();
+                mLastRealTimeSnapshot = mTimeInterface.getUptime(
+                        TimeInterface.EXCLUDE_DEEP_SLEEP_TIME);
 
                 JsonWriter writer = new JsonWriter(new FileWriter(mUptimeFile));
                 writer.beginObject();
