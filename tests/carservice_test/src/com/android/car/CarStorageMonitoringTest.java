@@ -25,13 +25,22 @@ import android.car.storagemonitoring.WearEstimateChange;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.JsonWriter;
 import android.util.Log;
+import android.util.Pair;
 import com.android.car.storagemonitoring.WearEstimateRecord;
 import com.android.car.storagemonitoring.WearHistory;
 import com.android.car.storagemonitoring.WearInformation;
+import com.android.car.storagemonitoring.WearInformationProvider;
+import com.android.car.systeminterface.StorageMonitoringInterface;
+import com.android.car.systeminterface.SystemInterface;
+import com.android.car.systeminterface.SystemStateInterface;
+import com.android.car.systeminterface.TimeInterface;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +132,20 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
                                 .atTimestamp(Instant.ofEpochMilli(17000)).build())));
             }};
 
+    private final MockSystemStateInterface mMockSystemStateInterface =
+            new MockSystemStateInterface();
+    private final MockStorageMonitoringInterface mMockStorageMonitoringInterface =
+            new MockStorageMonitoringInterface();
+
     private CarStorageMonitoringManager mCarStorageMonitoringManager;
+
+    @Override
+    protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
+        SystemInterface.Builder builder = super.getSystemInterfaceBuilder();
+        return builder.withSystemStateInterface(mMockSystemStateInterface)
+            .withStorageMonitoringInterface(mMockStorageMonitoringInterface)
+            .withTimeInterface(new MockTimeInterface());
+    }
 
     @Override
     protected synchronized void configureFakeSystemInterface() {
@@ -132,8 +154,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
             final WearData wearData = PER_TEST_WEAR_DATA.getOrDefault(testName, WearData.DEFAULT);
             final WearHistory wearHistory = wearData.wearHistory;
 
-            setFlashWearInformation(wearData.wearInformation);
-            setUptimeProvider( (boolean b) -> 0 );
+            mMockStorageMonitoringInterface.setWearInformation(wearData.wearInformation);
 
             if (wearHistory != null) {
                 File wearHistoryFile = new File(getFakeSystemInterface().getFilesDir(),
@@ -145,7 +166,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
             if (wearData.uptime > 0) {
                 File uptimeFile = new File(getFakeSystemInterface().getFilesDir(),
-                        CarStorageMonitoringService.UPTIME_TRACKER_FILENAME);
+                    CarStorageMonitoringService.UPTIME_TRACKER_FILENAME);
                 try (JsonWriter jsonWriter = new JsonWriter(new FileWriter(uptimeFile))) {
                     jsonWriter.beginObject();
                     jsonWriter.name("uptime").value(wearData.uptime);
@@ -156,13 +177,14 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
             Log.e(TAG, "failed to configure fake system interface", e);
             fail("failed to configure fake system interface instance");
         }
+
     }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
-        fakeBootCompletedEvent();
+        mMockSystemStateInterface.executeBootCompletedActions();
 
         mCarStorageMonitoringManager =
             (CarStorageMonitoringManager) getCar().getCarManager(Car.STORAGE_MONITORING_SERVICE);
@@ -225,5 +247,60 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
     public void testAcceptableWearEvent() throws Exception {
         checkLastWearEvent(true);
+    }
+
+    static final class MockStorageMonitoringInterface implements StorageMonitoringInterface,
+        WearInformationProvider {
+        private WearInformation mWearInformation = null;
+
+        void setWearInformation(WearInformation wearInformation) {
+            mWearInformation = wearInformation;
+        }
+
+        @Override
+        public WearInformation load() {
+            return mWearInformation;
+        }
+
+        @Override
+        public WearInformationProvider[] getFlashWearInformationProviders() {
+            return new WearInformationProvider[] {this};
+        }
+    }
+
+    static final class MockTimeInterface implements TimeInterface {
+
+        @Override
+        public long getUptime(boolean includeDeepSleepTime) {
+            return 0;
+        }
+
+        @Override
+        public void scheduleAction(Runnable r, long delayMs) {}
+
+        @Override
+        public void cancelAllActions() {}
+    }
+
+    static final class MockSystemStateInterface implements SystemStateInterface {
+        private final List<Pair<Runnable, Duration>> mActionsList = new ArrayList<>();
+
+        @Override
+        public void shutdown() {}
+
+        @Override
+        public void enterDeepSleep(int wakeupTimeSec) {}
+
+        @Override
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {
+            mActionsList.add(Pair.create(action, delay));
+            mActionsList.sort(Comparator.comparing(d -> d.second));
+        }
+
+        void executeBootCompletedActions() {
+            for (Pair<Runnable, Duration> action : mActionsList) {
+                action.first.run();
+            }
+        }
     }
 }

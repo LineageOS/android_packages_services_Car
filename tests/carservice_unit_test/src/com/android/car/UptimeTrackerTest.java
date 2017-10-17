@@ -16,6 +16,7 @@
 package com.android.car;
 
 import android.test.suitebuilder.annotation.MediumTest;
+import com.android.car.systeminterface.TimeInterface;
 import com.android.car.test.utils.TemporaryFile;
 
 import junit.framework.TestCase;
@@ -24,16 +25,16 @@ import junit.framework.TestCase;
 public class UptimeTrackerTest extends TestCase {
     static final String TAG = UptimeTrackerTest.class.getSimpleName();
 
-    static final class TestTimingProvider implements UptimeTracker.TimingProvider {
+    static final class MockTimeInterface implements TimeInterface {
         private long mCurrentTime = 0;
         private Runnable mRunnable = null;
 
-        TestTimingProvider incrementTime(long by) {
+        MockTimeInterface incrementTime(long by) {
             mCurrentTime += by;
             return this;
         }
 
-        TestTimingProvider tick() {
+        MockTimeInterface tick() {
             if (mRunnable != null) {
                 mRunnable.run();
             }
@@ -41,12 +42,12 @@ public class UptimeTrackerTest extends TestCase {
         }
 
         @Override
-        public long getCurrentRealtime() {
+        public long getUptime(boolean includeDeepSleepTime) {
             return mCurrentTime;
         }
 
         @Override
-        public void schedule(Runnable r, long delay) {
+        public void scheduleAction(Runnable r, long delayMs) {
             if (mRunnable != null) {
                 throw new IllegalStateException("task already scheduled");
             }
@@ -54,7 +55,7 @@ public class UptimeTrackerTest extends TestCase {
         }
 
         @Override
-        public void cancelAll() {
+        public void cancelAllActions() {
             mRunnable = null;
         }
     }
@@ -62,80 +63,80 @@ public class UptimeTrackerTest extends TestCase {
     private static final long SNAPSHOT_INTERVAL = 0; // actual time doesn't matter for this test
 
     public void testUptimeTrackerFromCleanSlate() throws Exception {
-        TestTimingProvider timingProvider = new TestTimingProvider();
+        MockTimeInterface timeInterface = new MockTimeInterface();
         try (TemporaryFile uptimeFile = new TemporaryFile(TAG)) {
             UptimeTracker uptimeTracker = new UptimeTracker(uptimeFile.getFile(),
-                SNAPSHOT_INTERVAL, timingProvider);
+                SNAPSHOT_INTERVAL, timeInterface);
 
             assertEquals(0, uptimeTracker.getTotalUptime());
 
-            timingProvider.incrementTime(5000).tick();
+            timeInterface.incrementTime(5000).tick();
             assertEquals(5000, uptimeTracker.getTotalUptime());
 
-            timingProvider.tick();
+            timeInterface.tick();
             assertEquals(5000, uptimeTracker.getTotalUptime());
 
-            timingProvider.incrementTime(1000).tick();
+            timeInterface.incrementTime(1000).tick();
             assertEquals(6000, uptimeTracker.getTotalUptime());
 
-            timingProvider.incrementTime(400).tick();
+            timeInterface.incrementTime(400).tick();
             assertEquals(6400, uptimeTracker.getTotalUptime());
         }
     }
 
     public void testUptimeTrackerWithHistoricalState() throws Exception {
-        TestTimingProvider timingProvider = new TestTimingProvider();
+        MockTimeInterface timeInterface = new MockTimeInterface();
         try (TemporaryFile uptimeFile = new TemporaryFile(TAG)) {
             uptimeFile.write("{\"uptime\" : 5000}");
             UptimeTracker uptimeTracker = new UptimeTracker(uptimeFile.getFile(),
-                SNAPSHOT_INTERVAL, timingProvider);
+                SNAPSHOT_INTERVAL, timeInterface);
 
             assertEquals(5000, uptimeTracker.getTotalUptime());
 
-            timingProvider.incrementTime(5000).tick();
+            timeInterface.incrementTime(5000).tick();
             assertEquals(10000, uptimeTracker.getTotalUptime());
 
-            timingProvider.incrementTime(1000).tick();
+            timeInterface.incrementTime(1000).tick();
             assertEquals(11000, uptimeTracker.getTotalUptime());
         }
     }
 
     public void testUptimeTrackerAcrossHistoricalState() throws Exception {
-        TestTimingProvider timingProvider = new TestTimingProvider();
+        MockTimeInterface timeInterface = new MockTimeInterface();
         try (TemporaryFile uptimeFile = new TemporaryFile(TAG)) {
             uptimeFile.write("{\"uptime\" : 5000}");
             UptimeTracker uptimeTracker = new UptimeTracker(uptimeFile.getFile(),
-                SNAPSHOT_INTERVAL, timingProvider);
+                SNAPSHOT_INTERVAL, timeInterface);
 
             assertEquals(5000, uptimeTracker.getTotalUptime());
 
-            timingProvider.incrementTime(5000).tick();
+            timeInterface.incrementTime(5000).tick();
             assertEquals(10000, uptimeTracker.getTotalUptime());
 
-            timingProvider.incrementTime(500).tick();
+            timeInterface.incrementTime(500).tick();
             uptimeTracker.onDestroy();
-            timingProvider.cancelAll();
+            timeInterface.cancelAllActions();
 
             uptimeTracker = new UptimeTracker(uptimeFile.getFile(),
-                SNAPSHOT_INTERVAL, timingProvider);
+                SNAPSHOT_INTERVAL, timeInterface);
 
-            timingProvider.incrementTime(3000).tick();
+            timeInterface.incrementTime(3000).tick();
             assertEquals(13500, uptimeTracker.getTotalUptime());
         }
     }
 
     public void testUptimeTrackerShutdown() throws Exception {
-        TestTimingProvider timingProvider = new TestTimingProvider();
+        MockTimeInterface timeInterface = new MockTimeInterface();
         try (TemporaryFile uptimeFile = new TemporaryFile(TAG)) {
             UptimeTracker uptimeTracker = new UptimeTracker(uptimeFile.getFile(),
-                SNAPSHOT_INTERVAL, timingProvider);
+                SNAPSHOT_INTERVAL, timeInterface);
 
-            timingProvider.incrementTime(6000);
+            timeInterface.incrementTime(6000);
             uptimeTracker.onDestroy();
-            timingProvider.cancelAll();
+            timeInterface.cancelAllActions();
 
             uptimeTracker = new UptimeTracker(uptimeFile.getFile(),
-                SNAPSHOT_INTERVAL, timingProvider);
+                SNAPSHOT_INTERVAL, timeInterface);
             assertEquals(6000, uptimeTracker.getTotalUptime());
         }
     }

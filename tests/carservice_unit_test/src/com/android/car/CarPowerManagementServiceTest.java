@@ -16,7 +16,6 @@
 
 package com.android.car;
 
-import android.os.SystemClock;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
@@ -26,7 +25,11 @@ import com.android.car.CarPowerManagementService.PowerServiceEventListener;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 
-import com.android.car.storagemonitoring.WearInformationProvider;
+import com.android.car.systeminterface.DisplayInterface;
+import com.android.car.systeminterface.IOInterface;
+import com.android.car.systeminterface.SystemInterface;
+import com.android.car.systeminterface.SystemStateInterface;
+import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
 import java.io.File;
 import java.io.IOException;
@@ -40,8 +43,13 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     private static final long WAIT_TIMEOUT_MS = 2000;
     private static final long WAIT_TIMEOUT_LONG_MS = 5000;
 
+    private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
+    private final MockSystemStateInterface mSystemStateInterface = new MockSystemStateInterface();
+    private final MockWakeLockInterface mWakeLockInterface = new MockWakeLockInterface();
+    private final MockIOInterface mIOInterface = new MockIOInterface();
+
     private MockedPowerHalService mPowerHal;
-    private SystemInterfaceImpl mSystemInterface;
+    private SystemInterface mSystemInterface;
     private CarPowerManagementService mService;
     private final PowerEventListener mPowerEventListener = new PowerEventListener();
     private PowerEventProcessingHandlerImpl mPowerEventProcessingHandler;
@@ -51,7 +59,11 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         super.setUp();
         mPowerHal = new MockedPowerHalService(true /*isPowerStateSupported*/,
                 true /*isDeepSleepAllowed*/, true /*isTimedWakeupAllowed*/);
-        mSystemInterface = new SystemInterfaceImpl();
+        mSystemInterface = SystemInterface.Builder.defaultSystemInterface(getContext())
+            .withDisplayInterface(mDisplayInterface)
+            .withSystemStateInterface(mSystemStateInterface)
+            .withWakeLockInterface(mWakeLockInterface)
+            .withIOInterface(mIOInterface).build();
     }
 
     @Override
@@ -60,9 +72,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         if (mService != null) {
             mService.release();
         }
-        if (mSystemInterface != null) {
-            mSystemInterface.tearDown();
-        }
+        mIOInterface.tearDown();
     }
 
     public void testBootComplete() throws Exception {
@@ -84,15 +94,15 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
         mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
         // it will call display on for initial state
-        assertTrue(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_ON_DISP_OFF, 0));
-        assertFalse(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertFalse(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
     }
 
     public void testDisplayOn() throws Exception {
         // start with display off
         mSystemInterface.setDisplayState(false);
-        mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS);
+        mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS);
         mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
         mService.init();
         mService.registerPowerEventListener(mPowerEventListener);
@@ -102,7 +112,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
 
         // display should be turned on as it started with off state.
-        assertTrue(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
     }
 
     public void testShutdown() throws Exception {
@@ -114,14 +124,14 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
         assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
         mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
-        assertTrue(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,
                 PowerHalService.FLAG_SHUTDOWN_IMMEDIATELY));
         assertStateReceived(PowerHalService.SET_SHUTDOWN_START, wakeupTime);
-        assertFalse(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertFalse(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         mPowerEventListener.waitForShutdown(WAIT_TIMEOUT_MS);
-        mSystemInterface.waitForShutdown(WAIT_TIMEOUT_MS);
+        mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
     }
 
     public void testShutdownWithProcessing() throws Exception {
@@ -135,15 +145,15 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
         assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
         mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
-        assertTrue(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE, 0));
         mPowerEventProcessingHandler.waitForPrepareShutdown(WAIT_TIMEOUT_MS);
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START,
                 WAIT_TIMEOUT_LONG_MS, wakeupTime);
-        assertFalse(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertFalse(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         mPowerEventListener.waitForShutdown(WAIT_TIMEOUT_MS);
-        mSystemInterface.waitForShutdown(WAIT_TIMEOUT_MS);
+        mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
     }
 
     public void testSleepEntryAndWakeup() throws Exception {
@@ -155,14 +165,14 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
         assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
         mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
-        assertTrue(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,
                 PowerHalService.FLAG_SHUTDOWN_PARAM_CAN_SLEEP));
-        assertFalse(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertFalse(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_ENTRY, 0);
         mPowerEventListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
-        int wakeupTimeReceived = mSystemInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
+        int wakeupTimeReceived = mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         assertEquals(wakeupTime, wakeupTimeReceived);
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
         mPowerEventListener.waitForSleepExit(WAIT_TIMEOUT_MS);
@@ -180,19 +190,19 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
         assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
         mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
-        assertTrue(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,
                 PowerHalService.FLAG_SHUTDOWN_PARAM_CAN_SLEEP));
         mPowerEventProcessingHandler.waitForPrepareShutdown(WAIT_TIMEOUT_MS);
-        assertFalse(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertFalse(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY,
                 WAIT_TIMEOUT_LONG_MS, 0);
         mPowerEventListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
         // set power on here without notification. PowerManager should check the state after sleep
         // exit
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_ON_DISP_OFF, 0), false);
-        int wakeupTimeReceived = mSystemInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
+        int wakeupTimeReceived = mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         assertEquals(wakeupTime, wakeupTimeReceived);
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
         mPowerEventListener.waitForSleepExit(WAIT_TIMEOUT_MS);
@@ -210,35 +220,35 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
         assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
         mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
-        assertTrue(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,
                 PowerHalService.FLAG_SHUTDOWN_PARAM_CAN_SLEEP));
         mPowerEventProcessingHandler.waitForPrepareShutdown(WAIT_TIMEOUT_MS);
-        assertFalse(mSystemInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
+        assertFalse(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY,
                 WAIT_TIMEOUT_LONG_MS, 0);
         mPowerEventListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
-        mSystemInterface.setWakeupCausedByTimer(true);
-        int wakeupTimeReceived = mSystemInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
+        mSystemStateInterface.setWakeupCausedByTimer(true);
+        int wakeupTimeReceived = mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         assertEquals(wakeupTime, wakeupTimeReceived);
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
         mPowerEventListener.waitForSleepExit(WAIT_TIMEOUT_MS);
         // second processing after wakeup
-        assertFalse(mSystemInterface.getDisplayState());
+        assertFalse(mDisplayInterface.getDisplayState());
         mPowerEventProcessingHandler.waitForPrepareShutdown(WAIT_TIMEOUT_MS);
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY,
                 WAIT_TIMEOUT_LONG_MS, 0);
         mPowerEventListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
         // PM will shutdown system as it was not woken-up due to timer and it is not power on.
-        mSystemInterface.setWakeupCausedByTimer(false);
-        wakeupTimeReceived = mSystemInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
+        mSystemStateInterface.setWakeupCausedByTimer(false);
+        wakeupTimeReceived = mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         assertEquals(wakeupTime, wakeupTimeReceived);
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
         assertStateReceived(PowerHalService.SET_SHUTDOWN_START, wakeupTime);
         mPowerEventListener.waitForShutdown(WAIT_TIMEOUT_MS);
-        mSystemInterface.waitForShutdown(WAIT_TIMEOUT_MS);
-        assertFalse(mSystemInterface.getDisplayState());
+        mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
+        assertFalse(mDisplayInterface.getDisplayState());
     }
 
     private void assertStateReceived(int expectedState, int expectedParam) throws Exception {
@@ -268,16 +278,9 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         }
     }
 
-    private static class SystemInterfaceImpl implements SystemInterface {
-
+    private static final class MockDisplayInterface implements DisplayInterface {
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
-        private final Semaphore mShutdownWait = new Semaphore(0);
-        private final Semaphore mSleepWait = new Semaphore(0);
-        private final Semaphore mSleepExitWait = new Semaphore(0);
-        private TemporaryDirectory mFilesDir;
-        private int mWakeupTime;
-        private boolean mWakeupCausedByTimer = false;
 
         @Override
         public synchronized void setDisplayState(boolean on) {
@@ -295,8 +298,18 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         }
 
         @Override
-        public void releaseAllWakeLocks() {
-        }
+        public void startDisplayStateMonitoring(CarPowerManagementService service) {}
+
+        @Override
+        public void stopDisplayStateMonitoring() {}
+    }
+
+    private static final class MockSystemStateInterface implements SystemStateInterface {
+        private final Semaphore mShutdownWait = new Semaphore(0);
+        private final Semaphore mSleepWait = new Semaphore(0);
+        private final Semaphore mSleepExitWait = new Semaphore(0);
+        private int mWakeupTime;
+        private boolean mWakeupCausedByTimer = false;
 
         @Override
         public void shutdown() {
@@ -317,11 +330,6 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
             }
         }
 
-        @Override
-        public boolean isSystemSupportingDeepSleep() {
-            return true;
-        }
-
         public int waitForSleepEntryAndWakeup(long timeoutMs) throws Exception {
             waitForSemaphore(mSleepWait, timeoutMs);
             mSleepExitWait.release();
@@ -329,26 +337,38 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         }
 
         @Override
-        public void switchToPartialWakeLock() {
-        }
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {}
 
         @Override
-        public void switchToFullWakeLock() {
-        }
-
-        @Override
-        public void startDisplayStateMonitoring(CarPowerManagementService service) {
-        }
-
-        @Override
-        public void stopDisplayStateMonitoring() {
-        }
-
-        @Override
-        public synchronized boolean isWakeupCausedByTimer() {
+        public boolean isWakeupCausedByTimer() {
             Log.i(TAG, "isWakeupCausedByTimer:" + mWakeupCausedByTimer);
             return mWakeupCausedByTimer;
         }
+
+        public synchronized void setWakeupCausedByTimer(boolean set) {
+            mWakeupCausedByTimer = set;
+        }
+
+        @Override
+        public boolean isSystemSupportingDeepSleep() {
+            return true;
+        }
+    }
+
+    private static final class MockWakeLockInterface implements WakeLockInterface {
+
+        @Override
+        public void releaseAllWakeLocks() {}
+
+        @Override
+        public void switchToPartialWakeLock() {}
+
+        @Override
+        public void switchToFullWakeLock() {}
+    }
+
+    private static final class MockIOInterface implements IOInterface {
+        private TemporaryDirectory mFilesDir;
 
         @Override
         public File getFilesDir() {
@@ -363,10 +383,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
             return mFilesDir.getDirectory();
         }
 
-        @Override
-        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {}
-
-        void tearDown() {
+        public void tearDown() {
             if (mFilesDir != null) {
                 try {
                     mFilesDir.close();
@@ -374,10 +391,6 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
                     Log.w(TAG, "could not remove temporary directory", e);
                 }
             }
-        }
-
-        public synchronized void setWakeupCausedByTimer(boolean set) {
-            mWakeupCausedByTimer = set;
         }
     }
 
