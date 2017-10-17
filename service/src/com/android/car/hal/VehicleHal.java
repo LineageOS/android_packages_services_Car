@@ -80,8 +80,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private final VendorExtensionHalService mVendorExtensionHal;
     private DiagnosticHalService mDiagnosticHal = null;
 
-    @FutureFeature
-    private VmsHalService mVmsHal;
 
 
     /** Might be re-assigned if Vehicle HAL is reconnected. */
@@ -108,9 +106,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mHvacHal = new HvacHalService(this);
         mInputHal = new InputHalService(this);
         mVendorExtensionHal = new VendorExtensionHalService(this);
-        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
-            mVmsHal = new VmsHalService(this);
-        }
         mDiagnosticHal = new DiagnosticHalService(this);
         mAllServices.addAll(Arrays.asList(mPowerHal,
                 mSensorHal,
@@ -122,9 +117,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
                 mInputHal,
                 mVendorExtensionHal,
                 mDiagnosticHal));
-        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
-            mAllServices.add(mVmsHal);
-        }
 
         mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(), this /*IVehicleCallback*/);
     }
@@ -146,10 +138,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mVendorExtensionHal = null;
         mDiagnosticHal = null;
 
-        if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
-            mVmsHal = null;
-        }
-
         mHalClient = halClient;
     }
 
@@ -169,7 +157,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
             mHvacHal = hvacHal;
             mInputHal = null;
             mVendorExtensionHal = null;
-            mVmsHal = null;
             mHalClient = halClient;
             mDiagnosticHal = diagnosticHal;
     }
@@ -280,9 +267,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
     public VendorExtensionHalService getVendorExtensionHal() {
         return mVendorExtensionHal;
     }
-
-    @FutureFeature
-    public VmsHalService getVmsHal() { return mVmsHal; }
 
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {
         if (service != mPropertyHandlers.get(property)) {

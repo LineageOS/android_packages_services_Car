@@ -116,13 +116,4 @@
     <!-- Permission text: apps can clear diagnostic data from the car [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_diag_clear">Clear diagnostic data from the car</string>
 
-    <!-- Permission text: apps can publish VMS data [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_vms_publisher">VMS publisher</string>
-    <!-- Permission text: apps can send VMS messages to the car [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_vms_publisher">Publish vms messages</string>
-
-    <!-- Permission text: apps can subscribe to VMS data [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_vms_subscriber">VMS subscriber</string>
-    <!-- Permission text: apps can receive VMS messages from the car [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_vms_subscriber">Subscribe to vms messages</string>
 </resources>
