@@ -33,12 +33,16 @@ import android.os.Looper;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
-import android.util.Pair;
 import android.util.SparseArray;
 
-import com.android.car.MockedCarTestBase.FakeSystemInterface.UptimeProvider;
-import com.android.car.storagemonitoring.WearInformation;
-import com.android.car.storagemonitoring.WearInformationProvider;
+import com.android.car.systeminterface.DisplayInterface;
+import com.android.car.systeminterface.IOInterface;
+import com.android.car.systeminterface.StorageMonitoringInterface;
+import com.android.car.systeminterface.SystemInterface;
+import com.android.car.systeminterface.SystemInterface.Builder;
+import com.android.car.systeminterface.SystemStateInterface;
+import com.android.car.systeminterface.TimeInterface;
+import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
@@ -50,14 +54,10 @@ import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Base class for testing with mocked vehicle HAL (=car).
@@ -72,7 +72,8 @@ public class MockedCarTestBase extends AndroidTestCase {
     private android.car.Car mCar;
     private ICarImpl mCarImpl;
     private MockedVehicleHal mMockedVehicleHal;
-    private FakeSystemInterface mFakeSystemInterface;
+    private SystemInterface mFakeSystemInterface;
+    private final MockIOInterface mMockIOInterface = new MockIOInterface();
 
     private final Semaphore mWaitForMain = new Semaphore(0);
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
@@ -92,27 +93,24 @@ public class MockedCarTestBase extends AndroidTestCase {
         return mMockedVehicleHal;
     }
 
-    protected synchronized FakeSystemInterface getFakeSystemInterface() {
+    protected synchronized SystemInterface getFakeSystemInterface() {
         return mFakeSystemInterface;
     }
 
     protected synchronized void configureMockedHal() {
     }
 
-    protected synchronized void configureFakeSystemInterface() {
+    protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
+        return Builder.newSystemInterface()
+                .withSystemStateInterface(new MockSystemStateInterface())
+                .withDisplayInterface(new MockDisplayInterface())
+                .withIOInterface(mMockIOInterface)
+                .withStorageMonitoringInterface(new MockStorageMonitoringInterface())
+                .withTimeInterface(new MockTimeInterface())
+                .withWakeLockInterface(new MockWakeLockInterface());
     }
 
-    protected synchronized void setFlashWearInformation(WearInformation wearInformation) {
-        mFakeSystemInterface.mWearInformationProvider.setWearInformation(wearInformation);
-    }
-
-    protected synchronized void setUptimeProvider(UptimeProvider uptimeProvider) {
-        mFakeSystemInterface.mUptimeProvider = uptimeProvider;
-    }
-
-    protected synchronized void fakeBootCompletedEvent() {
-        mFakeSystemInterface.executeBootCompletedActions();
-    }
+    protected synchronized void configureFakeSystemInterface() {}
 
     @Override
     protected synchronized void setUp() throws Exception {
@@ -127,7 +125,7 @@ public class MockedCarTestBase extends AndroidTestCase {
                         .build());
         configureMockedHal();
 
-        mFakeSystemInterface = new FakeSystemInterface();
+        mFakeSystemInterface = getSystemInterfaceBuilder().build();
         configureFakeSystemInterface();
 
         Context context = getCarServiceContext();
@@ -146,7 +144,7 @@ public class MockedCarTestBase extends AndroidTestCase {
         mCar.disconnect();
         mCarImpl.release();
 
-        mFakeSystemInterface.tearDown();
+        mMockIOInterface.tearDown();
     }
 
     protected Context getCarServiceContext() throws NameNotFoundException {
@@ -233,10 +231,6 @@ public class MockedCarTestBase extends AndroidTestCase {
         mWaitForMain.acquire();
     }
 
-    protected boolean waitForFakeDisplayState(boolean expectedState) throws Exception {
-        return mFakeSystemInterface.waitForDisplayState(expectedState, SHORT_WAIT_TIMEOUT_MS);
-    }
-
     public static <T> void assertArrayEquals(T[] expected, T[] actual) {
         if (!Arrays.equals(expected, actual)) {
             fail("expected:<" + Arrays.toString(expected) +
@@ -293,76 +287,20 @@ public class MockedCarTestBase extends AndroidTestCase {
         }
     }
 
-    static class FakeSystemInterface implements SystemInterface {
-        interface UptimeProvider {
-            long getUptime(boolean includeDeepSleepTime);
-        }
+    static final class MockDisplayInterface implements DisplayInterface {
 
-        private boolean mDisplayOn = true;
-        private final Semaphore mDisplayStateWait = new Semaphore(0);
-        private final class FakeWearInformationProvider implements WearInformationProvider {
-            private WearInformation mWearInformation = null;
-            public void setWearInformation(WearInformation wearInformation) {
-                mWearInformation = wearInformation;
-            }
+        @Override
+        public void setDisplayState(boolean on) {}
 
-            @Override
-            public WearInformation load() {
-                return mWearInformation;
-            }
-        }
-        private final FakeWearInformationProvider mWearInformationProvider =
-                new FakeWearInformationProvider();
-        private final List<Pair<Runnable, Duration>> mActionsList = new ArrayList<>();
+        @Override
+        public void startDisplayStateMonitoring(CarPowerManagementService service) {}
 
+        @Override
+        public void stopDisplayStateMonitoring() {}
+    }
+
+    static final class MockIOInterface implements IOInterface {
         private TemporaryDirectory mFilesDir = null;
-        private UptimeProvider mUptimeProvider = null;
-
-        @Override
-        public synchronized void setDisplayState(boolean on) {
-            mDisplayOn = on;
-            mDisplayStateWait.release();
-        }
-
-        boolean waitForDisplayState(boolean expectedState, long timeoutMs)
-                throws Exception {
-            if (expectedState == mDisplayOn) {
-                return true;
-            }
-            mDisplayStateWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
-            return expectedState == mDisplayOn;
-        }
-
-        @Override
-        public void releaseAllWakeLocks() {
-        }
-
-        @Override
-        public void shutdown() { }
-
-        @Override
-        public void enterDeepSleep(int wakeupTimeSec) { }
-
-        @Override
-        public void switchToPartialWakeLock() {
-        }
-
-        @Override
-        public void switchToFullWakeLock() {
-        }
-
-        @Override
-        public void startDisplayStateMonitoring(CarPowerManagementService service) {
-        }
-
-        @Override
-        public void stopDisplayStateMonitoring() {
-        }
-
-        @Override
-        public WearInformationProvider[] getFlashWearInformationProviders() {
-            return new WearInformationProvider[] { mWearInformationProvider };
-        }
 
         @Override
         public File getFilesDir() {
@@ -377,27 +315,7 @@ public class MockedCarTestBase extends AndroidTestCase {
             return mFilesDir.getDirectory();
         }
 
-        @Override
-        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {
-            mActionsList.add(Pair.create(action, delay));
-            mActionsList.sort(Comparator.comparing(d -> d.second));
-        }
-
-        @Override
-        public long getUptime(boolean includeDeepSleepTime) {
-            if (mUptimeProvider != null) {
-                return mUptimeProvider.getUptime(includeDeepSleepTime);
-            }
-            return SystemInterface.super.getUptime(includeDeepSleepTime);
-        }
-
-        void executeBootCompletedActions() {
-            for (Pair<Runnable, Duration> action : mActionsList) {
-                action.first.run();
-            }
-        }
-
-        void tearDown() {
+        public void tearDown() {
             if (mFilesDir != null) {
                 try {
                     mFilesDir.close();
@@ -407,4 +325,39 @@ public class MockedCarTestBase extends AndroidTestCase {
             }
         }
     }
+
+    static final class MockStorageMonitoringInterface implements StorageMonitoringInterface {}
+
+    static final class MockSystemStateInterface implements SystemStateInterface {
+        @Override
+        public void shutdown() {}
+
+        @Override
+        public void enterDeepSleep(int wakeupTimeSec) {}
+
+        @Override
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {}
+    }
+
+    static final class MockTimeInterface implements TimeInterface {
+
+        @Override
+        public void scheduleAction(Runnable r, long delayMs) {}
+
+        @Override
+        public void cancelAllActions() {}
+    }
+
+    static final class MockWakeLockInterface implements WakeLockInterface {
+
+        @Override
+        public void releaseAllWakeLocks() {}
+
+        @Override
+        public void switchToPartialWakeLock() {}
+
+        @Override
+        public void switchToFullWakeLock() {}
+    }
+
 }

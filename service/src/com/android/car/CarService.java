@@ -31,6 +31,8 @@ import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.util.Log;
 
+import com.android.car.systeminterface.SystemInterface;
+
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.RingBufferIndices;
 
@@ -85,7 +87,9 @@ public class CarService extends Service {
 
         Log.i(CarLog.TAG_SERVICE, "Connected to " + mVehicleInterfaceName);
 
-        mICarImpl = new ICarImpl(this, mVehicle, SystemInterface.createDefault(this),
+        mICarImpl = new ICarImpl(this,
+                mVehicle,
+                SystemInterface.Builder.defaultSystemInterface(this).build(),
                 mCanBusErrorNotifier);
         mICarImpl.init();
         SystemProperties.set("boot.car_service_created", "1");

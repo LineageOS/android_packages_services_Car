@@ -26,6 +26,8 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import com.android.car.systeminterface.DisplayInterface;
+import com.android.car.systeminterface.SystemInterface;
 import com.google.android.collect.Lists;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
@@ -40,6 +42,13 @@ import java.util.concurrent.TimeUnit;
 public class CarPowerManagementTest extends MockedCarTestBase {
 
     private final PowerStatePropertyHandler mPowerStateHandler = new PowerStatePropertyHandler();
+    private final MockDisplayInterface mMockDisplayInterface = new MockDisplayInterface();
+
+    @Override
+    protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
+        SystemInterface.Builder builder = super.getSystemInterfaceBuilder();
+        return builder.withDisplayInterface(mMockDisplayInterface);
+    }
 
     private void setupPowerPropertyAndStart(boolean allowSleep) {
         addProperty(VehicleProperty.AP_POWER_STATE, mPowerStateHandler)
@@ -70,9 +79,9 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         assertBootComplete();
         for (int i = 0; i < 2; i++) {
             mPowerStateHandler.sendPowerState(VehicleApPowerState.ON_DISP_OFF, 0);
-            waitForFakeDisplayState(false);
+            mMockDisplayInterface.waitForDisplayState(false);
             mPowerStateHandler.sendPowerState(VehicleApPowerState.ON_FULL, 0);
-            waitForFakeDisplayState(true);
+            mMockDisplayInterface.waitForDisplayState(true);
         }
     }
 
@@ -105,6 +114,33 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         int[] first = setEvents.getFirst();
         assertEquals(VehicleApPowerSetState.BOOT_COMPLETE, first[0]);
         assertEquals(0, first[1]);
+    }
+
+    private final class MockDisplayInterface implements DisplayInterface {
+        private boolean mDisplayOn = true;
+        private final Semaphore mDisplayStateWait = new Semaphore(0);
+
+        @Override
+        public synchronized void setDisplayState(boolean on) {
+            mDisplayOn = on;
+            mDisplayStateWait.release();
+        }
+
+        boolean waitForDisplayState(boolean expectedState)
+            throws Exception {
+            if (expectedState == mDisplayOn) {
+                return true;
+            }
+            mDisplayStateWait.tryAcquire(MockedCarTestBase.SHORT_WAIT_TIMEOUT_MS,
+                    TimeUnit.MILLISECONDS);
+            return expectedState == mDisplayOn;
+        }
+
+        @Override
+        public void startDisplayStateMonitoring(CarPowerManagementService service) {}
+
+        @Override
+        public void stopDisplayStateMonitoring() {}
     }
 
     private class PowerStatePropertyHandler implements VehicleHalPropertyHandler {
