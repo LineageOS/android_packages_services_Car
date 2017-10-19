@@ -32,7 +32,6 @@ import android.car.media.CarAudioManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.CarBluetoothManager;
 import android.car.test.CarTestManagerBinderWrapper;
-import android.car.vms.VmsSubscriberManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -133,12 +132,6 @@ public final class Car {
      * @hide
      */
     public static final String BLUETOOTH_SERVICE = "car_bluetooth";
-
-    /**
-     * @FutureFeature Cannot drop due to usage in non-flag protected place.
-     * @hide
-     */
-    public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
 
     /**
      * Service for testing. This is system app only feature.
@@ -259,22 +252,6 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_CAR_TEST_SERVICE =
             "android.car.permission.CAR_TEST_SERVICE";
-
-    /**
-     * Permissions necessary to access VMS publisher APIs.
-     *
-     * @hide
-     */
-    @FutureFeature
-    public static final String PERMISSION_VMS_PUBLISHER = "android.car.permission.VMS_PUBLISHER";
-
-    /**
-     * Permissions necessary to access VMS subscriber APIs.
-     *
-     * @hide
-     */
-    @FutureFeature
-    public static final String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
 
     /**
      * Permissions necessary to read diagnostic information, including vendor-specific bits.
@@ -653,11 +630,6 @@ public final class Car {
                 /* CarTestManager exist in static library. So instead of constructing it here,
                  * only pass binder wrapper so that CarTestManager can be constructed outside. */
                 manager = new CarTestManagerBinderWrapper(binder);
-                break;
-            case VMS_SUBSCRIBER_SERVICE:
-                if (FeatureConfiguration.ENABLE_VEHICLE_MAP_SERVICE) {
-                    manager = new VmsSubscriberManager(binder, mEventHandler);
-                }
                 break;
             case BLUETOOTH_SERVICE:
                 manager = new CarBluetoothManager(binder, mContext);

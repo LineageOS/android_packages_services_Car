@@ -101,17 +101,6 @@
       android:protectionLevel="system|signature"
       android:label="@string/car_permission_label_diag_clear"
       android:description="@string/car_permission_desc_diag_clear" />
-    <permission
-        android:name="android.car.permission.VMS_PUBLISHER"
-        android:protectionLevel="system|signature"
-        android:label="@string/car_permission_label_vms_publisher"
-        android:description="@string/car_permission_desc_vms_publisher" />
-    <permission
-        android:name="android.car.permission.VMS_SUBSCRIBER"
-        android:protectionLevel="system|signature"
-        android:label="@string/car_permission_label_vms_subscriber"
-        android:description="@string/car_permission_desc_vms_subscriber" />
-
     <!--  may replace this with system permission if proper one is defined. -->
     <permission
         android:name="android.car.permission.CONTROL_APP_BLOCKING"
