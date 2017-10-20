@@ -30,6 +30,8 @@ bootio_shared_libs := \
         libprotobuf-cpp-lite \
 
 bootio_cflags := \
+        -Wall \
+        -Werror \
         -Wextra \
 
 define bootio_proto_include
