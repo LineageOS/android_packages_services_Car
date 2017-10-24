@@ -91,6 +91,7 @@ PRODUCT_PACKAGES += \
     CarUsbHandler \
     android.car \
     libvehiclemonitor-native \
+    com.android.car.procfsinspector \
 
 # Boot animation
 PRODUCT_COPY_FILES += \

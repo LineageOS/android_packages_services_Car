@@ -23,8 +23,11 @@ import android.content.IntentFilter;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Pair;
+import com.android.car.procfsinspector.ProcessInfo;
+import com.android.car.procfsinspector.ProcfsInspector;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -49,6 +52,10 @@ public interface SystemStateInterface {
     default boolean isSystemSupportingDeepSleep() {
         //TODO should return by checking some kernel suspend control sysfs, bug: 32061842
         return false;
+    }
+
+    default List<ProcessInfo> getRunningProcesses() {
+        return ProcfsInspector.readProcessTable();
     }
 
     class DefaultImpl implements SystemStateInterface {
