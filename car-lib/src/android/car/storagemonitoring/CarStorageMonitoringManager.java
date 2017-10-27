@@ -119,4 +119,26 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
         }
         return Collections.emptyList();
     }
+
+    /**
+     * This method returns a list of per user-id I/O activity metrics as collected at the end of
+     * system boot.
+     *
+     * The BOOT_COMPLETE broadcast is used as the trigger to collect this data. The implementation
+     * may impose an additional, and even variable across boot cycles, delay between the sending
+     * of the broadcast and the collection of the data.
+     *
+     * If the information is not available, an empty list will be returned.
+     */
+    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    public List<UidIoStats> getBootIoStats() throws CarNotConnectedException {
+        try {
+            return mService.getBootIoStats();
+        } catch (IllegalStateException e) {
+            checkCarNotConnectedExceptionFromCarService(e);
+        } catch (RemoteException e) {
+            throw new CarNotConnectedException();
+        }
+        return Collections.emptyList();
+    }
 }
