@@ -42,6 +42,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         android.hardware.automotive.vehicle-V2.0-java \
         vehicle-hal-support-lib \
         car-systemtest \
+        com.android.car.procfsinspector-client \
 
 include $(BUILD_PACKAGE)
 
@@ -61,6 +62,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         android.hardware.automotive.vehicle-V2.0-java \
         vehicle-hal-support-lib \
         car-systemtest \
+        com.android.car.procfsinspector-client \
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 

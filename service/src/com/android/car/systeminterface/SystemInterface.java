@@ -18,10 +18,12 @@ package com.android.car.systeminterface;
 
 import android.content.Context;
 import com.android.car.CarPowerManagementService;
+import com.android.car.procfsinspector.ProcessInfo;
 import com.android.car.storagemonitoring.UidIoStatsProvider;
 import com.android.car.storagemonitoring.WearInformationProvider;
 import java.io.File;
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -91,6 +93,11 @@ public final class SystemInterface implements DisplayInterface, IOInterface,
     @Override
     public void scheduleAction(Runnable r, long delayMs) {
         mTimeInterface.scheduleAction(r, delayMs);
+    }
+
+    @Override
+    public List<ProcessInfo> getRunningProcesses() {
+        return mSystemStateInterface.getRunningProcesses();
     }
 
     @Override
