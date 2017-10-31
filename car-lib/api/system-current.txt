@@ -1055,12 +1055,12 @@ package android.car.storagemonitoring {
   }
 
   public class WearEstimateChange implements android.os.Parcelable {
-    ctor public WearEstimateChange(android.car.storagemonitoring.WearEstimate, android.car.storagemonitoring.WearEstimate, long, Instant, boolean);
+    ctor public WearEstimateChange(android.car.storagemonitoring.WearEstimate, android.car.storagemonitoring.WearEstimate, long, java.time.Instant, boolean);
     ctor public WearEstimateChange(android.os.Parcel);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.WearEstimateChange> CREATOR;
-    field public final Instant dateAtChange;
+    field public final java.time.Instant dateAtChange;
     field public final boolean isAcceptableDegradation;
     field public final android.car.storagemonitoring.WearEstimate newEstimate;
     field public final android.car.storagemonitoring.WearEstimate oldEstimate;
