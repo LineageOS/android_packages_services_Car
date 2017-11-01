@@ -75,7 +75,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Automotive specific packages
 PRODUCT_PACKAGES += \
-    vehicle_monitor_service \
     CarService \
     CarTrustAgentService \
     CarDialerApp \
@@ -90,7 +89,6 @@ PRODUCT_PACKAGES += \
     CarLatinIME \
     CarUsbHandler \
     android.car \
-    libvehiclemonitor-native \
     com.android.car.procfsinspector \
 
 # Boot animation
