@@ -16,6 +16,7 @@
 
 package android.car.storagemonitoring;
 
+import android.car.storagemonitoring.UidIoStats;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 
@@ -35,4 +36,9 @@ interface ICarStorageMonitoring {
    * Returns the list of all observed wear estimate changes.
    */
   List<WearEstimateChange> getWearEstimateHistory() = 3;
+
+  /**
+   * Returns I/O stats as collected at service boot time.
+   */
+  List<UidIoStats> getBootIoStats() = 4;
 }

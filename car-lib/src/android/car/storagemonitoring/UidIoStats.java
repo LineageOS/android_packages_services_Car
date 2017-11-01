@@ -33,16 +33,16 @@ import org.json.JSONObject;
  * @hide
  */
 @SystemApi
-public final class UidIoStatEntry implements Parcelable {
+public final class UidIoStats implements Parcelable {
 
-    public static final Parcelable.Creator<UidIoStatEntry> CREATOR =
-        new Parcelable.Creator<UidIoStatEntry>() {
-            public UidIoStatEntry createFromParcel(Parcel in) {
-                return new UidIoStatEntry(in);
+    public static final Parcelable.Creator<UidIoStats> CREATOR =
+        new Parcelable.Creator<UidIoStats>() {
+            public UidIoStats createFromParcel(Parcel in) {
+                return new UidIoStats(in);
             }
 
-            public UidIoStatEntry[] newArray(int size) {
-                return new UidIoStatEntry[size];
+            public UidIoStats[] newArray(int size) {
+                return new UidIoStats[size];
             }
         };
 
@@ -56,6 +56,14 @@ public final class UidIoStatEntry implements Parcelable {
     public final int uid;
 
     /**
+     * How long any process running on behalf of this user id running for, in milliseconds.
+     *
+     * This field is allowed to be an approximation and it does not provide any way to
+     * relate uptime to specific processes.
+     */
+    public final long runtimeMillis;
+
+    /**
      * Statistics for apps running in foreground.
      */
     public final PerStateMetrics foreground;
@@ -65,16 +73,34 @@ public final class UidIoStatEntry implements Parcelable {
      */
     public final PerStateMetrics background;
 
-    public UidIoStatEntry(int uid, PerStateMetrics foreground, PerStateMetrics background) {
+    public UidIoStats(int uid,
+            long runtimeMillis, PerStateMetrics foreground, PerStateMetrics background) {
         this.uid = uid;
+        this.runtimeMillis = runtimeMillis;
         this.foreground = Objects.requireNonNull(foreground);
         this.background = Objects.requireNonNull(background);
     }
 
-    public UidIoStatEntry(Parcel in) {
+    public UidIoStats(Parcel in) {
         uid = in.readInt();
+        runtimeMillis = in.readLong();
         foreground = in.readParcelable(PerStateMetrics.class.getClassLoader());
         background = in.readParcelable(PerStateMetrics.class.getClassLoader());
+    }
+
+    public UidIoStats(UidIoStatsRecord record, long runtimeMillis) {
+        uid = record.uid;
+        this.runtimeMillis = runtimeMillis;
+        foreground = new PerStateMetrics(record.foreground_rchar,
+                record.foreground_wchar,
+                record.foreground_read_bytes,
+                record.foreground_write_bytes,
+                record.foreground_fsync);
+        background = new PerStateMetrics(record.background_rchar,
+            record.background_wchar,
+            record.background_read_bytes,
+            record.background_write_bytes,
+            record.background_fsync);
     }
 
     @Override
@@ -85,6 +111,7 @@ public final class UidIoStatEntry implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(uid);
+        dest.writeLong(runtimeMillis);
         dest.writeParcelable(foreground, flags);
         dest.writeParcelable(background, flags);
     }
@@ -92,13 +119,15 @@ public final class UidIoStatEntry implements Parcelable {
     public void writeToJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.beginObject();
         jsonWriter.name("uid").value(uid);
+        jsonWriter.name("runtimeMillis").value(runtimeMillis);
         jsonWriter.name("foreground"); foreground.writeToJson(jsonWriter);
         jsonWriter.name("background"); background.writeToJson(jsonWriter);
         jsonWriter.endObject();
     }
 
-    public UidIoStatEntry(JSONObject in) throws JSONException {
+    public UidIoStats(JSONObject in) throws JSONException {
         uid = in.getInt("uid");
+        runtimeMillis = in.getLong("runtimeMillis");
         foreground = new PerStateMetrics(in.getJSONObject("foreground"));
         background = new PerStateMetrics(in.getJSONObject("background"));
     }
@@ -112,20 +141,22 @@ public final class UidIoStatEntry implements Parcelable {
      *
      * @hide
      */
-    public UidIoStatEntry delta(UidIoStatEntry other) {
+    public UidIoStats delta(UidIoStats other) {
         if (uid != other.uid) {
             throw new IllegalArgumentException("cannot calculate delta between different user IDs");
         }
-        return new UidIoStatEntry(uid,
+        return new UidIoStats(uid,
+                runtimeMillis - other.runtimeMillis,
                 foreground.delta(other.foreground), background.delta(other.background));
     }
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof UidIoStatEntry) {
-            UidIoStatEntry uidIoStatEntry = (UidIoStatEntry)other;
+        if (other instanceof UidIoStats) {
+            UidIoStats uidIoStatEntry = (UidIoStats)other;
 
             return uid == uidIoStatEntry.uid &&
+                    runtimeMillis == uidIoStatEntry.runtimeMillis &&
                     foreground.equals(uidIoStatEntry.foreground) &&
                     background.equals(uidIoStatEntry.background);
         }
@@ -135,13 +166,33 @@ public final class UidIoStatEntry implements Parcelable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(uid, foreground, background);
+        return Objects.hash(uid, runtimeMillis, foreground, background);
     }
 
     @Override
     public String toString() {
-        return String.format("uid = %d, foreground = %s, background = %s",
-            uid, foreground, background);
+        return String.format("uid = %d, runtime = %d, foreground = %s, background = %s",
+            uid, runtimeMillis, foreground, background);
+    }
+
+    /**
+     * Validates that this object contains the same I/O metrics as a UidIoStatsRecord.
+     *
+     * It matches UID, and I/O activity values, but ignores runtime.
+     * @hide
+     */
+    public boolean representsSameMetrics(UidIoStatsRecord record) {
+        return record.uid == uid &&
+               record.foreground_rchar == foreground.bytesRead &&
+               record.foreground_wchar == foreground.bytesWritten &&
+               record.foreground_read_bytes == foreground.bytesReadFromStorage &&
+               record.foreground_write_bytes == foreground.bytesWrittenToStorage &&
+               record.foreground_fsync == foreground.fsyncCalls &&
+               record.background_rchar == background.bytesRead &&
+               record.background_wchar == background.bytesWritten &&
+               record.background_read_bytes == background.bytesReadFromStorage &&
+               record.background_write_bytes == background.bytesWrittenToStorage &&
+               record.background_fsync == background.fsyncCalls;
     }
 
     /**

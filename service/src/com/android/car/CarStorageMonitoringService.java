@@ -18,21 +18,16 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.storagemonitoring.ICarStorageMonitoring;
+import android.car.storagemonitoring.UidIoStats;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
-import android.os.Parcel;
-import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.util.JsonWriter;
 import android.util.Log;
 import com.android.car.internal.CarPermission;
-import com.android.car.procfsinspector.ProcessInfo;
-import com.android.car.procfsinspector.ProcfsInspector;
 import com.android.car.storagemonitoring.WearEstimateRecord;
 import com.android.car.storagemonitoring.WearHistory;
 import com.android.car.storagemonitoring.WearInformation;
@@ -48,6 +43,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.json.JSONException;
 
 public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
@@ -70,6 +66,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private UptimeTracker mUptimeTracker = null;
     private Optional<WearInformation> mWearInformation = Optional.empty();
     private List<WearEstimateChange> mWearEstimateChanges = Collections.emptyList();
+    private List<UidIoStats> mBootIoStats = Collections.emptyList();
     private boolean mInitialized = false;
 
     public CarStorageMonitoringService(Context context, SystemInterface systemInterface) {
@@ -213,6 +210,16 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             launchWearChangeActivity();
         }
 
+        long bootUptime = mSystemInterface.getUptime();
+        mBootIoStats = SparseArrayStream.valueStream(mSystemInterface.getUidIoStatsProvider().load())
+            .map(record -> {
+                // at boot, assume all UIDs have been running for as long as the system has
+                // been up, since we don't really know any better
+                UidIoStats stats = new UidIoStats(record, bootUptime);
+                Log.d(TAG, "loaded boot I/O stat data: " + stats);
+                return stats;
+            }).collect(Collectors.toList());
+
         Log.i(TAG, "CarStorageMonitoringService is up");
 
         mInitialized = true;
@@ -267,5 +274,13 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         doInitServiceIfNeeded();
 
         return mWearEstimateChanges;
+    }
+
+    @Override
+    public List<UidIoStats> getBootIoStats() {
+        mStorageMonitoringPermission.assertGranted();
+        doInitServiceIfNeeded();
+
+        return mBootIoStats;
     }
 }

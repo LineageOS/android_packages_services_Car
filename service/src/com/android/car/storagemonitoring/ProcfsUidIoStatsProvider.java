@@ -16,8 +16,7 @@
 package com.android.car.storagemonitoring;
 
 import android.annotation.Nullable;
-import android.car.storagemonitoring.UidIoStatEntry;
-import android.car.storagemonitoring.UidIoStatEntry.PerStateMetrics;
+import android.car.storagemonitoring.UidIoStatsRecord;
 import android.util.Log;
 import android.util.SparseArray;
 import com.android.car.CarLog;
@@ -51,9 +50,9 @@ public class ProcfsUidIoStatsProvider implements UidIoStatsProvider {
 
     @Nullable
     @Override
-    public SparseArray<UidIoStatEntry> load() {
+    public SparseArray<UidIoStatsRecord> load() {
         List<String> lines;
-        SparseArray<UidIoStatEntry> result = new SparseArray<>();
+        SparseArray<UidIoStatsRecord> result = new SparseArray<>();
         try {
             lines = Files.readAllLines(mStatsFile);
         } catch (IOException e) {
@@ -81,13 +80,17 @@ public class ProcfsUidIoStatsProvider implements UidIoStatsProvider {
                 long foreground_fsync = Long.valueOf(tokenizer.nextToken());
                 long background_fsync = Long.valueOf(tokenizer.nextToken());
 
-                result.append(uid, new UidIoStatEntry(uid,
-                    new PerStateMetrics(foreground_rchar, foreground_wchar,
-                        foreground_read_bytes, foreground_write_bytes,
-                        foreground_fsync),
-                    new PerStateMetrics(background_rchar, background_wchar,
-                        background_read_bytes, background_write_bytes,
-                        background_fsync)));
+                result.append(uid, new UidIoStatsRecord(uid,
+                            foreground_rchar,
+                            foreground_wchar,
+                            foreground_read_bytes,
+                            foreground_write_bytes,
+                            foreground_fsync,
+                            background_rchar,
+                            background_wchar,
+                            background_read_bytes,
+                            background_write_bytes,
+                            background_fsync));
 
             } catch (NumberFormatException e) {
                 Log.w(CarLog.TAG_STORAGE, "malformed I/O stats entry: " + line, e);
