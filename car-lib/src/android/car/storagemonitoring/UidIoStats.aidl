@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,6 @@
  * limitations under the License.
  */
 
-package com.android.car.vehiclemonitor;
+package android.car.storagemonitoring;
 
-import com.android.car.vehiclemonitor.IVehicleMonitorListener;
-
-/**
-  * Binder API to access vehicle monitor service.
-  * @hide
-  */
-oneway interface IVehicleMonitor {
-    void setAppPriority(int pid, int uid, int priority) = 0;
-    void setMonitorListener(IVehicleMonitorListener listener) = 1;
-}
+parcelable UidIoStats;

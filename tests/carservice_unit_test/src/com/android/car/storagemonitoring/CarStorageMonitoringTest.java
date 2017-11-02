@@ -16,8 +16,9 @@
 
 package com.android.car.storagemonitoring;
 
-import android.car.storagemonitoring.UidIoStatEntry;
-import android.car.storagemonitoring.UidIoStatEntry.PerStateMetrics;
+import android.car.storagemonitoring.UidIoStats;
+import android.car.storagemonitoring.UidIoStats.PerStateMetrics;
+import android.car.storagemonitoring.UidIoStatsRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 import android.os.Parcel;
@@ -283,14 +284,15 @@ public class CarStorageMonitoringTest extends TestCase {
             ProcfsUidIoStatsProvider statsProvider = new ProcfsUidIoStatsProvider(
                     statsFile.getPath());
 
-            SparseArray<UidIoStatEntry> entries = statsProvider.load();
+            SparseArray<UidIoStatsRecord> entries = statsProvider.load();
 
             assertNotNull(entries);
             assertEquals(2, entries.size());
 
-            UidIoStatEntry entry = entries.get(0);
+            UidIoStats entry = new UidIoStats(entries.get(0), 1234);
             assertNotNull(entry);
             assertEquals(0, entry.uid);
+            assertEquals(1234, entry.runtimeMillis);
             assertEquals(256797495, entry.foreground.bytesRead);
             assertEquals(181736102, entry.foreground.bytesWritten);
             assertEquals(362132480, entry.foreground.bytesReadFromStorage);
@@ -302,9 +304,10 @@ public class CarStorageMonitoringTest extends TestCase {
             assertEquals(0, entry.background.bytesWrittenToStorage);
             assertEquals(0, entry.background.fsyncCalls);
 
-            entry = entries.get(1006);
+            entry = new UidIoStats(entries.get(1006), 4321);
             assertNotNull(entry);
             assertEquals(1006, entry.uid);
+            assertEquals(4321, entry.runtimeMillis);
             assertEquals(489007, entry.foreground.bytesRead);
             assertEquals(196802, entry.foreground.bytesWritten);
             assertEquals(0, entry.foreground.bytesReadFromStorage);
@@ -326,7 +329,7 @@ public class CarStorageMonitoringTest extends TestCase {
             ProcfsUidIoStatsProvider statsProvider = new ProcfsUidIoStatsProvider(
                 statsFile.getPath());
 
-            SparseArray<UidIoStatEntry> entries = statsProvider.load();
+            SparseArray<UidIoStatsRecord> entries = statsProvider.load();
 
             assertNull(entries);
         }
@@ -340,26 +343,26 @@ public class CarStorageMonitoringTest extends TestCase {
             ProcfsUidIoStatsProvider statsProvider = new ProcfsUidIoStatsProvider(
                 statsFile.getPath());
 
-            SparseArray<UidIoStatEntry> entries = statsProvider.load();
+            SparseArray<UidIoStatsRecord> entries = statsProvider.load();
 
             assertNull(entries);
         }
     }
 
     public void testUidIoStatEntryEquality() throws Exception {
-        UidIoStatEntry statEntry1 = new UidIoStatEntry(10,
+        UidIoStats statEntry1 = new UidIoStats(10, 1234,
             new PerStateMetrics(10, 20, 30, 40, 50),
             new PerStateMetrics(100, 200, 300, 400, 500));
-        UidIoStatEntry statEntry2 = new UidIoStatEntry(10,
+        UidIoStats statEntry2 = new UidIoStats(10, 1234,
             new PerStateMetrics(10, 20, 30, 40, 50),
             new PerStateMetrics(100, 200, 300, 400, 500));
-        UidIoStatEntry statEntry3 = new UidIoStatEntry(30,
+        UidIoStats statEntry3 = new UidIoStats(30, 4567,
             new PerStateMetrics(1, 20, 30, 42, 50),
             new PerStateMetrics(10, 200, 300, 420, 500));
-        UidIoStatEntry statEntry4 = new UidIoStatEntry(11,
+        UidIoStats statEntry4 = new UidIoStats(11, 6541,
             new PerStateMetrics(10, 20, 30, 40, 50),
             new PerStateMetrics(100, 200, 300, 400, 500));
-        UidIoStatEntry statEntry5 = new UidIoStatEntry(10,
+        UidIoStats statEntry5 = new UidIoStats(10, 1234,
             new PerStateMetrics(10, 20, 30, 40, 0),
             new PerStateMetrics(100, 200, 300, 400, 500));
 
@@ -371,19 +374,19 @@ public class CarStorageMonitoringTest extends TestCase {
     }
 
     public void testUidIoStatEntryParcel() throws Exception {
-        UidIoStatEntry statEntry = new UidIoStatEntry(10,
+        UidIoStats statEntry = new UidIoStats(10, 5000,
             new PerStateMetrics(10, 20, 30, 40, 50),
             new PerStateMetrics(100, 200, 300, 400, 500));
         Parcel p = Parcel.obtain();
         statEntry.writeToParcel(p, 0);
         p.setDataPosition(0);
-        UidIoStatEntry other = new UidIoStatEntry(p);
+        UidIoStats other = new UidIoStats(p);
         assertEquals(other, statEntry);
     }
 
     public void testUidIoStatEntryJson() throws Exception {
         try (TemporaryFile temporaryFile = new TemporaryFile(TAG)) {
-            UidIoStatEntry statEntry = new UidIoStatEntry(10,
+            UidIoStats statEntry = new UidIoStats(10, 1200,
                 new PerStateMetrics(10, 20, 30, 40, 50),
                 new PerStateMetrics(100, 200, 300, 400, 500));
             try (JsonWriter jsonWriter = new JsonWriter(new FileWriter(temporaryFile.getFile()))) {
@@ -391,30 +394,31 @@ public class CarStorageMonitoringTest extends TestCase {
             }
             JSONObject jsonObject = new JSONObject(
                 new String(Files.readAllBytes(temporaryFile.getPath())));
-            UidIoStatEntry other = new UidIoStatEntry(jsonObject);
+            UidIoStats other = new UidIoStats(jsonObject);
             assertEquals(statEntry, other);
         }
     }
 
 
     public void testUidIoStatEntryDelta() throws Exception {
-        UidIoStatEntry statEntry1 = new UidIoStatEntry(10,
+        UidIoStats statEntry1 = new UidIoStats(10, 1000,
             new PerStateMetrics(10, 20, 30, 40, 50),
             new PerStateMetrics(60, 70, 80, 90, 100));
 
-        UidIoStatEntry statEntry2 = new UidIoStatEntry(10,
+        UidIoStats statEntry2 = new UidIoStats(10,2000,
             new PerStateMetrics(110, 120, 130, 140, 150),
             new PerStateMetrics(260, 370, 480, 500, 110));
 
-        UidIoStatEntry statEntry3 = new UidIoStatEntry(30,
+        UidIoStats statEntry3 = new UidIoStats(30, 3000,
             new PerStateMetrics(10, 20, 30, 40, 50),
             new PerStateMetrics(100, 200, 300, 400, 500));
 
 
-        UidIoStatEntry delta21 = statEntry2.delta(statEntry1);
+        UidIoStats delta21 = statEntry2.delta(statEntry1);
         assertNotNull(delta21);
         assertEquals(statEntry1.uid, delta21.uid);
 
+        assertEquals(1000, delta21.runtimeMillis);
         assertEquals(100, delta21.foreground.bytesRead);
         assertEquals(100, delta21.foreground.bytesWritten);
         assertEquals(100, delta21.foreground.bytesReadFromStorage);
@@ -428,7 +432,7 @@ public class CarStorageMonitoringTest extends TestCase {
         assertEquals(10, delta21.background.fsyncCalls);
 
         try {
-            UidIoStatEntry delta31 = statEntry3.delta(statEntry1);
+            UidIoStats delta31 = statEntry3.delta(statEntry1);
             fail("delta only allowed on stats for matching user ID");
         } catch (IllegalArgumentException e) {
             // test passed
