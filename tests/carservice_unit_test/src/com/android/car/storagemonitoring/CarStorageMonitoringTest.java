@@ -438,4 +438,42 @@ public class CarStorageMonitoringTest extends TestCase {
             // test passed
         }
     }
+
+    public void testUidIoStatsRecordDelta() throws Exception {
+        UidIoStats statEntry = new UidIoStats(10, 1000,
+            new PerStateMetrics(10, 20, 30, 40, 50),
+            new PerStateMetrics(60, 70, 80, 90, 100));
+
+        UidIoStatsRecord statRecord = new UidIoStatsRecord(10,
+            20, 20, 30, 50, 70,
+            80, 70, 80, 100, 110);
+
+        UidIoStatsRecord delta = statRecord.delta(statEntry);
+
+        assertNotNull(delta);
+        assertEquals(statRecord.uid, delta.uid);
+
+        assertEquals(10, delta.foreground_rchar);
+        assertEquals(0, delta.foreground_wchar);
+        assertEquals(0, delta.foreground_read_bytes);
+        assertEquals(10, delta.foreground_write_bytes);
+        assertEquals(20, delta.foreground_fsync);
+
+        assertEquals(20, delta.background_rchar);
+        assertEquals(0, delta.background_wchar);
+        assertEquals(0, delta.background_read_bytes);
+        assertEquals(10, delta.background_write_bytes);
+        assertEquals(10, delta.background_fsync);
+
+        statRecord = new UidIoStatsRecord(30,
+            20, 20, 30, 50, 70,
+            80, 70, 80, 100, 110);
+
+        try {
+            statRecord.delta(statEntry);
+            fail("delta only allowed on records for matching user ID");
+        } catch (IllegalArgumentException e) {
+            // test passed
+        }
+    }
 }

@@ -19,15 +19,20 @@ package com.android.car;
 import android.car.Car;
 import android.car.storagemonitoring.ICarStorageMonitoring;
 import android.car.storagemonitoring.UidIoStats;
+import android.car.storagemonitoring.UidIoStatsRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.util.JsonWriter;
 import android.util.Log;
+import android.util.SparseArray;
 import com.android.car.internal.CarPermission;
+import com.android.car.storagemonitoring.IoStatsTracker;
+import com.android.car.storagemonitoring.UidIoStatsProvider;
 import com.android.car.storagemonitoring.WearEstimateRecord;
 import com.android.car.storagemonitoring.WearHistory;
 import com.android.car.storagemonitoring.WearInformation;
@@ -48,6 +53,7 @@ import org.json.JSONException;
 
 public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         implements CarServiceBase {
+    private static final boolean DBG = false;
     private static final String TAG = CarLog.TAG_STORAGE;
     private static final int MIN_WEAR_ESTIMATE_OF_CONCERN = 80;
 
@@ -60,6 +66,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private final File mWearInfoFile;
     private final OnShutdownReboot mOnShutdownReboot;
     private final SystemInterface mSystemInterface;
+    private final UidIoStatsProvider mUidIoStatsProvider;
 
     private final CarPermission mStorageMonitoringPermission;
 
@@ -67,10 +74,12 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private Optional<WearInformation> mWearInformation = Optional.empty();
     private List<WearEstimateChange> mWearEstimateChanges = Collections.emptyList();
     private List<UidIoStats> mBootIoStats = Collections.emptyList();
+    private IoStatsTracker mIoStatsTracker = null;
     private boolean mInitialized = false;
 
     public CarStorageMonitoringService(Context context, SystemInterface systemInterface) {
         mContext = context;
+        mUidIoStatsProvider = systemInterface.getUidIoStatsProvider();
         mUptimeTrackerFile = new File(systemInterface.getFilesDir(), UPTIME_TRACKER_FILENAME);
         mWearInfoFile = new File(systemInterface.getFilesDir(), WEAR_INFO_FILENAME);
         mOnShutdownReboot = new OnShutdownReboot(mContext);
@@ -184,10 +193,25 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
     }
 
+    private void collectNewIoMetrics() {
+        mIoStatsTracker.update(mUidIoStatsProvider.load());
+        if (DBG) {
+            SparseArray<UidIoStats> currentSample = mIoStatsTracker.getCurrentSample();
+            if (currentSample.size() == 0) {
+                Log.d(TAG, "no new I/O stat data");
+            } else {
+                SparseArrayStream.valueStream(currentSample).forEach(
+                    uidIoStats -> Log.d(TAG, "updated I/O stat data: " + uidIoStats));
+            }
+        }
+    }
+
     private synchronized void doInitServiceIfNeeded() {
         if (mInitialized) return;
 
         Log.d(TAG, "initializing CarStorageMonitoringService");
+
+        final Resources resources = mContext.getResources();
 
         mWearInformation = loadWearInformation();
 
@@ -198,8 +222,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             storeWearHistory(wearHistory);
         }
         Log.d(TAG, "wear history being tracked is " + wearHistory);
-        mWearEstimateChanges = wearHistory.toWearEstimateChanges(
-                mContext.getResources().getInteger(
+        mWearEstimateChanges = wearHistory.toWearEstimateChanges(resources.getInteger(
                         R.integer.acceptableHoursPerOnePercentFlashWear));
 
         mOnShutdownReboot.addAction((Context ctx, Intent intent) -> release());
@@ -211,14 +234,25 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
 
         long bootUptime = mSystemInterface.getUptime();
-        mBootIoStats = SparseArrayStream.valueStream(mSystemInterface.getUidIoStatsProvider().load())
+        mBootIoStats = SparseArrayStream.valueStream(mUidIoStatsProvider.load())
             .map(record -> {
                 // at boot, assume all UIDs have been running for as long as the system has
                 // been up, since we don't really know any better
                 UidIoStats stats = new UidIoStats(record, bootUptime);
-                Log.d(TAG, "loaded boot I/O stat data: " + stats);
+                if (DBG) {
+                    Log.d(TAG, "loaded boot I/O stat data: " + stats);
+                }
                 return stats;
             }).collect(Collectors.toList());
+
+        final long newStatsDelayMs =
+                1000L * resources.getInteger(R.integer.ioStatsRefreshRateSeconds);
+
+        mIoStatsTracker = new IoStatsTracker(mBootIoStats,
+                newStatsDelayMs,
+                mSystemInterface.getSystemStateInterface());
+
+        mSystemInterface.scheduleAction(this::collectNewIoMetrics, newStatsDelayMs);
 
         Log.i(TAG, "CarStorageMonitoringService is up");
 
