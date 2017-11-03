@@ -152,12 +152,25 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
                                 0, 0, 0, 0, 0),
                             new UidIoStatsRecord(1000, 200, 5000, 0, 4000, 0,
                                 1000, 0, 500, 0, 0)}));
+
+                put("testAggregateIoStats",
+                    new TestData(1000L,
+                        new WearInformation(0, 0, WearInformation.PRE_EOL_INFO_NORMAL),
+                        null,
+                        new UidIoStatsRecord[]{
+                            new UidIoStatsRecord(0, 5000, 6000, 3000, 1000, 1,
+                                0, 0, 0, 0, 0),
+                            new UidIoStatsRecord(1000, 200, 5000, 0, 4000, 0,
+                                1000, 0, 500, 0, 0)}));
+
             }};
 
     private final MockSystemStateInterface mMockSystemStateInterface =
             new MockSystemStateInterface();
     private final MockStorageMonitoringInterface mMockStorageMonitoringInterface =
             new MockStorageMonitoringInterface();
+    private final MockTimeInterface mMockTimeInterface =
+            new MockTimeInterface();
 
     private CarStorageMonitoringManager mCarStorageMonitoringManager;
 
@@ -166,7 +179,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         SystemInterface.Builder builder = super.getSystemInterfaceBuilder();
         return builder.withSystemStateInterface(mMockSystemStateInterface)
             .withStorageMonitoringInterface(mMockStorageMonitoringInterface)
-            .withTimeInterface(new MockTimeInterface());
+            .withTimeInterface(mMockTimeInterface);
     }
 
     @Override
@@ -288,6 +301,54 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
                 ioRecord -> uidIoStats.representsSameMetrics(ioRecord))));
     }
 
+    public void testAggregateIoStats() throws Exception {
+        UidIoStatsRecord oldRecord1000 = mMockStorageMonitoringInterface.getIoStatsRecord(1000);
+
+        UidIoStatsRecord newRecord1000 = new UidIoStatsRecord(1000,
+            oldRecord1000.foreground_rchar,
+            oldRecord1000.foreground_wchar + 50,
+            oldRecord1000.foreground_read_bytes,
+            oldRecord1000.foreground_write_bytes + 100,
+            oldRecord1000.foreground_fsync + 1,
+            oldRecord1000.background_rchar,
+            oldRecord1000.background_wchar,
+            oldRecord1000.background_read_bytes,
+            oldRecord1000.background_write_bytes,
+            oldRecord1000.background_fsync);
+
+        mMockStorageMonitoringInterface.addIoStatsRecord(newRecord1000);
+
+        UidIoStatsRecord record2000 = new UidIoStatsRecord(2000,
+            1024,
+            2048,
+            0,
+            1024,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0);
+
+        mMockStorageMonitoringInterface.addIoStatsRecord(record2000);
+
+        mMockTimeInterface.tick();
+
+        List<UidIoStats> aggregateIoStats = mCarStorageMonitoringManager.getAggregateIoStats();
+
+        assertNotNull(aggregateIoStats);
+        assertFalse(aggregateIoStats.isEmpty());
+
+        aggregateIoStats.forEach(serviceIoStat -> {
+            UidIoStatsRecord mockIoStat = mMockStorageMonitoringInterface.getIoStatsRecord(
+                    serviceIoStat.uid);
+
+            assertNotNull(mockIoStat);
+
+            assertTrue(serviceIoStat.representsSameMetrics(mockIoStat));
+        });
+    }
+
     static final class MockStorageMonitoringInterface implements StorageMonitoringInterface,
         WearInformationProvider {
         private WearInformation mWearInformation = null;
@@ -300,6 +361,10 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
         void addIoStatsRecord(UidIoStatsRecord record) {
             mIoStats.append(record.uid, record);
+        }
+
+        UidIoStatsRecord getIoStatsRecord(int uid) {
+            return mIoStats.get(uid);
         }
 
         void deleteIoStatsRecord(int uid) {
@@ -323,6 +388,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     }
 
     static final class MockTimeInterface implements TimeInterface {
+        private final List<Pair<Runnable, Long>> mActionsList = new ArrayList<>();
 
         @Override
         public long getUptime(boolean includeDeepSleepTime) {
@@ -330,10 +396,19 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         }
 
         @Override
-        public void scheduleAction(Runnable r, long delayMs) {}
+        public void scheduleAction(Runnable r, long delayMs) {
+            mActionsList.add(Pair.create(r, delayMs));
+            mActionsList.sort(Comparator.comparing(d -> d.second));
+        }
 
         @Override
-        public void cancelAllActions() {}
+        public void cancelAllActions() {
+            mActionsList.clear();
+        }
+
+        void tick() {
+            mActionsList.forEach(pair -> pair.first.run());
+        }
     }
 
     static final class MockSystemStateInterface implements SystemStateInterface {

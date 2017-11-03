@@ -67,6 +67,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private final OnShutdownReboot mOnShutdownReboot;
     private final SystemInterface mSystemInterface;
     private final UidIoStatsProvider mUidIoStatsProvider;
+    private final SlidingWindow<SparseArray<UidIoStats>> mIoStatsSamples;
+    private final Object mIoStatsSamplesLock = new Object();
 
     private final CarPermission mStorageMonitoringPermission;
 
@@ -79,6 +81,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
     public CarStorageMonitoringService(Context context, SystemInterface systemInterface) {
         mContext = context;
+        Resources resources = mContext.getResources();
         mUidIoStatsProvider = systemInterface.getUidIoStatsProvider();
         mUptimeTrackerFile = new File(systemInterface.getFilesDir(), UPTIME_TRACKER_FILENAME);
         mWearInfoFile = new File(systemInterface.getFilesDir(), WEAR_INFO_FILENAME);
@@ -88,6 +91,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         mStorageMonitoringPermission =
                 new CarPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
         mWearEstimateChanges = Collections.emptyList();
+        mIoStatsSamples = new SlidingWindow<>(
+            resources.getInteger(R.integer.ioStatsNumSamplesToStore));
         systemInterface.scheduleActionForBootCompleted(this::doInitServiceIfNeeded,
             Duration.ofSeconds(10));
     }
@@ -195,6 +200,10 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
     private void collectNewIoMetrics() {
         mIoStatsTracker.update(mUidIoStatsProvider.load());
+        synchronized (mIoStatsSamplesLock) {
+            mIoStatsSamples.add(mIoStatsTracker.getCurrentSample());
+        }
+
         if (DBG) {
             SparseArray<UidIoStats> currentSample = mIoStatsTracker.getCurrentSample();
             if (currentSample.size() == 0) {
@@ -316,5 +325,14 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         doInitServiceIfNeeded();
 
         return mBootIoStats;
+    }
+
+    @Override
+    public List<UidIoStats> getAggregateIoStats() {
+        mStorageMonitoringPermission.assertGranted();
+        doInitServiceIfNeeded();
+
+        return SparseArrayStream.valueStream(mIoStatsTracker.getTotal())
+                .collect(Collectors.toList());
     }
 }
