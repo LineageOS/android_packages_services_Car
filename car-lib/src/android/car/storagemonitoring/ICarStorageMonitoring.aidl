@@ -41,4 +41,10 @@ interface ICarStorageMonitoring {
    * Returns I/O stats as collected at service boot time.
    */
   List<UidIoStats> getBootIoStats() = 4;
+
+  /**
+   * Returns total I/O stats as collected from kernel start until the last snapshot.
+   */
+  List<UidIoStats> getAggregateIoStats() = 5;
+
 }

@@ -97,4 +97,12 @@
          reference a valid activity. It is strongly recommended that the chosen activity be
          protected with the android.car.permission.STORAGE_MONITORING permission. -->
     <string name="activityHandlerForFlashWearChanges">com.google.android.car.defaultstoragemonitoringcompanionapp/.MainActivity</string>
+
+    <!-- How often (in seconds) CarService will update I/O metrics from the kernel. -->
+    <integer name="ioStatsRefreshRateSeconds">60</integer>
+
+    <!-- The number of I/O metrics samples to keep in memory at one time.
+         The system will keep a sliding window of samples of this size, and allow
+         retrieval of activity this many sample windows back in time. -->
+    <integer name="ioStatsNumSamplesToStore">15</integer>
 </resources>

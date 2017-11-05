@@ -141,4 +141,25 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
         }
         return Collections.emptyList();
     }
+
+    /**
+     * This method returns a list of per user-id I/O activity metrics as collected from kernel
+     * start until the last snapshot.
+     *
+     * The samples provided might be as old as the value of the ioStatsRefreshRateSeconds setting.
+     *
+     * If the information is not available, an empty list will be returned.
+     */
+    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    public List<UidIoStats> getAggregateIoStats() throws CarNotConnectedException {
+        try {
+            return mService.getAggregateIoStats();
+        } catch (IllegalStateException e) {
+            checkCarNotConnectedExceptionFromCarService(e);
+        } catch (RemoteException e) {
+            throw new CarNotConnectedException();
+        }
+        return Collections.emptyList();
+    }
+
 }

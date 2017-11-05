@@ -64,4 +64,23 @@ public final class UidIoStatsRecord {
         this.background_write_bytes = background_write_bytes;
         this.background_fsync = background_fsync;
     }
+
+    /** @hide */
+    public UidIoStatsRecord delta(UidIoStats other) {
+        if (uid != other.uid) {
+            throw new IllegalArgumentException("cannot calculate delta between different user IDs");
+        }
+
+        return new UidIoStatsRecord(uid,
+            foreground_rchar - other.foreground.bytesRead,
+            foreground_wchar - other.foreground.bytesWritten,
+            foreground_read_bytes - other.foreground.bytesReadFromStorage,
+            foreground_write_bytes - other.foreground.bytesWrittenToStorage,
+            foreground_fsync - other.foreground.fsyncCalls,
+            background_rchar - other.background.bytesRead,
+            background_wchar - other.background.bytesWritten,
+            background_read_bytes - other.background.bytesReadFromStorage,
+            background_write_bytes - other.background.bytesWrittenToStorage,
+            background_fsync - other.background.fsyncCalls);
+    }
 }

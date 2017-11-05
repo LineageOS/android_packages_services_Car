@@ -1004,6 +1004,7 @@ package android.car.settings {
 package android.car.storagemonitoring {
 
   public final class CarStorageMonitoringManager {
+    method public java.util.List<android.car.storagemonitoring.UidIoStats> getAggregateIoStats() throws android.car.CarNotConnectedException;
     method public java.util.List<android.car.storagemonitoring.UidIoStats> getBootIoStats() throws android.car.CarNotConnectedException;
     method public int getPreEolIndicatorStatus() throws android.car.CarNotConnectedException;
     method public android.car.storagemonitoring.WearEstimate getWearEstimate() throws android.car.CarNotConnectedException;
