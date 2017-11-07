@@ -36,7 +36,7 @@ import java.util.HashMap;
 public class CarRadioService extends ICarRadio.Stub
         implements CarServiceBase, RadioHalService.RadioListener {
     public static boolean DBG = false;
-    public static String TAG = CarLog.TAG_RADIO + ".CarRadioService";
+    public static String TAG = CarLog.TAG_RADIO + ".Service";
 
     private RadioHalService mRadioHal;
     private final HashMap<IBinder, ICarRadioEventListener> mListenersMap =
@@ -51,7 +51,7 @@ public class CarRadioService extends ICarRadio.Stub
     }
 
     class RadioDeathRecipient implements IBinder.DeathRecipient {
-        private String TAG = CarRadioService.TAG + ".RadioDeathRecipient";
+        private String TAG = CarRadioService.TAG + ".DtRcp";
         private IBinder mListenerBinder;
 
         RadioDeathRecipient(IBinder listenerBinder) {
