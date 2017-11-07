@@ -162,4 +162,26 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
         return Collections.emptyList();
     }
 
+    /**
+     * This method returns a list of the I/O stats deltas currently stored by the system.
+     *
+     * Periodically, the system gathers I/O activity metrics and computes and stores a delta from
+     * the previous cycle. The timing and the number of these stored samples are configurable
+     * by the OEM.
+     *
+     * The samples are returned in order from the oldest to the newest.
+     *
+     * If the information is not available, an empty list will be returned.
+     */
+    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    public List<UidIoStatsDelta> getIoStatsDeltas() throws CarNotConnectedException {
+        try {
+            return mService.getIoStatsDeltas();
+        } catch (IllegalStateException e) {
+            checkCarNotConnectedExceptionFromCarService(e);
+        } catch (RemoteException e) {
+            throw new CarNotConnectedException();
+        }
+        return Collections.emptyList();
+    }
 }

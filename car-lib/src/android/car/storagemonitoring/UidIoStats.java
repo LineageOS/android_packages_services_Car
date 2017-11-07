@@ -66,15 +66,15 @@ public final class UidIoStats implements Parcelable {
     /**
      * Statistics for apps running in foreground.
      */
-    public final PerStateMetrics foreground;
+    public final UidIoStats.Metrics foreground;
 
     /**
      * Statistics for apps running in background.
      */
-    public final PerStateMetrics background;
+    public final UidIoStats.Metrics background;
 
     public UidIoStats(int uid,
-            long runtimeMillis, PerStateMetrics foreground, PerStateMetrics background) {
+            long runtimeMillis, UidIoStats.Metrics foreground, UidIoStats.Metrics background) {
         this.uid = uid;
         this.runtimeMillis = runtimeMillis;
         this.foreground = Objects.requireNonNull(foreground);
@@ -84,19 +84,19 @@ public final class UidIoStats implements Parcelable {
     public UidIoStats(Parcel in) {
         uid = in.readInt();
         runtimeMillis = in.readLong();
-        foreground = in.readParcelable(PerStateMetrics.class.getClassLoader());
-        background = in.readParcelable(PerStateMetrics.class.getClassLoader());
+        foreground = in.readParcelable(UidIoStats.Metrics.class.getClassLoader());
+        background = in.readParcelable(UidIoStats.Metrics.class.getClassLoader());
     }
 
-    public UidIoStats(UidIoStatsRecord record, long runtimeMillis) {
+    public UidIoStats(UidIoRecord record, long runtimeMillis) {
         uid = record.uid;
         this.runtimeMillis = runtimeMillis;
-        foreground = new PerStateMetrics(record.foreground_rchar,
+        foreground = new UidIoStats.Metrics(record.foreground_rchar,
                 record.foreground_wchar,
                 record.foreground_read_bytes,
                 record.foreground_write_bytes,
                 record.foreground_fsync);
-        background = new PerStateMetrics(record.background_rchar,
+        background = new UidIoStats.Metrics(record.background_rchar,
             record.background_wchar,
             record.background_read_bytes,
             record.background_write_bytes,
@@ -128,8 +128,8 @@ public final class UidIoStats implements Parcelable {
     public UidIoStats(JSONObject in) throws JSONException {
         uid = in.getInt("uid");
         runtimeMillis = in.getLong("runtimeMillis");
-        foreground = new PerStateMetrics(in.getJSONObject("foreground"));
-        background = new PerStateMetrics(in.getJSONObject("background"));
+        foreground = new UidIoStats.Metrics(in.getJSONObject("foreground"));
+        background = new UidIoStats.Metrics(in.getJSONObject("background"));
     }
 
     /**
@@ -181,7 +181,7 @@ public final class UidIoStats implements Parcelable {
      * It matches UID, and I/O activity values, but ignores runtime.
      * @hide
      */
-    public boolean representsSameMetrics(UidIoStatsRecord record) {
+    public boolean representsSameMetrics(UidIoRecord record) {
         return record.uid == uid &&
                record.foreground_rchar == foreground.bytesRead &&
                record.foreground_wchar == foreground.bytesWritten &&
@@ -198,16 +198,16 @@ public final class UidIoStats implements Parcelable {
     /**
      * I/O activity metrics that pertain to either the foreground or the background state.
      */
-    public static final class PerStateMetrics implements Parcelable {
+    public static final class Metrics implements Parcelable {
 
-        public static final Parcelable.Creator<PerStateMetrics> CREATOR =
-            new Parcelable.Creator<PerStateMetrics>() {
-                public PerStateMetrics createFromParcel(Parcel in) {
-                    return new PerStateMetrics(in);
+        public static final Parcelable.Creator<UidIoStats.Metrics> CREATOR =
+            new Parcelable.Creator<UidIoStats.Metrics>() {
+                public UidIoStats.Metrics createFromParcel(Parcel in) {
+                    return new UidIoStats.Metrics(in);
                 }
 
-                public PerStateMetrics[] newArray(int size) {
-                    return new PerStateMetrics[size];
+                public UidIoStats.Metrics[] newArray(int size) {
+                    return new UidIoStats.Metrics[size];
                 }
             };
 
@@ -240,7 +240,7 @@ public final class UidIoStats implements Parcelable {
          */
         public final long fsyncCalls;
 
-        public PerStateMetrics(long bytesRead, long bytesWritten, long bytesReadFromStorage,
+        public Metrics(long bytesRead, long bytesWritten, long bytesReadFromStorage,
             long bytesWrittenToStorage, long fsyncCalls) {
             this.bytesRead = bytesRead;
             this.bytesWritten = bytesWritten;
@@ -273,7 +273,7 @@ public final class UidIoStats implements Parcelable {
             jsonWriter.endObject();
         }
 
-        public PerStateMetrics(Parcel in) {
+        public Metrics(Parcel in) {
             bytesRead = in.readLong();
             bytesWritten = in.readLong();
             bytesReadFromStorage = in.readLong();
@@ -281,7 +281,7 @@ public final class UidIoStats implements Parcelable {
             fsyncCalls = in.readLong();
         }
 
-        public PerStateMetrics(JSONObject in) throws JSONException {
+        public Metrics(JSONObject in) throws JSONException {
             bytesRead = in.getLong("bytesRead");
             bytesWritten = in.getLong("bytesWritten");
             bytesReadFromStorage = in.getLong("bytesReadFromStorage");
@@ -298,8 +298,8 @@ public final class UidIoStats implements Parcelable {
          *
          * @hide
          */
-        public PerStateMetrics delta(PerStateMetrics other) {
-            return new PerStateMetrics(bytesRead-other.bytesRead,
+        public Metrics delta(Metrics other) {
+            return new Metrics(bytesRead-other.bytesRead,
                 bytesWritten-other.bytesWritten,
                 bytesReadFromStorage-other.bytesReadFromStorage,
                 bytesWrittenToStorage-other.bytesWrittenToStorage,
@@ -308,14 +308,14 @@ public final class UidIoStats implements Parcelable {
 
         @Override
         public boolean equals(Object other) {
-            if (other instanceof PerStateMetrics) {
-                PerStateMetrics perStateMetrics = (PerStateMetrics)other;
+            if (other instanceof Metrics) {
+                Metrics metrics = (Metrics)other;
 
-                return (bytesRead == perStateMetrics.bytesRead) &&
-                    (bytesWritten == perStateMetrics.bytesWritten) &&
-                    (bytesReadFromStorage == perStateMetrics.bytesReadFromStorage) &&
-                    (bytesWrittenToStorage == perStateMetrics.bytesWrittenToStorage) &&
-                    (fsyncCalls == perStateMetrics.fsyncCalls);
+                return (bytesRead == metrics.bytesRead) &&
+                    (bytesWritten == metrics.bytesWritten) &&
+                    (bytesReadFromStorage == metrics.bytesReadFromStorage) &&
+                    (bytesWrittenToStorage == metrics.bytesWrittenToStorage) &&
+                    (fsyncCalls == metrics.fsyncCalls);
             }
             return false;
         }
