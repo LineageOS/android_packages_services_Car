@@ -74,4 +74,7 @@
          orientation. Activities that desire to run in a non-compatible orientation will find that
          they are not able to. -->
     <bool name="config_forceDefaultOrientation">true</bool>
+    
+    <!-- Corner radius of system dialogs -->
+    <dimen name="config_dialogCornerRadius">16dp</dimen>
 </resources>
