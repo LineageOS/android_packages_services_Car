@@ -87,6 +87,7 @@ PRODUCT_PACKAGES += \
     CarHvacApp \
     CarMapsPlaceholder \
     CarLatinIME \
+    CarSettings \
     CarUsbHandler \
     android.car \
     com.android.car.procfsinspector \
