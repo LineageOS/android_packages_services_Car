@@ -33,8 +33,6 @@ namespace android {
 #define PID_IO_FILE "/proc/%d/io"
 #define PROC_DIR "/proc"
 
-static const int PROC_NAME_LEN = 64;
-static const int THREAD_NAME_LEN = 32;
 static const int MAX_LINE = 256;
 
 #define die(...) { LOG(ERROR) << (__VA_ARGS__); exit(EXIT_FAILURE); }
