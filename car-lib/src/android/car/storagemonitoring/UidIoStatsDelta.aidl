@@ -13,13 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.storagemonitoring;
 
-import android.annotation.Nullable;
-import android.car.storagemonitoring.UidIoRecord;
-import android.util.SparseArray;
+package android.car.storagemonitoring;
 
-public interface UidIoStatsProvider {
-    @Nullable
-    SparseArray<UidIoRecord> load();
-}
+parcelable UidIoStatsDelta;

@@ -19,7 +19,7 @@ package com.android.car;
 import android.car.Car;
 import android.car.storagemonitoring.ICarStorageMonitoring;
 import android.car.storagemonitoring.UidIoStats;
-import android.car.storagemonitoring.UidIoStatsRecord;
+import android.car.storagemonitoring.UidIoStatsDelta;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 import android.content.ActivityNotFoundException;
@@ -67,7 +67,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private final OnShutdownReboot mOnShutdownReboot;
     private final SystemInterface mSystemInterface;
     private final UidIoStatsProvider mUidIoStatsProvider;
-    private final SlidingWindow<SparseArray<UidIoStats>> mIoStatsSamples;
+    private final SlidingWindow<UidIoStatsDelta> mIoStatsSamples;
     private final Object mIoStatsSamplesLock = new Object();
 
     private final CarPermission mStorageMonitoringPermission;
@@ -201,7 +201,10 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private void collectNewIoMetrics() {
         mIoStatsTracker.update(mUidIoStatsProvider.load());
         synchronized (mIoStatsSamplesLock) {
-            mIoStatsSamples.add(mIoStatsTracker.getCurrentSample());
+            mIoStatsSamples.add(new UidIoStatsDelta(
+                    SparseArrayStream.valueStream(mIoStatsTracker.getCurrentSample())
+                        .collect(Collectors.toList()),
+                    mSystemInterface.getUptime()));
         }
 
         if (DBG) {
@@ -286,8 +289,26 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         writer.println("last wear information retrieved: " +
             mWearInformation.map(WearInformation::toString).orElse("missing"));
         writer.println("wear change history: " +
-            mWearEstimateChanges.stream().map(WearEstimateChange::toString).reduce("",
-                (String s, String t) -> s + "\n" + t));
+            mWearEstimateChanges.stream()
+                .map(WearEstimateChange::toString)
+                .collect(Collectors.joining("\n")));
+        writer.println("boot I/O stats: " +
+            mBootIoStats.stream()
+                .map(UidIoStats::toString)
+                .collect(Collectors.joining("\n")));
+        writer.println("aggregate I/O stats: " +
+            SparseArrayStream.valueStream(mIoStatsTracker.getTotal())
+                .map(UidIoStats::toString)
+                .collect(Collectors.joining("\n")));
+        writer.println("I/O stats snapshots: ");
+        synchronized (mIoStatsSamplesLock) {
+            writer.println(
+                mIoStatsSamples.stream().map(
+                    sample -> sample.getStats().stream()
+                        .map(UidIoStats::toString)
+                        .collect(Collectors.joining("\n")))
+                    .collect(Collectors.joining("\n------\n")));
+        }
     }
 
     // ICarStorageMonitoring implementation
@@ -334,5 +355,15 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
         return SparseArrayStream.valueStream(mIoStatsTracker.getTotal())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UidIoStatsDelta> getIoStatsDeltas() {
+        mStorageMonitoringPermission.assertGranted();
+        doInitServiceIfNeeded();
+
+        synchronized (mIoStatsSamplesLock) {
+            return mIoStatsSamples.stream().collect(Collectors.toList());
+        }
     }
 }
