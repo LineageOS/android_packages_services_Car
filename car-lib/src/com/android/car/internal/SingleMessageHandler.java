@@ -36,6 +36,10 @@ public abstract class SingleMessageHandler<EventType> implements Callback {
         mHandler = new Handler(looper, this);
     }
 
+    public SingleMessageHandler(Handler handler, int handledMessage) {
+        this(handler.getLooper(), handledMessage);
+    }
+
     protected abstract void handleEvent(EventType event);
 
     @Override

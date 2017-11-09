@@ -16,6 +16,7 @@
 
 package android.car.storagemonitoring;
 
+import android.car.storagemonitoring.IUidIoStatsListener;
 import android.car.storagemonitoring.UidIoStats;
 import android.car.storagemonitoring.UidIoStatsDelta;
 import android.car.storagemonitoring.WearEstimate;
@@ -52,4 +53,15 @@ interface ICarStorageMonitoring {
    * Return the I/O stats deltas currently known to the service.
    */
   List<UidIoStatsDelta> getIoStatsDeltas() = 6;
+
+  /**
+   * Register a new listener to receive new I/O activity deltas as they are generated.
+   */
+  void registerListener(IUidIoStatsListener listener) = 7;
+
+  /**
+   * Remove a listener registration, terminating delivery of I/O activity deltas to it.
+   */
+  void unregisterListener(IUidIoStatsListener listener) = 8;
+
 }

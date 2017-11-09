@@ -17,6 +17,7 @@
 package com.android.car;
 
 import android.car.Car;
+import android.car.storagemonitoring.IUidIoStatsListener;
 import android.car.storagemonitoring.ICarStorageMonitoring;
 import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.UidIoStats;
@@ -28,6 +29,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
 import android.util.JsonWriter;
 import android.util.Log;
 import android.util.SparseArray;
@@ -50,6 +53,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.json.JSONException;
 
 public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
@@ -69,6 +73,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private final SystemInterface mSystemInterface;
     private final UidIoStatsProvider mUidIoStatsProvider;
     private final SlidingWindow<UidIoStatsDelta> mIoStatsSamples;
+    private final RemoteCallbackList<IUidIoStatsListener> mListeners;
     private final Object mIoStatsSamplesLock = new Object();
 
     private final CarPermission mStorageMonitoringPermission;
@@ -96,6 +101,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             resources.getInteger(R.integer.ioStatsNumSamplesToStore));
         systemInterface.scheduleActionForBootCompleted(this::doInitServiceIfNeeded,
             Duration.ofSeconds(10));
+        mListeners = new RemoteCallbackList<>();
     }
 
     private static long getUptimeSnapshotIntervalMs() {
@@ -205,12 +211,15 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     }
 
     private void collectNewIoMetrics() {
+        UidIoStatsDelta uidIoStatsDelta;
+
         mIoStatsTracker.update(loadNewIoStats());
         synchronized (mIoStatsSamplesLock) {
-            mIoStatsSamples.add(new UidIoStatsDelta(
-                    SparseArrayStream.valueStream(mIoStatsTracker.getCurrentSample())
-                        .collect(Collectors.toList()),
-                    mSystemInterface.getUptime()));
+            uidIoStatsDelta = new UidIoStatsDelta(
+                SparseArrayStream.valueStream(mIoStatsTracker.getCurrentSample())
+                    .collect(Collectors.toList()),
+                mSystemInterface.getUptime());
+            mIoStatsSamples.add(uidIoStatsDelta);
         }
 
         if (DBG) {
@@ -222,6 +231,21 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                     uidIoStats -> Log.d(TAG, "updated I/O stat data: " + uidIoStats));
             }
         }
+
+        dispatchNewIoEvent(uidIoStatsDelta);
+    }
+
+    private void dispatchNewIoEvent(UidIoStatsDelta delta) {
+        final int listenersCount = mListeners.beginBroadcast();
+        IntStream.range(0, listenersCount).forEach(
+            i -> {
+                try {
+                    mListeners.getBroadcastItem(i).onSnapshot(delta);
+                } catch (RemoteException e) {
+                    Log.w(TAG, "failed to dispatch snapshot", e);
+                }
+            });
+        mListeners.finishBroadcast();
     }
 
     private synchronized void doInitServiceIfNeeded() {
@@ -371,5 +395,21 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         synchronized (mIoStatsSamplesLock) {
             return mIoStatsSamples.stream().collect(Collectors.toList());
         }
+    }
+
+    @Override
+    public void registerListener(IUidIoStatsListener listener) {
+        mStorageMonitoringPermission.assertGranted();
+        doInitServiceIfNeeded();
+
+        mListeners.register(listener);
+    }
+
+    @Override
+    public void unregisterListener(IUidIoStatsListener listener) {
+        mStorageMonitoringPermission.assertGranted();
+        // no need to initialize service if unregistering
+
+        mListeners.unregister(listener);
     }
 }

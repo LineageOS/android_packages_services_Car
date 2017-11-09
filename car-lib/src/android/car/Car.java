@@ -675,7 +675,7 @@ public final class Car {
             case BLUETOOTH_SERVICE:
                 manager = new CarBluetoothManager(binder, mContext);
             case STORAGE_MONITORING_SERVICE:
-                manager = new CarStorageMonitoringManager(binder);
+                manager = new CarStorageMonitoringManager(binder, mEventHandler);
         }
         return manager;
     }

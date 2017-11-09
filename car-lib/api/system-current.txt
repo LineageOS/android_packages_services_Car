@@ -1017,10 +1017,16 @@ package android.car.storagemonitoring {
     method public int getPreEolIndicatorStatus() throws android.car.CarNotConnectedException;
     method public android.car.storagemonitoring.WearEstimate getWearEstimate() throws android.car.CarNotConnectedException;
     method public java.util.List<android.car.storagemonitoring.WearEstimateChange> getWearEstimateHistory() throws android.car.CarNotConnectedException;
+    method public void registerListener(android.car.storagemonitoring.CarStorageMonitoringManager.UidIoStatsListener) throws android.car.CarNotConnectedException;
+    method public void unregisterListener(android.car.storagemonitoring.CarStorageMonitoringManager.UidIoStatsListener) throws android.car.CarNotConnectedException;
     field public static final int PRE_EOL_INFO_NORMAL = 1; // 0x1
     field public static final int PRE_EOL_INFO_UNKNOWN = 0; // 0x0
     field public static final int PRE_EOL_INFO_URGENT = 3; // 0x3
     field public static final int PRE_EOL_INFO_WARNING = 2; // 0x2
+  }
+
+  public static abstract interface CarStorageMonitoringManager.UidIoStatsListener {
+    method public abstract void onSnapshot(android.car.storagemonitoring.UidIoStatsDelta);
   }
 
   public final class UidIoRecord {
