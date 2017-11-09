@@ -57,12 +57,8 @@ public abstract class CarSensorManager implements CarManagerBase {
      */
     public static final int SENSOR_TYPE_ODOMETER = 4;
     /**
-     * Represent the fuel level of the car. In {@link CarSensorEvent}, floatValues[{@link
-     * CarSensorEvent#INDEX_FUEL_LEVEL_IN_PERCENTILE}] represents fuel level in percentile (0 to
-     * 100) while floatValues[{@link CarSensorEvent#INDEX_FUEL_LEVEL_IN_DISTANCE}] represents
-     * estimated range in kilometers with the remaining fuel. The gas mileage used for the
-     * estimation may not represent the current driving condition. Requires {@link
-     * Car#PERMISSION_FUEL} permission.
+     * Represent the fuel level of the car. In {@link CarSensorEvent},  represents fuel level in
+     * milliliters.  Requires {@link Car#PERMISSION_FUEL} permission.
      * @hide
      */
     public static final int SENSOR_TYPE_FUEL_LEVEL = 5;
@@ -141,6 +137,34 @@ public abstract class CarSensorManager implements CarManagerBase {
      * Requires {@link Car#PERMISSION_VEHICLE_DYNAMICS_STATE} permission.
      */
     public static final int SENSOR_TYPE_TRACTION_CONTROL_ACTIVE     = 25;
+    /**
+     * Set to true if the engine is on.
+     */
+    public static final int SENSOR_TYPE_ENGINE_ON                   = 26;
+    /**
+     * Set to true if the fuel door is open.
+     */
+    public static final int SENSOR_TYPE_FUEL_DOOR_OPEN              = 27;
+
+    /**
+     * Indicates battery level of the car.
+     * In {@link CarSensorEvent}, represents battery level in WH.
+     * This requires {@link Car#PERMISSION_FUEL} permission.
+     */
+    public static final int SENSOR_TYPE_EV_BATTERY_LEVEL            = 28;
+    /**
+     * Set to true if EV charging port is open.
+     */
+    public static final int SENSOR_TYPE_EV_CHARGE_PORT_OPEN         = 29;
+    /**
+     * Set to true if EV charging port is connected.
+     */
+    public static final int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED    = 30;
+    /**
+     *  Indicates the instantaneous battery charging rate in mW.
+     *  This requires {@link Car#PERMISSION_FUEL} permission.
+     */
+    public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE      = 31;
 
     /**
      * Sensors defined in this range [{@link #SENSOR_TYPE_VENDOR_EXTENSION_START},
@@ -175,7 +199,13 @@ public abstract class CarSensorManager implements CarManagerBase {
         SENSOR_TYPE_GYROSCOPE,
         SENSOR_TYPE_WHEEL_TICK_DISTANCE,
         SENSOR_TYPE_ABS_ACTIVE,
-        SENSOR_TYPE_TRACTION_CONTROL_ACTIVE
+        SENSOR_TYPE_TRACTION_CONTROL_ACTIVE,
+        SENSOR_TYPE_ENGINE_ON,
+        SENSOR_TYPE_FUEL_DOOR_OPEN,
+        SENSOR_TYPE_EV_BATTERY_LEVEL,
+        SENSOR_TYPE_EV_CHARGE_PORT_OPEN,
+        SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED,
+        SENSOR_TYPE_EV_BATTERY_CHARGE_RATE,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface SensorType {}

@@ -463,6 +463,8 @@ public class CarSensorService extends ICarSensor.Stub
                 permission = Car.PERMISSION_MILEAGE;
                 break;
             case CarSensorManager.SENSOR_TYPE_FUEL_LEVEL:
+            case CarSensorManager.SENSOR_TYPE_EV_BATTERY_LEVEL:
+            case CarSensorManager.SENSOR_TYPE_EV_BATTERY_CHARGE_RATE:
                 permission = Car.PERMISSION_FUEL;
                 break;
             case CarSensorManager.SENSOR_TYPE_ABS_ACTIVE:

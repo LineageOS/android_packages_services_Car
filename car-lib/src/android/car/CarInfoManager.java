@@ -88,6 +88,33 @@ public final class CarInfoManager implements CarManagerBase {
 
     // add: transmission gear available selection, gear available steps
     //          drive wheel: FWD, RWD, AWD, 4WD */
+    /**
+     * Key for Fuel Capacity in milliliters.  Passed in basic info Bundle.
+     * @hide
+     */
+    @ValueTypeDef(type = Integer.class)
+    public static final String BASIC_INFO_FUEL_CAPACITY = "android.car.fuel-capacity";
+    /**
+     * Key for Fuel Types.  This is an array of fuel types the vehicle supports.
+     * Passed in basic info Bundle.
+     * @hide
+     */
+    @ValueTypeDef(type = Integer.class)
+    public static final String BASIC_INFO_FUEL_TYPES = "android.car.fuel-types";
+    /**
+     * Key for EV Battery Capacity in WH.  Passed in basic info Bundle.
+     * @hide
+     */
+    @ValueTypeDef(type = Integer.class)
+    public static final String BASIC_INFO_EV_BATTERY_CAPACITY = "android.car.ev-battery-capacity";
+    /**
+     * Key for EV Connector Types.  This is an array of connector types the vehicle supports.
+     * Passed in basic info Bundle.
+     * @hide
+     */
+    @ValueTypeDef(type = Integer.class)
+    public static final String BASIC_INFO_EV_CONNECTOR_TYPES = "android.car.ev-connector-types";
+
 
     private final ICarInfo mService;
 
@@ -127,6 +154,48 @@ public final class CarInfoManager implements CarManagerBase {
      */
     public String getVehicleId() throws CarNotConnectedException {
         return getBasicInfo().getString(BASIC_INFO_KEY_VEHICLE_ID);
+    }
+
+    /**
+     * Return fuel capacity of the car in milliliters.
+     * @return 0 if car doesn't run on fuel.
+     */
+    public float getFuelCapacity() throws CarNotConnectedException {
+        return getBasicInfo().getInt(BASIC_INFO_FUEL_CAPACITY);
+    }
+
+    /**
+     * Return array of fuel types available in the car.
+     * @return empty array if no fuel types available.
+     */
+    public @Nullable int[] getFuelTypes() throws CarNotConnectedException {
+        int [] retVal = getBasicInfo().getIntArray(BASIC_INFO_FUEL_TYPES);
+        if (retVal == null) {
+            // Create an empty array
+            retVal = new int[0];
+        }
+        return retVal;
+    }
+
+    /**
+     * Return battery capacity of the car in WH.
+     * @return 0 if car doesn't run on battery.
+     */
+    public float getEvBatteryCapacity() throws CarNotConnectedException {
+        return getBasicInfo().getInt(BASIC_INFO_EV_BATTERY_CAPACITY);
+    }
+
+    /**
+     * Return array of EV connector types available in the car.
+     * @return empty array no connector types available.
+     */
+    public @Nullable int[] getEvConnectorTypes() throws CarNotConnectedException {
+        int [] retVal =  getBasicInfo().getIntArray(BASIC_INFO_EV_CONNECTOR_TYPES);
+        if (retVal == null) {
+            // Create an empty array
+            retVal = new int[0];
+        }
+        return retVal;
     }
 
     /**
