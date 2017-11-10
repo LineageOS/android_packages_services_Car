@@ -510,6 +510,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         for (VehiclePropConfig config : configList) {
             StringBuilder builder = new StringBuilder()
                     .append("Property:0x").append(toHexString(config.prop))
+                    .append(",Property name:").append(VehicleProperty.toString(config.prop))
                     .append(",access:0x").append(toHexString(config.access))
                     .append(",changeMode:0x").append(toHexString(config.changeMode))
                     .append(",areas:0x").append(toHexString(config.supportedAreas))
