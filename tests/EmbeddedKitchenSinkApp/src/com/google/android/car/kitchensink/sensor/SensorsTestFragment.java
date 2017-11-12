@@ -88,7 +88,6 @@ public class SensorsTestFragment extends Fragment {
     private int[] supportedSensors = new int[0];
     private Set<String> mActivePermissions = new HashSet<String>();
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -208,17 +207,10 @@ public class SensorsTestFragment extends Fragment {
                                 event == null ? mNaString : event.getOdometerData().kms));
                         break;
                     case CarSensorManager.SENSOR_TYPE_FUEL_LEVEL:
-                        String level = mNaString;
-                        String range = mNaString;
-                        String lowFuelWarning = mNaString;
-                        if (event != null) {
-                            CarSensorEvent.FuelLevelData fuelData = event.getFuelLevelData();
-                            level = fuelData.level == -1 ? level : String.valueOf(fuelData.level);
-                            range = fuelData.range == -1 ? range : String.valueOf(fuelData.range);
-                            lowFuelWarning = String.valueOf(fuelData.lowFuelWarning);
-                        }
-                        summary.add(getContext().getString(R.string.sensor_fuel_level,
-                                getTimestamp(event), level, range, lowFuelWarning));
+                        summary.add(getFuelLevel(event));
+                        break;
+                    case CarSensorManager.SENSOR_TYPE_FUEL_DOOR_OPEN:
+                        summary.add(getFuelDoorOpen(event));
                         break;
                     case CarSensorManager.SENSOR_TYPE_PARKING_BRAKE:
                         summary.add(getContext().getString(R.string.sensor_parking_brake,
@@ -312,6 +304,21 @@ public class SensorsTestFragment extends Fragment {
                             getTimestamp(event), event == null ? mNaString :
                             event.getCarTractionControlActiveData().tractionControlIsActive));
                         break;
+                    case CarSensorManager.SENSOR_TYPE_ENGINE_ON:
+                        summary.add(getEngineOn(event));
+                        break;
+                    case CarSensorManager.SENSOR_TYPE_EV_BATTERY_LEVEL:
+                        summary.add(getEvBatteryLevel(event));
+                        break;
+                    case CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_OPEN:
+                        summary.add(getEvChargePortOpen(event));
+                        break;
+                    case CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED:
+                        summary.add(getEvChargePortConnected(event));
+                        break;
+                    case CarSensorManager.SENSOR_TYPE_EV_BATTERY_CHARGE_RATE:
+                        summary.add(getEvChargeRate(event));
+                        break;
                     default:
                         // Should never happen.
                         Log.w(TAG, "Unrecognized event type: " + i);
@@ -331,7 +338,7 @@ public class SensorsTestFragment extends Fragment {
         if (event == null) {
             return mNaString;
         }
-        return mDateFormat.format(new Date(event.timestamp / 1000L));
+        return mDateFormat.format(new Date(event.timestamp / (1000L * 1000L)));
     }
 
     private String getCompassString(CarSensorEvent event) {
@@ -415,5 +422,68 @@ public class SensorsTestFragment extends Fragment {
         }
         return getContext().getString(R.string.sensor_gps,
                 getTimestamp(event), inView, inUse, perSattelite);
+    }
+
+    private String getFuelLevel(CarSensorEvent event) {
+        String fuelLevel = mNaString;
+        if(event != null) {
+            fuelLevel = String.valueOf(event.getFuelLevelData().level);
+        }
+        return getContext().getString(R.string.sensor_fuel_level, getTimestamp(event), fuelLevel);
+    }
+
+    private String getFuelDoorOpen(CarSensorEvent event) {
+        String fuelDoorOpen = mNaString;
+        if(event != null) {
+            fuelDoorOpen = String.valueOf(event.getCarFuelDoorOpenData().fuelDoorIsOpen);
+        }
+        return getContext().getString(R.string.sensor_fuel_door_open, getTimestamp(event),
+            fuelDoorOpen);
+    }
+
+    private String getEngineOn(CarSensorEvent event) {
+        String engineOn = mNaString;
+        if (event != null) {
+            engineOn = String.valueOf(event.getCarEngineOnData().engineIsOn);
+        }
+        return getContext().getString(R.string.sensor_engine_is_on, getTimestamp(event), engineOn);
+    }
+
+    private String getEvBatteryLevel(CarSensorEvent event) {
+        String evBatteryLevel = mNaString;
+        if(event != null) {
+            evBatteryLevel = String.valueOf(event.getCarEvBatteryLevelData().evBatteryLevel);
+        }
+        return getContext().getString(R.string.sensor_ev_battery_level, getTimestamp(event),
+            evBatteryLevel);
+    }
+
+    private String getEvChargePortOpen(CarSensorEvent event) {
+        String evChargePortOpen = mNaString;
+        if(event != null) {
+            evChargePortOpen = String.valueOf(
+                event.getCarEvChargePortOpenData().evChargePortIsOpen);
+        }
+        return getContext().getString(R.string.sensor_ev_charge_port_is_open, getTimestamp(event),
+            evChargePortOpen);
+    }
+
+    private String getEvChargePortConnected(CarSensorEvent event) {
+        String evChargePortConnected = mNaString;
+        if(event != null) {
+            evChargePortConnected = String.valueOf(
+                event.getCarEvChargePortConnectedData().evChargePortIsConnected);
+        }
+        return getContext().getString(R.string.sensor_ev_charge_port_is_connected,
+            getTimestamp(event), evChargePortConnected);
+    }
+
+    private String getEvChargeRate(CarSensorEvent event) {
+        String evChargeRate = mNaString;
+        if(event != null) {
+            evChargeRate = String.valueOf(event.getCarEvBatteryChargeRateData().evChargeRate);
+        }
+        return getContext().getString(R.string.sensor_ev_charge_rate, getTimestamp(event),
+            evChargeRate);
     }
 }

@@ -16,7 +16,7 @@
 package com.android.car.storagemonitoring;
 
 import android.annotation.Nullable;
-import android.car.storagemonitoring.UidIoStatsRecord;
+import android.car.storagemonitoring.UidIoRecord;
 import android.util.Log;
 import android.util.SparseArray;
 import com.android.car.CarLog;
@@ -50,9 +50,9 @@ public class ProcfsUidIoStatsProvider implements UidIoStatsProvider {
 
     @Nullable
     @Override
-    public SparseArray<UidIoStatsRecord> load() {
+    public SparseArray<UidIoRecord> load() {
         List<String> lines;
-        SparseArray<UidIoStatsRecord> result = new SparseArray<>();
+        SparseArray<UidIoRecord> result = new SparseArray<>();
         try {
             lines = Files.readAllLines(mStatsFile);
         } catch (IOException e) {
@@ -80,7 +80,7 @@ public class ProcfsUidIoStatsProvider implements UidIoStatsProvider {
                 long foreground_fsync = Long.valueOf(tokenizer.nextToken());
                 long background_fsync = Long.valueOf(tokenizer.nextToken());
 
-                result.append(uid, new UidIoStatsRecord(uid,
+                result.append(uid, new UidIoRecord(uid,
                             foreground_rchar,
                             foreground_wchar,
                             foreground_read_bytes,

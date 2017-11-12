@@ -16,7 +16,7 @@
 package com.android.car.storagemonitoring;
 
 import android.car.storagemonitoring.UidIoStats;
-import android.car.storagemonitoring.UidIoStatsRecord;
+import android.car.storagemonitoring.UidIoRecord;
 import android.util.SparseArray;
 import com.android.car.SparseArrayStream;
 import com.android.car.procfsinspector.ProcessInfo;
@@ -52,7 +52,7 @@ public class IoStatsTracker {
         mSystemStateInterface = systemStateInterface;
     }
 
-    public synchronized void update(SparseArray<UidIoStatsRecord> newMetrics) {
+    public synchronized void update(SparseArray<UidIoRecord> newMetrics) {
         final Lazy<List<ProcessInfo>> processTable = new Lazy<List<ProcessInfo>>() {
             @Override
             protected List<ProcessInfo> supply() {

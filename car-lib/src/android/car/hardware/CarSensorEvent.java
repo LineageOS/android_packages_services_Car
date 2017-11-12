@@ -33,22 +33,6 @@ import android.os.Parcelable;
 public class CarSensorEvent implements Parcelable {
 
     /**
-     * Index in {@link #floatValues} for {@link CarSensorManager#SENSOR_TYPE_FUEL_LEVEL} type of
-     * sensor. This value is fuel level in percentile.
-     */
-    public static final int INDEX_FUEL_LEVEL_IN_PERCENTILE = 0;
-    /**
-     * Index in {@link #floatValues} for {@link CarSensorManager#SENSOR_TYPE_FUEL_LEVEL} type of
-     * sensor. This value is fuel level in coverable distance. The unit is Km.
-     */
-    public static final int INDEX_FUEL_LEVEL_IN_DISTANCE = 1;
-    /**
-     * Index in {@link #intValues} for {@link CarSensorManager#SENSOR_TYPE_FUEL_LEVEL} type of
-     * sensor. This value is set to 1 if fuel low level warning is on.
-     */
-    public static final int INDEX_FUEL_LOW_WARNING = 0;
-
-    /**
      *  GEAR_* represents meaning of intValues[0] for {@link CarSensorManager#SENSOR_TYPE_GEAR}
      *  sensor type.
      *  GEAR_NEUTRAL means transmission gear is in neutral state, and the car may be moving.
@@ -358,12 +342,8 @@ public class CarSensorEvent implements Parcelable {
     /** @hide */
     public static class FuelLevelData {
         public long timestamp;
-        /** Fuel level in %. If unsupported by the car, this value is -1. */
-        public int level;
-        /** Fuel as possible range in Km. If unsupported by the car, this value is -1. */
-        public float range;
-        /** If unsupported by the car, this value is false. */
-        public boolean lowFuelWarning;
+        /** Fuel level in milliliters.  Negative values indicate this property is unsupported. */
+        public float level;
 
         /** @hide */
         private FuelLevelData() {};
@@ -385,21 +365,14 @@ public class CarSensorEvent implements Parcelable {
         }
         data.timestamp = timestamp;
         if (floatValues == null) {
-            data.level = -1;
-            data.range = -1;
+            data.level = -1.0f;
         } else {
-            if (floatValues[INDEX_FUEL_LEVEL_IN_PERCENTILE] < 0) {
-                data.level = -1;
+            if (floatValues[0] < 0) {
+                data.level = -1.0f;
             } else {
-                data.level = (int) floatValues[INDEX_FUEL_LEVEL_IN_PERCENTILE];
-            }
-            if (floatValues[INDEX_FUEL_LEVEL_IN_DISTANCE] < 0) {
-                data.range = -1;
-            } else {
-                data.range = floatValues[INDEX_FUEL_LEVEL_IN_DISTANCE];
+                data.level = floatValues[0];
             }
         }
-        data.lowFuelWarning = intValues[0] == 1;
         return data;
     }
 
@@ -605,6 +578,197 @@ public class CarSensorEvent implements Parcelable {
         }
         data.timestamp = timestamp;
         data.tractionControlIsActive = intValues[0] == 1;
+        return data;
+    }
+
+    /** @hide */
+    public static class CarEngineOnData {
+        public long timestamp;
+        public boolean engineIsOn;
+
+        /** @hide */
+        private CarEngineOnData() {};
+    }
+
+    /**
+     * Convenience method for obtaining a {@link CarEngineOnData} object from a
+     * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_ENGINE_ON}.
+     *
+     * @param data an optional output parameter which, if non-null, will be used by this method
+     *     instead of a newly created object.
+     * @return a CarEngineOnData object corresponding to data contained in the
+     *     CarSensorEvent.
+     * @hide
+     */
+    public CarEngineOnData getCarEngineOnData(
+        CarEngineOnData data) {
+        checkType(CarSensorManager.SENSOR_TYPE_ENGINE_ON);
+        if (data == null) {
+            data = new CarEngineOnData();
+        }
+        data.timestamp = timestamp;
+        data.engineIsOn = intValues[0] == 1;
+        return data;
+    }
+
+    /** @hide */
+    public static class CarFuelDoorOpenData {
+        public long timestamp;
+        public boolean fuelDoorIsOpen;
+
+        /** @hide */
+        private CarFuelDoorOpenData() {};
+    }
+
+    /**
+     * Convenience method for obtaining a {@link CarFuelDoorOpenData} object from a
+     * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_FUEL_DOOR_OPEN}.
+     *
+     * @param data an optional output parameter which, if non-null, will be used by this method
+     *     instead of a newly created object.
+     * @return a CarFuelDoorOpenData object corresponding to data contained in the
+     *     CarSensorEvent.
+     * @hide
+     */
+    public CarFuelDoorOpenData getCarFuelDoorOpenData(
+        CarFuelDoorOpenData data) {
+        checkType(CarSensorManager.SENSOR_TYPE_FUEL_DOOR_OPEN);
+        if (data == null) {
+            data = new CarFuelDoorOpenData();
+        }
+        data.timestamp = timestamp;
+        data.fuelDoorIsOpen = intValues[0] == 1;
+        return data;
+    }
+
+    /** @hide */
+    public static class CarEvBatteryLevelData {
+        public long timestamp;
+        /** Battery Level in Watt-hours */
+        public float evBatteryLevel;
+
+        /** @hide */
+        private CarEvBatteryLevelData() {};
+    }
+
+    /**
+     * Convenience method for obtaining a {@link CarEvBatteryLevelData} object from a
+     * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_EV_BATTERY_LEVEL}.
+     *
+     * @param data an optional output parameter which, if non-null, will be used by this method
+     *     instead of a newly created object.
+     * @return a CarEvBatteryLevelData object corresponding to data contained in the
+     *     CarSensorEvent.
+     * @hide
+     */
+    public CarEvBatteryLevelData getCarEvBatteryLevelData(
+        CarEvBatteryLevelData data) {
+        checkType(CarSensorManager.SENSOR_TYPE_EV_BATTERY_LEVEL);
+        if (data == null) {
+            data = new CarEvBatteryLevelData();
+        }
+        data.timestamp = timestamp;
+        if (floatValues == null) {
+            data.evBatteryLevel = -1.0f;
+        } else {
+            if (floatValues[0] < 0) {
+                data.evBatteryLevel = -1.0f;
+            } else {
+                data.evBatteryLevel = floatValues[0];
+            }
+        }
+        return data;
+    }
+
+    /** @hide */
+    public static class CarEvChargePortOpenData {
+        public long timestamp;
+        public boolean evChargePortIsOpen;
+
+        /** @hide */
+        private CarEvChargePortOpenData() {};
+    }
+
+    /**
+     * Convenience method for obtaining a {@link CarEvChargePortOpenData} object from a
+     * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_EV_CHARGE_PORT_OPEN}.
+     *
+     * @param data an optional output parameter which, if non-null, will be used by this method
+     *     instead of a newly created object.
+     * @return a CarEvChargePortOpenData object corresponding to data contained in the
+     *     CarSensorEvent.
+     * @hide
+     */
+    public CarEvChargePortOpenData getCarEvChargePortOpenData(
+        CarEvChargePortOpenData data) {
+        checkType(CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_OPEN);
+        if (data == null) {
+            data = new CarEvChargePortOpenData();
+        }
+        data.timestamp = timestamp;
+        data.evChargePortIsOpen = intValues[0] == 1;
+        return data;
+    }
+
+    /** @hide */
+    public static class CarEvChargePortConnectedData {
+        public long timestamp;
+        public boolean evChargePortIsConnected;
+
+        /** @hide */
+        private CarEvChargePortConnectedData() {};
+    }
+
+    /**
+     * Convenience method for obtaining a {@link CarEvChargePortConnectedData} object from a
+     * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED}.
+     *
+     * @param data an optional output parameter which, if non-null, will be used by this method
+     *     instead of a newly created object.
+     * @return a CarEvChargePortConnectedData object corresponding to data contained in the
+     *     CarSensorEvent.
+     * @hide
+     */
+    public CarEvChargePortConnectedData getCarEvChargePortConnectedData(
+        CarEvChargePortConnectedData data) {
+        checkType(CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED);
+        if (data == null) {
+            data = new CarEvChargePortConnectedData();
+        }
+        data.timestamp = timestamp;
+        data.evChargePortIsConnected = intValues[0] == 1;
+        return data;
+    }
+
+    /** @hide */
+    public static class CarEvBatteryChargeRateData {
+        public long timestamp;
+        /** EV battery charging rate in mW.
+         * Positive values indicates battery being charged.  Negative values indicate discharge */
+        public float evChargeRate;
+
+        /** @hide */
+        private CarEvBatteryChargeRateData() {};
+    }
+
+    /**
+     * Convenience method for obtaining a {@link CarEvBatteryChargeRateData} object from a
+     * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_EV_BATTERY_CHARGE_RATE}.
+     *
+     * @param data an optional output parameter which, if non-null, will be used by this method
+     *     instead of a newly created object.
+     * @return a CarEvBatteryChargeRateData object corresponding to data contained in the
+     *     CarSensorEvent.
+     * @hide
+     */
+    public CarEvBatteryChargeRateData getCarEvBatteryChargeRateData(
+        CarEvBatteryChargeRateData data) {
+        checkType(CarSensorManager.SENSOR_TYPE_EV_BATTERY_CHARGE_RATE);
+        if (data == null) {
+            data = new CarEvBatteryChargeRateData();
+        }
+        data.timestamp = timestamp;
+        data.evChargeRate = floatValues[0];
         return data;
     }
 

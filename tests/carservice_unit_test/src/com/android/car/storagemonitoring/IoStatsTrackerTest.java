@@ -17,7 +17,7 @@
 package com.android.car.storagemonitoring;
 
 import android.car.storagemonitoring.UidIoStats;
-import android.car.storagemonitoring.UidIoStatsRecord;
+import android.car.storagemonitoring.UidIoRecord;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.SparseArray;
 import com.android.car.procfsinspector.ProcessInfo;
@@ -54,8 +54,8 @@ public class IoStatsTrackerTest extends TestCase {
         user1.foreground_rchar = 30;
         user1.background_wchar = 50;
 
-        UidIoStatsRecord process0 = user0.updateSystemState(mockSystemStateInterface);
-        UidIoStatsRecord process1 = user1.updateSystemState(mockSystemStateInterface);
+        UidIoRecord process0 = user0.updateSystemState(mockSystemStateInterface);
+        UidIoRecord process1 = user1.updateSystemState(mockSystemStateInterface);
 
         ioStatsTracker.update(mockSystemStateInterface.mIoRecords);
 
@@ -83,7 +83,7 @@ public class IoStatsTrackerTest extends TestCase {
 
         user0.foreground_rchar = 60;
         user0.foreground_wchar = 10;
-        UidIoStatsRecord process0 = user0.updateSystemState(mockSystemStateInterface);
+        UidIoRecord process0 = user0.updateSystemState(mockSystemStateInterface);
         ioStatsTracker.update(mockSystemStateInterface.mIoRecords);
 
         assertEquals(1, ioStatsTracker.getCurrentSample().size());
@@ -144,7 +144,7 @@ public class IoStatsTrackerTest extends TestCase {
         ioStatsTracker.update(mockSystemStateInterface.mIoRecords);
 
         user0.killProcess();
-        UidIoStatsRecord record0 = user0.updateSystemState(mockSystemStateInterface);
+        UidIoRecord record0 = user0.updateSystemState(mockSystemStateInterface);
         ioStatsTracker.update(mockSystemStateInterface.mIoRecords);
 
         assertEquals(0, ioStatsTracker.getCurrentSample().size());
@@ -168,7 +168,7 @@ public class IoStatsTrackerTest extends TestCase {
         ioStatsTracker.update(mockSystemStateInterface.mIoRecords);
 
         user0.foreground_rchar = 60;
-        UidIoStatsRecord record0 = user0.updateSystemState(mockSystemStateInterface);
+        UidIoRecord record0 = user0.updateSystemState(mockSystemStateInterface);
         ioStatsTracker.update(mockSystemStateInterface.mIoRecords);
 
         assertEquals(1, ioStatsTracker.getCurrentSample().size());
@@ -266,8 +266,8 @@ public class IoStatsTrackerTest extends TestCase {
             mHasProcess = false;
         }
 
-        UidIoStatsRecord updateSystemState(MockSystemStateInterface systemState) {
-            UidIoStatsRecord uidIoStatsRecord = new UidIoStatsRecord(mUid,
+        UidIoRecord updateSystemState(MockSystemStateInterface systemState) {
+            UidIoRecord uidIoRecord = new UidIoRecord(mUid,
                 foreground_rchar,
                 foreground_wchar,
                 foreground_read_bytes,
@@ -279,20 +279,20 @@ public class IoStatsTrackerTest extends TestCase {
                 background_write_bytes,
                 background_fsync);
 
-            systemState.addIoRecord(uidIoStatsRecord);
+            systemState.addIoRecord(uidIoRecord);
             if (mHasProcess) {
                 systemState.addProcess(new ProcessInfo(1, mUid));
             } else {
                 systemState.removeUserProcesses(mUid);
             }
 
-            return uidIoStatsRecord;
+            return uidIoRecord;
         }
     }
 
     private final class MockSystemStateInterface implements SystemStateInterface {
         private final List<ProcessInfo> mProcesses = new ArrayList<>();
-        private final SparseArray<UidIoStatsRecord> mIoRecords = new SparseArray<>();
+        private final SparseArray<UidIoRecord> mIoRecords = new SparseArray<>();
 
         @Override
         public void shutdown() {
@@ -330,7 +330,7 @@ public class IoStatsTrackerTest extends TestCase {
                     mProcesses.stream().filter(pi -> pi.uid == uid).collect(Collectors.toList()));
         }
 
-        synchronized void addIoRecord(UidIoStatsRecord record) {
+        synchronized void addIoRecord(UidIoRecord record) {
             mIoRecords.put(record.uid, record);
         }
 

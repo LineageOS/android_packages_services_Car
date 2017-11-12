@@ -69,12 +69,20 @@ public class SensorHalService extends SensorHalServiceBase {
             CarSensorManager.SENSOR_TYPE_NIGHT, VehicleProperty.NIGHT_MODE,
             CarSensorManager.SENSOR_TYPE_PARKING_BRAKE, VehicleProperty.PARKING_BRAKE_ON,
             CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, VehicleProperty.DRIVING_STATUS,
-            CarSensorManager.SENSOR_TYPE_FUEL_LEVEL, VehicleProperty.FUEL_LEVEL_LOW,
+            CarSensorManager.SENSOR_TYPE_FUEL_LEVEL, VehicleProperty.FUEL_LEVEL,
             CarSensorManager.SENSOR_TYPE_IGNITION_STATE, VehicleProperty.IGNITION_STATE,
             CarSensorManager.SENSOR_TYPE_WHEEL_TICK_DISTANCE, VehicleProperty.WHEEL_TICK,
             CarSensorManager.SENSOR_TYPE_ABS_ACTIVE, VehicleProperty.ABS_ACTIVE,
             CarSensorManager.SENSOR_TYPE_TRACTION_CONTROL_ACTIVE,
-            VehicleProperty.TRACTION_CONTROL_ACTIVE
+            VehicleProperty.TRACTION_CONTROL_ACTIVE,
+            CarSensorManager.SENSOR_TYPE_ENGINE_ON, VehicleProperty.ENGINE_ON,
+            CarSensorManager.SENSOR_TYPE_FUEL_DOOR_OPEN, VehicleProperty.FUEL_DOOR_OPEN,
+            CarSensorManager.SENSOR_TYPE_EV_BATTERY_LEVEL, VehicleProperty.EV_BATTERY_LEVEL,
+            CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_OPEN, VehicleProperty.EV_CHARGE_PORT_OPEN,
+            CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED,
+            VehicleProperty.EV_CHARGE_PORT_CONNECTED,
+            CarSensorManager.SENSOR_TYPE_EV_BATTERY_CHARGE_RATE,
+            VehicleProperty.EV_BATTERY_INSTANTANEOUS_CHARGE_RATE
         );
 
     private final static SparseIntArray mMgrGearToHalMap = initSparseIntArray(

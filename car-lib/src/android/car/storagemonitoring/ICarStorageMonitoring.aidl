@@ -17,6 +17,7 @@
 package android.car.storagemonitoring;
 
 import android.car.storagemonitoring.UidIoStats;
+import android.car.storagemonitoring.UidIoStatsDelta;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 
@@ -47,4 +48,8 @@ interface ICarStorageMonitoring {
    */
   List<UidIoStats> getAggregateIoStats() = 5;
 
+  /**
+   * Return the I/O stats deltas currently known to the service.
+   */
+  List<UidIoStatsDelta> getIoStatsDeltas() = 6;
 }

@@ -21,7 +21,8 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.storagemonitoring.UidIoStats;
-import android.car.storagemonitoring.UidIoStatsRecord;
+import android.car.storagemonitoring.UidIoStatsDelta;
+import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -67,14 +68,14 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         @Nullable
         final WearHistory wearHistory;
         @NonNull
-        final UidIoStatsRecord[] ioStats;
+        final UidIoRecord[] ioStats;
 
         TestData(long uptime,
                 @Nullable WearInformation wearInformation,
                 @Nullable WearHistory wearHistory,
-                @Nullable UidIoStatsRecord[] ioStats) {
+                @Nullable UidIoRecord[] ioStats) {
             if (wearInformation == null) wearInformation = DEFAULT_WEAR_INFORMATION;
-            if (ioStats == null) ioStats = new UidIoStatsRecord[0];
+            if (ioStats == null) ioStats = new UidIoRecord[0];
             this.uptime = uptime;
             this.wearInformation = wearInformation;
             this.wearHistory = wearHistory;
@@ -83,87 +84,95 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     }
 
     private static final Map<String, TestData> PER_TEST_DATA =
-            new HashMap<String, TestData>() {{
-                put("testReadWearHistory",
-                    new TestData(6500, DEFAULT_WEAR_INFORMATION,
-                        WearHistory.fromRecords(
-                            WearEstimateRecord.Builder.newBuilder()
-                                .fromWearEstimate(WearEstimate.UNKNOWN_ESTIMATE)
-                                .toWearEstimate(new WearEstimate(10, 0))
-                                .atUptime(1000)
-                                .atTimestamp(Instant.ofEpochMilli(5000)).build(),
-                            WearEstimateRecord.Builder.newBuilder()
-                                .fromWearEstimate(new WearEstimate(10, 0))
-                                .toWearEstimate(new WearEstimate(20, 0))
-                                .atUptime(4000)
-                                .atTimestamp(Instant.ofEpochMilli(12000)).build(),
-                            WearEstimateRecord.Builder.newBuilder()
-                                .fromWearEstimate(new WearEstimate(20, 0))
-                                .toWearEstimate(new WearEstimate(30, 0))
-                                .atUptime(6500)
-                                .atTimestamp(Instant.ofEpochMilli(17000)).build()), null));
+            new HashMap<String, TestData>() {
+                {
+                    put("testReadWearHistory",
+                        new TestData(6500, DEFAULT_WEAR_INFORMATION,
+                            WearHistory.fromRecords(
+                                WearEstimateRecord.Builder.newBuilder()
+                                    .fromWearEstimate(WearEstimate.UNKNOWN_ESTIMATE)
+                                    .toWearEstimate(new WearEstimate(10, 0))
+                                    .atUptime(1000)
+                                    .atTimestamp(Instant.ofEpochMilli(5000)).build(),
+                                WearEstimateRecord.Builder.newBuilder()
+                                    .fromWearEstimate(new WearEstimate(10, 0))
+                                    .toWearEstimate(new WearEstimate(20, 0))
+                                    .atUptime(4000)
+                                    .atTimestamp(Instant.ofEpochMilli(12000)).build(),
+                                WearEstimateRecord.Builder.newBuilder()
+                                    .fromWearEstimate(new WearEstimate(20, 0))
+                                    .toWearEstimate(new WearEstimate(30, 0))
+                                    .atUptime(6500)
+                                    .atTimestamp(Instant.ofEpochMilli(17000)).build()), null));
 
-                put("testNotAcceptableWearEvent",
-                    new TestData(2520006499L,
-                        new WearInformation(40, 0, WearInformation.PRE_EOL_INFO_NORMAL),
-                        WearHistory.fromRecords(
-                            WearEstimateRecord.Builder.newBuilder()
-                                .fromWearEstimate(WearEstimate.UNKNOWN_ESTIMATE)
-                                .toWearEstimate(new WearEstimate(10, 0))
-                                .atUptime(1000)
-                                .atTimestamp(Instant.ofEpochMilli(5000)).build(),
-                            WearEstimateRecord.Builder.newBuilder()
-                                .fromWearEstimate(new WearEstimate(10, 0))
-                                .toWearEstimate(new WearEstimate(20, 0))
-                                .atUptime(4000)
-                                .atTimestamp(Instant.ofEpochMilli(12000)).build(),
-                            WearEstimateRecord.Builder.newBuilder()
-                                .fromWearEstimate(new WearEstimate(20, 0))
-                                .toWearEstimate(new WearEstimate(30, 0))
-                                .atUptime(6500)
-                                .atTimestamp(Instant.ofEpochMilli(17000)).build()), null));
+                    put("testNotAcceptableWearEvent",
+                        new TestData(2520006499L,
+                            new WearInformation(40, 0, WearInformation.PRE_EOL_INFO_NORMAL),
+                            WearHistory.fromRecords(
+                                WearEstimateRecord.Builder.newBuilder()
+                                    .fromWearEstimate(WearEstimate.UNKNOWN_ESTIMATE)
+                                    .toWearEstimate(new WearEstimate(10, 0))
+                                    .atUptime(1000)
+                                    .atTimestamp(Instant.ofEpochMilli(5000)).build(),
+                                WearEstimateRecord.Builder.newBuilder()
+                                    .fromWearEstimate(new WearEstimate(10, 0))
+                                    .toWearEstimate(new WearEstimate(20, 0))
+                                    .atUptime(4000)
+                                    .atTimestamp(Instant.ofEpochMilli(12000)).build(),
+                                WearEstimateRecord.Builder.newBuilder()
+                                    .fromWearEstimate(new WearEstimate(20, 0))
+                                    .toWearEstimate(new WearEstimate(30, 0))
+                                    .atUptime(6500)
+                                    .atTimestamp(Instant.ofEpochMilli(17000)).build()), null));
 
-                put("testAcceptableWearEvent",
-                    new TestData(2520006501L,
-                        new WearInformation(40, 0, WearInformation.PRE_EOL_INFO_NORMAL),
-                        WearHistory.fromRecords(
-                            WearEstimateRecord.Builder.newBuilder()
-                                .fromWearEstimate(WearEstimate.UNKNOWN_ESTIMATE)
-                                .toWearEstimate(new WearEstimate(10, 0))
-                                .atUptime(1000)
-                                .atTimestamp(Instant.ofEpochMilli(5000)).build(),
-                            WearEstimateRecord.Builder.newBuilder()
-                                .fromWearEstimate(new WearEstimate(10, 0))
-                                .toWearEstimate(new WearEstimate(20, 0))
-                                .atUptime(4000)
-                                .atTimestamp(Instant.ofEpochMilli(12000)).build(),
-                            WearEstimateRecord.Builder.newBuilder()
-                                .fromWearEstimate(new WearEstimate(20, 0))
-                                .toWearEstimate(new WearEstimate(30, 0))
-                                .atUptime(6500)
-                                .atTimestamp(Instant.ofEpochMilli(17000)).build()), null));
+                    put("testAcceptableWearEvent",
+                        new TestData(2520006501L,
+                            new WearInformation(40, 0, WearInformation.PRE_EOL_INFO_NORMAL),
+                            WearHistory.fromRecords(
+                                WearEstimateRecord.Builder.newBuilder()
+                                    .fromWearEstimate(WearEstimate.UNKNOWN_ESTIMATE)
+                                    .toWearEstimate(new WearEstimate(10, 0))
+                                    .atUptime(1000)
+                                    .atTimestamp(Instant.ofEpochMilli(5000)).build(),
+                                WearEstimateRecord.Builder.newBuilder()
+                                    .fromWearEstimate(new WearEstimate(10, 0))
+                                    .toWearEstimate(new WearEstimate(20, 0))
+                                    .atUptime(4000)
+                                    .atTimestamp(Instant.ofEpochMilli(12000)).build(),
+                                WearEstimateRecord.Builder.newBuilder()
+                                    .fromWearEstimate(new WearEstimate(20, 0))
+                                    .toWearEstimate(new WearEstimate(30, 0))
+                                    .atUptime(6500)
+                                    .atTimestamp(Instant.ofEpochMilli(17000)).build()), null));
 
-                put("testBootIoStats",
-                    new TestData(1000L,
-                        new WearInformation(0, 0, WearInformation.PRE_EOL_INFO_NORMAL),
-                        null,
-                        new UidIoStatsRecord[]{
-                            new UidIoStatsRecord(0, 5000, 6000, 3000, 1000, 1,
-                                0, 0, 0, 0, 0),
-                            new UidIoStatsRecord(1000, 200, 5000, 0, 4000, 0,
-                                1000, 0, 500, 0, 0)}));
+                    put("testBootIoStats",
+                        new TestData(1000L,
+                            new WearInformation(0, 0, WearInformation.PRE_EOL_INFO_NORMAL),
+                            null,
+                            new UidIoRecord[]{
+                                new UidIoRecord(0, 5000, 6000, 3000, 1000, 1,
+                                    0, 0, 0, 0, 0),
+                                new UidIoRecord(1000, 200, 5000, 0, 4000, 0,
+                                    1000, 0, 500, 0, 0)}));
 
-                put("testAggregateIoStats",
-                    new TestData(1000L,
-                        new WearInformation(0, 0, WearInformation.PRE_EOL_INFO_NORMAL),
-                        null,
-                        new UidIoStatsRecord[]{
-                            new UidIoStatsRecord(0, 5000, 6000, 3000, 1000, 1,
-                                0, 0, 0, 0, 0),
-                            new UidIoStatsRecord(1000, 200, 5000, 0, 4000, 0,
-                                1000, 0, 500, 0, 0)}));
+                    put("testAggregateIoStats",
+                        new TestData(1000L,
+                            new WearInformation(0, 0, WearInformation.PRE_EOL_INFO_NORMAL),
+                            null,
+                            new UidIoRecord[]{
+                                new UidIoRecord(0, 5000, 6000, 3000, 1000, 1,
+                                    0, 0, 0, 0, 0),
+                                new UidIoRecord(1000, 200, 5000, 0, 4000, 0,
+                                    1000, 0, 500, 0, 0)}));
 
-            }};
+                    put("testIoStatsDeltas",
+                        new TestData(1000L,
+                            new WearInformation(0, 0, WearInformation.PRE_EOL_INFO_NORMAL),
+                            null,
+                            new UidIoRecord[]{
+                                new UidIoRecord(0, 5000, 6000, 3000, 1000, 1,
+                                    0, 0, 0, 0, 0)}));
+                }};
 
     private final MockSystemStateInterface mMockSystemStateInterface =
             new MockSystemStateInterface();
@@ -295,16 +304,16 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         assertNotNull(bootIoStats);
         assertFalse(bootIoStats.isEmpty());
 
-        final UidIoStatsRecord[] bootIoRecords = PER_TEST_DATA.get(getName()).ioStats;
+        final UidIoRecord[] bootIoRecords = PER_TEST_DATA.get(getName()).ioStats;
 
         bootIoStats.forEach(uidIoStats -> assertTrue(Arrays.stream(bootIoRecords).anyMatch(
                 ioRecord -> uidIoStats.representsSameMetrics(ioRecord))));
     }
 
     public void testAggregateIoStats() throws Exception {
-        UidIoStatsRecord oldRecord1000 = mMockStorageMonitoringInterface.getIoStatsRecord(1000);
+        UidIoRecord oldRecord1000 = mMockStorageMonitoringInterface.getIoStatsRecord(1000);
 
-        UidIoStatsRecord newRecord1000 = new UidIoStatsRecord(1000,
+        UidIoRecord newRecord1000 = new UidIoRecord(1000,
             oldRecord1000.foreground_rchar,
             oldRecord1000.foreground_wchar + 50,
             oldRecord1000.foreground_read_bytes,
@@ -318,7 +327,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
         mMockStorageMonitoringInterface.addIoStatsRecord(newRecord1000);
 
-        UidIoStatsRecord record2000 = new UidIoStatsRecord(2000,
+        UidIoRecord record2000 = new UidIoRecord(2000,
             1024,
             2048,
             0,
@@ -340,7 +349,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         assertFalse(aggregateIoStats.isEmpty());
 
         aggregateIoStats.forEach(serviceIoStat -> {
-            UidIoStatsRecord mockIoStat = mMockStorageMonitoringInterface.getIoStatsRecord(
+            UidIoRecord mockIoStat = mMockStorageMonitoringInterface.getIoStatsRecord(
                     serviceIoStat.uid);
 
             assertNotNull(mockIoStat);
@@ -349,21 +358,99 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         });
     }
 
+    public void testIoStatsDeltas() throws Exception {
+        UidIoRecord oldRecord0 = mMockStorageMonitoringInterface.getIoStatsRecord(0);
+
+        UidIoRecord newRecord0 = new UidIoRecord(0,
+            oldRecord0.foreground_rchar,
+            oldRecord0.foreground_wchar + 100,
+            oldRecord0.foreground_read_bytes,
+            oldRecord0.foreground_write_bytes + 50,
+            oldRecord0.foreground_fsync,
+            oldRecord0.background_rchar,
+            oldRecord0.background_wchar,
+            oldRecord0.background_read_bytes + 100,
+            oldRecord0.background_write_bytes,
+            oldRecord0.background_fsync);
+
+        mMockStorageMonitoringInterface.addIoStatsRecord(newRecord0);
+        mMockTimeInterface.setUptime(500).tick();
+
+        List<UidIoStatsDelta> deltas = mCarStorageMonitoringManager.getIoStatsDeltas();
+        assertNotNull(deltas);
+        assertEquals(1, deltas.size());
+
+        UidIoStatsDelta delta0 = deltas.get(0);
+        assertNotNull(delta0);
+        assertEquals(500, delta0.getTimestamp());
+
+        List<UidIoStats> delta0Stats = delta0.getStats();
+        assertNotNull(delta0Stats);
+        assertEquals(1, delta0Stats.size());
+
+        UidIoStats deltaRecord0 = delta0Stats.get(0);
+
+        assertTrue(deltaRecord0.representsSameMetrics(newRecord0.delta(oldRecord0)));
+
+        UidIoRecord newerRecord0 = new UidIoRecord(0,
+            newRecord0.foreground_rchar + 200,
+            newRecord0.foreground_wchar + 10,
+            newRecord0.foreground_read_bytes,
+            newRecord0.foreground_write_bytes,
+            newRecord0.foreground_fsync,
+            newRecord0.background_rchar,
+            newRecord0.background_wchar + 100,
+            newRecord0.background_read_bytes,
+            newRecord0.background_write_bytes + 30,
+            newRecord0.background_fsync + 2);
+
+        mMockStorageMonitoringInterface.addIoStatsRecord(newerRecord0);
+        mMockTimeInterface.setUptime(1000).tick();
+
+        deltas = mCarStorageMonitoringManager.getIoStatsDeltas();
+        assertNotNull(deltas);
+        assertEquals(2, deltas.size());
+
+        delta0 = deltas.get(0);
+        assertNotNull(delta0);
+        assertEquals(500, delta0.getTimestamp());
+
+        delta0Stats = delta0.getStats();
+        assertNotNull(delta0Stats);
+        assertEquals(1, delta0Stats.size());
+
+        deltaRecord0 = delta0Stats.get(0);
+
+        assertTrue(deltaRecord0.representsSameMetrics(newRecord0.delta(oldRecord0)));
+
+        UidIoStatsDelta delta1 = deltas.get(1);
+        assertNotNull(delta1);
+        assertEquals(1000, delta1.getTimestamp());
+
+        List<UidIoStats> delta1Stats = delta1.getStats();
+        assertNotNull(delta1Stats);
+        assertEquals(1, delta1Stats.size());
+
+        deltaRecord0 = delta1Stats.get(0);
+
+        assertTrue(deltaRecord0.representsSameMetrics(newerRecord0.delta(newRecord0)));
+    }
+
     static final class MockStorageMonitoringInterface implements StorageMonitoringInterface,
         WearInformationProvider {
         private WearInformation mWearInformation = null;
-        private SparseArray<UidIoStatsRecord> mIoStats = new SparseArray<>();
+        private SparseArray<UidIoRecord> mIoStats = new SparseArray<>();
         private UidIoStatsProvider mIoStatsProvider = () -> mIoStats;
 
         void setWearInformation(WearInformation wearInformation) {
             mWearInformation = wearInformation;
         }
 
-        void addIoStatsRecord(UidIoStatsRecord record) {
+        void addIoStatsRecord(UidIoRecord record) {
             mIoStats.append(record.uid, record);
         }
 
-        UidIoStatsRecord getIoStatsRecord(int uid) {
+        UidIoRecord getIoStatsRecord(int uid) {
             return mIoStats.get(uid);
         }
 
@@ -389,10 +476,11 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
     static final class MockTimeInterface implements TimeInterface {
         private final List<Pair<Runnable, Long>> mActionsList = new ArrayList<>();
+        private long mUptime = 0;
 
         @Override
         public long getUptime(boolean includeDeepSleepTime) {
-            return 0;
+            return mUptime;
         }
 
         @Override
@@ -408,6 +496,11 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
         void tick() {
             mActionsList.forEach(pair -> pair.first.run());
+        }
+
+        MockTimeInterface setUptime(long time) {
+            mUptime = time;
+            return this;
         }
     }
 

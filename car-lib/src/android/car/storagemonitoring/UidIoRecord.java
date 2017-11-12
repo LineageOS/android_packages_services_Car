@@ -23,7 +23,7 @@ import android.annotation.SystemApi;
  * @hide
  */
 @SystemApi
-public final class UidIoStatsRecord {
+public final class UidIoRecord {
 
     public final int uid;
 
@@ -39,7 +39,7 @@ public final class UidIoStatsRecord {
     public final long background_write_bytes;
     public final long background_fsync;
 
-    public UidIoStatsRecord(int uid,
+    public UidIoRecord(int uid,
             long foreground_rchar,
             long foreground_wchar,
             long foreground_read_bytes,
@@ -66,12 +66,12 @@ public final class UidIoStatsRecord {
     }
 
     /** @hide */
-    public UidIoStatsRecord delta(UidIoStats other) {
+    public UidIoRecord delta(UidIoStats other) {
         if (uid != other.uid) {
             throw new IllegalArgumentException("cannot calculate delta between different user IDs");
         }
 
-        return new UidIoStatsRecord(uid,
+        return new UidIoRecord(uid,
             foreground_rchar - other.foreground.bytesRead,
             foreground_wchar - other.foreground.bytesWritten,
             foreground_read_bytes - other.foreground.bytesReadFromStorage,
@@ -82,5 +82,24 @@ public final class UidIoStatsRecord {
             background_read_bytes - other.background.bytesReadFromStorage,
             background_write_bytes - other.background.bytesWrittenToStorage,
             background_fsync - other.background.fsyncCalls);
+    }
+
+    /** @hide */
+    public UidIoRecord delta(UidIoRecord other) {
+        if (uid != other.uid) {
+            throw new IllegalArgumentException("cannot calculate delta between different user IDs");
+        }
+
+        return new UidIoRecord(uid,
+            foreground_rchar - other.foreground_rchar,
+            foreground_wchar - other.foreground_wchar,
+            foreground_read_bytes - other.foreground_read_bytes,
+            foreground_write_bytes - other.foreground_write_bytes,
+            foreground_fsync - other.foreground_fsync,
+            background_rchar - other.background_rchar,
+            background_wchar - other.background_wchar,
+            background_read_bytes - other.background_read_bytes,
+            background_write_bytes - other.background_write_bytes,
+            background_fsync - other.background_fsync);
     }
 }

@@ -68,6 +68,10 @@ package android.car {
   }
 
   public final class CarInfoManager {
+    method public float getEvBatteryCapacity() throws android.car.CarNotConnectedException;
+    method public int[] getEvConnectorTypes() throws android.car.CarNotConnectedException;
+    method public float getFuelCapacity() throws android.car.CarNotConnectedException;
+    method public int[] getFuelTypes() throws android.car.CarNotConnectedException;
     method public java.lang.String getManufacturer() throws android.car.CarNotConnectedException;
     method public java.lang.String getModel() throws android.car.CarNotConnectedException;
     method public java.lang.String getModelYear() throws android.car.CarNotConnectedException;
@@ -699,9 +703,6 @@ package android.car.hardware {
     field public static final int IGNITION_STATE_UNDEFINED = 0; // 0x0
     field public static final int INDEX_ENVIRONMENT_PRESSURE = 1; // 0x1
     field public static final int INDEX_ENVIRONMENT_TEMPERATURE = 0; // 0x0
-    field public static final int INDEX_FUEL_LEVEL_IN_DISTANCE = 1; // 0x1
-    field public static final int INDEX_FUEL_LEVEL_IN_PERCENTILE = 0; // 0x0
-    field public static final int INDEX_FUEL_LOW_WARNING = 0; // 0x0
     field public static final int INDEX_WHEEL_DISTANCE_FRONT_LEFT = 1; // 0x1
     field public static final int INDEX_WHEEL_DISTANCE_FRONT_RIGHT = 2; // 0x2
     field public static final int INDEX_WHEEL_DISTANCE_REAR_LEFT = 4; // 0x4
@@ -735,7 +736,13 @@ package android.car.hardware {
     field public static final int SENSOR_TYPE_ABS_ACTIVE = 24; // 0x18
     field public static final int SENSOR_TYPE_CAR_SPEED = 2; // 0x2
     field public static final int SENSOR_TYPE_DRIVING_STATUS = 11; // 0xb
+    field public static final int SENSOR_TYPE_ENGINE_ON = 26; // 0x1a
     field public static final int SENSOR_TYPE_ENVIRONMENT = 12; // 0xc
+    field public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE = 31; // 0x1f
+    field public static final int SENSOR_TYPE_EV_BATTERY_LEVEL = 28; // 0x1c
+    field public static final int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED = 30; // 0x1e
+    field public static final int SENSOR_TYPE_EV_CHARGE_PORT_OPEN = 29; // 0x1d
+    field public static final int SENSOR_TYPE_FUEL_DOOR_OPEN = 27; // 0x1b
     field public static final int SENSOR_TYPE_FUEL_LEVEL = 5; // 0x5
     field public static final int SENSOR_TYPE_GEAR = 7; // 0x7
     field public static final int SENSOR_TYPE_IGNITION_STATE = 22; // 0x16
@@ -1006,6 +1013,7 @@ package android.car.storagemonitoring {
   public final class CarStorageMonitoringManager {
     method public java.util.List<android.car.storagemonitoring.UidIoStats> getAggregateIoStats() throws android.car.CarNotConnectedException;
     method public java.util.List<android.car.storagemonitoring.UidIoStats> getBootIoStats() throws android.car.CarNotConnectedException;
+    method public java.util.List<android.car.storagemonitoring.UidIoStatsDelta> getIoStatsDeltas() throws android.car.CarNotConnectedException;
     method public int getPreEolIndicatorStatus() throws android.car.CarNotConnectedException;
     method public android.car.storagemonitoring.WearEstimate getWearEstimate() throws android.car.CarNotConnectedException;
     method public java.util.List<android.car.storagemonitoring.WearEstimateChange> getWearEstimateHistory() throws android.car.CarNotConnectedException;
@@ -1015,38 +1023,8 @@ package android.car.storagemonitoring {
     field public static final int PRE_EOL_INFO_WARNING = 2; // 0x2
   }
 
-  public final class UidIoStats implements android.os.Parcelable {
-    ctor public UidIoStats(int, long, android.car.storagemonitoring.UidIoStats.PerStateMetrics, android.car.storagemonitoring.UidIoStats.PerStateMetrics);
-    ctor public UidIoStats(android.os.Parcel);
-    ctor public UidIoStats(android.car.storagemonitoring.UidIoStatsRecord, long);
-    ctor public UidIoStats(org.json.JSONObject) throws org.json.JSONException;
-    method public int describeContents();
-    method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.UidIoStats> CREATOR;
-    field public final android.car.storagemonitoring.UidIoStats.PerStateMetrics background;
-    field public final android.car.storagemonitoring.UidIoStats.PerStateMetrics foreground;
-    field public final long runtimeMillis;
-    field public final int uid;
-  }
-
-  public static final class UidIoStats.PerStateMetrics implements android.os.Parcelable {
-    ctor public UidIoStats.PerStateMetrics(long, long, long, long, long);
-    ctor public UidIoStats.PerStateMetrics(android.os.Parcel);
-    ctor public UidIoStats.PerStateMetrics(org.json.JSONObject) throws org.json.JSONException;
-    method public int describeContents();
-    method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.UidIoStats.PerStateMetrics> CREATOR;
-    field public final long bytesRead;
-    field public final long bytesReadFromStorage;
-    field public final long bytesWritten;
-    field public final long bytesWrittenToStorage;
-    field public final long fsyncCalls;
-  }
-
-  public final class UidIoStatsRecord {
-    ctor public UidIoStatsRecord(int, long, long, long, long, long, long, long, long, long, long);
+  public final class UidIoRecord {
+    ctor public UidIoRecord(int, long, long, long, long, long, long, long, long, long, long);
     field public final long background_fsync;
     field public final long background_rchar;
     field public final long background_read_bytes;
@@ -1058,6 +1036,50 @@ package android.car.storagemonitoring {
     field public final long foreground_wchar;
     field public final long foreground_write_bytes;
     field public final int uid;
+  }
+
+  public final class UidIoStats implements android.os.Parcelable {
+    ctor public UidIoStats(int, long, android.car.storagemonitoring.UidIoStats.Metrics, android.car.storagemonitoring.UidIoStats.Metrics);
+    ctor public UidIoStats(android.os.Parcel);
+    ctor public UidIoStats(android.car.storagemonitoring.UidIoRecord, long);
+    ctor public UidIoStats(org.json.JSONObject) throws org.json.JSONException;
+    method public int describeContents();
+    method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.UidIoStats> CREATOR;
+    field public final android.car.storagemonitoring.UidIoStats.Metrics background;
+    field public final android.car.storagemonitoring.UidIoStats.Metrics foreground;
+    field public final long runtimeMillis;
+    field public final int uid;
+  }
+
+  public static final class UidIoStats.Metrics implements android.os.Parcelable {
+    ctor public UidIoStats.Metrics(long, long, long, long, long);
+    ctor public UidIoStats.Metrics(android.os.Parcel);
+    ctor public UidIoStats.Metrics(org.json.JSONObject) throws org.json.JSONException;
+    method public int describeContents();
+    method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.UidIoStats.Metrics> CREATOR;
+    field public final long bytesRead;
+    field public final long bytesReadFromStorage;
+    field public final long bytesWritten;
+    field public final long bytesWrittenToStorage;
+    field public final long fsyncCalls;
+  }
+
+  public class UidIoStatsDelta implements android.os.Parcelable {
+    ctor public UidIoStatsDelta(java.util.List<android.car.storagemonitoring.UidIoStats>, long);
+    ctor public UidIoStatsDelta(android.os.Parcel);
+    method public int describeContents();
+    method public android.car.storagemonitoring.UidIoStats.Metrics getBackgroundTotals();
+    method public android.car.storagemonitoring.UidIoStats.Metrics getForegroundTotals();
+    method public java.util.List<android.car.storagemonitoring.UidIoStats> getStats();
+    method public long getTimestamp();
+    method public android.car.storagemonitoring.UidIoStats.Metrics getTotals();
+    method public android.car.storagemonitoring.UidIoStats getUserIdStats(int);
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.UidIoStatsDelta> CREATOR;
   }
 
   public class WearEstimate implements android.os.Parcelable {

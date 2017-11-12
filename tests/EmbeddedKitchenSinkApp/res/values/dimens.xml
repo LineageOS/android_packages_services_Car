@@ -17,6 +17,8 @@
     <dimen name="hvacBtnHeight">60dp</dimen>
     <dimen name="hvacBtnMargin">10dp</dimen>
     <dimen name="hvacTextSize">24sp</dimen>
+    <dimen name="powerBtnHeight">60dp</dimen>
+    <dimen name="powerTextSize">24sp</dimen>
     <dimen name="rvcBtnHeight">40dp</dimen>
     <dimen name="rvcBtnWidth">150dp</dimen>
     <dimen name="rvcTextSize">10dp</dimen>
