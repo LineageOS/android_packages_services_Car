@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "EvsManager"
-
 #include <unistd.h>
 
 #include <hidl/HidlTransportSupport.h>

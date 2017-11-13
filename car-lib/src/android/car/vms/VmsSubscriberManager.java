@@ -26,14 +26,16 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
+
 import com.android.internal.annotations.GuardedBy;
+
 import java.lang.ref.WeakReference;
 import java.util.List;
 
 /**
- * API for interfacing with the VmsSubscriberService. It supports a single listener that can
- * (un)subscribe to different layers. After getting an instance of this manager, the first step
- * must be to call #setListener. After that, #subscribe and #unsubscribe methods can be invoked.
+ * API for interfacing with the VmsSubscriberService. It supports a single client callback that can
+ * (un)subscribe to different layers. Getting notifactions and managing subscriptions is enabled
+ * after setting the client callback with #registerClientCallback.
  * SystemApi candidate
  *
  * @hide
@@ -45,28 +47,33 @@ public final class VmsSubscriberManager implements CarManagerBase {
 
     private final Handler mHandler;
     private final IVmsSubscriberService mVmsSubscriberService;
-    private final IVmsSubscriberClient mIListener;
-    private final Object mListenerLock = new Object();
-    @GuardedBy("mListenerLock")
-    private VmsSubscriberClientListener mListener;
+    private final IVmsSubscriberClient mSubscriberManagerClient;
+    private final Object mClientCallbackLock = new Object();
+    @GuardedBy("mClientCallbackLock")
+    private VmsSubscriberClientCallback mClientCallback;
 
-    /** Interface exposed to VMS subscribers: it is a wrapper of IVmsSubscriberClient. */
-    public interface VmsSubscriberClientListener {
-        /** Called when the property is updated */
+    /**
+     * Interface exposed to VMS subscribers: it is a wrapper of IVmsSubscriberClient.
+     */
+    public interface VmsSubscriberClientCallback {
+        /**
+         * Called when the property is updated
+         */
         void onVmsMessageReceived(VmsLayer layer, byte[] payload);
 
-        /** Called when layers availability change */
-        void onLayersAvailabilityChange(List<VmsLayer> availableLayers);
-
-        /** Notifies the client of the disconnect event */
-        void onCarDisconnected();
+        /**
+         * Called when layers availability change
+         */
+        void onLayersAvailabilityChanged(List<VmsLayer> availableLayers);
     }
 
     /**
      * Allows to asynchronously dispatch onVmsMessageReceived events.
      */
     private final static class VmsEventHandler extends Handler {
-        /** Constants handled in the handler */
+        /**
+         * Constants handled in the handler
+         */
         private static final int ON_RECEIVE_MESSAGE_EVENT = 0;
         private static final int ON_AVAILABILITY_CHANGE_EVENT = 1;
 
@@ -88,7 +95,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
 
                         // Dispatch the parsed message
                         mgr.dispatchOnReceiveMessage(vmsDataMessage.getLayer(),
-                                                     vmsDataMessage.getPayload());
+                                vmsDataMessage.getPayload());
                     }
                     break;
                 case ON_AVAILABILITY_CHANGE_EVENT:
@@ -111,58 +118,80 @@ public final class VmsSubscriberManager implements CarManagerBase {
     public VmsSubscriberManager(IBinder service, Handler handler) {
         mVmsSubscriberService = IVmsSubscriberService.Stub.asInterface(service);
         mHandler = new VmsEventHandler(this, handler.getLooper());
-        mIListener = new IVmsSubscriberClient.Stub() {
+        mSubscriberManagerClient = new IVmsSubscriberClient.Stub() {
             @Override
             public void onVmsMessageReceived(VmsLayer layer, byte[] payload)
-                throws RemoteException {
+                    throws RemoteException {
                 // Create the data message
                 VmsDataMessage vmsDataMessage = new VmsDataMessage(layer, payload);
                 mHandler.sendMessage(
                         mHandler.obtainMessage(
-                            VmsEventHandler.ON_RECEIVE_MESSAGE_EVENT,
-                            vmsDataMessage));
+                                VmsEventHandler.ON_RECEIVE_MESSAGE_EVENT,
+                                vmsDataMessage));
             }
 
             @Override
-            public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
+            public void onLayersAvailabilityChanged(List<VmsAssociatedLayer> availableLayers) {
                 mHandler.sendMessage(
-                    mHandler.obtainMessage(
-                        VmsEventHandler.ON_AVAILABILITY_CHANGE_EVENT,
-                        availableLayers));
+                        mHandler.obtainMessage(
+                                VmsEventHandler.ON_AVAILABILITY_CHANGE_EVENT,
+                                availableLayers));
             }
         };
     }
 
     /**
-     * Sets the listener ({@link #mListener}) this manager is linked to. Subscriptions to the
-     * {@link com.android.car.VmsSubscriberService} are done through the {@link #mIListener}.
-     * Therefore, notifications from the {@link com.android.car.VmsSubscriberService} are received
-     * by the {@link #mIListener} and then forwarded to the {@link #mListener}.
+     * Registers the client callback in order to enable communication with the client.
+     * By registering, the client will start getting notifications, and will be able to subscribe
+     * to layers.
+     * <p>
      *
-     * It is expected that this method is invoked just once during the lifetime of the object.
-     *
-     * @param listener subscriber listener that will handle onVmsMessageReceived events.
-     * @throws IllegalStateException if the listener was already set.
+     * @param clientCallback subscriber callback that will handle onVmsMessageReceived events.
+     * @throws IllegalStateException if the client callback was already set.
      */
-    public void setListener(VmsSubscriberClientListener listener) {
-        if (DBG) {
-            Log.d(TAG, "Setting listener.");
-        }
-        synchronized (mListenerLock) {
-            if (mListener != null) {
-                throw new IllegalStateException("Listener is already configured.");
+    public void registerClientCallback(VmsSubscriberClientCallback clientCallback)
+            throws CarNotConnectedException {
+        synchronized (mClientCallbackLock) {
+            if (mClientCallback != null) {
+                throw new IllegalStateException("Client callback is already configured.");
             }
-            mListener = listener;
+            mClientCallback = clientCallback;
+        }
+        try {
+            mVmsSubscriberService.addVmsSubscriberToNotifications(mSubscriberManagerClient);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not connect: ", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Unregisters the client callback which disables communication with the client.
+     * @throws CarNotConnectedException, IllegalStateException
+     */
+    public void unregisterClientCallback()
+            throws CarNotConnectedException {
+
+        try {
+            mVmsSubscriberService.removeVmsSubscriberToNotifications(mSubscriberManagerClient);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not connect: ", e);
+            throw new CarNotConnectedException(e);
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "Could not unsubscribe from notifications");
+            throw e;
+        }
+
+        synchronized (mClientCallbackLock) {
+            mClientCallback = null;
         }
     }
 
     /**
      * Returns a serialized publisher information for a publisher ID.
      */
-    public byte[] getPublisherInfo(int publisherId) throws CarNotConnectedException, IllegalStateException {
-        if (DBG) {
-            Log.d(TAG, "Getting all publishers info.");
-        }
+    public byte[] getPublisherInfo(int publisherId)
+            throws CarNotConnectedException, IllegalStateException {
         try {
             return mVmsSubscriberService.getPublisherInfo(publisherId);
         } catch (RemoteException e) {
@@ -178,23 +207,14 @@ public final class VmsSubscriberManager implements CarManagerBase {
      * Subscribes to listen to the layer specified.
      *
      * @param layer the layer to subscribe to.
-     * @throws IllegalStateException if the listener was not set via {@link #setListener}.
+     * @throws IllegalStateException if the client callback was not set via
+     *                               {@link #registerClientCallback}.
      */
     public void subscribe(VmsLayer layer) throws CarNotConnectedException {
-        if (DBG) {
-            Log.d(TAG, "Subscribing to layer: " + layer);
-        }
-        VmsSubscriberClientListener listener;
-        synchronized (mListenerLock) {
-            listener = mListener;
-        }
-        if (listener == null) {
-            Log.w(TAG, "subscribe: listener was not set, " +
-                    "setListener must be called first.");
-            throw new IllegalStateException("Listener was not set.");
-        }
+        verifySubscriptionIsAllowed();
         try {
-            mVmsSubscriberService.addVmsSubscriberClientListener(mIListener, layer);
+            mVmsSubscriberService.addVmsSubscriber(mSubscriberManagerClient, layer);
+            VmsOperationRecorder.get().subscribe(layer);
         } catch (RemoteException e) {
             Log.e(TAG, "Could not connect: ", e);
             throw new CarNotConnectedException(e);
@@ -203,21 +223,33 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
     }
 
-    public void subscribeAll() throws CarNotConnectedException {
-        if (DBG) {
-            Log.d(TAG, "Subscribing passively to all data messages");
-        }
-        VmsSubscriberClientListener listener;
-        synchronized (mListenerLock) {
-            listener = mListener;
-        }
-        if (listener == null) {
-            Log.w(TAG, "subscribe: listener was not set, " +
-                "setListener must be called first.");
-            throw new IllegalStateException("Listener was not set.");
-        }
+    /**
+     * Subscribes to listen to the layer specified from the publisher specified.
+     *
+     * @param layer       the layer to subscribe to.
+     * @param publisherId the publisher of the layer.
+     * @throws IllegalStateException if the client callback was not set via
+     *                               {@link #registerClientCallback}.
+     */
+    public void subscribe(VmsLayer layer, int publisherId) throws CarNotConnectedException {
+        verifySubscriptionIsAllowed();
         try {
-            mVmsSubscriberService.addVmsSubscriberClientPassiveListener(mIListener);
+            mVmsSubscriberService.addVmsSubscriberToPublisher(
+                    mSubscriberManagerClient, layer, publisherId);
+            VmsOperationRecorder.get().subscribe(layer, publisherId);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not connect: ", e);
+            throw new CarNotConnectedException(e);
+        } catch (IllegalStateException ex) {
+            Car.checkCarNotConnectedExceptionFromCarService(ex);
+        }
+    }
+
+    public void startMonitoring() throws CarNotConnectedException {
+        verifySubscriptionIsAllowed();
+        try {
+            mVmsSubscriberService.addVmsSubscriberPassive(mSubscriberManagerClient);
+            VmsOperationRecorder.get().startMonitoring();
         } catch (RemoteException e) {
             Log.e(TAG, "Could not connect: ", e);
             throw new CarNotConnectedException(e);
@@ -229,24 +261,15 @@ public final class VmsSubscriberManager implements CarManagerBase {
     /**
      * Unsubscribes from the layer/version specified.
      *
-     * @param layer   the layer to unsubscribe from.
-     * @throws IllegalStateException if the listener was not set via {@link #setListener}.
+     * @param layer the layer to unsubscribe from.
+     * @throws IllegalStateException if the client callback was not set via
+     *                               {@link #registerClientCallback}.
      */
     public void unsubscribe(VmsLayer layer) {
-        if (DBG) {
-            Log.d(TAG, "Unsubscribing from layer: " + layer);
-        }
-        VmsSubscriberClientListener listener;
-        synchronized (mListenerLock) {
-            listener = mListener;
-        }
-        if (listener == null) {
-            Log.w(TAG, "unsubscribe: listener was not set, " +
-                    "setListener must be called first.");
-            throw new IllegalStateException("Listener was not set.");
-        }
+        verifySubscriptionIsAllowed();
         try {
-            mVmsSubscriberService.removeVmsSubscriberClientListener(mIListener, layer);
+            mVmsSubscriberService.removeVmsSubscriber(mSubscriberManagerClient, layer);
+            VmsOperationRecorder.get().unsubscribe(layer);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to unregister subscriber", e);
             // ignore
@@ -255,21 +278,31 @@ public final class VmsSubscriberManager implements CarManagerBase {
         }
     }
 
-    public void unsubscribeAll() {
-        if (DBG) {
-            Log.d(TAG, "Unsubscribing passively from all data messages");
-        }
-        VmsSubscriberClientListener listener;
-        synchronized (mListenerLock) {
-            listener = mListener;
-        }
-        if (listener == null) {
-            Log.w(TAG, "unsubscribeAll: listener was not set, " +
-                    "setListener must be called first.");
-            throw new IllegalStateException("Listener was not set.");
-        }
+    /**
+     * Unsubscribes from the layer/version specified.
+     *
+     * @param layer       the layer to unsubscribe from.
+     * @param publisherId the pubisher of the layer.
+     * @throws IllegalStateException if the client callback was not set via
+     *                               {@link #registerClientCallback}.
+     */
+    public void unsubscribe(VmsLayer layer, int publisherId) {
         try {
-            mVmsSubscriberService.removeVmsSubscriberClientPassiveListener(mIListener);
+            mVmsSubscriberService.removeVmsSubscriberToPublisher(
+                    mSubscriberManagerClient, layer, publisherId);
+            VmsOperationRecorder.get().unsubscribe(layer, publisherId);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Failed to unregister subscriber", e);
+            // ignore
+        } catch (IllegalStateException ex) {
+            Car.hideCarNotConnectedExceptionFromCarService(ex);
+        }
+    }
+
+    public void stopMonitoring() {
+        try {
+            mVmsSubscriberService.removeVmsSubscriberPassive(mSubscriberManagerClient);
+            VmsOperationRecorder.get().stopMonitoring();
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to unregister subscriber ", e);
             // ignore
@@ -279,41 +312,49 @@ public final class VmsSubscriberManager implements CarManagerBase {
     }
 
     private void dispatchOnReceiveMessage(VmsLayer layer, byte[] payload) {
-        VmsSubscriberClientListener listener;
-        synchronized (mListenerLock) {
-            listener = mListener;
-        }
-        if (listener == null) {
-            Log.e(TAG, "Listener died, not dispatching event.");
+        VmsSubscriberClientCallback clientCallback = getClientCallbackThreadSafe();
+        if (clientCallback == null) {
+            Log.e(TAG, "Cannot dispatch received message.");
             return;
         }
-        listener.onVmsMessageReceived(layer, payload);
+        clientCallback.onVmsMessageReceived(layer, payload);
     }
 
     private void dispatchOnAvailabilityChangeMessage(List<VmsLayer> availableLayers) {
-        VmsSubscriberClientListener listener;
-        synchronized (mListenerLock) {
-            listener = mListener;
-        }
-        if (listener == null) {
-            Log.e(TAG, "Listener died, not dispatching event.");
+        VmsSubscriberClientCallback clientCallback = getClientCallbackThreadSafe();
+        if (clientCallback == null) {
+            Log.e(TAG, "Cannot dispatch availability change message.");
             return;
         }
-        listener.onLayersAvailabilityChange(availableLayers);
+        clientCallback.onLayersAvailabilityChanged(availableLayers);
     }
 
-    /** @hide */
+    private VmsSubscriberClientCallback getClientCallbackThreadSafe() {
+        VmsSubscriberClientCallback clientCallback;
+        synchronized (mClientCallbackLock) {
+            clientCallback = mClientCallback;
+        }
+        if (clientCallback == null) {
+            Log.e(TAG, "client callback not set.");
+        }
+        return clientCallback;
+    }
+
+    /*
+     * Verifies that the subscriber is in a state where it is allowed to subscribe.
+     */
+    private void verifySubscriptionIsAllowed() {
+        VmsSubscriberClientCallback clientCallback = getClientCallbackThreadSafe();
+        if (clientCallback == null) {
+            throw new IllegalStateException("Cannot subscribe.");
+        }
+    }
+
+    /**
+     * @hide
+     */
     @Override
     public void onCarDisconnected() {
-        VmsSubscriberClientListener listener;
-        synchronized (mListenerLock) {
-            listener = mListener;
-        }
-        if (listener == null) {
-            Log.e(TAG, "Listener died, not dispatching event.");
-            return;
-        }
-        listener.onCarDisconnected();
     }
 
     private static final class VmsDataMessage {
@@ -328,6 +369,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         public VmsLayer getLayer() {
             return mLayer;
         }
+
         public byte[] getPayload() {
             return mPayload;
         }

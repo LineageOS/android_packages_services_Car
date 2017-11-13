@@ -31,7 +31,6 @@ import android.util.Log;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 /**
  * Services that need VMS publisher services need to inherit from this class and also need to be
@@ -40,8 +39,8 @@ import java.util.List;
  * of the target product.
  *
  * The {@link com.android.car.VmsPublisherService} will start this service. The callback
- * {@link #onVmsPublisherServiceReady()} notifies when VMS publisher services (i.e.
- * {@link #publish(int, int, byte[])} and {@link #getSubscribers()}) can be used.
+ * {@link #onVmsPublisherServiceReady()} notifies when VMS publisher services can be used, and the
+ * publisher can request a publisher ID in order to start publishing.
  *
  * SystemApi candidate.
  *
@@ -77,7 +76,7 @@ public abstract class VmsPublisherClientService extends Service {
         return super.onUnbind(intent);
     }
 
-    public void setToken(IBinder token) {
+    private void setToken(IBinder token) {
         synchronized (mLock) {
             mToken = token;
         }
@@ -86,12 +85,12 @@ public abstract class VmsPublisherClientService extends Service {
     /**
      * Notifies that the publisher services are ready.
      */
-    public abstract void onVmsPublisherServiceReady();
+    protected abstract void onVmsPublisherServiceReady();
 
     /**
      * Publishers need to implement this method to receive notifications of subscription changes.
      *
-     * @param subscriptionState  layers with subscribers and a sequence number.
+     * @param subscriptionState the state of the subscriptions.
      */
     public abstract void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState);
 
@@ -100,9 +99,11 @@ public abstract class VmsPublisherClientService extends Service {
      *
      * @param layer   the layer to publish to.
      * @param payload the message to be sent.
+     * @param publisherId the ID that got assigned to the publisher that published the message by
+     *                    VMS core.
      * @return if the call to the method VmsPublisherService.publish was successful.
      */
-    public final boolean publish(VmsLayer layer, byte[] payload) {
+    public final void publish(VmsLayer layer, int publisherId, byte[] payload) {
         if (DBG) {
             Log.d(TAG, "Publishing for layer : " + layer);
         }
@@ -110,12 +111,10 @@ public abstract class VmsPublisherClientService extends Service {
         IBinder token = getTokenForPublisherServiceThreadSafe();
 
         try {
-            mVmsPublisherService.publish(token, layer, payload);
-            return true;
+            mVmsPublisherService.publish(token, layer, publisherId, payload);
         } catch (RemoteException e) {
             Log.e(TAG, "unable to publish message: " + payload, e);
         }
-        return false;
     }
 
     /**
@@ -124,7 +123,7 @@ public abstract class VmsPublisherClientService extends Service {
      * @param offering the layers that the publisher may publish.
      * @return if the call to VmsPublisherService.setLayersOffering was successful.
      */
-    public final boolean setLayersOffering(VmsLayersOffering offering) {
+    public final void setLayersOffering(VmsLayersOffering offering) {
         if (DBG) {
             Log.d(TAG, "Setting layers offering : " + offering);
         }
@@ -133,11 +132,10 @@ public abstract class VmsPublisherClientService extends Service {
 
         try {
             mVmsPublisherService.setLayersOffering(token, offering);
-            return true;
+            VmsOperationRecorder.get().setLayersOffering(offering);
         } catch (RemoteException e) {
             Log.e(TAG, "unable to set layers offering: " + offering, e);
         }
-        return false;
     }
 
     private IBinder getTokenForPublisherServiceThreadSafe() {
@@ -155,26 +153,27 @@ public abstract class VmsPublisherClientService extends Service {
         return token;
     }
 
-    public final int getPublisherStaticId(byte[] publisherInfo) {
+    public final int getPublisherId(byte[] publisherInfo) {
         if (mVmsPublisherService == null) {
             throw new IllegalStateException("VmsPublisherService not set.");
         }
-        Integer publisherStaticId = null;
+        Integer publisherId = null;
         try {
             Log.i(TAG, "Getting publisher static ID");
-            publisherStaticId = mVmsPublisherService.getPublisherStaticId(publisherInfo);
+            publisherId = mVmsPublisherService.getPublisherId(publisherInfo);
         } catch (RemoteException e) {
             Log.e(TAG, "unable to invoke binder method.", e);
         }
-        if (publisherStaticId == null) {
+        if (publisherId == null) {
             throw new IllegalStateException("VmsPublisherService cannot get a publisher static ID.");
+        } else {
+            VmsOperationRecorder.get().getPublisherId(publisherId);
         }
-        return publisherStaticId;
+        return publisherId;
     }
 
     /**
-     * Uses the VmsPublisherService binder to get the list of layer/version that have any
-     * subscribers.
+     * Uses the VmsPublisherService binder to get the state of the subscriptions.
      *
      * @return list of layer/version or null in case of error.
      */

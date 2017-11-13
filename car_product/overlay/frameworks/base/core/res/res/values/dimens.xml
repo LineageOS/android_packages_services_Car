@@ -18,7 +18,9 @@
 -->
 <resources>
     <dimen name="status_bar_height">56dp</dimen>
+    <!-- Both of these are used in separate positions so make sure that they remain the same. -->
     <dimen name="navigation_bar_height_car_mode">112dp</dimen>
+    <dimen name="navigation_bar_height_landscape">112dp</dimen>
     <dimen name="status_bar_icon_size">40dp</dimen>
 
     <!-- The height of the header of a notification. -->
@@ -27,7 +29,7 @@
     <!-- The absolute size of the notification expand icon. -->
     <dimen name="notification_header_expand_icon_size">55dp</dimen>
 
-        <!-- The top padding for the notification expand button. -->
+    <!-- The top padding for the notification expand button. -->
     <dimen name="notification_expand_button_padding_top">0dp</dimen>
 
     <!-- The end margin after the application icon in the notification header -->

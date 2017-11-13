@@ -17,26 +17,22 @@
 package com.android.car.hal;
 
 import android.annotation.Nullable;
-import android.car.annotation.FutureFeature;
-import android.car.hardware.CarDiagnosticEvent;
-import android.car.hardware.CarDiagnosticManager;
+import android.car.diagnostic.CarDiagnosticEvent;
+import android.car.diagnostic.CarDiagnosticManager;
 import android.car.hardware.CarSensorManager;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
-import android.hardware.automotive.vehicle.V2_1.Obd2FloatSensorIndex;
-import android.hardware.automotive.vehicle.V2_1.Obd2IntegerSensorIndex;
-import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.DiagnosticFloatSensorIndex;
+import android.hardware.automotive.vehicle.V2_0.DiagnosticIntegerSensorIndex;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.util.Log;
 import android.util.SparseArray;
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -45,7 +41,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Diagnostic HAL service supporting gathering diagnostic info from VHAL and translating it into
  * higher-level semantic information
  */
-@FutureFeature
 public class DiagnosticHalService extends SensorHalServiceBase {
     public static class DiagnosticCapabilities {
         private final CopyOnWriteArraySet<Integer> mProperties = new CopyOnWriteArraySet<>();
@@ -129,7 +124,7 @@ public class DiagnosticHalService extends SensorHalServiceBase {
     }
 
     private int getNumIntegerSensors(int halPropId) {
-        int count = Obd2IntegerSensorIndex.LAST_SYSTEM_INDEX + 1;
+        int count = DiagnosticIntegerSensorIndex.LAST_SYSTEM_INDEX + 1;
         List<Integer> configArray = getPropConfigArray(halPropId);
         if(configArray.size() < 2) {
             Log.e(CarLog.TAG_DIAGNOSTIC, String.format(
@@ -143,7 +138,7 @@ public class DiagnosticHalService extends SensorHalServiceBase {
     }
 
     private int getNumFloatSensors(int halPropId) {
-        int count = Obd2FloatSensorIndex.LAST_SYSTEM_INDEX + 1;
+        int count = DiagnosticFloatSensorIndex.LAST_SYSTEM_INDEX + 1;
         List<Integer> configArray = getPropConfigArray(halPropId);
         if(configArray.size() < 2) {
             Log.e(CarLog.TAG_DIAGNOSTIC, String.format(
@@ -185,7 +180,7 @@ public class DiagnosticHalService extends SensorHalServiceBase {
             }
         }
 
-        builder.withDTC(value.value.stringValue);
+        builder.withDtc(value.value.stringValue);
 
         return builder.build();
     }

@@ -109,22 +109,51 @@ class JavaSensorPolicy(SensorPolicy):
             str(sensorId) + ";"
 
     def prefix(self, theSensors):
-        s = "    public static final class Obd2%sSensorIndex {\n" % \
-            theSensors.descriptor
-        s += "        private Obd2%sSensorIndex() {}\n" % \
-            theSensors.descriptor
+        s = \
+"/*\n" + \
+" * Copyright (C) 2017 The Android Open Source Project\n" + \
+" *\n" + \
+" * Licensed under the Apache License, Version 2.0 (the \"License\");\n" + \
+" * you may not use this file except in compliance with the License.\n" + \
+" * You may obtain a copy of the License at\n" + \
+" *\n" + \
+" *      http://www.apache.org/licenses/LICENSE-2.0\n" + \
+" *\n" + \
+" * Unless required by applicable law or agreed to in writing, software\n" + \
+" * distributed under the License is distributed on an \"AS IS\" BASIS,\n" + \
+" * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" + \
+" * See the License for the specific language governing permissions and\n" + \
+" * limitations under the License.\n" + \
+"*/\n" + \
+"\n" + \
+"package android.car.diagnostic;\n" + \
+"\n" + \
+"import android.annotation.IntDef;\n" + \
+"import android.annotation.SystemApi;\n" + \
+"import java.lang.annotation.Retention;\n" + \
+"import java.lang.annotation.RetentionPolicy;\n" + \
+"\n" + \
+"/**\n" + \
+" * This class is a container for the indices of diagnostic sensors. The values are extracted by\n" + \
+" * running packages/services/Car/tools/update-obd2-sensors.py against types.hal.\n" + \
+" *\n" + \
+" * DO NOT EDIT MANUALLY\n" + \
+" *\n" + \
+" * @hide\n" + \
+" */\n" + \
+"@SystemApi\n" + \
+"public final class %sSensorIndex {\n" % theSensors.descriptor + \
+"    private %sSensorIndex() {}\n" % theSensors.descriptor
+
         return s
 
-    def suffix(self, theSensors):
-        return "    }"
-
     def indent(self):
-        return 8
+        return 4
 
 class PythonSensorPolicy(SensorPolicy):
     """The sensor policy that emits Python sensor descriptions."""
     def sensor(self, theSensor, theSensors):
-        return "OBD2_SENSOR_%s_%s = %s" % (
+        return "DIAGNOSTIC_SENSOR_%s_%s = %s" % (
             theSensors.descriptor.upper(),
             theSensor.name.upper(),
             self.adjustSensorId(theSensors.descriptor.upper(), str(theSensor.id))
@@ -132,23 +161,22 @@ class PythonSensorPolicy(SensorPolicy):
 
     def adjustSensorId(self, descriptor, sensorId):
         if sensorId.isdigit(): return sensorId
-        return "OBD2_SENSOR_%s_%s" % (descriptor, sensorId.upper())
+        return "DIAGNOSTIC_SENSOR_%s_%s" % (descriptor, sensorId.upper())
 
 class IntDefSensorPolicy(SensorPolicy):
     """The sensor policy that emits @IntDef sensor descriptions."""
     def sensor(self, theSensor, theSensors):
         sensorName = theSensor.name.replace("_INDEX", "")
-        return "Obd2%sSensorIndex.%s," % (theSensors.descriptor,sensorName)
+        return "%sSensorIndex.%s," % (theSensors.descriptor,sensorName)
 
     def prefix(self, theSensors):
-        return "    @Retention(RetentionPolicy.SOURCE)\n    @IntDef({"
+        return "    /** @hide */\n    @Retention(RetentionPolicy.SOURCE)\n    @IntDef({"
 
     def indent(self):
         return 8
 
     def suffix(self, theSensors):
-        return "    })\n    public @interface %sSensorIndex {}" % \
-            theSensors.descriptor
+        return "    })\n    public @interface SensorIndex {}"
 
 class SensorMeta(type):
     """Metaclass for sensor classes."""
@@ -182,7 +210,15 @@ class floatSensor(metaclass=SensorMeta):
 
 def applyPolicy(policy, destfile):
     """Given a sensor policy, apply it to all known sensor types"""
+    applyIntPolicy(policy, destfile)
+    applyFloatPolicy(policy, destfile)
+
+def applyIntPolicy(policy, destfile):
+    "Given a sensor policy, apply it to integer sensors"
     print(policy.sensors(intSensors), file=destfile)
+
+def applyFloatPolicy(policy, destfile):
+    "Given a sensor policy, apply it to float sensors"
     print(policy.sensors(floatSensors), file=destfile)
 
 def java(destfile):
@@ -196,41 +232,18 @@ def python(destfile):
 
 def generateJava(filepath):
     """Generate Java code for all sensors."""
-    destfile = open(filepath, "w")
-    print("/*", file=destfile)
-    print(" * Copyright (C) 2017 The Android Open Source Project", file=destfile)
-    print(" *", file=destfile)
-    print(" * Licensed under the Apache License, Version 2.0 (the \"License\");", file=destfile)
-    print(" * you may not use this file except in compliance with the License.", file=destfile)
-    print(" * You may obtain a copy of the License at", file=destfile)
-    print(" *", file=destfile)
-    print(" *      http://www.apache.org/licenses/LICENSE-2.0", file=destfile)
-    print(" *", file=destfile)
-    print(" * Unless required by applicable law or agreed to in writing, software", file=destfile)
-    print(" * distributed under the License is distributed on an \"AS IS\" BASIS,", file=destfile)
-    print(" * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.", file=destfile)
-    print(" * See the License for the specific language governing permissions and", file=destfile)
-    print(" * limitations under the License.", file=destfile)
-    print("*/", file=destfile)
-    print("", file=destfile)
-    print("package android.car.hardware;", file=destfile)
-    print("", file=destfile)
-    print("import android.annotation.IntDef;", file=destfile)
-    print("import java.lang.annotation.Retention;", file=destfile)
-    print("import java.lang.annotation.RetentionPolicy;", file=destfile)
-    print("", file=destfile)
-    print("/**", file=destfile)
-    print(" * This class is a container for the indices of integer and float diagnostic sensors.", file=destfile)
-    print(" * These values are extracted from types.hal by packages/services/Car/tools/update-obd2-sensors.py", file=destfile)
-    print(" *", file=destfile)
-    print(" * DO NOT EDIT MANUALLY", file=destfile)
-    print(" *", file=destfile)
-    print(" * @hide", file=destfile)
-    print(" */", file=destfile)
-    print("public final class CarDiagnosticSensorIndices {", file=destfile)
-    java(destfile)
-    intdef(destfile)
-    print("}", file=destfile)
+    intfile = open(os.path.join(filepath, "IntegerSensorIndex.java"), "w")
+    floatfile = open(os.path.join(filepath, "FloatSensorIndex.java"), "w")
+    javaPolicy = JavaSensorPolicy()
+    intdefPolicy = IntDefSensorPolicy()
+    applyIntPolicy(javaPolicy, intfile)
+    applyIntPolicy(intdefPolicy, intfile)
+    applyFloatPolicy(javaPolicy, floatfile)
+    applyFloatPolicy(intdefPolicy, floatfile)
+    print("}", file=intfile)
+    print("}", file=floatfile)
+    intfile.close()
+    floatfile.close()
 
 def generatePython(filepath):
     """Generate Python code for all sensors."""
@@ -258,8 +271,8 @@ def generatePython(filepath):
 def load(filepath):
     """Load sensor data from Vehicle HAL."""
     ast = hidl_parser.parser.parse(filepath)
-    integerSensors = ast['enums']['Obd2IntegerSensorIndex']
-    floatSensors = ast['enums']['Obd2FloatSensorIndex']
+    integerSensors = ast['enums']['DiagnosticIntegerSensorIndex']
+    floatSensors = ast['enums']['DiagnosticFloatSensorIndex']
     for case in integerSensors.cases:
         intSensor(name=case.name, id=case.value)
     for case in floatSensors.cases:
@@ -268,9 +281,9 @@ def load(filepath):
 import os
 
 if len(sys.argv) != 4:
-    print('syntax: update-obd2-sensors.py <path/to/types.hal> <path/to/CarDiagnosticSensorIndices.java> <path/to/diagnostic_sensors.py>')
+    print('syntax: update-obd2-sensors.py <path/to/types.hal> <path/to/android.car.diagnostic> <path/to/diagnostic_sensors.py>')
     print('This script will parse types.hal, and use the resulting', end='')
-    print('parse tree to generate CarDiagnosticSensorIndices.java.')
+    print('parse tree to generate Java and Python lists of sensor identifiers.')
     sys.exit(1)
 load(sys.argv[1])
 generateJava(sys.argv[2])

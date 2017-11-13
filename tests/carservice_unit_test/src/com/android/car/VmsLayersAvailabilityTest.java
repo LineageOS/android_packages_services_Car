@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
@@ -30,33 +31,41 @@ import java.util.Set;
 @SmallTest
 public class VmsLayersAvailabilityTest extends AndroidTestCase {
 
-    private static final VmsLayer LAYER_X = new VmsLayer(1, 2);
-    private static final VmsLayer LAYER_Y = new VmsLayer(3, 4);
-    private static final VmsLayer LAYER_Z = new VmsLayer(5, 6);
+    private static final VmsLayer LAYER_X = new VmsLayer(1, 1, 2);
+    private static final VmsLayer LAYER_Y = new VmsLayer(3, 2, 4);
+    private static final VmsLayer LAYER_Z = new VmsLayer(5, 3, 6);
+
+    private static final int PUBLISHER_ID_1 = 19;
+    private static final int PUBLISHER_ID_2 = 28;
+
+    private static final Set<Integer> PUBLISHERS_1 = new HashSet<>(Arrays.asList(PUBLISHER_ID_1));
+    private static final Set<Integer> PUBLISHERS_2 = new HashSet<>(Arrays.asList(PUBLISHER_ID_2));
+    private static final Set<Integer> PUBLISHERS_1_AND_2 =
+            new HashSet<>(Arrays.asList(PUBLISHER_ID_1, PUBLISHER_ID_2));
 
     private static final VmsLayerDependency X_DEPENDS_ON_Y =
-        new VmsLayerDependency(LAYER_X, new HashSet<VmsLayer>(Arrays.asList(LAYER_Y)));
+            new VmsLayerDependency(LAYER_X, new HashSet<VmsLayer>(Arrays.asList(LAYER_Y)));
 
     private static final VmsLayerDependency X_DEPENDS_ON_Z =
-        new VmsLayerDependency(LAYER_X, new HashSet<VmsLayer>(Arrays.asList(LAYER_Z)));
+            new VmsLayerDependency(LAYER_X, new HashSet<VmsLayer>(Arrays.asList(LAYER_Z)));
 
     private static final VmsLayerDependency Y_DEPENDS_ON_Z =
-        new VmsLayerDependency(LAYER_Y, new HashSet<VmsLayer>(Arrays.asList(LAYER_Z)));
+            new VmsLayerDependency(LAYER_Y, new HashSet<VmsLayer>(Arrays.asList(LAYER_Z)));
 
     private static final VmsLayerDependency Y_DEPENDS_ON_X =
-        new VmsLayerDependency(LAYER_Y, new HashSet<VmsLayer>(Arrays.asList(LAYER_X)));
+            new VmsLayerDependency(LAYER_Y, new HashSet<VmsLayer>(Arrays.asList(LAYER_X)));
 
     private static final VmsLayerDependency Z_DEPENDS_ON_X =
-        new VmsLayerDependency(LAYER_Z, new HashSet<VmsLayer>(Arrays.asList(LAYER_X)));
+            new VmsLayerDependency(LAYER_Z, new HashSet<VmsLayer>(Arrays.asList(LAYER_X)));
 
     private static final VmsLayerDependency Z_DEPENDS_ON_NOTHING =
-        new VmsLayerDependency(LAYER_Z);
+            new VmsLayerDependency(LAYER_Z);
 
     private static final VmsLayerDependency X_DEPENDS_ON_SELF =
-        new VmsLayerDependency(LAYER_X, new HashSet<VmsLayer>(Arrays.asList(LAYER_X)));
+            new VmsLayerDependency(LAYER_X, new HashSet<VmsLayer>(Arrays.asList(LAYER_X)));
 
     private Set<VmsLayersOffering> mOfferings;
-    private  VmsLayersAvailability mLayersAvailability;
+    private VmsLayersAvailability mLayersAvailability;
 
     @Override
     protected void setUp() throws Exception {
@@ -75,184 +84,183 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
     }
 
     public void testSingleLayerNoDeps() throws Exception {
-        Set<VmsLayer> expectedAvailableLayers = new HashSet<>();
-        expectedAvailableLayers.add(LAYER_X);
+        Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_2));
 
         VmsLayersOffering offering =
-            new VmsLayersOffering(Arrays.asList(new VmsLayerDependency(LAYER_X)));
+                new VmsLayersOffering(new HashSet<>(Arrays.asList(new VmsLayerDependency(LAYER_X))),
+                        PUBLISHER_ID_2);
 
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableLayers, mLayersAvailability.getAvailableLayers());
+        assertEquals(expectedAvailableAssociatedLayers, mLayersAvailability.getAvailableLayers());
     }
 
     public void testChainOfDependenciesSatisfied() throws Exception {
-        Set<VmsLayer> expectedAvailableLayers = new HashSet<>();
-        expectedAvailableLayers.add(LAYER_X);
-        expectedAvailableLayers.add(LAYER_Y);
-        expectedAvailableLayers.add(LAYER_Z);
+        Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_1));
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Y, PUBLISHERS_1));
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Z, PUBLISHERS_1));
 
         VmsLayersOffering offering =
-            new VmsLayersOffering(Arrays.asList(
-                X_DEPENDS_ON_Y,
-                Y_DEPENDS_ON_Z,
-                Z_DEPENDS_ON_NOTHING));
+                new VmsLayersOffering(
+                        new HashSet<>(Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z, Z_DEPENDS_ON_NOTHING)),
+                        PUBLISHER_ID_1);
 
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableLayers,
-            new HashSet<VmsLayer>(mLayersAvailability.getAvailableLayers()));
+        assertEquals(expectedAvailableAssociatedLayers,
+                new HashSet<VmsAssociatedLayer>(mLayersAvailability.getAvailableLayers()));
     }
 
     public void testChainOfDependenciesSatisfiedTwoOfferings() throws Exception {
-        Set<VmsLayer> expectedAvailableLayers = new HashSet<>();
-        expectedAvailableLayers.add(LAYER_X);
-        expectedAvailableLayers.add(LAYER_Y);
-        expectedAvailableLayers.add(LAYER_Z);
+        Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_1));
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Y, PUBLISHERS_1));
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Z, PUBLISHERS_1));
 
         VmsLayersOffering offering1 =
-            new VmsLayersOffering(Arrays.asList(
-                X_DEPENDS_ON_Y,
-                Y_DEPENDS_ON_Z));
+                new VmsLayersOffering(
+                        new HashSet<>(Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z)),
+                        PUBLISHER_ID_1);
 
         VmsLayersOffering offering2 =
-            new VmsLayersOffering(Arrays.asList(
-                Z_DEPENDS_ON_NOTHING));
+                new VmsLayersOffering(new HashSet<>(Arrays.asList(Z_DEPENDS_ON_NOTHING)),
+                        PUBLISHER_ID_1);
 
         mOfferings.add(offering1);
         mOfferings.add(offering2);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableLayers,
-            new HashSet<VmsLayer>(mLayersAvailability.getAvailableLayers()));
+        assertEquals(expectedAvailableAssociatedLayers,
+                new HashSet<VmsAssociatedLayer>(mLayersAvailability.getAvailableLayers()));
     }
 
     public void testChainOfDependencieNotSatisfied() throws Exception {
-        Set<VmsLayer> expectedAvailableLayers = new HashSet<>();
-        VmsLayersOffering offering =new VmsLayersOffering(Arrays.asList(
-            X_DEPENDS_ON_Y,
-            Y_DEPENDS_ON_Z));
+        Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
+        VmsLayersOffering offering =
+                new VmsLayersOffering(new HashSet<>(Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z)),
+                        PUBLISHER_ID_1);
 
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableLayers,
-            new HashSet<VmsLayer>(mLayersAvailability.getAvailableLayers()));
+        assertEquals(expectedAvailableAssociatedLayers,
+                new HashSet<VmsAssociatedLayer>(mLayersAvailability.getAvailableLayers()));
 
-        Set<VmsLayer> expectedUnavailableLayers = new HashSet<>();
-        expectedUnavailableLayers.add(LAYER_X);
-        expectedUnavailableLayers.add(LAYER_Y);
+        Set<VmsAssociatedLayer> expectedUnavailableAssociatedLayers = new HashSet<>();
+        expectedUnavailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_1));
+        expectedUnavailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Y, PUBLISHERS_1));
 
-        assertEquals(expectedUnavailableLayers ,
-            new HashSet<VmsLayer>(mLayersAvailability.getUnavailableLayers()));
+
+        assertEquals(expectedUnavailableAssociatedLayers,
+                new HashSet<VmsAssociatedLayer>(mLayersAvailability.getUnavailableLayers()));
     }
 
     public void testOneOfMultipleDependencySatisfied() throws Exception {
-        Set<VmsLayer> expectedAvailableLayers = new HashSet<>();
-        expectedAvailableLayers.add(LAYER_X);
-        expectedAvailableLayers.add(LAYER_Z);
+        Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_1));
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Z, PUBLISHERS_1));
+
 
         VmsLayersOffering offering =
-            new VmsLayersOffering(Arrays.asList(
-                X_DEPENDS_ON_Y,
-                X_DEPENDS_ON_Z,
-                Z_DEPENDS_ON_NOTHING));
+                new VmsLayersOffering(
+                        new HashSet<>(Arrays.asList(
+                                X_DEPENDS_ON_Y, X_DEPENDS_ON_Z, Z_DEPENDS_ON_NOTHING)),
+                        PUBLISHER_ID_1);
 
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableLayers,
-            new HashSet<VmsLayer>(mLayersAvailability.getAvailableLayers()));
+        assertEquals(expectedAvailableAssociatedLayers,
+                new HashSet<VmsAssociatedLayer>(mLayersAvailability.getAvailableLayers()));
     }
 
     public void testCyclicDependency() throws Exception {
-        Set<VmsLayer> expectedAvailableLayers = new HashSet<>();
+        Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
 
         VmsLayersOffering offering =
-            new VmsLayersOffering(Arrays.asList(
-                X_DEPENDS_ON_Y,
-                Y_DEPENDS_ON_Z,
-                Z_DEPENDS_ON_X));
+                new VmsLayersOffering(
+                        new HashSet<>(
+                                Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z, Z_DEPENDS_ON_X)),
+                        PUBLISHER_ID_1);
 
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableLayers,
-            new HashSet<VmsLayer>(mLayersAvailability.getAvailableLayers()));
+        assertEquals(expectedAvailableAssociatedLayers,
+                new HashSet<VmsAssociatedLayer>(mLayersAvailability.getAvailableLayers()));
     }
 
     public void testAlmostCyclicDependency() throws Exception {
-        Set<VmsLayer> expectedAvailableLayers = new HashSet<>();
-        expectedAvailableLayers.add(LAYER_X);
-        expectedAvailableLayers.add(LAYER_Y);
-        expectedAvailableLayers.add(LAYER_Z);
+        Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Z, PUBLISHERS_1_AND_2));
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_1));
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Y, PUBLISHERS_2));
 
         VmsLayersOffering offering1 =
-            new VmsLayersOffering(Arrays.asList(
-                X_DEPENDS_ON_Y,
-                Z_DEPENDS_ON_NOTHING));
+                new VmsLayersOffering(
+                        new HashSet<>(Arrays.asList(X_DEPENDS_ON_Y, Z_DEPENDS_ON_NOTHING)),
+                        PUBLISHER_ID_1);
 
         VmsLayersOffering offering2 =
-            new VmsLayersOffering(Arrays.asList(
-                Y_DEPENDS_ON_Z,
-                Z_DEPENDS_ON_X));
+                new VmsLayersOffering(new HashSet<>(Arrays.asList(Y_DEPENDS_ON_Z, Z_DEPENDS_ON_X)),
+                        PUBLISHER_ID_2);
 
         mOfferings.add(offering1);
         mOfferings.add(offering2);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableLayers,
-            new HashSet<VmsLayer>(mLayersAvailability.getAvailableLayers()));
+        assertEquals(expectedAvailableAssociatedLayers, mLayersAvailability.getAvailableLayers());
     }
 
     public void testCyclicDependencyAndLayerWithoutDependency() throws Exception {
-        Set<VmsLayer> expectedAvailableLayers = new HashSet<>();
-        expectedAvailableLayers.add(LAYER_Z);
+        Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
+        expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Z, PUBLISHERS_1));
 
         VmsLayersOffering offering1 =
-            new VmsLayersOffering(Arrays.asList(
-                X_DEPENDS_ON_Y,
-                Z_DEPENDS_ON_NOTHING));
+                new VmsLayersOffering(
+                        new HashSet<>(
+                                Arrays.asList(X_DEPENDS_ON_Y, Z_DEPENDS_ON_NOTHING)),
+                        PUBLISHER_ID_1);
 
         VmsLayersOffering offering2 =
-            new VmsLayersOffering(Arrays.asList(
-                Y_DEPENDS_ON_X));
+                new VmsLayersOffering(new HashSet<>(Arrays.asList(Y_DEPENDS_ON_X)), PUBLISHER_ID_2);
 
         mOfferings.add(offering1);
         mOfferings.add(offering2);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableLayers,
-            new HashSet<VmsLayer>(mLayersAvailability.getAvailableLayers()));
+        assertEquals(expectedAvailableAssociatedLayers,
+                new HashSet<VmsAssociatedLayer>(mLayersAvailability.getAvailableLayers()));
 
+        Set<VmsAssociatedLayer> expectedUnavailableAssociatedLayers = new HashSet<>();
+        expectedUnavailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_1));
+        expectedUnavailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Y, PUBLISHERS_2));
 
-        Set<VmsLayer> expectedUnavailableLayers = new HashSet<>();
-        expectedUnavailableLayers.add(LAYER_Y);
-        expectedUnavailableLayers.add(LAYER_X);
-
-        assertEquals(expectedUnavailableLayers,
-            new HashSet<VmsLayer>(mLayersAvailability.getUnavailableLayers()));
+        assertEquals(expectedUnavailableAssociatedLayers,
+                new HashSet<VmsAssociatedLayer>(mLayersAvailability.getUnavailableLayers()));
     }
 
     public void testSelfDependency() throws Exception {
-        Set<VmsLayer> expectedAvailableLayers = new HashSet<>();
+        Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
 
         VmsLayersOffering offering =
-            new VmsLayersOffering(Arrays.asList(
-                X_DEPENDS_ON_SELF));
+                new VmsLayersOffering(new HashSet<>(Arrays.asList(X_DEPENDS_ON_SELF)),
+                        PUBLISHER_ID_1);
 
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableLayers,
-            new HashSet<VmsLayer>(mLayersAvailability.getAvailableLayers()));
+        assertEquals(expectedAvailableAssociatedLayers,
+                new HashSet<VmsAssociatedLayer>(mLayersAvailability.getAvailableLayers()));
 
-        Set<VmsLayer> expectedUnavailableLayers = new HashSet<>();
-        expectedUnavailableLayers.add(LAYER_X);
+        Set<VmsAssociatedLayer> expectedUnavailableAssociatedLayers = new HashSet<>();
+        expectedUnavailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_1));
 
-        assertEquals(expectedUnavailableLayers,
-            new HashSet<VmsLayer>(mLayersAvailability.getUnavailableLayers()));
+        assertEquals(expectedUnavailableAssociatedLayers,
+                new HashSet<VmsAssociatedLayer>(mLayersAvailability.getUnavailableLayers()));
     }
 }

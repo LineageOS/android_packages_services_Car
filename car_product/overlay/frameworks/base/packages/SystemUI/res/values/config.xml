@@ -30,22 +30,6 @@
     <!-- No need to draw a background around a notification because there is no gear icon. -->
     <bool name="config_drawNotificationBackground">false</bool>
 
-    <!-- No quick settings the quick settings row should not be shown.-->
-    <bool name="config_showQuickSettingsRow">false</bool>
-
-    <!-- The quick settings are not available on the car and should not be editable. -->
-    <bool name="config_showQuickSettingsEditingIcon">false</bool>
-
-    <!-- The multi-user switcher should always be visible because quick settings cannot be
-         expanded. Thus, there is no other way to access this. -->
-    <bool name="config_alwaysShowMultiUserSwitcher">true</bool>
-
-    <!-- The quick settings should not be available for expansion in the car. -->
-    <bool name="config_showQuickSettingsExpandIndicator">false</bool>
-
-    <!-- There are no quick settings, so it should not be revealed with scrolling. -->
-    <bool name="config_enableQuickSettingsOverscrollExpansion">false</bool>
-
     <!-- The notification shade should only be shown on a facet click and not by dragging. -->
     <bool name="config_enableNotificationShadeDrag">false</bool>
 

@@ -19,24 +19,23 @@ package com.android.car.test;
 import static java.lang.Integer.toHexString;
 
 import android.car.Car;
-import android.car.hardware.CarDiagnosticEvent;
-import android.car.hardware.CarDiagnosticEvent.FuelSystemStatus;
-import android.car.hardware.CarDiagnosticEvent.FuelType;
-import android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.CommonIgnitionMonitors;
-import android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.CompressionIgnitionMonitors;
-import android.car.hardware.CarDiagnosticEvent.IgnitionMonitors.SparkIgnitionMonitors;
-import android.car.hardware.CarDiagnosticEvent.SecondaryAirStatus;
-import android.car.hardware.CarDiagnosticManager;
-import android.car.hardware.CarDiagnosticSensorIndices.Obd2FloatSensorIndex;
-import android.car.hardware.CarDiagnosticSensorIndices.Obd2IntegerSensorIndex;
+import android.car.diagnostic.CarDiagnosticEvent;
+import android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus;
+import android.car.diagnostic.CarDiagnosticEvent.FuelType;
+import android.car.diagnostic.CarDiagnosticEvent.CommonIgnitionMonitors;
+import android.car.diagnostic.CarDiagnosticEvent.CompressionIgnitionMonitors;
+import android.car.diagnostic.CarDiagnosticEvent.SparkIgnitionMonitors;
+import android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus;
+import android.car.diagnostic.CarDiagnosticManager;
+import android.car.diagnostic.FloatSensorIndex;
+import android.car.diagnostic.IntegerSensorIndex;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
-import com.android.car.internal.FeatureConfiguration;
 import com.android.car.vehiclehal.DiagnosticEventBuilder;
 import com.android.car.vehiclehal.DiagnosticJson;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
@@ -205,23 +204,23 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
     @Override
     protected void setUp() throws Exception {
-        mLiveFrameEventBuilder.addIntSensor(Obd2IntegerSensorIndex.AMBIENT_AIR_TEMPERATURE, 30);
+        mLiveFrameEventBuilder.addIntSensor(IntegerSensorIndex.AMBIENT_AIR_TEMPERATURE, 30);
         mLiveFrameEventBuilder.addIntSensor(
-                Obd2IntegerSensorIndex.FUEL_SYSTEM_STATUS,
+                IntegerSensorIndex.FUEL_SYSTEM_STATUS,
                 FuelSystemStatus.OPEN_ENGINE_LOAD_OR_DECELERATION);
         mLiveFrameEventBuilder.addIntSensor(
-                Obd2IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START, 5000);
-        mLiveFrameEventBuilder.addIntSensor(Obd2IntegerSensorIndex.CONTROL_MODULE_VOLTAGE, 2);
-        mLiveFrameEventBuilder.addFloatSensor(Obd2FloatSensorIndex.CALCULATED_ENGINE_LOAD, 0.125f);
-        mLiveFrameEventBuilder.addFloatSensor(Obd2FloatSensorIndex.VEHICLE_SPEED, 12.5f);
+                IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START, 5000);
+        mLiveFrameEventBuilder.addIntSensor(IntegerSensorIndex.CONTROL_MODULE_VOLTAGE, 2);
+        mLiveFrameEventBuilder.addFloatSensor(FloatSensorIndex.CALCULATED_ENGINE_LOAD, 0.125f);
+        mLiveFrameEventBuilder.addFloatSensor(FloatSensorIndex.VEHICLE_SPEED, 12.5f);
 
-        mFreezeFrameEventBuilder.addIntSensor(Obd2IntegerSensorIndex.AMBIENT_AIR_TEMPERATURE, 30);
+        mFreezeFrameEventBuilder.addIntSensor(IntegerSensorIndex.AMBIENT_AIR_TEMPERATURE, 30);
         mFreezeFrameEventBuilder.addIntSensor(
-                Obd2IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START, 5000);
-        mFreezeFrameEventBuilder.addIntSensor(Obd2IntegerSensorIndex.CONTROL_MODULE_VOLTAGE, 2);
+                IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START, 5000);
+        mFreezeFrameEventBuilder.addIntSensor(IntegerSensorIndex.CONTROL_MODULE_VOLTAGE, 2);
         mFreezeFrameEventBuilder.addFloatSensor(
-                Obd2FloatSensorIndex.CALCULATED_ENGINE_LOAD, 0.125f);
-        mFreezeFrameEventBuilder.addFloatSensor(Obd2FloatSensorIndex.VEHICLE_SPEED, 12.5f);
+                FloatSensorIndex.CALCULATED_ENGINE_LOAD, 0.125f);
+        mFreezeFrameEventBuilder.addFloatSensor(FloatSensorIndex.VEHICLE_SPEED, 12.5f);
         mFreezeFrameEventBuilder.setDTC(DTC);
 
         super.setUp();
@@ -242,26 +241,26 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertEquals(
                 5000,
                 liveFrame
-                        .getSystemIntegerSensor(Obd2IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START)
+                        .getSystemIntegerSensor(IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START)
                         .intValue());
         assertEquals(
                 30,
                 liveFrame
-                        .getSystemIntegerSensor(Obd2IntegerSensorIndex.AMBIENT_AIR_TEMPERATURE)
+                        .getSystemIntegerSensor(IntegerSensorIndex.AMBIENT_AIR_TEMPERATURE)
                         .intValue());
         assertEquals(
                 2,
                 liveFrame
-                        .getSystemIntegerSensor(Obd2IntegerSensorIndex.CONTROL_MODULE_VOLTAGE)
+                        .getSystemIntegerSensor(IntegerSensorIndex.CONTROL_MODULE_VOLTAGE)
                         .intValue());
         assertEquals(
                 0.125f,
                 liveFrame
-                        .getSystemFloatSensor(Obd2FloatSensorIndex.CALCULATED_ENGINE_LOAD)
+                        .getSystemFloatSensor(FloatSensorIndex.CALCULATED_ENGINE_LOAD)
                         .floatValue());
         assertEquals(
                 12.5f,
-                liveFrame.getSystemFloatSensor(Obd2FloatSensorIndex.VEHICLE_SPEED).floatValue());
+                liveFrame.getSystemFloatSensor(FloatSensorIndex.VEHICLE_SPEED).floatValue());
     }
 
     public void testLiveFrameEvent() throws Exception {
@@ -274,7 +273,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         listener.reset();
         long time = SystemClock.elapsedRealtimeNanos();
         mLiveFrameEventBuilder.addIntSensor(
-                Obd2IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START, 5100);
+                IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START, 5100);
 
         getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
         assertTrue(listener.waitForEvent(time));
@@ -284,7 +283,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertEquals(
                 5100,
                 liveFrame
-                        .getSystemIntegerSensor(Obd2IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START)
+                        .getSystemIntegerSensor(IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START)
                         .intValue());
     }
 
@@ -303,23 +302,23 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
         assertNull(
                 liveFrame.getSystemIntegerSensor(
-                        Obd2IntegerSensorIndex.DRIVER_DEMAND_PERCENT_TORQUE));
+                        IntegerSensorIndex.DRIVER_DEMAND_PERCENT_TORQUE));
         assertEquals(
                 -1,
                 liveFrame.getSystemIntegerSensor(
-                        Obd2IntegerSensorIndex.DRIVER_DEMAND_PERCENT_TORQUE, -1));
+                        IntegerSensorIndex.DRIVER_DEMAND_PERCENT_TORQUE, -1));
 
-        assertNull(liveFrame.getSystemFloatSensor(Obd2FloatSensorIndex.OXYGEN_SENSOR6_VOLTAGE));
+        assertNull(liveFrame.getSystemFloatSensor(FloatSensorIndex.OXYGEN_SENSOR6_VOLTAGE));
         assertEquals(
                 0.25f,
-                liveFrame.getSystemFloatSensor(Obd2FloatSensorIndex.OXYGEN_SENSOR5_VOLTAGE, 0.25f));
+                liveFrame.getSystemFloatSensor(FloatSensorIndex.OXYGEN_SENSOR5_VOLTAGE, 0.25f));
 
-        assertNull(liveFrame.getVendorIntegerSensor(Obd2IntegerSensorIndex.VENDOR_START));
-        assertEquals(-1, liveFrame.getVendorIntegerSensor(Obd2IntegerSensorIndex.VENDOR_START, -1));
+        assertNull(liveFrame.getVendorIntegerSensor(IntegerSensorIndex.VENDOR_START));
+        assertEquals(-1, liveFrame.getVendorIntegerSensor(IntegerSensorIndex.VENDOR_START, -1));
 
-        assertNull(liveFrame.getVendorFloatSensor(Obd2FloatSensorIndex.VENDOR_START));
+        assertNull(liveFrame.getVendorFloatSensor(FloatSensorIndex.VENDOR_START));
         assertEquals(
-                0.25f, liveFrame.getVendorFloatSensor(Obd2FloatSensorIndex.VENDOR_START, 0.25f));
+                0.25f, liveFrame.getVendorFloatSensor(FloatSensorIndex.VENDOR_START, 0.25f));
     }
 
     public void testFuelSystemStatus() throws Exception {
@@ -338,7 +337,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertEquals(
                 FuelSystemStatus.OPEN_ENGINE_LOAD_OR_DECELERATION,
                 liveFrame
-                        .getSystemIntegerSensor(Obd2IntegerSensorIndex.FUEL_SYSTEM_STATUS)
+                        .getSystemIntegerSensor(IntegerSensorIndex.FUEL_SYSTEM_STATUS)
                         .intValue());
         assertEquals(
                 FuelSystemStatus.OPEN_ENGINE_LOAD_OR_DECELERATION,
@@ -353,7 +352,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 android.car.hardware.CarSensorManager.SENSOR_RATE_NORMAL);
 
         mLiveFrameEventBuilder.addIntSensor(
-                Obd2IntegerSensorIndex.COMMANDED_SECONDARY_AIR_STATUS,
+                IntegerSensorIndex.COMMANDED_SECONDARY_AIR_STATUS,
                 SecondaryAirStatus.FROM_OUTSIDE_OR_OFF);
         long timestamp = SystemClock.elapsedRealtimeNanos();
         getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
@@ -367,7 +366,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 SecondaryAirStatus.FROM_OUTSIDE_OR_OFF,
                 liveFrame
                         .getSystemIntegerSensor(
-                                Obd2IntegerSensorIndex.COMMANDED_SECONDARY_AIR_STATUS)
+                                IntegerSensorIndex.COMMANDED_SECONDARY_AIR_STATUS)
                         .intValue());
         assertEquals(
                 SecondaryAirStatus.FROM_OUTSIDE_OR_OFF,
@@ -388,9 +387,9 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         final int compressionMonitorsValue =
                 (0x1 << 2) | (0x1 << 3) | (0x1 << 6) | (0x1 << 12) | (0x1 << 13);
 
-        mLiveFrameEventBuilder.addIntSensor(Obd2IntegerSensorIndex.IGNITION_MONITORS_SUPPORTED, 0);
+        mLiveFrameEventBuilder.addIntSensor(IntegerSensorIndex.IGNITION_MONITORS_SUPPORTED, 0);
         mLiveFrameEventBuilder.addIntSensor(
-                Obd2IntegerSensorIndex.IGNITION_SPECIFIC_MONITORS, sparkMonitorsValue);
+                IntegerSensorIndex.IGNITION_SPECIFIC_MONITORS, sparkMonitorsValue);
 
         long timestamp = SystemClock.elapsedRealtimeNanos();
         getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
@@ -431,9 +430,9 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertFalse(sparkIgnitionMonitors.catalyst.available);
         assertFalse(sparkIgnitionMonitors.catalyst.incomplete);
 
-        mLiveFrameEventBuilder.addIntSensor(Obd2IntegerSensorIndex.IGNITION_MONITORS_SUPPORTED, 1);
+        mLiveFrameEventBuilder.addIntSensor(IntegerSensorIndex.IGNITION_MONITORS_SUPPORTED, 1);
         mLiveFrameEventBuilder.addIntSensor(
-                Obd2IntegerSensorIndex.IGNITION_SPECIFIC_MONITORS, compressionMonitorsValue);
+                IntegerSensorIndex.IGNITION_SPECIFIC_MONITORS, compressionMonitorsValue);
 
         timestamp += 1000;
         getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
@@ -479,7 +478,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 android.car.hardware.CarSensorManager.SENSOR_RATE_NORMAL);
 
         mLiveFrameEventBuilder.addIntSensor(
-                Obd2IntegerSensorIndex.FUEL_TYPE, FuelType.BIFUEL_RUNNING_LPG);
+                IntegerSensorIndex.FUEL_TYPE, FuelType.BIFUEL_RUNNING_LPG);
         long timestamp = SystemClock.elapsedRealtimeNanos();
         getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
 
@@ -490,7 +489,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
         assertEquals(
                 FuelType.BIFUEL_RUNNING_LPG,
-                liveFrame.getSystemIntegerSensor(Obd2IntegerSensorIndex.FUEL_TYPE).intValue());
+                liveFrame.getSystemIntegerSensor(IntegerSensorIndex.FUEL_TYPE).intValue());
         assertEquals(FuelType.BIFUEL_RUNNING_LPG, liveFrame.getFuelType().intValue());
     }
 
@@ -501,8 +500,8 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 CarDiagnosticManager.FRAME_TYPE_LIVE,
                 android.car.hardware.CarSensorManager.SENSOR_RATE_NORMAL);
 
-        mLiveFrameEventBuilder.addIntSensor(Obd2IntegerSensorIndex.ENGINE_OIL_TEMPERATURE, 74);
-        mLiveFrameEventBuilder.addFloatSensor(Obd2FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE, 0.125f);
+        mLiveFrameEventBuilder.addIntSensor(IntegerSensorIndex.ENGINE_OIL_TEMPERATURE, 74);
+        mLiveFrameEventBuilder.addFloatSensor(FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE, 0.125f);
 
         long timestamp = SystemClock.elapsedRealtimeNanos();
         getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
@@ -515,11 +514,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertEquals(
                 74,
                 liveFrame
-                        .getSystemIntegerSensor(Obd2IntegerSensorIndex.ENGINE_OIL_TEMPERATURE)
+                        .getSystemIntegerSensor(IntegerSensorIndex.ENGINE_OIL_TEMPERATURE)
                         .intValue());
         assertEquals(
                 0.125f,
-                liveFrame.getSystemFloatSensor(Obd2FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE));
+                liveFrame.getSystemFloatSensor(FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE));
 
         StringWriter stringWriter = new StringWriter();
         JsonWriter jsonWriter = new JsonWriter(stringWriter);
@@ -535,11 +534,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 74,
                 diagnosticJson
                         .intValues
-                        .get(Obd2IntegerSensorIndex.ENGINE_OIL_TEMPERATURE)
+                        .get(IntegerSensorIndex.ENGINE_OIL_TEMPERATURE)
                         .intValue());
         assertEquals(
                 0.125f,
-                diagnosticJson.floatValues.get(Obd2FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE));
+                diagnosticJson.floatValues.get(FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE));
     }
 
     public void testMultipleListeners() throws Exception {
@@ -576,11 +575,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
         assertEquals(
                 5000,
-                event1.getSystemIntegerSensor(Obd2IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START)
+                event1.getSystemIntegerSensor(IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START)
                         .intValue());
         assertEquals(
                 5000,
-                event2.getSystemIntegerSensor(Obd2IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START)
+                event2.getSystemIntegerSensor(IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START)
                         .intValue());
 
         listener1.reset();
@@ -602,7 +601,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
         assertEquals(
                 5000,
-                event2.getSystemIntegerSensor(Obd2IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START)
+                event2.getSystemIntegerSensor(IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START)
                         .intValue());
     }
 
@@ -624,7 +623,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertEquals(DTC, freezeFrame.dtc);
 
         mFreezeFrameEventBuilder.addIntSensor(
-                Obd2IntegerSensorIndex.ABSOLUTE_BAROMETRIC_PRESSURE, 22);
+                IntegerSensorIndex.ABSOLUTE_BAROMETRIC_PRESSURE, 22);
         injectedEvent = mFreezeFrameProperties.addNewEvent(mFreezeFrameEventBuilder);
         getMockedVehicleHal().injectEvent(injectedEvent);
         assertTrue(listener.waitForEvent(injectedEvent.timestamp));
@@ -640,7 +639,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertEquals(
                 22,
                 freezeFrame
-                        .getSystemIntegerSensor(Obd2IntegerSensorIndex.ABSOLUTE_BAROMETRIC_PRESSURE)
+                        .getSystemIntegerSensor(IntegerSensorIndex.ABSOLUTE_BAROMETRIC_PRESSURE)
                         .intValue());
     }
 
@@ -730,9 +729,9 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
     public void testIsSupportedApiCalls() throws Exception {
         assertTrue(mCarDiagnosticManager.isLiveFrameSupported());
-        assertTrue(mCarDiagnosticManager.isFreezeFrameSupported());
-        assertTrue(mCarDiagnosticManager.isFreezeFrameTimestampSupported());
-        assertTrue(mCarDiagnosticManager.isFreezeFrameClearSupported());
+        assertTrue(mCarDiagnosticManager.isFreezeFrameNotificationSupported());
+        assertTrue(mCarDiagnosticManager.isGetFreezeFrameSupported());
+        assertTrue(mCarDiagnosticManager.isClearFreezeFramesSupported());
     }
 
     class Listener implements CarDiagnosticManager.OnDiagnosticEventListener {

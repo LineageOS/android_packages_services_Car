@@ -29,7 +29,7 @@ interface IVmsPublisherService {
     /**
      * Client call to publish a message.
      */
-    oneway void publish(in IBinder token, in VmsLayer layer, in byte[] message) = 0;
+    oneway void publish(in IBinder token, in VmsLayer layer, int publisherId, in byte[] message) = 0;
 
     /**
      * Returns the list of VmsLayers that has any clients subscribed to it.
@@ -43,8 +43,8 @@ interface IVmsPublisherService {
 
     /**
      * The first time a publisher calls this API it will store the publisher info and assigns the
-     * publisher a static ID. Between reboots, subsequent calls with the same publisher info will
-      * return the same ID so that a restarting process can obtain the same ID as it had before.
+     * publisher an ID. Between reboots, subsequent calls with the same publisher info will
+     * return the same ID so that a restarting process can obtain the same ID as it had before.
      */
-    int getPublisherStaticId(in byte[] publisherInfo) = 3;
+    int getPublisherId(in byte[] publisherInfo) = 3;
 }

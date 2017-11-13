@@ -34,6 +34,7 @@ public class SimpleVmsPublisherClientService extends VmsPublisherClientService {
     public void onVmsPublisherServiceReady() {
         // Publish a property that is going to be verified in the test.
         publish(VmsPublisherClientServiceTest.MOCK_PUBLISHER_LAYER,
+                VmsPublisherClientServiceTest.MOCK_PUBLISHER_ID,
                 VmsPublisherClientServiceTest.PAYLOAD);
     }
 }

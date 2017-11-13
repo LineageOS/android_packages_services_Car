@@ -27,10 +27,10 @@ import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
-import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
-import android.hardware.automotive.vehicle.V2_1.VmsBaseMessageIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_1.VmsSimpleMessageIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_1.VmsMessageType;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
@@ -50,8 +50,12 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
     private static final String TAG = "VmsPublisherTest";
     private static final int MOCK_PUBLISHER_LAYER_ID = 12;
     private static final int MOCK_PUBLISHER_LAYER_VERSION = 34;
-    public static final VmsLayer MOCK_PUBLISHER_LAYER = new VmsLayer(MOCK_PUBLISHER_LAYER_ID,
-            MOCK_PUBLISHER_LAYER_VERSION);
+    private static final int MOCK_PUBLISHER_LAYER_SUBTYPE = 56;
+    public static final int MOCK_PUBLISHER_ID = 1234;
+    public static final VmsLayer MOCK_PUBLISHER_LAYER =
+            new VmsLayer(MOCK_PUBLISHER_LAYER_ID,
+                    MOCK_PUBLISHER_LAYER_SUBTYPE,
+                    MOCK_PUBLISHER_LAYER_VERSION);
     public static final byte[] PAYLOAD = new byte[]{1, 1, 2, 3, 5, 8, 13};
 
     private HalHandler mHalHandler;
@@ -97,10 +101,11 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
 
     private VehiclePropValue getHalSubscriptionRequest() {
         return VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-            .addIntValue(VmsMessageType.SUBSCRIBE)
-            .addIntValue(MOCK_PUBLISHER_LAYER_ID)
-            .addIntValue(MOCK_PUBLISHER_LAYER_VERSION)
-            .build();
+                .addIntValue(VmsMessageType.SUBSCRIBE)
+                .addIntValue(MOCK_PUBLISHER_LAYER_ID)
+                .addIntValue(MOCK_PUBLISHER_LAYER_SUBTYPE)
+                .addIntValue(MOCK_PUBLISHER_LAYER_VERSION)
+                .build();
     }
 
     @Override
@@ -140,9 +145,9 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
         //      the semaphore will not be released.
         assertTrue(mHalHandlerSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         VehiclePropValue.RawValue rawValue = mHalHandler.getValue().value;
-        int messageType = rawValue.int32Values.get(VmsSimpleMessageIntegerValuesIndex.VMS_MESSAGE_TYPE);
-        int layerId = rawValue.int32Values.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_ID);
-        int layerVersion = rawValue.int32Values.get(VmsSimpleMessageIntegerValuesIndex.VMS_LAYER_VERSION);
+        int messageType = rawValue.int32Values.get(VmsMessageWithLayerIntegerValuesIndex.MESSAGE_TYPE);
+        int layerId = rawValue.int32Values.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_TYPE);
+        int layerVersion = rawValue.int32Values.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_VERSION);
         byte[] payload = new byte[rawValue.bytes.size()];
         for (int i = 0; i < rawValue.bytes.size(); ++i) {
             payload[i] = rawValue.bytes.get(i);
@@ -162,7 +167,7 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
 
             // If this is the data message release the semaphone so the test can continue.
             ArrayList<Integer> int32Values = value.value.int32Values;
-            if (int32Values.get(VmsBaseMessageIntegerValuesIndex.VMS_MESSAGE_TYPE) ==
+            if (int32Values.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE) ==
                     VmsMessageType.DATA) {
                 mHalHandlerSemaphore.release();
             }

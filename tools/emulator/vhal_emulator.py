@@ -129,17 +129,22 @@ class Vhal:
         """
         print("len = ", len(data), "str = ", ":".join("{:02x}".format(ord(d)) for d in data))
 
-    def openSocket(self):
+    def openSocket(self, device=None):
         """
             Connects to an Android Auto device running a Vehicle HAL with simulator.
         """
         # Hard-coded socket port needs to match the one in DefaultVehicleHal
-        portNumber = 33452
-        # Setup ADB port forwarding
-        subprocess.call("adb forward tcp:%d tcp:%d" % (portNumber, portNumber), shell=True)
+        remotePortNumber = 33452
+        extraArgs = '' if device is None else '-s %s' % device
+        adbCmd = 'adb %s forward tcp:0 tcp:%d' % (extraArgs, remotePortNumber)
+        adbResp = subprocess.check_output(adbCmd, shell=True)[0:-1]
+        localPortNumber = int(adbResp)
+        print('Connecting local port %s to remote port %s on %s' % (
+            localPortNumber, remotePortNumber,
+            'default device' if device is None else 'device %s' % device))
         # Open the socket and connect
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect(('localhost', portNumber))
+        self.sock.connect(('localhost', localPortNumber))
 
     def rxMsg(self):
         """
@@ -249,11 +254,11 @@ class Vhal:
             return
         self._txCmd(cmd)
 
-    def __init__(self, types):
+    def __init__(self, types, device=None):
         # Save the list of types constants
         self._types = types
         # Open the socket
-        self.openSocket()
+        self.openSocket(device)
         # Get the list of configs
         self.getConfigAll()
         msg = self.rxMsg()

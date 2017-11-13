@@ -429,6 +429,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         if (audioPolicy != null) {
             mAudioManager.unregisterAudioPolicyAsync(audioPolicy);
         }
+        mVolumeService.release();
     }
 
     public synchronized void setAudioContextChangeListener(Looper looper,
@@ -707,7 +708,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
 
     private void doHandleCarFocusChange() {
         int newFocusState = AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_INVALID;
-        FocusState currentState;
         AudioFocusInfo topInfo;
         boolean systemSoundActive = false;
         synchronized (mLock) {
@@ -729,7 +729,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
                 newFocusState = mFocusReceived.focusState;
             }
             mCurrentFocusState = mFocusReceived;
-            currentState = mFocusReceived;
             mFocusReceived = null;
             if (mLastFocusRequestToCar != null &&
                     (mLastFocusRequestToCar.focusRequest ==
@@ -764,22 +763,22 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
         }
         switch (newFocusState) {
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN:
-                doHandleFocusGainFromCar(currentState, topInfo, systemSoundActive);
+                doHandleFocusGainFromCar(mCurrentFocusState, topInfo, systemSoundActive);
                 break;
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_GAIN_TRANSIENT:
-                doHandleFocusGainTransientFromCar(currentState, topInfo, systemSoundActive);
+                doHandleFocusGainTransientFromCar(mCurrentFocusState, topInfo, systemSoundActive);
                 break;
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS:
-                doHandleFocusLossFromCar(currentState, topInfo);
+                doHandleFocusLossFromCar(mCurrentFocusState, topInfo);
                 break;
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT:
-                doHandleFocusLossTransientFromCar(currentState);
+                doHandleFocusLossTransientFromCar(mCurrentFocusState);
                 break;
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_CAN_DUCK:
-                doHandleFocusLossTransientCanDuckFromCar(currentState);
+                doHandleFocusLossTransientCanDuckFromCar(mCurrentFocusState);
                 break;
             case AudioHalService.VEHICLE_AUDIO_FOCUS_STATE_LOSS_TRANSIENT_EXLCUSIVE:
-                doHandleFocusLossTransientExclusiveFromCar(currentState);
+                doHandleFocusLossTransientExclusiveFromCar(mCurrentFocusState);
                 break;
         }
     }
@@ -827,15 +826,18 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
             Log.d(TAG_FOCUS, "doHandleFocusLossFromCar current:" + currentState +
                     " top:" + dumpAudioFocusInfo(topInfo));
         }
-        boolean shouldRequestProxyFocus = false;
-        if ((currentState.externalFocus &
-                AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_PERMANENT_FLAG) != 0) {
-            shouldRequestProxyFocus = true;
-        }
         if (isFocusFromCarProxy(topInfo)) {
             // already car proxy is top. Nothing to do.
             return;
-        } else if (!isFocusFromCarServiceBottom(topInfo)) {
+        }
+        boolean shouldRequestProxyFocus = false;
+        if ((currentState.externalFocus &
+                AudioHalService.VEHICLE_AUDIO_EXT_FOCUS_CAR_PERMANENT_FLAG) != 0) {
+            // If car is playing something persistent, the car proxy should have focus
+            shouldRequestProxyFocus = true;
+        }
+        if (!isFocusFromCarServiceBottom(topInfo)) {
+            // If a car source was being ducked, it should get the primary focus back
             shouldRequestProxyFocus = true;
         }
         if (shouldRequestProxyFocus) {
@@ -1798,8 +1800,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase,
 
         public static FocusState create(int[] state) {
             return create(state[AudioHalService.FOCUS_STATE_ARRAY_INDEX_STATE],
-                    state[AudioHalService.FOCUS_STATE_ARRAY_INDEX_STREAMS],
-                    state[AudioHalService.FOCUS_STATE_ARRAY_INDEX_EXTERNAL_FOCUS]);
+                          state[AudioHalService.FOCUS_STATE_ARRAY_INDEX_STREAMS],
+                          state[AudioHalService.FOCUS_STATE_ARRAY_INDEX_EXTERNAL_FOCUS]);
         }
 
         public static FocusState STATE_LOSS =

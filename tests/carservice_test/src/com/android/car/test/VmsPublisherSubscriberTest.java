@@ -20,6 +20,7 @@ import android.annotation.ArrayRes;
 import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.annotation.FutureFeature;
+import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriberManager;
 import android.content.Context;
@@ -28,29 +29,48 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
-import android.hardware.automotive.vehicle.V2_1.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.test.suitebuilder.annotation.MediumTest;
+
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @FutureFeature
+@MediumTest
 public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     private static final int LAYER_ID = 88;
     private static final int LAYER_VERSION = 19;
-    private static final int EXPECTED_PUBLISHER_ID = 0;
+    private static final int LAYER_SUBTYPE = 55;
     private static final String TAG = "VmsPubSubTest";
 
-    public static final VmsLayer LAYER = new VmsLayer(LAYER_ID, LAYER_VERSION);
+    // The expected publisher ID is 0 since it the expected assigned ID from the VMS core.
+    public static final int EXPECTED_PUBLISHER_ID = 0;
+    public static final VmsLayer LAYER = new VmsLayer(LAYER_ID, LAYER_SUBTYPE, LAYER_VERSION);
+    public static final VmsAssociatedLayer ASSOCIATED_LAYER =
+            new VmsAssociatedLayer(LAYER, new HashSet<>(Arrays.asList(EXPECTED_PUBLISHER_ID)));
     public static final byte[] PAYLOAD = new byte[]{2, 3, 5, 7, 11, 13, 17};
-    private static final List<VmsLayer> AVAILABLE_LAYERS = new ArrayList<>(Arrays.asList(LAYER));
+
+    private static final List<VmsAssociatedLayer> AVAILABLE_ASSOCIATED_LAYERS =
+            new ArrayList<>(Arrays.asList(ASSOCIATED_LAYER));
+
+
+    private static final int SUBSCRIBED_LAYER_ID = 89;
+    public static final VmsLayer SUBSCRIBED_LAYER =
+            new VmsLayer(SUBSCRIBED_LAYER_ID, LAYER_SUBTYPE, LAYER_VERSION);
+    public static final VmsAssociatedLayer ASSOCIATED_SUBSCRIBED_LAYER =
+            new VmsAssociatedLayer(SUBSCRIBED_LAYER, new HashSet<>(Arrays.asList(EXPECTED_PUBLISHER_ID)));
+    private static final List<VmsAssociatedLayer> AVAILABLE_ASSOCIATED_LAYERS_WITH_SUBSCRIBED_LAYER =
+            new ArrayList<>(Arrays.asList(ASSOCIATED_LAYER, ASSOCIATED_SUBSCRIBED_LAYER));
+
 
     private HalHandler mHalHandler;
-    // Used to block until a value is propagated to the TestListener.onVmsMessageReceived.
+    // Used to block until a value is propagated to the TestClientCallback.onVmsMessageReceived.
     private Semaphore mSubscriberSemaphore;
     private Semaphore mAvailabilitySemaphore;
 
@@ -117,13 +137,13 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         if (!VmsTestUtils.canRunTest(TAG)) return;
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
-        TestListener listener = new TestListener();
-        vmsSubscriberManager.setListener(listener);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
         vmsSubscriberManager.subscribe(LAYER);
 
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(LAYER, listener.getLayer());
-        assertTrue(Arrays.equals(PAYLOAD, listener.getPayload()));
+        assertEquals(LAYER, clientCallback.getLayer());
+        assertTrue(Arrays.equals(PAYLOAD, clientCallback.getPayload()));
     }
 
     /**
@@ -137,8 +157,8 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         // Subscribe to layer as a way to make sure the mock client completed setting the information.
-        TestListener listener = new TestListener();
-        vmsSubscriberManager.setListener(listener);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
         vmsSubscriberManager.subscribe(LAYER);
 
         assertTrue(mAvailabilitySemaphore.tryAcquire(2L, TimeUnit.SECONDS));
@@ -148,26 +168,42 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     }
 
     /**
-     * The Mock service offers all the subscribed layers as available layers, so in this
-     * test the listener subscribes to a layer and verifies that it gets the notification that it
-     * is available.
+     * The Mock service offers all the subscribed layers as available layers.
+     * In this test the client subscribes to a layer and verifies that it gets the
+     * notification that it is available.
      */
-    public void testAvailability() throws Exception {
+    public void testAvailabilityWithSubscription() throws Exception {
         if (!VmsTestUtils.canRunTest(TAG)) return;
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
             Car.VMS_SUBSCRIBER_SERVICE);
-        TestListener listener = new TestListener();
-        vmsSubscriberManager.setListener(listener);
-        vmsSubscriberManager.subscribe(LAYER);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.subscribe(SUBSCRIBED_LAYER);
 
         assertTrue(mAvailabilitySemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(AVAILABLE_LAYERS, listener.getAvailalbeLayers());
+        assertEquals(AVAILABLE_ASSOCIATED_LAYERS_WITH_SUBSCRIBED_LAYER, clientCallback.getAvailalbeLayers());
+    }
+
+    /**
+     * The Mock service offers all the subscribed layers as available layers, so in this
+     * test the client subscribes to a layer and verifies that it gets the notification that it
+     * is available.
+     */
+    public void testAvailabilityWithoutSubscription() throws Exception {
+        if (!VmsTestUtils.canRunTest(TAG)) return;
+        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
+                Car.VMS_SUBSCRIBER_SERVICE);
+        TestClientCallback clientCallback = new TestClientCallback();
+        vmsSubscriberManager.registerClientCallback(clientCallback);
+
+        assertTrue(mAvailabilitySemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+        assertEquals(AVAILABLE_ASSOCIATED_LAYERS, clientCallback.getAvailalbeLayers());
     }
 
     private class HalHandler implements MockedVehicleHal.VehicleHalPropertyHandler {
     }
 
-    private class TestListener implements VmsSubscriberManager.VmsSubscriberClientListener {
+    private class TestClientCallback implements VmsSubscriberManager.VmsSubscriberClientCallback {
         private VmsLayer mLayer;
         private byte[] mPayload;
         private List<VmsLayer> mAvailableLayers;
@@ -182,15 +218,9 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
-            assertEquals(AVAILABLE_LAYERS, availableLayers);
+        public void onLayersAvailabilityChanged(List<VmsLayer> availableLayers) {
             mAvailableLayers = availableLayers;
             mAvailabilitySemaphore.release();
-        }
-
-        @Override
-        public void onCarDisconnected() {
-
         }
 
         public VmsLayer getLayer() {
