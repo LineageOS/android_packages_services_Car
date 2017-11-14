@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.storagemonitoring.ICarStorageMonitoring;
+import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.UidIoStats;
 import android.car.storagemonitoring.UidIoStatsDelta;
 import android.car.storagemonitoring.WearEstimate;
@@ -198,8 +199,13 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
     }
 
+    private SparseArray<UidIoRecord> loadNewIoStats() {
+        SparseArray<UidIoRecord> ioRecords = mUidIoStatsProvider.load();
+        return (ioRecords == null ? new SparseArray<>() : ioRecords);
+    }
+
     private void collectNewIoMetrics() {
-        mIoStatsTracker.update(mUidIoStatsProvider.load());
+        mIoStatsTracker.update(loadNewIoStats());
         synchronized (mIoStatsSamplesLock) {
             mIoStatsSamples.add(new UidIoStatsDelta(
                     SparseArrayStream.valueStream(mIoStatsTracker.getCurrentSample())
@@ -246,7 +252,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
 
         long bootUptime = mSystemInterface.getUptime();
-        mBootIoStats = SparseArrayStream.valueStream(mUidIoStatsProvider.load())
+        mBootIoStats = SparseArrayStream.valueStream(loadNewIoStats())
             .map(record -> {
                 // at boot, assume all UIDs have been running for as long as the system has
                 // been up, since we don't really know any better
