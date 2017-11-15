@@ -35,6 +35,8 @@ import android.widget.Toast;
 import com.android.car.app.CarDrawerActivity;
 import com.android.car.app.CarDrawerAdapter;
 import com.android.car.app.DrawerItemViewHolder;
+
+import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
 import com.google.android.car.kitchensink.bluetooth.BluetoothHeadsetFragment;
@@ -134,6 +136,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
 
     private final List<MenuEntry> mMenuEntries = new ArrayList<MenuEntry>() {
         {
+            add("alert window", AlertDialogTestFragment.class);
             add("audio", AudioTestFragment.class);
             add("hvac", HvacTestFragment.class);
             add("job scheduler", JobSchedulerFragment.class);
