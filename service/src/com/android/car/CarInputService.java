@@ -56,7 +56,33 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         boolean onKeyEvent(KeyEvent event);
     }
 
-    private static final long LONG_PRESS_TIME_MS = 1000;
+    private static final class KeyPressTimer {
+        private static final long LONG_PRESS_TIME_MS = 1000;
+
+        private boolean mDown = false;
+        private long mDuration = -1;
+
+        synchronized void keyDown() {
+            mDown = true;
+            mDuration = SystemClock.elapsedRealtime();
+        }
+
+        synchronized void keyUp() {
+            if (!mDown) {
+                throw new IllegalStateException("key can't go up without being down");
+            }
+            mDuration = SystemClock.elapsedRealtime() - mDuration;
+            mDown = false;
+        }
+
+        synchronized boolean isLongPress() {
+            if (mDown) {
+                throw new IllegalStateException("can't query press length during key down");
+            }
+            return mDuration >= LONG_PRESS_TIME_MS;
+        }
+    }
+
     private static final boolean DBG = false;
 
     private final Context mContext;
@@ -66,9 +92,9 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
 
     private KeyEventListener mVoiceAssistantKeyListener;
     private KeyEventListener mLongVoiceAssistantKeyListener;
-    private long mLastVoiceKeyDownTime = 0;
 
-    private long mLastCallKeyDownTime = 0;
+    private final KeyPressTimer mVoiceKeyTimer = new KeyPressTimer();
+    private final KeyPressTimer mCallKeyTimer = new KeyPressTimer();
 
     private KeyEventListener mInstrumentClusterKeyListener;
 
@@ -186,6 +212,8 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         if (!mInputHalService.isKeyInputSupported()) {
             Log.w(CarLog.TAG_INPUT, "Hal does not support key input.");
             return;
+        } else if (DBG) {
+            Log.d(CarLog.TAG_INPUT, "Hal supports key input.");
         }
 
 
@@ -265,32 +293,20 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     private void handleVoiceAssistKey(KeyEvent event) {
         int action = event.getAction();
         if (action == KeyEvent.ACTION_DOWN) {
-            long now = SystemClock.elapsedRealtime();
-            synchronized (this) {
-                mLastVoiceKeyDownTime = now;
-            }
+            mVoiceKeyTimer.keyDown();
         } else if (action == KeyEvent.ACTION_UP) {
-            // if no listener, do not handle long press
-            KeyEventListener listener = null;
-            KeyEventListener shortPressListener = null;
-            KeyEventListener longPressListener = null;
-            long downTime;
+            mVoiceKeyTimer.keyUp();
+            final KeyEventListener listener;
+
             synchronized (this) {
-                shortPressListener = mVoiceAssistantKeyListener;
-                longPressListener = mLongVoiceAssistantKeyListener;
-                downTime = mLastVoiceKeyDownTime;
+                listener = (mVoiceKeyTimer.isLongPress()
+                    ? mLongVoiceAssistantKeyListener : mVoiceAssistantKeyListener);
             }
-            if (shortPressListener == null && longPressListener == null) {
-                launchDefaultVoiceAssistantHandler();
+
+            if (listener != null) {
+                listener.onKeyEvent(event);
             } else {
-                long duration = SystemClock.elapsedRealtime() - downTime;
-                listener = (duration > LONG_PRESS_TIME_MS
-                        ? longPressListener : shortPressListener);
-                if (listener != null) {
-                    listener.onKeyEvent(event);
-                } else {
-                    launchDefaultVoiceAssistantHandler();
-                }
+                launchDefaultVoiceAssistantHandler();
             }
         }
     }
@@ -298,24 +314,15 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     private void handleCallKey(KeyEvent event) {
         int action = event.getAction();
         if (action == KeyEvent.ACTION_DOWN) {
-            // Only handle if it's ringing when button down.
-            if (mTelecomManager != null && mTelecomManager.isRinging()) {
-                Log.i(CarLog.TAG_INPUT, "call key while rinning. Answer the call!");
-                mTelecomManager.acceptRingingCall();
-                return;
-            }
-
-            long now = SystemClock.elapsedRealtime();
-            synchronized (this) {
-                mLastCallKeyDownTime = now;
-            }
+            mCallKeyTimer.keyDown();
         } else if (action == KeyEvent.ACTION_UP) {
-            long downTime;
-            synchronized (this) {
-                downTime = mLastCallKeyDownTime;
-            }
-            long duration = SystemClock.elapsedRealtime() - downTime;
-            if (duration > LONG_PRESS_TIME_MS) {
+            mCallKeyTimer.keyUp();
+
+            // Handle a phone call regardless of press length.
+            if (mTelecomManager != null && mTelecomManager.isRinging()) {
+                Log.i(CarLog.TAG_INPUT, "call key while ringing. Answer the call!");
+                mTelecomManager.acceptRingingCall();
+            } else if (mCallKeyTimer.isLongPress()) {
                 dialLastCallHandler();
             } else {
                 launchDialerHandler();
@@ -378,8 +385,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         writer.println("*Input Service*");
         writer.println("mCarInputListenerBound:" + mCarInputListenerBound);
         writer.println("mCarInputListener:" + mCarInputListener);
-        writer.println("mLastVoiceKeyDownTime:" + mLastVoiceKeyDownTime +
-                ",mKeyEventCount:" + mKeyEventCount);
+        writer.println("mKeyEventCount:" + mKeyEventCount);
     }
 
     private boolean bindCarInputService() {
