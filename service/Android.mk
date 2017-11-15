@@ -52,6 +52,9 @@ include $(BUILD_PACKAGE)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(car_service_sources)
+
+LOCAL_USE_AAPT2 := true
+
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
 LOCAL_MODULE := car-service-lib-for-test
