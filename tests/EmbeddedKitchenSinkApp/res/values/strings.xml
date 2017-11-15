@@ -15,6 +15,10 @@
 -->
 <resources>
     <string name="app_title">Kitchen Sink</string>
+
+    <!-- alert dialog -->
+    <string name="bluetooth_pin_values_hint">Usually 0000 or 1234</string>
+
     <!-- hvac -->
     <string name="hvac_acOff">AC OFF</string>
     <string name="hvac_acOn">AC ON</string>

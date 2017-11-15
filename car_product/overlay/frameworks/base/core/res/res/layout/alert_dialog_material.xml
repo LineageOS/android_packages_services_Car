@@ -23,6 +23,7 @@
     android:gravity="start|top"
     android:paddingStart="24dp"
     android:paddingEnd="24dp"
+    android:layout_margin="16dp"
     android:background="@drawable/round_corner"
     android:orientation="vertical">
 
