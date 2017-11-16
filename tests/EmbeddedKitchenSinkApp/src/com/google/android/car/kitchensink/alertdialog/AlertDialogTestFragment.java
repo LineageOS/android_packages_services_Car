@@ -46,7 +46,8 @@ public class AlertDialogTestFragment extends Fragment {
     private static final String TAG = "CAR.ALERT";
 
     private Button alertMessageBtn;
-    private Button alertCustomViewBtn;
+    private Button alertBtPinConfirmBtn;
+    private Button alertBtPinEnterBtn;
 
 
     @Nullable
@@ -56,7 +57,8 @@ public class AlertDialogTestFragment extends Fragment {
         View view = inflater.inflate(R.layout.alert_dialog_test, container, false);
 
         alertMessageBtn = view.findViewById(R.id.alert_message_btn);
-        alertCustomViewBtn = view.findViewById(R.id.alert_custom_view_btn);
+        alertBtPinEnterBtn = view.findViewById(R.id.alert_bluetooth_pin_enter_view_btn);
+        alertBtPinConfirmBtn = view.findViewById(R.id.alert_bluetooth_pin_confirm_view_btn);
 
         alertMessageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,7 +84,7 @@ public class AlertDialogTestFragment extends Fragment {
             }
         });
 
-        alertCustomViewBtn.setOnClickListener(new View.OnClickListener() {
+        alertBtPinEnterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder;
@@ -106,6 +108,29 @@ public class AlertDialogTestFragment extends Fragment {
             }
         });
 
+        alertBtPinConfirmBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder;
+                builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Alert Title")
+                        .setView(R.layout.alert_dialog_bluetooth_pin_confirm)
+                        .setPositiveButton(
+                                android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // do nothing
+                                    }
+                                })
+                        .setNegativeButton(
+                                android.R.string.no, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // do nothing
+                                    }
+                                })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        });
         return view;
     }
 }

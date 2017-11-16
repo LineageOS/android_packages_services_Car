@@ -13,11 +13,40 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_title">Kitchen Sink</string>
 
     <!-- alert dialog -->
+    <!-- Notification ticker text (shown in the status bar) when a Bluetooth device wants to pair with us -->
+    <string name="bluetooth_notif_ticker">Bluetooth pairing request</string>
+    <!-- Bluetooth settings.  Context menu item for a device.  Action will first pair, and then connect to all profiles on the device. -->
+    <string name="bluetooth_device_context_pair_connect">Pair &amp; connect</string>
+    <!-- Used as setting title (for checkbox) on second screen after selecting Bluetooth settings -->
+    <string name="bluetooth">Bluetooth</string>
+    <!-- Message when bluetooth is informing the user of the pairing key. [CHAR LIMIT=NONE] -->
+    <string name="bluetooth_pairing_key_msg">Bluetooth pairing code</string>
+    <!-- Checkbox label for alphanumeric PIN entry (default is numeric PIN). [CHAR LIMIT=50] -->
+    <string name="bluetooth_enable_alphanumeric_pin">PIN contains letters or symbols</string>
+    <!-- Message when bluetooth dialog for passkey entry is showing. [CHAR LIMIT=NONE] -->
+    <string name="bluetooth_enter_passkey_msg">Type the pairing code then press Return or Enter</string>
+    <!-- Title for the dialog to enter PIN. [CHAR LIMIT=40] -->
+    <string name="bluetooth_pairing_request">Pair with <xliff:g id="device_name">%1$s</xliff:g>?</string>
+    <!-- Checkbox message in pairing dialogs.  [CHAR LIMIT=NONE] -->
+    <string name="bluetooth_pairing_shares_phonebook">Allow <xliff:g id="device_name">%1$s</xliff:g> to access your contacts and call history</string>
+    <!-- Pairing dialog text to remind user to enter the PIN on the other device. [CHAR LIMIT=NONE] -->
+    <string name="bluetooth_enter_pin_other_device">You may also need to type this PIN on the other device.</string>
+    <!-- Pairing dialog text to remind user to enter the passkey on the other device. [CHAR LIMIT=NONE] -->
+    <string name="bluetooth_enter_passkey_other_device">You may also need to type this passkey on the other device.</string>
+    <!-- Bluetooth PIN hint text (below the text entry box). [CHAR LIMIT=30] -->
+    <string name="bluetooth_pin_values_hint_16_digits">Must be 16 digits</string>
+    <!-- Bluetooth PIN hint text (below the text entry box). [CHAR LIMIT=30] -->
     <string name="bluetooth_pin_values_hint">Usually 0000 or 1234</string>
+    <!-- Notification title when a Bluetooth device wants to pair with us -->
+    <string name="bluetooth_notif_title">Pairing request</string>
+    <!-- Notification message when a Bluetooth device wants to pair with us -->
+    <string name="bluetooth_notif_message">Tap to pair with <xliff:g id="device_name">%1$s</xliff:g>.</string>
+    <!-- Title for BT error dialogs. -->
+    <string name="bluetooth_error_title"></string>
 
     <!-- hvac -->
     <string name="hvac_acOff">AC OFF</string>
