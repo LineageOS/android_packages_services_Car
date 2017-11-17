@@ -17,10 +17,12 @@
 package com.android.car;
 
 import android.car.Car;
+import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.storagemonitoring.IUidIoStatsListener;
 import android.car.storagemonitoring.ICarStorageMonitoring;
 import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.UidIoStats;
+import android.car.storagemonitoring.UidIoStats.Metrics;
 import android.car.storagemonitoring.UidIoStatsDelta;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
@@ -58,6 +60,9 @@ import org.json.JSONException;
 
 public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         implements CarServiceBase {
+    public static final String INTENT_EXCESSIVE_IO =
+            CarStorageMonitoringManager.INTENT_EXCESSIVE_IO;
+
     private static final boolean DBG = false;
     private static final String TAG = CarLog.TAG_STORAGE;
     private static final int MIN_WEAR_ESTIMATE_OF_CONCERN = 80;
@@ -75,6 +80,9 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private final SlidingWindow<UidIoStatsDelta> mIoStatsSamples;
     private final RemoteCallbackList<IUidIoStatsListener> mListeners;
     private final Object mIoStatsSamplesLock = new Object();
+    private final long mAcceptableBytesWrittenPerSample;
+    private final int mAcceptableFsyncCallsPerSample;
+    private final int mThresholdSamplesCount;
 
     private final CarPermission mStorageMonitoringPermission;
 
@@ -102,6 +110,11 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         systemInterface.scheduleActionForBootCompleted(this::doInitServiceIfNeeded,
             Duration.ofSeconds(10));
         mListeners = new RemoteCallbackList<>();
+        mAcceptableBytesWrittenPerSample = 1024 * resources.getInteger(
+                R.integer.acceptableWrittenKBytesPerSample);
+        mAcceptableFsyncCallsPerSample = resources.getInteger(
+               R.integer.acceptableFsyncCallsPerSample);
+        mThresholdSamplesCount = resources.getInteger(R.integer.maxExcessiveIoSamplesInWindow);
     }
 
     private static long getUptimeSnapshotIntervalMs() {
@@ -233,6 +246,41 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
 
         dispatchNewIoEvent(uidIoStatsDelta);
+        if (needsExcessiveIoBroadcast()) {
+            sendExcessiveIoBroadcast();
+        }
+    }
+
+    private void sendExcessiveIoBroadcast() {
+        Log.w(TAG, "sending excessive I/O notification");
+
+        final String receiverPath = mContext.getResources().getString(
+            R.string.intentReceiverForUnacceptableIoMetrics);
+        if (receiverPath.isEmpty()) return;
+
+        final ComponentName receiverComponent;
+        try {
+            receiverComponent = Objects.requireNonNull(
+                    ComponentName.unflattenFromString(receiverPath));
+        } catch (NullPointerException e) {
+            Log.e(TAG, "value of intentReceiverForUnacceptableIoMetrics non-null but invalid:"
+                    + receiverPath, e);
+            return;
+        }
+
+        Intent intent = new Intent(INTENT_EXCESSIVE_IO);
+        intent.setComponent(receiverComponent);
+        mContext.sendBroadcast(intent, mStorageMonitoringPermission.toString());
+    }
+
+    private boolean needsExcessiveIoBroadcast() {
+        synchronized (mIoStatsSamplesLock) {
+            return mIoStatsSamples.count((UidIoStatsDelta delta) -> {
+                Metrics total = delta.getTotals();
+                return (total.bytesWrittenToStorage > mAcceptableBytesWrittenPerSample) ||
+                    (total.fsyncCalls > mAcceptableFsyncCallsPerSample);
+            }) > mThresholdSamplesCount;
+        }
     }
 
     private void dispatchNewIoEvent(UidIoStatsDelta delta) {

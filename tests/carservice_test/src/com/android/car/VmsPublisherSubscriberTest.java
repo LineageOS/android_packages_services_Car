@@ -83,35 +83,10 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
                 .setSupportedAreas(VehicleAreaType.VEHICLE_AREA_TYPE_NONE);
     }
 
-    /**
-     * Creates a context with the resource vmsPublisherClients overridden. The overridden value
-     * contains the name of the test service defined also in this test package.
-     */
     @Override
-    protected Context getCarServiceContext() throws PackageManager.NameNotFoundException {
-        Context context = getContext()
-                .createPackageContext("com.android.car", Context.CONTEXT_IGNORE_SECURITY);
-        Resources resources = new Resources(context.getAssets(),
-                context.getResources().getDisplayMetrics(),
-                context.getResources().getConfiguration()) {
-            @Override
-            public String[] getStringArray(@ArrayRes int id) throws NotFoundException {
-                if (id == com.android.car.R.array.vmsPublisherClients) {
-                    return new String[] {
-                            javaClassToComponent(getContext(), VmsPublisherClientMockService.class)
-                    };
-                }
-
-                return super.getStringArray(id);
-            }
-        };
-        ContextWrapper wrapper = new ContextWrapper(context) {
-            @Override
-            public Resources getResources() {
-                return resources;
-            }
-        };
-        return wrapper;
+    protected synchronized void configureResourceOverrides(MockResources resources) {
+        resources.overrideResource(com.android.car.R.array.vmsPublisherClients,
+            new String[]{"com.android.car/.VmsPublisherClientMockService"});
     }
 
     @Override

@@ -23,7 +23,6 @@ import android.car.CarNotConnectedException;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 import com.android.car.internal.SingleMessageHandler;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
@@ -66,6 +65,8 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
             }
         }
     }
+
+    public static final String INTENT_EXCESSIVE_IO = "android.car.storagemonitoring.EXCESSIVE_IO";
 
     public static final int PRE_EOL_INFO_UNKNOWN = 0;
     public static final int PRE_EOL_INFO_NORMAL = 1;

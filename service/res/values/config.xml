@@ -105,4 +105,22 @@
          The system will keep a sliding window of samples of this size, and allow
          retrieval of activity this many sample windows back in time. -->
     <integer name="ioStatsNumSamplesToStore">15</integer>
+
+    <!-- The maximum number of KB (1024 bytes) that can be written to storage in one sample
+         before CarService deems I/O activity excessive. -->
+    <integer name="acceptableWrittenKBytesPerSample">0</integer>
+    <!-- The maximum number of fsync() system calls that can be made in one sample before
+         CarService deems I/O activity excessive. -->
+    <integer name="acceptableFsyncCallsPerSample">0</integer>
+
+    <!-- The maximum number of samples (within an I/O stats sample window) that CarService
+         should consider exhibiting excessive I/O activity before broadcasting an intent
+         to signal the potential for flash wear. -->
+    <integer name="maxExcessiveIoSamplesInWindow">1</integer>
+
+    <!-- The name of an intent to be notified by CarService whenever it detects too many
+         samples with excessive I/O activity. Value must either be an empty string, which
+         means that no notification will take place, or be in the format of a flattened
+         ComponentName and reference a valid BroadcastReceiver. -->
+    <string name="intentReceiverForUnacceptableIoMetrics"></string>
 </resources>
