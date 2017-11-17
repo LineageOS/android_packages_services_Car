@@ -15,6 +15,8 @@
  */
 package com.android.car;
 
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothProfile;
 import android.os.Message;
 import android.util.Log;
 
@@ -22,6 +24,8 @@ import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * BluetoothAutoConnectStateMachine is a simple state machine to manage automatic bluetooth
@@ -36,7 +40,7 @@ import java.io.PrintWriter;
  */
 public class BluetoothAutoConnectStateMachine extends StateMachine {
     private static final String TAG = "BTAutoConnStateMachine";
-    private static final boolean DBG = false;
+    private static final boolean DBG = Utils.DBG;
     private final BluetoothDeviceConnectionPolicy mPolicy;
     private final Idle mIdle;
     private final Processing mProcessing;
@@ -46,7 +50,14 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
     public static final int CONNECT_TIMEOUT = 103;
     public static final int DEVICE_CONNECTED = 104;
     public static final int DEVICE_DISCONNECTED = 105;
+    // The following 2 types are used when PBAP and MAP should be connected to,
+    // after device connects on HFP.
+    public static final int CHECK_CLIENT_PROFILES = 1006;
+    public static final int CHECK_CLIENT_PROFILES_AFTER_PAIRING = 1007;
+
     public static final int CONNECTION_TIMEOUT_MS = 8000;
+    public static final int CONNECT_MORE_PROFILES_TIMEOUT_MS = 8000;
+    public static final int CONNECT_MORE_PROFILES_SHORT_TIMEOUT_MS = 2000;
 
 
     BluetoothAutoConnectStateMachine(BluetoothDeviceConnectionPolicy policy) {
@@ -107,6 +118,40 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
                 case DEVICE_CONNECTED: {
                     if (DBG) {
                         Log.d(TAG, "Idle->DeviceConnected: Ignored");
+                    }
+                    break;
+                }
+
+                case CHECK_CLIENT_PROFILES_AFTER_PAIRING:
+                    // fall through
+                case CHECK_CLIENT_PROFILES: {
+                    removeMessages(CHECK_CLIENT_PROFILES);
+                    removeMessages(CHECK_CLIENT_PROFILES_AFTER_PAIRING);
+                    BluetoothDeviceConnectionPolicy.ConnectionParams params =
+                            (BluetoothDeviceConnectionPolicy.ConnectionParams) msg.obj;
+                    BluetoothDevice device = params.getBluetoothDevice();
+                    if (msg.what == CHECK_CLIENT_PROFILES_AFTER_PAIRING) {
+                        // After pairing, always try to connect to both PBAP and MAP
+                        if (DBG) {
+                            Log.d(TAG, "try to connect to PBAP & MAP on device after pairing: " +
+                                    Utils.getDeviceDebugInfo(device));
+                        }
+                        mPolicy.connectToDeviceOnProfile(BluetoothProfile.PBAP_CLIENT, device);
+                        mPolicy.connectToDeviceOnProfile(BluetoothProfile.MAP_CLIENT, device);
+                    } else {
+                        if (DBG) {
+                            Log.d(TAG, "try to connect to PBAP & MAP on device after " +
+                                    "disconnect: " + Utils.getDeviceDebugInfo(device));
+                        }
+                        // For profiles PBAP/MAP, connect only if the device previously
+                        // paired on it.
+                        List<Integer> profiles = Arrays.asList(BluetoothProfile.PBAP_CLIENT,
+                                BluetoothProfile.MAP_CLIENT);
+                        for (Integer profile : profiles) {
+                            if (mPolicy.doesDeviceExistForProfile(profile, device)) {
+                                mPolicy.connectToDeviceOnProfile(profile, device);
+                            }
+                        }
                     }
                     break;
                 }
