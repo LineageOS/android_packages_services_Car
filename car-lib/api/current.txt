@@ -13,6 +13,7 @@ package android.car {
     field public static final java.lang.String AUDIO_SERVICE = "audio";
     field public static final java.lang.String CAR_EXTRA_MEDIA_PACKAGE = "android.car.intent.extra.MEDIA_PACKAGE";
     field public static final java.lang.String CAR_INTENT_ACTION_MEDIA_TEMPLATE = "android.car.intent.action.MEDIA_TEMPLATE";
+    field public static final java.lang.String CAR_UX_RESTRICTION_SERVICE = "uxrestriction";
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
     field public static final java.lang.String INFO_SERVICE = "info";
     field public static final java.lang.String PACKAGE_SERVICE = "package";
@@ -178,6 +179,34 @@ package android.car.content.pm {
   public final class CarPackageManager {
     method public boolean isActivityAllowedWhileDriving(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
     method public boolean isServiceAllowedWhileDriving(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
+  }
+
+}
+
+package android.car.drivingstate {
+
+  public class CarUXRestrictionsEvent implements android.os.Parcelable {
+    ctor public CarUXRestrictionsEvent(int, long);
+    method public int describeContents();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.drivingstate.CarUXRestrictionsEvent> CREATOR;
+    field public static final int UXR_FULLY_RESTRICTED = 31; // 0x1f
+    field public static final int UXR_NO_RESTRICTIONS = 0; // 0x0
+    field public final int eventValue;
+    field public final long timeStamp;
+  }
+
+  public static abstract class CarUXRestrictionsEvent.CarUXRestrictions implements java.lang.annotation.Annotation {
+  }
+
+  public final class CarUXRestrictionsManager {
+    method public android.car.drivingstate.CarUXRestrictionsEvent getCurrentCarUXRestrictions() throws android.car.CarNotConnectedException;
+    method public synchronized void registerListener(android.car.drivingstate.CarUXRestrictionsManager.CarUXRestrictionsEventListener) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    method public synchronized void unregisterListener() throws android.car.CarNotConnectedException;
+  }
+
+  public static abstract interface CarUXRestrictionsManager.CarUXRestrictionsEventListener {
+    method public abstract void onUXRestrictionsChanged(android.car.drivingstate.CarUXRestrictionsEvent);
   }
 
 }

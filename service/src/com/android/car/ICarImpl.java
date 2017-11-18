@@ -59,6 +59,8 @@ public class ICarImpl extends ICar.Stub {
     private final CarPackageManagerService mCarPackageManagerService;
     private final CarInputService mCarInputService;
     private final CarSensorService mCarSensorService;
+    private final CarDrivingStateService mCarDrivingStateService;
+    private final CarUXRestrictionsService mCarUXRestrictionsService;
     private final CarInfoService mCarInfoService;
     private final CarAudioService mCarAudioService;
     private final CarProjectionService mCarProjectionService;
@@ -102,6 +104,9 @@ public class ICarImpl extends ICar.Stub {
         mCarPowerManagementService = new CarPowerManagementService(
                 mHal.getPowerHal(), systemInterface);
         mCarSensorService = new CarSensorService(serviceContext, mHal.getSensorHal());
+        mCarDrivingStateService = new CarDrivingStateService(serviceContext, mCarSensorService);
+        mCarUXRestrictionsService = new CarUXRestrictionsService(serviceContext,
+                mCarDrivingStateService);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext, mCarSensorService,
                 mSystemActivityMonitoringService);
         mCarInputService = new CarInputService(serviceContext, mHal.getInputHal());
@@ -135,6 +140,8 @@ public class ICarImpl extends ICar.Stub {
                 mSystemActivityMonitoringService,
                 mCarPowerManagementService,
                 mCarSensorService,
+                mCarDrivingStateService,
+                mCarUXRestrictionsService,
                 mCarPackageManagerService,
                 mCarInputService,
                 mGarageModeService,
@@ -253,6 +260,11 @@ public class ICarImpl extends ICar.Stub {
             case Car.STORAGE_MONITORING_SERVICE:
                 assertPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
                 return mCarStorageMonitoringService;
+            case Car.CAR_DRIVING_STATE_SERVICE:
+                assertDrivingStatePermission(mContext);
+                return mCarDrivingStateService;
+            case Car.CAR_UX_RESTRICTION_SERVICE:
+                return mCarUXRestrictionsService;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:" + serviceName);
                 return null;
@@ -313,6 +325,10 @@ public class ICarImpl extends ICar.Stub {
         assertAnyPermission(context,
                 Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
                 Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR);
+    }
+
+    public static void assertDrivingStatePermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_DRIVING_STATE);
     }
 
     @FutureFeature
@@ -533,6 +549,5 @@ public class ICarImpl extends ICar.Stub {
             }
             mHal.injectIntegerEvent(propId, eventValue);
         }
-
     }
 }
