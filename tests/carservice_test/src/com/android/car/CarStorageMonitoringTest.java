@@ -25,6 +25,7 @@ import android.car.storagemonitoring.UidIoStatsDelta;
 import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
+import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.JsonWriter;
 import android.util.Log;
@@ -434,6 +435,92 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         deltaRecord0 = delta1Stats.get(0);
 
         assertTrue(deltaRecord0.representsSameMetrics(newerRecord0.delta(newRecord0)));
+    }
+
+    public void testEventDelivery() throws Exception {
+        final Duration eventDeliveryDeadline = Duration.ofSeconds(5);
+
+        UidIoRecord record = new UidIoRecord(0,
+            0,
+            100,
+            0,
+            75,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0);
+
+        Listener listener1 = new Listener("listener1");
+        Listener listener2 = new Listener("listener2");
+
+        mCarStorageMonitoringManager.registerListener(listener1);
+        mCarStorageMonitoringManager.registerListener(listener2);
+
+        mMockStorageMonitoringInterface.addIoStatsRecord(record);
+        mMockTimeInterface.setUptime(500).tick();
+
+        assertTrue(listener1.waitForEvent(eventDeliveryDeadline));
+        assertTrue(listener2.waitForEvent(eventDeliveryDeadline));
+
+        UidIoStatsDelta event1 = listener1.reset();
+        UidIoStatsDelta event2 = listener2.reset();
+
+        assertEquals(event1, event2);
+        event1.getStats().forEach(stats -> assertTrue(stats.representsSameMetrics(record)));
+
+        mCarStorageMonitoringManager.unregisterListener(listener1);
+
+        mMockTimeInterface.setUptime(600).tick();
+        assertFalse(listener1.waitForEvent(eventDeliveryDeadline));
+        assertTrue(listener2.waitForEvent(eventDeliveryDeadline));
+    }
+
+    static final class Listener implements CarStorageMonitoringManager.UidIoStatsListener {
+        private final String mName;
+        private final Object mSync = new Object();
+
+        private UidIoStatsDelta mLastEvent = null;
+
+        Listener(String name) {
+            mName = name;
+        }
+
+        UidIoStatsDelta reset() {
+            synchronized (mSync) {
+                UidIoStatsDelta lastEvent = mLastEvent;
+                mLastEvent = null;
+                return lastEvent;
+            }
+        }
+
+        boolean waitForEvent(Duration duration) {
+            long start = SystemClock.elapsedRealtime();
+            long end = start + duration.toMillis();
+            synchronized (mSync) {
+                while (mLastEvent == null && SystemClock.elapsedRealtime() < end) {
+                    try {
+                        mSync.wait(10L);
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                }
+            }
+
+            return (mLastEvent != null);
+        }
+
+        @Override
+        public void onSnapshot(UidIoStatsDelta event) {
+            synchronized (mSync) {
+                Log.d(TAG, "listener " + mName + " received event " + event);
+                // We're going to hold a reference to this object
+                mLastEvent = event;
+                mSync.notify();
+            }
+        }
+
     }
 
     static final class MockStorageMonitoringInterface implements StorageMonitoringInterface,

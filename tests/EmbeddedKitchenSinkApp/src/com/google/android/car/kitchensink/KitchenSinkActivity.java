@@ -24,17 +24,12 @@ import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
 import android.support.car.CarConnectionCallback;
 import android.support.car.CarNotConnectedException;
+import android.support.car.drawer.CarDrawerActivity;
+import android.support.car.drawer.CarDrawerAdapter;
+import android.support.car.drawer.DrawerItemViewHolder;
 import android.support.car.hardware.CarSensorManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.HapticFeedbackConstants;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.android.car.app.CarDrawerActivity;
-import com.android.car.app.CarDrawerAdapter;
-import com.android.car.app.DrawerItemViewHolder;
 
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
@@ -55,6 +50,7 @@ import com.google.android.car.kitchensink.setting.CarServiceSettingsActivity;
 import com.google.android.car.kitchensink.storagelifetime.StorageLifetimeFragment;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -305,7 +301,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
 
             mMenuEntries.get(position).onClick();
 
-            closeDrawer();
+            getDrawerController().closeDrawer();
         }
     }
 }

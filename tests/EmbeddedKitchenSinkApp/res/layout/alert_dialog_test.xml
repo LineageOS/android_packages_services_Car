@@ -23,8 +23,13 @@
         android:layout_height="wrap_content"
         android:text="Show Alert Dialog with Message"/>
     <Button
-        android:id="@+id/alert_custom_view_btn"
+        android:id="@+id/alert_bluetooth_pin_enter_view_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Show Alert Dialog with Custom View"/>
+        android:text="Show Alert Dialog with bt pin entery"/>
+    <Button
+        android:id="@+id/alert_bluetooth_pin_confirm_view_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Alert Dialog with bt pin confirm"/>
 </LinearLayout>
