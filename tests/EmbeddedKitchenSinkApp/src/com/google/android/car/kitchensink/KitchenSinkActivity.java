@@ -49,6 +49,7 @@ import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
 import com.google.android.car.kitchensink.setting.CarServiceSettingsActivity;
 import com.google.android.car.kitchensink.storagelifetime.StorageLifetimeFragment;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
+import com.google.android.car.kitchensink.vhal.VehicleHalFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
 
 import java.util.ArrayList;
@@ -150,6 +151,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
             add("bluetooth headset",BluetoothHeadsetFragment.class);
             add("bluetooth messaging test", MapMceTestFragment.class);
             add("storage lifetime", StorageLifetimeFragment.class);
+            add("vehicle hal", VehicleHalFragment.class);
             add("car service settings", () -> {
                 Intent intent = new Intent(KitchenSinkActivity.this,
                     CarServiceSettingsActivity.class);
