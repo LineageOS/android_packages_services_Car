@@ -17,21 +17,18 @@ package com.google.android.car.kitchensink.storagelifetime;
 
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.CarNotConnectedException;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
-import android.car.storagemonitoring.WearEstimateChange;
-import android.database.DataSetObserver;
-import android.graphics.Color;
+import android.car.storagemonitoring.CarStorageMonitoringManager.UidIoStatsListener;
+import android.car.storagemonitoring.UidIoStatsDelta;
 import android.os.Bundle;
 import android.os.StatFs;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.google.android.car.kitchensink.KitchenSinkActivity;
@@ -56,7 +53,31 @@ public class StorageLifetimeFragment extends Fragment {
     private TextView mStorageWearInfo;
     private ListView mStorageChangesHistory;
     private TextView mFreeSpaceInfo;
+    private TextView mIoActivity;
     private CarStorageMonitoringManager mStorageManager;
+
+    private final UidIoStatsListener mIoListener = new UidIoStatsListener() {
+        @Override
+        public void onSnapshot(UidIoStatsDelta snapshot) {
+            if (mIoActivity != null) {
+                mIoActivity.setText("");
+                snapshot.getStats().forEach(uidIoStats -> {
+                    final long bytesWrittenToStorage = uidIoStats.foreground.bytesWrittenToStorage +
+                            uidIoStats.background.bytesWrittenToStorage;
+                    final long fsyncCalls = uidIoStats.foreground.fsyncCalls +
+                            uidIoStats.background.fsyncCalls;
+                    if (bytesWrittenToStorage > 0 || fsyncCalls > 0) {
+                        mIoActivity.append(String.format(
+                            "uid = %d, runtime = %d, bytes writen to disk = %d, fsync calls = %d\n",
+                            uidIoStats.uid,
+                            uidIoStats.runtimeMillis,
+                            bytesWrittenToStorage,
+                            fsyncCalls));
+                    }
+                });
+            }
+        }
+    };
 
     // TODO(egranata): put this somewhere more useful than KitchenSink
     private static String preEolToString(int preEol) {
@@ -96,6 +117,7 @@ public class StorageLifetimeFragment extends Fragment {
         mStorageWearInfo = view.findViewById(R.id.storage_wear_info);
         mStorageChangesHistory = view.findViewById(R.id.storage_events_list);
         mFreeSpaceInfo = view.findViewById(R.id.free_disk_space);
+        mIoActivity = view.findViewById(R.id.last_io_snapshot);
 
         view.findViewById(R.id.write_one_kilobyte).setOnClickListener(
             v -> writeBytesToFile(KILOBYTE));
@@ -130,12 +152,34 @@ public class StorageLifetimeFragment extends Fragment {
                  android.support.car.CarNotConnectedException e) {
             Log.e(TAG, "Car not connected or not supported", e);
         }
+    }
 
+    private void registerListener() {
+        try {
+            mStorageManager.registerListener(mIoListener);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Car not connected or not supported", e);
+        }
+    }
+
+    private void unregisterListener() {
+        try {
+            mStorageManager.unregisterListener(mIoListener);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Car not connected or not supported", e);
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         reloadInfo();
+        registerListener();
+    }
+
+    @Override
+    public void onPause() {
+        unregisterListener();
+        super.onPause();
     }
 }

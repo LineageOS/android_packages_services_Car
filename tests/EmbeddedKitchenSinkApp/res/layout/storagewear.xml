@@ -53,5 +53,20 @@
         android:text="Free Disk Space: 1 byte"
         android:textSize="24dp"
         android:textColor="#ff0000"
-        android:minLines="5"/>
+        android:minLines="4"/>
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:fillViewport="true">
+        <TextView
+            android:id="@+id/last_io_snapshot"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text="No I/O activity on record"
+            android:textSize="20dp"
+            android:textColor="#ff0000"
+            android:minLines="10"/>
+    </ScrollView>
 </LinearLayout>
