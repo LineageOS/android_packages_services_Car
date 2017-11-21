@@ -60,6 +60,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -90,7 +91,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class BluetoothDeviceConnectionPolicy {
     private static final String TAG = "BTDevConnectionPolicy";
     private static final String SETTINGS_DELIMITER = ",";
-    private static final boolean DBG = false;
+    private static final boolean DBG = Utils.DBG;
     private final Context mContext;
     private boolean mInitialized = false;
     private boolean mUserSpecificInfoInitialized = false;
@@ -140,6 +141,8 @@ public class BluetoothDeviceConnectionPolicy {
     private ConnectionParams mConnectionInFlight;
     // Allow write to Settings.Secure
     private boolean mAllowReadWriteToSettings = true;
+    // Maintain a list of Paired devices which haven't connected on any profiles yet.
+    private Set<BluetoothDevice> mPairedButUnconnectedDevices = new HashSet<>();
 
     public static BluetoothDeviceConnectionPolicy create(Context context,
             CarCabinService carCabinService, CarSensorService carSensorService,
@@ -742,6 +745,17 @@ public class BluetoothDeviceConnectionPolicy {
         return mProfileToConnectableDevicesMap.get(profile);
     }
 
+    @VisibleForTesting
+    String toDebugString() {
+        StringBuilder buf = new StringBuilder();
+        for (Integer profile : mProfileToConnectableDevicesMap.keySet()) {
+            BluetoothDevicesInfo info = mProfileToConnectableDevicesMap.get(profile);
+            buf.append(" \n**** profile = " + profile);
+            buf.append(", " + info.toDebugString());
+        }
+        return buf.toString();
+    }
+
     /**
      * Resets the {@link #mProfileToConnectableDevicesMap} to a clean and empty slate.
      */
@@ -795,8 +809,12 @@ public class BluetoothDeviceConnectionPolicy {
                 }
                 removeDeviceFromProfile(device, profile);
             }
+        } else if (bondState == BluetoothDevice.BOND_BONDED) {
+            // A device just paired. When it connects on HFP profile, then immediately initiate
+            // connections on PBAP and MAP. for now, maintain this fact in a data structure
+            // to be looked up when HFP profile connects.
+            mPairedButUnconnectedDevices.add(device);
         }
-
     }
 
     /**
@@ -944,6 +962,130 @@ public class BluetoothDeviceConnectionPolicy {
     }
 
     /**
+     * Checks if the Bluetooth profile service's proxy object is available.
+     * Proxy obj should be available before we can attempt to connect on that profile.
+     *
+     * @param profile The profile to check the presence of the proxy object
+     * @return True if the proxy obj exists. False otherwise.
+     */
+    private boolean isProxyAvailable(Integer profile) {
+        if (mCarBluetoothUserService == null) {
+            mCarBluetoothUserService = setupBluetoothUserService();
+            if (mCarBluetoothUserService == null) {
+                Log.d(TAG, "CarBluetoothUserSvc null.  Car service not bound to PerUserCarSvc.");
+                return false;
+            }
+        }
+        try {
+            if (!mCarBluetoothUserService.isBluetoothConnectionProxyAvailable(profile)) {
+                // proxy unavailable.
+                if (DBG) {
+                    Log.d(TAG, "Proxy for Bluetooth Profile Service Unavailable: " + profile);
+                }
+                return false;
+            }
+        } catch (RemoteException e) {
+            Log.e(TAG, "Car BT Service Remote Exception.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Creates a device connection for the given profile.
+     *
+     * @param profile The profile on which the connection is being setup
+     * @param device The device for which the connection is to be made.
+     * @return true if the connection is setup successfully. False otherwise.
+     */
+    boolean connectToDeviceOnProfile(Integer profile, BluetoothDevice device) {
+        if (DBG) {
+            Log.d(TAG, "in connectToDeviceOnProfile for Profile:" + profile +
+                    ", device: " + Utils.getDeviceDebugInfo(device));
+        }
+        if (!isProxyAvailable(profile)) {
+            if (DBG) {
+                Log.d(TAG, "No proxy available for Profile: " + profile);
+            }
+            return false;
+        }
+        BluetoothDevicesInfo devInfo = mProfileToConnectableDevicesMap.get(profile);
+        if (devInfo == null) {
+            if (DBG) {
+                Log.d(TAG, "devInfo NULL on Profile:" + profile);
+            }
+            return false;
+        }
+        int state = devInfo.getCurrentConnectionStateLocked(device);
+        if (state == BluetoothProfile.STATE_CONNECTED ||
+                state == BluetoothProfile.STATE_CONNECTING) {
+            if (DBG) {
+                Log.d(TAG, "device " + Utils.getDeviceDebugInfo(device) +
+                        " is already connected/connecting on Profile:" + profile);
+            }
+            return true;
+        }
+        if (!devInfo.isProfileConnectableLocked()) {
+            if (DBG) {
+                Log.d(TAG, "isProfileConnectableLocked FALSE on Profile:" + profile +
+                        "  this means number of connections on this profile max'ed out or " +
+                        " no more devices available to connect on this profile");
+            }
+            return false;
+        }
+        try {
+            if (mCarBluetoothUserService != null) {
+                mCarBluetoothUserService.bluetoothConnectToProfile((int) profile, device);
+                devInfo.setConnectionStateLocked(device, BluetoothProfile.STATE_CONNECTING);
+                // Increment the retry count & cache what is being connected to
+                // This method is already called from a synchronized context.
+                mConnectionInFlight.setBluetoothDevice(device);
+                mConnectionInFlight.setBluetoothProfile(profile);
+                devInfo.incrementRetryCountLocked();
+                if (DBG) {
+                    Log.d(TAG, "Increment Retry to: " + devInfo.getRetryCountLocked() +
+                            ", for Profile: " + profile + ", on device: " +
+                            Utils.getDeviceDebugInfo(device));
+                }
+                return true;
+            } else {
+                Log.e(TAG, "CarBluetoothUserSvc null");
+            }
+        } catch (RemoteException e) {
+            Log.e(TAG, "Remote User Service stopped responding: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Helper method to reset info in {@link #mConnectionInFlight} in the given
+     * {@link BluetoothDevicesInfo} object.
+     *
+     * @param devInfo the {@link BluetoothDevicesInfo} where the info is to be reset.
+     */
+    private void setProfileOnDeviceToUnavailable(BluetoothDevicesInfo devInfo) {
+        mConnectionInFlight.setBluetoothProfile(0);
+        mConnectionInFlight.setBluetoothDevice(null);
+        devInfo.setDeviceAvailableToConnectLocked(false);
+    }
+
+    boolean doesDeviceExistForProfile(Integer profile, BluetoothDevice device) {
+        BluetoothDevicesInfo devInfo = mProfileToConnectableDevicesMap.get(profile);
+        if (devInfo == null) {
+            if (DBG) {
+                Log.d(TAG, "devInfo NULL on Profile:" + profile);
+            }
+            return false;
+        }
+        boolean b = devInfo.checkDeviceInListLocked(device);
+        if (DBG) {
+            Log.d(TAG, "Is device " + Utils.getDeviceDebugInfo(device) +
+                    " listed for profile " + profile + ": " + b);
+        }
+        return b;
+    }
+
+    /**
      * Try to connect to the next device in the device list for the given profile.
      *
      * @param profile - profile to connect on
@@ -952,83 +1094,30 @@ public class BluetoothDeviceConnectionPolicy {
      */
     private boolean connectToNextDeviceInQueueLocked(Integer profile) {
         // Get the Device Information for the given profile and find the next device to connect on
-        boolean connecting = true;
-        boolean proxyAvailable = true;
         BluetoothDevice devToConnect = null;
         BluetoothDevicesInfo devInfo = mProfileToConnectableDevicesMap.get(profile);
         if (devInfo == null) {
             Log.e(TAG, "Unexpected: No device Queue for this profile: " + profile);
             return false;
         }
-        // Check if the Bluetooth profile service's proxy object is available before
-        // attempting to connect.
-        if (mCarBluetoothUserService == null) {
-            mCarBluetoothUserService = setupBluetoothUserService();
-        }
-        if (mCarBluetoothUserService != null) {
-            try {
-                if (!mCarBluetoothUserService.isBluetoothConnectionProxyAvailable(profile)) {
-                    // proxy unavailable.
-                    if (DBG) {
-                        Log.d(TAG,
-                                "Proxy for Bluetooth Profile Service Unavailable: " + profile);
-                    }
-                    proxyAvailable = false;
-                }
-            } catch (RemoteException e) {
-                Log.e(TAG, "Car BT Service Remote Exception.");
-                proxyAvailable = false;
-            }
-        } else {
-            Log.d(TAG, "CarBluetoothUserSvc null.  Car service not bound to PerUserCarSvc.");
-            proxyAvailable = false;
-        }
 
-        if (proxyAvailable) {
+        if (isProxyAvailable(profile)) {
             // Get the next device in the device list for this profile.
             devToConnect = devInfo.getNextDeviceInQueueLocked();
             if (devToConnect != null) {
                 // deviceAvailable && proxyAvailable
-                try {
-                    if (mCarBluetoothUserService != null) {
-                        mCarBluetoothUserService.bluetoothConnectToProfile((int) profile,
-                                devToConnect);
-                    } else {
-                        Log.e(TAG, "CarBluetoothUserSvc null");
-                        connecting = false;
-                    }
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Remote User Service stopped responding: " + e.getMessage());
-                    connecting = false;
-                }
+                if (connectToDeviceOnProfile(profile, devToConnect)) return true;
             } else {
                 // device unavailable
                 if (DBG) {
                     Log.d(TAG, "No paired nearby device to connect to for profile: " + profile);
                 }
-                connecting = false;
             }
-        } else {
-            connecting = false;
         }
 
-        if (connecting && devToConnect != null) {
-            devInfo.setConnectionStateLocked(devToConnect, BluetoothProfile.STATE_CONNECTING);
-            // Increment the retry count & cache what is being connected to
-            // This method is already called from a synchronized context.
-            mConnectionInFlight.setBluetoothDevice(devToConnect);
-            mConnectionInFlight.setBluetoothProfile(profile);
-            devInfo.incrementRetryCountLocked();
-            if (DBG) {
-                Log.d(TAG, "Increment Retry to: " + devInfo.getRetryCountLocked());
-            }
-        } else {
-            // reset the mConnectionInFlight
-            mConnectionInFlight.setBluetoothProfile(0);
-            mConnectionInFlight.setBluetoothDevice(null);
-            devInfo.setDeviceAvailableToConnectLocked(false);
-        }
-        return connecting;
+        // reset the mConnectionInFlight
+        setProfileOnDeviceToUnavailable(devInfo);
+        return false;
     }
 
     /**
@@ -1097,6 +1186,48 @@ public class BluetoothDeviceConnectionPolicy {
         if (DBG) {
             Log.d(TAG, "Profile: " + profileToUpdate + " Connected: " + didConnect + " on "
                     + deviceThatConnected);
+        }
+
+        // If the device just connected to HEADSET_CLIENT profile, initiate
+        // connections on PBAP & MAP profiles but let that begin after a timeout period.
+        // If this is the first time after pairing, timeout is short. This allows A2DP profile
+        // to complete its connection, so that there is no race condition between
+        //         Phone trying to connect on A2DP
+        //         and, Car trying to connect on PBAP & MAP.
+        // If this is *not* the first time after pairing, then let timeout be a bit longer than
+        // above. The longer wait allows the normal statemachine flow work, before jumping in with
+        // this sidebar.
+        // Normal flow of state machine handles tagging (Primary/Secondary devices) better. So
+        // letting statemachine do its job is more desirable.
+        if (didConnect && profileToUpdate == BluetoothProfile.HEADSET_CLIENT) {
+           // Unlock the profiles PBAP, MAP in BluetoothDevicesInfo, so that they can be
+           // connected on.
+           for (Integer profile : Arrays.asList(BluetoothProfile.PBAP_CLIENT,
+                   BluetoothProfile.MAP_CLIENT)) {
+               BluetoothDevicesInfo devInfo = mProfileToConnectableDevicesMap.get(profile);
+               if (devInfo == null) {
+                   Log.e(TAG, "Unexpected: No device Queue for this profile: " + profile);
+                   return false;
+               }
+               devInfo.setDeviceAvailableToConnectLocked(true);
+           }
+           boolean newlyPaired = mPairedButUnconnectedDevices.remove(params.getBluetoothDevice());
+           if (newlyPaired) {
+               if (DBG) {
+                   Log.d(TAG, "connect to PBAP/MAP after pairing: ");
+               }
+               mBluetoothAutoConnectStateMachine.sendMessageDelayed(
+                       BluetoothAutoConnectStateMachine.CHECK_CLIENT_PROFILES_AFTER_PAIRING, params,
+                       BluetoothAutoConnectStateMachine.CONNECT_MORE_PROFILES_SHORT_TIMEOUT_MS);
+           } else {
+               if (DBG) {
+                   Log.d(TAG, "connect to PBAP/MAP after disconnect: ");
+               }
+               mBluetoothAutoConnectStateMachine.sendMessageDelayed(
+                       BluetoothAutoConnectStateMachine.CHECK_CLIENT_PROFILES, params,
+                       BluetoothAutoConnectStateMachine.CONNECT_MORE_PROFILES_TIMEOUT_MS);
+           }
+
         }
 
         // If the connection update is on a different profile or device (a very rare possibility),
@@ -1210,23 +1341,10 @@ public class BluetoothDeviceConnectionPolicy {
         if (mProfileToConnectableDevicesMap == null) {
             return;
         }
-        for (BluetoothDevicesInfo devInfo : mProfileToConnectableDevicesMap.values()) {
-            writer.print("Profile: " + devInfo.getProfileLocked() + "\t");
-            writer.print(
-                    "Num of Paired devices: " + devInfo.getNumberOfPairedDevicesLocked() + "\t");
-            writer.print("Active Connections: " + devInfo.getNumberOfActiveConnectionsLocked());
-            writer.println("Num of paired devices: " + devInfo.getNumberOfPairedDevicesLocked());
+        for (Integer profile : mProfileToConnectableDevicesMap.keySet()) {
+            writer.print("Profile: " + Utils.getProfileName(profile) + "\t");
+            writer.print("\n" + mProfileToConnectableDevicesMap.get(profile).toDebugString());
             writer.println();
-            List<BluetoothDevicesInfo.DeviceInfo> deviceInfoList = devInfo.getDeviceInfoList();
-            if (deviceInfoList != null) {
-                for (BluetoothDevicesInfo.DeviceInfo devicesInfo : deviceInfoList) {
-                    if (devicesInfo.getBluetoothDevice() != null) {
-                        writer.print(devicesInfo.getBluetoothDevice() + ":");
-                        writer.print(devicesInfo.getConnectionState() + "\t");
-                    }
-                }
-                writer.println();
-            }
         }
     }
 
@@ -1433,7 +1551,8 @@ public class BluetoothDeviceConnectionPolicy {
                     priority);
             if (deviceToClear != null) {
                 if (DBG) {
-                    Log.d(TAG, "Clearing priority for: " + deviceToClear.getAddress());
+                    Log.d(TAG, "Clearing priority for: " +
+                            Utils.getDeviceDebugInfo(deviceToClear));
                 }
                 devicesInfo.removeBluetoothDevicePriorityLocked(deviceToClear);
             }
