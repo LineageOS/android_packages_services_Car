@@ -20,6 +20,8 @@ import android.car.Car;
 import android.car.CarNotConnectedException;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager.UidIoStatsListener;
+import android.car.storagemonitoring.UidIoStats;
+import android.car.storagemonitoring.UidIoStats.Metrics;
 import android.car.storagemonitoring.UidIoStatsDelta;
 import android.os.Bundle;
 import android.os.StatFs;
@@ -40,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.List;
 
 public class StorageLifetimeFragment extends Fragment {
     private static final String FILE_NAME = "storage.bin";
@@ -75,6 +78,27 @@ public class StorageLifetimeFragment extends Fragment {
                             fsyncCalls));
                     }
                 });
+                final List<UidIoStats> totals;
+                try {
+                    totals = mStorageManager.getAggregateIoStats();
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Car not connected or not supported", e);
+                    return;
+                }
+
+                final long totalBytesWrittenToStorage = totals.stream()
+                        .mapToLong(stats -> stats.foreground.bytesWrittenToStorage +
+                                stats.background.bytesWrittenToStorage)
+                        .reduce(0L, (x,y)->x+y);
+                final long totalFsyncCalls = totals.stream()
+                        .mapToLong(stats -> stats.foreground.fsyncCalls +
+                            stats.background.fsyncCalls)
+                        .reduce(0L, (x,y)->x+y);
+
+                mIoActivity.append(String.format(
+                        "total bytes written to disk = %d, total fsync calls = %d",
+                        totalBytesWrittenToStorage,
+                        totalFsyncCalls));
             }
         }
     };
