@@ -51,8 +51,10 @@ class VhalPropSimulator(object):
         thread.start()
 
     def run(self, timeout):
-        self._startGeneratorThread(user_action_generator.UserActionGenerator(self.vhal))
-        self._startGeneratorThread(driving_info_generator.DrivingInfoGenerator(self.gpxFile))
+        userActionGenerator = user_action_generator.UserActionGenerator(self.vhal)
+        drivingInfoGenerator = driving_info_generator.DrivingInfoGenerator(self.gpxFile, self.vhal)
+        self._startGeneratorThread(userActionGenerator)
+        self._startGeneratorThread(drivingInfoGenerator)
         time.sleep(float(timeout))
 
 

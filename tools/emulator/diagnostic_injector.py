@@ -95,7 +95,7 @@ class DiagnosticHalWrapper(object):
                 builder.addFloatSensor(floatValue['id'], floatValue['value'])
             builtEvent = builder.build()
             print ("Sending %s %s..." % (eventType, builtEvent)),
-        # and send it
+            # and send it
             status = self.chat(
                 lambda hal:
                     hal.setProperty(eventTypeData['property'],

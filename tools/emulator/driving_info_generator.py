@@ -18,7 +18,10 @@ import time
 
 from xml.dom import minidom
 
+import diagnostic_sensors as s
 import vhal_consts_2_0 as c
+
+from diagnostic_builder import DiagnosticEventBuilder
 
 # interval of generating driving information
 SAMPLE_INTERVAL_SECONDS = 0.5
@@ -33,6 +36,11 @@ PARK_DURATION_SECONDS = 10
 REVERSE_SPEED_METERS_PER_SECOND = 2.3
 
 UTC_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
+
+# Diagnostics property constants. The value is based on the record from a test drive
+FUEL_SYSTEM_STATUS_VALUE = 2
+AMBIENT_AIR_TEMPERATURE_VALUE = 21
+ENGINE_COOLANT_TEMPERATURE_VALUE = 75
 
 
 def speed2Gear(speed):
@@ -72,15 +80,15 @@ class GpxFrame(object):
 
 class DrivingInfoGenerator(object):
     """
-        A class that generates driving information like speed, odometer, rpm, etc. It is taking a
-        GPX file which describes a real route that consists of a sequence of location data. And then
-        derive driving information from those location data.
+        A class that generates driving information like speed, odometer, rpm, diagnostics etc. It
+        takes a GPX file which describes a real route that consists of a sequence of location data,
+        and then derive driving information from those data.
 
-        Assume it is a car with automatic transmission, so that current gear does not
+        One assumption is that it is automatic transmission car, so that current gear does not
         necessarily match selected gear.
     """
 
-    def __init__(self, gpxFile):
+    def __init__(self, gpxFile, vhal):
         self.gpxDom = minidom.parse(gpxFile)
         # Speed of vehicle (meter / second)
         self.speedInMps = 0
@@ -94,6 +102,10 @@ class DrivingInfoGenerator(object):
         self.currentGear = c.VEHICLEGEAR_GEAR_PARK
         # Timestamp while driving on route defined in GPX file
         self.datetime = 0
+        # Get Diagnostics live frame property configure
+        vhal.getConfig(c.VEHICLEPROPERTY_OBD2_LIVE_FRAME)
+        self.liveFrameConfig = vhal.rxMsg()
+
 
     def _generateFrame(self, listener):
         """
@@ -103,6 +115,24 @@ class DrivingInfoGenerator(object):
         listener.handle(c.VEHICLEPROPERTY_ENGINE_RPM, 0, self.rpm, "ENGINE_RPM")
         listener.handle(c.VEHICLEPROPERTY_PERF_ODOMETER, 0, self.odometerInKm, "PERF_ODOMETER")
         listener.handle(c.VEHICLEPROPERTY_CURRENT_GEAR, 0, self.currentGear, "CURRENT_GEAR")
+        listener.handle(c.VEHICLEPROPERTY_OBD2_LIVE_FRAME, 0,
+                        self._buildDiagnosticLiveFrame(), "DIAGNOSTIC_LIVE_FRAME")
+
+    def _buildDiagnosticLiveFrame(self):
+        """
+            Build a diagnostic live frame with a few sensor fields set
+        """
+        builder = DiagnosticEventBuilder(self.liveFrameConfig)
+        builder.setStringValue('')
+        builder.addIntSensor(s.DIAGNOSTIC_SENSOR_INTEGER_FUEL_SYSTEM_STATUS,
+                             FUEL_SYSTEM_STATUS_VALUE)
+        builder.addIntSensor(s.DIAGNOSTIC_SENSOR_INTEGER_AMBIENT_AIR_TEMPERATURE,
+                             AMBIENT_AIR_TEMPERATURE_VALUE)
+        builder.addFloatSensor(s.DIAGNOSTIC_SENSOR_FLOAT_ENGINE_COOLANT_TEMPERATURE,
+                               ENGINE_COOLANT_TEMPERATURE_VALUE)
+        builder.addFloatSensor(s.DIAGNOSTIC_SENSOR_FLOAT_ENGINE_RPM, self.rpm)
+        builder.addFloatSensor(s.DIAGNOSTIC_SENSOR_FLOAT_VEHICLE_SPEED, self.speedInMps)
+        return builder.build()
 
     def _generateFromGpxFrame(self, gpxFrame, listener):
         """
