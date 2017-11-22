@@ -260,6 +260,11 @@ public class CarPowerManagementService implements CarServiceBase,
     }
 
     @Override
+    public void onBootReasonReceived(int bootReason) {
+        // TODO:  Implement me
+    }
+
+    @Override
     public void onApPowerStateChange(PowerState state) {
         PowerHandler handler;
         synchronized (this) {

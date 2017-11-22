@@ -127,7 +127,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,
-                PowerHalService.FLAG_SHUTDOWN_IMMEDIATELY));
+                PowerHalService.SHUTDOWN_IMMEDIATELY));
         assertStateReceived(PowerHalService.SET_SHUTDOWN_START, wakeupTime);
         assertFalse(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         mPowerEventListener.waitForShutdown(WAIT_TIMEOUT_MS);
@@ -168,7 +168,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,
-                PowerHalService.FLAG_SHUTDOWN_PARAM_CAN_SLEEP));
+                PowerHalService.SHUTDOWN_CAN_SLEEP));
         assertFalse(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_ENTRY, 0);
         mPowerEventListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
@@ -193,7 +193,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,
-                PowerHalService.FLAG_SHUTDOWN_PARAM_CAN_SLEEP));
+                PowerHalService.SHUTDOWN_CAN_SLEEP));
         mPowerEventProcessingHandler.waitForPrepareShutdown(WAIT_TIMEOUT_MS);
         assertFalse(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY,
@@ -223,7 +223,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,
-                PowerHalService.FLAG_SHUTDOWN_PARAM_CAN_SLEEP));
+                PowerHalService.SHUTDOWN_CAN_SLEEP));
         mPowerEventProcessingHandler.waitForPrepareShutdown(WAIT_TIMEOUT_MS);
         assertFalse(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY,
