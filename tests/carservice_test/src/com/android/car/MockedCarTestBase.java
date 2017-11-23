@@ -19,8 +19,12 @@ import android.car.test.CarTestManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.AssetManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehicleDrivingStatus;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
@@ -31,6 +35,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.test.AndroidTestCase;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import android.util.SparseArray;
@@ -73,6 +78,7 @@ public class MockedCarTestBase extends AndroidTestCase {
     private ICarImpl mCarImpl;
     private MockedVehicleHal mMockedVehicleHal;
     private SystemInterface mFakeSystemInterface;
+    private MockContext mMockContext;
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
 
     private final Semaphore mWaitForMain = new Semaphore(0);
@@ -112,6 +118,8 @@ public class MockedCarTestBase extends AndroidTestCase {
 
     protected synchronized void configureFakeSystemInterface() {}
 
+    protected synchronized void configureResourceOverrides(MockResources resources) {}
+
     @Override
     protected synchronized void setUp() throws Exception {
         super.setUp();
@@ -128,7 +136,9 @@ public class MockedCarTestBase extends AndroidTestCase {
         mFakeSystemInterface = getSystemInterfaceBuilder().build();
         configureFakeSystemInterface();
 
-        Context context = getCarServiceContext();
+        MockContext context = getCarServiceContext();
+        configureResourceOverrides(context.getResources());
+
         mCarImpl = new ICarImpl(context, mMockedVehicleHal, mFakeSystemInterface,
                 null /* error notifier */);
 
@@ -147,9 +157,12 @@ public class MockedCarTestBase extends AndroidTestCase {
         mMockIOInterface.tearDown();
     }
 
-    protected Context getCarServiceContext() throws NameNotFoundException {
-        return getContext()
-                .createPackageContext("com.android.car", Context.CONTEXT_IGNORE_SECURITY);
+    protected MockContext getCarServiceContext() throws NameNotFoundException {
+        if (mMockContext == null) {
+            mMockContext = new MockContext(getContext()
+                .createPackageContext("com.android.car", Context.CONTEXT_IGNORE_SECURITY));
+        }
+        return mMockContext;
     }
 
     protected synchronized void reinitializeMockedHal() {
@@ -323,6 +336,65 @@ public class MockedCarTestBase extends AndroidTestCase {
                     Log.w(TAG, "could not remove temporary directory", e);
                 }
             }
+        }
+    }
+
+    static final class MockResources extends Resources {
+        private final HashMap<Integer, Integer> mIntegerOverrides = new HashMap<>();
+        private final HashMap<Integer, String> mStringOverrides = new HashMap<>();
+        private final HashMap<Integer, String[]> mStringArrayOverrides = new HashMap<>();
+
+        MockResources(Resources resources) {
+            super(resources.getAssets(),
+                    resources.getDisplayMetrics(),
+                    resources.getConfiguration());
+        }
+
+        @Override
+        public int getInteger(int id) {
+            return mIntegerOverrides.getOrDefault(id,
+                    super.getInteger(id));
+        }
+
+        @Override
+        public String getString(int id) {
+            return mStringOverrides.getOrDefault(id,
+                    super.getString(id));
+        }
+
+        @Override
+        public String[] getStringArray(int id) {
+            return mStringArrayOverrides.getOrDefault(id,
+                    super.getStringArray(id));
+        }
+
+        MockResources overrideResource(int id, int value) {
+            mIntegerOverrides.put(id, value);
+            return this;
+        }
+
+        MockResources overrideResource(int id, String value) {
+            mStringOverrides.put(id, value);
+            return this;
+        }
+
+        MockResources overrideResource(int id, String[] value) {
+            mStringArrayOverrides.put(id, value);
+            return this;
+        }
+    }
+
+    static final class MockContext extends ContextWrapper {
+        private final MockResources mResources;
+
+        MockContext(Context base) {
+            super(base);
+            mResources = new MockResources(super.getResources());
+        }
+
+        @Override
+        public MockResources getResources() {
+            return mResources;
         }
     }
 

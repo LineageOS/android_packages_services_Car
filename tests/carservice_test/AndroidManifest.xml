@@ -15,7 +15,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.android.car.test"
+        package="com.android.car"
         android:sharedUserId="android.uid.system" >
 
     <uses-permission android:name="android.Manifest.permission.MODIFY_AUDIO_ROUTING" />
@@ -26,7 +26,7 @@
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS" />
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING" />
     <instrumentation android:name="android.test.InstrumentationTestRunner"
-            android:targetPackage="com.android.car.test"
+            android:targetPackage="com.android.car"
             android:label="Tests for Car APIs"/>
 
     <application android:label="CarServiceTest">
@@ -38,8 +38,7 @@
             </intent-filter>
         </service>
         <service android:name="com.android.car.SimpleVmsPublisherClientService"
-                 android:exported="true"
-        />
+                 android:exported="true" />
         <service android:name="com.android.car.VmsPublisherClientMockService"
                  android:exported="true" />
 
@@ -48,5 +47,14 @@
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityC"/>
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$BlockingActivity"
                   android:taskAffinity="com.android.car.carservicetest.block"/>
+
+        <receiver android:name=".CarStorageMonitoringBroadcastReceiver"
+            android:exported="true"
+            android:permission="android.car.permission.STORAGE_MONITORING">
+            <intent-filter>
+                <action android:name="android.car.storagemonitoring.EXCESSIVE_IO"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 </manifest>

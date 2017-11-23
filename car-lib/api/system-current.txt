@@ -1019,6 +1019,7 @@ package android.car.storagemonitoring {
     method public java.util.List<android.car.storagemonitoring.WearEstimateChange> getWearEstimateHistory() throws android.car.CarNotConnectedException;
     method public void registerListener(android.car.storagemonitoring.CarStorageMonitoringManager.UidIoStatsListener) throws android.car.CarNotConnectedException;
     method public void unregisterListener(android.car.storagemonitoring.CarStorageMonitoringManager.UidIoStatsListener) throws android.car.CarNotConnectedException;
+    field public static final java.lang.String INTENT_EXCESSIVE_IO = "android.car.storagemonitoring.EXCESSIVE_IO";
     field public static final int PRE_EOL_INFO_NORMAL = 1; // 0x1
     field public static final int PRE_EOL_INFO_UNKNOWN = 0; // 0x0
     field public static final int PRE_EOL_INFO_URGENT = 3; // 0x3

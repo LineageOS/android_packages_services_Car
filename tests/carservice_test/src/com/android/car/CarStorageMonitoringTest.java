@@ -25,6 +25,7 @@ import android.car.storagemonitoring.UidIoStatsDelta;
 import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
+import android.content.Intent;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.JsonWriter;
@@ -60,6 +61,46 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     private static final WearInformation DEFAULT_WEAR_INFORMATION =
         new WearInformation(30, 0, WearInformation.PRE_EOL_INFO_NORMAL);
 
+    static class ResourceOverrides {
+        private final HashMap<Integer, Integer> mIntegerOverrides = new HashMap<>();
+        private final HashMap<Integer, String> mStringOverrides = new HashMap<>();
+
+        void override(int id, int value) {
+            mIntegerOverrides.put(id, value);
+        }
+        void override(int id, String value) {
+            mStringOverrides.put(id, value);
+        }
+
+        void overrideResources(MockResources resources) {
+            mIntegerOverrides.forEach(resources::overrideResource);
+            mStringOverrides.forEach(resources::overrideResource);
+        }
+    }
+
+    private static final Map<String, ResourceOverrides> PER_TEST_RESOURCES =
+            new HashMap<String, ResourceOverrides>() {
+                {
+                    put("testIntentOnExcessiveWrite",
+                            new ResourceOverrides() {{
+                                override(R.integer.maxExcessiveIoSamplesInWindow, 0);
+                                override(R.integer.acceptableWrittenKBytesPerSample, 10);
+                                override(R.integer.acceptableFsyncCallsPerSample, 1000);
+                                override(R.string.intentReceiverForUnacceptableIoMetrics,
+                                        "com.android.car/.CarStorageMonitoringBroadcastReceiver");
+                            }});
+
+                    put("testIntentOnExcessiveFsync",
+                        new ResourceOverrides() {{
+                            override(R.integer.maxExcessiveIoSamplesInWindow, 0);
+                            override(R.integer.acceptableWrittenKBytesPerSample, 1000);
+                            override(R.integer.acceptableFsyncCallsPerSample, 2);
+                            override(R.string.intentReceiverForUnacceptableIoMetrics,
+                                "com.android.car/.CarStorageMonitoringBroadcastReceiver");
+                        }});
+                }
+            };
+
     private static final class TestData {
         static final TestData DEFAULT = new TestData(0, DEFAULT_WEAR_INFORMATION, null, null);
 
@@ -70,6 +111,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         final WearHistory wearHistory;
         @NonNull
         final UidIoRecord[] ioStats;
+
 
         TestData(long uptime,
                 @Nullable WearInformation wearInformation,
@@ -226,7 +268,15 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
             Log.e(TAG, "failed to configure fake system interface", e);
             fail("failed to configure fake system interface instance");
         }
+    }
 
+    @Override
+    protected synchronized void configureResourceOverrides(MockResources resources) {
+        final String testName = getName();
+        final ResourceOverrides overrides = PER_TEST_RESOURCES.getOrDefault(testName, null);
+        if (overrides != null) {
+            overrides.overrideResources(resources);
+        }
     }
 
     @Override
@@ -475,6 +525,58 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         mMockTimeInterface.setUptime(600).tick();
         assertFalse(listener1.waitForEvent(eventDeliveryDeadline));
         assertTrue(listener2.waitForEvent(eventDeliveryDeadline));
+    }
+
+    public void testIntentOnExcessiveWrite() throws Exception {
+        assertNull(CarStorageMonitoringBroadcastReceiver.reset());
+
+        final Duration intentDeliveryDeadline = Duration.ofSeconds(5);
+
+        UidIoRecord record = new UidIoRecord(0,
+            0,
+            5120,
+            0,
+            5000,
+            1,
+            0,
+            7168,
+            0,
+            7000,
+            0);
+
+        mMockStorageMonitoringInterface.addIoStatsRecord(record);
+        mMockTimeInterface.setUptime(500).tick();
+
+        assertTrue(CarStorageMonitoringBroadcastReceiver.waitForIntent(intentDeliveryDeadline));
+        Intent deliveredIntent = CarStorageMonitoringBroadcastReceiver.reset();
+        assertNotNull(deliveredIntent);
+        assertEquals(CarStorageMonitoringManager.INTENT_EXCESSIVE_IO, deliveredIntent.getAction());
+    }
+
+    public void testIntentOnExcessiveFsync() throws Exception {
+        assertNull(CarStorageMonitoringBroadcastReceiver.reset());
+
+        final Duration intentDeliveryDeadline = Duration.ofSeconds(5);
+
+        UidIoRecord record = new UidIoRecord(0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            0,
+            0,
+            0,
+            0,
+            3);
+
+        mMockStorageMonitoringInterface.addIoStatsRecord(record);
+        mMockTimeInterface.setUptime(500).tick();
+
+        assertTrue(CarStorageMonitoringBroadcastReceiver.waitForIntent(intentDeliveryDeadline));
+        Intent deliveredIntent = CarStorageMonitoringBroadcastReceiver.reset();
+        assertNotNull(deliveredIntent);
+        assertEquals(CarStorageMonitoringManager.INTENT_EXCESSIVE_IO, deliveredIntent.getAction());
     }
 
     static final class Listener implements CarStorageMonitoringManager.UidIoStatsListener {
