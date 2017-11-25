@@ -1153,6 +1153,7 @@
     public static int PROCESS_STATE_CACHED_ACTIVITY;
     public static int PROCESS_STATE_CACHED_ACTIVITY_CLIENT;
     public static int PROCESS_STATE_CACHED_EMPTY;
+    public static int PROCESS_STATE_CACHED_RECENT;
     public static int PROCESS_STATE_FOREGROUND_SERVICE;
     public static int PROCESS_STATE_HEAVY_WEIGHT;
     public static int PROCESS_STATE_HOME;
@@ -3358,6 +3359,7 @@
     public java.lang.String toString();
     public static java.lang.String visibilityToString(int);
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static android.media.AudioAttributes AUDIO_ATTRIBUTES_DEFAULT;
@@ -7101,6 +7103,8 @@
     public java.lang.String classLoaderName;
     public java.lang.String className;
     public int compatibleWidthLimitDp;
+    public int compileSdkVersion;
+    public java.lang.String compileSdkVersionCodename;
     public java.lang.String credentialProtectedDataDir;
     public java.lang.String dataDir;
     public int descriptionRes;
@@ -7306,13 +7310,6 @@
 
     public abstract void onPackageDeleted(java.lang.String, int, java.lang.String);
     public abstract void onUserActionRequired(android.content.Intent);
-
-
-}
-
--keep class android.content.pm.IPackageInstallObserver {
-
-    public abstract void packageInstalled(java.lang.String, int);
 
 
 }
@@ -7528,7 +7525,7 @@
     public abstract void restorePermissionGrants(byte[], int);
     public abstract void restorePreferredActivities(byte[], int);
     public abstract void revokeRuntimePermission(java.lang.String, java.lang.String, int);
-    public abstract boolean runBackgroundDexoptJob();
+    public abstract boolean runBackgroundDexoptJob(java.util.List);
     public abstract void setApplicationCategoryHint(java.lang.String, int, java.lang.String);
     public abstract void setApplicationEnabledSetting(java.lang.String, int, int, int, java.lang.String);
     public abstract boolean setApplicationHiddenSettingAsUser(java.lang.String, boolean, int);
@@ -7728,6 +7725,8 @@
     public android.content.pm.ActivityInfo[] activities;
     public android.content.pm.ApplicationInfo applicationInfo;
     public int baseRevisionCode;
+    public int compileSdkVersion;
+    public java.lang.String compileSdkVersionCodename;
     public android.content.pm.ConfigurationInfo[] configPreferences;
     public boolean coreApp;
     public android.content.pm.FeatureGroupInfo[] featureGroups;
@@ -8117,7 +8116,6 @@
     public abstract int installExistingPackage(java.lang.String);
     public abstract int installExistingPackage(java.lang.String, int);
     public abstract int installExistingPackageAsUser(java.lang.String, int);
-    public abstract void installPackage(android.net.Uri, android.content.pm.IPackageInstallObserver, int, java.lang.String);
     public abstract void installPackage(android.net.Uri, android.app.PackageInstallObserver, int, java.lang.String);
     public static int installStatusToPublicStatus(int);
     public static java.lang.String installStatusToString(int, java.lang.String);
@@ -8193,6 +8191,7 @@
     public static int COMPONENT_ENABLED_STATE_DISABLED_USER;
     public static int COMPONENT_ENABLED_STATE_ENABLED;
     public static int DELETE_ALL_USERS;
+    public static int DELETE_CHATTY;
     public static int DELETE_DONT_KILL_APP;
     public static int DELETE_FAILED_ABORTED;
     public static int DELETE_FAILED_DEVICE_POLICY_MANAGER;
@@ -12956,6 +12955,7 @@
 
     public boolean containsKey(java.lang.String);
     public int describeContents();
+    public boolean equals(java.lang.Object);
     public android.graphics.Bitmap getBitmap(java.lang.String);
     public android.media.MediaDescription getDescription();
     public static java.lang.String getKeyFromMetadataEditorKey(int);
@@ -12963,6 +12963,7 @@
     public android.media.Rating getRating(java.lang.String);
     public java.lang.String getString(java.lang.String);
     public java.lang.CharSequence getText(java.lang.String);
+    public int hashCode();
     public java.util.Set keySet();
     public int size();
     public void writeToParcel(android.os.Parcel, int);
@@ -14726,6 +14727,7 @@
     public void setDataPosition(int);
     public void setDataSize(int);
     public void setReadWriteHelper(android.os.Parcel$ReadWriteHelper);
+    public static void setStackTraceParceling(boolean);
     public void unmarshall(byte[], int, int);
     public void writeArray(java.lang.Object[]);
     public void writeArrayMap(android.util.ArrayMap);
@@ -14943,6 +14945,7 @@
 -keep class android.os.RemoteException {
     <init>();
     <init>(java.lang.String);
+    <init>(java.lang.String, java.lang.Throwable, boolean, boolean);
 
     public java.lang.RuntimeException rethrowAsRuntimeException();
     public java.lang.RuntimeException rethrowFromSystemServer();
@@ -15948,6 +15951,7 @@
     <init>(java.lang.String);
     <init>(java.lang.String, java.lang.Throwable);
     <init>(java.lang.Exception);
+    <init>(java.lang.String, java.lang.Throwable, boolean, boolean);
 
 
 
@@ -18421,7 +18425,7 @@
     public void setStartDelay(long);
     public void setStartValue(float);
     public void setTarget(android.view.View);
-    public void setTarget(android.graphics.Canvas);
+    public void setTarget(android.view.DisplayListCanvas);
     public void start();
 
 
@@ -18542,6 +18546,7 @@
     public android.os.IBinder getHandle();
     public static android.view.Display$HdrCapabilities getHdrCapabilities(android.os.IBinder);
     public void hide();
+    public static void mergeToGlobalTransaction(android.view.SurfaceControl$Transaction);
     public static void openTransaction();
     public void release();
     public void reparent(android.os.IBinder);
@@ -18618,6 +18623,45 @@
     public int width;
     public float xDpi;
     public float yDpi;
+}
+
+-keep class android.view.SurfaceControl$Transaction {
+    <init>();
+
+    public void apply();
+    public void apply(boolean);
+    public void close();
+    public android.view.SurfaceControl$Transaction deferTransactionUntil(android.view.SurfaceControl, android.os.IBinder, long);
+    public android.view.SurfaceControl$Transaction deferTransactionUntilSurface(android.view.SurfaceControl, android.view.Surface, long);
+    public android.view.SurfaceControl$Transaction detachChildren(android.view.SurfaceControl);
+    public android.view.SurfaceControl$Transaction hide(android.view.SurfaceControl);
+    public android.view.SurfaceControl$Transaction merge(android.view.SurfaceControl$Transaction);
+    public android.view.SurfaceControl$Transaction reparent(android.view.SurfaceControl, android.os.IBinder);
+    public android.view.SurfaceControl$Transaction reparentChildren(android.view.SurfaceControl, android.os.IBinder);
+    public android.view.SurfaceControl$Transaction setAlpha(android.view.SurfaceControl, float);
+    public android.view.SurfaceControl$Transaction setAnimationTransaction();
+    public android.view.SurfaceControl$Transaction setColor(android.view.SurfaceControl, float[]);
+    public android.view.SurfaceControl$Transaction setDisplayLayerStack(android.os.IBinder, int);
+    public android.view.SurfaceControl$Transaction setDisplayProjection(android.os.IBinder, int, android.graphics.Rect, android.graphics.Rect);
+    public android.view.SurfaceControl$Transaction setDisplaySize(android.os.IBinder, int, int);
+    public android.view.SurfaceControl$Transaction setDisplaySurface(android.os.IBinder, android.view.Surface);
+    public android.view.SurfaceControl$Transaction setFinalCrop(android.view.SurfaceControl, android.graphics.Rect);
+    public android.view.SurfaceControl$Transaction setGeometryAppliesWithResize(android.view.SurfaceControl);
+    public android.view.SurfaceControl$Transaction setLayer(android.view.SurfaceControl, int);
+    public android.view.SurfaceControl$Transaction setLayerStack(android.view.SurfaceControl, int);
+    public android.view.SurfaceControl$Transaction setMatrix(android.view.SurfaceControl, float, float, float, float);
+    public android.view.SurfaceControl$Transaction setOpaque(android.view.SurfaceControl, boolean);
+    public android.view.SurfaceControl$Transaction setOverrideScalingMode(android.view.SurfaceControl, int);
+    public android.view.SurfaceControl$Transaction setPosition(android.view.SurfaceControl, float, float);
+    public android.view.SurfaceControl$Transaction setRelativeLayer(android.view.SurfaceControl, android.view.SurfaceControl, int);
+    public android.view.SurfaceControl$Transaction setSecure(android.view.SurfaceControl, boolean);
+    public android.view.SurfaceControl$Transaction setSize(android.view.SurfaceControl, int, int);
+    public android.view.SurfaceControl$Transaction setTransparentRegionHint(android.view.SurfaceControl, android.graphics.Region);
+    public android.view.SurfaceControl$Transaction setWindowCrop(android.view.SurfaceControl, android.graphics.Rect);
+    public android.view.SurfaceControl$Transaction show(android.view.SurfaceControl);
+
+
+    public static libcore.util.NativeAllocationRegistry sRegistry;
 }
 
 -keep class android.view.SurfaceHolder {
@@ -18748,6 +18792,7 @@
     public void addFocusables(java.util.ArrayList, int);
     public void addFocusables(java.util.ArrayList, int, int);
     public void addFrameMetricsListener(android.view.Window, android.view.Window$OnFrameMetricsAvailableListener, android.os.Handler);
+    public void addKeyFallbackListener(android.view.View$OnKeyFallbackListener);
     public void addKeyboardNavigationClusters(java.util.Collection, int);
     public void addOnAttachStateChangeListener(android.view.View$OnAttachStateChangeListener);
     public void addOnLayoutChangeListener(android.view.View$OnLayoutChangeListener);
@@ -19182,6 +19227,7 @@
     public void onInitializeAccessibilityNodeInfo(android.view.accessibility.AccessibilityNodeInfo);
     public void onInitializeAccessibilityNodeInfoInternal(android.view.accessibility.AccessibilityNodeInfo);
     public boolean onKeyDown(int, android.view.KeyEvent);
+    public boolean onKeyFallback(android.view.KeyEvent);
     public boolean onKeyLongPress(int, android.view.KeyEvent);
     public boolean onKeyMultiple(int, int, android.view.KeyEvent);
     public boolean onKeyPreIme(int, android.view.KeyEvent);
@@ -19244,6 +19290,7 @@
     public void releasePointerCapture();
     public boolean removeCallbacks(java.lang.Runnable);
     public void removeFrameMetricsListener(android.view.Window$OnFrameMetricsAvailableListener);
+    public void removeKeyFallbackListener(android.view.View$OnKeyFallbackListener);
     public void removeOnAttachStateChangeListener(android.view.View$OnAttachStateChangeListener);
     public void removeOnLayoutChangeListener(android.view.View$OnLayoutChangeListener);
     public boolean requestAccessibilityFocus();
@@ -19796,6 +19843,13 @@
 
 }
 
+-keep class android.view.View$OnKeyFallbackListener {
+
+    public abstract boolean onKeyFallback(android.view.View, android.view.KeyEvent);
+
+
+}
+
 -keep class android.view.View$OnKeyListener {
 
     public abstract boolean onKey(android.view.View, int, android.view.KeyEvent);
@@ -20322,6 +20376,7 @@
     public void dispatchInvalidateOnAnimation(android.view.View);
     public void dispatchInvalidateRectDelayed(android.view.View$AttachInfo$InvalidateInfo, long);
     public void dispatchInvalidateRectOnAnimation(android.view.View$AttachInfo$InvalidateInfo);
+    public boolean dispatchKeyFallbackEvent(android.view.KeyEvent);
     public void dispatchKeyFromIme(android.view.KeyEvent);
     public void dispatchMoved(int, int);
     public void dispatchPointerCaptureChanged(boolean);
@@ -30568,6 +30623,23 @@
     public boolean isReadOnly();
     public void setReadOnly();
     public java.lang.String toString();
+
+
+}
+
+-keep class libcore.util.NativeAllocationRegistry {
+    <init>(java.lang.ClassLoader, long, long);
+
+    public static void applyFreeFunction(long, long);
+    public java.lang.Runnable registerNativeAllocation(java.lang.Object, long);
+    public java.lang.Runnable registerNativeAllocation(java.lang.Object, libcore.util.NativeAllocationRegistry$Allocator);
+
+
+}
+
+-keep class libcore.util.NativeAllocationRegistry$Allocator {
+
+    public abstract long allocate();
 
 
 }
