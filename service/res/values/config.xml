@@ -107,7 +107,10 @@
     <integer name="ioStatsNumSamplesToStore">15</integer>
 
     <!-- The maximum number of KB (1024 bytes) that can be written to storage in one sample
-         before CarService deems I/O activity excessive. -->
+         before CarService deems I/O activity excessive. A simple way to set this value
+         is - given the total writable amount (storage size * P/E cycles) - to make
+         reasonable assumptions about the expected lifetime of the vehicle and the average
+         daily driving time, and use that to allocate a per-sample budget. -->
     <integer name="acceptableWrittenKBytesPerSample">0</integer>
     <!-- The maximum number of fsync() system calls that can be made in one sample before
          CarService deems I/O activity excessive. -->
@@ -121,6 +124,9 @@
     <!-- The name of an intent to be notified by CarService whenever it detects too many
          samples with excessive I/O activity. Value must either be an empty string, which
          means that no notification will take place, or be in the format of a flattened
-         ComponentName and reference a valid BroadcastReceiver. -->
+         ComponentName and reference a valid BroadcastReceiver. This broadcast receiver
+         must be registered in its containing app's AndroidManifest.xml and it is
+         strongly recommended that it be protected with the
+         android.car.permission.STORAGE_MONITORING permission. -->
     <string name="intentReceiverForUnacceptableIoMetrics"></string>
 </resources>
