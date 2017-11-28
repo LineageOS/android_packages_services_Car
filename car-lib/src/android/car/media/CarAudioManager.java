@@ -128,10 +128,6 @@ public final class CarAudioManager implements CarManagerBase {
 
     private final ICarAudio mService;
     private final AudioManager mAudioManager;
-    private final Handler mHandler;
-
-    private ParameterChangeCallback mParameterChangeCallback;
-    private OnParameterChangeListener mOnParameterChangeListener;
 
     /**
      * Get {@link AudioAttributes} relevant for the given usage in car.
@@ -242,23 +238,23 @@ public final class CarAudioManager implements CarManagerBase {
     }
 
     /**
-     * Sets the volume index for a particular stream.
+     * Sets the volume index for a particular usage.
      *
      * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
      *
-     * @param streamType The stream whose volume index should be set.
+     * @param carUsage The car audio usage whose volume index should be set.
      * @param index The volume index to set. See
-     *            {@link #getStreamMaxVolume(int)} for the largest valid value.
+     *            {@link #getUsageMaxVolume(int)} for the largest valid value.
      * @param flags One or more flags (e.g., {@link android.media.AudioManager#FLAG_SHOW_UI},
      *              {@link android.media.AudioManager#FLAG_PLAY_SOUND})
      */
     @SystemApi
-    public void setStreamVolume(int streamType, int index, int flags)
+    public void setUsageVolume(@CarAudioUsage int carUsage, int index, int flags)
             throws CarNotConnectedException {
         try {
-            mService.setStreamVolume(streamType, index, flags);
+            mService.setUsageVolume(carUsage, index, flags);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "setStreamVolume failed", e);
+            Log.e(CarLibLog.TAG_CAR, "setUsageVolume failed", e);
             throw new CarNotConnectedException(e);
         }
     }
@@ -282,58 +278,58 @@ public final class CarAudioManager implements CarManagerBase {
     }
 
     /**
-     * Returns the maximum volume index for a particular stream.
+     * Returns the maximum volume index for a particular usage.
      *
      * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
      *
-     * @param stream The stream type whose maximum volume index is returned.
-     * @return The maximum valid volume index for the stream.
+     * @param carUsage The car audio usage whose maximum volume index is returned.
+     * @return The maximum valid volume index for the usage.
      */
     @SystemApi
-    public int getStreamMaxVolume(int stream) throws CarNotConnectedException {
+    public int getUsageMaxVolume(@CarAudioUsage int carUsage) throws CarNotConnectedException {
         try {
-            return mService.getStreamMaxVolume(stream);
+            return mService.getUsageMaxVolume(carUsage);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getStreamMaxVolume failed", e);
+            Log.e(CarLibLog.TAG_CAR, "getUsageMaxVolume failed", e);
             throw new CarNotConnectedException(e);
         }
     }
 
     /**
-     * Returns the minimum volume index for a particular stream.
+     * Returns the minimum volume index for a particular usage.
      *
      * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
      *
-     * @param stream The stream type whose maximum volume index is returned.
-     * @return The maximum valid volume index for the stream.
+     * @param carUsage The car audio usage whose maximum volume index is returned.
+     * @return The maximum valid volume index for the usage.
      */
     @SystemApi
-    public int getStreamMinVolume(int stream) throws CarNotConnectedException {
+    public int getUsageMinVolume(@CarAudioUsage int carUsage) throws CarNotConnectedException {
         try {
-            return mService.getStreamMinVolume(stream);
+            return mService.getUsageMinVolume(carUsage);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getStreamMaxVolume failed", e);
+            Log.e(CarLibLog.TAG_CAR, "getUsageMinVolume failed", e);
             throw new CarNotConnectedException(e);
         }
     }
 
     /**
-     * Returns the current volume index for a particular stream.
+     * Returns the current volume index for a particular usage.
      *
      * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
      *
-     * @param stream The stream type whose volume index is returned.
-     * @return The current volume index for the stream.
+     * @param carUsage The car audio usage whose volume index is returned.
+     * @return The current volume index for the usage.
      *
-     * @see #getStreamMaxVolume(int)
-     * @see #setStreamVolume(int, int, int)
+     * @see #getUsageMaxVolume(int)
+     * @see #setUsageVolume(int, int, int)
      */
     @SystemApi
-    public int getStreamVolume(int stream) throws CarNotConnectedException {
+    public int getUsageVolume(@CarAudioUsage int carUsage) throws CarNotConnectedException {
         try {
-            return mService.getStreamVolume(stream);
+            return mService.getUsageVolume(carUsage);
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getStreamVolume failed", e);
+            Log.e(CarLibLog.TAG_CAR, "getUsageVolume failed", e);
             throw new CarNotConnectedException(e);
         }
     }
@@ -378,108 +374,6 @@ public final class CarAudioManager implements CarManagerBase {
         }
     }
 
-    /**
-     * Listener to monitor audio parameter changes.
-     * @hide
-     */
-    public interface OnParameterChangeListener {
-        /**
-         * Parameter changed.
-         * @param parameters Have format of key1=value1;key2=value2;...
-         */
-        void onParameterChange(String parameters);
-    }
-
-    /**
-     * Return array of keys supported in this system.
-     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
-     * The list is static and will not change.
-     * @return null if there is no audio parameters supported.
-     * @throws CarNotConnectedException
-     *
-     * @hide
-     */
-    public @Nullable String[] getParameterKeys() throws CarNotConnectedException {
-        try {
-            return mService.getParameterKeys();
-        } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getParameterKeys failed", e);
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    /**
-     * Set car specific audio parameters.
-     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
-     * Only keys listed from {@link #getParameterKeys()} should be used.
-     * @param parameters has format of key1=value1;key2=value2;...
-     * @throws CarNotConnectedException
-     *
-     * @hide
-     */
-    public void setParameters(String parameters) throws CarNotConnectedException {
-        try {
-            mService.setParameters(parameters);
-        } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "setParameters failed", e);
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    /**
-     * Get parameters for the key passed.
-     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
-     * Only keys listed from {@link #getParameterKeys()} should be used.
-     * @param keys Keys to get value. Format is key1;key2;...
-     * @return Parameters in format of key1=value1;key2=value2;...
-     * @throws CarNotConnectedException
-     *
-     * @hide
-     */
-    public String getParameters(String keys) throws CarNotConnectedException {
-        try {
-            return mService.getParameters(keys);
-        } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "getParameters failed", e);
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    /**
-     * Set listener to monitor audio parameter changes.
-     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
-     * @param listener Non-null listener will start monitoring. null listener will stop listening.
-     * @throws CarNotConnectedException
-     *
-     * @hide
-     */
-    public void setOnParameterChangeListener(OnParameterChangeListener listener)
-            throws CarNotConnectedException {
-        ParameterChangeCallback oldCb = null;
-        ParameterChangeCallback newCb = null;
-        synchronized (this) {
-            if (listener != null) {
-                if (mParameterChangeCallback != null) {
-                    oldCb = mParameterChangeCallback;
-                }
-                newCb = new ParameterChangeCallback(this);
-            }
-            mParameterChangeCallback = newCb;
-            mOnParameterChangeListener = listener;
-        }
-        try {
-            if (oldCb != null) {
-                mService.unregisterOnParameterChangeListener(oldCb);
-            }
-            if (newCb != null) {
-                mService.registerOnParameterChangeListener(newCb);
-            }
-        } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "setOnParameterChangeListener failed", e);
-            throw new CarNotConnectedException(e);
-        }
-    }
-
     /** @hide */
     @Override
     public void onCarDisconnected() {
@@ -489,38 +383,5 @@ public final class CarAudioManager implements CarManagerBase {
     public CarAudioManager(IBinder service, Context context, Handler handler) {
         mService = ICarAudio.Stub.asInterface(service);
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        mHandler = handler;
-    }
-
-    private AudioAttributes createAudioAttributes(int contentType, int usage) {
-        AudioAttributes.Builder builder = new AudioAttributes.Builder();
-        return builder.setContentType(contentType).setUsage(usage).build();
-    }
-
-    private static class ParameterChangeCallback extends ICarAudioCallback.Stub {
-
-        private final WeakReference<CarAudioManager> mManager;
-
-        private ParameterChangeCallback(CarAudioManager manager) {
-            mManager = new WeakReference<>(manager);
-        }
-
-        @Override
-        public void onParameterChange(final String params) {
-            CarAudioManager manager = mManager.get();
-            if (manager == null) {
-                return;
-            }
-            final OnParameterChangeListener listener = manager.mOnParameterChangeListener;
-            if (listener == null) {
-                return;
-            }
-            manager.mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onParameterChange(params);
-                }
-            });
-        }
     }
 }

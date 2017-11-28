@@ -688,12 +688,12 @@ package android.car.input {
 package android.car.media {
 
   public final class CarAudioManager {
-    method public int getStreamMaxVolume(int) throws android.car.CarNotConnectedException;
-    method public int getStreamMinVolume(int) throws android.car.CarNotConnectedException;
-    method public int getStreamVolume(int) throws android.car.CarNotConnectedException;
+    method public int getUsageMaxVolume(int) throws android.car.CarNotConnectedException;
+    method public int getUsageMinVolume(int) throws android.car.CarNotConnectedException;
+    method public int getUsageVolume(int) throws android.car.CarNotConnectedException;
     method public boolean isMediaMuted() throws android.car.CarNotConnectedException;
     method public boolean setMediaMute(boolean) throws android.car.CarNotConnectedException;
-    method public void setStreamVolume(int, int, int) throws android.car.CarNotConnectedException;
+    method public void setUsageVolume(int, int, int) throws android.car.CarNotConnectedException;
     method public void setVolumeController(android.media.IVolumeController) throws android.car.CarNotConnectedException;
   }
 

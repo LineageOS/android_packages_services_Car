@@ -1615,6 +1615,7 @@
     public static java.lang.String currentPackageName();
     public static java.lang.String currentProcessName();
     public static void dumpMemInfoTable(java.io.PrintWriter, android.os.Debug$MemoryInfo, boolean, boolean, boolean, boolean, int, java.lang.String, long, long, long, long, long, long);
+    public static void dumpMemInfoTable(android.util.proto.ProtoOutputStream, android.os.Debug$MemoryInfo, boolean, boolean, long, long, long, long, long, long);
     public android.app.Activity getActivity(android.os.IBinder);
     public android.app.Application getApplication();
     public android.app.ActivityThread$ApplicationThread getApplicationThread();
@@ -18605,7 +18606,8 @@
 -keep class android.view.SurfaceControl {
     <init>(android.view.SurfaceControl);
 
-    public static void captureLayers(android.os.IBinder, android.view.Surface, int);
+    public static void captureLayers(android.os.IBinder, android.view.Surface, android.graphics.Rect, float);
+    public static android.graphics.GraphicBuffer captureLayersToBuffer(android.os.IBinder, android.graphics.Rect, float);
     public static boolean clearAnimationFrameStats();
     public boolean clearContentFrameStats();
     public static void closeTransaction();

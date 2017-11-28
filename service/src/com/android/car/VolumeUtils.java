@@ -142,12 +142,6 @@ public class VolumeUtils {
         }
     }
 
-    public static int androidStreamToCarUsage(int logicalAndroidStream) {
-        return CarAudioAttributesUtil.getCarUsageFromAudioAttributes(
-                new AudioAttributes.Builder()
-                        .setLegacyStreamType(logicalAndroidStream).build());
-    }
-
     private final SparseArray<Float[]> mStreamAmplLookup = new SparseArray<>(7);
 
     private static final float LN_10 = 2.302585093f;
@@ -187,16 +181,6 @@ public class VolumeUtils {
             }
         }
         return closestIndex;
-    }
-
-    public void adjustStreamVol(int stream, int desired, int actual, int maxIndex) {
-        float gain = getTrackGain(desired, actual, maxIndex);
-        int index = closestIndex(gain, mStreamAmplLookup.get(stream));
-        if (index == mAudioManager.getStreamVolume(stream)) {
-            return;
-        } else {
-            mAudioManager.setStreamVolume(stream, index, 0 /*don't show UI*/);
-        }
     }
 
     /**
