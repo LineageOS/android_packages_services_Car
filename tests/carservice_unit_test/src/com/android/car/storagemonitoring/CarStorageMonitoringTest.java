@@ -552,7 +552,7 @@ public class CarStorageMonitoringTest extends TestCase {
         assertEquals(4, overallTotals.fsyncCalls);
     }
 
-    public void testUidIoStatsDeltaJson() throws Exception {
+    public void testUidIoStatsDeltaParcel() throws Exception {
         UidIoStats entry10 = new UidIoStats(10, 1000,
             new UidIoStats.Metrics(10, 20, 30, 40, 50),
             new UidIoStats.Metrics(60, 70, 80, 90, 100));
@@ -579,5 +579,31 @@ public class CarStorageMonitoringTest extends TestCase {
         assertEquals(2, parceledStatsDelta.getStats().stream()
                 .filter(e -> e.equals(entry10) || e.equals(entry20))
                 .count());
+    }
+
+    public void testUidIoStatsDeltaJson() throws Exception {
+        try (TemporaryFile temporaryFile = new TemporaryFile(TAG)) {
+            UidIoStats entry10 = new UidIoStats(10, 1000,
+                new UidIoStats.Metrics(10, 20, 30, 40, 50),
+                new UidIoStats.Metrics(60, 70, 80, 90, 100));
+
+            UidIoStats entry20 = new UidIoStats(20, 2000,
+                new UidIoStats.Metrics(200, 60, 100, 30, 40),
+                new UidIoStats.Metrics(20, 10, 20, 0, 0));
+
+            ArrayList<UidIoStats> statsEntries = new ArrayList<UidIoStats>() {{
+                add(entry10);
+                add(entry20);
+            }};
+
+            UidIoStatsDelta statsDelta = new UidIoStatsDelta(statsEntries, 5000);
+            try (JsonWriter jsonWriter = new JsonWriter(new FileWriter(temporaryFile.getFile()))) {
+                statsDelta.writeToJson(jsonWriter);
+            }
+            JSONObject jsonObject = new JSONObject(
+                new String(Files.readAllBytes(temporaryFile.getPath())));
+            UidIoStatsDelta other = new UidIoStatsDelta(jsonObject);
+            assertEquals(statsDelta, other);
+        }
     }
 }

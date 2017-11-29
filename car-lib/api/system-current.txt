@@ -790,6 +790,7 @@ package android.car.storagemonitoring {
   public class UidIoStatsDelta implements android.os.Parcelable {
     ctor public UidIoStatsDelta(java.util.List<android.car.storagemonitoring.UidIoStats>, long);
     ctor public UidIoStatsDelta(android.os.Parcel);
+    ctor public UidIoStatsDelta(org.json.JSONObject) throws org.json.JSONException;
     method public int describeContents();
     method public android.car.storagemonitoring.UidIoStats.Metrics getBackgroundTotals();
     method public android.car.storagemonitoring.UidIoStats.Metrics getForegroundTotals();
@@ -797,6 +798,7 @@ package android.car.storagemonitoring {
     method public long getTimestamp();
     method public android.car.storagemonitoring.UidIoStats.Metrics getTotals();
     method public android.car.storagemonitoring.UidIoStats getUserIdStats(int);
+    method public void writeToJson(android.util.JsonWriter) throws java.io.IOException;
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.UidIoStatsDelta> CREATOR;
   }
