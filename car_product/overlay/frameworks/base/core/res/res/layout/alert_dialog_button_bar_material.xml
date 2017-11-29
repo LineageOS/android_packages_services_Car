@@ -26,41 +26,39 @@
     <com.android.internal.widget.ButtonBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="@dimen/car_keyline_1"
+        android:layout_marginEnd="@dimen/car_keyline_1"
+        android:layout_marginTop="@dimen/car_padding_2"
         android:layoutDirection="locale"
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
         <Button
             android:id="@+id/button3"
-            android:textSize="40sp"
-            android:textColor="#ff00796b"
+            style="@style/CarAction1"
             android:background="@null"
             android:layout_width="wrap_content"
-            android:layout_height="96dp" />
+            android:layout_height="@dimen/car_card_action_bar_height" />
 
         <Button
             android:id="@+id/button2"
-            android:textSize="40sp"
-            android:textColor="#ff00796b"
+            style="@style/CarAction1"
             android:background="@null"
-            android:layout_marginEnd="32dp"
+            android:layout_marginEnd="@dimen/car_padding_4"
             android:layout_width="wrap_content"
-            android:layout_height="96dp" />
+            android:layout_height="@dimen/car_card_action_bar_height" />
 
         <Button
             android:id="@+id/button1"
-            android:textSize="40sp"
-            android:textColor="#ff00796b"
+            style="@style/CarAction1"
             android:background="@null"
-            android:layout_marginStart="32dp"
+            android:layout_marginStart="@dimen/car_padding_4"
             android:layout_width="wrap_content"
-            android:layout_height="96dp" />
+            android:layout_height="@dimen/car_card_action_bar_height" />
         <Space
             android:id="@+id/spacer"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="1"
             android:visibility="invisible" />
     </com.android.internal.widget.ButtonBarLayout>
 </ScrollView>

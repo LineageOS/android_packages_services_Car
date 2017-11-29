@@ -38,4 +38,24 @@
     <!-- The default color for text in a notification. This color is also the default color for
          icons. -->
     <color name="notification_default_color">@color/notification_primary_text_color_light</color>
+
+    <color name="car_teal_200">#ff80cbc4</color>
+    <color name="car_teal_700">#ff00796b</color>
+
+    <color name="car_grey_100">#fff5f5f5</color>
+    <color name="car_grey_300">#ffe0e0e0</color>
+    <color name="car_grey_650">#ff6B6B6B</color>
+    <color name="car_grey_900">#ff212121</color>
+
+    <color name="car_body2_light">@color/car_grey_300</color>
+    <color name="car_body2_dark">@color/car_grey_650</color>
+    <color name="car_body2">@color/car_body2_dark</color>
+
+    <color name="car_title_light">@color/car_grey_100</color>
+    <color name="car_title_dark">@color/car_grey_900</color>
+    <color name="car_title">@color/car_title_dark</color>
+
+    <color name="car_highlight_light">@color/car_teal_700</color>
+    <color name="car_highlight_dark">@color/car_teal_200</color>
+    <color name="car_highlight">@color/car_highlight_light</color>
 </resources>
