@@ -343,16 +343,30 @@ public class ICarImpl extends ICar.Stub {
 
     void dump(PrintWriter writer) {
         writer.println("*FutureConfig, DEFAULT:" + FeatureConfiguration.DEFAULT);
-        //TODO dump all feature flags by reflection
         writer.println("*Dump all services*");
         for (CarServiceBase service : mAllServices) {
-            service.dump(writer);
+            dumpService(service, writer);
         }
         if (mCarTestService != null) {
-            mCarTestService.dump(writer);
+            dumpService(mCarTestService, writer);
         }
         writer.println("*Dump Vehicle HAL*");
-        mHal.dump(writer);
+        try {
+           //TODO dump all feature flags by creating a dumpable interface
+            mHal.dump(writer);
+        } catch (Exception e) {
+            writer.println("Failed dumping: " + mHal.getClass().getName());
+            e.printStackTrace(writer);
+        }
+    }
+
+    private void dumpService(CarServiceBase service, PrintWriter writer) {
+        try {
+            service.dump(writer);
+        } catch (Exception e) {
+            writer.println("Failed dumping: " + service.getClass().getName());
+            e.printStackTrace(writer);
+        }
     }
 
     void execShellCmd(String[] args, PrintWriter writer) {
