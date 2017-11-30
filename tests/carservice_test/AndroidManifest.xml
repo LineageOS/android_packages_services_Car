@@ -48,7 +48,7 @@
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$BlockingActivity"
                   android:taskAffinity="com.android.car.carservicetest.block"/>
 
-        <receiver android:name=".CarStorageMonitoringBroadcastReceiver"
+        <receiver android:name="com.android.car.CarStorageMonitoringBroadcastReceiver"
             android:exported="true"
             android:permission="android.car.permission.STORAGE_MONITORING">
             <intent-filter>

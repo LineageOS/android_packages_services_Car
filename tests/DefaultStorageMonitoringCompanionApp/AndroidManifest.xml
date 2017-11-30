@@ -31,6 +31,16 @@
         android:exported="true"
         android:permission="android.car.permission.STORAGE_MONITORING">
     </activity>
+
+    <receiver
+        android:name=".ExcessiveIoIntentReceiver"
+        android:exported="true"
+        android:permission="android.car.permission.STORAGE_MONITORING">
+      <intent-filter>
+        <action android:name="android.car.storagemonitoring.EXCESSIVE_IO"/>
+      </intent-filter>
+    </receiver>
+
   </application>
 
 </manifest>

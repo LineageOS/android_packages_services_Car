@@ -26,6 +26,7 @@ import android.car.storagemonitoring.UidIoStatsDelta;
 import android.os.Bundle;
 import android.os.StatFs;
 import android.support.v4.app.Fragment;
+import android.system.ErrnoException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +36,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
+import java.io.FileDescriptor;
+import java.nio.ByteBuffer;
+import libcore.io.Libcore;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,6 +47,9 @@ import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
+
+import static android.system.OsConstants.O_APPEND;
+import static android.system.OsConstants.O_RDWR;
 
 public class StorageLifetimeFragment extends Fragment {
     private static final String FILE_NAME = "storage.bin";
@@ -114,19 +121,42 @@ public class StorageLifetimeFragment extends Fragment {
         }
     }
 
+    private Path getFilePath() throws IOException {
+        Path filePath = new File(mActivity.getFilesDir(), FILE_NAME).toPath();
+        if (Files.notExists(filePath)) {
+            Files.createFile(filePath);
+        }
+        return filePath;
+    }
+
     private void writeBytesToFile(int size) {
         try {
+            final Path filePath = getFilePath();
             byte[] data = new byte[size];
             SecureRandom.getInstanceStrong().nextBytes(data);
-            Path filePath = new File(mActivity.getFilesDir(), FILE_NAME).toPath();
-            if (Files.notExists(filePath)) {
-                Files.createFile(filePath);
-            }
             Files.write(filePath,
                 data,
                 StandardOpenOption.APPEND);
         } catch (NoSuchAlgorithmException | IOException e) {
             Log.w(TAG, "could not append data", e);
+        }
+    }
+
+    private void fsyncFile() {
+        try {
+            final Path filePath = getFilePath();
+            FileDescriptor fd = Libcore.os.open(filePath.toString(), O_APPEND | O_RDWR, 0);
+            if (!fd.valid()) {
+                Log.w(TAG, "file descriptor is invalid");
+                return;
+            }
+            // fill byteBuffer with arbitrary data in order to make an fsync() meaningful
+            ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[] {101, 110, 114, 105, 99, 111});
+            Libcore.os.write(fd, byteBuffer);
+            Libcore.os.fsync(fd);
+            Libcore.os.close(fd);
+        } catch (ErrnoException | IOException e) {
+            Log.w(TAG, "could not fsync data", e);
         }
     }
 
@@ -148,6 +178,9 @@ public class StorageLifetimeFragment extends Fragment {
 
         view.findViewById(R.id.write_one_megabyte).setOnClickListener(
             v -> writeBytesToFile(MEGABYTE));
+
+        view.findViewById(R.id.perform_fsync).setOnClickListener(
+            v -> fsyncFile());
 
         return view;
     }
