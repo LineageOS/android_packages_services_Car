@@ -30,7 +30,7 @@ public class CarSensorConfig {
     /** List of property specific mapped elements in bundle for WHEEL_TICK_DISTANCE sensor*/
     /** @hide */
     public final static String WHEEL_TICK_DISTANCE_SUPPORTED_WHEELS =
-        "android.car.wheelTickDistanceSupportedWhheels";
+        "android.car.wheelTickDistanceSupportedWheels";
     /** @hide */
     public final static String WHEEL_TICK_DISTANCE_FRONT_LEFT_UM_PER_TICK =
         "android.car.wheelTickDistanceFrontLeftUmPerTick";
