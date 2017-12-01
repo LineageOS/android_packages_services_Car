@@ -330,8 +330,12 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                 mConfiguration.ioStatsRefreshRateMs,
                 mSystemInterface.getSystemStateInterface());
 
-        mSystemInterface.scheduleAction(this::collectNewIoMetrics,
+        if (mConfiguration.ioStatsNumSamplesToStore > 0) {
+            mSystemInterface.scheduleAction(this::collectNewIoMetrics,
                 mConfiguration.ioStatsRefreshRateMs);
+        } else {
+            Log.i(TAG, "service configuration disabled I/O sample window. not collecting samples");
+        }
 
         Log.i(TAG, "CarStorageMonitoringService is up");
 
