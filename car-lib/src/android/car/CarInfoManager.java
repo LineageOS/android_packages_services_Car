@@ -156,7 +156,7 @@ public final class CarInfoManager implements CarManagerBase {
      *         fuel.
      */
     public float getFuelCapacity() throws CarNotConnectedException {
-        return getBasicInfo().getInt(BASIC_INFO_FUEL_CAPACITY);
+        return getBasicInfo().getFloat(BASIC_INFO_FUEL_CAPACITY);
     }
 
     /**
@@ -172,7 +172,7 @@ public final class CarInfoManager implements CarManagerBase {
      *         battery.
      */
     public float getEvBatteryCapacity() throws CarNotConnectedException {
-        return getBasicInfo().getInt(BASIC_INFO_EV_BATTERY_CAPACITY);
+        return getBasicInfo().getFloat(BASIC_INFO_EV_BATTERY_CAPACITY);
     }
 
     /**
