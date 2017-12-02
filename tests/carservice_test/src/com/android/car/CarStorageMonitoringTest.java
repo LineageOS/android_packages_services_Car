@@ -98,6 +98,12 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
                             override(R.string.intentReceiverForUnacceptableIoMetrics,
                                 "com.android.car/.CarStorageMonitoringBroadcastReceiver");
                         }});
+
+                    put("testZeroWindowDisablesCollection",
+                        new ResourceOverrides() {{
+                            override(R.integer.ioStatsNumSamplesToStore, 0);
+                        }});
+
                 }
             };
 
@@ -577,6 +583,31 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         Intent deliveredIntent = CarStorageMonitoringBroadcastReceiver.reset();
         assertNotNull(deliveredIntent);
         assertEquals(CarStorageMonitoringManager.INTENT_EXCESSIVE_IO, deliveredIntent.getAction());
+    }
+
+    public void testZeroWindowDisablesCollection() throws Exception {
+        final Duration eventDeliveryDeadline = Duration.ofSeconds(5);
+
+        UidIoRecord record = new UidIoRecord(0,
+            0,
+            100,
+            0,
+            75,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0);
+
+        Listener listener = new Listener("listener");
+
+        mMockStorageMonitoringInterface.addIoStatsRecord(record);
+        mMockTimeInterface.setUptime(500).tick();
+
+        assertFalse(listener.waitForEvent(eventDeliveryDeadline));
+
+        assertEquals(0, mCarStorageMonitoringManager.getIoStatsDeltas().size());
     }
 
     static final class Listener implements CarStorageMonitoringManager.UidIoStatsListener {

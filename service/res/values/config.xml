@@ -103,8 +103,9 @@
 
     <!-- The number of I/O metrics samples to keep in memory at one time.
          The system will keep a sliding window of samples of this size, and allow
-         retrieval of activity this many sample windows back in time. -->
-    <integer name="ioStatsNumSamplesToStore">15</integer>
+         retrieval of activity this many sample windows back in time. Setting this to
+         0 means no samples will be collected, effectively disabling I/O metric collection. -->
+    <integer name="ioStatsNumSamplesToStore">0</integer>
 
     <!-- The maximum number of KB (1024 bytes) that can be written to storage in one sample
          before CarService deems I/O activity excessive. A simple way to set this value
@@ -119,7 +120,7 @@
     <!-- The maximum number of samples (within an I/O stats sample window) that CarService
          should consider exhibiting excessive I/O activity before broadcasting an intent
          to signal the potential for flash wear. -->
-    <integer name="maxExcessiveIoSamplesInWindow">1</integer>
+    <integer name="maxExcessiveIoSamplesInWindow">0</integer>
 
     <!-- The name of an intent to be notified by CarService whenever it detects too many
          samples with excessive I/O activity. Value must either be an empty string, which
