@@ -1,4 +1,12 @@
 <resources>
     <!-- default activity whitelist which are allowed while driving -->
     <string name="defauiltActivityWhitelist">com.android.systemui,com.android.car.dialer,com.android.car.hvac,com.android.car.media,com.android.car.radio,com.android.support.car.lenspicker,com.google.android.setupwizard</string>
+
+    <integer name="ioStatsNumSamplesToStore">15</integer>
+    <integer name="maxExcessiveIoSamplesInWindow">11</integer>
+
+    <integer name="acceptableWrittenKBytesPerSample">115000</integer>
+    <integer name="acceptableFsyncCallsPerSample">150</integer>
+
+    <string name="intentReceiverForUnacceptableIoMetrics">com.google.android.car.defaultstoragemonitoringcompanionapp/.ExcessiveIoIntentReceiver</string>
 </resources>

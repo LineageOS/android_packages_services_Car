@@ -43,12 +43,13 @@
         <com.android.internal.widget.DialogTitle
             android:id="@+id/alertTitle"
             android:maxLines="1"
-            android:ellipsize="end"
+            android:ellipsize="none"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/icon"
             android:textAlignment="viewStart"
             android:layout_centerVertical="true"
-            android:layout_marginStart="@dimen/car_keyline_3"
+            android:layout_marginStart="@dimen/car_keyline_1"
             android:layout_marginEnd="@dimen/car_keyline_1"
             style="@style/CarTitle"/>
     </RelativeLayout>

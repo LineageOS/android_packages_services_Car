@@ -80,9 +80,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private final SlidingWindow<UidIoStatsDelta> mIoStatsSamples;
     private final RemoteCallbackList<IUidIoStatsListener> mListeners;
     private final Object mIoStatsSamplesLock = new Object();
-    private final long mAcceptableBytesWrittenPerSample;
-    private final int mAcceptableFsyncCallsPerSample;
-    private final int mThresholdSamplesCount;
+    private final Configuration mConfiguration;
 
     private final CarPermission mStorageMonitoringPermission;
 
@@ -96,6 +94,10 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     public CarStorageMonitoringService(Context context, SystemInterface systemInterface) {
         mContext = context;
         Resources resources = mContext.getResources();
+        mConfiguration = new Configuration(resources);
+
+        Log.d(TAG, "service configuration: " + mConfiguration);
+
         mUidIoStatsProvider = systemInterface.getUidIoStatsProvider();
         mUptimeTrackerFile = new File(systemInterface.getFilesDir(), UPTIME_TRACKER_FILENAME);
         mWearInfoFile = new File(systemInterface.getFilesDir(), WEAR_INFO_FILENAME);
@@ -105,20 +107,10 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         mStorageMonitoringPermission =
                 new CarPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
         mWearEstimateChanges = Collections.emptyList();
-        mIoStatsSamples = new SlidingWindow<>(
-            resources.getInteger(R.integer.ioStatsNumSamplesToStore));
+        mIoStatsSamples = new SlidingWindow<>(mConfiguration.ioStatsNumSamplesToStore);
+        mListeners = new RemoteCallbackList<>();
         systemInterface.scheduleActionForBootCompleted(this::doInitServiceIfNeeded,
             Duration.ofSeconds(10));
-        mListeners = new RemoteCallbackList<>();
-        mAcceptableBytesWrittenPerSample = 1024 * resources.getInteger(
-                R.integer.acceptableWrittenKBytesPerSample);
-        mAcceptableFsyncCallsPerSample = resources.getInteger(
-               R.integer.acceptableFsyncCallsPerSample);
-        mThresholdSamplesCount = resources.getInteger(R.integer.maxExcessiveIoSamplesInWindow);
-    }
-
-    private static long getUptimeSnapshotIntervalMs() {
-        return Duration.ofHours(R.integer.uptimeHoursIntervalBetweenUptimeDataWrite).toMillis();
     }
 
     private Optional<WearInformation> loadWearInformation() {
@@ -187,13 +179,12 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         Log.d(TAG, "CarStorageMonitoringService init()");
 
         mUptimeTracker = new UptimeTracker(mUptimeTrackerFile,
-            getUptimeSnapshotIntervalMs(),
+            mConfiguration.uptimeIntervalBetweenUptimeDataWriteMs,
             mSystemInterface);
     }
 
     private void launchWearChangeActivity() {
-        final String activityPath = mContext.getResources().getString(
-            R.string.activityHandlerForFlashWearChanges);
+        final String activityPath = mConfiguration.activityHandlerForFlashWearChanges;
         if (activityPath.isEmpty()) return;
         try {
             final ComponentName activityComponent =
@@ -254,8 +245,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private void sendExcessiveIoBroadcast() {
         Log.w(TAG, "sending excessive I/O notification");
 
-        final String receiverPath = mContext.getResources().getString(
-            R.string.intentReceiverForUnacceptableIoMetrics);
+        final String receiverPath = mConfiguration.intentReceiverForUnacceptableIoMetrics;
         if (receiverPath.isEmpty()) return;
 
         final ComponentName receiverComponent;
@@ -277,9 +267,12 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         synchronized (mIoStatsSamplesLock) {
             return mIoStatsSamples.count((UidIoStatsDelta delta) -> {
                 Metrics total = delta.getTotals();
-                return (total.bytesWrittenToStorage > mAcceptableBytesWrittenPerSample) ||
-                    (total.fsyncCalls > mAcceptableFsyncCallsPerSample);
-            }) > mThresholdSamplesCount;
+                final boolean tooManyBytesWritten =
+                    (total.bytesWrittenToStorage > mConfiguration.acceptableBytesWrittenPerSample);
+                final boolean tooManyFsyncCalls =
+                    (total.fsyncCalls > mConfiguration.acceptableFsyncCallsPerSample);
+                return tooManyBytesWritten || tooManyFsyncCalls;
+            }) > mConfiguration.maxExcessiveIoSamplesInWindow;
         }
     }
 
@@ -301,8 +294,6 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
         Log.d(TAG, "initializing CarStorageMonitoringService");
 
-        final Resources resources = mContext.getResources();
-
         mWearInformation = loadWearInformation();
 
         // TODO(egranata): can this be done lazily?
@@ -312,8 +303,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             storeWearHistory(wearHistory);
         }
         Log.d(TAG, "wear history being tracked is " + wearHistory);
-        mWearEstimateChanges = wearHistory.toWearEstimateChanges(resources.getInteger(
-                        R.integer.acceptableHoursPerOnePercentFlashWear));
+        mWearEstimateChanges = wearHistory.toWearEstimateChanges(
+                mConfiguration.acceptableHoursPerOnePercentFlashWear);
 
         mOnShutdownReboot.addAction((Context ctx, Intent intent) -> release());
 
@@ -335,14 +326,16 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                 return stats;
             }).collect(Collectors.toList());
 
-        final long newStatsDelayMs =
-                1000L * resources.getInteger(R.integer.ioStatsRefreshRateSeconds);
-
         mIoStatsTracker = new IoStatsTracker(mBootIoStats,
-                newStatsDelayMs,
+                mConfiguration.ioStatsRefreshRateMs,
                 mSystemInterface.getSystemStateInterface());
 
-        mSystemInterface.scheduleAction(this::collectNewIoMetrics, newStatsDelayMs);
+        if (mConfiguration.ioStatsNumSamplesToStore > 0) {
+            mSystemInterface.scheduleAction(this::collectNewIoMetrics,
+                mConfiguration.ioStatsRefreshRateMs);
+        } else {
+            Log.i(TAG, "service configuration disabled I/O sample window. not collecting samples");
+        }
 
         Log.i(TAG, "CarStorageMonitoringService is up");
 
@@ -459,5 +452,61 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         // no need to initialize service if unregistering
 
         mListeners.unregister(listener);
+    }
+
+    private static final class Configuration {
+        final long acceptableBytesWrittenPerSample;
+        final int acceptableFsyncCallsPerSample;
+        final int acceptableHoursPerOnePercentFlashWear;
+        final String activityHandlerForFlashWearChanges;
+        final String intentReceiverForUnacceptableIoMetrics;
+        final int ioStatsNumSamplesToStore;
+        final int ioStatsRefreshRateMs;
+        final int maxExcessiveIoSamplesInWindow;
+        final long uptimeIntervalBetweenUptimeDataWriteMs;
+
+        Configuration(Resources resources) throws Resources.NotFoundException {
+            ioStatsNumSamplesToStore = resources.getInteger(R.integer.ioStatsNumSamplesToStore);
+            acceptableBytesWrittenPerSample =
+                    1024 * resources.getInteger(R.integer.acceptableWrittenKBytesPerSample);
+            acceptableFsyncCallsPerSample =
+                    resources.getInteger(R.integer.acceptableFsyncCallsPerSample);
+            maxExcessiveIoSamplesInWindow =
+                    resources.getInteger(R.integer.maxExcessiveIoSamplesInWindow);
+            uptimeIntervalBetweenUptimeDataWriteMs =
+                        60 * 60 * 1000 *
+                        resources.getInteger(R.integer.uptimeHoursIntervalBetweenUptimeDataWrite);
+            acceptableHoursPerOnePercentFlashWear =
+                    resources.getInteger(R.integer.acceptableHoursPerOnePercentFlashWear);
+            ioStatsRefreshRateMs =
+                    1000 * resources.getInteger(R.integer.ioStatsRefreshRateSeconds);
+            activityHandlerForFlashWearChanges =
+                    resources.getString(R.string.activityHandlerForFlashWearChanges);
+            intentReceiverForUnacceptableIoMetrics =
+                    resources.getString(R.string.intentReceiverForUnacceptableIoMetrics);
+        }
+
+        @Override
+        public String toString() {
+            return String.format(
+                "acceptableBytesWrittenPerSample = %d, " +
+                "acceptableFsyncCallsPerSample = %d, " +
+                "acceptableHoursPerOnePercentFlashWear = %d, " +
+                "activityHandlerForFlashWearChanges = %s, " +
+                "intentReceiverForUnacceptableIoMetrics = %s, " +
+                "ioStatsNumSamplesToStore = %d, " +
+                "ioStatsRefreshRateMs = %d, " +
+                "maxExcessiveIoSamplesInWindow = %d, " +
+                "uptimeIntervalBetweenUptimeDataWriteMs = %d",
+                acceptableBytesWrittenPerSample,
+                acceptableFsyncCallsPerSample,
+                acceptableHoursPerOnePercentFlashWear,
+                activityHandlerForFlashWearChanges,
+                intentReceiverForUnacceptableIoMetrics,
+                ioStatsNumSamplesToStore,
+                ioStatsRefreshRateMs,
+                maxExcessiveIoSamplesInWindow,
+                uptimeIntervalBetweenUptimeDataWriteMs);
+        }
     }
 }
