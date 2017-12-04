@@ -1621,6 +1621,7 @@
     public android.app.Instrumentation getInstrumentation();
     public int getIntCoreSetting(java.lang.String, int);
     public static android.content.Intent getIntentBeingBroadcast();
+    public int getLifecycleSeq();
     public android.os.Looper getLooper();
     public android.app.LoadedApk getPackageInfo(java.lang.String, android.content.res.CompatibilityInfo, int);
     public android.app.LoadedApk getPackageInfo(java.lang.String, android.content.res.CompatibilityInfo, int, int);
@@ -1631,9 +1632,21 @@
     public java.lang.String getProfileFilePath();
     public android.app.ContextImpl getSystemContext();
     public android.app.ContextImpl getSystemUiContext();
+    public void handleActivityConfigurationChanged(android.os.IBinder, android.content.res.Configuration, int);
+    public void handleConfigurationChanged(android.content.res.Configuration);
+    public void handleDestroyActivity(android.os.IBinder, boolean, int, boolean);
     public void handleInstallProvider(android.content.pm.ProviderInfo);
+    public void handleLaunchActivity(android.os.IBinder, android.content.Intent, int, android.content.pm.ActivityInfo, android.content.res.Configuration, android.content.res.CompatibilityInfo, java.lang.String, com.android.internal.app.IVoiceInteractor, android.os.Bundle, android.os.PersistableBundle, java.util.List, java.util.List, boolean, boolean, android.app.ProfilerInfo);
+    public void handleMultiWindowModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
+    public void handleNewIntent(android.os.IBinder, java.util.List, boolean);
+    public void handlePauseActivity(android.os.IBinder, boolean, boolean, int, boolean, int);
+    public void handlePictureInPictureModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public void handleRequestAssistContextExtras(android.app.ActivityThread$RequestAssistContextExtras);
+    public void handleResumeActivity(android.os.IBinder, boolean, boolean, boolean, int, java.lang.String);
+    public void handleSendResult(android.os.IBinder, java.util.List);
+    public void handleStopActivity(android.os.IBinder, boolean, int, int);
     public void handleTranslucentConversionComplete(android.os.IBinder, boolean);
+    public void handleWindowVisibility(android.os.IBinder, boolean);
     public void installSystemApplicationInfo(android.content.pm.ApplicationInfo, java.lang.ClassLoader);
     public void installSystemProviders(java.util.List);
     public boolean isProfiling();
@@ -1652,6 +1665,8 @@
     public void stopProfiling();
     public static android.app.ActivityThread systemMain();
     public void unregisterOnActivityPausedListener(android.app.Activity, android.app.OnActivityPausedListener);
+    public void updatePendingConfiguration(android.content.res.Configuration);
+    public void updateProcessState(int, boolean);
 
 
     public static boolean DEBUG_BROADCAST;
@@ -1692,41 +1707,29 @@
     public void profilerControl(boolean, android.app.ProfilerInfo, int);
     public void requestAssistContextExtras(android.os.IBinder, android.os.IBinder, int, int, int);
     public void runIsolatedEntryPoint(java.lang.String, java.lang.String[]);
-    public void scheduleActivityConfigurationChanged(android.os.IBinder, android.content.res.Configuration);
-    public void scheduleActivityMovedToDisplay(android.os.IBinder, int, android.content.res.Configuration);
     public void scheduleApplicationInfoChanged(android.content.pm.ApplicationInfo);
     public void scheduleBindService(android.os.IBinder, android.content.Intent, boolean, int);
-    public void scheduleConfigurationChanged(android.content.res.Configuration);
     public void scheduleCrash(java.lang.String);
     public void scheduleCreateBackupAgent(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo, int);
     public void scheduleCreateService(android.os.IBinder, android.content.pm.ServiceInfo, android.content.res.CompatibilityInfo, int);
-    public void scheduleDestroyActivity(android.os.IBinder, boolean, int);
     public void scheduleDestroyBackupAgent(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
     public void scheduleEnterAnimationComplete(android.os.IBinder);
     public void scheduleExit();
     public void scheduleInstallProvider(android.content.pm.ProviderInfo);
-    public void scheduleLaunchActivity(android.content.Intent, android.os.IBinder, int, android.content.pm.ActivityInfo, android.content.res.Configuration, android.content.res.Configuration, android.content.res.CompatibilityInfo, java.lang.String, com.android.internal.app.IVoiceInteractor, int, android.os.Bundle, android.os.PersistableBundle, java.util.List, java.util.List, boolean, boolean, android.app.ProfilerInfo);
     public void scheduleLocalVoiceInteractionStarted(android.os.IBinder, com.android.internal.app.IVoiceInteractor);
     public void scheduleLowMemory();
-    public void scheduleMultiWindowModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
-    public void scheduleNewIntent(java.util.List, android.os.IBinder, boolean);
     public void scheduleOnNewActivityOptions(android.os.IBinder, android.os.Bundle);
-    public void schedulePauseActivity(android.os.IBinder, boolean, boolean, int, boolean);
-    public void schedulePictureInPictureModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public void scheduleReceiver(android.content.Intent, android.content.pm.ActivityInfo, android.content.res.CompatibilityInfo, int, java.lang.String, android.os.Bundle, boolean, int, int);
     public void scheduleRegisteredReceiver(android.content.IIntentReceiver, android.content.Intent, int, java.lang.String, android.os.Bundle, boolean, boolean, int, int);
     public void scheduleRelaunchActivity(android.os.IBinder, java.util.List, java.util.List, int, boolean, android.content.res.Configuration, android.content.res.Configuration, boolean);
-    public void scheduleResumeActivity(android.os.IBinder, int, boolean, android.os.Bundle);
-    public void scheduleSendResult(android.os.IBinder, java.util.List);
     public void scheduleServiceArgs(android.os.IBinder, android.content.pm.ParceledListSlice);
     public void scheduleSleeping(android.os.IBinder, boolean);
-    public void scheduleStopActivity(android.os.IBinder, boolean, int);
     public void scheduleStopService(android.os.IBinder);
     public void scheduleSuicide();
+    public void scheduleTransaction(android.app.servertransaction.ClientTransaction);
     public void scheduleTranslucentConversionComplete(android.os.IBinder, boolean);
     public void scheduleTrimMemory(int);
     public void scheduleUnbindService(android.os.IBinder, android.content.Intent);
-    public void scheduleWindowVisibility(android.os.IBinder, boolean);
     public void setCoreSettings(android.os.Bundle);
     public void setHttpProxy(java.lang.String, java.lang.String, java.lang.String, android.net.Uri);
     public void setNetworkBlockSeq(long);
@@ -2092,6 +2095,28 @@
 
     public long durationMillis;
     public java.lang.String serviceDetails;
+}
+
+-keep class android.app.ClientTransactionHandler {
+    <init>();
+
+    public abstract int getLifecycleSeq();
+    public abstract void handleActivityConfigurationChanged(android.os.IBinder, android.content.res.Configuration, int);
+    public abstract void handleConfigurationChanged(android.content.res.Configuration);
+    public abstract void handleDestroyActivity(android.os.IBinder, boolean, int, boolean);
+    public abstract void handleLaunchActivity(android.os.IBinder, android.content.Intent, int, android.content.pm.ActivityInfo, android.content.res.Configuration, android.content.res.CompatibilityInfo, java.lang.String, com.android.internal.app.IVoiceInteractor, android.os.Bundle, android.os.PersistableBundle, java.util.List, java.util.List, boolean, boolean, android.app.ProfilerInfo);
+    public abstract void handleMultiWindowModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
+    public abstract void handleNewIntent(android.os.IBinder, java.util.List, boolean);
+    public abstract void handlePauseActivity(android.os.IBinder, boolean, boolean, int, boolean, int);
+    public abstract void handlePictureInPictureModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
+    public abstract void handleResumeActivity(android.os.IBinder, boolean, boolean, boolean, int, java.lang.String);
+    public abstract void handleSendResult(android.os.IBinder, java.util.List);
+    public abstract void handleStopActivity(android.os.IBinder, boolean, int, int);
+    public abstract void handleWindowVisibility(android.os.IBinder, boolean);
+    public abstract void updatePendingConfiguration(android.content.res.Configuration);
+    public abstract void updateProcessState(int, boolean);
+
+
 }
 
 -keep class android.app.ContentProviderHolder {
@@ -2982,41 +3007,29 @@
     public abstract void profilerControl(boolean, android.app.ProfilerInfo, int);
     public abstract void requestAssistContextExtras(android.os.IBinder, android.os.IBinder, int, int, int);
     public abstract void runIsolatedEntryPoint(java.lang.String, java.lang.String[]);
-    public abstract void scheduleActivityConfigurationChanged(android.os.IBinder, android.content.res.Configuration);
-    public abstract void scheduleActivityMovedToDisplay(android.os.IBinder, int, android.content.res.Configuration);
     public abstract void scheduleApplicationInfoChanged(android.content.pm.ApplicationInfo);
     public abstract void scheduleBindService(android.os.IBinder, android.content.Intent, boolean, int);
-    public abstract void scheduleConfigurationChanged(android.content.res.Configuration);
     public abstract void scheduleCrash(java.lang.String);
     public abstract void scheduleCreateBackupAgent(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo, int);
     public abstract void scheduleCreateService(android.os.IBinder, android.content.pm.ServiceInfo, android.content.res.CompatibilityInfo, int);
-    public abstract void scheduleDestroyActivity(android.os.IBinder, boolean, int);
     public abstract void scheduleDestroyBackupAgent(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
     public abstract void scheduleEnterAnimationComplete(android.os.IBinder);
     public abstract void scheduleExit();
     public abstract void scheduleInstallProvider(android.content.pm.ProviderInfo);
-    public abstract void scheduleLaunchActivity(android.content.Intent, android.os.IBinder, int, android.content.pm.ActivityInfo, android.content.res.Configuration, android.content.res.Configuration, android.content.res.CompatibilityInfo, java.lang.String, com.android.internal.app.IVoiceInteractor, int, android.os.Bundle, android.os.PersistableBundle, java.util.List, java.util.List, boolean, boolean, android.app.ProfilerInfo);
     public abstract void scheduleLocalVoiceInteractionStarted(android.os.IBinder, com.android.internal.app.IVoiceInteractor);
     public abstract void scheduleLowMemory();
-    public abstract void scheduleMultiWindowModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
-    public abstract void scheduleNewIntent(java.util.List, android.os.IBinder, boolean);
     public abstract void scheduleOnNewActivityOptions(android.os.IBinder, android.os.Bundle);
-    public abstract void schedulePauseActivity(android.os.IBinder, boolean, boolean, int, boolean);
-    public abstract void schedulePictureInPictureModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public abstract void scheduleReceiver(android.content.Intent, android.content.pm.ActivityInfo, android.content.res.CompatibilityInfo, int, java.lang.String, android.os.Bundle, boolean, int, int);
     public abstract void scheduleRegisteredReceiver(android.content.IIntentReceiver, android.content.Intent, int, java.lang.String, android.os.Bundle, boolean, boolean, int, int);
     public abstract void scheduleRelaunchActivity(android.os.IBinder, java.util.List, java.util.List, int, boolean, android.content.res.Configuration, android.content.res.Configuration, boolean);
-    public abstract void scheduleResumeActivity(android.os.IBinder, int, boolean, android.os.Bundle);
-    public abstract void scheduleSendResult(android.os.IBinder, java.util.List);
     public abstract void scheduleServiceArgs(android.os.IBinder, android.content.pm.ParceledListSlice);
     public abstract void scheduleSleeping(android.os.IBinder, boolean);
-    public abstract void scheduleStopActivity(android.os.IBinder, boolean, int);
     public abstract void scheduleStopService(android.os.IBinder);
     public abstract void scheduleSuicide();
+    public abstract void scheduleTransaction(android.app.servertransaction.ClientTransaction);
     public abstract void scheduleTranslucentConversionComplete(android.os.IBinder, boolean);
     public abstract void scheduleTrimMemory(int);
     public abstract void scheduleUnbindService(android.os.IBinder, android.content.Intent);
-    public abstract void scheduleWindowVisibility(android.os.IBinder, boolean);
     public abstract void setCoreSettings(android.os.Bundle);
     public abstract void setHttpProxy(java.lang.String, java.lang.String, java.lang.String, android.net.Uri);
     public abstract void setNetworkBlockSeq(long);
@@ -3780,6 +3793,8 @@
 
     public void closeFd();
     public int describeContents();
+    public boolean equals(java.lang.Object);
+    public int hashCode();
     public void writeToParcel(android.os.Parcel, int);
 
 
@@ -3838,6 +3853,8 @@
     <init>(android.os.Parcel);
 
     public int describeContents();
+    public boolean equals(java.lang.Object);
+    public int hashCode();
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
 
@@ -4044,6 +4061,7 @@
     public boolean equals(java.lang.Object);
     public int getActivityType();
     public android.graphics.Rect getAppBounds();
+    public android.graphics.Rect getBounds();
     public int getWindowingMode();
     public boolean hasMovementAnimations();
     public boolean hasWindowDecorCaption();
@@ -4055,6 +4073,7 @@
     public void setActivityType(int);
     public void setAppBounds(android.graphics.Rect);
     public void setAppBounds(int, int, int, int);
+    public void setBounds(android.graphics.Rect);
     public void setTo(android.app.WindowConfiguration);
     public void setToDefaults();
     public void setWindowingMode(int);
@@ -4086,6 +4105,7 @@
     public static int WINDOWING_MODE_UNDEFINED;
     public static int WINDOW_CONFIG_ACTIVITY_TYPE;
     public static int WINDOW_CONFIG_APP_BOUNDS;
+    public static int WINDOW_CONFIG_BOUNDS;
     public static int WINDOW_CONFIG_WINDOWING_MODE;
 }
 
@@ -4224,6 +4244,46 @@
     public java.lang.CharSequence getTitle();
     public int getTop();
     public int getWidth();
+
+
+}
+
+-keep class android.app.servertransaction.ActivityLifecycleItem {
+    <init>();
+
+    public abstract int getTargetState();
+
+
+    public static int DESTROYED;
+    public static int PAUSED;
+    public static int RESUMED;
+    public static int STOPPED;
+    public static int UNDEFINED;
+}
+
+-keep class android.app.servertransaction.ClientTransaction {
+    <init>(android.app.IApplicationThread, android.os.IBinder);
+
+    public void addCallback(android.app.servertransaction.ClientTransactionItem);
+    public int describeContents();
+    public boolean equals(java.lang.Object);
+    public void execute(android.app.ClientTransactionHandler);
+    public int hashCode();
+    public void prepare(android.app.ClientTransactionHandler);
+    public void schedule();
+    public void setLifecycleStateRequest(android.app.servertransaction.ActivityLifecycleItem);
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+}
+
+-keep class android.app.servertransaction.ClientTransactionItem {
+    <init>();
+
+    public int describeContents();
+    public int getPostExecutionState();
+    public int getPreExecutionState();
 
 
 }
@@ -16848,6 +16908,28 @@
     public static android.view.DisplayAdjustments DEFAULT_DISPLAY_ADJUSTMENTS;
 }
 
+-keep class android.view.DisplayCutout {
+    <init>(android.graphics.Rect, android.graphics.Rect, java.util.List);
+
+    public android.view.DisplayCutout calculateRelativeTo(android.graphics.Rect);
+    public boolean equals(java.lang.Object);
+    public static android.view.DisplayCutout fromBoundingPolygon(java.util.List);
+    public void getBoundingPolygon(java.util.List);
+    public void getBoundingRect(android.graphics.Rect);
+    public int getSafeInsetBottom();
+    public int getSafeInsetLeft();
+    public int getSafeInsetRight();
+    public int getSafeInsetTop();
+    public void getSafeInsets(android.graphics.Rect);
+    public boolean hasCutout();
+    public int hashCode();
+    public android.view.DisplayCutout inset(int, int, int, int);
+    public java.lang.String toString();
+
+
+    public static android.view.DisplayCutout NO_CUTOUT;
+}
+
 -keep class android.view.DisplayInfo {
     <init>();
     <init>(android.view.DisplayInfo);
@@ -19166,6 +19248,7 @@
     public boolean isRootNamespace();
     public boolean isSaveEnabled();
     public boolean isSaveFromParentEnabled();
+    public boolean isScreenReaderFocusable();
     public boolean isScrollContainer();
     public boolean isScrollbarFadingEnabled();
     public boolean isSelected();
@@ -19443,6 +19526,7 @@
     public void setSaveFromParentEnabled(boolean);
     public void setScaleX(float);
     public void setScaleY(float);
+    public void setScreenReaderFocusable(boolean);
     public void setScrollBarDefaultDelayBeforeFade(int);
     public void setScrollBarFadeDuration(int);
     public void setScrollBarSize(int);
@@ -21034,15 +21118,17 @@
 }
 
 -keep class android.view.WindowInsets {
-    <init>(android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, boolean, boolean);
+    <init>(android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, boolean, boolean, android.view.DisplayCutout);
     <init>(android.view.WindowInsets);
     <init>(android.graphics.Rect);
 
+    public android.view.WindowInsets consumeCutout();
     public android.view.WindowInsets consumeStableInsets();
     public android.view.WindowInsets consumeSystemWindowInsets();
     public android.view.WindowInsets consumeSystemWindowInsets(boolean, boolean, boolean, boolean);
     public android.view.WindowInsets consumeWindowDecorInsets();
     public android.view.WindowInsets consumeWindowDecorInsets(boolean, boolean, boolean, boolean);
+    public android.view.DisplayCutout getDisplayCutout();
     public int getStableInsetBottom();
     public int getStableInsetLeft();
     public int getStableInsetRight();
@@ -21473,6 +21559,7 @@
     public boolean isLongClickable();
     public boolean isMultiLine();
     public boolean isPassword();
+    public boolean isScreenReaderFocusable();
     public boolean isScrollable();
     public boolean isSealed();
     public boolean isSelected();
@@ -21534,6 +21621,7 @@
     public void setParent(android.view.View, int);
     public void setPassword(boolean);
     public void setRangeInfo(android.view.accessibility.AccessibilityNodeInfo$RangeInfo);
+    public void setScreenReaderFocusable(boolean);
     public void setScrollable(boolean);
     public void setSealed(boolean);
     public void setSelected(boolean);
@@ -23029,6 +23117,8 @@
 -keep class com.android.internal.content.ReferrerIntent {
     <init>(android.content.Intent, java.lang.String);
 
+    public boolean equals(java.lang.Object);
+    public int hashCode();
     public void writeToParcel(android.os.Parcel, int);
 
 
