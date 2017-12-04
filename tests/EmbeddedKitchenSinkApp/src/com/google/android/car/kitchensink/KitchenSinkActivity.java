@@ -24,9 +24,6 @@ import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
 import android.support.car.CarConnectionCallback;
 import android.support.car.CarNotConnectedException;
-import android.support.car.drawer.CarDrawerActivity;
-import android.support.car.drawer.CarDrawerAdapter;
-import android.support.car.drawer.DrawerItemViewHolder;
 import android.support.car.hardware.CarSensorManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -54,6 +51,10 @@ import com.google.android.car.kitchensink.volume.VolumeTestFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.car.drawer.CarDrawerActivity;
+import androidx.car.drawer.CarDrawerAdapter;
+import androidx.car.drawer.DrawerItemViewHolder;
 
 public class KitchenSinkActivity extends CarDrawerActivity {
     private static final String TAG = "KitchenSinkActivity";
