@@ -25,6 +25,7 @@ endif
 # Include car support library, if not already included
 ifeq (,$(findstring android.support.car, $(LOCAL_STATIC_JAVA_LIBRARIES)))
 LOCAL_STATIC_JAVA_LIBRARIES += android.support.car
+LOCAL_STATIC_JAVA_LIBRARIES += legacy-android-test
 endif
 
 LOCAL_JAVA_LIBRARIES += android.car
