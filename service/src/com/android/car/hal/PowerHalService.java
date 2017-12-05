@@ -15,10 +15,13 @@
  */
 package com.android.car.hal;
 
+
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AP_POWER_BOOTUP_REASON;
 import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AP_POWER_STATE;
 import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.DISPLAY_BRIGHTNESS;
 
 import android.annotation.Nullable;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerBootupReason;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerSetState;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerState;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateConfigFlag;
@@ -39,12 +42,17 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class PowerHalService extends HalServiceBase {
-
+    // AP Power State constants set by HAL implementation
     public static final int STATE_OFF = VehicleApPowerState.OFF;
     public static final int STATE_DEEP_SLEEP = VehicleApPowerState.DEEP_SLEEP;
     public static final int STATE_ON_DISP_OFF = VehicleApPowerState.ON_DISP_OFF;
     public static final int STATE_ON_FULL = VehicleApPowerState.ON_FULL;
     public static final int STATE_SHUTDOWN_PREPARE = VehicleApPowerState.SHUTDOWN_PREPARE;
+
+    // Boot reason set by VMCU
+    public static final int BOOT_REASON_USER_POWER_ON = VehicleApPowerBootupReason.USER_POWER_ON;
+    public static final int BOOT_REASON_USER_UNLOCK = VehicleApPowerBootupReason.USER_UNLOCK;
+    public static final int BOOT_REASON_TIMER = VehicleApPowerBootupReason.TIMER;
 
     @VisibleForTesting
     public static final int SET_BOOT_COMPLETE = VehicleApPowerSetState.BOOT_COMPLETE;
@@ -59,15 +67,15 @@ public class PowerHalService extends HalServiceBase {
     @VisibleForTesting
     public static final int SET_DISPLAY_ON = VehicleApPowerSetState.DISPLAY_ON;
     @VisibleForTesting
-    public static final int SET_DISPLAY_OFF =
-            VehicleApPowerSetState.DISPLAY_OFF;
+    public static final int SET_DISPLAY_OFF = VehicleApPowerSetState.DISPLAY_OFF;
 
     @VisibleForTesting
-    public static final int FLAG_SHUTDOWN_PARAM_CAN_SLEEP =
-            VehicleApPowerStateShutdownParam.CAN_SLEEP;
+    public static final int SHUTDOWN_CAN_SLEEP = VehicleApPowerStateShutdownParam.CAN_SLEEP;
     @VisibleForTesting
-    public static final int FLAG_SHUTDOWN_IMMEDIATELY =
+    public static final int SHUTDOWN_IMMEDIATELY =
             VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY;
+    @VisibleForTesting
+    public static final int SHUTDOWN_ONLY = VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY;
 
     public interface PowerEventListener {
         /**
@@ -80,6 +88,11 @@ public class PowerHalService extends HalServiceBase {
          * @param brightness in percentile. 100% full.
          */
         void onDisplayBrightnessChange(int brightness);
+        /**
+         * Received boot reason.
+         * @param boot reason.
+         */
+        void onBootReasonReceived(int bootReason);
     }
 
     public static final class PowerState {
@@ -104,7 +117,7 @@ public class PowerHalService extends HalServiceBase {
             if (mState != STATE_SHUTDOWN_PREPARE) {
                 throw new IllegalStateException("wrong state");
             }
-            return (mParam & VehicleApPowerStateShutdownParam.CAN_SLEEP) != 0;
+            return (mParam ==VehicleApPowerStateShutdownParam.CAN_SLEEP);
         }
 
         /**
@@ -117,7 +130,7 @@ public class PowerHalService extends HalServiceBase {
             if (mState != STATE_SHUTDOWN_PREPARE) {
                 throw new IllegalStateException("wrong state");
             }
-            return (mParam & VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY) == 0;
+            return (mParam != VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY);
         }
 
         @Override
@@ -274,10 +287,11 @@ public class PowerHalService extends HalServiceBase {
             Collection<VehiclePropConfig> allProperties) {
         for (VehiclePropConfig config : allProperties) {
             switch (config.prop) {
-                case AP_POWER_STATE:
-                case DISPLAY_BRIGHTNESS:
-                    mProperties.put(config.prop, config);
-                    break;
+            case AP_POWER_BOOTUP_REASON:
+            case AP_POWER_STATE:
+            case DISPLAY_BRIGHTNESS:
+                mProperties.put(config.prop, config);
+                break;
             }
         }
         return new LinkedList<>(mProperties.values());
@@ -302,19 +316,30 @@ public class PowerHalService extends HalServiceBase {
     private void dispatchEvents(List<VehiclePropValue> values, PowerEventListener listener) {
         for (VehiclePropValue v : values) {
             switch (v.prop) {
-                case AP_POWER_STATE:
-                    int state = v.value.int32Values.get(VehicleApPowerStateIndex.STATE);
-                    int param = v.value.int32Values.get(VehicleApPowerStateIndex.ADDITIONAL);
-                    listener.onApPowerStateChange(new PowerState(state, param));
-                    break;
-                case DISPLAY_BRIGHTNESS:
-                    int maxBrightness;
-                    synchronized (this) {
-                        maxBrightness = mMaxDisplayBrightness;
-                    }
-                    listener.onDisplayBrightnessChange(
-                            (v.value.int32Values.get(0) * 100) / maxBrightness);
-                    break;
+            case AP_POWER_BOOTUP_REASON:
+                int reason = v.value.int32Values.get(0);
+                listener.onBootReasonReceived(reason);
+                break;
+            case AP_POWER_STATE:
+                int state = v.value.int32Values.get(VehicleApPowerStateIndex.STATE);
+                int param = v.value.int32Values.get(VehicleApPowerStateIndex.ADDITIONAL);
+                listener.onApPowerStateChange(new PowerState(state, param));
+                break;
+            case DISPLAY_BRIGHTNESS:
+                int maxBrightness;
+                synchronized (this) {
+                    maxBrightness = mMaxDisplayBrightness;
+                }
+                int brightness = v.value.int32Values.get(0) * 100 / maxBrightness;
+                if (brightness < 0) {
+                    Log.e(CarLog.TAG_POWER, "invalid brightness: " + brightness + ", set to 0");
+                    brightness = 0;
+                } else if(brightness > 100) {
+                    Log.e(CarLog.TAG_POWER, "invalid brightness: " + brightness + ", set to 100");
+                    brightness = 100;
+                }
+                listener.onDisplayBrightnessChange(brightness);
+                break;
             }
         }
     }
