@@ -16,9 +16,9 @@
 
 package com.android.car;
 
+import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.VehicleAudioContextFlag;
-import android.media.AudioAttributes;
 import android.media.IVolumeController;
 
 import com.android.car.hal.AudioHalService;
@@ -28,7 +28,7 @@ import java.io.PrintWriter;
 /**
  * Handles car volume controls.
  *
- * It delegates to a {@link com.android.car.CarVolumeService.CarVolumeController} to do proper
+ * It delegates to a {@link com.android.car.CarVolumeController} to do proper
  * volume controls based on different car properties.
  *
  * @hide
@@ -47,12 +47,6 @@ public class CarVolumeService {
 
     private IVolumeController mIVolumeController;
 
-    public static int androidStreamToCarUsage(int logicalAndroidStream) {
-        return CarAudioAttributesUtil.getCarUsageFromAudioAttributes(
-                new AudioAttributes.Builder()
-                        .setLegacyStreamType(logicalAndroidStream).build());
-    }
-
     public CarVolumeService(Context context, CarAudioService audioService, AudioHalService audioHal,
                             CarInputService inputService) {
         mContext = context;
@@ -62,7 +56,7 @@ public class CarVolumeService {
     }
 
     public synchronized void init() {
-        mCarVolumeController = CarVolumeControllerFactory.createCarVolumeController(mContext,
+        mCarVolumeController = new CarVolumeController(mContext,
                 mAudioService, mAudioHal, mInputService);
 
         mCarVolumeController.init();
@@ -76,8 +70,8 @@ public class CarVolumeService {
         mCarVolumeController.release();
     }
 
-    public void setStreamVolume(int streamType, int index, int flags) {
-        getController().setStreamVolume(streamType, index, flags);
+    public void setUsageVolume(@CarAudioManager.CarAudioUsage int carUsage, int index, int flags) {
+        getController().setUsageVolume(carUsage, index, flags);
     }
 
     public synchronized void setVolumeController(IVolumeController controller) {
@@ -85,16 +79,16 @@ public class CarVolumeService {
         getController().setVolumeController(controller);
     }
 
-    public int getStreamMaxVolume(int stream) {
-        return getController().getStreamMaxVolume(stream);
+    public int getUsageMaxVolume(@CarAudioManager.CarAudioUsage int carUsage) {
+        return getController().getUsageMaxVolume(carUsage);
     }
 
-    public int getStreamMinVolume(int stream) {
-        return getController().getStreamMinVolume(stream);
+    public int getUsageMinVolume(@CarAudioManager.CarAudioUsage int carUsage) {
+        return getController().getUsageMinVolume(carUsage);
     }
 
-    public int getStreamVolume(int stream) {
-        return getController().getStreamVolume(stream);
+    public int getUsageVolume(@CarAudioManager.CarAudioUsage int carUsage) {
+        return getController().getUsageVolume(carUsage);
     }
 
     public void dump(PrintWriter writer) {
@@ -103,20 +97,5 @@ public class CarVolumeService {
 
     private synchronized CarVolumeController getController() {
         return mCarVolumeController;
-    }
-
-    /**
-     * Abstraction layer for volume controls, so that we don't have if-else check for audio
-     * properties everywhere.
-     */
-    public static abstract class CarVolumeController implements CarInputService.KeyEventListener {
-        abstract void init();
-        abstract void release();
-        abstract public void setStreamVolume(int stream, int index, int flags);
-        abstract public void setVolumeController(IVolumeController controller);
-        abstract public int getStreamMaxVolume(int stream);
-        abstract public int getStreamMinVolume(int stream);
-        abstract public int getStreamVolume(int stream);
-        abstract public void dump(PrintWriter writer);
     }
 }

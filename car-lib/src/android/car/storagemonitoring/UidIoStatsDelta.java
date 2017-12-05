@@ -19,10 +19,16 @@ import android.annotation.SystemApi;
 import android.car.storagemonitoring.UidIoStats.Metrics;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.JsonWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Delta of uid_io stats taken at a sample point.
@@ -56,10 +62,30 @@ public class UidIoStatsDelta implements Parcelable {
         mUptimeTimestamp = in.readLong();
     }
 
+    public UidIoStatsDelta(JSONObject in) throws JSONException {
+        mUptimeTimestamp = in.getInt("uptime");
+        JSONArray statsArray = in.getJSONArray("stats");
+        mStats = new ArrayList<>();
+        for(int i = 0; i < statsArray.length(); ++i) {
+            mStats.add(new UidIoStats(statsArray.getJSONObject(i)));
+        }
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeTypedList(mStats);
         dest.writeLong(mUptimeTimestamp);
+    }
+
+    public void writeToJson(JsonWriter jsonWriter) throws IOException {
+        jsonWriter.beginObject();
+        jsonWriter.name("uptime").value(mUptimeTimestamp);
+        jsonWriter.name("stats").beginArray();
+        for (UidIoStats stat : mStats) {
+            stat.writeToJson(jsonWriter);
+        }
+        jsonWriter.endArray();
+        jsonWriter.endObject();
     }
 
     @Override

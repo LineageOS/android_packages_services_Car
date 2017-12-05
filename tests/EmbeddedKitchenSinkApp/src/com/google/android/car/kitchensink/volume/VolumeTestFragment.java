@@ -193,7 +193,7 @@ public class VolumeTestFragment extends Fragment {
         }
         int current = 0;
         try {
-            current = mCarAudioManager.getStreamVolume(logicalStream);
+            current = mCarAudioManager.getUsageVolume(logicalStream);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "car not connected", e);
         }
@@ -210,7 +210,7 @@ public class VolumeTestFragment extends Fragment {
             return;
         }
         try {
-            mCarAudioManager.setStreamVolume(logicalStream, volume,
+            mCarAudioManager.setUsageVolume(logicalStream, volume,
                     AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "car not connected", e);
@@ -242,8 +242,8 @@ public class VolumeTestFragment extends Fragment {
             int current = 0;
             int max = 0;
             try {
-                current = mCarAudioManager.getStreamVolume(stream);
-                max = mCarAudioManager.getStreamMaxVolume(stream);
+                current = mCarAudioManager.getUsageVolume(stream);
+                max = mCarAudioManager.getUsageMaxVolume(stream);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "car not connected", e);
             }
