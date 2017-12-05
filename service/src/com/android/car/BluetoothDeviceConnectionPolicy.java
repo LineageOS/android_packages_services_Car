@@ -100,11 +100,9 @@ public class BluetoothDeviceConnectionPolicy {
     // The main data structure that holds on to the {profile:list of known and connectible devices}
     private HashMap<Integer, BluetoothDevicesInfo> mProfileToConnectableDevicesMap;
 
-    // The foll. number of connections are what the Bluetooth services and stack supports
-    // and has been tested with.  MAP and A2DP are limited to one connection only.  HFP and PBAP,
-    // though having the capability to support more than 2, has been tested with 2 connections.
-    private static final int NUM_SUPPORTED_PHONE_CONNECTIONS = 2; // num of HFP and PBAP connections
-    private static final int NUM_SUPPORTED_MSG_CONNECTIONS = 1; // num of MAP connections
+    /// TODO(vnori): fix this. b/70029056
+    private static final int NUM_SUPPORTED_PHONE_CONNECTIONS = 4; // num of HFP and PBAP connections
+    private static final int NUM_SUPPORTED_MSG_CONNECTIONS = 4; // num of MAP connections
     private static final int NUM_SUPPORTED_MUSIC_CONNECTIONS = 1; // num of A2DP connections
     private Map<Integer, Integer> mNumSupportedActiveConnections;
 
