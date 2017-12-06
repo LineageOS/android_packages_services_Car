@@ -20,8 +20,9 @@ import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.annotation.FutureFeature;
+import android.car.cluster.CarInstrumentClusterManager;
 import android.car.content.pm.CarPackageManager;
-import android.car.hardware.CarDiagnosticManager;
+import android.car.diagnostic.CarDiagnosticManager;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.cabin.CarCabinManager;
@@ -29,6 +30,7 @@ import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.radio.CarRadioManager;
 import android.car.media.CarAudioManager;
 import android.car.navigation.CarNavigationStatusManager;
+import android.car.CarBluetoothManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.car.vms.VmsSubscriberManager;
 import android.content.ComponentName;
@@ -44,7 +46,6 @@ import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.car.internal.FeatureConfiguration;
-import com.android.car.internal.FeatureUtil;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
@@ -62,8 +63,9 @@ public final class Car {
      * Represent the version of Car API. This is only updated when there is API change.
      * 1 : N
      * 2 : O
+     * 3 : O-MR1
      */
-    public static final int VERSION = 2;
+    public static final int VERSION = 3;
 
     /** Service name for {@link CarSensorManager}, to be used in {@link #getCarManager(String)}. */
     public static final String SENSOR_SERVICE = "sensor";
@@ -79,11 +81,17 @@ public final class Car {
 
     /** Service name for {@link CarAudioManager} */
     public static final String AUDIO_SERVICE = "audio";
+
     /**
      * Service name for {@link CarNavigationStatusManager}
      * @hide
      */
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
+    /**
+     * Service name for {@link CarInstrumentClusterManager}
+     * @hide
+     */
+    public static final String CAR_INSTRUMENT_CLUSTER_SERVICE = "cluster_service";
 
     /**
      * @hide
@@ -94,6 +102,7 @@ public final class Car {
     /**
      * @hide
      */
+    @SystemApi
     public static final String DIAGNOSTIC_SERVICE = "diagnostic";
 
     /**
@@ -121,6 +130,11 @@ public final class Car {
     public static final String VENDOR_EXTENSION_SERVICE = "vendor_extension";
 
     /**
+     * @hide
+     */
+    public static final String BLUETOOTH_SERVICE = "car_bluetooth";
+
+    /**
      * @FutureFeature Cannot drop due to usage in non-flag protected place.
      * @hide
      */
@@ -143,6 +157,10 @@ public final class Car {
     /** Permission necessary to access car's speed. */
     public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
 
+    /** Permission necessary to access car's dynamics state. */
+    public static final String PERMISSION_VEHICLE_DYNAMICS_STATE =
+        "android.car.permission.VEHICLE_DYNAMICS_STATE";
+
     /**
      * Permission necessary to change car audio volume through {@link CarAudioManager}.
      */
@@ -162,6 +180,24 @@ public final class Car {
      */
     public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
             "android.car.permission.CAR_NAVIGATION_MANAGER";
+
+    /**
+     * Permission necessary to start activities in the instrument cluster through
+     * {@link CarInstrumentClusterManager}
+     *
+     * @hide
+     */
+    public static final String PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL =
+            "android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
+
+    /**
+     * Application must have this permission in order to be launched in the instrument cluster
+     * display.
+     *
+     * @hide
+     */
+    public static final String PERMISSION_CAR_DISPLAY_IN_CLUSTER =
+            "android.car.permission.CAR_DISPLAY_IN_CLUSTER";
 
     /**
      * Permission necessary to access car specific communication channel.
@@ -241,19 +277,20 @@ public final class Car {
     public static final String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
 
     /**
-     * Permissions necessary to read diagnostic information.
+     * Permissions necessary to read diagnostic information, including vendor-specific bits.
      *
      * @hide
      */
-    @FutureFeature
-    public static final String PERMISSION_CAR_DIAGNOSTIC_READ = "android.car.permission.DIAGNOSTIC_READ";
+    @SystemApi
+    public static final String PERMISSION_CAR_DIAGNOSTIC_READ_ALL =
+        "android.car.permission.DIAGNOSTIC_READ_ALL";
 
     /**
      * Permissions necessary to clear diagnostic information.
      *
      * @hide
      */
-    @FutureFeature
+    @SystemApi
     public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.DIAGNOSTIC_CLEAR";
 
     /** Type of car connection: platform runs directly in car. */
@@ -272,6 +309,22 @@ public final class Car {
      * @hide
      */
     public static final String CAR_NOT_CONNECTED_EXCEPTION_MSG = "CarNotConnected";
+
+    /**
+     * Activity Action: Provide media playing through a media template app.
+     * <p>Input: String extra mapped by {@link android.app.SearchManager#QUERY} is the query
+     * used to start the media. String extra mapped by {@link #CAR_EXTRA_MEDIA_PACKAGE} is the
+     * package name of the media app which user wants to play media on.
+     * <p>Output: nothing.
+     */
+    public static final String CAR_INTENT_ACTION_MEDIA_TEMPLATE =
+            "android.car.intent.action.MEDIA_TEMPLATE";
+
+    /**
+     * Used as a string extra field with {@link #CAR_INTENT_ACTION_MEDIA_TEMPLATE} to specify the
+     * media app that user wants to start the media on. Note: this is not the templated media app.
+     */
+    public static final String CAR_EXTRA_MEDIA_PACKAGE = "android.car.intent.extra.MEDIA_PACKAGE";
 
     /** @hide */
     public static final String CAR_SERVICE_INTERFACE_NAME = "android.car.ICar";
@@ -593,6 +646,9 @@ public final class Car {
             case VENDOR_EXTENSION_SERVICE:
                 manager = new CarVendorExtensionManager(binder, mEventHandler);
                 break;
+            case CAR_INSTRUMENT_CLUSTER_SERVICE:
+                manager = new CarInstrumentClusterManager(binder, mEventHandler);
+                break;
             case TEST_SERVICE:
                 /* CarTestManager exist in static library. So instead of constructing it here,
                  * only pass binder wrapper so that CarTestManager can be constructed outside. */
@@ -603,6 +659,8 @@ public final class Car {
                     manager = new VmsSubscriberManager(binder, mEventHandler);
                 }
                 break;
+            case BLUETOOTH_SERVICE:
+                manager = new CarBluetoothManager(binder, mContext);
         }
         return manager;
     }

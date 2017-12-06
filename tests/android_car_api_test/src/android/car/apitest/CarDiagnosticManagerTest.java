@@ -17,8 +17,8 @@
 package android.car.apitest;
 
 import android.car.Car;
-import android.car.hardware.CarDiagnosticEvent;
-import android.car.hardware.CarDiagnosticManager;
+import android.car.diagnostic.CarDiagnosticEvent;
+import android.car.diagnostic.CarDiagnosticManager;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;

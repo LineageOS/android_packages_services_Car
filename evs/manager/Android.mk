@@ -28,6 +28,7 @@ LOCAL_MODULE := android.automotive.evs.manager@1.0
 LOCAL_MODULE_TAGS := optional
 LOCAL_STRIP_MODULE := keep_symbols
 
+LOCAL_CFLAGS += -DLOG_TAG=\"EvsManager\"
 LOCAL_CFLAGS += -DGL_GLEXT_PROTOTYPES -DEGL_EGLEXT_PROTOTYPES
 LOCAL_CFLAGS += -Wall -Werror -Wunused -Wunreachable-code
 

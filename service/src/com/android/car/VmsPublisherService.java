@@ -109,14 +109,15 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
 
     // Implements IVmsPublisherService interface.
     @Override
-    public void publish(IBinder token, VmsLayer layer, byte[] payload) {
+    public void publish(IBinder token, VmsLayer layer, int publisherId, byte[] payload) {
         if (DBG) {
             Log.d(TAG, "Publishing for layer: " + layer);
         }
         ICarImpl.assertVmsPublisherPermission(mContext);
 
         // Send the message to application listeners.
-        Set<IVmsSubscriberClient> listeners = mHal.getListeners(layer);
+        Set<IVmsSubscriberClient> listeners =
+                mHal.getSubscribersForLayerFromPublisher(layer, publisherId);
 
         if (DBG) {
             Log.d(TAG, "Number of subscribed apps: " + listeners.size());
@@ -145,9 +146,9 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
     }
 
     @Override
-    public int getPublisherStaticId(byte[] publisherInfo) {
+    public int getPublisherId(byte[] publisherInfo) {
         ICarImpl.assertVmsPublisherPermission(mContext);
-        return mHal.getPublisherStaticId(publisherInfo);
+        return mHal.getPublisherId(publisherInfo);
     }
 
     // Implements VmsHalListener interface

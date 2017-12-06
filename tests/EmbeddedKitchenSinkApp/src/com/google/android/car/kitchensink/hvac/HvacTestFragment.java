@@ -167,12 +167,9 @@ public class HvacTestFragment extends Fragment {
                 }
             };
 
-    public HvacTestFragment() {
-        setHvacManager( ((KitchenSinkActivity)getActivity()).getHvacManager() );
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        mCarHvacManager = ((KitchenSinkActivity)getActivity()).getHvacManager();
         super.onCreate(savedInstanceState);
         try {
             mCarHvacManager.registerCallback(mHvacCallback);
@@ -260,11 +257,6 @@ public class HvacTestFragment extends Fragment {
         }
 
         return v;
-    }
-
-    public void setHvacManager(CarHvacManager hvacManager) {
-        Log.d(TAG, "setHvacManager()");
-        mCarHvacManager = hvacManager;
     }
 
     private void configureOutsideTemp(View v, CarPropertyConfig prop) {

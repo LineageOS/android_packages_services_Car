@@ -17,7 +17,7 @@
 # Base platform for car builds
 # car packages should be added to car.mk instead of here
 
-PRODUCT_PACKAGE_OVERLAYS := packages/services/Car/car_product/overlay
+PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay
 
 PRODUCT_PACKAGES += \
     ContactsProvider \
@@ -94,7 +94,9 @@ PRODUCT_PACKAGES += evs_app
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.type.automotive.xml:system/etc/permissions/android.hardware.type.automotive.xml
 
-PRODUCT_PACKAGES += android.hardware.automotive.vehicle@2.1-service
+# Default permission grant exceptions
+PRODUCT_COPY_FILES += \
+    packages/services/Car/car_product/build/default-car-permissions.xml:system/etc/default-permissions/default-car-permissions.xml
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_minimal.mk)
 

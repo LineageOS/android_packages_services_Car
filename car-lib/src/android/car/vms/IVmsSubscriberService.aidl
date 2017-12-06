@@ -24,40 +24,73 @@ import android.car.vms.VmsLayer;
  */
 interface IVmsSubscriberService {
     /**
-     * Subscribes the listener to receive messages from layer/version.
+     * Adds a subscriber to notifications only.
+     * Should be called when a subscriber registers its callback, and before any subscription to a
+     * layer is made.
      */
-    void addVmsSubscriberClientListener(
-            in IVmsSubscriberClient listener,
-            in VmsLayer layer) = 0;
+    void addVmsSubscriberToNotifications(
+            in IVmsSubscriberClient subscriber) = 0;
 
     /**
-     * Subscribes the listener to receive messages from all published layer/version. The
-     * service will not send any subscription notifications to publishers (i.e. this is a passive
-     * subscriber).
+     * Adds a subscriber to a VMS layer.
      */
-    void addVmsSubscriberClientPassiveListener(in IVmsSubscriberClient listener) = 1;
+    void addVmsSubscriber(
+            in IVmsSubscriberClient subscriber,
+            in VmsLayer layer) = 1;
 
     /**
-     * Tells the VmsSubscriberService a client unsubscribes to layer messages.
-     */
-    void removeVmsSubscriberClientListener(
-            in IVmsSubscriberClient listener,
-            in VmsLayer layer) = 2;
+     * Adds a subscriber to all actively broadcasted layers.
+     * Publishers will not be notified regarding this request so the state of the service will not
+     * change.
+     */
+    void addVmsSubscriberPassive(in IVmsSubscriberClient subscriber) = 2;
 
     /**
-     * Tells the VmsSubscriberService a passive client unsubscribes. This will not unsubscribe
-     * the listener from any specific layer it has subscribed to.
+     * Adds a subscriber to a VMS layer from a specific publisher.
+     */
+    void addVmsSubscriberToPublisher(
+            in IVmsSubscriberClient subscriber,
+            in VmsLayer layer,
+            int publisherId) = 3;
+
+    /**
+     * Removes a subscriber to notifications only.
+     * Should be called when a subscriber unregisters its callback, and after all subscriptions to
+     * layers are removed.
      */
-    void removeVmsSubscriberClientPassiveListener(
-            in IVmsSubscriberClient listener) = 3;
+    void removeVmsSubscriberToNotifications(
+            in IVmsSubscriberClient subscriber) = 4;
+
+    /**
+     * Removes a subscriber to a VMS layer.
+     */
+    void removeVmsSubscriber(
+            in IVmsSubscriberClient subscriber,
+            in VmsLayer layer) = 5;
+
+    /**
+     * Removes a subscriber to all actively broadcasted layers.
+     * Publishers will not be notified regarding this request so the state of the service will not
+     * change.
+     */
+    void removeVmsSubscriberPassive(
+            in IVmsSubscriberClient subscriber) = 6;
+
+    /**
+     * Removes a subscriber to a VMS layer from a specific publisher.
+     */
+    void removeVmsSubscriberToPublisher(
+            in IVmsSubscriberClient subscriber,
+            in VmsLayer layer,
+            int publisherId) = 7;
 
     /**
      * Returns a list of available layers from the closure of the publishers offerings.
      */
-    List<VmsLayer> getAvailableLayers() = 4;
+    List<VmsLayer> getAvailableLayers() = 8;
 
     /**
      *  Returns a the publisher information for a publisher ID.
      */
-    byte[] getPublisherInfo(in int publisherId) = 5;
+    byte[] getPublisherInfo(in int publisherId) = 9;
 }

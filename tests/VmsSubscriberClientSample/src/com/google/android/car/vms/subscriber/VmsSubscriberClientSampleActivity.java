@@ -25,6 +25,7 @@ import android.support.car.Car;
 import android.support.car.CarConnectionCallback;
 import android.util.Log;
 import android.widget.TextView;
+
 import java.util.List;
 
 /**
@@ -36,7 +37,7 @@ public class VmsSubscriberClientSampleActivity extends Activity {
     private static final String TAG = "VmsSampleActivity";
     // The layer id and version should match the ones defined in
     // com.google.android.car.vms.publisher.VmsPublisherClientSampleService
-    public static final VmsLayer TEST_LAYER = new VmsLayer(0, 0);
+    public static final VmsLayer TEST_LAYER = new VmsLayer(0, 0, 0);
 
     private Car mCarApi;
     private TextView mTextView;
@@ -89,7 +90,7 @@ public class VmsSubscriberClientSampleActivity extends Activity {
 
         private void configureSubscriptions(VmsSubscriberManager vmsSubscriberManager) {
             try {
-                vmsSubscriberManager.setListener(mListener);
+                vmsSubscriberManager.registerClientCallback(mClientCallback);
                 vmsSubscriberManager.subscribe(TEST_LAYER);
             } catch (android.car.CarNotConnectedException e) {
                 Log.e(TAG, "Car is not connected!", e);
@@ -97,21 +98,16 @@ public class VmsSubscriberClientSampleActivity extends Activity {
         }
     };
 
-    private final VmsSubscriberManager.VmsSubscriberClientListener mListener =
-            new VmsSubscriberManager.VmsSubscriberClientListener() {
+    private final VmsSubscriberManager.VmsSubscriberClientCallback mClientCallback =
+            new VmsSubscriberManager.VmsSubscriberClientCallback() {
                 @Override
                 public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
                     mTextView.setText(String.valueOf(payload[0]));
                 }
 
                 @Override
-                public void onLayersAvailabilityChange(List<VmsLayer> availableLayers) {
+                public void onLayersAvailabilityChanged(List<VmsLayer> availableLayers) {
                     mTextView.setText(String.valueOf(availableLayers));
-                }
-
-                @Override
-                public void onCarDisconnected() {
-
                 }
             };
 }

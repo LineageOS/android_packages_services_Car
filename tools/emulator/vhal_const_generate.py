@@ -104,9 +104,9 @@ vhal_21_doc = parser.parse(vhal_21_file)
 
 # Work around the fact that the parser doesn't (yet?) deal with inheritance.
 # WARNING:  This pattern is rather unsafe since we're not merging the lists as we should!
-vhal_21_doc['enums']['VehiclePropertyGroup'] = vhal_20_doc['enums']['VehiclePropertyGroup']
-vhal_21_doc['enums']['VehiclePropertyType'] = vhal_20_doc['enums']['VehiclePropertyType']
-vhal_21_doc['enums']['VehicleArea'] = vhal_20_doc['enums']['VehicleArea']
+# vhal_21_doc['enums']['VehiclePropertyGroup'] = vhal_20_doc['enums']['VehiclePropertyGroup']
+# vhal_21_doc['enums']['VehiclePropertyType'] = vhal_20_doc['enums']['VehiclePropertyType']
+# vhal_21_doc['enums']['VehicleArea'] = vhal_20_doc['enums']['VehicleArea']
 
 def generateHal20():
     print("********************************")
@@ -144,4 +144,4 @@ def generateHal21():
 
 
 generateHal20()
-generateHal21()
+# generateHal21()

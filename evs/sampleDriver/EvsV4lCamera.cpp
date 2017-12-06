@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "android.hardware.automotive.evs@1.0-display"
-
 #include "EvsV4lCamera.h"
 #include "EvsEnumerator.h"
 #include "bufferCopy.h"

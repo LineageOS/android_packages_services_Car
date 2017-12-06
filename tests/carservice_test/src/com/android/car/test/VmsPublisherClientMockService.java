@@ -23,12 +23,21 @@ import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsPublisherClientService;
 import android.car.vms.VmsSubscriptionState;
 import android.util.Log;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This service is launched during the tests in VmsPublisherSubscriberTest. It publishes a property
  * that is going to be verified in the test.
+ *
+ * The service makes offering for pre-defined layers which verifies availability notifications for
+ * subscribers without them actively being subscribed to a layer, and also echos all the
+ * subscription requests with an offering for that layer.
+ * For example, without any subscription request from any client, this service will make offering
+ * to layer X. If a client will subscribe later to layer Y, this service will respond with offering
+ * to both layers X and Y.
  *
  * Note that the subscriber can subscribe before the publisher finishes initialization. To cover
  * both potential scenarios, this service publishes the test message in onVmsSubscriptionChange
@@ -53,25 +62,33 @@ public class VmsPublisherClientMockService extends VmsPublisherClientService {
 
     private void initializeMockPublisher(VmsSubscriptionState subscriptionState) {
         Log.d(TAG, "Initializing Mock publisher");
-        getPublisherStaticId(VmsPublisherSubscriberTest.PAYLOAD);
+        int publisherId = getPublisherId(VmsPublisherSubscriberTest.PAYLOAD);
         publishIfNeeded(subscriptionState);
-        declareOffering(subscriptionState);
+        declareOffering(subscriptionState, publisherId);
     }
 
     private void publishIfNeeded(VmsSubscriptionState subscriptionState) {
         for (VmsLayer layer : subscriptionState.getLayers()) {
             if (layer.equals(VmsPublisherSubscriberTest.LAYER)) {
-                publish(VmsPublisherSubscriberTest.LAYER, VmsPublisherSubscriberTest.PAYLOAD);
+                publish(VmsPublisherSubscriberTest.LAYER,
+                        VmsPublisherSubscriberTest.EXPECTED_PUBLISHER_ID,
+                        VmsPublisherSubscriberTest.PAYLOAD);
             }
         }
     }
 
-    private void declareOffering(VmsSubscriptionState subscriptionState) {
-        List<VmsLayerDependency> dependencies = new ArrayList<>();
+    private void declareOffering(VmsSubscriptionState subscriptionState, int publisherId) {
+        Set<VmsLayerDependency> dependencies = new HashSet<>();
+
+        // Add all layers from the subscription state.
         for( VmsLayer layer : subscriptionState.getLayers()) {
             dependencies.add(new VmsLayerDependency(layer));
         }
-        VmsLayersOffering offering = new VmsLayersOffering(dependencies);
+
+        // Add default test layers.
+        dependencies.add(new VmsLayerDependency(VmsPublisherSubscriberTest.LAYER));
+
+        VmsLayersOffering offering = new VmsLayersOffering(dependencies, publisherId);
         setLayersOffering(offering);
     }
 }

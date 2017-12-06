@@ -16,7 +16,7 @@
 
 package com.android.car.obd2.test;
 
-import static android.hardware.automotive.vehicle.V2_1.VehicleProperty.OBD2_LIVE_FRAME;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.OBD2_LIVE_FRAME;
 import static com.android.car.obd2.test.Utils.concatIntArrays;
 import static com.android.car.obd2.test.Utils.stringsToIntArray;
 import static org.junit.Assert.*;

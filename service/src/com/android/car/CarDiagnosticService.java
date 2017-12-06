@@ -19,11 +19,10 @@ package com.android.car;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
-import android.car.annotation.FutureFeature;
-import android.car.hardware.CarDiagnosticEvent;
-import android.car.hardware.CarDiagnosticManager;
-import android.car.hardware.ICarDiagnostic;
-import android.car.hardware.ICarDiagnosticEventListener;
+import android.car.diagnostic.CarDiagnosticEvent;
+import android.car.diagnostic.CarDiagnosticManager;
+import android.car.diagnostic.ICarDiagnostic;
+import android.car.diagnostic.ICarDiagnosticEventListener;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -35,7 +34,6 @@ import com.android.car.Listeners.ClientWithRate;
 import com.android.car.hal.DiagnosticHalService;
 import com.android.internal.annotations.GuardedBy;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -46,7 +44,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
-@FutureFeature
 /** @hide */
 public class CarDiagnosticService extends ICarDiagnostic.Stub
         implements CarServiceBase, DiagnosticHalService.DiagnosticListener {
@@ -81,7 +78,8 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
     public CarDiagnosticService(Context context, DiagnosticHalService diagnosticHal) {
         mContext = context;
         mDiagnosticHal = diagnosticHal;
-        mDiagnosticReadPermission = new CarPermission(mContext, Car.PERMISSION_CAR_DIAGNOSTIC_READ);
+        mDiagnosticReadPermission = new CarPermission(mContext,
+                Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL);
         mDiagnosticClearPermission = new CarPermission(mContext,
                 Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR);
     }
@@ -395,18 +393,18 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
         return getDiagnosticHal().getDiagnosticCapabilities().isLiveFrameSupported();
     }
 
-    public boolean isFreezeFrameSupported() {
+    public boolean isFreezeFrameNotificationSupported() {
         return getDiagnosticHal().getDiagnosticCapabilities().isFreezeFrameSupported();
     }
 
-    public boolean isFreezeFrameTimestampSupported() {
+    public boolean isGetFreezeFrameSupported() {
         DiagnosticCapabilities diagnosticCapabilities =
                 getDiagnosticHal().getDiagnosticCapabilities();
         return diagnosticCapabilities.isFreezeFrameInfoSupported() &&
                 diagnosticCapabilities.isFreezeFrameSupported();
     }
 
-    public boolean isFreezeFrameClearSupported() {
+    public boolean isClearFreezeFramesSupported() {
         DiagnosticCapabilities diagnosticCapabilities =
             getDiagnosticHal().getDiagnosticCapabilities();
         return diagnosticCapabilities.isFreezeFrameClearSupported() &&
@@ -500,12 +498,9 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
 
         @Override
         public boolean equals(Object o) {
-            if (o instanceof CarDiagnosticService.DiagnosticClient
-                    && mListener.asBinder()
-                            == ((CarDiagnosticService.DiagnosticClient) o).mListener.asBinder()) {
-                return true;
-            }
-            return false;
+            return o instanceof DiagnosticClient
+                && mListener.asBinder()
+                == ((DiagnosticClient) o).mListener.asBinder();
         }
 
         boolean isHoldingListenerBinder(IBinder listenerBinder) {
@@ -540,16 +535,12 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
         }
 
         void dispatchDiagnosticUpdate(List<CarDiagnosticEvent> events) {
-            if (events.size() == 0) {
-                return;
-            }
-            if (mActive) {
+            if (events.size() != 0 && mActive) {
                 try {
                     mListener.onDiagnosticEvents(events);
                 } catch (RemoteException e) {
                     //ignore. crash will be handled by death handler
                 }
-            } else {
             }
         }
 
