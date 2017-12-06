@@ -43,6 +43,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         vehicle-hal-support-lib \
         car-systemtest \
         com.android.car.procfsinspector-client \
+        legacy-android-test \
 
 include $(BUILD_PACKAGE)
 
