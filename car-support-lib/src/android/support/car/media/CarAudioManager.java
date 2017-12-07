@@ -175,26 +175,4 @@ public abstract class CarAudioManager implements CarManagerBase {
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public abstract CarAudioRecord createCarAudioRecord(int bufferSize)
             throws SecurityException, CarNotConnectedException;
-
-    /**
-     * Check if media audio is muted or not (includes music and radio). Any application
-     * taking audio focus for media stream will move it out of a mute state.
-     *
-     * @return Returns {@code true} if media is muted.
-     */
-    public abstract boolean isMediaMuted() throws CarNotConnectedException;
-
-    /**
-     * Mute or unmute media stream including radio. Can involve audio focus change to stop
-     * the the app currently holding audio focus. If requester is currently holding audio focus,
-     * it gets LOSS_TRANSIENT focus loss. Requires
-     * {@link android.support.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME}
-     * permission.
-     *
-     * @param mute Returns {@code true} if media stream should be muted.
-     * @return Mute state of system after the request. A mute request can fail if a higher priority
-     * audio stream (such as a voice call) is already being played.
-     * @hide
-     */
-    public abstract boolean setMediaMute(boolean mute) throws CarNotConnectedException;
 }

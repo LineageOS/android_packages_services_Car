@@ -47,8 +47,7 @@ import java.util.Map;
  */
 public class CarVolumeController implements
         CarInputService.KeyEventListener,
-        AudioHalService.AudioHalVolumeListener,
-        CarAudioService.AudioContextChangeListener {
+        AudioHalService.AudioHalVolumeListener {
     // STOPSHIP if true.
     private static final boolean DBG = false;
 
@@ -218,7 +217,6 @@ public class CarVolumeController implements
         }
         mInputService.setVolumeKeyListener(this);
         mHal.setVolumeListener(this);
-        mAudioService.setAudioContextChangeListener(Looper.getMainLooper(), this);
     }
 
     void release() {
@@ -475,37 +473,6 @@ public class CarVolumeController implements
             }
         }
         return true;
-    }
-
-    @Override
-    public void onContextChange(int primaryFocusContext, int primaryFocusPhysicalStream) {
-        synchronized (this) {
-            if(DBG) {
-                Log.d(TAG, "Audio context changed from " + mCurrentContext + " to: "
-                        + primaryFocusContext + " physical: " + primaryFocusPhysicalStream);
-            }
-            // if primaryFocusContext is 0, it means nothing is playing or holding focus,
-            // we will keep the last focus context and if the user changes the volume
-            // it will go to the last audio context.
-            if (primaryFocusContext == mCurrentContext || primaryFocusContext == 0) {
-                return;
-            }
-            int oldContext = mCurrentContext;
-            mCurrentContext = primaryFocusContext;
-            int currentVolume = mCurrentCarContextVolume.get(primaryFocusContext);
-
-            int carStreamNumber = (mSupportedAudioContext == 0) ? primaryFocusPhysicalStream :
-                    primaryFocusContext;
-            if (DBG) {
-                Log.d(TAG, "Change volume from: "
-                        + mCurrentCarContextVolume.get(oldContext)
-                        + " to: "+ currentVolume);
-            }
-            mHandler.sendMessage(mHandler.obtainMessage(MSG_UPDATE_HAL, carStreamNumber,
-                    currentVolume));
-            mHandler.sendMessage(mHandler.obtainMessage(MSG_SUPPRESS_UI_FOR_VOLUME,
-                    mCurrentContext, currentVolume));
-        }
     }
 
     public void dump(PrintWriter writer) {

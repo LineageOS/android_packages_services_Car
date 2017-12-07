@@ -75,7 +75,6 @@ public class AudioTestFragment extends Fragment {
     private Button mMicrophoneOff;
     private ToggleButton mEnableMocking;
     private ToggleButton mRejectFocus;
-    private ToggleButton mMuteMedia;
 
     private AudioPlayer mMusicPlayer;
     private AudioPlayer mMusicPlayerShort;
@@ -437,21 +436,6 @@ public class AudioTestFragment extends Fragment {
                     mRejectFocus.setActivated(false);
                     mCarEmulator.stop();
                     mCarEmulator = null;
-                }
-            }
-        });
-        mMuteMedia = (ToggleButton) view.findViewById(R.id.button_mute_media);
-        mMuteMedia.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                try {
-                    if (isChecked) {
-                        mCarAudioManager.setMediaMute(true);
-                    } else {
-                        mCarAudioManager.setMediaMute(false);
-                    }
-                } catch (CarNotConnectedException e) {
-                    //ignore
                 }
             }
         });

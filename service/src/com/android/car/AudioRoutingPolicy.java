@@ -60,6 +60,8 @@ public class AudioRoutingPolicy {
         switch (str) {
             case "call":
                 return CarAudioManager.CAR_AUDIO_USAGE_VOICE_CALL;
+            case "ringtone":
+                return CarAudioManager.CAR_AUDIO_USAGE_RINGTONE;
             case "media":
                 return CarAudioManager.CAR_AUDIO_USAGE_MUSIC;
             case "radio":
