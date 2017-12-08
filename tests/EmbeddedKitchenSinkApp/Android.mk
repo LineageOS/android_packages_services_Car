@@ -46,8 +46,7 @@ LOCAL_STATIC_ANDROID_LIBRARIES += \
 LOCAL_STATIC_JAVA_LIBRARIES += \
     android.hidl.base-V1.0-java \
     android.hardware.automotive.vehicle-V2.0-java \
-    vehicle-hal-support-lib \
-    legacy-android-test
+    vehicle-hal-support-lib
 
 LOCAL_JAVA_LIBRARIES += android.car
 

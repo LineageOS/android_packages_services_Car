@@ -43,7 +43,6 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         vehicle-hal-support-lib \
         android-support-v4 \
         android-support-v7-recyclerview \
-        legacy-android-test \
 
 LOCAL_JAVA_LIBRARIES += android.car
 
