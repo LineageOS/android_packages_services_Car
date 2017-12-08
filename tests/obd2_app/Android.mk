@@ -34,7 +34,6 @@ LOCAL_DEX_PREOPT := false
 
 LOCAL_STATIC_JAVA_LIBRARIES += \
         com.android.car.obd2 \
-        legacy-android-test \
 
 LOCAL_JAVA_VERSION := 1.8
 

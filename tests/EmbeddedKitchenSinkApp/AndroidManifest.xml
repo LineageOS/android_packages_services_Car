@@ -44,6 +44,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <application android:label="@string/app_title"
         android:icon="@drawable/ic_launcher">
+        <uses-library android:name="android.test.runner" />
+
 
         <!-- This is for embedded mode. -->
         <activity android:name=".KitchenSinkActivity"

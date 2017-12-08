@@ -183,7 +183,9 @@
                  android:allowBackup="false"
                  android:persistent="true">
 
-        <service android:name=".CarService"
+       
+        <uses-library android:name="android.test.runner" />
+ <service android:name=".CarService"
                 android:singleUser="true">
             <intent-filter>
                 <action android:name="android.car.ICar" />
