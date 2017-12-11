@@ -36,14 +36,14 @@
         <Button
             android:id="@+id/button3"
             style="@style/CarAction1"
-            android:background="@null"
+            android:background="@drawable/dialog_button_background"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/car_card_action_bar_height" />
 
         <Button
             android:id="@+id/button2"
             style="@style/CarAction1"
-            android:background="@null"
+            android:background="@drawable/dialog_button_background"
             android:layout_marginEnd="@dimen/car_padding_4"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/car_card_action_bar_height" />
@@ -51,7 +51,7 @@
         <Button
             android:id="@+id/button1"
             style="@style/CarAction1"
-            android:background="@null"
+            android:background="@drawable/dialog_button_background"
             android:layout_marginStart="@dimen/car_padding_4"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/car_card_action_bar_height" />
