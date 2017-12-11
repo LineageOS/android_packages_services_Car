@@ -70,6 +70,7 @@ public class ICarImpl extends ICar.Stub {
     private final AppFocusService mAppFocusService;
     private final GarageModeService mGarageModeService;
     private final InstrumentClusterService mInstrumentClusterService;
+    private final CarLocationService mCarLocationService;
     private final SystemStateControllerService mSystemStateControllerService;
     private final CarVendorExtensionService mCarVendorExtensionService;
     private final CarBluetoothService mCarBluetoothService;
@@ -86,7 +87,7 @@ public class ICarImpl extends ICar.Stub {
     private static final String TAG = "ICarImpl";
     private static final String VHAL_TIMING_TAG = "VehicleHalTiming";
     private static final TimingsTraceLog mBootTiming = new TimingsTraceLog(VHAL_TIMING_TAG,
-        Trace.TRACE_TAG_HAL);
+            Trace.TRACE_TAG_HAL);
 
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
@@ -108,6 +109,8 @@ public class ICarImpl extends ICar.Stub {
         mCarInputService = new CarInputService(serviceContext, mHal.getInputHal());
         mCarProjectionService = new CarProjectionService(serviceContext, mCarInputService);
         mGarageModeService = new GarageModeService(mContext, mCarPowerManagementService);
+        mCarLocationService = new CarLocationService(mContext, mCarPowerManagementService,
+                mCarSensorService);
         mCarInfoService = new CarInfoService(serviceContext, mHal.getInfoHal());
         mAppFocusService = new AppFocusService(serviceContext, mSystemActivityMonitoringService);
         mCarAudioService = new CarAudioService(serviceContext);
@@ -137,6 +140,7 @@ public class ICarImpl extends ICar.Stub {
                 mCarSensorService,
                 mCarPackageManagerService,
                 mCarInputService,
+                mCarLocationService,
                 mGarageModeService,
                 mCarInfoService,
                 mAppFocusService,
@@ -352,7 +356,7 @@ public class ICarImpl extends ICar.Stub {
         }
         writer.println("*Dump Vehicle HAL*");
         try {
-           //TODO dump all feature flags by creating a dumpable interface
+            // TODO dump all feature flags by creating a dumpable interface
             mHal.dump(writer);
         } catch (Exception e) {
             writer.println("Failed dumping: " + mHal.getClass().getName());
