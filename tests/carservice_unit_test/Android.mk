@@ -33,9 +33,8 @@ LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_INSTRUMENTATION_FOR := CarService
 
-LOCAL_JAVA_LIBRARIES := android.car android.test.runner
+LOCAL_JAVA_LIBRARIES := android.car android.test.runner android.test.base
 LOCAL_STATIC_JAVA_LIBRARIES := junit \
-                               legacy-android-test \
                                android-support-test \
                                mockito-target-minus-junit4 \
                                com.android.car.test.utils
