@@ -19,7 +19,6 @@ import android.Manifest;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
-import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.support.annotation.IntDef;
 import android.support.annotation.RequiresPermission;
 import android.support.car.CarManagerBase;
@@ -94,46 +93,6 @@ public abstract class CarAudioManager implements CarManagerBase {
      */
     public abstract AudioAttributes getAudioAttributesForCarUsage(@CarAudioUsage int carUsage)
             throws CarNotConnectedException;
-
-    /**
-     * Request audio focus. Send a request to obtain audio focus.
-     *
-     * @param listener The listener to be notified of audio focus changes.
-     * @param requestAttributes Obtained from {@link #getAudioAttributesForCarUsage(int)}.
-     * @param durationHint Use {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT} to indicate this
-     * focus request is temporary and focus will be abandoned shortly. Examples of transient
-     * requests include playback of driving directions and notification sounds.
-     * </p>
-     * Use {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK} to indicate it's OK for the
-     * previous focus owner to keep playing if it ducks its audio output.
-     * </p>
-     * Use {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE} for a temporary request that
-     * benefits from the system not playing disruptive sounds such as notifications, for use cases
-     * such as voice memo recording, or speech recognition.
-     * </p>
-     * Use {@link AudioManager#AUDIOFOCUS_GAIN} for a focus request of unknown duration, such as
-     * the playback of a song or a video.
-     * @return {@link AudioManager#AUDIOFOCUS_REQUEST_FAILED}, or
-     * {@link AudioManager#AUDIOFOCUS_REQUEST_GRANTED}.
-     * @throws IllegalArgumentException
-     */
-    public abstract int requestAudioFocus(OnAudioFocusChangeListener listener,
-            AudioAttributes requestAttributes,
-            int durationHint) throws CarNotConnectedException, IllegalArgumentException;
-
-    /**
-     * @hide
-     */
-    public abstract int requestAudioFocus(OnAudioFocusChangeListener listener,
-            AudioAttributes requestAttributes,
-            int durationHint,
-            int flags) throws CarNotConnectedException, IllegalArgumentException;
-    /**
-     * Abandon audio focus. Causes the previous focus owner (if any) to receive focus.
-     * @param listener The listener with which focus was requested.
-     * @param aa
-     */
-    public abstract void abandonAudioFocus(OnAudioFocusChangeListener listener, AudioAttributes aa);
 
     /**
      * Get {@link AudioFormat} for audio record.

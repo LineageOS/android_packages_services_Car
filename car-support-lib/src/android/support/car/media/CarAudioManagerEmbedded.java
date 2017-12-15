@@ -55,35 +55,6 @@ public class CarAudioManagerEmbedded extends CarAudioManager {
     }
 
     @Override
-    public int requestAudioFocus(OnAudioFocusChangeListener listener,
-            AudioAttributes requestAttributes,
-            int durationHint,
-            int flags) throws CarNotConnectedException, IllegalArgumentException {
-        try {
-            return mManager.requestAudioFocus(listener, requestAttributes, durationHint, flags);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    @Override
-    public int requestAudioFocus(OnAudioFocusChangeListener listener,
-            AudioAttributes requestAttributes,
-            int durationHint) throws CarNotConnectedException, IllegalArgumentException {
-        try {
-            return mManager.requestAudioFocus(listener, requestAttributes, durationHint,
-                    0 /*flags*/);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    @Override
-    public void abandonAudioFocus(OnAudioFocusChangeListener listener, AudioAttributes aa) {
-        mManager.abandonAudioFocus(listener, aa);
-    }
-
-    @Override
     public boolean isAudioRecordSupported() throws CarNotConnectedException {
         //always true in embedded
         return true;

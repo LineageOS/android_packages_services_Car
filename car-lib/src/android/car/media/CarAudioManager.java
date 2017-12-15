@@ -22,8 +22,6 @@ import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.media.AudioAttributes;
-import android.media.AudioManager;
-import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.IVolumeController;
 import android.os.Handler;
 import android.os.IBinder;
@@ -125,7 +123,6 @@ public final class CarAudioManager implements CarManagerBase {
     public static final String CAR_EXTERNAL_SOURCE_TYPE_EXT_SAFETY_ALERT = "EXT_SAFETY_ALERT";
 
     private final ICarAudio mService;
-    private final AudioManager mAudioManager;
 
     /**
      * Get {@link AudioAttributes} relevant for the given usage in car.
@@ -142,103 +139,9 @@ public final class CarAudioManager implements CarManagerBase {
     }
 
     /**
-     * Get AudioAttributes for radio. This is necessary when there are multiple types of radio
-     * in system.
-     *
-     * @param radioType String specifying the desired radio type. Should use only what is listed in
-     *        {@link #getSupportedRadioTypes()}.
-     * @return
-     * @throws IllegalArgumentException If not supported type is passed.
-     *
-     * @hide
-     */
-    public AudioAttributes getAudioAttributesForRadio(String radioType)
-            throws CarNotConnectedException, IllegalArgumentException {
-        try {
-            return mService.getAudioAttributesForRadio(radioType);
-        } catch (RemoteException e) {
-            throw new CarNotConnectedException();
-        }
-    }
-
-    /**
-     * Get AudioAttributes for external audio source.
-     *
-     * @param externalSourceType String specifying the desired source type. Should use only what is
-     *        listed in {@link #getSupportedExternalSourceTypes()}.
-     * @return
-     * @throws IllegalArgumentException If not supported type is passed.
-     *
-     * @hide
-     */
-    public AudioAttributes getAudioAttributesForExternalSource(String externalSourceType)
-            throws CarNotConnectedException, IllegalArgumentException {
-        try {
-            return mService.getAudioAttributesForExternalSource(externalSourceType);
-        } catch (RemoteException e) {
-            throw new CarNotConnectedException();
-        }
-    }
-
-    /**
-     * List all supported external audio sources.
-     *
-     * @return
-     *
-     * @hide
-     */
-    public String[] getSupportedExternalSourceTypes() throws CarNotConnectedException {
-        try {
-            return mService.getSupportedExternalSourceTypes();
-        } catch (RemoteException e) {
-            throw new CarNotConnectedException();
-        }
-    }
-
-    /**
-     * List all supported radio sources.
-     *
-     * @return
-     *
-     * @hide
-     */
-    public String[] getSupportedRadioTypes() throws CarNotConnectedException {
-        try {
-            return mService.getSupportedRadioTypes();
-        } catch (RemoteException e) {
-            throw new CarNotConnectedException();
-        }
-    }
-
-    /**
-     * Request audio focus.
-     * Send a request to obtain the audio focus.
-     * @param l
-     * @param requestAttributes
-     * @param durationHint
-     * @param flags
-     */
-    public int requestAudioFocus(OnAudioFocusChangeListener l,
-                                 AudioAttributes requestAttributes,
-                                 int durationHint,
-                                 int flags)
-                                         throws CarNotConnectedException, IllegalArgumentException {
-        return mAudioManager.requestAudioFocus(l, requestAttributes, durationHint, flags);
-    }
-
-    /**
-     * Abandon audio focus. Causes the previous focus owner, if any, to receive focus.
-     * @param l
-     * @param aa
-     */
-    public void abandonAudioFocus(OnAudioFocusChangeListener l, AudioAttributes aa) {
-        mAudioManager.abandonAudioFocus(l, aa);
-    }
-
-    /**
      * Sets the volume index for a particular usage.
      *
-     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
      *
      * @param carUsage The car audio usage whose volume index should be set.
      * @param index The volume index to set. See
@@ -260,7 +163,7 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Registers a global volume controller interface.
      *
-     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
      *
      * @hide
      */
@@ -278,7 +181,7 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Returns the maximum volume index for a particular usage.
      *
-     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
      *
      * @param carUsage The car audio usage whose maximum volume index is returned.
      * @return The maximum valid volume index for the usage.
@@ -296,7 +199,7 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Returns the minimum volume index for a particular usage.
      *
-     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
      *
      * @param carUsage The car audio usage whose maximum volume index is returned.
      * @return The maximum valid volume index for the usage.
@@ -314,7 +217,7 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Returns the current volume index for a particular usage.
      *
-     * Requires {@link android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
      *
      * @param carUsage The car audio usage whose volume index is returned.
      * @return The current volume index for the usage.
@@ -340,6 +243,5 @@ public final class CarAudioManager implements CarManagerBase {
     /** @hide */
     public CarAudioManager(IBinder service, Context context, Handler handler) {
         mService = ICarAudio.Stub.asInterface(service);
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 }

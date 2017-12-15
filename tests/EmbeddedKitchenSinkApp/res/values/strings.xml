@@ -178,10 +178,6 @@
     <string name="radio_close">Close</string>
     <string name="radio_muted">Muted</string>
     <string name="radio_unmuted">Unmuted</string>
-    <string name="radio_get_radio_focus">Get Radio focus</string>
-    <string name="radio_release_radio_focus">Release Radio focus</string>
-    <string name="radio_get_focus">Get Audio focus</string>
-    <string name="radio_release_focus">Release Audio focus</string>
     <string name="radio_next">Next</string>
     <string name="radio_prev">Previous</string>
     <string name="radio_scan_cancel">Cancel scan</string>
