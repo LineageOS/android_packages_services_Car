@@ -42,10 +42,15 @@
         <!--  call and media to physical stream 0 while all others go to physical stream 1 -->
         <item>"0:call,media,radio,unknown#1:nav_guidance,voice_command,alarm,notification,system,safety"</item>
     </string-array>
+    <!-- Timeout value in Ms for audio focus wait. Audio focus request not responsed within
+         this value will be treated as timeout and audio focus will be reset to LOSS state. -->
+    <integer name="audioFocusWaitTimeoutMs">1000</integer>
     <!--  Configuration to enable usage of dynamic audio routing. If this is set to false,
           dynamic audio routing is disabled and audio works in legacy mode. It may be useful
           during initial development where audio hal does not support bus based addressing yet. -->
     <bool name="audioUseDynamicRouting">true</bool>
+    <!-- Number of audio focus timeouts that indicate vehicle CAN bus failure. -->
+    <integer name="consecutiveHalFailures">3</integer>
     <!-- Whether to block other audio while media audio is muted with display off. When set to true,
          other sounds cannot be played either while display is off. If false, only media is muted
          and other sounds can be still played. -->
