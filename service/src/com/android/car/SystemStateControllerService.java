@@ -17,6 +17,7 @@ package com.android.car;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 
 import com.android.car.CarPowerManagementService.PowerEventProcessingHandler;
 import com.android.car.CarPowerManagementService.PowerServiceEventListener;
@@ -49,7 +50,14 @@ public class SystemStateControllerService implements CarServiceBase,
 
     @Override
     public void onPowerOn(boolean displayOn) {
-        // TODO may consider mute / unmute the system based on displayOn
+        if (displayOn) {
+            Log.i(CarLog.TAG_SYS, "Media unmute");
+            mCarAudioService.unMuteMedia();
+        } else {
+            Log.i(CarLog.TAG_SYS, "Media mute");
+            mCarAudioService.muteMediaWithLock(mLockWhenMuting);
+            //TODO store last context and resume or silence radio on display on. bug: 32096079
+        }
     }
 
     @Override

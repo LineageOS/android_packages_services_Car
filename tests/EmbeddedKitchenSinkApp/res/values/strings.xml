@@ -118,6 +118,8 @@
     <string name="mock_audio_off">Audio Mocking Off</string>
     <string name="reject_audio_focus_on">Reject Audio Focus</string>
     <string name="reject_audio_focus_off">Allow Audio Focus</string>
+    <string name="unmute_media">Unmute Media</string>
+    <string name="mute_media">Mute Media</string>
 
     <!-- job scheduler -->
     <string name="schedule_button">Schedule a  New Job</string>
