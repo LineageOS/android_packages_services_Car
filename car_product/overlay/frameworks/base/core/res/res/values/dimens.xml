@@ -17,7 +17,8 @@
 */
 -->
 <resources>
-    <dimen name="status_bar_height">56dp</dimen>
+    <dimen name="status_bar_height">36dp</dimen>
+
     <!-- Both of these are used in separate positions so make sure that they remain the same. -->
     <dimen name="navigation_bar_height_car_mode">112dp</dimen>
     <dimen name="navigation_bar_height_landscape">112dp</dimen>

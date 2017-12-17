@@ -186,7 +186,6 @@ package android.support.car.media {
     method public abstract int getAudioRecordMaxBufferSize() throws android.support.car.CarNotConnectedException;
     method public abstract int getAudioRecordMinBufferSize() throws android.support.car.CarNotConnectedException;
     method public abstract boolean isAudioRecordSupported() throws android.support.car.CarNotConnectedException;
-    method public abstract boolean isMediaMuted() throws android.support.car.CarNotConnectedException;
     method public abstract int requestAudioFocus(android.media.AudioManager.OnAudioFocusChangeListener, android.media.AudioAttributes, int) throws android.support.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     field public static final int CAR_AUDIO_USAGE_ALARM = 6; // 0x6
     field public static final int CAR_AUDIO_USAGE_DEFAULT = 0; // 0x0

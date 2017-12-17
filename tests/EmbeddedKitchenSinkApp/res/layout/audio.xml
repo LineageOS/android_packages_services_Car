@@ -217,11 +217,5 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/radio_end" />
-        <ToggleButton
-            android:id="@+id/button_mute_media"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textOn="@string/unmute_media"
-            android:textOff="@string/mute_media" />
     </LinearLayout>
 </LinearLayout>
