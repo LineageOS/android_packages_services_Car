@@ -16,9 +16,9 @@
 
 package android.car.storagemonitoring;
 
-import android.car.storagemonitoring.IUidIoStatsListener;
-import android.car.storagemonitoring.UidIoStats;
-import android.car.storagemonitoring.UidIoStatsDelta;
+import android.car.storagemonitoring.IIoStatsListener;
+import android.car.storagemonitoring.IoStatsEntry;
+import android.car.storagemonitoring.IoStats;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 
@@ -42,26 +42,25 @@ interface ICarStorageMonitoring {
   /**
    * Returns I/O stats as collected at service boot time.
    */
-  List<UidIoStats> getBootIoStats() = 4;
+  List<IoStatsEntry> getBootIoStats() = 4;
 
   /**
    * Returns total I/O stats as collected from kernel start until the last snapshot.
    */
-  List<UidIoStats> getAggregateIoStats() = 5;
+  List<IoStatsEntry> getAggregateIoStats() = 5;
 
   /**
    * Return the I/O stats deltas currently known to the service.
    */
-  List<UidIoStatsDelta> getIoStatsDeltas() = 6;
+  List<IoStats> getIoStatsDeltas() = 6;
 
   /**
    * Register a new listener to receive new I/O activity deltas as they are generated.
    */
-  void registerListener(IUidIoStatsListener listener) = 7;
+  void registerListener(IIoStatsListener listener) = 7;
 
   /**
    * Remove a listener registration, terminating delivery of I/O activity deltas to it.
    */
-  void unregisterListener(IUidIoStatsListener listener) = 8;
-
+  void unregisterListener(IIoStatsListener listener) = 8;
 }

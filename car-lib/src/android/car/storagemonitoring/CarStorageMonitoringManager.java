@@ -44,13 +44,13 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
 
     private final ICarStorageMonitoring mService;
     private ListenerToService mListenerToService;
-    private final SingleMessageHandler<UidIoStatsDelta> mMessageHandler;
-    private final Set<UidIoStatsListener> mListeners = new HashSet<>();
+    private final SingleMessageHandler<IoStats> mMessageHandler;
+    private final Set<IoStatsListener> mListeners = new HashSet<>();
 
-    public interface UidIoStatsListener {
-        void onSnapshot(UidIoStatsDelta snapshot);
+    public interface IoStatsListener {
+        void onSnapshot(IoStats snapshot);
     }
-    private static final class ListenerToService extends IUidIoStatsListener.Stub {
+    private static final class ListenerToService extends IIoStatsListener.Stub {
         private final WeakReference<CarStorageMonitoringManager> mManager;
 
         ListenerToService(CarStorageMonitoringManager manager) {
@@ -58,7 +58,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
         }
 
         @Override
-        public void onSnapshot(UidIoStatsDelta snapshot) {
+        public void onSnapshot(IoStats snapshot) {
             CarStorageMonitoringManager manager = mManager.get();
             if (manager != null) {
                 manager.mMessageHandler.sendEvents(Collections.singletonList(snapshot));
@@ -78,10 +78,10 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      */
     public CarStorageMonitoringManager(IBinder service, Handler handler) {
         mService = ICarStorageMonitoring.Stub.asInterface(service);
-        mMessageHandler = new SingleMessageHandler<UidIoStatsDelta>(handler, MSG_IO_STATS_EVENT) {
+        mMessageHandler = new SingleMessageHandler<IoStats>(handler, MSG_IO_STATS_EVENT) {
             @Override
-            protected void handleEvent(UidIoStatsDelta event) {
-                for (UidIoStatsListener listener : mListeners) {
+            protected void handleEvent(IoStats event) {
+                for (IoStatsListener listener : mListeners) {
                     listener.onSnapshot(event);
                 }
             }
@@ -171,7 +171,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * If the information is not available, an empty list will be returned.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public List<UidIoStats> getBootIoStats() throws CarNotConnectedException {
+    public List<IoStatsEntry> getBootIoStats() throws CarNotConnectedException {
         try {
             return mService.getBootIoStats();
         } catch (IllegalStateException e) {
@@ -191,7 +191,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * If the information is not available, an empty list will be returned.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public List<UidIoStats> getAggregateIoStats() throws CarNotConnectedException {
+    public List<IoStatsEntry> getAggregateIoStats() throws CarNotConnectedException {
         try {
             return mService.getAggregateIoStats();
         } catch (IllegalStateException e) {
@@ -214,7 +214,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * If the information is not available, an empty list will be returned.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public List<UidIoStatsDelta> getIoStatsDeltas() throws CarNotConnectedException {
+    public List<IoStats> getIoStatsDeltas() throws CarNotConnectedException {
         try {
             return mService.getIoStatsDeltas();
         } catch (IllegalStateException e) {
@@ -234,7 +234,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * The timing of availability of the deltas is configurable by the OEM.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public void registerListener(UidIoStatsListener listener) throws CarNotConnectedException {
+    public void registerListener(IoStatsListener listener) throws CarNotConnectedException {
         try {
             if (mListeners.isEmpty()) {
                 if (mListenerToService == null) {
@@ -254,7 +254,7 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      * This method removes a registered listener of I/O stats deltas.
      */
     @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
-    public void unregisterListener(UidIoStatsListener listener) throws CarNotConnectedException {
+    public void unregisterListener(IoStatsListener listener) throws CarNotConnectedException {
         try {
             if (!mListeners.remove(listener)) {
                 return;

@@ -16,4 +16,4 @@
 
 package android.car.storagemonitoring;
 
-parcelable UidIoStats;
+parcelable IoStatsEntry;

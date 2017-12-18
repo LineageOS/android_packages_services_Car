@@ -33,16 +33,16 @@ import org.json.JSONObject;
  * @hide
  */
 @SystemApi
-public final class UidIoStats implements Parcelable {
+public final class IoStatsEntry implements Parcelable {
 
-    public static final Parcelable.Creator<UidIoStats> CREATOR =
-        new Parcelable.Creator<UidIoStats>() {
-            public UidIoStats createFromParcel(Parcel in) {
-                return new UidIoStats(in);
+    public static final Parcelable.Creator<IoStatsEntry> CREATOR =
+        new Parcelable.Creator<IoStatsEntry>() {
+            public IoStatsEntry createFromParcel(Parcel in) {
+                return new IoStatsEntry(in);
             }
 
-            public UidIoStats[] newArray(int size) {
-                return new UidIoStats[size];
+            public IoStatsEntry[] newArray(int size) {
+                return new IoStatsEntry[size];
             }
         };
 
@@ -66,37 +66,37 @@ public final class UidIoStats implements Parcelable {
     /**
      * Statistics for apps running in foreground.
      */
-    public final UidIoStats.Metrics foreground;
+    public final IoStatsEntry.Metrics foreground;
 
     /**
      * Statistics for apps running in background.
      */
-    public final UidIoStats.Metrics background;
+    public final IoStatsEntry.Metrics background;
 
-    public UidIoStats(int uid,
-            long runtimeMillis, UidIoStats.Metrics foreground, UidIoStats.Metrics background) {
+    public IoStatsEntry(int uid,
+            long runtimeMillis, IoStatsEntry.Metrics foreground, IoStatsEntry.Metrics background) {
         this.uid = uid;
         this.runtimeMillis = runtimeMillis;
         this.foreground = Objects.requireNonNull(foreground);
         this.background = Objects.requireNonNull(background);
     }
 
-    public UidIoStats(Parcel in) {
+    public IoStatsEntry(Parcel in) {
         uid = in.readInt();
         runtimeMillis = in.readLong();
-        foreground = in.readParcelable(UidIoStats.Metrics.class.getClassLoader());
-        background = in.readParcelable(UidIoStats.Metrics.class.getClassLoader());
+        foreground = in.readParcelable(IoStatsEntry.Metrics.class.getClassLoader());
+        background = in.readParcelable(IoStatsEntry.Metrics.class.getClassLoader());
     }
 
-    public UidIoStats(UidIoRecord record, long runtimeMillis) {
+    public IoStatsEntry(UidIoRecord record, long runtimeMillis) {
         uid = record.uid;
         this.runtimeMillis = runtimeMillis;
-        foreground = new UidIoStats.Metrics(record.foreground_rchar,
+        foreground = new IoStatsEntry.Metrics(record.foreground_rchar,
                 record.foreground_wchar,
                 record.foreground_read_bytes,
                 record.foreground_write_bytes,
                 record.foreground_fsync);
-        background = new UidIoStats.Metrics(record.background_rchar,
+        background = new IoStatsEntry.Metrics(record.background_rchar,
             record.background_wchar,
             record.background_read_bytes,
             record.background_write_bytes,
@@ -125,11 +125,11 @@ public final class UidIoStats implements Parcelable {
         jsonWriter.endObject();
     }
 
-    public UidIoStats(JSONObject in) throws JSONException {
+    public IoStatsEntry(JSONObject in) throws JSONException {
         uid = in.getInt("uid");
         runtimeMillis = in.getLong("runtimeMillis");
-        foreground = new UidIoStats.Metrics(in.getJSONObject("foreground"));
-        background = new UidIoStats.Metrics(in.getJSONObject("background"));
+        foreground = new IoStatsEntry.Metrics(in.getJSONObject("foreground"));
+        background = new IoStatsEntry.Metrics(in.getJSONObject("background"));
     }
 
     /**
@@ -141,19 +141,19 @@ public final class UidIoStats implements Parcelable {
      *
      * @hide
      */
-    public UidIoStats delta(UidIoStats other) {
+    public IoStatsEntry delta(IoStatsEntry other) {
         if (uid != other.uid) {
             throw new IllegalArgumentException("cannot calculate delta between different user IDs");
         }
-        return new UidIoStats(uid,
+        return new IoStatsEntry(uid,
                 runtimeMillis - other.runtimeMillis,
                 foreground.delta(other.foreground), background.delta(other.background));
     }
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof UidIoStats) {
-            UidIoStats uidIoStatEntry = (UidIoStats)other;
+        if (other instanceof IoStatsEntry) {
+            IoStatsEntry uidIoStatEntry = (IoStatsEntry)other;
 
             return uid == uidIoStatEntry.uid &&
                     runtimeMillis == uidIoStatEntry.runtimeMillis &&
@@ -200,14 +200,14 @@ public final class UidIoStats implements Parcelable {
      */
     public static final class Metrics implements Parcelable {
 
-        public static final Parcelable.Creator<UidIoStats.Metrics> CREATOR =
-            new Parcelable.Creator<UidIoStats.Metrics>() {
-                public UidIoStats.Metrics createFromParcel(Parcel in) {
-                    return new UidIoStats.Metrics(in);
+        public static final Parcelable.Creator<IoStatsEntry.Metrics> CREATOR =
+            new Parcelable.Creator<IoStatsEntry.Metrics>() {
+                public IoStatsEntry.Metrics createFromParcel(Parcel in) {
+                    return new IoStatsEntry.Metrics(in);
                 }
 
-                public UidIoStats.Metrics[] newArray(int size) {
-                    return new UidIoStats.Metrics[size];
+                public IoStatsEntry.Metrics[] newArray(int size) {
+                    return new IoStatsEntry.Metrics[size];
                 }
             };
 

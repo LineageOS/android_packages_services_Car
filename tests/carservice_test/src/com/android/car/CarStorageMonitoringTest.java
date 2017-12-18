@@ -20,8 +20,8 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
-import android.car.storagemonitoring.UidIoStats;
-import android.car.storagemonitoring.UidIoStatsDelta;
+import android.car.storagemonitoring.IoStatsEntry;
+import android.car.storagemonitoring.IoStats;
 import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
@@ -355,7 +355,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     }
 
     public void testBootIoStats() throws Exception {
-        final List<UidIoStats> bootIoStats =
+        final List<IoStatsEntry> bootIoStats =
             mCarStorageMonitoringManager.getBootIoStats();
 
         assertNotNull(bootIoStats);
@@ -400,7 +400,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
         mMockTimeInterface.tick();
 
-        List<UidIoStats> aggregateIoStats = mCarStorageMonitoringManager.getAggregateIoStats();
+        List<IoStatsEntry> aggregateIoStats = mCarStorageMonitoringManager.getAggregateIoStats();
 
         assertNotNull(aggregateIoStats);
         assertFalse(aggregateIoStats.isEmpty());
@@ -433,19 +433,19 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         mMockStorageMonitoringInterface.addIoStatsRecord(newRecord0);
         mMockTimeInterface.setUptime(500).tick();
 
-        List<UidIoStatsDelta> deltas = mCarStorageMonitoringManager.getIoStatsDeltas();
+        List<IoStats> deltas = mCarStorageMonitoringManager.getIoStatsDeltas();
         assertNotNull(deltas);
         assertEquals(1, deltas.size());
 
-        UidIoStatsDelta delta0 = deltas.get(0);
+        IoStats delta0 = deltas.get(0);
         assertNotNull(delta0);
         assertEquals(500, delta0.getTimestamp());
 
-        List<UidIoStats> delta0Stats = delta0.getStats();
+        List<IoStatsEntry> delta0Stats = delta0.getStats();
         assertNotNull(delta0Stats);
         assertEquals(1, delta0Stats.size());
 
-        UidIoStats deltaRecord0 = delta0Stats.get(0);
+        IoStatsEntry deltaRecord0 = delta0Stats.get(0);
 
         assertTrue(deltaRecord0.representsSameMetrics(newRecord0.delta(oldRecord0)));
 
@@ -480,11 +480,11 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
         assertTrue(deltaRecord0.representsSameMetrics(newRecord0.delta(oldRecord0)));
 
-        UidIoStatsDelta delta1 = deltas.get(1);
+        IoStats delta1 = deltas.get(1);
         assertNotNull(delta1);
         assertEquals(1000, delta1.getTimestamp());
 
-        List<UidIoStats> delta1Stats = delta1.getStats();
+        List<IoStatsEntry> delta1Stats = delta1.getStats();
         assertNotNull(delta1Stats);
         assertEquals(1, delta1Stats.size());
 
@@ -520,8 +520,8 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         assertTrue(listener1.waitForEvent(eventDeliveryDeadline));
         assertTrue(listener2.waitForEvent(eventDeliveryDeadline));
 
-        UidIoStatsDelta event1 = listener1.reset();
-        UidIoStatsDelta event2 = listener2.reset();
+        IoStats event1 = listener1.reset();
+        IoStats event2 = listener2.reset();
 
         assertEquals(event1, event2);
         event1.getStats().forEach(stats -> assertTrue(stats.representsSameMetrics(record)));
@@ -610,19 +610,19 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         assertEquals(0, mCarStorageMonitoringManager.getIoStatsDeltas().size());
     }
 
-    static final class Listener implements CarStorageMonitoringManager.UidIoStatsListener {
+    static final class Listener implements CarStorageMonitoringManager.IoStatsListener {
         private final String mName;
         private final Object mSync = new Object();
 
-        private UidIoStatsDelta mLastEvent = null;
+        private IoStats mLastEvent = null;
 
         Listener(String name) {
             mName = name;
         }
 
-        UidIoStatsDelta reset() {
+        IoStats reset() {
             synchronized (mSync) {
-                UidIoStatsDelta lastEvent = mLastEvent;
+                IoStats lastEvent = mLastEvent;
                 mLastEvent = null;
                 return lastEvent;
             }
@@ -645,7 +645,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onSnapshot(UidIoStatsDelta event) {
+        public void onSnapshot(IoStats event) {
             synchronized (mSync) {
                 Log.d(TAG, "listener " + mName + " received event " + event);
                 // We're going to hold a reference to this object

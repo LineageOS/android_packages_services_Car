@@ -18,12 +18,12 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
-import android.car.storagemonitoring.IUidIoStatsListener;
+import android.car.storagemonitoring.IIoStatsListener;
 import android.car.storagemonitoring.ICarStorageMonitoring;
 import android.car.storagemonitoring.UidIoRecord;
-import android.car.storagemonitoring.UidIoStats;
-import android.car.storagemonitoring.UidIoStats.Metrics;
-import android.car.storagemonitoring.UidIoStatsDelta;
+import android.car.storagemonitoring.IoStatsEntry;
+import android.car.storagemonitoring.IoStatsEntry.Metrics;
+import android.car.storagemonitoring.IoStats;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 import android.content.ActivityNotFoundException;
@@ -77,8 +77,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private final OnShutdownReboot mOnShutdownReboot;
     private final SystemInterface mSystemInterface;
     private final UidIoStatsProvider mUidIoStatsProvider;
-    private final SlidingWindow<UidIoStatsDelta> mIoStatsSamples;
-    private final RemoteCallbackList<IUidIoStatsListener> mListeners;
+    private final SlidingWindow<IoStats> mIoStatsSamples;
+    private final RemoteCallbackList<IIoStatsListener> mListeners;
     private final Object mIoStatsSamplesLock = new Object();
     private final Configuration mConfiguration;
 
@@ -87,7 +87,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private UptimeTracker mUptimeTracker = null;
     private Optional<WearInformation> mWearInformation = Optional.empty();
     private List<WearEstimateChange> mWearEstimateChanges = Collections.emptyList();
-    private List<UidIoStats> mBootIoStats = Collections.emptyList();
+    private List<IoStatsEntry> mBootIoStats = Collections.emptyList();
     private IoStatsTracker mIoStatsTracker = null;
     private boolean mInitialized = false;
 
@@ -215,19 +215,19 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     }
 
     private void collectNewIoMetrics() {
-        UidIoStatsDelta uidIoStatsDelta;
+        IoStats ioStats;
 
         mIoStatsTracker.update(loadNewIoStats());
         synchronized (mIoStatsSamplesLock) {
-            uidIoStatsDelta = new UidIoStatsDelta(
+            ioStats = new IoStats(
                 SparseArrayStream.valueStream(mIoStatsTracker.getCurrentSample())
                     .collect(Collectors.toList()),
                 mSystemInterface.getUptime());
-            mIoStatsSamples.add(uidIoStatsDelta);
+            mIoStatsSamples.add(ioStats);
         }
 
         if (DBG) {
-            SparseArray<UidIoStats> currentSample = mIoStatsTracker.getCurrentSample();
+            SparseArray<IoStatsEntry> currentSample = mIoStatsTracker.getCurrentSample();
             if (currentSample.size() == 0) {
                 Log.d(TAG, "no new I/O stat data");
             } else {
@@ -236,7 +236,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             }
         }
 
-        dispatchNewIoEvent(uidIoStatsDelta);
+        dispatchNewIoEvent(ioStats);
         if (needsExcessiveIoBroadcast()) {
             sendExcessiveIoBroadcast();
         }
@@ -265,7 +265,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
     private boolean needsExcessiveIoBroadcast() {
         synchronized (mIoStatsSamplesLock) {
-            return mIoStatsSamples.count((UidIoStatsDelta delta) -> {
+            return mIoStatsSamples.count((IoStats delta) -> {
                 Metrics total = delta.getTotals();
                 final boolean tooManyBytesWritten =
                     (total.bytesWrittenToStorage > mConfiguration.acceptableBytesWrittenPerSample);
@@ -276,7 +276,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
     }
 
-    private void dispatchNewIoEvent(UidIoStatsDelta delta) {
+    private void dispatchNewIoEvent(IoStats delta) {
         final int listenersCount = mListeners.beginBroadcast();
         IntStream.range(0, listenersCount).forEach(
             i -> {
@@ -319,7 +319,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             .map(record -> {
                 // at boot, assume all UIDs have been running for as long as the system has
                 // been up, since we don't really know any better
-                UidIoStats stats = new UidIoStats(record, bootUptime);
+                IoStatsEntry stats = new IoStatsEntry(record, bootUptime);
                 if (DBG) {
                     Log.d(TAG, "loaded boot I/O stat data: " + stats);
                 }
@@ -365,18 +365,18 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                 .collect(Collectors.joining("\n")));
         writer.println("boot I/O stats: " +
             mBootIoStats.stream()
-                .map(UidIoStats::toString)
+                .map(IoStatsEntry::toString)
                 .collect(Collectors.joining("\n")));
         writer.println("aggregate I/O stats: " +
             SparseArrayStream.valueStream(mIoStatsTracker.getTotal())
-                .map(UidIoStats::toString)
+                .map(IoStatsEntry::toString)
                 .collect(Collectors.joining("\n")));
         writer.println("I/O stats snapshots: ");
         synchronized (mIoStatsSamplesLock) {
             writer.println(
                 mIoStatsSamples.stream().map(
                     sample -> sample.getStats().stream()
-                        .map(UidIoStats::toString)
+                        .map(IoStatsEntry::toString)
                         .collect(Collectors.joining("\n")))
                     .collect(Collectors.joining("\n------\n")));
         }
@@ -412,7 +412,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     }
 
     @Override
-    public List<UidIoStats> getBootIoStats() {
+    public List<IoStatsEntry> getBootIoStats() {
         mStorageMonitoringPermission.assertGranted();
         doInitServiceIfNeeded();
 
@@ -420,7 +420,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     }
 
     @Override
-    public List<UidIoStats> getAggregateIoStats() {
+    public List<IoStatsEntry> getAggregateIoStats() {
         mStorageMonitoringPermission.assertGranted();
         doInitServiceIfNeeded();
 
@@ -429,7 +429,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     }
 
     @Override
-    public List<UidIoStatsDelta> getIoStatsDeltas() {
+    public List<IoStats> getIoStatsDeltas() {
         mStorageMonitoringPermission.assertGranted();
         doInitServiceIfNeeded();
 
@@ -439,7 +439,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     }
 
     @Override
-    public void registerListener(IUidIoStatsListener listener) {
+    public void registerListener(IIoStatsListener listener) {
         mStorageMonitoringPermission.assertGranted();
         doInitServiceIfNeeded();
 
@@ -447,7 +447,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     }
 
     @Override
-    public void unregisterListener(IUidIoStatsListener listener) {
+    public void unregisterListener(IIoStatsListener listener) {
         mStorageMonitoringPermission.assertGranted();
         // no need to initialize service if unregistering
 
