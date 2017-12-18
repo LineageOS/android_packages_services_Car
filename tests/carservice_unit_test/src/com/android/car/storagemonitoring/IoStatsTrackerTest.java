@@ -16,7 +16,7 @@
 
 package com.android.car.storagemonitoring;
 
-import android.car.storagemonitoring.UidIoStats;
+import android.car.storagemonitoring.IoStatsEntry;
 import android.car.storagemonitoring.UidIoRecord;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.SparseArray;
@@ -35,7 +35,7 @@ import junit.framework.TestCase;
 @MediumTest
 public class IoStatsTrackerTest extends TestCase {
     private static final int SAMPLE_WINDOW_MS = 1000;
-    private static final List<UidIoStats> EMPTY = Collections.emptyList();
+    private static final List<IoStatsEntry> EMPTY = Collections.emptyList();
     private static final String TAG = IoStatsTrackerTest.class.getSimpleName();
 
     public void testNewUsersAppear() throws Exception {
@@ -89,8 +89,8 @@ public class IoStatsTrackerTest extends TestCase {
         assertEquals(1, ioStatsTracker.getCurrentSample().size());
         assertEquals(1, ioStatsTracker.getTotal().size());
 
-        UidIoStats sample0 = ioStatsTracker.getCurrentSample().get(0);
-        UidIoStats total0 = ioStatsTracker.getTotal().get(0);
+        IoStatsEntry sample0 = ioStatsTracker.getCurrentSample().get(0);
+        IoStatsEntry total0 = ioStatsTracker.getTotal().get(0);
 
         assertNotNull(sample0);
         assertNotNull(total0);
@@ -121,8 +121,8 @@ public class IoStatsTrackerTest extends TestCase {
         assertEquals(1, ioStatsTracker.getCurrentSample().size());
         assertEquals(1, ioStatsTracker.getTotal().size());
 
-        UidIoStats sample0 = ioStatsTracker.getCurrentSample().get(0);
-        UidIoStats total0 = ioStatsTracker.getTotal().get(0);
+        IoStatsEntry sample0 = ioStatsTracker.getCurrentSample().get(0);
+        IoStatsEntry total0 = ioStatsTracker.getTotal().get(0);
 
         assertEquals(2 * SAMPLE_WINDOW_MS, sample0.runtimeMillis);
         assertEquals(2 * SAMPLE_WINDOW_MS, total0.runtimeMillis);
@@ -150,7 +150,7 @@ public class IoStatsTrackerTest extends TestCase {
         assertEquals(0, ioStatsTracker.getCurrentSample().size());
         assertEquals(1, ioStatsTracker.getTotal().size());
 
-        UidIoStats total0 = ioStatsTracker.getTotal().get(0);
+        IoStatsEntry total0 = ioStatsTracker.getTotal().get(0);
         assertEquals(SAMPLE_WINDOW_MS, total0.runtimeMillis);
         assertTrue(total0.representsSameMetrics(record0));
     }
@@ -174,8 +174,8 @@ public class IoStatsTrackerTest extends TestCase {
         assertEquals(1, ioStatsTracker.getCurrentSample().size());
         assertEquals(1, ioStatsTracker.getTotal().size());
 
-        UidIoStats sample0 = ioStatsTracker.getCurrentSample().get(0);
-        UidIoStats total0 = ioStatsTracker.getTotal().get(0);
+        IoStatsEntry sample0 = ioStatsTracker.getCurrentSample().get(0);
+        IoStatsEntry total0 = ioStatsTracker.getTotal().get(0);
 
         assertTrue(total0.representsSameMetrics(record0));
         assertEquals(2 * SAMPLE_WINDOW_MS, total0.runtimeMillis);
@@ -206,7 +206,7 @@ public class IoStatsTrackerTest extends TestCase {
         ioStatsTracker.update(mockSystemStateInterface.mIoRecords);
 
         assertEquals(1, ioStatsTracker.getCurrentSample().size());
-        UidIoStats sample0 = ioStatsTracker.getCurrentSample().get(0);
+        IoStatsEntry sample0 = ioStatsTracker.getCurrentSample().get(0);
         assertEquals(2 * SAMPLE_WINDOW_MS, sample0.runtimeMillis);
     }
 
@@ -234,7 +234,7 @@ public class IoStatsTrackerTest extends TestCase {
 
         assertEquals(1, ioStatsTracker.getCurrentSample().size());
 
-        UidIoStats sample0 = ioStatsTracker.getCurrentSample().get(0);
+        IoStatsEntry sample0 = ioStatsTracker.getCurrentSample().get(0);
         assertEquals(2 * SAMPLE_WINDOW_MS, sample0.runtimeMillis);
         assertEquals(1, sample0.foreground.fsyncCalls);
     }

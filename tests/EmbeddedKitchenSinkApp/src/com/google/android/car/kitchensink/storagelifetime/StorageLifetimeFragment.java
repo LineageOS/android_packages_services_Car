@@ -19,10 +19,9 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarNotConnectedException;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
-import android.car.storagemonitoring.CarStorageMonitoringManager.UidIoStatsListener;
-import android.car.storagemonitoring.UidIoStats;
-import android.car.storagemonitoring.UidIoStats.Metrics;
-import android.car.storagemonitoring.UidIoStatsDelta;
+import android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener;
+import android.car.storagemonitoring.IoStatsEntry;
+import android.car.storagemonitoring.IoStats;
 import android.os.Bundle;
 import android.os.StatFs;
 import android.support.v4.app.Fragment;
@@ -66,9 +65,9 @@ public class StorageLifetimeFragment extends Fragment {
     private TextView mIoActivity;
     private CarStorageMonitoringManager mStorageManager;
 
-    private final UidIoStatsListener mIoListener = new UidIoStatsListener() {
+    private final IoStatsListener mIoListener = new IoStatsListener() {
         @Override
-        public void onSnapshot(UidIoStatsDelta snapshot) {
+        public void onSnapshot(IoStats snapshot) {
             if (mIoActivity != null) {
                 mIoActivity.setText("");
                 snapshot.getStats().forEach(uidIoStats -> {
@@ -85,7 +84,7 @@ public class StorageLifetimeFragment extends Fragment {
                             fsyncCalls));
                     }
                 });
-                final List<UidIoStats> totals;
+                final List<IoStatsEntry> totals;
                 try {
                     totals = mStorageManager.getAggregateIoStats();
                 } catch (CarNotConnectedException e) {
