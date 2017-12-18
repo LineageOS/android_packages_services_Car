@@ -15,6 +15,9 @@
  */
 package com.android.car;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerBootupReason;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerSetState;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerState;
@@ -24,20 +27,26 @@ import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import com.google.android.collect.Lists;
 
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
-import com.google.android.collect.Lists;
-
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarPowerManagementTest extends MockedCarTestBase {
 
@@ -50,7 +59,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         return builder.withDisplayInterface(mMockDisplayInterface);
     }
 
-    private void setupPowerPropertyAndStart(boolean allowSleep) {
+    private void setupPowerPropertyAndStart(boolean allowSleep) throws Exception {
         addProperty(VehicleProperty.AP_POWER_STATE, mPowerStateHandler)
                 .setConfigArray(Lists.newArrayList(
                         allowSleep ? VehicleApPowerStateConfigFlag.ENABLE_DEEP_SLEEP_FLAG : 0));
@@ -63,6 +72,8 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         reinitializeMockedHal();
     }
 
+    @Test
+    @UiThreadTest
     public void testImmediateShutdown() throws Exception {
         setupPowerPropertyAndStart(true);
         assertBootComplete();
@@ -74,6 +85,8 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         mPowerStateHandler.sendPowerState(VehicleApPowerState.ON_FULL, 0);
     }
 
+    @Test
+    @UiThreadTest
     public void testDisplayOnOff() throws Exception {
         setupPowerPropertyAndStart(true);
         assertBootComplete();
@@ -86,7 +99,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     }
 
     /* TODO make deep sleep work to test this
-    public void testSleepEntry() throws Exception {
+    @Test public void testSleepEntry() throws Exception {
         assertBootComplete();
         mPowerStateHandler.sendPowerState(
                 VehicleApPowerState.SHUTDOWN_PREPARE,

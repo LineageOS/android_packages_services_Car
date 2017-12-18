@@ -40,7 +40,7 @@ public class TestAppBlockingPolicyService extends CarAppBlockingPolicyService {
 
     @Override
     protected CarAppBlockingPolicy getAppBlockingPolicy() {
-        synchronized (TestAppBlockingPolicyService.class) {
+        synchronized (this) {
             sInstance = this;
             if (sSetPolicy == false) {
                 Log.i(TAG, "getAppBlockingPolicy returning null");

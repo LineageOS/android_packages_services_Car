@@ -15,18 +15,20 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.android.car"
-        android:sharedUserId="android.uid.system" >
+        package="com.android.car.test" android:sharedUserId="android.uid.system">
 
     <uses-permission android:name="android.Manifest.permission.MODIFY_AUDIO_ROUTING" />
     <uses-permission android:name="android.car.permission.CAR_HVAC" />
     <uses-permission android:name="android.car.permission.CAR_RADIO" />
+    <uses-permission android:name="android.car.permission.CAR_CABIN" />
+    <uses-permission android:name="android.car.permission.CAR_FUEL" />
     <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING" />
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME" />
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS" />
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING" />
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
-            android:targetPackage="com.android.car"
+
+    <instrumentation android:name="android.support.test.runner.AndroidJUnitRunner"
+            android:targetPackage="com.android.car.test"
             android:label="Tests for Car APIs"/>
 
     <application android:label="CarServiceTest">

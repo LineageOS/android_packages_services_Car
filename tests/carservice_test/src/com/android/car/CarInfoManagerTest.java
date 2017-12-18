@@ -15,13 +15,22 @@
  */
 package com.android.car;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import android.car.Car;
 import android.car.CarInfoManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarInfoManagerTest extends MockedCarTestBase {
     private static final String MAKE_NAME = "ANDROID";
@@ -38,19 +47,22 @@ public class CarInfoManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mCarInfoManager = (CarInfoManager) getCar().getCarManager(Car.INFO_SERVICE);
     }
 
+    @Test
     public void testVehicleId() throws Exception {
         assertNotNull(mCarInfoManager.getVehicleId());
     }
 
+    @Test
     public void testManufacturer() throws Exception {
         assertEquals(MAKE_NAME, mCarInfoManager.getManufacturer());
     }
 
+    @Test
     public void testNullItems() throws Exception {
         assertNull(mCarInfoManager.getModel());
         assertNull(mCarInfoManager.getModelYear());

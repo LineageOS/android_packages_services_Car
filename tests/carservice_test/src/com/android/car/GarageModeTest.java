@@ -15,14 +15,25 @@
  */
 package com.android.car;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import android.car.settings.CarSettings;
 import android.content.Context;
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
 @MediumTest
-public class GarageModeTest extends AndroidTestCase {
+public class GarageModeTest {
 
+    @Test
+    @UiThreadTest
     public void testMaintenanceActive() throws Exception {
         MockCarPowerManagementService powerManagementService = new MockCarPowerManagementService();
         MockDeviceIdleController controller = new MockDeviceIdleController(true);
@@ -44,6 +55,8 @@ public class GarageModeTest extends AndroidTestCase {
         assertEquals(1, index2 - index1);
     }
 
+    @Test
+    @UiThreadTest
     public void testMaintenanceInactive() throws Exception {
         MockCarPowerManagementService powerManagementService = new MockCarPowerManagementService();
         MockDeviceIdleController controller = new MockDeviceIdleController(false);
@@ -57,6 +70,8 @@ public class GarageModeTest extends AndroidTestCase {
         assertEquals(false, garageMode.isMaintenanceActive());
     }
 
+    @Test
+    @UiThreadTest
     public void testDisplayOn() throws Exception {
         MockCarPowerManagementService powerManagementService = new MockCarPowerManagementService();
         MockDeviceIdleController controller = new MockDeviceIdleController(true);
@@ -111,10 +126,15 @@ public class GarageModeTest extends AndroidTestCase {
         }
     }
 
+    private Context getContext() {
+        return InstrumentationRegistry.getTargetContext();
+    }
+
     private static class MockDeviceIdleController extends DeviceIdleControllerWrapper {
 
         private final boolean mInitialActive;
-        public MockDeviceIdleController(boolean active) {
+
+        MockDeviceIdleController(boolean active) {
             super();
             mInitialActive = active;
         }

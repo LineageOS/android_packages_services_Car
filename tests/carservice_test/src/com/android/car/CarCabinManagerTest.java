@@ -16,6 +16,10 @@
 
 package com.android.car;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import android.car.Car;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.cabin.CarCabinManager;
@@ -26,18 +30,23 @@ import android.hardware.automotive.vehicle.V2_0.VehicleAreaWindow;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 import android.util.MutableInt;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarCabinManagerTest extends MockedCarTestBase {
     private static final String TAG = CarCabinManagerTest.class.getSimpleName();
@@ -60,13 +69,14 @@ public class CarCabinManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mAvailable = new Semaphore(0);
         mCarCabinManager = (CarCabinManager) getCar().getCarManager(Car.CABIN_SERVICE);
     }
 
     // Test a boolean property
+    @Test
     public void testCabinDoorLockOn() throws Exception {
         mCarCabinManager.setBooleanProperty(CarCabinManager.ID_DOOR_LOCK,
                 VehicleAreaDoor.ROW_1_LEFT, true);
@@ -82,6 +92,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
     }
 
     // Test an integer property
+    @Test
     public void testCabinWindowPos() throws Exception {
         mCarCabinManager.setIntProperty(CarCabinManager.ID_WINDOW_POS,
                 VehicleAreaWindow.ROW_1_LEFT, 50);
@@ -96,6 +107,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
         assertEquals(25, windowPos);
     }
 
+    @Test
     public void testError() throws Exception {
         final int PROP = VehicleProperty.DOOR_LOCK;
         final int AREA = VehicleAreaWindow.ROW_1_LEFT;
@@ -127,6 +139,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
 
 
     // Test an event
+    @Test
     public void testEvent() throws Exception {
         mCarCabinManager.registerCallback(new EventListener());
 

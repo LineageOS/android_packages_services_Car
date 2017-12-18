@@ -16,6 +16,10 @@
 
 package com.android.car;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import android.car.Car;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.hvac.CarHvacManager;
@@ -28,18 +32,23 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.os.SystemClock;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 import android.util.MutableInt;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarHvacManagerTest extends MockedCarTestBase {
     private static final String TAG = CarHvacManagerTest.class.getSimpleName();
@@ -69,13 +78,14 @@ public class CarHvacManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mAvailable = new Semaphore(0);
         mCarHvacManager = (CarHvacManager) getCar().getCarManager(Car.HVAC_SERVICE);
     }
 
     // Test a boolean property
+    @Test
     public void testHvacRearDefrosterOn() throws Exception {
         mCarHvacManager.setBooleanProperty(CarHvacManager.ID_WINDOW_DEFROSTER_ON,
                 VehicleAreaWindow.FRONT_WINDSHIELD, true);
@@ -91,6 +101,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
     }
 
     // Test an integer property
+    @Test
     public void testHvacFanSpeed() throws Exception {
         mCarHvacManager.setIntProperty(CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT,
                 VehicleAreaZone.ROW_1_LEFT, 15);
@@ -106,6 +117,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
     }
 
     // Test an float property
+    @Test
     public void testHvacTempSetpoint() throws Exception {
         mCarHvacManager.setFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT,
                 VehicleAreaZone.ROW_1_LEFT, 70);
@@ -120,6 +132,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         assertEquals(65.5, temp, 0);
     }
 
+    @Test
     public void testError() throws Exception {
         final int PROP = VehicleProperty.HVAC_DEFROSTER;
         final int AREA = VehicleAreaWindow.FRONT_WINDSHIELD;
@@ -150,6 +163,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
     }
 
     // Test an event
+    @Test
     public void testEvent() throws Exception {
         mCarHvacManager.registerCallback(new EventListener());
 

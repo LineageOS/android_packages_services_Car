@@ -16,7 +16,10 @@
 
 package com.android.car;
 
-import static org.junit.Assume.assumeTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.car.Car;
 import android.car.VehicleAreaType;
@@ -25,15 +28,20 @@ import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriberManager;
 import android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.os.SystemClock;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +51,7 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class VmsSubscriberManagerTest extends MockedCarTestBase {
     private static final String TAG = "VmsSubscriberManagerTest";
@@ -99,18 +108,14 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mSubscriberSemaphore = new Semaphore(0);
         mHalHandlerSemaphore = new Semaphore(0);
     }
 
-    @Override
-    protected synchronized void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
+    @Test
     public void testSubscribe() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
@@ -141,6 +146,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
+    @Test
     public void testSubscribeToPublisher() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
@@ -168,6 +174,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     }
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
+    @Test
     public void testSubscribeFromPublisher() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
@@ -197,6 +204,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     }
 
     // Test injecting a value in the HAL and verifying it does not propagate to a subscriber.
+    @Test
     public void testUnsubscribe() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
@@ -224,6 +232,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     }
 
     // Test injecting a value in the HAL and verifying it does not propagate to a subscriber.
+    @Test
     public void testSubscribeFromWrongPublisher() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
@@ -250,6 +259,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     }
 
     // Test injecting a value in the HAL and verifying it does not propagate to a subscriber.
+    @Test
     public void testUnsubscribeFromPublisher() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
@@ -278,6 +288,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
+    @Test
     public void testSubscribeAll() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
@@ -307,6 +318,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     }
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
+    @Test
     public void testSimpleAvailableLayers() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
@@ -352,6 +364,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber after it has
     // subscribed to a layer.
+    @Test
     public void testSimpleAvailableLayersAfterSubscription() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
@@ -398,6 +411,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
     // Test injecting a value in the HAL and verifying it does not propagates to a subscriber after
     // it has unregistered its callback.
+    @Test
     public void testSimpleAvailableLayersAfterUnregister() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
@@ -440,6 +454,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
     // Test injecting a value in the HAL and verifying it does not propagates to a subscriber after
     // it has unregistered its callback.
+    @Test
     public void testSomething() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
@@ -456,6 +471,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
+    @Test
     public void testComplexAvailableLayers() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);

@@ -16,28 +16,32 @@
 
 package com.android.car;
 
-import android.annotation.ArrayRes;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import android.car.VehicleAreaType;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class VmsPublisherPermissionsTest extends MockedCarTestBase {
     private static final String TAG = "VmsPublisherTest";
@@ -76,7 +80,7 @@ public class VmsPublisherPermissionsTest extends MockedCarTestBase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         /**
          * First init the semaphore, setUp will start a series of events that will ultimately
          * update the HAL layer and release this semaphore.
@@ -89,11 +93,6 @@ public class VmsPublisherPermissionsTest extends MockedCarTestBase {
         mHal.injectEvent(getHalSubscriptionRequest());
     }
 
-    @Override
-    protected synchronized void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     /**
      * The method setUp initializes all the Car services, including the VmsPublisherService.
      * The VmsPublisherService will start and configure its list of clients. This list was
@@ -102,6 +101,7 @@ public class VmsPublisherPermissionsTest extends MockedCarTestBase {
      * The service VmsPublisherClientSampleService will publish one message, which is validated in
      * this test.
      */
+    @Test
     public void testPermissions() throws Exception {
         assertTrue(mHalHandlerSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         // At this point the client initialization finished. Let's validate the permissions.
