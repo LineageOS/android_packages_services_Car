@@ -123,7 +123,7 @@ public class WearEstimateRecord {
 
     @Override
     public String toString() {
-        return String.format("WearEstimateRecord {," +
+        return String.format("WearEstimateRecord {" +
             "mOldWearEstimate = %s, " +
             "mNewWearEstimate = %s, " +
             "mTotalCarServiceUptime = %d, " +

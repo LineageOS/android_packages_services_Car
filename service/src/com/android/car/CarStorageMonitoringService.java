@@ -349,6 +349,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             mUptimeTracker.onDestroy();
         }
         mOnShutdownReboot.clearActions();
+        mListeners.kill();
     }
 
     @Override
