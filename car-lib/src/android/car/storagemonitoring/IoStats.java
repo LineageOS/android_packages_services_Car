@@ -16,7 +16,7 @@
 package android.car.storagemonitoring;
 
 import android.annotation.SystemApi;
-import android.car.storagemonitoring.UidIoStats.Metrics;
+import android.car.storagemonitoring.IoStatsEntry.Metrics;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.JsonWriter;
@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,38 +35,38 @@ import org.json.JSONObject;
  * @hide
  */
 @SystemApi
-public class UidIoStatsDelta implements Parcelable {
-    public static final Creator<UidIoStatsDelta> CREATOR = new Creator<UidIoStatsDelta>() {
+public class IoStats implements Parcelable {
+    public static final Creator<IoStats> CREATOR = new Creator<IoStats>() {
         @Override
-        public UidIoStatsDelta createFromParcel(Parcel in) {
-            return new UidIoStatsDelta(in);
+        public IoStats createFromParcel(Parcel in) {
+            return new IoStats(in);
         }
 
         @Override
-        public UidIoStatsDelta[] newArray(int size) {
-            return new UidIoStatsDelta[size];
+        public IoStats[] newArray(int size) {
+            return new IoStats[size];
         }
     };
 
-    private final List<UidIoStats> mStats;
+    private final List<IoStatsEntry> mStats;
     private final long mUptimeTimestamp;
 
-    public UidIoStatsDelta(List<UidIoStats> stats, long timestamp) {
+    public IoStats(List<IoStatsEntry> stats, long timestamp) {
         mStats = stats;
         mUptimeTimestamp = timestamp;
     }
 
-    public UidIoStatsDelta(Parcel in) {
-        mStats = in.createTypedArrayList(UidIoStats.CREATOR);
+    public IoStats(Parcel in) {
+        mStats = in.createTypedArrayList(IoStatsEntry.CREATOR);
         mUptimeTimestamp = in.readLong();
     }
 
-    public UidIoStatsDelta(JSONObject in) throws JSONException {
+    public IoStats(JSONObject in) throws JSONException {
         mUptimeTimestamp = in.getInt("uptime");
         JSONArray statsArray = in.getJSONArray("stats");
         mStats = new ArrayList<>();
         for(int i = 0; i < statsArray.length(); ++i) {
-            mStats.add(new UidIoStats(statsArray.getJSONObject(i)));
+            mStats.add(new IoStatsEntry(statsArray.getJSONObject(i)));
         }
     }
 
@@ -81,7 +80,7 @@ public class UidIoStatsDelta implements Parcelable {
         jsonWriter.beginObject();
         jsonWriter.name("uptime").value(mUptimeTimestamp);
         jsonWriter.name("stats").beginArray();
-        for (UidIoStats stat : mStats) {
+        for (IoStatsEntry stat : mStats) {
             stat.writeToJson(jsonWriter);
         }
         jsonWriter.endArray();
@@ -97,7 +96,7 @@ public class UidIoStatsDelta implements Parcelable {
         return mUptimeTimestamp;
     }
 
-    public List<UidIoStats> getStats() {
+    public List<IoStatsEntry> getStats() {
         return mStats;
     }
 
@@ -106,8 +105,8 @@ public class UidIoStatsDelta implements Parcelable {
         return Objects.hash(mStats, mUptimeTimestamp);
     }
 
-    public UidIoStats getUserIdStats(int uid) {
-        for (UidIoStats stats : getStats()) {
+    public IoStatsEntry getUserIdStats(int uid) {
+        for (IoStatsEntry stats : getStats()) {
             if (stats.uid == uid) {
                 return stats;
             }
@@ -116,14 +115,14 @@ public class UidIoStatsDelta implements Parcelable {
         return null;
     }
 
-    public UidIoStats.Metrics getForegroundTotals() {
+    public IoStatsEntry.Metrics getForegroundTotals() {
         long bytesRead = 0;
         long bytesWritten = 0;
         long bytesReadFromStorage = 0;
         long bytesWrittenToStorage = 0;
         long fsyncCalls = 0;
 
-        for (UidIoStats stats : getStats()) {
+        for (IoStatsEntry stats : getStats()) {
             bytesRead += stats.foreground.bytesRead;
             bytesWritten += stats.foreground.bytesWritten;
             bytesReadFromStorage += stats.foreground.bytesReadFromStorage;
@@ -138,14 +137,14 @@ public class UidIoStatsDelta implements Parcelable {
                 fsyncCalls);
     }
 
-    public UidIoStats.Metrics getBackgroundTotals() {
+    public IoStatsEntry.Metrics getBackgroundTotals() {
         long bytesRead = 0;
         long bytesWritten = 0;
         long bytesReadFromStorage = 0;
         long bytesWrittenToStorage = 0;
         long fsyncCalls = 0;
 
-        for (UidIoStats stats : getStats()) {
+        for (IoStatsEntry stats : getStats()) {
             bytesRead += stats.background.bytesRead;
             bytesWritten += stats.background.bytesWritten;
             bytesReadFromStorage += stats.background.bytesReadFromStorage;
@@ -160,11 +159,11 @@ public class UidIoStatsDelta implements Parcelable {
             fsyncCalls);
     }
 
-    public UidIoStats.Metrics getTotals() {
-        UidIoStats.Metrics foreground = getForegroundTotals();
-        UidIoStats.Metrics background = getBackgroundTotals();
+    public IoStatsEntry.Metrics getTotals() {
+        IoStatsEntry.Metrics foreground = getForegroundTotals();
+        IoStatsEntry.Metrics background = getBackgroundTotals();
 
-        return new UidIoStats.Metrics(foreground.bytesRead + background.bytesRead,
+        return new IoStatsEntry.Metrics(foreground.bytesRead + background.bytesRead,
                 foreground.bytesWritten + background.bytesWritten,
                 foreground.bytesReadFromStorage + background.bytesReadFromStorage,
                 foreground.bytesWrittenToStorage + background.bytesWrittenToStorage,
@@ -173,8 +172,8 @@ public class UidIoStatsDelta implements Parcelable {
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof UidIoStatsDelta) {
-            UidIoStatsDelta delta = (UidIoStatsDelta)other;
+        if (other instanceof IoStats) {
+            IoStats delta = (IoStats)other;
             return delta.getTimestamp() == getTimestamp() &&
                 delta.getStats().equals(getStats());
         }
@@ -184,7 +183,7 @@ public class UidIoStatsDelta implements Parcelable {
     @Override
     public String toString() {
         StringJoiner stringJoiner = new StringJoiner(", ");
-        for (UidIoStats stats : getStats()) {
+        for (IoStatsEntry stats : getStats()) {
             stringJoiner.add(stats.toString());
         }
         return "timestamp = " + getTimestamp() + ", stats = " + stringJoiner.toString();

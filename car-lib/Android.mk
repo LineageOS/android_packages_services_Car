@@ -36,7 +36,17 @@ car_lib_sources += $(call all-java-files-under, src_feature_future)
 else
 car_lib_sources += $(call all-java-files-under, src_feature_current)
 endif
+
 car_lib_sources += $(call all-Iaidl-files-under, src)
+
+# IoStats* are parcelable types (vs. interface types), but the build system uses an initial
+# I as a magic marker to mean "interface", and due to this ends up refusing to compile
+# these files as part of the build process.
+# A clean solution to this is actively being worked on by the build team, but is not yet
+# available, so for now we just filter the files out by hand.
+car_lib_sources := $(filter-out src/android/car/storagemonitoring/IoStats.aidl,$(car_lib_sources))
+car_lib_sources := $(filter-out src/android/car/storagemonitoring/IoStatsEntry.aidl,$(car_lib_sources))
+
 LOCAL_AIDL_INCLUDES += system/bt/binder
 
 LOCAL_SRC_FILES := $(car_lib_sources)

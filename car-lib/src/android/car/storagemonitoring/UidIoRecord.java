@@ -66,7 +66,7 @@ public final class UidIoRecord {
     }
 
     /** @hide */
-    public UidIoRecord delta(UidIoStats other) {
+    public UidIoRecord delta(IoStatsEntry other) {
         if (uid != other.uid) {
             throw new IllegalArgumentException("cannot calculate delta between different user IDs");
         }
