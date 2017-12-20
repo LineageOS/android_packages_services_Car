@@ -15,6 +15,9 @@
  */
 package com.android.car;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import android.car.test.CarTestManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.content.ComponentName;
@@ -22,8 +25,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.AssetManager;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehicleDrivingStatus;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -34,10 +35,9 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.test.AndroidTestCase;
-import android.util.DisplayMetrics;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
 import android.util.Log;
-
 import android.util.SparseArray;
 
 import com.android.car.systeminterface.DisplayInterface;
@@ -56,6 +56,9 @@ import com.android.car.vehiclehal.test.MockedVehicleHal.StaticPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 
+import org.junit.After;
+import org.junit.Before;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -69,7 +72,7 @@ import java.util.concurrent.Semaphore;
  * It is up to each app to start emulation by getMockedVehicleHal().start() as there will be
  * per test set up that should be done before starting.
  */
-public class MockedCarTestBase extends AndroidTestCase {
+public class MockedCarTestBase {
     private static final String TAG = MockedCarTestBase.class.getSimpleName();
     static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
     static final long SHORT_WAIT_TIMEOUT_MS = 500;
@@ -81,7 +84,6 @@ public class MockedCarTestBase extends AndroidTestCase {
     private MockContext mMockContext;
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
 
-    private final Semaphore mWaitForMain = new Semaphore(0);
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
     private final Map<VehiclePropConfigBuilder, VehicleHalPropertyHandler> mHalConfig =
@@ -118,12 +120,27 @@ public class MockedCarTestBase extends AndroidTestCase {
 
     protected synchronized void configureFakeSystemInterface() {}
 
-    protected synchronized void configureResourceOverrides(MockResources resources) {}
+    protected synchronized void configureResourceOverrides(MockResources resources) {
+        resources.overrideResource(com.android.car.R.string.instrumentClusterRendererService, "");
+    }
 
-    @Override
-    protected synchronized void setUp() throws Exception {
-        super.setUp();
+    protected Context getContext() {
+        return InstrumentationRegistry.getTargetContext();
+    }
 
+    protected Context getTestContext() {
+        return InstrumentationRegistry.getContext();
+    }
+
+    protected String getFlattenComponent(Class cls) {
+        ComponentName cn = new ComponentName(getTestContext(), cls);
+        return cn.flattenToString();
+    }
+
+    @Before
+    @UiThreadTest
+    public void setUp() throws Exception {
+        Log.i(TAG, "setUp");
         releaseRealCarService(getContext());
 
         mMockedVehicleHal = createMockedVehicleHal();
@@ -147,10 +164,8 @@ public class MockedCarTestBase extends AndroidTestCase {
         mCar = new android.car.Car(context, mCarImpl, null /* handler */);
     }
 
-    @Override
-    protected synchronized void tearDown() throws Exception {
-        super.tearDown();
-
+    @After
+    public void tearDown() throws Exception {
         mCar.disconnect();
         mCarImpl.release();
 
@@ -165,11 +180,11 @@ public class MockedCarTestBase extends AndroidTestCase {
         return mMockContext;
     }
 
-    protected synchronized void reinitializeMockedHal() {
+    protected synchronized void reinitializeMockedHal() throws Exception {
         initMockedHal(true /* release */);
     }
 
-    private synchronized void initMockedHal(boolean release) {
+    private synchronized void initMockedHal(boolean release) throws Exception {
         if (release) {
             mCarImpl.release();
         }
@@ -227,35 +242,6 @@ public class MockedCarTestBase extends AndroidTestCase {
 
     protected synchronized android.car.Car getCar() {
         return mCar;
-    }
-
-    protected void runOnMain(final Runnable r) {
-        mMainHandler.post(r);
-    }
-
-    protected void runOnMainSync(final Runnable r) throws Exception {
-        mMainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                r.run();
-                mWaitForMain.release();
-            }
-        });
-        mWaitForMain.acquire();
-    }
-
-    public static <T> void assertArrayEquals(T[] expected, T[] actual) {
-        if (!Arrays.equals(expected, actual)) {
-            fail("expected:<" + Arrays.toString(expected) +
-                    "> but was:<" + Arrays.toString(actual) + ">");
-        }
-    }
-
-    public static void assertArrayEquals(int[] expected, int[] actual) {
-        if (!Arrays.equals(expected, actual)) {
-            fail("expected:<" + Arrays.toString(expected) +
-                    "> but was:<" + Arrays.toString(actual) + ">");
-        }
     }
 
     /*

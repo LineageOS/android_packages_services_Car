@@ -17,29 +17,40 @@
 package com.android.car;
 
 import static java.lang.Integer.toHexString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import android.car.Car;
 import android.car.diagnostic.CarDiagnosticEvent;
-import android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus;
-import android.car.diagnostic.CarDiagnosticEvent.FuelType;
 import android.car.diagnostic.CarDiagnosticEvent.CommonIgnitionMonitors;
 import android.car.diagnostic.CarDiagnosticEvent.CompressionIgnitionMonitors;
-import android.car.diagnostic.CarDiagnosticEvent.SparkIgnitionMonitors;
+import android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus;
+import android.car.diagnostic.CarDiagnosticEvent.FuelType;
 import android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus;
+import android.car.diagnostic.CarDiagnosticEvent.SparkIgnitionMonitors;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.diagnostic.FloatSensorIndex;
 import android.car.diagnostic.IntegerSensorIndex;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
+
 import com.android.car.vehiclehal.DiagnosticEventBuilder;
 import com.android.car.vehiclehal.DiagnosticJson;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -49,6 +60,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /** Test the public entry points for the CarDiagnosticManager */
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarDiagnosticManagerTest extends MockedCarTestBase {
     private static final String TAG = CarDiagnosticManagerTest.class.getSimpleName();
@@ -62,6 +74,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     private CarDiagnosticManager mCarDiagnosticManager;
 
     private static final String DTC = "P1010";
+    private static final float EPS = 1e-9f;
 
     /**
      * This class is a central repository for freeze frame data. It ensures that timestamps and
@@ -206,7 +219,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         mLiveFrameEventBuilder.addIntSensor(IntegerSensorIndex.AMBIENT_AIR_TEMPERATURE, 30);
         mLiveFrameEventBuilder.addIntSensor(
                 IntegerSensorIndex.FUEL_SYSTEM_STATUS,
@@ -233,7 +246,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 (CarDiagnosticManager) getCar().getCarManager(Car.DIAGNOSTIC_SERVICE);
     }
 
-    public void testLiveFrameRead() throws Exception {
+    @Test public void testLiveFrameRead() throws Exception {
         CarDiagnosticEvent liveFrame = mCarDiagnosticManager.getLatestLiveFrame();
 
         assertNotNull(liveFrame);
@@ -258,15 +271,15 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                         .intValue());
         assertEquals(
                 0.125f,
-                liveFrame
-                        .getSystemFloatSensor(FloatSensorIndex.CALCULATED_ENGINE_LOAD)
-                        .floatValue());
+                liveFrame.getSystemFloatSensor(FloatSensorIndex.CALCULATED_ENGINE_LOAD),
+                EPS);
         assertEquals(
                 12.5f,
-                liveFrame.getSystemFloatSensor(FloatSensorIndex.VEHICLE_SPEED).floatValue());
+                liveFrame.getSystemFloatSensor(FloatSensorIndex.VEHICLE_SPEED),
+                EPS);
     }
 
-    public void testLiveFrameEvent() throws Exception {
+    @Test public void testLiveFrameEvent() throws Exception {
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -290,7 +303,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                         .intValue());
     }
 
-    public void testMissingSensorRead() throws Exception {
+    @Test public void testMissingSensorRead() throws Exception {
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -314,17 +327,17 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertNull(liveFrame.getSystemFloatSensor(FloatSensorIndex.OXYGEN_SENSOR6_VOLTAGE));
         assertEquals(
                 0.25f,
-                liveFrame.getSystemFloatSensor(FloatSensorIndex.OXYGEN_SENSOR5_VOLTAGE, 0.25f));
+                liveFrame.getSystemFloatSensor(FloatSensorIndex.OXYGEN_SENSOR5_VOLTAGE, 0.25f), EPS);
 
         assertNull(liveFrame.getVendorIntegerSensor(IntegerSensorIndex.VENDOR_START));
         assertEquals(-1, liveFrame.getVendorIntegerSensor(IntegerSensorIndex.VENDOR_START, -1));
 
         assertNull(liveFrame.getVendorFloatSensor(FloatSensorIndex.VENDOR_START));
         assertEquals(
-                0.25f, liveFrame.getVendorFloatSensor(FloatSensorIndex.VENDOR_START, 0.25f));
+                0.25f, liveFrame.getVendorFloatSensor(FloatSensorIndex.VENDOR_START, 0.25f), EPS);
     }
 
-    public void testFuelSystemStatus() throws Exception {
+    @Test public void testFuelSystemStatus() throws Exception {
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -347,7 +360,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 liveFrame.getFuelSystemStatus().intValue());
     }
 
-    public void testSecondaryAirStatus() throws Exception {
+    @Test public void testSecondaryAirStatus() throws Exception {
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -376,7 +389,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 liveFrame.getSecondaryAirStatus().intValue());
     }
 
-    public void testIgnitionMonitors() throws Exception {
+    @Test public void testIgnitionMonitors() throws Exception {
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -473,7 +486,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertFalse(compressionIgnitionMonitors.NMHCCatalyst.incomplete);
     }
 
-    public void testFuelType() throws Exception {
+    @Test public void testFuelType() throws Exception {
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -496,7 +509,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertEquals(FuelType.BIFUEL_RUNNING_LPG, liveFrame.getFuelType().intValue());
     }
 
-    public void testDiagnosticJson() throws Exception {
+    @Test public void testDiagnosticJson() throws Exception {
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
                 listener,
@@ -521,7 +534,8 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                         .intValue());
         assertEquals(
                 0.125f,
-                liveFrame.getSystemFloatSensor(FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE));
+                liveFrame.getSystemFloatSensor(FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE),
+                EPS);
 
         StringWriter stringWriter = new StringWriter();
         JsonWriter jsonWriter = new JsonWriter(stringWriter);
@@ -541,9 +555,11 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                         .intValue());
         assertEquals(
                 0.125f,
-                diagnosticJson.floatValues.get(FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE));
+                diagnosticJson.floatValues.get(FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE),
+                EPS);
     }
 
+    @Test
     public void testMultipleListeners() throws Exception {
         Listener listener1 = new Listener();
         Listener listener2 = new Listener();
@@ -608,6 +624,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                         .intValue());
     }
 
+    @Test
     public void testFreezeFrameEvent() throws Exception {
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
@@ -646,6 +663,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                         .intValue());
     }
 
+    @Test
     public void testFreezeFrameTimestamps() throws Exception {
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
@@ -675,6 +693,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         }
     }
 
+    @Test
     public void testClearFreezeFrameTimestamps() throws Exception {
         Listener listener = new Listener();
         mCarDiagnosticManager.registerListener(
@@ -692,6 +711,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertNull(mCarDiagnosticManager.getFreezeFrame(injectedEvent.timestamp));
     }
 
+    @Test
     public void testListenerUnregister() throws Exception {
         Listener listener1 = new Listener();
         Listener listener2 = new Listener();
@@ -730,6 +750,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertTrue(listener2.waitForEvent(time));
     }
 
+    @Test
     public void testIsSupportedApiCalls() throws Exception {
         assertTrue(mCarDiagnosticManager.isLiveFrameSupported());
         assertTrue(mCarDiagnosticManager.isFreezeFrameNotificationSupported());

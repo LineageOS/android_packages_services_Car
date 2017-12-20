@@ -15,19 +15,27 @@
  */
 package com.android.car;
 
+import static org.junit.Assert.assertEquals;
+
 import android.car.Car;
 import android.car.CarAppFocusManager;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class AppFocusTest extends MockedCarTestBase {
     private static final String TAG = AppFocusTest.class.getSimpleName();
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 1000;
 
+    @Test
     public void testFocusChange() throws Exception {
         CarAppFocusManager manager = (CarAppFocusManager) getCar().getCarManager(
                 Car.APP_FOCUS_SERVICE);

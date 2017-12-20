@@ -15,16 +15,20 @@
  */
 package com.android.car;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import android.car.Car;
 import android.car.hardware.radio.CarRadioEvent;
 import android.car.hardware.radio.CarRadioManager;
 import android.car.hardware.radio.CarRadioManager.CarRadioEventListener;
 import android.car.hardware.radio.CarRadioPreset;
-import android.hardware.radio.RadioManager;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.radio.RadioManager;
 import android.os.SystemClock;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
 import com.google.android.collect.Lists;
@@ -32,10 +36,14 @@ import com.google.android.collect.Lists;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarRadioManagerTest extends MockedCarTestBase {
 
@@ -138,17 +146,19 @@ public class CarRadioManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mAvailable = new Semaphore(0);
         mCarRadioManager = (CarRadioManager) getCar().getCarManager(Car.RADIO_SERVICE);
     }
 
+    @Test
     public void testPresetCount() throws Exception {
         int presetCount = mCarRadioManager.getPresetCount();
         assertEquals("Preset count not same.", NUM_PRESETS, presetCount);
     }
 
+    @Test
     public void testSetAndGetPreset() throws Exception {
         // Create a preset.
         CarRadioPreset preset = new CarRadioPreset(1, RadioManager.BAND_FM, 1234, -1);
@@ -164,6 +174,7 @@ public class CarRadioManagerTest extends MockedCarTestBase {
         assertEquals(preset, mCarRadioManager.getPreset(1));
     }
 
+    @Test
     public void testSubscribe() throws Exception {
         EventListener listener = new EventListener();
         assertEquals("Lock should be freed by now.", 0, mAvailable.availablePermits());

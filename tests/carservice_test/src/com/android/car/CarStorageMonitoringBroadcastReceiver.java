@@ -20,14 +20,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.util.Log;
+
 import java.time.Duration;
 
 public class CarStorageMonitoringBroadcastReceiver extends BroadcastReceiver {
+    private static final String TAG = CarStorageMonitoringBroadcastReceiver.class.getSimpleName();
     private static Intent mLastIntent;
     private static final Object mSync = new Object();
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.i(TAG, "onReceive, intent: " + intent);
         synchronized (mSync) {
             mLastIntent = intent;
             mSync.notify();
@@ -35,6 +39,7 @@ public class CarStorageMonitoringBroadcastReceiver extends BroadcastReceiver {
     }
 
     static Intent reset() {
+        Log.i(TAG, "reset");
         synchronized (mSync) {
             Intent lastIntent = mLastIntent;
             mLastIntent = null;

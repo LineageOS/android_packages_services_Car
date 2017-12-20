@@ -15,12 +15,17 @@
  */
 package com.android.car;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import android.hardware.automotive.vehicle.V2_0.VehicleAudioContextFlag;
 import android.hardware.automotive.vehicle.V2_0.VehicleAudioRoutingPolicyIndex;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.google.android.collect.Lists;
 
@@ -28,11 +33,16 @@ import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.FailingPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+
+@RunWith(AndroidJUnit4.class)
 @SmallTest
 public class AudioRoutingPolicyTest extends MockedCarTestBase {
     private static final String TAG = AudioRoutingPolicyTest.class.getSimpleName();
@@ -42,17 +52,17 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
     private final VehicleHalPropertyHandler mAudioRoutingPolicyHandler =
             new FailingPropertyHandler() {
 
-        @Override
-        public void onPropertySet(VehiclePropValue value) {
-            handlePropertySetEvent(value);
-        }
-    };
+                @Override
+                public void onPropertySet(VehiclePropValue value) {
+                    handlePropertySetEvent(value);
+                }
+            };
 
     private final Semaphore mWaitSemaphore = new Semaphore(0);
     private final LinkedList<VehiclePropValue> mEvents = new LinkedList<>();
 
     @Override
-    protected synchronized void setUp() throws Exception {
+    public synchronized void setUp() throws Exception {
         super.setUp();
     }
 
@@ -62,10 +72,13 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
                 .setAccess(VehiclePropertyAccess.WRITE);
     }
 
+    @Test
     public void testNoHwVariant() throws Exception {
         checkPolicy0();
     }
 
+    @Test
+    @UiThreadTest
     public void testHwVariant0() throws Exception {
         addStaticProperty(VehicleProperty.AUDIO_HW_VARIANT,
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.AUDIO_HW_VARIANT)
@@ -79,6 +92,8 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
         checkPolicy0();
     }
 
+    @Test
+    @UiThreadTest
     public void testHwVariantForTest() throws Exception {
         addStaticProperty(VehicleProperty.AUDIO_HW_VARIANT,
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.AUDIO_HW_VARIANT)
@@ -100,16 +115,16 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
         // check if all contexts are allowed ones.
         assertTrue((contexts & ~(
                 VehicleAudioContextFlag.RINGTONE_FLAG |
-                VehicleAudioContextFlag.ALARM_FLAG |
-                VehicleAudioContextFlag.CALL_FLAG |
-                VehicleAudioContextFlag.MUSIC_FLAG |
-                VehicleAudioContextFlag.RADIO_FLAG |
-                VehicleAudioContextFlag.NAVIGATION_FLAG |
-                VehicleAudioContextFlag.NOTIFICATION_FLAG |
-                VehicleAudioContextFlag.UNKNOWN_FLAG |
-                VehicleAudioContextFlag.VOICE_COMMAND_FLAG |
-                VehicleAudioContextFlag.SYSTEM_SOUND_FLAG |
-                VehicleAudioContextFlag.SAFETY_ALERT_FLAG)) == 0);
+                        VehicleAudioContextFlag.ALARM_FLAG |
+                        VehicleAudioContextFlag.CALL_FLAG |
+                        VehicleAudioContextFlag.MUSIC_FLAG |
+                        VehicleAudioContextFlag.RADIO_FLAG |
+                        VehicleAudioContextFlag.NAVIGATION_FLAG |
+                        VehicleAudioContextFlag.NOTIFICATION_FLAG |
+                        VehicleAudioContextFlag.UNKNOWN_FLAG |
+                        VehicleAudioContextFlag.VOICE_COMMAND_FLAG |
+                        VehicleAudioContextFlag.SYSTEM_SOUND_FLAG |
+                        VehicleAudioContextFlag.SAFETY_ALERT_FLAG)) == 0);
     }
 
     private void checkPolicyForTest() throws Exception {
@@ -120,19 +135,19 @@ public class AudioRoutingPolicyTest extends MockedCarTestBase {
         assertEquals(0, v.get(VehicleAudioRoutingPolicyIndex.STREAM).intValue());
         assertEquals(
                 VehicleAudioContextFlag.CALL_FLAG |
-                VehicleAudioContextFlag.MUSIC_FLAG |
-                VehicleAudioContextFlag.RADIO_FLAG |
-                VehicleAudioContextFlag.UNKNOWN_FLAG,
+                        VehicleAudioContextFlag.MUSIC_FLAG |
+                        VehicleAudioContextFlag.RADIO_FLAG |
+                        VehicleAudioContextFlag.UNKNOWN_FLAG,
                 v.get(VehicleAudioRoutingPolicyIndex.CONTEXTS).intValue());
         v = mEvents.get(1).value.int32Values;
         assertEquals(1, v.get(VehicleAudioRoutingPolicyIndex.STREAM).intValue());
         assertEquals(
                 VehicleAudioContextFlag.ALARM_FLAG |
-                VehicleAudioContextFlag.NAVIGATION_FLAG |
-                VehicleAudioContextFlag.NOTIFICATION_FLAG |
-                VehicleAudioContextFlag.VOICE_COMMAND_FLAG |
-                VehicleAudioContextFlag.SYSTEM_SOUND_FLAG |
-                VehicleAudioContextFlag.SAFETY_ALERT_FLAG,
+                        VehicleAudioContextFlag.NAVIGATION_FLAG |
+                        VehicleAudioContextFlag.NOTIFICATION_FLAG |
+                        VehicleAudioContextFlag.VOICE_COMMAND_FLAG |
+                        VehicleAudioContextFlag.SYSTEM_SOUND_FLAG |
+                        VehicleAudioContextFlag.SAFETY_ALERT_FLAG,
                 v.get(VehicleAudioRoutingPolicyIndex.CONTEXTS).intValue());
     }
 

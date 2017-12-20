@@ -15,14 +15,23 @@
  */
 package com.android.car;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import android.car.Car;
 import android.car.CarNotConnectedException;
 import android.car.content.pm.AppBlockingPackageInfo;
 import android.car.content.pm.CarAppBlockingPolicy;
 import android.car.content.pm.CarPackageManager;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CarPackageManagerTest extends MockedCarTestBase {
     private static final String TAG = CarPackageManagerTest.class.getSimpleName();
@@ -32,22 +41,21 @@ public class CarPackageManagerTest extends MockedCarTestBase {
 
     private CarPackageManager mCarPm;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
     private void init(boolean policyFromService) throws Exception {
+        Log.i(TAG, "init started");
         TestAppBlockingPolicyService.controlPolicySettingFromService(policyFromService);
         mCarPm = (CarPackageManager) getCar().getCarManager(Car.PACKAGE_SERVICE);
         assertNotNull(mCarPm);
     }
 
+    @Test
     public void testServiceLaunched() throws Exception {
         init(true);
+        Log.i(TAG, "testServiceLaunched, init called");
         assertTrue(pollingCheck(new PollingChecker() {
             @Override
             public boolean check() {
+                Log.i(TAG, "checking instance ...");
                 return TestAppBlockingPolicyService.getInstance() != null;
             }
         }, POLLING_MAX_RETRY, POLLING_SLEEP));
@@ -68,6 +76,7 @@ public class CarPackageManagerTest extends MockedCarTestBase {
         assertFalse(mCarPm.isServiceAllowedWhileDriving(serviceClassName, null));
     }
 
+    @Test
     public void testSettingWhitelist() throws Exception {
         init(false);
         final String carServicePackageName = "com.android.car";

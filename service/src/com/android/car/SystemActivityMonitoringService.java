@@ -29,6 +29,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
@@ -311,10 +312,12 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                 currentTask.topActivity, currentTask.taskId));
         // Put launcher in the activity stack, so that we have something safe to show after the
         // block activity finishes.
-        Intent launcherIntent = new Intent();
-        launcherIntent.setComponent(ComponentName.unflattenFromString(
-                mContext.getString(R.string.defaultHomeActivity)));
-        mContext.startActivity(launcherIntent);
+        String defaultHomeActivity = mContext.getString(R.string.defaultHomeActivity);
+        if (!TextUtils.isEmpty(defaultHomeActivity)) {
+            Intent launcherIntent = new Intent();
+            launcherIntent.setComponent(ComponentName.unflattenFromString(defaultHomeActivity));
+            mContext.startActivity(launcherIntent);
+        }
 
         newActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 

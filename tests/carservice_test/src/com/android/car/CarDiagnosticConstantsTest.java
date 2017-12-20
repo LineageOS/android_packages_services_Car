@@ -16,8 +16,14 @@
 
 package com.android.car;
 
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+
+import junit.framework.TestCase;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -25,13 +31,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 /**
  * Validates that diagnostic constants in CarService and Vehicle HAL have the same value
  * This is an important assumption to validate because we do not perform any mapping between
  * the two layers, instead relying on the constants on both sides having identical values.
  */
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarDiagnosticConstantsTest extends TestCase {
     static final String TAG = CarDiagnosticConstantsTest.class.getSimpleName();
@@ -137,22 +142,23 @@ public class CarDiagnosticConstantsTest extends TestCase {
         }
     }
 
+    @Test
     public void testFuelSystemStatus() throws Exception {
         validateMatch(android.hardware.automotive.vehicle.V2_0.Obd2FuelSystemStatus.class,
             android.car.diagnostic.CarDiagnosticEvent.FuelSystemStatus.class);
     }
 
-    public void testFuelType() throws Exception {
+    @Test public void testFuelType() throws Exception {
         validateMatch(android.hardware.automotive.vehicle.V2_0.Obd2FuelType.class,
             android.car.diagnostic.CarDiagnosticEvent.FuelType.class);
     }
 
-    public void testSecondaryAirStatus() throws Exception {
+    @Test public void testSecondaryAirStatus() throws Exception {
         validateMatch(android.hardware.automotive.vehicle.V2_0.Obd2SecondaryAirStatus.class,
             android.car.diagnostic.CarDiagnosticEvent.SecondaryAirStatus.class);
     }
 
-    public void testIgnitionMonitors() throws Exception {
+    @Test public void testIgnitionMonitors() throws Exception {
         validateMatch(android.hardware.automotive.vehicle.V2_0.Obd2CommonIgnitionMonitors.class,
             android.car.diagnostic.CarDiagnosticEvent.CommonIgnitionMonitors.class);
 

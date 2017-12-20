@@ -93,6 +93,8 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
      */
     @Override
     public void onCarDisconnected() {
+        mListeners.clear();
+        mListenerToService = null;
     }
 
     // ICarStorageMonitoring forwards

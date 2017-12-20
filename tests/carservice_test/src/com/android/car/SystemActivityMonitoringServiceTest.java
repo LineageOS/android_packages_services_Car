@@ -15,20 +15,30 @@
  */
 package com.android.car;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
-public class SystemActivityMonitoringServiceTest extends AndroidTestCase {
+public class SystemActivityMonitoringServiceTest {
     private static final long ACTIVITY_TIME_OUT = 5000;
 
     private SystemActivityMonitoringService mService;
@@ -36,10 +46,8 @@ public class SystemActivityMonitoringServiceTest extends AndroidTestCase {
 
     private final TopTaskInfoContainer[] mTopTaskInfo = new TopTaskInfoContainer[1];
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @Before
+    public void setUp() throws Exception {
         mService = new SystemActivityMonitoringService(getContext());
         mService.registerActivityLaunchListener(topTask -> {
             if (!getTestContext().getPackageName().equals(topTask.topActivity.getPackageName())) {
@@ -52,14 +60,13 @@ public class SystemActivityMonitoringServiceTest extends AndroidTestCase {
         });
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-
+    @After
+    public void tearDown() throws Exception {
         mService.registerActivityLaunchListener(null);
         mService = null;
     }
 
+    @Test
     public void testActivityLaunch() throws Exception {
         ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
         startActivity(getContext(), activityA);
@@ -70,6 +77,7 @@ public class SystemActivityMonitoringServiceTest extends AndroidTestCase {
         assertTopTaskActivity(activityB);
     }
 
+    @Test
     public void testActivityBlocking() throws Exception {
         ComponentName blackListedActivity = toComponentName(getTestContext(), ActivityC.class);
         ComponentName blockingActivity = toComponentName(getTestContext(), BlockingActivity.class);
@@ -104,6 +112,14 @@ public class SystemActivityMonitoringServiceTest extends AndroidTestCase {
         synchronized (mTopTaskInfo) {
             assertEquals(activity, mTopTaskInfo[0].topActivity);
         }
+    }
+
+    private Context getContext() {
+        return InstrumentationRegistry.getTargetContext();
+    }
+
+    private Context getTestContext() {
+        return InstrumentationRegistry.getContext();
     }
 
     private static ComponentName toComponentName(Context ctx, Class<?> cls) {

@@ -16,6 +16,11 @@
 
 package com.android.car;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import android.car.Car;
 import android.car.CarNotConnectedException;
 import android.car.hardware.CarSensorEvent;
@@ -29,6 +34,8 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
+
+import org.junit.Test;
 
 /**
  * Test the public entry points for the CarSensorManager
@@ -49,9 +56,9 @@ public class CarSensorManagerTest extends MockedCarTestBase {
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.PERF_VEHICLE_SPEED)
                         .addFloatValue(0f)
                         .build());
-        addProperty(VehicleProperty.FUEL_LEVEL_LOW,
-                VehiclePropValueBuilder.newBuilder(VehicleProperty.FUEL_LEVEL_LOW)
-                        .setBooleanValue(false)
+        addProperty(VehicleProperty.FUEL_LEVEL,
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.FUEL_LEVEL)
+                        .addFloatValue(20000)  // ml
                         .build());
         addProperty(VehicleProperty.PARKING_BRAKE_ON,
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.PARKING_BRAKE_ON)
@@ -76,7 +83,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         // Start the HAL layer and set up the sensor manager service
         mCarSensorManager = (CarSensorManager) getCar().getCarManager(Car.SENSOR_SERVICE);
@@ -86,6 +93,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
      * Test single sensor availability entry point
      * @throws Exception
      */
+    @Test
     public void testSensorAvailability() throws Exception {
         // NOTE:  Update this test if/when the reserved values put into use.  For now, we
         //        expect them to never be supported.
@@ -109,6 +117,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
      * Test sensor enumeration entry point
      * @throws Exception
      */
+    @Test
     public void testSensorEnumeration() throws Exception {
         int[] supportedSensors = mCarSensorManager.getSupportedSensors();
         assertNotNull(supportedSensors);
@@ -150,6 +159,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
      * Test senor notification registration, delivery, and unregistration
      * @throws Exception
      */
+    @Test
     public void testEvents() throws Exception {
         // Set up our listener callback
         SensorListener listener = new SensorListener();
@@ -232,6 +242,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         assertTrue("Unexpected value", data.isNightMode);
     }
 
+    @Test
     public void testIgnitionState() throws CarNotConnectedException {
         CarSensorEvent event = mCarSensorManager.getLatestSensorEvent(
                 CarSensorManager.SENSOR_TYPE_IGNITION_STATE);
@@ -239,6 +250,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         assertEquals(CarSensorEvent.IGNITION_STATE_ACC, event.intValues[0]);
     }
 
+    @Test
     public void testIgnitionEvents() throws Exception {
         SensorListener listener = new SensorListener();
         mCarSensorManager.registerListener(listener, CarSensorManager.SENSOR_TYPE_IGNITION_STATE,
@@ -278,6 +290,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         assertEquals(mgrIgnitionState, eventReceived.intValues[0]);
     }
 
+    @Test
     public void testIgnitionEvents_Bad() throws Exception {
         SensorListener listener = new SensorListener();
         mCarSensorManager.registerListener(listener, CarSensorManager.SENSOR_TYPE_IGNITION_STATE,
@@ -295,6 +308,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         assertFalse(listener.waitForSensorChange(time));
     }
 
+    @Test
     public void testGear() throws Exception {
         SensorListener listener = new SensorListener();
         mCarSensorManager.registerListener(listener, CarSensorManager.SENSOR_TYPE_GEAR,
@@ -356,6 +370,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
      * Test senor multiple liseners notification registration, delivery and unregistration.
      * @throws Exception
      */
+    @Test
     public void testEventsWithMultipleListeners() throws Exception {
         // Set up our listeners callback
         SensorListener listener1 = new SensorListener();

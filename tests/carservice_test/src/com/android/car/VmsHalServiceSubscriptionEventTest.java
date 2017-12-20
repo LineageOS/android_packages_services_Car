@@ -16,22 +16,27 @@
 
 package com.android.car;
 
-import static org.junit.Assume.assumeTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.car.VehicleAreaType;
 import android.car.vms.VmsLayer;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
+import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsSubscriptionsStateIntegerValuesIndex;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +45,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
     private static final String TAG = "VmsHalServiceTest";
@@ -59,27 +65,25 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mHal = getMockedVehicleHal();
         mHalHandlerSemaphore = new Semaphore(0);
     }
 
-    @Override
-    protected synchronized void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testEmptySubscriptions() throws Exception {
         List<VmsLayer> layers = new ArrayList<>();
         subscriptionTestLogic(layers);
     }
 
+    @Test
     public void testOneSubscription() throws Exception {
         List<VmsLayer> layers = Arrays.asList(new VmsLayer(8, 0, 3));
         subscriptionTestLogic(layers);
     }
 
+    @Test
     public void testManySubscriptions() throws Exception {
         List<VmsLayer> layers = Arrays.asList(
                 new VmsLayer(8, 1, 3),

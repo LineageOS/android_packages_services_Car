@@ -17,6 +17,8 @@
 package com.android.car;
 
 import static com.android.car.CarServiceUtils.toByteArray;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
@@ -29,7 +31,8 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.os.SystemClock;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -37,6 +40,8 @@ import com.android.car.vehiclehal.test.MockedVehicleHal;
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 
 import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +50,7 @@ import java.util.Random;
 /**
  * Tests for {@link CarVendorExtensionManager}
  */
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarVendorExtensionManagerTest extends MockedCarTestBase {
 
@@ -95,18 +101,14 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
     private CarVendorExtensionManager mManager;
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
 
         mManager = (CarVendorExtensionManager) getCar().getCarManager(Car.VENDOR_EXTENSION_SERVICE);
         assertNotNull(mManager);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testPropertyList() throws Exception {
         List<CarPropertyConfig> configs = mManager.getProperties();
         assertEquals(mConfigs.length, configs.size());
@@ -123,6 +125,7 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
         assertEquals(MAX_PROP_INT32, prop1.getMaxValue());
     }
 
+    @Test
     public void testIntGlobalProperty() throws Exception {
         final int value = 0xbeef;
         mManager.setGlobalProperty(Integer.class, CUSTOM_GLOBAL_INT_PROP_ID, value);
@@ -130,6 +133,7 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
         assertEquals(value, actualValue);
     }
 
+    @Test
     public void testFloatZonedProperty() throws Exception {
         final float value = MIN_PROP_FLOAT + 1;
         mManager.setProperty(
@@ -143,6 +147,7 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
         assertEquals(value, actualValue, EPS);
     }
 
+    @Test
     public void testByteArrayProperty() throws Exception {
         final byte[] expectedData = new byte[] { 1, 2, 3, 4, -1, 127, -127, 0 };
 
@@ -159,6 +164,7 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
         assertEquals(Arrays.toString(expectedData), Arrays.toString(actualData));
     }
 
+    @Test
     public void testLargeByteArrayProperty() throws Exception {
         // Allocate array of byte which is greater than binder transaction buffer limitation.
         byte[] expectedData = new byte[2 * MILLION];
@@ -179,6 +185,7 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
         Assert.assertArrayEquals(expectedData, actualData);
     }
 
+    @Test
     public void testLargeStringProperty() throws Exception {
         // Allocate string which is greater than binder transaction buffer limitation.
         String expectedString = generateRandomString(2 * MILLION,
@@ -196,6 +203,7 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
         assertEquals(expectedString, actualString);
     }
 
+    @Test
     public void testStringProperty() throws Exception {
         final String expectedString = "εὕρηκα!";  // Test some utf as well.
 

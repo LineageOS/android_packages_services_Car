@@ -16,13 +16,11 @@
 
 package com.android.car;
 
-import android.annotation.ArrayRes;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import android.car.VehicleAreaType;
 import android.car.vms.VmsLayer;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
@@ -30,18 +28,23 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class VmsPublisherClientServiceTest extends MockedCarTestBase {
     private static final String TAG = "VmsPublisherTest";
@@ -71,7 +74,7 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
     @Override
     protected synchronized void configureResourceOverrides(MockResources resources) {
         resources.overrideResource(R.array.vmsPublisherClients,
-            new String[]{"com.android.car/.SimpleVmsPublisherClientService"});
+            new String[]{ getFlattenComponent(SimpleVmsPublisherClientService.class) });
     }
 
     private VehiclePropValue getHalSubscriptionRequest() {
@@ -84,7 +87,7 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         /**
          * First init the semaphore, setUp will start a series of events that will ultimately
          * update the HAL layer and release this semaphore.
@@ -97,15 +100,6 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
         mHal.injectEvent(getHalSubscriptionRequest());
     }
 
-    @Override
-    protected synchronized void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    static String javaClassToComponent(Context context, Class<?> clazz) {
-        return context.getPackageName() +  "/" + clazz.getName();
-    }
-
     /**
      * The method setUp initializes all the Car services, including the VmsPublisherService.
      * The VmsPublisherService will start and configure its list of clients. This list was
@@ -114,6 +108,7 @@ public class VmsPublisherClientServiceTest extends MockedCarTestBase {
      * The service SimpleVmsPublisherClientService will publish one message, which is validated in
      * this test.
      */
+    @Test
     public void testPublish() throws Exception {
         //TODO: This test is using minial synchronisation between clients.
         //      If more complexity is added this may result in publisher

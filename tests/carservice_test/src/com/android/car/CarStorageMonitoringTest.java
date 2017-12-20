@@ -16,6 +16,13 @@
 
 package com.android.car;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
@@ -27,11 +34,13 @@ import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 import android.content.Intent;
 import android.os.SystemClock;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.JsonWriter;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
+
 import com.android.car.storagemonitoring.UidIoStatsProvider;
 import com.android.car.storagemonitoring.WearEstimateRecord;
 import com.android.car.storagemonitoring.WearHistory;
@@ -41,6 +50,12 @@ import com.android.car.systeminterface.StorageMonitoringInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.TimeInterface;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -54,9 +69,12 @@ import java.util.List;
 import java.util.Map;
 
 /** Test the public entry points for the CarStorageMonitoringManager */
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarStorageMonitoringTest extends MockedCarTestBase {
     private static final String TAG = CarStorageMonitoringTest.class.getSimpleName();
+
+    @Rule public TestName mTestName = new TestName();
 
     private static final WearInformation DEFAULT_WEAR_INFORMATION =
         new WearInformation(30, 0, WearInformation.PRE_EOL_INFO_NORMAL);
@@ -78,7 +96,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         }
     }
 
-    private static final Map<String, ResourceOverrides> PER_TEST_RESOURCES =
+    private final Map<String, ResourceOverrides> PER_TEST_RESOURCES =
             new HashMap<String, ResourceOverrides>() {
                 {
                     put("testIntentOnExcessiveWrite",
@@ -87,22 +105,24 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
                                 override(R.integer.acceptableWrittenKBytesPerSample, 10);
                                 override(R.integer.acceptableFsyncCallsPerSample, 1000);
                                 override(R.string.intentReceiverForUnacceptableIoMetrics,
-                                        "com.android.car/.CarStorageMonitoringBroadcastReceiver");
+                                        getFlattenComponent(
+                                                CarStorageMonitoringBroadcastReceiver.class));
                             }});
 
                     put("testIntentOnExcessiveFsync",
-                        new ResourceOverrides() {{
-                            override(R.integer.maxExcessiveIoSamplesInWindow, 0);
-                            override(R.integer.acceptableWrittenKBytesPerSample, 1000);
-                            override(R.integer.acceptableFsyncCallsPerSample, 2);
-                            override(R.string.intentReceiverForUnacceptableIoMetrics,
-                                "com.android.car/.CarStorageMonitoringBroadcastReceiver");
-                        }});
+                            new ResourceOverrides() {{
+                                override(R.integer.maxExcessiveIoSamplesInWindow, 0);
+                                override(R.integer.acceptableWrittenKBytesPerSample, 1000);
+                                override(R.integer.acceptableFsyncCallsPerSample, 2);
+                                override(R.string.intentReceiverForUnacceptableIoMetrics,
+                                        getFlattenComponent(
+                                                CarStorageMonitoringBroadcastReceiver.class));
+                            }});
 
                     put("testZeroWindowDisablesCollection",
-                        new ResourceOverrides() {{
-                            override(R.integer.ioStatsNumSamplesToStore, 0);
-                        }});
+                            new ResourceOverrides() {{
+                                override(R.integer.ioStatsNumSamplesToStore, 0);
+                            }});
 
                 }
             };
@@ -243,8 +263,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     @Override
     protected synchronized void configureFakeSystemInterface() {
         try {
-            final String testName = getName();
-            final TestData wearData = PER_TEST_DATA.getOrDefault(testName, TestData.DEFAULT);
+            final TestData wearData = PER_TEST_DATA.getOrDefault(getName(), TestData.DEFAULT);
             final WearHistory wearHistory = wearData.wearHistory;
 
             mMockStorageMonitoringInterface.setWearInformation(wearData.wearInformation);
@@ -278,28 +297,28 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
     @Override
     protected synchronized void configureResourceOverrides(MockResources resources) {
-        final String testName = getName();
-        final ResourceOverrides overrides = PER_TEST_RESOURCES.getOrDefault(testName, null);
+        final ResourceOverrides overrides = PER_TEST_RESOURCES.getOrDefault(getName(), null);
         if (overrides != null) {
             overrides.overrideResources(resources);
         }
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
-
         mMockSystemStateInterface.executeBootCompletedActions();
 
         mCarStorageMonitoringManager =
             (CarStorageMonitoringManager) getCar().getCarManager(Car.STORAGE_MONITORING_SERVICE);
     }
 
+    @Test
     public void testReadPreEolInformation() throws Exception {
         assertEquals(DEFAULT_WEAR_INFORMATION.preEolInfo,
                 mCarStorageMonitoringManager.getPreEolIndicatorStatus());
     }
 
+    @Test
     public void testReadWearEstimate() throws Exception {
         final WearEstimate wearEstimate = mCarStorageMonitoringManager.getWearEstimate();
 
@@ -308,6 +327,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         assertEquals(DEFAULT_WEAR_INFORMATION.lifetimeEstimateB, wearEstimate.typeB);
     }
 
+    @Test
     public void testReadWearHistory() throws Exception {
         final List<WearEstimateChange> wearEstimateChanges =
                 mCarStorageMonitoringManager.getWearEstimateHistory();
@@ -346,14 +366,17 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         assertEquals(expectedPreviousWear, actualCurrentWear.oldEstimate);
     }
 
+    @Test
     public void testNotAcceptableWearEvent() throws Exception {
         checkLastWearEvent(false);
     }
 
+    @Test
     public void testAcceptableWearEvent() throws Exception {
         checkLastWearEvent(true);
     }
 
+    @Test
     public void testBootIoStats() throws Exception {
         final List<IoStatsEntry> bootIoStats =
             mCarStorageMonitoringManager.getBootIoStats();
@@ -367,6 +390,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
                 ioRecord -> uidIoStats.representsSameMetrics(ioRecord))));
     }
 
+    @Test
     public void testAggregateIoStats() throws Exception {
         UidIoRecord oldRecord1000 = mMockStorageMonitoringInterface.getIoStatsRecord(1000);
 
@@ -415,6 +439,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         });
     }
 
+    @Test
     public void testIoStatsDeltas() throws Exception {
         UidIoRecord oldRecord0 = mMockStorageMonitoringInterface.getIoStatsRecord(0);
 
@@ -493,6 +518,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         assertTrue(deltaRecord0.representsSameMetrics(newerRecord0.delta(newRecord0)));
     }
 
+    @Test
     public void testEventDelivery() throws Exception {
         final Duration eventDeliveryDeadline = Duration.ofSeconds(5);
 
@@ -533,6 +559,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         assertTrue(listener2.waitForEvent(eventDeliveryDeadline));
     }
 
+    @Test
     public void testIntentOnExcessiveWrite() throws Exception {
         assertNull(CarStorageMonitoringBroadcastReceiver.reset());
 
@@ -559,6 +586,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         assertEquals(CarStorageMonitoringManager.INTENT_EXCESSIVE_IO, deliveredIntent.getAction());
     }
 
+    @Test
     public void testIntentOnExcessiveFsync() throws Exception {
         assertNull(CarStorageMonitoringBroadcastReceiver.reset());
 
@@ -585,6 +613,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         assertEquals(CarStorageMonitoringManager.INTENT_EXCESSIVE_IO, deliveredIntent.getAction());
     }
 
+    @Test
     public void testZeroWindowDisablesCollection() throws Exception {
         final Duration eventDeliveryDeadline = Duration.ofSeconds(5);
 
@@ -608,6 +637,10 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         assertFalse(listener.waitForEvent(eventDeliveryDeadline));
 
         assertEquals(0, mCarStorageMonitoringManager.getIoStatsDeltas().size());
+    }
+
+    private String getName() {
+        return mTestName.getMethodName();
     }
 
     static final class Listener implements CarStorageMonitoringManager.IoStatsListener {

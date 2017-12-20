@@ -16,6 +16,9 @@
 
 package com.android.car;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import android.car.Car;
 import android.car.CarProjectionManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
@@ -23,17 +26,22 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.os.SystemClock;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 import android.view.KeyEvent;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarProjectionManagerTest extends MockedCarTestBase {
     private static final String TAG = CarProjectionManagerTest.class.getSimpleName();
@@ -62,11 +70,12 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         mManager = (CarProjectionManager) getCar().getCarManager(Car.PROJECTION_SERVICE);
     }
 
+    @Test
     public void testShortPressListener() throws Exception {
         mManager.registerProjectionListener(
                 mListener,
@@ -78,6 +87,7 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
         assertEquals(0, mLongAvailable.availablePermits());
     }
 
+    @Test
     public void testLongPressListener() throws Exception {
         mManager.registerProjectionListener(
                 mListener,
@@ -89,6 +99,7 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
         assertEquals(0, mAvailable.availablePermits());
     }
 
+    @Test
     public void testMixedPressListener() throws Exception {
         mManager.registerProjectionListener(
                 mListener,
