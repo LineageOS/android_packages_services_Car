@@ -23,7 +23,7 @@
     <original-package android:name="com.android.car" />
 
     <permission-group
-        android:name="android.car.permission.CAR_INFORMATION"
+        android:name="android.car.permission-group.CAR_INFORMATION"
         android:icon="@drawable/car_ic_mode"
         android:description="@string/car_permission_desc"
         android:label="@string/car_permission_label" />
@@ -39,7 +39,7 @@
         android:description="@string/car_permission_desc_camera" />
     <permission
         android:name="android.car.permission.CAR_FUEL"
-        android:permissionGroup="android.car.permission.CAR_INFORMATION"
+        android:permissionGroup="android.car.permission-group.CAR_INFORMATION"
         android:protectionLevel="dangerous"
         android:label="@string/car_permission_label_fuel"
         android:description="@string/car_permission_desc_fuel" />
@@ -50,7 +50,7 @@
         android:description="@string/car_permission_desc_hvac" />
     <permission
         android:name="android.car.permission.CAR_MILEAGE"
-        android:permissionGroup="android.car.permission.CAR_INFORMATION"
+        android:permissionGroup="android.car.permission-group.CAR_INFORMATION"
         android:protectionLevel="dangerous"
         android:label="@string/car_permission_label_mileage"
         android:description="@string/car_permission_desc_mileage" />
@@ -62,7 +62,7 @@
         android:description="@string/car_permission_desc_speed" />
     <permission
         android:name="android.car.permission.VEHICLE_DYNAMICS_STATE"
-        android:permissionGroup="android.permission-group.CAR_INFORMATION"
+        android:permissionGroup="android.car.permission-group.CAR_INFORMATION"
         android:protectionLevel="dangerous"
         android:label="@string/car_permission_label_vehicle_dynamics_state"
         android:description="@string/car_permission_desc_vehicle_dynamics_state" />
