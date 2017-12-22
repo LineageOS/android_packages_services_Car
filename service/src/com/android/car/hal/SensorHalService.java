@@ -82,7 +82,8 @@ public class SensorHalService extends SensorHalServiceBase {
             CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED,
             VehicleProperty.EV_CHARGE_PORT_CONNECTED,
             CarSensorManager.SENSOR_TYPE_EV_BATTERY_CHARGE_RATE,
-            VehicleProperty.EV_BATTERY_INSTANTANEOUS_CHARGE_RATE
+            VehicleProperty.EV_BATTERY_INSTANTANEOUS_CHARGE_RATE,
+            CarSensorManager.SENSOR_TYPE_ENGINE_OIL_LEVEL, VehicleProperty.ENGINE_OIL_LEVEL
         );
 
     private final static SparseIntArray mMgrGearToHalMap = initSparseIntArray(

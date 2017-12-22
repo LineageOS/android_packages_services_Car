@@ -773,6 +773,34 @@ public class CarSensorEvent implements Parcelable {
     }
 
     /** @hide */
+    public static class CarEngineOilLevelData {
+        public long timestamp;
+        public int engineOilLevel;
+
+        /** @hide */
+        private CarEngineOilLevelData() {};
+    }
+
+    /**
+     * Convenience method for obtaining a {@link CarEngineOilLevelData} object from a
+     * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL}.
+     *
+     * @param data an optional output parameter, which, if non-null, will be used by this method
+     *      instead of a newly created object.
+     * @return a CarEngineOilLEvelData object corresponding to data contained in the CarSensorEvent.
+     * @hide
+     */
+    public CarEngineOilLevelData getCarEngineOilLevelData(CarEngineOilLevelData data) {
+        checkType(CarSensorManager.SENSOR_TYPE_ENGINE_OIL_LEVEL);
+        if (data == null) {
+            data = new CarEngineOilLevelData();
+        }
+        data.timestamp = timestamp;
+        data.engineOilLevel = intValues[0];
+        return data;
+    }
+
+    /** @hide */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
