@@ -34,6 +34,4 @@ interface ICarAudio {
     int getUsageVolume(int carUsage) = 5;
     AudioAttributes getAudioAttributesForRadio(in String radioType) = 8;
     AudioAttributes getAudioAttributesForExternalSource(in String externalSourceType) = 9;
-    String[] getSupportedExternalSourceTypes() = 10;
-    String[] getSupportedRadioTypes() = 11;
 }

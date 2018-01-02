@@ -71,7 +71,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private final HandlerThread mHandlerThread;
     private final SensorHalService mSensorHal;
     private final InfoHalService mInfoHal;
-    private final AudioHalService mAudioHal;
     private final CabinHalService mCabinHal;
     private final RadioHalService mRadioHal;
     private final PowerHalService mPowerHal;
@@ -102,7 +101,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mPowerHal = new PowerHalService(this);
         mSensorHal = new SensorHalService(this);
         mInfoHal = new InfoHalService(this);
-        mAudioHal = new AudioHalService(this);
         mCabinHal = new CabinHalService(this);
         mRadioHal = new RadioHalService(this);
         mHvacHal = new HvacHalService(this);
@@ -113,7 +111,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mAllServices.addAll(Arrays.asList(mPowerHal,
                 mSensorHal,
                 mInfoHal,
-                mAudioHal,
                 mCabinHal,
                 mRadioHal,
                 mHvacHal,
@@ -128,13 +125,12 @@ public class VehicleHal extends IVehicleCallback.Stub {
     /** Dummy version only for testing */
     @VisibleForTesting
     public VehicleHal(PowerHalService powerHal, SensorHalService sensorHal, InfoHalService infoHal,
-            AudioHalService audioHal, CabinHalService cabinHal, DiagnosticHalService diagnosticHal,
+            CabinHalService cabinHal, DiagnosticHalService diagnosticHal,
             RadioHalService radioHal, HvacHalService hvacHal, HalClient halClient) {
         mHandlerThread = null;
         mPowerHal = powerHal;
         mSensorHal = sensorHal;
         mInfoHal = infoHal;
-        mAudioHal = audioHal;
         mCabinHal = cabinHal;
         mDiagnosticHal = diagnosticHal;
         mRadioHal = radioHal;
@@ -221,10 +217,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
 
     public InfoHalService getInfoHal() {
         return mInfoHal;
-    }
-
-    public AudioHalService getAudioHal() {
-        return mAudioHal;
     }
 
     public CabinHalService getCabinHal() {
