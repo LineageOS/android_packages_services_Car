@@ -15,6 +15,7 @@
  */
 package com.android.car;
 
+import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehicleZoneUtil;
 import android.car.media.CarAudioManager;
@@ -25,13 +26,18 @@ import android.content.res.Resources;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
+import android.media.AudioGain;
+import android.media.AudioGainConfig;
 import android.media.AudioManager;
+import android.media.AudioPort;
 import android.media.IVolumeController;
 import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioMixingRule;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Looper;
 import android.util.Log;
+
+import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
 
@@ -47,6 +53,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private AudioPolicy mAudioPolicy;
     private AudioRoutingPolicy mAudioRoutingPolicy;
     private IVolumeController mVolumeController;
+    private AudioDeviceInfo[] mAudioDeviceInfos;
+    private int[] mAudioDeviceGainIndexes;
 
     public CarAudioService(Context context) {
         mContext = context;
@@ -86,7 +94,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             return;
         }
         int numPhysicalStreams = audioRoutingPolicy.getPhysicalStreamsCount();
-        AudioDeviceInfo[] devicesToRoute = new AudioDeviceInfo[numPhysicalStreams];
+        mAudioDeviceInfos = new AudioDeviceInfo[numPhysicalStreams];
+        mAudioDeviceGainIndexes = new int[numPhysicalStreams];
         for (AudioDeviceInfo info : deviceInfos) {
             if (DBG_DYNAMIC_AUDIO_ROUTING) {
                 Log.v(CarLog.TAG_AUDIO, String.format(
@@ -97,16 +106,19 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             if (info.getType() == AudioDeviceInfo.TYPE_BUS) {
                 int addressNumeric = parseDeviceAddress(info.getAddress());
                 if (addressNumeric >= 0 && addressNumeric < numPhysicalStreams) {
-                    devicesToRoute[addressNumeric] = info;
+                    mAudioDeviceInfos[addressNumeric] = info;
+                    AudioGain audioGain = getAudioGain(info.getPort());
+                    mAudioDeviceGainIndexes[addressNumeric] =
+                            gainToIndex(audioGain, audioGain.defaultValue());
                     Log.i(CarLog.TAG_AUDIO, String.format(
-                            "valid bus found, devie=%s id=%d name=%s addr=%s",
-                            info.toString(), info.getId(), info.getProductName(), info.getAddress())
-                            );
+                            "valid bus found, devie=%s id=%d name=%s addr=%s gainIndex=%d",
+                            info.toString(), info.getId(), info.getProductName(), info.getAddress(),
+                            mAudioDeviceGainIndexes[addressNumeric]));
                 }
             }
         }
         for (int i = 0; i < numPhysicalStreams; i++) {
-            AudioDeviceInfo info = devicesToRoute[i];
+            AudioDeviceInfo info = mAudioDeviceInfos[i];
             if (info == null) {
                 Log.e(CarLog.TAG_AUDIO, "setupDynamicRouting, cannot find device for address " + i);
                 return;
@@ -205,8 +217,18 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Override
     public void setUsageVolume(@CarAudioManager.CarAudioUsage int carUsage, int index, int flags) {
         enforceAudioVolumePermission();
-        final int physicalStream = mAudioRoutingPolicy.getPhysicalStreamForCarUsage(carUsage);
-        /** TODO(hwwang): call {@link AudioManager#setAudioPortGain} or equivalent. */
+        AudioPort audioPort = getAudioPort(carUsage);
+        AudioGainConfig audioGainConfig = null;
+        AudioGain audioGain = getAudioGain(audioPort);
+        if (audioGain != null) {
+            int gainValue = indexToGain(audioGain, index);
+            // size of gain values is 1 in MODE_JOINT
+            audioGainConfig = audioGain.buildConfig(AudioGain.MODE_JOINT,
+                    audioGain.channelMask(), new int[] { gainValue }, 0);
+        }
+        if (audioGainConfig != null) {
+            AudioManager.setAudioPortGain(audioPort, audioGainConfig);
+        }
     }
 
     @Override
@@ -219,27 +241,36 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Override
     public int getUsageMaxVolume(@CarAudioManager.CarAudioUsage int carUsage) {
         enforceAudioVolumePermission();
-        /** TODO(hwwang): maintain the max volumes */
-        return 100;
+        AudioPort audioPort = getAudioPort(carUsage);
+        AudioGain audioGain = getAudioGain(audioPort);
+        if (audioGain == null) {
+            throw new RuntimeException("No audio gain found for car usage: " + carUsage);
+        }
+        return gainToIndex(audioGain, audioGain.maxValue());
     }
 
     @Override
     public int getUsageMinVolume(@CarAudioManager.CarAudioUsage int carUsage) {
         enforceAudioVolumePermission();
-        /** TODO(hwwang): maintain the min volumes */
+        AudioPort audioPort = getAudioPort(carUsage);
+        AudioGain audioGain = getAudioGain(audioPort);
+        if (audioGain == null) {
+            throw new RuntimeException("No audio gain found for car usage: " + carUsage);
+        }
+        /** TODO(hwwang): some audio usages may have a min volume greater than zero */
         return 0;
     }
 
     @Override
     public int getUsageVolume(@CarAudioManager.CarAudioUsage int carUsage) {
         enforceAudioVolumePermission();
-        /** TODO(hwwang): maintain the volumes */
-        return 50;
+        final int physicalStream = mAudioRoutingPolicy.getPhysicalStreamForCarUsage(carUsage);
+        return mAudioDeviceGainIndexes[physicalStream];
     }
 
     @Override
     public AudioAttributes getAudioAttributesForRadio(String radioType) {
-      return CarAudioAttributesUtil.getCarRadioAttributes(radioType);
+        return CarAudioAttributesUtil.getCarRadioAttributes(radioType);
     }
 
     @Override
@@ -257,5 +288,69 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             throw new SecurityException(
                     "requires permission " + Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         }
+    }
+
+    /**
+     * @return {@link AudioPort} that handles the given car audio usage. Multiple car audio usages
+     * may share one {@link AudioPort}
+     */
+    private @Nullable AudioPort getAudioPort(@CarAudioManager.CarAudioUsage int carUsage) {
+        final int physicalStream = mAudioRoutingPolicy.getPhysicalStreamForCarUsage(carUsage);
+        if (mAudioDeviceInfos[physicalStream] != null) {
+            return mAudioDeviceInfos[physicalStream].getPort();
+        }
+        return null;
+    }
+
+    /**
+     * @return {@link AudioGain} with {@link AudioGain#MODE_JOINT} on a given {@link AudioPort}
+     */
+    private @Nullable AudioGain getAudioGain(AudioPort audioPort) {
+        if (audioPort != null && audioPort.gains().length > 0) {
+            for (AudioGain audioGain : audioPort.gains()) {
+                if ((audioGain.mode() & AudioGain.MODE_JOINT) != 0) {
+                    return checkAudioGainConfiguration(audioGain);
+                }
+            }
+        }
+        return null;
+    }
+
+    private AudioGain checkAudioGainConfiguration(AudioGain audioGain) {
+        Preconditions.checkArgument(audioGain.maxValue() >= audioGain.minValue());
+        Preconditions.checkArgument((audioGain.defaultValue() >= audioGain.minValue())
+                && (audioGain.defaultValue() <= audioGain.maxValue()));
+        Preconditions.checkArgument(
+                ((audioGain.maxValue() - audioGain.minValue()) % audioGain.stepValue()) == 0);
+        Preconditions.checkArgument(
+                ((audioGain.defaultValue() - audioGain.minValue()) % audioGain.stepValue()) == 0);
+        return audioGain;
+    }
+
+    /**
+     * @param audioGain {@link AudioGain} on a {@link AudioPort}
+     * @param gain Gain value in millibel
+     * @return index value depends on max / min / step of a given {@link AudioGain}
+     */
+    private int gainToIndex(AudioGain audioGain, int gain) {
+        gain = checkGainBound(audioGain, gain);
+        return (gain - audioGain.minValue()) / audioGain.stepValue();
+    }
+
+    /**
+     * @param audioGain {@link AudioGain} on a {@link AudioPort}
+     * @param index index value depends on max / min / step of a given {@link AudioGain}
+     * @return gain value in millibel
+     */
+    private int indexToGain(AudioGain audioGain, int index) {
+        final int gain = index * audioGain.stepValue() + audioGain.minValue();
+        return checkGainBound(audioGain, gain);
+    }
+
+    private int checkGainBound(AudioGain audioGain, int gain) {
+        if (gain < audioGain.minValue() || gain > audioGain.maxValue()) {
+            throw new RuntimeException("Gain value out of bound: " + gain);
+        }
+        return gain;
     }
 }
