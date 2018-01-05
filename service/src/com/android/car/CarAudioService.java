@@ -19,27 +19,36 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehicleZoneUtil;
 import android.car.media.CarAudioManager;
+import android.car.media.CarAudioPatchHandle;
 import android.car.media.ICarAudio;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
+import android.media.AudioDevicePort;
 import android.media.AudioFormat;
 import android.media.AudioGain;
 import android.media.AudioGainConfig;
 import android.media.AudioManager;
+import android.media.AudioPatch;
 import android.media.AudioPort;
+import android.media.AudioPortConfig;
 import android.media.IVolumeController;
 import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioMixingRule;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
@@ -216,16 +225,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @Override
     public void setUsageVolume(@CarAudioManager.CarAudioUsage int carUsage, int index, int flags) {
-        enforceAudioVolumePermission();
+        // TODO:  Use or remove flags argument
+
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         AudioPort audioPort = getAudioPort(carUsage);
-        AudioGainConfig audioGainConfig = null;
-        AudioGain audioGain = getAudioGain(audioPort);
-        if (audioGain != null) {
-            int gainValue = indexToGain(audioGain, index);
-            // size of gain values is 1 in MODE_JOINT
-            audioGainConfig = audioGain.buildConfig(AudioGain.MODE_JOINT,
-                    audioGain.channelMask(), new int[] { gainValue }, 0);
-        }
+        AudioGainConfig audioGainConfig = getPortGainForIndex(audioPort, index);
         if (audioGainConfig != null) {
             AudioManager.setAudioPortGain(audioPort, audioGainConfig);
         }
@@ -233,14 +237,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @Override
     public void setVolumeController(IVolumeController controller) {
-        enforceAudioVolumePermission();
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         /** TODO(hwwang): validate the use cases for {@link IVolumeController} */
         mVolumeController = controller;
     }
 
     @Override
     public int getUsageMaxVolume(@CarAudioManager.CarAudioUsage int carUsage) {
-        enforceAudioVolumePermission();
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         AudioPort audioPort = getAudioPort(carUsage);
         AudioGain audioGain = getAudioGain(audioPort);
         if (audioGain == null) {
@@ -251,50 +255,185 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @Override
     public int getUsageMinVolume(@CarAudioManager.CarAudioUsage int carUsage) {
-        enforceAudioVolumePermission();
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         AudioPort audioPort = getAudioPort(carUsage);
         AudioGain audioGain = getAudioGain(audioPort);
         if (audioGain == null) {
             throw new RuntimeException("No audio gain found for car usage: " + carUsage);
         }
-        /** TODO(hwwang): some audio usages may have a min volume greater than zero */
+        /** TODO(hwwang): some audio usages may have a min volume greater than zero.  Can they ever be negative? */
         return 0;
     }
 
     @Override
     public int getUsageVolume(@CarAudioManager.CarAudioUsage int carUsage) {
-        enforceAudioVolumePermission();
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         final int physicalStream = mAudioRoutingPolicy.getPhysicalStreamForCarUsage(carUsage);
         return mAudioDeviceGainIndexes[physicalStream];
     }
 
+
     @Override
-    public AudioAttributes getAudioAttributesForRadio(String radioType) {
-        return CarAudioAttributesUtil.getCarRadioAttributes(radioType);
+    public void setFadeTowardFront(float value) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        final IAudioControl audioControlHal = getAudioControl();
+        if (audioControlHal != null) {
+            try {
+                audioControlHal.setFadeTowardFront(value);
+            } catch (RemoteException e) {
+                Log.e(CarLog.TAG_SERVICE, "setFadeTowardFront failed", e);
+            }
+        }
     }
 
     @Override
-    public AudioAttributes getAudioAttributesForExternalSource(String externalSourceType) {
-        return CarAudioAttributesUtil.getCarExtSourceAttributes(externalSourceType);
+    public void setBalanceTowardRight(float value) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        final IAudioControl audioControlHal = getAudioControl();
+        if (audioControlHal != null) {
+            try {
+                audioControlHal.setBalanceTowardRight(value);
+            } catch (RemoteException e) {
+                Log.e(CarLog.TAG_SERVICE, "setBalanceTowardRight failed", e);
+            }
+        }
+    }
+
+    @Override
+    public String[] getExternalSources() {
+        List<String> sourceNames = new ArrayList<>();
+
+        AudioDeviceInfo[] devices = mAudioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
+        if (devices.length == 0) {
+            Log.w(CarLog.TAG_AUDIO, "getExternalSources, no input devices found.");
+        }
+
+        // Collect the list of non-microphone input ports
+        for (AudioDeviceInfo info: devices) {
+            switch (info.getType()) {
+                // TODO:  Can we trim this set down?  Espcially duplicates that FM vs FM_TUNER?
+                case AudioDeviceInfo.TYPE_FM:
+                case AudioDeviceInfo.TYPE_FM_TUNER:
+                case AudioDeviceInfo.TYPE_TV_TUNER:
+                case AudioDeviceInfo.TYPE_HDMI:
+                case AudioDeviceInfo.TYPE_AUX_LINE:
+                case AudioDeviceInfo.TYPE_LINE_ANALOG:
+                case AudioDeviceInfo.TYPE_LINE_DIGITAL:
+                case AudioDeviceInfo.TYPE_USB_ACCESSORY:
+                case AudioDeviceInfo.TYPE_USB_DEVICE:
+                case AudioDeviceInfo.TYPE_USB_HEADSET:
+                case AudioDeviceInfo.TYPE_IP:
+                case AudioDeviceInfo.TYPE_BUS:
+                    sourceNames.add(info.getProductName().toString());
+            }
+        }
+
+        // Return our list of accumulated device names (or an empty array if we found nothing)
+        return sourceNames.toArray(new String[sourceNames.size()]);
+    }
+
+    @Override
+    public CarAudioPatchHandle createAudioPatch(String sourceName, int usage, int gainIndex) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+
+        // Find the named source port
+        AudioDevicePort sourcePort = null;
+        AudioDeviceInfo[] devices = mAudioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
+        for (AudioDeviceInfo info: devices) {
+            if (sourceName.equals(info.getProductName())) {
+                // This is the one for which we're looking
+                sourcePort = info.getPort();
+            }
+        }
+        if (sourcePort == null) {
+            throw new IllegalArgumentException("Specified source is not available: " + sourceName);
+        }
+
+        // Find the output port associated with the given carUsage
+        AudioDevicePort sinkPort = getAudioPort(usage);
+        if (sinkPort == null) {
+            throw new IllegalArgumentException("Sink not available for usage: " + usage);
+        }
+
+        // Continue to use the current port config on the output bus
+        AudioPortConfig sinkConfig = sinkPort.activeConfig();
+
+        // Configure the source port to match the output bus with optional gain adjustment
+        AudioGainConfig audioGainConfig = null;
+        if (gainIndex >= 0) {
+            audioGainConfig = getPortGainForIndex(sourcePort, gainIndex);
+            if (audioGainConfig == null) {
+                Log.w(CarLog.TAG_AUDIO, "audio gain could not be applied.");
+            }
+        }
+        AudioPortConfig sourceConfig = sourcePort.buildConfig(
+                sinkConfig.samplingRate(),
+                sinkConfig.channelMask(),
+                sinkConfig.format(),
+                audioGainConfig);
+
+        // Create an audioPatch to connect the two ports
+        AudioPatch[] patch = null;
+        AudioPortConfig[] sourceConfigs = {sourceConfig};
+        AudioPortConfig[] sinkConfigs   = {sinkConfig};
+        int result = mAudioManager.createAudioPatch(patch, sourceConfigs, sinkConfigs);
+        if (result != AudioManager.SUCCESS) {
+            throw new RuntimeException("createAudioPatch failed with code " + result);
+        }
+        if (patch.length != 1) {
+            throw new RuntimeException("createAudioPatch didn't provide the expected single handle");
+        }
+
+        return new CarAudioPatchHandle(patch[0]);
+    }
+
+    @Override
+    public void releaseAudioPatch(CarAudioPatchHandle carPatch) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+
+        // NOTE:  AudioPolicyService::removeNotificationClient will take care of this automatically
+        //        if the client that created a patch quits.
+
+        // Get the list of active patches
+        ArrayList<AudioPatch> patches = new ArrayList<AudioPatch>();
+        int result = mAudioManager.listAudioPatches(patches);
+        if (result != AudioManager.SUCCESS) {
+            throw new RuntimeException("listAudioPatches failed with code " + result);
+        }
+
+        // Look for a patch that matches the provided user side handle
+        for (AudioPatch patch: patches) {
+            if (carPatch.represents(patch)) {
+                // Found it!
+                result = mAudioManager.releaseAudioPatch(patch);
+                if (result != AudioManager.SUCCESS) {
+                    throw new RuntimeException("releaseAudioPatch failed with code " + result);
+                }
+                return;
+            }
+        }
+
+        // If we didn't find a match, then something went awry, but it's probably not fatal...
+        Log.e(CarLog.TAG_AUDIO, "releaseAudioPatch found no match for " + carPatch.toString());
     }
 
     public AudioRoutingPolicy getAudioRoutingPolicy() {
         return mAudioRoutingPolicy;
     }
 
-    private void enforceAudioVolumePermission() {
-        if (mContext.checkCallingOrSelfPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    private void enforcePermission(String permissionName) {
+        if (mContext.checkCallingOrSelfPermission(permissionName)
                 != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException(
-                    "requires permission " + Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+                    "requires permission " + permissionName);
         }
     }
 
     /**
-     * @return {@link AudioPort} that handles the given car audio usage. Multiple car audio usages
-     * may share one {@link AudioPort}
+     * @return {@link AudioDevicePort} that handles the given car audio usage. Multiple car
+     * audio usages may share one {@link AudioDevicePort}
      */
-    private @Nullable AudioPort getAudioPort(@CarAudioManager.CarAudioUsage int carUsage) {
+    private @Nullable AudioDevicePort getAudioPort(@CarAudioManager.CarAudioUsage int carUsage) {
         final int physicalStream = mAudioRoutingPolicy.getPhysicalStreamForCarUsage(carUsage);
         if (mAudioDeviceInfos[physicalStream] != null) {
             return mAudioDeviceInfos[physicalStream].getPort();
@@ -347,10 +486,35 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return checkGainBound(audioGain, gain);
     }
 
+    @Nullable
+    private AudioGainConfig getPortGainForIndex(AudioPort port, int index) {
+        AudioGainConfig audioGainConfig = null;
+        AudioGain audioGain = getAudioGain(port);
+        if (audioGain != null) {
+            int gainValue = indexToGain(audioGain, index);
+            // size of gain values is 1 in MODE_JOINT
+            audioGainConfig = audioGain.buildConfig(AudioGain.MODE_JOINT,
+                    audioGain.channelMask(), new int[] { gainValue }, 0);
+        }
+        return audioGainConfig;
+    }
+
     private int checkGainBound(AudioGain audioGain, int gain) {
         if (gain < audioGain.minValue() || gain > audioGain.maxValue()) {
             throw new RuntimeException("Gain value out of bound: " + gain);
         }
         return gain;
+    }
+
+    @Nullable
+    private static IAudioControl getAudioControl() {
+        try {
+            return android.hardware.automotive.audiocontrol.V1_0.IAudioControl.getService();
+        } catch (RemoteException e) {
+            Log.e(CarLog.TAG_SERVICE, "Failed to get IAudioControl service", e);
+        } catch (NoSuchElementException e) {
+            Log.e(CarLog.TAG_SERVICE, "IAudioControl service not registered yet");
+        }
+        return null;
     }
 }

@@ -201,8 +201,8 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
      *
-     * @param carUsage The car audio usage whose maximum volume index is returned.
-     * @return The maximum valid volume index for the usage.
+     * @param carUsage The car audio usage whose minimum volume index is returned.
+     * @return The minimum valid volume index for the usage.
      */
     @SystemApi
     public int getUsageMinVolume(@CarAudioUsage int carUsage) throws CarNotConnectedException {
@@ -234,6 +234,120 @@ public final class CarAudioManager implements CarManagerBase {
             throw new CarNotConnectedException(e);
         }
     }
+
+    /**
+     * Adjust the relative volume in the front vs back of the vehicle cabin.
+     *
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
+     * @param value in the range -1.0 to 1.0 for fully toward the back through
+     *              fully toward the front.  0.0 means evenly balanced.
+     *
+     * @see #setBalanceTowardRight(float)
+     */
+    @SystemApi
+    public void setFadeTowardFront(float value) throws CarNotConnectedException {
+        try {
+            mService.setFadeTowardFront(value);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "setFadeTowardFront failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Adjust the relative volume on the left vs right side of the vehicle cabin.
+     *
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
+     * @param value in the range -1.0 to 1.0 for fully toward the left through
+     *              fully toward the right.  0.0 means evenly balanced.
+     *
+     * @see #setFadeTowardFront(float)
+     */
+    @SystemApi
+    public void setBalanceTowardRight(float value) throws CarNotConnectedException {
+        try {
+            mService.setBalanceTowardRight(value);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "setBalanceTowardRight failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Queries the system configuration in order to report the available, non-microphone audio
+     * input devices.
+     *
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
+     *
+     * @return An array of strings representing input ports.
+     *
+     * @see #createAudioPatch(String, int, int)
+     * @see #releaseAudioPatch(CarAudioPatchHandle)
+     */
+    @SystemApi
+    public String[] getExternalSources() throws CarNotConnectedException {
+        try {
+            return mService.getExternalSources();
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "getExternalSources failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Given an input port identified by getExternalSources(), request that it's audio signal
+     * be routed below the HAL to the output port associated with the given usage.  For example,
+     * The output of a tuner might be routed directly to the output buss associated with
+     * AudioAttributes.USAGE_MEDIA while the tuner is playing.
+     *
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
+     *
+     * @param sourceName the input port name obtained from getExternalSources().
+     * @param usage the type of audio represented by this source (usually USAGE_MEDIA).
+     * @param gainIndex How many steps above the minimum value defined for the source port to
+     *                  set the gain when creating the patch.
+     *                  This may be used for source balancing without affecting the user controlled
+     *                  volumes applied to the destination ports.  A value of -1 may be passed
+     *                  to indicate no gain change is requested.
+     * @return A handle for the created patch which can be used to later remove it.
+     *
+     * @see #getExternalSources()
+     * @see #releaseAudioPatch(CarAudioPatchHandle)
+     */
+    @SystemApi
+    public CarAudioPatchHandle createAudioPatch(String sourceName, int usage, int gainIndex)
+            throws CarNotConnectedException {
+        try {
+            return mService.createAudioPatch(sourceName, usage, gainIndex);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "createAudioPatch failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Removes the association between an input port and an output port identified by the provided
+     * handle.
+     *
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
+     *
+     * @param patch CarAudioPatchHandle returned from createAudioPatch().
+     *
+     * @see #getExternalSources()
+     * @see #createAudioPatch(String, int)
+     */
+    @SystemApi
+    public void releaseAudioPatch(CarAudioPatchHandle patch) throws CarNotConnectedException {
+        try {
+            mService.releaseAudioPatch(patch);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "releaseAudioPatch failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
 
     /** @hide */
     @Override

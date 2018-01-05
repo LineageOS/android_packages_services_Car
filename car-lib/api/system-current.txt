@@ -717,9 +717,14 @@ package android.car.input {
 package android.car.media {
 
   public final class CarAudioManager {
+    method public android.car.media.CarAudioPatchHandle createAudioPatch(java.lang.String, int, int) throws android.car.CarNotConnectedException;
+    method public java.lang.String[] getExternalSources() throws android.car.CarNotConnectedException;
     method public int getUsageMaxVolume(int) throws android.car.CarNotConnectedException;
     method public int getUsageMinVolume(int) throws android.car.CarNotConnectedException;
     method public int getUsageVolume(int) throws android.car.CarNotConnectedException;
+    method public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
+    method public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
+    method public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
     method public void setUsageVolume(int, int, int) throws android.car.CarNotConnectedException;
     method public void setVolumeController(android.media.IVolumeController) throws android.car.CarNotConnectedException;
   }

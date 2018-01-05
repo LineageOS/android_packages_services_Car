@@ -307,10 +307,15 @@ package android.car.hardware {
 package android.car.media {
 
   public final class CarAudioManager {
+    method public android.car.media.CarAudioPatchHandle createAudioPatch(java.lang.String, int, int) throws android.car.CarNotConnectedException;
     method public android.media.AudioAttributes getAudioAttributesForCarUsage(int) throws android.car.CarNotConnectedException;
+    method public java.lang.String[] getExternalSources() throws android.car.CarNotConnectedException;
     method public int getUsageMaxVolume(int) throws android.car.CarNotConnectedException;
     method public int getUsageMinVolume(int) throws android.car.CarNotConnectedException;
     method public int getUsageVolume(int) throws android.car.CarNotConnectedException;
+    method public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
+    method public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
+    method public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
     method public void setUsageVolume(int, int, int) throws android.car.CarNotConnectedException;
     field public static final int CAR_AUDIO_USAGE_ALARM = 6; // 0x6
     field public static final int CAR_AUDIO_USAGE_DEFAULT = 0; // 0x0
@@ -323,6 +328,13 @@ package android.car.media {
     field public static final int CAR_AUDIO_USAGE_SYSTEM_SOUND = 8; // 0x8
     field public static final int CAR_AUDIO_USAGE_VOICE_CALL = 4; // 0x4
     field public static final int CAR_AUDIO_USAGE_VOICE_COMMAND = 5; // 0x5
+  }
+
+  public final class CarAudioPatchHandle implements android.os.Parcelable {
+    ctor public CarAudioPatchHandle(android.media.AudioPatch);
+    method public int describeContents();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.media.CarAudioPatchHandle> CREATOR;
   }
 
 }
