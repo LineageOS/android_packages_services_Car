@@ -32,14 +32,15 @@ import android.os.Trace;
 import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
+
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
-import com.android.car.internal.FeatureUtil;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.car.ICarServiceHelper;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,8 +110,7 @@ public class ICarImpl extends ICar.Stub {
         mGarageModeService = new GarageModeService(mContext, mCarPowerManagementService);
         mCarInfoService = new CarInfoService(serviceContext, mHal.getInfoHal());
         mAppFocusService = new AppFocusService(serviceContext, mSystemActivityMonitoringService);
-        mCarAudioService = new CarAudioService(serviceContext, mHal.getAudioHal(),
-                mCarInputService, errorNotifier);
+        mCarAudioService = new CarAudioService(serviceContext);
         mCarCabinService = new CarCabinService(serviceContext, mHal.getCabinHal());
         mCarHvacService = new CarHvacService(serviceContext, mHal.getHvacHal());
         mCarRadioService = new CarRadioService(serviceContext, mHal.getRadioHal());

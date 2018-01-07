@@ -33,68 +33,26 @@ import android.media.audiopolicy.AudioPolicy;
 import android.os.Looper;
 import android.util.Log;
 
-import com.android.car.hal.AudioHalService;
-import com.android.internal.annotations.GuardedBy;
-
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private static final boolean DBG = false;
     private static final boolean DBG_DYNAMIC_AUDIO_ROUTING = false;
 
-    private static final String RADIO_ROUTING_SOURCE_PREFIX = "RADIO_";
-
-    private final AudioHalService mAudioHal;
     private final Context mContext;
-    private final CarVolumeService mVolumeService;
-    private final Object mLock = new Object();
-    @GuardedBy("mLock")
-    private AudioPolicy mAudioPolicy;
-
-    private AudioRoutingPolicy mAudioRoutingPolicy;
     private final AudioManager mAudioManager;
-
-    @GuardedBy("mLock")
-    private boolean mRadioOrExtSourceActive = false;
-    @GuardedBy("mLock")
-    private int mCurrentAudioContexts = 0;
-    @GuardedBy("mLock")
-    private int mCurrentPrimaryAudioContext = 0;
-    @GuardedBy("mLock")
-    private int mCurrentPrimaryPhysicalStream = 0;
-    @GuardedBy("mLock")
-    private boolean mIsRadioExternal;
-
-    @GuardedBy("mLock")
-    private boolean mExternalRoutingHintSupported;
-    @GuardedBy("mLock")
-    private Map<String, AudioHalService.ExtRoutingSourceInfo> mExternalRoutingTypes;
-    @GuardedBy("mLock")
-    private Set<String> mExternalRadioRoutingTypes;
-    @GuardedBy("mLock")
-    private String mDefaultRadioRoutingType;
-    @GuardedBy("mLock")
-    private Set<String> mExternalNonRadioRoutingTypes;
-    @GuardedBy("mLock")
-    private int[] mExternalRoutings = {0, 0, 0, 0};
-
     private final boolean mUseDynamicRouting;
 
-    public CarAudioService(Context context, AudioHalService audioHal,
-            CarInputService inputService, CanBusErrorNotifier errorNotifier) {
-        mAudioHal = audioHal;
+    private AudioPolicy mAudioPolicy;
+    private AudioRoutingPolicy mAudioRoutingPolicy;
+    private IVolumeController mVolumeController;
+
+    public CarAudioService(Context context) {
         mContext = context;
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         Resources res = context.getResources();
         mUseDynamicRouting = res.getBoolean(R.bool.audioUseDynamicRouting);
-        mVolumeService = new CarVolumeService(mContext, this, mAudioHal, inputService);
     }
 
     @Override
@@ -104,76 +62,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @Override
     public void init() {
-        int audioHwVariant = mAudioHal.getHwVariant();
-        AudioRoutingPolicy audioRoutingPolicy = AudioRoutingPolicy.create(mContext, audioHwVariant);
-
-        AudioPolicy audioPolicy = null;
+        mAudioRoutingPolicy = AudioRoutingPolicy.create(mContext, 0);
 
         if (mUseDynamicRouting) {
             AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
             builder.setLooper(Looper.getMainLooper());
-            setupDynamicRouting(audioRoutingPolicy, builder);
-            audioPolicy = builder.build();
+            setupDynamicRouting(mAudioRoutingPolicy, builder);
+            mAudioPolicy = builder.build();
         }
-
-        mAudioHal.setAudioRoutingPolicy(audioRoutingPolicy);
-        // get call outside lock as it can take time
-        HashSet<String> externalRadioRoutingTypes = new HashSet<>();
-        HashSet<String> externalNonRadioRoutingTypes = new HashSet<>();
-        Map<String, AudioHalService.ExtRoutingSourceInfo> externalRoutingTypes =
-                mAudioHal.getExternalAudioRoutingTypes();
-        if (externalRoutingTypes != null) {
-            for (String routingType : externalRoutingTypes.keySet()) {
-                if (routingType.startsWith(RADIO_ROUTING_SOURCE_PREFIX)) {
-                    externalRadioRoutingTypes.add(routingType);
-                } else {
-                    externalNonRadioRoutingTypes.add(routingType);
-                }
-            }
-        }
-        // select default radio routing. AM_FM -> AM_FM_HD -> whatever with AM or FM -> first one
-        String defaultRadioRouting = null;
-        if (externalRadioRoutingTypes.contains(CarAudioManager.CAR_RADIO_TYPE_AM_FM)) {
-            defaultRadioRouting = CarAudioManager.CAR_RADIO_TYPE_AM_FM;
-        } else if (externalRadioRoutingTypes.contains(CarAudioManager.CAR_RADIO_TYPE_AM_FM_HD)) {
-            defaultRadioRouting = CarAudioManager.CAR_RADIO_TYPE_AM_FM_HD;
-        } else {
-            for (String radioType : externalRadioRoutingTypes) {
-                // set to 1st one
-                if (defaultRadioRouting == null) {
-                    defaultRadioRouting = radioType;
-                }
-                if (radioType.contains("AM") || radioType.contains("FM")) {
-                    defaultRadioRouting = radioType;
-                    break;
-                }
-            }
-        }
-        if (defaultRadioRouting == null) { // no radio type defined. fall back to AM_FM
-            defaultRadioRouting = CarAudioManager.CAR_RADIO_TYPE_AM_FM;
-        }
-        synchronized (mLock) {
-            if (audioPolicy != null) {
-                mAudioPolicy = audioPolicy;
-            }
-            mAudioRoutingPolicy = audioRoutingPolicy;
-            mIsRadioExternal = mAudioHal.isRadioExternal();
-            if (externalRoutingTypes != null) {
-                mExternalRoutingHintSupported = true;
-                mExternalRoutingTypes = externalRoutingTypes;
-            } else {
-                mExternalRoutingHintSupported = false;
-                mExternalRoutingTypes = new HashMap<>();
-            }
-            mExternalRadioRoutingTypes = externalRadioRoutingTypes;
-            mExternalNonRadioRoutingTypes = externalNonRadioRoutingTypes;
-            mDefaultRadioRoutingType = defaultRadioRouting;
-            Arrays.fill(mExternalRoutings, 0);
-        }
-        mVolumeService.init();
 
         // Register audio policy only after this class is fully initialized.
-        int r = mAudioManager.registerAudioPolicy(audioPolicy);
+        int r = mAudioManager.registerAudioPolicy(mAudioPolicy);
         if (r != 0) {
             throw new RuntimeException("registerAudioPolicy failed " + r);
         }
@@ -222,11 +121,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Log.i(CarLog.TAG_AUDIO, String.format(
                     "Physical stream %d, sampleRate:%d, channels:0x%s", i, sampleRate,
                     Integer.toHexString(channels)));
-            int[] logicalStreams = audioRoutingPolicy.getLogicalStreamsForPhysicalStream(i);
+            int[] carUsages = audioRoutingPolicy.getCarUsagesForPhysicalStream(i);
             AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
-            for (int logicalStream : logicalStreams) {
+            for (int carUsage : carUsages) {
                 mixingRuleBuilder.addRule(
-                        CarAudioAttributesUtil.getAudioAttributesForCarUsage(logicalStream),
+                        CarAudioAttributesUtil.getAudioAttributesForCarUsage(carUsage),
                         AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
             }
             AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
@@ -291,115 +190,61 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @Override
     public void release() {
-        AudioPolicy audioPolicy;
-        synchronized (mLock) {
-            mRadioOrExtSourceActive = false;
-            mCurrentPrimaryAudioContext = 0;
-            audioPolicy = mAudioPolicy;
+        if (mAudioPolicy != null) {
+            mAudioManager.unregisterAudioPolicyAsync(mAudioPolicy);
             mAudioPolicy = null;
-            mExternalRoutingTypes.clear();
-            mExternalRadioRoutingTypes.clear();
-            mExternalNonRadioRoutingTypes.clear();
         }
-        if (audioPolicy != null) {
-            mAudioManager.unregisterAudioPolicyAsync(audioPolicy);
-        }
-        mVolumeService.release();
     }
 
     @Override
     public void dump(PrintWriter writer) {
-        synchronized (mLock) {
-            writer.println("*CarAudioService*");
-            writer.println(" mCurrentAudioContexts:0x" +
-                    Integer.toHexString(mCurrentAudioContexts));
-            writer.println(" mRadioOrExtSourceActive:" +
-                    mRadioOrExtSourceActive);
-            writer.println(" mCurrentPrimaryAudioContext:" + mCurrentPrimaryAudioContext +
-                    " mCurrentPrimaryPhysicalStream:" + mCurrentPrimaryPhysicalStream);
-            writer.println(" mIsRadioExternal:" + mIsRadioExternal);
-            writer.println(" mAudioPolicy:" + mAudioPolicy);
-            mAudioRoutingPolicy.dump(writer);
-            writer.println(" mExternalRoutingHintSupported:" + mExternalRoutingHintSupported);
-            if (mExternalRoutingHintSupported) {
-                writer.println(" mDefaultRadioRoutingType:" + mDefaultRadioRoutingType);
-                writer.println(" Routing Types:");
-                for (Entry<String, AudioHalService.ExtRoutingSourceInfo> entry :
-                    mExternalRoutingTypes.entrySet()) {
-                    writer.println("  type:" + entry.getKey() + " info:" + entry.getValue());
-                }
-            }
-        }
-        writer.println("** Dump CarVolumeService**");
-        mVolumeService.dump(writer);
+        writer.println("*CarAudioService*");
+        mAudioRoutingPolicy.dump(writer);
     }
 
     @Override
     public void setUsageVolume(@CarAudioManager.CarAudioUsage int carUsage, int index, int flags) {
         enforceAudioVolumePermission();
-        mVolumeService.setUsageVolume(carUsage, index, flags);
+        final int physicalStream = mAudioRoutingPolicy.getPhysicalStreamForCarUsage(carUsage);
+        /** TODO(hwwang): call {@link AudioManager#setAudioPortGain} or equivalent. */
     }
 
     @Override
     public void setVolumeController(IVolumeController controller) {
         enforceAudioVolumePermission();
-        mVolumeService.setVolumeController(controller);
+        /** TODO(hwwang): validate the use cases for {@link IVolumeController} */
+        mVolumeController = controller;
     }
 
     @Override
     public int getUsageMaxVolume(@CarAudioManager.CarAudioUsage int carUsage) {
         enforceAudioVolumePermission();
-        return mVolumeService.getUsageMaxVolume(carUsage);
+        /** TODO(hwwang): maintain the max volumes */
+        return 100;
     }
 
     @Override
     public int getUsageMinVolume(@CarAudioManager.CarAudioUsage int carUsage) {
         enforceAudioVolumePermission();
-        return mVolumeService.getUsageMinVolume(carUsage);
+        /** TODO(hwwang): maintain the min volumes */
+        return 0;
     }
 
     @Override
     public int getUsageVolume(@CarAudioManager.CarAudioUsage int carUsage) {
         enforceAudioVolumePermission();
-        return mVolumeService.getUsageVolume(carUsage);
+        /** TODO(hwwang): maintain the volumes */
+        return 50;
     }
 
     @Override
     public AudioAttributes getAudioAttributesForRadio(String radioType) {
-        synchronized (mLock) {
-            if (!mExternalRadioRoutingTypes.contains(radioType)) { // type not exist
-                throw new IllegalArgumentException("Specified radio type is not available:" +
-                        radioType);
-            }
-        }
       return CarAudioAttributesUtil.getCarRadioAttributes(radioType);
     }
 
     @Override
     public AudioAttributes getAudioAttributesForExternalSource(String externalSourceType) {
-        synchronized (mLock) {
-            if (!mExternalNonRadioRoutingTypes.contains(externalSourceType)) { // type not exist
-                throw new IllegalArgumentException("Specified ext source type is not available:" +
-                        externalSourceType);
-            }
-        }
         return CarAudioAttributesUtil.getCarExtSourceAttributes(externalSourceType);
-    }
-
-    @Override
-    public String[] getSupportedExternalSourceTypes() {
-        synchronized (mLock) {
-            return mExternalNonRadioRoutingTypes.toArray(
-                    new String[mExternalNonRadioRoutingTypes.size()]);
-        }
-    }
-
-    @Override
-    public String[] getSupportedRadioTypes() {
-        synchronized (mLock) {
-            return mExternalRadioRoutingTypes.toArray(
-                    new String[mExternalRadioRoutingTypes.size()]);
-        }
     }
 
     public AudioRoutingPolicy getAudioRoutingPolicy() {
