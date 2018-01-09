@@ -22,7 +22,6 @@ import static com.android.car.CarServiceUtils.toIntArray;
 import static java.lang.Integer.toHexString;
 
 import android.annotation.CheckResult;
-import android.car.annotation.FutureFeature;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
 import android.hardware.automotive.vehicle.V2_0.SubscribeFlags;
@@ -77,11 +76,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private final HvacHalService mHvacHal;
     private final InputHalService mInputHal;
     private final VendorExtensionHalService mVendorExtensionHal;
+    private final VmsHalService mVmsHal;
     private DiagnosticHalService mDiagnosticHal = null;
-
-    @FutureFeature
-    private VmsHalService mVmsHal;
-
 
     /** Might be re-assigned if Vehicle HAL is reconnected. */
     private volatile HalClient mHalClient;
@@ -245,7 +241,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
         return mVendorExtensionHal;
     }
 
-    @FutureFeature
     public VmsHalService getVmsHal() { return mVmsHal; }
 
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {
