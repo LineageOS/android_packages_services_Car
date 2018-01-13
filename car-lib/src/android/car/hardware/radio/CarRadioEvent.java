@@ -25,8 +25,10 @@ import android.os.Parcelable;
  *
  * This works in conjunction with the callbacks already defined in {@link RadioCallback.Callback}.
  * @hide
+ * @deprecated see {@link CarRadioManager}
  */
 @SystemApi
+@Deprecated
 public class CarRadioEvent implements Parcelable {
     /**
      * Event specifying that a radio preset has been changed.
