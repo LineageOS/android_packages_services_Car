@@ -36,65 +36,6 @@ import java.lang.annotation.RetentionPolicy;
 public abstract class CarAudioManager implements CarManagerBase {
 
     /**
-     * Audio usage for unspecified type.
-     */
-    public static final int CAR_AUDIO_USAGE_DEFAULT = 0;
-    /**
-     * Audio usage for playing music.
-     */
-    public static final int CAR_AUDIO_USAGE_MUSIC = 1;
-    /**
-     * Audio usage for hardware radio.
-     * @hide
-     */
-    public static final int CAR_AUDIO_USAGE_RADIO = 2;
-    /**
-     * Audio usage for playing navigation guidance.
-     */
-    public static final int CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE = 3;
-    /**
-     * Audio usage for voice call.
-     */
-    public static final int CAR_AUDIO_USAGE_VOICE_CALL = 4;
-    /**
-     * Audio usage for voice search or voice command.
-     */
-    public static final int CAR_AUDIO_USAGE_VOICE_COMMAND = 5;
-    /**
-     * Audio usage for playing alarm.
-     */
-    public static final int CAR_AUDIO_USAGE_ALARM = 6;
-    /**
-     * Audio usage for notification sound.
-     */
-    public static final int CAR_AUDIO_USAGE_NOTIFICATION = 7;
-    /**
-     * Audio usage for system sound (such as UI feedback).
-     */
-    public static final int CAR_AUDIO_USAGE_SYSTEM_SOUND = 8;
-    /**
-     * Audio usage for playing safety alerts.
-     */
-    public static final int CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT = 9;
-
-    /** @hide */
-    public static final int CAR_AUDIO_USAGE_MAX = CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT;
-
-    /** @hide */
-    @IntDef({CAR_AUDIO_USAGE_DEFAULT, CAR_AUDIO_USAGE_MUSIC, CAR_AUDIO_USAGE_RADIO,
-        CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE, CAR_AUDIO_USAGE_VOICE_CALL,
-        CAR_AUDIO_USAGE_VOICE_COMMAND, CAR_AUDIO_USAGE_ALARM, CAR_AUDIO_USAGE_NOTIFICATION,
-        CAR_AUDIO_USAGE_SYSTEM_SOUND, CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface CarAudioUsage {}
-
-    /**
-     * Return {@link AudioAttributes} relevant for the given usage in car.
-     */
-    public abstract AudioAttributes getAudioAttributesForCarUsage(@CarAudioUsage int carUsage)
-            throws CarNotConnectedException;
-
-    /**
      * Get {@link AudioFormat} for audio record.
      * @return {@link AudioFormat} for audio record.
      */

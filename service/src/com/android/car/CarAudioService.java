@@ -17,7 +17,6 @@ package com.android.car;
 
 import android.annotation.Nullable;
 import android.car.Car;
-import android.car.media.CarAudioManager;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.ICarAudio;
 import android.content.Context;
@@ -69,11 +68,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         Resources res = context.getResources();
         mUseDynamicRouting = res.getBoolean(R.bool.audioUseDynamicRouting);
-    }
-
-    @Override
-    public AudioAttributes getAudioAttributesForCarUsage(int carUsage) {
-        return CarAudioAttributesUtil.getAudioAttributesForCarUsage(carUsage);
     }
 
     @Override
@@ -141,11 +135,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Log.i(CarLog.TAG_AUDIO, String.format(
                     "Physical stream %d, sampleRate:%d, channels:0x%s", i, sampleRate,
                     Integer.toHexString(channels)));
-            int[] carUsages = audioRoutingPolicy.getCarUsagesForPhysicalStream(i);
+            int[] usages = audioRoutingPolicy.getUsagesForPhysicalStream(i);
             AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
-            for (int carUsage : carUsages) {
+            for (int usage : usages) {
                 mixingRuleBuilder.addRule(
-                        CarAudioAttributesUtil.getAudioAttributesForCarUsage(carUsage),
+                        new AudioAttributes.Builder().setUsage(usage).build(),
                         AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
             }
             AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
@@ -223,11 +217,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     @Override
-    public void setUsageVolume(@CarAudioManager.CarAudioUsage int carUsage, int index, int flags) {
+    public void setUsageVolume(
+            @AudioAttributes.AttributeUsage int usage, int index, int flags) {
         // TODO:  Use or remove flags argument
-
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        AudioPort audioPort = getAudioPort(carUsage);
+        AudioPort audioPort = getAudioPort(usage);
         AudioGainConfig audioGainConfig = getPortGainForIndex(audioPort, index);
         if (audioGainConfig != null) {
             AudioManager.setAudioPortGain(audioPort, audioGainConfig);
@@ -242,35 +236,34 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     @Override
-    public int getUsageMaxVolume(@CarAudioManager.CarAudioUsage int carUsage) {
+    public int getUsageMaxVolume(@AudioAttributes.AttributeUsage int usage) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        AudioPort audioPort = getAudioPort(carUsage);
+        AudioPort audioPort = getAudioPort(usage);
         AudioGain audioGain = getAudioGain(audioPort);
         if (audioGain == null) {
-            throw new RuntimeException("No audio gain found for car usage: " + carUsage);
+            throw new RuntimeException("No audio gain found for usage: " + usage);
         }
         return gainToIndex(audioGain, audioGain.maxValue());
     }
 
     @Override
-    public int getUsageMinVolume(@CarAudioManager.CarAudioUsage int carUsage) {
+    public int getUsageMinVolume(@AudioAttributes.AttributeUsage int usage) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        AudioPort audioPort = getAudioPort(carUsage);
+        AudioPort audioPort = getAudioPort(usage);
         AudioGain audioGain = getAudioGain(audioPort);
         if (audioGain == null) {
-            throw new RuntimeException("No audio gain found for car usage: " + carUsage);
+            throw new RuntimeException("No audio gain found for usage: " + usage);
         }
         /** TODO(hwwang): some audio usages may have a min volume greater than zero.  Can they ever be negative? */
         return 0;
     }
 
     @Override
-    public int getUsageVolume(@CarAudioManager.CarAudioUsage int carUsage) {
+    public int getUsageVolume(@AudioAttributes.AttributeUsage int usage) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        final int physicalStream = mAudioRoutingPolicy.getPhysicalStreamForCarUsage(carUsage);
+        final int physicalStream = mAudioRoutingPolicy.getPhysicalStreamForUsage(usage);
         return mAudioDeviceGainIndexes[physicalStream];
     }
-
 
     @Override
     public void setFadeTowardFront(float value) {
@@ -432,8 +425,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      * @return {@link AudioDevicePort} that handles the given car audio usage. Multiple car
      * audio usages may share one {@link AudioDevicePort}
      */
-    private @Nullable AudioDevicePort getAudioPort(@CarAudioManager.CarAudioUsage int carUsage) {
-        final int physicalStream = mAudioRoutingPolicy.getPhysicalStreamForCarUsage(carUsage);
+    private @Nullable AudioDevicePort getAudioPort(@AudioAttributes.AttributeUsage int usage) {
+        final int physicalStream = mAudioRoutingPolicy.getPhysicalStreamForUsage(usage);
         if (mAudioDeviceInfos[physicalStream] != null) {
             return mAudioDeviceInfos[physicalStream].getPort();
         }

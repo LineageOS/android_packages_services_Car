@@ -781,6 +781,7 @@
     public boolean isChangingConfigurations();
     public boolean isChild();
     public boolean isDestroyed();
+    public boolean isDisablingEnterExitEventForAutofill();
     public boolean isFinishing();
     public boolean isImmersive();
     public boolean isInMultiWindowMode();
@@ -894,6 +895,7 @@
     public void postponeEnterTransition();
     public void recreate();
     public void registerForContextMenu(android.view.View);
+    public void registerRemoteAnimations(android.view.RemoteAnimationDefinition);
     public boolean releaseInstance();
     public void removeDialog(int);
     public void reportFullyDrawn();
@@ -1516,6 +1518,7 @@
     public boolean getLockTaskMode();
     public android.os.IRemoteCallback getOnAnimationStartListener();
     public java.lang.String getPackageName();
+    public android.view.RemoteAnimationAdapter getRemoteAnimationAdapter();
     public int getResultCode();
     public android.content.Intent getResultData();
     public android.os.ResultReceiver getResultReceiver();
@@ -1537,6 +1540,7 @@
     public static android.app.ActivityOptions makeCustomInPlaceAnimation(android.content.Context, int);
     public static android.app.ActivityOptions makeMultiThumbFutureAspectScaleAnimation(android.content.Context, android.os.Handler, android.view.IAppTransitionAnimationSpecsFuture, android.app.ActivityOptions$OnAnimationStartedListener, boolean);
     public static android.app.ActivityOptions makeOpenCrossProfileAppsAnimation();
+    public static android.app.ActivityOptions makeRemoteAnimation(android.view.RemoteAnimationAdapter);
     public static android.app.ActivityOptions makeScaleUpAnimation(android.view.View, int, int, int, int);
     public static android.app.ActivityOptions makeSceneTransitionAnimation(android.app.Activity, android.view.View, java.lang.String);
     public static android.app.ActivityOptions makeSceneTransitionAnimation(android.app.Activity, android.util.Pair[]);
@@ -1571,6 +1575,7 @@
     public static int ANIM_LAUNCH_TASK_BEHIND;
     public static int ANIM_NONE;
     public static int ANIM_OPEN_CROSS_PROFILE_APPS;
+    public static int ANIM_REMOTE_ANIMATION;
     public static int ANIM_SCALE_UP;
     public static int ANIM_SCENE_TRANSITION;
     public static int ANIM_THUMBNAIL_ASPECT_SCALE_DOWN;
@@ -1617,6 +1622,7 @@
     public static java.lang.String currentOpPackageName();
     public static java.lang.String currentPackageName();
     public static java.lang.String currentProcessName();
+    public void dump(java.io.PrintWriter, java.lang.String);
     public static void dumpMemInfoTable(java.io.PrintWriter, android.os.Debug$MemoryInfo, boolean, boolean, boolean, boolean, int, java.lang.String, long, long, long, long, long, long);
     public static void dumpMemInfoTable(android.util.proto.ProtoOutputStream, android.os.Debug$MemoryInfo, boolean, boolean, long, long, long, long, long, long);
     public android.app.Activity getActivity(android.os.IBinder);
@@ -2169,6 +2175,7 @@
 -keep class android.app.ClientTransactionHandler {
     <init>();
 
+    public abstract void dump(java.io.PrintWriter, java.lang.String);
     public abstract android.app.ActivityThread$ActivityClientRecord getActivityClient(android.os.IBinder);
     public abstract android.app.LoadedApk getLoadedApkNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
     public abstract void handleActivityConfigurationChanged(android.os.IBinder, android.content.res.Configuration, int);
@@ -2782,7 +2789,7 @@
     public abstract boolean convertToTranslucent(android.os.IBinder, android.os.Bundle);
     public abstract void crashApplication(int, int, java.lang.String, int, java.lang.String);
     public abstract int createStackOnDisplay(int);
-    public abstract void dismissKeyguard(android.os.IBinder, com.android.internal.policy.IKeyguardDismissCallback);
+    public abstract void dismissKeyguard(android.os.IBinder, com.android.internal.policy.IKeyguardDismissCallback, java.lang.CharSequence);
     public abstract void dismissPip(boolean, int);
     public abstract void dismissSplitScreenMode(boolean);
     public abstract boolean dumpHeap(java.lang.String, int, boolean, boolean, boolean, java.lang.String, android.os.ParcelFileDescriptor);
@@ -2921,6 +2928,7 @@
     public abstract void registerIntentSenderCancelListener(android.content.IIntentSender, com.android.internal.os.IResultReceiver);
     public abstract void registerProcessObserver(android.app.IProcessObserver);
     public abstract android.content.Intent registerReceiver(android.app.IApplicationThread, java.lang.String, android.content.IIntentReceiver, android.content.IntentFilter, java.lang.String, int, int);
+    public abstract void registerRemoteAnimations(android.os.IBinder, android.view.RemoteAnimationDefinition);
     public abstract void registerTaskStackListener(android.app.ITaskStackListener);
     public abstract void registerUidObserver(android.app.IUidObserver, int, int, java.lang.String);
     public abstract void registerUserSwitchObserver(android.app.IUserSwitchObserver, java.lang.String);
@@ -3500,9 +3508,11 @@
     public static java.lang.String EXTRA_LARGE_ICON_BIG;
     public static java.lang.String EXTRA_MEDIA_SESSION;
     public static java.lang.String EXTRA_MESSAGES;
+    public static java.lang.String EXTRA_MESSAGING_PERSON;
     public static java.lang.String EXTRA_NOTIFICATION_ID;
     public static java.lang.String EXTRA_NOTIFICATION_TAG;
     public static java.lang.String EXTRA_PEOPLE;
+    public static java.lang.String EXTRA_PEOPLE_LIST;
     public static java.lang.String EXTRA_PICTURE;
     public static java.lang.String EXTRA_PROGRESS;
     public static java.lang.String EXTRA_PROGRESS_INDETERMINATE;
@@ -3590,10 +3600,21 @@
     public android.os.Bundle getExtras();
     public android.graphics.drawable.Icon getIcon();
     public android.app.RemoteInput[] getRemoteInputs();
+    public int getSemanticAction();
     public void writeToParcel(android.os.Parcel, int);
 
 
     public static android.os.Parcelable$Creator CREATOR;
+    public static int SEMANTIC_ACTION_ARCHIVE;
+    public static int SEMANTIC_ACTION_DELETE;
+    public static int SEMANTIC_ACTION_MARK_AS_READ;
+    public static int SEMANTIC_ACTION_MARK_AS_UNREAD;
+    public static int SEMANTIC_ACTION_MUTE;
+    public static int SEMANTIC_ACTION_NONE;
+    public static int SEMANTIC_ACTION_REPLY;
+    public static int SEMANTIC_ACTION_THUMBS_DOWN;
+    public static int SEMANTIC_ACTION_THUMBS_UP;
+    public static int SEMANTIC_ACTION_UNMUTE;
     public android.app.PendingIntent actionIntent;
     public int icon;
     public java.lang.CharSequence title;
@@ -3608,6 +3629,7 @@
     public android.app.Notification$Builder addAction(android.app.Notification$Action);
     public android.app.Notification$Builder addExtras(android.os.Bundle);
     public android.app.Notification$Builder addPerson(java.lang.String);
+    public android.app.Notification$Builder addPerson(android.app.Notification$Person);
     public android.app.Notification build();
     public android.app.Notification buildInto(android.app.Notification);
     public android.app.Notification buildUnstyled();
@@ -3701,6 +3723,26 @@
     public abstract android.app.Notification$Builder extend(android.app.Notification$Builder);
 
 
+}
+
+-keep class android.app.Notification$Person {
+    <init>(android.os.Parcel);
+    <init>();
+
+    public int describeContents();
+    public android.graphics.drawable.Icon getIcon();
+    public java.lang.String getKey();
+    public java.lang.CharSequence getName();
+    public java.lang.String getUri();
+    public java.lang.String resolveToLegacyUri();
+    public android.app.Notification$Person setIcon(android.graphics.drawable.Icon);
+    public android.app.Notification$Person setKey(java.lang.String);
+    public android.app.Notification$Person setName(java.lang.CharSequence);
+    public android.app.Notification$Person setUri(java.lang.String);
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
 }
 
 -keep class android.app.Notification$Style {
@@ -3858,7 +3900,7 @@
 }
 
 -keep class android.app.ProfilerInfo {
-    <init>(java.lang.String, android.os.ParcelFileDescriptor, int, boolean, boolean, java.lang.String);
+    <init>(java.lang.String, android.os.ParcelFileDescriptor, int, boolean, boolean, java.lang.String, boolean);
     <init>(android.app.ProfilerInfo);
 
     public void closeFd();
@@ -3870,6 +3912,7 @@
 
     public static android.os.Parcelable$Creator CREATOR;
     public java.lang.String agent;
+    public boolean attachAgentDuringBind;
     public boolean autoStopProfiler;
     public android.os.ParcelFileDescriptor profileFd;
     public java.lang.String profileFile;
@@ -3909,13 +3952,17 @@
     public java.lang.CharSequence getLabel();
     public java.lang.String getResultKey();
     public static android.os.Bundle getResultsFromIntent(android.content.Intent);
+    public static int getResultsSource(android.content.Intent);
     public boolean isDataOnly();
+    public static void setResultsSource(android.content.Intent, int);
     public void writeToParcel(android.os.Parcel, int);
 
 
     public static android.os.Parcelable$Creator CREATOR;
     public static java.lang.String EXTRA_RESULTS_DATA;
     public static java.lang.String RESULTS_CLIP_LABEL;
+    public static int SOURCE_CHOICE;
+    public static int SOURCE_FREE_FORM_INPUT;
 }
 
 -keep class android.app.ResultInfo {
@@ -4361,8 +4408,12 @@
 
 -keep class android.app.servertransaction.ActivityLifecycleItem {
     <init>();
+    <init>(android.os.Parcel);
 
+    public java.lang.String getDescription();
     public abstract int getTargetState();
+    public android.app.servertransaction.ActivityLifecycleItem setDescription(java.lang.String);
+    public void writeToParcel(android.os.Parcel, int);
 
 
     public static int ON_CREATE;
@@ -4382,6 +4433,8 @@
     public int describeContents();
     public boolean equals(java.lang.Object);
     public android.os.IBinder getActivityToken();
+    public android.app.IApplicationThread getClient();
+    public android.app.servertransaction.ActivityLifecycleItem getLifecycleStateRequest();
     public int hashCode();
     public static android.app.servertransaction.ClientTransaction obtain(android.app.IApplicationThread, android.os.IBinder);
     public void preExecute(android.app.ClientTransactionHandler);
@@ -5224,6 +5277,7 @@
     public static java.lang.String DOWNLOAD_SERVICE;
     public static java.lang.String DROPBOX_SERVICE;
     public static java.lang.String ETHERNET_SERVICE;
+    public static java.lang.String EUICC_CARD_SERVICE;
     public static java.lang.String EUICC_SERVICE;
     public static java.lang.String FINGERPRINT_SERVICE;
     public static java.lang.String GATEKEEPER_SERVICE;
@@ -7220,6 +7274,7 @@
     public abstract byte[] getDefaultAppsBackup(int);
     public abstract java.lang.String getDefaultBrowserPackageName(int);
     public abstract int getFlagsForUid(int);
+    public abstract java.lang.CharSequence getHarmfulAppWarning(java.lang.String, int);
     public abstract android.content.ComponentName getHomeActivities(java.util.List);
     public abstract int getInstallLocation();
     public abstract int getInstallReason(java.lang.String, int);
@@ -7333,6 +7388,7 @@
     public abstract boolean setBlockUninstallForUser(java.lang.String, boolean, int);
     public abstract void setComponentEnabledSetting(android.content.ComponentName, int, int, int);
     public abstract boolean setDefaultBrowserPackageName(java.lang.String, int);
+    public abstract void setHarmfulAppWarning(java.lang.String, java.lang.CharSequence, int);
     public abstract void setHomeActivity(android.content.ComponentName, int);
     public abstract boolean setInstallLocation(int);
     public abstract void setInstallerPackageName(java.lang.String, java.lang.String);
@@ -7851,6 +7907,7 @@
     public abstract android.graphics.drawable.Drawable getDefaultActivityIcon();
     public abstract java.lang.String getDefaultBrowserPackageNameAsUser(int);
     public abstract android.graphics.drawable.Drawable getDrawable(java.lang.String, int, android.content.pm.ApplicationInfo);
+    public java.lang.CharSequence getHarmfulAppWarning(java.lang.String);
     public abstract android.content.ComponentName getHomeActivities(java.util.List);
     public abstract int getInstallReason(java.lang.String, android.os.UserHandle);
     public abstract java.util.List getInstalledApplications(int);
@@ -7980,6 +8037,7 @@
     public abstract boolean setApplicationHiddenSettingAsUser(java.lang.String, boolean, android.os.UserHandle);
     public abstract void setComponentEnabledSetting(android.content.ComponentName, int, int);
     public abstract boolean setDefaultBrowserPackageNameAsUser(java.lang.String, int);
+    public void setHarmfulAppWarning(java.lang.String, java.lang.CharSequence);
     public abstract void setInstallerPackageName(java.lang.String, java.lang.String);
     public abstract boolean setInstantAppCookie(byte[]);
     public abstract java.lang.String[] setPackagesSuspendedAsUser(java.lang.String[], boolean, int);
@@ -8172,6 +8230,7 @@
     public static int INSTALL_EXTERNAL;
     public static int INSTALL_FAILED_ABORTED;
     public static int INSTALL_FAILED_ALREADY_EXISTS;
+    public static int INSTALL_FAILED_BAD_DEX_METADATA;
     public static int INSTALL_FAILED_CONFLICTING_PROVIDER;
     public static int INSTALL_FAILED_CONTAINER_ERROR;
     public static int INSTALL_FAILED_CPU_ABI_INCOMPATIBLE;
@@ -11552,8 +11611,7 @@
 }
 
 -keep class android.hardware.display.BrightnessChangeEvent {
-    <init>();
-    <init>(android.hardware.display.BrightnessChangeEvent);
+    <init>(android.hardware.display.BrightnessChangeEvent, boolean);
 
     public int describeContents();
     public void writeToParcel(android.os.Parcel, int);
@@ -11577,6 +11635,7 @@
     public int describeContents();
     public boolean equals(java.lang.Object);
     public android.util.Pair getCurve();
+    public java.lang.String getDescription();
     public int hashCode();
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
@@ -11605,7 +11664,7 @@
     public void renameWifiDisplay(java.lang.String, java.lang.String);
     public void resumeWifiDisplay();
     public void setBrightnessConfiguration(android.hardware.display.BrightnessConfiguration);
-    public void setBrightnessConfigurationForUser(android.hardware.display.BrightnessConfiguration, int);
+    public void setBrightnessConfigurationForUser(android.hardware.display.BrightnessConfiguration, int, java.lang.String);
     public void startWifiDisplayScan();
     public void stopWifiDisplayScan();
     public void unregisterDisplayListener(android.hardware.display.DisplayManager$DisplayListener);
@@ -11656,7 +11715,7 @@
     public void requestColorMode(int, int);
     public void resizeVirtualDisplay(android.hardware.display.IVirtualDisplayCallback, int, int, int);
     public void resumeWifiDisplay();
-    public void setBrightnessConfigurationForUser(android.hardware.display.BrightnessConfiguration, int);
+    public void setBrightnessConfigurationForUser(android.hardware.display.BrightnessConfiguration, int, java.lang.String);
     public void setVirtualDisplaySurface(android.hardware.display.IVirtualDisplayCallback, android.view.Surface);
     public void startWifiDisplayScan();
     public void stopWifiDisplayScan();
@@ -14609,22 +14668,12 @@
     <init>();
 
     public abstract android.support.car.media.CarAudioRecord createCarAudioRecord(int);
-    public abstract android.media.AudioAttributes getAudioAttributesForCarUsage(int);
     public abstract android.media.AudioFormat getAudioRecordAudioFormat();
     public abstract int getAudioRecordMaxBufferSize();
     public abstract int getAudioRecordMinBufferSize();
     public abstract boolean isAudioRecordSupported();
 
 
-    public static int CAR_AUDIO_USAGE_ALARM;
-    public static int CAR_AUDIO_USAGE_DEFAULT;
-    public static int CAR_AUDIO_USAGE_MUSIC;
-    public static int CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE;
-    public static int CAR_AUDIO_USAGE_NOTIFICATION;
-    public static int CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT;
-    public static int CAR_AUDIO_USAGE_SYSTEM_SOUND;
-    public static int CAR_AUDIO_USAGE_VOICE_CALL;
-    public static int CAR_AUDIO_USAGE_VOICE_COMMAND;
 }
 
 -keep class android.support.car.media.CarAudioRecord {
@@ -15773,6 +15822,7 @@
     public android.view.DisplayCutout calculateRelativeTo(android.graphics.Rect);
     public boolean equals(java.lang.Object);
     public static android.view.DisplayCutout fromBoundingPolygon(java.util.List);
+    public static android.view.DisplayCutout fromBounds(android.graphics.Path);
     public android.graphics.Rect getBoundingRect();
     public android.graphics.Region getBounds();
     public int getSafeInsetBottom();
@@ -15825,6 +15875,7 @@
     public int appWidth;
     public int colorMode;
     public int defaultModeId;
+    public android.view.DisplayCutout displayCutout;
     public int flags;
     public android.view.Display$HdrCapabilities hdrCapabilities;
     public int largestNominalAppHeight;
@@ -15956,6 +16007,21 @@
 -keep class android.view.IAppTransitionAnimationSpecsFuture {
 
     public abstract android.view.AppTransitionAnimationSpec[] get();
+
+
+}
+
+-keep class android.view.IRemoteAnimationFinishedCallback {
+
+    public abstract void onAnimationFinished();
+
+
+}
+
+-keep class android.view.IRemoteAnimationRunner {
+
+    public abstract void onAnimationCancelled();
+    public abstract void onAnimationStart(android.view.RemoteAnimationTarget[], android.view.IRemoteAnimationFinishedCallback);
 
 
 }
@@ -17267,6 +17333,55 @@
 
 }
 
+-keep class android.view.RemoteAnimationAdapter {
+    <init>(android.view.IRemoteAnimationRunner, long, long);
+    <init>(android.os.Parcel);
+
+    public int describeContents();
+    public long getDuration();
+    public android.view.IRemoteAnimationRunner getRunner();
+    public long getStatusBarTransitionDelay();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+}
+
+-keep class android.view.RemoteAnimationDefinition {
+    <init>();
+    <init>(android.os.Parcel);
+
+    public void addRemoteAnimation(int, android.view.RemoteAnimationAdapter);
+    public int describeContents();
+    public android.view.RemoteAnimationAdapter getAdapter(int);
+    public boolean hasTransition(int);
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+}
+
+-keep class android.view.RemoteAnimationTarget {
+    <init>(int, int, android.view.SurfaceControl, boolean, android.graphics.Rect, int, android.graphics.Point, android.graphics.Rect);
+    <init>(android.os.Parcel);
+
+    public int describeContents();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+    public static int MODE_CLOSING;
+    public static int MODE_OPENING;
+    public android.graphics.Rect clipRect;
+    public boolean isTranslucent;
+    public android.view.SurfaceControl leash;
+    public int mode;
+    public android.graphics.Point position;
+    public int prefixOrderIndex;
+    public android.graphics.Rect sourceContainerBounds;
+    public int taskId;
+}
+
 -keep class android.view.RenderNode {
 
     public void addAnimator(android.view.RenderNodeAnimator);
@@ -17529,6 +17644,7 @@
     public void show();
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static int BUILT_IN_DISPLAY_ID_HDMI;
@@ -17762,6 +17878,7 @@
     public void buildLayer();
     public boolean callOnClick();
     public boolean canHaveDisplayList();
+    public boolean canNotifyAutofillEnterExitEvent();
     public boolean canResolveLayoutDirection();
     public boolean canResolveTextAlignment();
     public boolean canResolveTextDirection();
@@ -17866,6 +17983,7 @@
     public android.view.View$AccessibilityDelegate getAccessibilityDelegate();
     public int getAccessibilityLiveRegion();
     public android.view.accessibility.AccessibilityNodeProvider getAccessibilityNodeProvider();
+    public java.lang.CharSequence getAccessibilityPaneTitle();
     public int getAccessibilitySelectionEnd();
     public int getAccessibilitySelectionStart();
     public int getAccessibilityTraversalAfter();
@@ -18140,8 +18258,9 @@
     public void mapRectFromViewToScreenCoords(android.graphics.RectF, boolean);
     public void measure(int, int);
     protected static int[] mergeDrawableStates(int[], int[]);
-    public void notifySubtreeAccessibilityStateChangedIfNeeded();
-    public void notifyViewAccessibilityStateChangedIfNeeded(int);
+    public void notifyAccessibilityStateChanged(int);
+    public void notifyAccessibilitySubtreeChanged();
+    public void notifyEnterOrExitForAutoFillIfNeeded(boolean);
     public void offsetLeftAndRight(int);
     public void offsetTopAndBottom(int);
     public void onActivityResult(int, int, android.content.Intent);
@@ -18265,6 +18384,7 @@
     public void resetResolvedTextAlignment();
     public void resetResolvedTextDirection();
     public void resetRtlProperties();
+    public void resetSubtreeAccessibilityStateChanged();
     protected void resolveDrawables();
     public boolean resolveLayoutDirection();
     public void resolveLayoutParams();
@@ -18288,6 +18408,7 @@
     public void sendAccessibilityEventUncheckedInternal(android.view.accessibility.AccessibilityEvent);
     public void setAccessibilityDelegate(android.view.View$AccessibilityDelegate);
     public void setAccessibilityLiveRegion(int);
+    public void setAccessibilityPaneTitle(java.lang.CharSequence);
     public void setAccessibilitySelection(int, int);
     public void setAccessibilityTraversalAfter(int);
     public void setAccessibilityTraversalBefore(int);
@@ -19060,8 +19181,8 @@
     protected void measureChild(android.view.View, int, int);
     protected void measureChildWithMargins(android.view.View, int, int, int, int);
     protected void measureChildren(int, int);
+    public void notifyAccessibilitySubtreeChanged();
     public void notifySubtreeAccessibilityStateChanged(android.view.View, android.view.View, int);
-    public void notifySubtreeAccessibilityStateChangedIfNeeded();
     public void offsetChildrenTopAndBottom(int);
     public void offsetDescendantRectToMyCoords(android.view.View, android.graphics.Rect);
     public void offsetRectIntoDescendantCoords(android.view.View, android.graphics.Rect);
@@ -19113,6 +19234,7 @@
     public void resetResolvedPadding();
     public void resetResolvedTextAlignment();
     public void resetResolvedTextDirection();
+    public void resetSubtreeAccessibilityStateChanged();
     protected void resolveDrawables();
     public boolean resolveLayoutDirection();
     public void resolveLayoutParams();
@@ -19409,6 +19531,7 @@
     public void dispatchWindowShown();
     public void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     public void dumpGfxInfo(int[]);
+    public void flushPendingAccessibilityEvents();
     public android.view.View focusSearch(android.view.View, int);
     public void focusableViewAvailable(android.view.View);
     public android.view.View getAccessibilityFocusedHost();
@@ -19490,6 +19613,7 @@
 
 
     public static java.lang.String PROPERTY_EMULATOR_WIN_OUTSET_BOTTOM_PX;
+    protected android.view.accessibility.AccessibilityViewHierarchyState mAccessibilityState;
     protected android.view.InputEventConsistencyVerifier mInputEventConsistencyVerifier;
     public boolean mIsAnimating;
     public android.view.Surface mSurface;
@@ -20117,6 +20241,29 @@
     public static java.lang.String PARCEL_KEY_SHORTCUTS_ARRAY;
     public static int TAKE_SCREENSHOT_FULLSCREEN;
     public static int TAKE_SCREENSHOT_SELECTED_REGION;
+    public static int TRANSIT_ACTIVITY_CLOSE;
+    public static int TRANSIT_ACTIVITY_OPEN;
+    public static int TRANSIT_ACTIVITY_RELAUNCH;
+    public static int TRANSIT_DOCK_TASK_FROM_RECENTS;
+    public static int TRANSIT_FLAG_KEYGUARD_GOING_AWAY_NO_ANIMATION;
+    public static int TRANSIT_FLAG_KEYGUARD_GOING_AWAY_TO_SHADE;
+    public static int TRANSIT_FLAG_KEYGUARD_GOING_AWAY_WITH_WALLPAPER;
+    public static int TRANSIT_KEYGUARD_GOING_AWAY;
+    public static int TRANSIT_KEYGUARD_GOING_AWAY_ON_WALLPAPER;
+    public static int TRANSIT_KEYGUARD_OCCLUDE;
+    public static int TRANSIT_KEYGUARD_UNOCCLUDE;
+    public static int TRANSIT_NONE;
+    public static int TRANSIT_TASK_CLOSE;
+    public static int TRANSIT_TASK_IN_PLACE;
+    public static int TRANSIT_TASK_OPEN;
+    public static int TRANSIT_TASK_OPEN_BEHIND;
+    public static int TRANSIT_TASK_TO_BACK;
+    public static int TRANSIT_TASK_TO_FRONT;
+    public static int TRANSIT_UNSET;
+    public static int TRANSIT_WALLPAPER_CLOSE;
+    public static int TRANSIT_WALLPAPER_INTRA_CLOSE;
+    public static int TRANSIT_WALLPAPER_INTRA_OPEN;
+    public static int TRANSIT_WALLPAPER_OPEN;
 }
 
 -keep class android.view.WindowManager$KeyboardShortcutsReceiver {
@@ -20171,7 +20318,6 @@
     public static int FIRST_APPLICATION_WINDOW;
     public static int FIRST_SUB_WINDOW;
     public static int FIRST_SYSTEM_WINDOW;
-    public static long FLAG2_LAYOUT_IN_DISPLAY_CUTOUT_AREA;
     public static int FLAGS_CHANGED;
     public static int FLAG_ALLOW_LOCK_WHILE_SCREEN_ON;
     public static int FLAG_ALT_FOCUSABLE_IM;
@@ -20215,6 +20361,9 @@
     public static int LAST_SUB_WINDOW;
     public static int LAST_SYSTEM_WINDOW;
     public static int LAYOUT_CHANGED;
+    public static int LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+    public static int LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT;
+    public static int LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER;
     public static int MEMORY_TYPE_CHANGED;
     public static int MEMORY_TYPE_GPU;
     public static int MEMORY_TYPE_HARDWARE;
@@ -20329,7 +20478,6 @@
     public float buttonBrightness;
     public float dimAmount;
     public int flags;
-    public long flags2;
     public int format;
     public int gravity;
     public boolean hasManualSurfaceInsets;
@@ -20338,6 +20486,7 @@
     public float horizontalMargin;
     public float horizontalWeight;
     public int inputFeatures;
+    public int layoutInDisplayCutoutMode;
     public int memoryType;
     public int needsMenuKey;
     public java.lang.String packageName;
@@ -20396,6 +20545,9 @@
 
 
     public static int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION;
+    public static int CONTENT_CHANGE_TYPE_PANE_APPEARED;
+    public static int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED;
+    public static int CONTENT_CHANGE_TYPE_PANE_TITLE;
     public static int CONTENT_CHANGE_TYPE_SUBTREE;
     public static int CONTENT_CHANGE_TYPE_TEXT;
     public static int CONTENT_CHANGE_TYPE_UNDEFINED;
@@ -20485,6 +20637,7 @@
     public int getMovementGranularities();
     public java.lang.CharSequence getOriginalText();
     public java.lang.CharSequence getPackageName();
+    public java.lang.CharSequence getPaneTitle();
     public android.view.accessibility.AccessibilityNodeInfo getParent();
     public long getParentNodeId();
     public android.view.accessibility.AccessibilityNodeInfo$RangeInfo getRangeInfo();
@@ -20573,6 +20726,7 @@
     public void setMultiLine(boolean);
     public static void setNumInstancesInUseCounter(java.util.concurrent.atomic.AtomicInteger);
     public void setPackageName(java.lang.CharSequence);
+    public void setPaneTitle(java.lang.CharSequence);
     public void setParent(android.view.View);
     public void setParent(android.view.View, int);
     public void setPassword(boolean);
@@ -20823,6 +20977,18 @@
     public java.lang.String toString();
 
 
+    protected static boolean DEBUG_CONCISE_TOSTRING;
+}
+
+-keep class android.view.accessibility.AccessibilityViewHierarchyState {
+    <init>();
+
+    public android.view.accessibility.SendViewScrolledAccessibilityEvent getSendViewScrolledAccessibilityEvent();
+    public android.view.accessibility.SendWindowContentChangedAccessibilityEvent getSendWindowContentChangedAccessibilityEvent();
+    public boolean isScrollEventSenderInitialized();
+    public boolean isWindowContentChangedEventSenderInitialized();
+
+
 }
 
 -keep class android.view.accessibility.AccessibilityWindowInfo {
@@ -20884,6 +21050,46 @@
     public abstract void setFindAccessibilityNodeInfoResult(android.view.accessibility.AccessibilityNodeInfo, int);
     public abstract void setFindAccessibilityNodeInfosResult(java.util.List, int);
     public abstract void setPerformAccessibilityActionResult(boolean, int);
+
+
+}
+
+-keep class android.view.accessibility.SendViewScrolledAccessibilityEvent {
+    <init>();
+
+    protected void performSendEvent(android.view.View);
+    public void post(android.view.View, int, int);
+    protected void resetState(android.view.View);
+
+
+    public int mDeltaX;
+    public int mDeltaY;
+}
+
+-keep class android.view.accessibility.SendWindowContentChangedAccessibilityEvent {
+    <init>();
+
+    protected void performSendEvent(android.view.View);
+    protected void resetState(android.view.View);
+    public void runOrPost(android.view.View, int);
+    protected android.view.View tryMerge(android.view.View, android.view.View);
+
+
+}
+
+-keep class android.view.accessibility.ThrottlingAccessibilityEventSender {
+    <init>();
+
+    public static void cancelIfPending(android.view.accessibility.ThrottlingAccessibilityEventSender);
+    public void cancelIfPendingFor(android.view.View);
+    protected boolean isPendingFor(android.view.View);
+    protected abstract void performSendEvent(android.view.View);
+    protected abstract void resetState(android.view.View);
+    protected void scheduleFor(android.view.View);
+    protected void sendNow(android.view.View);
+    public void sendNowIfPending();
+    public java.lang.String toString();
+    protected android.view.View tryMerge(android.view.View, android.view.View);
 
 
 }
@@ -21094,8 +21300,9 @@
     public void notifyViewVisibilityChanged(android.view.View, boolean);
     public void notifyViewVisibilityChanged(android.view.View, int, boolean);
     public void onActivityFinished();
-    public void onAuthenticationResult(int, android.content.Intent);
+    public void onAuthenticationResult(int, android.content.Intent, android.view.View);
     public void onCreate(android.os.Bundle);
+    public void onInvisibleForAutofill();
     public void onPendingSaveUi(int, android.os.IBinder);
     public void onSaveInstanceState(android.os.Bundle);
     public void onVisibleForAutofill();
@@ -21155,6 +21362,7 @@
     public abstract android.view.View[] findViewsByAutofillIdTraversal(int[]);
     public abstract android.content.ComponentName getComponentName();
     public abstract boolean[] getViewVisibility(int[]);
+    public abstract boolean isDisablingEnterExitEventForAutofill();
     public abstract boolean isVisibleForAutofill();
     public abstract void runOnUiThread(java.lang.Runnable);
 
