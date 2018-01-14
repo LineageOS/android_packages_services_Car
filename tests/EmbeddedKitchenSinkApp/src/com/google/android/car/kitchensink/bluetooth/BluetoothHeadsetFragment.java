@@ -58,6 +58,8 @@ public class BluetoothHeadsetFragment extends Fragment {
     Button mScoDisconnect;
     Button mEnableQuietMode;
     Button mHoldCall;
+    Button mEnableBVRA;
+    Button mDisableBVRA;
 
     BluetoothHeadsetClient mHfpClientProfile;
 
@@ -78,6 +80,8 @@ public class BluetoothHeadsetFragment extends Fragment {
         mScoDisconnect = (Button) v.findViewById(R.id.bluetooth_sco_disconnect);
         mEnableQuietMode = (Button) v.findViewById(R.id.bluetooth_quiet_mode_enable);
         mHoldCall = (Button) v.findViewById(R.id.bluetooth_hold_call);
+        mEnableBVRA = (Button) v.findViewById(R.id.bluetooth_voice_recognition_enable);
+        mDisableBVRA = (Button) v.findViewById(R.id.bluetooth_voice_recognition_disable);
 
         // Pick a bluetooth device
         mDevicePicker.setOnClickListener(new View.OnClickListener() {
@@ -132,6 +136,22 @@ public class BluetoothHeadsetFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 holdCall();
+            }
+        });
+
+        // Enable Voice Recognition
+        mEnableBVRA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startBVRA();
+            }
+        });
+
+        // Disable Voice Recognition
+        mDisableBVRA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopBVRA();
             }
         });
         return v;
@@ -216,6 +236,38 @@ public class BluetoothHeadsetFragment extends Fragment {
         }
         mHfpClientProfile.holdCall(mPickedDevice);
     }
+
+    void startBVRA() {
+        if (mPickedDevice == null) {
+            Log.w(TAG, "Device null when trying to start voice recognition!");
+            return;
+        }
+
+        // Check if we have the proxy and connect the device.
+        if (mHfpClientProfile == null) {
+            Log.w(TAG, "HFP Profile proxy not available, cannot start voice recognition to "
+                    + mPickedDevice);
+            return;
+        }
+        mHfpClientProfile.startVoiceRecognition(mPickedDevice);
+    }
+
+    void stopBVRA() {
+        if (mPickedDevice == null) {
+            Log.w(TAG, "Device null when trying to stop voice recognition!");
+            return;
+        }
+
+        // Check if we have the proxy and connect the device.
+        if (mHfpClientProfile == null) {
+            Log.w(TAG, "HFP Profile proxy not available, cannot stop voice recognition to "
+                    + mPickedDevice);
+            return;
+        }
+        mHfpClientProfile.stopVoiceRecognition(mPickedDevice);
+    }
+
+
 
     private final BroadcastReceiver mPickerReceiver = new BroadcastReceiver() {
         @Override

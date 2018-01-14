@@ -52,7 +52,6 @@ public class AudioTestFragment extends Fragment {
     private AudioManager mAudioManager;
     private FocusHandler mAudioFocusHandler;
     private ToggleButton mEnableMocking;
-    private ToggleButton mRejectFocus;
 
     private AudioPlayer mMusicPlayer;
     private AudioPlayer mMusicPlayerShort;
@@ -259,22 +258,6 @@ public class AudioTestFragment extends Fragment {
                 v -> mAudioManager.setMicrophoneMute(true));
 
 
-        mRejectFocus = view.findViewById(R.id.button_reject_audio_focus);
-        mRejectFocus.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (mCarEmulator == null) {
-                return;
-            }
-            if (!mEnableMocking.isChecked()) {
-                return;
-            }
-            if (isChecked) {
-                mCarEmulator.setAudioFocusControl(true);
-            } else {
-                mCarEmulator.setAudioFocusControl(false);
-            }
-        });
-        mRejectFocus.setActivated(false);
-
         mEnableMocking = view.findViewById(R.id.button_mock_audio);
         mEnableMocking.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (mCarEmulator == null) {
@@ -285,10 +268,8 @@ public class AudioTestFragment extends Fragment {
                 return;
             }
             if (isChecked) {
-                mRejectFocus.setActivated(true);
                 mCarEmulator.start();
             } else {
-                mRejectFocus.setActivated(false);
                 mCarEmulator.stop();
                 mCarEmulator = null;
             }
@@ -301,7 +282,6 @@ public class AudioTestFragment extends Fragment {
         super.onDestroyView();
         Log.i(TAG, "onDestroyView");
         if (mCarEmulator != null) {
-            mCarEmulator.setAudioFocusControl(false);
             mCarEmulator.stop();
         }
         for (AudioPlayer p : mAllPlayers) {
