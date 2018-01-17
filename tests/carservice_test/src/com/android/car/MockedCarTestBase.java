@@ -48,6 +48,7 @@ import com.android.car.systeminterface.SystemInterface.Builder;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.TimeInterface;
 import com.android.car.systeminterface.WakeLockInterface;
+import com.android.car.test.CarServiceTestApp;
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
@@ -62,10 +63,8 @@ import org.junit.Before;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 /**
  * Base class for testing with mocked vehicle HAL (=car).
@@ -381,6 +380,20 @@ public class MockedCarTestBase {
         @Override
         public MockResources getResources() {
             return mResources;
+        }
+
+        // BLUETOOTH_SERVICE needs to be retrieved with an Application context, which neither
+        // this MockContext, nor its base Context are. In order to make this work, we save
+        // an Application context at startup and use it when necessary. Add other services
+        // here as needed.
+        @Override
+        public Object getSystemService(String name) {
+            switch (name) {
+                case BLUETOOTH_SERVICE:
+                    return CarServiceTestApp.getAppContext().getSystemService(name);
+                default:
+                    return super.getSystemService(name);
+            }
         }
     }
 
