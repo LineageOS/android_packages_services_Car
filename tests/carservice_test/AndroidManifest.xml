@@ -31,7 +31,7 @@
             android:targetPackage="com.android.car.test"
             android:label="Tests for Car APIs"/>
 
-    <application android:label="CarServiceTest">
+    <application android:label="CarServiceTest" android:name=".CarServiceTestApp">
         <uses-library android:name="android.test.runner" />
         <service android:name="com.android.car.TestAppBlockingPolicyService"
             android:permission="android.car.permission.CONTROL_APP_BLOCKING">
