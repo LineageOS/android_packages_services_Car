@@ -9,14 +9,14 @@ package android.car {
     field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_READ_ALL = "android.car.permission.DIAGNOSTIC_READ_ALL";
     field public static final java.lang.String PERMISSION_CAR_HVAC = "android.car.permission.CAR_HVAC";
     field public static final java.lang.String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
-    field public static final java.lang.String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
+    field public static final deprecated java.lang.String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
     field public static final java.lang.String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
     field public static final java.lang.String PERMISSION_CONTROL_APP_BLOCKING = "android.car.permission.CONTROL_APP_BLOCKING";
     field public static final deprecated java.lang.String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
     field public static final java.lang.String PERMISSION_STORAGE_MONITORING = "android.car.permission.STORAGE_MONITORING";
     field public static final java.lang.String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
     field public static final java.lang.String PROJECTION_SERVICE = "projection";
-    field public static final java.lang.String RADIO_SERVICE = "radio";
+    field public static final deprecated java.lang.String RADIO_SERVICE = "radio";
     field public static final java.lang.String STORAGE_MONITORING_SERVICE = "storage_monitoring";
     field public static final java.lang.String TEST_SERVICE = "car-service-test";
     field public static final java.lang.String VENDOR_EXTENSION_SERVICE = "vendor_extension";
@@ -629,7 +629,7 @@ package android.car.hardware.hvac {
 
 package android.car.hardware.radio {
 
-  public class CarRadioEvent implements android.os.Parcelable {
+  public deprecated class CarRadioEvent implements android.os.Parcelable {
     ctor public CarRadioEvent(int, android.car.hardware.radio.CarRadioPreset);
     method public int describeContents();
     method public int getEventType();
@@ -639,7 +639,7 @@ package android.car.hardware.radio {
     field public static final int RADIO_PRESET = 0; // 0x0
   }
 
-  public final class CarRadioManager {
+  public final deprecated class CarRadioManager {
     method public android.car.hardware.radio.CarRadioPreset getPreset(int) throws android.car.CarNotConnectedException;
     method public int getPresetCount() throws android.car.CarNotConnectedException;
     method public synchronized void registerListener(android.car.hardware.radio.CarRadioManager.CarRadioEventListener) throws android.car.CarNotConnectedException;
@@ -647,11 +647,11 @@ package android.car.hardware.radio {
     method public synchronized void unregisterListener();
   }
 
-  public static abstract interface CarRadioManager.CarRadioEventListener {
+  public static abstract deprecated interface CarRadioManager.CarRadioEventListener {
     method public abstract void onEvent(android.car.hardware.radio.CarRadioEvent);
   }
 
-  public class CarRadioPreset implements android.os.Parcelable {
+  public deprecated class CarRadioPreset implements android.os.Parcelable {
     ctor public CarRadioPreset(int, int, int, int);
     method public int describeContents();
     method public int getBand();

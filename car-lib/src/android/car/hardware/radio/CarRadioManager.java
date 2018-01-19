@@ -39,9 +39,15 @@ import java.lang.ref.WeakReference;
  * features additional to the ones provided in there. It supports:
  *
  * 1. Capability to control presets.
+ *
+ * @deprecated Use AOSP RadioManager directly.
+ *             Presets concept (the only added value of CarRadioManager) is not flexible enough
+ *             to cover most use cases. Please use in-app favorites instead. To support hardware
+ *             preset buttons, just make them sending keycodes and handle them in the radio app.
  * @hide
  */
 @SystemApi
+@Deprecated
 public final class CarRadioManager implements CarManagerBase {
     private final static boolean DBG = false;
     private final static String TAG = "CarRadioManager";
@@ -98,7 +104,9 @@ public final class CarRadioManager implements CarManagerBase {
 
 
     /** Listener for car radio events.
+     * @deprecated see {@link CarRadioManager}
      */
+    @Deprecated
     public interface CarRadioEventListener {
         /**
          * Called when there is a preset value is reprogrammed.

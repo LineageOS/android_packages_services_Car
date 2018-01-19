@@ -108,8 +108,10 @@ public final class Car {
 
     /**
      * @hide
+     * @deprecated see {@link CarRadioManager}
      */
     @SystemApi
+    @Deprecated
     public static final String RADIO_SERVICE = "radio";
 
     /**
@@ -238,8 +240,10 @@ public final class Car {
     /**
      * Permission necessary to access Car RADIO system APIs.
      * @hide
+     * @deprecated see {@link CarRadioManager}
      */
     @SystemApi
+    @Deprecated
     public static final String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
 
 
