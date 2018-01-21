@@ -28,6 +28,14 @@ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
 LOCAL_PACKAGE_NAME := CarMapsPlaceholder
 
+LOCAL_STATIC_ANDROID_LIBRARIES := \
+        android-support-car \
+        android-support-design \
+        android-support-v4 \
+        android-support-v7-appcompat \
+        android-support-v7-cardview \
+        android-support-v7-recyclerview
+
 LOCAL_CERTIFICATE := platform
 
 LOCAL_MODULE_TAGS := optional
@@ -35,8 +43,6 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_DEX_PREOPT := false
-
-include packages/apps/Car/libs/car-stream-ui-lib/car-stream-ui-lib.mk
 
 include $(BUILD_PACKAGE)
 

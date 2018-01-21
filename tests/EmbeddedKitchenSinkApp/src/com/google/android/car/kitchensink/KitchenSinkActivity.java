@@ -195,6 +195,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setToolbarElevation(0f);
         setMainContent(R.layout.kitchen_content);
         // Connection to Car Service does not work for non-automotive yet.
         if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {

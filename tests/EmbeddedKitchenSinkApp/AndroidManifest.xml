@@ -49,7 +49,7 @@
 
         <!-- This is for embedded mode. -->
         <activity android:name=".KitchenSinkActivity"
-            android:theme="@style/CarDrawerActivityTheme"
+            android:theme="@style/KitchenSinkActivityTheme"
             android:label="@string/app_title">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
