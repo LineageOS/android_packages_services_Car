@@ -17,6 +17,7 @@
 package com.android.car;
 
 import android.car.vms.VmsAssociatedLayer;
+import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
@@ -58,6 +59,8 @@ public class VmsLayersAvailability {
     private Set<VmsAssociatedLayer> mUnavailableAssociatedLayers = Collections.EMPTY_SET;
     @GuardedBy("mLock")
     private Map<VmsLayer, Set<Integer>> mPotentialLayersAndPublishers = new HashMap<>();
+    @GuardedBy("mLock")
+    private int mSeq = 0;
 
     /**
      * Setting the current layers offerings as reported by publishers.
@@ -96,19 +99,9 @@ public class VmsLayersAvailability {
     /**
      * Returns a collection of all the layers which may be published.
      */
-    public Set<VmsAssociatedLayer> getAvailableLayers() {
+    public VmsAvailableLayers getAvailableLayers() {
         synchronized (mLock) {
-            return mAvailableAssociatedLayers;
-        }
-    }
-
-    /**
-     * Returns a collection of all the layers which publishers could have published if the
-     * dependencies were satisfied.
-     */
-    public Set<VmsAssociatedLayer> getUnavailableLayers() {
-        synchronized (mLock) {
-            return mUnavailableAssociatedLayers;
+            return new VmsAvailableLayers(mAvailableAssociatedLayers, mSeq);
         }
     }
 
@@ -118,6 +111,10 @@ public class VmsLayersAvailability {
             mPotentialLayersAndPublishers.clear();
             mAvailableAssociatedLayers = Collections.EMPTY_SET;
             mUnavailableAssociatedLayers = Collections.EMPTY_SET;
+            if (mSeq + 1 < mSeq) {
+                throw new IllegalStateException("Sequence is about to loop");
+            }
+            mSeq += 1;
         }
     }
 

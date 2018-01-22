@@ -841,6 +841,15 @@ package android.car.test {
 
 package android.car.vms {
 
+  public final class VmsAvailableLayers implements android.os.Parcelable {
+    ctor public VmsAvailableLayers(java.util.Set<android.car.vms.VmsAssociatedLayer>, int);
+    method public int describeContents();
+    method public java.util.Set<android.car.vms.VmsAssociatedLayer> getAssociatedLayers();
+    method public int getSequence();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.vms.VmsAvailableLayers> CREATOR;
+  }
+
   public final class VmsLayer implements android.os.Parcelable {
     ctor public VmsLayer(int, int, int);
     method public int describeContents();
@@ -905,6 +914,7 @@ package android.car.vms {
 
   public final class VmsSubscriberManager {
     ctor public VmsSubscriberManager(android.os.IBinder, android.os.Handler);
+    method public android.car.vms.VmsAvailableLayers getAvailableLayers() throws android.car.CarNotConnectedException, java.lang.IllegalStateException;
     method public byte[] getPublisherInfo(int) throws android.car.CarNotConnectedException, java.lang.IllegalStateException;
     method public void registerClientCallback(android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback) throws android.car.CarNotConnectedException;
     method public void startMonitoring() throws android.car.CarNotConnectedException;
@@ -917,7 +927,7 @@ package android.car.vms {
   }
 
   public static abstract interface VmsSubscriberManager.VmsSubscriberClientCallback {
-    method public abstract void onLayersAvailabilityChanged(java.util.List<android.car.vms.VmsLayer>);
+    method public abstract void onLayersAvailabilityChanged(android.car.vms.VmsAvailableLayers);
     method public abstract void onVmsMessageReceived(android.car.vms.VmsLayer, byte[]);
   }
 
