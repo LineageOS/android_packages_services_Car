@@ -104,7 +104,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         addProperty(VehicleProperty.VEHICLE_MAP_SERVICE, mHalHandler)
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE)
                 .setAccess(VehiclePropertyAccess.READ_WRITE)
-                .setSupportedAreas(VehicleAreaType.VEHICLE_AREA_TYPE_NONE);
+                .addAreaConfig(VehicleAreaType.VEHICLE_AREA_TYPE_NONE, 0, 0);
     }
 
     @Override
@@ -565,7 +565,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         }
 
         @Override
-        public synchronized void onPropertySubscribe(int property, int zones, float sampleRate) {
+        public synchronized void onPropertySubscribe(int property, float sampleRate) {
             Log.d(TAG, "onPropertySubscribe property " + property + " sampleRate " + sampleRate);
         }
 

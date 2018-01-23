@@ -16,7 +16,6 @@
 package com.android.car;
 
 import android.car.Car;
-import android.car.VehicleZoneUtil;
 import android.car.media.CarAudioManager;
 import android.car.media.ICarAudio;
 import android.content.Context;
@@ -179,7 +178,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         int channels = AudioFormat.CHANNEL_OUT_MONO;
         int numChannels = 1;
         for (int i = 0; i < channelMasks.length; i++) {
-            int currentNumChannels = VehicleZoneUtil.getNumberOfZones(channelMasks[i]);
+            int currentNumChannels = Integer.bitCount(channelMasks[i]);
             if (currentNumChannels > numChannels) {
                 numChannels = currentNumChannels;
                 channels = channelMasks[i];

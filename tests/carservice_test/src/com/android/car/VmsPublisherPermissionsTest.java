@@ -59,7 +59,7 @@ public class VmsPublisherPermissionsTest extends MockedCarTestBase {
         addProperty(VehicleProperty.VEHICLE_MAP_SERVICE, mHalHandler)
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE)
                 .setAccess(VehiclePropertyAccess.READ_WRITE)
-                .setSupportedAreas(VehicleAreaType.VEHICLE_AREA_TYPE_NONE);
+                .addAreaConfig(VehicleAreaType.VEHICLE_AREA_TYPE_NONE, 0, 0);
     }
 
     @Override

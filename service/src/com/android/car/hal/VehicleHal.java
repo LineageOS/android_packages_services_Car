@@ -500,7 +500,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
                     .append(",Property name:").append(VehicleProperty.toString(config.prop))
                     .append(",access:0x").append(toHexString(config.access))
                     .append(",changeMode:0x").append(toHexString(config.changeMode))
-                    .append(",areas:0x").append(toHexString(config.supportedAreas))
                     .append(",config:0x").append(Arrays.toString(config.configArray.toArray()))
                     .append(",fs min:").append(config.minSampleRate)
                     .append(",fs max:").append(config.maxSampleRate);

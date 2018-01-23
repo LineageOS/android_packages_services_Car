@@ -94,7 +94,7 @@ public class E2ePerformanceTest {
     private static final int GENERATE_FAKE_DATA_CONTROLLING_PROPERTY = 0x0666
             | VehiclePropertyGroup.VENDOR
             | VehicleArea.GLOBAL
-            | VehiclePropertyType.COMPLEX;
+            | VehiclePropertyType.MIXED;
 
     private static final int CMD_START = 1;
     private static final int CMD_STOP = 0;

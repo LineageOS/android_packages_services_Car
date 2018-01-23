@@ -87,12 +87,12 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
                     .addAreaConfig(0, MIN_PROP_INT32, MAX_PROP_INT32)
                     .build(),
             VehiclePropConfigBuilder.newBuilder(CUSTOM_ZONED_FLOAT_PROP_ID)
-                    .setSupportedAreas(VehicleAreaZone.ROW_1_LEFT | VehicleAreaZone.ROW_1_RIGHT)
+                    .addAreaConfig(VehicleAreaZone.ROW_1_LEFT | VehicleAreaZone.ROW_1_RIGHT, 0, 0)
                     .addAreaConfig(VehicleAreaZone.ROW_1_LEFT, MIN_PROP_FLOAT, MAX_PROP_FLOAT)
                     .addAreaConfig(VehicleAreaZone.ROW_2_RIGHT, MIN_PROP_FLOAT, MAX_PROP_FLOAT)
                     .build(),
             VehiclePropConfigBuilder.newBuilder(CUSTOM_BYTES_PROP_ID_1)
-                    .setSupportedAreas(VehicleAreaZone.ROW_1_LEFT | VehicleAreaZone.ROW_1_RIGHT)
+                    .addAreaConfig(VehicleAreaZone.ROW_1_LEFT | VehicleAreaZone.ROW_1_RIGHT, 0, 0)
                     .build(),
             VehiclePropConfigBuilder.newBuilder(CUSTOM_BYTES_PROP_ID_2).build(),
             VehiclePropConfigBuilder.newBuilder(CUSTOM_STRING_PROP_ID).build(),

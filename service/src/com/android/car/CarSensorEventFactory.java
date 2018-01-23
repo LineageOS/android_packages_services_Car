@@ -41,7 +41,7 @@ public class CarSensorEventFactory {
         return event;
     }
 
-    public static CarSensorEvent createComplexEvent(int sensorType, long timestamp,
+    public static CarSensorEvent createMixedEvent(int sensorType, long timestamp,
                                                     VehiclePropValue v) {
         int numFloats = v.value.floatValues.size();
         int numInts = v.value.int32Values.size();

@@ -137,8 +137,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
             }
 
             @Override
-            public synchronized void onPropertySubscribe(
-                    int property, int zones, float sampleRate) {
+            public synchronized void onPropertySubscribe(int property, float sampleRate) {
                 assertEquals(VEHICLE_PROPERTY, property);
                 mSubscribed = true;
             }
