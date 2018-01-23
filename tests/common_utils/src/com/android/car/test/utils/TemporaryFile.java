@@ -46,6 +46,10 @@ public final class TemporaryFile implements AutoCloseable {
         mFile = File.createTempFile(prefix, String.valueOf(SystemClock.elapsedRealtimeNanos()));
     }
 
+    public TemporaryFile(File path) {
+        mFile = path;
+    }
+
     @Override
     public void close() throws Exception {
         Files.delete(mFile.toPath());
@@ -55,6 +59,10 @@ public final class TemporaryFile implements AutoCloseable {
         BufferedWriter writer = new BufferedWriter(new FileWriter(mFile));
         writer.write(s);
         writer.close();
+    }
+
+    public FileWriter newFileWriter() throws IOException {
+        return new FileWriter(mFile);
     }
 
     public File getFile() {

@@ -19,6 +19,7 @@ package com.android.car.systeminterface;
 import android.content.Context;
 import com.android.car.CarPowerManagementService;
 import com.android.car.procfsinspector.ProcessInfo;
+import com.android.car.storagemonitoring.LifetimeWriteInfoProvider;
 import com.android.car.storagemonitoring.UidIoStatsProvider;
 import com.android.car.storagemonitoring.WearInformationProvider;
 import java.io.File;
@@ -128,6 +129,11 @@ public final class SystemInterface implements DisplayInterface, IOInterface,
     @Override
     public UidIoStatsProvider getUidIoStatsProvider() {
         return mStorageMonitoringInterface.getUidIoStatsProvider();
+    }
+
+    @Override
+    public LifetimeWriteInfoProvider getLifetimeWriteInfoProvider() {
+        return mStorageMonitoringInterface.getLifetimeWriteInfoProvider();
     }
 
     @Override
