@@ -129,6 +129,9 @@ public class BluetoothDeviceConnectionPolicy {
     // Car Bluetooth Priority Settings Manager
     private final CarBluetoothService mCarBluetoothService;
 
+    // Fast Pair Provider to allow discovery of new phones
+    private final FastPairProvider mFastPairProvider;
+
     // The Bluetooth profiles that the CarService will try to auto-connect on.
     private final List<Integer> mProfilesToConnect;
     private final List<Integer> mPrioritiesSupported;
@@ -198,6 +201,7 @@ public class BluetoothDeviceConnectionPolicy {
         if (mBluetoothAdapter == null) {
             Log.w(TAG, "No Bluetooth Adapter Available");
         }
+        mFastPairProvider = new FastPairProvider(mContext);
     }
 
     /**
@@ -584,6 +588,8 @@ public class BluetoothDeviceConnectionPolicy {
         mCarCabinService.registerListener(mCabinEventListener);
         mCarSensorService.registerOrUpdateSensorListener(
                 CarSensorManager.SENSOR_TYPE_IGNITION_STATE, 0, mCarSensorEventListener);
+        mCarSensorService.registerOrUpdateSensorListener(
+                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, 0, mCarSensorEventListener);
         mUserServiceHelper.registerServiceCallback(mServiceCallback);
     }
 
@@ -639,6 +645,15 @@ public class BluetoothDeviceConnectionPolicy {
                     }
                     if (event.intValues[0] == CarSensorEvent.IGNITION_STATE_START) {
                         initiateConnection();
+                    }
+                } else if (event.sensorType == CarSensorManager.SENSOR_TYPE_DRIVING_STATUS) {
+                    if (DBG) {
+                        Log.d(TAG, "Sensor value : " + event.intValues[0]);
+                    }
+                    if ((event.intValues[0] & CarSensorEvent.DRIVE_STATUS_NO_CONFIG) == CarSensorEvent.DRIVE_STATUS_NO_CONFIG) {
+                        mFastPairProvider.stopAdvertising();
+                    } else {
+                        mFastPairProvider.startAdvertising();
                     }
                 }
             }

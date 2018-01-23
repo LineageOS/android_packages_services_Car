@@ -125,4 +125,9 @@
          strongly recommended that it be protected with the
          android.car.permission.STORAGE_MONITORING permission. -->
     <string name="intentReceiverForUnacceptableIoMetrics"></string>
+
+    <!-- The Model ID to advertise Bluetooth Fast Pair connections with.  Must be overlayed with
+         device specific model id. -->
+    <integer name="fastPairModelId">0x000000</integer>
+
 </resources>
