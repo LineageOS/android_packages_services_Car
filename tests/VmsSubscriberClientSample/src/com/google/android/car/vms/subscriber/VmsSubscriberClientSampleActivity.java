@@ -18,6 +18,7 @@ package com.google.android.car.vms.subscriber;
 
 import android.app.Activity;
 import android.car.vms.VmsLayer;
+import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsSubscriberManager;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -106,7 +107,7 @@ public class VmsSubscriberClientSampleActivity extends Activity {
                 }
 
                 @Override
-                public void onLayersAvailabilityChanged(List<VmsLayer> availableLayers) {
+                public void onLayersAvailabilityChanged(VmsAvailableLayers availableLayers) {
                     mTextView.setText(String.valueOf(availableLayers));
                 }
             };

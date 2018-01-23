@@ -18,6 +18,7 @@ package android.car.vms;
 
 import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
+import android.car.vms.VmsAvailableLayers;
 
 /**
  * @hide
@@ -87,7 +88,7 @@ interface IVmsSubscriberService {
     /**
      * Returns a list of available layers from the closure of the publishers offerings.
      */
-    List<VmsLayer> getAvailableLayers() = 8;
+    VmsAvailableLayers getAvailableLayers() = 8;
 
     /**
      *  Returns a the publisher information for a publisher ID.

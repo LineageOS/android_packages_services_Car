@@ -112,8 +112,6 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
         int sequenceNumber = v.get(VmsSubscriptionsStateIntegerValuesIndex.SEQUENCE_NUMBER);
         int numberLayers = v.get(VmsSubscriptionsStateIntegerValuesIndex.NUMBER_OF_LAYERS);
         assertEquals(VmsMessageType.SUBSCRIPTIONS_RESPONSE, messageType);
-        //TODO(asafro): This assertion makes no sense. need to fix.
-        //assertEquals(layers.size(), sequenceNumber);
         assertEquals(layers.size(), numberLayers);
         List<VmsLayer> receivedLayers = new ArrayList<>();
         int start = VmsSubscriptionsStateIntegerValuesIndex.SUBSCRIPTIONS_START;
