@@ -2,11 +2,13 @@ package android.car {
 
   public final class Car {
     field public static final java.lang.String CABIN_SERVICE = "cabin";
+    field public static final java.lang.String CAR_DRIVING_STATE_SERVICE = "drivingstate";
     field public static final java.lang.String DIAGNOSTIC_SERVICE = "diagnostic";
     field public static final java.lang.String HVAC_SERVICE = "hvac";
     field public static final java.lang.String PERMISSION_CAR_CABIN = "android.car.permission.CAR_CABIN";
     field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.DIAGNOSTIC_CLEAR";
     field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_READ_ALL = "android.car.permission.DIAGNOSTIC_READ_ALL";
+    field public static final java.lang.String PERMISSION_CAR_DRIVING_STATE = "android.car.permission.CAR_DRIVING_STATE";
     field public static final java.lang.String PERMISSION_CAR_HVAC = "android.car.permission.CAR_HVAC";
     field public static final java.lang.String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final deprecated java.lang.String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
@@ -451,6 +453,33 @@ package android.car.diagnostic {
 
 }
 
+package android.car.drivingstate {
+
+  public class CarDrivingStateEvent implements android.os.Parcelable {
+    ctor public CarDrivingStateEvent(int, long);
+    method public int describeContents();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.drivingstate.CarDrivingStateEvent> CREATOR;
+    field public static final int DRIVING_STATE_IDLING = 1; // 0x1
+    field public static final int DRIVING_STATE_MOVING = 2; // 0x2
+    field public static final int DRIVING_STATE_PARKED = 0; // 0x0
+    field public static final int DRIVING_STATE_UNKNOWN = -1; // 0xffffffff
+    field public final int eventValue;
+    field public final long timeStamp;
+  }
+
+  public final class CarDrivingStateManager {
+    method public android.car.drivingstate.CarDrivingStateEvent getCurrentCarDrivingState() throws android.car.CarNotConnectedException;
+    method public synchronized void registerListener(android.car.drivingstate.CarDrivingStateManager.CarDrivingStateEventListener) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+    method public synchronized void unregisterListener() throws android.car.CarNotConnectedException;
+  }
+
+  public static abstract interface CarDrivingStateManager.CarDrivingStateEventListener {
+    method public abstract void onDrivingStateChanged(android.car.drivingstate.CarDrivingStateEvent);
+  }
+
+}
+
 package android.car.hardware {
 
   public class CarPropertyConfig<T> implements android.os.Parcelable {
@@ -841,6 +870,15 @@ package android.car.test {
 
 package android.car.vms {
 
+  public final class VmsAvailableLayers implements android.os.Parcelable {
+    ctor public VmsAvailableLayers(java.util.Set<android.car.vms.VmsAssociatedLayer>, int);
+    method public int describeContents();
+    method public java.util.Set<android.car.vms.VmsAssociatedLayer> getAssociatedLayers();
+    method public int getSequence();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.vms.VmsAvailableLayers> CREATOR;
+  }
+
   public final class VmsLayer implements android.os.Parcelable {
     ctor public VmsLayer(int, int, int);
     method public int describeContents();
@@ -905,6 +943,7 @@ package android.car.vms {
 
   public final class VmsSubscriberManager {
     ctor public VmsSubscriberManager(android.os.IBinder, android.os.Handler);
+    method public android.car.vms.VmsAvailableLayers getAvailableLayers() throws android.car.CarNotConnectedException, java.lang.IllegalStateException;
     method public byte[] getPublisherInfo(int) throws android.car.CarNotConnectedException, java.lang.IllegalStateException;
     method public void registerClientCallback(android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback) throws android.car.CarNotConnectedException;
     method public void startMonitoring() throws android.car.CarNotConnectedException;
@@ -917,7 +956,7 @@ package android.car.vms {
   }
 
   public static abstract interface VmsSubscriberManager.VmsSubscriberClientCallback {
-    method public abstract void onLayersAvailabilityChanged(java.util.List<android.car.vms.VmsLayer>);
+    method public abstract void onLayersAvailabilityChanged(android.car.vms.VmsAvailableLayers);
     method public abstract void onVmsMessageReceived(android.car.vms.VmsLayer, byte[]);
   }
 

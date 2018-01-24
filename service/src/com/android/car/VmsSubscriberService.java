@@ -22,6 +22,7 @@ import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.IVmsSubscriberService;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
+import android.car.vms.VmsAvailableLayers;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -303,9 +304,8 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     }
 
     @Override
-    public List<VmsLayer> getAvailableLayers() {
-        //TODO(asafro): return the list of available layers once logic is implemented.
-        return Collections.emptyList();
+    public VmsAvailableLayers getAvailableLayers() {
+        return mHal.getAvailableLayers();
     }
 
     // Implements VmsHalSubscriberListener interface
@@ -330,7 +330,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     }
 
     @Override
-    public void onLayersAvaiabilityChange(List<VmsAssociatedLayer> availableLayers) {
+    public void onLayersAvaiabilityChange(VmsAvailableLayers availableLayers) {
         if (DBG) {
             Log.d(TAG, "Publishing layers availability change: " + availableLayers);
         }

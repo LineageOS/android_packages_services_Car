@@ -64,7 +64,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         /**
          * Called when layers availability change
          */
-        void onLayersAvailabilityChanged(List<VmsLayer> availableLayers);
+        void onLayersAvailabilityChanged(VmsAvailableLayers availableLayers);
     }
 
     /**
@@ -101,7 +101,8 @@ public final class VmsSubscriberManager implements CarManagerBase {
                 case ON_AVAILABILITY_CHANGE_EVENT:
                     if (mgr != null) {
                         // Parse the message
-                        List<VmsLayer> vmsAvailabilityChangeMessage = (List<VmsLayer>) msg.obj;
+                        VmsAvailableLayers vmsAvailabilityChangeMessage =
+                                (VmsAvailableLayers) msg.obj;
 
                         // Dispatch the parsed message
                         mgr.dispatchOnAvailabilityChangeMessage(vmsAvailabilityChangeMessage);
@@ -131,7 +132,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
             }
 
             @Override
-            public void onLayersAvailabilityChanged(List<VmsAssociatedLayer> availableLayers) {
+            public void onLayersAvailabilityChanged(VmsAvailableLayers availableLayers) {
                 mHandler.sendMessage(
                         mHandler.obtainMessage(
                                 VmsEventHandler.ON_AVAILABILITY_CHANGE_EVENT,
@@ -167,6 +168,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
 
     /**
      * Unregisters the client callback which disables communication with the client.
+     *
      * @throws CarNotConnectedException, IllegalStateException
      */
     public void unregisterClientCallback()
@@ -194,6 +196,22 @@ public final class VmsSubscriberManager implements CarManagerBase {
             throws CarNotConnectedException, IllegalStateException {
         try {
             return mVmsSubscriberService.getPublisherInfo(publisherId);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not connect: ", e);
+            throw new CarNotConnectedException(e);
+        } catch (IllegalStateException ex) {
+            Car.checkCarNotConnectedExceptionFromCarService(ex);
+            throw new IllegalStateException(ex);
+        }
+    }
+
+    /**
+     * Returns the available layers.
+     */
+    public VmsAvailableLayers getAvailableLayers()
+            throws CarNotConnectedException, IllegalStateException {
+        try {
+            return mVmsSubscriberService.getAvailableLayers();
         } catch (RemoteException e) {
             Log.e(TAG, "Could not connect: ", e);
             throw new CarNotConnectedException(e);
@@ -320,7 +338,7 @@ public final class VmsSubscriberManager implements CarManagerBase {
         clientCallback.onVmsMessageReceived(layer, payload);
     }
 
-    private void dispatchOnAvailabilityChangeMessage(List<VmsLayer> availableLayers) {
+    private void dispatchOnAvailabilityChangeMessage(VmsAvailableLayers availableLayers) {
         VmsSubscriberClientCallback clientCallback = getClientCallbackThreadSafe();
         if (clientCallback == null) {
             Log.e(TAG, "Cannot dispatch availability change message.");

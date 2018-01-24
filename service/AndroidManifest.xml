@@ -111,7 +111,11 @@
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_vms_subscriber"
         android:description="@string/car_permission_desc_vms_subscriber" />
-
+    <permission
+        android:name="android.car.permission.CAR_DRIVING_STATE"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_driving_state"
+        android:description="@string/car_permission_desc_driving_state" />
     <!--  may replace this with system permission if proper one is defined. -->
     <permission
         android:name="android.car.permission.CONTROL_APP_BLOCKING"

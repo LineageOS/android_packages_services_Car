@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.Listeners.ClientWithRate;
+
 import android.car.Car;
 import android.car.hardware.CarSensorConfig;
 import android.car.hardware.CarSensorEvent;
@@ -24,6 +26,7 @@ import android.car.hardware.ICarSensor;
 import android.car.hardware.ICarSensorEventListener;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -38,14 +41,13 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
-import static com.android.car.Listeners.ClientWithRate;
 import com.android.car.hal.SensorBase;
-import com.android.car.hal.SensorHalService.SensorListener;
-import com.google.android.collect.Lists;
-
 import com.android.car.hal.SensorHalService;
+import com.android.car.hal.SensorHalService.SensorListener;
 import com.android.car.hal.SensorHalServiceBase;
 import com.android.internal.annotations.GuardedBy;
+
+import com.google.android.collect.Lists;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -78,6 +80,7 @@ public class CarSensorService extends ICarSensor.Stub
          * Utility to help service to send one event as listener only takes list form.
          * @param listener
          * @param event
+         *
          */
         protected void dispatchCarSensorEvent(SensorListener listener, CarSensorEvent event) {
             synchronized (mDispatchQ) {
@@ -117,8 +120,11 @@ public class CarSensorService extends ICarSensor.Stub
 
     private final Context mContext;
 
-    private final DrivingStatePolicy mDrivingStatePolicy;
-    private boolean mUseDefaultDrivingPolicy = true;
+    // TODO (ramperry@)
+    // This tracks if Driving Status is available as a sensor.  Driving Status will be deprecated as
+    // a VHAL property b/71793754 and from CarSensorManager b/72159711.  Functionality guarded by
+    // this flag will be deprecated with the above changes.
+    private boolean mIsDrivingStatusSensorSupported;
     private final DayNightModePolicy mDayNightModePolicy;
     private boolean mUseDefaultDayNightModePolicy = true;
 
@@ -137,7 +143,6 @@ public class CarSensorService extends ICarSensor.Stub
         }
         // This triggers sensor hal init as well.
         mSensorHal = sensorHal;
-        mDrivingStatePolicy = new DrivingStatePolicy(context, this);
         mDayNightModePolicy = new DayNightModePolicy(context);
     }
 
@@ -185,22 +190,11 @@ public class CarSensorService extends ICarSensor.Stub
     }
 
     private CarSensorEvent getInitialDrivingStatus() {
-        CarSensorEvent event = null;
-        if (mUseDefaultDrivingPolicy) {
-            mDrivingStatePolicy.init();
-            mDrivingStatePolicy.registerSensorListener(this);
-        } else {
-            event = mSensorHal.getCurrentSensorValue(
+        CarSensorEvent event = mSensorHal.getCurrentSensorValue(
                     CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
-            Log.i(CarLog.TAG_SENSOR, "initial driving status:" + ((event == null)?
+        if (Log.isLoggable(CarLog.TAG_SENSOR, Log.INFO)) {
+            Log.i(CarLog.TAG_SENSOR, "initial driving status:" + ((event == null) ?
                     "not ready" : " 0x" + Integer.toHexString(event.intValues[0])));
-        }
-        if (event == null) {
-            event = DrivingStatePolicy.getDefaultValue(
-                    CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
-            if (!mUseDefaultDrivingPolicy) {
-                Log.w(CarLog.TAG_SENSOR, "Default driving status set as sensor not ready");
-            }
         }
         return event;
     }
@@ -218,9 +212,6 @@ public class CarSensorService extends ICarSensor.Stub
         }
         tryHoldSensorLock();
         try {
-            if (mUseDefaultDrivingPolicy) {
-                mDrivingStatePolicy.release();
-            }
             if (mUseDefaultDayNightModePolicy) {
                 mDayNightModePolicy.release();
             }
@@ -251,9 +242,6 @@ public class CarSensorService extends ICarSensor.Stub
     }
 
     private void notifyDefaultPoliciesLocked() {
-        if (mUseDefaultDrivingPolicy) {
-            mDrivingStatePolicy.onSensorServiceReady();
-        }
         if (mUseDefaultDayNightModePolicy) {
             mDayNightModePolicy.onSensorServiceReady();
         }
@@ -610,11 +598,6 @@ public class CarSensorService extends ICarSensor.Stub
         try {
             mSensorLock.lock();
             switch (sensorType) {
-                case CarSensorManager.SENSOR_TYPE_DRIVING_STATUS:
-                    if (mUseDefaultDrivingPolicy) {
-                        return mDrivingStatePolicy;
-                    }
-                    break;
                 case CarSensorManager.SENSOR_TYPE_NIGHT:
                     if (mUseDefaultDayNightModePolicy) {
                         return mDayNightModePolicy;
@@ -647,13 +630,15 @@ public class CarSensorService extends ICarSensor.Stub
         for (int i = 0; i < numCarSensors; i++) {
             int sensor = mCarProvidedSensors[i];
             if (sensor == CarSensorManager.SENSOR_TYPE_DRIVING_STATUS) {
-                mUseDefaultDrivingPolicy = false;
+                mIsDrivingStatusSensorSupported = true;
             } else if (sensor == CarSensorManager.SENSOR_TYPE_NIGHT) {
                 mUseDefaultDayNightModePolicy = false;
             }
         }
         int totalNumSensors = numCarSensors;
-        if (mUseDefaultDrivingPolicy) {
+        // If Driving status sensor is not supported from VHAL, it is derived.
+        // TODO - ramperry - remove Driving status from CarSensorManager b/72159711
+        if (!mIsDrivingStatusSensorSupported) {
             totalNumSensors++;
         }
         if (mUseDefaultDayNightModePolicy) {
@@ -662,7 +647,8 @@ public class CarSensorService extends ICarSensor.Stub
         // Two logical sensors are always added.
         int[] supportedSensors = new int[totalNumSensors];
         int index = 0;
-        if (mUseDefaultDrivingPolicy) {
+        // TODO - ramperry - remove one logical sensor for Driving Status
+        if (!mIsDrivingStatusSensorSupported) {
             supportedSensors[index] = CarSensorManager.SENSOR_TYPE_DRIVING_STATUS;
             index++;
         }
@@ -955,12 +941,9 @@ public class CarSensorService extends ICarSensor.Stub
         }  catch  (ConcurrentModificationException e) {
             writer.println("concurrent modification happened");
         }
-        writer.println("mUseDefaultDrivingPolicy:" + mUseDefaultDrivingPolicy +
+        writer.println("mIsDrivingStatusSensorSupported:" + mIsDrivingStatusSensorSupported +
                 ",mUseDefaultDayNightModePolicy" + mUseDefaultDayNightModePolicy);
         writer.println("**driving policy**");
-        if (mUseDefaultDrivingPolicy) {
-            mDrivingStatePolicy.dump(writer);
-        }
         writer.println("**day/night policy**");
         if (mUseDefaultDayNightModePolicy) {
             mDayNightModePolicy.dump(writer);

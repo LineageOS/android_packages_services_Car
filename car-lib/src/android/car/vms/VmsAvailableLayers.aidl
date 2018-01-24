@@ -16,17 +16,4 @@
 
 package android.car.vms;
 
-import android.car.vms.VmsAvailableLayers;
-import android.car.vms.VmsLayer;
-
-/**
- * @hide
- */
-oneway interface IVmsSubscriberClient {
-    /**
-     * A VmsService uses this callback to pass messages to subscribers.
-     */
-    void onVmsMessageReceived(in VmsLayer layer, in byte[] payload) = 0;
-
-    void onLayersAvailabilityChanged(in VmsAvailableLayers availableLayers) = 1;
-}
+parcelable VmsAvailableLayers;

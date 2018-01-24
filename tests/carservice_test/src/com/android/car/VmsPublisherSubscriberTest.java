@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.vms.VmsAssociatedLayer;
+import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriberManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
@@ -59,6 +60,9 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
 
     private static final List<VmsAssociatedLayer> AVAILABLE_ASSOCIATED_LAYERS =
             new ArrayList<>(Arrays.asList(ASSOCIATED_LAYER));
+    private static final VmsAvailableLayers AVAILABLE_LAYERS_WITH_SEQ =
+            new VmsAvailableLayers(
+                    new HashSet(AVAILABLE_ASSOCIATED_LAYERS), 1);
 
 
     private static final int SUBSCRIBED_LAYER_ID = 89;
@@ -68,6 +72,9 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
             new VmsAssociatedLayer(SUBSCRIBED_LAYER, new HashSet<>(Arrays.asList(EXPECTED_PUBLISHER_ID)));
     private static final List<VmsAssociatedLayer> AVAILABLE_ASSOCIATED_LAYERS_WITH_SUBSCRIBED_LAYER =
             new ArrayList<>(Arrays.asList(ASSOCIATED_LAYER, ASSOCIATED_SUBSCRIBED_LAYER));
+    private static final VmsAvailableLayers AVAILABLE_LAYERS_WITH_SUBSCRIBED_LAYER_WITH_SEQ =
+            new VmsAvailableLayers(
+                    new HashSet(AVAILABLE_ASSOCIATED_LAYERS_WITH_SUBSCRIBED_LAYER), 1);
 
 
     private HalHandler mHalHandler;
@@ -87,7 +94,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     @Override
     protected synchronized void configureResourceOverrides(MockResources resources) {
         resources.overrideResource(com.android.car.R.array.vmsPublisherClients,
-            new String[] { getFlattenComponent(VmsPublisherClientMockService.class) });
+                new String[]{getFlattenComponent(VmsPublisherClientMockService.class)});
     }
 
     @Override
@@ -147,13 +154,14 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     @Test
     public void testAvailabilityWithSubscription() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
-            Car.VMS_SUBSCRIBER_SERVICE);
+                Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
         vmsSubscriberManager.registerClientCallback(clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIBED_LAYER);
 
         assertTrue(mAvailabilitySemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(AVAILABLE_ASSOCIATED_LAYERS_WITH_SUBSCRIBED_LAYER, clientCallback.getAvailableLayers());
+        assertEquals(AVAILABLE_LAYERS_WITH_SUBSCRIBED_LAYER_WITH_SEQ,
+                clientCallback.getAvailalbeLayers());
     }
 
     /**
@@ -169,7 +177,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         vmsSubscriberManager.registerClientCallback(clientCallback);
 
         assertTrue(mAvailabilitySemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(AVAILABLE_ASSOCIATED_LAYERS, clientCallback.getAvailableLayers());
+        assertEquals(AVAILABLE_LAYERS_WITH_SEQ, clientCallback.getAvailalbeLayers());
     }
 
     private class HalHandler implements MockedVehicleHal.VehicleHalPropertyHandler {
@@ -178,7 +186,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     private class TestClientCallback implements VmsSubscriberManager.VmsSubscriberClientCallback {
         private VmsLayer mLayer;
         private byte[] mPayload;
-        private List<VmsLayer> mAvailableLayers;
+        private VmsAvailableLayers mAvailableLayers;
 
         @Override
         public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
@@ -190,7 +198,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onLayersAvailabilityChanged(List<VmsLayer> availableLayers) {
+        public void onLayersAvailabilityChanged(VmsAvailableLayers availableLayers) {
             mAvailableLayers = availableLayers;
             mAvailabilitySemaphore.release();
         }
@@ -203,7 +211,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
             return mPayload;
         }
 
-        public List<VmsLayer> getAvailableLayers() {
+        public VmsAvailableLayers getAvailalbeLayers() {
             return mAvailableLayers;
         }
     }

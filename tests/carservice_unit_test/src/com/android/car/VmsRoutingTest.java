@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsAssociatedLayer;
+import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriptionState;
 import android.test.AndroidTestCase;
@@ -303,7 +304,7 @@ public class VmsRoutingTest extends AndroidTestCase {
         }
 
         @Override
-        public void onLayersAvailabilityChanged(List<VmsAssociatedLayer> availableLayers) {
+        public void onLayersAvailabilityChanged(VmsAvailableLayers availableLayers) {
         }
     }
 }
