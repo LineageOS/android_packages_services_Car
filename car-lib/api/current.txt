@@ -185,28 +185,37 @@ package android.car.content.pm {
 
 package android.car.drivingstate {
 
-  public class CarUXRestrictionsEvent implements android.os.Parcelable {
-    ctor public CarUXRestrictionsEvent(int, long);
+  public class CarUxRestrictions implements android.os.Parcelable {
+    ctor public CarUxRestrictions(boolean, int, long);
     method public int describeContents();
+    method public int getActiveRestrictions();
+    method public long getTimeStamp();
+    method public boolean isRequiresDistractionOptimization();
+    method public boolean isSameRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.drivingstate.CarUXRestrictionsEvent> CREATOR;
-    field public static final int UXR_FULLY_RESTRICTED = 31; // 0x1f
-    field public static final int UXR_NO_RESTRICTIONS = 0; // 0x0
-    field public final int eventValue;
-    field public final long timeStamp;
+    field public static final android.os.Parcelable.Creator<android.car.drivingstate.CarUxRestrictions> CREATOR;
+    field public static final int UX_RESTRICTIONS_FULLY_RESTRICTED = 127; // 0x7f
+    field public static final int UX_RESTRICTIONS_LIMIT_CONTENT_ITEMS = 32; // 0x20
+    field public static final int UX_RESTRICTIONS_LIMIT_STRING_LENGTH = 4; // 0x4
+    field public static final int UX_RESTRICTIONS_NO_FIELD_ENTRY = 8; // 0x8
+    field public static final int UX_RESTRICTIONS_NO_SETUP_CONFIG = 64; // 0x40
+    field public static final int UX_RESTRICTIONS_NO_TEXT_FILTERING = 2; // 0x2
+    field public static final int UX_RESTRICTIONS_NO_TEXT_SEARCH = 1; // 0x1
+    field public static final int UX_RESTRICTIONS_NO_VIDEO = 16; // 0x10
+    field public static final int UX_RESTRICTIONS_UNRESTRICTED = 0; // 0x0
   }
 
-  public static abstract class CarUXRestrictionsEvent.CarUXRestrictions implements java.lang.annotation.Annotation {
+  public static abstract class CarUxRestrictions.CarUxRestrictionsInfo implements java.lang.annotation.Annotation {
   }
 
-  public final class CarUXRestrictionsManager {
-    method public android.car.drivingstate.CarUXRestrictionsEvent getCurrentCarUXRestrictions() throws android.car.CarNotConnectedException;
-    method public synchronized void registerListener(android.car.drivingstate.CarUXRestrictionsManager.CarUXRestrictionsEventListener) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
+  public final class CarUxRestrictionsManager {
+    method public android.car.drivingstate.CarUxRestrictions getCurrentCarUxRestrictions() throws android.car.CarNotConnectedException;
+    method public synchronized void registerListener(android.car.drivingstate.CarUxRestrictionsManager.onUxRestrictionsChangedListener) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public synchronized void unregisterListener() throws android.car.CarNotConnectedException;
   }
 
-  public static abstract interface CarUXRestrictionsManager.CarUXRestrictionsEventListener {
-    method public abstract void onUXRestrictionsChanged(android.car.drivingstate.CarUXRestrictionsEvent);
+  public static abstract interface CarUxRestrictionsManager.onUxRestrictionsChangedListener {
+    method public abstract void onUxRestrictionsChanged(android.car.drivingstate.CarUxRestrictions);
   }
 
 }

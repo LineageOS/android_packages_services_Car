@@ -24,7 +24,7 @@ import android.car.cluster.CarInstrumentClusterManager;
 import android.car.content.pm.CarPackageManager;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.drivingstate.CarDrivingStateManager;
-import android.car.drivingstate.CarUXRestrictionsManager;
+import android.car.drivingstate.CarUxRestrictionsManager;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.cabin.CarCabinManager;
@@ -153,7 +153,7 @@ public final class Car {
     public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
 
     /**
-     * Service name for {@link CarUXRestrictionsManager}
+     * Service name for {@link CarUxRestrictionsManager}
      */
     public static final String CAR_UX_RESTRICTION_SERVICE = "uxrestriction";
 
@@ -708,7 +708,7 @@ public final class Car {
                 manager = new CarDrivingStateManager(binder, mContext, mEventHandler);
                 break;
             case CAR_UX_RESTRICTION_SERVICE:
-                manager = new CarUXRestrictionsManager(binder, mContext, mEventHandler);
+                manager = new CarUxRestrictionsManager(binder, mContext, mEventHandler);
                 break;
             default:
                 break;
