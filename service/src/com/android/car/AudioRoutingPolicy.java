@@ -15,9 +15,9 @@
  */
 package com.android.car;
 
-import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.content.res.Resources;
+import android.media.AudioAttributes;
 import android.util.Log;
 
 import java.io.PrintWriter;
@@ -34,11 +34,11 @@ public class AudioRoutingPolicy {
     private static final String ROUTING_POLICY_FOR_MOCKED_TEST =
             "0:call,media,radio,unknown#1:nav_guidance,voice_command,alarm,notification,system,safety";
 
-    /** Physical stream to car usages mapping */
-    private final int[][] mPhysicalStreamToCarUsages;
+    /** Physical stream to {@link AudioAttributes} usages mapping */
+    private final int[][] mPhysicalStreamToUsages;
 
-    /** Car usage to physical stream mapping */
-    private final int[] mCarUsageToPhysicalStream;
+    /** {@link AudioAttributes} usage to physical stream mapping */
+    private final int[] mUsageToPhysicalStream;
 
     public static AudioRoutingPolicy create(Context context, int policyNumber) {
         final Resources res = context.getResources();
@@ -56,92 +56,76 @@ public class AudioRoutingPolicy {
         return new AudioRoutingPolicy(policy);
     }
 
-    private static int getCarUsage(String str) {
+    /**
+     * TODO: b/72046976 abandon this method.
+     * Since {@link AudioAttributes} usage to car audio context should be a static mapping
+     * while mapping from car audio context to physical bus address should be part of
+     * car audio control HAL.
+     */
+    private static @AudioAttributes.AttributeUsage int getUsage(String str) {
         switch (str) {
-            case "call":
-                return CarAudioManager.CAR_AUDIO_USAGE_VOICE_CALL;
-            case "ringtone":
-                return CarAudioManager.CAR_AUDIO_USAGE_RINGTONE;
-            case "media":
-                return CarAudioManager.CAR_AUDIO_USAGE_MUSIC;
-            case "radio":
-                return CarAudioManager.CAR_AUDIO_USAGE_RADIO;
-            case "nav_guidance":
-                return CarAudioManager.CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE;
-            case "voice_command":
-                return CarAudioManager.CAR_AUDIO_USAGE_VOICE_COMMAND;
-            case "alarm":
-                return CarAudioManager.CAR_AUDIO_USAGE_ALARM;
-            case "notification":
-                return CarAudioManager.CAR_AUDIO_USAGE_NOTIFICATION;
-            case "system":
-                return CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SOUND;
-            case "safety":
-                return CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT;
-            case "unknown":
-                return CarAudioManager.CAR_AUDIO_USAGE_DEFAULT;
+            default:
+                return AudioAttributes.USAGE_UNKNOWN;
         }
-        throw new IllegalArgumentException("Wrong audioRoutingPolicy config, unknown car usage:" +
-                str);
     }
 
     private AudioRoutingPolicy(String policy) {
-        mCarUsageToPhysicalStream = new int[CarAudioManager.CAR_AUDIO_USAGE_MAX + 1];
+        mUsageToPhysicalStream = new int[AudioAttributes.SDK_USAGES.length];
         String[] streamPolicies = policy.split("#");
-        mPhysicalStreamToCarUsages = new int[streamPolicies.length][];
-        final int[] physicalStreamForCarUsages = new int[CarAudioManager.CAR_AUDIO_USAGE_MAX + 1];
-        for (int i = 0; i < physicalStreamForCarUsages.length; i++) {
-            physicalStreamForCarUsages[i] = USAGE_TYPE_INVALID;
+        mPhysicalStreamToUsages = new int[streamPolicies.length][];
+        final int[] physicalStreamForUsages = new int[AudioAttributes.SDK_USAGES.length];
+        for (int i = 0; i < physicalStreamForUsages.length; i++) {
+            physicalStreamForUsages[i] = USAGE_TYPE_INVALID;
         }
-        int defaultCarUsage = USAGE_TYPE_INVALID;
+        int defaultUsage = USAGE_TYPE_INVALID;
         for (String streamPolicy : streamPolicies) {
             String[] numberVsStreams = streamPolicy.split(":");
             int physicalStream = Integer.parseInt(numberVsStreams[0]);
-            String[] carUsages = numberVsStreams[1].split(",");
-            int[] carUsagesInt = new int[carUsages.length];
-            for (int i = 0; i < carUsages.length; i++) {
-                int carUsageInt = getCarUsage(carUsages[i]);
-                if (carUsageInt == CarAudioManager.CAR_AUDIO_USAGE_DEFAULT) {
-                    defaultCarUsage = physicalStream;
+            String[] usage = numberVsStreams[1].split(",");
+            int[] usagesInt = new int[usage.length];
+            for (int i = 0; i < usage.length; i++) {
+                int usageInt = getUsage(usage[i]);
+                if (usageInt == AudioAttributes.USAGE_UNKNOWN) {
+                    defaultUsage = physicalStream;
                 }
-                carUsagesInt[i] = carUsageInt;
-                physicalStreamForCarUsages[carUsageInt] = physicalStream;
-                mCarUsageToPhysicalStream[carUsageInt] = physicalStream;
+                usagesInt[i] = usageInt;
+                physicalStreamForUsages[usageInt] = physicalStream;
+                mUsageToPhysicalStream[usageInt] = physicalStream;
             }
-            Arrays.sort(carUsagesInt);
-            mPhysicalStreamToCarUsages[physicalStream] = carUsagesInt;
+            Arrays.sort(usagesInt);
+            mPhysicalStreamToUsages[physicalStream] = usagesInt;
         }
-        if (defaultCarUsage == USAGE_TYPE_INVALID) {
+        if (defaultUsage == USAGE_TYPE_INVALID) {
             Log.e(CarLog.TAG_AUDIO, "Audio routing policy did not include unknown");
-            defaultCarUsage = 0;
+            defaultUsage = 0;
         }
-        for (int i = 0; i < physicalStreamForCarUsages.length; i++) {
-            if (physicalStreamForCarUsages[i] == USAGE_TYPE_INVALID) {
-                Log.w(CarLog.TAG_AUDIO, "Audio routing policy did not cover car usage " + i);
-                physicalStreamForCarUsages[i] = defaultCarUsage;
+        for (int i = 0; i < physicalStreamForUsages.length; i++) {
+            if (physicalStreamForUsages[i] == USAGE_TYPE_INVALID) {
+                Log.w(CarLog.TAG_AUDIO, "Audio routing policy did not cover usage " + i);
+                physicalStreamForUsages[i] = defaultUsage;
             }
         }
     }
 
     public int getPhysicalStreamsCount() {
-        return mPhysicalStreamToCarUsages.length;
+        return mPhysicalStreamToUsages.length;
     }
 
-    public int[] getCarUsagesForPhysicalStream(int physicalStreamNumber) {
-        return mPhysicalStreamToCarUsages[physicalStreamNumber];
+    public int[] getUsagesForPhysicalStream(int physicalStreamNumber) {
+        return mPhysicalStreamToUsages[physicalStreamNumber];
     }
 
-    public int getPhysicalStreamForCarUsage(@CarAudioManager.CarAudioUsage int carUsage) {
-        return mCarUsageToPhysicalStream[carUsage];
+    public int getPhysicalStreamForUsage(@AudioAttributes.AttributeUsage int usage) {
+        return mUsageToPhysicalStream[usage];
     }
 
     public void dump(PrintWriter writer) {
         writer.println("*AudioRoutingPolicy*");
-        writer.println("**Car Usages**");
-        for (int i = 0; i < mPhysicalStreamToCarUsages.length; i++) {
+        writer.println("**AudioAttributes Usages**");
+        for (int i = 0; i < mPhysicalStreamToUsages.length; i++) {
             writer.print("physical stream " + i + ":");
-            for (int carUsage : mPhysicalStreamToCarUsages[i]) {
-                writer.print(Integer.toString(carUsage) + ",");
+            for (int usage : mPhysicalStreamToUsages[i]) {
+                writer.print(Integer.toString(usage) + ",");
             }
             writer.println("");
         }

@@ -202,8 +202,8 @@ public class SensorHalService extends SensorHalServiceBase {
                 event = CarSensorEventFactory.createBooleanEvent(sensorType, v.timestamp,
                     v.value.int32Values.get(0) == 1);
                 break;
-            case VehiclePropertyType.COMPLEX:
-                event = CarSensorEventFactory.createComplexEvent(sensorType, v.timestamp, v);
+            case VehiclePropertyType.MIXED:
+                event = CarSensorEventFactory.createMixedEvent(sensorType, v.timestamp, v);
                 break;
             case VehiclePropertyType.INT32:
                 Integer mgrVal = mapHalEnumValueToMgr(property, v.value.int32Values.get(0));

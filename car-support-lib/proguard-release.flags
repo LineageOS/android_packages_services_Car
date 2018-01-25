@@ -781,6 +781,7 @@
     public boolean isChangingConfigurations();
     public boolean isChild();
     public boolean isDestroyed();
+    public boolean isDisablingEnterExitEventForAutofill();
     public boolean isFinishing();
     public boolean isImmersive();
     public boolean isInMultiWindowMode();
@@ -894,6 +895,7 @@
     public void postponeEnterTransition();
     public void recreate();
     public void registerForContextMenu(android.view.View);
+    public void registerRemoteAnimations(android.view.RemoteAnimationDefinition);
     public boolean releaseInstance();
     public void removeDialog(int);
     public void reportFullyDrawn();
@@ -1084,9 +1086,9 @@
     public static void logoutCurrentUser();
     public void moveTaskToFront(int, int);
     public void moveTaskToFront(int, int, android.os.Bundle);
-    public static void noteAlarmFinish(android.app.PendingIntent, int, java.lang.String);
-    public static void noteAlarmStart(android.app.PendingIntent, int, java.lang.String);
-    public static void noteWakeupAlarm(android.app.PendingIntent, int, java.lang.String, java.lang.String);
+    public static void noteAlarmFinish(android.app.PendingIntent, android.os.WorkSource, int, java.lang.String);
+    public static void noteAlarmStart(android.app.PendingIntent, android.os.WorkSource, int, java.lang.String);
+    public static void noteWakeupAlarm(android.app.PendingIntent, android.os.WorkSource, int, java.lang.String, java.lang.String);
     public static int processStateAmToProto(int);
     public void removeOnUidImportanceListener(android.app.ActivityManager$OnUidImportanceListener);
     public void removeStacksInWindowingModes(int[]);
@@ -1335,6 +1337,7 @@
     public static int IMPORTANCE_PERCEPTIBLE_PRE_26;
     public static int IMPORTANCE_SERVICE;
     public static int IMPORTANCE_TOP_SLEEPING;
+    public static int IMPORTANCE_TOP_SLEEPING_PRE_28;
     public static int IMPORTANCE_VISIBLE;
     public static int REASON_PROVIDER_IN_USE;
     public static int REASON_SERVICE_IN_USE;
@@ -1515,6 +1518,7 @@
     public boolean getLockTaskMode();
     public android.os.IRemoteCallback getOnAnimationStartListener();
     public java.lang.String getPackageName();
+    public android.view.RemoteAnimationAdapter getRemoteAnimationAdapter();
     public int getResultCode();
     public android.content.Intent getResultData();
     public android.os.ResultReceiver getResultReceiver();
@@ -1535,6 +1539,8 @@
     public static android.app.ActivityOptions makeCustomAnimation(android.content.Context, int, int, android.os.Handler, android.app.ActivityOptions$OnAnimationStartedListener);
     public static android.app.ActivityOptions makeCustomInPlaceAnimation(android.content.Context, int);
     public static android.app.ActivityOptions makeMultiThumbFutureAspectScaleAnimation(android.content.Context, android.os.Handler, android.view.IAppTransitionAnimationSpecsFuture, android.app.ActivityOptions$OnAnimationStartedListener, boolean);
+    public static android.app.ActivityOptions makeOpenCrossProfileAppsAnimation();
+    public static android.app.ActivityOptions makeRemoteAnimation(android.view.RemoteAnimationAdapter);
     public static android.app.ActivityOptions makeScaleUpAnimation(android.view.View, int, int, int, int);
     public static android.app.ActivityOptions makeSceneTransitionAnimation(android.app.Activity, android.view.View, java.lang.String);
     public static android.app.ActivityOptions makeSceneTransitionAnimation(android.app.Activity, android.util.Pair[]);
@@ -1568,6 +1574,8 @@
     public static int ANIM_DEFAULT;
     public static int ANIM_LAUNCH_TASK_BEHIND;
     public static int ANIM_NONE;
+    public static int ANIM_OPEN_CROSS_PROFILE_APPS;
+    public static int ANIM_REMOTE_ANIMATION;
     public static int ANIM_SCALE_UP;
     public static int ANIM_SCENE_TRANSITION;
     public static int ANIM_THUMBNAIL_ASPECT_SCALE_DOWN;
@@ -1614,20 +1622,22 @@
     public static java.lang.String currentOpPackageName();
     public static java.lang.String currentPackageName();
     public static java.lang.String currentProcessName();
+    public void dump(java.io.PrintWriter, java.lang.String);
     public static void dumpMemInfoTable(java.io.PrintWriter, android.os.Debug$MemoryInfo, boolean, boolean, boolean, boolean, int, java.lang.String, long, long, long, long, long, long);
     public static void dumpMemInfoTable(android.util.proto.ProtoOutputStream, android.os.Debug$MemoryInfo, boolean, boolean, long, long, long, long, long, long);
     public android.app.Activity getActivity(android.os.IBinder);
     public android.app.ActivityThread$ActivityClientRecord getActivityClient(android.os.IBinder);
     public android.app.Application getApplication();
     public android.app.ActivityThread$ApplicationThread getApplicationThread();
+    public java.util.concurrent.Executor getExecutor();
     public android.app.Instrumentation getInstrumentation();
     public int getIntCoreSetting(java.lang.String, int);
     public static android.content.Intent getIntentBeingBroadcast();
+    public android.app.LoadedApk getLoadedApk(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo, int);
+    public android.app.LoadedApk getLoadedApkForPackageName(java.lang.String, android.content.res.CompatibilityInfo, int);
+    public android.app.LoadedApk getLoadedApkForPackageName(java.lang.String, android.content.res.CompatibilityInfo, int, int);
+    public android.app.LoadedApk getLoadedApkNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
     public android.os.Looper getLooper();
-    public android.app.LoadedApk getPackageInfo(java.lang.String, android.content.res.CompatibilityInfo, int);
-    public android.app.LoadedApk getPackageInfo(java.lang.String, android.content.res.CompatibilityInfo, int, int);
-    public android.app.LoadedApk getPackageInfo(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo, int);
-    public android.app.LoadedApk getPackageInfoNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
     public static android.content.pm.IPackageManager getPackageManager();
     public java.lang.String getProcessName();
     public java.lang.String getProfileFilePath();
@@ -1655,7 +1665,7 @@
     public static boolean isSystem();
     public static void main(java.lang.String[]);
     public void onNewActivityOptions(android.os.IBinder, android.app.ActivityOptions);
-    public android.app.LoadedApk peekPackageInfo(java.lang.String, boolean);
+    public android.app.LoadedApk peekLoadedApk(java.lang.String, boolean);
     public void performRestartActivity(android.os.IBinder, boolean);
     public void registerOnActivityPausedListener(android.app.Activity, android.app.OnActivityPausedListener);
     public boolean releaseProvider(android.content.IContentProvider, boolean);
@@ -1675,6 +1685,7 @@
     public static boolean DEBUG_CONFIGURATION;
     public static boolean DEBUG_MEMORY_TRIM;
     public static long INVALID_PROC_STATE_SEQ;
+    public static java.lang.String PROC_START_SEQ_IDENT;
     public static int SERVICE_DONE_EXECUTING_ANON;
     public static int SERVICE_DONE_EXECUTING_START;
     public static int SERVICE_DONE_EXECUTING_STOP;
@@ -1694,7 +1705,7 @@
 
 
     public boolean isForward;
-    public android.app.LoadedApk packageInfo;
+    public android.app.LoadedApk loadedApk;
     public android.os.IBinder token;
 }
 
@@ -1709,6 +1720,7 @@
     public void dumpGfxInfo(android.os.ParcelFileDescriptor, java.lang.String[]);
     public void dumpHeap(boolean, boolean, boolean, java.lang.String, android.os.ParcelFileDescriptor);
     public void dumpMemInfo(android.os.ParcelFileDescriptor, android.os.Debug$MemoryInfo, boolean, boolean, boolean, boolean, boolean, java.lang.String[]);
+    public void dumpMemInfoProto(android.os.ParcelFileDescriptor, android.os.Debug$MemoryInfo, boolean, boolean, boolean, boolean, java.lang.String[]);
     public void dumpProvider(android.os.ParcelFileDescriptor, android.os.IBinder, java.lang.String[]);
     public void dumpService(android.os.ParcelFileDescriptor, android.os.IBinder, java.lang.String[]);
     public void handleTrustStorageUpdate();
@@ -1762,6 +1774,19 @@
 
 }
 
+-keep class android.app.AppComponentFactory {
+    <init>();
+
+    public android.app.Activity instantiateActivity(java.lang.ClassLoader, java.lang.String, android.content.Intent);
+    public android.app.Application instantiateApplication(java.lang.ClassLoader, java.lang.String);
+    public android.content.ContentProvider instantiateProvider(java.lang.ClassLoader, java.lang.String);
+    public android.content.BroadcastReceiver instantiateReceiver(java.lang.ClassLoader, java.lang.String, android.content.Intent);
+    public android.app.Service instantiateService(java.lang.ClassLoader, java.lang.String, android.content.Intent);
+
+
+    public static android.app.AppComponentFactory DEFAULT;
+}
+
 -keep class android.app.AppOpsManager {
 
     public int checkAudioOp(int, int, int, java.lang.String);
@@ -1774,6 +1799,7 @@
     public void finishOp(java.lang.String, int, java.lang.String);
     public void finishOp(int, int, java.lang.String);
     public void finishOp(int);
+    public static java.lang.String[] getOpStrs();
     public java.util.List getOpsForPackage(int, java.lang.String, int[]);
     public java.util.List getPackagesForOps(int[]);
     public static android.os.IBinder getToken(com.android.internal.app.IAppOpsService);
@@ -1820,43 +1846,80 @@
     public static int MODE_DEFAULT;
     public static int MODE_ERRORED;
     public static int MODE_IGNORED;
+    public static java.lang.String OPSTR_ACCESS_NOTIFICATIONS;
     public static java.lang.String OPSTR_ACTIVATE_VPN;
     public static java.lang.String OPSTR_ADD_VOICEMAIL;
     public static java.lang.String OPSTR_ANSWER_PHONE_CALLS;
+    public static java.lang.String OPSTR_ASSIST_SCREENSHOT;
+    public static java.lang.String OPSTR_ASSIST_STRUCTURE;
+    public static java.lang.String OPSTR_AUDIO_ACCESSIBILITY_VOLUME;
+    public static java.lang.String OPSTR_AUDIO_ALARM_VOLUME;
+    public static java.lang.String OPSTR_AUDIO_BLUETOOTH_VOLUME;
+    public static java.lang.String OPSTR_AUDIO_MASTER_VOLUME;
+    public static java.lang.String OPSTR_AUDIO_MEDIA_VOLUME;
+    public static java.lang.String OPSTR_AUDIO_NOTIFICATION_VOLUME;
+    public static java.lang.String OPSTR_AUDIO_RING_VOLUME;
+    public static java.lang.String OPSTR_AUDIO_VOICE_VOLUME;
+    public static java.lang.String OPSTR_BIND_ACCESSIBILITY_SERVICE;
     public static java.lang.String OPSTR_BODY_SENSORS;
     public static java.lang.String OPSTR_CALL_PHONE;
     public static java.lang.String OPSTR_CAMERA;
+    public static java.lang.String OPSTR_CHANGE_WIFI_STATE;
     public static java.lang.String OPSTR_COARSE_LOCATION;
     public static java.lang.String OPSTR_FINE_LOCATION;
     public static java.lang.String OPSTR_GET_ACCOUNTS;
     public static java.lang.String OPSTR_GET_USAGE_STATS;
+    public static java.lang.String OPSTR_GPS;
     public static java.lang.String OPSTR_INSTANT_APP_START_FOREGROUND;
     public static java.lang.String OPSTR_MOCK_LOCATION;
     public static java.lang.String OPSTR_MONITOR_HIGH_POWER_LOCATION;
     public static java.lang.String OPSTR_MONITOR_LOCATION;
+    public static java.lang.String OPSTR_MUTE_MICROPHONE;
+    public static java.lang.String OPSTR_NEIGHBORING_CELLS;
     public static java.lang.String OPSTR_PICTURE_IN_PICTURE;
+    public static java.lang.String OPSTR_PLAY_AUDIO;
+    public static java.lang.String OPSTR_POST_NOTIFICATION;
     public static java.lang.String OPSTR_PROCESS_OUTGOING_CALLS;
+    public static java.lang.String OPSTR_PROJECT_MEDIA;
     public static java.lang.String OPSTR_READ_CALENDAR;
     public static java.lang.String OPSTR_READ_CALL_LOG;
     public static java.lang.String OPSTR_READ_CELL_BROADCASTS;
+    public static java.lang.String OPSTR_READ_CLIPBOARD;
     public static java.lang.String OPSTR_READ_CONTACTS;
     public static java.lang.String OPSTR_READ_EXTERNAL_STORAGE;
+    public static java.lang.String OPSTR_READ_ICC_SMS;
     public static java.lang.String OPSTR_READ_PHONE_NUMBERS;
     public static java.lang.String OPSTR_READ_PHONE_STATE;
     public static java.lang.String OPSTR_READ_SMS;
+    public static java.lang.String OPSTR_RECEIVE_EMERGENCY_BROADCAST;
     public static java.lang.String OPSTR_RECEIVE_MMS;
     public static java.lang.String OPSTR_RECEIVE_SMS;
     public static java.lang.String OPSTR_RECEIVE_WAP_PUSH;
     public static java.lang.String OPSTR_RECORD_AUDIO;
+    public static java.lang.String OPSTR_REQUEST_DELETE_PACKAGES;
+    public static java.lang.String OPSTR_REQUEST_INSTALL_PACKAGES;
+    public static java.lang.String OPSTR_RUN_ANY_IN_BACKGROUND;
+    public static java.lang.String OPSTR_RUN_IN_BACKGROUND;
     public static java.lang.String OPSTR_SEND_SMS;
     public static java.lang.String OPSTR_SYSTEM_ALERT_WINDOW;
+    public static java.lang.String OPSTR_TAKE_AUDIO_FOCUS;
+    public static java.lang.String OPSTR_TAKE_MEDIA_BUTTONS;
+    public static java.lang.String OPSTR_TOAST_WINDOW;
+    public static java.lang.String OPSTR_TURN_SCREEN_ON;
     public static java.lang.String OPSTR_USE_FINGERPRINT;
     public static java.lang.String OPSTR_USE_SIP;
+    public static java.lang.String OPSTR_VIBRATE;
+    public static java.lang.String OPSTR_WAKE_LOCK;
+    public static java.lang.String OPSTR_WIFI_SCAN;
     public static java.lang.String OPSTR_WRITE_CALENDAR;
     public static java.lang.String OPSTR_WRITE_CALL_LOG;
+    public static java.lang.String OPSTR_WRITE_CLIPBOARD;
     public static java.lang.String OPSTR_WRITE_CONTACTS;
     public static java.lang.String OPSTR_WRITE_EXTERNAL_STORAGE;
+    public static java.lang.String OPSTR_WRITE_ICC_SMS;
     public static java.lang.String OPSTR_WRITE_SETTINGS;
+    public static java.lang.String OPSTR_WRITE_SMS;
+    public static java.lang.String OPSTR_WRITE_WALLPAPER;
     public static int OP_ACCESS_NOTIFICATIONS;
     public static int OP_ACTIVATE_VPN;
     public static int OP_ADD_VOICEMAIL;
@@ -1871,6 +1934,7 @@
     public static int OP_AUDIO_NOTIFICATION_VOLUME;
     public static int OP_AUDIO_RING_VOLUME;
     public static int OP_AUDIO_VOICE_VOLUME;
+    public static int OP_BIND_ACCESSIBILITY_SERVICE;
     public static int OP_BODY_SENSORS;
     public static int OP_CALL_PHONE;
     public static int OP_CAMERA;
@@ -2111,8 +2175,9 @@
 -keep class android.app.ClientTransactionHandler {
     <init>();
 
+    public abstract void dump(java.io.PrintWriter, java.lang.String);
     public abstract android.app.ActivityThread$ActivityClientRecord getActivityClient(android.os.IBinder);
-    public abstract android.app.LoadedApk getPackageInfoNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
+    public abstract android.app.LoadedApk getLoadedApkNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
     public abstract void handleActivityConfigurationChanged(android.os.IBinder, android.content.res.Configuration, int);
     public abstract void handleConfigurationChanged(android.content.res.Configuration);
     public abstract void handleDestroyActivity(android.os.IBinder, boolean, int, boolean);
@@ -2208,6 +2273,7 @@
     public java.io.File getFileStreamPath(java.lang.String);
     public java.io.File getFilesDir();
     public android.app.IApplicationThread getIApplicationThread();
+    public java.util.concurrent.Executor getMainExecutor();
     public android.os.Looper getMainLooper();
     public android.os.Handler getMainThreadHandler();
     public java.io.File getNoBackupFilesDir();
@@ -2702,7 +2768,7 @@
     public abstract void addInstrumentationResults(android.app.IApplicationThread, android.os.Bundle);
     public abstract void addPackageDependency(java.lang.String);
     public abstract void appNotRespondingViaProvider(android.os.IBinder);
-    public abstract void attachApplication(android.app.IApplicationThread);
+    public abstract void attachApplication(android.app.IApplicationThread, long);
     public abstract void backgroundWhitelistUid(int);
     public abstract void backupAgentCreated(java.lang.String, android.os.IBinder);
     public abstract boolean bindBackupAgent(java.lang.String, int, int);
@@ -2710,7 +2776,6 @@
     public abstract void bootAnimationComplete();
     public abstract int broadcastIntent(android.app.IApplicationThread, android.content.Intent, java.lang.String, android.content.IIntentReceiver, int, java.lang.String, android.os.Bundle, java.lang.String[], int, android.os.Bundle, boolean, boolean, int);
     public abstract void cancelIntentSender(android.content.IIntentSender);
-    public abstract void cancelTaskThumbnailTransition(int);
     public abstract void cancelTaskWindowTransition(int);
     public abstract int checkGrantUriPermission(int, java.lang.String, android.net.Uri, int, int);
     public abstract int checkPermission(java.lang.String, int, int);
@@ -2724,7 +2789,7 @@
     public abstract boolean convertToTranslucent(android.os.IBinder, android.os.Bundle);
     public abstract void crashApplication(int, int, java.lang.String, int, java.lang.String);
     public abstract int createStackOnDisplay(int);
-    public abstract void dismissKeyguard(android.os.IBinder, com.android.internal.policy.IKeyguardDismissCallback);
+    public abstract void dismissKeyguard(android.os.IBinder, com.android.internal.policy.IKeyguardDismissCallback, java.lang.CharSequence);
     public abstract void dismissPip(boolean, int);
     public abstract void dismissSplitScreenMode(boolean);
     public abstract boolean dumpHeap(java.lang.String, int, boolean, boolean, boolean, java.lang.String, android.os.ParcelFileDescriptor);
@@ -2841,9 +2906,9 @@
     public abstract boolean moveTopActivityToPinnedStack(int, android.graphics.Rect);
     public abstract boolean navigateUpTo(android.os.IBinder, android.content.Intent, int, android.content.Intent);
     public abstract android.os.IBinder newUriPermissionOwner(java.lang.String);
-    public abstract void noteAlarmFinish(android.content.IIntentSender, int, java.lang.String);
-    public abstract void noteAlarmStart(android.content.IIntentSender, int, java.lang.String);
-    public abstract void noteWakeupAlarm(android.content.IIntentSender, int, java.lang.String, java.lang.String);
+    public abstract void noteAlarmFinish(android.content.IIntentSender, android.os.WorkSource, int, java.lang.String);
+    public abstract void noteAlarmStart(android.content.IIntentSender, android.os.WorkSource, int, java.lang.String);
+    public abstract void noteWakeupAlarm(android.content.IIntentSender, android.os.WorkSource, int, java.lang.String, java.lang.String);
     public abstract void notifyActivityDrawn(android.os.IBinder);
     public abstract void notifyCleartextNetwork(int, byte[]);
     public abstract void notifyEnterAnimationComplete(android.os.IBinder);
@@ -2863,6 +2928,7 @@
     public abstract void registerIntentSenderCancelListener(android.content.IIntentSender, com.android.internal.os.IResultReceiver);
     public abstract void registerProcessObserver(android.app.IProcessObserver);
     public abstract android.content.Intent registerReceiver(android.app.IApplicationThread, java.lang.String, android.content.IIntentReceiver, android.content.IntentFilter, java.lang.String, int, int);
+    public abstract void registerRemoteAnimations(android.os.IBinder, android.view.RemoteAnimationDefinition);
     public abstract void registerTaskStackListener(android.app.ITaskStackListener);
     public abstract void registerUidObserver(android.app.IUidObserver, int, int, java.lang.String);
     public abstract void registerUserSwitchObserver(android.app.IUserSwitchObserver, java.lang.String);
@@ -3015,6 +3081,7 @@
     public abstract void dumpGfxInfo(android.os.ParcelFileDescriptor, java.lang.String[]);
     public abstract void dumpHeap(boolean, boolean, boolean, java.lang.String, android.os.ParcelFileDescriptor);
     public abstract void dumpMemInfo(android.os.ParcelFileDescriptor, android.os.Debug$MemoryInfo, boolean, boolean, boolean, boolean, boolean, java.lang.String[]);
+    public abstract void dumpMemInfoProto(android.os.ParcelFileDescriptor, android.os.Debug$MemoryInfo, boolean, boolean, boolean, boolean, java.lang.String[]);
     public abstract void dumpProvider(android.os.ParcelFileDescriptor, android.os.IBinder, java.lang.String[]);
     public abstract void dumpService(android.os.ParcelFileDescriptor, android.os.IBinder, java.lang.String[]);
     public abstract void handleTrustStorageUpdate();
@@ -3289,9 +3356,11 @@
 -keep class android.app.LoadedApk {
     <init>(android.app.ActivityThread, android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo, java.lang.ClassLoader, boolean, boolean, boolean);
 
+    public android.content.res.Resources createResources(android.os.IBinder, java.lang.String, int, android.content.res.Configuration, android.content.res.CompatibilityInfo);
     public android.content.IIntentReceiver forgetReceiverDispatcher(android.content.Context, android.content.BroadcastReceiver);
     public android.app.IServiceConnection forgetServiceDispatcher(android.content.Context, android.content.ServiceConnection);
     public java.lang.String getAppDir();
+    public android.app.AppComponentFactory getAppFactory();
     public android.content.pm.ApplicationInfo getApplicationInfo();
     public android.content.res.AssetManager getAssets();
     public java.lang.ClassLoader getClassLoader();
@@ -3301,6 +3370,8 @@
     public java.io.File getDataDirFile();
     public java.io.File getDeviceProtectedDataDirFile();
     public java.lang.String getLibDir();
+    public android.content.res.Resources getOrCreateResourcesForSplit(java.lang.String, android.os.IBinder, int);
+    public android.content.res.Resources getOrCreateTopLevelResources(android.content.pm.ApplicationInfo);
     public java.lang.String[] getOverlayDirs();
     public java.lang.String getPackageName();
     public android.content.IIntentReceiver getReceiverDispatcher(android.content.BroadcastReceiver, android.content.Context, android.os.Handler, android.app.Instrumentation, boolean);
@@ -3432,13 +3503,16 @@
     public static java.lang.String EXTRA_FOREGROUND_APPS;
     public static java.lang.String EXTRA_HISTORIC_MESSAGES;
     public static java.lang.String EXTRA_INFO_TEXT;
+    public static java.lang.String EXTRA_IS_GROUP_CONVERSATION;
     public static java.lang.String EXTRA_LARGE_ICON;
     public static java.lang.String EXTRA_LARGE_ICON_BIG;
     public static java.lang.String EXTRA_MEDIA_SESSION;
     public static java.lang.String EXTRA_MESSAGES;
+    public static java.lang.String EXTRA_MESSAGING_PERSON;
     public static java.lang.String EXTRA_NOTIFICATION_ID;
     public static java.lang.String EXTRA_NOTIFICATION_TAG;
     public static java.lang.String EXTRA_PEOPLE;
+    public static java.lang.String EXTRA_PEOPLE_LIST;
     public static java.lang.String EXTRA_PICTURE;
     public static java.lang.String EXTRA_PROGRESS;
     public static java.lang.String EXTRA_PROGRESS_INDETERMINATE;
@@ -3526,10 +3600,21 @@
     public android.os.Bundle getExtras();
     public android.graphics.drawable.Icon getIcon();
     public android.app.RemoteInput[] getRemoteInputs();
+    public int getSemanticAction();
     public void writeToParcel(android.os.Parcel, int);
 
 
     public static android.os.Parcelable$Creator CREATOR;
+    public static int SEMANTIC_ACTION_ARCHIVE;
+    public static int SEMANTIC_ACTION_DELETE;
+    public static int SEMANTIC_ACTION_MARK_AS_READ;
+    public static int SEMANTIC_ACTION_MARK_AS_UNREAD;
+    public static int SEMANTIC_ACTION_MUTE;
+    public static int SEMANTIC_ACTION_NONE;
+    public static int SEMANTIC_ACTION_REPLY;
+    public static int SEMANTIC_ACTION_THUMBS_DOWN;
+    public static int SEMANTIC_ACTION_THUMBS_UP;
+    public static int SEMANTIC_ACTION_UNMUTE;
     public android.app.PendingIntent actionIntent;
     public int icon;
     public java.lang.CharSequence title;
@@ -3544,6 +3629,7 @@
     public android.app.Notification$Builder addAction(android.app.Notification$Action);
     public android.app.Notification$Builder addExtras(android.os.Bundle);
     public android.app.Notification$Builder addPerson(java.lang.String);
+    public android.app.Notification$Builder addPerson(android.app.Notification$Person);
     public android.app.Notification build();
     public android.app.Notification buildInto(android.app.Notification);
     public android.app.Notification buildUnstyled();
@@ -3639,6 +3725,26 @@
 
 }
 
+-keep class android.app.Notification$Person {
+    <init>(android.os.Parcel);
+    <init>();
+
+    public int describeContents();
+    public android.graphics.drawable.Icon getIcon();
+    public java.lang.String getKey();
+    public java.lang.CharSequence getName();
+    public java.lang.String getUri();
+    public java.lang.String resolveToLegacyUri();
+    public android.app.Notification$Person setIcon(android.graphics.drawable.Icon);
+    public android.app.Notification$Person setKey(java.lang.String);
+    public android.app.Notification$Person setName(java.lang.CharSequence);
+    public android.app.Notification$Person setUri(java.lang.String);
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+}
+
 -keep class android.app.Notification$Style {
     <init>();
 
@@ -3669,16 +3775,6 @@
 -keep class android.app.OnActivityPausedListener {
 
     public abstract void onPaused(android.app.Activity);
-
-
-}
-
--keep class android.app.PackageInstallObserver {
-    <init>();
-
-    public android.content.pm.IPackageInstallObserver2 getBinder();
-    public void onPackageInstalled(java.lang.String, int, java.lang.String, android.os.Bundle);
-    public void onUserActionRequired(android.content.Intent);
 
 
 }
@@ -3804,7 +3900,7 @@
 }
 
 -keep class android.app.ProfilerInfo {
-    <init>(java.lang.String, android.os.ParcelFileDescriptor, int, boolean, boolean, java.lang.String);
+    <init>(java.lang.String, android.os.ParcelFileDescriptor, int, boolean, boolean, java.lang.String, boolean);
     <init>(android.app.ProfilerInfo);
 
     public void closeFd();
@@ -3816,6 +3912,7 @@
 
     public static android.os.Parcelable$Creator CREATOR;
     public java.lang.String agent;
+    public boolean attachAgentDuringBind;
     public boolean autoStopProfiler;
     public android.os.ParcelFileDescriptor profileFd;
     public java.lang.String profileFile;
@@ -3855,13 +3952,17 @@
     public java.lang.CharSequence getLabel();
     public java.lang.String getResultKey();
     public static android.os.Bundle getResultsFromIntent(android.content.Intent);
+    public static int getResultsSource(android.content.Intent);
     public boolean isDataOnly();
+    public static void setResultsSource(android.content.Intent, int);
     public void writeToParcel(android.os.Parcel, int);
 
 
     public static android.os.Parcelable$Creator CREATOR;
     public static java.lang.String EXTRA_RESULTS_DATA;
     public static java.lang.String RESULTS_CLIP_LABEL;
+    public static int SOURCE_CHOICE;
+    public static int SOURCE_FREE_FORM_INPUT;
 }
 
 -keep class android.app.ResultInfo {
@@ -3880,6 +3981,45 @@
     public int mRequestCode;
     public int mResultCode;
     public java.lang.String mResultWho;
+}
+
+-keep class android.app.Service {
+    <init>();
+
+    public void attach(android.content.Context, android.app.ActivityThread, java.lang.String, android.os.IBinder, android.app.Application, java.lang.Object);
+    public void detachAndCleanUp();
+    protected void dump(java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
+    public android.app.Application getApplication();
+    public abstract android.os.IBinder onBind(android.content.Intent);
+    public void onConfigurationChanged(android.content.res.Configuration);
+    public void onCreate();
+    public void onDestroy();
+    public void onLowMemory();
+    public void onRebind(android.content.Intent);
+    public void onStart(android.content.Intent, int);
+    public int onStartCommand(android.content.Intent, int, int);
+    public void onTaskRemoved(android.content.Intent);
+    public void onTrimMemory(int);
+    public boolean onUnbind(android.content.Intent);
+    public void setForeground(boolean);
+    public void startForeground(int, android.app.Notification);
+    public void stopForeground(boolean);
+    public void stopForeground(int);
+    public void stopSelf();
+    public void stopSelf(int);
+    public boolean stopSelfResult(int);
+
+
+    public static int START_CONTINUATION_MASK;
+    public static int START_FLAG_REDELIVERY;
+    public static int START_FLAG_RETRY;
+    public static int START_NOT_STICKY;
+    public static int START_REDELIVER_INTENT;
+    public static int START_STICKY;
+    public static int START_STICKY_COMPATIBILITY;
+    public static int START_TASK_REMOVED_COMPLETE;
+    public static int STOP_FOREGROUND_DETACH;
+    public static int STOP_FOREGROUND_REMOVE;
 }
 
 -keep class android.app.SharedElementCallback {
@@ -4215,6 +4355,7 @@
     public java.lang.CharSequence getText();
     public int getTextBackgroundColor();
     public int getTextColor();
+    public java.lang.String getTextIdEntry();
     public int[] getTextLineBaselines();
     public int[] getTextLineCharOffsets();
     public int getTextSelectionEnd();
@@ -4267,8 +4408,12 @@
 
 -keep class android.app.servertransaction.ActivityLifecycleItem {
     <init>();
+    <init>(android.os.Parcel);
 
+    public java.lang.String getDescription();
     public abstract int getTargetState();
+    public android.app.servertransaction.ActivityLifecycleItem setDescription(java.lang.String);
+    public void writeToParcel(android.os.Parcel, int);
 
 
     public static int ON_CREATE;
@@ -4288,6 +4433,8 @@
     public int describeContents();
     public boolean equals(java.lang.Object);
     public android.os.IBinder getActivityToken();
+    public android.app.IApplicationThread getClient();
+    public android.app.servertransaction.ActivityLifecycleItem getLifecycleStateRequest();
     public int hashCode();
     public static android.app.servertransaction.ClientTransaction obtain(android.app.IApplicationThread, android.os.IBinder);
     public void preExecute(android.app.ClientTransactionHandler);
@@ -4336,417 +4483,6 @@
     public void setState(android.os.Bundle);
 
 
-}
-
--keep class android.bluetooth.BluetoothClass {
-    <init>(int);
-
-    public int describeContents();
-    public boolean doesClassMatch(int);
-    public boolean equals(java.lang.Object);
-    public int getClassOfDevice();
-    public byte[] getClassOfDeviceBytes();
-    public int getDeviceClass();
-    public int getMajorDeviceClass();
-    public boolean hasService(int);
-    public int hashCode();
-    public java.lang.String toString();
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
-    public static int ERROR;
-    public static int PROFILE_A2DP;
-    public static int PROFILE_A2DP_SINK;
-    public static int PROFILE_HEADSET;
-    public static int PROFILE_HID;
-    public static int PROFILE_NAP;
-    public static int PROFILE_OPP;
-    public static int PROFILE_PANU;
-}
-
--keep class android.bluetooth.BluetoothDevice {
-
-    public boolean cancelBondProcess();
-    public boolean cancelPairingUserInput();
-    public android.bluetooth.BluetoothGatt connectGatt(android.content.Context, boolean, android.bluetooth.BluetoothGattCallback);
-    public android.bluetooth.BluetoothGatt connectGatt(android.content.Context, boolean, android.bluetooth.BluetoothGattCallback, int);
-    public android.bluetooth.BluetoothGatt connectGatt(android.content.Context, boolean, android.bluetooth.BluetoothGattCallback, int, int);
-    public android.bluetooth.BluetoothGatt connectGatt(android.content.Context, boolean, android.bluetooth.BluetoothGattCallback, int, int, android.os.Handler);
-    public android.bluetooth.BluetoothGatt connectGatt(android.content.Context, boolean, android.bluetooth.BluetoothGattCallback, int, boolean, int, android.os.Handler);
-    public static byte[] convertPinToBytes(java.lang.String);
-    public boolean createBond();
-    public boolean createBond(int);
-    public boolean createBondOutOfBand(int, android.bluetooth.OobData);
-    public android.bluetooth.BluetoothSocket createInsecureL2capSocket(int);
-    public android.bluetooth.BluetoothSocket createInsecureRfcommSocket(int);
-    public android.bluetooth.BluetoothSocket createInsecureRfcommSocketToServiceRecord(java.util.UUID);
-    public android.bluetooth.BluetoothSocket createL2capSocket(int);
-    public android.bluetooth.BluetoothSocket createRfcommSocket(int);
-    public android.bluetooth.BluetoothSocket createRfcommSocketToServiceRecord(java.util.UUID);
-    public android.bluetooth.BluetoothSocket createScoSocket();
-    public int describeContents();
-    public boolean equals(java.lang.Object);
-    public boolean fetchUuidsWithSdp();
-    public java.lang.String getAddress();
-    public java.lang.String getAlias();
-    public java.lang.String getAliasName();
-    public int getBatteryLevel();
-    public android.bluetooth.BluetoothClass getBluetoothClass();
-    public int getBondState();
-    public int getMessageAccessPermission();
-    public java.lang.String getName();
-    public int getPhonebookAccessPermission();
-    public int getSimAccessPermission();
-    public int getType();
-    public android.os.ParcelUuid[] getUuids();
-    public int hashCode();
-    public boolean isBluetoothDock();
-    public boolean isBondingInitiatedLocally();
-    public boolean isConnected();
-    public boolean isEncrypted();
-    public boolean removeBond();
-    public boolean sdpSearch(android.os.ParcelUuid);
-    public boolean setAlias(java.lang.String);
-    public boolean setDeviceOutOfBandData(byte[], byte[]);
-    public boolean setMessageAccessPermission(int);
-    public boolean setPairingConfirmation(boolean);
-    public boolean setPasskey(int);
-    public boolean setPhonebookAccessPermission(int);
-    public boolean setPin(byte[]);
-    public boolean setRemoteOutOfBandData();
-    public boolean setSimAccessPermission(int);
-    public java.lang.String toString();
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static int ACCESS_ALLOWED;
-    public static int ACCESS_REJECTED;
-    public static int ACCESS_UNKNOWN;
-    public static java.lang.String ACTION_ACL_CONNECTED;
-    public static java.lang.String ACTION_ACL_DISCONNECTED;
-    public static java.lang.String ACTION_ACL_DISCONNECT_REQUESTED;
-    public static java.lang.String ACTION_ALIAS_CHANGED;
-    public static java.lang.String ACTION_BATTERY_LEVEL_CHANGED;
-    public static java.lang.String ACTION_BOND_STATE_CHANGED;
-    public static java.lang.String ACTION_CLASS_CHANGED;
-    public static java.lang.String ACTION_CONNECTION_ACCESS_CANCEL;
-    public static java.lang.String ACTION_CONNECTION_ACCESS_REPLY;
-    public static java.lang.String ACTION_CONNECTION_ACCESS_REQUEST;
-    public static java.lang.String ACTION_DISAPPEARED;
-    public static java.lang.String ACTION_FOUND;
-    public static java.lang.String ACTION_MAS_INSTANCE;
-    public static java.lang.String ACTION_NAME_CHANGED;
-    public static java.lang.String ACTION_NAME_FAILED;
-    public static java.lang.String ACTION_PAIRING_CANCEL;
-    public static java.lang.String ACTION_PAIRING_REQUEST;
-    public static java.lang.String ACTION_SDP_RECORD;
-    public static java.lang.String ACTION_UUID;
-    public static int BATTERY_LEVEL_UNKNOWN;
-    public static int BOND_BONDED;
-    public static int BOND_BONDING;
-    public static int BOND_NONE;
-    public static int BOND_SUCCESS;
-    public static int CONNECTION_ACCESS_NO;
-    public static int CONNECTION_ACCESS_YES;
-    public static android.os.Parcelable$Creator CREATOR;
-    public static int DEVICE_TYPE_CLASSIC;
-    public static int DEVICE_TYPE_DUAL;
-    public static int DEVICE_TYPE_LE;
-    public static int DEVICE_TYPE_UNKNOWN;
-    public static int ERROR;
-    public static java.lang.String EXTRA_ACCESS_REQUEST_TYPE;
-    public static java.lang.String EXTRA_ALWAYS_ALLOWED;
-    public static java.lang.String EXTRA_BATTERY_LEVEL;
-    public static java.lang.String EXTRA_BOND_STATE;
-    public static java.lang.String EXTRA_CLASS;
-    public static java.lang.String EXTRA_CLASS_NAME;
-    public static java.lang.String EXTRA_CONNECTION_ACCESS_RESULT;
-    public static java.lang.String EXTRA_DEVICE;
-    public static java.lang.String EXTRA_MAS_INSTANCE;
-    public static java.lang.String EXTRA_NAME;
-    public static java.lang.String EXTRA_PACKAGE_NAME;
-    public static java.lang.String EXTRA_PAIRING_KEY;
-    public static java.lang.String EXTRA_PAIRING_VARIANT;
-    public static java.lang.String EXTRA_PREVIOUS_BOND_STATE;
-    public static java.lang.String EXTRA_REASON;
-    public static java.lang.String EXTRA_RSSI;
-    public static java.lang.String EXTRA_SDP_RECORD;
-    public static java.lang.String EXTRA_SDP_SEARCH_STATUS;
-    public static java.lang.String EXTRA_UUID;
-    public static int PAIRING_VARIANT_CONSENT;
-    public static int PAIRING_VARIANT_DISPLAY_PASSKEY;
-    public static int PAIRING_VARIANT_DISPLAY_PIN;
-    public static int PAIRING_VARIANT_OOB_CONSENT;
-    public static int PAIRING_VARIANT_PASSKEY;
-    public static int PAIRING_VARIANT_PASSKEY_CONFIRMATION;
-    public static int PAIRING_VARIANT_PIN;
-    public static int PAIRING_VARIANT_PIN_16_DIGITS;
-    public static int PHY_LE_1M;
-    public static int PHY_LE_1M_MASK;
-    public static int PHY_LE_2M;
-    public static int PHY_LE_2M_MASK;
-    public static int PHY_LE_CODED;
-    public static int PHY_LE_CODED_MASK;
-    public static int PHY_OPTION_NO_PREFERRED;
-    public static int PHY_OPTION_S2;
-    public static int PHY_OPTION_S8;
-    public static int REQUEST_TYPE_MESSAGE_ACCESS;
-    public static int REQUEST_TYPE_PHONEBOOK_ACCESS;
-    public static int REQUEST_TYPE_PROFILE_CONNECTION;
-    public static int REQUEST_TYPE_SIM_ACCESS;
-    public static int TRANSPORT_AUTO;
-    public static int TRANSPORT_BREDR;
-    public static int TRANSPORT_LE;
-    public static int UNBOND_REASON_AUTH_CANCELED;
-    public static int UNBOND_REASON_AUTH_FAILED;
-    public static int UNBOND_REASON_AUTH_REJECTED;
-    public static int UNBOND_REASON_AUTH_TIMEOUT;
-    public static int UNBOND_REASON_DISCOVERY_IN_PROGRESS;
-    public static int UNBOND_REASON_REMOTE_AUTH_CANCELED;
-    public static int UNBOND_REASON_REMOTE_DEVICE_DOWN;
-    public static int UNBOND_REASON_REMOVED;
-    public static int UNBOND_REASON_REPEATED_ATTEMPTS;
-}
-
--keep class android.bluetooth.BluetoothGatt {
-
-    public void abortReliableWrite();
-    public void abortReliableWrite(android.bluetooth.BluetoothDevice);
-    public boolean beginReliableWrite();
-    public void close();
-    public boolean connect();
-    public void disconnect();
-    public boolean discoverServiceByUuid(java.util.UUID);
-    public boolean discoverServices();
-    public boolean executeReliableWrite();
-    public java.util.List getConnectedDevices();
-    public int getConnectionState(android.bluetooth.BluetoothDevice);
-    public android.bluetooth.BluetoothDevice getDevice();
-    public java.util.List getDevicesMatchingConnectionStates(int[]);
-    public android.bluetooth.BluetoothGattService getService(java.util.UUID);
-    public java.util.List getServices();
-    public boolean readCharacteristic(android.bluetooth.BluetoothGattCharacteristic);
-    public boolean readDescriptor(android.bluetooth.BluetoothGattDescriptor);
-    public void readPhy();
-    public boolean readRemoteRssi();
-    public boolean readUsingCharacteristicUuid(java.util.UUID, int, int);
-    public boolean refresh();
-    public boolean requestConnectionPriority(int);
-    public boolean requestMtu(int);
-    public boolean setCharacteristicNotification(android.bluetooth.BluetoothGattCharacteristic, boolean);
-    public void setPreferredPhy(int, int, int);
-    public boolean writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic);
-    public boolean writeDescriptor(android.bluetooth.BluetoothGattDescriptor);
-
-
-    public static int CONNECTION_PRIORITY_BALANCED;
-    public static int CONNECTION_PRIORITY_HIGH;
-    public static int CONNECTION_PRIORITY_LOW_POWER;
-    public static int GATT_CONNECTION_CONGESTED;
-    public static int GATT_FAILURE;
-    public static int GATT_INSUFFICIENT_AUTHENTICATION;
-    public static int GATT_INSUFFICIENT_ENCRYPTION;
-    public static int GATT_INVALID_ATTRIBUTE_LENGTH;
-    public static int GATT_INVALID_OFFSET;
-    public static int GATT_READ_NOT_PERMITTED;
-    public static int GATT_REQUEST_NOT_SUPPORTED;
-    public static int GATT_SUCCESS;
-    public static int GATT_WRITE_NOT_PERMITTED;
-}
-
--keep class android.bluetooth.BluetoothGattCallback {
-    <init>();
-
-    public void onCharacteristicChanged(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic);
-    public void onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int);
-    public void onCharacteristicWrite(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int);
-    public void onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int);
-    public void onConnectionUpdated(android.bluetooth.BluetoothGatt, int, int, int, int);
-    public void onDescriptorRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattDescriptor, int);
-    public void onDescriptorWrite(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattDescriptor, int);
-    public void onMtuChanged(android.bluetooth.BluetoothGatt, int, int);
-    public void onPhyRead(android.bluetooth.BluetoothGatt, int, int, int);
-    public void onPhyUpdate(android.bluetooth.BluetoothGatt, int, int, int);
-    public void onReadRemoteRssi(android.bluetooth.BluetoothGatt, int, int);
-    public void onReliableWriteCompleted(android.bluetooth.BluetoothGatt, int);
-    public void onServicesDiscovered(android.bluetooth.BluetoothGatt, int);
-
-
-}
-
--keep class android.bluetooth.BluetoothGattCharacteristic {
-    <init>(java.util.UUID, int, int);
-    <init>(java.util.UUID, int, int, int);
-
-    public boolean addDescriptor(android.bluetooth.BluetoothGattDescriptor);
-    public int describeContents();
-    public android.bluetooth.BluetoothGattDescriptor getDescriptor(java.util.UUID);
-    public java.util.List getDescriptors();
-    public java.lang.Float getFloatValue(int, int);
-    public int getInstanceId();
-    public java.lang.Integer getIntValue(int, int);
-    public int getKeySize();
-    public int getPermissions();
-    public int getProperties();
-    public android.bluetooth.BluetoothGattService getService();
-    public java.lang.String getStringValue(int);
-    public java.util.UUID getUuid();
-    public byte[] getValue();
-    public int getWriteType();
-    public void setInstanceId(int);
-    public void setKeySize(int);
-    public boolean setValue(byte[]);
-    public boolean setValue(int, int, int);
-    public boolean setValue(int, int, int, int);
-    public boolean setValue(java.lang.String);
-    public void setWriteType(int);
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
-    public static int FORMAT_FLOAT;
-    public static int FORMAT_SFLOAT;
-    public static int FORMAT_SINT16;
-    public static int FORMAT_SINT32;
-    public static int FORMAT_SINT8;
-    public static int FORMAT_UINT16;
-    public static int FORMAT_UINT32;
-    public static int FORMAT_UINT8;
-    public static int PERMISSION_READ;
-    public static int PERMISSION_READ_ENCRYPTED;
-    public static int PERMISSION_READ_ENCRYPTED_MITM;
-    public static int PERMISSION_WRITE;
-    public static int PERMISSION_WRITE_ENCRYPTED;
-    public static int PERMISSION_WRITE_ENCRYPTED_MITM;
-    public static int PERMISSION_WRITE_SIGNED;
-    public static int PERMISSION_WRITE_SIGNED_MITM;
-    public static int PROPERTY_BROADCAST;
-    public static int PROPERTY_EXTENDED_PROPS;
-    public static int PROPERTY_INDICATE;
-    public static int PROPERTY_NOTIFY;
-    public static int PROPERTY_READ;
-    public static int PROPERTY_SIGNED_WRITE;
-    public static int PROPERTY_WRITE;
-    public static int PROPERTY_WRITE_NO_RESPONSE;
-    public static int WRITE_TYPE_DEFAULT;
-    public static int WRITE_TYPE_NO_RESPONSE;
-    public static int WRITE_TYPE_SIGNED;
-    protected java.util.List mDescriptors;
-    protected int mInstance;
-    protected int mKeySize;
-    protected int mPermissions;
-    protected int mProperties;
-    protected android.bluetooth.BluetoothGattService mService;
-    protected java.util.UUID mUuid;
-    protected byte[] mValue;
-    protected int mWriteType;
-}
-
--keep class android.bluetooth.BluetoothGattDescriptor {
-    <init>(java.util.UUID, int);
-    <init>(java.util.UUID, int, int);
-
-    public int describeContents();
-    public android.bluetooth.BluetoothGattCharacteristic getCharacteristic();
-    public int getInstanceId();
-    public int getPermissions();
-    public java.util.UUID getUuid();
-    public byte[] getValue();
-    public void setInstanceId(int);
-    public boolean setValue(byte[]);
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
-    public static byte[] DISABLE_NOTIFICATION_VALUE;
-    public static byte[] ENABLE_INDICATION_VALUE;
-    public static byte[] ENABLE_NOTIFICATION_VALUE;
-    public static int PERMISSION_READ;
-    public static int PERMISSION_READ_ENCRYPTED;
-    public static int PERMISSION_READ_ENCRYPTED_MITM;
-    public static int PERMISSION_WRITE;
-    public static int PERMISSION_WRITE_ENCRYPTED;
-    public static int PERMISSION_WRITE_ENCRYPTED_MITM;
-    public static int PERMISSION_WRITE_SIGNED;
-    public static int PERMISSION_WRITE_SIGNED_MITM;
-    protected android.bluetooth.BluetoothGattCharacteristic mCharacteristic;
-    protected int mInstance;
-    protected int mPermissions;
-    protected java.util.UUID mUuid;
-    protected byte[] mValue;
-}
-
--keep class android.bluetooth.BluetoothGattService {
-    <init>(java.util.UUID, int);
-    <init>(java.util.UUID, int, int);
-
-    public boolean addCharacteristic(android.bluetooth.BluetoothGattCharacteristic);
-    public void addIncludedService(android.bluetooth.BluetoothGattService);
-    public boolean addService(android.bluetooth.BluetoothGattService);
-    public int describeContents();
-    public android.bluetooth.BluetoothGattCharacteristic getCharacteristic(java.util.UUID);
-    public java.util.List getCharacteristics();
-    public java.util.List getIncludedServices();
-    public int getInstanceId();
-    public int getType();
-    public java.util.UUID getUuid();
-    public boolean isAdvertisePreferred();
-    public void setAdvertisePreferred(boolean);
-    public void setHandles(int);
-    public void setInstanceId(int);
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
-    public static int SERVICE_TYPE_PRIMARY;
-    public static int SERVICE_TYPE_SECONDARY;
-    protected java.util.List mCharacteristics;
-    protected android.bluetooth.BluetoothDevice mDevice;
-    protected int mHandles;
-    protected java.util.List mIncludedServices;
-    protected int mInstanceId;
-    protected int mServiceType;
-    protected java.util.UUID mUuid;
-}
-
--keep class android.bluetooth.BluetoothSocket {
-
-    public void close();
-    public void connect();
-    protected void finalize();
-    public int getConnectionType();
-    public java.io.InputStream getInputStream();
-    public int getMaxReceivePacketSize();
-    public int getMaxTransmitPacketSize();
-    public java.io.OutputStream getOutputStream();
-    public android.bluetooth.BluetoothDevice getRemoteDevice();
-    public boolean isConnected();
-    public void setExcludeSdp(boolean);
-
-
-    public static int MAX_RFCOMM_CHANNEL;
-    public static int TYPE_L2CAP;
-    public static int TYPE_RFCOMM;
-    public static int TYPE_SCO;
-}
-
--keep class android.bluetooth.OobData {
-    <init>();
-
-    public int describeContents();
-    public byte[] getLeBluetoothDeviceAddress();
-    public byte[] getLeSecureConnectionsConfirmation();
-    public byte[] getLeSecureConnectionsRandom();
-    public byte[] getSecurityManagerTk();
-    public void setLeBluetoothDeviceAddress(byte[]);
-    public void setLeSecureConnectionsConfirmation(byte[]);
-    public void setLeSecureConnectionsRandom(byte[]);
-    public void setSecurityManagerTk(byte[]);
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
 }
 
 -keep class android.content.BroadcastReceiver {
@@ -4831,6 +4567,7 @@
     public void toShortStringShortItems(java.lang.StringBuilder, boolean);
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static android.os.Parcelable$Creator CREATOR;
@@ -4855,6 +4592,7 @@
     public void toShortString(java.lang.StringBuilder);
     public void toShortSummaryString(java.lang.StringBuilder);
     public java.lang.String toString();
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
 }
@@ -4879,6 +4617,7 @@
     public java.lang.String toString();
     public void validate();
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static android.os.Parcelable$Creator CREATOR;
@@ -4922,12 +4661,12 @@
     public int hashCode();
     public static void printShortString(java.io.PrintWriter, java.lang.String, java.lang.String);
     public static android.content.ComponentName readFromParcel(android.os.Parcel);
-    public void toProto(android.util.proto.ProtoOutputStream);
     public java.lang.String toShortString();
     public java.lang.String toString();
     public static android.content.ComponentName unflattenFromString(java.lang.String);
     public void writeToParcel(android.os.Parcel, int);
     public static void writeToParcel(android.content.ComponentName, android.os.Parcel);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static android.os.Parcelable$Creator CREATOR;
@@ -5381,6 +5120,7 @@
     public abstract java.io.File getFileStreamPath(java.lang.String);
     public abstract java.io.File getFilesDir();
     public android.app.IApplicationThread getIApplicationThread();
+    public java.util.concurrent.Executor getMainExecutor();
     public abstract android.os.Looper getMainLooper();
     public android.os.Handler getMainThreadHandler();
     public int getNextAutofillId();
@@ -5497,6 +5237,7 @@
     public static java.lang.String BATTERY_SERVICE;
     public static int BIND_ABOVE_CLIENT;
     public static int BIND_ADJUST_WITH_ACTIVITY;
+    public static int BIND_ALLOW_INSTANT;
     public static int BIND_ALLOW_OOM_MANAGEMENT;
     public static int BIND_ALLOW_WHITELIST_MANAGEMENT;
     public static int BIND_AUTO_CREATE;
@@ -5536,6 +5277,7 @@
     public static java.lang.String DOWNLOAD_SERVICE;
     public static java.lang.String DROPBOX_SERVICE;
     public static java.lang.String ETHERNET_SERVICE;
+    public static java.lang.String EUICC_CARD_SERVICE;
     public static java.lang.String EUICC_SERVICE;
     public static java.lang.String FINGERPRINT_SERVICE;
     public static java.lang.String GATEKEEPER_SERVICE;
@@ -5682,6 +5424,7 @@
     public java.io.File getFileStreamPath(java.lang.String);
     public java.io.File getFilesDir();
     public android.app.IApplicationThread getIApplicationThread();
+    public java.util.concurrent.Executor getMainExecutor();
     public android.os.Looper getMainLooper();
     public android.os.Handler getMainThreadHandler();
     public int getNextAutofillId();
@@ -6086,6 +5829,7 @@
     public java.lang.String toURI();
     public java.lang.String toUri(int);
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
     public void writeToProto(android.util.proto.ProtoOutputStream, long, boolean, boolean, boolean, boolean);
 
 
@@ -7216,6 +6960,7 @@
     public static int PRIVATE_FLAG_STATIC_SHARED_LIBRARY;
     public static int PRIVATE_FLAG_VENDOR;
     public static int PRIVATE_FLAG_VIRTUAL_PRELOAD;
+    public java.lang.String appComponentFactory;
     public java.lang.String backupAgentName;
     public int category;
     public java.lang.String classLoaderName;
@@ -7432,14 +7177,6 @@
 
 }
 
--keep class android.content.pm.IPackageInstallObserver2 {
-
-    public abstract void onPackageInstalled(java.lang.String, int, java.lang.String, android.os.Bundle);
-    public abstract void onUserActionRequired(android.content.Intent);
-
-
-}
-
 -keep class android.content.pm.IPackageInstaller {
 
     public abstract void abandonSession(int);
@@ -7537,6 +7274,7 @@
     public abstract byte[] getDefaultAppsBackup(int);
     public abstract java.lang.String getDefaultBrowserPackageName(int);
     public abstract int getFlagsForUid(int);
+    public abstract java.lang.CharSequence getHarmfulAppWarning(java.lang.String, int);
     public abstract android.content.ComponentName getHomeActivities(java.util.List);
     public abstract int getInstallLocation();
     public abstract int getInstallReason(java.lang.String, int);
@@ -7594,7 +7332,6 @@
     public abstract boolean hasSystemFeature(java.lang.String, int);
     public abstract boolean hasSystemUidErrors();
     public abstract int installExistingPackageAsUser(java.lang.String, int, int, int);
-    public abstract void installPackageAsUser(java.lang.String, android.content.pm.IPackageInstallObserver2, int, java.lang.String, int);
     public abstract boolean isFirstBoot();
     public abstract boolean isInstantApp(java.lang.String, int);
     public abstract boolean isOnlyCoreApps();
@@ -7651,6 +7388,7 @@
     public abstract boolean setBlockUninstallForUser(java.lang.String, boolean, int);
     public abstract void setComponentEnabledSetting(android.content.ComponentName, int, int, int);
     public abstract boolean setDefaultBrowserPackageName(java.lang.String, int);
+    public abstract void setHarmfulAppWarning(java.lang.String, java.lang.CharSequence, int);
     public abstract void setHomeActivity(android.content.ComponentName, int);
     public abstract boolean setInstallLocation(int);
     public abstract void setInstallerPackageName(java.lang.String, java.lang.String);
@@ -8043,6 +7781,7 @@
     public void setInstallFlagsInternal();
     public void setInstallLocation(int);
     public void setInstallReason(int);
+    public void setInstallerPackageName(java.lang.String);
     public void setOriginatingUid(int);
     public void setOriginatingUri(android.net.Uri);
     public void setReferrerUri(android.net.Uri);
@@ -8064,6 +7803,7 @@
     public int installFlags;
     public int installLocation;
     public int installReason;
+    public java.lang.String installerPackageName;
     public int mode;
     public int originatingUid;
     public android.net.Uri originatingUri;
@@ -8167,6 +7907,7 @@
     public abstract android.graphics.drawable.Drawable getDefaultActivityIcon();
     public abstract java.lang.String getDefaultBrowserPackageNameAsUser(int);
     public abstract android.graphics.drawable.Drawable getDrawable(java.lang.String, int, android.content.pm.ApplicationInfo);
+    public java.lang.CharSequence getHarmfulAppWarning(java.lang.String);
     public abstract android.content.ComponentName getHomeActivities(java.util.List);
     public abstract int getInstallReason(java.lang.String, android.os.UserHandle);
     public abstract java.util.List getInstalledApplications(int);
@@ -8244,7 +7985,6 @@
     public abstract int installExistingPackage(java.lang.String);
     public abstract int installExistingPackage(java.lang.String, int);
     public abstract int installExistingPackageAsUser(java.lang.String, int);
-    public abstract void installPackage(android.net.Uri, android.app.PackageInstallObserver, int, java.lang.String);
     public static int installStatusToPublicStatus(int);
     public static java.lang.String installStatusToString(int, java.lang.String);
     public static java.lang.String installStatusToString(int);
@@ -8297,6 +8037,7 @@
     public abstract boolean setApplicationHiddenSettingAsUser(java.lang.String, boolean, android.os.UserHandle);
     public abstract void setComponentEnabledSetting(android.content.ComponentName, int, int);
     public abstract boolean setDefaultBrowserPackageNameAsUser(java.lang.String, int);
+    public void setHarmfulAppWarning(java.lang.String, java.lang.CharSequence);
     public abstract void setInstallerPackageName(java.lang.String, java.lang.String);
     public abstract boolean setInstantAppCookie(byte[]);
     public abstract java.lang.String[] setPackagesSuspendedAsUser(java.lang.String[], boolean, int);
@@ -8350,6 +8091,7 @@
     public static java.lang.String EXTRA_VERIFICATION_URI;
     public static java.lang.String EXTRA_VERIFICATION_VERSION_CODE;
     public static java.lang.String FEATURE_ACTIVITIES_ON_SECONDARY_DISPLAYS;
+    public static java.lang.String FEATURE_ADOPTABLE_STORAGE;
     public static java.lang.String FEATURE_APP_WIDGETS;
     public static java.lang.String FEATURE_AUDIO_LOW_LATENCY;
     public static java.lang.String FEATURE_AUDIO_OUTPUT;
@@ -8433,6 +8175,7 @@
     public static java.lang.String FEATURE_TELEPHONY_CDMA;
     public static java.lang.String FEATURE_TELEPHONY_EUICC;
     public static java.lang.String FEATURE_TELEPHONY_GSM;
+    public static java.lang.String FEATURE_TELEPHONY_MBMS;
     public static java.lang.String FEATURE_TELEVISION;
     public static java.lang.String FEATURE_TOUCHSCREEN;
     public static java.lang.String FEATURE_TOUCHSCREEN_MULTITOUCH;
@@ -8487,6 +8230,7 @@
     public static int INSTALL_EXTERNAL;
     public static int INSTALL_FAILED_ABORTED;
     public static int INSTALL_FAILED_ALREADY_EXISTS;
+    public static int INSTALL_FAILED_BAD_DEX_METADATA;
     public static int INSTALL_FAILED_CONFLICTING_PROVIDER;
     public static int INSTALL_FAILED_CONTAINER_ERROR;
     public static int INSTALL_FAILED_CPU_ABI_INCOMPATIBLE;
@@ -11262,6 +11006,7 @@
     public void set(int, int);
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static android.os.Parcelable$Creator CREATOR;
@@ -11866,8 +11611,7 @@
 }
 
 -keep class android.hardware.display.BrightnessChangeEvent {
-    <init>();
-    <init>(android.hardware.display.BrightnessChangeEvent);
+    <init>(android.hardware.display.BrightnessChangeEvent, boolean);
 
     public int describeContents();
     public void writeToParcel(android.os.Parcel, int);
@@ -11875,9 +11619,9 @@
 
     public static android.os.Parcelable$Creator CREATOR;
     public float batteryLevel;
-    public int brightness;
+    public float brightness;
     public int colorTemperature;
-    public int lastBrightness;
+    public float lastBrightness;
     public long[] luxTimestamps;
     public float[] luxValues;
     public boolean nightMode;
@@ -11891,6 +11635,7 @@
     public int describeContents();
     public boolean equals(java.lang.Object);
     public android.util.Pair getCurve();
+    public java.lang.String getDescription();
     public int hashCode();
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
@@ -11918,9 +11663,8 @@
     public void registerDisplayListener(android.hardware.display.DisplayManager$DisplayListener, android.os.Handler);
     public void renameWifiDisplay(java.lang.String, java.lang.String);
     public void resumeWifiDisplay();
-    public void setBrightness(int);
     public void setBrightnessConfiguration(android.hardware.display.BrightnessConfiguration);
-    public void setBrightnessConfigurationForUser(android.hardware.display.BrightnessConfiguration, int);
+    public void setBrightnessConfigurationForUser(android.hardware.display.BrightnessConfiguration, int, java.lang.String);
     public void startWifiDisplayScan();
     public void stopWifiDisplayScan();
     public void unregisterDisplayListener(android.hardware.display.DisplayManager$DisplayListener);
@@ -11971,8 +11715,7 @@
     public void requestColorMode(int, int);
     public void resizeVirtualDisplay(android.hardware.display.IVirtualDisplayCallback, int, int, int);
     public void resumeWifiDisplay();
-    public void setBrightness(int);
-    public void setBrightnessConfigurationForUser(android.hardware.display.BrightnessConfiguration, int);
+    public void setBrightnessConfigurationForUser(android.hardware.display.BrightnessConfiguration, int, java.lang.String);
     public void setVirtualDisplaySurface(android.hardware.display.IVirtualDisplayCallback, android.view.Surface);
     public void startWifiDisplayScan();
     public void stopWifiDisplayScan();
@@ -12162,15 +11905,6 @@
     public static int USAGE_VOICE_COMMUNICATION_SIGNALLING;
 }
 
--keep class android.media.AudioDeviceCallback {
-    <init>();
-
-    public void onAudioDevicesAdded(android.media.AudioDeviceInfo[]);
-    public void onAudioDevicesRemoved(android.media.AudioDeviceInfo[]);
-
-
-}
-
 -keep class android.media.AudioDeviceInfo {
 
     public static int convertDeviceTypeToInternalDevice(int);
@@ -12230,40 +11964,6 @@
 
     public android.media.AudioDevicePort port();
     public android.media.AudioPort port();
-
-
-}
-
--keep class android.media.AudioFocusInfo {
-    <init>(android.media.AudioAttributes, int, java.lang.String, java.lang.String, int, int, int, int);
-
-    public void clearLossReceived();
-    public int describeContents();
-    public boolean equals(java.lang.Object);
-    public android.media.AudioAttributes getAttributes();
-    public java.lang.String getClientId();
-    public int getClientUid();
-    public int getFlags();
-    public int getGainRequest();
-    public int getLossReceived();
-    public java.lang.String getPackageName();
-    public int getSdkTarget();
-    public int hashCode();
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
-}
-
--keep class android.media.AudioFocusRequest {
-
-    public boolean acceptsDelayedFocusGain();
-    public android.media.AudioAttributes getAudioAttributes();
-    public int getFocusGain();
-    public android.media.AudioManager$OnAudioFocusChangeListener getOnAudioFocusChangeListener();
-    public android.os.Handler getOnAudioFocusChangeListenerHandler();
-    public boolean locksFocus();
-    public boolean willPauseWhenDucked();
 
 
 }
@@ -12402,404 +12102,6 @@
 
 }
 
--keep class android.media.AudioManager {
-    <init>();
-    <init>(android.content.Context);
-
-    public int abandonAudioFocus(android.media.AudioManager$OnAudioFocusChangeListener);
-    public int abandonAudioFocus(android.media.AudioManager$OnAudioFocusChangeListener, android.media.AudioAttributes);
-    public void abandonAudioFocusForCall();
-    public int abandonAudioFocusRequest(android.media.AudioFocusRequest);
-    public void adjustStreamVolume(int, int, int);
-    public void adjustSuggestedStreamVolume(int, int, int);
-    public static java.lang.String adjustToString(int);
-    public void adjustVolume(int, int);
-    public void avrcpSupportsAbsoluteVolume(java.lang.String, boolean);
-    public static int createAudioPatch(android.media.AudioPatch[], android.media.AudioPortConfig[], android.media.AudioPortConfig[]);
-    public void disableSafeMediaVolume();
-    public int dispatchAudioFocusChange(android.media.AudioFocusInfo, int, android.media.audiopolicy.AudioPolicy);
-    public void dispatchMediaKeyEvent(android.view.KeyEvent);
-    public static java.lang.String flagsToString(int);
-    public void forceVolumeControlStream(int);
-    public int generateAudioSessionId();
-    public java.util.List getActivePlaybackConfigurations();
-    public java.util.List getActiveRecordingConfigurations();
-    public android.media.AudioDeviceInfo[] getDevices(int);
-    public int getDevicesForStream(int);
-    public static android.media.AudioDeviceInfo[] getDevicesStatic(int);
-    public int getFocusRampTimeMs(int, android.media.AudioAttributes);
-    public int getLastAudibleStreamVolume(int);
-    public int getMode();
-    public int getOutputLatency(int);
-    public java.lang.String getParameters(java.lang.String);
-    public java.lang.String getProperty(java.lang.String);
-    public int getRingerMode();
-    public int getRingerModeInternal();
-    public android.media.IRingtonePlayer getRingtonePlayer();
-    public int getRouting(int);
-    public int getStreamMaxVolume(int);
-    public int getStreamMinVolume(int);
-    public int getStreamVolume(int);
-    public int getUiSoundsStreamType();
-    public int getVibrateSetting(int);
-    public void handleBluetoothA2dpDeviceConfigChange(android.bluetooth.BluetoothDevice);
-    public boolean isAudioFocusExclusive();
-    public boolean isBluetoothA2dpOn();
-    public boolean isBluetoothScoAvailableOffCall();
-    public boolean isBluetoothScoOn();
-    public boolean isHdmiSystemAudioSupported();
-    public static boolean isInputDevice(int);
-    public boolean isMasterMute();
-    public boolean isMicrophoneMute();
-    public boolean isMusicActive();
-    public boolean isMusicActiveRemotely();
-    public static boolean isOutputDevice(int);
-    public boolean isSilentMode();
-    public boolean isSpeakerphoneOn();
-    public boolean isStreamAffectedByMute(int);
-    public boolean isStreamAffectedByRingerMode(int);
-    public boolean isStreamMute(int);
-    public static boolean isValidRingerMode(int);
-    public boolean isVolumeFixed();
-    public boolean isWiredHeadsetOn();
-    public static int listAudioDevicePorts(java.util.ArrayList);
-    public static int listAudioPatches(java.util.ArrayList);
-    public static int listAudioPorts(java.util.ArrayList);
-    public static int listPreviousAudioDevicePorts(java.util.ArrayList);
-    public static int listPreviousAudioPorts(java.util.ArrayList);
-    public void loadSoundEffects();
-    public void notifyVolumeControllerVisible(android.media.IVolumeController, boolean);
-    public void playSoundEffect(int);
-    public void playSoundEffect(int, int);
-    public void playSoundEffect(int, float);
-    public void preDispatchKeyEvent(android.view.KeyEvent, int);
-    public void registerAudioDeviceCallback(android.media.AudioDeviceCallback, android.os.Handler);
-    public void registerAudioFocusRequest(android.media.AudioFocusRequest);
-    public void registerAudioPlaybackCallback(android.media.AudioManager$AudioPlaybackCallback, android.os.Handler);
-    public int registerAudioPolicy(android.media.audiopolicy.AudioPolicy);
-    public void registerAudioPortUpdateListener(android.media.AudioManager$OnAudioPortUpdateListener);
-    public void registerAudioRecordingCallback(android.media.AudioManager$AudioRecordingCallback, android.os.Handler);
-    public void registerMediaButtonEventReceiver(android.content.ComponentName);
-    public void registerMediaButtonEventReceiver(android.app.PendingIntent);
-    public void registerMediaButtonIntent(android.app.PendingIntent, android.content.ComponentName);
-    public void registerRemoteControlClient(android.media.RemoteControlClient);
-    public boolean registerRemoteController(android.media.RemoteController);
-    public static int releaseAudioPatch(android.media.AudioPatch);
-    public void reloadAudioSettings();
-    public int requestAudioFocus(android.media.AudioManager$OnAudioFocusChangeListener, int, int);
-    public int requestAudioFocus(android.media.AudioFocusRequest);
-    public int requestAudioFocus(android.media.AudioManager$OnAudioFocusChangeListener, android.media.AudioAttributes, int, int);
-    public int requestAudioFocus(android.media.AudioManager$OnAudioFocusChangeListener, android.media.AudioAttributes, int, int, android.media.audiopolicy.AudioPolicy);
-    public int requestAudioFocus(android.media.AudioFocusRequest, android.media.audiopolicy.AudioPolicy);
-    public void requestAudioFocusForCall(int, int);
-    public static int setAudioPortGain(android.media.AudioPort, android.media.AudioGainConfig);
-    public int setBluetoothA2dpDeviceConnectionState(android.bluetooth.BluetoothDevice, int, int);
-    public void setBluetoothA2dpOn(boolean);
-    public void setBluetoothScoOn(boolean);
-    public int setHdmiSystemAudioSupported(boolean);
-    public void setMasterMute(boolean, int);
-    public void setMicrophoneMute(boolean);
-    public void setMode(int);
-    public void setParameter(java.lang.String, java.lang.String);
-    public void setParameters(java.lang.String);
-    public void setRingerMode(int);
-    public void setRingerModeInternal(int);
-    public void setRouting(int, int, int);
-    public void setSpeakerphoneOn(boolean);
-    public void setStreamMute(int, boolean);
-    public void setStreamSolo(int, boolean);
-    public void setStreamVolume(int, int, int);
-    public void setVibrateSetting(int, int);
-    public void setVolumeController(android.media.IVolumeController);
-    public void setVolumePolicy(android.media.VolumePolicy);
-    public void setWiredDeviceConnectionState(int, int, java.lang.String, java.lang.String);
-    public void setWiredHeadsetOn(boolean);
-    public boolean shouldVibrate(int);
-    public void startBluetoothSco();
-    public void startBluetoothScoVirtualCall();
-    public void stopBluetoothSco();
-    public void unloadSoundEffects();
-    public void unregisterAudioDeviceCallback(android.media.AudioDeviceCallback);
-    public void unregisterAudioFocusRequest(android.media.AudioManager$OnAudioFocusChangeListener);
-    public void unregisterAudioPlaybackCallback(android.media.AudioManager$AudioPlaybackCallback);
-    public void unregisterAudioPolicyAsync(android.media.audiopolicy.AudioPolicy);
-    public void unregisterAudioPortUpdateListener(android.media.AudioManager$OnAudioPortUpdateListener);
-    public void unregisterAudioRecordingCallback(android.media.AudioManager$AudioRecordingCallback);
-    public void unregisterMediaButtonEventReceiver(android.content.ComponentName);
-    public void unregisterMediaButtonEventReceiver(android.app.PendingIntent);
-    public void unregisterMediaButtonIntent(android.app.PendingIntent);
-    public void unregisterRemoteControlClient(android.media.RemoteControlClient);
-    public void unregisterRemoteController(android.media.RemoteController);
-
-
-    public static java.lang.String ACTION_AUDIO_BECOMING_NOISY;
-    public static java.lang.String ACTION_HDMI_AUDIO_PLUG;
-    public static java.lang.String ACTION_HEADSET_PLUG;
-    public static java.lang.String ACTION_SCO_AUDIO_STATE_CHANGED;
-    public static java.lang.String ACTION_SCO_AUDIO_STATE_UPDATED;
-    public static int ADJUST_LOWER;
-    public static int ADJUST_MUTE;
-    public static int ADJUST_RAISE;
-    public static int ADJUST_SAME;
-    public static int ADJUST_TOGGLE_MUTE;
-    public static int ADJUST_UNMUTE;
-    public static int AUDIOFOCUS_FLAGS_APPS;
-    public static int AUDIOFOCUS_FLAGS_SYSTEM;
-    public static int AUDIOFOCUS_FLAG_DELAY_OK;
-    public static int AUDIOFOCUS_FLAG_LOCK;
-    public static int AUDIOFOCUS_FLAG_PAUSES_ON_DUCKABLE_LOSS;
-    public static int AUDIOFOCUS_GAIN;
-    public static int AUDIOFOCUS_GAIN_TRANSIENT;
-    public static int AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
-    public static int AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
-    public static int AUDIOFOCUS_LOSS;
-    public static int AUDIOFOCUS_LOSS_TRANSIENT;
-    public static int AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK;
-    public static int AUDIOFOCUS_NONE;
-    public static int AUDIOFOCUS_REQUEST_DELAYED;
-    public static int AUDIOFOCUS_REQUEST_FAILED;
-    public static int AUDIOFOCUS_REQUEST_GRANTED;
-    public static int AUDIO_SESSION_ID_GENERATE;
-    public static int DEVICE_IN_ANLG_DOCK_HEADSET;
-    public static int DEVICE_IN_BACK_MIC;
-    public static int DEVICE_IN_BLUETOOTH_SCO_HEADSET;
-    public static int DEVICE_IN_BUILTIN_MIC;
-    public static int DEVICE_IN_DGTL_DOCK_HEADSET;
-    public static int DEVICE_IN_FM_TUNER;
-    public static int DEVICE_IN_HDMI;
-    public static int DEVICE_IN_LINE;
-    public static int DEVICE_IN_LOOPBACK;
-    public static int DEVICE_IN_SPDIF;
-    public static int DEVICE_IN_TELEPHONY_RX;
-    public static int DEVICE_IN_TV_TUNER;
-    public static int DEVICE_IN_USB_ACCESSORY;
-    public static int DEVICE_IN_USB_DEVICE;
-    public static int DEVICE_IN_WIRED_HEADSET;
-    public static int DEVICE_NONE;
-    public static int DEVICE_OUT_ANLG_DOCK_HEADSET;
-    public static int DEVICE_OUT_AUX_DIGITAL;
-    public static int DEVICE_OUT_BLUETOOTH_A2DP;
-    public static int DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES;
-    public static int DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER;
-    public static int DEVICE_OUT_BLUETOOTH_SCO;
-    public static int DEVICE_OUT_BLUETOOTH_SCO_CARKIT;
-    public static int DEVICE_OUT_BLUETOOTH_SCO_HEADSET;
-    public static int DEVICE_OUT_DEFAULT;
-    public static int DEVICE_OUT_DGTL_DOCK_HEADSET;
-    public static int DEVICE_OUT_EARPIECE;
-    public static int DEVICE_OUT_FM;
-    public static int DEVICE_OUT_HDMI;
-    public static int DEVICE_OUT_HDMI_ARC;
-    public static int DEVICE_OUT_LINE;
-    public static int DEVICE_OUT_REMOTE_SUBMIX;
-    public static int DEVICE_OUT_SPDIF;
-    public static int DEVICE_OUT_SPEAKER;
-    public static int DEVICE_OUT_TELEPHONY_TX;
-    public static int DEVICE_OUT_USB_ACCESSORY;
-    public static int DEVICE_OUT_USB_DEVICE;
-    public static int DEVICE_OUT_USB_HEADSET;
-    public static int DEVICE_OUT_WIRED_HEADPHONE;
-    public static int DEVICE_OUT_WIRED_HEADSET;
-    public static int ERROR;
-    public static int ERROR_BAD_VALUE;
-    public static int ERROR_DEAD_OBJECT;
-    public static int ERROR_INVALID_OPERATION;
-    public static int ERROR_NO_INIT;
-    public static int ERROR_PERMISSION_DENIED;
-    public static java.lang.String EXTRA_AUDIO_PLUG_STATE;
-    public static java.lang.String EXTRA_ENCODINGS;
-    public static java.lang.String EXTRA_MASTER_VOLUME_MUTED;
-    public static java.lang.String EXTRA_MAX_CHANNEL_COUNT;
-    public static java.lang.String EXTRA_PREV_VOLUME_STREAM_DEVICES;
-    public static java.lang.String EXTRA_PREV_VOLUME_STREAM_VALUE;
-    public static java.lang.String EXTRA_RINGER_MODE;
-    public static java.lang.String EXTRA_SCO_AUDIO_PREVIOUS_STATE;
-    public static java.lang.String EXTRA_SCO_AUDIO_STATE;
-    public static java.lang.String EXTRA_STREAM_VOLUME_MUTED;
-    public static java.lang.String EXTRA_VIBRATE_SETTING;
-    public static java.lang.String EXTRA_VIBRATE_TYPE;
-    public static java.lang.String EXTRA_VOLUME_STREAM_DEVICES;
-    public static java.lang.String EXTRA_VOLUME_STREAM_TYPE;
-    public static java.lang.String EXTRA_VOLUME_STREAM_TYPE_ALIAS;
-    public static java.lang.String EXTRA_VOLUME_STREAM_VALUE;
-    public static int FLAG_ACTIVE_MEDIA_ONLY;
-    public static int FLAG_ALLOW_RINGER_MODES;
-    public static int FLAG_BLUETOOTH_ABS_VOLUME;
-    public static int FLAG_FIXED_VOLUME;
-    public static int FLAG_FROM_KEY;
-    public static int FLAG_HDMI_SYSTEM_AUDIO_VOLUME;
-    public static int FLAG_PLAY_SOUND;
-    public static int FLAG_REMOVE_SOUND_AND_VIBRATE;
-    public static int FLAG_SHOW_SILENT_HINT;
-    public static int FLAG_SHOW_UI;
-    public static int FLAG_SHOW_UI_WARNINGS;
-    public static int FLAG_SHOW_VIBRATE_HINT;
-    public static int FLAG_VIBRATE;
-    public static int FX_FOCUS_NAVIGATION_DOWN;
-    public static int FX_FOCUS_NAVIGATION_LEFT;
-    public static int FX_FOCUS_NAVIGATION_RIGHT;
-    public static int FX_FOCUS_NAVIGATION_UP;
-    public static int FX_KEYPRESS_DELETE;
-    public static int FX_KEYPRESS_INVALID;
-    public static int FX_KEYPRESS_RETURN;
-    public static int FX_KEYPRESS_SPACEBAR;
-    public static int FX_KEYPRESS_STANDARD;
-    public static int FX_KEY_CLICK;
-    public static int GET_DEVICES_ALL;
-    public static int GET_DEVICES_INPUTS;
-    public static int GET_DEVICES_OUTPUTS;
-    public static java.lang.String INTERNAL_RINGER_MODE_CHANGED_ACTION;
-    public static java.lang.String MASTER_MUTE_CHANGED_ACTION;
-    public static int MODE_CURRENT;
-    public static int MODE_INVALID;
-    public static int MODE_IN_CALL;
-    public static int MODE_IN_COMMUNICATION;
-    public static int MODE_NORMAL;
-    public static int MODE_RINGTONE;
-    public static int NUM_SOUND_EFFECTS;
-    public static int NUM_STREAMS;
-    public static java.lang.String PROPERTY_OUTPUT_FRAMES_PER_BUFFER;
-    public static java.lang.String PROPERTY_OUTPUT_SAMPLE_RATE;
-    public static java.lang.String PROPERTY_SUPPORT_AUDIO_SOURCE_UNPROCESSED;
-    public static java.lang.String PROPERTY_SUPPORT_MIC_NEAR_ULTRASOUND;
-    public static java.lang.String PROPERTY_SUPPORT_SPEAKER_NEAR_ULTRASOUND;
-    public static int RECORD_CONFIG_EVENT_START;
-    public static int RECORD_CONFIG_EVENT_STOP;
-    public static java.lang.String RINGER_MODE_CHANGED_ACTION;
-    public static int RINGER_MODE_MAX;
-    public static int RINGER_MODE_NORMAL;
-    public static int RINGER_MODE_SILENT;
-    public static int RINGER_MODE_VIBRATE;
-    public static int ROUTE_ALL;
-    public static int ROUTE_BLUETOOTH;
-    public static int ROUTE_BLUETOOTH_A2DP;
-    public static int ROUTE_BLUETOOTH_SCO;
-    public static int ROUTE_EARPIECE;
-    public static int ROUTE_HEADSET;
-    public static int ROUTE_SPEAKER;
-    public static int SCO_AUDIO_STATE_CONNECTED;
-    public static int SCO_AUDIO_STATE_CONNECTING;
-    public static int SCO_AUDIO_STATE_DISCONNECTED;
-    public static int SCO_AUDIO_STATE_ERROR;
-    public static int STREAM_ACCESSIBILITY;
-    public static int STREAM_ALARM;
-    public static int STREAM_BLUETOOTH_SCO;
-    public static java.lang.String STREAM_DEVICES_CHANGED_ACTION;
-    public static int STREAM_DTMF;
-    public static int STREAM_MUSIC;
-    public static java.lang.String STREAM_MUTE_CHANGED_ACTION;
-    public static int STREAM_NOTIFICATION;
-    public static int STREAM_RING;
-    public static int STREAM_SYSTEM;
-    public static int STREAM_SYSTEM_ENFORCED;
-    public static int STREAM_TTS;
-    public static int STREAM_VOICE_CALL;
-    public static int SUCCESS;
-    public static int USE_DEFAULT_STREAM_TYPE;
-    public static java.lang.String VIBRATE_SETTING_CHANGED_ACTION;
-    public static int VIBRATE_SETTING_OFF;
-    public static int VIBRATE_SETTING_ON;
-    public static int VIBRATE_SETTING_ONLY_SILENT;
-    public static int VIBRATE_TYPE_NOTIFICATION;
-    public static int VIBRATE_TYPE_RINGER;
-    public static java.lang.String VOLUME_CHANGED_ACTION;
-}
-
--keep class android.media.AudioManager$AudioPlaybackCallback {
-    <init>();
-
-    public void onPlaybackConfigChanged(java.util.List);
-
-
-}
-
--keep class android.media.AudioManager$AudioRecordingCallback {
-    <init>();
-
-    public void onRecordingConfigChanged(java.util.List);
-
-
-}
-
--keep class android.media.AudioManager$OnAudioFocusChangeListener {
-
-    public abstract void onAudioFocusChange(int);
-
-
-}
-
--keep class android.media.AudioManager$OnAudioPortUpdateListener {
-
-    public abstract void onAudioPatchListUpdate(android.media.AudioPatch[]);
-    public abstract void onAudioPortListUpdate(android.media.AudioPort[]);
-    public abstract void onServiceDied();
-
-
-}
-
--keep class android.media.AudioPatch {
-
-    public int id();
-    public android.media.AudioPortConfig[] sinks();
-    public android.media.AudioPortConfig[] sources();
-    public java.lang.String toString();
-
-
-}
-
--keep class android.media.AudioPlaybackConfiguration {
-    <init>(android.media.PlayerBase$PlayerIdCard, int, int, int);
-
-    public static android.media.AudioPlaybackConfiguration anonymizedCopy(android.media.AudioPlaybackConfiguration);
-    public int describeContents();
-    public void dump(java.io.PrintWriter);
-    public boolean equals(java.lang.Object);
-    public android.media.AudioAttributes getAudioAttributes();
-    public int getClientPid();
-    public int getClientUid();
-    public int getPlayerInterfaceId();
-    public android.media.PlayerProxy getPlayerProxy();
-    public int getPlayerState();
-    public int getPlayerType();
-    public boolean handleAudioAttributesEvent(android.media.AudioAttributes);
-    public boolean handleStateEvent(int);
-    public int hashCode();
-    public void init();
-    public boolean isActive();
-    public static java.lang.String toLogFriendlyPlayerState(int);
-    public static java.lang.String toLogFriendlyPlayerType(int);
-    public static java.lang.String toLogFriendlyString(android.media.AudioPlaybackConfiguration);
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
-    public static int PLAYER_PIID_INVALID;
-    public static int PLAYER_STATE_IDLE;
-    public static int PLAYER_STATE_PAUSED;
-    public static int PLAYER_STATE_RELEASED;
-    public static int PLAYER_STATE_STARTED;
-    public static int PLAYER_STATE_STOPPED;
-    public static int PLAYER_STATE_UNKNOWN;
-    public static int PLAYER_TYPE_AAUDIO;
-    public static int PLAYER_TYPE_EXTERNAL_PROXY;
-    public static int PLAYER_TYPE_HW_SOURCE;
-    public static int PLAYER_TYPE_JAM_AUDIOTRACK;
-    public static int PLAYER_TYPE_JAM_MEDIAPLAYER;
-    public static int PLAYER_TYPE_JAM_SOUNDPOOL;
-    public static int PLAYER_TYPE_SLES_AUDIOPLAYER_BUFFERQUEUE;
-    public static int PLAYER_TYPE_SLES_AUDIOPLAYER_URI_FD;
-    public static int PLAYER_TYPE_UNKNOWN;
-    public static int PLAYER_UPID_INVALID;
-    public static android.media.AudioPlaybackConfiguration$PlayerDeathMonitor sPlayerDeathMonitor;
-}
-
--keep class android.media.AudioPlaybackConfiguration$PlayerDeathMonitor {
-
-    public abstract void playerDeath(int);
-
-
-}
-
 -keep class android.media.AudioPort {
 
     public android.media.AudioPortConfig activeConfig();
@@ -12913,28 +12215,6 @@
 
 }
 
--keep class android.media.AudioRecordingConfiguration {
-    <init>(int, int, int, android.media.AudioFormat, android.media.AudioFormat, int, java.lang.String);
-
-    public static android.media.AudioRecordingConfiguration anonymizedCopy(android.media.AudioRecordingConfiguration);
-    public int describeContents();
-    public void dump(java.io.PrintWriter);
-    public boolean equals(java.lang.Object);
-    public android.media.AudioDeviceInfo getAudioDevice();
-    public int getClientAudioSessionId();
-    public int getClientAudioSource();
-    public android.media.AudioFormat getClientFormat();
-    public java.lang.String getClientPackageName();
-    public int getClientUid();
-    public android.media.AudioFormat getFormat();
-    public int hashCode();
-    public static java.lang.String toLogFriendlyString(android.media.AudioRecordingConfiguration);
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
-}
-
 -keep class android.media.AudioRouting {
 
     public abstract void addOnRoutingChangedListener(android.media.AudioRouting$OnRoutingChangedListener, android.os.Handler);
@@ -12962,154 +12242,6 @@
     public static int TIMEBASE_MONOTONIC;
     public long framePosition;
     public long nanoTime;
-}
-
--keep class android.media.AudioTrack {
-    <init>(int, int, int, int, int, int);
-    <init>(int, int, int, int, int, int, int);
-    <init>(android.media.AudioAttributes, android.media.AudioFormat, int, int, int);
-
-    public void addOnRoutingChangedListener(android.media.AudioRouting$OnRoutingChangedListener, android.os.Handler);
-    public void addOnRoutingChangedListener(android.media.AudioTrack$OnRoutingChangedListener, android.os.Handler);
-    public int attachAuxEffect(int);
-    public android.media.VolumeShaper createVolumeShaper(android.media.VolumeShaper$Configuration);
-    protected void finalize();
-    public void flush();
-    public int getAudioFormat();
-    public int getAudioSessionId();
-    public int getBufferCapacityInFrames();
-    public int getBufferSizeInFrames();
-    public int getChannelConfiguration();
-    public int getChannelCount();
-    public android.media.AudioFormat getFormat();
-    public int getLatency();
-    public static float getMaxVolume();
-    public static int getMinBufferSize(int, int, int);
-    public static float getMinVolume();
-    protected int getNativeFrameCount();
-    public static int getNativeOutputSampleRate(int);
-    public int getNotificationMarkerPosition();
-    public int getPerformanceMode();
-    public int getPlayState();
-    public int getPlaybackHeadPosition();
-    public android.media.PlaybackParams getPlaybackParams();
-    public int getPlaybackRate();
-    public int getPositionNotificationPeriod();
-    public android.media.AudioDeviceInfo getPreferredDevice();
-    public android.media.AudioDeviceInfo getRoutedDevice();
-    public int getSampleRate();
-    public int getState();
-    public int getStreamType();
-    public boolean getTimestamp(android.media.AudioTimestamp);
-    public int getTimestampWithStatus(android.media.AudioTimestamp);
-    public int getUnderrunCount();
-    public void native_release();
-    public void pause();
-    public void play();
-    public void release();
-    public int reloadStaticData();
-    public void removeOnRoutingChangedListener(android.media.AudioRouting$OnRoutingChangedListener);
-    public void removeOnRoutingChangedListener(android.media.AudioTrack$OnRoutingChangedListener);
-    public int setAuxEffectSendLevel(float);
-    public int setBufferSizeInFrames(int);
-    public int setLoopPoints(int, int, int);
-    public int setNotificationMarkerPosition(int);
-    public int setPlaybackHeadPosition(int);
-    public void setPlaybackParams(android.media.PlaybackParams);
-    public void setPlaybackPositionUpdateListener(android.media.AudioTrack$OnPlaybackPositionUpdateListener);
-    public void setPlaybackPositionUpdateListener(android.media.AudioTrack$OnPlaybackPositionUpdateListener, android.os.Handler);
-    public int setPlaybackRate(int);
-    public int setPositionNotificationPeriod(int);
-    public boolean setPreferredDevice(android.media.AudioDeviceInfo);
-    protected void setState(int);
-    public int setStereoVolume(float, float);
-    public int setVolume(float);
-    public void stop();
-    public int write(byte[], int, int);
-    public int write(byte[], int, int, int);
-    public int write(short[], int, int);
-    public int write(short[], int, int, int);
-    public int write(float[], int, int, int);
-    public int write(java.nio.ByteBuffer, int, int);
-    public int write(java.nio.ByteBuffer, int, int, long);
-
-
-    public static int CHANNEL_COUNT_MAX;
-    public static int ERROR;
-    public static int ERROR_BAD_VALUE;
-    public static int ERROR_DEAD_OBJECT;
-    public static int ERROR_INVALID_OPERATION;
-    public static int ERROR_WOULD_BLOCK;
-    public static int MODE_STATIC;
-    public static int MODE_STREAM;
-    public static int PERFORMANCE_MODE_LOW_LATENCY;
-    public static int PERFORMANCE_MODE_NONE;
-    public static int PERFORMANCE_MODE_POWER_SAVING;
-    public static int PLAYSTATE_PAUSED;
-    public static int PLAYSTATE_PLAYING;
-    public static int PLAYSTATE_STOPPED;
-    public static int STATE_INITIALIZED;
-    public static int STATE_NO_STATIC_DATA;
-    public static int STATE_UNINITIALIZED;
-    public static int SUCCESS;
-    public static int WRITE_BLOCKING;
-    public static int WRITE_NON_BLOCKING;
-    protected long mNativeTrackInJavaObj;
-}
-
--keep class android.media.AudioTrack$OnPlaybackPositionUpdateListener {
-
-    public abstract void onMarkerReached(android.media.AudioTrack);
-    public abstract void onPeriodicNotification(android.media.AudioTrack);
-
-
-}
-
--keep class android.media.AudioTrack$OnRoutingChangedListener {
-
-    public abstract void onRoutingChanged(android.media.AudioTrack);
-    public void onRoutingChanged(android.media.AudioRouting);
-
-
-}
-
--keep class android.media.IPlayer {
-
-    public abstract void applyVolumeShaper(android.media.VolumeShaper$Configuration, android.media.VolumeShaper$Operation);
-    public abstract void pause();
-    public abstract void setPan(float);
-    public abstract void setStartDelayMs(int);
-    public abstract void setVolume(float);
-    public abstract void start();
-    public abstract void stop();
-
-
-}
-
--keep class android.media.IRingtonePlayer {
-
-    public abstract java.lang.String getTitle(android.net.Uri);
-    public abstract boolean isPlaying(android.os.IBinder);
-    public abstract android.os.ParcelFileDescriptor openRingtone(android.net.Uri);
-    public abstract void play(android.os.IBinder, android.net.Uri, android.media.AudioAttributes, float, boolean);
-    public abstract void playAsync(android.net.Uri, android.os.UserHandle, boolean, android.media.AudioAttributes);
-    public abstract void setPlaybackProperties(android.os.IBinder, float, boolean);
-    public abstract void stop(android.os.IBinder);
-    public abstract void stopAsync();
-
-
-}
-
--keep class android.media.IVolumeController {
-
-    public abstract void dismiss();
-    public abstract void displaySafeVolumeWarning(int);
-    public abstract void masterMuteChanged(int);
-    public abstract void setA11yMode(int);
-    public abstract void setLayoutDirection(int);
-    public abstract void volumeChanged(int, int);
-
-
 }
 
 -keep class android.media.MediaDescription {
@@ -13189,58 +12321,6 @@
     public static java.lang.String METADATA_KEY_YEAR;
 }
 
--keep class android.media.MediaMetadata$Builder {
-    <init>();
-    <init>(android.media.MediaMetadata);
-    <init>(android.media.MediaMetadata, int);
-
-    public android.media.MediaMetadata build();
-    public android.media.MediaMetadata$Builder putBitmap(java.lang.String, android.graphics.Bitmap);
-    public android.media.MediaMetadata$Builder putLong(java.lang.String, long);
-    public android.media.MediaMetadata$Builder putRating(java.lang.String, android.media.Rating);
-    public android.media.MediaMetadata$Builder putString(java.lang.String, java.lang.String);
-    public android.media.MediaMetadata$Builder putText(java.lang.String, java.lang.CharSequence);
-
-
-}
-
--keep class android.media.MediaMetadataEditor {
-    <init>();
-
-    public synchronized void addEditableKey(int);
-    public abstract void apply();
-    public synchronized void clear();
-    public synchronized android.graphics.Bitmap getBitmap(int, android.graphics.Bitmap);
-    public synchronized int[] getEditableKeys();
-    public synchronized long getLong(int, long);
-    public synchronized java.lang.Object getObject(int, java.lang.Object);
-    public synchronized java.lang.String getString(int, java.lang.String);
-    public synchronized android.media.MediaMetadataEditor putBitmap(int, android.graphics.Bitmap);
-    public synchronized android.media.MediaMetadataEditor putLong(int, long);
-    public synchronized android.media.MediaMetadataEditor putObject(int, java.lang.Object);
-    public synchronized android.media.MediaMetadataEditor putString(int, java.lang.String);
-    public synchronized void removeEditableKeys();
-
-
-    public static int BITMAP_KEY_ARTWORK;
-    public static int KEY_EDITABLE_MASK;
-    protected static android.util.SparseIntArray METADATA_KEYS_TYPE;
-    protected static int METADATA_TYPE_BITMAP;
-    protected static int METADATA_TYPE_INVALID;
-    protected static int METADATA_TYPE_LONG;
-    protected static int METADATA_TYPE_RATING;
-    protected static int METADATA_TYPE_STRING;
-    public static int RATING_KEY_BY_OTHERS;
-    public static int RATING_KEY_BY_USER;
-    protected boolean mApplied;
-    protected boolean mArtworkChanged;
-    protected long mEditableKeys;
-    protected android.graphics.Bitmap mEditorArtwork;
-    protected android.os.Bundle mEditorMetadata;
-    protected android.media.MediaMetadata$Builder mMetadataBuilder;
-    protected boolean mMetadataChanged;
-}
-
 -keep class android.media.MediaSyncEvent {
 
     public static android.media.MediaSyncEvent createEvent(int);
@@ -13251,73 +12331,6 @@
 
     public static int SYNC_EVENT_NONE;
     public static int SYNC_EVENT_PRESENTATION_COMPLETE;
-}
-
--keep class android.media.PlaybackParams {
-    <init>();
-
-    public android.media.PlaybackParams allowDefaults();
-    public int describeContents();
-    public int getAudioFallbackMode();
-    public int getAudioStretchMode();
-    public float getPitch();
-    public float getSpeed();
-    public android.media.PlaybackParams setAudioFallbackMode(int);
-    public android.media.PlaybackParams setAudioStretchMode(int);
-    public android.media.PlaybackParams setPitch(float);
-    public android.media.PlaybackParams setSpeed(float);
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static int AUDIO_FALLBACK_MODE_DEFAULT;
-    public static int AUDIO_FALLBACK_MODE_FAIL;
-    public static int AUDIO_FALLBACK_MODE_MUTE;
-    public static int AUDIO_STRETCH_MODE_DEFAULT;
-    public static int AUDIO_STRETCH_MODE_VOICE;
-    public static android.os.Parcelable$Creator CREATOR;
-}
-
--keep class android.media.PlayerBase {
-
-    protected void baseRegisterPlayer();
-    public static void deprecateStreamTypeForPlayback(int, java.lang.String, java.lang.String);
-    protected int getStartDelayMs();
-    public void setStartDelayMs(int);
-
-
-    protected android.media.AudioAttributes mAttributes;
-    protected float mAuxEffectSendLevel;
-    protected float mLeftVolume;
-    protected float mRightVolume;
-}
-
--keep class android.media.PlayerBase$PlayerIdCard {
-
-    public int describeContents();
-    public boolean equals(java.lang.Object);
-    public int hashCode();
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static int AUDIO_ATTRIBUTES_DEFINED;
-    public static int AUDIO_ATTRIBUTES_NONE;
-    public static android.os.Parcelable$Creator CREATOR;
-    public android.media.AudioAttributes mAttributes;
-    public android.media.IPlayer mIPlayer;
-    public int mPlayerType;
-}
-
--keep class android.media.PlayerProxy {
-
-    public void applyVolumeShaper(android.media.VolumeShaper$Configuration, android.media.VolumeShaper$Operation);
-    public void pause();
-    public void setPan(float);
-    public void setStartDelayMs(int);
-    public void setVolume(float);
-    public void start();
-    public void stop();
-
-
 }
 
 -keep class android.media.Rating {
@@ -13348,166 +12361,6 @@
     public static int RATING_THUMB_UP_DOWN;
 }
 
--keep class android.media.RemoteControlClient {
-    <init>(android.app.PendingIntent);
-    <init>(android.app.PendingIntent, android.os.Looper);
-
-    public android.media.RemoteControlClient$MetadataEditor editMetadata(boolean);
-    public android.media.session.MediaSession getMediaSession();
-    public android.app.PendingIntent getRcMediaIntent();
-    public void registerWithSession(android.media.session.MediaSessionLegacyHelper);
-    public void setMetadataUpdateListener(android.media.RemoteControlClient$OnMetadataUpdateListener);
-    public void setOnGetPlaybackPositionListener(android.media.RemoteControlClient$OnGetPlaybackPositionListener);
-    public void setPlaybackPositionUpdateListener(android.media.RemoteControlClient$OnPlaybackPositionUpdateListener);
-    public void setPlaybackState(int);
-    public void setPlaybackState(int, long, float);
-    public void setTransportControlFlags(int);
-    public void unregisterWithSession(android.media.session.MediaSessionLegacyHelper);
-
-
-    public static int DEFAULT_PLAYBACK_VOLUME;
-    public static int DEFAULT_PLAYBACK_VOLUME_HANDLING;
-    public static int FLAGS_KEY_MEDIA_NONE;
-    public static int FLAG_INFORMATION_REQUEST_ALBUM_ART;
-    public static int FLAG_INFORMATION_REQUEST_KEY_MEDIA;
-    public static int FLAG_INFORMATION_REQUEST_METADATA;
-    public static int FLAG_INFORMATION_REQUEST_PLAYSTATE;
-    public static int FLAG_KEY_MEDIA_FAST_FORWARD;
-    public static int FLAG_KEY_MEDIA_NEXT;
-    public static int FLAG_KEY_MEDIA_PAUSE;
-    public static int FLAG_KEY_MEDIA_PLAY;
-    public static int FLAG_KEY_MEDIA_PLAY_PAUSE;
-    public static int FLAG_KEY_MEDIA_POSITION_UPDATE;
-    public static int FLAG_KEY_MEDIA_PREVIOUS;
-    public static int FLAG_KEY_MEDIA_RATING;
-    public static int FLAG_KEY_MEDIA_REWIND;
-    public static int FLAG_KEY_MEDIA_STOP;
-    public static int MEDIA_POSITION_READABLE;
-    public static int MEDIA_POSITION_WRITABLE;
-    public static int PLAYBACKINFO_INVALID_VALUE;
-    public static int PLAYBACKINFO_PLAYBACK_TYPE;
-    public static int PLAYBACKINFO_USES_STREAM;
-    public static int PLAYBACKINFO_VOLUME;
-    public static int PLAYBACKINFO_VOLUME_HANDLING;
-    public static int PLAYBACKINFO_VOLUME_MAX;
-    public static long PLAYBACK_POSITION_ALWAYS_UNKNOWN;
-    public static long PLAYBACK_POSITION_INVALID;
-    public static float PLAYBACK_SPEED_1X;
-    public static int PLAYBACK_TYPE_LOCAL;
-    public static int PLAYBACK_TYPE_REMOTE;
-    public static int PLAYBACK_VOLUME_FIXED;
-    public static int PLAYBACK_VOLUME_VARIABLE;
-    public static int PLAYSTATE_BUFFERING;
-    public static int PLAYSTATE_ERROR;
-    public static int PLAYSTATE_FAST_FORWARDING;
-    public static int PLAYSTATE_NONE;
-    public static int PLAYSTATE_PAUSED;
-    public static int PLAYSTATE_PLAYING;
-    public static int PLAYSTATE_REWINDING;
-    public static int PLAYSTATE_SKIPPING_BACKWARDS;
-    public static int PLAYSTATE_SKIPPING_FORWARDS;
-    public static int PLAYSTATE_STOPPED;
-    public static int RCSE_ID_UNREGISTERED;
-}
-
--keep class android.media.RemoteControlClient$MetadataEditor {
-
-    public synchronized void apply();
-    public synchronized void clear();
-    public java.lang.Object clone();
-    public synchronized android.media.RemoteControlClient$MetadataEditor putBitmap(int, android.graphics.Bitmap);
-    public android.media.MediaMetadataEditor putBitmap(int, android.graphics.Bitmap);
-    public synchronized android.media.RemoteControlClient$MetadataEditor putLong(int, long);
-    public android.media.MediaMetadataEditor putLong(int, long);
-    public synchronized android.media.RemoteControlClient$MetadataEditor putObject(int, java.lang.Object);
-    public android.media.MediaMetadataEditor putObject(int, java.lang.Object);
-    public synchronized android.media.RemoteControlClient$MetadataEditor putString(int, java.lang.String);
-    public android.media.MediaMetadataEditor putString(int, java.lang.String);
-
-
-    public static int BITMAP_KEY_ARTWORK;
-    public static int METADATA_KEY_ARTWORK;
-}
-
--keep class android.media.RemoteControlClient$OnGetPlaybackPositionListener {
-
-    public abstract long onGetPlaybackPosition();
-
-
-}
-
--keep class android.media.RemoteControlClient$OnMetadataUpdateListener {
-
-    public abstract void onMetadataUpdate(int, java.lang.Object);
-
-
-}
-
--keep class android.media.RemoteControlClient$OnPlaybackPositionUpdateListener {
-
-    public abstract void onPlaybackPositionUpdate(long);
-
-
-}
-
--keep class android.media.RemoteController {
-    <init>(android.content.Context, android.media.RemoteController$OnClientUpdateListener);
-    <init>(android.content.Context, android.media.RemoteController$OnClientUpdateListener, android.os.Looper);
-
-    public boolean clearArtworkConfiguration();
-    public android.media.RemoteController$MetadataEditor editMetadata();
-    public long getEstimatedMediaPosition();
-    public boolean seekTo(long);
-    public boolean sendMediaKeyEvent(android.view.KeyEvent);
-    public boolean setArtworkConfiguration(boolean, int, int);
-    public boolean setArtworkConfiguration(int, int);
-    public boolean setSynchronizationMode(int);
-
-
-    public static int POSITION_SYNCHRONIZATION_CHECK;
-    public static int POSITION_SYNCHRONIZATION_NONE;
-}
-
--keep class android.media.RemoteController$MetadataEditor {
-    <init>();
-    <init>(android.os.Bundle, long);
-
-    public synchronized void apply();
-
-
-}
-
--keep class android.media.RemoteController$OnClientUpdateListener {
-
-    public abstract void onClientChange(boolean);
-    public abstract void onClientMetadataUpdate(android.media.RemoteController$MetadataEditor);
-    public abstract void onClientPlaybackStateUpdate(int);
-    public abstract void onClientPlaybackStateUpdate(int, long, long, float);
-    public abstract void onClientTransportControlUpdate(int);
-
-
-}
-
--keep class android.media.VolumePolicy {
-    <init>(boolean, boolean, boolean, int);
-
-    public int describeContents();
-    public boolean equals(java.lang.Object);
-    public int hashCode();
-    public java.lang.String toString();
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static int A11Y_MODE_INDEPENDENT_A11Y_VOLUME;
-    public static int A11Y_MODE_MEDIA_A11Y_VOLUME;
-    public static android.os.Parcelable$Creator CREATOR;
-    public static android.media.VolumePolicy DEFAULT;
-    public boolean doNotDisturbWhenSilent;
-    public int vibrateToSilentDebounce;
-    public boolean volumeDownToEnterSilent;
-    public boolean volumeUpToExitSilent;
-}
-
 -keep class android.media.VolumeProvider {
     <init>(int, int, int);
 
@@ -13529,132 +12382,6 @@
     <init>();
 
     public abstract void onVolumeChanged(android.media.VolumeProvider);
-
-
-}
-
--keep class android.media.VolumeShaper {
-
-    public void apply(android.media.VolumeShaper$Operation);
-    public void close();
-    protected void finalize();
-    public float getVolume();
-    public void replace(android.media.VolumeShaper$Configuration, android.media.VolumeShaper$Operation, boolean);
-
-
-}
-
--keep class android.media.VolumeShaper$Configuration {
-    <init>(int);
-
-    public int describeContents();
-    public boolean equals(java.lang.Object);
-    public long getDuration();
-    public int getId();
-    public int getInterpolatorType();
-    public static int getMaximumCurvePoints();
-    public int getOptionFlags();
-    public float[] getTimes();
-    public int getType();
-    public float[] getVolumes();
-    public int hashCode();
-    public java.lang.String toString();
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
-    public static android.media.VolumeShaper$Configuration CUBIC_RAMP;
-    public static int INTERPOLATOR_TYPE_CUBIC;
-    public static int INTERPOLATOR_TYPE_CUBIC_MONOTONIC;
-    public static int INTERPOLATOR_TYPE_LINEAR;
-    public static int INTERPOLATOR_TYPE_STEP;
-    public static android.media.VolumeShaper$Configuration LINEAR_RAMP;
-    public static int OPTION_FLAG_CLOCK_TIME;
-    public static int OPTION_FLAG_VOLUME_IN_DBFS;
-    public static android.media.VolumeShaper$Configuration SCURVE_RAMP;
-    public static android.media.VolumeShaper$Configuration SINE_RAMP;
-}
-
--keep class android.media.VolumeShaper$Operation {
-
-    public int describeContents();
-    public boolean equals(java.lang.Object);
-    public int hashCode();
-    public java.lang.String toString();
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
-    public static android.media.VolumeShaper$Operation PLAY;
-    public static android.media.VolumeShaper$Operation REVERSE;
-}
-
--keep class android.media.audiopolicy.AudioMix {
-
-    public int getMixState();
-    public int getMixType();
-    public java.lang.String getRegistration();
-    public int hashCode();
-
-
-    public static int CALLBACK_FLAG_NOTIFY_ACTIVITY;
-    public static int MIX_STATE_DISABLED;
-    public static int MIX_STATE_IDLE;
-    public static int MIX_STATE_MIXING;
-    public static int MIX_TYPE_INVALID;
-    public static int MIX_TYPE_PLAYERS;
-    public static int MIX_TYPE_RECORDERS;
-    public static int ROUTE_FLAG_LOOP_BACK;
-    public static int ROUTE_FLAG_RENDER;
-}
-
--keep class android.media.audiopolicy.AudioPolicy {
-
-    public android.media.audiopolicy.IAudioPolicyCallback cb();
-    public android.media.AudioRecord createAudioRecordSink(android.media.audiopolicy.AudioMix);
-    public android.media.AudioTrack createAudioTrackSource(android.media.audiopolicy.AudioMix);
-    public android.media.audiopolicy.AudioPolicyConfig getConfig();
-    public int getFocusDuckingBehavior();
-    public int getStatus();
-    public boolean hasFocusListener();
-    public boolean isFocusPolicy();
-    public int setFocusDuckingBehavior(int);
-    public void setRegistration(java.lang.String);
-    public java.lang.String toLogFriendlyString();
-
-
-    public static int FOCUS_POLICY_DUCKING_DEFAULT;
-    public static int FOCUS_POLICY_DUCKING_IN_APP;
-    public static int FOCUS_POLICY_DUCKING_IN_POLICY;
-    public static int POLICY_STATUS_REGISTERED;
-    public static int POLICY_STATUS_UNREGISTERED;
-}
-
--keep class android.media.audiopolicy.AudioPolicyConfig {
-    <init>(android.media.audiopolicy.AudioPolicyConfig);
-
-    public void addMix(android.media.audiopolicy.AudioMix);
-    public int describeContents();
-    public java.util.ArrayList getMixes();
-    protected java.lang.String getRegistration();
-    public int hashCode();
-    protected void setRegistration(java.lang.String);
-    public java.lang.String toLogFriendlyString();
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
-    protected int mDuckingPolicy;
-    protected java.util.ArrayList mMixes;
-}
-
--keep class android.media.audiopolicy.IAudioPolicyCallback {
-
-    public abstract void notifyAudioFocusAbandon(android.media.AudioFocusInfo);
-    public abstract void notifyAudioFocusGrant(android.media.AudioFocusInfo, int);
-    public abstract void notifyAudioFocusLoss(android.media.AudioFocusInfo, boolean);
-    public abstract void notifyAudioFocusRequest(android.media.AudioFocusInfo, int);
-    public abstract void notifyMixStateUpdate(java.lang.String, int);
 
 
 }
@@ -13926,23 +12653,6 @@
 
 
     public static android.os.Parcelable$Creator CREATOR;
-}
-
--keep class android.media.session.MediaSessionLegacyHelper {
-
-    public void addMediaButtonListener(android.app.PendingIntent, android.content.ComponentName, android.content.Context);
-    public void addRccListener(android.app.PendingIntent, android.media.session.MediaSession$Callback);
-    public static android.media.session.MediaSessionLegacyHelper getHelper(android.content.Context);
-    public static android.os.Bundle getOldMetadata(android.media.MediaMetadata, int, int);
-    public android.media.session.MediaSession getSession(android.app.PendingIntent);
-    public boolean isGlobalPriorityActive();
-    public void removeMediaButtonListener(android.app.PendingIntent);
-    public void removeRccListener(android.app.PendingIntent);
-    public void sendAdjustVolumeBy(int, int, int);
-    public void sendMediaButtonEvent(android.view.KeyEvent, boolean);
-    public void sendVolumeKeyEvent(android.view.KeyEvent, int, boolean);
-
-
 }
 
 -keep class android.media.session.ParcelableVolumeInfo {
@@ -14281,6 +12991,7 @@
     public synchronized java.lang.String toShortString();
     public synchronized java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static android.os.Parcelable$Creator CREATOR;
@@ -14579,6 +13290,7 @@
     public boolean postAtTime(java.lang.Runnable, long);
     public boolean postAtTime(java.lang.Runnable, java.lang.Object, long);
     public boolean postDelayed(java.lang.Runnable, long);
+    public boolean postDelayed(java.lang.Runnable, java.lang.Object, long);
     public void removeCallbacks(java.lang.Runnable);
     public void removeCallbacks(java.lang.Runnable, java.lang.Object);
     public void removeCallbacksAndMessages(java.lang.Object);
@@ -15047,21 +13759,6 @@
 
 }
 
--keep class android.os.ParcelUuid {
-    <init>(java.util.UUID);
-
-    public int describeContents();
-    public boolean equals(java.lang.Object);
-    public static android.os.ParcelUuid fromString(java.lang.String);
-    public java.util.UUID getUuid();
-    public int hashCode();
-    public java.lang.String toString();
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
-}
-
 -keep class android.os.Parcelable {
 
     public abstract int describeContents();
@@ -15126,6 +13823,7 @@
     public synchronized java.lang.String toShortString();
     public synchronized java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
     public void writeUnknownObject(java.lang.Object, java.lang.String, org.xmlpull.v1.XmlSerializer);
 
 
@@ -15454,6 +14152,61 @@
 
 }
 
+-keep class android.os.WorkSource {
+    <init>();
+    <init>(android.os.WorkSource);
+    <init>(int);
+    <init>(int, java.lang.String);
+
+    public boolean add(android.os.WorkSource);
+    public boolean add(int);
+    public boolean add(int, java.lang.String);
+    public android.os.WorkSource addReturningNewbs(android.os.WorkSource);
+    public void clear();
+    public void clearNames();
+    public android.os.WorkSource$WorkChain createWorkChain();
+    public int describeContents();
+    public boolean diff(android.os.WorkSource);
+    public static java.util.ArrayList[] diffChains(android.os.WorkSource, android.os.WorkSource);
+    public boolean equals(java.lang.Object);
+    public int get(int);
+    public java.lang.String getName(int);
+    public java.util.ArrayList getWorkChains();
+    public int hashCode();
+    public boolean isEmpty();
+    public boolean remove(android.os.WorkSource);
+    public void set(android.os.WorkSource);
+    public void set(int);
+    public void set(int, java.lang.String);
+    public android.os.WorkSource[] setReturningDiffs(android.os.WorkSource);
+    public int size();
+    public java.lang.String toString();
+    public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+}
+
+-keep class android.os.WorkSource$WorkChain {
+    <init>();
+    <init>(android.os.WorkSource$WorkChain);
+
+    public android.os.WorkSource$WorkChain addNode(int, java.lang.String);
+    public int describeContents();
+    public boolean equals(java.lang.Object);
+    public int getAttributionUid();
+    public int getSize();
+    public java.lang.String[] getTags();
+    public int[] getUids();
+    public int hashCode();
+    public java.lang.String toString();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+}
+
 -keep class android.os.storage.DiskInfo {
     <init>(java.lang.String, int);
     <init>(android.os.Parcel);
@@ -15491,7 +14244,7 @@
 }
 
 -keep class android.os.storage.StorageVolume {
-    <init>(java.lang.String, int, java.io.File, java.lang.String, boolean, boolean, boolean, long, boolean, long, android.os.UserHandle, java.lang.String, java.lang.String);
+    <init>(java.lang.String, java.io.File, java.lang.String, boolean, boolean, boolean, boolean, long, android.os.UserHandle, java.lang.String, java.lang.String);
 
     public boolean allowMassStorage();
     public android.content.Intent createAccessIntent(java.lang.String);
@@ -15503,12 +14256,10 @@
     public int getFatVolumeId();
     public java.lang.String getId();
     public long getMaxFileSize();
-    public int getMtpReserveSpace();
     public android.os.UserHandle getOwner();
     public java.lang.String getPath();
     public java.io.File getPathFile();
     public java.lang.String getState();
-    public int getStorageId();
     public java.lang.String getUserLabel();
     public java.lang.String getUuid();
     public int hashCode();
@@ -15610,28 +14361,23 @@
 }
 
 -keep class android.service.autofill.FieldClassification {
-    <init>(android.service.autofill.FieldClassification$Match);
+    <init>(java.util.ArrayList);
 
-    public int describeContents();
     public java.util.List getMatches();
     public java.lang.String toString();
-    public void writeToParcel(android.os.Parcel, int);
 
 
-    public static android.os.Parcelable$Creator CREATOR;
 }
 
 -keep class android.service.autofill.FieldClassification$Match {
-    <init>(java.lang.String, float);
+    <init>(java.lang.String, float, java.lang.String);
 
-    public int describeContents();
+    public java.lang.String getAlgorithm();
     public java.lang.String getRemoteId();
     public float getScore();
     public java.lang.String toString();
-    public void writeToParcel(android.os.Parcel, int);
 
 
-    public static android.os.Parcelable$Creator CREATOR;
 }
 
 -keep class android.service.autofill.FillEventHistory {
@@ -15650,7 +14396,7 @@
 }
 
 -keep class android.service.autofill.FillEventHistory$Event {
-    <init>(int, java.lang.String, android.os.Bundle, java.util.List, android.util.ArraySet, java.util.ArrayList, java.util.ArrayList, java.util.ArrayList, java.util.ArrayList, android.view.autofill.AutofillId[], android.service.autofill.FieldClassification$Match[]);
+    <init>(int, java.lang.String, android.os.Bundle, java.util.List, android.util.ArraySet, java.util.ArrayList, java.util.ArrayList, java.util.ArrayList, java.util.ArrayList, android.view.autofill.AutofillId[], android.service.autofill.FieldClassification[]);
 
     public java.util.Map getChangedFields();
     public android.os.Bundle getClientState();
@@ -15670,25 +14416,18 @@
     public static int TYPE_SAVE_SHOWN;
 }
 
--keep class android.service.autofill.InternalScorer {
-    <init>();
-
-    public abstract float getScore(android.view.autofill.AutofillValue, java.lang.String);
-
-
-}
-
 -keep class android.service.autofill.UserData {
 
     public int describeContents();
     public void dump(java.lang.String, java.io.PrintWriter);
     public static void dumpConstraints(java.lang.String, java.io.PrintWriter);
+    public android.os.Bundle getAlgorithmArgs();
+    public java.lang.String getFieldClassificationAlgorithm();
     public static int getMaxFieldClassificationIdsSize();
     public static int getMaxUserDataSize();
     public static int getMaxValueLength();
     public static int getMinValueLength();
     public java.lang.String[] getRemoteIds();
-    public android.service.autofill.InternalScorer getScorer();
     public java.lang.String[] getValues();
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
@@ -15928,25 +14667,13 @@
 -keep class android.support.car.media.CarAudioManager {
     <init>();
 
-    public abstract void abandonAudioFocus(android.media.AudioManager$OnAudioFocusChangeListener, android.media.AudioAttributes);
     public abstract android.support.car.media.CarAudioRecord createCarAudioRecord(int);
-    public abstract android.media.AudioAttributes getAudioAttributesForCarUsage(int);
     public abstract android.media.AudioFormat getAudioRecordAudioFormat();
     public abstract int getAudioRecordMaxBufferSize();
     public abstract int getAudioRecordMinBufferSize();
     public abstract boolean isAudioRecordSupported();
-    public abstract int requestAudioFocus(android.media.AudioManager$OnAudioFocusChangeListener, android.media.AudioAttributes, int);
 
 
-    public static int CAR_AUDIO_USAGE_ALARM;
-    public static int CAR_AUDIO_USAGE_DEFAULT;
-    public static int CAR_AUDIO_USAGE_MUSIC;
-    public static int CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE;
-    public static int CAR_AUDIO_USAGE_NOTIFICATION;
-    public static int CAR_AUDIO_USAGE_SYSTEM_SAFETY_ALERT;
-    public static int CAR_AUDIO_USAGE_SYSTEM_SOUND;
-    public static int CAR_AUDIO_USAGE_VOICE_CALL;
-    public static int CAR_AUDIO_USAGE_VOICE_COMMAND;
 }
 
 -keep class android.support.car.media.CarAudioRecord {
@@ -17090,22 +15817,24 @@
 }
 
 -keep class android.view.DisplayCutout {
-    <init>(android.graphics.Rect, android.graphics.Rect, java.util.List);
+    <init>(android.graphics.Rect, android.graphics.Region);
 
     public android.view.DisplayCutout calculateRelativeTo(android.graphics.Rect);
     public boolean equals(java.lang.Object);
     public static android.view.DisplayCutout fromBoundingPolygon(java.util.List);
-    public void getBoundingPolygon(java.util.List);
-    public void getBoundingRect(android.graphics.Rect);
+    public static android.view.DisplayCutout fromBounds(android.graphics.Path);
+    public android.graphics.Rect getBoundingRect();
+    public android.graphics.Region getBounds();
     public int getSafeInsetBottom();
     public int getSafeInsetLeft();
     public int getSafeInsetRight();
     public int getSafeInsetTop();
-    public void getSafeInsets(android.graphics.Rect);
-    public boolean hasCutout();
+    public android.graphics.Rect getSafeInsets();
     public int hashCode();
     public android.view.DisplayCutout inset(int, int, int, int);
+    public boolean isEmpty();
     public java.lang.String toString();
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static android.view.DisplayCutout NO_CUTOUT;
@@ -17146,6 +15875,7 @@
     public int appWidth;
     public int colorMode;
     public int defaultModeId;
+    public android.view.DisplayCutout displayCutout;
     public int flags;
     public android.view.Display$HdrCapabilities hdrCapabilities;
     public int largestNominalAppHeight;
@@ -17277,6 +16007,21 @@
 -keep class android.view.IAppTransitionAnimationSpecsFuture {
 
     public abstract android.view.AppTransitionAnimationSpec[] get();
+
+
+}
+
+-keep class android.view.IRemoteAnimationFinishedCallback {
+
+    public abstract void onAnimationFinished();
+
+
+}
+
+-keep class android.view.IRemoteAnimationRunner {
+
+    public abstract void onAnimationCancelled();
+    public abstract void onAnimationStart(android.view.RemoteAnimationTarget[], android.view.IRemoteAnimationFinishedCallback);
 
 
 }
@@ -18588,6 +17333,55 @@
 
 }
 
+-keep class android.view.RemoteAnimationAdapter {
+    <init>(android.view.IRemoteAnimationRunner, long, long);
+    <init>(android.os.Parcel);
+
+    public int describeContents();
+    public long getDuration();
+    public android.view.IRemoteAnimationRunner getRunner();
+    public long getStatusBarTransitionDelay();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+}
+
+-keep class android.view.RemoteAnimationDefinition {
+    <init>();
+    <init>(android.os.Parcel);
+
+    public void addRemoteAnimation(int, android.view.RemoteAnimationAdapter);
+    public int describeContents();
+    public android.view.RemoteAnimationAdapter getAdapter(int);
+    public boolean hasTransition(int);
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+}
+
+-keep class android.view.RemoteAnimationTarget {
+    <init>(int, int, android.view.SurfaceControl, boolean, android.graphics.Rect, int, android.graphics.Point, android.graphics.Rect);
+    <init>(android.os.Parcel);
+
+    public int describeContents();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+    public static int MODE_CLOSING;
+    public static int MODE_OPENING;
+    public android.graphics.Rect clipRect;
+    public boolean isTranslucent;
+    public android.view.SurfaceControl leash;
+    public int mode;
+    public android.graphics.Point position;
+    public int prefixOrderIndex;
+    public android.graphics.Rect sourceContainerBounds;
+    public int taskId;
+}
+
 -keep class android.view.RenderNode {
 
     public void addAnimator(android.view.RenderNodeAnimator);
@@ -18809,6 +17603,8 @@
     public static android.view.SurfaceControl$PhysicalDisplayInfo[] getDisplayConfigs(android.os.IBinder);
     public android.os.IBinder getHandle();
     public static android.view.Display$HdrCapabilities getHdrCapabilities(android.os.IBinder);
+    public int getHeight();
+    public int getWidth();
     public void hide();
     public static void mergeToGlobalTransaction(android.view.SurfaceControl$Transaction);
     public static void openTransaction();
@@ -18848,6 +17644,7 @@
     public void show();
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static int BUILT_IN_DISPLAY_ID_HDMI;
@@ -19081,6 +17878,7 @@
     public void buildLayer();
     public boolean callOnClick();
     public boolean canHaveDisplayList();
+    public boolean canNotifyAutofillEnterExitEvent();
     public boolean canResolveLayoutDirection();
     public boolean canResolveTextAlignment();
     public boolean canResolveTextDirection();
@@ -19108,7 +17906,7 @@
     public android.view.accessibility.AccessibilityNodeInfo createAccessibilityNodeInfo();
     public android.view.accessibility.AccessibilityNodeInfo createAccessibilityNodeInfoInternal();
     public void createContextMenu(android.view.ContextMenu);
-    public android.graphics.Bitmap createSnapshot(android.graphics.Bitmap$Config, int, boolean);
+    public android.graphics.Bitmap createSnapshot(android.view.ViewDebug$CanvasProvider, boolean);
     protected void damageInParent();
     public void debug();
     protected void debug(int);
@@ -19185,6 +17983,7 @@
     public android.view.View$AccessibilityDelegate getAccessibilityDelegate();
     public int getAccessibilityLiveRegion();
     public android.view.accessibility.AccessibilityNodeProvider getAccessibilityNodeProvider();
+    public java.lang.CharSequence getAccessibilityPaneTitle();
     public int getAccessibilitySelectionEnd();
     public int getAccessibilitySelectionStart();
     public int getAccessibilityTraversalAfter();
@@ -19459,8 +18258,9 @@
     public void mapRectFromViewToScreenCoords(android.graphics.RectF, boolean);
     public void measure(int, int);
     protected static int[] mergeDrawableStates(int[], int[]);
-    public void notifySubtreeAccessibilityStateChangedIfNeeded();
-    public void notifyViewAccessibilityStateChangedIfNeeded(int);
+    public void notifyAccessibilityStateChanged(int);
+    public void notifyAccessibilitySubtreeChanged();
+    public void notifyEnterOrExitForAutoFillIfNeeded(boolean);
     public void offsetLeftAndRight(int);
     public void offsetTopAndBottom(int);
     public void onActivityResult(int, int, android.content.Intent);
@@ -19584,6 +18384,7 @@
     public void resetResolvedTextAlignment();
     public void resetResolvedTextDirection();
     public void resetRtlProperties();
+    public void resetSubtreeAccessibilityStateChanged();
     protected void resolveDrawables();
     public boolean resolveLayoutDirection();
     public void resolveLayoutParams();
@@ -19607,6 +18408,7 @@
     public void sendAccessibilityEventUncheckedInternal(android.view.accessibility.AccessibilityEvent);
     public void setAccessibilityDelegate(android.view.View$AccessibilityDelegate);
     public void setAccessibilityLiveRegion(int);
+    public void setAccessibilityPaneTitle(java.lang.CharSequence);
     public void setAccessibilitySelection(int, int);
     public void setAccessibilityTraversalAfter(int);
     public void setAccessibilityTraversalBefore(int);
@@ -20170,6 +18972,76 @@
 
 }
 
+-keep class android.view.ViewDebug {
+    <init>();
+
+    public static void capture(android.view.View, java.io.OutputStream, android.view.View);
+    public static void captureLayers(android.view.View, java.io.DataOutputStream);
+    public static void dump(android.view.View, boolean, boolean, java.io.OutputStream);
+    public static void dumpCapturedView(java.lang.String, java.lang.Object);
+    public static void dumpTheme(android.view.View, java.io.OutputStream);
+    public static void dumpv2(android.view.View, java.io.ByteArrayOutputStream);
+    public static android.view.View findView(android.view.View, java.lang.String);
+    public static java.lang.String flagsToString(java.lang.Class, java.lang.String, int);
+    public static long getViewInstanceCount();
+    public static long getViewRootImplCount();
+    public static java.lang.String intToString(java.lang.Class, java.lang.String, int);
+    public static java.lang.Object invokeViewMethod(android.view.View, java.lang.reflect.Method, java.lang.Object[]);
+    public static void outputDisplayList(android.view.View, android.view.View);
+    public static void profileViewAndChildren(android.view.View, java.io.BufferedWriter);
+    public static void setLayoutParameter(android.view.View, java.lang.String, int);
+    public static void startHierarchyTracing(java.lang.String, android.view.View);
+    public static void startRecyclerTracing(java.lang.String, android.view.View);
+    public static void stopHierarchyTracing();
+    public static void stopRecyclerTracing();
+    public static void trace(android.view.View, android.view.ViewDebug$RecyclerTraceType, int[]);
+    public static void trace(android.view.View, android.view.ViewDebug$HierarchyTraceType);
+
+
+    public static boolean DEBUG_DRAG;
+    public static boolean DEBUG_POSITIONING;
+    public static boolean TRACE_HIERARCHY;
+    public static boolean TRACE_RECYCLER;
+}
+
+-keep class android.view.ViewDebug$CanvasProvider {
+
+    public abstract android.graphics.Bitmap createBitmap();
+    public abstract android.graphics.Canvas getCanvas(android.view.View, int, int);
+
+
+}
+
+-keep class android.view.ViewDebug$HierarchyTraceType {
+
+    public static android.view.ViewDebug$HierarchyTraceType valueOf(java.lang.String);
+    public static android.view.ViewDebug$HierarchyTraceType[] values();
+
+    public static android.view.ViewDebug$HierarchyTraceType BUILD_CACHE;
+    public static android.view.ViewDebug$HierarchyTraceType DRAW;
+    public static android.view.ViewDebug$HierarchyTraceType INVALIDATE;
+    public static android.view.ViewDebug$HierarchyTraceType INVALIDATE_CHILD;
+    public static android.view.ViewDebug$HierarchyTraceType INVALIDATE_CHILD_IN_PARENT;
+    public static android.view.ViewDebug$HierarchyTraceType ON_LAYOUT;
+    public static android.view.ViewDebug$HierarchyTraceType ON_MEASURE;
+    public static android.view.ViewDebug$HierarchyTraceType REQUEST_LAYOUT;
+
+}
+
+-keep class android.view.ViewDebug$RecyclerTraceType {
+
+    public static android.view.ViewDebug$RecyclerTraceType valueOf(java.lang.String);
+    public static android.view.ViewDebug$RecyclerTraceType[] values();
+
+    public static android.view.ViewDebug$RecyclerTraceType BIND_VIEW;
+    public static android.view.ViewDebug$RecyclerTraceType MOVE_FROM_ACTIVE_TO_SCRAP_HEAP;
+    public static android.view.ViewDebug$RecyclerTraceType MOVE_TO_SCRAP_HEAP;
+    public static android.view.ViewDebug$RecyclerTraceType NEW_VIEW;
+    public static android.view.ViewDebug$RecyclerTraceType RECYCLE_FROM_ACTIVE_HEAP;
+    public static android.view.ViewDebug$RecyclerTraceType RECYCLE_FROM_SCRAP_HEAP;
+
+}
+
 -keep class android.view.ViewGroup {
     <init>(android.content.Context);
     <init>(android.content.Context, android.util.AttributeSet);
@@ -20202,7 +19074,7 @@
     public void clearChildFocus(android.view.View);
     public void clearDisappearingChildren();
     public void clearFocus();
-    public android.graphics.Bitmap createSnapshot(android.graphics.Bitmap$Config, int, boolean);
+    public android.graphics.Bitmap createSnapshot(android.view.ViewDebug$CanvasProvider, boolean);
     protected void debug(int);
     protected void destroyHardwareResources();
     protected void detachAllViewsFromParent();
@@ -20309,8 +19181,8 @@
     protected void measureChild(android.view.View, int, int);
     protected void measureChildWithMargins(android.view.View, int, int, int, int);
     protected void measureChildren(int, int);
+    public void notifyAccessibilitySubtreeChanged();
     public void notifySubtreeAccessibilityStateChanged(android.view.View, android.view.View, int);
-    public void notifySubtreeAccessibilityStateChangedIfNeeded();
     public void offsetChildrenTopAndBottom(int);
     public void offsetDescendantRectToMyCoords(android.view.View, android.graphics.Rect);
     public void offsetRectIntoDescendantCoords(android.view.View, android.graphics.Rect);
@@ -20362,6 +19234,7 @@
     public void resetResolvedPadding();
     public void resetResolvedTextAlignment();
     public void resetResolvedTextDirection();
+    public void resetSubtreeAccessibilityStateChanged();
     protected void resolveDrawables();
     public boolean resolveLayoutDirection();
     public void resolveLayoutParams();
@@ -20658,6 +19531,7 @@
     public void dispatchWindowShown();
     public void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     public void dumpGfxInfo(int[]);
+    public void flushPendingAccessibilityEvents();
     public android.view.View focusSearch(android.view.View, int);
     public void focusableViewAvailable(android.view.View);
     public android.view.View getAccessibilityFocusedHost();
@@ -20739,6 +19613,7 @@
 
 
     public static java.lang.String PROPERTY_EMULATOR_WIN_OUTSET_BOTTOM_PX;
+    protected android.view.accessibility.AccessibilityViewHierarchyState mAccessibilityState;
     protected android.view.InputEventConsistencyVerifier mInputEventConsistencyVerifier;
     public boolean mIsAnimating;
     public android.view.Surface mSurface;
@@ -20818,6 +19693,7 @@
     public abstract void setSelected(boolean);
     public abstract void setText(java.lang.CharSequence);
     public abstract void setText(java.lang.CharSequence, int, int);
+    public void setTextIdEntry(java.lang.String);
     public abstract void setTextLines(int[], int[]);
     public abstract void setTextStyle(float, int, int, int);
     public abstract void setTransformation(android.graphics.Matrix);
@@ -21310,7 +20186,7 @@
     <init>(android.view.WindowInsets);
     <init>(android.graphics.Rect);
 
-    public android.view.WindowInsets consumeCutout();
+    public android.view.WindowInsets consumeDisplayCutout();
     public android.view.WindowInsets consumeStableInsets();
     public android.view.WindowInsets consumeSystemWindowInsets();
     public android.view.WindowInsets consumeSystemWindowInsets(boolean, boolean, boolean, boolean);
@@ -21365,6 +20241,29 @@
     public static java.lang.String PARCEL_KEY_SHORTCUTS_ARRAY;
     public static int TAKE_SCREENSHOT_FULLSCREEN;
     public static int TAKE_SCREENSHOT_SELECTED_REGION;
+    public static int TRANSIT_ACTIVITY_CLOSE;
+    public static int TRANSIT_ACTIVITY_OPEN;
+    public static int TRANSIT_ACTIVITY_RELAUNCH;
+    public static int TRANSIT_DOCK_TASK_FROM_RECENTS;
+    public static int TRANSIT_FLAG_KEYGUARD_GOING_AWAY_NO_ANIMATION;
+    public static int TRANSIT_FLAG_KEYGUARD_GOING_AWAY_TO_SHADE;
+    public static int TRANSIT_FLAG_KEYGUARD_GOING_AWAY_WITH_WALLPAPER;
+    public static int TRANSIT_KEYGUARD_GOING_AWAY;
+    public static int TRANSIT_KEYGUARD_GOING_AWAY_ON_WALLPAPER;
+    public static int TRANSIT_KEYGUARD_OCCLUDE;
+    public static int TRANSIT_KEYGUARD_UNOCCLUDE;
+    public static int TRANSIT_NONE;
+    public static int TRANSIT_TASK_CLOSE;
+    public static int TRANSIT_TASK_IN_PLACE;
+    public static int TRANSIT_TASK_OPEN;
+    public static int TRANSIT_TASK_OPEN_BEHIND;
+    public static int TRANSIT_TASK_TO_BACK;
+    public static int TRANSIT_TASK_TO_FRONT;
+    public static int TRANSIT_UNSET;
+    public static int TRANSIT_WALLPAPER_CLOSE;
+    public static int TRANSIT_WALLPAPER_INTRA_CLOSE;
+    public static int TRANSIT_WALLPAPER_INTRA_OPEN;
+    public static int TRANSIT_WALLPAPER_OPEN;
 }
 
 -keep class android.view.WindowManager$KeyboardShortcutsReceiver {
@@ -21419,7 +20318,6 @@
     public static int FIRST_APPLICATION_WINDOW;
     public static int FIRST_SUB_WINDOW;
     public static int FIRST_SYSTEM_WINDOW;
-    public static long FLAG2_LAYOUT_IN_DISPLAY_CUTOUT_AREA;
     public static int FLAGS_CHANGED;
     public static int FLAG_ALLOW_LOCK_WHILE_SCREEN_ON;
     public static int FLAG_ALT_FOCUSABLE_IM;
@@ -21463,6 +20361,9 @@
     public static int LAST_SUB_WINDOW;
     public static int LAST_SYSTEM_WINDOW;
     public static int LAYOUT_CHANGED;
+    public static int LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+    public static int LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT;
+    public static int LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER;
     public static int MEMORY_TYPE_CHANGED;
     public static int MEMORY_TYPE_GPU;
     public static int MEMORY_TYPE_HARDWARE;
@@ -21577,7 +20478,6 @@
     public float buttonBrightness;
     public float dimAmount;
     public int flags;
-    public long flags2;
     public int format;
     public int gravity;
     public boolean hasManualSurfaceInsets;
@@ -21586,6 +20486,7 @@
     public float horizontalMargin;
     public float horizontalWeight;
     public int inputFeatures;
+    public int layoutInDisplayCutoutMode;
     public int memoryType;
     public int needsMenuKey;
     public java.lang.String packageName;
@@ -21624,10 +20525,12 @@
     public java.lang.CharSequence getPackageName();
     public android.view.accessibility.AccessibilityRecord getRecord(int);
     public int getRecordCount();
+    public int getWindowChanges();
     public void initFromParcel(android.os.Parcel);
     public static android.view.accessibility.AccessibilityEvent obtain(int);
     public static android.view.accessibility.AccessibilityEvent obtain(android.view.accessibility.AccessibilityEvent);
     public static android.view.accessibility.AccessibilityEvent obtain();
+    public static android.view.accessibility.AccessibilityEvent obtainWindowsChangedEvent(int, int);
     public void recycle();
     public void setAction(int);
     public void setContentChangeTypes(int);
@@ -21636,11 +20539,15 @@
     public void setMovementGranularity(int);
     public void setPackageName(java.lang.CharSequence);
     public void setSealed(boolean);
+    public void setWindowChanges(int);
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
 
 
     public static int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION;
+    public static int CONTENT_CHANGE_TYPE_PANE_APPEARED;
+    public static int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED;
+    public static int CONTENT_CHANGE_TYPE_PANE_TITLE;
     public static int CONTENT_CHANGE_TYPE_SUBTREE;
     public static int CONTENT_CHANGE_TYPE_TEXT;
     public static int CONTENT_CHANGE_TYPE_UNDEFINED;
@@ -21673,6 +20580,17 @@
     public static int TYPE_WINDOWS_CHANGED;
     public static int TYPE_WINDOW_CONTENT_CHANGED;
     public static int TYPE_WINDOW_STATE_CHANGED;
+    public static int WINDOWS_CHANGE_ACCESSIBILITY_FOCUSED;
+    public static int WINDOWS_CHANGE_ACTIVE;
+    public static int WINDOWS_CHANGE_ADDED;
+    public static int WINDOWS_CHANGE_BOUNDS;
+    public static int WINDOWS_CHANGE_CHILDREN;
+    public static int WINDOWS_CHANGE_FOCUSED;
+    public static int WINDOWS_CHANGE_LAYER;
+    public static int WINDOWS_CHANGE_PARENT;
+    public static int WINDOWS_CHANGE_PIP;
+    public static int WINDOWS_CHANGE_REMOVED;
+    public static int WINDOWS_CHANGE_TITLE;
 }
 
 -keep class android.view.accessibility.AccessibilityNodeInfo {
@@ -21719,6 +20637,7 @@
     public int getMovementGranularities();
     public java.lang.CharSequence getOriginalText();
     public java.lang.CharSequence getPackageName();
+    public java.lang.CharSequence getPaneTitle();
     public android.view.accessibility.AccessibilityNodeInfo getParent();
     public long getParentNodeId();
     public android.view.accessibility.AccessibilityNodeInfo$RangeInfo getRangeInfo();
@@ -21807,6 +20726,7 @@
     public void setMultiLine(boolean);
     public static void setNumInstancesInUseCounter(java.util.concurrent.atomic.AtomicInteger);
     public void setPackageName(java.lang.CharSequence);
+    public void setPaneTitle(java.lang.CharSequence);
     public void setParent(android.view.View);
     public void setParent(android.view.View, int);
     public void setPassword(boolean);
@@ -22057,6 +20977,18 @@
     public java.lang.String toString();
 
 
+    protected static boolean DEBUG_CONCISE_TOSTRING;
+}
+
+-keep class android.view.accessibility.AccessibilityViewHierarchyState {
+    <init>();
+
+    public android.view.accessibility.SendViewScrolledAccessibilityEvent getSendViewScrolledAccessibilityEvent();
+    public android.view.accessibility.SendWindowContentChangedAccessibilityEvent getSendWindowContentChangedAccessibilityEvent();
+    public boolean isScrollEventSenderInitialized();
+    public boolean isWindowContentChangedEventSenderInitialized();
+
+
 }
 
 -keep class android.view.accessibility.AccessibilityWindowInfo {
@@ -22064,6 +20996,7 @@
     public void addChild(int);
     public boolean changed(android.view.accessibility.AccessibilityWindowInfo);
     public int describeContents();
+    public int differenceFrom(android.view.accessibility.AccessibilityWindowInfo);
     public boolean equals(java.lang.Object);
     public android.view.accessibility.AccessibilityNodeInfo getAnchor();
     public void getBoundsInScreen(android.graphics.Rect);
@@ -22076,7 +21009,6 @@
     public java.lang.CharSequence getTitle();
     public int getType();
     public int hashCode();
-    public boolean inPictureInPicture();
     public boolean isAccessibilityFocused();
     public boolean isActive();
     public boolean isFocused();
@@ -22086,7 +21018,7 @@
     public void recycle();
     public void setAccessibilityFocused(boolean);
     public void setActive(boolean);
-    public void setAnchorId(int);
+    public void setAnchorId(long);
     public void setBoundsInScreen(android.graphics.Rect);
     public void setConnectionId(int);
     public void setFocused(boolean);
@@ -22118,6 +21050,46 @@
     public abstract void setFindAccessibilityNodeInfoResult(android.view.accessibility.AccessibilityNodeInfo, int);
     public abstract void setFindAccessibilityNodeInfosResult(java.util.List, int);
     public abstract void setPerformAccessibilityActionResult(boolean, int);
+
+
+}
+
+-keep class android.view.accessibility.SendViewScrolledAccessibilityEvent {
+    <init>();
+
+    protected void performSendEvent(android.view.View);
+    public void post(android.view.View, int, int);
+    protected void resetState(android.view.View);
+
+
+    public int mDeltaX;
+    public int mDeltaY;
+}
+
+-keep class android.view.accessibility.SendWindowContentChangedAccessibilityEvent {
+    <init>();
+
+    protected void performSendEvent(android.view.View);
+    protected void resetState(android.view.View);
+    public void runOrPost(android.view.View, int);
+    protected android.view.View tryMerge(android.view.View, android.view.View);
+
+
+}
+
+-keep class android.view.accessibility.ThrottlingAccessibilityEventSender {
+    <init>();
+
+    public static void cancelIfPending(android.view.accessibility.ThrottlingAccessibilityEventSender);
+    public void cancelIfPendingFor(android.view.View);
+    protected boolean isPendingFor(android.view.View);
+    protected abstract void performSendEvent(android.view.View);
+    protected abstract void resetState(android.view.View);
+    protected void scheduleFor(android.view.View);
+    protected void sendNow(android.view.View);
+    public void sendNowIfPending();
+    public java.lang.String toString();
+    protected android.view.View tryMerge(android.view.View, android.view.View);
 
 
 }
@@ -22305,7 +21277,10 @@
     public void disableAutofillServices();
     public void disableOwnedAutofillServices();
     public void dump(java.lang.String, java.io.PrintWriter);
+    public android.content.ComponentName getAutofillServiceComponentName();
+    public java.util.List getAvailableFieldClassificationAlgorithms();
     public static int getDatasetIdFromAuthenticationId(int);
+    public java.lang.String getDefaultFieldClassificationAlgorithm();
     public android.service.autofill.FillEventHistory getFillEventHistory();
     public static int getRequestIdFromAuthenticationId(int);
     public android.service.autofill.UserData getUserData();
@@ -22325,8 +21300,9 @@
     public void notifyViewVisibilityChanged(android.view.View, boolean);
     public void notifyViewVisibilityChanged(android.view.View, int, boolean);
     public void onActivityFinished();
-    public void onAuthenticationResult(int, android.content.Intent);
+    public void onAuthenticationResult(int, android.content.Intent, android.view.View);
     public void onCreate(android.os.Bundle);
+    public void onInvisibleForAutofill();
     public void onPendingSaveUi(int, android.os.IBinder);
     public void onSaveInstanceState(android.os.Bundle);
     public void onVisibleForAutofill();
@@ -22386,6 +21362,7 @@
     public abstract android.view.View[] findViewsByAutofillIdTraversal(int[]);
     public abstract android.content.ComponentName getComponentName();
     public abstract boolean[] getViewVisibility(int[]);
+    public abstract boolean isDisablingEnterExitEventForAutofill();
     public abstract boolean isVisibleForAutofill();
     public abstract void runOnUiThread(java.lang.Runnable);
 
@@ -22423,6 +21400,9 @@
     public abstract void cancelSession(int, int);
     public abstract void disableOwnedAutofillServices(int);
     public abstract void finishSession(int, int);
+    public abstract android.content.ComponentName getAutofillServiceComponentName();
+    public abstract java.util.List getAvailableFieldClassificationAlgorithms();
+    public abstract java.lang.String getDefaultFieldClassificationAlgorithm();
     public abstract android.service.autofill.FillEventHistory getFillEventHistory();
     public abstract android.service.autofill.UserData getUserData();
     public abstract boolean isFieldClassificationEnabled();
@@ -23340,6 +22320,24 @@
 
 -keep class com.android.internal.util.FunctionalUtils {
 
+    public static java.util.function.Consumer ignoreRemoteException(com.android.internal.util.FunctionalUtils$RemoteExceptionIgnoringConsumer);
+    public static java.util.function.Consumer uncheckExceptions(com.android.internal.util.FunctionalUtils$ThrowingConsumer);
+
+
+}
+
+-keep class com.android.internal.util.FunctionalUtils$RemoteExceptionIgnoringConsumer {
+
+    public void accept(java.lang.Object);
+    public abstract void acceptOrThrow(java.lang.Object);
+
+
+}
+
+-keep class com.android.internal.util.FunctionalUtils$ThrowingConsumer {
+
+    public void accept(java.lang.Object);
+    public abstract void acceptOrThrow(java.lang.Object);
 
 
 }
@@ -23756,6 +22754,20 @@
 
 }
 
+-keep class java.io.BufferedWriter {
+    <init>(java.io.Writer);
+    <init>(java.io.Writer, int);
+
+    public void close();
+    public void flush();
+    public void newLine();
+    public void write(int);
+    public void write(char[], int, int);
+    public void write(java.lang.String, int, int);
+
+
+}
+
 -keep class java.io.ByteArrayOutputStream {
     <init>();
     <init>(int);
@@ -23774,6 +22786,29 @@
 
     protected byte[] buf;
     protected int count;
+}
+
+-keep class java.io.DataOutputStream {
+    <init>(java.io.OutputStream);
+
+    public void flush();
+    public int size();
+    public synchronized void write(int);
+    public synchronized void write(byte[], int, int);
+    public void writeBoolean(boolean);
+    public void writeByte(int);
+    public void writeBytes(java.lang.String);
+    public void writeChar(int);
+    public void writeChars(java.lang.String);
+    public void writeDouble(double);
+    public void writeFloat(float);
+    public void writeInt(int);
+    public void writeLong(long);
+    public void writeShort(int);
+    public void writeUTF(java.lang.String);
+
+
+    protected int written;
 }
 
 -keep class java.io.File {

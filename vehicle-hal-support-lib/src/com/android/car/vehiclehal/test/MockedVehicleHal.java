@@ -48,7 +48,7 @@ public class MockedVehicleHal extends IVehicle.Stub {
     public interface VehicleHalPropertyHandler {
         default void onPropertySet(VehiclePropValue value) {}
         default VehiclePropValue onPropertyGet(VehiclePropValue value) { return null; }
-        default void onPropertySubscribe(int property, int zones, float sampleRate) {}
+        default void onPropertySubscribe(int property, float sampleRate) {}
         default void onPropertyUnsubscribe(int property) {}
 
         VehicleHalPropertyHandler NOP = new VehicleHalPropertyHandler() {};
@@ -169,7 +169,7 @@ public class MockedVehicleHal extends IVehicle.Stub {
                 return StatusCode.INVALID_ARG;
             }
 
-            handler.onPropertySubscribe(opt.propId, opt.vehicleAreas, opt.sampleRate);
+            handler.onPropertySubscribe(opt.propId, opt.sampleRate);
             List<IVehicleCallback>  subscribers = mSubscribers.get(opt.propId);
             if (subscribers == null) {
                 subscribers = new ArrayList<>();
@@ -217,7 +217,7 @@ public class MockedVehicleHal extends IVehicle.Stub {
         }
 
         @Override
-        public void onPropertySubscribe(int property, int zones, float sampleRate) {
+        public void onPropertySubscribe(int property, float sampleRate) {
             fail("Unexpected onPropertySubscribe call");
         }
 
@@ -265,7 +265,7 @@ public class MockedVehicleHal extends IVehicle.Stub {
         }
 
         @Override
-        public synchronized void onPropertySubscribe(int property, int zones, float sampleRate) {
+        public synchronized void onPropertySubscribe(int property, float sampleRate) {
             assertEquals(mConfig.prop, property);
             mSubscribed = true;
         }

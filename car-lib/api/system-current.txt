@@ -108,14 +108,6 @@ package android.car {
     field public static final int ZONE_ROW_4_RIGHT = 16384; // 0x4000
   }
 
-  public final class VehicleZoneUtil {
-    method public static int getFirstZone(int);
-    method public static int getNextZone(int, int) throws java.lang.IllegalArgumentException;
-    method public static int getNumberOfZones(int);
-    method public static int[] listAllZones(int);
-    method public static int zoneToIndex(int, int) throws java.lang.IllegalArgumentException;
-  }
-
 }
 
 package android.car.cluster.renderer {
@@ -518,12 +510,14 @@ package android.car.hardware {
   }
 
   public class CarPropertyValue<T> implements android.os.Parcelable {
-    ctor public CarPropertyValue(int, T);
     ctor public CarPropertyValue(int, int, T);
+    ctor public CarPropertyValue(int, int, int, long, T);
     ctor public CarPropertyValue(android.os.Parcel);
     method public int describeContents();
     method public int getAreaId();
     method public int getPropertyId();
+    method public int getStatus();
+    method public long getTimestamp();
     method public T getValue();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.hardware.CarPropertyValue> CREATOR;
@@ -717,9 +711,14 @@ package android.car.input {
 package android.car.media {
 
   public final class CarAudioManager {
+    method public android.car.media.CarAudioPatchHandle createAudioPatch(java.lang.String, int, int) throws android.car.CarNotConnectedException;
+    method public java.lang.String[] getExternalSources() throws android.car.CarNotConnectedException;
     method public int getUsageMaxVolume(int) throws android.car.CarNotConnectedException;
     method public int getUsageMinVolume(int) throws android.car.CarNotConnectedException;
     method public int getUsageVolume(int) throws android.car.CarNotConnectedException;
+    method public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
+    method public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
+    method public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
     method public void setUsageVolume(int, int, int) throws android.car.CarNotConnectedException;
     method public void setVolumeController(android.media.IVolumeController) throws android.car.CarNotConnectedException;
   }

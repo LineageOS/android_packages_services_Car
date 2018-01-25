@@ -66,15 +66,15 @@ public class CarHvacManagerTest extends MockedCarTestBase {
     protected synchronized void configureMockedHal() {
         HvacPropertyHandler handler = new HvacPropertyHandler();
         addProperty(VehicleProperty.HVAC_DEFROSTER, handler)
-                .setSupportedAreas(VehicleAreaWindow.FRONT_WINDSHIELD);
+                .addAreaConfig(VehicleAreaWindow.FRONT_WINDSHIELD, 0, 0);
         addProperty(VehicleProperty.HVAC_FAN_SPEED, handler)
-                .setSupportedAreas(VehicleAreaZone.ROW_1_LEFT);
+                .addAreaConfig(VehicleAreaZone.ROW_1_LEFT, 0, 0);
         addProperty(VehicleProperty.HVAC_TEMPERATURE_SET, handler)
-                .setSupportedAreas(VehicleAreaZone.ROW_1_LEFT);
+                .addAreaConfig(VehicleAreaZone.ROW_1_LEFT, 0, 0);
         addProperty(VehicleProperty.HVAC_TEMPERATURE_CURRENT, handler)
                 .setChangeMode(VehiclePropertyChangeMode.CONTINUOUS)
                 .setAccess(VehiclePropertyAccess.READ)
-                .setSupportedAreas(VehicleAreaZone.ROW_1);
+                .addAreaConfig(VehicleAreaZone.ROW_1_LEFT|VehicleAreaZone.ROW_1_RIGHT, 0, 0);
     }
 
     @Override
@@ -182,7 +182,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
 
         // Inject a float event and wait for its callback in onPropertySet.
         v = VehiclePropValueBuilder.newBuilder(VehicleProperty.HVAC_TEMPERATURE_CURRENT)
-                .setAreaId(VehicleAreaZone.ROW_1)
+                .setAreaId(VehicleAreaZone.ROW_1_LEFT|VehicleAreaZone.ROW_1_RIGHT)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .addFloatValue(67f)
                 .build();
@@ -191,7 +191,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
 
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertEquals(67, mEventFloatVal, 0);
-        assertEquals(VehicleAreaZone.ROW_1, mEventZoneVal);
+        assertEquals(VehicleAreaZone.ROW_1_LEFT|VehicleAreaZone.ROW_1_RIGHT, mEventZoneVal);
 
         // Inject an integer event and wait for its callback in onPropertySet.
         v = VehiclePropValueBuilder.newBuilder(VehicleProperty.HVAC_FAN_SPEED)
@@ -223,7 +223,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         }
 
         @Override
-        public synchronized void onPropertySubscribe(int property, int zones, float sampleRate) {
+        public synchronized void onPropertySubscribe(int property, float sampleRate) {
             Log.d(TAG, "onPropertySubscribe property " + property + " sampleRate " + sampleRate);
         }
 

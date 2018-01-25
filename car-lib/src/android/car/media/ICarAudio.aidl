@@ -16,6 +16,7 @@
 
 package android.car.media;
 
+import android.car.media.CarAudioPatchHandle;
 import android.media.AudioAttributes;
 import android.media.IVolumeController;
 
@@ -26,12 +27,16 @@ import android.media.IVolumeController;
  * @hide
  */
 interface ICarAudio {
-    AudioAttributes getAudioAttributesForCarUsage(int carUsage) = 0;
-    void setUsageVolume(int carUsage, int index, int flags) = 1;
-    void setVolumeController(IVolumeController controller) = 2;
-    int getUsageMaxVolume(int carUsage) = 3;
-    int getUsageMinVolume(int carUsage) = 4;
-    int getUsageVolume(int carUsage) = 5;
-    AudioAttributes getAudioAttributesForRadio(in String radioType) = 8;
-    AudioAttributes getAudioAttributesForExternalSource(in String externalSourceType) = 9;
+    void setUsageVolume(int usage, int index, int flags);
+    void setVolumeController(IVolumeController controller);
+    int getUsageMaxVolume(int usage);
+    int getUsageMinVolume(int usage);
+    int getUsageVolume(int usage);
+
+    void setFadeTowardFront(float value);
+    void setBalanceTowardRight(float value);
+
+    String[] getExternalSources();
+    CarAudioPatchHandle createAudioPatch(in String sourceName, int usage, int gainIndex);
+    void releaseAudioPatch(in CarAudioPatchHandle patch);
 }

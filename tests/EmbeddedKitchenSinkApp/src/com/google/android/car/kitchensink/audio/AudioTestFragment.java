@@ -124,20 +124,21 @@ public class AudioTestFragment extends Fragment {
                 } catch (CarNotConnectedException e) {
                     throw new RuntimeException("Failed to create audio manager", e);
                 }
-                try {
-                    mMusicAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
-                            CarAudioManager.CAR_AUDIO_USAGE_MUSIC);
-                    mNavAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
-                            CarAudioManager.CAR_AUDIO_USAGE_NAVIGATION_GUIDANCE);
-                    mVrAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
-                            CarAudioManager.CAR_AUDIO_USAGE_VOICE_COMMAND);
-                    mRadioAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
-                            CarAudioManager.CAR_AUDIO_USAGE_RADIO);
-                    mSystemSoundAudioAttrib = mCarAudioManager.getAudioAttributesForCarUsage(
-                            CarAudioManager.CAR_AUDIO_USAGE_SYSTEM_SOUND);
-                } catch (CarNotConnectedException e) {
-                    //ignore for now
-                }
+                mMusicAudioAttrib = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .build();
+                mNavAudioAttrib = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .build();
+                mVrAudioAttrib = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .build();
+                mRadioAudioAttrib = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .build();
+                mSystemSoundAudioAttrib = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                        .build();
 
                 mMusicPlayer = new AudioPlayer(mContext, R.raw.well_worth_the_wait,
                         mMusicAudioAttrib);

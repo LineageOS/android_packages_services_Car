@@ -63,9 +63,9 @@ public class CarCabinManagerTest extends MockedCarTestBase {
     protected synchronized void configureMockedHal() {
         CabinPropertyHandler handler = new CabinPropertyHandler();
         addProperty(VehicleProperty.DOOR_LOCK, handler)
-                .setSupportedAreas(VehicleAreaDoor.ROW_1_LEFT);
+                .addAreaConfig(VehicleAreaDoor.ROW_1_LEFT, 0, 0);
         addProperty(VehicleProperty.WINDOW_POS, handler)
-                .setSupportedAreas(VehicleAreaWindow.ROW_1_LEFT);
+                .addAreaConfig(VehicleAreaWindow.ROW_1_LEFT, 0, 0);
     }
 
     @Override
@@ -189,7 +189,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
         }
 
         @Override
-        public synchronized void onPropertySubscribe(int property, int zones, float sampleRate) {
+        public synchronized void onPropertySubscribe(int property, float sampleRate) {
             Log.d(TAG, "onPropertySubscribe property " + property + " sampleRate " + sampleRate);
         }
 
