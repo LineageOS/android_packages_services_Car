@@ -208,7 +208,7 @@ public class BluetoothAutoConnectPolicyTest extends AndroidTestCase {
     private void triggerFakeVehicleEvent() throws RemoteException {
         assertNotNull(mCabinEventListener);
         CarPropertyValue<Boolean> value = new CarPropertyValue<>(CarCabinManager.ID_DOOR_LOCK,
-                false);
+                0, false);
         CarPropertyEvent event = new CarPropertyEvent(
                 CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
         mCabinEventListener.onEvent(event);

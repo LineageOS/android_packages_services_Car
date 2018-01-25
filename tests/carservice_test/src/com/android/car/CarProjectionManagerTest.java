@@ -162,7 +162,7 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
         }
 
         @Override
-        public synchronized void onPropertySubscribe(int property, int zones, float sampleRate) {
+        public synchronized void onPropertySubscribe(int property, float sampleRate) {
             Log.d(TAG, "onPropertySubscribe property " + property + " sampleRate " + sampleRate);
         }
 

@@ -19,7 +19,6 @@ import static com.android.car.CarServiceUtils.toByteArray;
 import static java.lang.Integer.toHexString;
 
 import android.car.VehicleAreaType;
-import android.car.VehicleZoneUtil;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
@@ -44,20 +43,24 @@ import java.util.List;
             VehiclePropValue halValue, int propertyId) {
         Class<?> clazz = getJavaClass(halValue.prop & VehiclePropertyType.MASK);
         int areaId = halValue.areaId;
+        int status = halValue.status;
+        long timestamp = halValue.timestamp;
         VehiclePropValue.RawValue v = halValue.value;
 
         if (Boolean.class == clazz) {
-            return new CarPropertyValue<>(propertyId, areaId, v.int32Values.get(0) == 1);
+            return new CarPropertyValue<>(propertyId, areaId, status, timestamp,
+                                          v.int32Values.get(0) == 1);
         } else if (String.class == clazz) {
-            return new CarPropertyValue<>(propertyId, areaId, v.stringValue);
+            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, v.stringValue);
         } else if (Long.class == clazz) {
-            return new CarPropertyValue<>(propertyId, areaId, v.int64Values.get(0));
+            return new CarPropertyValue<>(propertyId, areaId, status, timestamp,
+                                          v.int64Values.get(0));
         } else if (byte[].class == clazz) {
             byte[] halData = toByteArray(v.bytes);
-            return new CarPropertyValue<>(propertyId, areaId, halData);
+            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, halData);
         } else /* All list properties */ {
             Object[] values = getRawValueList(clazz, v).toArray();
-            return new CarPropertyValue<>(propertyId, areaId,
+            return new CarPropertyValue<>(propertyId, areaId, status, timestamp,
                     values.length == 1 ? values[0] : values);
         }
     }
@@ -98,9 +101,12 @@ import java.util.List;
      * Converts {@link VehiclePropConfig} to {@link CarPropertyConfig}.
      */
     static CarPropertyConfig<?> toCarPropertyConfig(VehiclePropConfig p, int propertyId) {
-        int[] areas = VehicleZoneUtil.listAllZones(p.supportedAreas);
-
         int areaType = getVehicleAreaType(p.prop & VehicleArea.MASK);
+        // Create list of areaIds for this property
+        int[] areas = new int[p.areaConfigs.size()];
+        for (int i=0; i<p.areaConfigs.size(); i++) {
+            areas[i] = p.areaConfigs.get(i).areaId;
+        }
 
         Class<?> clazz = getJavaClass(p.prop & VehiclePropertyType.MASK);
         if (p.areaConfigs.isEmpty()) {
@@ -119,10 +125,20 @@ import java.util.List;
                     builder.addAreaConfig(area.areaId, area.minFloatValue, area.maxFloatValue);
                 } else if (classMatched(Long.class, clazz)) {
                     builder.addAreaConfig(area.areaId, area.minInt64Value, area.maxInt64Value);
+                } else if (classMatched(Boolean.class, clazz) ||
+                           classMatched(Float[].class, clazz) ||
+                           classMatched(Integer[].class, clazz) ||
+                           classMatched(Long[].class, clazz) ||
+                           classMatched(String.class, clazz) ||
+                           classMatched(byte[].class, clazz) ||
+                           classMatched(Object.class, clazz)) {
+                    // These property types do not have min/max values
+                    builder.addArea(area.areaId);
                 } else {
                     throw new IllegalArgumentException("Unexpected type: " + clazz);
                 }
             }
+
             return builder.build();
         }
     }
@@ -154,15 +170,19 @@ import java.util.List;
                 return Float.class;
             case VehiclePropertyType.INT32:
                 return Integer.class;
-            case VehiclePropertyType.INT32_VEC:
-                return Integer[].class;
+            case VehiclePropertyType.INT64:
+                return Long.class;
             case VehiclePropertyType.FLOAT_VEC:
                 return Float[].class;
+            case VehiclePropertyType.INT32_VEC:
+                return Integer[].class;
+            case VehiclePropertyType.INT64_VEC:
+                return Long[].class;
             case VehiclePropertyType.STRING:
                 return String.class;
             case VehiclePropertyType.BYTES:
                 return byte[].class;
-            case VehiclePropertyType.COMPLEX:
+            case VehiclePropertyType.MIXED:
                 return Object.class;
             default:
                 throw new IllegalArgumentException("Unexpected type: " + toHexString(halType));

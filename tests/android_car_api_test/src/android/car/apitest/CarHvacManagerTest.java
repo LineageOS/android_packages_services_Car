@@ -120,10 +120,10 @@ public class CarHvacManagerTest extends CarApiTestBase {
             assertTrue(areaIds.length > 0);
             assertEquals(areaIds.length, property.getAreaCount());
 
-            for (int areId : areaIds) {
-                assertTrue(property.hasArea(areId));
-                int min = property.getMinValue(areId);
-                int max = property.getMaxValue(areId);
+            for (int areaId : areaIds) {
+                assertTrue(property.hasArea(areaId));
+                int min = property.getMinValue(areaId);
+                int max = property.getMaxValue(areaId);
                 assertTrue(min <= max);
             }
         } else {
