@@ -27,13 +27,11 @@ import android.media.IVolumeController;
  * @hide
  */
 interface ICarAudio {
-    AudioAttributes getAudioAttributesForCarUsage(int carUsage);
-
-    void setUsageVolume(int carUsage, int index, int flags);
+    void setUsageVolume(int usage, int index, int flags);
     void setVolumeController(IVolumeController controller);
-    int getUsageMaxVolume(int carUsage);
-    int getUsageMinVolume(int carUsage);
-    int getUsageVolume(int carUsage);
+    int getUsageMaxVolume(int usage);
+    int getUsageMinVolume(int usage);
+    int getUsageVolume(int usage);
 
     void setFadeTowardFront(float value);
     void setBalanceTowardRight(float value);

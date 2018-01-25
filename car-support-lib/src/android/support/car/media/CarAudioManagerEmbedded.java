@@ -45,16 +45,6 @@ public class CarAudioManagerEmbedded extends CarAudioManager {
     }
 
     @Override
-    public AudioAttributes getAudioAttributesForCarUsage(@CarAudioUsage int carUsage)
-            throws CarNotConnectedException {
-        try {
-            return mManager.getAudioAttributesForCarUsage(carUsage);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    @Override
     public boolean isAudioRecordSupported() throws CarNotConnectedException {
         //always true in embedded
         return true;
