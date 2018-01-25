@@ -21,7 +21,6 @@ import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.media.AudioAttributes;
-import android.media.IVolumeController;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -53,24 +52,6 @@ public final class CarAudioManager implements CarManagerBase {
             mService.setUsageVolume(usage, index, flags);
         } catch (RemoteException e) {
             Log.e(CarLibLog.TAG_CAR, "setUsageVolume failed", e);
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    /**
-     * Registers a global volume controller interface.
-     *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
-     * @hide
-     */
-    @SystemApi
-    public void setVolumeController(IVolumeController controller)
-            throws CarNotConnectedException {
-        try {
-            mService.setVolumeController(controller);
-        } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "setVolumeController failed", e);
             throw new CarNotConnectedException(e);
         }
     }

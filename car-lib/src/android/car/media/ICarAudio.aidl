@@ -28,7 +28,6 @@ import android.media.IVolumeController;
  */
 interface ICarAudio {
     void setUsageVolume(int usage, int index, int flags);
-    void setVolumeController(IVolumeController controller);
     int getUsageMaxVolume(int usage);
     int getUsageMinVolume(int usage);
     int getUsageVolume(int usage);

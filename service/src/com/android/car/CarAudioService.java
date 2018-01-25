@@ -35,7 +35,6 @@ import android.media.AudioManager;
 import android.media.AudioPatch;
 import android.media.AudioPort;
 import android.media.AudioPortConfig;
-import android.media.IVolumeController;
 import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioMixingRule;
 import android.media.audiopolicy.AudioPolicy;
@@ -101,7 +100,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final SparseArray<AudioDeviceInfoState> mAudioDeviceInfoStates = new SparseArray<>();
 
     private AudioPolicy mAudioPolicy;
-    private IVolumeController mVolumeController;
 
     public CarAudioService(Context context) {
         mContext = context;
@@ -140,13 +138,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                         state.minGainIndex, state.maxGainIndex, state.currentGainIndex);
             }
         }
-    }
-
-    @Override
-    public void setVolumeController(IVolumeController controller) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        /** TODO(hwwang): validate the use cases for {@link IVolumeController} */
-        mVolumeController = controller;
     }
 
     /**

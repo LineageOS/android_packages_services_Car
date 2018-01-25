@@ -22,17 +22,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.media.AudioManager;
-import android.media.IVolumeController;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.SparseIntArray;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,7 +55,6 @@ public class VolumeTestFragment extends Fragment {
     private Button mVolumeUp;
     private Button mVolumeDown;
 
-    private final VolumeController mVolumeController = new VolumeController();
     private final Handler mHandler = new VolumeHandler();
 
     private class VolumeHandler extends Handler {
@@ -149,8 +145,6 @@ public class VolumeTestFragment extends Fragment {
                     try {
                         mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
                         initVolumeInfo();
-                        mCarAudioManager.setVolumeController(mVolumeController);
-
                     } catch (CarNotConnectedException e) {
                         Log.e(TAG, "Car is not connected!", e);
                     }
@@ -267,31 +261,5 @@ public class VolumeTestFragment extends Fragment {
             mCar.disconnect();
         }
         super.onDestroy();
-    }
-
-    private class VolumeController extends IVolumeController.Stub {
-
-        @Override
-        public void displaySafeVolumeWarning(int flags) throws RemoteException {}
-
-        @Override
-        public void volumeChanged(int streamType, int flags) throws RemoteException {
-            mHandler.sendMessage(mHandler.obtainMessage(MSG_VOLUME_CHANGED, streamType));
-        }
-
-        @Override
-        public void masterMuteChanged(int flags) throws RemoteException {}
-
-        @Override
-        public void setLayoutDirection(int layoutDirection) throws RemoteException {
-        }
-
-        @Override
-        public void dismiss() throws RemoteException {
-        }
-
-        @Override
-        public void setA11yMode(int mode) throws RemoteException {
-        }
     }
 }
