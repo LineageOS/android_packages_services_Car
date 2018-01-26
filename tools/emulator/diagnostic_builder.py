@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-# A helper class to generate COMPLEX property values that can be
+# A helper class to generate MIXED property values that can be
 # set as the value for a diagnostic frame
 # Spritually, the same as DiagnosticEventBuilder.java
 
