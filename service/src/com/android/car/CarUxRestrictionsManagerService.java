@@ -20,17 +20,16 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
-import android.car.drivingstate.CarUXRestrictionsEvent;
-import android.car.drivingstate.CarUXRestrictionsEvent.CarUXRestrictions;
+import android.car.drivingstate.CarUxRestrictions;
+import android.car.drivingstate.CarUxRestrictions.CarUxRestrictionsInfo;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
-import android.car.drivingstate.ICarUXRestrictions;
-import android.car.drivingstate.ICarUXRestrictionsChangeListener;
+import android.car.drivingstate.ICarUxRestrictionsChangeListener;
+import android.car.drivingstate.ICarUxRestrictionsManager;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
-
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,20 +38,21 @@ import java.util.List;
  * A service that listens to current driving state of the vehicle and maps it to the
  * appropriate UX restrictions for that driving state.
  */
-public class CarUXRestrictionsService extends ICarUXRestrictions.Stub implements CarServiceBase {
-    private static final String TAG = "CarUXR";
+public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.Stub implements
+        CarServiceBase {
+    private static final String TAG = "CarUxR";
     private static final boolean DBG = false;
     private final Context mContext;
     private final CarDrivingStateService mDrivingStateService;
     // List of clients listening to UX restriction events.
-    private final List<UXRestrictionsClient> mUXRClients = new ArrayList<>();
-    private CarUXRestrictionsEvent mCurrentUXRestrictions;
+    private final List<UxRestrictionsClient> mUxRClients = new ArrayList<>();
+    private CarUxRestrictions mCurrentUxRestrictions;
 
-    public CarUXRestrictionsService(Context context, CarDrivingStateService drvService) {
+    public CarUxRestrictionsManagerService(Context context, CarDrivingStateService drvService) {
         mContext = context;
         mDrivingStateService = drvService;
-        mCurrentUXRestrictions = createUXRestrictionsEvent(
-                CarUXRestrictionsEvent.UXR_FULLY_RESTRICTED);
+        mCurrentUxRestrictions = createUxRestrictionsEvent(
+                CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
     }
 
     @Override
@@ -64,13 +64,13 @@ public class CarUXRestrictionsService extends ICarUXRestrictions.Stub implements
 
     @Override
     public synchronized void release() {
-        for (UXRestrictionsClient client : mUXRClients) {
+        for (UxRestrictionsClient client : mUxRClients) {
             client.listenerBinder.unlinkToDeath(client, 0);
         }
-        mUXRClients.clear();
+        mUxRClients.clear();
         // Fully restricted by default
-        mCurrentUXRestrictions = createUXRestrictionsEvent(
-                CarUXRestrictionsEvent.UXR_FULLY_RESTRICTED);
+        mCurrentUxRestrictions = createUxRestrictionsEvent(
+                CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
         mDrivingStateService.unregisterDrivingStateChangeListener(
                 mICarDrivingStateChangeEventListener);
     }
@@ -78,47 +78,47 @@ public class CarUXRestrictionsService extends ICarUXRestrictions.Stub implements
     // Binder methods
 
     /**
-     * Register a {@link ICarUXRestrictionsChangeListener} to be notified for changes to the UX
+     * Register a {@link ICarUxRestrictionsChangeListener} to be notified for changes to the UX
      * restrictions
      *
      * @param listener listener to register
      */
     @Override
-    public synchronized void registerUXRestrictionsChangeListener(
-            ICarUXRestrictionsChangeListener listener) {
+    public synchronized void registerUxRestrictionsChangeListener(
+            ICarUxRestrictionsChangeListener listener) {
         if (listener == null) {
             if (DBG) {
-                Log.e(TAG, "registerUXRestrictionsChangeListener(): listener null");
+                Log.e(TAG, "registerUxRestrictionsChangeListener(): listener null");
             }
             throw new IllegalArgumentException("Listener is null");
         }
         // If a new client is registering, create a new DrivingStateClient and add it to the list
         // of listening clients.
-        UXRestrictionsClient client = findUXRestrictionsClient(listener);
+        UxRestrictionsClient client = findUxRestrictionsClient(listener);
         if (client == null) {
-            client = new UXRestrictionsClient(listener);
+            client = new UxRestrictionsClient(listener);
             try {
                 listener.asBinder().linkToDeath(client, 0);
             } catch (RemoteException e) {
                 Log.e(TAG, "Cannot link death recipient to binder " + e);
             }
-            mUXRClients.add(client);
+            mUxRClients.add(client);
         }
         return;
     }
 
     /**
      * Iterates through the list of registered UX Restrictions clients -
-     * {@link UXRestrictionsClient} and finds if the given client is already registered.
+     * {@link UxRestrictionsClient} and finds if the given client is already registered.
      *
      * @param listener Listener to look for.
-     * @return the {@link UXRestrictionsClient} if found, null if not
+     * @return the {@link UxRestrictionsClient} if found, null if not
      */
     @Nullable
-    private UXRestrictionsClient findUXRestrictionsClient(
-            ICarUXRestrictionsChangeListener listener) {
+    private UxRestrictionsClient findUxRestrictionsClient(
+            ICarUxRestrictionsChangeListener listener) {
         IBinder binder = listener.asBinder();
-        for (UXRestrictionsClient client : mUXRClients) {
+        for (UxRestrictionsClient client : mUxRClients) {
             if (client.isHoldingBinder(binder)) {
                 return client;
             }
@@ -133,32 +133,32 @@ public class CarUXRestrictionsService extends ICarUXRestrictions.Stub implements
      * @param listener client to unregister
      */
     @Override
-    public synchronized void unregisterUXRestrictionsChangeListener(
-            ICarUXRestrictionsChangeListener listener) {
+    public synchronized void unregisterUxRestrictionsChangeListener(
+            ICarUxRestrictionsChangeListener listener) {
         if (listener == null) {
-            Log.e(TAG, "unregisterUXRestrictionsChangeListener(): listener null");
+            Log.e(TAG, "unregisterUxRestrictionsChangeListener(): listener null");
             throw new IllegalArgumentException("Listener is null");
         }
 
-        UXRestrictionsClient client = findUXRestrictionsClient(listener);
+        UxRestrictionsClient client = findUxRestrictionsClient(listener);
         if (client == null) {
-            Log.e(TAG, "unregisterUXRestrictionsChangeListener(): listener was not previously "
+            Log.e(TAG, "unregisterUxRestrictionsChangeListener(): listener was not previously "
                     + "registered");
             return;
         }
         listener.asBinder().unlinkToDeath(client, 0);
-        mUXRClients.remove(client);
+        mUxRClients.remove(client);
     }
 
     /**
      * Gets the current UX restrictions
      *
-     * @return {@link CarUXRestrictionsEvent} for the given event type
+     * @return {@link CarUxRestrictions} for the given event type
      */
     @Override
     @Nullable
-    public synchronized CarUXRestrictionsEvent getCurrentUXRestrictions() {
-        return mCurrentUXRestrictions;
+    public synchronized CarUxRestrictions getCurrentUxRestrictions() {
+        return mCurrentUxRestrictions;
     }
 
     /**
@@ -166,11 +166,11 @@ public class CarUXRestrictionsService extends ICarUXRestrictions.Stub implements
      * binder object etc.
      * It also registers for death notifications of the host.
      */
-    private class UXRestrictionsClient implements IBinder.DeathRecipient {
+    private class UxRestrictionsClient implements IBinder.DeathRecipient {
         private final IBinder listenerBinder;
-        private final ICarUXRestrictionsChangeListener listener;
+        private final ICarUxRestrictionsChangeListener listener;
 
-        public UXRestrictionsClient(ICarUXRestrictionsChangeListener l) {
+        public UxRestrictionsClient(ICarUxRestrictionsChangeListener l) {
             listener = l;
             listenerBinder = l.asBinder();
         }
@@ -181,8 +181,8 @@ public class CarUXRestrictionsService extends ICarUXRestrictions.Stub implements
                 Log.d(TAG, "Binder died " + listenerBinder);
             }
             listenerBinder.unlinkToDeath(this, 0);
-            synchronized(CarUXRestrictionsService.this) {
-                mUXRClients.remove(this);
+            synchronized (CarUxRestrictionsManagerService.this) {
+                mUxRClients.remove(this);
             }
         }
 
@@ -199,14 +199,14 @@ public class CarUXRestrictionsService extends ICarUXRestrictions.Stub implements
         /**
          * Dispatch the event to the listener
          *
-         * @param event {@link CarUXRestrictionsEvent}.
+         * @param event {@link CarUxRestrictions}.
          */
-        public void dispatchEventToClients(CarUXRestrictionsEvent event) {
+        public void dispatchEventToClients(CarUxRestrictions event) {
             if (event == null) {
                 return;
             }
             try {
-                listener.onUXRestrictionsChanged(event);
+                listener.onUxRestrictionsChanged(event);
             } catch (RemoteException e) {
                 if (DBG) {
                     Log.d(TAG, "Dispatch to listener failed");
@@ -243,18 +243,20 @@ public class CarUXRestrictionsService extends ICarUXRestrictions.Stub implements
             return;
         }
         int drivingState = event.eventValue;
-        int uxRestrictions = mapDrivingStateToUXRestrictionsLocked(drivingState);
+        int uxRestrictions = mapDrivingStateToUxRestrictionsLocked(drivingState);
         if (DBG) {
-            Log.d(TAG, "UXR for new driving state->old: " + uxRestrictions + "->"
-                    + mCurrentUXRestrictions.eventValue);
+            Log.d(TAG, "UxR old->new: " + mCurrentUxRestrictions.getActiveRestrictions() +
+                    " -> " + uxRestrictions);
         }
-        if (mCurrentUXRestrictions.eventValue != uxRestrictions) {
-            CarUXRestrictionsEvent newUXR = createUXRestrictionsEvent(uxRestrictions);
+
+        CarUxRestrictions newRestrictions = createUxRestrictionsEvent(uxRestrictions);
+        if (!mCurrentUxRestrictions.isSameRestrictions(newRestrictions)) {
+            mCurrentUxRestrictions = newRestrictions;
             if (DBG) {
-                Log.d(TAG, "dispatching to " + mUXRClients.size() + " clients");
+                Log.d(TAG, "dispatching to " + mUxRClients.size() + " clients");
             }
-            for (UXRestrictionsClient client : mUXRClients) {
-                client.dispatchEventToClients(newUXR);
+            for (UxRestrictionsClient client : mUxRClients) {
+                client.dispatchEventToClients(newRestrictions);
             }
         }
     }
@@ -262,30 +264,35 @@ public class CarUXRestrictionsService extends ICarUXRestrictions.Stub implements
     /**
      * Map the current driving state of the vehicle to the should be imposed UX restriction for that
      * state.
-     * TODO: (b/69859857) This mapping needs to be configurable per OEM.
+     * TODO(b/69859857): This mapping needs to be configurable per OEM.
      *
      * @param drivingState driving state to map for
      * @return UX Restriction for the given driving state
      */
-    @CarUXRestrictions
-    private int mapDrivingStateToUXRestrictionsLocked(@CarDrivingState int drivingState) {
+    @CarUxRestrictionsInfo
+    private int mapDrivingStateToUxRestrictionsLocked(@CarDrivingState int drivingState) {
         int uxRestrictions;
         switch (drivingState) {
             case (CarDrivingStateEvent.DRIVING_STATE_PARKED):
-                uxRestrictions = CarUXRestrictionsEvent.UXR_NO_RESTRICTIONS;
+                uxRestrictions = CarUxRestrictions.UX_RESTRICTIONS_UNRESTRICTED;
                 break;
             // For now, for any driving state other than parked, fall through to Fully Restricted
             // mode.
-            // TODO: (b/69859857) Customized mapping to a configurable UX Restriction
+            // TODO(b/69859857): Customized mapping to a configurable UX Restriction
             case (CarDrivingStateEvent.DRIVING_STATE_IDLING):
             case (CarDrivingStateEvent.DRIVING_STATE_MOVING):
             default:
-                uxRestrictions = CarUXRestrictionsEvent.UXR_FULLY_RESTRICTED;
+                uxRestrictions = CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
         }
         return uxRestrictions;
     }
 
-    private static CarUXRestrictionsEvent createUXRestrictionsEvent(int eventValue) {
-        return new CarUXRestrictionsEvent(eventValue, SystemClock.elapsedRealtimeNanos());
+    private static CarUxRestrictions createUxRestrictionsEvent(int uxr) {
+        boolean requiresOpt = true;
+        // TODO(b/69859857): This will eventually come from a config file
+        if (uxr == CarUxRestrictions.UX_RESTRICTIONS_UNRESTRICTED) {
+            requiresOpt = false;
+        }
+        return new CarUxRestrictions(requiresOpt, uxr, SystemClock.elapsedRealtimeNanos());
     }
 }

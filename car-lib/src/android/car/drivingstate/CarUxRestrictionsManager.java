@@ -21,7 +21,7 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
-import android.car.drivingstate.ICarUXRestrictions;
+import android.car.drivingstate.ICarUxRestrictionsManager;
 import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
@@ -35,76 +35,77 @@ import java.lang.ref.WeakReference;
  * API to register and get the User Experience restrictions imposed based on the car's driving
  * state.
  */
-public final class CarUXRestrictionsManager implements CarManagerBase {
-    private static final String TAG = "CarUXRManager";
+public final class CarUxRestrictionsManager implements CarManagerBase {
+    private static final String TAG = "CarUxRManager";
     private static final boolean DBG = false;
     private static final boolean VDBG = false;
     private static final int MSG_HANDLE_UX_RESTRICTIONS_CHANGE = 0;
 
     private final Context mContext;
-    private final ICarUXRestrictions mUXRService;
+    private final ICarUxRestrictionsManager mUxRService;
     private final EventCallbackHandler mEventCallbackHandler;
-    private CarUXRestrictionsEventListener mUXRListener;
-    private CarUXRestrictionsChangeListenerToService mListenerToService;
+    private onUxRestrictionsChangedListener mUxRListener;
+    private CarUxRestrictionsChangeListenerToService mListenerToService;
 
 
     /** @hide */
-    public CarUXRestrictionsManager(IBinder service, Context context, Handler handler) {
+    public CarUxRestrictionsManager(IBinder service, Context context, Handler handler) {
         mContext = context;
-        mUXRService = ICarUXRestrictions.Stub.asInterface(service);
+        mUxRService = ICarUxRestrictionsManager.Stub.asInterface(service);
         mEventCallbackHandler = new EventCallbackHandler(this, handler.getLooper());
     }
 
     /** @hide */
     @Override
     public synchronized void onCarDisconnected() {
-            mListenerToService = null;
-            mUXRListener = null;
+        mListenerToService = null;
+        mUxRListener = null;
     }
 
     /**
      * Listener Interface for clients to implement to get updated on driving state related
      * changes.
      */
-    public interface CarUXRestrictionsEventListener {
+    public interface onUxRestrictionsChangedListener {
         /**
          * Called when the UX restrictions due to a car's driving state changes.
-         * @param event The new UX restriction event
+         *
+         * @param restrictionInfo The new UX restriction information
          */
-        void onUXRestrictionsChanged(CarUXRestrictionsEvent event);
+        void onUxRestrictionsChanged(CarUxRestrictions restrictionInfo);
     }
 
     /**
-     * Register a {@link CarUXRestrictionsEventListener} for listening to changes in the
+     * Register a {@link onUxRestrictionsChangedListener} for listening to changes in the
      * UX Restrictions to adhere to.
      * <p>
      * If a listener has already been registered, it has to be unregistered before registering
      * the new one.
      *
-     * @param listener   {@link CarUXRestrictionsEventListener}
+     * @param listener {@link onUxRestrictionsChangedListener}
      */
-    public synchronized void registerListener(@NonNull CarUXRestrictionsEventListener listener)
+    public synchronized void registerListener(@NonNull onUxRestrictionsChangedListener listener)
             throws CarNotConnectedException, IllegalArgumentException {
         if (listener == null) {
             if (VDBG) {
-                Log.v(TAG, "registerCarUXRestrictionsEventListener(): null listener");
+                Log.v(TAG, "registerListener(): null listener");
             }
             throw new IllegalArgumentException("Listener is null");
         }
-        // Check if the listener has been already registered for this event type
-        if (mUXRListener != null) {
+        // Check if the listener has been already registered.
+        if (mUxRListener != null) {
             if (DBG) {
                 Log.d(TAG, "Listener already registered listener");
             }
             return;
         }
-        mUXRListener = listener;
+        mUxRListener = listener;
         try {
             if (mListenerToService == null) {
-                mListenerToService = new CarUXRestrictionsChangeListenerToService(this);
+                mListenerToService = new CarUxRestrictionsChangeListenerToService(this);
             }
             // register to the Service to listen for changes.
-            mUXRService.registerUXRestrictionsChangeListener(mListenerToService);
+            mUxRService.registerUxRestrictionsChangeListener(mListenerToService);
         } catch (RemoteException e) {
             Log.e(TAG, "Could not register a listener to Driving State Service " + e);
             throw new CarNotConnectedException(e);
@@ -115,19 +116,19 @@ public final class CarUXRestrictionsManager implements CarManagerBase {
     }
 
     /**
-     * Unregister the registered {@link CarUXRestrictionsEventListener}
+     * Unregister the registered {@link onUxRestrictionsChangedListener}
      */
     public synchronized void unregisterListener()
             throws CarNotConnectedException {
-        if (mUXRListener == null) {
+        if (mUxRListener == null) {
             if (DBG) {
                 Log.d(TAG, "Listener was not previously registered");
             }
             return;
         }
         try {
-            mUXRService.unregisterUXRestrictionsChangeListener(mListenerToService);
-            mUXRListener = null;
+            mUxRService.unregisterUxRestrictionsChangeListener(mListenerToService);
+            mUxRListener = null;
         } catch (RemoteException e) {
             Log.e(TAG, "Could not unregister listener from Driving State Service " + e);
             throw new CarNotConnectedException(e);
@@ -135,15 +136,15 @@ public final class CarUXRestrictionsManager implements CarManagerBase {
     }
 
     /**
-     * Get the current UX restrictions {@link CarUXRestrictionsEvent} in place.
+     * Get the current UX restrictions {@link CarUxRestrictions} in place.
      *
      * @return current UX restrictions that is in effect.
      */
     @Nullable
-    public CarUXRestrictionsEvent getCurrentCarUXRestrictions()
+    public CarUxRestrictions getCurrentCarUxRestrictions()
             throws CarNotConnectedException {
         try {
-            return mUXRService.getCurrentUXRestrictions();
+            return mUxRService.getCurrentUxRestrictions();
         } catch (RemoteException e) {
             Log.e(TAG, "Could not get current driving state " + e);
             throw new CarNotConnectedException(e);
@@ -154,75 +155,74 @@ public final class CarUXRestrictionsManager implements CarManagerBase {
      * Class that implements the listener interface and gets called back from the
      * {@link com.android.car.CarDrivingStateService} across the binder interface.
      */
-    private static class CarUXRestrictionsChangeListenerToService extends
-            ICarUXRestrictionsChangeListener.Stub {
-        private final WeakReference<CarUXRestrictionsManager> mUXRestrictionsManager;
+    private static class CarUxRestrictionsChangeListenerToService extends
+            ICarUxRestrictionsChangeListener.Stub {
+        private final WeakReference<CarUxRestrictionsManager> mUxRestrictionsManager;
 
-        public CarUXRestrictionsChangeListenerToService(CarUXRestrictionsManager manager) {
-            mUXRestrictionsManager = new WeakReference<>(manager);
+        public CarUxRestrictionsChangeListenerToService(CarUxRestrictionsManager manager) {
+            mUxRestrictionsManager = new WeakReference<>(manager);
         }
 
         @Override
-        public void onUXRestrictionsChanged(CarUXRestrictionsEvent event) {
-            CarUXRestrictionsManager manager = mUXRestrictionsManager.get();
+        public void onUxRestrictionsChanged(CarUxRestrictions restrictionInfo) {
+            CarUxRestrictionsManager manager = mUxRestrictionsManager.get();
             if (manager != null) {
-                manager.handleUXRestrictionsChanged(event);
+                manager.handleUxRestrictionsChanged(restrictionInfo);
             }
         }
     }
 
     /**
-     * Gets the {@link CarUXRestrictionsEvent} from the service listener
-     * {@link CarUXRestrictionsChangeListenerToService} and dispatches it to a handler provided
+     * Gets the {@link CarUxRestrictions} from the service listener
+     * {@link CarUxRestrictionsChangeListenerToService} and dispatches it to a handler provided
      * to the manager
      *
-     * @param event  {@link CarUXRestrictionsEvent} that has been registered to listen on
+     * @param restrictionInfo {@link CarUxRestrictions} that has been registered to listen on
      */
-    private void handleUXRestrictionsChanged(CarUXRestrictionsEvent event) {
+    private void handleUxRestrictionsChanged(CarUxRestrictions restrictionInfo) {
         // send a message to the handler
-        mEventCallbackHandler.sendMessage(
-                mEventCallbackHandler.obtainMessage(MSG_HANDLE_UX_RESTRICTIONS_CHANGE, event));
-
+        mEventCallbackHandler.sendMessage(mEventCallbackHandler.obtainMessage(
+                    MSG_HANDLE_UX_RESTRICTIONS_CHANGE, restrictionInfo));
     }
 
     /**
-     * Callback Handler to handle dispatching the driving event changes to the corresponding
+     * Callback Handler to handle dispatching the UX restriction changes to the corresponding
      * listeners
      */
     private static final class EventCallbackHandler extends Handler {
-        private final WeakReference<CarUXRestrictionsManager> mUXRestrictionsManager;
+        private final WeakReference<CarUxRestrictionsManager> mUxRestrictionsManager;
 
-        public EventCallbackHandler(CarUXRestrictionsManager manager, Looper looper) {
+        public EventCallbackHandler(CarUxRestrictionsManager manager, Looper looper) {
             super(looper);
-            mUXRestrictionsManager = new WeakReference<>(manager);
+            mUxRestrictionsManager = new WeakReference<>(manager);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            CarUXRestrictionsManager mgr = mUXRestrictionsManager.get();
+            CarUxRestrictionsManager mgr = mUxRestrictionsManager.get();
             if (mgr != null) {
-                mgr.dispatchUXRChangeToClient((CarUXRestrictionsEvent) msg.obj);
+                mgr.dispatchUxRChangeToClient((CarUxRestrictions) msg.obj);
             }
         }
 
     }
 
     /**
-     * Checks for the listeners to list of {@link CarUXRestrictionsEvent} and calls them back
+     * Checks for the listeners to list of {@link CarUxRestrictions} and calls them back
      * in the callback handler thread
      *
-     * @param event  {@link CarUXRestrictionsEvent}
+     * @param restrictionInfo {@link CarUxRestrictions}
      */
-    private void dispatchUXRChangeToClient(CarUXRestrictionsEvent event) {
-        if (event == null) {
+    private void dispatchUxRChangeToClient(CarUxRestrictions restrictionInfo) {
+        if (restrictionInfo == null) {
             return;
         }
-        CarUXRestrictionsEventListener listener;
+        onUxRestrictionsChangedListener listener;
         synchronized (this) {
-            listener = mUXRListener;
+            listener = mUxRListener;
         }
         if (listener != null) {
-            listener.onUXRestrictionsChanged(event);
+            listener.onUxRestrictionsChanged(restrictionInfo);
         }
     }
 
