@@ -51,8 +51,11 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     public CarUxRestrictionsManagerService(Context context, CarDrivingStateService drvService) {
         mContext = context;
         mDrivingStateService = drvService;
+        // Unrestricted until driving state information is received. During boot up, if driving
+        // state information is not available due to the unavailability of data from VHAL, default
+        // mode is unrestricted.
         mCurrentUxRestrictions = createUxRestrictionsEvent(
-                CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
+                CarUxRestrictions.UX_RESTRICTIONS_UNRESTRICTED);
     }
 
     @Override
@@ -68,9 +71,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             client.listenerBinder.unlinkToDeath(client, 0);
         }
         mUxRClients.clear();
-        // Fully restricted by default
-        mCurrentUxRestrictions = createUxRestrictionsEvent(
-                CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
         mDrivingStateService.unregisterDrivingStateChangeListener(
                 mICarDrivingStateChangeEventListener);
     }

@@ -41,19 +41,13 @@ import com.android.car.R;
  * via {@link #INTENT_KEY_BLOCKED_ACTIVITY} key. *
  */
 public class ActivityBlockingActivity extends Activity {
-
+    private static final boolean DBG = false;
     public static final String INTENT_KEY_BLOCKED_ACTIVITY = "blocked_activity";
-
     private static final long AUTO_DISMISS_TIME_MS = 3000;
-
     private Handler mHandler;
-
     private Button mExitButton;
-
     private Car mCar;
-
     private boolean mExitRequested;
-
     private final Runnable mFinishRunnable = () -> handleFinish();
 
     @Override
@@ -103,17 +97,25 @@ public class ActivityBlockingActivity extends Activity {
         }
         try {
             CarPackageManager carPm = (CarPackageManager) mCar.getCarManager(Car.PACKAGE_SERVICE);
-
             // finish itself only when it will not lead into another blocking
             if (carPm.isActivityBackedBySafeActivity(getComponentName())) {
+                if (DBG) {
+                    Log.d(CarLog.TAG_AM, "New Activity is safe. No more blocking: "
+                            + getComponentName().getClassName());
+                }
                 finish();
                 return;
             }
             // back activity is not safe either. Now try home
             Intent homeIntent = new Intent(Intent.ACTION_MAIN);
             homeIntent.addCategory(Intent.CATEGORY_HOME);
+            // Start a new task before launching the home activity.
+            homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             PackageManager pm = getPackageManager();
             ComponentName homeComponent = homeIntent.resolveActivity(pm);
+            if (DBG) {
+                Log.d(CarLog.TAG_AM, "Launching home activity: " + homeComponent.getClassName());
+            }
             if (carPm.isActivityAllowedWhileDriving(homeComponent.getPackageName(),
                     homeComponent.getClassName())) {
                 startActivity(homeIntent);
@@ -124,7 +126,7 @@ public class ActivityBlockingActivity extends Activity {
                         + ", Home Activity:" + homeComponent);
             }
         } catch (CarNotConnectedException e) {
-            Log.w(CarLog.TAG_AM, "Car service not avaiable, will finish", e);
+            Log.w(CarLog.TAG_AM, "Car service not available, will finish", e);
             finish();
         }
     }
