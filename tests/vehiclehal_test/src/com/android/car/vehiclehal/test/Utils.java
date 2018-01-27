@@ -47,8 +47,8 @@ final class Utils {
         IVehicle vehicle,
         VehiclePropValue request,
         java.util.function.BiFunction<Integer, VehiclePropValue, Boolean> f) {
-        vehicle = Objects.requireNonNull(vehicle);
-        request = Objects.requireNonNull(request);
+        Objects.requireNonNull(vehicle);
+        Objects.requireNonNull(request);
         VehiclePropValue vpv[] = new VehiclePropValue[] {null};
         try {
             vehicle.get(
