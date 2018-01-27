@@ -102,7 +102,7 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * @param usage The {@link AudioAttributes} usage
      *                       whose minimum volume index is returned.
-     * @return The minimum valid volume index for the usage.
+     * @return The minimum valid volume index for the usage, non-negative
      */
     @SystemApi
     public int getUsageMinVolume(@AudioAttributes.AttributeUsage int usage)
@@ -238,7 +238,7 @@ public final class CarAudioManager implements CarManagerBase {
      * @param patch CarAudioPatchHandle returned from createAudioPatch().
      *
      * @see #getExternalSources()
-     * @see #createAudioPatch(String, int)
+     * @see #createAudioPatch(String, int, int)
      */
     @SystemApi
     public void releaseAudioPatch(CarAudioPatchHandle patch) throws CarNotConnectedException {
@@ -249,7 +249,6 @@ public final class CarAudioManager implements CarManagerBase {
             throw new CarNotConnectedException(e);
         }
     }
-
 
     /** @hide */
     @Override
