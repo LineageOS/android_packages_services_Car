@@ -21,7 +21,6 @@ import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.media.AudioAttributes;
-import android.media.IVolumeController;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -58,24 +57,6 @@ public final class CarAudioManager implements CarManagerBase {
     }
 
     /**
-     * Registers a global volume controller interface.
-     *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
-     * @hide
-     */
-    @SystemApi
-    public void setVolumeController(IVolumeController controller)
-            throws CarNotConnectedException {
-        try {
-            mService.setVolumeController(controller);
-        } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "setVolumeController failed", e);
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    /**
      * Returns the maximum volume index for an {@link AudioAttributes} usage.
      *
      * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
@@ -102,7 +83,7 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * @param usage The {@link AudioAttributes} usage
      *                       whose minimum volume index is returned.
-     * @return The minimum valid volume index for the usage.
+     * @return The minimum valid volume index for the usage, non-negative
      */
     @SystemApi
     public int getUsageMinVolume(@AudioAttributes.AttributeUsage int usage)
@@ -238,7 +219,7 @@ public final class CarAudioManager implements CarManagerBase {
      * @param patch CarAudioPatchHandle returned from createAudioPatch().
      *
      * @see #getExternalSources()
-     * @see #createAudioPatch(String, int)
+     * @see #createAudioPatch(String, int, int)
      */
     @SystemApi
     public void releaseAudioPatch(CarAudioPatchHandle patch) throws CarNotConnectedException {
@@ -249,7 +230,6 @@ public final class CarAudioManager implements CarManagerBase {
             throw new CarNotConnectedException(e);
         }
     }
-
 
     /** @hide */
     @Override

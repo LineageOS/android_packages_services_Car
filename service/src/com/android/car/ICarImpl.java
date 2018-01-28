@@ -61,7 +61,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarInputService mCarInputService;
     private final CarSensorService mCarSensorService;
     private final CarDrivingStateService mCarDrivingStateService;
-    private final CarUXRestrictionsService mCarUXRestrictionsService;
+    private final CarUxRestrictionsManagerService mCarUXRestrictionsService;
     private final CarInfoService mCarInfoService;
     private final CarAudioService mCarAudioService;
     private final CarProjectionService mCarProjectionService;
@@ -107,7 +107,7 @@ public class ICarImpl extends ICar.Stub {
                 mHal.getPowerHal(), systemInterface);
         mCarSensorService = new CarSensorService(serviceContext, mHal.getSensorHal());
         mCarDrivingStateService = new CarDrivingStateService(serviceContext, mCarSensorService);
-        mCarUXRestrictionsService = new CarUXRestrictionsService(serviceContext,
+        mCarUXRestrictionsService = new CarUxRestrictionsManagerService(serviceContext,
                 mCarDrivingStateService);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext, mCarSensorService,
                 mSystemActivityMonitoringService);

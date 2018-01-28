@@ -20,28 +20,6 @@
 <!-- Resources to configure car service based on each OEM's preference. -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- Audio routing policy for all H/W variants. Each item represents policy for one variant.
-
-         Each item is defined in this format:
-         physicalStreamNumber:(streamType,)*StreamType#physicalStreamNumber:...
-
-           Stream type is logical stream type to route to the physical stream. Currently defined
-           types are: call, media, nav_guidance, voice_command, alarm, notification, system, safety,
-             and unknown
-               unknown is for stream not tagged with specific contents.
-           physicalStreamNumber should be [0, maxNumberOfPhysicalStream - 1].
-         There is no "radio" as radio routing is outside android (for external module) or same as
-         music (for android internal module)
-		 OEM can put multiple policies as item and VEHICLE_PROPERTY_AUDIO_HW_VARIANT in vehicle HAL
-		 can decide which policy to use for the given H/W. This allows OEMs to support multiple
-		 audio policy from single android S/W by detecting system's audio capability in
-		 vehicle HAL.-->
-    <string-array translatable="false" name="audioRoutingPolicy">
-        <!--  alll logical streams into single physical stream 0. -->
-        <item>"0:call,media,radio,nav_guidance,voice_command,alarm,notification,system,safety,unknown"</item>
-        <!--  call and media to physical stream 0 while all others go to physical stream 1 -->
-        <item>"0:call,media,radio,unknown#1:nav_guidance,voice_command,alarm,notification,system,safety"</item>
-    </string-array>
     <!--  Configuration to enable usage of dynamic audio routing. If this is set to false,
           dynamic audio routing is disabled and audio works in legacy mode. It may be useful
           during initial development where audio hal does not support bus based addressing yet. -->

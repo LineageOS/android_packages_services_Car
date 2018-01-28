@@ -61,12 +61,8 @@ class ActionPropConfig(object):
 
     def _getSupportedAreas(self, vhalConfig):
         supportedAreas = []
-        areas = vhalConfig.supported_areas
-        while areas != 0:
-            area = areas & (areas - 1)
-            area ^= areas
-            areas &= (areas - 1)
-            supportedAreas.append(area)
+        for config in vhalConfig.area_configs:
+            supportedAreas.append(config.area_id)
 
         return supportedAreas
 

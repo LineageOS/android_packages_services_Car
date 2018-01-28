@@ -16,18 +16,4 @@
 
 package android.car.drivingstate;
 
-import android.car.drivingstate.CarUXRestrictionsEvent;
-import android.car.drivingstate.ICarUXRestrictionsChangeListener;
-
-/**
- * Binder interface for {@link android.car.drivingstate.CarUXRestrictionsManager}.
- * Check {@link android.car.drivingstate.CarUXRestrictionsManager} APIs for expected behavior of
- * each call.
- *
- * @hide
- */
-interface ICarUXRestrictions {
-    void registerUXRestrictionsChangeListener(in ICarUXRestrictionsChangeListener listener) = 0;
-    void unregisterUXRestrictionsChangeListener(in ICarUXRestrictionsChangeListener listener) = 1;
-    CarUXRestrictionsEvent getCurrentUXRestrictions() = 2;
-}
+parcelable CarUxRestrictions;

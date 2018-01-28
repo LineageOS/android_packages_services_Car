@@ -720,7 +720,6 @@ package android.car.media {
     method public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
     method public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
     method public void setUsageVolume(int, int, int) throws android.car.CarNotConnectedException;
-    method public void setVolumeController(android.media.IVolumeController) throws android.car.CarNotConnectedException;
   }
 
 }

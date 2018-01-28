@@ -15,6 +15,7 @@
  */
 package com.android.car;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.media.CarAudioPatchHandle;
@@ -22,6 +23,7 @@ import android.car.media.ICarAudio;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
@@ -33,13 +35,14 @@ import android.media.AudioManager;
 import android.media.AudioPatch;
 import android.media.AudioPort;
 import android.media.AudioPortConfig;
-import android.media.IVolumeController;
 import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioMixingRule;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 
 import com.android.internal.util.Preconditions;
 
@@ -50,18 +53,53 @@ import java.util.NoSuchElementException;
 
 public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
-    private static final boolean DBG = false;
-    private static final boolean DBG_DYNAMIC_AUDIO_ROUTING = false;
+    private static final int[] CONTEXT_NUMBERS = new int[] {
+            ContextNumber.MUSIC,
+            ContextNumber.NAVIGATION,
+            ContextNumber.VOICE_COMMAND,
+            ContextNumber.CALL_RING,
+            ContextNumber.CALL,
+            ContextNumber.ALARM,
+            ContextNumber.NOTIFICATION,
+            ContextNumber.SYSTEM_SOUND
+    };
+
+    private static final SparseIntArray USAGE_TO_CONTEXT = new SparseIntArray();
+
+    static {
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_UNKNOWN, ContextNumber.MUSIC);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_MEDIA, ContextNumber.MUSIC);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_VOICE_COMMUNICATION, ContextNumber.CALL);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING,
+                ContextNumber.CALL);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_ALARM, ContextNumber.ALARM);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_NOTIFICATION, ContextNumber.NOTIFICATION);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_NOTIFICATION_RINGTONE, ContextNumber.CALL_RING);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST,
+                ContextNumber.NOTIFICATION);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT,
+                ContextNumber.NOTIFICATION);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED,
+                ContextNumber.NOTIFICATION);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_NOTIFICATION_EVENT, ContextNumber.NOTIFICATION);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY,
+                ContextNumber.VOICE_COMMAND);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+                ContextNumber.NAVIGATION);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION,
+                ContextNumber.SYSTEM_SOUND);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_GAME, ContextNumber.MUSIC);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_VIRTUAL_SOURCE, ContextNumber.INVALID);
+        USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_ASSISTANT, ContextNumber.VOICE_COMMAND);
+    }
 
     private final Context mContext;
     private final AudioManager mAudioManager;
     private final boolean mUseDynamicRouting;
+    private final SparseIntArray mUsageToBus = new SparseIntArray();
+    private final SparseArray<AudioDeviceInfoState> mAudioDeviceInfoStates = new SparseArray<>();
 
     private AudioPolicy mAudioPolicy;
-    private AudioRoutingPolicy mAudioRoutingPolicy;
-    private IVolumeController mVolumeController;
-    private AudioDeviceInfo[] mAudioDeviceInfos;
-    private int[] mAudioDeviceGainIndexes;
 
     public CarAudioService(Context context) {
         mContext = context;
@@ -72,83 +110,170 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @Override
     public void init() {
-        mAudioRoutingPolicy = AudioRoutingPolicy.create(mContext, 0);
-
-        if (mUseDynamicRouting) {
-            AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
-            builder.setLooper(Looper.getMainLooper());
-            setupDynamicRouting(mAudioRoutingPolicy, builder);
-            mAudioPolicy = builder.build();
+        if (!mUseDynamicRouting) {
+            Log.i(CarLog.TAG_AUDIO, "Audio dynamic routing not configured, run in legacy mode");
+            return;
         }
+        setupDynamicRouting();
+    }
 
-        // Register audio policy only after this class is fully initialized.
-        int r = mAudioManager.registerAudioPolicy(mAudioPolicy);
-        if (r != 0) {
-            throw new RuntimeException("registerAudioPolicy failed " + r);
+    @Override
+    public void release() {
+        if (mUseDynamicRouting && mAudioPolicy != null) {
+            mAudioManager.unregisterAudioPolicyAsync(mAudioPolicy);
+            mAudioPolicy = null;
         }
     }
 
-    private void setupDynamicRouting(AudioRoutingPolicy audioRoutingPolicy,
-            AudioPolicy.Builder audioPolicyBuilder) {
+    @Override
+    public void dump(PrintWriter writer) {
+        writer.println("*CarAudioService*");
+        writer.println("mUseDynamicRouting: " + mUseDynamicRouting);
+        if (mUseDynamicRouting) {
+            int size = mAudioDeviceInfoStates.size();
+            for (int i = 0; i < size; i++) {
+                writer.println("\tBus number: " + mAudioDeviceInfoStates.keyAt(i));
+                AudioDeviceInfoState state = mAudioDeviceInfoStates.valueAt(i);
+                writer.printf("\tGain control min:%d max:%d current:%d\n",
+                        state.minGainIndex, state.maxGainIndex, state.currentGainIndex);
+            }
+        }
+    }
+
+    /**
+     * @see {@link android.car.media.CarAudioManager#setUsageVolume(int, int, int)}
+     */
+    @Override
+    public void setUsageVolume(
+            @AudioAttributes.AttributeUsage int usage, int index, int flags) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        AudioPort audioPort = getAudioPort(usage);
+        AudioGainConfig audioGainConfig = null;
+        AudioGain audioGain = getAudioGain(audioPort);
+        if (audioGain != null) {
+            int gainValue = indexToGain(audioGain, index);
+            // size of gain values is 1 in MODE_JOINT
+            audioGainConfig = audioGain.buildConfig(AudioGain.MODE_JOINT,
+                    audioGain.channelMask(), new int[] { gainValue }, 0);
+        }
+        if (audioGainConfig != null) {
+            int r = AudioManager.setAudioPortGain(audioPort, audioGainConfig);
+            if (r == 0) {
+                AudioDeviceInfoState state = mAudioDeviceInfoStates.get(mUsageToBus.get(usage));
+                state.currentGainIndex = audioGainConfig.values()[0];
+            }
+        }
+    }
+
+    /**
+     * @see {@link android.car.media.CarAudioManager#getUsageMaxVolume(int)}
+     */
+    @Override
+    public int getUsageMaxVolume(@AudioAttributes.AttributeUsage int usage) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        return mAudioDeviceInfoStates.get(mUsageToBus.get(usage)).maxGainIndex;
+    }
+
+    /**
+     * TODO(hwwang): some audio usages may have a min volume greater than zero
+     * @see {@link android.car.media.CarAudioManager#getUsageMinVolume(int)}
+     */
+    @Override
+    public int getUsageMinVolume(@AudioAttributes.AttributeUsage int usage) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        return mAudioDeviceInfoStates.get(mUsageToBus.get(usage)).minGainIndex;
+    }
+
+    /**
+     * @see {@link android.car.media.CarAudioManager#getUsageVolume(int)}
+     */
+    @Override
+    public int getUsageVolume(@AudioAttributes.AttributeUsage int usage) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        return mAudioDeviceInfoStates.get(mUsageToBus.get(usage)).currentGainIndex;
+    }
+
+    /**
+     * @return {@code false} if dynamic routing is not available, most likely due to absence of
+     * {@link IAudioControl}
+     */
+    private boolean setupDynamicRouting() {
+        final IAudioControl audioControl = getAudioControl();
+        if (audioControl == null) {
+            return false;
+        }
+        AudioPolicy audioPolicy = getDynamicAudioPolicy(audioControl);
+        int r = mAudioManager.registerAudioPolicy(audioPolicy);
+        if (r != 0) {
+            throw new RuntimeException("registerAudioPolicy failed " + r);
+        }
+        mAudioPolicy = audioPolicy;
+        return true;
+    }
+
+    @Nullable
+    private AudioPolicy getDynamicAudioPolicy(@NonNull IAudioControl audioControl) {
+        AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
+        builder.setLooper(Looper.getMainLooper());
+
+        // 1st, enumerate all output bus device ports
         AudioDeviceInfo[] deviceInfos = mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
         if (deviceInfos.length == 0) {
             Log.e(CarLog.TAG_AUDIO, "setupDynamicRouting, no output device available, ignore");
-            return;
+            return null;
         }
-        int numPhysicalStreams = audioRoutingPolicy.getPhysicalStreamsCount();
-        mAudioDeviceInfos = new AudioDeviceInfo[numPhysicalStreams];
-        mAudioDeviceGainIndexes = new int[numPhysicalStreams];
         for (AudioDeviceInfo info : deviceInfos) {
-            if (DBG_DYNAMIC_AUDIO_ROUTING) {
-                Log.v(CarLog.TAG_AUDIO, String.format(
-                        "output device=%s id=%d name=%s addr=%s type=%s",
-                        info.toString(), info.getId(), info.getProductName(), info.getAddress(),
-                        info.getType()));
-            }
+            Log.v(CarLog.TAG_AUDIO, String.format(
+                    "output device=%s id=%d name=%s address=%s type=%s",
+                    info.toString(), info.getId(), info.getProductName(), info.getAddress(),
+                    info.getType()));
             if (info.getType() == AudioDeviceInfo.TYPE_BUS) {
                 int addressNumeric = parseDeviceAddress(info.getAddress());
-                if (addressNumeric >= 0 && addressNumeric < numPhysicalStreams) {
-                    mAudioDeviceInfos[addressNumeric] = info;
-                    AudioGain audioGain = getAudioGain(info.getPort());
-                    mAudioDeviceGainIndexes[addressNumeric] =
-                            gainToIndex(audioGain, audioGain.defaultValue());
+                if (addressNumeric >= 0) {
+                    final AudioDeviceInfoState state = new AudioDeviceInfoState(info);
+                    mAudioDeviceInfoStates.put(addressNumeric, state);
                     Log.i(CarLog.TAG_AUDIO, String.format(
-                            "valid bus found, devie=%s id=%d name=%s addr=%s gainIndex=%d",
+                            "valid bus found, device=%s id=%d name=%s address=%s gainIndex=%d",
                             info.toString(), info.getId(), info.getProductName(), info.getAddress(),
-                            mAudioDeviceGainIndexes[addressNumeric]));
+                            state.currentGainIndex));
                 }
             }
         }
-        for (int i = 0; i < numPhysicalStreams; i++) {
-            AudioDeviceInfo info = mAudioDeviceInfos[i];
-            if (info == null) {
-                Log.e(CarLog.TAG_AUDIO, "setupDynamicRouting, cannot find device for address " + i);
-                return;
+
+        // 2nd, enumerate bus for all supported contexts and build the routing policy
+        try {
+            for (int contextNumber : CONTEXT_NUMBERS) {
+                int busNumber = audioControl.getBusForContext(contextNumber);
+                AudioDeviceInfoState state = Preconditions.checkNotNull(
+                        mAudioDeviceInfoStates.get(busNumber),
+                        "No bus configured for context: " + contextNumber);
+                AudioFormat mixFormat = new AudioFormat.Builder()
+                        .setSampleRate(state.sampleRate)
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setChannelMask(state.channelCount)
+                        .build();
+                Log.i(CarLog.TAG_AUDIO, String.format(
+                        "Bus number %d, sampleRate:%d, channels:0x%s",
+                        busNumber, state.sampleRate, Integer.toHexString(state.channelCount)));
+                int[] usages = getUsagesForContext(contextNumber);
+                AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
+                for (int usage : usages) {
+                    mUsageToBus.put(usage, busNumber);
+                    mixingRuleBuilder.addRule(
+                            new AudioAttributes.Builder().setUsage(usage).build(),
+                            AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
+                }
+                AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
+                        .setFormat(mixFormat)
+                        .setDevice(state.audioDeviceInfo)
+                        .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
+                        .build();
+                builder.addMix(audioMix);
             }
-            int sampleRate = getMaxSampleRate(info);
-            int channels = getMaxChannels(info);
-            AudioFormat mixFormat = new AudioFormat.Builder()
-                .setSampleRate(sampleRate)
-                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                .setChannelMask(channels)
-                .build();
-            Log.i(CarLog.TAG_AUDIO, String.format(
-                    "Physical stream %d, sampleRate:%d, channels:0x%s", i, sampleRate,
-                    Integer.toHexString(channels)));
-            int[] usages = audioRoutingPolicy.getUsagesForPhysicalStream(i);
-            AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
-            for (int usage : usages) {
-                mixingRuleBuilder.addRule(
-                        new AudioAttributes.Builder().setUsage(usage).build(),
-                        AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
-            }
-            AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
-                .setFormat(mixFormat)
-                .setDevice(info)
-                .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
-                .build();
-            audioPolicyBuilder.addMix(audioMix);
+        } catch (RemoteException e) {
+            Log.e(CarLog.TAG_AUDIO, "Error mapping context to physical bus", e);
         }
+        return builder.build();
     }
 
     /**
@@ -171,98 +296,18 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return addressParsed;
     }
 
-    private int getMaxSampleRate(AudioDeviceInfo info) {
-        int[] sampleRates = info.getSampleRates();
-        if (sampleRates == null || sampleRates.length == 0) {
-            return 48000;
-        }
-        int sampleRate = sampleRates[0];
-        for (int i = 1; i < sampleRates.length; i++) {
-            if (sampleRates[i] > sampleRate) {
-                sampleRate = sampleRates[i];
+    private int getContextForUsage(@AudioAttributes.AttributeUsage int usage) {
+        return USAGE_TO_CONTEXT.get(usage, ContextNumber.INVALID);
+    }
+
+    private int[] getUsagesForContext(int contextNumber) {
+        final List<Integer> usages = new ArrayList<>();
+        for (int i = 0; i < USAGE_TO_CONTEXT.size(); i++) {
+            if (USAGE_TO_CONTEXT.valueAt(i) == contextNumber) {
+                usages.add(USAGE_TO_CONTEXT.keyAt(i));
             }
         }
-        return sampleRate;
-    }
-
-    private int getMaxChannels(AudioDeviceInfo info) {
-        int[] channelMasks = info.getChannelMasks();
-        if (channelMasks == null) {
-            return AudioFormat.CHANNEL_OUT_STEREO;
-        }
-        int channels = AudioFormat.CHANNEL_OUT_MONO;
-        int numChannels = 1;
-        for (int i = 0; i < channelMasks.length; i++) {
-            int currentNumChannels = Integer.bitCount(channelMasks[i]);
-            if (currentNumChannels > numChannels) {
-                numChannels = currentNumChannels;
-                channels = channelMasks[i];
-            }
-        }
-        return channels;
-    }
-
-    @Override
-    public void release() {
-        if (mAudioPolicy != null) {
-            mAudioManager.unregisterAudioPolicyAsync(mAudioPolicy);
-            mAudioPolicy = null;
-        }
-    }
-
-    @Override
-    public void dump(PrintWriter writer) {
-        writer.println("*CarAudioService*");
-        mAudioRoutingPolicy.dump(writer);
-    }
-
-    @Override
-    public void setUsageVolume(
-            @AudioAttributes.AttributeUsage int usage, int index, int flags) {
-        // TODO:  Use or remove flags argument
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        AudioPort audioPort = getAudioPort(usage);
-        AudioGainConfig audioGainConfig = getPortGainForIndex(audioPort, index);
-        if (audioGainConfig != null) {
-            AudioManager.setAudioPortGain(audioPort, audioGainConfig);
-        }
-    }
-
-    @Override
-    public void setVolumeController(IVolumeController controller) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        /** TODO(hwwang): validate the use cases for {@link IVolumeController} */
-        mVolumeController = controller;
-    }
-
-    @Override
-    public int getUsageMaxVolume(@AudioAttributes.AttributeUsage int usage) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        AudioPort audioPort = getAudioPort(usage);
-        AudioGain audioGain = getAudioGain(audioPort);
-        if (audioGain == null) {
-            throw new RuntimeException("No audio gain found for usage: " + usage);
-        }
-        return gainToIndex(audioGain, audioGain.maxValue());
-    }
-
-    @Override
-    public int getUsageMinVolume(@AudioAttributes.AttributeUsage int usage) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        AudioPort audioPort = getAudioPort(usage);
-        AudioGain audioGain = getAudioGain(audioPort);
-        if (audioGain == null) {
-            throw new RuntimeException("No audio gain found for usage: " + usage);
-        }
-        /** TODO(hwwang): some audio usages may have a min volume greater than zero.  Can they ever be negative? */
-        return 0;
-    }
-
-    @Override
-    public int getUsageVolume(@AudioAttributes.AttributeUsage int usage) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        final int physicalStream = mAudioRoutingPolicy.getPhysicalStreamForUsage(usage);
-        return mAudioDeviceGainIndexes[physicalStream];
+        return usages.stream().mapToInt(i -> i).toArray();
     }
 
     @Override
@@ -365,14 +410,15 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 audioGainConfig);
 
         // Create an audioPatch to connect the two ports
-        AudioPatch[] patch = null;
-        AudioPortConfig[] sourceConfigs = {sourceConfig};
-        AudioPortConfig[] sinkConfigs   = {sinkConfig};
-        int result = mAudioManager.createAudioPatch(patch, sourceConfigs, sinkConfigs);
+        // TODO(randolphs): refer to TvInputHardwareManager for creating audio patch
+        AudioPatch[] patch = new AudioPatch[] { null };
+        AudioPortConfig[] sourceConfigs = { sourceConfig };
+        AudioPortConfig[] sinkConfigs = { sinkConfig };
+        int result = AudioManager.createAudioPatch(patch, sourceConfigs, sinkConfigs);
         if (result != AudioManager.SUCCESS) {
             throw new RuntimeException("createAudioPatch failed with code " + result);
         }
-        if (patch.length != 1) {
+        if (patch[0] == null) {
             throw new RuntimeException("createAudioPatch didn't provide the expected single handle");
         }
 
@@ -409,10 +455,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         Log.e(CarLog.TAG_AUDIO, "releaseAudioPatch found no match for " + carPatch.toString());
     }
 
-    public AudioRoutingPolicy getAudioRoutingPolicy() {
-        return mAudioRoutingPolicy;
-    }
-
     private void enforcePermission(String permissionName) {
         if (mContext.checkCallingOrSelfPermission(permissionName)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -426,9 +468,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      * audio usages may share one {@link AudioDevicePort}
      */
     private @Nullable AudioDevicePort getAudioPort(@AudioAttributes.AttributeUsage int usage) {
-        final int physicalStream = mAudioRoutingPolicy.getPhysicalStreamForUsage(usage);
-        if (mAudioDeviceInfos[physicalStream] != null) {
-            return mAudioDeviceInfos[physicalStream].getPort();
+        final int busNumber = mUsageToBus.get(usage);
+        if (mAudioDeviceInfoStates.get(busNumber) != null) {
+            return mAudioDeviceInfoStates.get(busNumber).audioDeviceInfo.getPort();
         }
         return null;
     }
@@ -501,12 +543,68 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Nullable
     private static IAudioControl getAudioControl() {
         try {
-            return android.hardware.automotive.audiocontrol.V1_0.IAudioControl.getService();
+            return IAudioControl.getService();
         } catch (RemoteException e) {
             Log.e(CarLog.TAG_SERVICE, "Failed to get IAudioControl service", e);
         } catch (NoSuchElementException e) {
             Log.e(CarLog.TAG_SERVICE, "IAudioControl service not registered yet");
         }
         return null;
+    }
+
+    /**
+     * This class holds the min and max gain index translated from min / max / step values in
+     * gain control. Also tracks the current gain index on a certain {@link AudioDevicePort}.
+     */
+    private class AudioDeviceInfoState {
+        private final AudioDeviceInfo audioDeviceInfo;
+        private final int maxGainIndex;
+        private final int minGainIndex;
+        private final int sampleRate;
+        private final int channelCount;
+        private int currentGainIndex;
+
+        private AudioDeviceInfoState(AudioDeviceInfo audioDeviceInfo) {
+            this.audioDeviceInfo = audioDeviceInfo;
+            this.sampleRate = getMaxSampleRate(audioDeviceInfo);
+            this.channelCount = getMaxChannels(audioDeviceInfo);
+            final AudioGain audioGain = Preconditions.checkNotNull(
+                    getAudioGain(audioDeviceInfo.getPort()),
+                    "No audio gain on device port " + audioDeviceInfo);
+            this.maxGainIndex = gainToIndex(audioGain, audioGain.maxValue());
+            this.minGainIndex = gainToIndex(audioGain, audioGain.minValue());
+            this.currentGainIndex = gainToIndex(audioGain, audioGain.defaultValue());
+        }
+
+        private int getMaxSampleRate(AudioDeviceInfo info) {
+            int[] sampleRates = info.getSampleRates();
+            if (sampleRates == null || sampleRates.length == 0) {
+                return 48000;
+            }
+            int sampleRate = sampleRates[0];
+            for (int i = 1; i < sampleRates.length; i++) {
+                if (sampleRates[i] > sampleRate) {
+                    sampleRate = sampleRates[i];
+                }
+            }
+            return sampleRate;
+        }
+
+        private int getMaxChannels(AudioDeviceInfo info) {
+            int[] channelMasks = info.getChannelMasks();
+            if (channelMasks == null) {
+                return AudioFormat.CHANNEL_OUT_STEREO;
+            }
+            int channels = AudioFormat.CHANNEL_OUT_MONO;
+            int numChannels = 1;
+            for (int i = 0; i < channelMasks.length; i++) {
+                int currentNumChannels = Integer.bitCount(channelMasks[i]);
+                if (currentNumChannels > numChannels) {
+                    numChannels = currentNumChannels;
+                    channels = channelMasks[i];
+                }
+            }
+            return channels;
+        }
     }
 }
