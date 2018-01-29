@@ -99,6 +99,42 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final SparseIntArray mUsageToBus = new SparseIntArray();
     private final SparseArray<AudioDeviceInfoState> mAudioDeviceInfoStates = new SparseArray<>();
 
+    private final AudioPolicy.AudioPolicyVolumeCallback mAudioPolicyVolumeCallback =
+            new AudioPolicy.AudioPolicyVolumeCallback() {
+        @Override
+        public void onVolumeAdjustment(int adjustment) {
+            Log.v(CarLog.TAG_AUDIO,
+                    "onVolumeAdjustment: " + AudioManager.adjustToString(adjustment));
+            final int usage = getSuggestedAudioUsage();
+            final int currentVolume = getUsageVolume(usage);
+            final int flags = AudioManager.FLAG_FROM_KEY;
+            switch (adjustment) {
+                case AudioManager.ADJUST_LOWER:
+                    if (currentVolume > getUsageMinVolume(usage)) {
+                        setUsageVolume(usage, currentVolume - 1, flags);
+                    }
+                    break;
+                case AudioManager.ADJUST_RAISE:
+                    if (currentVolume < getUsageMaxVolume(usage)) {
+                        setUsageVolume(usage, currentVolume + 1, flags);
+                    }
+                    break;
+                case AudioManager.ADJUST_MUTE:
+                    mAudioManager.setMasterMute(true, flags);
+                    break;
+                case AudioManager.ADJUST_UNMUTE:
+                    mAudioManager.setMasterMute(false, flags);
+                    break;
+                case AudioManager.ADJUST_TOGGLE_MUTE:
+                    mAudioManager.setMasterMute(!mAudioManager.isMasterMute(), flags);
+                    break;
+                case AudioManager.ADJUST_SAME:
+                default:
+                    break;
+            }
+        }
+    };
+
     private AudioPolicy mAudioPolicy;
 
     public CarAudioService(Context context) {
@@ -134,8 +170,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             for (int i = 0; i < size; i++) {
                 writer.println("\tBus number: " + mAudioDeviceInfoStates.keyAt(i));
                 AudioDeviceInfoState state = mAudioDeviceInfoStates.valueAt(i);
-                writer.printf("\tGain control min:%d max:%d current:%d\n",
-                        state.minGainIndex, state.maxGainIndex, state.currentGainIndex);
+                writer.printf("\tGain configuration: %s\n", state.toString());
             }
         }
     }
@@ -160,7 +195,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             int r = AudioManager.setAudioPortGain(audioPort, audioGainConfig);
             if (r == 0) {
                 AudioDeviceInfoState state = mAudioDeviceInfoStates.get(mUsageToBus.get(usage));
-                state.currentGainIndex = audioGainConfig.values()[0];
+                state.currentGainIndex = gainToIndex(audioGain, audioGainConfig.values()[0]);
             }
         }
     }
@@ -230,10 +265,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 if (addressNumeric >= 0) {
                     final AudioDeviceInfoState state = new AudioDeviceInfoState(info);
                     mAudioDeviceInfoStates.put(addressNumeric, state);
-                    Log.i(CarLog.TAG_AUDIO, String.format(
-                            "valid bus found, device=%s id=%d name=%s address=%s gainIndex=%d",
-                            info.toString(), info.getId(), info.getProductName(), info.getAddress(),
-                            state.currentGainIndex));
+                    Log.i(CarLog.TAG_AUDIO, "Valid bus found " + state);
                 }
             }
         }
@@ -271,6 +303,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         } catch (RemoteException e) {
             Log.e(CarLog.TAG_AUDIO, "Error mapping context to physical bus", e);
         }
+
+        // 3rd, attach the {@link AudioPolicyVolumeCallback}
+        builder.setAudioPolicyVolumeCallback(mAudioPolicyVolumeCallback);
+
         return builder.build();
     }
 
@@ -537,6 +573,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return gain;
     }
 
+    /**
+     * TODO(hwwang): find the most relevant audio usage for volume key events
+     * @return The suggested {@link AudioAttributes} usage to which the volume key events apply
+     */
+    private @AudioAttributes.AttributeUsage int getSuggestedAudioUsage() {
+        return AudioAttributes.USAGE_MEDIA;
+    }
+
     @Nullable
     private static IAudioControl getAudioControl() {
         try {
@@ -602,6 +646,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 }
             }
             return channels;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder();
+            sb.append("device: " + audioDeviceInfo.getAddress());
+            sb.append(" currentGain: " + currentGainIndex);
+            sb.append(" maxGain: " + maxGainIndex);
+            sb.append(" minGain: " + minGainIndex);
+            return sb.toString();
         }
     }
 }
