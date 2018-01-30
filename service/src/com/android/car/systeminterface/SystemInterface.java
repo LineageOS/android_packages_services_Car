@@ -170,7 +170,7 @@ public final class SystemInterface implements DisplayInterface, IOInterface,
         }
 
         public static Builder defaultSystemInterface(Context context) {
-            context = Objects.requireNonNull(context);
+            Objects.requireNonNull(context);
             Builder builder = newSystemInterface();
             builder.withWakeLockInterface(new WakeLockInterface.DefaultImpl(context));
             builder.withDisplayInterface(new DisplayInterface.DefaultImpl(context,
