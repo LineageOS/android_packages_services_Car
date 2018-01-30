@@ -274,9 +274,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         try {
             for (int contextNumber : CONTEXT_NUMBERS) {
                 int busNumber = audioControl.getBusForContext(contextNumber);
-                AudioDeviceInfoState state = Preconditions.checkNotNull(
-                        mAudioDeviceInfoStates.get(busNumber),
-                        "No bus configured for context: " + contextNumber);
+                AudioDeviceInfoState state = mAudioDeviceInfoStates.get(busNumber);
+                if (state == null) {
+                    Log.w(CarLog.TAG_AUDIO, "No bus configured for context: " + contextNumber);
+                    continue;
+                }
                 AudioFormat mixFormat = new AudioFormat.Builder()
                         .setSampleRate(state.sampleRate)
                         .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
