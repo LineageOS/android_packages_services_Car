@@ -39,10 +39,10 @@ public class HvacHalService extends PropertyHalServiceBase {
 
             CarHvacManager.ID_ZONED_FAN_SPEED_RPM, VehicleProperty.HVAC_ACTUAL_FAN_SPEED_RPM,
 
-            CarHvacManager.ID_ZONED_FAN_POSITION_AVAILABLE,
+            CarHvacManager.ID_ZONED_FAN_DIRECTION_AVAILABLE,
             VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE,
 
-            CarHvacManager.ID_ZONED_FAN_POSITION, VehicleProperty.HVAC_FAN_DIRECTION,
+            CarHvacManager.ID_ZONED_FAN_DIRECTION, VehicleProperty.HVAC_FAN_DIRECTION,
 
             CarHvacManager.ID_ZONED_SEAT_TEMP, VehicleProperty.HVAC_SEAT_TEMPERATURE,
 
