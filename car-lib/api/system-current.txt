@@ -932,8 +932,7 @@ package android.car.vms {
     ctor public VmsPublisherClientService();
     method public final int getPublisherId(byte[]);
     method public final android.car.vms.VmsSubscriptionState getSubscriptions();
-    method public final android.os.IBinder onBind(android.content.Intent);
-    method public final boolean onUnbind(android.content.Intent);
+    method public android.os.IBinder onBind(android.content.Intent);
     method protected abstract void onVmsPublisherServiceReady();
     method public abstract void onVmsSubscriptionChange(android.car.vms.VmsSubscriptionState);
     method public final void publish(android.car.vms.VmsLayer, int, byte[]);
