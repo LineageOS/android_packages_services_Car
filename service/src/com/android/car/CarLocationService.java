@@ -22,13 +22,18 @@ import android.car.hardware.ICarSensorEventListener;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.util.AtomicFile;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -39,8 +44,6 @@ import java.util.List;
 /**
  * This service stores the last known location from {@link LocationManager} when a car is parked
  * and restores the location when the car is powered on.
- *
- * TODO(b/71756499) Move file I/O into a separate thread so that event dispatching is not blocked.
  */
 public class CarLocationService implements CarServiceBase,
         CarPowerManagementService.PowerEventProcessingHandler {
@@ -48,13 +51,16 @@ public class CarLocationService implements CarServiceBase,
     private static String FILENAME = "location_cache.json";
     private static final boolean DBG = false;
 
-    // Used internally for synchronization
+    // Used internally for mHandlerThread synchronization
     private final Object mLock = new Object();
 
     private final Context mContext;
     private final CarPowerManagementService mPowerManagementService;
     private final CarSensorService mCarSensorService;
     private final CarSensorEventListener mCarSensorEventListener;
+    private int mTaskCount = 0;
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
 
     public CarLocationService(Context context,
             CarPowerManagementService powerManagementService, CarSensorService carSensorService) {
@@ -91,12 +97,17 @@ public class CarLocationService implements CarServiceBase,
     @Override
     public void onPowerOn(boolean displayOn) {
         logd("onPowerOn");
-        loadLocation();
+        asyncOperation(() -> loadLocation());
     }
 
     @Override
     public long onPrepareShutdown(boolean shuttingDown) {
         logd("onPrepareShutdown");
+        return 0;
+    }
+
+    @Override
+    public int getWakeupTime() {
         return 0;
     }
 
@@ -111,46 +122,44 @@ public class CarLocationService implements CarServiceBase,
             AtomicFile atomicFile = new AtomicFile(mContext.getFileStreamPath(FILENAME));
             FileOutputStream fos = null;
             try {
-                synchronized (mLock) {
-                    fos = atomicFile.startWrite();
-                    JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(fos, "UTF-8"));
-                    jsonWriter.beginObject();
-                    jsonWriter.name("provider").value(location.getProvider());
-                    jsonWriter.name("latitude").value(location.getLatitude());
-                    jsonWriter.name("longitude").value(location.getLongitude());
-                    if (location.hasAltitude()) {
-                        jsonWriter.name("altitude").value(location.getAltitude());
-                    }
-                    if (location.hasSpeed()) {
-                        jsonWriter.name("speed").value(location.getSpeed());
-                    }
-                    if (location.hasBearing()) {
-                        jsonWriter.name("bearing").value(location.getBearing());
-                    }
-                    if (location.hasAccuracy()) {
-                        jsonWriter.name("accuracy").value(location.getAccuracy());
-                    }
-                    if (location.hasVerticalAccuracy()) {
-                        jsonWriter.name("verticalAccuracy").value(
-                                location.getVerticalAccuracyMeters());
-                    }
-                    if (location.hasSpeedAccuracy()) {
-                        jsonWriter.name("speedAccuracy").value(
-                                location.getSpeedAccuracyMetersPerSecond());
-                    }
-                    if (location.hasBearingAccuracy()) {
-                        jsonWriter.name("bearingAccuracy").value(
-                                location.getBearingAccuracyDegrees());
-                    }
-                    if (location.isFromMockProvider()) {
-                        jsonWriter.name("isFromMockProvider").value(true);
-                    }
-                    jsonWriter.name("elapsedTime").value(location.getElapsedRealtimeNanos());
-                    jsonWriter.name("time").value(location.getTime());
-                    jsonWriter.endObject();
-                    jsonWriter.close();
-                    atomicFile.finishWrite(fos);
+                fos = atomicFile.startWrite();
+                JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(fos, "UTF-8"));
+                jsonWriter.beginObject();
+                jsonWriter.name("provider").value(location.getProvider());
+                jsonWriter.name("latitude").value(location.getLatitude());
+                jsonWriter.name("longitude").value(location.getLongitude());
+                if (location.hasAltitude()) {
+                    jsonWriter.name("altitude").value(location.getAltitude());
                 }
+                if (location.hasSpeed()) {
+                    jsonWriter.name("speed").value(location.getSpeed());
+                }
+                if (location.hasBearing()) {
+                    jsonWriter.name("bearing").value(location.getBearing());
+                }
+                if (location.hasAccuracy()) {
+                    jsonWriter.name("accuracy").value(location.getAccuracy());
+                }
+                if (location.hasVerticalAccuracy()) {
+                    jsonWriter.name("verticalAccuracy").value(
+                            location.getVerticalAccuracyMeters());
+                }
+                if (location.hasSpeedAccuracy()) {
+                    jsonWriter.name("speedAccuracy").value(
+                            location.getSpeedAccuracyMetersPerSecond());
+                }
+                if (location.hasBearingAccuracy()) {
+                    jsonWriter.name("bearingAccuracy").value(
+                            location.getBearingAccuracyDegrees());
+                }
+                if (location.isFromMockProvider()) {
+                    jsonWriter.name("isFromMockProvider").value(true);
+                }
+                jsonWriter.name("elapsedTime").value(location.getElapsedRealtimeNanos());
+                jsonWriter.name("time").value(location.getTime());
+                jsonWriter.endObject();
+                jsonWriter.close();
+                atomicFile.finishWrite(fos);
             } catch (IOException e) {
                 Log.e(TAG, "Unable to write to disk", e);
                 atomicFile.failWrite(fos);
@@ -164,49 +173,49 @@ public class CarLocationService implements CarServiceBase,
         Location location = new Location((String) null);
         AtomicFile atomicFile = new AtomicFile(mContext.getFileStreamPath(FILENAME));
         try {
-            synchronized (mLock) {
-                FileInputStream fis = atomicFile.openRead();
-                JsonReader reader = new JsonReader(new InputStreamReader(fis, "UTF-8"));
-                reader.beginObject();
-                while (reader.hasNext()) {
-                    String name = reader.nextName();
-                    if (name.equals("provider")) {
-                        location.setProvider(reader.nextString());
-                    } else if (name.equals("latitude")) {
-                        location.setLatitude(reader.nextDouble());
-                    } else if (name.equals("longitude")) {
-                        location.setLongitude(reader.nextDouble());
-                    } else if (name.equals("altitude")) {
-                        location.setAltitude(reader.nextDouble());
-                    } else if (name.equals("speed")) {
-                        location.setSpeed((float) reader.nextDouble());
-                    } else if (name.equals("bearing")) {
-                        location.setBearing((float) reader.nextDouble());
-                    } else if (name.equals("accuracy")) {
-                        location.setAccuracy((float) reader.nextDouble());
-                    } else if (name.equals("verticalAccuracy")) {
-                        location.setVerticalAccuracyMeters((float) reader.nextDouble());
-                    } else if (name.equals("speedAccuracy")) {
-                        location.setSpeedAccuracyMetersPerSecond((float) reader.nextDouble());
-                    } else if (name.equals("bearingAccuracy")) {
-                        location.setBearingAccuracyDegrees((float) reader.nextDouble());
-                    } else if (name.equals("isFromMockProvider")) {
-                        location.setIsFromMockProvider(reader.nextBoolean());
-                    } else if (name.equals("elapsedTime")) {
-                        location.setElapsedRealtimeNanos(reader.nextLong());
-                    } else if (name.equals("time")) {
-                        location.setTime(reader.nextLong());
-                    } else {
-                        reader.skipValue();
-                    }
+            FileInputStream fis = atomicFile.openRead();
+            JsonReader reader = new JsonReader(new InputStreamReader(fis, "UTF-8"));
+            reader.beginObject();
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                if (name.equals("provider")) {
+                    location.setProvider(reader.nextString());
+                } else if (name.equals("latitude")) {
+                    location.setLatitude(reader.nextDouble());
+                } else if (name.equals("longitude")) {
+                    location.setLongitude(reader.nextDouble());
+                } else if (name.equals("altitude")) {
+                    location.setAltitude(reader.nextDouble());
+                } else if (name.equals("speed")) {
+                    location.setSpeed((float) reader.nextDouble());
+                } else if (name.equals("bearing")) {
+                    location.setBearing((float) reader.nextDouble());
+                } else if (name.equals("accuracy")) {
+                    location.setAccuracy((float) reader.nextDouble());
+                } else if (name.equals("verticalAccuracy")) {
+                    location.setVerticalAccuracyMeters((float) reader.nextDouble());
+                } else if (name.equals("speedAccuracy")) {
+                    location.setSpeedAccuracyMetersPerSecond((float) reader.nextDouble());
+                } else if (name.equals("bearingAccuracy")) {
+                    location.setBearingAccuracyDegrees((float) reader.nextDouble());
+                } else if (name.equals("isFromMockProvider")) {
+                    location.setIsFromMockProvider(reader.nextBoolean());
+                } else if (name.equals("elapsedTime")) {
+                    location.setElapsedRealtimeNanos(reader.nextLong());
+                } else if (name.equals("time")) {
+                    location.setTime(reader.nextLong());
+                } else {
+                    reader.skipValue();
                 }
-                reader.endObject();
-                fis.close();
             }
+            reader.endObject();
+            fis.close();
             if (location.isComplete()) {
                 locationManager.injectLocation(location);
                 logd("Loaded location: " + location);
             }
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, "Location cache file not found.");
         } catch (IOException e) {
             Log.e(TAG, "Unable to read from disk", e);
         } catch (NumberFormatException | IllegalStateException e) {
@@ -214,9 +223,30 @@ public class CarLocationService implements CarServiceBase,
         }
     }
 
-    @Override
-    public int getWakeupTime() {
-        return 0;
+    @VisibleForTesting
+    void asyncOperation(Runnable operation) {
+        synchronized (mLock) {
+            // Create a new HandlerThread if this is the first task to queue.
+            if (++mTaskCount == 1) {
+                mHandlerThread = new HandlerThread("CarLocationServiceThread");
+                mHandlerThread.start();
+                mHandler = new Handler(mHandlerThread.getLooper());
+            }
+        }
+        mHandler.post(() -> {
+            try {
+                operation.run();
+            } finally {
+                synchronized (mLock) {
+                    // Quit the thread when the task queue is empty.
+                    if (--mTaskCount == 0) {
+                        mHandler.getLooper().quit();
+                        mHandler = null;
+                        mHandlerThread = null;
+                    }
+                }
+            }
+        });
     }
 
     private static void logd(String msg) {
@@ -233,7 +263,7 @@ public class CarLocationService implements CarServiceBase,
                 logd("sensor ignition value: " + event.intValues[0]);
                 if (event.intValues[0] == CarSensorEvent.IGNITION_STATE_OFF) {
                     logd("ignition off");
-                    storeLocation();
+                    asyncOperation(() -> storeLocation());
                 }
             }
         }
