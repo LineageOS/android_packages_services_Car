@@ -15,6 +15,7 @@
  */
 package com.android.car.pm;
 
+import android.annotation.Nullable;
 import android.app.ActivityManager.StackInfo;
 import android.car.Car;
 import android.car.content.pm.AppBlockingPackageInfo;
@@ -22,9 +23,8 @@ import android.car.content.pm.CarAppBlockingPolicy;
 import android.car.content.pm.CarAppBlockingPolicyService;
 import android.car.content.pm.CarPackageManager;
 import android.car.content.pm.ICarPackageManager;
-import android.car.hardware.CarSensorEvent;
-import android.car.hardware.CarSensorManager;
-import android.car.hardware.ICarSensorEventListener;
+import android.car.drivingstate.CarUxRestrictions;
+import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -44,9 +44,9 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.android.car.CarLog;
-import com.android.car.CarSensorService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
+import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.SystemActivityMonitoringService;
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
@@ -63,13 +63,12 @@ import java.util.Set;
 //TODO monitor app installing and refresh policy, bug: 31970400
 
 public class CarPackageManagerService extends ICarPackageManager.Stub implements CarServiceBase {
-    static final boolean DBG_POLICY_SET = false;
-    static final boolean DBG_POLICY_CHECK = false;
-    static final boolean DBG_POLICY_ENFORCEMENT = false;
+    private static final boolean DBG_POLICY_SET = false;
+    private static final boolean DBG_POLICY_CHECK = false;
+    private static final boolean DBG_POLICY_ENFORCEMENT = false;
 
     private final Context mContext;
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
-    private final CarSensorService mSensorService;
     private final PackageManager mPackageManager;
 
     private final HandlerThread mHandlerThread;
@@ -81,8 +80,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
      * Key: packageName of policy service
      */
     @GuardedBy("this")
-    private final HashMap<String, ClientPolicy> mClientPolicies =
-            new HashMap<>();
+    private final HashMap<String, ClientPolicy> mClientPolicies = new HashMap<>();
     @GuardedBy("this")
     private HashMap<String, AppBlockingPackageInfoWrapper> mSystemWhitelists = new HashMap<>();
     @GuardedBy("this")
@@ -91,18 +89,21 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     @GuardedBy("this")
     private final LinkedList<CarAppBlockingPolicy> mWaitingPolicies = new LinkedList<>();
 
+    private final CarUxRestrictionsManagerService mCarUxRestrictionsService;
     private final boolean mEnableActivityBlocking;
     private final ComponentName mActivityBlockingActivity;
 
     private final ActivityLaunchListener mActivityLaunchListener = new ActivityLaunchListener();
-    private final SensorListener mDrivingStateListener = new SensorListener();
+    private final UxRestrictionsListener mUxRestrictionsListener;
 
-    public CarPackageManagerService(Context context, CarSensorService sensorService,
+    public CarPackageManagerService(Context context,
+            CarUxRestrictionsManagerService uxRestrictionsService,
             SystemActivityMonitoringService systemActivityMonitoringService) {
         mContext = context;
-        mSensorService = sensorService;
+        mCarUxRestrictionsService = uxRestrictionsService;
         mSystemActivityMonitoringService = systemActivityMonitoringService;
         mPackageManager = mContext.getPackageManager();
+        mUxRestrictionsListener = new UxRestrictionsListener(uxRestrictionsService);
         mHandlerThread = new HandlerThread(CarLog.TAG_PACKAGE);
         mHandlerThread.start();
         mHandler = new PackageHandler(mHandlerThread.getLooper());
@@ -190,7 +191,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     @Override
     public boolean isActivityBackedBySafeActivity(ComponentName activityName) {
-        if (!mEnableActivityBlocking || !mDrivingStateListener.isRestricted()) {
+        if (!mEnableActivityBlocking || !mUxRestrictionsListener.isRestricted()) {
             return true;
         }
         StackInfo info = mSystemActivityMonitoringService.getFocusedStackForTopActivity(
@@ -291,8 +292,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
             wakeupClientsWaitingForPolicySetitngLocked();
         }
-        mSensorService.unregisterSensorListener(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
-                mDrivingStateListener);
+        mCarUxRestrictionsService.unregisterUxRestrictionsChangeListener(mUxRestrictionsListener);
         mSystemActivityMonitoringService.registerActivityLaunchListener(null);
     }
 
@@ -301,14 +301,13 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         startAppBlockingPolicies();
         generateSystemWhitelists();
         try {
-            mSensorService.registerOrUpdateSensorListener(
-                    CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, 0, mDrivingStateListener);
+            mCarUxRestrictionsService.registerUxRestrictionsChangeListener(mUxRestrictionsListener);
         } catch (IllegalArgumentException e) {
             // can happen while mocking is going on while init is still done.
             Log.w(CarLog.TAG_PACKAGE, "sensor subscription failed", e);
             return;
         }
-        mDrivingStateListener.resetState();
+        mUxRestrictionsListener.checkIfTopActivityNeedsBlocking();
         mSystemActivityMonitoringService.registerActivityLaunchListener(
                 mActivityLaunchListener);
         blockTopActivitiesIfNecessary();
@@ -601,7 +600,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         synchronized (this) {
             writer.println("*PackageManagementService*");
             writer.println("mEnableActivityBlocking:" + mEnableActivityBlocking);
-            writer.println("ActivityRestricted:" + mDrivingStateListener.isRestricted());
+            writer.println("ActivityRestricted:" + mUxRestrictionsListener.isRestricted());
             writer.print(dumpPoliciesLocked(true));
         }
     }
@@ -639,7 +638,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     private void blockTopActivityIfNecessary(TopTaskInfoContainer topTask) {
-        boolean restricted = mDrivingStateListener.isRestricted();
+        boolean restricted = mUxRestrictionsListener.isRestricted();
         if (!restricted) {
             return;
         }
@@ -647,6 +646,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     private void doBlockTopActivityIfNotAllowed(TopTaskInfoContainer topTask) {
+        if (topTask.topActivity == null) {
+            return;
+        }
         boolean allowed = isActivityAllowedWhileDriving(
                 topTask.topActivity.getPackageName(),
                 topTask.topActivity.getClassName());
@@ -667,7 +669,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     private void blockTopActivitiesIfNecessary() {
-        boolean restricted = mDrivingStateListener.isRestricted();
+        boolean restricted = mUxRestrictionsListener.isRestricted();
         if (!restricted) {
             return;
         }
@@ -829,37 +831,62 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
     }
 
-    private class SensorListener extends ICarSensorEventListener.Stub {
-        private int mLatestDrivingState;
+    /**
+     * Listens to the UX restrictions from {@link CarUxRestrictionsManagerService} and initiates
+     * checking if the foreground Activity should be blocked.
+     */
+    private class UxRestrictionsListener extends ICarUxRestrictionsChangeListener.Stub {
+        @GuardedBy("this")
+        @Nullable
+        private CarUxRestrictions mCurrentUxRestrictions;
+        private final CarUxRestrictionsManagerService uxRestrictionsService;
 
-        private void resetState() {
-            CarSensorEvent lastEvent = mSensorService.getLatestSensorEvent(
-                    CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
-            boolean shouldBlock = false;
+        public UxRestrictionsListener(CarUxRestrictionsManagerService service) {
+            uxRestrictionsService = service;
+            mCurrentUxRestrictions = uxRestrictionsService.getCurrentUxRestrictions();
+        }
+
+        @Override
+        public void onUxRestrictionsChanged(CarUxRestrictions restrictions) {
+            if (DBG_POLICY_CHECK) {
+                Log.d(CarLog.TAG_PACKAGE, "Received uxr restrictions: "
+                        + restrictions.isRequiresDistractionOptimization()
+                        + " : " + restrictions.getActiveRestrictions());
+            }
             synchronized (this) {
-                if (lastEvent == null) {
-                    // When driving status is not available yet, do not block.
-                    // This happens during bootup.
-                    mLatestDrivingState = CarSensorEvent.DRIVE_STATUS_UNRESTRICTED;
-                } else {
-                    mLatestDrivingState = lastEvent.intValues[0];
-                }
-                if (mLatestDrivingState != CarSensorEvent.DRIVE_STATUS_UNRESTRICTED) {
-                    shouldBlock = true;
+                mCurrentUxRestrictions = new CarUxRestrictions(restrictions);
+            }
+            checkIfTopActivityNeedsBlocking();
+        }
+
+        private void checkIfTopActivityNeedsBlocking() {
+            boolean shouldCheck = false;
+            synchronized (this) {
+                if (mCurrentUxRestrictions != null
+                        && mCurrentUxRestrictions.isRequiresDistractionOptimization()) {
+                    shouldCheck = true;
                 }
             }
-            if (shouldBlock) {
+            if (DBG_POLICY_CHECK) {
+                Log.d(CarLog.TAG_PACKAGE, "block?: " + shouldCheck);
+            }
+            if (shouldCheck) {
                 blockTopActivitiesIfNecessary();
             }
         }
 
         private synchronized boolean isRestricted() {
-            return mLatestDrivingState != CarSensorEvent.DRIVE_STATUS_UNRESTRICTED;
-        }
-
-        @Override
-        public void onSensorChanged(List<CarSensorEvent> events) {
-            resetState();
+            // if current restrictions is null, try querying the service, once.
+            if (mCurrentUxRestrictions == null) {
+                mCurrentUxRestrictions = uxRestrictionsService.getCurrentUxRestrictions();
+            }
+            if (mCurrentUxRestrictions != null) {
+                return mCurrentUxRestrictions.isRequiresDistractionOptimization();
+            }
+            // If restriction information is still not available (could happen during bootup),
+            // return not restricted.  This maintains parity with previous implementation but needs
+            // a revisit as we test more.
+            return false;
         }
     }
 }
