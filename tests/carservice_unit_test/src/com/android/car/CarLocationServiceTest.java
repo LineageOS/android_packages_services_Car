@@ -48,6 +48,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 /**
@@ -67,6 +68,7 @@ public class CarLocationServiceTest extends AndroidTestCase {
     private static String TEST_FILENAME = "location_cache_test.json";
     private CarLocationService mCarLocationService;
     private Context mContext;
+    private CountDownLatch mLatch;
     @Mock private Context mockContext;
     @Mock private LocationManager mockLocationManager;
     @Mock private CarPowerManagementService mockPowerManagementService;
@@ -82,6 +84,17 @@ public class CarLocationServiceTest extends AndroidTestCase {
         super.setUp();
         MockitoAnnotations.initMocks(this);
         mContext = getContext();
+        mLatch = new CountDownLatch(1);
+        mCarLocationService = new CarLocationService(mockContext, mockPowerManagementService,
+                mockCarSensorService) {
+            @Override
+            void asyncOperation(Runnable operation) {
+                super.asyncOperation(() -> {
+                    operation.run();
+                    mLatch.countDown();
+                });
+            }
+        };
     }
 
     @Override
@@ -114,8 +127,6 @@ public class CarLocationServiceTest extends AndroidTestCase {
      * sensor events upon initialization.
      */
     public void testRegistersToReceiveEvents() {
-        mCarLocationService = new CarLocationService(mockContext, mockPowerManagementService,
-                mockCarSensorService);
         mCarLocationService.init();
         verify(mockPowerManagementService).registerPowerEventProcessingHandler(mCarLocationService);
         verify(mockCarSensorService).registerOrUpdateSensorListener(
@@ -127,8 +138,9 @@ public class CarLocationServiceTest extends AndroidTestCase {
      * injects it into the {@link LocationManager} upon power up.
      *
      * @throws IOException
+     * @throws InterruptedException
      */
-    public void testLoadsLocationOnPowerOn() throws IOException {
+    public void testLoadsLocation() throws IOException, InterruptedException {
         long currentTime = System.currentTimeMillis();
         long elapsedTime = SystemClock.elapsedRealtimeNanos();
         String json = "{\"provider\": \"gps\", \"latitude\": 16.7666, \"longitude\": 3.0026,"
@@ -144,10 +156,9 @@ public class CarLocationServiceTest extends AndroidTestCase {
                 .thenReturn(null);
         when(mockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
-        mCarLocationService = new CarLocationService(mockContext, mockPowerManagementService,
-                mockCarSensorService);
 
         mCarLocationService.onPowerOn(false);
+        mLatch.await();
 
         ArgumentCaptor<Location> argument = ArgumentCaptor.forClass(Location.class);
         verify(mockLocationManager).injectLocation(argument.capture());
@@ -165,17 +176,18 @@ public class CarLocationServiceTest extends AndroidTestCase {
      * cache file.
      *
      * @throws FileNotFoundException
+     * @throws InterruptedException
      */
-    public void testDoesNotLoadLocationWhenNoFileExists() throws FileNotFoundException {
+    public void testDoesNotLoadLocationWhenNoFileExists()
+            throws FileNotFoundException, InterruptedException {
         when(mockContext.getSystemService(Context.LOCATION_SERVICE))
                 .thenReturn(mockLocationManager);
         when(mockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER))
                 .thenReturn(null);
         when(mockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
-        mCarLocationService = new CarLocationService(mockContext, mockPowerManagementService,
-                mockCarSensorService);
         mCarLocationService.onPowerOn(false);
+        mLatch.await();
         verify(mockLocationManager, never()).injectLocation(any());
     }
 
@@ -183,8 +195,10 @@ public class CarLocationServiceTest extends AndroidTestCase {
      * Test that the {@link CarLocationService} handles an incomplete JSON file gracefully.
      *
      * @throws IOException
+     * @throws InterruptedException
      */
-    public void testDoesNotLoadLocationFromIncompleteFile() throws IOException {
+    public void testDoesNotLoadLocationFromIncompleteFile() throws IOException,
+            InterruptedException {
         String json = "{\"provider\": \"gps\", \"latitude\": 16.7666, \"longitude\": 3.0026,";
         FileOutputStream fos = mContext.openFileOutput(TEST_FILENAME, Context.MODE_PRIVATE);
         fos.write(json.getBytes());
@@ -195,9 +209,8 @@ public class CarLocationServiceTest extends AndroidTestCase {
                 .thenReturn(null);
         when(mockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
-        mCarLocationService = new CarLocationService(mockContext, mockPowerManagementService,
-                mockCarSensorService);
         mCarLocationService.onPowerOn(false);
+        mLatch.await();
         verify(mockLocationManager, never()).injectLocation(any());
     }
 
@@ -205,8 +218,9 @@ public class CarLocationServiceTest extends AndroidTestCase {
      * Test that the {@link CarLocationService} handles a corrupt JSON file gracefully.
      *
      * @throws IOException
+     * @throws InterruptedException
      */
-    public void testDoesNotLoadLocationFromCorruptFile() throws IOException {
+    public void testDoesNotLoadLocationFromCorruptFile() throws IOException, InterruptedException {
         String json = "{\"provider\":\"latitude\":16.7666,\"longitude\": \"accuracy\":1.0}";
         FileOutputStream fos = mContext.openFileOutput(TEST_FILENAME, Context.MODE_PRIVATE);
         fos.write(json.getBytes());
@@ -217,9 +231,8 @@ public class CarLocationServiceTest extends AndroidTestCase {
                 .thenReturn(null);
         when(mockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
-        mCarLocationService = new CarLocationService(mockContext, mockPowerManagementService,
-                mockCarSensorService);
         mCarLocationService.onPowerOn(false);
+        mLatch.await();
         verify(mockLocationManager, never()).injectLocation(any());
     }
 
@@ -228,8 +241,9 @@ public class CarLocationServiceTest extends AndroidTestCase {
      * accuracy.
      *
      * @throws IOException
+     * @throws InterruptedException
      */
-    public void testDoesNotLoadIncompleteLocation() throws IOException {
+    public void testDoesNotLoadIncompleteLocation() throws IOException, InterruptedException {
         String json = "{\"provider\": \"gps\", \"latitude\": 16.7666, \"longitude\": 3.0026}";
         FileOutputStream fos = mContext.openFileOutput(TEST_FILENAME, Context.MODE_PRIVATE);
         fos.write(json.getBytes());
@@ -240,9 +254,8 @@ public class CarLocationServiceTest extends AndroidTestCase {
                 .thenReturn(null);
         when(mockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
-        mCarLocationService = new CarLocationService(mockContext, mockPowerManagementService,
-                mockCarSensorService);
         mCarLocationService.onPowerOn(false);
+        mLatch.await();
         verify(mockLocationManager, never()).injectLocation(any());
     }
 
@@ -252,8 +265,9 @@ public class CarLocationServiceTest extends AndroidTestCase {
      *
      * @throws IOException
      * @throws RemoteException
+     * @throws InterruptedException
      */
-    public void testStoresLocationOnIgnitionOff() throws IOException, RemoteException {
+    public void testStoresLocation() throws IOException, RemoteException, InterruptedException {
         long currentTime = System.currentTimeMillis();
         long elapsedTime = SystemClock.elapsedRealtimeNanos();
         Location timbuktu = new Location(LocationManager.GPS_PROVIDER);
@@ -268,8 +282,6 @@ public class CarLocationServiceTest extends AndroidTestCase {
                 .thenReturn(timbuktu);
         when(mockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
-        mCarLocationService = new CarLocationService(mockContext, mockPowerManagementService,
-                mockCarSensorService);
 
         mCarLocationService.init();
         ArgumentCaptor<ICarSensorEventListener> argument =
@@ -282,6 +294,7 @@ public class CarLocationServiceTest extends AndroidTestCase {
         ignitionOff.intValues[0] = CarSensorEvent.IGNITION_STATE_OFF;
         List<CarSensorEvent> events = new ArrayList<>(Arrays.asList(ignitionOff));
         carSensorEventListener.onSensorChanged(events);
+        mLatch.await();
 
         verify(mockLocationManager).getLastKnownLocation(LocationManager.GPS_PROVIDER);
         FileInputStream fis = mContext.openFileInput(TEST_FILENAME);
