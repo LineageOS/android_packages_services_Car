@@ -60,7 +60,7 @@ public abstract class VmsPublisherClientService extends Service {
     private IBinder mToken = null;
 
     @Override
-    public final IBinder onBind(Intent intent) {
+    public IBinder onBind(Intent intent) {
         if (DBG) {
             Log.d(TAG, "onBind, intent: " + intent);
         }
@@ -68,7 +68,7 @@ public abstract class VmsPublisherClientService extends Service {
     }
 
     @Override
-    public final boolean onUnbind(Intent intent) {
+    public boolean onUnbind(Intent intent) {
         if (DBG) {
             Log.d(TAG, "onUnbind, intent: " + intent);
         }
