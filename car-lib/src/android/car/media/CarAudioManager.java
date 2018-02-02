@@ -271,6 +271,21 @@ public final class CarAudioManager implements CarManagerBase {
         }
     }
 
+    /**
+     * Gets the available volume groups in the system.
+     *
+     * @return Array of {@link CarVolumeGroup}
+     */
+    @SystemApi
+    public @NonNull CarVolumeGroup[] getVolumeGroups() throws CarNotConnectedException {
+        try {
+            return mService.getVolumeGroups();
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "getContextGroups failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
     /** @hide */
     @Override
     public void onCarDisconnected() {
