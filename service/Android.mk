@@ -42,7 +42,6 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         android.hardware.automotive.audiocontrol-V1.0-java \
         android.hardware.automotive.vehicle-V2.0-java \
         vehicle-hal-support-lib \
-        car-frameworks-service \
         car-systemtest \
         com.android.car.procfsinspector-client \
 
@@ -61,8 +60,7 @@ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
 LOCAL_MODULE := car-service-lib-for-test
 
-LOCAL_JAVA_LIBRARIES += android.car \
-        car-frameworks-service
+LOCAL_JAVA_LIBRARIES += android.car
 LOCAL_STATIC_JAVA_LIBRARIES += \
         android.hidl.base-V1.0-java \
         android.hardware.automotive.audiocontrol-V1.0-java \

@@ -39,7 +39,7 @@ import com.android.car.internal.FeatureConfiguration;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
-import com.google.android.car.ICarServiceHelper;
+import com.android.internal.car.ICarServiceHelper;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
