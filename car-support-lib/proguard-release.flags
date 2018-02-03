@@ -904,6 +904,7 @@
     public void requestShowKeyboardShortcuts();
     public boolean requestVisibleBehind(boolean);
     public boolean requestWindowFeature(int);
+    public android.view.View requireViewById(int);
     public void runOnUiThread(java.lang.Runnable);
     public void setActionBar(android.widget.Toolbar);
     public void setContentTransitionManager(android.transition.TransitionManager);
@@ -956,7 +957,7 @@
     public void startActivities(android.content.Intent[], android.os.Bundle);
     public void startActivity(android.content.Intent);
     public void startActivity(android.content.Intent, android.os.Bundle);
-    public void startActivityAsCaller(android.content.Intent, android.os.Bundle, boolean, int);
+    public void startActivityAsCaller(android.content.Intent, android.os.Bundle, android.os.IBinder, boolean, int);
     public void startActivityAsUser(android.content.Intent, android.os.UserHandle);
     public void startActivityAsUser(android.content.Intent, android.os.Bundle, android.os.UserHandle);
     public void startActivityAsUserFromFragment(android.app.Fragment, android.content.Intent, int, android.os.Bundle, android.os.UserHandle);
@@ -1127,12 +1128,16 @@
     public static int BUGREPORT_OPTION_REMOTE;
     public static int BUGREPORT_OPTION_TELEPHONY;
     public static int BUGREPORT_OPTION_WEAR;
+    public static int BUGREPORT_OPTION_WIFI;
     public static int COMPAT_MODE_ALWAYS;
     public static int COMPAT_MODE_DISABLED;
     public static int COMPAT_MODE_ENABLED;
     public static int COMPAT_MODE_NEVER;
     public static int COMPAT_MODE_TOGGLE;
     public static int COMPAT_MODE_UNKNOWN;
+    public static java.lang.String EXTRA_IGNORE_TARGET_SECURITY;
+    public static java.lang.String EXTRA_OPTIONS;
+    public static java.lang.String EXTRA_PERMISSION_TOKEN;
     public static int FLAG_AND_LOCKED;
     public static int FLAG_AND_UNLOCKED;
     public static int FLAG_AND_UNLOCKING_OR_UNLOCKED;
@@ -1504,6 +1509,7 @@
     public android.view.AppTransitionAnimationSpec[] getAnimSpecs();
     public android.os.IRemoteCallback getAnimationFinishedListener();
     public int getAnimationType();
+    public boolean getAvoidMoveToFront();
     public int getCustomEnterResId();
     public int getCustomExitResId();
     public int getCustomInPlaceResId();
@@ -1551,6 +1557,7 @@
     public android.os.Bundle popAppVerificationBundle();
     public void requestUsageTimeReport(android.app.PendingIntent);
     public android.app.ActivityOptions setAppVerificationBundle(android.os.Bundle);
+    public void setAvoidMoveToFront();
     public void setDisallowEnterPictureInPictureWhileLaunching(boolean);
     public void setLaunchActivityType(int);
     public android.app.ActivityOptions setLaunchBounds(android.graphics.Rect);
@@ -1804,6 +1811,7 @@
     public java.util.List getPackagesForOps(int[]);
     public static android.os.IBinder getToken(com.android.internal.app.IAppOpsService);
     public boolean isOperationActive(int, int, java.lang.String);
+    public static java.lang.String modeToString(int);
     public int noteOp(java.lang.String, int, java.lang.String);
     public int noteOp(int, int, java.lang.String);
     public int noteOp(int);
@@ -1846,6 +1854,7 @@
     public static int MODE_DEFAULT;
     public static int MODE_ERRORED;
     public static int MODE_IGNORED;
+    public static java.lang.String OPSTR_ACCEPT_HANDOVER;
     public static java.lang.String OPSTR_ACCESS_NOTIFICATIONS;
     public static java.lang.String OPSTR_ACTIVATE_VPN;
     public static java.lang.String OPSTR_ADD_VOICEMAIL;
@@ -1920,6 +1929,7 @@
     public static java.lang.String OPSTR_WRITE_SETTINGS;
     public static java.lang.String OPSTR_WRITE_SMS;
     public static java.lang.String OPSTR_WRITE_WALLPAPER;
+    public static int OP_ACCEPT_HANDOVER;
     public static int OP_ACCESS_NOTIFICATIONS;
     public static int OP_ACTIVATE_VPN;
     public static int OP_ADD_VOICEMAIL;
@@ -2346,7 +2356,7 @@
     public void setWallpaper(java.io.InputStream);
     public void startActivities(android.content.Intent[]);
     public void startActivities(android.content.Intent[], android.os.Bundle);
-    public void startActivitiesAsUser(android.content.Intent[], android.os.Bundle, android.os.UserHandle);
+    public int startActivitiesAsUser(android.content.Intent[], android.os.Bundle, android.os.UserHandle);
     public void startActivity(android.content.Intent);
     public void startActivity(android.content.Intent, android.os.Bundle);
     public void startActivityAsUser(android.content.Intent, android.os.UserHandle);
@@ -2439,6 +2449,7 @@
     public void openOptionsMenu();
     public void registerForContextMenu(android.view.View);
     public boolean requestWindowFeature(int);
+    public android.view.View requireViewById(int);
     public void setCancelMessage(android.os.Message);
     public void setCancelable(boolean);
     public void setCanceledOnTouchOutside(boolean);
@@ -2743,6 +2754,19 @@
     public static int TRANSIT_UNSET;
 }
 
+-keep class android.app.GrantedUriPermission {
+    <init>(android.net.Uri, java.lang.String);
+
+    public int describeContents();
+    public java.lang.String toString();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+    public java.lang.String packageName;
+    public android.net.Uri uri;
+}
+
 -keep class android.app.IActivityController {
 
     public abstract boolean activityResuming(java.lang.String);
@@ -2776,6 +2800,7 @@
     public abstract void bootAnimationComplete();
     public abstract int broadcastIntent(android.app.IApplicationThread, android.content.Intent, java.lang.String, android.content.IIntentReceiver, int, java.lang.String, android.os.Bundle, java.lang.String[], int, android.os.Bundle, boolean, boolean, int);
     public abstract void cancelIntentSender(android.content.IIntentSender);
+    public abstract void cancelRecentsAnimation();
     public abstract void cancelTaskWindowTransition(int);
     public abstract int checkGrantUriPermission(int, java.lang.String, android.net.Uri, int, int);
     public abstract int checkPermission(java.lang.String, int, int);
@@ -2948,7 +2973,9 @@
     public abstract boolean requestAssistContextExtras(int, android.app.IAssistDataReceiver, android.os.Bundle, android.os.IBinder, boolean, boolean);
     public abstract boolean requestAutofillData(android.app.IAssistDataReceiver, android.os.Bundle, android.os.IBinder, int);
     public abstract void requestBugReport(int);
+    public abstract android.os.IBinder requestStartActivityPermissionToken(android.os.IBinder);
     public abstract void requestTelephonyBugReport(java.lang.String, java.lang.String);
+    public abstract void requestWifiBugReport(java.lang.String, java.lang.String);
     public abstract void resizeDockedStack(android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, android.graphics.Rect);
     public abstract void resizePinnedStack(android.graphics.Rect, android.graphics.Rect);
     public abstract void resizeStack(int, android.graphics.Rect, boolean, boolean, boolean, int);
@@ -2963,6 +2990,7 @@
     public abstract int sendIntentSender(android.content.IIntentSender, android.os.IBinder, int, android.content.Intent, java.lang.String, android.content.IIntentReceiver, java.lang.String, android.os.Bundle);
     public abstract void serviceDoneExecuting(android.os.IBinder, int, int, int);
     public abstract void setActivityController(android.app.IActivityController, boolean);
+    public abstract void setAgentApp(java.lang.String, java.lang.String);
     public abstract void setAlwaysFinish(boolean);
     public abstract void setDebugApp(java.lang.String, boolean, boolean);
     public abstract void setDisablePreviewScreenshots(android.os.IBinder, boolean);
@@ -3003,7 +3031,7 @@
     public abstract int startActivities(android.app.IApplicationThread, java.lang.String, android.content.Intent[], java.lang.String[], android.os.IBinder, android.os.Bundle, int);
     public abstract int startActivity(android.app.IApplicationThread, java.lang.String, android.content.Intent, java.lang.String, android.os.IBinder, java.lang.String, int, int, android.app.ProfilerInfo, android.os.Bundle);
     public abstract android.app.WaitResult startActivityAndWait(android.app.IApplicationThread, java.lang.String, android.content.Intent, java.lang.String, android.os.IBinder, java.lang.String, int, int, android.app.ProfilerInfo, android.os.Bundle, int);
-    public abstract int startActivityAsCaller(android.app.IApplicationThread, java.lang.String, android.content.Intent, java.lang.String, android.os.IBinder, java.lang.String, int, int, android.app.ProfilerInfo, android.os.Bundle, boolean, int);
+    public abstract int startActivityAsCaller(android.app.IApplicationThread, java.lang.String, android.content.Intent, java.lang.String, android.os.IBinder, java.lang.String, int, int, android.app.ProfilerInfo, android.os.Bundle, android.os.IBinder, boolean, int);
     public abstract int startActivityAsUser(android.app.IApplicationThread, java.lang.String, android.content.Intent, java.lang.String, android.os.IBinder, java.lang.String, int, int, android.app.ProfilerInfo, android.os.Bundle, int);
     public abstract int startActivityFromRecents(int, android.os.Bundle);
     public abstract int startActivityIntentSender(android.app.IApplicationThread, android.content.IIntentSender, android.os.IBinder, android.content.Intent, java.lang.String, android.os.IBinder, java.lang.String, int, int, int, android.os.Bundle);
@@ -3016,7 +3044,7 @@
     public abstract void startLocalVoiceInteraction(android.os.IBinder, android.os.Bundle);
     public abstract void startLockTaskModeByToken(android.os.IBinder);
     public abstract boolean startNextMatchingActivity(android.os.IBinder, android.content.Intent, android.os.Bundle);
-    public abstract int startRecentsActivity(android.app.IAssistDataReceiver, android.os.Bundle, android.os.Bundle, int);
+    public abstract void startRecentsActivity(android.content.Intent, android.app.IAssistDataReceiver, android.view.IRecentsAnimationRunner);
     public abstract android.content.ComponentName startService(android.app.IApplicationThread, android.content.Intent, java.lang.String, boolean, java.lang.String, int);
     public abstract void startSystemLockTaskMode(int);
     public abstract boolean startUserInBackground(int);
@@ -3272,11 +3300,11 @@
     public static void checkStartActivityResult(int, java.lang.Object);
     public void endPerformanceSnapshot();
     public void execStartActivities(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent[], android.os.Bundle);
-    public void execStartActivitiesAsUser(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent[], android.os.Bundle, int);
+    public int execStartActivitiesAsUser(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent[], android.os.Bundle, int);
     public android.app.Instrumentation$ActivityResult execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle);
     public android.app.Instrumentation$ActivityResult execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, java.lang.String, android.content.Intent, int, android.os.Bundle);
     public android.app.Instrumentation$ActivityResult execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, java.lang.String, android.content.Intent, int, android.os.Bundle, android.os.UserHandle);
-    public android.app.Instrumentation$ActivityResult execStartActivityAsCaller(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle, boolean, int);
+    public android.app.Instrumentation$ActivityResult execStartActivityAsCaller(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle, android.os.IBinder, boolean, int);
     public void execStartActivityFromAppTask(android.content.Context, android.os.IBinder, android.app.IAppTask, android.content.Intent, android.os.Bundle);
     public void finish(int, android.os.Bundle);
     public android.os.Bundle getAllocCounts();
@@ -3518,6 +3546,7 @@
     public static java.lang.String EXTRA_PROGRESS_INDETERMINATE;
     public static java.lang.String EXTRA_PROGRESS_MAX;
     public static java.lang.String EXTRA_REDUCED_IMAGES;
+    public static java.lang.String EXTRA_REMOTE_INPUT_DRAFT;
     public static java.lang.String EXTRA_REMOTE_INPUT_HISTORY;
     public static java.lang.String EXTRA_SELF_DISPLAY_NAME;
     public static java.lang.String EXTRA_SHOW_CHRONOMETER;
@@ -3815,6 +3844,7 @@
     public void send(android.content.Context, int, android.content.Intent, android.app.PendingIntent$OnFinished, android.os.Handler);
     public void send(android.content.Context, int, android.content.Intent, android.app.PendingIntent$OnFinished, android.os.Handler, java.lang.String);
     public void send(android.content.Context, int, android.content.Intent, android.app.PendingIntent$OnFinished, android.os.Handler, java.lang.String, android.os.Bundle);
+    public int sendAndReturnResult(android.content.Context, int, android.content.Intent, android.app.PendingIntent$OnFinished, android.os.Handler, java.lang.String, android.os.Bundle);
     public static void setOnMarshaledListener(android.app.PendingIntent$OnMarshaledListener);
     public java.lang.String toString();
     public static void writePendingIntentOrNullToParcel(android.app.PendingIntent, android.os.Parcel);
@@ -3907,7 +3937,9 @@
     public int describeContents();
     public boolean equals(java.lang.Object);
     public int hashCode();
+    public android.app.ProfilerInfo setAgent(java.lang.String, boolean);
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static android.os.Parcelable$Creator CREATOR;
@@ -4058,7 +4090,7 @@
     public android.app.PendingIntent getPendingIntent(int, int, android.os.Bundle);
     public android.app.PendingIntent getPendingIntent(int, int, android.os.Bundle, android.os.UserHandle);
     public void startActivities();
-    public void startActivities(android.os.Bundle, android.os.UserHandle);
+    public int startActivities(android.os.Bundle, android.os.UserHandle);
     public void startActivities(android.os.Bundle);
 
 
@@ -5204,7 +5236,7 @@
     public abstract void setWallpaper(java.io.InputStream);
     public abstract void startActivities(android.content.Intent[]);
     public abstract void startActivities(android.content.Intent[], android.os.Bundle);
-    public void startActivitiesAsUser(android.content.Intent[], android.os.Bundle, android.os.UserHandle);
+    public int startActivitiesAsUser(android.content.Intent[], android.os.Bundle, android.os.UserHandle);
     public abstract void startActivity(android.content.Intent);
     public abstract void startActivity(android.content.Intent, android.os.Bundle);
     public void startActivityAsUser(android.content.Intent, android.os.UserHandle);
@@ -5322,6 +5354,7 @@
     public static java.lang.String RECOVERY_SERVICE;
     public static java.lang.String RESTRICTIONS_SERVICE;
     public static java.lang.String SEARCH_SERVICE;
+    public static java.lang.String SECURE_ELEMENT_SERVICE;
     public static java.lang.String SENSOR_SERVICE;
     public static java.lang.String SERIAL_SERVICE;
     public static java.lang.String SHORTCUT_SERVICE;
@@ -5334,6 +5367,7 @@
     public static java.lang.String STORAGE_SERVICE;
     public static java.lang.String STORAGE_STATS_SERVICE;
     public static java.lang.String SYSTEM_HEALTH_SERVICE;
+    public static java.lang.String SYSTEM_UPDATE_SERVICE;
     public static java.lang.String TELECOM_SERVICE;
     public static java.lang.String TELEPHONY_SERVICE;
     public static java.lang.String TELEPHONY_SUBSCRIPTION_SERVICE;
@@ -5498,7 +5532,7 @@
     public void setWallpaper(java.io.InputStream);
     public void startActivities(android.content.Intent[]);
     public void startActivities(android.content.Intent[], android.os.Bundle);
-    public void startActivitiesAsUser(android.content.Intent[], android.os.Bundle, android.os.UserHandle);
+    public int startActivitiesAsUser(android.content.Intent[], android.os.Bundle, android.os.UserHandle);
     public void startActivity(android.content.Intent);
     public void startActivity(android.content.Intent, android.os.Bundle);
     public void startActivityAsUser(android.content.Intent, android.os.UserHandle);
@@ -5738,7 +5772,9 @@
     public boolean hasCategory(java.lang.String);
     public boolean hasExtra(java.lang.String);
     public boolean hasFileDescriptors();
+    public boolean hasWebURI();
     public static boolean isAccessUriMode(int);
+    public boolean isBrowsableWebIntent();
     public boolean isDocument();
     public boolean isExcludingStopped();
     public static android.content.Intent makeMainActivity(android.content.ComponentName);
@@ -6023,6 +6059,7 @@
     public static java.lang.String CATEGORY_APP_MUSIC;
     public static java.lang.String CATEGORY_BROWSABLE;
     public static java.lang.String CATEGORY_CAR_DOCK;
+    public static java.lang.String CATEGORY_CAR_LAUNCHER;
     public static java.lang.String CATEGORY_CAR_MODE;
     public static java.lang.String CATEGORY_DEFAULT;
     public static java.lang.String CATEGORY_DESK_DOCK;
@@ -6110,6 +6147,7 @@
     public static java.lang.String EXTRA_INSTALLER_PACKAGE_NAME;
     public static java.lang.String EXTRA_INSTALL_RESULT;
     public static java.lang.String EXTRA_INSTANT_APP_ACTION;
+    public static java.lang.String EXTRA_INSTANT_APP_BUNDLES;
     public static java.lang.String EXTRA_INSTANT_APP_EXTRAS;
     public static java.lang.String EXTRA_INTENT;
     public static java.lang.String EXTRA_IS_DATA_ROAMING_FROM_REGISTRATION;
@@ -6182,6 +6220,7 @@
     public static java.lang.String EXTRA_TITLE;
     public static java.lang.String EXTRA_UID;
     public static java.lang.String EXTRA_UNINSTALL_ALL_USERS;
+    public static java.lang.String EXTRA_UNKNOWN_INSTANT_APP;
     public static java.lang.String EXTRA_USER;
     public static java.lang.String EXTRA_USER_HANDLE;
     public static java.lang.String EXTRA_USER_ID;
@@ -6209,6 +6248,7 @@
     public static int FLAG_ACTIVITY_FORWARD_RESULT;
     public static int FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
     public static int FLAG_ACTIVITY_LAUNCH_ADJACENT;
+    public static int FLAG_ACTIVITY_MATCH_EXTERNAL;
     public static int FLAG_ACTIVITY_MULTIPLE_TASK;
     public static int FLAG_ACTIVITY_NEW_DOCUMENT;
     public static int FLAG_ACTIVITY_NEW_TASK;
@@ -6866,6 +6906,7 @@
     public boolean hasCode();
     public boolean hasRtlSupport();
     public void initForUser(int);
+    public boolean isAllowedToUseHiddenApi();
     public boolean isDefaultToDeviceProtectedStorage();
     public boolean isDirectBootAware();
     public boolean isEncryptionAware();
@@ -6877,10 +6918,10 @@
     public boolean isOem();
     public boolean isPartiallyDirectBootAware();
     public boolean isPrivilegedApp();
+    public boolean isProduct();
     public boolean isRequiredForSystemUser();
     public boolean isStaticSharedLibrary();
     public boolean isSystemApp();
-    public boolean isTargetingDeprecatedSdkVersion();
     public boolean isUpdatedSystemApp();
     public boolean isVendor();
     public boolean isVirtualPreload();
@@ -6896,6 +6937,7 @@
     public java.lang.String toString();
     public boolean usesCompatibilityMode();
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long, int);
 
 
     public static int CATEGORY_AUDIO;
@@ -6956,6 +6998,7 @@
     public static int PRIVATE_FLAG_OEM;
     public static int PRIVATE_FLAG_PARTIALLY_DIRECT_BOOT_AWARE;
     public static int PRIVATE_FLAG_PRIVILEGED;
+    public static int PRIVATE_FLAG_PRODUCT;
     public static int PRIVATE_FLAG_REQUIRED_FOR_SYSTEM_USER;
     public static int PRIVATE_FLAG_STATIC_SHARED_LIBRARY;
     public static int PRIVATE_FLAG_VENDOR;
@@ -7017,18 +7060,31 @@
 }
 
 -keep class android.content.pm.AuxiliaryResolveInfo {
-    <init>(android.content.pm.InstantAppResolveInfo, android.content.IntentFilter, java.lang.String, java.lang.String, boolean, android.content.Intent);
-    <init>(java.lang.String, java.lang.String, android.content.ComponentName, long, android.content.Intent);
+    <init>(java.lang.String, boolean, android.content.Intent, java.util.List);
+    <init>(android.content.ComponentName, android.content.Intent, java.util.List);
+    <init>(android.content.ComponentName, java.lang.String, long, java.lang.String);
 
 
 
     public android.content.Intent failureIntent;
+    public java.util.List filters;
     public android.content.ComponentName installFailureActivity;
     public boolean needsPhaseTwo;
+    public java.lang.String token;
+}
+
+-keep class android.content.pm.AuxiliaryResolveInfo$AuxiliaryFilter {
+    <init>(android.content.IntentFilter, android.content.pm.InstantAppResolveInfo, java.lang.String, android.os.Bundle);
+    <init>(android.content.pm.InstantAppResolveInfo, java.lang.String, android.os.Bundle);
+    <init>(java.lang.String, long, java.lang.String);
+
+    public java.lang.String toString();
+
+
+    public android.os.Bundle extras;
     public java.lang.String packageName;
     public android.content.pm.InstantAppResolveInfo resolveInfo;
     public java.lang.String splitName;
-    public java.lang.String token;
     public long versionCode;
 }
 
@@ -7329,8 +7385,10 @@
     public abstract void grantDefaultPermissionsToEnabledCarrierApps(java.lang.String[], int);
     public abstract void grantDefaultPermissionsToEnabledImsServices(java.lang.String[], int);
     public abstract void grantRuntimePermission(java.lang.String, java.lang.String, int);
+    public abstract boolean hasSigningCertificate(java.lang.String, byte[], int);
     public abstract boolean hasSystemFeature(java.lang.String, int);
     public abstract boolean hasSystemUidErrors();
+    public abstract boolean hasUidSigningCertificate(int, byte[], int);
     public abstract int installExistingPackageAsUser(java.lang.String, int, int, int);
     public abstract boolean isFirstBoot();
     public abstract boolean isInstantApp(java.lang.String, int);
@@ -7460,6 +7518,7 @@
     <init>(android.content.pm.InstantAppResolveInfo$InstantAppDigest, java.lang.String, java.util.List, int);
     <init>(android.content.pm.InstantAppResolveInfo$InstantAppDigest, java.lang.String, java.util.List, long, android.os.Bundle);
     <init>(java.lang.String, java.lang.String, java.util.List);
+    <init>(android.os.Bundle);
 
     public int describeContents();
     public byte[] getDigestBytes();
@@ -7469,6 +7528,7 @@
     public long getLongVersionCode();
     public java.lang.String getPackageName();
     public int getVersionCode();
+    public boolean shouldLetInstallerDecide();
     public void writeToParcel(android.os.Parcel, int);
 
 
@@ -7486,6 +7546,7 @@
 
 
     public static android.os.Parcelable$Creator CREATOR;
+    public static android.content.pm.InstantAppResolveInfo$InstantAppDigest UNDEFINED;
 }
 
 -keep class android.content.pm.InstrumentationInfo {
@@ -7617,6 +7678,7 @@
     public java.lang.String sharedUserId;
     public int sharedUserLabel;
     public android.content.pm.Signature[] signatures;
+    public android.content.pm.Signature[][] signingCertificateHistory;
     public java.lang.String[] splitNames;
     public int[] splitRevisionCodes;
     public int versionCode;
@@ -7831,6 +7893,7 @@
     public android.graphics.drawable.Drawable loadUnbadgedIcon(android.content.pm.PackageManager);
     public android.content.res.XmlResourceParser loadXmlMetaData(android.content.pm.PackageManager, java.lang.String);
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static int DUMP_FLAG_ALL;
@@ -7902,6 +7965,7 @@
     public abstract android.graphics.drawable.Drawable getApplicationLogo(android.content.pm.ApplicationInfo);
     public abstract android.graphics.drawable.Drawable getApplicationLogo(java.lang.String);
     public android.content.pm.dex.ArtManager getArtManager();
+    public abstract android.content.Intent getCarLaunchIntentForPackage(java.lang.String);
     public abstract android.content.pm.ChangedPackages getChangedPackages(int);
     public abstract int getComponentEnabledSetting(android.content.ComponentName);
     public abstract android.graphics.drawable.Drawable getDefaultActivityIcon();
@@ -7980,6 +8044,8 @@
     public abstract android.content.pm.VerifierDeviceIdentity getVerifierDeviceIdentity();
     public abstract android.content.res.XmlResourceParser getXml(java.lang.String, int, android.content.pm.ApplicationInfo);
     public abstract void grantRuntimePermission(java.lang.String, java.lang.String, android.os.UserHandle);
+    public boolean hasSigningCertificate(java.lang.String, byte[], int);
+    public boolean hasSigningCertificate(int, byte[], int);
     public abstract boolean hasSystemFeature(java.lang.String);
     public abstract boolean hasSystemFeature(java.lang.String, int);
     public abstract int installExistingPackage(java.lang.String);
@@ -8054,6 +8120,8 @@
     public static java.lang.String ACTION_CLEAN_EXTERNAL_STORAGE;
     public static java.lang.String ACTION_REQUEST_PERMISSIONS;
     public static boolean APPLY_DEFAULT_TO_DEVICE_PROTECTED_STORAGE;
+    public static int CERT_INPUT_RAW_X509;
+    public static int CERT_INPUT_SHA256;
     public static int COMPONENT_ENABLED_STATE_DEFAULT;
     public static int COMPONENT_ENABLED_STATE_DISABLED;
     public static int COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
@@ -8104,6 +8172,7 @@
     public static java.lang.String FEATURE_BROADCAST_RADIO;
     public static java.lang.String FEATURE_CAMERA;
     public static java.lang.String FEATURE_CAMERA_ANY;
+    public static java.lang.String FEATURE_CAMERA_AR;
     public static java.lang.String FEATURE_CAMERA_AUTOFOCUS;
     public static java.lang.String FEATURE_CAMERA_CAPABILITY_MANUAL_POST_PROCESSING;
     public static java.lang.String FEATURE_CAMERA_CAPABILITY_MANUAL_SENSOR;
@@ -8170,6 +8239,7 @@
     public static java.lang.String FEATURE_SENSOR_STEP_DETECTOR;
     public static java.lang.String FEATURE_SIP;
     public static java.lang.String FEATURE_SIP_VOIP;
+    public static java.lang.String FEATURE_STRONGBOX_KEYSTORE;
     public static java.lang.String FEATURE_TELEPHONY;
     public static java.lang.String FEATURE_TELEPHONY_CARRIERLOCK;
     public static java.lang.String FEATURE_TELEPHONY_CDMA;
@@ -8220,6 +8290,7 @@
     public static int GET_SERVICES;
     public static int GET_SHARED_LIBRARY_FILES;
     public static int GET_SIGNATURES;
+    public static int GET_SIGNING_CERTIFICATES;
     public static int GET_UNINSTALLED_PACKAGES;
     public static int GET_URI_PERMISSION_PATTERNS;
     public static int INSTALL_ALLOCATE_AGGRESSIVE;
@@ -8729,10 +8800,15 @@
 -keep class android.content.pm.dex.ArtManager {
     <init>(android.content.pm.dex.IArtManager);
 
-    public boolean isRuntimeProfilingEnabled();
-    public void snapshotRuntimeProfile(java.lang.String, java.lang.String, android.content.pm.dex.ArtManager$SnapshotRuntimeProfileCallback, android.os.Handler);
+    public static java.lang.String getCurrentProfilePath(java.lang.String, int, java.lang.String);
+    public static java.lang.String getProfileName(java.lang.String);
+    public static java.io.File getProfileSnapshotFileForName(java.lang.String, java.lang.String);
+    public boolean isRuntimeProfilingEnabled(int);
+    public void snapshotRuntimeProfile(int, java.lang.String, java.lang.String, java.util.concurrent.Executor, android.content.pm.dex.ArtManager$SnapshotRuntimeProfileCallback);
 
 
+    public static int PROFILE_APPS;
+    public static int PROFILE_BOOT_IMAGE;
     public static int SNAPSHOT_FAILED_CODE_PATH_NOT_FOUND;
     public static int SNAPSHOT_FAILED_INTERNAL_ERROR;
     public static int SNAPSHOT_FAILED_PACKAGE_NOT_FOUND;
@@ -8749,8 +8825,8 @@
 
 -keep class android.content.pm.dex.IArtManager {
 
-    public abstract boolean isRuntimeProfilingEnabled();
-    public abstract void snapshotRuntimeProfile(java.lang.String, java.lang.String, android.content.pm.dex.ISnapshotRuntimeProfileCallback);
+    public abstract boolean isRuntimeProfilingEnabled(int);
+    public abstract void snapshotRuntimeProfile(int, java.lang.String, java.lang.String, android.content.pm.dex.ISnapshotRuntimeProfileCallback);
 
 
 }
@@ -11665,6 +11741,8 @@
     public void resumeWifiDisplay();
     public void setBrightnessConfiguration(android.hardware.display.BrightnessConfiguration);
     public void setBrightnessConfigurationForUser(android.hardware.display.BrightnessConfiguration, int, java.lang.String);
+    public void setTemporaryAutoBrightnessAdjustment(float);
+    public void setTemporaryBrightness(int);
     public void startWifiDisplayScan();
     public void stopWifiDisplayScan();
     public void unregisterDisplayListener(android.hardware.display.DisplayManager$DisplayListener);
@@ -11716,6 +11794,8 @@
     public void resizeVirtualDisplay(android.hardware.display.IVirtualDisplayCallback, int, int, int);
     public void resumeWifiDisplay();
     public void setBrightnessConfigurationForUser(android.hardware.display.BrightnessConfiguration, int, java.lang.String);
+    public void setTemporaryAutoBrightnessAdjustment(float);
+    public void setTemporaryBrightness(int);
     public void setVirtualDisplaySurface(android.hardware.display.IVirtualDisplayCallback, android.view.Surface);
     public void startWifiDisplayScan();
     public void stopWifiDisplayScan();
@@ -11855,11 +11935,11 @@
     public int getVolumeControlStream();
     public int hashCode();
     public static int toLegacyStreamType(android.media.AudioAttributes);
-    public void toProto(android.util.proto.ProtoOutputStream);
     public java.lang.String toString();
     public java.lang.String usageToString();
     public static java.lang.String usageToString(int);
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static int CONTENT_TYPE_MOVIE;
@@ -12054,10 +12134,13 @@
     public static int CHANNEL_OUT_TOP_FRONT_LEFT;
     public static int CHANNEL_OUT_TOP_FRONT_RIGHT;
     public static android.os.Parcelable$Creator CREATOR;
+    public static int ENCODING_AAC_ELD;
     public static int ENCODING_AAC_HE_V1;
     public static int ENCODING_AAC_HE_V2;
     public static int ENCODING_AAC_LC;
+    public static int ENCODING_AAC_XHE;
     public static int ENCODING_AC3;
+    public static int ENCODING_AC4;
     public static int ENCODING_DEFAULT;
     public static int ENCODING_DOLBY_TRUEHD;
     public static int ENCODING_DTS;
@@ -12155,6 +12238,7 @@
     public int getChannelConfiguration();
     public int getChannelCount();
     public android.media.AudioFormat getFormat();
+    public android.os.PersistableBundle getMetrics();
     public static int getMinBufferSize(int, int, int);
     public int getNotificationMarkerPosition();
     public int getPositionNotificationPeriod();
@@ -13022,7 +13106,7 @@
 
 -keep class android.os.Debug {
 
-    public static void attachJvmtiAgent(java.lang.String, java.lang.String);
+    public static void attachJvmtiAgent(java.lang.String, java.lang.String, java.lang.ClassLoader);
     public static boolean cacheRegisterMap(java.lang.String);
     public static void changeDebugPort(int);
     public static long countInstancesOfClass(java.lang.Class);
@@ -13148,6 +13232,7 @@
     public int getOtherPrivateClean(int);
     public int getOtherPrivateDirty(int);
     public int getOtherPss(int);
+    public int getOtherRss(int);
     public int getOtherSharedClean(int);
     public int getOtherSharedDirty(int);
     public int getOtherSwappablePss(int);
@@ -13166,6 +13251,7 @@
     public int getTotalPrivateClean();
     public int getTotalPrivateDirty();
     public int getTotalPss();
+    public int getTotalRss();
     public int getTotalSharedClean();
     public int getTotalSharedDirty();
     public int getTotalSwappablePss();
@@ -13184,6 +13270,15 @@
     public static int NUM_CATEGORIES;
     public static int NUM_DVK_STATS;
     public static int NUM_OTHER_STATS;
+    public static int OFFSET_PRIVATE_CLEAN;
+    public static int OFFSET_PRIVATE_DIRTY;
+    public static int OFFSET_PSS;
+    public static int OFFSET_RSS;
+    public static int OFFSET_SHARED_CLEAN;
+    public static int OFFSET_SHARED_DIRTY;
+    public static int OFFSET_SWAPPABLE_PSS;
+    public static int OFFSET_SWAPPED_OUT;
+    public static int OFFSET_SWAPPED_OUT_PSS;
     public static int OTHER_APK;
     public static int OTHER_ART;
     public static int OTHER_ART_APP;
@@ -13226,6 +13321,7 @@
     public int dalvikPrivateClean;
     public int dalvikPrivateDirty;
     public int dalvikPss;
+    public int dalvikRss;
     public int dalvikSharedClean;
     public int dalvikSharedDirty;
     public int dalvikSwappablePss;
@@ -13235,22 +13331,16 @@
     public int nativePrivateClean;
     public int nativePrivateDirty;
     public int nativePss;
+    public int nativeRss;
     public int nativeSharedClean;
     public int nativeSharedDirty;
     public int nativeSwappablePss;
     public int nativeSwappedOut;
     public int nativeSwappedOutPss;
-    public static int offsetPrivateClean;
-    public static int offsetPrivateDirty;
-    public static int offsetPss;
-    public static int offsetSharedClean;
-    public static int offsetSharedDirty;
-    public static int offsetSwappablePss;
-    public static int offsetSwappedOut;
-    public static int offsetSwappedOutPss;
     public int otherPrivateClean;
     public int otherPrivateDirty;
     public int otherPss;
+    public int otherRss;
     public int otherSharedClean;
     public int otherSharedDirty;
     public int otherSwappablePss;
@@ -14078,6 +14168,7 @@
     public static int getUserId(int);
     public int hashCode();
     public static boolean isApp(int);
+    public static boolean isCore(int);
     public static boolean isIsolated(int);
     public boolean isOwner();
     public static boolean isSameApp(int, int);
@@ -14124,6 +14215,8 @@
     public int describeContents();
     public static android.os.VibrationEffect get(int);
     public static android.os.VibrationEffect get(int, boolean);
+    public abstract long getDuration();
+    protected static int scale(int, float, int);
     public abstract void validate();
 
 
@@ -14132,6 +14225,7 @@
     public static int EFFECT_CLICK;
     public static int EFFECT_DOUBLE_CLICK;
     public static int EFFECT_TICK;
+    public static int MAX_AMPLITUDE;
 }
 
 -keep class android.os.Vibrator {
@@ -14139,6 +14233,8 @@
     <init>(android.content.Context);
 
     public abstract void cancel();
+    public int getDefaultHapticFeedbackIntensity();
+    public int getDefaultNotificationVibrationIntensity();
     public abstract boolean hasAmplitudeControl();
     public abstract boolean hasVibrator();
     public void vibrate(long);
@@ -14150,6 +14246,10 @@
     public abstract void vibrate(int, java.lang.String, android.os.VibrationEffect, android.media.AudioAttributes);
 
 
+    public static int VIBRATION_INTENSITY_HIGH;
+    public static int VIBRATION_INTENSITY_LOW;
+    public static int VIBRATION_INTENSITY_MEDIUM;
+    public static int VIBRATION_INTENSITY_OFF;
 }
 
 -keep class android.os.WorkSource {
@@ -14173,6 +14273,7 @@
     public java.lang.String getName(int);
     public java.util.ArrayList getWorkChains();
     public int hashCode();
+    public static boolean isChainedBatteryAttributionEnabled(android.content.Context);
     public boolean isEmpty();
     public boolean remove(android.os.WorkSource);
     public void set(android.os.WorkSource);
@@ -14181,6 +14282,7 @@
     public android.os.WorkSource[] setReturningDiffs(android.os.WorkSource);
     public int size();
     public java.lang.String toString();
+    public void transferWorkChains(android.os.WorkSource);
     public void writeToParcel(android.os.Parcel, int);
     public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
@@ -14195,6 +14297,7 @@
     public android.os.WorkSource$WorkChain addNode(int, java.lang.String);
     public int describeContents();
     public boolean equals(java.lang.Object);
+    public java.lang.String getAttributionTag();
     public int getAttributionUid();
     public int getSize();
     public java.lang.String[] getTags();
@@ -14370,9 +14473,8 @@
 }
 
 -keep class android.service.autofill.FieldClassification$Match {
-    <init>(java.lang.String, float, java.lang.String);
+    <init>(java.lang.String, float);
 
-    public java.lang.String getAlgorithm();
     public java.lang.String getRemoteId();
     public float getScore();
     public java.lang.String toString();
@@ -15122,6 +15224,32 @@
 
 }
 
+-keep class android.util.MergedConfiguration {
+    <init>();
+    <init>(android.content.res.Configuration, android.content.res.Configuration);
+    <init>(android.content.res.Configuration);
+    <init>(android.util.MergedConfiguration);
+
+    public int describeContents();
+    public void dump(java.io.PrintWriter, java.lang.String);
+    public boolean equals(java.lang.Object);
+    public android.content.res.Configuration getGlobalConfiguration();
+    public android.content.res.Configuration getMergedConfiguration();
+    public android.content.res.Configuration getOverrideConfiguration();
+    public int hashCode();
+    public void readFromParcel(android.os.Parcel);
+    public void setConfiguration(android.content.res.Configuration, android.content.res.Configuration);
+    public void setGlobalConfiguration(android.content.res.Configuration);
+    public void setOverrideConfiguration(android.content.res.Configuration);
+    public void setTo(android.util.MergedConfiguration);
+    public java.lang.String toString();
+    public void unset();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+}
+
 -keep class android.util.Pair {
     <init>(java.lang.Object, java.lang.Object);
 
@@ -15823,6 +15951,7 @@
     public boolean equals(java.lang.Object);
     public static android.view.DisplayCutout fromBoundingPolygon(java.util.List);
     public static android.view.DisplayCutout fromBounds(android.graphics.Path);
+    public static android.view.DisplayCutout fromResources(android.content.res.Resources, int);
     public android.graphics.Rect getBoundingRect();
     public android.graphics.Region getBounds();
     public int getSafeInsetBottom();
@@ -15838,6 +15967,26 @@
 
 
     public static android.view.DisplayCutout NO_CUTOUT;
+}
+
+-keep class android.view.DisplayCutout$ParcelableWrapper {
+    <init>();
+    <init>(android.view.DisplayCutout);
+
+    public int describeContents();
+    public boolean equals(java.lang.Object);
+    public android.view.DisplayCutout get();
+    public int hashCode();
+    public static android.view.DisplayCutout readCutoutFromParcel(android.os.Parcel);
+    public void readFromParcel(android.os.Parcel);
+    public void set(android.view.DisplayCutout$ParcelableWrapper);
+    public void set(android.view.DisplayCutout);
+    public java.lang.String toString();
+    public static void writeCutoutToParcel(android.view.DisplayCutout, android.os.Parcel, int);
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
 }
 
 -keep class android.view.DisplayInfo {
@@ -16011,6 +16160,23 @@
 
 }
 
+-keep class android.view.IRecentsAnimationController {
+
+    public abstract void finish(boolean);
+    public abstract android.app.ActivityManager$TaskSnapshot screenshotTask(int);
+    public abstract void setInputConsumerEnabled(boolean);
+
+
+}
+
+-keep class android.view.IRecentsAnimationRunner {
+
+    public abstract void onAnimationCanceled();
+    public abstract void onAnimationStart(android.view.IRecentsAnimationController, android.view.RemoteAnimationTarget[]);
+
+
+}
+
 -keep class android.view.IRemoteAnimationFinishedCallback {
 
     public abstract void onAnimationFinished();
@@ -16022,6 +16188,27 @@
 
     public abstract void onAnimationCancelled();
     public abstract void onAnimationStart(android.view.RemoteAnimationTarget[], android.view.IRemoteAnimationFinishedCallback);
+
+
+}
+
+-keep class android.view.IWindow {
+
+    public abstract void closeSystemDialogs(java.lang.String);
+    public abstract void dispatchAppVisibility(boolean);
+    public abstract void dispatchDragEvent(android.view.DragEvent);
+    public abstract void dispatchGetNewSurface();
+    public abstract void dispatchPointerCaptureChanged(boolean);
+    public abstract void dispatchSystemUiVisibilityChanged(int, int, int, int);
+    public abstract void dispatchWallpaperCommand(java.lang.String, int, int, int, android.os.Bundle, boolean);
+    public abstract void dispatchWallpaperOffsets(float, float, float, float, boolean);
+    public abstract void dispatchWindowShown();
+    public abstract void executeCommand(java.lang.String, java.lang.String, android.os.ParcelFileDescriptor);
+    public abstract void moved(int, int);
+    public abstract void requestAppKeyboardShortcuts(com.android.internal.os.IResultReceiver, int);
+    public abstract void resized(android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, boolean, android.util.MergedConfiguration, android.graphics.Rect, boolean, boolean, int, android.view.DisplayCutout$ParcelableWrapper);
+    public abstract void updatePointerIcon(float, float);
+    public abstract void windowFocusChanged(boolean, boolean);
 
 
 }
@@ -16618,6 +16805,7 @@
     public static int KEYCODE_PROG_YELLOW;
     public static int KEYCODE_Q;
     public static int KEYCODE_R;
+    public static int KEYCODE_REFRESH;
     public static int KEYCODE_RIGHT_BRACKET;
     public static int KEYCODE_RO;
     public static int KEYCODE_S;
@@ -17362,7 +17550,7 @@
 }
 
 -keep class android.view.RemoteAnimationTarget {
-    <init>(int, int, android.view.SurfaceControl, boolean, android.graphics.Rect, int, android.graphics.Point, android.graphics.Rect);
+    <init>(int, int, android.view.SurfaceControl, boolean, android.graphics.Rect, int, android.graphics.Point, android.graphics.Rect, android.app.WindowConfiguration);
     <init>(android.os.Parcel);
 
     public int describeContents();
@@ -17380,6 +17568,7 @@
     public int prefixOrderIndex;
     public android.graphics.Rect sourceContainerBounds;
     public int taskId;
+    public android.app.WindowConfiguration windowConfiguration;
 }
 
 -keep class android.view.RenderNode {
@@ -17786,6 +17975,7 @@
     protected void onMeasure(int, int);
     protected void onWindowVisibilityChanged(int);
     protected boolean setFrame(int, int, int, int);
+    public void setResizeBackgroundColor(int);
     public void setSecure(boolean);
     public void setVisibility(int);
     public void setWindowType(int);
@@ -17825,7 +18015,6 @@
     public static java.lang.String DEBUG_DIRTY_REGIONS_PROPERTY;
     public static java.lang.String DEBUG_FPS_DIVISOR;
     public static java.lang.String DEBUG_OVERDRAW_PROPERTY;
-    public static java.lang.String DEBUG_RENDERER_PROPERTY;
     public static java.lang.String DEBUG_SHOW_LAYERS_UPDATES_PROPERTY;
     public static java.lang.String DEBUG_SHOW_NON_RECTANGULAR_CLIP_PROPERTY;
     public static java.lang.String OVERDRAW_PROPERTY_SHOW;
@@ -18150,6 +18339,7 @@
     public android.view.ViewTreeObserver getViewTreeObserver();
     public int getVisibility();
     public int getWidth();
+    protected android.view.IWindow getWindow();
     protected int getWindowAttachCount();
     public void getWindowDisplayFrame(android.graphics.Rect);
     public android.view.WindowId getWindowId();
@@ -18258,9 +18448,9 @@
     public void mapRectFromViewToScreenCoords(android.graphics.RectF, boolean);
     public void measure(int, int);
     protected static int[] mergeDrawableStates(int[], int[]);
-    public void notifyAccessibilityStateChanged(int);
-    public void notifyAccessibilitySubtreeChanged();
     public void notifyEnterOrExitForAutoFillIfNeeded(boolean);
+    public void notifySubtreeAccessibilityStateChangedIfNeeded();
+    public void notifyViewAccessibilityStateChangedIfNeeded(int);
     public void offsetLeftAndRight(int);
     public void offsetTopAndBottom(int);
     public void onActivityResult(int, int, android.content.Intent);
@@ -18377,6 +18567,7 @@
     public boolean requestRectangleOnScreen(android.graphics.Rect);
     public boolean requestRectangleOnScreen(android.graphics.Rect, boolean);
     public void requestUnbufferedDispatch(android.view.MotionEvent);
+    public android.view.View requireViewById(int);
     public void resetPaddingToInitialValues();
     protected void resetResolvedDrawables();
     public void resetResolvedLayoutDirection();
@@ -18384,7 +18575,6 @@
     public void resetResolvedTextAlignment();
     public void resetResolvedTextDirection();
     public void resetRtlProperties();
-    public void resetSubtreeAccessibilityStateChanged();
     protected void resolveDrawables();
     public boolean resolveLayoutDirection();
     public void resolveLayoutParams();
@@ -19181,8 +19371,8 @@
     protected void measureChild(android.view.View, int, int);
     protected void measureChildWithMargins(android.view.View, int, int, int, int);
     protected void measureChildren(int, int);
-    public void notifyAccessibilitySubtreeChanged();
     public void notifySubtreeAccessibilityStateChanged(android.view.View, android.view.View, int);
+    public void notifySubtreeAccessibilityStateChangedIfNeeded();
     public void offsetChildrenTopAndBottom(int);
     public void offsetDescendantRectToMyCoords(android.view.View, android.graphics.Rect);
     public void offsetRectIntoDescendantCoords(android.view.View, android.graphics.Rect);
@@ -19234,7 +19424,6 @@
     public void resetResolvedPadding();
     public void resetResolvedTextAlignment();
     public void resetResolvedTextDirection();
-    public void resetSubtreeAccessibilityStateChanged();
     protected void resolveDrawables();
     public boolean resolveLayoutDirection();
     public void resolveLayoutParams();
@@ -19531,7 +19720,6 @@
     public void dispatchWindowShown();
     public void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     public void dumpGfxInfo(int[]);
-    public void flushPendingAccessibilityEvents();
     public android.view.View focusSearch(android.view.View, int);
     public void focusableViewAvailable(android.view.View);
     public android.view.View getAccessibilityFocusedHost();
@@ -19539,6 +19727,7 @@
     public android.view.AccessibilityInteractionController getAccessibilityInteractionController();
     public boolean getChildVisibleRect(android.view.View, android.graphics.Rect, android.graphics.Point);
     public int getDisplayId();
+    public int getHeight();
     public void getLastTouchPoint(android.graphics.Point);
     public int getLastTouchSource();
     public int getLayoutDirection();
@@ -19548,6 +19737,7 @@
     public int getTextDirection();
     public java.lang.CharSequence getTitle();
     public android.view.View getView();
+    public int getWidth();
     public int getWindowFlags();
     public void handleDispatchSystemUiVisibilityChanged(android.view.ViewRootImpl$SystemUiVisibilityInfo);
     public void handleDispatchWindowShown();
@@ -19613,7 +19803,6 @@
 
 
     public static java.lang.String PROPERTY_EMULATOR_WIN_OUTSET_BOTTOM_PX;
-    protected android.view.accessibility.AccessibilityViewHierarchyState mAccessibilityState;
     protected android.view.InputEventConsistencyVerifier mInputEventConsistencyVerifier;
     public boolean mIsAnimating;
     public android.view.Surface mSurface;
@@ -19888,6 +20077,7 @@
     protected int getLocalFeatures();
     public android.media.session.MediaController getMediaController();
     public abstract int getNavigationBarColor();
+    public int getNavigationBarDividerColor();
     public android.transition.Transition getReenterTransition();
     public android.transition.Transition getReturnTransition();
     public android.transition.Transition getSharedElementEnterTransition();
@@ -19930,6 +20120,7 @@
     public void removeOnFrameMetricsAvailableListener(android.view.Window$OnFrameMetricsAvailableListener);
     public abstract void reportActivityRelaunched();
     public boolean requestFeature(int);
+    public android.view.View requireViewById(int);
     public abstract void restoreHierarchyState(android.os.Bundle);
     public abstract android.os.Bundle saveHierarchyState();
     public void setAllowEnterTransitionOverlap(boolean);
@@ -19954,7 +20145,6 @@
     public void setDefaultLogo(int);
     protected void setDefaultWindowFormat(int);
     public void setDimAmount(float);
-    public void setDisableWallpaperTouchEvents(boolean);
     public void setElevation(float);
     public void setEnterTransition(android.transition.Transition);
     public void setExitTransition(android.transition.Transition);
@@ -19972,6 +20162,7 @@
     public void setLogo(int);
     public void setMediaController(android.media.session.MediaController);
     public abstract void setNavigationBarColor(int);
+    public void setNavigationBarDividerColor(int);
     protected void setNeedsMenuKey(int);
     public void setOnWindowDismissedCallback(android.view.Window$OnWindowDismissedCallback);
     public void setOnWindowSwipeDismissedCallback(android.view.Window$OnWindowSwipeDismissedCallback);
@@ -20237,6 +20428,7 @@
     public static int DOCKED_TOP;
     public static java.lang.String INPUT_CONSUMER_NAVIGATION;
     public static java.lang.String INPUT_CONSUMER_PIP;
+    public static java.lang.String INPUT_CONSUMER_RECENTS_ANIMATION;
     public static java.lang.String INPUT_CONSUMER_WALLPAPER;
     public static java.lang.String PARCEL_KEY_SHORTCUTS_ARRAY;
     public static int TAKE_SCREENSHOT_FULLSCREEN;
@@ -20645,6 +20837,7 @@
     public java.lang.CharSequence getText();
     public int getTextSelectionEnd();
     public int getTextSelectionStart();
+    public java.lang.CharSequence getTooltipText();
     public android.view.accessibility.AccessibilityNodeInfo getTraversalAfter();
     public android.view.accessibility.AccessibilityNodeInfo getTraversalBefore();
     public java.lang.String getViewIdResourceName();
@@ -20664,6 +20857,7 @@
     public boolean isEnabled();
     public boolean isFocusable();
     public boolean isFocused();
+    public boolean isHeading();
     public boolean isImportantForAccessibility();
     public boolean isLongClickable();
     public boolean isMultiLine();
@@ -20712,6 +20906,7 @@
     public void setError(java.lang.CharSequence);
     public void setFocusable(boolean);
     public void setFocused(boolean);
+    public void setHeading(boolean);
     public void setHintText(java.lang.CharSequence);
     public void setImportantForAccessibility(boolean);
     public void setInputType(int);
@@ -20741,6 +20936,7 @@
     public void setSourceNodeId(long, int);
     public void setText(java.lang.CharSequence);
     public void setTextSelection(int, int);
+    public void setTooltipText(java.lang.CharSequence);
     public void setTraversalAfter(android.view.View);
     public void setTraversalAfter(android.view.View, int);
     public void setTraversalBefore(android.view.View);
@@ -20833,6 +21029,7 @@
     public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_DISMISS;
     public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_EXPAND;
     public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_FOCUS;
+    public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_HIDE_TOOLTIP;
     public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_LONG_CLICK;
     public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_MOVE_WINDOW;
     public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_NEXT_AT_MOVEMENT_GRANULARITY;
@@ -20852,6 +21049,7 @@
     public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_SET_SELECTION;
     public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_SET_TEXT;
     public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_SHOW_ON_SCREEN;
+    public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_SHOW_TOOLTIP;
     public int mSerializationFlag;
     public static android.util.ArraySet sStandardActions;
 }
@@ -20980,17 +21178,6 @@
     protected static boolean DEBUG_CONCISE_TOSTRING;
 }
 
--keep class android.view.accessibility.AccessibilityViewHierarchyState {
-    <init>();
-
-    public android.view.accessibility.SendViewScrolledAccessibilityEvent getSendViewScrolledAccessibilityEvent();
-    public android.view.accessibility.SendWindowContentChangedAccessibilityEvent getSendWindowContentChangedAccessibilityEvent();
-    public boolean isScrollEventSenderInitialized();
-    public boolean isWindowContentChangedEventSenderInitialized();
-
-
-}
-
 -keep class android.view.accessibility.AccessibilityWindowInfo {
 
     public void addChild(int);
@@ -21050,46 +21237,6 @@
     public abstract void setFindAccessibilityNodeInfoResult(android.view.accessibility.AccessibilityNodeInfo, int);
     public abstract void setFindAccessibilityNodeInfosResult(java.util.List, int);
     public abstract void setPerformAccessibilityActionResult(boolean, int);
-
-
-}
-
--keep class android.view.accessibility.SendViewScrolledAccessibilityEvent {
-    <init>();
-
-    protected void performSendEvent(android.view.View);
-    public void post(android.view.View, int, int);
-    protected void resetState(android.view.View);
-
-
-    public int mDeltaX;
-    public int mDeltaY;
-}
-
--keep class android.view.accessibility.SendWindowContentChangedAccessibilityEvent {
-    <init>();
-
-    protected void performSendEvent(android.view.View);
-    protected void resetState(android.view.View);
-    public void runOrPost(android.view.View, int);
-    protected android.view.View tryMerge(android.view.View, android.view.View);
-
-
-}
-
--keep class android.view.accessibility.ThrottlingAccessibilityEventSender {
-    <init>();
-
-    public static void cancelIfPending(android.view.accessibility.ThrottlingAccessibilityEventSender);
-    public void cancelIfPendingFor(android.view.View);
-    protected boolean isPendingFor(android.view.View);
-    protected abstract void performSendEvent(android.view.View);
-    protected abstract void resetState(android.view.View);
-    protected void scheduleFor(android.view.View);
-    protected void sendNow(android.view.View);
-    public void sendNowIfPending();
-    public java.lang.String toString();
-    protected android.view.View tryMerge(android.view.View, android.view.View);
 
 
 }
@@ -21322,6 +21469,7 @@
     public static java.lang.String EXTRA_AUTHENTICATION_RESULT;
     public static java.lang.String EXTRA_CLIENT_STATE;
     public static java.lang.String EXTRA_RESTORE_SESSION_TOKEN;
+    public static int FC_SERVICE_TIMEOUT;
     public static int FLAG_ADD_CLIENT_DEBUG;
     public static int FLAG_ADD_CLIENT_ENABLED;
     public static int FLAG_ADD_CLIENT_VERBOSE;
@@ -21401,7 +21549,7 @@
     public abstract void disableOwnedAutofillServices(int);
     public abstract void finishSession(int, int);
     public abstract android.content.ComponentName getAutofillServiceComponentName();
-    public abstract java.util.List getAvailableFieldClassificationAlgorithms();
+    public abstract java.lang.String[] getAvailableFieldClassificationAlgorithms();
     public abstract java.lang.String getDefaultFieldClassificationAlgorithm();
     public abstract android.service.autofill.FillEventHistory getFillEventHistory();
     public abstract android.service.autofill.UserData getUserData();
@@ -21578,6 +21726,7 @@
     public abstract boolean performEditorAction(int);
     public abstract boolean performPrivateCommand(java.lang.String, android.os.Bundle);
     public abstract boolean reportFullscreenMode(boolean);
+    public void reportLanguageHint(android.os.LocaleList);
     public abstract boolean requestCursorUpdates(int);
     public abstract boolean sendKeyEvent(android.view.KeyEvent);
     public abstract boolean setComposingRegion(int, int);
