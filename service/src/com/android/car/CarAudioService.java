@@ -33,6 +33,7 @@ import android.media.AudioGain;
 import android.media.AudioGainConfig;
 import android.media.AudioManager;
 import android.media.AudioPatch;
+import android.media.AudioPlaybackConfiguration;
 import android.media.AudioPort;
 import android.media.AudioPortConfig;
 import android.media.audiopolicy.AudioMix;
@@ -40,6 +41,7 @@ import android.media.audiopolicy.AudioMixingRule;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -50,8 +52,11 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
+
+    private static final int DEFAULT_AUDIO_USAGE = AudioAttributes.USAGE_MEDIA;
 
     private static final int[] CONTEXT_NUMBERS = new int[] {
             ContextNumber.MUSIC,
@@ -94,6 +99,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     private final Context mContext;
+    private final TelephonyManager mTelephonyManager;
     private final AudioManager mAudioManager;
     private final boolean mUseDynamicRouting;
     private final SparseIntArray mUsageToBus = new SparseIntArray();
@@ -103,9 +109,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             new AudioPolicy.AudioPolicyVolumeCallback() {
         @Override
         public void onVolumeAdjustment(int adjustment) {
-            Log.v(CarLog.TAG_AUDIO,
-                    "onVolumeAdjustment: " + AudioManager.adjustToString(adjustment));
             final int usage = getSuggestedAudioUsage();
+            Log.v(CarLog.TAG_AUDIO,
+                    "onVolumeAdjustment: " + AudioManager.adjustToString(adjustment)
+                            + " suggested usage: " + AudioAttributes.usageToString(usage));
             final int currentVolume = getUsageVolume(usage);
             final int flags = AudioManager.FLAG_FROM_KEY;
             switch (adjustment) {
@@ -139,6 +146,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     public CarAudioService(Context context) {
         mContext = context;
+        mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         Resources res = context.getResources();
         mUseDynamicRouting = res.getBoolean(R.bool.audioUseDynamicRouting);
@@ -576,11 +584,28 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     /**
-     * TODO(hwwang): find the most relevant audio usage for volume key events
      * @return The suggested {@link AudioAttributes} usage to which the volume key events apply
      */
     private @AudioAttributes.AttributeUsage int getSuggestedAudioUsage() {
-        return AudioAttributes.USAGE_MEDIA;
+        int callState = mTelephonyManager.getCallState();
+        if (callState == TelephonyManager.CALL_STATE_RINGING) {
+            return AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+        } else if (callState == TelephonyManager.CALL_STATE_OFFHOOK) {
+            return AudioAttributes.USAGE_VOICE_COMMUNICATION;
+        } else {
+            List<AudioPlaybackConfiguration> playbacks = mAudioManager
+                    .getActivePlaybackConfigurations()
+                    .stream()
+                    .filter(p -> p.isActive())
+                    .collect(Collectors.toList());
+            if (!playbacks.isEmpty()) {
+                // Get audio usage from active playbacks if there is any, last one if multiple
+                return playbacks.get(playbacks.size() - 1).getAudioAttributes().getUsage();
+            } else {
+                // TODO(b/72695246): Otherwise, get audio usage from foreground activity/window
+                return DEFAULT_AUDIO_USAGE;
+            }
+        }
     }
 
     @Nullable
