@@ -20,7 +20,6 @@ import android.annotation.MainThread;
 import android.app.UiModeManager;
 import android.car.Car;
 import android.car.ICar;
-import android.car.annotation.FutureFeature;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -79,9 +78,7 @@ public class ICarImpl extends ICar.Stub {
     private final PerUserCarServiceHelper mPerUserCarServiceHelper;
     private final CarDiagnosticService mCarDiagnosticService;
     private final CarStorageMonitoringService mCarStorageMonitoringService;
-    @FutureFeature
     private VmsSubscriberService mVmsSubscriberService;
-    @FutureFeature
     private VmsPublisherService mVmsPublisherService;
 
     private final CarServiceBase[] mAllServices;
@@ -336,12 +333,10 @@ public class ICarImpl extends ICar.Stub {
         assertPermission(context, Car.PERMISSION_CAR_DRIVING_STATE);
     }
 
-    @FutureFeature
     public static void assertVmsPublisherPermission(Context context) {
         assertPermission(context, Car.PERMISSION_VMS_PUBLISHER);
     }
 
-    @FutureFeature
     public static void assertVmsSubscriberPermission(Context context) {
         assertPermission(context, Car.PERMISSION_VMS_SUBSCRIBER);
     }

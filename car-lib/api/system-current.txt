@@ -17,11 +17,14 @@ package android.car {
     field public static final deprecated java.lang.String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
     field public static final java.lang.String PERMISSION_STORAGE_MONITORING = "android.car.permission.STORAGE_MONITORING";
     field public static final java.lang.String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
+    field public static final java.lang.String PERMISSION_VMS_PUBLISHER = "android.car.permission.VMS_PUBLISHER";
+    field public static final java.lang.String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
     field public static final java.lang.String PROJECTION_SERVICE = "projection";
     field public static final deprecated java.lang.String RADIO_SERVICE = "radio";
     field public static final java.lang.String STORAGE_MONITORING_SERVICE = "storage_monitoring";
     field public static final java.lang.String TEST_SERVICE = "car-service-test";
     field public static final java.lang.String VENDOR_EXTENSION_SERVICE = "vendor_extension";
+    field public static final java.lang.String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
   }
 
   public final class CarProjectionManager {

@@ -19,7 +19,6 @@ package android.car;
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.annotation.FutureFeature;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.content.pm.CarPackageManager;
 import android.car.diagnostic.CarDiagnosticManager;
@@ -140,9 +139,9 @@ public final class Car {
     public static final String BLUETOOTH_SERVICE = "car_bluetooth";
 
     /**
-     * @FutureFeature Cannot drop due to usage in non-flag protected place.
      * @hide
      */
+    @SystemApi
     public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
 
     /**
@@ -298,7 +297,7 @@ public final class Car {
      *
      * @hide
      */
-    @FutureFeature
+    @SystemApi
     public static final String PERMISSION_VMS_PUBLISHER = "android.car.permission.VMS_PUBLISHER";
 
     /**
@@ -306,7 +305,7 @@ public final class Car {
      *
      * @hide
      */
-    @FutureFeature
+    @SystemApi
     public static final String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
 
     /**

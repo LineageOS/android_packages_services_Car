@@ -1640,11 +1640,11 @@
     public android.app.Instrumentation getInstrumentation();
     public int getIntCoreSetting(java.lang.String, int);
     public static android.content.Intent getIntentBeingBroadcast();
-    public android.app.LoadedApk getLoadedApk(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo, int);
-    public android.app.LoadedApk getLoadedApkForPackageName(java.lang.String, android.content.res.CompatibilityInfo, int);
-    public android.app.LoadedApk getLoadedApkForPackageName(java.lang.String, android.content.res.CompatibilityInfo, int, int);
-    public android.app.LoadedApk getLoadedApkNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
     public android.os.Looper getLooper();
+    public android.app.LoadedApk getPackageInfo(java.lang.String, android.content.res.CompatibilityInfo, int);
+    public android.app.LoadedApk getPackageInfo(java.lang.String, android.content.res.CompatibilityInfo, int, int);
+    public android.app.LoadedApk getPackageInfo(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo, int);
+    public android.app.LoadedApk getPackageInfoNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
     public static android.content.pm.IPackageManager getPackageManager();
     public java.lang.String getProcessName();
     public java.lang.String getProfileFilePath();
@@ -1672,7 +1672,7 @@
     public static boolean isSystem();
     public static void main(java.lang.String[]);
     public void onNewActivityOptions(android.os.IBinder, android.app.ActivityOptions);
-    public android.app.LoadedApk peekLoadedApk(java.lang.String, boolean);
+    public android.app.LoadedApk peekPackageInfo(java.lang.String, boolean);
     public void performRestartActivity(android.os.IBinder, boolean);
     public void registerOnActivityPausedListener(android.app.Activity, android.app.OnActivityPausedListener);
     public boolean releaseProvider(android.content.IContentProvider, boolean);
@@ -1712,7 +1712,7 @@
 
 
     public boolean isForward;
-    public android.app.LoadedApk loadedApk;
+    public android.app.LoadedApk packageInfo;
     public android.os.IBinder token;
 }
 
@@ -2187,7 +2187,7 @@
 
     public abstract void dump(java.io.PrintWriter, java.lang.String);
     public abstract android.app.ActivityThread$ActivityClientRecord getActivityClient(android.os.IBinder);
-    public abstract android.app.LoadedApk getLoadedApkNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
+    public abstract android.app.LoadedApk getPackageInfoNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
     public abstract void handleActivityConfigurationChanged(android.os.IBinder, android.content.res.Configuration, int);
     public abstract void handleConfigurationChanged(android.content.res.Configuration);
     public abstract void handleDestroyActivity(android.os.IBinder, boolean, int, boolean);
@@ -3384,7 +3384,6 @@
 -keep class android.app.LoadedApk {
     <init>(android.app.ActivityThread, android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo, java.lang.ClassLoader, boolean, boolean, boolean);
 
-    public android.content.res.Resources createResources(android.os.IBinder, java.lang.String, int, android.content.res.Configuration, android.content.res.CompatibilityInfo);
     public android.content.IIntentReceiver forgetReceiverDispatcher(android.content.Context, android.content.BroadcastReceiver);
     public android.app.IServiceConnection forgetServiceDispatcher(android.content.Context, android.content.ServiceConnection);
     public java.lang.String getAppDir();
@@ -3398,8 +3397,6 @@
     public java.io.File getDataDirFile();
     public java.io.File getDeviceProtectedDataDirFile();
     public java.lang.String getLibDir();
-    public android.content.res.Resources getOrCreateResourcesForSplit(java.lang.String, android.os.IBinder, int);
-    public android.content.res.Resources getOrCreateTopLevelResources(android.content.pm.ApplicationInfo);
     public java.lang.String[] getOverlayDirs();
     public java.lang.String getPackageName();
     public android.content.IIntentReceiver getReceiverDispatcher(android.content.BroadcastReceiver, android.content.Context, android.os.Handler, android.app.Instrumentation, boolean);
@@ -8695,6 +8692,7 @@
     <init>(java.lang.String);
 
     public static boolean areEffectiveMatch(android.content.pm.Signature[], android.content.pm.Signature[]);
+    public static boolean areEffectiveMatch(android.content.pm.Signature, android.content.pm.Signature);
     public static boolean areExactMatch(android.content.pm.Signature[], android.content.pm.Signature[]);
     public static android.content.pm.Signature bounce(java.security.cert.CertificateFactory, android.content.pm.Signature);
     public int describeContents();
@@ -11989,6 +11987,7 @@
 
     public static int convertDeviceTypeToInternalDevice(int);
     public static int convertInternalDeviceToDeviceType(int);
+    public boolean equals(java.lang.Object);
     public java.lang.String getAddress();
     public int[] getChannelCounts();
     public int[] getChannelIndexMasks();
@@ -11999,6 +11998,7 @@
     public java.lang.CharSequence getProductName();
     public int[] getSampleRates();
     public int getType();
+    public int hashCode();
     public boolean isSink();
     public boolean isSource();
 
@@ -14525,6 +14525,7 @@
     public static void dumpConstraints(java.lang.String, java.io.PrintWriter);
     public android.os.Bundle getAlgorithmArgs();
     public java.lang.String getFieldClassificationAlgorithm();
+    public java.lang.String getId();
     public static int getMaxFieldClassificationIdsSize();
     public static int getMaxUserDataSize();
     public static int getMaxValueLength();
@@ -21431,6 +21432,7 @@
     public android.service.autofill.FillEventHistory getFillEventHistory();
     public static int getRequestIdFromAuthenticationId(int);
     public android.service.autofill.UserData getUserData();
+    public java.lang.String getUserDataId();
     public boolean hasAutofillFeature();
     public boolean hasEnabledAutofillServices();
     public boolean isAutofillSupported();
@@ -21553,6 +21555,7 @@
     public abstract java.lang.String getDefaultFieldClassificationAlgorithm();
     public abstract android.service.autofill.FillEventHistory getFillEventHistory();
     public abstract android.service.autofill.UserData getUserData();
+    public abstract java.lang.String getUserDataId();
     public abstract boolean isFieldClassificationEnabled();
     public abstract boolean isServiceEnabled(int, java.lang.String);
     public abstract boolean isServiceSupported(int);
