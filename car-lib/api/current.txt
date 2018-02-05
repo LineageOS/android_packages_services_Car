@@ -187,6 +187,7 @@ package android.car.drivingstate {
 
   public class CarUxRestrictions implements android.os.Parcelable {
     ctor public CarUxRestrictions(boolean, int, long);
+    ctor public CarUxRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public int describeContents();
     method public int getActiveRestrictions();
     method public long getTimeStamp();

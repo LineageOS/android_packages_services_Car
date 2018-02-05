@@ -95,21 +95,23 @@ public class HvacTestFragment extends Fragment {
                         case CarHvacManager.ID_ZONED_AUTOMATIC_MODE_ON:
                             mTbAuto.setChecked((boolean)value.getValue());
                             break;
-                        case CarHvacManager.ID_ZONED_FAN_POSITION:
+                        case CarHvacManager.ID_ZONED_FAN_DIRECTION:
                             switch((int)value.getValue()) {
-                                case CarHvacManager.FAN_POSITION_FACE:
+                                case CarHvacManager.FAN_DIRECTION_FACE:
                                     mRbFanPositionFace.setChecked(true);
                                     break;
-                                case CarHvacManager.FAN_POSITION_FLOOR:
+                                case CarHvacManager.FAN_DIRECTION_FLOOR:
                                     mRbFanPositionFloor.setChecked(true);
                                     break;
-                                case CarHvacManager.FAN_POSITION_FACE_AND_FLOOR:
+                                case (CarHvacManager.FAN_DIRECTION_FACE |
+                                      CarHvacManager.FAN_DIRECTION_FLOOR):
                                     mRbFanPositionFaceAndFloor.setChecked(true);
                                     break;
-                                case CarHvacManager.FAN_POSITION_DEFROST:
+                                case CarHvacManager.FAN_DIRECTION_DEFROST:
                                     mRbFanPositionDefrost.setChecked(true);
                                     break;
-                                case CarHvacManager.FAN_POSITION_DEFROST_AND_FLOOR:
+                                case (CarHvacManager.FAN_DIRECTION_DEFROST |
+                                      CarHvacManager.FAN_DIRECTION_FLOOR):
                                     mRbFanPositionDefrostAndFloor.setChecked(true);
                                     break;
                                 default:
@@ -213,7 +215,7 @@ public class HvacTestFragment extends Fragment {
                 case CarHvacManager.ID_ZONED_AC_ON:
                     configureAcOn(v, prop);
                     break;
-                case CarHvacManager.ID_ZONED_FAN_POSITION:
+                case CarHvacManager.ID_ZONED_FAN_DIRECTION:
                     configureFanPosition(v, prop);
                     break;
                 case CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT:
@@ -318,25 +320,27 @@ public class HvacTestFragment extends Fragment {
             int position;
             switch(checkedId) {
                 case R.id.rbPositionFace:
-                    position = CarHvacManager.FAN_POSITION_FACE;
+                    position = CarHvacManager.FAN_DIRECTION_FACE;
                     break;
                 case R.id.rbPositionFloor:
-                    position = CarHvacManager.FAN_POSITION_FLOOR;
+                    position = CarHvacManager.FAN_DIRECTION_FLOOR;
                     break;
                 case R.id.rbPositionFaceAndFloor:
-                    position = CarHvacManager.FAN_POSITION_FACE_AND_FLOOR;
+                    position = (CarHvacManager.FAN_DIRECTION_FACE |
+                                CarHvacManager.FAN_DIRECTION_FLOOR);
                     break;
                 case R.id.rbPositionDefrost:
-                    position = CarHvacManager.FAN_POSITION_DEFROST;
+                    position = CarHvacManager.FAN_DIRECTION_DEFROST;
                     break;
                 case R.id.rbPositionDefrostAndFloor:
-                    position = CarHvacManager.FAN_POSITION_DEFROST_AND_FLOOR;
+                    position = (CarHvacManager.FAN_DIRECTION_DEFROST |
+                                CarHvacManager.FAN_DIRECTION_FLOOR);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected fan position: " + checkedId);
             }
             try {
-                mCarHvacManager.setIntProperty(CarHvacManager.ID_ZONED_FAN_POSITION,
+                mCarHvacManager.setIntProperty(CarHvacManager.ID_ZONED_FAN_DIRECTION,
                         mZoneForFanPosition,
                         position);
             } catch (CarNotConnectedException e) {

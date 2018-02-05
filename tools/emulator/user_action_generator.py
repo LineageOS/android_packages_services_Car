@@ -193,7 +193,7 @@ class UserActionGenerator(object):
             time.sleep(SHORT_SLEEP_TIME_SEC)
 
             self._setProperty(c.VEHICLEPROPERTY_HVAC_FAN_DIRECTION,
-                              c.VEHICLEHVACFANDIRECTION_FACE_AND_FLOOR, listener)
+                              c.VEHICLEHVACFANDIRECTION_FACE, listener)
             time.sleep(LONG_SLEEP_TIME_SEC)
 
             self._setProperty(c.VEHICLEPROPERTY_HVAC_DEFROSTER, 1, listener)

@@ -196,6 +196,12 @@ public class CarUxRestrictions implements Parcelable {
         mTimeStamp = time;
     }
 
+    public CarUxRestrictions(CarUxRestrictions uxRestrictions) {
+        mTimeStamp = uxRestrictions.getTimeStamp();
+        mRequiresDistractionOptimization = uxRestrictions.isRequiresDistractionOptimization();
+        mActiveRestrictions = uxRestrictions.getActiveRestrictions();
+    }
+
     private CarUxRestrictions(Parcel in) {
         mActiveRestrictions = in.readInt();
         mTimeStamp = in.readLong();

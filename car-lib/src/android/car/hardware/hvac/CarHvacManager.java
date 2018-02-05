@@ -116,15 +116,16 @@ public final class CarHvacManager implements CarManagerBase {
      * Actual fan speed is a read-only value, expressed in RPM.
      */
     public static final int ID_ZONED_FAN_SPEED_RPM = 0x4005;
-    /** Fan position available, int type
-     *  Fan position is a bitmask of positions available for each zone.
-     */
-    public static final int ID_ZONED_FAN_POSITION_AVAILABLE = 0x4006;
     /**
-     * Current fan position setting, int type. The value must be one of the FAN_POSITION_*
-     * constants declared in {@link CarHvacManager}.
+     *  Fan direction available, int vector type
+     *  Fan direction is a bitmask of directions available for each zone.
      */
-    public static final int ID_ZONED_FAN_POSITION = 0x4007;
+    public static final int ID_ZONED_FAN_DIRECTION_AVAILABLE = 0x4006;
+    /**
+     * Current fan direction setting, int type. The value must be one of the FAN_DIRECTION_AVAILABLE
+     * values declared above.
+     */
+    public static final int ID_ZONED_FAN_DIRECTION = 0x4007;
     /**
      * Seat temperature, int type
      * Seat temperature is negative for cooling, positive for heating.  Temperature is a
@@ -182,8 +183,8 @@ public final class CarHvacManager implements CarManagerBase {
             ID_ZONED_TEMP_ACTUAL,
             ID_ZONED_FAN_SPEED_SETPOINT,
             ID_ZONED_FAN_SPEED_RPM,
-            ID_ZONED_FAN_POSITION_AVAILABLE,
-            ID_ZONED_FAN_POSITION,
+            ID_ZONED_FAN_DIRECTION_AVAILABLE,
+            ID_ZONED_FAN_DIRECTION,
             ID_ZONED_SEAT_TEMP,
             ID_ZONED_AC_ON,
             ID_ZONED_AUTOMATIC_MODE_ON,
@@ -199,30 +200,20 @@ public final class CarHvacManager implements CarManagerBase {
     public @interface PropertyId {}
 
     /**
-     * Represents fan position when air flows through face directed vents.
-     * This constant must be used with {@link #ID_ZONED_FAN_POSITION} property.
+     * Represents fan direction when air flows through face directed vents.
+     * This constant must be used with {@link #ID_ZONED_FAN_DIRECTION} property.
      */
-    public static final int FAN_POSITION_FACE = 1;
+    public static final int FAN_DIRECTION_FACE = 0x1;
     /**
-     * Represents fan position when air flows through floor directed vents.
-     * This constant must be used with {@link #ID_ZONED_FAN_POSITION} property.
+     * Represents fan direction when air flows through floor directed vents.
+     * This constant must be used with {@link #ID_ZONED_FAN_DIRECTION} property.
      */
-    public static final int FAN_POSITION_FLOOR = 2;
+    public static final int FAN_DIRECTION_FLOOR = 0x2;
     /**
-     * Represents fan position when air flows through face and floor directed vents.
-     * This constant must be used with {@link #ID_ZONED_FAN_POSITION} property.
+     * Represents fan direction when air flows through defrost vents.
+     * This constant must be used with {@link #ID_ZONED_FAN_DIRECTION} property.
      */
-    public static final int FAN_POSITION_FACE_AND_FLOOR = 3;
-    /**
-     * Represents fan position when air flows through defrost vents.
-     * This constant must be used with {@link #ID_ZONED_FAN_POSITION} property.
-     */
-    public static final int FAN_POSITION_DEFROST = 4;
-    /**
-     * Represents fan position when air flows through defrost and floor directed vents.
-     * This constant must be used with {@link #ID_ZONED_FAN_POSITION} property.
-     */
-    public static final int FAN_POSITION_DEFROST_AND_FLOOR = 5;
+    public static final int FAN_DIRECTION_DEFROST = 0x4;
 
     /**
      * Application registers {@link CarHvacEventCallback} object to receive updates and changes to
