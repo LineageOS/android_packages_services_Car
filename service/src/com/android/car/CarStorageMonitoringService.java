@@ -20,6 +20,7 @@ import android.car.Car;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.storagemonitoring.IIoStatsListener;
 import android.car.storagemonitoring.ICarStorageMonitoring;
+import android.car.storagemonitoring.LifetimeWriteInfo;
 import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.IoStatsEntry;
 import android.car.storagemonitoring.IoStatsEntry.Metrics;
@@ -48,20 +49,30 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         implements CarServiceBase {
     public static final String INTENT_EXCESSIVE_IO =
             CarStorageMonitoringManager.INTENT_EXCESSIVE_IO;
+
+    public static final long SHUTDOWN_COST_INFO_MISSING =
+            CarStorageMonitoringManager.SHUTDOWN_COST_INFO_MISSING;
 
     private static final boolean DBG = false;
     private static final String TAG = CarLog.TAG_STORAGE;
@@ -69,11 +80,13 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
     static final String UPTIME_TRACKER_FILENAME = "service_uptime";
     static final String WEAR_INFO_FILENAME = "wear_info";
+    static final String LIFETIME_WRITES_FILENAME = "lifetime_write";
 
     private final WearInformationProvider[] mWearInformationProviders;
     private final Context mContext;
     private final File mUptimeTrackerFile;
     private final File mWearInfoFile;
+    private final File mLifetimeWriteFile;
     private final OnShutdownReboot mOnShutdownReboot;
     private final SystemInterface mSystemInterface;
     private final UidIoStatsProvider mUidIoStatsProvider;
@@ -91,6 +104,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private IoStatsTracker mIoStatsTracker = null;
     private boolean mInitialized = false;
 
+    private long mShutdownCostInfo = SHUTDOWN_COST_INFO_MISSING;
+
     public CarStorageMonitoringService(Context context, SystemInterface systemInterface) {
         mContext = context;
         Resources resources = mContext.getResources();
@@ -101,6 +116,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         mUidIoStatsProvider = systemInterface.getUidIoStatsProvider();
         mUptimeTrackerFile = new File(systemInterface.getFilesDir(), UPTIME_TRACKER_FILENAME);
         mWearInfoFile = new File(systemInterface.getFilesDir(), WEAR_INFO_FILENAME);
+        mLifetimeWriteFile = new File(systemInterface.getFilesDir(), LIFETIME_WRITES_FILENAME);
         mOnShutdownReboot = new OnShutdownReboot(mContext);
         mSystemInterface = systemInterface;
         mWearInformationProviders = systemInterface.getFlashWearInformationProviders();
@@ -306,7 +322,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         mWearEstimateChanges = wearHistory.toWearEstimateChanges(
                 mConfiguration.acceptableHoursPerOnePercentFlashWear);
 
-        mOnShutdownReboot.addAction((Context ctx, Intent intent) -> release());
+        mOnShutdownReboot.addAction((c, i) -> logLifetimeWrites())
+                .addAction((c, i) -> release());
 
         mWearInformation.ifPresent(CarStorageMonitoringService::logOnAdverseWearLevel);
 
@@ -337,9 +354,100 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             Log.i(TAG, "service configuration disabled I/O sample window. not collecting samples");
         }
 
+        mShutdownCostInfo = computeShutdownCost();
+        Log.d(TAG, "calculated data written in last shutdown was " +
+                mShutdownCostInfo + " bytes");
+        mLifetimeWriteFile.delete();
+
         Log.i(TAG, "CarStorageMonitoringService is up");
 
         mInitialized = true;
+    }
+
+    private long computeShutdownCost() {
+        List<LifetimeWriteInfo> shutdownWrites = loadLifetimeWrites();
+        if (shutdownWrites.isEmpty()) {
+            Log.d(TAG, "lifetime write data from last shutdown missing");
+            return SHUTDOWN_COST_INFO_MISSING;
+        }
+        List<LifetimeWriteInfo> currentWrites =
+                Arrays.asList(mSystemInterface.getLifetimeWriteInfoProvider().load());
+        if (currentWrites.isEmpty()) {
+            Log.d(TAG, "current lifetime write data missing");
+            return SHUTDOWN_COST_INFO_MISSING;
+        }
+
+        long shutdownCost = 0;
+
+        Map<String, Long> shutdownLifetimeWrites = new HashMap<>();
+        shutdownWrites.forEach(li ->
+            shutdownLifetimeWrites.put(li.partition, li.writtenBytes));
+
+        // for every partition currently available, look for it in the shutdown data
+        for(int i = 0; i < currentWrites.size(); ++i) {
+            LifetimeWriteInfo li = currentWrites.get(i);
+            // if this partition was not available when we last shutdown the system, then
+            // just pretend we had written the same amount of data then as we have now
+            final long writtenAtShutdown =
+                    shutdownLifetimeWrites.getOrDefault(li.partition, li.writtenBytes);
+            final long costDelta = li.writtenBytes - writtenAtShutdown;
+            if (costDelta >= 0) {
+                Log.d(TAG, "partition " + li.partition + " had " + costDelta +
+                    " bytes written to it during shutdown");
+                shutdownCost += costDelta;
+            } else {
+                // the counter of written bytes should be monotonic; a decrease might mean
+                // corrupt data, improper shutdown or that the kernel in use does not
+                // have proper monotonic guarantees on the lifetime write data. If any of these
+                // occur, it's probably safer to just bail out and say we don't know
+                Log.e(TAG, "partition " + li.partition + " reported " + costDelta +
+                    " bytes written to it during shutdown. assuming we can't" +
+                    " determine proper shutdown information.");
+                return SHUTDOWN_COST_INFO_MISSING;
+            }
+        }
+
+        return shutdownCost;
+    }
+
+    private List<LifetimeWriteInfo> loadLifetimeWrites() {
+        if (!mLifetimeWriteFile.exists() || !mLifetimeWriteFile.isFile()) {
+            Log.d(TAG, "lifetime write file missing or inaccessible " + mLifetimeWriteFile);
+            return Collections.emptyList();
+        }
+        try {
+            JSONObject jsonObject = new JSONObject(
+                new String(Files.readAllBytes(mLifetimeWriteFile.toPath())));
+
+            JSONArray jsonArray = jsonObject.getJSONArray("lifetimeWriteInfo");
+
+            List<LifetimeWriteInfo> result = new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); ++i) {
+                result.add(new LifetimeWriteInfo(jsonArray.getJSONObject(i)));
+            }
+            return result;
+        } catch (JSONException | IOException e) {
+            Log.e(TAG, "lifetime write file does not contain valid JSON", e);
+            return Collections.emptyList();
+        }
+    }
+
+    private void logLifetimeWrites() {
+        try {
+            LifetimeWriteInfo[] lifetimeWriteInfos =
+                mSystemInterface.getLifetimeWriteInfoProvider().load();
+            JsonWriter jsonWriter = new JsonWriter(new FileWriter(mLifetimeWriteFile));
+            jsonWriter.beginObject();
+            jsonWriter.name("lifetimeWriteInfo").beginArray();
+            for (LifetimeWriteInfo writeInfo : lifetimeWriteInfos) {
+                Log.d(TAG, "storing lifetime write info " + writeInfo);
+                writeInfo.writeToJson(jsonWriter);
+            }
+            jsonWriter.endArray().endObject();
+            jsonWriter.close();
+        } catch (IOException e) {
+            Log.e(TAG, "unable to save lifetime write info on shutdown", e);
+        }
     }
 
     @Override
@@ -381,6 +489,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                         .collect(Collectors.joining("\n")))
                     .collect(Collectors.joining("\n------\n")));
         }
+        writer.print("last shutdown cost estimate: " + (mShutdownCostInfo >= 0 ?
+            mShutdownCostInfo : "missing"));
     }
 
     // ICarStorageMonitoring implementation
@@ -427,6 +537,14 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
         return SparseArrayStream.valueStream(mIoStatsTracker.getTotal())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public long getShutdownDiskWriteAmount() {
+        mStorageMonitoringPermission.assertGranted();
+        doInitServiceIfNeeded();
+
+        return mShutdownCostInfo;
     }
 
     @Override

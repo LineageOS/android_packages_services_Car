@@ -60,6 +60,10 @@ public class TemporaryDirectory implements AutoCloseable {
 
     private static final SimpleFileVisitor<Path> DELETE = new DeletingVisitor();
 
+    TemporaryDirectory(Path directory) throws IOException {
+        mDirectory = Files.createDirectory(directory);
+    }
+
     public TemporaryDirectory(@Nullable String prefix) throws IOException {
         if (prefix == null) {
             prefix = TemporaryDirectory.class.getSimpleName();
@@ -76,5 +80,11 @@ public class TemporaryDirectory implements AutoCloseable {
 
     public File getDirectory() {
         return mDirectory.toFile();
+    }
+
+    public Path getPath() { return mDirectory; }
+
+    public TemporaryDirectory getSubdirectory(String name) throws IOException {
+        return new TemporaryDirectory(mDirectory.resolve(name));
     }
 }

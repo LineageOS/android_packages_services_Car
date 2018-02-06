@@ -17,7 +17,9 @@
 package com.android.car.systeminterface;
 
 import com.android.car.storagemonitoring.EMmcWearInformationProvider;
+import com.android.car.storagemonitoring.LifetimeWriteInfoProvider;
 import com.android.car.storagemonitoring.ProcfsUidIoStatsProvider;
+import com.android.car.storagemonitoring.SysfsLifetimeWriteInfoProvider;
 import com.android.car.storagemonitoring.UfsWearInformationProvider;
 import com.android.car.storagemonitoring.UidIoStatsProvider;
 import com.android.car.storagemonitoring.WearInformationProvider;
@@ -35,6 +37,10 @@ public interface StorageMonitoringInterface {
 
     default UidIoStatsProvider getUidIoStatsProvider() {
         return new ProcfsUidIoStatsProvider();
+    }
+
+    default LifetimeWriteInfoProvider getLifetimeWriteInfoProvider() {
+        return new SysfsLifetimeWriteInfoProvider();
     }
 
     class DefaultImpl implements StorageMonitoringInterface {}

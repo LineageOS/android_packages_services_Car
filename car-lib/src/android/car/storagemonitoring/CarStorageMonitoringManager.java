@@ -73,6 +73,8 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
     public static final int PRE_EOL_INFO_WARNING = 2;
     public static final int PRE_EOL_INFO_URGENT = 3;
 
+    public static final long SHUTDOWN_COST_INFO_MISSING = -1;
+
     /**
      * @hide
      */
@@ -182,6 +184,39 @@ public final class CarStorageMonitoringManager implements CarManagerBase {
             throw new CarNotConnectedException();
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * This method returns an approximation of the number of bytes written to disk during
+     * the course of the previous system shutdown.
+     *
+     * <p>For purposes of this API the system shutdown is defined as starting when CarService
+     * receives the ACTION_SHUTDOWN or ACTION_REBOOT intent from the system.</p>
+     *
+     * <p>The information provided by this API does not provide attribution of the disk writes to
+     * specific applications or system daemons.</p>
+     *
+     * <p>The information returned by this call is a best effort guess, whose accuracy depends
+     * on the underlying file systems' ability to reliably track and accumulate
+     * disk write sizes.</p>
+     *
+     * <p>A corrupt file system, or one which was not cleanly unmounted during shutdown, may
+     * be unable to provide any information, or may provide incorrect data. While the API
+     * will attempt to detect these scenarios, the detection may fail and incorrect data
+     * may end up being used in calculations.</p>
+     *
+     * <p>If the information is not available, SHUTDOWN_COST_INFO_MISSING will be returned.</p>s
+     */
+    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    public long getShutdownDiskWriteAmount() throws CarNotConnectedException {
+        try {
+            return mService.getShutdownDiskWriteAmount();
+        } catch (IllegalStateException e) {
+            checkCarNotConnectedExceptionFromCarService(e);
+        } catch (RemoteException e) {
+            throw new CarNotConnectedException();
+        }
+        return SHUTDOWN_COST_INFO_MISSING;
     }
 
     /**

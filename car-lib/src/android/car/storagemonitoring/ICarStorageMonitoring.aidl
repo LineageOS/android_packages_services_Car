@@ -63,4 +63,9 @@ interface ICarStorageMonitoring {
    * Remove a listener registration, terminating delivery of I/O activity deltas to it.
    */
   void unregisterListener(IIoStatsListener listener) = 8;
+
+  /**
+   * Returns the approximate amount of bytes written to disk during the previous shutdown.
+   */
+  long getShutdownDiskWriteAmount() = 9;
 }
