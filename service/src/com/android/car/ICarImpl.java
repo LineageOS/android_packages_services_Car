@@ -404,6 +404,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_HELP = "-h";
         private static final String COMMAND_DAY_NIGHT_MODE = "day-night-mode";
         private static final String COMMAND_INJECT_EVENT = "inject-event";
+        private static final String COMMAND_ENABLE_UXR = "enable-uxr";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -417,8 +418,10 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  Print this help text.");
             pw.println("\tday-night-mode [day|night|sensor]");
             pw.println("\t  Force into day/night mode or restore to auto.");
-            pw.println("\tday-night-mode [day|night|sensor]");
-            pw.println("\t  Force into day/night mode or restore to auto.");
+            pw.println("\tinject-event zoned-boolean|global-integer property [zone] value");
+            pw.println("\t  Inject a vehicle property - zoned boolean or global integer.");
+            pw.println("\tdisable-uxr true|false");
+            pw.println("\t  Disable UX restrictions and App blocking.");
         }
 
         public void exec(String[] args, PrintWriter writer) {
@@ -459,6 +462,17 @@ public class ICarImpl extends ICar.Stub {
                                 dumpHelp(writer);
                                 break;
                         }
+                    }
+                    break;
+                case COMMAND_ENABLE_UXR:
+                    if (args.length < 2) {
+                        writer.println("Incorrect number of arguments");
+                        dumpHelp(writer);
+                        break;
+                    }
+                    boolean enableBlocking = Boolean.valueOf(args[1]);
+                    if (mCarPackageManagerService != null) {
+                        mCarPackageManagerService.setEnableActivityBlocking(enableBlocking);
                     }
                     break;
                 default:
