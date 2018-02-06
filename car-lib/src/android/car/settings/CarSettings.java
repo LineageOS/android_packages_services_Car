@@ -175,6 +175,14 @@ public class CarSettings {
                 "android.car.BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES";
 
         /**
+         * Key for a list of devices to automatically connect on Bluetooth PAN profile
+         * Written to and read by {@link com.android.car.BluetoothDeviceConnectionPolicy}
+         * @hide
+         */
+        public static final String KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICES =
+                "android.car.BLUETOOTH_AUTOCONNECT_NETWORK_DEVICES";
+
+        /**
          * Key for setting primary Music Device
          * Written to by a client with {@link com.android.car.Manifest.permission.BLUETOOTH_ADMIN}
          * Read by {@link com.android.car.BluetoothDeviceConnectionPolicy}
@@ -227,6 +235,25 @@ public class CarSettings {
          */
         public static final String KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICE_PRIORITY_1 =
                 "android.car.BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICE_PRIORITY_1";
+
+        /**
+         * Key for setting Primary Network Device
+         * Written to by a client with {@link com.android.car.Manifest.permission.BLUETOOTH_ADMIN}
+         * Read by {@link com.android.car.BluetoothDeviceConnectionPolicy}
+         * @hide
+         */
+        public static final String KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICE_PRIORITY_0 =
+                "android.car.BLUETOOTH_AUTOCONNECT_NETWORK_DEVICE_PRIORITY_0";
+
+        /**
+         * Key for setting Secondary Network Device
+         * Written to by a client with {@link com.android.car.Manifest.permission.BLUETOOTH_ADMIN}
+         * Read by {@link com.android.car.BluetoothDeviceConnectionPolicy}
+         * @hide
+         */
+        public static final String KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICE_PRIORITY_1 =
+                "android.car.BLUETOOTH_AUTOCONNECT_NETWORK_DEVICE_PRIORITY_1";
+
 
     }
 }

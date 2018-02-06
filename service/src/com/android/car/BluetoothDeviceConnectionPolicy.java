@@ -23,6 +23,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadsetClient;
 import android.bluetooth.BluetoothMapClient;
+import android.bluetooth.BluetoothPan;
 import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothUuid;
@@ -39,6 +40,7 @@ import android.car.ICarUserService;
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES;
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES;
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES;
+import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICES;
 
 import android.car.CarBluetoothManager;
 import android.os.ParcelUuid;
@@ -104,6 +106,7 @@ public class BluetoothDeviceConnectionPolicy {
     private static final int NUM_SUPPORTED_PHONE_CONNECTIONS = 4; // num of HFP and PBAP connections
     private static final int NUM_SUPPORTED_MSG_CONNECTIONS = 4; // num of MAP connections
     private static final int NUM_SUPPORTED_MUSIC_CONNECTIONS = 1; // num of A2DP connections
+    private static final int NUM_SUPPORTED_NETWORK_CONNECTIONS = 1; // num of PAN connections
     private Map<Integer, Integer> mNumSupportedActiveConnections;
 
     private BluetoothAutoConnectStateMachine mBluetoothAutoConnectStateMachine;
@@ -163,7 +166,7 @@ public class BluetoothDeviceConnectionPolicy {
         mCarUserServiceAccessLock = new ReentrantLock();
         mProfilesToConnect = Arrays.asList(
                 BluetoothProfile.HEADSET_CLIENT, BluetoothProfile.A2DP_SINK,
-                BluetoothProfile.PBAP_CLIENT, BluetoothProfile.MAP_CLIENT);
+                BluetoothProfile.PBAP_CLIENT, BluetoothProfile.MAP_CLIENT,BluetoothProfile.PAN);
         mPrioritiesSupported = Arrays.asList(
                 CarBluetoothManager.BLUETOOTH_DEVICE_CONNECTION_PRIORITY_0,
                 CarBluetoothManager.BLUETOOTH_DEVICE_CONNECTION_PRIORITY_1
@@ -188,6 +191,10 @@ public class BluetoothDeviceConnectionPolicy {
                 case BluetoothProfile.MAP_CLIENT:
                     mNumSupportedActiveConnections.put(BluetoothProfile.MAP_CLIENT,
                             NUM_SUPPORTED_MSG_CONNECTIONS);
+                    break;
+		case BluetoothProfile.PAN:
+                    mNumSupportedActiveConnections.put(BluetoothProfile.PAN,
+                            NUM_SUPPORTED_NETWORK_CONNECTIONS);
                     break;
             }
         }
@@ -279,6 +286,12 @@ public class BluetoothDeviceConnectionPolicy {
 
             } else if (BluetoothHeadsetClient.ACTION_CONNECTION_STATE_CHANGED.equals(action)) {
                 connectParams = new ConnectionParams(BluetoothProfile.HEADSET_CLIENT, device);
+                int currState = intent.getIntExtra(BluetoothProfile.EXTRA_STATE,
+                        BluetoothProfile.STATE_DISCONNECTED);
+                notifyConnectionStatus(connectParams, currState);
+
+            } else if (BluetoothPan.ACTION_CONNECTION_STATE_CHANGED.equals(action)) {
+                connectParams = new ConnectionParams(BluetoothProfile.PAN, device);
                 int currState = intent.getIntExtra(BluetoothProfile.EXTRA_STATE,
                         BluetoothProfile.STATE_DISCONNECTED);
                 notifyConnectionStatus(connectParams, currState);
@@ -383,6 +396,9 @@ public class BluetoothDeviceConnectionPolicy {
                 break;
             case BluetoothProfile.MAP_CLIENT:
                 uuidsToCheck.add(BluetoothUuid.MAS);
+                break;
+            case BluetoothProfile.PAN:
+                uuidsToCheck.add(BluetoothUuid.PANU);
                 break;
         }
 
@@ -547,6 +563,7 @@ public class BluetoothDeviceConnectionPolicy {
         profileFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         profileFilter.addAction(BluetoothA2dpSink.ACTION_CONNECTION_STATE_CHANGED);
         profileFilter.addAction(BluetoothHeadsetClient.ACTION_CONNECTION_STATE_CHANGED);
+        profileFilter.addAction(BluetoothPan.ACTION_CONNECTION_STATE_CHANGED);
         profileFilter.addAction(BluetoothPbapClient.ACTION_CONNECTION_STATE_CHANGED);
         profileFilter.addAction(BluetoothMapClient.ACTION_CONNECTION_STATE_CHANGED);
         profileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
@@ -1445,7 +1462,11 @@ public class BluetoothDeviceConnectionPolicy {
                             KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES,
                             joinedDeviceNames, (int) userId);
                     break;
-
+                case BluetoothProfile.PAN:
+                    Settings.Secure.putStringForUser(mContext.getContentResolver(),
+                            KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICES,
+                            joinedDeviceNames, (int) userId);
+                    break;
             }
         }
         return writeSuccess;
@@ -1502,6 +1523,9 @@ public class BluetoothDeviceConnectionPolicy {
                     devices = Settings.Secure.getStringForUser(mContext.getContentResolver(),
                             KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES, (int) userId);
                     break;
+                case BluetoothProfile.PAN:
+                    devices = Settings.Secure.getStringForUser(mContext.getContentResolver(),
+                            KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICES, (int) userId);
                 default:
                     Log.e(TAG, "Unexpected profile");
                     break;
