@@ -85,4 +85,61 @@ endif
 include $(BUILD_JAVA_LIBRARY)
 $(call dist-for-goals,dist_files,$(full_classes_jar):$(LOCAL_MODULE).jar)
 
+# Build stubs jar for target android-support-car
+# ---------------------------------------------
+include $(CLEAR_VARS)
+
+LOCAL_SRC_FILES := $(call all-java-files-under, src)
+
+LOCAL_JAVA_LIBRARIES := android.car
+
+LOCAL_ADDITIONAL_JAVA_DIR := $(call intermediates-dir-for,JAVA_LIBRARIES,android.car,,COMMON)/src
+
+android_car_stub_packages := \
+    android.car*
+
+android_car_api := \
+    $(TARGET_OUT_COMMON_INTERMEDIATES)/PACKAGING/android.car_api.txt
+
+# Note: The make target is android.car-stub-docs
+LOCAL_MODULE := android.car-stub
+LOCAL_DROIDDOC_OPTIONS := \
+    -stubs $(call intermediates-dir-for,JAVA_LIBRARIES,android.car-stubs,,COMMON)/src \
+    -stubpackages $(subst $(space),:,$(android_car_stub_packages)) \
+    -api $(android_car_api) \
+    -nodocs
+
+LOCAL_DROIDDOC_SOURCE_PATH := $(LOCAL_PATH)/java/
+LOCAL_DROIDDOC_HTML_DIR :=
+
+LOCAL_MODULE_CLASS := JAVA_LIBRARIES
+
+LOCAL_UNINSTALLABLE_MODULE := true
+
+include $(BUILD_DROIDDOC)
+
+$(android_car_api): $(full_target)
+
+android.car-stubs_stamp := $(full_target)
+
+###############################################
+# Build the stubs java files into a jar. This build rule relies on the
+# stubs_stamp make variable being set from the droiddoc rule.
+
+include $(CLEAR_VARS)
+
+# CAR_API_CHECK uses the same name to generate a module, but BUILD_DROIDDOC
+# appends "-docs" to module name.
+LOCAL_MODULE := android.car-stubs
+LOCAL_SOURCE_FILES_ALL_GENERATED := true
+
+# Make sure to run droiddoc first to generate the stub source files.
+LOCAL_ADDITIONAL_DEPENDENCIES := $(android.car-stubs_stamp)
+
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+android.car-stubs_stamp :=
+android_car_stub_packages :=
+android_car_api :=
+
 endif #TARGET_BUILD_PDK
