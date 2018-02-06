@@ -16,6 +16,7 @@
 
 package android.support.car.hardware;
 
+import android.car.VehicleOilLevel;
 import android.location.GpsSatellite;
 import android.location.Location;
 import android.os.SystemClock;
@@ -1170,6 +1171,36 @@ public class CarSensorEvent {
             evChargeRate = floatValues[0];
         }
         return new CarEvBatteryChargeRateData(timestamp, evChargeRate);
+    }
+
+    /** @hide */
+    public static class CarEngineOilLevelData {
+        public final long timestamp;
+        public final int engineOilLevel;
+
+        /** @hide */
+        @RestrictTo(GROUP_ID)
+        public CarEngineOilLevelData(long timestamp, int engineOilLevel) {
+            this.timestamp = timestamp;
+            this.engineOilLevel = engineOilLevel;
+        };
+    }
+
+    /**
+     * Convenience method for obtaining a {@link CarEngineOilLevelData} object from a
+     * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL}.
+     *
+     * @return a CarEngineOilLevelData object corresponding to data contained in the
+     *     CarSensorEvent.
+     * @hide
+     */
+    public CarEngineOilLevelData getCarEngineOilLevelData() {
+        checkType(CarSensorManager.SENSOR_TYPE_ENGINE_OIL_LEVEL);
+        int engineOilLevel = VehicleOilLevel.ERROR;
+        if (intValues != null) {
+            engineOilLevel = intValues[0];
+        }
+        return new CarEngineOilLevelData(timestamp, engineOilLevel);
     }
 
     /** @hide */

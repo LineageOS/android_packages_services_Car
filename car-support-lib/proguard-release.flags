@@ -4281,6 +4281,7 @@
     public static int ACTIVITY_TYPE_STANDARD;
     public static int ACTIVITY_TYPE_UNDEFINED;
     public static android.os.Parcelable$Creator CREATOR;
+    public static int PINNED_WINDOWING_MODE_ELEVATION_IN_DIP;
     public static int WINDOWING_MODE_FREEFORM;
     public static int WINDOWING_MODE_FULLSCREEN;
     public static int WINDOWING_MODE_FULLSCREEN_OR_SPLIT_SCREEN_SECONDARY;
@@ -5909,7 +5910,6 @@
     public static java.lang.String ACTION_DREAMING_STOPPED;
     public static java.lang.String ACTION_DYNAMIC_SENSOR_CHANGED;
     public static java.lang.String ACTION_EDIT;
-    public static java.lang.String ACTION_EPHEMERAL_RESOLVER_SETTINGS;
     public static java.lang.String ACTION_EXTERNAL_APPLICATIONS_AVAILABLE;
     public static java.lang.String ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE;
     public static java.lang.String ACTION_FACTORY_RESET;
@@ -5925,7 +5925,6 @@
     public static java.lang.String ACTION_INPUT_METHOD_CHANGED;
     public static java.lang.String ACTION_INSERT;
     public static java.lang.String ACTION_INSERT_OR_EDIT;
-    public static java.lang.String ACTION_INSTALL_EPHEMERAL_PACKAGE;
     public static java.lang.String ACTION_INSTALL_FAILURE;
     public static java.lang.String ACTION_INSTALL_INSTANT_APP_PACKAGE;
     public static java.lang.String ACTION_INSTALL_PACKAGE;
@@ -5995,7 +5994,6 @@
     public static java.lang.String ACTION_REBOOT;
     public static java.lang.String ACTION_REMOTE_INTENT;
     public static java.lang.String ACTION_REQUEST_SHUTDOWN;
-    public static java.lang.String ACTION_RESOLVE_EPHEMERAL_PACKAGE;
     public static java.lang.String ACTION_RESOLVE_INSTANT_APP_PACKAGE;
     public static java.lang.String ACTION_REVIEW_PERMISSIONS;
     public static java.lang.String ACTION_RUN;
@@ -6146,6 +6144,10 @@
     public static java.lang.String EXTRA_INSTANT_APP_ACTION;
     public static java.lang.String EXTRA_INSTANT_APP_BUNDLES;
     public static java.lang.String EXTRA_INSTANT_APP_EXTRAS;
+    public static java.lang.String EXTRA_INSTANT_APP_FAILURE;
+    public static java.lang.String EXTRA_INSTANT_APP_HOSTNAME;
+    public static java.lang.String EXTRA_INSTANT_APP_SUCCESS;
+    public static java.lang.String EXTRA_INSTANT_APP_TOKEN;
     public static java.lang.String EXTRA_INTENT;
     public static java.lang.String EXTRA_IS_DATA_ROAMING_FROM_REGISTRATION;
     public static java.lang.String EXTRA_IS_USING_CARRIER_AGGREGATION;
@@ -11684,6 +11686,24 @@
 
 }
 
+-keep class android.hardware.display.AmbientBrightnessDayStats {
+    <init>(java.time.LocalDate, float[]);
+    <init>(java.time.LocalDate, float[], float[]);
+
+    public int describeContents();
+    public boolean equals(java.lang.Object);
+    public float[] getBucketBoundaries();
+    public java.time.LocalDate getLocalDate();
+    public float[] getStats();
+    public int hashCode();
+    public void log(float, float);
+    public java.lang.String toString();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+}
+
 -keep class android.hardware.display.BrightnessChangeEvent {
     <init>(android.hardware.display.BrightnessChangeEvent, boolean);
 
@@ -11695,11 +11715,14 @@
     public float batteryLevel;
     public float brightness;
     public int colorTemperature;
+    public boolean isDefaultBrightnessConfig;
+    public boolean isUserSetBrightness;
     public float lastBrightness;
     public long[] luxTimestamps;
     public float[] luxValues;
     public boolean nightMode;
     public java.lang.String packageName;
+    public float powerBrightnessFactor;
     public long timeStamp;
     public int userId;
 }
@@ -11727,6 +11750,7 @@
     public android.hardware.display.VirtualDisplay createVirtualDisplay(android.media.projection.MediaProjection, java.lang.String, int, int, int, android.view.Surface, int, android.hardware.display.VirtualDisplay$Callback, android.os.Handler, java.lang.String);
     public void disconnectWifiDisplay();
     public void forgetWifiDisplay(java.lang.String);
+    public java.util.List getAmbientBrightnessStats();
     public java.util.List getBrightnessEvents();
     public android.view.Display getDisplay(int);
     public android.view.Display[] getDisplays();
@@ -11775,6 +11799,7 @@
     public android.hardware.display.VirtualDisplay createVirtualDisplay(android.content.Context, android.media.projection.MediaProjection, java.lang.String, int, int, int, android.view.Surface, int, android.hardware.display.VirtualDisplay$Callback, android.os.Handler, java.lang.String);
     public void disconnectWifiDisplay();
     public void forgetWifiDisplay(java.lang.String);
+    public java.util.List getAmbientBrightnessStats();
     public java.util.List getBrightnessEvents(java.lang.String);
     public android.view.Display getCompatibleDisplay(int, android.view.DisplayAdjustments);
     public android.view.Display getCompatibleDisplay(int, android.content.res.Resources);
@@ -12146,6 +12171,7 @@
     public static int ENCODING_DTS;
     public static int ENCODING_DTS_HD;
     public static int ENCODING_E_AC3;
+    public static int ENCODING_E_AC3_JOC;
     public static int ENCODING_IEC61937;
     public static int ENCODING_INVALID;
     public static int ENCODING_MP3;
@@ -12231,6 +12257,7 @@
     public void addOnRoutingChangedListener(android.media.AudioRouting$OnRoutingChangedListener, android.os.Handler);
     public void addOnRoutingChangedListener(android.media.AudioRecord$OnRoutingChangedListener, android.os.Handler);
     protected void finalize();
+    public java.util.List getActiveMicrophones();
     public int getAudioFormat();
     public int getAudioSessionId();
     public int getAudioSource();
@@ -12415,6 +12442,50 @@
 
     public static int SYNC_EVENT_NONE;
     public static int SYNC_EVENT_PRESENTATION_COMPLETE;
+}
+
+-keep class android.media.MicrophoneInfo {
+
+    public java.lang.String getAddress();
+    public java.util.List getChannelMapping();
+    public java.lang.String getDescription();
+    public int getDirectionality();
+    public java.util.List getFrequencyResponse();
+    public int getGroup();
+    public int getId();
+    public int getIndexInTheGroup();
+    public int getInternalDeviceType();
+    public int getLocation();
+    public float getMaxSpl();
+    public float getMinSpl();
+    public android.media.MicrophoneInfo$Coordinate3F getOrientation();
+    public android.media.MicrophoneInfo$Coordinate3F getPosition();
+    public float getSensitivity();
+    public int getType();
+    public void setId(int);
+
+
+    public static int CHANNEL_MAPPING_DIRECT;
+    public static int CHANNEL_MAPPING_PROCESSED;
+    public static int DIRECTIONALITY_BI_DIRECTIONAL;
+    public static int DIRECTIONALITY_CARDIOID;
+    public static int DIRECTIONALITY_HYPER_CARDIOID;
+    public static int DIRECTIONALITY_OMNI;
+    public static int DIRECTIONALITY_SUPER_CARDIOID;
+    public static int DIRECTIONALITY_UNKNOW;
+    public static int LOCATION_MAINBODY;
+    public static int LOCATION_MAINBODY_MOVABLE;
+    public static int LOCATION_PERIPHERAL;
+    public static int LOCATION_UNKNOWN;
+}
+
+-keep class android.media.MicrophoneInfo$Coordinate3F {
+
+
+
+    public float x;
+    public float y;
+    public float z;
 }
 
 -keep class android.media.Rating {
