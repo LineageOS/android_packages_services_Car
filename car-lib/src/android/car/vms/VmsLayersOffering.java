@@ -19,10 +19,12 @@ package android.car.vms;
 import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -54,18 +56,23 @@ public final class VmsLayersOffering implements Parcelable {
     }
 
     public static final Parcelable.Creator<VmsLayersOffering> CREATOR = new
-        Parcelable.Creator<VmsLayersOffering>() {
-            public VmsLayersOffering createFromParcel(Parcel in) {
-                return new VmsLayersOffering(in);
-            }
-            public VmsLayersOffering[] newArray(int size) {
-                return new VmsLayersOffering[size];
-            }
-        };
+            Parcelable.Creator<VmsLayersOffering>() {
+                public VmsLayersOffering createFromParcel(Parcel in) {
+                    return new VmsLayersOffering(in);
+                }
+
+                public VmsLayersOffering[] newArray(int size) {
+                    return new VmsLayersOffering[size];
+                }
+            };
 
     @Override
     public String toString() {
-        return "VmsLayersOffering{" + mDependencies+ "}";
+        return "VmsLayersOffering{ Publisher: " +
+                mPublisherId +
+                " Dependencies: " +
+                mDependencies +
+                "}";
     }
 
     @Override
@@ -73,6 +80,20 @@ public final class VmsLayersOffering implements Parcelable {
 
         out.writeParcelableList(new ArrayList(mDependencies), flags);
         out.writeInt(mPublisherId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof VmsLayersOffering)) {
+            return false;
+        }
+        VmsLayersOffering p = (VmsLayersOffering) o;
+        return Objects.equals(p.mPublisherId, mPublisherId) && p.mDependencies.equals(mDependencies);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mPublisherId, mDependencies);
     }
 
     @Override

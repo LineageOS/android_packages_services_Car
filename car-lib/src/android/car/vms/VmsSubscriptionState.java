@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-
 
 /**
  * The list of layers with subscribers.
@@ -100,6 +100,22 @@ public final class VmsSubscriptionState implements Parcelable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof VmsSubscriptionState)) {
+            return false;
+        }
+        VmsSubscriptionState p = (VmsSubscriptionState) o;
+        return Objects.equals(p.mSequenceNumber, mSequenceNumber) &&
+                p.mLayers.equals(mLayers) &&
+                p.mSubscribedLayersFromPublishers.equals(mSubscribedLayersFromPublishers);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mSequenceNumber, mLayers, mSubscribedLayersFromPublishers);
+    }
+
+    @Override
     public int describeContents() {
         return 0;
     }
@@ -113,6 +129,7 @@ public final class VmsSubscriptionState implements Parcelable {
 
         List<VmsAssociatedLayer> associatedLayers = new ArrayList<>();
         in.readParcelableList(associatedLayers, VmsAssociatedLayer.class.getClassLoader());
-        mSubscribedLayersFromPublishers = Collections.unmodifiableSet(new HashSet(associatedLayers));
+        mSubscribedLayersFromPublishers =
+                Collections.unmodifiableSet(new HashSet(associatedLayers));
     }
 }

@@ -29,6 +29,7 @@ import android.car.Car;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.storagemonitoring.IoStatsEntry;
 import android.car.storagemonitoring.IoStats;
+import android.car.storagemonitoring.LifetimeWriteInfo;
 import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
@@ -41,6 +42,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import com.android.car.storagemonitoring.LifetimeWriteInfoProvider;
 import com.android.car.storagemonitoring.UidIoStatsProvider;
 import com.android.car.storagemonitoring.WearEstimateRecord;
 import com.android.car.storagemonitoring.WearHistory;
@@ -51,6 +53,10 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.TimeInterface;
 
+import com.android.car.test.utils.TemporaryFile;
+import java.util.Collection;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -137,18 +143,39 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         final WearHistory wearHistory;
         @NonNull
         final UidIoRecord[] ioStats;
+        @NonNull
+        final LifetimeWriteInfo[] previousLifetimeWriteInfo;
+        @NonNull
+        final LifetimeWriteInfo[] currentLifetimeWriteInfo;
 
+
+        TestData(long uptime,
+            @Nullable WearInformation wearInformation,
+            @Nullable WearHistory wearHistory,
+            @Nullable UidIoRecord[] ioStats) {
+            this(uptime, wearInformation, wearHistory, ioStats, null, null);
+        }
 
         TestData(long uptime,
                 @Nullable WearInformation wearInformation,
                 @Nullable WearHistory wearHistory,
-                @Nullable UidIoRecord[] ioStats) {
+                @Nullable UidIoRecord[] ioStats,
+                @Nullable LifetimeWriteInfo[] previousLifetimeWriteInfo,
+                @Nullable LifetimeWriteInfo[] currentLifetimeWriteInfo) {
             if (wearInformation == null) wearInformation = DEFAULT_WEAR_INFORMATION;
             if (ioStats == null) ioStats = new UidIoRecord[0];
+            if (previousLifetimeWriteInfo == null) {
+                previousLifetimeWriteInfo = new LifetimeWriteInfo[0];
+            }
+            if (currentLifetimeWriteInfo == null) {
+                currentLifetimeWriteInfo = new LifetimeWriteInfo[0];
+            }
             this.uptime = uptime;
             this.wearInformation = wearInformation;
             this.wearHistory = wearHistory;
             this.ioStats = ioStats;
+            this.previousLifetimeWriteInfo = previousLifetimeWriteInfo;
+            this.currentLifetimeWriteInfo = currentLifetimeWriteInfo;
         }
     }
 
@@ -241,6 +268,30 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
                             new UidIoRecord[]{
                                 new UidIoRecord(0, 5000, 6000, 3000, 1000, 1,
                                     0, 0, 0, 0, 0)}));
+
+                    put("testComputeShutdownCost",
+                        new TestData(1000L,
+                            new WearInformation(0, 0, WearInformation.PRE_EOL_INFO_NORMAL),
+                            null,
+                            null,
+                            new LifetimeWriteInfo[] { new LifetimeWriteInfo("p1", "ext4", 120),
+                                                      new LifetimeWriteInfo("p2", "ext4", 100),
+                                                      new LifetimeWriteInfo("p3", "f2fs", 100)},
+                            new LifetimeWriteInfo[] { new LifetimeWriteInfo("p1", "ext4", 200),
+                                                      new LifetimeWriteInfo("p2", "ext4", 300),
+                                                      new LifetimeWriteInfo("p3", "f2fs", 100)}));
+
+                    put("testNegativeShutdownCost",
+                        new TestData(1000L,
+                            new WearInformation(0, 0, WearInformation.PRE_EOL_INFO_NORMAL),
+                            null,
+                            null,
+                            new LifetimeWriteInfo[] { new LifetimeWriteInfo("p1", "ext4", 120),
+                                new LifetimeWriteInfo("p2", "ext4", 100),
+                                new LifetimeWriteInfo("p3", "f2fs", 200)},
+                            new LifetimeWriteInfo[] { new LifetimeWriteInfo("p1", "ext4", 200),
+                                new LifetimeWriteInfo("p2", "ext4", 300),
+                                new LifetimeWriteInfo("p3", "f2fs", 100)}));
                 }};
 
     private final MockSystemStateInterface mMockSystemStateInterface =
@@ -267,6 +318,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
             final WearHistory wearHistory = wearData.wearHistory;
 
             mMockStorageMonitoringInterface.setWearInformation(wearData.wearInformation);
+            mMockStorageMonitoringInterface.setWriteInfo(wearData.currentLifetimeWriteInfo);
 
             if (wearHistory != null) {
                 File wearHistoryFile = new File(getFakeSystemInterface().getFilesDir(),
@@ -283,6 +335,19 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
                     jsonWriter.beginObject();
                     jsonWriter.name("uptime").value(wearData.uptime);
                     jsonWriter.endObject();
+                }
+            }
+
+            if (wearData.previousLifetimeWriteInfo.length > 0) {
+                File previousLifetimeFile = new File(getFakeSystemInterface().getFilesDir(),
+                    CarStorageMonitoringService.LIFETIME_WRITES_FILENAME);
+                try (JsonWriter jsonWriter = new JsonWriter(new FileWriter(previousLifetimeFile))) {
+                    jsonWriter.beginObject();
+                    jsonWriter.name("lifetimeWriteInfo").beginArray();
+                    for (LifetimeWriteInfo writeInfo : wearData.previousLifetimeWriteInfo) {
+                        writeInfo.writeToJson(jsonWriter);
+                    }
+                    jsonWriter.endArray().endObject();
                 }
             }
 
@@ -639,6 +704,17 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         assertEquals(0, mCarStorageMonitoringManager.getIoStatsDeltas().size());
     }
 
+    @Test
+    public void testComputeShutdownCost() throws Exception {
+        assertEquals(280, mCarStorageMonitoringManager.getShutdownDiskWriteAmount());
+    }
+
+    @Test
+    public void testNegativeShutdownCost() throws Exception {
+        assertEquals(CarStorageMonitoringManager.SHUTDOWN_COST_INFO_MISSING,
+                mCarStorageMonitoringManager.getShutdownDiskWriteAmount());
+    }
+
     private String getName() {
         return mTestName.getMethodName();
     }
@@ -694,9 +770,14 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         private WearInformation mWearInformation = null;
         private SparseArray<UidIoRecord> mIoStats = new SparseArray<>();
         private UidIoStatsProvider mIoStatsProvider = () -> mIoStats;
+        private LifetimeWriteInfo[] mWriteInfo = new LifetimeWriteInfo[0];
 
         void setWearInformation(WearInformation wearInformation) {
             mWearInformation = wearInformation;
+        }
+
+        void setWriteInfo(LifetimeWriteInfo[] writeInfo) {
+            mWriteInfo = writeInfo;
         }
 
         void addIoStatsRecord(UidIoRecord record) {
@@ -714,6 +795,19 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         @Override
         public WearInformation load() {
             return mWearInformation;
+        }
+
+        @Override
+        public LifetimeWriteInfoProvider getLifetimeWriteInfoProvider() {
+            // cannot make this directly implement because Java does not allow
+            // overloading based on return type and there already is a method named
+            // load() in WearInformationProvider
+            return new LifetimeWriteInfoProvider() {
+                @Override
+                public LifetimeWriteInfo[] load() {
+                    return mWriteInfo;
+                }
+            };
         }
 
         @Override

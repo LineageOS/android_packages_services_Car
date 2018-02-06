@@ -18,6 +18,7 @@ package com.android.car.storagemonitoring;
 
 import android.car.storagemonitoring.IoStatsEntry;
 import android.car.storagemonitoring.IoStats;
+import android.car.storagemonitoring.LifetimeWriteInfo;
 import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
@@ -25,6 +26,7 @@ import android.os.Parcel;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import android.util.SparseArray;
+import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.test.utils.TemporaryFile;
 import android.util.JsonReader;
 import android.util.JsonWriter;
@@ -35,6 +37,8 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import junit.framework.TestCase;
 import org.json.JSONObject;
@@ -604,6 +608,87 @@ public class CarStorageMonitoringTest extends TestCase {
                 new String(Files.readAllBytes(temporaryFile.getPath())));
             IoStats other = new IoStats(jsonObject);
             assertEquals(statsDelta, other);
+        }
+    }
+
+    public void testLifetimeWriteInfo() throws Exception {
+        try (TemporaryDirectory temporaryDirectory = new TemporaryDirectory(TAG)) {
+            try (TemporaryDirectory ext4 = temporaryDirectory.getSubdirectory("ext4");
+                 TemporaryDirectory f2fs = temporaryDirectory.getSubdirectory("f2fs")) {
+                try(TemporaryDirectory ext4_part1 = ext4.getSubdirectory("part1");
+                    TemporaryDirectory f2fs_part1 = f2fs.getSubdirectory("part1");
+                    TemporaryDirectory ext4_part2 = ext4.getSubdirectory("part2");
+                    TemporaryDirectory f2f2_notpart = f2fs.getSubdirectory("nopart")) {
+                    Files.write(ext4_part1.getPath().resolve("lifetime_write_kbytes"),
+                        Collections.singleton("123"));
+                    Files.write(f2fs_part1.getPath().resolve("lifetime_write_kbytes"),
+                        Collections.singleton("250"));
+                    Files.write(ext4_part2.getPath().resolve("lifetime_write_kbytes"),
+                        Collections.singleton("2147483660"));
+
+                    LifetimeWriteInfo expected_ext4_part1 =
+                        new LifetimeWriteInfo("part1", "ext4", 123*1024);
+                    LifetimeWriteInfo expected_f2fs_part1 =
+                        new LifetimeWriteInfo("part1", "f2fs", 250*1024);
+                    LifetimeWriteInfo expected_ext4_part2 =
+                        new LifetimeWriteInfo("part2", "ext4", 2147483660L*1024);
+
+                    SysfsLifetimeWriteInfoProvider sysfsLifetimeWriteInfoProvider =
+                        new SysfsLifetimeWriteInfoProvider(temporaryDirectory.getDirectory());
+
+                    LifetimeWriteInfo[] writeInfos = sysfsLifetimeWriteInfoProvider.load();
+
+                    assertNotNull(writeInfos);
+                    assertEquals(3, writeInfos.length);
+                    assertTrue(Arrays.stream(writeInfos).anyMatch(
+                            li -> li.equals(expected_ext4_part1)));
+                    assertTrue(Arrays.stream(writeInfos).anyMatch(
+                            li -> li.equals(expected_ext4_part2)));
+                    assertTrue(Arrays.stream(writeInfos).anyMatch(
+                            li -> li.equals(expected_f2fs_part1)));
+                }
+            }
+        }
+    }
+
+    public void testLifetimeWriteInfoEquality() throws Exception {
+        LifetimeWriteInfo writeInfo = new LifetimeWriteInfo("part1", "ext4", 123);
+        LifetimeWriteInfo writeInfoEq = new LifetimeWriteInfo("part1", "ext4", 123);
+
+        LifetimeWriteInfo writeInfoNeq1 = new LifetimeWriteInfo("part2", "ext4", 123);
+        LifetimeWriteInfo writeInfoNeq2 = new LifetimeWriteInfo("part1", "f2fs", 123);
+        LifetimeWriteInfo writeInfoNeq3 = new LifetimeWriteInfo("part1", "ext4", 100);
+
+        assertEquals(writeInfo, writeInfo);
+        assertEquals(writeInfo, writeInfoEq);
+        assertNotSame(writeInfo, writeInfoNeq1);
+        assertNotSame(writeInfo, writeInfoNeq2);
+        assertNotSame(writeInfo, writeInfoNeq3);
+    }
+
+    public void testLifetimeWriteInfoParcel() throws Exception {
+        LifetimeWriteInfo lifetimeWriteInfo = new LifetimeWriteInfo("part1", "ext4", 1024);
+
+        Parcel p = Parcel.obtain();
+        lifetimeWriteInfo.writeToParcel(p, 0);
+        p.setDataPosition(0);
+
+        LifetimeWriteInfo parceled = new LifetimeWriteInfo(p);
+
+        assertEquals(lifetimeWriteInfo, parceled);
+    }
+
+    public void testLifetimeWriteInfoJson() throws Exception {
+        try (TemporaryFile temporaryFile = new TemporaryFile(TAG)) {
+            LifetimeWriteInfo lifetimeWriteInfo = new LifetimeWriteInfo("part1", "ext4", 1024);
+
+            try (JsonWriter jsonWriter = new JsonWriter(new FileWriter(temporaryFile.getFile()))) {
+                lifetimeWriteInfo.writeToJson(jsonWriter);
+            }
+            JSONObject jsonObject = new JSONObject(
+                new String(Files.readAllBytes(temporaryFile.getPath())));
+            LifetimeWriteInfo other = new LifetimeWriteInfo(jsonObject);
+            assertEquals(lifetimeWriteInfo, other);
         }
     }
 }

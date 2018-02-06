@@ -58,8 +58,9 @@ class OnShutdownReboot {
         mContext.registerReceiver(mReceiver, rebootFilter);
     }
 
-    void addAction(BiConsumer<Context, Intent> action) {
+    OnShutdownReboot addAction(BiConsumer<Context, Intent> action) {
         mActions.add(action);
+        return this;
     }
 
     void clearActions() {
