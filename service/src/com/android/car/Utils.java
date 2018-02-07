@@ -25,6 +25,8 @@ public class Utils {
                 return "MAP";
             case BluetoothProfile.AVRCP_CONTROLLER:
                 return "AVRCP";
+            case BluetoothProfile.PAN:
+                return "PAN";
             default:
                 return profile + "";
 

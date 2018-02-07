@@ -173,12 +173,17 @@ public final class CarSensorManager implements CarManagerBase {
      *  This requires {@link Car#PERMISSION_FUEL} permission.
      */
     public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE      = 31;
+    /**
+     * Oil level sensor.
+     * @hide
+     */
+    public static final int SENSOR_TYPE_ENGINE_OIL_LEVEL            = 32;
 
     /**
      * Sensor type bigger than this is invalid. Always update this after adding a new sensor.
      * @hide
      */
-    private static final int SENSOR_TYPE_MAX = SENSOR_TYPE_EV_BATTERY_CHARGE_RATE;
+    private static final int SENSOR_TYPE_MAX = SENSOR_TYPE_ENGINE_OIL_LEVEL;
 
     /**
      * Sensors defined in this range [{@link #SENSOR_TYPE_VENDOR_EXTENSION_START},
@@ -215,6 +220,7 @@ public final class CarSensorManager implements CarManagerBase {
         SENSOR_TYPE_EV_CHARGE_PORT_OPEN,
         SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED,
         SENSOR_TYPE_EV_BATTERY_CHARGE_RATE,
+        SENSOR_TYPE_ENGINE_OIL_LEVEL,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface SensorType {}
