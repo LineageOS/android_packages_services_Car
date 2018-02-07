@@ -52,7 +52,7 @@ import com.android.car.SystemActivityMonitoringService;
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
 import com.android.car.pm.CarAppMetadataReader.CarAppMetadataInfo;
 import com.android.internal.annotations.GuardedBy;
-
+import com.android.internal.annotations.VisibleForTesting;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -90,7 +90,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private final LinkedList<CarAppBlockingPolicy> mWaitingPolicies = new LinkedList<>();
 
     private final CarUxRestrictionsManagerService mCarUxRestrictionsService;
-    private final boolean mEnableActivityBlocking;
+    private boolean mEnableActivityBlocking;
     private final ComponentName mActivityBlockingActivity;
 
     private final ActivityLaunchListener mActivityLaunchListener = new ActivityLaunchListener();
@@ -191,7 +191,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     @Override
     public boolean isActivityBackedBySafeActivity(ComponentName activityName) {
-        if (!mEnableActivityBlocking || !mUxRestrictionsListener.isRestricted()) {
+        if (!mUxRestrictionsListener.isRestricted()) {
             return true;
         }
         StackInfo info = mSystemActivityMonitoringService.getFocusedStackForTopActivity(
@@ -262,9 +262,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     @Override
     public void init() {
-        if (!mEnableActivityBlocking) {
-            return;
-        }
         synchronized (this) {
             mHandler.requestInit();
         }
@@ -272,9 +269,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     @Override
     public void release() {
-        if (!mEnableActivityBlocking) {
-            return;
-        }
         synchronized (this) {
             mHandler.requestRelease();
             // wait for release do be done. This guarantees that init is done.
@@ -655,6 +649,17 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if (DBG_POLICY_ENFORCEMENT) {
             Log.i(CarLog.TAG_PACKAGE, "new activity:" + topTask.toString() + " allowed:" + allowed);
         }
+        if (allowed) {
+            return;
+        }
+        synchronized(this) {
+            if (!mEnableActivityBlocking) {
+                Log.d(CarLog.TAG_PACKAGE, "Current activity " + topTask.topActivity +
+                    " not allowed, blocking disabled. Number of tasks in stack:"
+                    + topTask.stackInfo.taskIds.length);
+                return;
+            }
+        }
         if (!allowed) {
             Log.i(CarLog.TAG_PACKAGE, "Current activity " + topTask.topActivity +
                     " not allowed, will block, number of tasks in stack:" +
@@ -677,6 +682,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         for (TopTaskInfoContainer topTask : topTasks) {
             doBlockTopActivityIfNotAllowed(topTask);
         }
+    }
+
+    public synchronized void setEnableActivityBlocking(boolean enable) {
+        mEnableActivityBlocking = enable;
     }
 
     /**

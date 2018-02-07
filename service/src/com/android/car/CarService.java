@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.car;
 
 import static android.os.SystemClock.elapsedRealtime;
@@ -148,8 +149,10 @@ public class CarService extends Service {
             writer.println("**Debug info**");
             writer.println("Vehicle HAL reconnected: "
                     + mVehicleDeathRecipient.deathCount + " times.");
-        } else {
+        } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
             mICarImpl.execShellCmd(args, writer);
+        } else {
+            writer.println("Commands not supported in " + Build.TYPE);
         }
     }
 
