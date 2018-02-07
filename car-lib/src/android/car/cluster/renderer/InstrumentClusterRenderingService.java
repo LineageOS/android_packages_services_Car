@@ -239,34 +239,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
         }
 
         @Override
-        public void onStartNavigation() throws RemoteException {
-            assertContextOwnership();
-            mNavigationRenderer.onStartNavigation();
-        }
-
-        @Override
-        public void onStopNavigation() throws RemoteException {
-            assertContextOwnership();
-            mNavigationRenderer.onStopNavigation();
-        }
-
-        @Override
-        public void onNextManeuverChanged(int event, CharSequence eventName, int turnAngle,
-                int turnNumber, Bitmap image, int turnSide) throws RemoteException {
-            assertContextOwnership();
-            mNavigationRenderer.onNextTurnChanged(event, eventName, turnAngle, turnNumber,
-                    image, turnSide);
-        }
-
-        @Override
-        public void onNextManeuverDistanceChanged(int distanceMeters, int timeSeconds,
-                int displayDistanceMillis, int displayDistanceUnit) throws RemoteException {
-            assertContextOwnership();
-            mNavigationRenderer.onNextTurnDistanceChanged(distanceMeters, timeSeconds,
-                    displayDistanceMillis, displayDistanceUnit);
-        }
-
-        @Override
         public void onEvent(int eventType, Bundle bundle) throws RemoteException {
             assertContextOwnership();
             mNavigationRenderer.onEvent(eventType, bundle);

@@ -30,6 +30,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.provider.Settings;
@@ -108,32 +109,8 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
             }
 
             @Override
-            public void onStartNavigation() {
-                Log.i(TAG, "onStartNavigation");
-            }
-
-            @Override
-            public void onStopNavigation() {
-                Log.i(TAG, "onStopNavigation");
-            }
-
-            @Override
-            public void onNextTurnChanged(int event, CharSequence eventName, int turnAngle,
-                    int turnNumber, Bitmap image, int turnSide) {
-                Log.i(TAG, "event: " + event + ", eventName: " + eventName +
-                        ", turnAngle: " + turnAngle + ", turnNumber: " + turnNumber +
-                        ", image: " + image + ", turnSide: " + turnSide);
-                mListener.onShowToast("Next turn: " + eventName);
-            }
-
-            @Override
-            public void onNextTurnDistanceChanged(int distanceMeters, int timeSeconds,
-                    int displayDistanceMillis, int displayDistanceUnit) {
-                Log.i(TAG, "onNextTurnDistanceChanged, distanceMeters: " + distanceMeters
-                        + ", timeSeconds: " + timeSeconds
-                        + ", displayDistanceMillis: " + displayDistanceMillis
-                        + ", displayDistanceUnit: " + displayDistanceUnit);
-                mListener.onShowToast("Next turn distance: " + distanceMeters + " meters.");
+            public void onEvent(int eventType, Bundle bundle) {
+                Log.i(TAG, "onEvent(" + eventType + "");
             }
         };
 

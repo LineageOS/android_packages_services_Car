@@ -137,10 +137,7 @@ package android.car.cluster.renderer {
   public abstract class NavigationRenderer {
     ctor public NavigationRenderer();
     method public abstract android.car.navigation.CarNavigationInstrumentCluster getNavigationProperties();
-    method public abstract void onNextTurnChanged(int, java.lang.CharSequence, int, int, android.graphics.Bitmap, int);
-    method public abstract void onNextTurnDistanceChanged(int, int, int, int);
-    method public abstract void onStartNavigation();
-    method public abstract void onStopNavigation();
+    method public abstract void onEvent(int, android.os.Bundle);
   }
 
 }

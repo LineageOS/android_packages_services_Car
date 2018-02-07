@@ -343,6 +343,15 @@ package android.car.media {
 
 }
 
+package android.car.navigation {
+
+  public final class CarNavigationStatusManager {
+    method public android.car.navigation.CarNavigationInstrumentCluster getInstrumentClusterInfo() throws android.car.CarNotConnectedException;
+    method public void sendEvent(int, android.os.Bundle) throws android.car.CarNotConnectedException;
+  }
+
+}
+
 package android.car.settings {
 
   public class CarSettings {

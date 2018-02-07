@@ -122,15 +122,7 @@ public class InstrumentClusterFragment extends Fragment {
     }
 
     private void turnLeft() {
-        try {
-            mCarNavigationStatusManager
-                    .sendNavigationTurnEvent(CarNavigationStatusManager.TURN_TURN, "Huff Ave", 90,
-                            -1, null, CarNavigationStatusManager.TURN_SIDE_LEFT);
-            mCarNavigationStatusManager.sendNavigationTurnDistanceEvent(500, 10, 500,
-                    CarNavigationStatusManager.DISTANCE_METERS);
-        } catch (CarNotConnectedException e) {
-            e.printStackTrace();
-        }
+        // TODO(deanh): re-implement this using sendEvent()
     }
 
     private void initCluster() {
@@ -183,12 +175,7 @@ public class InstrumentClusterFragment extends Fragment {
             Log.e(TAG, "Failed to get owned focus", e);
         }
 
-        try {
-            mCarNavigationStatusManager
-                    .sendNavigationStatus(CarNavigationStatusManager.STATUS_ACTIVE);
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to set navigation status, reconnecting to the car", e);
-        }
+        // TODO(deanh): re-implement this using sendEvent()
     }
 
     @Override
