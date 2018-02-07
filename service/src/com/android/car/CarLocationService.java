@@ -25,6 +25,7 @@ import android.location.LocationManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.AtomicFile;
 import android.util.JsonReader;
 import android.util.JsonWriter;
@@ -210,9 +211,14 @@ public class CarLocationService implements CarServiceBase,
             }
             reader.endObject();
             fis.close();
+            logd("Loaded location from " + location.getTime());
+            long currentTime = System.currentTimeMillis();
+            long elapsedTime = SystemClock.elapsedRealtimeNanos();
+            location.setTime(currentTime);
+            location.setElapsedRealtimeNanos(elapsedTime);
             if (location.isComplete()) {
-                locationManager.injectLocation(location);
-                logd("Loaded location: " + location);
+                boolean result = locationManager.injectLocation(location);
+                logd("Injected location " + location + " with result " + result);
             }
         } catch (FileNotFoundException e) {
             Log.d(TAG, "Location cache file not found.");
