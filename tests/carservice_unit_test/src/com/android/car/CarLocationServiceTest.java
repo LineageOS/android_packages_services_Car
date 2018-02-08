@@ -143,9 +143,11 @@ public class CarLocationServiceTest extends AndroidTestCase {
     public void testLoadsLocation() throws IOException, InterruptedException {
         long currentTime = System.currentTimeMillis();
         long elapsedTime = SystemClock.elapsedRealtimeNanos();
+        long pastTime = currentTime - 60000;
+        long pastElapsedTime = elapsedTime - 60000000000L;
         String json = "{\"provider\": \"gps\", \"latitude\": 16.7666, \"longitude\": 3.0026,"
-                + "\"accuracy\":12.3, \"time\": " + currentTime + ", \"elapsedTime\": "
-                + elapsedTime + "}";
+                + "\"accuracy\":12.3, \"time\": " + pastTime + ", \"elapsedTime\": "
+                + pastElapsedTime + "}";
 
         FileOutputStream fos = mContext.openFileOutput(TEST_FILENAME, Context.MODE_PRIVATE);
         fos.write(json.getBytes());
@@ -167,8 +169,8 @@ public class CarLocationServiceTest extends AndroidTestCase {
         assertEquals(16.7666, location.getLatitude());
         assertEquals(3.0026, location.getLongitude());
         assertEquals(12.3f, location.getAccuracy());
-        assertEquals(currentTime, location.getTime());
-        assertEquals(elapsedTime, location.getElapsedRealtimeNanos());
+        assertTrue(location.getTime() >= currentTime);
+        assertTrue(location.getElapsedRealtimeNanos() >= elapsedTime);
     }
 
     /**
