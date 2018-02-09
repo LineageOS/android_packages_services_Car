@@ -458,6 +458,7 @@ public class InstrumentClusterService implements CarServiceBase,
         }
     }
 
+    @GuardedBy("mSync")
     private ClusterActivityInfo getOrCreateActivityInfoLocked(String category) {
         return mActivityInfoByCategory.computeIfAbsent(category, k -> new ClusterActivityInfo());
     }
