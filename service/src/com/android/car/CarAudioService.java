@@ -19,6 +19,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.media.CarAudioPatchHandle;
+import android.car.media.CarVolumeGroup;
 import android.car.media.ICarAudio;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -143,6 +144,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     };
 
     private AudioPolicy mAudioPolicy;
+    private CarVolumeGroup[] mCarVolumeGroups = new CarVolumeGroup[0];
 
     public CarAudioService(Context context) {
         mContext = context;
@@ -247,6 +249,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             throw new RuntimeException("registerAudioPolicy failed " + r);
         }
         mAudioPolicy = audioPolicy;
+
+        final CarVolumeGroupsHelper helper = new CarVolumeGroupsHelper(
+                mContext, R.xml.car_volume_groups);
+        mCarVolumeGroups = helper.loadVolumeGroups();
     }
 
     @Nullable
@@ -472,6 +478,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         // If we didn't find a match, then something went awry, but it's probably not fatal...
         Log.e(CarLog.TAG_AUDIO, "releaseAudioPatch found no match for " + carPatch.toString());
+    }
+
+    @Override
+    public @NonNull CarVolumeGroup[] getVolumeGroups() {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+
+        return mCarVolumeGroups;
     }
 
     private void enforcePermission(String permissionName) {

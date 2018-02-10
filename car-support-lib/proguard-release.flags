@@ -7555,6 +7555,7 @@
     public int describeContents();
     public byte[][] getDigestBytes();
     public int[] getDigestPrefix();
+    public int[] getDigestPrefixSecure();
     public void writeToParcel(android.os.Parcel, int);
 
 
@@ -16278,6 +16279,7 @@
 
     public abstract void onAnimationCanceled();
     public abstract void onAnimationStart(android.view.IRecentsAnimationController, android.view.RemoteAnimationTarget[]);
+    public abstract void onAnimationStart_New(android.view.IRecentsAnimationController, android.view.RemoteAnimationTarget[], android.graphics.Rect, android.graphics.Rect);
 
 
 }
@@ -17655,7 +17657,7 @@
 }
 
 -keep class android.view.RemoteAnimationTarget {
-    <init>(int, int, android.view.SurfaceControl, boolean, android.graphics.Rect, int, android.graphics.Point, android.graphics.Rect, android.app.WindowConfiguration);
+    <init>(int, int, android.view.SurfaceControl, boolean, android.graphics.Rect, android.graphics.Rect, int, android.graphics.Point, android.graphics.Rect, android.app.WindowConfiguration);
     <init>(android.os.Parcel);
 
     public int describeContents();
@@ -17666,6 +17668,7 @@
     public static int MODE_CLOSING;
     public static int MODE_OPENING;
     public android.graphics.Rect clipRect;
+    public android.graphics.Rect contentInsets;
     public boolean isTranslucent;
     public android.view.SurfaceControl leash;
     public int mode;
@@ -21057,6 +21060,7 @@
     public void setVisibleToUser(boolean);
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToParcelNoRecycle(android.os.Parcel, int);
 
 
     public static int ACTION_ACCESSIBILITY_FOCUS;
@@ -21548,7 +21552,7 @@
     public boolean hasAutofillFeature();
     public boolean hasEnabledAutofillServices();
     public boolean isAutofillSupported();
-    public boolean isCompatibilityModeEnabled();
+    public boolean isCompatibilityModeEnabledLocked();
     public boolean isEnabled();
     public boolean isFieldClassificationEnabled();
     public static int makeAuthenticationId(int, int);
