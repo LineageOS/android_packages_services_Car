@@ -78,6 +78,7 @@ public class ICarImpl extends ICar.Stub {
     private final PerUserCarServiceHelper mPerUserCarServiceHelper;
     private final CarDiagnosticService mCarDiagnosticService;
     private final CarStorageMonitoringService mCarStorageMonitoringService;
+    private final SystemInterface mSystemInterface;
     private VmsSubscriberService mVmsSubscriberService;
     private VmsPublisherService mVmsPublisherService;
 
@@ -98,6 +99,7 @@ public class ICarImpl extends ICar.Stub {
     public ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
             CanBusErrorNotifier errorNotifier) {
         mContext = serviceContext;
+        mSystemInterface = systemInterface;
         mHal = new VehicleHal(vehicle);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(
@@ -203,6 +205,7 @@ public class ICarImpl extends ICar.Stub {
         }
         synchronized (this) {
             mICarServiceHelper = ICarServiceHelper.Stub.asInterface(helper);
+            mSystemInterface.setCarServiceHelper(mICarServiceHelper);
         }
     }
 

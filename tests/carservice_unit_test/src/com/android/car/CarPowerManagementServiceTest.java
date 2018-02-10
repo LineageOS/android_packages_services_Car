@@ -321,13 +321,14 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         }
 
         @Override
-        public void enterDeepSleep(int wakeupTimeSec) {
+        public boolean enterDeepSleep(int wakeupTimeSec) {
             mWakeupTime = wakeupTimeSec;
             mSleepWait.release();
             try {
                 mSleepExitWait.acquire();
             } catch (InterruptedException e) {
             }
+            return true;
         }
 
         public int waitForSleepEntryAndWakeup(long timeoutMs) throws Exception {

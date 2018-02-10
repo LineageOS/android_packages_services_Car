@@ -404,7 +404,9 @@ public class MockedCarTestBase {
         public void shutdown() {}
 
         @Override
-        public void enterDeepSleep(int wakeupTimeSec) {}
+        public boolean enterDeepSleep(int wakeupTimeSec) {
+            return true;
+        }
 
         @Override
         public void scheduleActionForBootCompleted(Runnable action, Duration delay) {}
