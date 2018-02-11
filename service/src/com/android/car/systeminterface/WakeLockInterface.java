@@ -36,7 +36,7 @@ public interface WakeLockInterface {
         DefaultImpl(Context context) {
             PowerManager powerManager =
                     (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            mFullWakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
+            mFullWakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK,
                 CarLog.TAG_POWER);
             mPartialWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 CarLog.TAG_POWER);

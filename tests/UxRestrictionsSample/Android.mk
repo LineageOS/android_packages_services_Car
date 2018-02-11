@@ -20,13 +20,7 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
-LOCAL_RESOURCE_DIR := \
-        $(LOCAL_PATH)/res \
-        $(TOP)/frameworks/support/v7/recyclerview/res
-
-LOCAL_AAPT_FLAGS := \
-        --auto-add-overlay \
-        --extra-packages android.support.v7.recyclerview
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
 LOCAL_PACKAGE_NAME := UxRestrictionsSample
 
@@ -42,19 +36,15 @@ LOCAL_USE_AAPT2 := true
 
 LOCAL_PRIVILEGED_MODULE := false
 
-LOCAL_STATIC_JAVA_LIBRARIES += \
-        vehicle-hal-support-lib \
-        android-support-v4 \
-        android-support-v7-recyclerview \
-        android-support-car
+LOCAL_STATIC_JAVA_LIBRARIES += vehicle-hal-support-lib
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
-        android-support-car\
-        android-support-design \
-        android-support-v4 \
-        android-support-v7-appcompat \
-        android-support-v7-cardview \
-        android-support-v7-recyclerview
+    android-support-car \
+    android-support-design \
+    android-support-v4 \
+    android-support-v7-appcompat \
+    android-support-v7-cardview \
+    android-support-v7-recyclerview
 
 LOCAL_JAVA_LIBRARIES += android.car
 

@@ -703,10 +703,20 @@
 
     public void addContentView(android.view.View, android.view.ViewGroup$LayoutParams);
     protected void attachBaseContext(android.content.Context);
-    public void autofillCallbackAuthenticate(int, android.content.IntentSender, android.content.Intent);
-    public boolean autofillCallbackRequestHideFillUi();
-    public boolean autofillCallbackRequestShowFillUi(android.view.View, int, int, android.graphics.Rect, android.view.autofill.IAutofillWindowPresenter);
-    public void autofillCallbackResetableStateAvailable();
+    public void autofillClientAuthenticate(int, android.content.IntentSender, android.content.Intent);
+    public android.view.View autofillClientFindViewByAccessibilityIdTraversal(int, int);
+    public android.view.View autofillClientFindViewByAutofillIdTraversal(android.view.autofill.AutofillId);
+    public android.view.View[] autofillClientFindViewsByAutofillIdTraversal(android.view.autofill.AutofillId[]);
+    public android.os.IBinder autofillClientGetActivityToken();
+    public android.content.ComponentName autofillClientGetComponentName();
+    public boolean[] autofillClientGetViewVisibility(android.view.autofill.AutofillId[]);
+    public boolean autofillClientIsFillUiShowing();
+    public boolean autofillClientIsVisibleForAutofill();
+    public boolean autofillClientRequestHideFillUi();
+    public boolean autofillClientRequestShowFillUi(android.view.View, int, int, android.graphics.Rect, android.view.autofill.IAutofillWindowPresenter);
+    public void autofillClientResetableStateAvailable();
+    public void autofillClientRunOnUiThread(java.lang.Runnable);
+    public boolean autofillIsCompatibilityModeEnabled();
     public boolean canStartActivityForResult();
     public void closeContextMenu();
     public void closeOptionsMenu();
@@ -728,9 +738,7 @@
     public boolean enterPictureInPictureMode(android.app.PictureInPictureParams);
     public void enterPictureInPictureModeIfPossible();
     public void exitFreeformMode();
-    public android.view.View findViewByAutofillIdTraversal(int);
     public android.view.View findViewById(int);
-    public android.view.View[] findViewsByAutofillIdTraversal(int[]);
     public void finish();
     public void finishActivity(int);
     public void finishActivityFromChild(android.app.Activity, int);
@@ -769,7 +777,6 @@
     public int getTaskId();
     public java.lang.CharSequence getTitle();
     public int getTitleColor();
-    public boolean[] getViewVisibility(int[]);
     public android.app.VoiceInteractor getVoiceInteractor();
     public int getVolumeControlStream();
     public android.view.Window getWindow();
@@ -790,7 +797,6 @@
     public boolean isOverlayWithDecorCaptionEnabled();
     public boolean isResumed();
     public boolean isTaskRoot();
-    public boolean isVisibleForAutofill();
     public boolean isVoiceInteraction();
     public boolean isVoiceInteractionRoot();
     public android.database.Cursor managedQuery(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String);
@@ -957,7 +963,7 @@
     public void startActivities(android.content.Intent[], android.os.Bundle);
     public void startActivity(android.content.Intent);
     public void startActivity(android.content.Intent, android.os.Bundle);
-    public void startActivityAsCaller(android.content.Intent, android.os.Bundle, android.os.IBinder, boolean, int);
+    public void startActivityAsCaller(android.content.Intent, android.os.Bundle, boolean, int);
     public void startActivityAsUser(android.content.Intent, android.os.UserHandle);
     public void startActivityAsUser(android.content.Intent, android.os.Bundle, android.os.UserHandle);
     public void startActivityAsUserFromFragment(android.app.Fragment, android.content.Intent, int, android.os.Bundle, android.os.UserHandle);
@@ -1135,9 +1141,6 @@
     public static int COMPAT_MODE_NEVER;
     public static int COMPAT_MODE_TOGGLE;
     public static int COMPAT_MODE_UNKNOWN;
-    public static java.lang.String EXTRA_IGNORE_TARGET_SECURITY;
-    public static java.lang.String EXTRA_OPTIONS;
-    public static java.lang.String EXTRA_PERMISSION_TOKEN;
     public static int FLAG_AND_LOCKED;
     public static int FLAG_AND_UNLOCKED;
     public static int FLAG_AND_UNLOCKING_OR_UNLOCKED;
@@ -1706,7 +1709,6 @@
     public int getLifecycleState();
     public java.lang.String getStateString();
     public boolean isPersistable();
-    public boolean isPreHoneycomb();
     public void setState(int);
     public java.lang.String toString();
 
@@ -1719,7 +1721,7 @@
 -keep class android.app.ActivityThread$ApplicationThread {
 
     public void attachAgent(java.lang.String);
-    public void bindApplication(java.lang.String, android.content.pm.ApplicationInfo, java.util.List, android.content.ComponentName, android.app.ProfilerInfo, android.os.Bundle, android.app.IInstrumentationWatcher, android.app.IUiAutomationConnection, int, boolean, boolean, boolean, boolean, android.content.res.Configuration, android.content.res.CompatibilityInfo, java.util.Map, android.os.Bundle, java.lang.String);
+    public void bindApplication(java.lang.String, android.content.pm.ApplicationInfo, java.util.List, android.content.ComponentName, android.app.ProfilerInfo, android.os.Bundle, android.app.IInstrumentationWatcher, android.app.IUiAutomationConnection, int, boolean, boolean, boolean, boolean, android.content.res.Configuration, android.content.res.CompatibilityInfo, java.util.Map, android.os.Bundle, java.lang.String, boolean);
     public void clearDnsCache();
     public void dispatchPackageBroadcast(int, java.lang.String[]);
     public void dumpActivity(android.os.ParcelFileDescriptor, android.os.IBinder, java.lang.String, java.lang.String[]);
@@ -2049,6 +2051,7 @@
 -keep class android.app.Application {
     <init>();
 
+    public android.view.autofill.AutofillManager$AutofillClient getAutofillClient();
     public void onConfigurationChanged(android.content.res.Configuration);
     public void onCreate();
     public void onLowMemory();
@@ -2304,11 +2307,13 @@
     public java.lang.String getSystemServiceName(java.lang.Class);
     public android.content.res.Resources$Theme getTheme();
     public int getThemeResId();
+    public android.os.UserHandle getUser();
     public int getUserId();
     public android.graphics.drawable.Drawable getWallpaper();
     public int getWallpaperDesiredMinimumHeight();
     public int getWallpaperDesiredMinimumWidth();
     public void grantUriPermission(java.lang.String, android.net.Uri, int);
+    public boolean isAutofillCompatibilityEnabled();
     public boolean isCredentialProtectedStorage();
     public boolean isDeviceProtectedStorage();
     public boolean isRestricted();
@@ -2351,6 +2356,7 @@
     public void sendStickyOrderedBroadcast(android.content.Intent, android.content.BroadcastReceiver, android.os.Handler, int, java.lang.String, android.os.Bundle);
     public void sendStickyOrderedBroadcastAsUser(android.content.Intent, android.os.UserHandle, android.content.BroadcastReceiver, android.os.Handler, int, java.lang.String, android.os.Bundle);
     public void setAutofillClient(android.view.autofill.AutofillManager$AutofillClient);
+    public void setAutofillCompatibilityEnabled(boolean);
     public void setTheme(int);
     public void setWallpaper(android.graphics.Bitmap);
     public void setWallpaper(java.io.InputStream);
@@ -2973,7 +2979,6 @@
     public abstract boolean requestAssistContextExtras(int, android.app.IAssistDataReceiver, android.os.Bundle, android.os.IBinder, boolean, boolean);
     public abstract boolean requestAutofillData(android.app.IAssistDataReceiver, android.os.Bundle, android.os.IBinder, int);
     public abstract void requestBugReport(int);
-    public abstract android.os.IBinder requestStartActivityPermissionToken(android.os.IBinder);
     public abstract void requestTelephonyBugReport(java.lang.String, java.lang.String);
     public abstract void requestWifiBugReport(java.lang.String, java.lang.String);
     public abstract void resizeDockedStack(android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, android.graphics.Rect);
@@ -3031,7 +3036,7 @@
     public abstract int startActivities(android.app.IApplicationThread, java.lang.String, android.content.Intent[], java.lang.String[], android.os.IBinder, android.os.Bundle, int);
     public abstract int startActivity(android.app.IApplicationThread, java.lang.String, android.content.Intent, java.lang.String, android.os.IBinder, java.lang.String, int, int, android.app.ProfilerInfo, android.os.Bundle);
     public abstract android.app.WaitResult startActivityAndWait(android.app.IApplicationThread, java.lang.String, android.content.Intent, java.lang.String, android.os.IBinder, java.lang.String, int, int, android.app.ProfilerInfo, android.os.Bundle, int);
-    public abstract int startActivityAsCaller(android.app.IApplicationThread, java.lang.String, android.content.Intent, java.lang.String, android.os.IBinder, java.lang.String, int, int, android.app.ProfilerInfo, android.os.Bundle, android.os.IBinder, boolean, int);
+    public abstract int startActivityAsCaller(android.app.IApplicationThread, java.lang.String, android.content.Intent, java.lang.String, android.os.IBinder, java.lang.String, int, int, android.app.ProfilerInfo, android.os.Bundle, boolean, int);
     public abstract int startActivityAsUser(android.app.IApplicationThread, java.lang.String, android.content.Intent, java.lang.String, android.os.IBinder, java.lang.String, int, int, android.app.ProfilerInfo, android.os.Bundle, int);
     public abstract int startActivityFromRecents(int, android.os.Bundle);
     public abstract int startActivityIntentSender(android.app.IApplicationThread, android.content.IIntentSender, android.os.IBinder, android.content.Intent, java.lang.String, android.os.IBinder, java.lang.String, int, int, int, android.os.Bundle);
@@ -3101,7 +3106,7 @@
 -keep class android.app.IApplicationThread {
 
     public abstract void attachAgent(java.lang.String);
-    public abstract void bindApplication(java.lang.String, android.content.pm.ApplicationInfo, java.util.List, android.content.ComponentName, android.app.ProfilerInfo, android.os.Bundle, android.app.IInstrumentationWatcher, android.app.IUiAutomationConnection, int, boolean, boolean, boolean, boolean, android.content.res.Configuration, android.content.res.CompatibilityInfo, java.util.Map, android.os.Bundle, java.lang.String);
+    public abstract void bindApplication(java.lang.String, android.content.pm.ApplicationInfo, java.util.List, android.content.ComponentName, android.app.ProfilerInfo, android.os.Bundle, android.app.IInstrumentationWatcher, android.app.IUiAutomationConnection, int, boolean, boolean, boolean, boolean, android.content.res.Configuration, android.content.res.CompatibilityInfo, java.util.Map, android.os.Bundle, java.lang.String, boolean);
     public abstract void clearDnsCache();
     public abstract void dispatchPackageBroadcast(int, java.lang.String[]);
     public abstract void dumpActivity(android.os.ParcelFileDescriptor, android.os.IBinder, java.lang.String, java.lang.String[]);
@@ -3304,7 +3309,7 @@
     public android.app.Instrumentation$ActivityResult execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle);
     public android.app.Instrumentation$ActivityResult execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, java.lang.String, android.content.Intent, int, android.os.Bundle);
     public android.app.Instrumentation$ActivityResult execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, java.lang.String, android.content.Intent, int, android.os.Bundle, android.os.UserHandle);
-    public android.app.Instrumentation$ActivityResult execStartActivityAsCaller(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle, android.os.IBinder, boolean, int);
+    public android.app.Instrumentation$ActivityResult execStartActivityAsCaller(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle, boolean, int);
     public void execStartActivityFromAppTask(android.content.Context, android.os.IBinder, android.app.IAppTask, android.content.Intent, android.os.Bundle);
     public void finish(int, android.os.Bundle);
     public android.os.Bundle getAllocCounts();
@@ -4923,6 +4928,7 @@
     public int getTargetSdkVersion();
     public java.lang.String getType(android.net.Uri);
     public android.graphics.drawable.Drawable getTypeDrawable(java.lang.String);
+    public int getUserId();
     public android.net.Uri insert(android.net.Uri, android.content.ContentValues);
     public static boolean invalidPeriodicExtras(android.os.Bundle);
     public static boolean isSyncActive(android.accounts.Account, java.lang.String);
@@ -5027,6 +5033,8 @@
     public static int SYNC_OBSERVER_TYPE_PENDING;
     public static int SYNC_OBSERVER_TYPE_SETTINGS;
     public static int SYNC_OBSERVER_TYPE_STATUS;
+    public static java.lang.String SYNC_VIRTUAL_EXTRAS_FORCE_BG_SYNC;
+    public static java.lang.String SYNC_VIRTUAL_EXTRAS_FORCE_FG_SYNC;
 }
 
 -keep class android.content.ContentResolver$OpenResourceIdResult {
@@ -5111,7 +5119,7 @@
     public abstract android.content.Context createDeviceProtectedStorageContext();
     public abstract android.content.Context createDisplayContext(android.view.Display);
     public abstract android.content.Context createPackageContext(java.lang.String, int);
-    public abstract android.content.Context createPackageContextAsUser(java.lang.String, int, android.os.UserHandle);
+    public android.content.Context createPackageContextAsUser(java.lang.String, int, android.os.UserHandle);
     public abstract java.lang.String[] databaseList();
     public abstract boolean deleteDatabase(java.lang.String);
     public abstract boolean deleteFile(java.lang.String);
@@ -5177,11 +5185,13 @@
     public java.lang.CharSequence getText(int);
     public abstract android.content.res.Resources$Theme getTheme();
     public int getThemeResId();
-    public abstract int getUserId();
+    public android.os.UserHandle getUser();
+    public int getUserId();
     public abstract android.graphics.drawable.Drawable getWallpaper();
     public abstract int getWallpaperDesiredMinimumHeight();
     public abstract int getWallpaperDesiredMinimumWidth();
     public abstract void grantUriPermission(java.lang.String, android.net.Uri, int);
+    public boolean isAutofillCompatibilityEnabled();
     public abstract boolean isCredentialProtectedStorage();
     public abstract boolean isDeviceProtectedStorage();
     public boolean isRestricted();
@@ -5229,6 +5239,7 @@
     public abstract void sendStickyOrderedBroadcast(android.content.Intent, android.content.BroadcastReceiver, android.os.Handler, int, java.lang.String, android.os.Bundle);
     public abstract void sendStickyOrderedBroadcastAsUser(android.content.Intent, android.os.UserHandle, android.content.BroadcastReceiver, android.os.Handler, int, java.lang.String, android.os.Bundle);
     public void setAutofillClient(android.view.autofill.AutofillManager$AutofillClient);
+    public void setAutofillCompatibilityEnabled(boolean);
     public abstract void setTheme(int);
     public abstract void setWallpaper(android.graphics.Bitmap);
     public abstract void setWallpaper(java.io.InputStream);
@@ -5483,6 +5494,7 @@
     public int getWallpaperDesiredMinimumHeight();
     public int getWallpaperDesiredMinimumWidth();
     public void grantUriPermission(java.lang.String, android.net.Uri, int);
+    public boolean isAutofillCompatibilityEnabled();
     public boolean isCredentialProtectedStorage();
     public boolean isDeviceProtectedStorage();
     public boolean isRestricted();
@@ -5525,6 +5537,7 @@
     public void sendStickyOrderedBroadcast(android.content.Intent, android.content.BroadcastReceiver, android.os.Handler, int, java.lang.String, android.os.Bundle);
     public void sendStickyOrderedBroadcastAsUser(android.content.Intent, android.os.UserHandle, android.content.BroadcastReceiver, android.os.Handler, int, java.lang.String, android.os.Bundle);
     public void setAutofillClient(android.view.autofill.AutofillManager$AutofillClient);
+    public void setAutofillCompatibilityEnabled(boolean);
     public void setTheme(int);
     public void setWallpaper(android.graphics.Bitmap);
     public void setWallpaper(java.io.InputStream);
@@ -5772,9 +5785,9 @@
     public boolean hasFileDescriptors();
     public boolean hasWebURI();
     public static boolean isAccessUriMode(int);
-    public boolean isBrowsableWebIntent();
     public boolean isDocument();
     public boolean isExcludingStopped();
+    public boolean isWebIntent();
     public static android.content.Intent makeMainActivity(android.content.ComponentName);
     public static android.content.Intent makeMainSelectorActivity(java.lang.String, java.lang.String);
     public static android.content.Intent makeRestartActivityTask(android.content.ComponentName);
@@ -7273,6 +7286,7 @@
     public abstract void removeSplit(java.lang.String);
     public abstract void setClientProgress(float);
     public abstract void transfer(java.lang.String);
+    public abstract void write(java.lang.String, long, long, android.os.ParcelFileDescriptor);
 
 
 }
@@ -7541,6 +7555,7 @@
     public int describeContents();
     public byte[][] getDigestBytes();
     public int[] getDigestPrefix();
+    public int[] getDigestPrefixSecure();
     public void writeToParcel(android.os.Parcel, int);
 
 
@@ -7751,6 +7766,7 @@
     public void setProgress(float);
     public void setStagingProgress(float);
     public void transfer(java.lang.String);
+    public void write(java.lang.String, long, long, android.os.ParcelFileDescriptor);
 
 
 }
@@ -8040,6 +8056,7 @@
     public abstract android.graphics.drawable.Drawable getUserBadgedDrawableForDensity(android.graphics.drawable.Drawable, android.os.UserHandle, android.graphics.Rect, int);
     public abstract android.graphics.drawable.Drawable getUserBadgedIcon(android.graphics.drawable.Drawable, android.os.UserHandle);
     public abstract java.lang.CharSequence getUserBadgedLabel(java.lang.CharSequence, android.os.UserHandle);
+    public int getUserId();
     public abstract android.content.pm.VerifierDeviceIdentity getVerifierDeviceIdentity();
     public abstract android.content.res.XmlResourceParser getXml(java.lang.String, int, android.content.pm.ApplicationInfo);
     public abstract void grantRuntimePermission(java.lang.String, java.lang.String, android.os.UserHandle);
@@ -8839,6 +8856,20 @@
 
 }
 
+-keep class android.content.res.ApkAssets {
+
+    protected void finalize();
+    public boolean isUpToDate();
+    public static android.content.res.ApkAssets loadFromFd(java.io.FileDescriptor, java.lang.String, boolean, boolean);
+    public static android.content.res.ApkAssets loadFromPath(java.lang.String);
+    public static android.content.res.ApkAssets loadFromPath(java.lang.String, boolean);
+    public static android.content.res.ApkAssets loadFromPath(java.lang.String, boolean, boolean);
+    public static android.content.res.ApkAssets loadOverlayFromPath(java.lang.String, boolean);
+    public android.content.res.XmlResourceParser openXml(java.lang.String);
+
+
+}
+
 -keep class android.content.res.AssetFileDescriptor {
     <init>(android.os.ParcelFileDescriptor, long, long);
     <init>(android.os.ParcelFileDescriptor, long, long, android.os.Bundle);
@@ -8864,22 +8895,19 @@
 -keep class android.content.res.AssetManager {
     <init>();
 
-    public int addAssetFd(java.io.FileDescriptor, java.lang.String);
     public int addAssetPath(java.lang.String);
     public int addAssetPathAsSharedLibrary(java.lang.String);
-    public int[] addAssetPaths(java.lang.String[]);
     public int addOverlayPath(java.lang.String);
-    public int addOverlayPathNative(java.lang.String);
     public void close();
     protected void finalize();
+    public int findCookieForPath(java.lang.String);
+    public android.content.res.ApkAssets[] getApkAssets();
     public static java.lang.String getAssetAllocations();
     public android.util.SparseArray getAssignedPackageIdentifiers();
-    public java.lang.String getCookieName(int);
     public static int getGlobalAssetCount();
     public static int getGlobalAssetManagerCount();
     public java.lang.String[] getLocales();
     public java.lang.String[] getNonSystemLocales();
-    public android.content.res.Configuration[] getSizeConfigurations();
     public static android.content.res.AssetManager getSystem();
     public boolean isUpToDate();
     public java.lang.String[] list(java.lang.String);
@@ -8894,6 +8922,7 @@
     public android.content.res.AssetFileDescriptor openNonAssetFd(int, java.lang.String);
     public android.content.res.XmlResourceParser openXmlResourceParser(java.lang.String);
     public android.content.res.XmlResourceParser openXmlResourceParser(int, java.lang.String);
+    public void setApkAssets(android.content.res.ApkAssets[], boolean);
     public void setConfiguration(int, int, java.lang.String, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int);
 
 
@@ -9959,6 +9988,7 @@
     public void drawVertices(android.graphics.Canvas$VertexMode, int, float[], int, float[], int, int[], int, short[], int, int, android.graphics.Paint);
     public boolean isHardwareAccelerated();
     public boolean isHwBitmapsInSwModeEnabled();
+    protected void onHwBitmapInSwMode();
     public void setHwBitmapsInSwModeEnabled(boolean);
     protected void throwIfCannotDraw(android.graphics.Bitmap);
 
@@ -9989,6 +10019,8 @@
     public static android.graphics.Bitmap createBitmap(android.util.DisplayMetrics, int[], int, int, int, int, android.graphics.Bitmap$Config);
     public static android.graphics.Bitmap createBitmap(int[], int, int, android.graphics.Bitmap$Config);
     public static android.graphics.Bitmap createBitmap(android.util.DisplayMetrics, int[], int, int, android.graphics.Bitmap$Config);
+    public static android.graphics.Bitmap createBitmap(android.graphics.Picture);
+    public static android.graphics.Bitmap createBitmap(android.graphics.Picture, int, int, android.graphics.Bitmap$Config);
     public android.graphics.GraphicBuffer createGraphicBufferHandle();
     public static android.graphics.Bitmap createHardwareBitmap(android.graphics.GraphicBuffer);
     public static android.graphics.Bitmap createScaledBitmap(android.graphics.Bitmap, int, int, boolean);
@@ -10022,6 +10054,7 @@
     public boolean isMutable();
     public boolean isPremultiplied();
     public boolean isRecycled();
+    public void makeImmutable();
     public void prepareToDraw();
     public void reconfigure(int, int, android.graphics.Bitmap$Config);
     public void recycle();
@@ -10481,7 +10514,6 @@
     public boolean addFont(java.lang.String, int, android.graphics.fonts.FontVariationAxis[], int, int);
     public boolean addFontFromAssetManager(android.content.res.AssetManager, java.lang.String, int, boolean, int, int, int, android.graphics.fonts.FontVariationAxis[]);
     public boolean addFontFromBuffer(java.nio.ByteBuffer, int, android.graphics.fonts.FontVariationAxis[], int, int);
-    public void allowUnsupportedFont();
     protected void finalize();
     public boolean freeze();
 
@@ -11061,6 +11093,7 @@
     protected void finalize();
     public int getHeight();
     public int getWidth();
+    public boolean requiresHardwareAcceleration();
     public void writeToStream(java.io.OutputStream);
 
 
@@ -12472,7 +12505,7 @@
     public static int DIRECTIONALITY_HYPER_CARDIOID;
     public static int DIRECTIONALITY_OMNI;
     public static int DIRECTIONALITY_SUPER_CARDIOID;
-    public static int DIRECTIONALITY_UNKNOW;
+    public static int DIRECTIONALITY_UNKNOWN;
     public static int LOCATION_MAINBODY;
     public static int LOCATION_MAINBODY_MOVABLE;
     public static int LOCATION_PERIPHERAL;
@@ -15219,6 +15252,7 @@
     public static int DENSITY_360;
     public static int DENSITY_400;
     public static int DENSITY_420;
+    public static int DENSITY_440;
     public static int DENSITY_560;
     public static int DENSITY_DEFAULT;
     public static float DENSITY_DEFAULT_SCALE;
@@ -16245,6 +16279,7 @@
 
     public abstract void onAnimationCanceled();
     public abstract void onAnimationStart(android.view.IRecentsAnimationController, android.view.RemoteAnimationTarget[]);
+    public abstract void onAnimationStart_New(android.view.IRecentsAnimationController, android.view.RemoteAnimationTarget[], android.graphics.Rect, android.graphics.Rect);
 
 
 }
@@ -17622,7 +17657,7 @@
 }
 
 -keep class android.view.RemoteAnimationTarget {
-    <init>(int, int, android.view.SurfaceControl, boolean, android.graphics.Rect, int, android.graphics.Point, android.graphics.Rect, android.app.WindowConfiguration);
+    <init>(int, int, android.view.SurfaceControl, boolean, android.graphics.Rect, android.graphics.Rect, int, android.graphics.Point, android.graphics.Rect, android.app.WindowConfiguration);
     <init>(android.os.Parcel);
 
     public int describeContents();
@@ -17633,6 +17668,7 @@
     public static int MODE_CLOSING;
     public static int MODE_OPENING;
     public android.graphics.Rect clipRect;
+    public android.graphics.Rect contentInsets;
     public boolean isTranslucent;
     public android.view.SurfaceControl leash;
     public int mode;
@@ -18516,8 +18552,9 @@
     public boolean isVerticalFadingEdgeEnabled();
     public boolean isVerticalScrollBarEnabled();
     protected boolean isVerticalScrollBarHidden();
-    protected boolean isVisibleToUser();
+    public boolean isVisibleToUser();
     protected boolean isVisibleToUser(android.graphics.Rect);
+    public boolean isVisibleToUserForAutofill(int);
     public void jumpDrawablesToCurrentState();
     public android.view.View keyboardNavigationClusterSearch(android.view.View, int);
     public void layout(int, int, int, int);
@@ -21023,6 +21060,7 @@
     public void setVisibleToUser(boolean);
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToParcelNoRecycle(android.os.Parcel, int);
 
 
     public static int ACTION_ACCESSIBILITY_FOCUS;
@@ -21502,6 +21540,7 @@
     public void disableAutofillServices();
     public void disableOwnedAutofillServices();
     public void dump(java.lang.String, java.io.PrintWriter);
+    public void enableCompatibilityMode();
     public android.content.ComponentName getAutofillServiceComponentName();
     public java.util.List getAvailableFieldClassificationAlgorithms();
     public static int getDatasetIdFromAuthenticationId(int);
@@ -21513,6 +21552,7 @@
     public boolean hasAutofillFeature();
     public boolean hasEnabledAutofillServices();
     public boolean isAutofillSupported();
+    public boolean isCompatibilityModeEnabledLocked();
     public boolean isEnabled();
     public boolean isFieldClassificationEnabled();
     public static int makeAuthenticationId(int, int);
@@ -21581,17 +21621,21 @@
 
 -keep class android.view.autofill.AutofillManager$AutofillClient {
 
-    public abstract void autofillCallbackAuthenticate(int, android.content.IntentSender, android.content.Intent);
-    public abstract boolean autofillCallbackRequestHideFillUi();
-    public abstract boolean autofillCallbackRequestShowFillUi(android.view.View, int, int, android.graphics.Rect, android.view.autofill.IAutofillWindowPresenter);
-    public abstract void autofillCallbackResetableStateAvailable();
-    public abstract android.view.View findViewByAutofillIdTraversal(int);
-    public abstract android.view.View[] findViewsByAutofillIdTraversal(int[]);
-    public abstract android.content.ComponentName getComponentName();
-    public abstract boolean[] getViewVisibility(int[]);
+    public abstract void autofillClientAuthenticate(int, android.content.IntentSender, android.content.Intent);
+    public abstract android.view.View autofillClientFindViewByAccessibilityIdTraversal(int, int);
+    public abstract android.view.View autofillClientFindViewByAutofillIdTraversal(android.view.autofill.AutofillId);
+    public abstract android.view.View[] autofillClientFindViewsByAutofillIdTraversal(android.view.autofill.AutofillId[]);
+    public abstract android.os.IBinder autofillClientGetActivityToken();
+    public abstract android.content.ComponentName autofillClientGetComponentName();
+    public abstract boolean[] autofillClientGetViewVisibility(android.view.autofill.AutofillId[]);
+    public abstract boolean autofillClientIsFillUiShowing();
+    public abstract boolean autofillClientIsVisibleForAutofill();
+    public abstract boolean autofillClientRequestHideFillUi();
+    public abstract boolean autofillClientRequestShowFillUi(android.view.View, int, int, android.graphics.Rect, android.view.autofill.IAutofillWindowPresenter);
+    public abstract void autofillClientResetableStateAvailable();
+    public abstract void autofillClientRunOnUiThread(java.lang.Runnable);
+    public abstract boolean autofillIsCompatibilityModeEnabled();
     public abstract boolean isDisablingEnterExitEventForAutofill();
-    public abstract boolean isVisibleForAutofill();
-    public abstract void runOnUiThread(java.lang.Runnable);
 
 
 }

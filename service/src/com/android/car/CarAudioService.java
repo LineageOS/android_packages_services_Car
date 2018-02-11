@@ -19,6 +19,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.media.CarAudioPatchHandle;
+import android.car.media.CarVolumeGroup;
 import android.car.media.ICarAudio;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -143,6 +144,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     };
 
     private AudioPolicy mAudioPolicy;
+    private CarVolumeGroup[] mCarVolumeGroups = new CarVolumeGroup[0];
 
     public CarAudioService(Context context) {
         mContext = context;
@@ -194,16 +196,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         AudioGainConfig audioGainConfig = null;
         AudioGain audioGain = getAudioGain(audioPort);
         if (audioGain != null) {
-            int gainValue = indexToGain(audioGain, index);
-            // size of gain values is 1 in MODE_JOINT
-            audioGainConfig = audioGain.buildConfig(AudioGain.MODE_JOINT,
-                    audioGain.channelMask(), new int[] { gainValue }, 0);
+            audioGainConfig = getPortGainForIndex(audioPort, index);
         }
         if (audioGainConfig != null) {
             int r = AudioManager.setAudioPortGain(audioPort, audioGainConfig);
             if (r == 0) {
                 AudioDeviceInfoState state = mAudioDeviceInfoStates.get(mUsageToBus.get(usage));
-                state.currentGainIndex = gainToIndex(audioGain, audioGainConfig.values()[0]);
+                state.setCurrentGainIndex(gainToIndex(audioGain, audioGainConfig.values()[0]));
             }
         }
     }
@@ -215,7 +214,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public int getUsageMaxVolume(@AudioAttributes.AttributeUsage int usage) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         final AudioDeviceInfoState state = mAudioDeviceInfoStates.get(mUsageToBus.get(usage));
-        return state == null ? 0 : state.maxGainIndex;
+        return state == null ? 0 : state.getMaxGainIndex();
     }
 
     /**
@@ -226,7 +225,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public int getUsageMinVolume(@AudioAttributes.AttributeUsage int usage) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         final AudioDeviceInfoState state = mAudioDeviceInfoStates.get(mUsageToBus.get(usage));
-        return state == null ? 0 : state.minGainIndex;
+        return state == null ? 0 : state.getMinGainIndex();
     }
 
     /**
@@ -236,7 +235,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public int getUsageVolume(@AudioAttributes.AttributeUsage int usage) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         final AudioDeviceInfoState state = mAudioDeviceInfoStates.get(mUsageToBus.get(usage));
-        return state == null ? 0 : state.currentGainIndex;
+        return state == null ? 0 : state.getCurrentGainIndex();
     }
 
     private void setupDynamicRouting() {
@@ -250,6 +249,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             throw new RuntimeException("registerAudioPolicy failed " + r);
         }
         mAudioPolicy = audioPolicy;
+
+        final CarVolumeGroupsHelper helper = new CarVolumeGroupsHelper(
+                mContext, R.xml.car_volume_groups);
+        mCarVolumeGroups = helper.loadVolumeGroups();
     }
 
     @Nullable
@@ -269,10 +272,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     info.toString(), info.getId(), info.getProductName(), info.getAddress(),
                     info.getType()));
             if (info.getType() == AudioDeviceInfo.TYPE_BUS) {
-                int addressNumeric = parseDeviceAddress(info.getAddress());
-                if (addressNumeric >= 0) {
-                    final AudioDeviceInfoState state = new AudioDeviceInfoState(info);
-                    mAudioDeviceInfoStates.put(addressNumeric, state);
+                final AudioDeviceInfoState state = new AudioDeviceInfoState(mContext, info);
+                // See also the audio_policy_configuration.xml and getBusForContext in
+                // audio control HAL, the bus number should be no less than zero.
+                if (state.getBusNumber() >= 0) {
+                    mAudioDeviceInfoStates.put(state.getBusNumber(), state);
                     Log.i(CarLog.TAG_AUDIO, "Valid bus found " + state);
                 }
             }
@@ -288,13 +292,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     continue;
                 }
                 AudioFormat mixFormat = new AudioFormat.Builder()
-                        .setSampleRate(state.sampleRate)
+                        .setSampleRate(state.getSampleRate())
                         .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                        .setChannelMask(state.channelCount)
+                        .setChannelMask(state.getChannelCount())
                         .build();
                 Log.i(CarLog.TAG_AUDIO, String.format(
                         "Bus number %d, sampleRate:%d, channels:0x%s",
-                        busNumber, state.sampleRate, Integer.toHexString(state.channelCount)));
+                        busNumber, state.getSampleRate(),
+                        Integer.toHexString(state.getChannelCount())));
                 int[] usages = getUsagesForContext(contextNumber);
                 AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
                 for (int usage : usages) {
@@ -305,7 +310,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 }
                 AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
                         .setFormat(mixFormat)
-                        .setDevice(state.audioDeviceInfo)
+                        .setDevice(state.getAudioDeviceInfo())
                         .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
                         .build();
                 builder.addMix(audioMix);
@@ -318,26 +323,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         builder.setAudioPolicyVolumeCallback(mAudioPolicyVolumeCallback);
 
         return builder.build();
-    }
-
-    /**
-     * Parse device address. Expected format is BUS%d_%s, address, usage hint
-     * @return valid address (from 0 to positive) or -1 for invalid address.
-     */
-    private int parseDeviceAddress(String address) {
-        String[] words = address.split("_");
-        int addressParsed = -1;
-        if (words[0].startsWith("BUS")) {
-            try {
-                addressParsed = Integer.parseInt(words[0].substring(3));
-            } catch (NumberFormatException e) {
-                //ignore
-            }
-        }
-        if (addressParsed < 0) {
-            return -1;
-        }
-        return addressParsed;
     }
 
     private int[] getUsagesForContext(int contextNumber) {
@@ -495,6 +480,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         Log.e(CarLog.TAG_AUDIO, "releaseAudioPatch found no match for " + carPatch.toString());
     }
 
+    @Override
+    public @NonNull CarVolumeGroup[] getVolumeGroups() {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+
+        return mCarVolumeGroups;
+    }
+
     private void enforcePermission(String permissionName) {
         if (mContext.checkCallingOrSelfPermission(permissionName)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -510,7 +502,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private @Nullable AudioDevicePort getAudioPort(@AudioAttributes.AttributeUsage int usage) {
         final int busNumber = mUsageToBus.get(usage);
         if (mAudioDeviceInfoStates.get(busNumber) != null) {
-            return mAudioDeviceInfoStates.get(busNumber).audioDeviceInfo.getPort();
+            return mAudioDeviceInfoStates.get(busNumber).getAudioDeviceInfo().getPort();
         }
         return null;
     }
@@ -518,7 +510,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     /**
      * @return {@link AudioGain} with {@link AudioGain#MODE_JOINT} on a given {@link AudioPort}
      */
-    private @Nullable AudioGain getAudioGain(AudioPort audioPort) {
+    static @Nullable AudioGain getAudioGain(AudioPort audioPort) {
         if (audioPort != null && audioPort.gains().length > 0) {
             for (AudioGain audioGain : audioPort.gains()) {
                 if ((audioGain.mode() & AudioGain.MODE_JOINT) != 0) {
@@ -532,7 +524,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     /**
      * Constraints applied to gain configuration, see also audio_policy_configuration.xml
      */
-    private AudioGain checkAudioGainConfiguration(AudioGain audioGain) {
+    private static AudioGain checkAudioGainConfiguration(AudioGain audioGain) {
         Preconditions.checkArgument(audioGain.maxValue() >= audioGain.minValue());
         Preconditions.checkArgument((audioGain.defaultValue() >= audioGain.minValue())
                 && (audioGain.defaultValue() <= audioGain.maxValue()));
@@ -548,7 +540,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      * @param gain Gain value in millibel
      * @return index value depends on max / min / step of a given {@link AudioGain}
      */
-    private int gainToIndex(AudioGain audioGain, int gain) {
+    static int gainToIndex(AudioGain audioGain, int gain) {
         gain = checkGainBound(audioGain, gain);
         return (gain - audioGain.minValue()) / audioGain.stepValue();
     }
@@ -558,9 +550,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      * @param index index value depends on max / min / step of a given {@link AudioGain}
      * @return gain value in millibel
      */
-    private int indexToGain(AudioGain audioGain, int index) {
+    static int indexToGain(AudioGain audioGain, int index) {
         final int gain = index * audioGain.stepValue() + audioGain.minValue();
         return checkGainBound(audioGain, gain);
+    }
+
+    private static int checkGainBound(AudioGain audioGain, int gain) {
+        if (gain < audioGain.minValue() || gain > audioGain.maxValue()) {
+            throw new RuntimeException("Gain value out of bound: " + gain);
+        }
+        return gain;
     }
 
     @Nullable
@@ -574,13 +573,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     audioGain.channelMask(), new int[] { gainValue }, 0);
         }
         return audioGainConfig;
-    }
-
-    private int checkGainBound(AudioGain audioGain, int gain) {
-        if (gain < audioGain.minValue() || gain > audioGain.maxValue()) {
-            throw new RuntimeException("Gain value out of bound: " + gain);
-        }
-        return gain;
     }
 
     /**
@@ -618,71 +610,5 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Log.e(CarLog.TAG_SERVICE, "IAudioControl service not registered yet");
         }
         return null;
-    }
-
-    /**
-     * This class holds the min and max gain index translated from min / max / step values in
-     * gain control. Also tracks the current gain index on a certain {@link AudioDevicePort}.
-     */
-    private class AudioDeviceInfoState {
-        private final AudioDeviceInfo audioDeviceInfo;
-        private final int maxGainIndex;
-        private final int minGainIndex;
-        private final int sampleRate;
-        private final int channelCount;
-        private int currentGainIndex;
-
-        private AudioDeviceInfoState(AudioDeviceInfo audioDeviceInfo) {
-            this.audioDeviceInfo = audioDeviceInfo;
-            this.sampleRate = getMaxSampleRate(audioDeviceInfo);
-            this.channelCount = getMaxChannels(audioDeviceInfo);
-            final AudioGain audioGain = Preconditions.checkNotNull(
-                    getAudioGain(audioDeviceInfo.getPort()),
-                    "No audio gain on device port " + audioDeviceInfo);
-            this.maxGainIndex = gainToIndex(audioGain, audioGain.maxValue());
-            this.minGainIndex = gainToIndex(audioGain, audioGain.minValue());
-            this.currentGainIndex = gainToIndex(audioGain, audioGain.defaultValue());
-        }
-
-        private int getMaxSampleRate(AudioDeviceInfo info) {
-            int[] sampleRates = info.getSampleRates();
-            if (sampleRates == null || sampleRates.length == 0) {
-                return 48000;
-            }
-            int sampleRate = sampleRates[0];
-            for (int i = 1; i < sampleRates.length; i++) {
-                if (sampleRates[i] > sampleRate) {
-                    sampleRate = sampleRates[i];
-                }
-            }
-            return sampleRate;
-        }
-
-        private int getMaxChannels(AudioDeviceInfo info) {
-            int[] channelMasks = info.getChannelMasks();
-            if (channelMasks == null) {
-                return AudioFormat.CHANNEL_OUT_STEREO;
-            }
-            int channels = AudioFormat.CHANNEL_OUT_MONO;
-            int numChannels = 1;
-            for (int channelMask : channelMasks) {
-                int currentNumChannels = Integer.bitCount(channelMask);
-                if (currentNumChannels > numChannels) {
-                    numChannels = currentNumChannels;
-                    channels = channelMask;
-                }
-            }
-            return channels;
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder();
-            sb.append("device: " + audioDeviceInfo.getAddress());
-            sb.append(" currentGain: " + currentGainIndex);
-            sb.append(" maxGain: " + maxGainIndex);
-            sb.append(" minGain: " + minGainIndex);
-            return sb.toString();
-        }
     }
 }

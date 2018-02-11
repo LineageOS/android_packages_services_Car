@@ -109,24 +109,43 @@ class VhalTest:
             value = None
         else:
             valType = rxMsg.value[0].value_type
-            if valType in self._types.TYPE_STRING:
-                value = rxMsg.value[0].string_value
-            elif valType in self._types.TYPE_BYTES:
-                value = rxMsg.value[0].bytes_value
-            elif valType == vhal_consts_2_0.VEHICLEPROPERTYTYPE_BOOLEAN:
-                value = rxMsg.value[0].int32_values[0]
-            elif valType in self._types.TYPE_INT32:
-                value = rxMsg.value[0].int32_values[0]
-            elif valType in self._types.TYPE_INT64:
-                value = rxMsg.value[0].int64_values[0]
-            elif valType in self._types.TYPE_FLOAT:
-                value = rxMsg.value[0].float_values[0]
-                # Truncate float to 5 decimal places
-                value = "%.5f" % value
-                value = float(value)
-            else:
-                self._log.error("getValueFromMsg:  valType=0x%X is not handled", valType)
-                value = None
+            try:
+                if valType in self._types.TYPE_STRING:
+                    value = rxMsg.value[0].string_value
+                elif valType in self._types.TYPE_BYTES:
+                    value = rxMsg.value[0].bytes_value
+                elif valType == vhal_consts_2_0.VEHICLEPROPERTYTYPE_BOOLEAN:
+                    value = rxMsg.value[0].int32_values[0]
+                elif valType in self._types.TYPE_INT32:
+                    value = rxMsg.value[0].int32_values[0]
+                elif valType in self._types.TYPE_INT64:
+                    value = rxMsg.value[0].int64_values[0]
+                elif valType in self._types.TYPE_FLOAT:
+                    value = rxMsg.value[0].float_values[0]
+                    # Truncate float to 5 decimal places
+                    value = "%.5f" % value
+                    value = float(value)
+                else:
+                    self._log.error("getValueFromMsg:  valType=0x%X is not handled", valType)
+                    value = None
+            except IndexError:
+              self._log.error("getValueFromMsg:  Received malformed message: %s", str(rxMsg))
+              value = None
+        return value
+
+    def _validateVmsMessage(self, rxMsg):
+        return (len(rxMsg.value) == 1 and rxMsg.value[0].value_type in self._types.TYPE_MIXED and
+            len(rxMsg.value[0].int32_values) > 0 and
+            vhal_consts_2_0.VMSMESSAGETYPE_SUBSCRIBE <= rxMsg.value[0].int32_values[0]
+                <= vhal_consts_2_0.VMSMESSAGETYPE_LAST_VMS_MESSAGE_TYPE)
+
+    def _getVmsMessageTypeFromMsg(self, rxMsg):
+        if self._validateVmsMessage(rxMsg):
+            value = rxMsg.value[0].int32_values[
+                vhal_consts_2_0.VMSBASEMESSAGEINTEGERVALUESINDEX_MESSAGE_TYPE]
+        else:
+            self._log.error("getVmsMessageTypeFromMsg:  Received invalid message")
+            value = None
         return value
 
     # Helper function to receive a message and validate the type and status
@@ -275,6 +294,48 @@ class VhalTest:
                 pass
         self._log.info("  Finished testSetBadProperty()!")
 
+    def testGetVmsAvailability(self):
+        self._log.info("Starting testVms()...")
+
+        # Request the availability from the VmsCore.
+        value = {'int32_values' : [vhal_consts_2_0.VMSMESSAGETYPE_AVAILABILITY_REQUEST] }
+        self._vhal.setProperty(
+            vhal_consts_2_0.VEHICLEPROPERTY_VEHICLE_MAP_SERVICE, 0, value)
+
+        rxMsg, retVal = self._rxMsgAndValidate(VehicleHalProto_pb2.SET_PROPERTY_RESP,
+                                               VehicleHalProto_pb2.RESULT_OK)
+
+        # The Vms Core should immediately respond
+        rxMsg, retVal = self._rxMsgAndValidate(VehicleHalProto_pb2.SET_PROPERTY_ASYNC,
+                                               VehicleHalProto_pb2.RESULT_OK)
+
+        if self._getVmsMessageTypeFromMsg(rxMsg) != vhal_consts_2_0.VMSMESSAGETYPE_AVAILABILITY_RESPONSE:
+            self._log.error("testVms: VmsCore did not respond with AvailabilityResponse: %s", str(rxMsg))
+
+
+        # Test that we can get the property on command
+        self._vhal.getProperty(
+            vhal_consts_2_0.VEHICLEPROPERTY_VEHICLE_MAP_SERVICE, 0)
+        rxMsg, retVal = self._rxMsgAndValidate(VehicleHalProto_pb2.GET_PROPERTY_RESP,
+                                               VehicleHalProto_pb2.RESULT_OK)
+
+        if self._getVmsMessageTypeFromMsg(rxMsg) != vhal_consts_2_0.VMSMESSAGETYPE_AVAILABILITY_RESPONSE:
+            self._log.error("testVms: VmsCore did not respond with AvailabilityResponse: %s", str(rxMsg))
+        else:
+            # Parse Availability Response
+            layers = rxMsg.value[0].int32_values[
+                vhal_consts_2_0.VMSAVAILABILITYSTATEINTEGERVALUESINDEX_NUMBER_OF_ASSOCIATED_LAYERS]
+            index = vhal_consts_2_0.VMSAVAILABILITYSTATEINTEGERVALUESINDEX_LAYERS_START
+            numPublishersIndex = vhal_consts_2_0.VMSMESSAGEWITHLAYERINTEGERVALUESINDEX_LAYER_VERSION
+            self._log.info("testVms: %d available layers", layers)
+            for layer in xrange(layers):
+                self._log.info("testVms: Available layer: %s",
+                               rxMsg.value[0].int32_values[index:index+numPublishersIndex])
+                index += numPublishersIndex + 1 + rxMsg.value[0].int32_values[index+numPublishersIndex]
+
+            if len(rxMsg.value[0].int32_values) != index:
+              self._log.error("testVms: Malformed AvailabilityResponse: index: %d %s", index, str(rxMsg))
+
     def runTests(self):
         self.testGetConfig()
         self.testGetBadConfig()
@@ -282,6 +343,7 @@ class VhalTest:
         self.testGetSet()
         self.testGetBadProperty()
         self.testSetBadProperty()
+        self.testGetVmsAvailability()
         # Add new tests here to be run
 
 

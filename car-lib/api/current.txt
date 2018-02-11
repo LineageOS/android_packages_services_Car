@@ -322,10 +322,14 @@ package android.car.media {
     method public int getUsageMaxVolume(int) throws android.car.CarNotConnectedException;
     method public int getUsageMinVolume(int) throws android.car.CarNotConnectedException;
     method public int getUsageVolume(int) throws android.car.CarNotConnectedException;
+    method public android.car.media.CarVolumeGroup[] getVolumeGroups() throws android.car.CarNotConnectedException;
+    method public static java.lang.String getVolumeSettingsKeyForBus(int);
+    method public void registerVolumeChangeObserver(android.database.ContentObserver);
     method public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
     method public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
     method public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
     method public void setUsageVolume(int, int, int) throws android.car.CarNotConnectedException;
+    method public void unregisterVolumeChangeObserver(android.database.ContentObserver);
   }
 
   public final class CarAudioPatchHandle implements android.os.Parcelable {
@@ -333,6 +337,15 @@ package android.car.media {
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.media.CarAudioPatchHandle> CREATOR;
+  }
+
+  public final class CarVolumeGroup implements android.os.Parcelable {
+    ctor public CarVolumeGroup(java.lang.String, int[]);
+    method public int describeContents();
+    method public int[] getContexts();
+    method public java.lang.String getTitle();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.media.CarVolumeGroup> CREATOR;
   }
 
 }

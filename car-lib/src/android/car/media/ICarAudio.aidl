@@ -17,8 +17,7 @@
 package android.car.media;
 
 import android.car.media.CarAudioPatchHandle;
-import android.media.AudioAttributes;
-import android.media.IVolumeController;
+import android.car.media.CarVolumeGroup;
 
 /**
  * Binder interface for {@link android.car.media.CarAudioManager}.
@@ -38,4 +37,6 @@ interface ICarAudio {
     String[] getExternalSources();
     CarAudioPatchHandle createAudioPatch(in String sourceName, int usage, int gainIndex);
     void releaseAudioPatch(in CarAudioPatchHandle patch);
+
+    CarVolumeGroup[] getVolumeGroups();
 }

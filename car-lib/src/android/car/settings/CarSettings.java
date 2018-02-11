@@ -45,90 +45,6 @@ public class CarSettings {
          */
         public static final String KEY_GARAGE_MODE_MAINTENANCE_WINDOW =
                 "android.car.GARAGE_MODE_MAINTENANCE_WINDOW";
-        /**
-         * Key for music volume. This is used internally, changing this value will not change the
-         * volume.
-         *
-         * @hide
-         */
-        public static final String KEY_VOLUME_MUSIC = "android.car.VOLUME_MUSIC";
-        /**
-         * Key for navigation volume. This is used internally, changing this value will not change
-         * the volume.
-         *
-         * @hide
-         */
-        public static final String KEY_VOLUME_NAVIGATION = "android.car.VOLUME_NAVIGATION";
-        /**
-         * Key for voice command volume. This is used internally, changing this value will
-         * not change the volume.
-         *
-         * @hide
-         */
-        public static final String KEY_VOLUME_VOICE_COMMAND = "android.car.VOLUME_VOICE_COMMAND";
-        /**
-         * Key for call volume. This is used internally, changing this value will not change the
-         * volume.
-         *
-         * @hide
-         */
-        public static final String KEY_VOLUME_CALL = "android.car.VOLUME_CALL";
-        /**
-         * Key for phone ring volume. This is used internally, changing this value will not change
-         * the volume.
-         *
-         * @hide
-         */
-        public static final String KEY_VOLUME_RINGTONE = "android.car.VOLUME_RINGTONE";
-        /**
-         * Key for alarm volume. This is used internally, changing this value will not change the
-         * volume.
-         *
-         * @hide
-         */
-        public static final String KEY_VOLUME_ALARM = "android.car.VOLUME_ALARM";
-        /**
-         * Key for notification volume. This is used internally, changing this value will not change
-         * the volume.
-         *
-         * @hide
-         */
-        public static final String KEY_VOLUME_NOTIFICATION = "android.car.VOLUME_NOTIFICATION";
-        /**
-         * Key for safety alert volume. This is used internally, changing this value will not
-         * change the volume.
-         *
-         * @hide
-         */
-        public static final String KEY_VOLUME_SAFETY_ALERT = "android.car.VOLUME_SAFETY_ALERT";
-        /**
-         * Key for cd volume. This is used internally, changing this value will not change the
-         * volume.
-         *
-         * @hide
-         */
-        public static final String KEY_VOLUME_CD_ROM = "android.car.VOLUME_CD_ROM";
-        /**
-         * Key for aux volume. This is used internally, changing this value will not change the
-         * volume.
-         *
-         * @hide
-         */
-        public static final String KEY_VOLUME_AUX = "android.car.VOLUME_AUX";
-        /**
-         * Key for system volume. This is used internally, changing this value will not change the
-         * volume.
-         *
-         * @hide
-         */
-        public static final String KEY_VOLUME_SYSTEM_SOUND = "android.car.VOLUME_SYSTEM";
-        /**
-         * Key for radio volume. This is used internally, changing this value will not change the
-         * volume.
-         *
-         * @hide
-         */
-        public static final String KEY_VOLUME_RADIO = "android.car.VOLUME_RADIO";
     }
 
     /**
@@ -184,7 +100,7 @@ public class CarSettings {
 
         /**
          * Key for setting primary Music Device
-         * Written to by a client with {@link com.android.car.Manifest.permission.BLUETOOTH_ADMIN}
+         * Written to by a client with {@link android.Manifest.permission#BLUETOOTH_ADMIN}
          * Read by {@link com.android.car.BluetoothDeviceConnectionPolicy}
          * @hide
          */
@@ -193,7 +109,7 @@ public class CarSettings {
 
         /**
          * Key for setting secondary Music Device
-         * Written to by a client with {@link com.android.car.Manifest.permission.BLUETOOTH_ADMIN}
+         * Written to by a client with {@link android.Manifest.permission#BLUETOOTH_ADMIN}
          * Read by {@link com.android.car.BluetoothDeviceConnectionPolicy}
          * @hide
          */
@@ -202,7 +118,7 @@ public class CarSettings {
 
         /**
          * Key for setting Primary Phone Device
-         * Written to by a client with {@link com.android.car.Manifest.permission.BLUETOOTH_ADMIN}
+         * Written to by a client with {@link android.Manifest.permission#BLUETOOTH_ADMIN}
          * Read by {@link com.android.car.BluetoothDeviceConnectionPolicy}
          * @hide
          */
@@ -211,7 +127,7 @@ public class CarSettings {
 
         /**
          * Key for setting Secondary Phone Device
-         * Written to by a client with {@link com.android.car.Manifest.permission.BLUETOOTH_ADMIN}
+         * Written to by a client with {@link android.Manifest.permission#BLUETOOTH_ADMIN}
          * Read by {@link com.android.car.BluetoothDeviceConnectionPolicy}
          * @hide
          */
@@ -220,7 +136,7 @@ public class CarSettings {
 
         /**
          * Key for setting Primary Messaging Device
-         * Written to by a client with {@link com.android.car.Manifest.permission.BLUETOOTH_ADMIN}
+         * Written to by a client with {@link android.Manifest.permission#BLUETOOTH_ADMIN}
          * Read by {@link com.android.car.BluetoothDeviceConnectionPolicy}
          * @hide
          */
@@ -229,7 +145,7 @@ public class CarSettings {
 
         /**
          * Key for setting Secondary Messaging Device
-         * Written to by a client with {@link com.android.car.Manifest.permission.BLUETOOTH_ADMIN}
+         * Written to by a client with {@link android.Manifest.permission#BLUETOOTH_ADMIN}
          * Read by {@link com.android.car.BluetoothDeviceConnectionPolicy}
          * @hide
          */

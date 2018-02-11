@@ -15,15 +15,19 @@
  */
 package android.car.media;
 
+import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.ContentObserver;
 import android.media.AudioAttributes;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.provider.Settings;
 import android.util.Log;
 
 /**
@@ -31,7 +35,44 @@ import android.util.Log;
  */
 public final class CarAudioManager implements CarManagerBase {
 
+    // The trailing slash forms a directory-liked hierarchy and
+    // allows listening for both VOLUME/MEDIA and VOLUME/NAVIGATION.
+    private static final String VOLUME_SETTINGS_KEY_URI_PREFIX = "android.car.VOLUME/";
+
+    /**
+     * @param busNumber The physical bus address number
+     * @return Key to persist volume index in {@link Settings.Global}
+     */
+    public static String getVolumeSettingsKeyForBus(int busNumber) {
+        return VOLUME_SETTINGS_KEY_URI_PREFIX + busNumber;
+    }
+
+    private final ContentResolver mContentResolver;
     private final ICarAudio mService;
+
+    /**
+     * Registers a {@link ContentObserver} to listen for audio usage volume changes.
+     *
+     * {@link ContentObserver#onChange(boolean)} will be called on every audio usage volume change.
+     *
+     * @param observer The {@link ContentObserver} instance to register, non-null
+     */
+    @SystemApi
+    public void registerVolumeChangeObserver(@NonNull ContentObserver observer) {
+        mContentResolver.registerContentObserver(
+                Settings.Global.getUriFor(VOLUME_SETTINGS_KEY_URI_PREFIX),
+                true, observer);
+    }
+
+    /**
+     * Unregisters the {@link ContentObserver} which listens for audio usage volume changes.
+     *
+     * @param observer The {@link ContentObserver} instance to unregister, non-null
+     */
+    @SystemApi
+    public void unregisterVolumeChangeObserver(@NonNull ContentObserver observer) {
+        mContentResolver.unregisterContentObserver(observer);
+    }
 
     /**
      * Sets the volume index for an {@link AudioAttributes} usage.
@@ -45,8 +86,7 @@ public final class CarAudioManager implements CarManagerBase {
      *              {@link android.media.AudioManager#FLAG_PLAY_SOUND})
      */
     @SystemApi
-    public void setUsageVolume(
-            @AudioAttributes.AttributeUsage int usage, int index, int flags)
+    public void setUsageVolume(@AudioAttributes.AttributeUsage int usage, int index, int flags)
             throws CarNotConnectedException {
         try {
             mService.setUsageVolume(usage, index, flags);
@@ -231,6 +271,21 @@ public final class CarAudioManager implements CarManagerBase {
         }
     }
 
+    /**
+     * Gets the available volume groups in the system.
+     *
+     * @return Array of {@link CarVolumeGroup}
+     */
+    @SystemApi
+    public @NonNull CarVolumeGroup[] getVolumeGroups() throws CarNotConnectedException {
+        try {
+            return mService.getVolumeGroups();
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "getContextGroups failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
     /** @hide */
     @Override
     public void onCarDisconnected() {
@@ -238,6 +293,7 @@ public final class CarAudioManager implements CarManagerBase {
 
     /** @hide */
     public CarAudioManager(IBinder service, Context context, Handler handler) {
+        mContentResolver = context.getContentResolver();
         mService = ICarAudio.Stub.asInterface(service);
     }
 }

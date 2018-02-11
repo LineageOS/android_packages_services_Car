@@ -717,10 +717,13 @@ package android.car.media {
     method public int getUsageMaxVolume(int) throws android.car.CarNotConnectedException;
     method public int getUsageMinVolume(int) throws android.car.CarNotConnectedException;
     method public int getUsageVolume(int) throws android.car.CarNotConnectedException;
+    method public android.car.media.CarVolumeGroup[] getVolumeGroups() throws android.car.CarNotConnectedException;
+    method public void registerVolumeChangeObserver(android.database.ContentObserver);
     method public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
     method public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
     method public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
     method public void setUsageVolume(int, int, int) throws android.car.CarNotConnectedException;
+    method public void unregisterVolumeChangeObserver(android.database.ContentObserver);
   }
 
 }
