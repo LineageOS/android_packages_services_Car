@@ -199,6 +199,7 @@ public class CarSensorService extends ICarSensor.Stub
         return event;
     }
 
+    @GuardedBy("mSensorLock")
     private void addNewSensorRecordLocked(int type, CarSensorEvent event) {
         SensorRecord record = new SensorRecord();
         record.lastEvent = event;
@@ -625,6 +626,7 @@ public class CarSensorService extends ICarSensor.Stub
         return null;
     }
 
+    @GuardedBy("mSensorLock")
     private int[] refreshSupportedSensorsLocked() {
         int numCarSensors = (mCarProvidedSensors == null) ? 0 : mCarProvidedSensors.length;
         for (int i = 0; i < numCarSensors; i++) {
@@ -688,6 +690,7 @@ public class CarSensorService extends ICarSensor.Stub
      * @param listener
      * @return null if not found.
      */
+    @GuardedBy("mSensorLock")
     private SensorClient findSensorClientLocked(ICarSensorEventListener listener) {
         IBinder binder = listener.asBinder();
         for (SensorClient sensorClient : mClients) {

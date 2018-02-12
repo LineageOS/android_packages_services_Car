@@ -82,6 +82,7 @@ public class VmsPublishersInfo {
         }
     }
 
+    @GuardedBy("mLock")
     private void maybeAddPublisherInfoLocked(InfoWrapper wrappedPublisherInfo) {
         if (!mPublishersIds.containsKey(wrappedPublisherInfo)) {
             // Assign ID to the info

@@ -221,6 +221,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
     }
 
+    @GuardedBy("this")
     private AppBlockingPackageInfo searchFromBlacklistsLocked(String packageName) {
         for (ClientPolicy policy : mClientPolicies.values()) {
             AppBlockingPackageInfoWrapper wrapper = policy.blacklistsMap.get(packageName);
@@ -231,6 +232,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         return null;
     }
 
+    @GuardedBy("this")
     private AppBlockingPackageInfo searchFromWhitelistsLocked(String packageName) {
         for (ClientPolicy policy : mClientPolicies.values()) {
             AppBlockingPackageInfoWrapper wrapper = policy.whitelistsMap.get(packageName);
@@ -242,6 +244,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         return (wrapper != null) ? wrapper.info : null;
     }
 
+    @GuardedBy("this")
     private boolean isActivityInWhitelistsLocked(String packageName, String className) {
         for (ClientPolicy policy : mClientPolicies.values()) {
             if (isActivityInMapAndMatching(policy.whitelistsMap, packageName, className)) {
@@ -311,6 +314,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         notifyAll();
     }
 
+    @GuardedBy("this")
     private void wakeupClientsWaitingForPolicySetitngLocked() {
         for (CarAppBlockingPolicy waitingPolicy : mWaitingPolicies) {
             synchronized (waitingPolicy) {
@@ -599,6 +603,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
     }
 
+    @GuardedBy("this")
     private String dumpPoliciesLocked(boolean dumpAll) {
         StringBuilder sb = new StringBuilder();
         if (dumpAll) {
