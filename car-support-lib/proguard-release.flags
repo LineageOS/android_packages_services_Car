@@ -1655,13 +1655,14 @@
     public android.app.ContextImpl getSystemUiContext();
     public void handleActivityConfigurationChanged(android.os.IBinder, android.content.res.Configuration, int);
     public void handleConfigurationChanged(android.content.res.Configuration);
-    public void handleDestroyActivity(android.os.IBinder, boolean, int, boolean);
+    public void handleDestroyActivity(android.os.IBinder, boolean, int, boolean, java.lang.String);
     public void handleInstallProvider(android.content.pm.ProviderInfo);
     public android.app.Activity handleLaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public void handleMultiWindowModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public void handleNewIntent(android.os.IBinder, java.util.List, boolean);
     public void handlePauseActivity(android.os.IBinder, boolean, boolean, int, boolean, android.app.servertransaction.PendingTransactionActions);
     public void handlePictureInPictureModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
+    public void handleRelaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public void handleRequestAssistContextExtras(android.app.ActivityThread$RequestAssistContextExtras);
     public void handleResumeActivity(android.os.IBinder, boolean, boolean, java.lang.String);
     public void handleSendResult(android.os.IBinder, java.util.List);
@@ -1677,10 +1678,11 @@
     public void onNewActivityOptions(android.os.IBinder, android.app.ActivityOptions);
     public android.app.LoadedApk peekPackageInfo(java.lang.String, boolean);
     public void performRestartActivity(android.os.IBinder, boolean);
+    public android.app.ActivityThread$ActivityClientRecord prepareRelaunchActivity(android.os.IBinder, java.util.List, java.util.List, int, android.util.MergedConfiguration, boolean);
     public void registerOnActivityPausedListener(android.app.Activity, android.app.OnActivityPausedListener);
     public boolean releaseProvider(android.content.IContentProvider, boolean);
+    public void reportRelaunch(android.os.IBinder, android.app.servertransaction.PendingTransactionActions);
     public void reportStop(android.app.servertransaction.PendingTransactionActions);
-    public void requestRelaunchActivity(android.os.IBinder, java.util.List, java.util.List, int, boolean, android.content.res.Configuration, android.content.res.Configuration, boolean, boolean);
     public android.content.pm.ActivityInfo resolveActivityInfo(android.content.Intent);
     public void sendActivityResult(android.os.IBinder, java.lang.String, int, int, android.content.Intent);
     public android.app.Activity startActivityNow(android.app.Activity, java.lang.String, android.content.Intent, android.content.pm.ActivityInfo, android.os.IBinder, android.os.Bundle, android.app.Activity$NonConfigurationInstances);
@@ -1694,6 +1696,7 @@
     public static boolean DEBUG_BROADCAST;
     public static boolean DEBUG_CONFIGURATION;
     public static boolean DEBUG_MEMORY_TRIM;
+    public static boolean DEBUG_ORDER;
     public static long INVALID_PROC_STATE_SEQ;
     public static java.lang.String PROC_START_SEQ_IDENT;
     public static int SERVICE_DONE_EXECUTING_ANON;
@@ -1752,7 +1755,6 @@
     public void scheduleOnNewActivityOptions(android.os.IBinder, android.os.Bundle);
     public void scheduleReceiver(android.content.Intent, android.content.pm.ActivityInfo, android.content.res.CompatibilityInfo, int, java.lang.String, android.os.Bundle, boolean, int, int);
     public void scheduleRegisteredReceiver(android.content.IIntentReceiver, android.content.Intent, int, java.lang.String, android.os.Bundle, boolean, boolean, int, int);
-    public void scheduleRelaunchActivity(android.os.IBinder, java.util.List, java.util.List, int, boolean, android.content.res.Configuration, android.content.res.Configuration, boolean);
     public void scheduleServiceArgs(android.os.IBinder, android.content.pm.ParceledListSlice);
     public void scheduleSleeping(android.os.IBinder, boolean);
     public void scheduleStopService(android.os.IBinder);
@@ -2193,18 +2195,21 @@
     public abstract android.app.LoadedApk getPackageInfoNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
     public abstract void handleActivityConfigurationChanged(android.os.IBinder, android.content.res.Configuration, int);
     public abstract void handleConfigurationChanged(android.content.res.Configuration);
-    public abstract void handleDestroyActivity(android.os.IBinder, boolean, int, boolean);
+    public abstract void handleDestroyActivity(android.os.IBinder, boolean, int, boolean, java.lang.String);
     public abstract android.app.Activity handleLaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public abstract void handleMultiWindowModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public abstract void handleNewIntent(android.os.IBinder, java.util.List, boolean);
     public abstract void handlePauseActivity(android.os.IBinder, boolean, boolean, int, boolean, android.app.servertransaction.PendingTransactionActions);
     public abstract void handlePictureInPictureModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
+    public abstract void handleRelaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public abstract void handleResumeActivity(android.os.IBinder, boolean, boolean, java.lang.String);
     public abstract void handleSendResult(android.os.IBinder, java.util.List);
     public abstract void handleStartActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public abstract void handleStopActivity(android.os.IBinder, boolean, int, android.app.servertransaction.PendingTransactionActions);
     public abstract void handleWindowVisibility(android.os.IBinder, boolean);
     public abstract void performRestartActivity(android.os.IBinder, boolean);
+    public abstract android.app.ActivityThread$ActivityClientRecord prepareRelaunchActivity(android.os.IBinder, java.util.List, java.util.List, int, android.util.MergedConfiguration, boolean);
+    public abstract void reportRelaunch(android.os.IBinder, android.app.servertransaction.PendingTransactionActions);
     public abstract void reportStop(android.app.servertransaction.PendingTransactionActions);
     public abstract void updatePendingConfiguration(android.content.res.Configuration);
     public abstract void updateProcessState(int, boolean);
@@ -3137,7 +3142,6 @@
     public abstract void scheduleOnNewActivityOptions(android.os.IBinder, android.os.Bundle);
     public abstract void scheduleReceiver(android.content.Intent, android.content.pm.ActivityInfo, android.content.res.CompatibilityInfo, int, java.lang.String, android.os.Bundle, boolean, int, int);
     public abstract void scheduleRegisteredReceiver(android.content.IIntentReceiver, android.content.Intent, int, java.lang.String, android.os.Bundle, boolean, boolean, int, int);
-    public abstract void scheduleRelaunchActivity(android.os.IBinder, java.util.List, java.util.List, int, boolean, android.content.res.Configuration, android.content.res.Configuration, boolean);
     public abstract void scheduleServiceArgs(android.os.IBinder, android.content.pm.ParceledListSlice);
     public abstract void scheduleSleeping(android.os.IBinder, boolean);
     public abstract void scheduleStopService(android.os.IBinder);
@@ -4379,6 +4383,7 @@
     public java.lang.String getIdEntry();
     public java.lang.String getIdPackage();
     public java.lang.String getIdType();
+    public int getImportantForAutofill();
     public int getInputType();
     public int getLeft();
     public android.os.LocaleList getLocaleList();
@@ -4418,6 +4423,7 @@
     public boolean isSanitized();
     public boolean isSelected();
     public void setAutofillOverlay(android.app.assist.AssistStructure$AutofillOverlay);
+    public void setWebDomain(java.lang.String);
     public void updateAutofillValue(android.view.autofill.AutofillValue);
 
 
@@ -4500,9 +4506,11 @@
     public android.app.servertransaction.PendingTransactionActions$StopInfo getStopInfo();
     public void setCallOnPostCreate(boolean);
     public void setOldState(android.os.Bundle);
+    public void setReportRelaunchToWindowManager(boolean);
     public void setRestoreInstanceState(boolean);
     public void setStopInfo(android.app.servertransaction.PendingTransactionActions$StopInfo);
     public boolean shouldCallOnPostCreate();
+    public boolean shouldReportRelaunchToWindowManager();
     public boolean shouldRestoreInstanceState();
 
 
@@ -6025,6 +6033,7 @@
     public static java.lang.String ACTION_SHOW_KEYBOARD_SHORTCUTS;
     public static java.lang.String ACTION_SHUTDOWN;
     public static java.lang.String ACTION_SIM_STATE_CHANGED;
+    public static java.lang.String ACTION_SPLIT_CONFIGURATION_CHANGED;
     public static java.lang.String ACTION_SYNC;
     public static java.lang.String ACTION_SYSTEM_TUTORIAL;
     public static java.lang.String ACTION_THERMAL_EVENT;
@@ -8177,6 +8186,7 @@
     public static java.lang.String FEATURE_ACTIVITIES_ON_SECONDARY_DISPLAYS;
     public static java.lang.String FEATURE_ADOPTABLE_STORAGE;
     public static java.lang.String FEATURE_APP_WIDGETS;
+    public static java.lang.String FEATURE_ASSIST_GESTURE;
     public static java.lang.String FEATURE_AUDIO_LOW_LATENCY;
     public static java.lang.String FEATURE_AUDIO_OUTPUT;
     public static java.lang.String FEATURE_AUDIO_PRO;
@@ -8856,20 +8866,6 @@
 
 }
 
--keep class android.content.res.ApkAssets {
-
-    protected void finalize();
-    public boolean isUpToDate();
-    public static android.content.res.ApkAssets loadFromFd(java.io.FileDescriptor, java.lang.String, boolean, boolean);
-    public static android.content.res.ApkAssets loadFromPath(java.lang.String);
-    public static android.content.res.ApkAssets loadFromPath(java.lang.String, boolean);
-    public static android.content.res.ApkAssets loadFromPath(java.lang.String, boolean, boolean);
-    public static android.content.res.ApkAssets loadOverlayFromPath(java.lang.String, boolean);
-    public android.content.res.XmlResourceParser openXml(java.lang.String);
-
-
-}
-
 -keep class android.content.res.AssetFileDescriptor {
     <init>(android.os.ParcelFileDescriptor, long, long);
     <init>(android.os.ParcelFileDescriptor, long, long, android.os.Bundle);
@@ -8895,19 +8891,22 @@
 -keep class android.content.res.AssetManager {
     <init>();
 
+    public int addAssetFd(java.io.FileDescriptor, java.lang.String);
     public int addAssetPath(java.lang.String);
     public int addAssetPathAsSharedLibrary(java.lang.String);
+    public int[] addAssetPaths(java.lang.String[]);
     public int addOverlayPath(java.lang.String);
+    public int addOverlayPathNative(java.lang.String);
     public void close();
     protected void finalize();
-    public int findCookieForPath(java.lang.String);
-    public android.content.res.ApkAssets[] getApkAssets();
     public static java.lang.String getAssetAllocations();
     public android.util.SparseArray getAssignedPackageIdentifiers();
+    public java.lang.String getCookieName(int);
     public static int getGlobalAssetCount();
     public static int getGlobalAssetManagerCount();
     public java.lang.String[] getLocales();
     public java.lang.String[] getNonSystemLocales();
+    public android.content.res.Configuration[] getSizeConfigurations();
     public static android.content.res.AssetManager getSystem();
     public boolean isUpToDate();
     public java.lang.String[] list(java.lang.String);
@@ -8922,7 +8921,6 @@
     public android.content.res.AssetFileDescriptor openNonAssetFd(int, java.lang.String);
     public android.content.res.XmlResourceParser openXmlResourceParser(java.lang.String);
     public android.content.res.XmlResourceParser openXmlResourceParser(int, java.lang.String);
-    public void setApkAssets(android.content.res.ApkAssets[], boolean);
     public void setConfiguration(int, int, java.lang.String, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int);
 
 
@@ -9426,6 +9424,7 @@
 -keep class android.content.res.XmlResourceParser {
 
     public abstract void close();
+    public abstract java.lang.String getAttributeNamespace(int);
 
 
 }
@@ -10262,6 +10261,7 @@
     public void scale(float, float);
     public void scale(float, float, float, float);
     public void setBitmap(android.graphics.Bitmap);
+    public static void setCompatibilityVersion(int);
     public void setDensity(int);
     public void setDrawFilter(android.graphics.DrawFilter);
     public void setMatrix(android.graphics.Matrix);
@@ -10760,6 +10760,7 @@
     public int breakText(java.lang.String, boolean, float, float[]);
     public void clearShadowLayer();
     public float descent();
+    public boolean equalsForTextMeasurement(android.graphics.Paint);
     public int getAlpha();
     public int getBidiFlags();
     public int getColor();
@@ -14319,6 +14320,7 @@
     public int describeContents();
     public static android.os.VibrationEffect get(int);
     public static android.os.VibrationEffect get(int, boolean);
+    public static android.os.VibrationEffect get(android.net.Uri, android.content.Context);
     public abstract long getDuration();
     protected static int scale(int, float, int);
     public abstract void validate();
@@ -14328,8 +14330,12 @@
     public static int DEFAULT_AMPLITUDE;
     public static int EFFECT_CLICK;
     public static int EFFECT_DOUBLE_CLICK;
+    public static int EFFECT_HEAVY_CLICK;
+    public static int EFFECT_POP;
+    public static int EFFECT_THUD;
     public static int EFFECT_TICK;
     public static int MAX_AMPLITUDE;
+    public static int[] RINGTONES;
 }
 
 -keep class android.os.Vibrator {
@@ -15218,6 +15224,7 @@
     public abstract int getAttributeListValue(int, java.lang.String[], int);
     public abstract java.lang.String getAttributeName(int);
     public abstract int getAttributeNameResource(int);
+    public java.lang.String getAttributeNamespace(int);
     public abstract int getAttributeResourceValue(java.lang.String, java.lang.String, int);
     public abstract int getAttributeResourceValue(int, int);
     public abstract int getAttributeUnsignedIntValue(java.lang.String, java.lang.String, int);
@@ -17997,6 +18004,7 @@
     public void close();
     public android.view.SurfaceControl$Transaction deferTransactionUntil(android.view.SurfaceControl, android.os.IBinder, long);
     public android.view.SurfaceControl$Transaction deferTransactionUntilSurface(android.view.SurfaceControl, android.view.Surface, long);
+    public android.view.SurfaceControl$Transaction destroy(android.view.SurfaceControl);
     public android.view.SurfaceControl$Transaction detachChildren(android.view.SurfaceControl);
     public android.view.SurfaceControl$Transaction hide(android.view.SurfaceControl);
     public android.view.SurfaceControl$Transaction merge(android.view.SurfaceControl$Transaction);
@@ -19987,6 +19995,7 @@
     public abstract void setHint(java.lang.CharSequence);
     public abstract void setHtmlInfo(android.view.ViewStructure$HtmlInfo);
     public abstract void setId(int, java.lang.String, java.lang.String, java.lang.String);
+    public void setImportantForAutofill(int);
     public abstract void setInputType(int);
     public abstract void setLocaleList(android.os.LocaleList);
     public abstract void setLongClickable(boolean);
@@ -20779,7 +20788,7 @@
     public static int TYPE_VOLUME_OVERLAY;
     public static int TYPE_WALLPAPER;
     public static int USER_ACTIVITY_TIMEOUT_CHANGED;
-    public int accessibilityIdOfAnchor;
+    public long accessibilityIdOfAnchor;
     public java.lang.CharSequence accessibilityTitle;
     public float alpha;
     public float buttonBrightness;
@@ -21686,8 +21695,8 @@
     public abstract void setAuthenticationResult(android.os.Bundle, int, int, int);
     public abstract void setHasCallback(int, int, boolean);
     public abstract void setUserData(android.service.autofill.UserData);
-    public abstract int startSession(android.os.IBinder, android.os.IBinder, android.view.autofill.AutofillId, android.graphics.Rect, android.view.autofill.AutofillValue, int, boolean, int, android.content.ComponentName);
-    public abstract int updateOrRestartSession(android.os.IBinder, android.os.IBinder, android.view.autofill.AutofillId, android.graphics.Rect, android.view.autofill.AutofillValue, int, boolean, int, android.content.ComponentName, int, int);
+    public abstract int startSession(android.os.IBinder, android.os.IBinder, android.view.autofill.AutofillId, android.graphics.Rect, android.view.autofill.AutofillValue, int, boolean, int, android.content.ComponentName, boolean);
+    public abstract int updateOrRestartSession(android.os.IBinder, android.os.IBinder, android.view.autofill.AutofillId, android.graphics.Rect, android.view.autofill.AutofillValue, int, boolean, int, android.content.ComponentName, int, int, boolean);
     public abstract void updateSession(int, android.view.autofill.AutofillId, android.graphics.Rect, android.view.autofill.AutofillValue, int, int, int);
 
 

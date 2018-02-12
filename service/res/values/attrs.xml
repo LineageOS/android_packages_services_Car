@@ -17,16 +17,11 @@
 */
 -->
 
-<!--
-  Defines the attributes and values used in res/xml/car_volume_group.xml
-  See the following for constraints applied to each attribute in detail
--->
+<!-- Defines the attributes and values used in res/xml/car_volume_group.xml -->
 <resources>
     <declare-styleable name="volumeGroups" />
 
-    <declare-styleable name="volumeGroups_group">
-        <attr name="name" format="reference|string"/>
-    </declare-styleable>
+    <declare-styleable name="volumeGroups_group"/>
 
     <declare-styleable name="volumeGroups_context">
         <!-- Align with hardware/interfaces/automotive/audiocontrol/1.0/types.hal:ContextNumber -->
