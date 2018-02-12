@@ -75,24 +75,26 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         mIOInterface.tearDown();
     }
 
-    public void testBootComplete() throws Exception {
-        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
+    /**
+     * Helper method to create mService and initialize a test case
+     */
+    private void initTest(long processingTimeMs, int wakeupTime) throws Exception {
+        mService = new CarPowerManagementService(getContext(), mPowerHal, mSystemInterface);
         mService.init();
         mService.registerPowerEventListener(mPowerEventListener);
-        mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(0, 0);
+        mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(processingTimeMs,
+                                                                           wakeupTime);
         mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
         assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
         mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
     }
 
+    public void testBootComplete() throws Exception {
+        initTest(0, 0);
+    }
+
     public void testDisplayOff() throws Exception {
-        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
-        mService.init();
-        mService.registerPowerEventListener(mPowerEventListener);
-        mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(0, 0);
-        mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
-        assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
-        mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
+        initTest(0,0);
         // it will call display on for initial state
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_ON_DISP_OFF, 0));
@@ -103,13 +105,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         // start with display off
         mSystemInterface.setDisplayState(false);
         mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS);
-        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
-        mService.init();
-        mService.registerPowerEventListener(mPowerEventListener);
-        mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(0, 0);
-        mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
-        assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
-        mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
+        initTest(0,0);
 
         // display should be turned on as it started with off state.
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
@@ -117,13 +113,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
 
     public void testShutdown() throws Exception {
         final int wakeupTime = 100;
-        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
-        mService.init();
-        mService.registerPowerEventListener(mPowerEventListener);
-        mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(0, wakeupTime);
-        mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
-        assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
-        mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
+        initTest(0, wakeupTime);
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,
@@ -137,14 +127,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     public void testShutdownWithProcessing() throws Exception {
         final long processingTimeMs = 3000;
         final int wakeupTime = 100;
-        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
-        mService.init();
-        mService.registerPowerEventListener(mPowerEventListener);
-        mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(processingTimeMs,
-                wakeupTime);
-        mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
-        assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
-        mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
+        initTest(processingTimeMs, wakeupTime);
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE, 0));
@@ -158,13 +141,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
 
     public void testSleepEntryAndWakeup() throws Exception {
         final int wakeupTime = 100;
-        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
-        mService.init();
-        mService.registerPowerEventListener(mPowerEventListener);
-        mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(0, wakeupTime);
-        mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
-        assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
-        mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
+        initTest(0, wakeupTime);
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,
@@ -182,14 +159,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     public void testSleepEntryAndPowerOnWithProcessing() throws Exception {
         final long processingTimeMs = 3000;
         final int wakeupTime = 100;
-        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
-        mService.init();
-        mService.registerPowerEventListener(mPowerEventListener);
-        mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(processingTimeMs,
-                wakeupTime);
-        mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
-        assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
-        mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
+        initTest(processingTimeMs, wakeupTime);
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,
@@ -212,14 +182,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     public void testSleepEntryAndWakeUpForProcessing() throws Exception {
         final long processingTimeMs = 3000;
         final int wakeupTime = 100;
-        mService = new CarPowerManagementService(mPowerHal, mSystemInterface);
-        mService.init();
-        mService.registerPowerEventListener(mPowerEventListener);
-        mPowerEventProcessingHandler = new PowerEventProcessingHandlerImpl(processingTimeMs,
-                wakeupTime);
-        mService.registerPowerEventProcessingHandler(mPowerEventProcessingHandler);
-        assertStateReceived(MockedPowerHalService.SET_BOOT_COMPLETE, 0);
-        mPowerEventProcessingHandler.waitForPowerOn(WAIT_TIMEOUT_MS);
+        initTest(processingTimeMs, wakeupTime);
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,

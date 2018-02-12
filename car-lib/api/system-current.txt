@@ -10,6 +10,7 @@ package android.car {
     field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_READ_ALL = "android.car.permission.DIAGNOSTIC_READ_ALL";
     field public static final java.lang.String PERMISSION_CAR_DRIVING_STATE = "android.car.permission.CAR_DRIVING_STATE";
     field public static final java.lang.String PERMISSION_CAR_HVAC = "android.car.permission.CAR_HVAC";
+    field public static final java.lang.String PERMISSION_CAR_POWER = "android.car.permission.CAR_POWER";
     field public static final java.lang.String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final deprecated java.lang.String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
     field public static final java.lang.String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
@@ -19,6 +20,7 @@ package android.car {
     field public static final java.lang.String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
     field public static final java.lang.String PERMISSION_VMS_PUBLISHER = "android.car.permission.VMS_PUBLISHER";
     field public static final java.lang.String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
+    field public static final java.lang.String POWER_SERVICE = "power";
     field public static final java.lang.String PROJECTION_SERVICE = "projection";
     field public static final deprecated java.lang.String RADIO_SERVICE = "radio";
     field public static final java.lang.String STORAGE_MONITORING_SERVICE = "storage_monitoring";
@@ -647,6 +649,26 @@ package android.car.hardware.hvac {
   public static abstract interface CarHvacManager.CarHvacEventCallback {
     method public abstract void onChangeEvent(android.car.hardware.CarPropertyValue);
     method public abstract void onErrorEvent(int, int);
+  }
+
+}
+
+package android.car.hardware.power {
+
+  public class CarPowerManager {
+    field public static final int BOOT_REASON_DOOR_OPEN = 4; // 0x4
+    field public static final int BOOT_REASON_DOOR_UNLOCK = 2; // 0x2
+    field public static final int BOOT_REASON_REMOTE_START = 5; // 0x5
+    field public static final int BOOT_REASON_TIMER = 3; // 0x3
+    field public static final int BOOT_REASON_USER_POWER_ON = 1; // 0x1
+  }
+
+  public static abstract interface CarPowerManager.CarPowerStateListener {
+    method public abstract void onStateChanged(int);
+    field public static final int SHUTDOWN_CANCELLED = 0; // 0x0
+    field public static final int SHUTDOWN_ENTER = 1; // 0x1
+    field public static final int SUSPEND_ENTER = 2; // 0x2
+    field public static final int SUSPEND_EXIT = 3; // 0x3
   }
 
 }

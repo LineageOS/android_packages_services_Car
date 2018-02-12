@@ -16,17 +16,8 @@
 
 package com.google.android.car.kitchensink;
 
-import android.car.hardware.hvac.CarHvacManager;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.support.car.Car;
-import android.support.car.CarAppFocusManager;
-import android.support.car.CarConnectionCallback;
-import android.support.car.CarNotConnectedException;
-import android.support.car.hardware.CarSensorManager;
-import android.support.v4.app.Fragment;
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
@@ -50,8 +41,18 @@ import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.vhal.VehicleHalFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.car.hardware.hvac.CarHvacManager;
+import android.car.hardware.power.CarPowerManager;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.support.car.Car;
+import android.support.car.CarAppFocusManager;
+import android.support.car.CarConnectionCallback;
+import android.support.car.CarNotConnectedException;
+import android.support.car.hardware.CarSensorManager;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 
 import androidx.car.drawer.CarDrawerActivity;
 import androidx.car.drawer.CarDrawerAdapter;
@@ -172,6 +173,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     };
     private Car mCarApi;
     private CarHvacManager mHvacManager;
+    private CarPowerManager mPowerManager;
     private CarSensorManager mCarSensorManager;
     private CarAppFocusManager mCarAppFocusManager;
 
@@ -185,6 +187,10 @@ public class KitchenSinkActivity extends CarDrawerActivity {
 
     public CarHvacManager getHvacManager() {
         return mHvacManager;
+    }
+
+    public CarPowerManager getPowerManager() {
+        return mPowerManager;
     }
 
     @Override
@@ -260,6 +266,8 @@ public class KitchenSinkActivity extends CarDrawerActivity {
             Log.d(TAG, "Connected to Car Service");
             try {
                 mHvacManager = (CarHvacManager) mCarApi.getCarManager(android.car.Car.HVAC_SERVICE);
+                mPowerManager = (CarPowerManager) mCarApi.getCarManager(
+                    android.car.Car.POWER_SERVICE);
                 mCarSensorManager = (CarSensorManager) mCarApi.getCarManager(Car.SENSOR_SERVICE);
                 mCarSensorManager.addListener(mListener,
                         CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
