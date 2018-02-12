@@ -32,6 +32,8 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
+
 import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -39,11 +41,11 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.google.android.collect.Lists;
-
 import com.android.car.CarLog;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.internal.annotations.VisibleForTesting;
+
+import com.google.android.collect.Lists;
 
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
@@ -89,6 +91,9 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private final HashMap<Integer, SubscribeOptions> mSubscribedProperties = new HashMap<>();
     private final HashMap<Integer, VehiclePropConfig> mAllProperties = new HashMap<>();
     private final HashMap<Integer, VehiclePropertyEventInfo> mEventLog = new HashMap<>();
+
+    // Used by injectVHALEvent for testing purposes.  Delimiter for an array of data
+    private static final String DATA_DELIMITER = ",";
 
     public VehicleHal(IVehicle vehicle) {
         mHandlerThread = new HandlerThread("VEHICLE-HAL");
@@ -530,25 +535,44 @@ public class VehicleHal extends IVehicleCallback.Stub {
     }
 
     /**
-     * Inject a fake boolean HAL event - for testing purposes.
-     * @param propId - VehicleProperty ID
-     * @param areaId - Vehicle Area ID
-     * @param value - true/false to inject
+     * Inject a VHAL event
+     *
+     * @param property the Vehicle property Id as defined in the HAL
+     * @param zone     Zone that this event services
+     * @param value    Data value of the event
      */
-    public void injectBooleanEvent(int propId, int areaId, boolean value) {
-        VehiclePropValue v = createPropValue(propId, areaId);
-        v.value.int32Values.add(value? 1 : 0);
-        onPropertyEvent(Lists.newArrayList(v));
-    }
-
-    /**
-     * Inject a fake Integer HAL event - for testing purposes.
-     * @param propId - VehicleProperty ID
-     * @param value - Integer value to inject
-     */
-    public void injectIntegerEvent(int propId, int value) {
-        VehiclePropValue v = createPropValue(propId, 0);
-        v.value.int32Values.add(value);
+    public void injectVhalEvent(String property, String zone, String value)
+            throws NumberFormatException {
+        if (value == null || zone == null || property == null) {
+            return;
+        }
+        int propId = Integer.decode(property);
+        int zoneId = Integer.decode(zone);
+        VehiclePropValue v = createPropValue(propId, zoneId);
+        int propertyType = propId & VehiclePropertyType.MASK;
+        // Values can be comma separated list
+        List<String> dataList = new ArrayList<>(Arrays.asList(value.split(DATA_DELIMITER)));
+        switch (propertyType) {
+            case VehiclePropertyType.BOOLEAN:
+                boolean boolValue = Boolean.valueOf(value);
+                v.value.int32Values.add(boolValue ? 1 : 0);
+                break;
+            case VehiclePropertyType.INT32:
+            case VehiclePropertyType.INT32_VEC:
+                for (String s : dataList) {
+                    v.value.int32Values.add(Integer.decode(s));
+                }
+                break;
+            case VehiclePropertyType.FLOAT:
+            case VehiclePropertyType.FLOAT_VEC:
+                for (String s : dataList) {
+                    v.value.floatValues.add(Float.parseFloat(s));
+                }
+                break;
+            default:
+                Log.e(CarLog.TAG_HAL, "Property type unsupported:" + propertyType);
+                return;
+        }
         v.timestamp = SystemClock.elapsedRealtimeNanos();
         onPropertyEvent(Lists.newArrayList(v));
     }
