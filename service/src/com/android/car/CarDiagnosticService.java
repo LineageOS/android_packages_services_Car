@@ -469,6 +469,7 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
      * @param listener
      * @return null if not found.
      */
+    @GuardedBy("mDiagnosticLock")
     private CarDiagnosticService.DiagnosticClient findDiagnosticClientLocked(
             ICarDiagnosticEventListener listener) {
         IBinder binder = listener.asBinder();

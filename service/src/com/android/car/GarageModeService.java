@@ -228,6 +228,7 @@ public class GarageModeService implements CarServiceBase,
         }
     }
 
+    @GuardedBy("this")
     private void readPolicyLocked() {
         logd("readPolicy");
         // TODO: define a xml schema for policy and read it from system dir. bug: 32096969
@@ -357,6 +358,7 @@ public class GarageModeService implements CarServiceBase,
         }
     }
 
+    @GuardedBy("this")
     private void readFromSettingsLocked(String... keys) {
         for (String key : keys) {
             switch (key) {

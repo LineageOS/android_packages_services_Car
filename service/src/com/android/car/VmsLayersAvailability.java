@@ -144,6 +144,7 @@ public class VmsLayersAvailability {
         }
     }
 
+    @GuardedBy("mLock")
     private void addLayerToAvailabilityCalculationLocked(VmsLayer layer,
                                                          Set<VmsLayer> currentAvailableLayers,
                                                          Set<VmsLayer> cyclicAvoidanceSet) {

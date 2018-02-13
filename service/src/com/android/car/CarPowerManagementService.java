@@ -359,6 +359,7 @@ public class CarPowerManagementService implements CarServiceBase,
         }
     }
 
+    @GuardedBy("this")
     private void releaseTimerLocked() {
         if (mTimer != null) {
             mTimer.cancel();
