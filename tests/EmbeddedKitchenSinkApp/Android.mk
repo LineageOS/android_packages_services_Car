@@ -41,12 +41,12 @@ LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_DEX_PREOPT := false
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
-    car-service-lib-for-test
+    car-service-lib-for-test \
+    $(ANDROID_SUPPORT_CAR_TARGETS)
 
 LOCAL_STATIC_JAVA_LIBRARIES += \
     android.hidl.base-V1.0-java \
     android.hardware.automotive.vehicle-V2.0-java \
-    $(ANDROID_SUPPORT_CAR_TARGETS) \
     vehicle-hal-support-lib
 
 LOCAL_JAVA_LIBRARIES += android.car
