@@ -19,7 +19,10 @@ package com.android.car;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.ICarSensorEventListener;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
@@ -46,8 +49,7 @@ import java.util.List;
  * This service stores the last known location from {@link LocationManager} when a car is parked
  * and restores the location when the car is powered on.
  */
-public class CarLocationService implements CarServiceBase,
-        CarPowerManagementService.PowerEventProcessingHandler {
+public class CarLocationService extends BroadcastReceiver implements CarServiceBase {
     private static String TAG = "CarLocationService";
     private static String FILENAME = "location_cache.json";
     private static final boolean DBG = false;
@@ -56,18 +58,15 @@ public class CarLocationService implements CarServiceBase,
     private final Object mLock = new Object();
 
     private final Context mContext;
-    private final CarPowerManagementService mPowerManagementService;
     private final CarSensorService mCarSensorService;
     private final CarSensorEventListener mCarSensorEventListener;
     private int mTaskCount = 0;
     private HandlerThread mHandlerThread;
     private Handler mHandler;
 
-    public CarLocationService(Context context,
-            CarPowerManagementService powerManagementService, CarSensorService carSensorService) {
+    public CarLocationService(Context context, CarSensorService carSensorService) {
         logd("constructed");
         mContext = context;
-        mPowerManagementService = powerManagementService;
         mCarSensorService = carSensorService;
         mCarSensorEventListener = new CarSensorEventListener();
     }
@@ -75,7 +74,9 @@ public class CarLocationService implements CarServiceBase,
     @Override
     public void init() {
         logd("init");
-        mPowerManagementService.registerPowerEventProcessingHandler(this);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
+        mContext.registerReceiver(this, filter);
         mCarSensorService.registerOrUpdateSensorListener(
                 CarSensorManager.SENSOR_TYPE_IGNITION_STATE, 0, mCarSensorEventListener);
     }
@@ -85,31 +86,20 @@ public class CarLocationService implements CarServiceBase,
         logd("release");
         mCarSensorService.unregisterSensorListener(CarSensorManager.SENSOR_TYPE_IGNITION_STATE,
                 mCarSensorEventListener);
+        mContext.unregisterReceiver(this);
     }
 
     @Override
     public void dump(PrintWriter writer) {
         writer.println(TAG);
         writer.println("Context: " + mContext);
-        writer.println("PowerManagementService: " + mPowerManagementService);
         writer.println("CarSensorService: " + mCarSensorService);
     }
 
     @Override
-    public void onPowerOn(boolean displayOn) {
-        logd("onPowerOn");
+    public void onReceive(Context context, Intent intent) {
+        logd("onReceive" + intent);
         asyncOperation(() -> loadLocation());
-    }
-
-    @Override
-    public long onPrepareShutdown(boolean shuttingDown) {
-        logd("onPrepareShutdown");
-        return 0;
-    }
-
-    @Override
-    public int getWakeupTime() {
-        return 0;
     }
 
     private void storeLocation() {
@@ -157,7 +147,7 @@ public class CarLocationService implements CarServiceBase,
                     jsonWriter.name("isFromMockProvider").value(true);
                 }
                 jsonWriter.name("elapsedTime").value(location.getElapsedRealtimeNanos());
-                jsonWriter.name("time").value(location.getTime());
+                jsonWriter.name("captureTime").value(location.getTime());
                 jsonWriter.endObject();
                 jsonWriter.close();
                 atomicFile.finishWrite(fos);
@@ -169,8 +159,6 @@ public class CarLocationService implements CarServiceBase,
     }
 
     private void loadLocation() {
-        LocationManager locationManager =
-                (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         Location location = new Location((String) null);
         AtomicFile atomicFile = new AtomicFile(mContext.getFileStreamPath(FILENAME));
         try {
@@ -203,7 +191,7 @@ public class CarLocationService implements CarServiceBase,
                     location.setIsFromMockProvider(reader.nextBoolean());
                 } else if (name.equals("elapsedTime")) {
                     location.setElapsedRealtimeNanos(reader.nextLong());
-                } else if (name.equals("time")) {
+                } else if (name.equals("captureTime")) {
                     location.setTime(reader.nextLong());
                 } else {
                     reader.skipValue();
@@ -217,8 +205,11 @@ public class CarLocationService implements CarServiceBase,
             location.setTime(currentTime);
             location.setElapsedRealtimeNanos(elapsedTime);
             if (location.isComplete()) {
-                boolean result = locationManager.injectLocation(location);
-                logd("Injected location " + location + " with result " + result);
+                LocationManager locationManager =
+                        (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+                boolean success = locationManager.injectLocation(location);
+                logd("Injected location " + location + " with result " + success);
+
             }
         } catch (FileNotFoundException e) {
             Log.d(TAG, "Location cache file not found.");

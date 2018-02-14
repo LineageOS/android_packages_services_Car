@@ -26,6 +26,8 @@ import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.ICarSensorEventListener;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -35,7 +37,6 @@ import android.support.test.filters.SmallTest;
 import android.test.AndroidTestCase;
 
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -59,8 +60,7 @@ import java.util.stream.Collectors;
  * The following mocks are used:
  * 1. {@link Context} provides files and a mocked {@link LocationManager}.
  * 2. {@link LocationManager} provides dummy {@link Location}s.
- * 3. {@link CarPowerManagementService} registers a handler for power events.
- * 4. {@link CarSensorService} registers a handler for sensor events and sends ignition-off events.
+ * 3. {@link CarSensorService} registers a handler for sensor events and sends ignition-off events.
  */
 @SmallTest
 public class CarLocationServiceTest extends AndroidTestCase {
@@ -71,7 +71,6 @@ public class CarLocationServiceTest extends AndroidTestCase {
     private CountDownLatch mLatch;
     @Mock private Context mockContext;
     @Mock private LocationManager mockLocationManager;
-    @Mock private CarPowerManagementService mockPowerManagementService;
     @Mock private CarSensorService mockCarSensorService;
 
     /**
@@ -85,8 +84,7 @@ public class CarLocationServiceTest extends AndroidTestCase {
         MockitoAnnotations.initMocks(this);
         mContext = getContext();
         mLatch = new CountDownLatch(1);
-        mCarLocationService = new CarLocationService(mockContext, mockPowerManagementService,
-                mockCarSensorService) {
+        mCarLocationService = new CarLocationService(mockContext, mockCarSensorService) {
             @Override
             void asyncOperation(Runnable operation) {
                 super.asyncOperation(() -> {
@@ -123,19 +121,33 @@ public class CarLocationServiceTest extends AndroidTestCase {
     }
 
     /**
-     * Test that the {@link CarLocationService} registers to receive power events and ignition
-     * sensor events upon initialization.
+     * Test that the {@link CarLocationService} registers to receive the locked boot completed
+     * intent and ignition sensor events upon initialization.
      */
     public void testRegistersToReceiveEvents() {
+        ArgumentCaptor<IntentFilter> argument = ArgumentCaptor.forClass(IntentFilter.class);
         mCarLocationService.init();
-        verify(mockPowerManagementService).registerPowerEventProcessingHandler(mCarLocationService);
+        verify(mockContext).registerReceiver(eq(mCarLocationService), argument.capture());
+        IntentFilter intentFilter = argument.getValue();
+        assertEquals(1, intentFilter.countActions());
+        assertEquals(Intent.ACTION_LOCKED_BOOT_COMPLETED, intentFilter.getAction(0));
         verify(mockCarSensorService).registerOrUpdateSensorListener(
-                eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), eq(0), ArgumentMatchers.any());
+                eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), eq(0), any());
+    }
+
+    /**
+     * Test that the {@link CarLocationService} unregisters its event receivers.
+     */
+    public void testUnregistersEventReceivers() {
+        mCarLocationService.release();
+        verify(mockContext).unregisterReceiver(mCarLocationService);
+        verify(mockCarSensorService).unregisterSensorListener(
+                eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), any());
     }
 
     /**
      * Test that the {@link CarLocationService} parses a location from a JSON serialization and then
-     * injects it into the {@link LocationManager} upon power up.
+     * injects it into the {@link LocationManager} upon boot complete.
      *
      * @throws IOException
      * @throws InterruptedException
@@ -146,24 +158,22 @@ public class CarLocationServiceTest extends AndroidTestCase {
         long pastTime = currentTime - 60000;
         long pastElapsedTime = elapsedTime - 60000000000L;
         String json = "{\"provider\": \"gps\", \"latitude\": 16.7666, \"longitude\": 3.0026,"
-                + "\"accuracy\":12.3, \"time\": " + pastTime + ", \"elapsedTime\": "
+                + "\"accuracy\":12.3, \"captureTime\": " + pastTime + ", \"elapsedTime\": "
                 + pastElapsedTime + "}";
 
         FileOutputStream fos = mContext.openFileOutput(TEST_FILENAME, Context.MODE_PRIVATE);
         fos.write(json.getBytes());
         fos.close();
+        ArgumentCaptor<Location> argument = ArgumentCaptor.forClass(Location.class);
         when(mockContext.getSystemService(Context.LOCATION_SERVICE))
                 .thenReturn(mockLocationManager);
-        when(mockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER))
-                .thenReturn(null);
+        when(mockLocationManager.injectLocation(argument.capture())).thenReturn(true);
         when(mockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
 
-        mCarLocationService.onPowerOn(false);
+        mCarLocationService.onReceive(mockContext, new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
         mLatch.await();
 
-        ArgumentCaptor<Location> argument = ArgumentCaptor.forClass(Location.class);
-        verify(mockLocationManager).injectLocation(argument.capture());
         Location location = argument.getValue();
         assertEquals("gps", location.getProvider());
         assertEquals(16.7666, location.getLatitude());
@@ -188,7 +198,7 @@ public class CarLocationServiceTest extends AndroidTestCase {
                 .thenReturn(null);
         when(mockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
-        mCarLocationService.onPowerOn(false);
+        mCarLocationService.onReceive(mockContext, new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
         mLatch.await();
         verify(mockLocationManager, never()).injectLocation(any());
     }
@@ -211,7 +221,7 @@ public class CarLocationServiceTest extends AndroidTestCase {
                 .thenReturn(null);
         when(mockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
-        mCarLocationService.onPowerOn(false);
+        mCarLocationService.onReceive(mockContext, new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
         mLatch.await();
         verify(mockLocationManager, never()).injectLocation(any());
     }
@@ -233,7 +243,7 @@ public class CarLocationServiceTest extends AndroidTestCase {
                 .thenReturn(null);
         when(mockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
-        mCarLocationService.onPowerOn(false);
+        mCarLocationService.onReceive(mockContext, new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
         mLatch.await();
         verify(mockLocationManager, never()).injectLocation(any());
     }
@@ -256,7 +266,7 @@ public class CarLocationServiceTest extends AndroidTestCase {
                 .thenReturn(null);
         when(mockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
-        mCarLocationService.onPowerOn(false);
+        mCarLocationService.onReceive(mockContext, new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
         mLatch.await();
         verify(mockLocationManager, never()).injectLocation(any());
     }
@@ -303,7 +313,7 @@ public class CarLocationServiceTest extends AndroidTestCase {
         String actualContents = new BufferedReader(new InputStreamReader(fis)).lines()
                 .parallel().collect(Collectors.joining("\n"));
         String expectedContents = "{\"provider\":\"gps\",\"latitude\":16.7666,\"longitude\":"
-                + "3.0026,\"accuracy\":13.75,\"elapsedTime\":" + elapsedTime + ",\"time\":"
+                + "3.0026,\"accuracy\":13.75,\"elapsedTime\":" + elapsedTime + ",\"captureTime\":"
                 + currentTime + "}";
         assertEquals(expectedContents, actualContents);
     }
