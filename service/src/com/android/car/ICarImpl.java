@@ -24,6 +24,7 @@ import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
+import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Process;
@@ -31,7 +32,6 @@ import android.os.Trace;
 import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
-
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
@@ -39,7 +39,6 @@ import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.car.ICarServiceHelper;
-
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -402,14 +401,14 @@ public class ICarImpl extends ICar.Stub {
     private class CarShellCommand {
         private static final String COMMAND_HELP = "-h";
         private static final String COMMAND_DAY_NIGHT_MODE = "day-night-mode";
-        private static final String COMMAND_INJECT_EVENT = "inject-event";
+        private static final String COMMAND_INJECT_VHAL_EVENT = "inject-vhal-event";
         private static final String COMMAND_ENABLE_UXR = "enable-uxr";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
         private static final String PARAM_SENSOR_MODE = "sensor";
-        private static final String PARAM_ZONED_BOOLEAN = "zoned-boolean";
-        private static final String PARAM_GLOBAL_INT = "global-integer";
+        private static final String PARAM_VEHICLE_PROPERTY_AREA_GLOBAL = "0";
+
 
         private void dumpHelp(PrintWriter pw) {
             pw.println("Car service commands:");
@@ -417,8 +416,8 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  Print this help text.");
             pw.println("\tday-night-mode [day|night|sensor]");
             pw.println("\t  Force into day/night mode or restore to auto.");
-            pw.println("\tinject-event zoned-boolean|global-integer property [zone] value");
-            pw.println("\t  Inject a vehicle property - zoned boolean or global integer.");
+            pw.println("\tinject-vhal-event property [zone] data(can be comma separated list)");
+            pw.println("\t  Inject a vehicle property for testing");
             pw.println("\tdisable-uxr true|false");
             pw.println("\t  Disable UX restrictions and App blocking.");
         }
@@ -433,35 +432,22 @@ public class ICarImpl extends ICar.Stub {
                     String value = args.length < 1 ? "" : args[1];
                     forceDayNightMode(value, writer);
                     break;
-                case COMMAND_INJECT_EVENT:
-                    String eventType;
-                    if (args.length > 1) {
-                        eventType = args[1].toLowerCase();
-                        switch (eventType) {
-                            case PARAM_ZONED_BOOLEAN:
-                                if (args.length < 5) {
-                                    writer.println("Incorrect number of arguments.");
-                                    dumpHelp(writer);
-                                    break;
-                                }
-                                inject_zoned_boolean_event(args[2], args[3], args[4], writer);
-                                break;
-
-                            case PARAM_GLOBAL_INT:
-                                if (args.length < 4) {
-                                    writer.println("Incorrect number of Arguments");
-                                    dumpHelp(writer);
-                                    break;
-                                }
-                                inject_global_integer_event(args[2], args[3], writer);
-                                break;
-
-                            default:
-                                writer.println("Unsupported event type");
-                                dumpHelp(writer);
-                                break;
-                        }
+                case COMMAND_INJECT_VHAL_EVENT:
+                    String zone = PARAM_VEHICLE_PROPERTY_AREA_GLOBAL;
+                    String data;
+                    if (args.length < 3) {
+                        writer.println("Incorrect number of arguments.");
+                        dumpHelp(writer);
+                        break;
+                    } else if (args.length > 3) {
+                        // Zoned
+                        zone = args[2];
+                        data = args[3];
+                    } else {
+                        // Global
+                        data = args[2];
                     }
+                    injectVhalEvent(args[1], zone, data, writer);
                     break;
                 case COMMAND_ENABLE_UXR:
                     if (args.length < 2) {
@@ -514,53 +500,35 @@ public class ICarImpl extends ICar.Stub {
         }
 
         /**
-         * Inject a fake boolean HAL event to help testing.
+         * Inject a fake  VHAL event
          *
-         * @param property - Vehicle Property
-         * @param value    - boolean value for the property
-         * @param writer   - Printwriter
+         * @param property the Vehicle property Id as defined in the HAL
+         * @param zone     Zone that this event services
+         * @param value    Data value of the event
+         * @param writer   PrintWriter
          */
-        private void inject_zoned_boolean_event(String property, String zone, String value,
+        private void injectVhalEvent(String property, String zone, String value,
                 PrintWriter writer) {
-            Log.d(CarLog.TAG_SERVICE, "Injecting Boolean event");
-            boolean event;
-            int propId;
-            int zoneId;
-            if (value.equalsIgnoreCase("true")) {
-                event = true;
-            } else {
-                event = false;
+            if (zone != null && (zone.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_AREA_GLOBAL))) {
+                if (!isPropertyAreaTypeGlobal(property)) {
+                    writer.println("Property area type inconsistent with given zone");
+                    return;
+                }
             }
             try {
-                propId = Integer.decode(property);
-                zoneId = Integer.decode(zone);
+                mHal.injectVhalEvent(property, zone, value);
             } catch (NumberFormatException e) {
-                writer.println("Invalid property Id or Zone Id. Prefix hex values with 0x");
-                return;
+                writer.println("Invalid property Id zone Id or value" + e);
+                dumpHelp(writer);
             }
-            mHal.injectBooleanEvent(propId, zoneId, event);
         }
 
-        /**
-         * Inject a fake Integer HAL event to help testing.
-         *
-         * @param property - Vehicle Property
-         * @param value    - Integer value to inject
-         * @param writer   - PrintWriter
-         */
-        private void inject_global_integer_event(String property, String value,
-                PrintWriter writer) {
-            Log.d(CarLog.TAG_SERVICE, "Injecting integer event");
-            int propId;
-            int eventValue;
-            try {
-                propId = Integer.decode(property);
-                eventValue = Integer.decode(value);
-            } catch (NumberFormatException e) {
-                writer.println("Invalid property Id or event value.  Prefix hex values with 0x");
-                return;
+        // Check if the given property is global
+        private boolean isPropertyAreaTypeGlobal(String property) {
+            if (property == null) {
+                return false;
             }
-            mHal.injectIntegerEvent(propId, eventValue);
+            return (Integer.decode(property) & VehicleArea.MASK) == VehicleArea.GLOBAL;
         }
     }
 }
