@@ -37,9 +37,6 @@ LOCAL_MANIFEST_FILE := AndroidManifest.xml
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 LOCAL_JAVA_LIBRARIES += android.car\
                         android-support-annotations
-# Specify 1.7 for backwards compatibility.
-# Otherwise the lib won't be usable on pre-N devices
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 
 LOCAL_PROGUARD_ENABLED := custom optimization obfuscation
 LOCAL_PROGUARD_FLAGS := -dontwarn
@@ -69,9 +66,6 @@ LOCAL_MANIFEST_FILE := AndroidManifest.xml
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 LOCAL_JAVA_LIBRARIES += android.car\
                         android-support-annotations
-# Specify 1.7 for backwards compatibility.
-# Otherwise the lib won't be usable on pre-N devices
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 
 LOCAL_PROGUARD_ENABLED := disabled
 include $(BUILD_STATIC_JAVA_LIBRARY)
@@ -93,7 +87,6 @@ LOCAL_STATIC_JAVA_LIBRARIES += android-support-annotations
 
 LOCAL_JAVA_LIBRARIES += android.car
 
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # API Check
