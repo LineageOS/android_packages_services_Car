@@ -299,7 +299,8 @@ public class IoStatsTrackerTest extends TestCase {
         }
 
         @Override
-        public void enterDeepSleep(int wakeupTimeSec) {
+        public boolean enterDeepSleep(int wakeupTimeSec) {
+            return true;
         }
 
         @Override
