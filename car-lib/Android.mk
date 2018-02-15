@@ -58,7 +58,7 @@ endif
 include $(BUILD_JAVA_LIBRARY)
 
 ifeq ($(BOARD_IS_AUTOMOTIVE), true)
-$(call dist-for-goals,dist_files,$(LOCAL_BUILT_MODULE):$(LOCAL_MODULE).jar)
+$(call dist-for-goals,dist_files,$(full_classes_jar):$(LOCAL_MODULE).jar)
 endif
 
 # API Check
@@ -70,20 +70,6 @@ car_module_java_libraries := framework
 car_module_include_systemapi := true
 car_module_java_packages := android.car*
 include $(CAR_API_CHECK)
-
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := android.car7
-LOCAL_SRC_FILES := $(car_lib_sources)
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-LOCAL_AIDL_INCLUDES += system/bt/binder
-
-ifeq ($(EMMA_INSTRUMENT_FRAMEWORK),true)
-LOCAL_EMMA_INSTRUMENT := true
-endif
-
-include $(BUILD_JAVA_LIBRARY)
-$(call dist-for-goals,dist_files,$(full_classes_jar):$(LOCAL_MODULE).jar)
 
 # Build stubs jar for target android-support-car
 # ---------------------------------------------
