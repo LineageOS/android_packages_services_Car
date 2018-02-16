@@ -24,6 +24,6 @@ oneway interface ICarPowerStateListener {
     /**
      * Called when a power state change occurs
      */
-    void onStateChanged(in int state) = 0;
+    void onStateChanged(int state, int token) = 0;
 }
 
