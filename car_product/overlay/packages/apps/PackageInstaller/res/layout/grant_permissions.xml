@@ -111,7 +111,7 @@
                     android:layout_height="wrap_content"
                     android:paddingEnd="@dimen/car_keyline_1"
                     android:maxLines="1"
-                    android:textAppearance="@style/CarBody2"
+                    android:textAppearance="@style/TextAppearance.Car.Body2"
                     android:visibility="invisible">
                 </TextView>
 
