@@ -105,15 +105,12 @@ public class VmsPublisherPermissionsTest extends MockedCarTestBase {
     public void testPermissions() throws Exception {
         assertTrue(mHalHandlerSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         // At this point the client initialization finished. Let's validate the permissions.
-        // The VMS service is only allowed to grant ACCESS_FINE_LOCATION but not CAMERA.
+        // The VMS service should be allowed to grant ACCESS_FINE_LOCATION.
         assertTrue(
                 getContext().getPackageManager().checkPermission(
                         "android.permission.ACCESS_FINE_LOCATION",
                         "com.google.android.car.vms.publisher")
                         == PackageManager.PERMISSION_GRANTED);
-        assertFalse(getContext().getPackageManager().checkPermission(
-                "android.permission.CAMERA", "com.google.android.car.vms.publisher")
-                == PackageManager.PERMISSION_GRANTED);
     }
 
     private class HalHandler implements VehicleHalPropertyHandler {
