@@ -76,6 +76,8 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         logd("init");
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
+        filter.addAction(LocationManager.MODE_CHANGED_ACTION);
+        filter.addAction(LocationManager.GPS_ENABLED_CHANGE_ACTION);
         mContext.registerReceiver(this, filter);
         mCarSensorService.registerOrUpdateSensorListener(
                 CarSensorManager.SENSOR_TYPE_IGNITION_STATE, 0, mCarSensorEventListener);
@@ -99,7 +101,27 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     @Override
     public void onReceive(Context context, Intent intent) {
         logd("onReceive" + intent);
-        asyncOperation(() -> loadLocation());
+        String action = intent.getAction();
+        if (action == Intent.ACTION_LOCKED_BOOT_COMPLETED) {
+            asyncOperation(() -> loadLocation());
+        } else {
+            LocationManager locationManager =
+                    (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+            if (action == LocationManager.MODE_CHANGED_ACTION) {
+                boolean locationEnabled = locationManager.isLocationEnabled();
+                logd("isLocationEnabled(): " + locationEnabled);
+                if (!locationEnabled) {
+                    asyncOperation(() -> deleteCacheFile());
+                }
+            } else if (action == LocationManager.GPS_ENABLED_CHANGE_ACTION) {
+                boolean gpsEnabled =
+                        locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                logd("isProviderEnabled('gps'): " + gpsEnabled);
+                if (!gpsEnabled) {
+                    asyncOperation(() -> deleteCacheFile());
+                }
+            }
+        }
     }
 
     private void storeLocation() {
@@ -108,6 +130,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (location == null) {
             logd("Not storing null location");
+            deleteCacheFile();
         } else {
             logd("Storing location: " + location);
             AtomicFile atomicFile = new AtomicFile(mContext.getFileStreamPath(FILENAME));
@@ -209,8 +232,8 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                         (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
                 boolean success = locationManager.injectLocation(location);
                 logd("Injected location " + location + " with result " + success);
-
             }
+            deleteCacheFile();
         } catch (FileNotFoundException e) {
             Log.d(TAG, "Location cache file not found.");
         } catch (IOException e) {
@@ -218,6 +241,11 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         } catch (NumberFormatException | IllegalStateException e) {
             Log.e(TAG, "Unexpected format", e);
         }
+    }
+
+    private void deleteCacheFile() {
+        logd("Deleting cache file");
+        mContext.deleteFile(FILENAME);
     }
 
     @VisibleForTesting
