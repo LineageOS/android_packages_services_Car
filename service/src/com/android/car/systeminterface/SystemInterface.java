@@ -22,6 +22,7 @@ import com.android.car.procfsinspector.ProcessInfo;
 import com.android.car.storagemonitoring.LifetimeWriteInfoProvider;
 import com.android.car.storagemonitoring.UidIoStatsProvider;
 import com.android.car.storagemonitoring.WearInformationProvider;
+import com.android.internal.car.ICarServiceHelper;
 import java.io.File;
 import java.time.Duration;
 import java.util.List;
@@ -60,6 +61,9 @@ public final class SystemInterface implements DisplayInterface, IOInterface,
     public SystemStateInterface getSystemStateInterface() { return mSystemStateInterface; }
     public TimeInterface getTimeInterface() { return mTimeInterface; }
     public WakeLockInterface getWakeLockInterface() { return mWakeLockInterface; }
+    public void setCarServiceHelper(ICarServiceHelper helper) {
+        mSystemStateInterface.setCarServiceHelper(helper);
+    }
 
     @Override
     public File getFilesDir() {
@@ -142,8 +146,8 @@ public final class SystemInterface implements DisplayInterface, IOInterface,
     }
 
     @Override
-    public void enterDeepSleep(int wakeupTimeSec) {
-        mSystemStateInterface.enterDeepSleep(wakeupTimeSec);
+    public boolean enterDeepSleep(int wakeupTimeSec) {
+        return mSystemStateInterface.enterDeepSleep(wakeupTimeSec);
     }
 
     @Override

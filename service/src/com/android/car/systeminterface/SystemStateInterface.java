@@ -16,15 +16,6 @@
 
 package com.android.car.systeminterface;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.PowerManager;
-import android.os.SystemClock;
-import android.util.Pair;
-import com.android.car.procfsinspector.ProcessInfo;
-import com.android.car.procfsinspector.ProcfsInspector;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,12 +24,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.android.car.procfsinspector.ProcessInfo;
+import com.android.car.procfsinspector.ProcfsInspector;
+import com.android.internal.car.ICarServiceHelper;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.PowerManager;
+import android.os.SystemClock;
+import android.util.Log;
+import android.util.Pair;
+
 /**
  * Interface that abstracts system status (booted, sleeping, ...) operations
  */
 public interface SystemStateInterface {
+    static final String TAG = SystemStateInterface.class.getSimpleName();
     void shutdown();
-    void enterDeepSleep(int wakeupTimeSec);
+    boolean enterDeepSleep(int sleepDurationSec);
     void scheduleActionForBootCompleted(Runnable action, Duration delay);
 
     default boolean isWakeupCausedByTimer() {
@@ -58,9 +63,15 @@ public interface SystemStateInterface {
         return ProcfsInspector.readProcessTable();
     }
 
+    default void setCarServiceHelper(ICarServiceHelper helper) {
+        // Do nothing
+    }
+
     class DefaultImpl implements SystemStateInterface {
         private final static Duration MIN_BOOT_COMPLETE_ACTION_DELAY = Duration.ofSeconds(10);
+        private final static int SUSPEND_TRY_TIMEOUT_MS = 1000;
 
+        private ICarServiceHelper mICarServiceHelper;
         private final Context mContext;
         private final PowerManager mPowerManager;
         private List<Pair<Runnable, Duration>> mActionsList = new ArrayList<>();
@@ -88,11 +99,19 @@ public interface SystemStateInterface {
         }
 
         @Override
-        public void enterDeepSleep(int wakeupTimeSec) {
-            //TODO set wake up time, bug: 32061842
-            mPowerManager.goToSleep(SystemClock.uptimeMillis(),
-                PowerManager.GO_TO_SLEEP_REASON_DEVICE_ADMIN,
-                PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
+        public boolean enterDeepSleep(int sleepDurationSec) {
+            boolean deviceEnteredSleep;
+            //TODO set wake up time via VHAL, bug: 32061842
+            try {
+                int retVal;
+                retVal = mICarServiceHelper.forceSuspend(SUSPEND_TRY_TIMEOUT_MS);
+                deviceEnteredSleep = retVal == 0;
+
+            } catch (Exception e) {
+                Log.e(TAG, "Unable to enter deep sleep", e);
+                deviceEnteredSleep = false;
+            }
+            return deviceEnteredSleep;
         }
 
         @Override
@@ -110,5 +129,9 @@ public interface SystemStateInterface {
             mActionsList.add(Pair.create(action, delay));
         }
 
+        @Override
+        public void setCarServiceHelper(ICarServiceHelper helper) {
+            mICarServiceHelper = helper;
+        }
     }
 }
