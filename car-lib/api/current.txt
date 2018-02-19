@@ -319,16 +319,18 @@ package android.car.media {
   public final class CarAudioManager {
     method public android.car.media.CarAudioPatchHandle createAudioPatch(java.lang.String, int, int) throws android.car.CarNotConnectedException;
     method public java.lang.String[] getExternalSources() throws android.car.CarNotConnectedException;
-    method public int getUsageMaxVolume(int) throws android.car.CarNotConnectedException;
-    method public int getUsageMinVolume(int) throws android.car.CarNotConnectedException;
-    method public int getUsageVolume(int) throws android.car.CarNotConnectedException;
-    method public android.car.media.CarVolumeGroup[] getVolumeGroups() throws android.car.CarNotConnectedException;
+    method public int getGroupMaxVolume(int) throws android.car.CarNotConnectedException;
+    method public int getGroupMinVolume(int) throws android.car.CarNotConnectedException;
+    method public int getGroupVolume(int) throws android.car.CarNotConnectedException;
+    method public int getVolumeGroupCount() throws android.car.CarNotConnectedException;
+    method public int getVolumeGroupIdForUsage(int) throws android.car.CarNotConnectedException;
     method public static java.lang.String getVolumeSettingsKeyForBus(int);
+    method public static java.lang.String getVolumeSettingsKeyForGroup(int);
     method public void registerVolumeChangeObserver(android.database.ContentObserver);
     method public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
     method public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
     method public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
-    method public void setUsageVolume(int, int, int) throws android.car.CarNotConnectedException;
+    method public void setGroupVolume(int, int, int) throws android.car.CarNotConnectedException;
     method public void unregisterVolumeChangeObserver(android.database.ContentObserver);
   }
 
@@ -337,15 +339,6 @@ package android.car.media {
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.media.CarAudioPatchHandle> CREATOR;
-  }
-
-  public final class CarVolumeGroup implements android.os.Parcelable {
-    ctor public CarVolumeGroup(java.lang.String, int[]);
-    method public int describeContents();
-    method public int[] getContexts();
-    method public java.lang.String getTitle();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.media.CarVolumeGroup> CREATOR;
   }
 
 }
