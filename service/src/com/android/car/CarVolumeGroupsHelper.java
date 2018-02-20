@@ -16,9 +16,7 @@
 package com.android.car;
 
 import android.annotation.XmlRes;
-import android.car.media.CarVolumeGroup;
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.util.AttributeSet;
@@ -37,17 +35,17 @@ import java.util.List;
     private static final String TAG_GROUP = "group";
     private static final String TAG_CONTEXT = "context";
 
-    private final Resources mResources;
+    private final Context mContext;
     private final @XmlRes int mXmlConfiguration;
 
     CarVolumeGroupsHelper(Context context, @XmlRes int xmlConfiguration) {
-        mResources = context.getResources();
+        mContext = context;
         mXmlConfiguration = xmlConfiguration;
     }
 
     CarVolumeGroup[] loadVolumeGroups() {
         List<CarVolumeGroup> carVolumeGroups = new ArrayList<>();
-        try (XmlResourceParser parser = mResources.getXml(mXmlConfiguration)) {
+        try (XmlResourceParser parser = mContext.getResources().getXml(mXmlConfiguration)) {
             AttributeSet attrs = Xml.asAttributeSet(parser);
             int type;
             // Traverse to the first start tag
@@ -59,13 +57,15 @@ import java.util.List;
                 throw new RuntimeException("Meta-data does not start with volumeGroups tag");
             }
             int outerDepth = parser.getDepth();
+            int id = 0;
             while ((type=parser.next()) != XmlResourceParser.END_DOCUMENT
                     && (type != XmlResourceParser.END_TAG || parser.getDepth() > outerDepth)) {
                 if (type == XmlResourceParser.END_TAG) {
                     continue;
                 }
                 if (TAG_GROUP.equals(parser.getName())) {
-                    carVolumeGroups.add(parseVolumeGroup(attrs, parser));
+                    carVolumeGroups.add(parseVolumeGroup(id, attrs, parser));
+                    id++;
                 }
             }
         } catch (Exception e) {
@@ -74,12 +74,9 @@ import java.util.List;
         return carVolumeGroups.toArray(new CarVolumeGroup[carVolumeGroups.size()]);
     }
 
-    private CarVolumeGroup parseVolumeGroup(AttributeSet attrs, XmlResourceParser parser)
+    private CarVolumeGroup parseVolumeGroup(int id, AttributeSet attrs, XmlResourceParser parser)
             throws XmlPullParserException, IOException {
         int type;
-        TypedArray a = mResources.obtainAttributes(attrs, R.styleable.volumeGroups_group);
-        String title = a.getString(R.styleable.volumeGroups_group_name);
-        a.recycle();
 
         List<Integer> contexts = new ArrayList<>();
         int innerDepth = parser.getDepth();
@@ -89,14 +86,14 @@ import java.util.List;
                 continue;
             }
             if (TAG_CONTEXT.equals(parser.getName())) {
-                TypedArray c = mResources.obtainAttributes(
+                TypedArray c = mContext.getResources().obtainAttributes(
                         attrs, R.styleable.volumeGroups_context);
                 contexts.add(c.getInt(R.styleable.volumeGroups_context_context, -1));
                 c.recycle();
             }
         }
 
-        return new CarVolumeGroup(title,
+        return new CarVolumeGroup(mContext, id,
                 contexts.stream().mapToInt(i -> i).filter(i -> i >= 0).toArray());
     }
 }

@@ -22,27 +22,32 @@
   surfaced to Car Settings App and/or other volume control interfaces.
 
   Certain constraints applied to this configuration
-    - Every single context belongs to exactly one group
-    - All audio device ports (buses) in one group should have same step value
+    - One context should not appear in two groups
+    - All contexts are assigned
+    - One bus should not appear in two groups
+    - All gain controllers (set on each bus) in one group have same step value
+
+  It is fine that there are buses that do not appear in any group, those buses
+  may be reserved for other usages.
 
   Important note: when overlaying this configuration,
   make sure the resources are in the same package as CarAudioService.
 -->
 <volumeGroups xmlns:car="http://schemas.android.com/apk/res-auto">
-    <group car:name="@string/car_volume_group_media">
+    <group>
         <context car:context="music"/>
         <context car:context="call_ring"/>
         <context car:context="notification"/>
         <context car:context="system_sound"/>
     </group>
-    <group car:name="@string/car_volume_group_navigation">
+    <group>
         <context car:context="navigation"/>
         <context car:context="voice_command"/>
     </group>
-    <group car:name="@string/car_volume_group_phone_call">
+    <group>
         <context car:context="call"/>
     </group>
-    <group car:name="@string/car_volume_group_alarm">
+    <group>
         <context car:context="alarm"/>
     </group>
 </volumeGroups>

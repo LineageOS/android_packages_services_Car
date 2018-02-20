@@ -17,7 +17,6 @@
 package android.car.media;
 
 import android.car.media.CarAudioPatchHandle;
-import android.car.media.CarVolumeGroup;
 
 /**
  * Binder interface for {@link android.car.media.CarAudioManager}.
@@ -26,10 +25,10 @@ import android.car.media.CarVolumeGroup;
  * @hide
  */
 interface ICarAudio {
-    void setUsageVolume(int usage, int index, int flags);
-    int getUsageMaxVolume(int usage);
-    int getUsageMinVolume(int usage);
-    int getUsageVolume(int usage);
+    void setGroupVolume(int groupId, int index, int flags);
+    int getGroupMaxVolume(int groupId);
+    int getGroupMinVolume(int groupId);
+    int getGroupVolume(int groupId);
 
     void setFadeTowardFront(float value);
     void setBalanceTowardRight(float value);
@@ -38,5 +37,6 @@ interface ICarAudio {
     CarAudioPatchHandle createAudioPatch(in String sourceName, int usage, int gainIndex);
     void releaseAudioPatch(in CarAudioPatchHandle patch);
 
-    CarVolumeGroup[] getVolumeGroups();
+    int getVolumeGroupCount();
+    int getVolumeGroupIdForUsage(int usage);
 }
