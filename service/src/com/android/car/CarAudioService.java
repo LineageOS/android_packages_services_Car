@@ -576,6 +576,22 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return -1;
     }
 
+    @Override
+    public @NonNull int[] getUsagesForVolumeGroupId(int groupId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+
+        CarVolumeGroup group = getCarVolumeGroup(groupId);
+        Set<Integer> contexts =
+                Arrays.stream(group.getContexts()).boxed().collect(Collectors.toSet());
+        final List<Integer> usages = new ArrayList<>();
+        for (int i = 0; i < USAGE_TO_CONTEXT.size(); i++) {
+            if (contexts.contains(USAGE_TO_CONTEXT.valueAt(i))) {
+                usages.add(USAGE_TO_CONTEXT.keyAt(i));
+            }
+        }
+        return usages.stream().mapToInt(i -> i).toArray();
+    }
+
     private void enforcePermission(String permissionName) {
         if (mContext.checkCallingOrSelfPermission(permissionName)
                 != PackageManager.PERMISSION_GRANTED) {

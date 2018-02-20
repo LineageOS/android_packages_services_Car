@@ -717,6 +717,7 @@ package android.car.media {
     method public int getGroupMaxVolume(int) throws android.car.CarNotConnectedException;
     method public int getGroupMinVolume(int) throws android.car.CarNotConnectedException;
     method public int getGroupVolume(int) throws android.car.CarNotConnectedException;
+    method public int[] getUsagesForVolumeGroupId(int) throws android.car.CarNotConnectedException;
     method public int getVolumeGroupCount() throws android.car.CarNotConnectedException;
     method public int getVolumeGroupIdForUsage(int) throws android.car.CarNotConnectedException;
     method public void registerVolumeChangeObserver(android.database.ContentObserver);
