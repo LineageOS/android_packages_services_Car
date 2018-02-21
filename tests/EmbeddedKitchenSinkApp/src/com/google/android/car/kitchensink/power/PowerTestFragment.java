@@ -17,10 +17,15 @@
 package com.google.android.car.kitchensink.power;
 
 import static java.lang.Integer.toHexString;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executor;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
+import android.car.CarNotConnectedException;
+import android.car.hardware.power.CarPowerManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -31,23 +36,67 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class PowerTestFragment extends Fragment {
     private final boolean DBG = false;
     private final String TAG = "PowerTestFragment";
+    private CarPowerManager mCarPowerManager;
+    private TextView mTvBootReason;
+    private Executor mExecutor;
+
+    private class ThreadPerTaskExecutor implements Executor {
+        public void execute(Runnable r) {
+            new Thread(r).start();
+        }
+    }
+
+    private final CarPowerManager.CarPowerStateListener mPowerListener =
+            new CarPowerManager.CarPowerStateListener () {
+                @Override
+                public void onStateChanged(int state) {
+                    Log.i(TAG, "onStateChanged() state = " + state);
+                }
+            };
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        mCarPowerManager = ((KitchenSinkActivity)getActivity()).getPowerManager();
+        mExecutor = new ThreadPerTaskExecutor();
+        super.onCreate(savedInstanceState);
+        try {
+            mCarPowerManager.setListener(mPowerListener, mExecutor);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Car is not connected!");
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "CarPowerManager listener was not cleared");
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mCarPowerManager.clearListener();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
         View v = inflater.inflate(R.layout.power_test, container, false);
 
-        Button b = v.findViewById(R.id.btnPwrShutdown);
-        b.setOnClickListener(this::shutdown);
+        Button b = v.findViewById(R.id.btnPwrGetBootReason);
+        b.setOnClickListener(this::getBootReasonBtn);
+
+        b = v.findViewById(R.id.btnPwrRequestShutdown);
+        b.setOnClickListener(this::requestShutdownBtn);
+
+        b = v.findViewById(R.id.btnPwrShutdown);
+        b.setOnClickListener(this::shutdownBtn);
 
         b = v.findViewById(R.id.btnPwrSleep);
-        b.setOnClickListener(this::sleep);
+        b.setOnClickListener(this::sleepBtn);
+
+        mTvBootReason = v.findViewById(R.id.tvPowerBootReason);
 
         if(DBG) {
             Log.d(TAG, "Starting PowerTestFragment");
@@ -56,23 +105,40 @@ public class PowerTestFragment extends Fragment {
         return v;
     }
 
-    private void shutdown(View v) {
+    private void getBootReasonBtn(View v) {
+        try {
+            int bootReason = mCarPowerManager.getBootReason();
+            mTvBootReason.setText(String.valueOf(bootReason));
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to getBootReason()", e);
+        }
+    }
+
+    private void requestShutdownBtn(View v) {
+        try {
+            mCarPowerManager.requestShutdownOnNextSuspend();
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to set requestShutdownOnNextSuspend()", e);
+        }
+    }
+
+    private void shutdownBtn(View v) {
         if(DBG) {
             Log.d(TAG, "Calling shutdown method");
         }
-
         PowerManager pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
         pm.shutdown(/* confirm */ false, /* reason */ null, /* wait */ false);
         Log.d(TAG, "shutdown called!");
     }
 
-    private void sleep(View v) {
-        // TBD
+    private void sleepBtn(View v) {
         if(DBG) {
             Log.d(TAG, "Calling sleep method");
         }
-
+        // NOTE:  This doesn't really work to sleep the device.  Actual sleep is implemented via
+        //  SystemInterface via libsuspend::force_suspend()
         PowerManager pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
-        pm.goToSleep(SystemClock.uptimeMillis(), PowerManager.GO_TO_SLEEP_REASON_DEVICE_ADMIN, PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
+        pm.goToSleep(SystemClock.uptimeMillis(), PowerManager.GO_TO_SLEEP_REASON_DEVICE_ADMIN,
+                     PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
     }
 }

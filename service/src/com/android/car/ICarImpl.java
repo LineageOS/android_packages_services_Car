@@ -101,8 +101,8 @@ public class ICarImpl extends ICar.Stub {
         mSystemInterface = systemInterface;
         mHal = new VehicleHal(vehicle);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
-        mCarPowerManagementService = new CarPowerManagementService(
-                mHal.getPowerHal(), systemInterface);
+        mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
+                systemInterface);
         mCarSensorService = new CarSensorService(serviceContext, mHal.getSensorHal());
         mCarDrivingStateService = new CarDrivingStateService(serviceContext, mCarSensorService);
         mCarUXRestrictionsService = new CarUxRestrictionsManagerService(serviceContext,
@@ -229,6 +229,9 @@ public class ICarImpl extends ICar.Stub {
             case Car.HVAC_SERVICE:
                 assertHvacPermission(mContext);
                 return mCarHvacService;
+            case Car.POWER_SERVICE:
+                assertPowerPermission(mContext);
+                return mCarPowerManagementService;
             case Car.RADIO_SERVICE:
                 assertRadioPermission(mContext);
                 return mCarRadioService;
@@ -310,6 +313,10 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertHvacPermission(Context context) {
         assertPermission(context, Car.PERMISSION_CAR_HVAC);
+    }
+
+    public static void assertPowerPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_POWER);
     }
 
     private static void assertRadioPermission(Context context) {

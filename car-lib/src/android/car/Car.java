@@ -16,9 +16,17 @@
 
 package android.car;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
+
+import com.android.car.internal.FeatureConfiguration;
+import com.android.internal.annotations.GuardedBy;
+
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.car.CarBluetoothManager;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.content.pm.CarPackageManager;
 import android.car.diagnostic.CarDiagnosticManager;
@@ -28,10 +36,10 @@ import android.car.hardware.CarSensorManager;
 import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.cabin.CarCabinManager;
 import android.car.hardware.hvac.CarHvacManager;
+import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.radio.CarRadioManager;
 import android.car.media.CarAudioManager;
 import android.car.navigation.CarNavigationStatusManager;
-import android.car.CarBluetoothManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.car.vms.VmsSubscriberManager;
@@ -46,13 +54,6 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
-
-import com.android.car.internal.FeatureConfiguration;
-import com.android.internal.annotations.GuardedBy;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.HashMap;
 
 /**
  *   Top level car API for embedded Android Auto deployments.
@@ -120,6 +121,12 @@ public final class Car {
      */
     @SystemApi
     public static final String HVAC_SERVICE = "hvac";
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    public static final String POWER_SERVICE = "power";
 
     /**
      * @hide
@@ -259,6 +266,12 @@ public final class Car {
     @Deprecated
     public static final String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
 
+    /**
+     * Permission necessary to access Car POWER APIs.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CAR_POWER = "android.car.permission.CAR_POWER";
 
     /**
      * Permission necessary to access Car PROJECTION system APIs.
@@ -676,6 +689,9 @@ public final class Car {
                 break;
             case HVAC_SERVICE:
                 manager = new CarHvacManager(binder, mContext, mEventHandler);
+                break;
+            case POWER_SERVICE:
+                manager = new CarPowerManager(binder, mContext, mEventHandler);
                 break;
             case PROJECTION_SERVICE:
                 manager = new CarProjectionManager(binder, mEventHandler);
