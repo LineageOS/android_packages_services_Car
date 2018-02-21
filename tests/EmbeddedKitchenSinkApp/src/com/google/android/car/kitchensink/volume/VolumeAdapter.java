@@ -36,13 +36,13 @@ public class VolumeAdapter extends ArrayAdapter<VolumeInfo> {
     private VolumeTestFragment mFragment;
 
 
-    public VolumeAdapter(Context c, int layoutResourceId, VolumeInfo[] locations,
+    public VolumeAdapter(Context c, int layoutResourceId, VolumeInfo[] volumeList,
             VolumeTestFragment fragment) {
-        super(c, layoutResourceId, locations);
+        super(c, layoutResourceId, volumeList);
         mFragment = fragment;
         mContext = c;
         this.mLayoutResourceId = layoutResourceId;
-        this.mVolumeList = locations;
+        this.mVolumeList = volumeList;
     }
 
     @Override
