@@ -129,6 +129,7 @@ public class SystemActivityMonitoringServiceTest {
     private static void startActivity(Context ctx, ComponentName name) {
         Intent intent = new Intent();
         intent.setComponent(name);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         ctx.startActivity(intent);
     }
 }
