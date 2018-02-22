@@ -145,7 +145,7 @@ public class UptimeTracker {
     }
 
     private long getHistoricalUptimeLocked() {
-        if (!mHistoricalUptime.isPresent() && mUptimeFile != null) {
+        if (!mHistoricalUptime.isPresent() && mUptimeFile != null && mUptimeFile.exists()) {
             try {
                 JsonReader reader = new JsonReader(new FileReader(mUptimeFile));
                 reader.beginObject();
