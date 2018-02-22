@@ -82,7 +82,7 @@ public class VolumeTestFragment extends Fragment {
         }
     }
 
-    private VolumeInfo[] mVolumeInfos;
+    private VolumeInfo[] mVolumeInfos = new VolumeInfo[0];
     private SparseIntArray mGroupIdIndexMap = new SparseIntArray();
 
     private class AudioFocusListener implements AudioManager.OnAudioFocusChangeListener {
