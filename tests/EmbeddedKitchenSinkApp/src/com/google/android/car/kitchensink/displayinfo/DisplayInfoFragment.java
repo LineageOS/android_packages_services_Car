@@ -103,7 +103,7 @@ public class DisplayInfoFragment extends Fragment {
 
     private void addTextView(String text) {
         TextView textView = new TextView(getContext());
-        textView.setTextAppearance(R.style.CarBody2);
+        textView.setTextAppearance(R.style.TextAppearance_Car_Body2);
         textView.setText(text);
         list.addView(textView);
     }
