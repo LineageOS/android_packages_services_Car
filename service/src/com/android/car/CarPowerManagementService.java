@@ -15,12 +15,11 @@
  */
 package com.android.car;
 
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
-import android.os.SystemClock;
-import android.util.Log;
+import java.io.PrintWriter;
+import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
@@ -28,13 +27,18 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
-import java.io.PrintWriter;
-import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.CopyOnWriteArrayList;
+import android.car.Car;
+import android.car.hardware.power.ICarPower;
+import android.car.hardware.power.ICarPowerStateListener;
+import android.content.Context;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
+import android.os.SystemClock;
+import android.util.Log;
 
-public class CarPowerManagementService implements CarServiceBase,
+public class CarPowerManagementService extends ICarPower.Stub implements CarServiceBase,
     PowerHalService.PowerEventListener {
 
     /**
@@ -88,6 +92,7 @@ public class CarPowerManagementService implements CarServiceBase,
         int getWakeupTime();
     }
 
+    private final Context mContext;
     private final PowerHalService mHal;
     private final SystemInterface mSystemInterface;
 
@@ -95,6 +100,8 @@ public class CarPowerManagementService implements CarServiceBase,
             new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<PowerEventProcessingHandlerWrapper>
             mPowerEventProcessingHandlers = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<ICarPowerStateListener> mAppListeners =
+            new CopyOnWriteArrayList<>();
 
     @GuardedBy("this")
     private PowerState mCurrentState;
@@ -110,11 +117,17 @@ public class CarPowerManagementService implements CarServiceBase,
     private HandlerThread mHandlerThread;
     @GuardedBy("this")
     private PowerHandler mHandler;
+    @GuardedBy("this")
+    private int mBootReason;
+    @GuardedBy("this")
+    private boolean mShutdownOnNextSuspend = false;
 
     private final static int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
     private final static int SHUTDOWN_EXTEND_MAX_MS = 5000;
 
-    public CarPowerManagementService(PowerHalService powerHal, SystemInterface systemInterface) {
+    public CarPowerManagementService(Context context, PowerHalService powerHal,
+                                     SystemInterface systemInterface) {
+        mContext = context;
         mHal = powerHal;
         mSystemInterface = systemInterface;
     }
@@ -125,6 +138,7 @@ public class CarPowerManagementService implements CarServiceBase,
      */
     @VisibleForTesting
     protected CarPowerManagementService() {
+        mContext = null;
         mHal = null;
         mSystemInterface = null;
         mHandlerThread = null;
@@ -175,6 +189,7 @@ public class CarPowerManagementService implements CarServiceBase,
         mSystemInterface.stopDisplayStateMonitoring();
         mListeners.clear();
         mPowerEventProcessingHandlers.clear();
+        mAppListeners.clear();
         mSystemInterface.releaseAllWakeLocks();
     }
 
@@ -261,7 +276,7 @@ public class CarPowerManagementService implements CarServiceBase,
 
     @Override
     public void onBootReasonReceived(int bootReason) {
-        // TODO:  Implement me
+        mBootReason = bootReason;
     }
 
     @Override
@@ -528,6 +543,38 @@ public class CarPowerManagementService implements CarServiceBase,
 
     public synchronized Handler getHandler() {
         return mHandler;
+    }
+
+    // Binder interface for CarPowerManager
+    @Override
+    public void registerListener(ICarPowerStateListener listener) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        mAppListeners.add(listener);
+    }
+
+    @Override
+    public void unregisterListener(ICarPowerStateListener listener) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        mAppListeners.remove(listener);
+    }
+
+    @Override
+    public void requestShutdownOnNextSuspend() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        mShutdownOnNextSuspend = true;
+    }
+
+    @Override
+    public int getBootReason() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        // Return the most recent bootReason value
+        return mBootReason;
+    }
+
+    @Override
+    public void finished(int state) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        Log.e(CarLog.TAG_POWER, "TODO: finished(), state = " + state);
     }
 
     private class PowerHandler extends Handler {
