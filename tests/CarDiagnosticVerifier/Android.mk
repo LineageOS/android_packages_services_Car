@@ -27,6 +27,7 @@ LOCAL_RESOURCE_DIR := \
         $(TOP)/frameworks/support/v7/recyclerview/res \
 
 LOCAL_PACKAGE_NAME := CarDiagnosticVerifier
+LOCAL_PRIVATE_PLATFORM_APIS := true
 
 LOCAL_AAPT_FLAGS := --auto-add-overlay \
         --extra-packages android.support.v7.recyclerview \

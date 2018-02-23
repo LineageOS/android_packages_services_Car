@@ -21,6 +21,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_PACKAGE_NAME := AndroidSupportCarApiTest
+LOCAL_PRIVATE_PLATFORM_APIS := true
 
 # for system|privileged permission.
 LOCAL_CERTIFICATE := platform
