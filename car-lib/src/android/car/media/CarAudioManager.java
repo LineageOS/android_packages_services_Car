@@ -36,20 +36,8 @@ import android.util.Log;
 public final class CarAudioManager implements CarManagerBase {
 
     // The trailing slash forms a directory-liked hierarchy and
-    // allows listening for both VOLUME/MEDIA and VOLUME/NAVIGATION.
-    private static final String VOLUME_SETTINGS_KEY_FOR_BUS_PREFIX = "android.car.VOLUME/";
-
-    // The trailing slash forms a directory-liked hierarchy and
     // allows listening for both GROUP/MEDIA and GROUP/NAVIGATION.
     private static final String VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX = "android.car.VOLUME_GROUP/";
-
-    /**
-     * @param busNumber The physical bus address number
-     * @return Key to persist volume index for bus in {@link Settings.Global}
-     */
-    public static String getVolumeSettingsKeyForBus(int busNumber) {
-        return VOLUME_SETTINGS_KEY_FOR_BUS_PREFIX + busNumber;
-    }
 
     /**
      * @param groupId The volume group id
@@ -235,21 +223,21 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * @param sourceName the input port name obtained from getExternalSources().
      * @param usage the type of audio represented by this source (usually USAGE_MEDIA).
-     * @param gainIndex How many steps above the minimum value defined for the source port to
-     *                  set the gain when creating the patch.
-     *                  This may be used for source balancing without affecting the user controlled
-     *                  volumes applied to the destination ports.  A value of -1 may be passed
-     *                  to indicate no gain change is requested.
+     * @param gainInMillibels How many steps above the minimum value defined for the source port to
+     *                       set the gain when creating the patch.
+     *                       This may be used for source balancing without affecting the user
+     *                       controlled volumes applied to the destination ports.  A value of
+     *                       0 indicates no gain change is requested.
      * @return A handle for the created patch which can be used to later remove it.
      *
      * @see #getExternalSources()
      * @see #releaseAudioPatch(CarAudioPatchHandle)
      */
     @SystemApi
-    public CarAudioPatchHandle createAudioPatch(String sourceName, int usage, int gainIndex)
+    public CarAudioPatchHandle createAudioPatch(String sourceName, int usage, int gainInMillibels)
             throws CarNotConnectedException {
         try {
-            return mService.createAudioPatch(sourceName, usage, gainIndex);
+            return mService.createAudioPatch(sourceName, usage, gainInMillibels);
         } catch (RemoteException e) {
             Log.e(CarLibLog.TAG_CAR, "createAudioPatch failed", e);
             throw new CarNotConnectedException(e);

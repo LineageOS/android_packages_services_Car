@@ -45,16 +45,19 @@ import java.util.Arrays;
     private final SparseIntArray mContextToBus = new SparseIntArray();
     private final SparseArray<CarAudioDeviceInfo> mBusToCarAudioDeviceInfos = new SparseArray<>();
 
-    private int mGroupMaxGainIndex = Integer.MIN_VALUE;
-    private int mGroupMinGainIndex = Integer.MAX_VALUE;
-    private int mCurrentGainIndex;
+    private int mDefaultGain        = Integer.MIN_VALUE;
+    private int mMaxGain            = Integer.MIN_VALUE;
+    private int mMinGain            = Integer.MAX_VALUE;
+    private int mStepSize           = 0;
+    private int mStoredGainIndex;
+    private int mCurrentGainIndex   = -1;
 
     CarVolumeGroup(Context context, int id, @NonNull int[] contexts) {
         mContentResolver = context.getContentResolver();
         mId = id;
         mContexts = contexts;
 
-        mCurrentGainIndex = Settings.Global.getInt(mContentResolver,
+        mStoredGainIndex = Settings.Global.getInt(mContentResolver,
                 CarAudioManager.getVolumeSettingsKeyForGroup(mId), -1);;
     }
 
@@ -76,43 +79,58 @@ import java.util.Arrays;
 
     /**
      * Binds the context number to physical bus number and audio device port information.
+     * Because this may change the groups min/max values, thus invalidating an index computed from
+     * a gain before this call, all calls to this function must happen at startup before any
+     * set/getGainIndex calls.
      *
      * @param contextNumber Context number as defined in audio control HAL
      * @param busNumber Physical bus number for the audio device port
      * @param info {@link CarAudioDeviceInfo} instance relates to the physical bus
      */
     void bind(int contextNumber, int busNumber, CarAudioDeviceInfo info) {
-        if (mBusToCarAudioDeviceInfos.size() > 0) {
-            final int stepValue =
-                    mBusToCarAudioDeviceInfos.valueAt(0).getAudioGain().stepValue();
+        if (mBusToCarAudioDeviceInfos.size() == 0) {
+            mStepSize = info.getAudioGain().stepValue();
+        } else {
             Preconditions.checkArgument(
-                    info.getAudioGain().stepValue() == stepValue,
-                    "Gain controls within one group should have same step value");
+                    info.getAudioGain().stepValue() == mStepSize,
+                    "Gain controls within one group must have same step value");
         }
+
         mContextToBus.put(contextNumber, busNumber);
         mBusToCarAudioDeviceInfos.put(busNumber, info);
-        if (info.getMaxGainIndex() > mGroupMaxGainIndex) {
-            mGroupMaxGainIndex = info.getMaxGainIndex();
+
+        if (info.getDefaultGain() > mDefaultGain) {
+            // We're arbitrarily selecting the highest observed gain as the groups default gain.
+            mDefaultGain = info.getDefaultGain();
         }
-        if (info.getMinGainIndex() < mGroupMinGainIndex) {
-            mGroupMinGainIndex = info.getMinGainIndex();
+        if (info.getMaxGain() > mMaxGain) {
+            mMaxGain = info.getMaxGain();
         }
-        if (mCurrentGainIndex < 0) {
-            // TODO: check the boundary of each gain control.
-            // It's possible that each bus has different current gain index. If it's due to minimum
-            // allowed, the current should be set to Math.min(currents), if it's due to maximum
-            // allowed, the current should be set to Math.max(currents). Otherwise, the current
-            // should be identical among the buses.
-            mCurrentGainIndex = info.getCurrentGainIndex();
+        if (info.getMinGain() < mMinGain) {
+            mMinGain = info.getMinGain();
         }
+        if (mStoredGainIndex < 0) {
+            // We expected to load a value from last boot, but if we didn't (perhaps this is the
+            // first boot ever?), then use the highest "default" we've seen to initialize
+            // ourselves.
+            mCurrentGainIndex = getIndexForGain(mDefaultGain);
+        } else {
+            // Just use the gain index we stored last time the gain was set (presumably during our
+            // last boot cycle).
+            mCurrentGainIndex = mStoredGainIndex;
+        }
+    }
+
+    int getDefaultGainIndex() {
+        return getIndexForGain(mDefaultGain);
     }
 
     int getMaxGainIndex() {
-        return mGroupMaxGainIndex;
+        return getIndexForGain(mMaxGain);
     }
 
     int getMinGainIndex() {
-        return mGroupMinGainIndex;
+        return getIndexForGain(mMinGain);
     }
 
     int getCurrentGainIndex() {
@@ -120,25 +138,38 @@ import java.util.Arrays;
     }
 
     void setCurrentGainIndex(int gainIndex) {
+        int gainInMillibels = getGainForIndex(gainIndex);
+
         Preconditions.checkArgument(
-                gainIndex >= mGroupMinGainIndex && gainIndex <= mGroupMaxGainIndex,
-                "Invalid gain index: " + gainIndex);
+                gainInMillibels >= mMinGain && gainInMillibels <= mMaxGain,
+                "Gain out of range (" +
+                        mMinGain + ":" +
+                        mMaxGain +") " +
+                        gainInMillibels + "index " +
+                        gainIndex);
 
         for (int i = 0; i < mBusToCarAudioDeviceInfos.size(); i++) {
             CarAudioDeviceInfo info = mBusToCarAudioDeviceInfos.valueAt(i);
-            // It's possible that each CarAudioDeviceInfo has different boundary than the group.
-            if (gainIndex < info.getMinGainIndex()) {
-                info.setCurrentGainIndex(info.getMinGainIndex());
-            } else if (gainIndex > info.getMaxGainIndex()) {
-                info.setCurrentGainIndex(info.getMaxGainIndex());
-            } else {
-                info.setCurrentGainIndex(gainIndex);
-            }
+            info.setCurrentGain(gainInMillibels);
         }
 
         mCurrentGainIndex = gainIndex;
         Settings.Global.putInt(mContentResolver,
                 CarAudioManager.getVolumeSettingsKeyForGroup(mId), gainIndex);
+    }
+
+    // Given a group level gain index, return the computed gain in millibells
+    // TODO (randolphs) If we ever want to add index to gain curves other than lock-stepped
+    // linear, this would be the place to do it.
+    private int getGainForIndex(int gainIndex) {
+        return mMinGain + gainIndex * mStepSize;
+    }
+
+    // TODO (randolphs) if we ever went to a non-linear index to gain curve mapping, we'd need to
+    // revisit this as it assumes (at the least) that getGainForIndex is reversible.  Luckily,
+    // this is an internal implementation details we could factor out if/when necessary.
+    private int getIndexForGain(int gainInMillibel) {
+        return (gainInMillibel - mMinGain) / mStepSize;
     }
 
     @Nullable

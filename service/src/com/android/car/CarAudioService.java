@@ -28,6 +28,7 @@ import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioFormat;
+import android.media.AudioGain;
 import android.media.AudioGainConfig;
 import android.media.AudioManager;
 import android.media.AudioPatch;
@@ -441,7 +442,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             try {
                 audioControlHal.setFadeTowardFront(value);
             } catch (RemoteException e) {
-                Log.e(CarLog.TAG_SERVICE, "setFadeTowardFront failed", e);
+                Log.e(CarLog.TAG_AUDIO, "setFadeTowardFront failed", e);
             }
         }
     }
@@ -454,7 +455,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             try {
                 audioControlHal.setBalanceTowardRight(value);
             } catch (RemoteException e) {
-                Log.e(CarLog.TAG_SERVICE, "setBalanceTowardRight failed", e);
+                Log.e(CarLog.TAG_AUDIO, "setBalanceTowardRight failed", e);
             }
         }
     }
@@ -493,7 +494,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     @Override
-    public CarAudioPatchHandle createAudioPatch(String sourceName, int usage, int gainIndex) {
+    public CarAudioPatchHandle createAudioPatch(String sourceName, int usage, int gainInMillibels) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
 
         // Find the named source port
@@ -515,18 +516,24 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             throw new IllegalArgumentException("Sink not available for usage: " + usage);
         }
 
-        // Continue to use the current port config on the output bus
+        // Use the current port config on the output bus
         AudioPortConfig sinkConfig = sinkPort.activeConfig();
 
-        // Configure the source port to match the output bus with optional gain adjustment
+        // Configure the source port to match the output port except for a gain adjustment
         final CarAudioDeviceInfo helper = new CarAudioDeviceInfo(
                 mContext, sourcePortInfo);
-        AudioGainConfig audioGainConfig = null;
-        if (gainIndex >= 0) {
-            audioGainConfig = helper.getPortGainForIndex(gainIndex);
-            if (audioGainConfig == null) {
-                Log.w(CarLog.TAG_AUDIO, "audio gain could not be applied.");
-            }
+        AudioGain audioGain = helper.getAudioGain();
+        if (audioGain == null) {
+            throw new RuntimeException("Gain controller not available");
+        }
+        // size of gain values is 1 in MODE_JOINT
+        AudioGainConfig audioGainConfig = audioGain.buildConfig(
+                AudioGain.MODE_JOINT,
+                audioGain.channelMask(),
+                new int[] { gainInMillibels },
+                0);
+        if (audioGainConfig == null) {
+            throw new RuntimeException("Failed to construct AudioGainConfig");
         }
         AudioPortConfig sourceConfig = sourcePortInfo.getPort().buildConfig(
                 sinkConfig.samplingRate(),
@@ -680,9 +687,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         try {
             return IAudioControl.getService();
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_SERVICE, "Failed to get IAudioControl service", e);
+            Log.e(CarLog.TAG_AUDIO, "Failed to get IAudioControl service", e);
         } catch (NoSuchElementException e) {
-            Log.e(CarLog.TAG_SERVICE, "IAudioControl service not registered yet");
+            Log.e(CarLog.TAG_AUDIO, "IAudioControl service not registered yet");
         }
         return null;
     }

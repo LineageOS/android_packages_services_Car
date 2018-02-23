@@ -26,44 +26,41 @@ import android.media.AudioGain;
 import android.media.AudioGainConfig;
 import android.media.AudioManager;
 import android.media.AudioPort;
+import android.media.AudioPortConfig;
 import android.provider.Settings;
 import android.util.Log;
 
 import com.android.internal.util.Preconditions;
 
 /**
- * A helper class wraps {@link AudioDeviceInfo}, translates the min / max/ step gain values
- * in gain controller to gain index values.
+ * A helper class wraps {@link AudioDeviceInfo}, and helps get/set the gain on a specific port
+ * in terms of millibels.
+ * Note to the reader.  For whatever reason, it seems that AudioGain contains only configuration
+ * information (min/max/step, etc) while the ironicly named AudioGainConfig class contains the
+ * actual currently active gain value(s).
  */
 /* package */ class CarAudioDeviceInfo {
 
     private final ContentResolver mContentResolver;
     private final AudioDeviceInfo mAudioDeviceInfo;
     private final int mBusNumber;
-    private final int mMaxGainIndex;
-    private final int mMinGainIndex;
     private final int mSampleRate;
     private final int mChannelCount;
-
-    private int mCurrentGainIndex;
+    private final int mDefaultGain;
+    private final int mMaxGain;
+    private final int mMinGain;
 
     CarAudioDeviceInfo(Context context, AudioDeviceInfo audioDeviceInfo) {
         mContentResolver = context.getContentResolver();
         mAudioDeviceInfo = audioDeviceInfo;
-        mBusNumber = parseDeviceAddress(mAudioDeviceInfo.getAddress());
+        mBusNumber = parseDeviceAddress(audioDeviceInfo.getAddress());
         mSampleRate = getMaxSampleRate(audioDeviceInfo);
         mChannelCount = getMaxChannels(audioDeviceInfo);
         final AudioGain audioGain = Preconditions.checkNotNull(
                 getAudioGain(), "No audio gain on device port " + audioDeviceInfo);
-        mMaxGainIndex = gainToIndex(audioGain, audioGain.maxValue());
-        mMinGainIndex = gainToIndex(audioGain, audioGain.minValue());
-
-        // Get the current gain index from persistent storage and fallback to default.
-        mCurrentGainIndex = Settings.Global.getInt(mContentResolver,
-                CarAudioManager.getVolumeSettingsKeyForBus(mBusNumber), -1);
-        if (mCurrentGainIndex < 0) {
-            mCurrentGainIndex = gainToIndex(audioGain, audioGain.defaultValue());
-        }
+        mDefaultGain = audioGain.defaultValue();
+        mMaxGain = audioGain.maxValue();
+        mMinGain = audioGain.minValue();
     }
 
     AudioDeviceInfo getAudioDeviceInfo() {
@@ -78,16 +75,32 @@ import com.android.internal.util.Preconditions;
         return mBusNumber;
     }
 
-    int getMaxGainIndex() {
-        return mMaxGainIndex;
+    int getDefaultGain() {
+        return mDefaultGain;
     }
 
-    int getMinGainIndex() {
-        return mMinGainIndex;
+    int getMaxGain() {
+        return mMaxGain;
     }
 
-    int getCurrentGainIndex() {
-        return mCurrentGainIndex;
+    int getMinGain() {
+        return mMinGain;
+    }
+
+    // Return value is in millibels
+    int getCurrentGain() {
+        final AudioDevicePort audioPort = getAudioDevicePort();
+        final AudioPortConfig activePortConfig = audioPort.activeConfig();
+        if (activePortConfig != null) {
+            final AudioGainConfig activeGainConfig = activePortConfig.gain();
+            if (activeGainConfig != null) {
+                // Since we are always in MODE_JOINT, we can just look at the first channel
+                return activeGainConfig.values()[0];
+            }
+        }
+
+        Log.e(CarLog.TAG_AUDIO, "Incomplete port configuration while fetching gain");
+        return -1;
     }
 
     int getSampleRate() {
@@ -98,29 +111,35 @@ import com.android.internal.util.Preconditions;
         return mChannelCount;
     }
 
-    void setCurrentGainIndex(int gainIndex) {
-        Preconditions.checkArgument(
-                gainIndex >= mMinGainIndex && gainIndex <= mMaxGainIndex,
-                "Invalid gain index: " + gainIndex);
-
-        // Calls to AudioManager.setAudioPortConfig
-        AudioGainConfig audioGainConfig = null;
-        AudioGain audioGain = getAudioGain();
-        if (audioGain != null) {
-            audioGainConfig = getPortGainForIndex(gainIndex);
+    // Input is in millibels
+    void setCurrentGain(int gainInMillibels) {
+        // Clamp the incoming value to our valid range.  Out of range values ARE legal input
+        if (gainInMillibels < mMinGain) {
+            gainInMillibels = mMinGain;
+        } else if (gainInMillibels > mMaxGain) {
+            gainInMillibels = mMaxGain;
         }
-        if (audioGainConfig != null) {
-            int r = AudioManager.setAudioPortGain(getAudioDevicePort(), audioGainConfig);
-            if (r == 0) {
-                // Updates the setting and internal state only if setAudioPortGain succeeds
-                Settings.Global.putInt(mContentResolver,
-                        CarAudioManager.getVolumeSettingsKeyForBus(mBusNumber), gainIndex);
-                mCurrentGainIndex = gainIndex;
-            } else {
-                Log.e(CarLog.TAG_AUDIO, "Failed to setAudioPortGain: " + r);
-            }
+
+        // Push the new gain value down to our underlying port which will cause it to show up
+        // at the HAL.
+        AudioGain audioGain = getAudioGain();
+        if (audioGain == null) {
+            Log.e(CarLog.TAG_AUDIO, "getAudioGain() returned null.");
         } else {
-            Log.e(CarLog.TAG_AUDIO, "Failed to construct AudioGainConfig");
+            // size of gain values is 1 in MODE_JOINT
+            AudioGainConfig audioGainConfig = audioGain.buildConfig(
+                    AudioGain.MODE_JOINT,
+                    audioGain.channelMask(),
+                    new int[] { gainInMillibels },
+                    0);
+            if (audioGainConfig == null) {
+                Log.e(CarLog.TAG_AUDIO, "Failed to construct AudioGainConfig");
+            } else {
+                int r = AudioManager.setAudioPortGain(getAudioDevicePort(), audioGainConfig);
+                if (r != AudioManager.SUCCESS) {
+                    Log.e(CarLog.TAG_AUDIO, "Failed to setAudioPortGain: " + r);
+                }
+            }
         }
     }
 
@@ -176,7 +195,9 @@ import com.android.internal.util.Preconditions;
     }
 
     /**
-     * @return {@link AudioGain} with {@link AudioGain#MODE_JOINT} on a given {@link AudioPort}
+     * @return {@link AudioGain} with {@link AudioGain#MODE_JOINT} on a given {@link AudioPort}.
+     * This is useful for inspecting the configuration data associated with this gain controller
+     * (min/max/step/default).
      */
     AudioGain getAudioGain() {
         final AudioDevicePort audioPort = getAudioDevicePort();
@@ -204,51 +225,11 @@ import com.android.internal.util.Preconditions;
         return audioGain;
     }
 
-    /**
-     * @param audioGain {@link AudioGain} on a {@link AudioPort}
-     * @param gain Gain value in millibel
-     * @return index value depends on max / min / step of a given {@link AudioGain}
-     */
-    private int gainToIndex(AudioGain audioGain, int gain) {
-        gain = checkGainBound(audioGain, gain);
-        return (gain - audioGain.minValue()) / audioGain.stepValue();
-    }
-
-    /**
-     * @param audioGain {@link AudioGain} on a {@link AudioPort}
-     * @param index index value depends on max / min / step of a given {@link AudioGain}
-     * @return gain value in millibel
-     */
-    private int indexToGain(AudioGain audioGain, int index) {
-        final int gain = index * audioGain.stepValue() + audioGain.minValue();
-        return checkGainBound(audioGain, gain);
-    }
-
-    private int checkGainBound(AudioGain audioGain, int gain) {
-        if (gain < audioGain.minValue() || gain > audioGain.maxValue()) {
-            throw new RuntimeException("Gain value out of bound: " + gain);
-        }
-        return gain;
-    }
-
-    @Nullable
-    AudioGainConfig getPortGainForIndex(int index) {
-        AudioGainConfig audioGainConfig = null;
-        AudioGain audioGain = getAudioGain();
-        if (audioGain != null) {
-            int gainValue = indexToGain(audioGain, index);
-            // size of gain values is 1 in MODE_JOINT
-            audioGainConfig = audioGain.buildConfig(AudioGain.MODE_JOINT,
-                    audioGain.channelMask(), new int[] { gainValue }, 0);
-        }
-        return audioGainConfig;
-    }
-
     @Override
     public String toString() {
         return "device: " + mAudioDeviceInfo.getAddress()
-                + " currentGain: " + mCurrentGainIndex
-                + " maxGain: " + mMaxGainIndex
-                + " minGain: " + mMinGainIndex;
+                + " currentGain: " + getCurrentGain()
+                + " maxGain: " + mMaxGain
+                + " minGain: " + mMinGain;
     }
 }

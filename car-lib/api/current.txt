@@ -325,7 +325,6 @@ package android.car.media {
     method public int[] getUsagesForVolumeGroupId(int) throws android.car.CarNotConnectedException;
     method public int getVolumeGroupCount() throws android.car.CarNotConnectedException;
     method public int getVolumeGroupIdForUsage(int) throws android.car.CarNotConnectedException;
-    method public static java.lang.String getVolumeSettingsKeyForBus(int);
     method public static java.lang.String getVolumeSettingsKeyForGroup(int);
     method public void registerVolumeChangeObserver(android.database.ContentObserver);
     method public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
