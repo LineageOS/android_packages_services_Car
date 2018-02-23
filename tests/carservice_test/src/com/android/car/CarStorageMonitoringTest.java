@@ -34,6 +34,8 @@ import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 import android.content.Intent;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
 import android.os.SystemClock;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -54,7 +56,10 @@ import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.TimeInterface;
 
 import com.android.car.test.utils.TemporaryFile;
+import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.Queue;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Rule;
@@ -84,6 +89,35 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
     private static final WearInformation DEFAULT_WEAR_INFORMATION =
         new WearInformation(30, 0, WearInformation.PRE_EOL_INFO_NORMAL);
+
+    final class TestContext extends MockContext {
+        TestContext(MockContext context) {
+            super(context.getBaseContext());
+        }
+
+        @Override
+        public void sendBroadcast(Intent intent, String receiverPermission) {
+            Log.d(TAG, "test context broadcasting " + intent);
+            if (CarStorageMonitoringManager.INTENT_EXCESSIVE_IO.equals(intent.getAction())) {
+                assertEquals(Car.PERMISSION_STORAGE_MONITORING, receiverPermission);
+
+                List<ResolveInfo> resolveInfoList = mContext.getPackageManager().
+                        queryBroadcastReceivers(intent, 0);
+
+                assertEquals(1,
+                        resolveInfoList.stream().map(ri -> ri.activityInfo)
+                            .filter(Objects::nonNull)
+                            .map(ai -> ai.name)
+                            .filter(CarStorageMonitoringBroadcastReceiver.class
+                                    .getCanonicalName()::equals)
+                            .count());
+
+                CarStorageMonitoringBroadcastReceiver.deliver(intent);
+            } else {
+                super.sendBroadcast(intent, receiverPermission);
+            }
+        }
+    }
 
     static class ResourceOverrides {
         private final HashMap<Integer, Integer> mIntegerOverrides = new HashMap<>();
@@ -147,7 +181,6 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         final LifetimeWriteInfo[] previousLifetimeWriteInfo;
         @NonNull
         final LifetimeWriteInfo[] currentLifetimeWriteInfo;
-
 
         TestData(long uptime,
             @Nullable WearInformation wearInformation,
@@ -300,8 +333,17 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
             new MockStorageMonitoringInterface();
     private final MockTimeInterface mMockTimeInterface =
             new MockTimeInterface();
+    private TestContext mContext;
 
     private CarStorageMonitoringManager mCarStorageMonitoringManager;
+
+    @Override
+    protected MockContext getCarServiceContext() throws NameNotFoundException {
+        if (mContext == null) {
+            mContext = new TestContext(super.getCarServiceContext());
+        }
+        return mContext;
+    }
 
     @Override
     protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
