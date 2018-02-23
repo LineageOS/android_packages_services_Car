@@ -71,11 +71,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private static final SparseIntArray USAGE_TO_CONTEXT = new SparseIntArray();
 
-    // For legacy stream type based volume control
+    // For legacy stream type based volume control.
+    // Values in STREAM_TYPES and STREAM_TYPE_USAGES should be aligned.
     private static final int[] STREAM_TYPES = new int[] {
             AudioManager.STREAM_MUSIC,
             AudioManager.STREAM_ALARM,
             AudioManager.STREAM_RING
+    };
+    private static final int[] STREAM_TYPE_USAGES = new int[] {
+            AudioAttributes.USAGE_MEDIA,
+            AudioAttributes.USAGE_ALARM,
+            AudioAttributes.USAGE_NOTIFICATION_RINGTONE
     };
 
     static {
@@ -606,6 +612,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Override
     public @NonNull int[] getUsagesForVolumeGroupId(int groupId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+
+        // For legacy stream type based volume control
+        if (!mUseDynamicRouting) {
+            return new int[] { STREAM_TYPE_USAGES[groupId] };
+        }
 
         CarVolumeGroup group = getCarVolumeGroup(groupId);
         Set<Integer> contexts =
