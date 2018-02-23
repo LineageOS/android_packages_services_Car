@@ -34,6 +34,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.SeekBar;
 
 import com.google.android.car.kitchensink.R;
 
@@ -48,6 +49,9 @@ public class VolumeTestFragment extends Fragment {
 
     private CarAudioManager mCarAudioManager;
     private Car mCar;
+
+    private SeekBar mFader;
+    private SeekBar mBalance;
 
     private final Handler mHandler = new VolumeHandler();
 
@@ -139,6 +143,31 @@ public class VolumeTestFragment extends Fragment {
         volumeListView.setAdapter(mAdapter);
 
         v.findViewById(R.id.refresh).setOnClickListener((view) -> initVolumeInfo());
+
+        final SeekBar.OnSeekBarChangeListener seekListener = new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                final float percent = (progress - 100) / 100.0f;
+                try {
+                    if (seekBar.getId() == R.id.fade_bar) {
+                        mCarAudioManager.setFadeTowardFront(percent);
+                    } else {
+                        mCarAudioManager.setBalanceTowardRight(percent);
+                    }
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Can't adjust fade or balance when car not connected", e);
+                }
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        };
+
+        mFader = v.findViewById(R.id.fade_bar);
+        mFader.setOnSeekBarChangeListener(seekListener);
+
+        mBalance = v.findViewById(R.id.balance_bar);
+        mBalance.setOnSeekBarChangeListener(seekListener);
 
         mCar = Car.createCar(getActivity(), mCarConnectionCallback);
         mCar.connect();
