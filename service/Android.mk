@@ -28,6 +28,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(car_service_sources)
 
 LOCAL_PACKAGE_NAME := CarService
+LOCAL_PRIVATE_PLATFORM_APIS := true
 
 # Each update should be signed by OEMs
 LOCAL_CERTIFICATE := platform

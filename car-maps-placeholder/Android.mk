@@ -27,6 +27,8 @@ LOCAL_USE_AAPT2 := true
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
 LOCAL_PACKAGE_NAME := CarMapsPlaceholder
+# TODO(b/73535841): Can build against current once the car stubs exist.
+LOCAL_PRIVATE_PLATFORM_APIS := true
 
 LOCAL_STATIC_ANDROID_LIBRARIES := $(ANDROID_SUPPORT_CAR_TARGETS)
 
