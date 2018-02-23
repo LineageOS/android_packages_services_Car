@@ -280,6 +280,8 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Gets the count of available volume groups in the system.
      *
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
      * @return Count of volume groups
      */
     @SystemApi
@@ -295,6 +297,8 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Gets the volume group id for a given {@link AudioAttributes} usage.
      *
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
      * @param usage The {@link AudioAttributes} usage to get a volume group from.
      * @return The volume group id where the usage belongs to
      */
@@ -305,6 +309,24 @@ public final class CarAudioManager implements CarManagerBase {
             return mService.getVolumeGroupIdForUsage(usage);
         } catch (RemoteException e) {
             Log.e(CarLibLog.TAG_CAR, "getVolumeGroupIdForUsage failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Gets array of {@link AudioAttributes} usages for a given volume group id.
+     *
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
+     * @param groupId The volume group id whose associated audio usages is returned.
+     * @return Array of {@link AudioAttributes} usages for a given volume group id
+     */
+    @SystemApi
+    public @NonNull int[] getUsagesForVolumeGroupId(int groupId) throws CarNotConnectedException {
+        try {
+            return mService.getUsagesForVolumeGroupId(groupId);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "getUsagesForVolumeGroupId failed", e);
             throw new CarNotConnectedException(e);
         }
     }

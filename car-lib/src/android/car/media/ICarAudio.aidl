@@ -39,4 +39,5 @@ interface ICarAudio {
 
     int getVolumeGroupCount();
     int getVolumeGroupIdForUsage(int usage);
+    int[] getUsagesForVolumeGroupId(int groupId);
 }

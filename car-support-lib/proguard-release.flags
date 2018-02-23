@@ -1116,6 +1116,7 @@
     public static boolean supportsMultiWindow(android.content.Context);
     public static boolean supportsSplitScreenMultiWindow(android.content.Context);
     public boolean switchUser(int);
+    public boolean updatePersistableUriPermission(android.net.Uri, boolean, java.lang.String, boolean);
 
 
     public static java.lang.String ACTION_REPORT_HEAP_LIMIT;
@@ -1568,6 +1569,7 @@
     public void setLaunchTaskId(int);
     public void setLaunchWindowingMode(int);
     public android.app.ActivityOptions setLockTaskMode(boolean);
+    public void setRemoteAnimationAdapter(android.view.RemoteAnimationAdapter);
     public void setRotationAnimationHint(int);
     public void setSplitScreenCreateMode(int);
     public void setTaskOverlay(boolean, boolean);
@@ -1847,8 +1849,10 @@
     public int startOp(int);
     public int startOpNoThrow(java.lang.String, int, java.lang.String);
     public int startOpNoThrow(int, int, java.lang.String);
+    public void startWatchingActive(int[], android.app.AppOpsManager$OnOpActiveChangedListener);
     public void startWatchingMode(java.lang.String, java.lang.String, android.app.AppOpsManager$OnOpChangedListener);
     public void startWatchingMode(int, java.lang.String, android.app.AppOpsManager$OnOpChangedListener);
+    public void stopWatchingActive(android.app.AppOpsManager$OnOpActiveChangedListener);
     public void stopWatchingMode(android.app.AppOpsManager$OnOpChangedListener);
     public static int strDebugOpToOp(java.lang.String);
     public static int strOpToOp(java.lang.String);
@@ -2010,6 +2014,13 @@
     public static int OP_WRITE_SMS;
     public static int OP_WRITE_WALLPAPER;
     public static int _NUM_OP;
+}
+
+-keep class android.app.AppOpsManager$OnOpActiveChangedListener {
+
+    public abstract void onOpActiveChanged(int, int, java.lang.String, boolean);
+
+
 }
 
 -keep class android.app.AppOpsManager$OnOpChangedListener {
@@ -2964,6 +2975,7 @@
     public abstract void registerIntentSenderCancelListener(android.content.IIntentSender, com.android.internal.os.IResultReceiver);
     public abstract void registerProcessObserver(android.app.IProcessObserver);
     public abstract android.content.Intent registerReceiver(android.app.IApplicationThread, java.lang.String, android.content.IIntentReceiver, android.content.IntentFilter, java.lang.String, int, int);
+    public abstract void registerRemoteAnimationForNextActivityStart(java.lang.String, android.view.RemoteAnimationAdapter);
     public abstract void registerRemoteAnimations(android.os.IBinder, android.view.RemoteAnimationDefinition);
     public abstract void registerTaskStackListener(android.app.ITaskStackListener);
     public abstract void registerUidObserver(android.app.IUidObserver, int, int, java.lang.String);
@@ -3090,6 +3102,7 @@
     public abstract boolean updateDisplayOverrideConfiguration(android.content.res.Configuration, int);
     public abstract void updateLockTaskFeatures(int, int);
     public abstract void updateLockTaskPackages(int, java.lang.String[]);
+    public abstract boolean updatePersistableUriPermission(android.net.Uri, boolean, java.lang.String, boolean, int);
     public abstract void updatePersistentConfiguration(android.content.res.Configuration);
     public abstract void waitForNetworkStateUpdate(long);
     public abstract boolean willActivityBeVisible(android.os.IBinder);
@@ -3641,6 +3654,7 @@
 
     public static android.os.Parcelable$Creator CREATOR;
     public static int SEMANTIC_ACTION_ARCHIVE;
+    public static int SEMANTIC_ACTION_CALL;
     public static int SEMANTIC_ACTION_DELETE;
     public static int SEMANTIC_ACTION_MARK_AS_READ;
     public static int SEMANTIC_ACTION_MARK_AS_UNREAD;
@@ -4453,6 +4467,7 @@
 
     public java.lang.String getDescription();
     public abstract int getTargetState();
+    public void recycle();
     public android.app.servertransaction.ActivityLifecycleItem setDescription(java.lang.String);
     public void writeToParcel(android.os.Parcel, int);
 
@@ -7402,6 +7417,7 @@
     public abstract android.content.pm.KeySet getSigningKeySet(java.lang.String);
     public abstract android.content.pm.ParceledListSlice getSystemAvailableFeatures();
     public abstract java.lang.String[] getSystemSharedLibraryNames();
+    public abstract java.lang.String getSystemTextClassifierPackageName();
     public abstract int getUidForSharedUser(java.lang.String);
     public abstract android.content.pm.VerifierDeviceIdentity getVerifierDeviceIdentity();
     public abstract void grantDefaultPermissionsToEnabledCarrierApps(java.lang.String[], int);
@@ -7685,6 +7701,7 @@
     public android.content.pm.InstrumentationInfo[] instrumentation;
     public boolean isStub;
     public long lastUpdateTime;
+    public java.lang.String overlayCategory;
     public int overlayPriority;
     public java.lang.String overlayTarget;
     public java.lang.String packageName;
@@ -8058,6 +8075,7 @@
     public abstract android.content.pm.KeySet getSigningKeySet(java.lang.String);
     public abstract android.content.pm.FeatureInfo[] getSystemAvailableFeatures();
     public abstract java.lang.String[] getSystemSharedLibraryNames();
+    public java.lang.String getSystemTextClassifierPackageName();
     public abstract java.lang.CharSequence getText(java.lang.String, int, android.content.pm.ApplicationInfo);
     public abstract int getUidForSharedUser(java.lang.String);
     public abstract android.graphics.drawable.Drawable getUserBadgeForDensity(android.os.UserHandle, int);
@@ -8566,6 +8584,8 @@
     public int calculateFootprint();
     public int describeContents();
     public static int fixProtectionLevel(int);
+    public int getProtection();
+    public int getProtectionFlags();
     public boolean isAppOp();
     public java.lang.CharSequence loadDescription(android.content.pm.PackageManager);
     public static java.lang.String protectionToString(int);
@@ -8589,6 +8609,7 @@
     public static int PROTECTION_FLAG_RUNTIME_ONLY;
     public static int PROTECTION_FLAG_SETUP;
     public static int PROTECTION_FLAG_SYSTEM;
+    public static int PROTECTION_FLAG_SYSTEM_TEXT_CLASSIFIER;
     public static int PROTECTION_FLAG_VENDOR_PRIVILEGED;
     public static int PROTECTION_FLAG_VERIFIER;
     public static int PROTECTION_MASK_BASE;
@@ -14585,7 +14606,7 @@
 -keep class android.service.autofill.FieldClassification$Match {
     <init>(java.lang.String, float);
 
-    public java.lang.String getRemoteId();
+    public java.lang.String getCategoryId();
     public float getScore();
     public java.lang.String toString();
 
@@ -14634,13 +14655,14 @@
     public void dump(java.lang.String, java.io.PrintWriter);
     public static void dumpConstraints(java.lang.String, java.io.PrintWriter);
     public android.os.Bundle getAlgorithmArgs();
+    public java.lang.String[] getCategoryIds();
     public java.lang.String getFieldClassificationAlgorithm();
     public java.lang.String getId();
+    public static int getMaxCategoryCount();
     public static int getMaxFieldClassificationIdsSize();
     public static int getMaxUserDataSize();
     public static int getMaxValueLength();
     public static int getMinValueLength();
-    public java.lang.String[] getRemoteIds();
     public java.lang.String[] getValues();
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
@@ -16058,11 +16080,12 @@
 }
 
 -keep class android.view.DisplayCutout {
-    <init>(android.graphics.Rect, android.graphics.Region);
+    <init>(android.graphics.Rect, android.graphics.Region, android.util.Size);
 
     public android.view.DisplayCutout calculateRelativeTo(android.graphics.Rect);
+    public android.view.DisplayCutout computeSafeInsets(int, int);
     public boolean equals(java.lang.Object);
-    public static android.view.DisplayCutout fromBoundingPolygon(java.util.List);
+    public static android.view.DisplayCutout fromBoundingRect(int, int, int, int);
     public static android.view.DisplayCutout fromBounds(android.graphics.Path);
     public static android.view.DisplayCutout fromResources(android.content.res.Resources, int);
     public android.graphics.Rect getBoundingRect();
@@ -16079,6 +16102,7 @@
     public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
+    public static java.lang.String EMULATION_OVERLAY_CATEGORY;
     public static android.view.DisplayCutout NO_CUTOUT;
 }
 
@@ -18004,7 +18028,6 @@
     public void close();
     public android.view.SurfaceControl$Transaction deferTransactionUntil(android.view.SurfaceControl, android.os.IBinder, long);
     public android.view.SurfaceControl$Transaction deferTransactionUntilSurface(android.view.SurfaceControl, android.view.Surface, long);
-    public android.view.SurfaceControl$Transaction destroy(android.view.SurfaceControl);
     public android.view.SurfaceControl$Transaction detachChildren(android.view.SurfaceControl);
     public android.view.SurfaceControl$Transaction hide(android.view.SurfaceControl);
     public android.view.SurfaceControl$Transaction merge(android.view.SurfaceControl$Transaction);
@@ -21568,13 +21591,14 @@
     public void notifyValueChanged(android.view.View);
     public void notifyValueChanged(android.view.View, int, android.view.autofill.AutofillValue);
     public void notifyViewClicked(android.view.View);
+    public void notifyViewClicked(android.view.View, int);
     public void notifyViewEntered(android.view.View);
     public void notifyViewEntered(android.view.View, int, android.graphics.Rect);
     public void notifyViewExited(android.view.View);
     public void notifyViewExited(android.view.View, int);
     public void notifyViewVisibilityChanged(android.view.View, boolean);
     public void notifyViewVisibilityChanged(android.view.View, int, boolean);
-    public void onActivityFinished();
+    public void onActivityFinishing();
     public void onAuthenticationResult(int, android.content.Intent, android.view.View);
     public void onCreate(android.os.Bundle);
     public void onInvisibleForAutofill();
@@ -22498,6 +22522,13 @@
 
 }
 
+-keep class com.android.internal.app.IAppOpsActiveCallback {
+
+    public abstract void opActiveChanged(int, int, java.lang.String, boolean);
+
+
+}
+
 -keep class com.android.internal.app.IAppOpsCallback {
 
     public abstract void opChanged(int, int, java.lang.String);
@@ -22527,7 +22558,9 @@
     public abstract void setUserRestriction(int, boolean, android.os.IBinder, int, java.lang.String[]);
     public abstract void setUserRestrictions(android.os.Bundle, android.os.IBinder, int);
     public abstract int startOperation(android.os.IBinder, int, int, java.lang.String);
+    public abstract void startWatchingActive(int[], com.android.internal.app.IAppOpsActiveCallback);
     public abstract void startWatchingMode(int, java.lang.String, com.android.internal.app.IAppOpsCallback);
+    public abstract void stopWatchingActive(com.android.internal.app.IAppOpsActiveCallback);
     public abstract void stopWatchingMode(com.android.internal.app.IAppOpsCallback);
 
 
