@@ -254,12 +254,13 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
         dispatchNewIoEvent(ioStats);
         if (needsExcessiveIoBroadcast()) {
+            Log.d(TAG, "about to send " + INTENT_EXCESSIVE_IO);
             sendExcessiveIoBroadcast();
         }
     }
 
     private void sendExcessiveIoBroadcast() {
-        Log.w(TAG, "sending excessive I/O notification");
+        Log.w(TAG, "sending " + INTENT_EXCESSIVE_IO);
 
         final String receiverPath = mConfiguration.intentReceiverForUnacceptableIoMetrics;
         if (receiverPath.isEmpty()) return;
@@ -276,6 +277,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
         Intent intent = new Intent(INTENT_EXCESSIVE_IO);
         intent.setComponent(receiverComponent);
+        intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         mContext.sendBroadcast(intent, mStorageMonitoringPermission.toString());
     }
 

@@ -29,6 +29,14 @@ public class CarStorageMonitoringBroadcastReceiver extends BroadcastReceiver {
     private static Intent mLastIntent;
     private static final Object mSync = new Object();
 
+    static void deliver(Intent intent) {
+        Log.i(TAG, "onReceive, intent: " + intent);
+        synchronized (mSync) {
+            mLastIntent = intent;
+            mSync.notify();
+        }
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "onReceive, intent: " + intent);
