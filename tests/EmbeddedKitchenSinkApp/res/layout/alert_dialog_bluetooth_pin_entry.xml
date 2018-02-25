@@ -34,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="@dimen/car_single_line_list_item_height"
             android:gravity="center_vertical"
-            style="@style/CarBody2"/>
+            style="@style/TextAppearance.Car.Body2"/>
 
         <FrameLayout
             android:layout_height="@dimen/car_double_line_list_item_height"
@@ -48,7 +48,7 @@
                     android:id="@+id/text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/CarBody1"
+                    style="@style/TextAppearance.Car.Body1"
                     android:inputType="textPassword"
                     android:maxLines="1" />
                 <TextView
@@ -57,7 +57,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/car_padding_2"
                     android:text="@string/bluetooth_pin_values_hint"
-                    style="@style/CarBody2.SingleLine" />
+                    style="@style/TextAppearance.Car.Body2.SingleLine" />
             </LinearLayout>
         </FrameLayout>
 
@@ -79,7 +79,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/car_keyline_3"
                 android:layout_marginEnd="@dimen/car_keyline_3"
-                style="@style/CarBody2.SingleLine"
+                style="@style/TextAppearance.Car.Body2.SingleLine"
                 android:gravity="center_vertical"/>
         </RelativeLayout>
 
@@ -101,7 +101,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/car_keyline_3"
                 android:layout_marginEnd="@dimen/car_keyline_3"
-                style="@style/CarBody2.SingleLine"
+                style="@style/TextAppearance.Car.Body2.SingleLine"
                 android:gravity="center_vertical"/>
         </RelativeLayout>
     </LinearLayout>

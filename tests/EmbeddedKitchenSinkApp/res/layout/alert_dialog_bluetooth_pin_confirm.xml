@@ -45,13 +45,13 @@
                     android:layout_height="wrap_content"
                     android:text="@string/bluetooth_pairing_key_msg"
                     android:visibility="gone"
-                    style="@style/CarBody2.SingleLine" />
+                    style="@style/TextAppearance.Car.Body2.SingleLine" />
                 <TextView
                     android:id="@+id/pairing_subhead"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="gone"
-                    style="@style/CarBody1.SingleLine"
+                    style="@style/TextAppearance.Car.Body1.SingleLine"
                     android:layout_marginTop="@dimen/car_padding_1" />
             </LinearLayout>
         </RelativeLayout>
@@ -62,7 +62,7 @@
             android:layout_height="@dimen/car_single_line_list_item_height"
             android:gravity="center_vertical"
             android:text="@string/bluetooth_enter_passkey_msg"
-            style="@style/CarBody2"
+            style="@style/TextAppearance.Car.Body2"
             android:visibility="gone" />
 
         <RelativeLayout
@@ -83,7 +83,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/car_keyline_3"
                 android:layout_marginEnd="@dimen/car_keyline_3"
-                style="@style/CarBody2.SingleLine"
+                style="@style/TextAppearance.Car.Body2.SingleLine"
                 android:gravity="center_vertical"/>
         </RelativeLayout>
 

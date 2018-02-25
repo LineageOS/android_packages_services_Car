@@ -369,7 +369,7 @@ public class MockedCarTestBase {
         }
     }
 
-    static final class MockContext extends ContextWrapper {
+    static class MockContext extends ContextWrapper {
         private final MockResources mResources;
 
         MockContext(Context base) {

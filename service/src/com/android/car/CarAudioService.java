@@ -22,13 +22,13 @@ import android.car.media.CarAudioPatchHandle;
 import android.car.media.ICarAudio;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioFormat;
+import android.media.AudioGain;
 import android.media.AudioGainConfig;
 import android.media.AudioManager;
 import android.media.AudioPatch;
@@ -71,6 +71,19 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     };
 
     private static final SparseIntArray USAGE_TO_CONTEXT = new SparseIntArray();
+
+    // For legacy stream type based volume control.
+    // Values in STREAM_TYPES and STREAM_TYPE_USAGES should be aligned.
+    private static final int[] STREAM_TYPES = new int[] {
+            AudioManager.STREAM_MUSIC,
+            AudioManager.STREAM_ALARM,
+            AudioManager.STREAM_RING
+    };
+    private static final int[] STREAM_TYPE_USAGES = new int[] {
+            AudioAttributes.USAGE_MEDIA,
+            AudioAttributes.USAGE_ALARM,
+            AudioAttributes.USAGE_NOTIFICATION_RINGTONE
+    };
 
     static {
         USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_UNKNOWN, ContextNumber.MUSIC);
@@ -151,8 +164,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mContext = context;
         mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        Resources res = context.getResources();
-        mUseDynamicRouting = res.getBoolean(R.bool.audioUseDynamicRouting);
+        mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
     }
 
     /**
@@ -196,6 +208,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void setGroupVolume(int groupId, int index, int flags) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
+        // For legacy stream type based volume control
+        if (!mUseDynamicRouting) {
+            mAudioManager.setStreamVolume(STREAM_TYPES[groupId], index, flags);
+            return;
+        }
+
         CarVolumeGroup group = getCarVolumeGroup(groupId);
         group.setCurrentGainIndex(index);
     }
@@ -206,6 +224,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Override
     public int getGroupMaxVolume(int groupId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+
+        // For legacy stream type based volume control
+        if (!mUseDynamicRouting) {
+            return mAudioManager.getStreamMaxVolume(STREAM_TYPES[groupId]);
+        }
 
         CarVolumeGroup group = getCarVolumeGroup(groupId);
         return group.getMaxGainIndex();
@@ -218,6 +241,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public int getGroupMinVolume(int groupId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
+        // For legacy stream type based volume control
+        if (!mUseDynamicRouting) {
+            return mAudioManager.getStreamMinVolume(STREAM_TYPES[groupId]);
+        }
+
         CarVolumeGroup group = getCarVolumeGroup(groupId);
         return group.getMinGainIndex();
     }
@@ -228,6 +256,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Override
     public int getGroupVolume(int groupId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+
+        // For legacy stream type based volume control
+        if (!mUseDynamicRouting) {
+            return mAudioManager.getStreamVolume(STREAM_TYPES[groupId]);
+        }
 
         CarVolumeGroup group = getCarVolumeGroup(groupId);
         return group.getCurrentGainIndex();
@@ -254,10 +287,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     private void setupVolumeGroups() {
-        if (mCarAudioDeviceInfos.size() == 0) {
-            Log.w(CarLog.TAG_AUDIO, "No bus device is configured, skip setupVolumeGroups");
-            return;
-        }
+        Preconditions.checkArgument(mCarAudioDeviceInfos.size() > 0,
+                "No bus device is configured to setup volume groups");
         final CarVolumeGroupsHelper helper = new CarVolumeGroupsHelper(
                 mContext, R.xml.car_volume_groups);
         mCarVolumeGroups = helper.loadVolumeGroups();
@@ -411,7 +442,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             try {
                 audioControlHal.setFadeTowardFront(value);
             } catch (RemoteException e) {
-                Log.e(CarLog.TAG_SERVICE, "setFadeTowardFront failed", e);
+                Log.e(CarLog.TAG_AUDIO, "setFadeTowardFront failed", e);
             }
         }
     }
@@ -424,7 +455,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             try {
                 audioControlHal.setBalanceTowardRight(value);
             } catch (RemoteException e) {
-                Log.e(CarLog.TAG_SERVICE, "setBalanceTowardRight failed", e);
+                Log.e(CarLog.TAG_AUDIO, "setBalanceTowardRight failed", e);
             }
         }
     }
@@ -463,7 +494,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     @Override
-    public CarAudioPatchHandle createAudioPatch(String sourceName, int usage, int gainIndex) {
+    public CarAudioPatchHandle createAudioPatch(String sourceName, int usage, int gainInMillibels) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
 
         // Find the named source port
@@ -485,18 +516,24 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             throw new IllegalArgumentException("Sink not available for usage: " + usage);
         }
 
-        // Continue to use the current port config on the output bus
+        // Use the current port config on the output bus
         AudioPortConfig sinkConfig = sinkPort.activeConfig();
 
-        // Configure the source port to match the output bus with optional gain adjustment
+        // Configure the source port to match the output port except for a gain adjustment
         final CarAudioDeviceInfo helper = new CarAudioDeviceInfo(
                 mContext, sourcePortInfo);
-        AudioGainConfig audioGainConfig = null;
-        if (gainIndex >= 0) {
-            audioGainConfig = helper.getPortGainForIndex(gainIndex);
-            if (audioGainConfig == null) {
-                Log.w(CarLog.TAG_AUDIO, "audio gain could not be applied.");
-            }
+        AudioGain audioGain = helper.getAudioGain();
+        if (audioGain == null) {
+            throw new RuntimeException("Gain controller not available");
+        }
+        // size of gain values is 1 in MODE_JOINT
+        AudioGainConfig audioGainConfig = audioGain.buildConfig(
+                AudioGain.MODE_JOINT,
+                audioGain.channelMask(),
+                new int[] { gainInMillibels },
+                0);
+        if (audioGainConfig == null) {
+            throw new RuntimeException("Failed to construct AudioGainConfig");
         }
         AudioPortConfig sourceConfig = sourcePortInfo.getPort().buildConfig(
                 sinkConfig.samplingRate(),
@@ -554,6 +591,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public int getVolumeGroupCount() {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
+        // For legacy stream type based volume control
+        if (!mUseDynamicRouting) return STREAM_TYPES.length;
+
         return mCarVolumeGroups == null ? 0 : mCarVolumeGroups.length;
     }
 
@@ -574,6 +614,27 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
         }
         return -1;
+    }
+
+    @Override
+    public @NonNull int[] getUsagesForVolumeGroupId(int groupId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+
+        // For legacy stream type based volume control
+        if (!mUseDynamicRouting) {
+            return new int[] { STREAM_TYPE_USAGES[groupId] };
+        }
+
+        CarVolumeGroup group = getCarVolumeGroup(groupId);
+        Set<Integer> contexts =
+                Arrays.stream(group.getContexts()).boxed().collect(Collectors.toSet());
+        final List<Integer> usages = new ArrayList<>();
+        for (int i = 0; i < USAGE_TO_CONTEXT.size(); i++) {
+            if (contexts.contains(USAGE_TO_CONTEXT.valueAt(i))) {
+                usages.add(USAGE_TO_CONTEXT.keyAt(i));
+            }
+        }
+        return usages.stream().mapToInt(i -> i).toArray();
     }
 
     private void enforcePermission(String permissionName) {
@@ -626,9 +687,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         try {
             return IAudioControl.getService();
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_SERVICE, "Failed to get IAudioControl service", e);
+            Log.e(CarLog.TAG_AUDIO, "Failed to get IAudioControl service", e);
         } catch (NoSuchElementException e) {
-            Log.e(CarLog.TAG_SERVICE, "IAudioControl service not registered yet");
+            Log.e(CarLog.TAG_AUDIO, "IAudioControl service not registered yet");
         }
         return null;
     }
