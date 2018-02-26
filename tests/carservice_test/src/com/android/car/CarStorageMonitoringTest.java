@@ -105,8 +105,21 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
     private final Map<String, ResourceOverrides> PER_TEST_RESOURCES =
             new HashMap<String, ResourceOverrides>() {
                 {
+                    put("testAggregateIoStats",
+                            new ResourceOverrides() {{
+                                override(R.integer.ioStatsNumSamplesToStore, 5);
+                            }});
+                    put("testIoStatsDeltas",
+                            new ResourceOverrides() {{
+                                override(R.integer.ioStatsNumSamplesToStore, 5);
+                            }});
+                    put("testEventDelivery",
+                        new ResourceOverrides() {{
+                            override(R.integer.ioStatsNumSamplesToStore, 5);
+                        }});
                     put("testIntentOnExcessiveWrite",
                             new ResourceOverrides() {{
+                                override(R.integer.ioStatsNumSamplesToStore, 5);
                                 override(R.integer.maxExcessiveIoSamplesInWindow, 0);
                                 override(R.integer.acceptableWrittenKBytesPerSample, 10);
                                 override(R.integer.acceptableFsyncCallsPerSample, 1000);
@@ -117,6 +130,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
                     put("testIntentOnExcessiveFsync",
                             new ResourceOverrides() {{
+                                override(R.integer.ioStatsNumSamplesToStore, 5);
                                 override(R.integer.maxExcessiveIoSamplesInWindow, 0);
                                 override(R.integer.acceptableWrittenKBytesPerSample, 1000);
                                 override(R.integer.acceptableFsyncCallsPerSample, 2);
