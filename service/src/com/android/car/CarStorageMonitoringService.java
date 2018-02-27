@@ -105,6 +105,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private boolean mInitialized = false;
 
     private long mShutdownCostInfo = SHUTDOWN_COST_INFO_MISSING;
+    private String mShutdownCostMissingReason;
 
     public CarStorageMonitoringService(Context context, SystemInterface systemInterface) {
         mContext = context;
@@ -370,12 +371,14 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         List<LifetimeWriteInfo> shutdownWrites = loadLifetimeWrites();
         if (shutdownWrites.isEmpty()) {
             Log.d(TAG, "lifetime write data from last shutdown missing");
+            mShutdownCostMissingReason = "no historical writes stored at last shutdown";
             return SHUTDOWN_COST_INFO_MISSING;
         }
         List<LifetimeWriteInfo> currentWrites =
                 Arrays.asList(mSystemInterface.getLifetimeWriteInfoProvider().load());
         if (currentWrites.isEmpty()) {
             Log.d(TAG, "current lifetime write data missing");
+            mShutdownCostMissingReason = "current write data cannot be obtained";
             return SHUTDOWN_COST_INFO_MISSING;
         }
 
@@ -402,6 +405,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                 // corrupt data, improper shutdown or that the kernel in use does not
                 // have proper monotonic guarantees on the lifetime write data. If any of these
                 // occur, it's probably safer to just bail out and say we don't know
+                mShutdownCostMissingReason = li.partition + " has a negative write amount (" +
+                        costDelta + " bytes)";
                 Log.e(TAG, "partition " + li.partition + " reported " + costDelta +
                     " bytes written to it during shutdown. assuming we can't" +
                     " determine proper shutdown information.");
@@ -491,8 +496,14 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                         .collect(Collectors.joining("\n")))
                     .collect(Collectors.joining("\n------\n")));
         }
-        writer.print("last shutdown cost estimate: " + (mShutdownCostInfo >= 0 ?
-            mShutdownCostInfo : "missing"));
+        if (mShutdownCostInfo < 0) {
+            writer.print("last shutdown cost: missing. ");
+            if (mShutdownCostMissingReason != null && !mShutdownCostMissingReason.isEmpty()) {
+                writer.println("reason: " + mShutdownCostMissingReason);
+            }
+        } else {
+            writer.println("last shutdown cost: " + mShutdownCostInfo + " bytes, estimated");
+        }
     }
 
     // ICarStorageMonitoring implementation
