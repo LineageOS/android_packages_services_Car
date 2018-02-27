@@ -30,47 +30,6 @@ public class CarNavigationStatusManagerEmbedded extends CarNavigationStatusManag
         mManager = (android.car.navigation.CarNavigationStatusManager) manager;
     }
 
-    /**
-     * @param status new instrument cluster navigation status.
-     * @throws CarNotConnectedException if the connection to the car service has been lost.
-     */
-    @Override
-    public void sendNavigationStatus(int status) throws CarNotConnectedException {
-        try {
-            mManager.sendNavigationStatus(status);
-        } catch (android.car.CarNotConnectedException e) {
-           throw new CarNotConnectedException(e);
-        }
-    }
-
-    @Override
-    public void sendNavigationTurnEvent(int event, CharSequence eventName, int turnAngle,
-            int turnNumber, int turnSide) throws CarNotConnectedException {
-        sendNavigationTurnEvent(event, eventName, turnAngle, turnNumber, null, turnSide);
-    }
-
-    @Override
-    public void sendNavigationTurnEvent(int event, CharSequence eventName, int turnAngle,
-            int turnNumber, Bitmap image, int turnSide) throws CarNotConnectedException {
-        try {
-            mManager.sendNavigationTurnEvent(event, eventName, turnAngle, turnNumber, image,
-                    turnSide);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    @Override
-    public void sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
-            int displayDistanceMillis, int displayDistanceUnit) throws CarNotConnectedException {
-        try {
-            mManager.sendNavigationTurnDistanceEvent(distanceMeters, timeSeconds,
-                    displayDistanceMillis, displayDistanceUnit);
-        } catch (android.car.CarNotConnectedException e) {
-            throw new CarNotConnectedException(e);
-        }
-    }
-
     @Override
     public void sendEvent(int eventType, Bundle bundle) throws CarNotConnectedException {
         try {
