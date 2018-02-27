@@ -80,6 +80,7 @@ PRODUCT_PACKAGES += \
     CarDialerApp \
     CarRadioApp \
     OverviewApp \
+    CarLauncher \
     CarLensPickerApp \
     LocalMediaPlayer \
     CarMediaApp \
