@@ -151,6 +151,10 @@ public class GarageModeService implements CarServiceBase,
         mPowerManagementService.registerPowerEventProcessingHandler(this);
     }
 
+    public boolean isInGarageMode() {
+        return mInGarageMode;
+    }
+
     @Override
     public void release() {
         logd("release GarageModeService");
