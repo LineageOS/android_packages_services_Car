@@ -413,11 +413,15 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_DAY_NIGHT_MODE = "day-night-mode";
         private static final String COMMAND_INJECT_VHAL_EVENT = "inject-vhal-event";
         private static final String COMMAND_ENABLE_UXR = "enable-uxr";
+        private static final String COMMAND_GARAGE_MODE = "garage-mode";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
         private static final String PARAM_SENSOR_MODE = "sensor";
         private static final String PARAM_VEHICLE_PROPERTY_AREA_GLOBAL = "0";
+        private static final String PARAM_ON_MODE = "on";
+        private static final String PARAM_OFF_MODE = "off";
+        private static final String PARAM_QUERY_MODE = "query";
 
 
         private void dumpHelp(PrintWriter pw) {
@@ -430,6 +434,8 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  Inject a vehicle property for testing");
             pw.println("\tdisable-uxr true|false");
             pw.println("\t  Disable UX restrictions and App blocking.");
+            pw.println("\tgarage-mode [on|off|query]");
+            pw.println("\t  Force into garage mode or check status.");
         }
 
         public void exec(String[] args, PrintWriter writer) {
@@ -438,10 +444,16 @@ public class ICarImpl extends ICar.Stub {
                 case COMMAND_HELP:
                     dumpHelp(writer);
                     break;
-                case COMMAND_DAY_NIGHT_MODE:
+                case COMMAND_DAY_NIGHT_MODE: {
                     String value = args.length < 1 ? "" : args[1];
                     forceDayNightMode(value, writer);
                     break;
+                }
+                case COMMAND_GARAGE_MODE: {
+                    String value = args.length < 1 ? "" : args[1];
+                    forceGarageMode(value, writer);
+                    break;
+                }
                 case COMMAND_INJECT_VHAL_EVENT:
                     String zone = PARAM_VEHICLE_PROPERTY_AREA_GLOBAL;
                     String data;
@@ -507,6 +519,25 @@ public class ICarImpl extends ICar.Stub {
                     break;
             }
             writer.println("DayNightMode changed to: " + currentMode);
+        }
+
+        private void forceGarageMode(String arg, PrintWriter writer) {
+            switch (arg) {
+                case PARAM_ON_MODE:
+                    mGarageModeService.onPrepareShutdown(false);
+                    break;
+                case PARAM_OFF_MODE:
+                    mGarageModeService.onSleepEntry();
+                    break;
+                case PARAM_QUERY_MODE:
+                    // Nothing to do. Always query at the end anyway.
+                    break;
+                default:
+                    writer.println("Unknown value. Valid argument: " + PARAM_ON_MODE + "|"
+                            + PARAM_OFF_MODE + "|" + PARAM_QUERY_MODE);
+                    return;
+            }
+            writer.println("Garage mode: " + mGarageModeService.isInGarageMode());
         }
 
         /**
