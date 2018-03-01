@@ -25,6 +25,6 @@ public class CarCabinService extends CarPropertyServiceBase {
 	private final static boolean DBG = false;
 
     public CarCabinService(Context context, CabinHalService cabinHal) {
-        super(context, cabinHal, Car.PERMISSION_CAR_CABIN, DBG, CarLog.TAG_CABIN);
+        super(context, cabinHal, Car.PERMISSION_ADJUST_CAR_CABIN, DBG, CarLog.TAG_CABIN);
     }
 }

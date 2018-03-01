@@ -248,14 +248,22 @@ public final class Car {
      * @hide
      */
     @SystemApi
-    public static final String PERMISSION_CAR_CABIN = "android.car.permission.CAR_CABIN";
+    public static final String PERMISSION_ADJUST_CAR_CABIN = "android.car.permission.ADJUST_CAR_CABIN";
+
+    /**
+     * Permission necessary to access car's engine information.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CAR_ENGINE_DETAILED =
+        "android.car.permission.CAR_ENGINE_DETAILED";
 
     /**
      * Permission necessary to access Car HVAC APIs.
      * @hide
      */
     @SystemApi
-    public static final String PERMISSION_CAR_HVAC = "android.car.permission.CAR_HVAC";
+    public static final String PERMISSION_ADJUST_CAR_CLIMATE = "android.car.permission.ADJUST_CAR_CLIMATE";
 
     /**
      * Permission necessary to access Car RADIO system APIs.
@@ -328,7 +336,7 @@ public final class Car {
      */
     @SystemApi
     public static final String PERMISSION_CAR_DIAGNOSTIC_READ_ALL =
-        "android.car.permission.DIAGNOSTIC_READ_ALL";
+        "android.car.permission.CAR_DIAGNOSTICS";
 
     /**
      * Permissions necessary to clear diagnostic information.
@@ -336,7 +344,7 @@ public final class Car {
      * @hide
      */
     @SystemApi
-    public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.DIAGNOSTIC_CLEAR";
+    public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.CLEAR_CAR_DIAGNOSTICS";
 
     /**
      * Permissions necessary to clear diagnostic information.

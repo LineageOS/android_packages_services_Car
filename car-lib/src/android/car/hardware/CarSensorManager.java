@@ -175,6 +175,7 @@ public final class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE      = 31;
     /**
      * Oil level sensor.
+     * This requires {@link Car#PERMISSION_CAR_ENGINE_DETAILED} permission
      * @hide
      */
     public static final int SENSOR_TYPE_ENGINE_OIL_LEVEL            = 32;

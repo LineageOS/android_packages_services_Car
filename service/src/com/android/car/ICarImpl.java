@@ -300,7 +300,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     public static void assertCabinPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_CAR_CABIN);
+        assertPermission(context, Car.PERMISSION_ADJUST_CAR_CABIN);
     }
 
     public static void assertNavigationManagerPermission(Context context) {
@@ -312,7 +312,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     public static void assertHvacPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_CAR_HVAC);
+        assertPermission(context, Car.PERMISSION_ADJUST_CAR_CLIMATE);
     }
 
     public static void assertPowerPermission(Context context) {
