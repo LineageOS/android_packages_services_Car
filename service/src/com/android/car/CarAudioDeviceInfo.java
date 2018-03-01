@@ -15,10 +15,6 @@
  */
 package com.android.car;
 
-import android.annotation.Nullable;
-import android.car.media.CarAudioManager;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioFormat;
@@ -27,7 +23,6 @@ import android.media.AudioGainConfig;
 import android.media.AudioManager;
 import android.media.AudioPort;
 import android.media.AudioPortConfig;
-import android.provider.Settings;
 import android.util.Log;
 
 import com.android.internal.util.Preconditions;
@@ -41,7 +36,6 @@ import com.android.internal.util.Preconditions;
  */
 /* package */ class CarAudioDeviceInfo {
 
-    private final ContentResolver mContentResolver;
     private final AudioDeviceInfo mAudioDeviceInfo;
     private final int mBusNumber;
     private final int mSampleRate;
@@ -50,8 +44,7 @@ import com.android.internal.util.Preconditions;
     private final int mMaxGain;
     private final int mMinGain;
 
-    CarAudioDeviceInfo(Context context, AudioDeviceInfo audioDeviceInfo) {
-        mContentResolver = context.getContentResolver();
+    CarAudioDeviceInfo(AudioDeviceInfo audioDeviceInfo) {
         mAudioDeviceInfo = audioDeviceInfo;
         mBusNumber = parseDeviceAddress(audioDeviceInfo.getAddress());
         mSampleRate = getMaxSampleRate(audioDeviceInfo);

@@ -319,6 +319,46 @@ public final class CarAudioManager implements CarManagerBase {
         }
     }
 
+    /**
+     * Register {@link ICarVolumeCallback} to receive the volume key events
+     *
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
+     * @param binder {@link IBinder} instance of {@link ICarVolumeCallback} to receive
+     *                              volume key event callbacks
+     * @throws CarNotConnectedException
+     */
+    @SystemApi
+    public void registerVolumeCallback(@NonNull IBinder binder)
+            throws CarNotConnectedException {
+        try {
+            mService.registerVolumeCallback(binder);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "registerVolumeCallback failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Unregister {@link ICarVolumeCallback} from receiving volume key events
+     *
+     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     *
+     * @param binder {@link IBinder} instance of {@link ICarVolumeCallback} to stop receiving
+     *                              volume key event callbacks
+     * @throws CarNotConnectedException
+     */
+    @SystemApi
+    public void unregisterVolumeCallback(@NonNull IBinder binder)
+            throws CarNotConnectedException {
+        try {
+            mService.unregisterVolumeCallback(binder);
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "unregisterVolumeCallback failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
     /** @hide */
     @Override
     public void onCarDisconnected() {
