@@ -439,7 +439,7 @@ public class CarSensorService extends ICarSensor.Stub
     //TODO handle per property OEM permission. bug: 32094983
     private String getPermissionName(int sensorType) {
         if ((sensorType >= CarSensorManager.SENSOR_TYPE_VENDOR_EXTENSION_START) &&
-                (sensorType >= CarSensorManager.SENSOR_TYPE_VENDOR_EXTENSION_END)) {
+                (sensorType <= CarSensorManager.SENSOR_TYPE_VENDOR_EXTENSION_END)) {
             return Car.PERMISSION_VENDOR_EXTENSION;
         }
         String permission = null;

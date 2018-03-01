@@ -25,6 +25,7 @@ LOCAL_RESOURCE_DIR += packages/services/Car/service/res
 LOCAL_AAPT_FLAGS += --extra-packages com.android.car --auto-add-overlay
 
 LOCAL_PACKAGE_NAME := CarServiceTest
+LOCAL_PRIVATE_PLATFORM_APIS := true
 
 # for system|priviledged permission.
 LOCAL_CERTIFICATE := platform
