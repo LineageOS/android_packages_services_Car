@@ -113,6 +113,7 @@ public class CarPowerManager implements CarManagerBase {
         /**
          *  Called when power state changes
          *  @param state New power state of device.
+         *  @param token Opaque identifier to keep track of listener events.
          */
         void onStateChanged(int state);
     }
@@ -181,8 +182,8 @@ public class CarPowerManager implements CarManagerBase {
             if (mListenerToService == null) {
                 ICarPowerStateListener listenerToService = new ICarPowerStateListener.Stub() {
                     @Override
-                    public void onStateChanged(int state) throws RemoteException {
-                        handleEvent(state);
+                    public void onStateChanged(int state, int token) throws RemoteException {
+                        handleEvent(state, token);
                     }
                 };
                 try {
@@ -233,30 +234,30 @@ public class CarPowerManager implements CarManagerBase {
         }
     }
 
-    private void handleEvent(int state) {
+    private void handleEvent(int state, int token) {
         Executor executor;
         synchronized (mLock) {
             executor = mExecutor;
         }
         if (executor != null) {
             executor.execute(() -> {
-                handleEventInternal(state);
+                handleEventInternal(state, token);
             });
         } else {
             // If no executor provided, run in binder thread.  This should only be done for
             //  trivial listener logic.
-            handleEventInternal(state);
+            handleEventInternal(state, token);
         }
     }
 
-    private void handleEventInternal(int state) {
+    private void handleEventInternal(int state, int token) {
         mListener.onStateChanged(state);
         if ((state == CarPowerStateListener.SHUTDOWN_ENTER) ||
             (state == CarPowerStateListener.SUSPEND_ENTER)) {
             // Notify service that state change is complete for SHUTDOWN_ENTER and SUSPEND_ENTER
             //  states only.
             try {
-                mService.finished(state);
+                mService.finished(mListenerToService, token);
             } catch (RemoteException e) {
                 Log.e(TAG, "Exception in finished", e);
             }

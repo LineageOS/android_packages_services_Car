@@ -20,13 +20,13 @@ import android.car.hardware.power.ICarPowerStateListener;
 
 /** @hide */
 interface ICarPower {
-    void registerListener(in ICarPowerStateListener callback) = 0;
+    void registerListener(in ICarPowerStateListener listener) = 0;
 
-    void unregisterListener(in ICarPowerStateListener callback) = 1;
+    void unregisterListener(in ICarPowerStateListener listener) = 1;
 
     void requestShutdownOnNextSuspend() = 2;
 
     int getBootReason() = 3;
 
-    void finished(in int state) = 4;
+    void finished(in ICarPowerStateListener listener, int token) = 4;
 }
