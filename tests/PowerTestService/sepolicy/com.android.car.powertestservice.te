@@ -1,0 +1,6 @@
+type powertestservice, domain, coredomain;
+type powertestservice_exec, exec_type, file_type;
+
+init_daemon_domain(powertestservice)
+
+allow system_app powertestservice:binder call;
