@@ -20,6 +20,7 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.ICarAudio;
+import android.car.media.ICarVolumeCallback;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
@@ -37,6 +38,7 @@ import android.media.AudioPortConfig;
 import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioMixingRule;
 import android.media.audiopolicy.AudioPolicy;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.telephony.TelephonyManager;
@@ -142,13 +144,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     }
                     break;
                 case AudioManager.ADJUST_MUTE:
-                    mAudioManager.setMasterMute(true, flags);
+                    setMasterMute(true, flags);
                     break;
                 case AudioManager.ADJUST_UNMUTE:
-                    mAudioManager.setMasterMute(false, flags);
+                    setMasterMute(false, flags);
                     break;
                 case AudioManager.ADJUST_TOGGLE_MUTE:
-                    mAudioManager.setMasterMute(!mAudioManager.isMasterMute(), flags);
+                    setMasterMute(!mAudioManager.isMasterMute(), flags);
                     break;
                 case AudioManager.ADJUST_SAME:
                 default:
@@ -156,6 +158,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
         }
     };
+
+    private final BinderInterfaceContainer<ICarVolumeCallback> mVolumeCallbackContainer =
+            new BinderInterfaceContainer<>();
 
     private AudioPolicy mAudioPolicy;
     private CarVolumeGroup[] mCarVolumeGroups;
@@ -188,6 +193,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             mAudioManager.unregisterAudioPolicyAsync(mAudioPolicy);
             mAudioPolicy = null;
         }
+
+        mVolumeCallbackContainer.clear();
     }
 
     @Override
@@ -208,6 +215,15 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void setGroupVolume(int groupId, int index, int flags) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
+        for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
+                mVolumeCallbackContainer.getInterfaces()) {
+            try {
+                callback.binderInterface.onGroupVolumeChanged(groupId);
+            } catch (RemoteException e) {
+                Log.e(CarLog.TAG_AUDIO, "Failed to callback onGroupVolumeChanged", e);
+            }
+        }
+
         // For legacy stream type based volume control
         if (!mUseDynamicRouting) {
             mAudioManager.setStreamVolume(STREAM_TYPES[groupId], index, flags);
@@ -216,6 +232,18 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         CarVolumeGroup group = getCarVolumeGroup(groupId);
         group.setCurrentGainIndex(index);
+    }
+
+    private void setMasterMute(boolean mute, int flags) {
+        mAudioManager.setMasterMute(mute, flags);
+        for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
+                mVolumeCallbackContainer.getInterfaces()) {
+            try {
+                callback.binderInterface.onMasterMuteChanged();
+            } catch (RemoteException e) {
+                Log.e(CarLog.TAG_AUDIO, "Failed to callback onMasterMuteChanged", e);
+            }
+        }
     }
 
     /**
@@ -371,7 +399,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     info.toString(), info.getId(), info.getProductName(), info.getAddress(),
                     info.getType()));
             if (info.getType() == AudioDeviceInfo.TYPE_BUS) {
-                final CarAudioDeviceInfo carInfo = new CarAudioDeviceInfo(mContext, info);
+                final CarAudioDeviceInfo carInfo = new CarAudioDeviceInfo(info);
                 // See also the audio_policy_configuration.xml and getBusForContext in
                 // audio control HAL, the bus number should be no less than zero.
                 if (carInfo.getBusNumber() >= 0) {
@@ -520,8 +548,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         AudioPortConfig sinkConfig = sinkPort.activeConfig();
 
         // Configure the source port to match the output port except for a gain adjustment
-        final CarAudioDeviceInfo helper = new CarAudioDeviceInfo(
-                mContext, sourcePortInfo);
+        final CarAudioDeviceInfo helper = new CarAudioDeviceInfo(sourcePortInfo);
         AudioGain audioGain = helper.getAudioGain();
         if (audioGain == null) {
             throw new RuntimeException("Gain controller not available");
@@ -635,6 +662,26 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
         }
         return usages.stream().mapToInt(i -> i).toArray();
+    }
+
+    /**
+     * See {@link android.car.media.CarAudioManager#registerVolumeCallback(IBinder)}
+     */
+    @Override
+    public void registerVolumeCallback(@NonNull IBinder binder) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+
+        mVolumeCallbackContainer.addBinder(ICarVolumeCallback.Stub.asInterface(binder));
+    }
+
+    /**
+     * See {@link android.car.media.CarAudioManager#unregisterVolumeCallback(IBinder)}
+     */
+    @Override
+    public void unregisterVolumeCallback(@NonNull IBinder binder) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+
+        mVolumeCallbackContainer.removeBinder(ICarVolumeCallback.Stub.asInterface(binder));
     }
 
     private void enforcePermission(String permissionName) {
