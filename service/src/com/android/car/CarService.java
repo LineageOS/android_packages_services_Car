@@ -28,6 +28,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.IHwBinder.DeathRecipient;
 import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.util.Log;
@@ -97,6 +98,7 @@ public class CarService extends Service {
 
         linkToDeath(mVehicle, mVehicleDeathRecipient);
 
+        ServiceManager.addService("car_service", mICarImpl);
         super.onCreate();
     }
 
