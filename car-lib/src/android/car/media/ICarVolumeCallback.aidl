@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-package android.car.hardware.power;
+package android.car.media;
 
 /**
- * Binder callback for CarPowerStateListener.
+ * Binder interface to callback the volume key events.
+ *
  * @hide
  */
-oneway interface ICarPowerStateListener {
+oneway interface ICarVolumeCallback {
     /**
-     * Called when a power state change occurs
+     * This is called whenever a group volume is changed.
+     * The changed-to volume index is not included, the caller is encouraged to
+     * get the current group volume index via CarAudioManager.
      */
-    void onStateChanged(int state, int token) = 0;
-}
+    void onGroupVolumeChanged(int groupId);
 
+    /**
+     * This is called whenever the master mute state is changed.
+     * The changed-to master mute state is not included, the caller is encouraged to
+     * get the current master mute state via AudioManager.
+     */
+    void onMasterMuteChanged();
+}

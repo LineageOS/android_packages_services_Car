@@ -17,8 +17,10 @@ package com.android.car;
 
 import java.io.PrintWriter;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.android.car.hal.PowerHalService;
@@ -28,13 +30,19 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import android.car.Car;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPower;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.content.Context;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.PowerManager;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -100,8 +108,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
             new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<PowerEventProcessingHandlerWrapper>
             mPowerEventProcessingHandlers = new CopyOnWriteArrayList<>();
-    private final CopyOnWriteArrayList<ICarPowerStateListener> mAppListeners =
-            new CopyOnWriteArrayList<>();
+    private final PowerManagerCallbackList mPowerManagerListeners = new PowerManagerCallbackList();
+    private final Map<IBinder, Integer> mPowerManagerListenerTokens = new ConcurrentHashMap<>();
+    private int mTokenValue = 1;
 
     @GuardedBy("this")
     private PowerState mCurrentState;
@@ -117,13 +126,25 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
     private HandlerThread mHandlerThread;
     @GuardedBy("this")
     private PowerHandler mHandler;
-    @GuardedBy("this")
     private int mBootReason;
-    @GuardedBy("this")
     private boolean mShutdownOnNextSuspend = false;
 
+    // TODO:  Make this OEM configurable.
+    private final static int APP_EXTEND_MAX_MS = 10000;
     private final static int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
     private final static int SHUTDOWN_EXTEND_MAX_MS = 5000;
+
+    private class PowerManagerCallbackList extends RemoteCallbackList<ICarPowerStateListener> {
+        /**
+         * Old version of {@link #onCallbackDied(E, Object)} that
+         * does not provide a cookie.
+         */
+        @Override
+        public void onCallbackDied(ICarPowerStateListener listener) {
+            Log.i(CarLog.TAG_POWER, "binderDied " + listener.asBinder());
+            CarPowerManagementService.this.doUnregisterListener(listener);
+        }
+    }
 
     public CarPowerManagementService(Context context, PowerHalService powerHal,
                                      SystemInterface systemInterface) {
@@ -189,7 +210,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
         mSystemInterface.stopDisplayStateMonitoring();
         mListeners.clear();
         mPowerEventProcessingHandlers.clear();
-        mAppListeners.clear();
+        mPowerManagerListeners.kill();
+        mPowerManagerListenerTokens.clear();
         mSystemInterface.releaseAllWakeLocks();
     }
 
@@ -235,6 +257,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
                 processingTime = Math.max(processingTime, wrapper.getProcessingTime());
             }
         }
+        synchronized (mPowerManagerListenerTokens) {
+            if (!mPowerManagerListenerTokens.isEmpty()) {
+                processingTime += APP_EXTEND_MAX_MS;
+            }
+        }
         long now = SystemClock.elapsedRealtime();
         long startTime;
         boolean shouldShutdown = true;
@@ -247,7 +274,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
             if (mCurrentState.mState != PowerHalService.STATE_SHUTDOWN_PREPARE) {
                 return;
             }
-            if (mCurrentState.canEnterDeepSleep()) {
+            if (mCurrentState.canEnterDeepSleep() && !mShutdownOnNextSuspend) {
                 shouldShutdown = false;
                 if (mLastSleepEntryTime > mProcessingStartTime && mLastSleepEntryTime < now) {
                     // already slept
@@ -349,6 +376,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
                 processingTimeMs = handlerProcessingTime;
             }
         }
+        // Add time for powerManager events
+        processingTimeMs += sendPowerManagerEvent(shuttingDown);
         return processingTimeMs;
     }
 
@@ -357,7 +386,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
         mSystemInterface.setDisplayState(false);;
         boolean shouldShutdown = true;
         if (mHal.isDeepSleepAllowed() && mSystemInterface.isSystemSupportingDeepSleep() &&
-                newState.canEnterDeepSleep()) {
+            newState.canEnterDeepSleep() && !mShutdownOnNextSuspend) {
             Log.i(CarLog.TAG_POWER, "starting sleep");
             shouldShutdown = false;
             doHandlePreprocessing(shouldShutdown);
@@ -393,6 +422,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
                 processingTimeMs = handlerProcessingTime;
             }
         }
+        // Add time for powerManager events
+        processingTimeMs += sendPowerManagerEvent(shuttingDown);
         if (processingTimeMs > 0) {
             int pollingCount = (int)(processingTimeMs / SHUTDOWN_POLLING_INTERVAL_MS) + 1;
             Log.i(CarLog.TAG_POWER, "processing before shutdown expected for :" + processingTimeMs +
@@ -415,6 +446,33 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
         }
     }
 
+    private long sendPowerManagerEvent(boolean shuttingDown) {
+        long processingTimeMs = 0;
+        int newState = shuttingDown ? CarPowerStateListener.SHUTDOWN_ENTER :
+                                      CarPowerStateListener.SUSPEND_ENTER;
+        synchronized (mPowerManagerListenerTokens) {
+            mPowerManagerListenerTokens.clear();
+            int i = mPowerManagerListeners.beginBroadcast();
+            while (i-- > 0) {
+                try {
+                    ICarPowerStateListener listener = mPowerManagerListeners.getBroadcastItem(i);
+                    listener.onStateChanged(newState, mTokenValue);
+                    mPowerManagerListenerTokens.put(listener.asBinder(), mTokenValue);
+                    mTokenValue++;
+                } catch (RemoteException e) {
+                    // Its likely the connection snapped. Let binder death handle the situation.
+                    Log.e(CarLog.TAG_POWER, "onStateChanged calling failed: " + e);
+                }
+            }
+            mPowerManagerListeners.finishBroadcast();
+            if (!mPowerManagerListenerTokens.isEmpty()) {
+                Log.i(CarLog.TAG_POWER, "mPowerMangerListenerTokens not empty, add APP_EXTEND_MAX_MS");
+                processingTimeMs += APP_EXTEND_MAX_MS;
+            }
+        }
+        return processingTimeMs;
+    }
+
     private void doHandleDeepSleep() {
         // keep holding partial wakelock to prevent entering sleep before enterDeepSleep call
         // enterDeepSleep should force sleep entry even if wake lock is kept.
@@ -435,11 +493,25 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
         if (mSystemInterface.enterDeepSleep(wakeupTimeSec) == false) {
             // System did not suspend.  Need to shutdown
             // TODO:  Shutdown gracefully
+            Log.e(CarLog.TAG_POWER, "Sleep did not succeed.  Need to shutdown");
         }
         mHal.sendSleepExit();
         for (PowerServiceEventListener listener : mListeners) {
             listener.onSleepExit();
         }
+        // Notify applications
+        int i = mPowerManagerListeners.beginBroadcast();
+        while (i-- > 0) {
+            try {
+                ICarPowerStateListener listener = mPowerManagerListeners.getBroadcastItem(i);
+                listener.onStateChanged(CarPowerStateListener.SUSPEND_EXIT, 0);
+            } catch (RemoteException e) {
+                // Its likely the connection snapped. Let binder death handle the situation.
+                Log.e(CarLog.TAG_POWER, "onStateChanged calling failed: " + e);
+            }
+        }
+        mPowerManagerListeners.finishBroadcast();
+
         if (mSystemInterface.isWakeupCausedByTimer()) {
             doHandlePreprocessing(false /*shuttingDown*/);
         } else {
@@ -549,13 +621,28 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
     @Override
     public void registerListener(ICarPowerStateListener listener) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
-        mAppListeners.add(listener);
+        mPowerManagerListeners.register(listener);
     }
 
     @Override
     public void unregisterListener(ICarPowerStateListener listener) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
-        mAppListeners.remove(listener);
+        doUnregisterListener(listener);
+    }
+
+    private void doUnregisterListener(ICarPowerStateListener listener) {
+        boolean found = mPowerManagerListeners.unregister(listener);
+
+        if (found) {
+            // Remove outstanding token if there is one
+            IBinder binder = listener.asBinder();
+            synchronized (mPowerManagerListenerTokens) {
+                if (mPowerManagerListenerTokens.containsKey(binder)) {
+                    int token = mPowerManagerListenerTokens.get(binder);
+                    finishedLocked(binder, token);
+                }
+            }
+        }
     }
 
     @Override
@@ -572,9 +659,24 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
     }
 
     @Override
-    public void finished(int state) {
+    public void finished(ICarPowerStateListener listener, int token) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
-        Log.e(CarLog.TAG_POWER, "TODO: finished(), state = " + state);
+        synchronized (mPowerManagerListenerTokens) {
+            finishedLocked(listener.asBinder(), token);
+        }
+    }
+
+    private void finishedLocked(IBinder binder, int token) {
+        int currentToken = mPowerManagerListenerTokens.get(binder);
+        if (currentToken == token) {
+            mPowerManagerListenerTokens.remove(binder);
+            if (mPowerManagerListenerTokens.isEmpty() &&
+                (mCurrentState.mState == PowerHalService.STATE_SHUTDOWN_PREPARE)) {
+                // All apps are ready to shutdown/suspend.
+                Log.i(CarLog.TAG_POWER, "Apps are finished, call notifyPowerEventProcessingCompletion");
+                notifyPowerEventProcessingCompletion(null);
+            }
+        }
     }
 
     private class PowerHandler extends Handler {

@@ -40,4 +40,10 @@ interface ICarAudio {
     int getVolumeGroupCount();
     int getVolumeGroupIdForUsage(int usage);
     int[] getUsagesForVolumeGroupId(int groupId);
+
+    /**
+     * IBinder is ICarVolumeCallback but passed as IBinder due to aidl hidden.
+     */
+    void registerVolumeCallback(in IBinder binder);
+    void unregisterVolumeCallback(in IBinder binder);
 }

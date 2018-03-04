@@ -148,14 +148,13 @@ public class E2ePerformanceTest {
     @Test
     public void singleContinuousProperty() throws Exception {
         verifyEventsFromSingleProperty(
-                CarSensorManager.SENSOR_TYPE_RPM, VehicleProperty.ENGINE_RPM);
+                CarSensorManager.SENSOR_TYPE_CAR_SPEED, VehicleProperty.PERF_VEHICLE_SPEED);
     }
 
     @Test
     public void benchmarkEventBandwidthThroughCarService() throws Exception {
         int[] mgrProperties = new int[] {
                 CarSensorManager.SENSOR_TYPE_ODOMETER,
-                CarSensorManager.SENSOR_TYPE_RPM,
                 CarSensorManager.SENSOR_TYPE_CAR_SPEED
         };
         // Expecting to receive at least 10 events within 150ms.
@@ -177,9 +176,6 @@ public class E2ePerformanceTest {
                 .setIncrement(1.0f)
                 .setDispersion(100)
                 .start(VehicleProperty.PERF_ODOMETER);
-
-        mEventsGenerator
-                .start(VehicleProperty.ENGINE_RPM);
 
         mEventsGenerator
                 .setIntervalMs(EVENT_INTERVAL_MS)

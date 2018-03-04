@@ -117,7 +117,7 @@ public class PowerHalService extends HalServiceBase {
             if (mState != STATE_SHUTDOWN_PREPARE) {
                 throw new IllegalStateException("wrong state");
             }
-            return (mParam ==VehicleApPowerStateShutdownParam.CAN_SLEEP);
+            return (mParam == VehicleApPowerStateShutdownParam.CAN_SLEEP);
         }
 
         /**
@@ -193,13 +193,12 @@ public class PowerHalService extends HalServiceBase {
 
     public void sendShutdownPostpone(int postponeTimeMs) {
         Log.i(CarLog.TAG_POWER, "send shutdown postpone, time:" + postponeTimeMs);
-        setPowerState(VehicleApPowerSetState.SHUTDOWN_POSTPONE,
-                postponeTimeMs);
+        setPowerState(VehicleApPowerSetState.SHUTDOWN_POSTPONE, postponeTimeMs);
     }
 
     public void sendShutdownStart(int wakeupTimeSec) {
         Log.i(CarLog.TAG_POWER, "send shutdown start");
-        setPowerState(VehicleApPowerSetState.SHUTDOWN_START, 0);
+        setPowerState(VehicleApPowerSetState.SHUTDOWN_START, wakeupTimeSec);
     }
 
     public void sendDisplayOn() {
@@ -216,6 +215,7 @@ public class PowerHalService extends HalServiceBase {
         int[] values = { state, additionalParam };
         try {
             mHal.set(VehicleProperty.AP_POWER_STATE).to(values);
+            Log.i(CarLog.TAG_POWER, "setPowerState=" + state + " param=" + additionalParam);
         } catch (PropertyTimeoutException e) {
             Log.e(CarLog.TAG_POWER, "cannot set to AP_POWER_STATE", e);
         }
@@ -239,23 +239,22 @@ public class PowerHalService extends HalServiceBase {
         return config != null;
     }
 
-    public synchronized boolean isDeepSleepAllowed() {
+    private synchronized boolean isConfigFlagSet(int flag) {
         VehiclePropConfig config = mProperties.get(VehicleProperty.AP_POWER_STATE);
         if (config == null) {
             return false;
-        }
-        return (config.configArray.get(0)
-                & VehicleApPowerStateConfigFlag.ENABLE_DEEP_SLEEP_FLAG) != 0;
-    }
-
-    public synchronized boolean isTimedWakeupAllowed() {
-        VehiclePropConfig config = mProperties.get(
-                AP_POWER_STATE);
-        if (config == null) {
+        } else if (config.configArray.size() < 1) {
             return false;
         }
-        return (config.configArray.get(0)
-                & VehicleApPowerStateConfigFlag.CONFIG_SUPPORT_TIMER_POWER_ON_FLAG) != 0;
+        return (config.configArray.get(0) & flag) != 0;
+    }
+
+    public boolean isDeepSleepAllowed() {
+        return isConfigFlagSet(VehicleApPowerStateConfigFlag.ENABLE_DEEP_SLEEP_FLAG);
+    }
+
+    public boolean isTimedWakeupAllowed() {
+        return isConfigFlagSet(VehicleApPowerStateConfigFlag.CONFIG_SUPPORT_TIMER_POWER_ON_FLAG);
     }
 
     @Override
@@ -318,11 +317,13 @@ public class PowerHalService extends HalServiceBase {
             switch (v.prop) {
             case AP_POWER_BOOTUP_REASON:
                 int reason = v.value.int32Values.get(0);
+                Log.i(CarLog.TAG_POWER, "Received AP_POWER_BOOTUP_REASON=" + reason);
                 listener.onBootReasonReceived(reason);
                 break;
             case AP_POWER_STATE:
                 int state = v.value.int32Values.get(VehicleApPowerStateIndex.STATE);
                 int param = v.value.int32Values.get(VehicleApPowerStateIndex.ADDITIONAL);
+                Log.i(CarLog.TAG_POWER, "Received AP_POWER_STATE=" + state + " param=" + param);
                 listener.onApPowerStateChange(new PowerState(state, param));
                 break;
             case DISPLAY_BRIGHTNESS:
@@ -338,6 +339,7 @@ public class PowerHalService extends HalServiceBase {
                     Log.e(CarLog.TAG_POWER, "invalid brightness: " + brightness + ", set to 100");
                     brightness = 100;
                 }
+                Log.i(CarLog.TAG_POWER, "Received DISPLAY_BRIGHTNESS=" + brightness);
                 listener.onDisplayBrightnessChange(brightness);
                 break;
             }

@@ -300,7 +300,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     public static void assertCabinPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_CAR_CABIN);
+        assertPermission(context, Car.PERMISSION_ADJUST_CAR_CABIN);
     }
 
     public static void assertNavigationManagerPermission(Context context) {
@@ -312,7 +312,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     public static void assertHvacPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_CAR_HVAC);
+        assertPermission(context, Car.PERMISSION_ADJUST_CAR_CLIMATE);
     }
 
     public static void assertPowerPermission(Context context) {
@@ -414,6 +414,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_INJECT_VHAL_EVENT = "inject-vhal-event";
         private static final String COMMAND_ENABLE_UXR = "enable-uxr";
         private static final String COMMAND_GARAGE_MODE = "garage-mode";
+        private static final String COMMAND_GET_DO_ACTIVITIES = "get-do-activities";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -436,6 +437,8 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  Disable UX restrictions and App blocking.");
             pw.println("\tgarage-mode [on|off|query]");
             pw.println("\t  Force into garage mode or check status.");
+            pw.println("\tget-do-activities pkgname");
+            pw.println("\t Get Distraction Optimized activities in given package");
         }
 
         public void exec(String[] args, PrintWriter writer) {
@@ -480,6 +483,27 @@ public class ICarImpl extends ICar.Stub {
                     boolean enableBlocking = Boolean.valueOf(args[1]);
                     if (mCarPackageManagerService != null) {
                         mCarPackageManagerService.setEnableActivityBlocking(enableBlocking);
+                    }
+                    break;
+                case COMMAND_GET_DO_ACTIVITIES:
+                    if (args.length < 2) {
+                        writer.println("Incorrect number of arguments");
+                        dumpHelp(writer);
+                        break;
+                    }
+                    String pkgName = args[1].toLowerCase();
+                    if (mCarPackageManagerService != null) {
+                        String[] doActivities =
+                                mCarPackageManagerService.getDistractionOptimizedActivities(
+                                        pkgName);
+                        if (doActivities != null) {
+                            writer.println("DO Activities for " + pkgName);
+                            for (String a : doActivities) {
+                                writer.println(a);
+                            }
+                        } else {
+                            writer.println("No DO Activities for " + pkgName);
+                        }
                     }
                     break;
                 default:

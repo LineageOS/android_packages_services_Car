@@ -26,7 +26,7 @@
     <uses-permission android:name="android.car.permission.CAR_SPEED" />
     <uses-permission android:name="android.car.permission.CAR_MILEAGE" />
     <uses-permission android:name="android.car.permission.CAR_FUEL" />
-    <uses-permission android:name="android.car.permission.CAR_HVAC" />
+    <uses-permission android:name="android.car.permission.ADJUST_CAR_CLIMATE" />
     <uses-permission android:name="android.car.permission.CAR_MOCK_VEHICLE_HAL" />
     <uses-permission android:name="android.car.permission.CAR_CAMERA" />
     <uses-permission android:name="android.car.permission.CAR_NAVIGATION_MANAGER"/>

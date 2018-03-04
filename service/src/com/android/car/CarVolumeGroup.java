@@ -100,7 +100,7 @@ import java.util.Arrays;
         mBusToCarAudioDeviceInfos.put(busNumber, info);
 
         if (info.getDefaultGain() > mDefaultGain) {
-            // We're arbitrarily selecting the highest observed gain as the groups default gain.
+            // We're arbitrarily selecting the highest bus default gain as the group's default.
             mDefaultGain = info.getDefaultGain();
         }
         if (info.getMaxGain() > mMaxGain) {

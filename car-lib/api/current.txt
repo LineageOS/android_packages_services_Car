@@ -326,11 +326,13 @@ package android.car.media {
     method public int getVolumeGroupCount() throws android.car.CarNotConnectedException;
     method public int getVolumeGroupIdForUsage(int) throws android.car.CarNotConnectedException;
     method public static java.lang.String getVolumeSettingsKeyForGroup(int);
+    method public void registerVolumeCallback(android.os.IBinder) throws android.car.CarNotConnectedException;
     method public void registerVolumeChangeObserver(android.database.ContentObserver);
     method public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
     method public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
     method public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
     method public void setGroupVolume(int, int, int) throws android.car.CarNotConnectedException;
+    method public void unregisterVolumeCallback(android.os.IBinder) throws android.car.CarNotConnectedException;
     method public void unregisterVolumeChangeObserver(android.database.ContentObserver);
   }
 
