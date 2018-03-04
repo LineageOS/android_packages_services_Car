@@ -325,6 +325,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 int busNumber = mContextToBus.get(contextNumber);
                 group.bind(contextNumber, busNumber, mCarAudioDeviceInfos.get(busNumber));
             }
+
+            // Now that we have all our contexts, ensure the HAL gets our intial value
+            group.setCurrentGainIndex(group.getCurrentGainIndex());
+
             Log.v(CarLog.TAG_AUDIO, "Processed volume group: " + group);
         }
         // Perform validation after all volume groups are processed
@@ -390,7 +394,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         // 1st, enumerate all output bus device ports
         AudioDeviceInfo[] deviceInfos = mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
         if (deviceInfos.length == 0) {
-            Log.e(CarLog.TAG_AUDIO, "setupDynamicRouting, no output device available, ignore");
+            Log.e(CarLog.TAG_AUDIO, "getDynamicAudioPolicy, no output device available, ignore");
             return null;
         }
         for (AudioDeviceInfo info : deviceInfos) {
