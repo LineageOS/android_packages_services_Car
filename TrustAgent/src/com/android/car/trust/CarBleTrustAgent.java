@@ -59,7 +59,6 @@ public class CarBleTrustAgent extends TrustAgentService {
     public static final String INTENT_EXTRA_TOKEN_HANDLE = "extra-token-handle";
     public static final String INTENT_EXTRA_TOKEN_STATUS = "extra-token-status";
 
-
     private static final String TAG = "CarBleTrustAgent";
 
     private static final long TRUST_DURATION_MS = TimeUnit.MINUTES.toMicros(5);
@@ -92,6 +91,53 @@ public class CarBleTrustAgent extends TrustAgentService {
                 removeEscrowToken(handle, getCurrentUserHandle());
             }
         }
+    };
+
+    private final SimpleBleServer.ConnectionCallback mConnectionCallback
+            = new SimpleBleServer.ConnectionCallback() {
+        @Override
+        public void onServerStarted() {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "BLE server started");
+            }
+        }
+
+        @Override
+        public void onServerStartFailed(int errorCode) {
+            Log.w(TAG, "BLE server failed to start. Error Code: " + errorCode);
+        }
+
+        @Override
+        public void onDeviceConnected(BluetoothDevice device) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "BLE device connected. Name: " + device.getName()
+                        + " Address: " + device.getAddress());
+            }
+        }
+    };
+
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "CarUnlockService connected");
+            }
+
+            mBleServiceBound = true;
+            CarUnlockService.UnlockServiceBinder binder
+                    = (CarUnlockService.UnlockServiceBinder) service;
+            mCarUnlockService = binder.getService();
+            mCarUnlockService.addUnlockServiceCallback(CarBleTrustAgent.this::unlock);
+            mCarUnlockService.registerConnectionCallback(mConnectionCallback);
+            maybeStartBleUnlockService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mCarUnlockService = null;
+            mBleServiceBound = false;
+        }
+
     };
 
     @Override
@@ -145,60 +191,6 @@ public class CarBleTrustAgent extends TrustAgentService {
         }
         super.onDestroy();
     }
-
-    private SimpleBleServer.ConnectionListener mConnectionListener
-            = new SimpleBleServer.ConnectionListener() {
-        @Override
-        public void onServerStarted() {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "BLE server started");
-            }
-        }
-
-        @Override
-        public void onServerStartFailed(int errorCode) {
-            Log.w(TAG, "BLE server failed to start. Error Code: " + errorCode);
-        }
-
-        @Override
-        public void onDeviceConnected(BluetoothDevice device) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "BLE device connected. Name: " + device.getName()
-                        + " Address: " + device.getAddress());
-            }
-        }
-    };
-
-    private CarUnlockService.UnlockServiceCallback mUnlockCallback
-            = new CarUnlockService.UnlockServiceCallback() {
-        @Override
-        public void unlockDevice(byte[] token, long handle) {
-            unlock(token, handle);
-        }
-    };
-
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "CarUnlockService connected");
-            }
-
-            mBleServiceBound = true;
-            CarUnlockService.UnlockServiceBinder binder
-                    = (CarUnlockService.UnlockServiceBinder) service;
-            mCarUnlockService = binder.getService();
-            mCarUnlockService.addUnlockServiceCallback(mUnlockCallback);
-            mCarUnlockService.addConnectionListener(mConnectionListener);
-            maybeStartBleUnlockService();
-        }
-
-        public void onServiceDisconnected(ComponentName arg0) {
-            mCarUnlockService = null;
-            mBleServiceBound = false;
-        }
-
-    };
 
     private void maybeStartBleUnlockService() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
