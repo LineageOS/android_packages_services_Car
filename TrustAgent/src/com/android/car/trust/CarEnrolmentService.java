@@ -23,9 +23,12 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.util.Log;
+
 import com.android.car.trust.comms.SimpleBleServer;
+import com.android.car.trust.comms.Utils;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -34,7 +37,7 @@ import java.util.UUID;
 public class CarEnrolmentService extends SimpleBleServer {
     private static final String TAG = "CarEnrolmentService";
 
-    public interface EnrolmentCallback {
+    public interface EnrolmentListener {
         void onEnrolmentDataReceived(byte[] token);
     }
 
@@ -42,14 +45,12 @@ public class CarEnrolmentService extends SimpleBleServer {
     private BluetoothGattCharacteristic mEnrolmentEscrowToken;
     private BluetoothGattCharacteristic mEnrolmentTokenHandle;
 
-    private HashSet<EnrolmentCallback> mCallbacks;
-
+    private final Set<EnrolmentListener> mEnrolmentListeners = new HashSet<>();
     private final IBinder mBinder = new EnrolmentServiceBinder();
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mCallbacks = new HashSet<>();
         setupEnrolmentService();
     }
 
@@ -73,7 +74,7 @@ public class CarEnrolmentService extends SimpleBleServer {
                 Log.d(TAG, "Enrolment token received, value: " + Utils.getLong(value));
             }
 
-            for (EnrolmentCallback callback : mCallbacks) {
+            for (EnrolmentListener callback : mEnrolmentListeners) {
                 callback.onEnrolmentDataReceived(value);
             }
         }
@@ -85,8 +86,8 @@ public class CarEnrolmentService extends SimpleBleServer {
         //Enrolment service should not have any read requests.
     }
 
-    public void addEnrolmentCallback(EnrolmentCallback callback) {
-        mCallbacks.add(callback);
+    public void addEnrolmentCallback(EnrolmentListener callback) {
+        mEnrolmentListeners.add(callback);
     }
 
     public void sendHandle(long handle, BluetoothDevice device) {

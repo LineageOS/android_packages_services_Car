@@ -24,6 +24,7 @@ import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.util.Log;
 import com.android.car.trust.comms.SimpleBleServer;
+import com.android.car.trust.comms.Utils;
 
 import java.util.UUID;
 
