@@ -13,14 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License
  */
-package com.android.car.trust;
-
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
-import android.content.Context;
+package com.android.car.trust.comms;
 
 import java.nio.ByteBuffer;
-import java.util.UUID;
 
 public class Utils {
 
@@ -35,10 +30,5 @@ public class Utils {
         buffer.put(bytes);
         buffer.flip();
         return buffer.getLong();
-    }
-
-    public static BluetoothGattCharacteristic getCharacteristic(int uuidRes,
-            BluetoothGattService service, Context context) {
-        return service.getCharacteristic(UUID.fromString(context.getString(uuidRes)));
     }
 }
