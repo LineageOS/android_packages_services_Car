@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <resources>
-    <string name="app_name">CarBleTrustAgent</string>
+    <string name="app_name">CarTrustAgentService</string>
     <string name="trust_granted_explanation">Unlock via escrow token, now granting trust</string>
 
     <!-- service/characteristics uuid for unlocking a device -->
