@@ -29,8 +29,9 @@ LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
-# Build against the current public APIs of the SDK
-LOCAL_SDK_VERSION := current
+#TODO(b/72620511) support lib should be able to be using public APIs only
+#LOCAL_SDK_VERSION := current
+LOCAL_PRIVATE_PLATFORM_APIS := true
 
 LOCAL_MANIFEST_FILE := AndroidManifest.xml
 
@@ -58,8 +59,9 @@ LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
-# Build against the current public APIs of the SDK
-LOCAL_SDK_VERSION := current
+#TODO(b/72620511) support lib should be able to be using public APIs only
+#LOCAL_SDK_VERSION := current
+LOCAL_PRIVATE_PLATFORM_APIS := true
 
 LOCAL_MANIFEST_FILE := AndroidManifest.xml
 
@@ -79,7 +81,10 @@ endif
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := android.support.car
-LOCAL_SDK_VERSION := current
+
+#TODO(b/72620511) support lib should be able to be using public APIs only
+#LOCAL_SDK_VERSION := current
+LOCAL_PRIVATE_PLATFORM_APIS := true
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 
