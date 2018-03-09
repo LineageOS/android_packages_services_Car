@@ -128,4 +128,6 @@ android.car-stubs_stamp :=
 android_car_stub_packages :=
 android_car_api :=
 
+include $(call all-makefiles-under,$(LOCAL_PATH))
+
 endif #TARGET_BUILD_PDK
