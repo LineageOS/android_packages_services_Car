@@ -23,8 +23,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.util.Log;
-import com.android.car.trust.comms.SimpleBleServer;
-import com.android.car.trust.comms.Utils;
 
 import java.util.UUID;
 
@@ -38,8 +36,6 @@ public class CarUnlockService extends SimpleBleServer {
     public interface UnlockServiceCallback {
         void unlockDevice(byte[] token, long handle);
     }
-
-    private static final String TAG = "CarUnlockService";
 
     private BluetoothGattService mUnlockService;
     private BluetoothGattCharacteristic mUnlockEscrowToken;
@@ -61,9 +57,7 @@ public class CarUnlockService extends SimpleBleServer {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "CarUnlockService starting up, creating BLE service");
-        }
+        Log.d(Utils.LOG_TAG, "CarUnlockService starting up, creating BLE service");
         setupUnlockService();
     }
 
@@ -92,15 +86,11 @@ public class CarUnlockService extends SimpleBleServer {
         UUID uuid = characteristic.getUuid();
 
         if (uuid.equals(mUnlockTokenHandle.getUuid())) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Unlock handle received, value: " + Utils.getLong(value));
-            }
+            Log.d(Utils.LOG_TAG, "Unlock handle received, value: " + Utils.getLong(value));
             mCurrentHandle = Utils.getLong(value);
             unlockDataReceived();
         } else if (uuid.equals(mUnlockEscrowToken.getUuid())) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Unlock escrow token received, value: " + Utils.getLong(value));
-            }
+            Log.d(Utils.LOG_TAG, "Unlock escrow token received, value: " + Utils.getLong(value));
             mCurrentToken = value;
             unlockDataReceived();
         }
@@ -118,10 +108,8 @@ public class CarUnlockService extends SimpleBleServer {
             return;
         }
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Handle and token both received, requesting unlock. Time: "
-                    + System.currentTimeMillis());
-        }
+        Log.d(Utils.LOG_TAG, "Handle and token both received, requesting unlock. Time: "
+                + System.currentTimeMillis());
         // Both the handle and token has been received, try to unlock the device.
 
 
