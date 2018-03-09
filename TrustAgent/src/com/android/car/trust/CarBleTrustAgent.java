@@ -33,7 +33,6 @@ import android.os.UserManager;
 import android.service.trust.TrustAgentService;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import com.android.car.trust.comms.SimpleBleServer;
 
 import java.util.concurrent.TimeUnit;
 
@@ -59,8 +58,6 @@ public class CarBleTrustAgent extends TrustAgentService {
     public static final String INTENT_EXTRA_TOKEN_HANDLE = "extra-token-handle";
     public static final String INTENT_EXTRA_TOKEN_STATUS = "extra-token-status";
 
-    private static final String TAG = "CarBleTrustAgent";
-
     private static final long TRUST_DURATION_MS = TimeUnit.MINUTES.toMicros(5);
     private static final long BLE_RETRY_MS = TimeUnit.SECONDS.toMillis(1);
 
@@ -75,9 +72,7 @@ public class CarBleTrustAgent extends TrustAgentService {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Received broadcast: " + action);
-            }
+            Log.d(Utils.LOG_TAG, "Received broadcast: " + action);
             if (ACTION_REVOKE_TRUST.equals(action)) {
                 revokeTrust();
             } else if (ACTION_ADD_TOKEN.equals(action)) {
@@ -97,32 +92,25 @@ public class CarBleTrustAgent extends TrustAgentService {
             = new SimpleBleServer.ConnectionCallback() {
         @Override
         public void onServerStarted() {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "BLE server started");
-            }
+            Log.d(Utils.LOG_TAG, "BLE server started");
         }
 
         @Override
         public void onServerStartFailed(int errorCode) {
-            Log.w(TAG, "BLE server failed to start. Error Code: " + errorCode);
+            Log.e(Utils.LOG_TAG, "BLE server failed to start. Error Code: " + errorCode);
         }
 
         @Override
         public void onDeviceConnected(BluetoothDevice device) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "BLE device connected. Name: " + device.getName()
-                        + " Address: " + device.getAddress());
-            }
+            Log.d(Utils.LOG_TAG, "BLE device connected. Name: " + device.getName()
+                    + " Address: " + device.getAddress());
         }
     };
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "CarUnlockService connected");
-            }
-
+            Log.d(Utils.LOG_TAG, "CarUnlockService connected");
             mBleServiceBound = true;
             CarUnlockService.UnlockServiceBinder binder
                     = (CarUnlockService.UnlockServiceBinder) service;
@@ -143,18 +131,14 @@ public class CarBleTrustAgent extends TrustAgentService {
     @Override
     public void onTrustTimeout() {
         super.onTrustTimeout();
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onTrustTimeout(): timeout expired");
-        }
+        Log.d(Utils.LOG_TAG, "onTrustTimeout(): timeout expired");
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Bluetooth trust agent starting up");
-        }
+        Log.d(Utils.LOG_TAG, "Bluetooth trust agent starting up");
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_REVOKE_TRUST);
         filter.addAction(ACTION_ADD_TOKEN);
@@ -167,9 +151,7 @@ public class CarBleTrustAgent extends TrustAgentService {
         // If the user is already unlocked, don't bother starting the BLE service.
         UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
         if (!um.isUserUnlocked()) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "User locked, will now bind CarUnlockService");
-            }
+            Log.d(Utils.LOG_TAG, "User locked, will now bind CarUnlockService");
             Intent intent = new Intent(this, CarUnlockService.class);
 
             bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
@@ -180,9 +162,7 @@ public class CarBleTrustAgent extends TrustAgentService {
 
     @Override
     public void onDestroy() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Car Trust agent shutting down");
-        }
+        Log.d(Utils.LOG_TAG, "Car Trust agent shutting down");
         mLocalBroadcastManager.unregisterReceiver(mTrustEventReceiver);
 
         // Unbind the service to avoid leaks from BLE stack.
@@ -193,10 +173,7 @@ public class CarBleTrustAgent extends TrustAgentService {
     }
 
     private void maybeStartBleUnlockService() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Trying to open a Ble GATT server");
-        }
-
+        Log.d(Utils.LOG_TAG, "Trying to open a Ble GATT server");
         BluetoothManager btManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothGattServer mGattServer
@@ -211,7 +188,7 @@ public class CarBleTrustAgent extends TrustAgentService {
         // might not be ready just yet. Keep trying until a GattServer can open up before proceeding
         // to start the rest of the BLE services.
         if (mGattServer == null) {
-            Log.e(TAG, "Gatt not available, will try again...in " + BLE_RETRY_MS + "ms");
+            Log.e(Utils.LOG_TAG, "Gatt not available, will try again...in " + BLE_RETRY_MS + "ms");
 
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
@@ -222,9 +199,7 @@ public class CarBleTrustAgent extends TrustAgentService {
             }, BLE_RETRY_MS);
         } else {
             mGattServer.close();
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "GATT available, starting up UnlockService");
-            }
+            Log.d(Utils.LOG_TAG, "GATT available, starting up UnlockService");
             mCarUnlockService.start();
         }
     }
@@ -232,22 +207,16 @@ public class CarBleTrustAgent extends TrustAgentService {
     private void unlock(byte[] token, long handle) {
         UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "About to unlock user. Current handle: " + handle
-                    + " Time: " + System.currentTimeMillis());
-        }
+        Log.d(Utils.LOG_TAG, "About to unlock user. Current handle: " + handle
+                + " Time: " + System.currentTimeMillis());
         unlockUserWithToken(handle, token, getCurrentUserHandle());
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Attempted to unlock user, is user unlocked? " + um.isUserUnlocked()
-                    + " Time: " + System.currentTimeMillis());
-        }
+        Log.d(Utils.LOG_TAG, "Attempted to unlock user, is user unlocked? " + um.isUserUnlocked()
+                + " Time: " + System.currentTimeMillis());
         setManagingTrust(true);
 
         if (um.isUserUnlocked()) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, getString(R.string.trust_granted_explanation));
-            }
+            Log.d(Utils.LOG_TAG, getString(R.string.trust_granted_explanation));
             grantTrust("Granting trust from escrow token",
                     TRUST_DURATION_MS, FLAG_GRANT_TRUST_DISMISS_KEYGUARD);
             // Trust has been granted, disable the BLE server. This trust agent service does
@@ -258,17 +227,13 @@ public class CarBleTrustAgent extends TrustAgentService {
 
     @Override
     public void onEscrowTokenRemoved(long handle, boolean successful) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onEscrowTokenRemoved. Handle: " + handle + " successful? " + successful);
-        }
+        Log.d(Utils.LOG_TAG, "onEscrowTokenRemoved. Handle: " + handle + " successful? " + successful);
     }
 
     @Override
     public void onEscrowTokenStateReceived(long handle, int tokenState) {
         boolean isActive = tokenState == TOKEN_STATE_ACTIVE;
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Token handle: " + handle + " isActive: " + isActive);
-        }
+        Log.d(Utils.LOG_TAG, "Token handle: " + handle + " isActive: " + isActive);
 
         Intent intent = new Intent();
         intent.setAction(ACTION_TOKEN_STATUS_RESULT);
@@ -279,10 +244,7 @@ public class CarBleTrustAgent extends TrustAgentService {
 
     @Override
     public void onEscrowTokenAdded(byte[] token, long handle, UserHandle user) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onEscrowTokenAdded, handle: " + handle);
-        }
-
+        Log.d(Utils.LOG_TAG, "onEscrowTokenAdded, handle: " + handle);
         Intent intent = new Intent();
         intent.setAction(ACTION_ADD_TOKEN_RESULT);
         intent.putExtra(INTENT_EXTRA_TOKEN_HANDLE, handle);
