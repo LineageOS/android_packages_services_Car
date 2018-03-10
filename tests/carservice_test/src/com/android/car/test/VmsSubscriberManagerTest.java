@@ -358,7 +358,6 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         List<VmsAssociatedLayer> expectedAvailableLayers =
                 new ArrayList<>(Arrays.asList(SUBSCRIPTION_ASSOCIATED_LAYER));
-        assertTrue(expectedAvailableLayers.containsAll(clientCallback.getAvailableLayers()));
         assertEquals(expectedAvailableLayers.size(), clientCallback.getAvailableLayers().size());
     }
 
@@ -405,7 +404,6 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         List<VmsAssociatedLayer> expectedAvailableLayers =
                 new ArrayList<>(Arrays.asList(SUBSCRIPTION_ASSOCIATED_LAYER));
-        assertTrue(expectedAvailableLayers.containsAll(clientCallback.getAvailableLayers()));
         assertEquals(expectedAvailableLayers.size(), clientCallback.getAvailableLayers().size());
     }
 
@@ -546,7 +544,6 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
                 ));
         getMockedVehicleHal().injectEvent(v);
         assertTrue(mSubscriberSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertTrue(expectedAvailableLayers.containsAll(clientCallback.getAvailableLayers()));
         assertEquals(expectedAvailableLayers.size(), clientCallback.getAvailableLayers().size());
     }
 
