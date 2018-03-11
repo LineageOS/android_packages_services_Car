@@ -40,13 +40,12 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.android.car.trust.CarEnrolmentService.EnrolmentListener;
-import com.android.car.trust.comms.SimpleBleServer.ConnectionCallback;
+import com.android.car.trust.SimpleBleServer.ConnectionCallback;
 
 /**
  * Setup activity that binds {@link CarEnrolmentService} and starts the enrolment process.
  */
 public class CarEnrolmentActivity extends Activity {
-    private static final String TAG = "CarEnrolment";
     private static final String SP_HANDLE_KEY = "sp-test";
     private static final int FINE_LOCATION_REQUEST_CODE = 42;
 
@@ -54,9 +53,7 @@ public class CarEnrolmentActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Received broadcast: " + action);
-            }
+            Log.d(Utils.LOG_TAG, "Received broadcast: " + action);
 
             if (ACTION_TOKEN_STATUS_RESULT.equals(action)) {
                 boolean tokenActive = intent.getBooleanExtra(INTENT_EXTRA_TOKEN_STATUS, false);
@@ -66,9 +63,7 @@ public class CarEnrolmentActivity extends Activity {
 
                 runOnUiThread(() -> {
                     mPrefs.edit().putLong(SP_HANDLE_KEY, handle).apply();
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "stored new handle");
-                    }
+                    Log.d(Utils.LOG_TAG, "stored new handle");
                 });
 
                 mEnrolmentService.sendHandle(handle, mDevice);
@@ -110,13 +105,15 @@ public class CarEnrolmentActivity extends Activity {
             CarEnrolmentService.EnrolmentServiceBinder binder
                     = (CarEnrolmentService.EnrolmentServiceBinder) service;
             mEnrolmentService = binder.getService();
-            mEnrolmentService.addEnrolmentCallback(mEnrolmentListener);
+            mEnrolmentService.registerEnrolmentListener(mEnrolmentListener);
             mEnrolmentService.registerConnectionCallback(mConnectionCallback);
             mEnrolmentService.start();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            mEnrolmentService.unregisterEnrolmentListener(mEnrolmentListener);
+            mEnrolmentService.unregisterConnectionCallback(mConnectionCallback);
             mEnrolmentService = null;
             mServiceBound = false;
         }
@@ -175,12 +172,10 @@ public class CarEnrolmentActivity extends Activity {
 
         try {
             mHandle = mPrefs.getLong(SP_HANDLE_KEY, -1);
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onResume, checking handle active: " + mHandle);
-            }
+            Log.d(Utils.LOG_TAG, "onResume, checking handle active: " + mHandle);
             isTokenActive(mHandle);
         } catch (RemoteException e) {
-            Log.e(TAG, "Error checking if token is valid");
+            Log.e(Utils.LOG_TAG, "Error checking if token is valid");
             appendOutputText("Error checking if token is valid");
         }
     }
