@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License
  */
-package com.android.car.trust.comms;
+package com.android.car.trust;
 
 import java.nio.ByteBuffer;
 
 public class Utils {
+
+    public static final String LOG_TAG = "CarTrustAgentService";
 
     public static byte[] getBytes(long l) {
         ByteBuffer buffer = ByteBuffer.allocate(Long.SIZE / Byte.SIZE);

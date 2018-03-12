@@ -16,37 +16,34 @@
 
 LOCAL_PATH := $(call my-dir)
 
+# CarPowerManager library
 include $(CLEAR_VARS)
+LOCAL_MODULE := libcarpowermanager
 
-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_AIDL_INCLUDES := packages/services/Car/car-lib/src
 
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_C_INCLUDES += \
+    frameworks/base/include \
+    packages/services/Car/car-lib/native/include
 
-LOCAL_PACKAGE_NAME := UxRestrictionsSample
-LOCAL_PRIVATE_PLATFORM_APIS := true
+LOCAL_CFLAGS += \
+    -Wall \
+    -Wextra \
+    -Werror \
+    -Wno-unused-parameter
 
 LOCAL_MODULE_TAGS := optional
 
-LOCAL_JAVA_VERSION := 1.8
+LOCAL_SHARED_LIBRARIES := \
+    libbinder \
+    liblog \
+    libutils
 
-LOCAL_PROGUARD_ENABLED := disabled
+LOCAL_SRC_FILES := \
+    ../src/android/car/ICar.aidl \
+    ../src/android/car/hardware/power/ICarPower.aidl \
+    ../src/android/car/hardware/power/ICarPowerStateListener.aidl \
+    $(call all-cpp-files-under, CarPowerManager)
 
-LOCAL_DEX_PREOPT := false
+include $(BUILD_SHARED_LIBRARY)
 
-LOCAL_USE_AAPT2 := true
-
-LOCAL_PRIVILEGED_MODULE := false
-
-LOCAL_STATIC_JAVA_LIBRARIES += vehicle-hal-support-lib
-
-LOCAL_STATIC_ANDROID_LIBRARIES += \
-    $(ANDROID_SUPPORT_CAR_TARGETS) \
-    android-support-v4 \
-    android-support-v7-appcompat
-
-LOCAL_JAVA_LIBRARIES += android.car
-
-include $(BUILD_PACKAGE)
-
-# Use the following include to make our test apk.
-include $(call all-makefiles-under,$(LOCAL_PATH))

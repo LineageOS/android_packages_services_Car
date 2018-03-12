@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License
  */
-package com.android.car.trust.comms;
+package com.android.car.trust;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -30,9 +30,7 @@ import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.util.Log;
 
@@ -44,15 +42,11 @@ import java.util.Set;
  */
 public abstract class SimpleBleServer extends Service {
 
-    private static final String TAG = "SimpleBleServer";
-
     private final AdvertiseCallback mAdvertisingCallback = new AdvertiseCallback() {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
             super.onStartSuccess(settingsInEffect);
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Successfully started advertising service");
-            }
+            Log.d(Utils.LOG_TAG, "Successfully started advertising service");
             for (ConnectionCallback callback : mConnectionCallbacks) {
                 callback.onServerStarted();
             }
@@ -61,9 +55,7 @@ public abstract class SimpleBleServer extends Service {
         @Override
         public void onStartFailure(int errorCode) {
             super.onStartFailure(errorCode);
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Failed to advertise, errorCode: " + errorCode);
-            }
+            Log.e(Utils.LOG_TAG, "Failed to advertise, errorCode: " + errorCode);
             for (ConnectionCallback callback : mConnectionCallbacks) {
                 callback.onServerStartFailed(errorCode);
             }
@@ -75,11 +67,9 @@ public abstract class SimpleBleServer extends Service {
         @Override
         public void onConnectionStateChange(BluetoothDevice device,
                 final int status, final int newState) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "GattServer connection change status: "
-                        + newState + " newState: "
-                        + newState + " device name: " + device.getName());
-            }
+            Log.d(Utils.LOG_TAG, "GattServer connection change status: " + status
+                    + " newState: " + newState
+                    + " device name: " + device.getName());
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 for (ConnectionCallback callback : mConnectionCallbacks) {
                     callback.onDeviceConnected(device);
@@ -89,17 +79,13 @@ public abstract class SimpleBleServer extends Service {
 
         @Override
         public void onServiceAdded(final int status, BluetoothGattService service) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Service added status: " + status + " uuid: " + service.getUuid());
-            }
+            Log.d(Utils.LOG_TAG, "Service added status: " + status + " uuid: " + service.getUuid());
         }
 
         @Override
         public void onCharacteristicReadRequest(BluetoothDevice device,
                 int requestId, int offset, final BluetoothGattCharacteristic characteristic) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Read request for characteristic: " + characteristic.getUuid());
-            }
+            Log.d(Utils.LOG_TAG, "Read request for characteristic: " + characteristic.getUuid());
             mGattServer.sendResponse(device, requestId,
                     BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
             SimpleBleServer.
@@ -110,9 +96,7 @@ public abstract class SimpleBleServer extends Service {
         public void onCharacteristicWriteRequest(final BluetoothDevice device, int requestId,
                 BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean
                 responseNeeded, int offset, byte[] value) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Write request for characteristic: " + characteristic.getUuid());
-            }
+            Log.d(Utils.LOG_TAG, "Write request for characteristic: " + characteristic.getUuid());
             mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS,
                     offset, value);
 
@@ -127,12 +111,6 @@ public abstract class SimpleBleServer extends Service {
     private BluetoothLeAdvertiser mAdvertiser;
     protected BluetoothGattServer mGattServer;
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // Override in child classes.
-        return null;
-    }
-
     /**
      * Starts the GATT server with the given {@link BluetoothGattService} and begins
      * advertising with the {@link ParcelUuid}.
@@ -141,7 +119,7 @@ public abstract class SimpleBleServer extends Service {
      */
     protected void start(ParcelUuid advertiseUuid, BluetoothGattService service) {
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Log.e(TAG, "System does not support BLE");
+            Log.e(Utils.LOG_TAG, "System does not support BLE");
             return;
         }
 
@@ -150,7 +128,7 @@ public abstract class SimpleBleServer extends Service {
 
         mGattServer = btManager.openGattServer(this, mGattServerCallback);
         if (mGattServer == null) {
-            Log.e(TAG, "Gatt Server not created");
+            Log.e(Utils.LOG_TAG, "Gatt Server not created");
             return;
         }
 
@@ -171,6 +149,10 @@ public abstract class SimpleBleServer extends Service {
                 .build();
 
         mAdvertiser = BluetoothAdapter.getDefaultAdapter().getBluetoothLeAdvertiser();
+        if (mAdvertiser == null) {
+            Log.e(Utils.LOG_TAG, "Failed to get BLE advertiser");
+            return;
+        }
         mAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
     }
 
@@ -190,7 +172,7 @@ public abstract class SimpleBleServer extends Service {
                     mGattServer.cancelConnection(d);
                 }
             } catch (UnsupportedOperationException e) {
-                Log.e(TAG, "Error getting connected devices", e);
+                Log.e(Utils.LOG_TAG, "Error getting connected devices", e);
             } finally {
                 mGattServer.close();
             }
@@ -206,10 +188,12 @@ public abstract class SimpleBleServer extends Service {
     }
 
     public void registerConnectionCallback(ConnectionCallback callback) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Adding connection listener");
-        }
+        Log.d(Utils.LOG_TAG, "Adding connection listener");
         mConnectionCallbacks.add(callback);
+    }
+
+    public void unregisterConnectionCallback(ConnectionCallback callback) {
+        mConnectionCallbacks.remove(callback);
     }
 
     /**
