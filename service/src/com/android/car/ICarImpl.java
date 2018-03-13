@@ -106,7 +106,7 @@ public class ICarImpl extends ICar.Stub {
         mCarSensorService = new CarSensorService(serviceContext, mHal.getSensorHal());
         mCarDrivingStateService = new CarDrivingStateService(serviceContext, mCarSensorService);
         mCarUXRestrictionsService = new CarUxRestrictionsManagerService(serviceContext,
-                mCarDrivingStateService);
+                mCarDrivingStateService, mCarSensorService);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext,
                 mCarUXRestrictionsService,
                 mSystemActivityMonitoringService);

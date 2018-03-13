@@ -17,7 +17,6 @@
 package com.android.car;
 
 import android.annotation.Nullable;
-import android.car.Car;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
 import android.car.drivingstate.CarUxRestrictions;
@@ -25,14 +24,19 @@ import android.car.drivingstate.CarUxRestrictions.CarUxRestrictionsInfo;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.drivingstate.ICarUxRestrictionsManager;
+import android.car.hardware.CarSensorEvent;
+import android.car.hardware.CarSensorManager;
+import android.car.hardware.ICarSensorEventListener;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * A service that listens to current driving state of the vehicle and maps it to the
@@ -42,15 +46,23 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         CarServiceBase {
     private static final String TAG = "CarUxR";
     private static final boolean DBG = false;
+    public static final int UX_RESTRICTIONS_UNKNOWN = -1;
     private final Context mContext;
     private final CarDrivingStateService mDrivingStateService;
+    private final CarSensorService mCarSensorService;
+    private final CarUxRestrictionsServiceHelper mHelper;
     // List of clients listening to UX restriction events.
     private final List<UxRestrictionsClient> mUxRClients = new ArrayList<>();
     private CarUxRestrictions mCurrentUxRestrictions;
+    private float mCurrentMovingSpeed;
+    private boolean mFallbackToDefaults;
 
-    public CarUxRestrictionsManagerService(Context context, CarDrivingStateService drvService) {
+    public CarUxRestrictionsManagerService(Context context, CarDrivingStateService drvService,
+            CarSensorService sensorService) {
         mContext = context;
         mDrivingStateService = drvService;
+        mCarSensorService = sensorService;
+        mHelper = new CarUxRestrictionsServiceHelper(mContext, R.xml.car_ux_restrictions_map);
         // Unrestricted until driving state information is received. During boot up, if driving
         // state information is not available due to the unavailability of data from VHAL, default
         // mode is unrestricted.
@@ -60,9 +72,21 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     @Override
     public void init() {
+        try {
+            if (!mHelper.loadUxRestrictionsFromXml()) {
+                Log.e(TAG, "Error reading Ux Restrictions Mapping. Falling back to defaults");
+                mFallbackToDefaults = true;
+            }
+        } catch (IOException | XmlPullParserException e) {
+            Log.e(TAG, "Exception reading UX restrictions XML mapping", e);
+            mFallbackToDefaults = true;
+        }
         // subscribe to driving State
         mDrivingStateService.registerDrivingStateChangeListener(
                 mICarDrivingStateChangeEventListener);
+        // subscribe to Sensor service for speed
+        mCarSensorService.registerOrUpdateSensorListener(CarSensorManager.SENSOR_TYPE_CAR_SPEED,
+                CarSensorManager.SENSOR_RATE_FASTEST, mICarSensorEventListener);
     }
 
     @Override
@@ -217,7 +241,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     @Override
     public void dump(PrintWriter writer) {
-
+        mHelper.dump(writer);
     }
 
     /**
@@ -228,7 +252,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             new ICarDrivingStateChangeListener.Stub() {
                 @Override
                 public void onDrivingStateChanged(CarDrivingStateEvent event) {
-                    Log.d(TAG, "Driving State Changed:" + event.eventValue);
+                    if (DBG) {
+                        Log.d(TAG, "Driving State Changed:" + event.eventValue);
+                    }
                     handleDrivingStateEvent(event);
                 }
             };
@@ -243,53 +269,104 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
         int drivingState = event.eventValue;
-        int uxRestrictions = mapDrivingStateToUxRestrictionsLocked(drivingState);
+        mCurrentMovingSpeed = getCurrentSpeed();
+        handleDispatchUxRestrictions(drivingState, mCurrentMovingSpeed);
+    }
+
+    private float getCurrentSpeed() {
+        CarSensorEvent event = mCarSensorService.getLatestSensorEvent(
+                CarSensorManager.SENSOR_TYPE_CAR_SPEED);
+        return event.floatValues[0];
+    }
+
+    /**
+     * {@link CarSensorEvent} listener registered with the {@link CarSensorService} for getting
+     * speed change notifications.
+     */
+    private final ICarSensorEventListener mICarSensorEventListener =
+            new ICarSensorEventListener.Stub() {
+                @Override
+                public void onSensorChanged(List<CarSensorEvent> events) {
+                    for (CarSensorEvent event : events) {
+                        if (event != null
+                                && event.sensorType == CarSensorManager.SENSOR_TYPE_CAR_SPEED) {
+                            handleSpeedChange(event.floatValues[0]);
+                        }
+                    }
+                }
+            };
+
+    private synchronized void handleSpeedChange(float newSpeed) {
+        if (newSpeed == mCurrentMovingSpeed) {
+            // Ignore if speed hasn't changed
+            return;
+        }
+        int currentDrivingState = mDrivingStateService.getCurrentDrivingState().eventValue;
+        if (currentDrivingState != CarDrivingStateEvent.DRIVING_STATE_MOVING) {
+            // Ignore speed changes if the vehicle is not moving
+            return;
+        }
+        mCurrentMovingSpeed = newSpeed;
+        handleDispatchUxRestrictions(currentDrivingState, newSpeed);
+    }
+
+    /**
+     * Handle dispatching UX restrictions change.
+     *
+     * @param currentDrivingState driving state of the vehicle
+     * @param speed               speed of the vehicle
+     */
+    private synchronized void handleDispatchUxRestrictions(@CarDrivingState int currentDrivingState,
+            float speed) {
+        int uxRestrictions;
+        // Get UX restrictions from the parsed configuration XML or fall back to defaults if not
+        // available.
+        if (mFallbackToDefaults) {
+            uxRestrictions = getDefaultRestrictions(currentDrivingState);
+        } else {
+            uxRestrictions = mHelper.getUxRestrictions(currentDrivingState, speed);
+        }
+        if (uxRestrictions == UX_RESTRICTIONS_UNKNOWN) {
+            Log.e(TAG, "Restriction Mapping went wrong.  Falling back to Fully restricted");
+            uxRestrictions = CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
+        }
+
         if (DBG) {
             Log.d(TAG, "UxR old->new: " + mCurrentUxRestrictions.getActiveRestrictions() +
                     " -> " + uxRestrictions);
         }
 
         CarUxRestrictions newRestrictions = createUxRestrictionsEvent(uxRestrictions);
-        if (!mCurrentUxRestrictions.isSameRestrictions(newRestrictions)) {
-            mCurrentUxRestrictions = newRestrictions;
-            if (DBG) {
-                Log.d(TAG, "dispatching to " + mUxRClients.size() + " clients");
-            }
-            for (UxRestrictionsClient client : mUxRClients) {
-                client.dispatchEventToClients(newRestrictions);
-            }
+        if (mCurrentUxRestrictions.isSameRestrictions(newRestrictions)) {
+            // Ignore dispatching if the restrictions has not changed.
+            return;
+        }
+        mCurrentUxRestrictions = newRestrictions;
+        if (DBG) {
+            Log.d(TAG, "dispatching to " + mUxRClients.size() + " clients");
+        }
+        for (UxRestrictionsClient client : mUxRClients) {
+            client.dispatchEventToClients(newRestrictions);
         }
     }
 
-    /**
-     * Map the current driving state of the vehicle to the should be imposed UX restriction for that
-     * state.
-     * TODO(b/69859857): This mapping needs to be configurable per OEM.
-     *
-     * @param drivingState driving state to map for
-     * @return UX Restriction for the given driving state
-     */
     @CarUxRestrictionsInfo
-    private int mapDrivingStateToUxRestrictionsLocked(@CarDrivingState int drivingState) {
+    private int getDefaultRestrictions(@CarDrivingState int drivingState) {
         int uxRestrictions;
         switch (drivingState) {
-            case (CarDrivingStateEvent.DRIVING_STATE_PARKED):
+            case CarDrivingStateEvent.DRIVING_STATE_PARKED:
                 uxRestrictions = CarUxRestrictions.UX_RESTRICTIONS_UNRESTRICTED;
                 break;
-            // For now, for any driving state other than parked, fall through to Fully Restricted
-            // mode.
-            // TODO(b/69859857): Customized mapping to a configurable UX Restriction
-            case (CarDrivingStateEvent.DRIVING_STATE_IDLING):
-            case (CarDrivingStateEvent.DRIVING_STATE_MOVING):
+            case CarDrivingStateEvent.DRIVING_STATE_IDLING:
+            case CarDrivingStateEvent.DRIVING_STATE_MOVING:
             default:
                 uxRestrictions = CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
         }
         return uxRestrictions;
     }
 
-    private static CarUxRestrictions createUxRestrictionsEvent(int uxr) {
+    private static CarUxRestrictions createUxRestrictionsEvent(@CarUxRestrictionsInfo int uxr) {
         boolean requiresOpt = true;
-        // TODO(b/69859857): This will eventually come from a config file
         if (uxr == CarUxRestrictions.UX_RESTRICTIONS_UNRESTRICTED) {
             requiresOpt = false;
         }
