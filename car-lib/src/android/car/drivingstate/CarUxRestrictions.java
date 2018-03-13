@@ -60,7 +60,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class CarUxRestrictions implements Parcelable {
 
-    // UXRestrictions TODO(b/69859857): make it configurable
     /**
      * No UX Restrictions.  Vehicle Optimized apps are allowed to display non Drive Optimized
      * Activities.
@@ -190,7 +189,7 @@ public class CarUxRestrictions implements Parcelable {
         }
     };
 
-    public CarUxRestrictions(boolean reqOpt, int restrictions, long time) {
+    public CarUxRestrictions(boolean reqOpt, @CarUxRestrictionsInfo int restrictions, long time) {
         mRequiresDistractionOptimization = reqOpt;
         mActiveRestrictions = restrictions;
         mTimeStamp = time;
