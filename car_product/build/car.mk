@@ -30,6 +30,7 @@ PRODUCT_PACKAGES += \
     screenrecord
 
 # This is for testing
+ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))
 PRODUCT_PACKAGES += \
     DefaultStorageMonitoringCompanionApp \
     EmbeddedKitchenSinkApp \
@@ -37,6 +38,9 @@ PRODUCT_PACKAGES += \
     VmsSubscriberClientSample \
     android.car.cluster.loggingrenderer \
     DirectRenderingClusterSample \
+    com.android.car.powertestservice \
+
+endif
 
 PRODUCT_COPY_FILES := \
     frameworks/av/media/libeffects/data/audio_effects.conf:system/etc/audio_effects.conf \
