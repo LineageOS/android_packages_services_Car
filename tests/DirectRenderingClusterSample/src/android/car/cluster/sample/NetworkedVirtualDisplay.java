@@ -233,16 +233,16 @@ public class NetworkedVirtualDisplay {
             // If nothing happens in Virtual Display we won't receive new frames. If we won't keep
             // sending frames it could be a problem for the receiver because it needs certain
             // number of frames in order to start decoding.
-            scheduleResendingLastFrame();
+            scheduleResendingLastFrame(1000 / FPS);
         } else {
             Log.e(TAG, "Skipping empty buffer");
             mVideoEncoder.releaseOutputBuffer(index, false);
         }
     }
 
-    private void scheduleResendingLastFrame() {
+    private void scheduleResendingLastFrame(long delayMs) {
         Message msg = mHandler.obtainMessage(MSG_RESUBMIT_FRAME);
-        mHandler.sendMessageDelayed(msg, 1000 / FPS);
+        mHandler.sendMessageDelayed(msg, delayMs);
     }
 
     private void sendFrame(byte[] buf, int len) {
@@ -329,6 +329,8 @@ public class NetworkedVirtualDisplay {
                         Log.i(TAG, "Resending the last frame again. Buffer: " + mLastFrameLength);
                         sendFrame(mBuffer, mLastFrameLength);
                     }
+                    // We will keep sending last frame every second as a heartbeat.
+                    scheduleResendingLastFrame(1000L);
                     break;
             }
         }
@@ -371,7 +373,7 @@ public class NetworkedVirtualDisplay {
             try {
                 if (inputStream.read() == -1) throw new IOException();
             } catch (IOException e) {
-                Log.w(TAG, "Receiver has disconnected");
+                Log.w(TAG, "Receiver has disconnected", e);
             }
             restart();
         }).start();
