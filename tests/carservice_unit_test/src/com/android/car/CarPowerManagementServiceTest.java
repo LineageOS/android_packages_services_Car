@@ -24,13 +24,13 @@ import com.android.car.CarPowerManagementService.PowerEventProcessingHandler;
 import com.android.car.CarPowerManagementService.PowerServiceEventListener;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
-
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -244,6 +244,9 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     private static final class MockDisplayInterface implements DisplayInterface {
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
+
+        @Override
+        public void setDisplayBrightness(int brightness) {}
 
         @Override
         public synchronized void setDisplayState(boolean on) {

@@ -288,6 +288,9 @@ public class MockedCarTestBase {
     static final class MockDisplayInterface implements DisplayInterface {
 
         @Override
+        public void setDisplayBrightness(int brightness) {}
+
+        @Override
         public void setDisplayState(boolean on) {}
 
         @Override
