@@ -15,13 +15,20 @@
  */
 package com.android.car;
 
-import java.io.PrintWriter;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import android.car.Car;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.ICarPower;
+import android.car.hardware.power.ICarPowerStateListener;
+import android.content.Context;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
+import android.os.SystemClock;
+import android.util.Log;
 
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
@@ -29,22 +36,13 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
-import android.car.Car;
-import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
-import android.car.hardware.power.ICarPower;
-import android.car.hardware.power.ICarPowerStateListener;
-import android.content.Context;
-import android.os.Binder;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
-import android.os.PowerManager;
-import android.os.RemoteCallbackList;
-import android.os.RemoteException;
-import android.os.SystemClock;
-import android.util.Log;
+import java.io.PrintWriter;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class CarPowerManagementService extends ICarPower.Stub implements CarServiceBase,
     PowerHalService.PowerEventListener {
@@ -594,11 +592,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
 
     @Override
     public void onDisplayBrightnessChange(int brightness) {
-        // TODO bug: 32065231
+        PowerHandler handler;
+        synchronized (this) {
+            handler = mHandler;
+        }
+        handler.handleDisplayBrightnessChange(brightness);
     }
 
     private void doHandleDisplayBrightnessChange(int brightness) {
-        //TODO bug: 32065231
+        mSystemInterface.setDisplayBrightness(brightness);
     }
 
     private void doHandleMainDisplayStateChange(boolean on) {
