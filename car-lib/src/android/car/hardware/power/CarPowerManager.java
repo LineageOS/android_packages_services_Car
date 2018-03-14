@@ -57,7 +57,9 @@ public class CarPowerManager implements CarManagerBase {
      * Power boot up reasons, returned by {@link getBootReason}
      */
     /**
-     * User powered on the vehicle
+     * User powered on the vehicle.  These definitions must match the ones located in the native
+     * CarPowerManager:  packages/services/Car/car-lib/native/CarPowerManager/CarPowerManager.h
+     *
      */
     public static final int BOOT_REASON_USER_POWER_ON = 1;
     /**
@@ -92,6 +94,11 @@ public class CarPowerManager implements CarManagerBase {
      *  Applications set a {@link CarPowerStateListener} for power state event updates.
      */
     public interface CarPowerStateListener {
+        /**
+         * onStateChanged() states.  These definitions must match the ones located in the native
+         * CarPowerManager:  packages/services/Car/car-lib/native/CarPowerManager/CarPowerManager.h
+         *
+         */
         /**
          * Shutdown is cancelled, return to normal state.
          */
