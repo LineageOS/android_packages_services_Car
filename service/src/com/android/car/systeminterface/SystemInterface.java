@@ -17,12 +17,14 @@
 package com.android.car.systeminterface;
 
 import android.content.Context;
+
 import com.android.car.CarPowerManagementService;
 import com.android.car.procfsinspector.ProcessInfo;
 import com.android.car.storagemonitoring.LifetimeWriteInfoProvider;
 import com.android.car.storagemonitoring.UidIoStatsProvider;
 import com.android.car.storagemonitoring.WearInformationProvider;
 import com.android.internal.car.ICarServiceHelper;
+
 import java.io.File;
 import java.time.Duration;
 import java.util.List;
@@ -108,6 +110,11 @@ public final class SystemInterface implements DisplayInterface, IOInterface,
     @Override
     public void cancelAllActions() {
         mTimeInterface.cancelAllActions();
+    }
+
+    @Override
+    public void setDisplayBrightness(int brightness) {
+        mDisplayInterface.setDisplayBrightness(brightness);
     }
 
     @Override
