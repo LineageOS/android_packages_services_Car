@@ -21,8 +21,10 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Display;
+
 import com.android.car.CarLog;
 import com.android.car.CarPowerManagementService;
 
@@ -30,12 +32,19 @@ import com.android.car.CarPowerManagementService;
  * Interface that abstracts display operations
  */
 public interface DisplayInterface {
+    /**
+     * @param brightness Level from 0 to 100%
+     */
+    void setDisplayBrightness(int brightness);
     void setDisplayState(boolean on);
     void startDisplayStateMonitoring(CarPowerManagementService service);
     void stopDisplayStateMonitoring();
 
     class DefaultImpl implements DisplayInterface {
+        private final Context mContext;
         private final DisplayManager mDisplayManager;
+        private final int mMaximumBacklight;
+        private final int mMinimumBacklight;
         private final PowerManager mPowerManager;
         private final WakeLockInterface mWakeLockInterface;
         private CarPowerManagementService mService;
@@ -60,9 +69,12 @@ public interface DisplayInterface {
         };
 
         DefaultImpl(Context context, WakeLockInterface wakeLockInterface) {
+            mContext = context;
             mWakeLockInterface = wakeLockInterface;
             mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
             mPowerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            mMaximumBacklight = mPowerManager.getMaximumScreenBrightnessSetting();
+            mMinimumBacklight = mPowerManager.getMinimumScreenBrightnessSetting();
         }
 
         private void handleMainDisplayChanged() {
@@ -80,6 +92,30 @@ public interface DisplayInterface {
         private boolean isMainDisplayOn() {
             Display disp = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
             return disp.getState() == Display.STATE_ON;
+        }
+
+        @Override
+        public void setDisplayBrightness(int brightness) {
+            // Brightness is set in percent.  Need to convert this into 0-255 scale.  The actual
+            //  brightness algorithm should look like this:
+            //
+            //      newBrightness = (brightness * (max - min)) + min
+            //
+            //  Since we're using integer arithmetic, do the multiplication first, then add 50 to
+            //  round up as needed.
+            brightness *= mMaximumBacklight - mMinimumBacklight;    // Multiply by full range
+            brightness += 50;                                       // Integer rounding
+            brightness /= 100;                                      // Divide by 100
+            brightness += mMinimumBacklight;
+            // Range checking
+            if (brightness < mMinimumBacklight) {
+                brightness = mMinimumBacklight;
+            } else if (brightness > mMaximumBacklight) {
+                brightness = mMaximumBacklight;
+            }
+            // Set the brightness
+            Settings.System.putInt(mContext.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS,
+                                   brightness);
         }
 
         @Override
