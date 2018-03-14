@@ -163,10 +163,8 @@ public class CarLocationServiceTest extends AndroidTestCase {
         long currentTime = System.currentTimeMillis();
         long elapsedTime = SystemClock.elapsedRealtimeNanos();
         long pastTime = currentTime - 60000;
-        long pastElapsedTime = elapsedTime - 60000000000L;
         writeCacheFile("{\"provider\": \"gps\", \"latitude\": 16.7666, \"longitude\": 3.0026,"
-                + "\"accuracy\":12.3, \"captureTime\": " + pastTime + ", \"elapsedTime\": "
-                + pastElapsedTime + "}");
+                + "\"accuracy\":12.3, \"captureTime\": " + pastTime + "}");
         ArgumentCaptor<Location> argument = ArgumentCaptor.forClass(Location.class);
         when(mockContext.getSystemService(Context.LOCATION_SERVICE))
                 .thenReturn(mockLocationManager);
@@ -266,6 +264,29 @@ public class CarLocationServiceTest extends AndroidTestCase {
     }
 
     /**
+     * Test that the {@link CarLocationService} does not inject a location that is older than
+     * thirty days.
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void testDoesNotLoadOldLocation() throws IOException, InterruptedException {
+        long thirtyThreeDaysMs = 33 * 24 * 60 * 60 * 1000L;
+        long oldTime = System.currentTimeMillis() - thirtyThreeDaysMs;
+        writeCacheFile("{\"provider\": \"gps\", \"latitude\": 16.7666, \"longitude\": 3.0026,"
+                + "\"accuracy\":12.3, \"captureTime\": " + oldTime + "}");
+        when(mockContext.getSystemService(Context.LOCATION_SERVICE))
+                .thenReturn(mockLocationManager);
+        when(mockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER))
+                .thenReturn(null);
+        when(mockContext.getFileStreamPath("location_cache.json"))
+                .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
+        mCarLocationService.onReceive(mockContext, new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
+        mLatch.await();
+        verify(mockLocationManager, never()).injectLocation(any());
+    }
+
+    /**
      * Test that the {@link CarLocationService} stores the {@link LocationManager}'s last known
      * location in a JSON file upon ignition-off events.
      *
@@ -292,9 +313,10 @@ public class CarLocationServiceTest extends AndroidTestCase {
         mLatch.await();
         verify(mockLocationManager).getLastKnownLocation(LocationManager.GPS_PROVIDER);
         String actualContents = readCacheFile();
+        long oneDayMs = 24 * 60 * 60 * 1000;
+        long granularCurrentTime = (currentTime / oneDayMs) * oneDayMs;
         String expectedContents = "{\"provider\":\"gps\",\"latitude\":16.7666,\"longitude\":"
-                + "3.0026,\"accuracy\":13.75,\"elapsedTime\":" + elapsedTime + ",\"captureTime\":"
-                + currentTime + "}";
+                + "3.0026,\"accuracy\":13.75,\"captureTime\":" + granularCurrentTime + "}";
         assertEquals(expectedContents, actualContents);
     }
 
