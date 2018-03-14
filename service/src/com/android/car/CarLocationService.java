@@ -50,9 +50,13 @@ import java.util.List;
  * and restores the location when the car is powered on.
  */
 public class CarLocationService extends BroadcastReceiver implements CarServiceBase {
-    private static String TAG = "CarLocationService";
-    private static String FILENAME = "location_cache.json";
+    private static final String TAG = "CarLocationService";
+    private static final String FILENAME = "location_cache.json";
     private static final boolean DBG = false;
+    // The accuracy for the stored timestamp
+    private static final long GRANULARITY_ONE_DAY_MS = 24 * 60 * 60 * 1000L;
+    // The time-to-live for the cached location
+    private static final long TTL_THIRTY_DAYS_MS = 30 * GRANULARITY_ONE_DAY_MS;
 
     // Used internally for mHandlerThread synchronization
     private final Object mLock = new Object();
@@ -169,8 +173,10 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                 if (location.isFromMockProvider()) {
                     jsonWriter.name("isFromMockProvider").value(true);
                 }
-                jsonWriter.name("elapsedTime").value(location.getElapsedRealtimeNanos());
-                jsonWriter.name("captureTime").value(location.getTime());
+                long currentTime = location.getTime();
+                // Round the time down to only be accurate within one day.
+                jsonWriter.name("captureTime").value(
+                        currentTime - currentTime % GRANULARITY_ONE_DAY_MS);
                 jsonWriter.endObject();
                 jsonWriter.close();
                 atomicFile.finishWrite(fos);
@@ -182,6 +188,25 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     }
 
     private void loadLocation() {
+        Location location = readLocationFromCacheFile();
+        logd("Read location from " + location.getTime());
+        long currentTime = System.currentTimeMillis();
+        if (location.getTime() + TTL_THIRTY_DAYS_MS < currentTime) {
+            logd("Location expired.");
+        } else {
+            location.setTime(currentTime);
+            long elapsedTime = SystemClock.elapsedRealtimeNanos();
+            location.setElapsedRealtimeNanos(elapsedTime);
+            if (location.isComplete()) {
+                LocationManager locationManager =
+                        (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+                boolean success = locationManager.injectLocation(location);
+                logd("Injected location " + location + " with result " + success);
+            }
+        }
+    }
+
+    private Location readLocationFromCacheFile() {
         Location location = new Location((String) null);
         AtomicFile atomicFile = new AtomicFile(mContext.getFileStreamPath(FILENAME));
         try {
@@ -212,8 +237,6 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                     location.setBearingAccuracyDegrees((float) reader.nextDouble());
                 } else if (name.equals("isFromMockProvider")) {
                     location.setIsFromMockProvider(reader.nextBoolean());
-                } else if (name.equals("elapsedTime")) {
-                    location.setElapsedRealtimeNanos(reader.nextLong());
                 } else if (name.equals("captureTime")) {
                     location.setTime(reader.nextLong());
                 } else {
@@ -222,17 +245,6 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
             }
             reader.endObject();
             fis.close();
-            logd("Loaded location from " + location.getTime());
-            long currentTime = System.currentTimeMillis();
-            long elapsedTime = SystemClock.elapsedRealtimeNanos();
-            location.setTime(currentTime);
-            location.setElapsedRealtimeNanos(elapsedTime);
-            if (location.isComplete()) {
-                LocationManager locationManager =
-                        (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-                boolean success = locationManager.injectLocation(location);
-                logd("Injected location " + location + " with result " + success);
-            }
             deleteCacheFile();
         } catch (FileNotFoundException e) {
             Log.d(TAG, "Location cache file not found.");
@@ -241,6 +253,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         } catch (NumberFormatException | IllegalStateException e) {
             Log.e(TAG, "Unexpected format", e);
         }
+        return location;
     }
 
     private void deleteCacheFile() {
