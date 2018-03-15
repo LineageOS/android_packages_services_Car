@@ -16,9 +16,20 @@
 
 package com.google.android.car.kitchensink;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.car.hardware.hvac.CarHvacManager;
+import android.car.hardware.power.CarPowerManager;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.support.car.Car;
+import android.support.car.CarAppFocusManager;
+import android.support.car.CarConnectionCallback;
+import android.support.car.CarNotConnectedException;
+import android.support.car.hardware.CarSensorManager;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 
+import com.google.android.car.kitchensink.activityview.ActivityViewTestFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
@@ -42,18 +53,8 @@ import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.vhal.VehicleHalFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
 
-import android.car.hardware.hvac.CarHvacManager;
-import android.car.hardware.power.CarPowerManager;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.support.car.Car;
-import android.support.car.CarAppFocusManager;
-import android.support.car.CarConnectionCallback;
-import android.support.car.CarNotConnectedException;
-import android.support.car.hardware.CarSensorManager;
-import android.support.v4.app.Fragment;
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.car.drawer.CarDrawerActivity;
 import androidx.car.drawer.CarDrawerAdapter;
@@ -163,6 +164,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                     CarServiceSettingsActivity.class);
                 startActivity(intent);
             });
+            add("activity view", ActivityViewTestFragment.class);
             add("quit", KitchenSinkActivity.this::finish);
         }
 
