@@ -31,12 +31,12 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.google.android.collect.Lists;
-
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+
+import com.google.android.collect.Lists;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -132,6 +132,9 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     private final class MockDisplayInterface implements DisplayInterface {
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
+
+        @Override
+        public void setDisplayBrightness(int brightness) {}
 
         @Override
         public synchronized void setDisplayState(boolean on) {

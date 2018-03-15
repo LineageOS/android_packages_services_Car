@@ -31,6 +31,7 @@ import com.google.android.car.kitchensink.displayinfo.DisplayInfoFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
 import com.google.android.car.kitchensink.input.InputTestFragment;
 import com.google.android.car.kitchensink.job.JobSchedulerFragment;
+import com.google.android.car.kitchensink.notification.NotificationFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
 import com.google.android.car.kitchensink.radio.RadioTestFragment;
@@ -148,6 +149,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
             add("inst cluster", InstrumentClusterFragment.class);
             add("input test", InputTestFragment.class);
             add("job scheduler", JobSchedulerFragment.class);
+            add("notification", NotificationFragment.class);
             add("orientation test", OrientationTestFragment.class);
             add("power test", PowerTestFragment.class);
             add("radio", RadioTestFragment.class);
