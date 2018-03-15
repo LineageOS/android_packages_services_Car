@@ -100,7 +100,7 @@
                   android:resizeableActivity="true"
                   android:allowEmbedded="true"
                   android:permission="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL">
-            <intent-filter>
+            <intent-filter android:priority="-1">
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.car.cluster.NAVIGATION"/>
