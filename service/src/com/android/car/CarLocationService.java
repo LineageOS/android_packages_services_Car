@@ -49,7 +49,8 @@ import java.util.List;
  * This service stores the last known location from {@link LocationManager} when a car is parked
  * and restores the location when the car is powered on.
  */
-public class CarLocationService extends BroadcastReceiver implements CarServiceBase {
+public class CarLocationService extends BroadcastReceiver implements CarServiceBase,
+        CarPowerManagementService.PowerEventProcessingHandler {
     private static final String TAG = "CarLocationService";
     private static final String FILENAME = "location_cache.json";
     private static final boolean DBG = false;
@@ -62,15 +63,18 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     private final Object mLock = new Object();
 
     private final Context mContext;
+    private final CarPowerManagementService mCarPowerManagementService;
     private final CarSensorService mCarSensorService;
     private final CarSensorEventListener mCarSensorEventListener;
     private int mTaskCount = 0;
     private HandlerThread mHandlerThread;
     private Handler mHandler;
 
-    public CarLocationService(Context context, CarSensorService carSensorService) {
+    public CarLocationService(Context context, CarPowerManagementService carPowerManagementService,
+            CarSensorService carSensorService) {
         logd("constructed");
         mContext = context;
+        mCarPowerManagementService = carPowerManagementService;
         mCarSensorService = carSensorService;
         mCarSensorEventListener = new CarSensorEventListener();
     }
@@ -85,6 +89,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         mContext.registerReceiver(this, filter);
         mCarSensorService.registerOrUpdateSensorListener(
                 CarSensorManager.SENSOR_TYPE_IGNITION_STATE, 0, mCarSensorEventListener);
+        mCarPowerManagementService.registerPowerEventProcessingHandler(this);
     }
 
     @Override
@@ -103,8 +108,23 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     }
 
     @Override
+    public long onPrepareShutdown(boolean shuttingDown) {
+        logd("onPrepareShutdown " + shuttingDown);
+        asyncOperation(() -> storeLocation());
+        return 0;
+    }
+
+    @Override
+    public void onPowerOn(boolean displayOn) { }
+
+    @Override
+    public int getWakeupTime() {
+        return 0;
+    }
+
+    @Override
     public void onReceive(Context context, Intent intent) {
-        logd("onReceive" + intent);
+        logd("onReceive " + intent);
         String action = intent.getAction();
         if (action == Intent.ACTION_LOCKED_BOOT_COMPLETED) {
             asyncOperation(() -> loadLocation());
