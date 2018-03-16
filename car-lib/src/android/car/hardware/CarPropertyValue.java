@@ -18,10 +18,13 @@ package android.car.hardware;
 
 import static java.lang.Integer.toHexString;
 
+import android.annotation.IntDef;
 import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.charset.Charset;
 
 /**
@@ -34,7 +37,6 @@ import java.nio.charset.Charset;
  */
 @SystemApi
 public class CarPropertyValue<T> implements Parcelable {
-
     private final static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
     private final int mPropertyId;
@@ -42,6 +44,24 @@ public class CarPropertyValue<T> implements Parcelable {
     private final int mStatus;
     private final long mTimestamp;
     private final T mValue;
+
+    /** @hide */
+    @IntDef({
+        STATUS_AVAILABLE,
+        STATUS_UNAVAILABLE,
+        STATUS_ERROR
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface PropertyStatus {}
+
+    /** @hide */
+    public static final int STATUS_AVAILABLE = 0;
+
+    /** @hide */
+    public static final int STATUS_UNAVAILABLE = 1;
+
+    /** @hide */
+    public static final int STATUS_ERROR = 2;
 
     public CarPropertyValue(int propertyId, int areaId, T value) {
         this(propertyId, areaId, 0, 0, value);
@@ -124,7 +144,7 @@ public class CarPropertyValue<T> implements Parcelable {
         return mAreaId;
     }
 
-    public int getStatus() {
+    public @PropertyStatus int getStatus() {
         return mStatus;
     }
 

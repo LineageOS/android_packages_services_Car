@@ -749,6 +749,7 @@
     public void finishAndRemoveTask();
     public void finishFromChild(android.app.Activity);
     public android.app.ActionBar getActionBar();
+    public android.app.ActivityThread getActivityThread();
     public android.os.IBinder getActivityToken();
     public android.app.Application getApplication();
     public android.view.autofill.AutofillManager$AutofillClient getAutofillClient();
@@ -1489,13 +1490,14 @@
 }
 
 -keep class android.app.ActivityManager$TaskSnapshot {
-    <init>(android.graphics.GraphicBuffer, int, android.graphics.Rect, boolean, float);
+    <init>(android.graphics.GraphicBuffer, int, android.graphics.Rect, boolean, float, boolean);
 
     public int describeContents();
     public android.graphics.Rect getContentInsets();
     public int getOrientation();
     public float getScale();
     public android.graphics.GraphicBuffer getSnapshot();
+    public boolean isRealSnapshot();
     public boolean isReducedResolution();
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
@@ -1665,7 +1667,7 @@
     public android.app.Activity handleLaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public void handleMultiWindowModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public void handleNewIntent(android.os.IBinder, java.util.List, boolean);
-    public void handlePauseActivity(android.os.IBinder, boolean, boolean, int, boolean, android.app.servertransaction.PendingTransactionActions, java.lang.String);
+    public void handlePauseActivity(android.os.IBinder, boolean, boolean, int, android.app.servertransaction.PendingTransactionActions, java.lang.String);
     public void handlePictureInPictureModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public void handleRelaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public void handleRequestAssistContextExtras(android.app.ActivityThread$RequestAssistContextExtras);
@@ -1841,6 +1843,7 @@
     public static int permissionToOpCode(java.lang.String);
     public void resetAllModes();
     public void setMode(int, int, java.lang.String, int);
+    public void setMode(java.lang.String, int, java.lang.String, int);
     public void setRestriction(int, int, int, java.lang.String[]);
     public void setUidMode(int, int, int);
     public void setUidMode(java.lang.String, int, int);
@@ -2070,6 +2073,7 @@
     <init>();
 
     public android.view.autofill.AutofillManager$AutofillClient getAutofillClient();
+    public static java.lang.String getProcessName();
     public void onConfigurationChanged(android.content.res.Configuration);
     public void onCreate();
     public void onLowMemory();
@@ -2215,7 +2219,7 @@
     public abstract android.app.Activity handleLaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public abstract void handleMultiWindowModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public abstract void handleNewIntent(android.os.IBinder, java.util.List, boolean);
-    public abstract void handlePauseActivity(android.os.IBinder, boolean, boolean, int, boolean, android.app.servertransaction.PendingTransactionActions, java.lang.String);
+    public abstract void handlePauseActivity(android.os.IBinder, boolean, boolean, int, android.app.servertransaction.PendingTransactionActions, java.lang.String);
     public abstract void handlePictureInPictureModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public abstract void handleRelaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public abstract void handleResumeActivity(android.os.IBinder, boolean, boolean, java.lang.String);
@@ -4355,6 +4359,7 @@
     public int describeContents();
     public void dump(boolean);
     public void ensureData();
+    public void ensureDataForAutofill();
     public long getAcquisitionEndTime();
     public long getAcquisitionStartTime();
     public android.content.ComponentName getActivityComponent();
@@ -4984,7 +4989,6 @@
     public void registerContentObserver(android.net.Uri, boolean, android.database.ContentObserver);
     public void registerContentObserver(android.net.Uri, boolean, android.database.ContentObserver, int);
     public void releasePersistableUriPermission(android.net.Uri, int);
-    public void releasePersistableUriPermission(java.lang.String, android.net.Uri, int);
     public abstract boolean releaseProvider(android.content.IContentProvider);
     public abstract boolean releaseUnstableProvider(android.content.IContentProvider);
     public static void removePeriodicSync(android.accounts.Account, java.lang.String, android.os.Bundle);
@@ -5921,6 +5925,7 @@
     public static java.lang.String ACTION_ASSIST;
     public static java.lang.String ACTION_ATTACH_DATA;
     public static java.lang.String ACTION_BATTERY_CHANGED;
+    public static java.lang.String ACTION_BATTERY_LEVEL_CHANGED;
     public static java.lang.String ACTION_BATTERY_LOW;
     public static java.lang.String ACTION_BATTERY_OKAY;
     public static java.lang.String ACTION_BOOT_COMPLETED;
@@ -8896,6 +8901,22 @@
 
 }
 
+-keep class android.content.res.ApkAssets {
+
+    protected void finalize();
+    public java.lang.String getAssetPath();
+    public boolean isUpToDate();
+    public static android.content.res.ApkAssets loadFromFd(java.io.FileDescriptor, java.lang.String, boolean, boolean);
+    public static android.content.res.ApkAssets loadFromPath(java.lang.String);
+    public static android.content.res.ApkAssets loadFromPath(java.lang.String, boolean);
+    public static android.content.res.ApkAssets loadFromPath(java.lang.String, boolean, boolean);
+    public static android.content.res.ApkAssets loadOverlayFromPath(java.lang.String, boolean);
+    public android.content.res.XmlResourceParser openXml(java.lang.String);
+    public java.lang.String toString();
+
+
+}
+
 -keep class android.content.res.AssetFileDescriptor {
     <init>(android.os.ParcelFileDescriptor, long, long);
     <init>(android.os.ParcelFileDescriptor, long, long, android.os.Bundle);
@@ -8921,22 +8942,19 @@
 -keep class android.content.res.AssetManager {
     <init>();
 
-    public int addAssetFd(java.io.FileDescriptor, java.lang.String);
     public int addAssetPath(java.lang.String);
     public int addAssetPathAsSharedLibrary(java.lang.String);
-    public int[] addAssetPaths(java.lang.String[]);
     public int addOverlayPath(java.lang.String);
-    public int addOverlayPathNative(java.lang.String);
     public void close();
     protected void finalize();
+    public int findCookieForPath(java.lang.String);
+    public android.content.res.ApkAssets[] getApkAssets();
     public static java.lang.String getAssetAllocations();
     public android.util.SparseArray getAssignedPackageIdentifiers();
-    public java.lang.String getCookieName(int);
     public static int getGlobalAssetCount();
     public static int getGlobalAssetManagerCount();
     public java.lang.String[] getLocales();
     public java.lang.String[] getNonSystemLocales();
-    public android.content.res.Configuration[] getSizeConfigurations();
     public static android.content.res.AssetManager getSystem();
     public boolean isUpToDate();
     public java.lang.String[] list(java.lang.String);
@@ -8951,6 +8969,7 @@
     public android.content.res.AssetFileDescriptor openNonAssetFd(int, java.lang.String);
     public android.content.res.XmlResourceParser openXmlResourceParser(java.lang.String);
     public android.content.res.XmlResourceParser openXmlResourceParser(int, java.lang.String);
+    public void setApkAssets(android.content.res.ApkAssets[], boolean);
     public void setConfiguration(int, int, java.lang.String, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int);
 
 
@@ -9772,6 +9791,7 @@
     public static int CONFLICT_REPLACE;
     public static int CONFLICT_ROLLBACK;
     public static int CREATE_IF_NECESSARY;
+    public static int DISABLE_COMPATIBILITY_WAL;
     public static int ENABLE_WRITE_AHEAD_LOGGING;
     public static int MAX_SQL_CACHE_SIZE;
     public static int NO_LOCALIZED_COLLATORS;
@@ -9850,7 +9870,6 @@
     public int openFlags;
     public java.lang.String path;
     public java.lang.String syncMode;
-    public boolean useCompatibilityWal;
 }
 
 -keep class android.database.sqlite.SQLiteDebug {
@@ -10546,7 +10565,6 @@
     public boolean addFont(java.lang.String, int, android.graphics.fonts.FontVariationAxis[], int, int);
     public boolean addFontFromAssetManager(android.content.res.AssetManager, java.lang.String, int, boolean, int, int, int, android.graphics.fonts.FontVariationAxis[]);
     public boolean addFontFromBuffer(java.nio.ByteBuffer, int, android.graphics.fonts.FontVariationAxis[], int, int);
-    protected void finalize();
     public boolean freeze();
 
 
@@ -11451,7 +11469,6 @@
     public static android.graphics.Typeface createFromTypefaceWithVariation(android.graphics.Typeface, java.util.List);
     public static android.graphics.Typeface defaultFromStyle(int);
     public boolean equals(java.lang.Object);
-    protected void finalize();
     public static android.graphics.Typeface findFromCache(android.content.res.AssetManager, java.lang.String);
     public int getStyle();
     public int getWeight();
@@ -12052,9 +12069,10 @@
     public static int[] SDK_USAGES;
     public static int SUPPRESSIBLE_ALARM;
     public static int SUPPRESSIBLE_CALL;
-    public static int SUPPRESSIBLE_MEDIA_SYSTEM_OTHER;
+    public static int SUPPRESSIBLE_MEDIA;
     public static int SUPPRESSIBLE_NEVER;
     public static int SUPPRESSIBLE_NOTIFICATION;
+    public static int SUPPRESSIBLE_SYSTEM;
     public static android.util.SparseIntArray SUPPRESSIBLE_USAGES;
     public static int USAGE_ALARM;
     public static int USAGE_ASSISTANCE_ACCESSIBILITY;
@@ -16073,16 +16091,14 @@
 }
 
 -keep class android.view.DisplayCutout {
-    <init>(android.graphics.Rect, android.graphics.Region, android.util.Size);
+    <init>(android.graphics.Rect, java.util.List);
 
-    public android.view.DisplayCutout calculateRelativeTo(android.graphics.Rect);
-    public android.view.DisplayCutout computeSafeInsets(int, int);
     public boolean equals(java.lang.Object);
     public static android.view.DisplayCutout fromBoundingRect(int, int, int, int);
     public static android.view.DisplayCutout fromBounds(android.graphics.Path);
-    public static android.view.DisplayCutout fromResources(android.content.res.Resources, int);
-    public static android.view.DisplayCutout fromSpec(java.lang.String, int, float);
-    public android.graphics.Rect getBoundingRect();
+    public static android.view.DisplayCutout fromResources(android.content.res.Resources, int, int);
+    public static android.view.DisplayCutout fromSpec(java.lang.String, int, int, float);
+    public java.util.List getBoundingRects();
     public android.graphics.Region getBounds();
     public int getSafeInsetBottom();
     public int getSafeInsetLeft();
@@ -16091,7 +16107,9 @@
     public android.graphics.Rect getSafeInsets();
     public int hashCode();
     public android.view.DisplayCutout inset(int, int, int, int);
+    public boolean isBoundsEmpty();
     public boolean isEmpty();
+    public android.view.DisplayCutout replaceSafeInsets(android.graphics.Rect);
     public java.lang.String toString();
     public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
@@ -16295,6 +16313,7 @@
 
     public abstract void finish(boolean);
     public abstract android.app.ActivityManager$TaskSnapshot screenshotTask(int);
+    public abstract void setAnimationTargetsBehindSystemBars(boolean);
     public abstract void setInputConsumerEnabled(boolean);
 
 
@@ -17658,9 +17677,11 @@
     <init>(android.os.Parcel);
 
     public int describeContents();
+    public int getCallingPid();
     public long getDuration();
     public android.view.IRemoteAnimationRunner getRunner();
     public long getStatusBarTransitionDelay();
+    public void setCallingPid(int);
     public void writeToParcel(android.os.Parcel, int);
 
 
@@ -17671,10 +17692,12 @@
     <init>();
     <init>(android.os.Parcel);
 
+    public void addRemoteAnimation(int, int, android.view.RemoteAnimationAdapter);
     public void addRemoteAnimation(int, android.view.RemoteAnimationAdapter);
     public int describeContents();
-    public android.view.RemoteAnimationAdapter getAdapter(int);
-    public boolean hasTransition(int);
+    public android.view.RemoteAnimationAdapter getAdapter(int, android.util.ArraySet);
+    public boolean hasTransition(int, android.util.ArraySet);
+    public void setCallingPid(int);
     public void writeToParcel(android.os.Parcel, int);
 
 
@@ -17682,11 +17705,13 @@
 }
 
 -keep class android.view.RemoteAnimationTarget {
-    <init>(int, int, android.view.SurfaceControl, boolean, android.graphics.Rect, android.graphics.Rect, int, android.graphics.Point, android.graphics.Rect, android.app.WindowConfiguration);
+    <init>(int, int, android.view.SurfaceControl, boolean, android.graphics.Rect, android.graphics.Rect, int, android.graphics.Point, android.graphics.Rect, android.app.WindowConfiguration, boolean);
     <init>(android.os.Parcel);
 
     public int describeContents();
+    public void dump(java.io.PrintWriter, java.lang.String);
     public void writeToParcel(android.os.Parcel, int);
+    public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
     public static android.os.Parcelable$Creator CREATOR;
@@ -17694,6 +17719,7 @@
     public static int MODE_OPENING;
     public android.graphics.Rect clipRect;
     public android.graphics.Rect contentInsets;
+    public boolean isNotInRecents;
     public boolean isTranslucent;
     public android.view.SurfaceControl leash;
     public int mode;
@@ -17871,6 +17897,7 @@
     public boolean isValid();
     public android.graphics.Canvas lockCanvas(android.graphics.Rect);
     public android.graphics.Canvas lockHardwareCanvas();
+    public android.graphics.Canvas lockHardwareWideColorGamutCanvas();
     public void readFromParcel(android.os.Parcel);
     public void release();
     public static java.lang.String rotationToString(int);
@@ -18115,7 +18142,6 @@
     public void setResizeBackgroundColor(int);
     public void setSecure(boolean);
     public void setVisibility(int);
-    public void setWindowType(int);
     public void setZOrderMediaOverlay(boolean);
     public void setZOrderOnTop(boolean);
     public void surfacePositionLost_uiRtSync(long);
@@ -20700,6 +20726,7 @@
     public static int LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
     public static int LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT;
     public static int LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER;
+    public static int LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
     public static int MEMORY_TYPE_CHANGED;
     public static int MEMORY_TYPE_GPU;
     public static int MEMORY_TYPE_HARDWARE;
@@ -21196,7 +21223,7 @@
     public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_SET_TEXT;
     public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_SHOW_ON_SCREEN;
     public static android.view.accessibility.AccessibilityNodeInfo$AccessibilityAction ACTION_SHOW_TOOLTIP;
-    public int mSerializationFlag;
+    public long mSerializationFlag;
     public static android.util.ArraySet sStandardActions;
 }
 
@@ -21888,7 +21915,6 @@
     public abstract boolean performEditorAction(int);
     public abstract boolean performPrivateCommand(java.lang.String, android.os.Bundle);
     public abstract boolean reportFullscreenMode(boolean);
-    public void reportLanguageHint(android.os.LocaleList);
     public abstract boolean requestCursorUpdates(int);
     public abstract boolean sendKeyEvent(android.view.KeyEvent);
     public abstract boolean setComposingRegion(int, int);
