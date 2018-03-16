@@ -54,6 +54,9 @@ public class PowerHalService extends HalServiceBase {
     public static final int BOOT_REASON_USER_UNLOCK = VehicleApPowerBootupReason.USER_UNLOCK;
     public static final int BOOT_REASON_TIMER = VehicleApPowerBootupReason.TIMER;
 
+    // Set display brightness from 0-100%
+    public static final int MAX_BRIGHTNESS = 100;
+
     @VisibleForTesting
     public static final int SET_BOOT_COMPLETE = VehicleApPowerSetState.BOOT_COMPLETE;
     @VisibleForTesting
@@ -327,20 +330,23 @@ public class PowerHalService extends HalServiceBase {
                 listener.onApPowerStateChange(new PowerState(state, param));
                 break;
             case DISPLAY_BRIGHTNESS:
-                int maxBrightness;
-                synchronized (this) {
-                    maxBrightness = mMaxDisplayBrightness;
+                {
+                    int maxBrightness;
+                    synchronized (this) {
+                        maxBrightness = mMaxDisplayBrightness;
+                    }
+                    int brightness = v.value.int32Values.get(0) * MAX_BRIGHTNESS / maxBrightness;
+                    if (brightness < 0) {
+                        Log.e(CarLog.TAG_POWER, "invalid brightness: " + brightness + ", set to 0");
+                        brightness = 0;
+                    } else if (brightness > MAX_BRIGHTNESS) {
+                        Log.e(CarLog.TAG_POWER, "invalid brightness: " + brightness + ", set to "
+                                + MAX_BRIGHTNESS);
+                        brightness = MAX_BRIGHTNESS;
+                    }
+                    Log.i(CarLog.TAG_POWER, "Received DISPLAY_BRIGHTNESS=" + brightness);
+                    listener.onDisplayBrightnessChange(brightness);
                 }
-                int brightness = v.value.int32Values.get(0) * 100 / maxBrightness;
-                if (brightness < 0) {
-                    Log.e(CarLog.TAG_POWER, "invalid brightness: " + brightness + ", set to 0");
-                    brightness = 0;
-                } else if(brightness > 100) {
-                    Log.e(CarLog.TAG_POWER, "invalid brightness: " + brightness + ", set to 100");
-                    brightness = 100;
-                }
-                Log.i(CarLog.TAG_POWER, "Received DISPLAY_BRIGHTNESS=" + brightness);
-                listener.onDisplayBrightnessChange(brightness);
                 break;
             }
         }
