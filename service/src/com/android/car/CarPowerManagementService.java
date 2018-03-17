@@ -604,7 +604,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
     }
 
     private void doHandleMainDisplayStateChange(boolean on) {
-        //TODO bug: 32065231
+        Log.w(CarLog.TAG_POWER, "Unimplemented:  doHandleMainDisplayStateChange() - on = " + on);
     }
 
     public void handleMainDisplayChanged(boolean on) {
@@ -613,6 +613,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
             handler = mHandler;
         }
         handler.handleMainDisplayStateChange(on);
+    }
+
+    /**
+     * Send display brightness to VHAL.
+     * @param brightness value 0-100%
+     */
+    public void sendDisplayBrightness(int brightness) {
+        mHal.sendDisplayBrightness(brightness);
     }
 
     public synchronized Handler getHandler() {
