@@ -18,6 +18,7 @@ package com.android.car;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import android.car.Car;
 import android.car.test.CarTestManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.content.ComponentName;
@@ -40,6 +41,7 @@ import android.support.test.annotation.UiThreadTest;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
 import com.android.car.systeminterface.StorageMonitoringInterface;
@@ -76,7 +78,7 @@ public class MockedCarTestBase {
     static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
     static final long SHORT_WAIT_TIMEOUT_MS = 500;
 
-    private android.car.Car mCar;
+    private Car mCar;
     private ICarImpl mCarImpl;
     private MockedVehicleHal mMockedVehicleHal;
     private SystemInterface mFakeSystemInterface;
@@ -160,7 +162,7 @@ public class MockedCarTestBase {
 
         initMockedHal(false /* no need to release */);
 
-        mCar = new android.car.Car(context, mCarImpl, null /* handler */);
+        mCar = new Car(context, mCarImpl, null /* handler */);
     }
 
     @After
@@ -169,6 +171,10 @@ public class MockedCarTestBase {
         mCarImpl.release();
 
         mMockIOInterface.tearDown();
+    }
+
+    public CarPackageManagerService getPackageManagerService() {
+        return (CarPackageManagerService) mCarImpl.getCarService(Car.PACKAGE_SERVICE);
     }
 
     protected MockContext getCarServiceContext() throws NameNotFoundException {
