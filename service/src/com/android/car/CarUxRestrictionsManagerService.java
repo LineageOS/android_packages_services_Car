@@ -32,11 +32,13 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
+
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * A service that listens to current driving state of the vehicle and maps it to the
@@ -269,14 +271,26 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
         int drivingState = event.eventValue;
-        mCurrentMovingSpeed = getCurrentSpeed();
-        handleDispatchUxRestrictions(drivingState, mCurrentMovingSpeed);
-    }
-
-    private float getCurrentSpeed() {
-        CarSensorEvent event = mCarSensorService.getLatestSensorEvent(
+        CarSensorEvent speed = mCarSensorService.getLatestSensorEvent(
                 CarSensorManager.SENSOR_TYPE_CAR_SPEED);
-        return event.floatValues[0];
+        if (speed != null) {
+            mCurrentMovingSpeed = speed.floatValues[0];
+        } else if (drivingState == CarDrivingStateEvent.DRIVING_STATE_PARKED
+                || drivingState == CarDrivingStateEvent.DRIVING_STATE_UNKNOWN) {
+            // If speed is unavailable, but the driving state is parked or unknown, it can still be
+            // handled.
+            if (DBG) {
+                Log.d(TAG, "Speed null when driving state is: " + drivingState);
+            }
+            mCurrentMovingSpeed = 0;
+        } else {
+            // If we get here with driving state != parked or unknown && speed == null,
+            // something is wrong.  CarDrivingStateService could not have inferred idling or moving
+            // when speed is not available
+            Log.e(TAG, "Unexpected:  Speed null when driving state is: " + drivingState);
+            return;
+        }
+        handleDispatchUxRestrictions(drivingState, mCurrentMovingSpeed);
     }
 
     /**
@@ -326,8 +340,11 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         } else {
             uxRestrictions = mHelper.getUxRestrictions(currentDrivingState, speed);
         }
+        // If the driving state changed to "unknown", restrictions will also change to fully
+        // restricted.
         if (uxRestrictions == UX_RESTRICTIONS_UNKNOWN) {
-            Log.e(TAG, "Restriction Mapping went wrong.  Falling back to Fully restricted");
+            Log.e(TAG, "Couldn't map " + currentDrivingState
+                    + " to a UX restriction.  Falling back to Fully restricted");
             uxRestrictions = CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
         }
 

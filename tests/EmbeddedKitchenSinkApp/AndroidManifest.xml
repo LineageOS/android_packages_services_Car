@@ -42,6 +42,8 @@
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.INJECT_EVENTS" />
+
     <application android:label="@string/app_title"
         android:icon="@drawable/ic_launcher">
         <uses-library android:name="android.test.runner" />
@@ -92,19 +94,20 @@
                   android:theme="@android:style/Theme.Material.Light.Dialog"
                   android:launchMode="singleTop">
         </activity>
-
         <activity android:name=".cluster.FakeClusterNavigationActivity"
                   android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
                   android:launchMode="singleInstance"
                   android:resizeableActivity="true"
                   android:allowEmbedded="true"
                   android:permission="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL">
-            <intent-filter>
+            <intent-filter android:priority="-1">
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.car.cluster.NAVIGATION"/>
             </intent-filter>
         </activity>
+
+        <activity android:name=".activityview.ActivityViewTestFragment"/>
 
         <!-- temporary solution until b/68882625 is fixed. -->
         <receiver android:name=".touchsound.DisableTouchSoundOnBoot"  android:exported="true">
