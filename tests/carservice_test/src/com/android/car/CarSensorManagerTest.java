@@ -72,10 +72,6 @@ public class CarSensorManagerTest extends MockedCarTestBase {
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
                         .addIntValue(0)
                         .build());
-        addProperty(VehicleProperty.DRIVING_STATUS,
-                VehiclePropValueBuilder.newBuilder(VehicleProperty.DRIVING_STATUS)
-                        .addIntValue(0)
-                        .build());
         addProperty(VehicleProperty.IGNITION_STATE,
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.IGNITION_STATE)
                         .addIntValue(CarSensorEvent.IGNITION_STATE_ACC)
@@ -107,8 +103,6 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_PARKING_BRAKE));
         assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_GEAR));
         assertTrue(mCarSensorManager.isSensorSupported(CarSensorManager.SENSOR_TYPE_NIGHT));
-        assertTrue(mCarSensorManager.isSensorSupported(
-                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS));
         assertTrue(mCarSensorManager.isSensorSupported(
                 CarSensorManager.SENSOR_TYPE_IGNITION_STATE));
     }
@@ -142,17 +136,6 @@ public class CarSensorManagerTest extends MockedCarTestBase {
             // Make sure the individual query on a sensor type is consistent
             assertEquals(found, supported);
         }
-
-        // Here we simply ensure that one specific expected sensor is always available to help
-        // ensure we don't have a trivially broken test finding nothing.
-        boolean found = false;
-        for (int sensor : supportedSensors) {
-            if (sensor == CarSensorManager.SENSOR_TYPE_DRIVING_STATUS) {
-                found = true;
-                break;
-            }
-        }
-        assertTrue("We expect at least DRIVING_STATUS to be available", found);
     }
 
     /**
