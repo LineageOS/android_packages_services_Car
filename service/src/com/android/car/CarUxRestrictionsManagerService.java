@@ -32,11 +32,13 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
+
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * A service that listens to current driving state of the vehicle and maps it to the
@@ -46,7 +48,13 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         CarServiceBase {
     private static final String TAG = "CarUxR";
     private static final boolean DBG = false;
-    public static final int UX_RESTRICTIONS_UNKNOWN = -1;
+    // Default parameters to some of the UX restrictions if not configured in
+    // car_ux_restrictions_map.xml
+    static final int DEFAULT_MAX_LENGTH = 80;
+    static final int DEFAULT_MAX_CUMULATIVE_ITEMS = 50;
+    static final int DEFAULT_MAX_CONTENT_DEPTH = 3;
+
+    static final int UX_RESTRICTIONS_UNKNOWN = -1;
     private final Context mContext;
     private final CarDrivingStateService mDrivingStateService;
     private final CarSensorService mCarSensorService;
@@ -185,6 +193,42 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         return mCurrentUxRestrictions;
     }
 
+    /**
+     * Get the maximum length of general purpose strings that can be displayed when
+     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_STRING_LENGTH} is imposed.
+     *
+     * @return the maximum length of string that can be displayed
+     */
+    @Override
+    public int getMaxRestrictedStringLength() {
+        return mHelper.getMaxStringLength();
+    }
+
+    /**
+     * Get the maximum number of cumulative content items that can be displayed when
+     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
+     * <p>
+     * Please refer to this and {@link #getMaxContentDepth()} to know the upper bounds of
+     * content serving when the restriction is in place.
+     *
+     * @return maximum number of cumulative items that can be displayed
+     */
+    public int getMaxCumulativeContentItems() {
+        return mHelper.getMaxCumulativeContentItems();
+    }
+
+    /**
+     * Get the maximum number of levels that the user can navigate to when
+     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
+     * <p>
+     * Please refer to this and {@link #getMaxCumulativeContentItems()} to know the upper bounds of
+     * content serving when the restriction is in place.
+     *
+     * @return maximum number of cumulative items that can be displayed
+     */
+    public int getMaxContentDepth() {
+        return mHelper.getMaxContentDepth();
+    }
     /**
      * Class that holds onto client related information - listener interface, process that hosts the
      * binder object etc.
