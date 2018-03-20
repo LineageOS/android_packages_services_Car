@@ -1665,7 +1665,7 @@
     public android.app.Activity handleLaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public void handleMultiWindowModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public void handleNewIntent(android.os.IBinder, java.util.List, boolean);
-    public void handlePauseActivity(android.os.IBinder, boolean, boolean, int, android.app.servertransaction.PendingTransactionActions, java.lang.String);
+    public void handlePauseActivity(android.os.IBinder, boolean, boolean, int, boolean, android.app.servertransaction.PendingTransactionActions, java.lang.String);
     public void handlePictureInPictureModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public void handleRelaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public void handleRequestAssistContextExtras(android.app.ActivityThread$RequestAssistContextExtras);
@@ -2215,7 +2215,7 @@
     public abstract android.app.Activity handleLaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public abstract void handleMultiWindowModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public abstract void handleNewIntent(android.os.IBinder, java.util.List, boolean);
-    public abstract void handlePauseActivity(android.os.IBinder, boolean, boolean, int, android.app.servertransaction.PendingTransactionActions, java.lang.String);
+    public abstract void handlePauseActivity(android.os.IBinder, boolean, boolean, int, boolean, android.app.servertransaction.PendingTransactionActions, java.lang.String);
     public abstract void handlePictureInPictureModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public abstract void handleRelaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public abstract void handleResumeActivity(android.os.IBinder, boolean, boolean, java.lang.String);
@@ -8896,22 +8896,6 @@
 
 }
 
--keep class android.content.res.ApkAssets {
-
-    protected void finalize();
-    public java.lang.String getAssetPath();
-    public boolean isUpToDate();
-    public static android.content.res.ApkAssets loadFromFd(java.io.FileDescriptor, java.lang.String, boolean, boolean);
-    public static android.content.res.ApkAssets loadFromPath(java.lang.String);
-    public static android.content.res.ApkAssets loadFromPath(java.lang.String, boolean);
-    public static android.content.res.ApkAssets loadFromPath(java.lang.String, boolean, boolean);
-    public static android.content.res.ApkAssets loadOverlayFromPath(java.lang.String, boolean);
-    public android.content.res.XmlResourceParser openXml(java.lang.String);
-    public java.lang.String toString();
-
-
-}
-
 -keep class android.content.res.AssetFileDescriptor {
     <init>(android.os.ParcelFileDescriptor, long, long);
     <init>(android.os.ParcelFileDescriptor, long, long, android.os.Bundle);
@@ -8937,19 +8921,22 @@
 -keep class android.content.res.AssetManager {
     <init>();
 
+    public int addAssetFd(java.io.FileDescriptor, java.lang.String);
     public int addAssetPath(java.lang.String);
     public int addAssetPathAsSharedLibrary(java.lang.String);
+    public int[] addAssetPaths(java.lang.String[]);
     public int addOverlayPath(java.lang.String);
+    public int addOverlayPathNative(java.lang.String);
     public void close();
     protected void finalize();
-    public int findCookieForPath(java.lang.String);
-    public android.content.res.ApkAssets[] getApkAssets();
     public static java.lang.String getAssetAllocations();
     public android.util.SparseArray getAssignedPackageIdentifiers();
+    public java.lang.String getCookieName(int);
     public static int getGlobalAssetCount();
     public static int getGlobalAssetManagerCount();
     public java.lang.String[] getLocales();
     public java.lang.String[] getNonSystemLocales();
+    public android.content.res.Configuration[] getSizeConfigurations();
     public static android.content.res.AssetManager getSystem();
     public boolean isUpToDate();
     public java.lang.String[] list(java.lang.String);
@@ -8964,7 +8951,6 @@
     public android.content.res.AssetFileDescriptor openNonAssetFd(int, java.lang.String);
     public android.content.res.XmlResourceParser openXmlResourceParser(java.lang.String);
     public android.content.res.XmlResourceParser openXmlResourceParser(int, java.lang.String);
-    public void setApkAssets(android.content.res.ApkAssets[], boolean);
     public void setConfiguration(int, int, java.lang.String, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int);
 
 
@@ -16087,7 +16073,6 @@
 }
 
 -keep class android.view.DisplayCutout {
-    <init>(android.graphics.Rect, android.graphics.Region);
     <init>(android.graphics.Rect, android.graphics.Region, android.util.Size);
 
     public android.view.DisplayCutout calculateRelativeTo(android.graphics.Rect);
@@ -21903,6 +21888,7 @@
     public abstract boolean performEditorAction(int);
     public abstract boolean performPrivateCommand(java.lang.String, android.os.Bundle);
     public abstract boolean reportFullscreenMode(boolean);
+    public void reportLanguageHint(android.os.LocaleList);
     public abstract boolean requestCursorUpdates(int);
     public abstract boolean sendKeyEvent(android.view.KeyEvent);
     public abstract boolean setComposingRegion(int, int);
