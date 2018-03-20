@@ -341,6 +341,15 @@ public final class CarHvacManager implements CarManagerBase {
     }
 
     /**
+     * Check whether a given property is available for use by Car Hvac Manager
+     * @return true if the property is AVAILABLE, false otherwise
+     */
+    public boolean isPropertyAvailable(@PropertyId int propertyId, int area)
+            throws CarNotConnectedException {
+        return mMgr.isPropertyAvailable(propertyId, area);
+    }
+
+    /**
      * Get value of boolean property
      * @param propertyId
      * @param area

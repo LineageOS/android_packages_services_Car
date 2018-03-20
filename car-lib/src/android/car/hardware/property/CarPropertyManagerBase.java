@@ -163,6 +163,18 @@ public class CarPropertyManagerBase {
         }
     }
 
+    public boolean isPropertyAvailable(int propId, int area) throws CarNotConnectedException {
+        try {
+            CarPropertyValue propValue = mService.getProperty(propId, area);
+            return (propValue != null) &&
+                   (propValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE);
+        } catch (RemoteException e) {
+            Log.e(mTag, "isPropertyAvailable failed with " + e.toString()
+                + ", propId: 0x" + toHexString(propId) + ", area: 0x" + toHexString(area), e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
     /**
      * Returns value of a bool property
      *
