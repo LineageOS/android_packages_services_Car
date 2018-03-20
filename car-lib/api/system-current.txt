@@ -612,6 +612,7 @@ package android.car.hardware.hvac {
     method public float getFloatProperty(int, int) throws android.car.CarNotConnectedException;
     method public int getIntProperty(int, int) throws android.car.CarNotConnectedException;
     method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList() throws android.car.CarNotConnectedException;
+    method public boolean isPropertyAvailable(int, int) throws android.car.CarNotConnectedException;
     method public static boolean isZonedProperty(int);
     method public synchronized void registerCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback) throws android.car.CarNotConnectedException;
     method public void setBooleanProperty(int, int, boolean) throws android.car.CarNotConnectedException;
