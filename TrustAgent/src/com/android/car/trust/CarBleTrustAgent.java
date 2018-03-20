@@ -78,13 +78,13 @@ public class CarBleTrustAgent extends TrustAgentService {
                 revokeTrust();
             } else if (ACTION_ADD_TOKEN.equals(action)) {
                 byte[] token = intent.getByteArrayExtra(INTENT_EXTRA_ESCROW_TOKEN);
-                addEscrowToken(token, getCurrentUserHandle());
+                addEscrowToken(token, getForegroundUserHandle());
             } else if (ACTION_IS_TOKEN_ACTIVE.equals(action)) {
                 long handle = intent.getLongExtra(INTENT_EXTRA_TOKEN_HANDLE, -1);
-                isEscrowTokenActive(handle, getCurrentUserHandle());
+                isEscrowTokenActive(handle, getForegroundUserHandle());
             } else if (ACTION_REMOVE_TOKEN.equals(action)) {
                 long handle = intent.getLongExtra(INTENT_EXTRA_TOKEN_HANDLE, -1);
-                removeEscrowToken(handle, getCurrentUserHandle());
+                removeEscrowToken(handle, getForegroundUserHandle());
             }
         }
     };
@@ -151,7 +151,7 @@ public class CarBleTrustAgent extends TrustAgentService {
 
         // If the user is already unlocked, don't bother starting the BLE service.
         UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
-        if (!um.isUserUnlocked()) {
+        if (!um.isUserUnlocked(getForegroundUserHandle())) {
             Log.d(Utils.LOG_TAG, "User locked, will now bind CarUnlockService");
             Intent intent = new Intent(this, CarUnlockService.class);
 
@@ -190,14 +190,7 @@ public class CarBleTrustAgent extends TrustAgentService {
         // to start the rest of the BLE services.
         if (mGattServer == null) {
             Log.e(Utils.LOG_TAG, "Gatt not available, will try again...in " + BLE_RETRY_MS + "ms");
-
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    maybeStartBleUnlockService();
-                }
-            }, BLE_RETRY_MS);
+            new Handler().postDelayed(() -> maybeStartBleUnlockService(), BLE_RETRY_MS);
         } else {
             mGattServer.close();
             Log.d(Utils.LOG_TAG, "GATT available, starting up UnlockService");
@@ -207,16 +200,19 @@ public class CarBleTrustAgent extends TrustAgentService {
 
     private void unlock(byte[] token, long handle) {
         UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
+        // STOPSHIP: get the actual user to unlock by token
+        UserHandle userHandle = getForegroundUserHandle();
 
-        Log.d(Utils.LOG_TAG, "About to unlock user. Current handle: " + handle
+        Log.d(Utils.LOG_TAG, "About to unlock user. Handle: " + handle
                 + " Time: " + System.currentTimeMillis());
-        unlockUserWithToken(handle, token, getCurrentUserHandle());
+        unlockUserWithToken(handle, token, userHandle);
 
-        Log.d(Utils.LOG_TAG, "Attempted to unlock user, is user unlocked? " + um.isUserUnlocked()
+        Log.d(Utils.LOG_TAG, "Attempted to unlock user, is user unlocked: "
+                + um.isUserUnlocked(userHandle)
                 + " Time: " + System.currentTimeMillis());
         setManagingTrust(true);
 
-        if (um.isUserUnlocked()) {
+        if (um.isUserUnlocked(userHandle)) {
             Log.d(Utils.LOG_TAG, getString(R.string.trust_granted_explanation));
             grantTrust("Granting trust from escrow token",
                     TRUST_DURATION_MS, FLAG_GRANT_TRUST_DISMISS_KEYGUARD);
@@ -253,7 +249,12 @@ public class CarBleTrustAgent extends TrustAgentService {
         mLocalBroadcastManager.sendBroadcast(intent);
     }
 
-    private UserHandle getCurrentUserHandle() {
+    /**
+     * STOPSHIP: return the {@link UserHandle} of foreground user.
+     * CarTrustAgentService itself runs as user-0
+     */
+    private UserHandle getForegroundUserHandle() {
+        Log.d(Utils.LOG_TAG, "getForegroundUserHandle for " + UserHandle.myUserId());
         return UserHandle.of(UserHandle.myUserId());
     }
 }
