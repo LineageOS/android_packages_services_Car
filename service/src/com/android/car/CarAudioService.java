@@ -200,10 +200,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*CarAudioService*");
-        writer.println("mUseDynamicRouting: " + mUseDynamicRouting);
+        writer.println("Run in legacy mode? " + (!mUseDynamicRouting));
+        // Empty line for comfortable reading
+        writer.println();
         if (mUseDynamicRouting) {
             for (CarVolumeGroup group : mCarVolumeGroups) {
-                writer.println("\tVolume group: " + group);
+                group.dump(writer);
             }
         }
     }
