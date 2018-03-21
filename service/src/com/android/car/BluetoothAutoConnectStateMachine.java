@@ -56,8 +56,8 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
     public static final int CHECK_CLIENT_PROFILES_AFTER_PAIRING = 1007;
 
     public static final int CONNECTION_TIMEOUT_MS = 8000;
-    public static final int CONNECT_MORE_PROFILES_TIMEOUT_MS = 8000;
-    public static final int CONNECT_MORE_PROFILES_SHORT_TIMEOUT_MS = 2000;
+    static final int CONNECT_MORE_PROFILES_TIMEOUT_MS = 2000;
+    static final int CONNECT_MORE_PROFILES_SHORT_TIMEOUT_MS = 1000;
 
 
     BluetoothAutoConnectStateMachine(BluetoothDeviceConnectionPolicy policy) {
