@@ -28,6 +28,8 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import com.android.car.pm.CarPackageManagerService;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -40,12 +42,16 @@ public class CarPackageManagerTest extends MockedCarTestBase {
     private static final long POLLING_SLEEP = 100;
 
     private CarPackageManager mCarPm;
+    private CarPackageManagerService mCarPmService;
 
     private void init(boolean policyFromService) throws Exception {
         Log.i(TAG, "init started");
         TestAppBlockingPolicyService.controlPolicySettingFromService(policyFromService);
         mCarPm = (CarPackageManager) getCar().getCarManager(Car.PACKAGE_SERVICE);
         assertNotNull(mCarPm);
+        mCarPmService = getPackageManagerService();
+        assertNotNull(mCarPmService);
+        mCarPmService.startAppBlockingPolicies();
     }
 
     @Test
