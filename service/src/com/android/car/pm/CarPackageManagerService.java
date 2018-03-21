@@ -46,6 +46,7 @@ import android.os.Message;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
+
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
@@ -54,6 +55,7 @@ import com.android.car.R;
 import com.android.car.SystemActivityMonitoringService;
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -585,7 +587,12 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         return activityList.toArray(new String[activityList.size()]);
     }
 
-    private void startAppBlockingPolicies() {
+    /**
+     * Checks if there are any {@link CarAppBlockingPolicyService} and creates a proxy to
+     * bind to them and retrieve the {@link CarAppBlockingPolicy}
+     */
+    @VisibleForTesting
+    public void startAppBlockingPolicies() {
         Intent policyIntent = new Intent();
         policyIntent.setAction(CarAppBlockingPolicyService.SERVICE_INTERFACE);
         List<ResolveInfo> policyInfos = mPackageManager.queryIntentServices(policyIntent, 0);
