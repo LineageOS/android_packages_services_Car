@@ -19,11 +19,11 @@ Note:
     <!-- Map the driving states to UX restrictions here -->
     <RestrictionMapping>
         <DrivingState car:state="parked">
-            <restrictions car:uxr="unrestricted"/>
+            <Restrictions car:uxr="unrestricted"/>
         </DrivingState>
 
         <DrivingState car:state="idling">
-            <restrictions car:uxr="fully_restricted"/>
+            <Restrictions car:uxr="fully_restricted"/>
         </DrivingState>
 
         <!-- This is to illustrate how to add multiple speed ranges.  The restrictions here
@@ -40,23 +40,22 @@ Note:
         4. If the above conditions are not met, mapping behavior is undefined. -->
         <!-- This is restrictions for moving and speed [0,5) -->
         <DrivingState car:state="moving" car:minSpeed="0" car:maxSpeed="5.0">
-            <restrictions car:uxr="fully_restricted"/>
+            <Restrictions car:uxr="fully_restricted"/>
         </DrivingState>
 
         <!-- Restrictions for speed >=5 -->
         <DrivingState car:state="moving" car:minSpeed="5.0">
-            <restrictions car:uxr="fully_restricted"/>
+            <Restrictions car:uxr="fully_restricted"/>
         </DrivingState>
 
     </RestrictionMapping>
 
     <!-- Configure restriction parameters here-->
-    <!-- This is a placeholder - actual parameters will be filled up after finalizing b/72155508 -->
     <RestrictionParameters>
-        <!-- String length parameters in text and messages -->
-        <StringLength car:maxLength="80"/>
-        <!-- Number of items in a list item -->
-        <ListInfo car:maxItems="10"/>
+        <!-- Parameters to express displayed String related restrictions -->
+        <StringRestrictions car:maxLength="80"/>
+        <!-- Parameters to express content related restrictions -->
+        <ContentRestrictions car:maxCumulativeItems="50" car:maxDepth="3"/>
     </RestrictionParameters>
 
 </UxRestrictions>

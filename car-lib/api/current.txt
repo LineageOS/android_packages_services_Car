@@ -205,14 +205,16 @@ package android.car.drivingstate {
     method public boolean isSameRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.drivingstate.CarUxRestrictions> CREATOR;
-    field public static final int UX_RESTRICTIONS_FULLY_RESTRICTED = 127; // 0x7f
-    field public static final int UX_RESTRICTIONS_LIMIT_CONTENT_ITEMS = 32; // 0x20
+    field public static final int UX_RESTRICTIONS_FULLY_RESTRICTED = 511; // 0x1ff
+    field public static final int UX_RESTRICTIONS_LIMIT_CONTENT = 32; // 0x20
     field public static final int UX_RESTRICTIONS_LIMIT_STRING_LENGTH = 4; // 0x4
-    field public static final int UX_RESTRICTIONS_NO_FIELD_ENTRY = 8; // 0x8
-    field public static final int UX_RESTRICTIONS_NO_SETUP_CONFIG = 64; // 0x40
-    field public static final int UX_RESTRICTIONS_NO_TEXT_FILTERING = 2; // 0x2
-    field public static final int UX_RESTRICTIONS_NO_TEXT_SEARCH = 1; // 0x1
+    field public static final int UX_RESTRICTIONS_NO_DIALPAD = 1; // 0x1
+    field public static final int UX_RESTRICTIONS_NO_FILTERING = 2; // 0x2
+    field public static final int UX_RESTRICTIONS_NO_KEYBOARD = 8; // 0x8
+    field public static final int UX_RESTRICTIONS_NO_SETUP = 64; // 0x40
+    field public static final int UX_RESTRICTIONS_NO_TEXT_MESSAGE = 128; // 0x80
     field public static final int UX_RESTRICTIONS_NO_VIDEO = 16; // 0x10
+    field public static final int UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION = 256; // 0x100
     field public static final int UX_RESTRICTIONS_UNRESTRICTED = 0; // 0x0
   }
 
@@ -221,6 +223,9 @@ package android.car.drivingstate {
 
   public final class CarUxRestrictionsManager {
     method public android.car.drivingstate.CarUxRestrictions getCurrentCarUxRestrictions() throws android.car.CarNotConnectedException;
+    method public int getMaxContentDepth() throws android.car.CarNotConnectedException;
+    method public int getMaxCumulativeContentItems() throws android.car.CarNotConnectedException;
+    method public int getMaxRestrictedStringLength() throws android.car.CarNotConnectedException;
     method public synchronized void registerListener(android.car.drivingstate.CarUxRestrictionsManager.onUxRestrictionsChangedListener) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public synchronized void unregisterListener() throws android.car.CarNotConnectedException;
   }
