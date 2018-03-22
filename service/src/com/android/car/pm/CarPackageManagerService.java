@@ -158,12 +158,12 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     @Override
-    public boolean isActivityAllowedWhileDriving(String packageName, String className) {
+    public boolean isActivityDistractionOptimized(String packageName, String className) {
         assertPackageAndClassName(packageName, className);
         synchronized (this) {
             if (DBG_POLICY_CHECK) {
-                Log.i(CarLog.TAG_PACKAGE, "isActivityAllowedWhileDriving" +
-                        dumpPoliciesLocked(false));
+                Log.i(CarLog.TAG_PACKAGE, "isActivityDistractionOptimized"
+                        + dumpPoliciesLocked(false));
             }
             AppBlockingPackageInfo info = searchFromBlacklistsLocked(packageName);
             if (info != null) {
@@ -174,14 +174,14 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     @Override
-    public boolean isServiceAllowedWhileDriving(String packageName, String className) {
+    public boolean isServiceDistractionOptimized(String packageName, String className) {
         if (packageName == null) {
             throw new IllegalArgumentException("Package name null");
         }
         synchronized (this) {
             if (DBG_POLICY_CHECK) {
-                Log.i(CarLog.TAG_PACKAGE, "isServiceAllowedWhileDriving" +
-                        dumpPoliciesLocked(false));
+                Log.i(CarLog.TAG_PACKAGE, "isServiceDistractionOptimized"
+                        + dumpPoliciesLocked(false));
             }
             AppBlockingPackageInfo info = searchFromBlacklistsLocked(packageName);
             if (info != null) {
@@ -210,7 +210,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
         ComponentName activityBehind = ComponentName.unflattenFromString(
                 info.taskNames[info.taskNames.length - 2]);
-        return isActivityAllowedWhileDriving(activityBehind.getPackageName(),
+        return isActivityDistractionOptimized(activityBehind.getPackageName(),
                 activityBehind.getClassName());
     }
 
@@ -717,7 +717,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if (topTask.topActivity == null) {
             return;
         }
-        boolean allowed = isActivityAllowedWhileDriving(
+        boolean allowed = isActivityDistractionOptimized(
                 topTask.topActivity.getPackageName(),
                 topTask.topActivity.getClassName());
         if (DBG_POLICY_ENFORCEMENT) {
