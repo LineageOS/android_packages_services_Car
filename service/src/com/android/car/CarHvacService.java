@@ -25,6 +25,6 @@ public class CarHvacService extends CarPropertyServiceBase {
     private final static boolean DBG = false;
 
     public CarHvacService(Context context, HvacHalService hvacHal) {
-        super(context, hvacHal, Car.PERMISSION_ADJUST_CAR_CLIMATE, DBG, CarLog.TAG_HVAC);
+        super(context, hvacHal, Car.PERMISSION_CONTROL_CAR_CLIMATE, DBG, CarLog.TAG_HVAC);
     }
 }
