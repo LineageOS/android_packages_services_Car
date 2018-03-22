@@ -27,6 +27,8 @@ import android.util.Log;
 
 import com.android.internal.util.Preconditions;
 
+import java.io.PrintWriter;
+
 /**
  * A helper class wraps {@link AudioDeviceInfo}, and helps get/set the gain on a specific port
  * in terms of millibels.
@@ -223,8 +225,18 @@ import com.android.internal.util.Preconditions;
     @Override
     public String toString() {
         return "device: " + mAudioDeviceInfo.getAddress()
+                + " sampleRate: " + getSampleRate()
+                + " channelCount: " + getChannelCount()
                 + " currentGain: " + getCurrentGain()
                 + " maxGain: " + mMaxGain
                 + " minGain: " + mMinGain;
+    }
+
+    void dump(PrintWriter writer) {
+        writer.println("Bus Number " + mBusNumber);
+        writer.printf("\tSample rate: %d and channel count: %d\n",
+                getSampleRate(), getChannelCount());
+        writer.printf("\tGain in millibel (min / max / default/ current): %d %d %d %d\n",
+                mMinGain, mMaxGain, mDefaultGain, getCurrentGain());
     }
 }
