@@ -21,6 +21,7 @@ import android.annotation.Nullable;
 import android.car.media.CarAudioManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.media.AudioDevicePort;
 import android.provider.Settings;
 import android.util.SparseArray;
@@ -28,6 +29,7 @@ import android.util.SparseIntArray;
 
 import com.android.internal.util.Preconditions;
 
+import java.io.PrintWriter;
 import java.util.Arrays;
 
 /**
@@ -45,12 +47,12 @@ import java.util.Arrays;
     private final SparseIntArray mContextToBus = new SparseIntArray();
     private final SparseArray<CarAudioDeviceInfo> mBusToCarAudioDeviceInfos = new SparseArray<>();
 
-    private int mDefaultGain        = Integer.MIN_VALUE;
-    private int mMaxGain            = Integer.MIN_VALUE;
-    private int mMinGain            = Integer.MAX_VALUE;
-    private int mStepSize           = 0;
+    private int mDefaultGain = Integer.MIN_VALUE;
+    private int mMaxGain = Integer.MIN_VALUE;
+    private int mMinGain = Integer.MAX_VALUE;
+    private int mStepSize = 0;
     private int mStoredGainIndex;
-    private int mCurrentGainIndex   = -1;
+    private int mCurrentGainIndex = -1;
 
     CarVolumeGroup(Context context, int id, @NonNull int[] contexts) {
         mContentResolver = context.getContentResolver();
@@ -189,5 +191,22 @@ import java.util.Arrays;
                 + " currentGainIndex: " + mCurrentGainIndex
                 + " contexts: " + Arrays.toString(mContexts)
                 + " buses: " + Arrays.toString(getBusNumbers());
+    }
+
+    void dump(PrintWriter writer) {
+        writer.println("CarVolumeGroup " + mId);
+        writer.printf("\tGain in millibel (min / max / default/ current): %d %d %d %d\n",
+                mMinGain, mMaxGain, mDefaultGain, getGainForIndex(mCurrentGainIndex));
+        writer.printf("\tGain in index (min / max / default / current): %d %d %d %d\n",
+                getMinGainIndex(), getMaxGainIndex(), getDefaultGainIndex(), mCurrentGainIndex);
+        for (int i = 0; i < mContextToBus.size(); i++) {
+            writer.printf("\tContext: %s -> Bus: %d\n",
+                    ContextNumber.toString(mContextToBus.keyAt(i)), mContextToBus.valueAt(i));
+        }
+        for (int i = 0; i < mBusToCarAudioDeviceInfos.size(); i++) {
+            mBusToCarAudioDeviceInfos.valueAt(i).dump(writer);
+        }
+        // Empty line for comfortable reading
+        writer.println();
     }
 }
