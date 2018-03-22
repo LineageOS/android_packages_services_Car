@@ -86,7 +86,9 @@ import com.android.internal.util.Preconditions;
         final AudioPortConfig activePortConfig = audioPort.activeConfig();
         if (activePortConfig != null) {
             final AudioGainConfig activeGainConfig = activePortConfig.gain();
-            if (activeGainConfig != null) {
+            if (activeGainConfig != null
+                    && activeGainConfig.values() != null
+                    && activeGainConfig.values().length > 0) {
                 // Since we are always in MODE_JOINT, we can just look at the first channel
                 return activeGainConfig.values()[0];
             }
