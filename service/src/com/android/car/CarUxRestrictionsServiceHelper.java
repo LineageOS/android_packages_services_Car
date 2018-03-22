@@ -29,6 +29,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -36,14 +38,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 /**
  * Helper class to {@link CarUxRestrictionsManagerService} and it takes care of the foll:
  * <ol>
- *  <li>Parses the given XML resource and builds a hashmap to store the driving state to UX
+ * <li>Parses the given XML resource and builds a hashmap to store the driving state to UX
  * restrictions mapping information provided in the XML.</li>
- *  <li>Finds the UX restrictions for the given driving state and speed from the data structure it
+ * <li>Finds the UX restrictions for the given driving state and speed from the data structure it
  * built above.</li>
  * </ol>
  */
@@ -55,15 +55,19 @@ import org.xmlpull.v1.XmlPullParserException;
     private static final String RESTRICTION_PARAMETERS = "RestrictionParameters";
     private static final String DRIVING_STATE = "DrivingState";
     private static final String RESTRICTIONS = "Restrictions";
+    private static final String STRING_RESTRICTIONS = "StringRestrictions";
+    private static final String CONTENT_RESTRICTIONS = "ContentRestrictions";
     /* Hashmap that maps driving state to RestrictionsInfo.
     RestrictionsInfo maintains a list of RestrictionsPerSpeedRange.
     The list size will be one for Parked and Idling states, but could be more than one
     for Moving state, if moving state supports multiple speed ranges.*/
     private Map<Integer, RestrictionsInfo> mRestrictionsMap = new HashMap<>();
+    private RestrictionParameters mRestrictionParameters = new RestrictionParameters();
     private final Context mContext;
-    @XmlRes private final int mXmlResource;
+    @XmlRes
+    private final int mXmlResource;
 
-    public CarUxRestrictionsServiceHelper(Context context, @XmlRes int xmlRes) {
+    CarUxRestrictionsServiceHelper(Context context, @XmlRes int xmlRes) {
         mContext = context;
         mXmlResource = xmlRes;
     }
@@ -98,11 +102,18 @@ import org.xmlpull.v1.XmlPullParserException;
                         }
                         break;
                     case RESTRICTION_PARAMETERS:
-                        //TODO(b/72155508)
+                        if (!parseRestrictionParameters(parser, attrs)) {
+                            // Failure to parse is automatically handled by falling back to
+                            // defaults.  Just log the information here
+                            if (Log.isLoggable(TAG, Log.INFO)) {
+                                Log.i(TAG,
+                                        "Error reading restrictions parameters.  Falling back to "
+                                                + "platform defaults.");
+                            }
+                        }
                         break;
                     default:
                         Log.w(TAG, "Unknown class:" + parser.getName());
-                        continue;
                 }
             }
         }
@@ -116,25 +127,19 @@ import org.xmlpull.v1.XmlPullParserException;
     private boolean mapDrivingStateToRestrictions(XmlResourceParser parser, AttributeSet attrs)
             throws IOException, XmlPullParserException {
         if (parser == null || attrs == null) {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "Invalid arguments");
-            }
+            Log.e(TAG, "Invalid arguments");
             return false;
         }
-        // The parser should be at the <restrictionMapping> tag at this point.
+        // The parser should be at the <RestrictionMapping> tag at this point.
         if (!RESTRICTION_MAPPING.equals(parser.getName())) {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "Parser not at restrictionMapping element: " + parser.getName());
-            }
+            Log.e(TAG, "Parser not at RestrictionMapping element: " + parser.getName());
             return false;
         }
         if (!traverseToTag(parser, DRIVING_STATE)) {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "No <" + DRIVING_STATE + "> tag in XML");
-            }
+            Log.e(TAG, "No <" + DRIVING_STATE + "> tag in XML");
             return false;
         }
-        // Handle all the <drivingState> tags.
+        // Handle all the <DrivingState> tags.
         while (DRIVING_STATE.equals(parser.getName())) {
             if (parser.getEventType() == XmlResourceParser.START_TAG) {
                 // 1. Get the driving state attributes: driving state and speed range
@@ -155,11 +160,9 @@ import org.xmlpull.v1.XmlPullParserException;
                                 RestrictionsPerSpeedRange.SPEED_INVALID);
                 a.recycle();
 
-                // 2. Traverse to the <restrictions> tag
+                // 2. Traverse to the <Restrictions> tag
                 if (!traverseToTag(parser, RESTRICTIONS)) {
-                    if (Log.isLoggable(TAG, Log.ERROR)) {
-                        Log.e(TAG, "No <" + RESTRICTIONS + "> tag in XML");
-                    }
+                    Log.e(TAG, "No <" + RESTRICTIONS + "> tag in XML");
                     return false;
                 }
 
@@ -188,9 +191,7 @@ import org.xmlpull.v1.XmlPullParserException;
             throws IOException, XmlPullParserException {
         int restrictions = UX_RESTRICTIONS_UNKNOWN;
         if (parser == null || attrs == null) {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "Invalid Arguments");
-            }
+            Log.e(TAG, "Invalid Arguments");
             return restrictions;
         }
 
@@ -233,6 +234,63 @@ import org.xmlpull.v1.XmlPullParserException;
         return false;
     }
 
+    /**
+     * Parses the information in the <RestrictionParameters> tag to read the parameters for the
+     * applicable UX restrictions
+     */
+    private boolean parseRestrictionParameters(XmlResourceParser parser, AttributeSet attrs)
+            throws IOException, XmlPullParserException {
+        if (parser == null || attrs == null) {
+            Log.e(TAG, "Invalid arguments");
+            return false;
+        }
+        // The parser should be at the <RestrictionParameters> tag at this point.
+        if (!RESTRICTION_PARAMETERS.equals(parser.getName())) {
+            Log.e(TAG, "Parser not at RestrictionParameters element: " + parser.getName());
+            return false;
+        }
+        while (parser.getEventType() != XmlResourceParser.END_DOCUMENT) {
+            int type = parser.next();
+            // Break if we have parsed all <RestrictionParameters>
+            if (type == XmlResourceParser.END_TAG && RESTRICTION_PARAMETERS.equals(
+                    parser.getName())) {
+                return true;
+            }
+            if (type == XmlResourceParser.START_TAG) {
+                TypedArray a = null;
+                switch (parser.getName()) {
+                    case STRING_RESTRICTIONS:
+                        a = mContext.getResources().obtainAttributes(attrs,
+                                R.styleable.UxRestrictions_StringRestrictions);
+                        mRestrictionParameters.mMaxStringLength = a
+                                .getInt(R.styleable.UxRestrictions_StringRestrictions_maxLength,
+                                        CarUxRestrictionsManagerService.DEFAULT_MAX_LENGTH);
+
+                        break;
+                    case CONTENT_RESTRICTIONS:
+                        a = mContext.getResources().obtainAttributes(attrs,
+                                R.styleable.UxRestrictions_ContentRestrictions);
+                        mRestrictionParameters.mMaxCumulativeContentItems = a.getInt(R.styleable
+                                        .UxRestrictions_ContentRestrictions_maxCumulativeItems,
+                                CarUxRestrictionsManagerService.DEFAULT_MAX_CUMULATIVE_ITEMS);
+                        mRestrictionParameters.mMaxContentDepth = a
+                                .getInt(R.styleable.UxRestrictions_ContentRestrictions_maxDepth,
+                                        CarUxRestrictionsManagerService.DEFAULT_MAX_CONTENT_DEPTH);
+                        break;
+                    default:
+                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, "Unsupported Restriction Parameters in XML: "
+                                    + parser.getName());
+                        }
+                        break;
+                }
+                if (a != null) {
+                    a.recycle();
+                }
+            }
+        }
+        return true;
+    }
 
     /**
      * Dump the driving state to UX restrictions mapping.
@@ -252,8 +310,11 @@ import org.xmlpull.v1.XmlPullParserException;
                     writer.println("===========================================");
                 }
             }
-
         }
+        writer.println("Max String length: " + mRestrictionParameters.mMaxStringLength);
+        writer.println(
+                "Max Cumul Content Items: " + mRestrictionParameters.mMaxCumulativeContentItems);
+        writer.println("Max Content depth: " + mRestrictionParameters.mMaxContentDepth);
     }
 
     private static String getDrivingStateName(int state) {
@@ -294,18 +355,56 @@ import org.xmlpull.v1.XmlPullParserException;
         return restrictionsList.findRestrictions(currentSpeed);
     }
 
+    /**
+     * Returns the maximum string length allowed parsed from the <StringRestrictions> element.
+     * If that is not available, returns the default max length from
+     * {@link CarUxRestrictionsManagerService#DEFAULT_MAX_LENGTH}
+     */
+    public int getMaxStringLength() {
+        return mRestrictionParameters.mMaxStringLength;
+    }
+
+    /**
+     * Returns the allowed maximum number of cumulative content items parsed from the
+     * <ContentRestrictions> element.
+     * If that is not available, returns the default max length from
+     * {@link CarUxRestrictionsManagerService#DEFAULT_MAX_CUMULATIVE_ITEMS}
+     */
+    public int getMaxCumulativeContentItems() {
+        return mRestrictionParameters.mMaxCumulativeContentItems;
+    }
+
+    /**
+     * Returns the allowed maximum number of levels content can be presented in, parsed from the
+     * <ContentRestrictions> element.
+     * If that is not available, returns the default max length from
+     * {@link CarUxRestrictionsManagerService#DEFAULT_MAX_CONTENT_DEPTH}
+     */
+    public int getMaxContentDepth() {
+        return mRestrictionParameters.mMaxContentDepth;
+    }
+
+    /**
+     * Container for the UX restrictions that could be parametrized
+     */
+    private class RestrictionParameters {
+        int mMaxStringLength = CarUxRestrictionsManagerService.DEFAULT_MAX_LENGTH;
+        int mMaxCumulativeContentItems =
+                CarUxRestrictionsManagerService.DEFAULT_MAX_CUMULATIVE_ITEMS;
+        int mMaxContentDepth = CarUxRestrictionsManagerService.DEFAULT_MAX_CONTENT_DEPTH;
+    }
 
     /**
      * Container for UX restrictions for a speed range.
      * Speed range is valid only for the {@link CarDrivingStateEvent#DRIVING_STATE_MOVING}.
      */
     private class RestrictionsPerSpeedRange {
-        public static final int SPEED_INVALID = -1;
-        public float mMinSpeed;
-        public float mMaxSpeed;
-        public int mRestrictions;
+        static final int SPEED_INVALID = -1;
+        final float mMinSpeed;
+        final float mMaxSpeed;
+        final int mRestrictions;
 
-        public RestrictionsPerSpeedRange(float minSpeed, float maxSpeed, int restrictions) {
+        RestrictionsPerSpeedRange(float minSpeed, float maxSpeed, int restrictions) {
             mMinSpeed = minSpeed;
             mMaxSpeed = maxSpeed;
             mRestrictions = restrictions;
@@ -317,7 +416,7 @@ import org.xmlpull.v1.XmlPullParserException;
          * @param speed Speed to check
          * @return true if in range false if not.
          */
-        public boolean includes(float speed) {
+        boolean includes(float speed) {
             if (mMinSpeed != SPEED_INVALID && mMaxSpeed == SPEED_INVALID) {
                 // This is for a range [minSpeed, infinity).  If maxSpeed
                 // is invalid and mMinSpeed is a valid, this represents a
@@ -335,7 +434,7 @@ import org.xmlpull.v1.XmlPullParserException;
     private class RestrictionsInfo {
         private List<RestrictionsPerSpeedRange> mRestrictionsList = new ArrayList<>();
 
-        public void addRestrictions(RestrictionsPerSpeedRange r) {
+        void addRestrictions(RestrictionsPerSpeedRange r) {
             mRestrictionsList.add(r);
         }
 
@@ -344,7 +443,7 @@ import org.xmlpull.v1.XmlPullParserException;
          * in and gets the restrictions for that speed.
          */
         @CarUxRestrictionsInfo
-        public int findRestrictions(float speed) {
+        int findRestrictions(float speed) {
             for (RestrictionsPerSpeedRange r : mRestrictionsList) {
                 if (r.includes(speed)) {
                     return r.mRestrictions;
