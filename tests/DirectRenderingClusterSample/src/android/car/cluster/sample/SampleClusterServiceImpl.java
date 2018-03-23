@@ -131,7 +131,14 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
 
             @Override
             public void onEvent(int eventType, Bundle bundle) {
-                Log.i(TAG, "onEvent(" + eventType + "");
+                StringBuilder bundleSummary = new StringBuilder();
+                for (String key : bundle.keySet()) {
+                    bundleSummary.append(key);
+                    bundleSummary.append("=");
+                    bundleSummary.append(bundle.get(key));
+                    bundleSummary.append(" ");
+                }
+                Log.i(TAG, "onEvent(" + eventType + ", " + bundleSummary + ")");
             }
         };
 

@@ -83,7 +83,7 @@ public class InstrumentClusterFragment extends Fragment {
         View view = inflater.inflate(R.layout.instrument_cluster, container, false);
 
         view.findViewById(R.id.cluster_start_button).setOnClickListener(v -> initCluster());
-        view.findViewById(R.id.cluster_turn_left_button).setOnClickListener(v -> turnLeft());
+        view.findViewById(R.id.cluster_turn_left_button).setOnClickListener(v -> sendTurn());
         view.findViewById(R.id.cluster_start_activity).setOnClickListener(v -> startNavActivity());
 
         return view;
@@ -121,8 +121,15 @@ public class InstrumentClusterFragment extends Fragment {
         }
     }
 
-    private void turnLeft() {
-        // TODO(deanh): re-implement this using sendEvent()
+    private void sendTurn() {
+        // TODO(deanh): Make this actually meaningful.
+        Bundle bundle = new Bundle();
+        bundle.putString("someName", "someValue time=" + System.currentTimeMillis());
+        try {
+            mCarNavigationStatusManager.sendEvent(1, bundle);
+        } catch(CarNotConnectedException e) {
+            Log.e(TAG, "Failed to send turn information.", e);
+        }
     }
 
     private void initCluster() {
