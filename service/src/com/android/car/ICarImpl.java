@@ -132,7 +132,7 @@ public class ICarImpl extends ICar.Stub {
                 mHal.getVendorExtensionHal());
         mPerUserCarServiceHelper = new PerUserCarServiceHelper(serviceContext);
         mCarBluetoothService = new CarBluetoothService(serviceContext, mCarCabinService,
-                mCarSensorService, mPerUserCarServiceHelper);
+                mCarSensorService, mPerUserCarServiceHelper, mCarUXRestrictionsService);
         mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
         mVmsPublisherService = new VmsPublisherService(serviceContext, mHal.getVmsHal());
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
