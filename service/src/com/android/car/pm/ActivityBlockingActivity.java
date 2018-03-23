@@ -23,7 +23,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -116,7 +115,7 @@ public class ActivityBlockingActivity extends Activity {
             if (DBG) {
                 Log.d(CarLog.TAG_AM, "Launching home activity: " + homeComponent.getClassName());
             }
-            if (carPm.isActivityAllowedWhileDriving(homeComponent.getPackageName(),
+            if (carPm.isActivityDistractionOptimized(homeComponent.getPackageName(),
                     homeComponent.getClassName())) {
                 startActivity(homeIntent);
                 finish();
