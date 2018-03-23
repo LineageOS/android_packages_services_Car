@@ -53,6 +53,7 @@
     public static int FLAG_REQUEST_FINGERPRINT_GESTURES;
     public static int FLAG_REQUEST_TOUCH_EXPLORATION_MODE;
     public static int FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+    public boolean crashed;
     public int eventTypes;
     public int feedbackType;
     public int flags;
@@ -1674,7 +1675,7 @@
     public void handleResumeActivity(android.os.IBinder, boolean, boolean, java.lang.String);
     public void handleSendResult(android.os.IBinder, java.util.List);
     public void handleStartActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
-    public void handleStopActivity(android.os.IBinder, boolean, int, android.app.servertransaction.PendingTransactionActions, java.lang.String);
+    public void handleStopActivity(android.os.IBinder, boolean, int, android.app.servertransaction.PendingTransactionActions, boolean, java.lang.String);
     public void handleTranslucentConversionComplete(android.os.IBinder, boolean);
     public void handleWindowVisibility(android.os.IBinder, boolean);
     public void installSystemApplicationInfo(android.content.pm.ApplicationInfo, java.lang.ClassLoader);
@@ -1719,6 +1720,7 @@
     public int getLifecycleState();
     public java.lang.String getStateString();
     public boolean isPersistable();
+    public boolean isVisibleFromServer();
     public void setState(int);
     public java.lang.String toString();
 
@@ -2225,7 +2227,7 @@
     public abstract void handleResumeActivity(android.os.IBinder, boolean, boolean, java.lang.String);
     public abstract void handleSendResult(android.os.IBinder, java.util.List);
     public abstract void handleStartActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
-    public abstract void handleStopActivity(android.os.IBinder, boolean, int, android.app.servertransaction.PendingTransactionActions, java.lang.String);
+    public abstract void handleStopActivity(android.os.IBinder, boolean, int, android.app.servertransaction.PendingTransactionActions, boolean, java.lang.String);
     public abstract void handleWindowVisibility(android.os.IBinder, boolean);
     public abstract void performRestartActivity(android.os.IBinder, boolean);
     public abstract android.app.ActivityThread$ActivityClientRecord prepareRelaunchActivity(android.os.IBinder, java.util.List, java.util.List, int, android.util.MergedConfiguration, boolean);
@@ -3478,6 +3480,9 @@
 
     public static void addFieldsFromContext(android.content.Context, android.app.Notification);
     public static void addFieldsFromContext(android.content.pm.ApplicationInfo, android.app.Notification);
+    public static boolean areActionsVisiblyDifferent(android.app.Notification, android.app.Notification);
+    public static boolean areRemoteViewsChanged(android.app.Notification$Builder, android.app.Notification$Builder);
+    public static boolean areStyledNotificationsVisiblyDifferent(android.app.Notification$Builder, android.app.Notification$Builder);
     public android.app.Notification clone();
     public java.lang.Object clone();
     public void cloneInto(android.app.Notification, boolean);
@@ -3523,10 +3528,14 @@
     public static int BADGE_ICON_SMALL;
     public static java.lang.String CATEGORY_ALARM;
     public static java.lang.String CATEGORY_CALL;
+    public static java.lang.String CATEGORY_CAR_EMERGENCY;
+    public static java.lang.String CATEGORY_CAR_INFORMATION;
+    public static java.lang.String CATEGORY_CAR_WARNING;
     public static java.lang.String CATEGORY_EMAIL;
     public static java.lang.String CATEGORY_ERROR;
     public static java.lang.String CATEGORY_EVENT;
     public static java.lang.String CATEGORY_MESSAGE;
+    public static java.lang.String CATEGORY_NAVIGATION;
     public static java.lang.String CATEGORY_PROGRESS;
     public static java.lang.String CATEGORY_PROMO;
     public static java.lang.String CATEGORY_RECOMMENDATION;
@@ -3697,9 +3706,11 @@
     public android.widget.RemoteViews createHeadsUpContentView();
     public android.app.Notification$Builder extend(android.app.Notification$Extender);
     public android.os.Bundle getExtras();
+    public java.lang.CharSequence getHeadsUpStatusBarText(boolean);
     public android.app.Notification getNotification();
     public int getPrimaryTextColor();
     public int getSecondaryTextColor();
+    public android.app.Notification$Style getStyle();
     public java.lang.String loadHeaderAppName();
     public android.widget.RemoteViews makeAmbientNotification();
     public static void makeHeaderExpanded(android.widget.RemoteViews);
@@ -3792,8 +3803,12 @@
     public java.lang.String getKey();
     public java.lang.CharSequence getName();
     public java.lang.String getUri();
+    public boolean isBot();
+    public boolean isImportant();
     public java.lang.String resolveToLegacyUri();
+    public android.app.Notification$Person setBot(boolean);
     public android.app.Notification$Person setIcon(android.graphics.drawable.Icon);
+    public android.app.Notification$Person setImportant(boolean);
     public android.app.Notification$Person setKey(java.lang.String);
     public android.app.Notification$Person setName(java.lang.CharSequence);
     public android.app.Notification$Person setUri(java.lang.String);
@@ -3807,10 +3822,12 @@
     <init>();
 
     public void addExtras(android.os.Bundle);
+    public abstract boolean areNotificationsVisiblyDifferent(android.app.Notification$Style);
     public android.app.Notification build();
     public android.app.Notification buildStyled(android.app.Notification);
     protected void checkBuilder();
     public boolean displayCustomViewInline();
+    public java.lang.CharSequence getHeadsUpStatusBarText();
     protected android.widget.RemoteViews getStandardView(int);
     protected boolean hasProgress();
     public boolean hasSummaryInHeader();
@@ -8154,6 +8171,7 @@
     public abstract android.content.pm.ProviderInfo resolveContentProvider(java.lang.String, int);
     public abstract android.content.pm.ProviderInfo resolveContentProviderAsUser(java.lang.String, int, int);
     public abstract android.content.pm.ResolveInfo resolveService(android.content.Intent, int);
+    public abstract android.content.pm.ResolveInfo resolveServiceAsUser(android.content.Intent, int, int);
     public abstract void revokeRuntimePermission(java.lang.String, java.lang.String, android.os.UserHandle);
     public abstract void setApplicationCategoryHint(java.lang.String, int);
     public abstract void setApplicationEnabledSetting(java.lang.String, int, int);
@@ -11835,7 +11853,10 @@
     public void disconnectWifiDisplay();
     public void forgetWifiDisplay(java.lang.String);
     public java.util.List getAmbientBrightnessStats();
+    public android.hardware.display.BrightnessConfiguration getBrightnessConfiguration();
+    public android.hardware.display.BrightnessConfiguration getBrightnessConfigurationForUser(int);
     public java.util.List getBrightnessEvents();
+    public android.hardware.display.BrightnessConfiguration getDefaultBrightnessConfiguration();
     public android.view.Display getDisplay(int);
     public android.view.Display[] getDisplays();
     public android.view.Display[] getDisplays(java.lang.String);
@@ -11884,9 +11905,11 @@
     public void disconnectWifiDisplay();
     public void forgetWifiDisplay(java.lang.String);
     public java.util.List getAmbientBrightnessStats();
+    public android.hardware.display.BrightnessConfiguration getBrightnessConfigurationForUser(int);
     public java.util.List getBrightnessEvents(java.lang.String);
     public android.view.Display getCompatibleDisplay(int, android.view.DisplayAdjustments);
     public android.view.Display getCompatibleDisplay(int, android.content.res.Resources);
+    public android.hardware.display.BrightnessConfiguration getDefaultBrightnessConfiguration();
     public int[] getDisplayIds();
     public android.view.DisplayInfo getDisplayInfo(int);
     public static android.hardware.display.DisplayManagerGlobal getInstance();
@@ -13522,6 +13545,8 @@
     <init>(android.os.Handler$Callback, boolean);
     <init>(android.os.Looper, android.os.Handler$Callback, boolean);
 
+    public static android.os.Handler createAsync(android.os.Looper);
+    public static android.os.Handler createAsync(android.os.Looper, android.os.Handler$Callback);
     public void dispatchMessage(android.os.Message);
     public void dump(android.util.Printer, java.lang.String);
     public void dumpMine(android.util.Printer, java.lang.String);
@@ -18129,6 +18154,7 @@
     <init>(android.content.Context, android.util.AttributeSet, int);
     <init>(android.content.Context, android.util.AttributeSet, int, int);
 
+    protected void applyChildSurfaceTransaction_renderWorker(android.view.SurfaceControl$Transaction, android.view.Surface, long);
     protected void dispatchDraw(android.graphics.Canvas);
     public void draw(android.graphics.Canvas);
     public boolean gatherTransparentRegion(android.graphics.Region);
@@ -18169,8 +18195,10 @@
     public void removeRenderNode(android.view.RenderNode);
     public void serializeDisplayListTree();
     public void setContentDrawBounds(int, int, int, int);
+    public static void setDebuggingEnabled(boolean);
     public static void setFPSDivisor(int);
     public static void setHighContrastText(boolean);
+    public static void setIsolatedProcess(boolean);
     public static void setupDiskCache(java.io.File);
     public static void trimMemory(int);
 
@@ -21612,6 +21640,7 @@
     public boolean hasAutofillFeature();
     public boolean hasEnabledAutofillServices();
     public boolean isAutofillSupported();
+    public boolean isAutofillUiShowing();
     public boolean isCompatibilityModeEnabledLocked();
     public boolean isEnabled();
     public boolean isFieldClassificationEnabled();
@@ -22666,6 +22695,7 @@
 
 -keep class com.android.internal.util.FunctionalUtils {
 
+    public static java.lang.Runnable handleExceptions(com.android.internal.util.FunctionalUtils$ThrowingRunnable, java.util.function.Consumer);
     public static java.util.function.Consumer ignoreRemoteException(com.android.internal.util.FunctionalUtils$RemoteExceptionIgnoringConsumer);
     public static java.util.function.Consumer uncheckExceptions(com.android.internal.util.FunctionalUtils$ThrowingConsumer);
 
@@ -22690,6 +22720,7 @@
 
 -keep class com.android.internal.util.FunctionalUtils$ThrowingRunnable {
 
+    public void run();
     public abstract void runOrThrow();
 
 

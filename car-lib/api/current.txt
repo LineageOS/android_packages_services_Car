@@ -177,8 +177,8 @@ package android.car.app.menu {
 package android.car.content.pm {
 
   public final class CarPackageManager {
-    method public boolean isActivityAllowedWhileDriving(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
-    method public boolean isServiceAllowedWhileDriving(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
+    method public boolean isActivityDistractionOptimized(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
+    method public boolean isServiceDistractionOptimized(java.lang.String, java.lang.String) throws android.car.CarNotConnectedException;
   }
 
 }
