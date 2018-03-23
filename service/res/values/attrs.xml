@@ -63,27 +63,35 @@
         packages/services/Car/car-lib/src/android/car/drivingstate/CarUxRestrictions.java-->
         <attr name="uxr">
             <flag name="unrestricted" value="0"/>
-            <flag name="no_text_search" value="1"/>
-            <flag name="no_text_filtering" value="2"/>
+            <flag name="no_dialpad" value="1"/>
+            <flag name="no_filtering" value="2"/>
             <flag name="limit_string_length" value="4"/>
-            <flag name="no_field_entry" value="8"/>
+            <flag name="no_keyboard" value="8"/>
             <flag name="no_video" value="16"/>
-            <flag name="limit_content_items" value="32"/>
-            <flag name="no_setup_config" value="64"/>
-            <flag name="fully_restricted" value="127"/>
+            <flag name="limit_content" value="32"/>
+            <flag name="no_setup" value="64"/>
+            <flag name="no_text_message" value="128"/>
+            <flag name="no_voice_transcription" value="256"/>
+            <flag name="fully_restricted" value="511"/>
         </attr>
     </declare-styleable>
 
-    <!-- 2. Some of UX restrictions can be paramterized. -->
-    <!-- The actual parameters listed here are placeholders until b/72155508 is finalized. -->
+    <!-- 2. Some of UX restrictions can be parametrized. -->
     <declare-styleable name="UxRestrictions_RestrictionParameters"/>
-    <!-- 2.a String length in messages etc. -->
-    <declare-styleable name="UxRestrictions_StringLength">
+
+    <!-- 2.a Parameters to express displayed String related restrictions -->
+    <declare-styleable name="UxRestrictions_StringRestrictions">
+        <!-- Max allowed length of general purpose strings when limit_string_length is imposed-->
         <attr name="maxLength" format="integer"/>
     </declare-styleable>
-    <!-- 2.b. Number of items that can be displayed in a list item-->
-    <declare-styleable name="uxRestrictions_ListInfo">
-        <attr name="maxItems" format="integer"/>
+
+    <!-- 2.b. Parameters to express content related restrictions -->
+    <declare-styleable name="UxRestrictions_ContentRestrictions">
+        <!-- Max number of cumulative content items allowed to be displayed when
+        limit_content is imposed. -->
+        <attr name="maxCumulativeItems" format="integer"/>
+        <!-- Maximum levels deep that the user can navigate to when limit_content is imposed. -->
+        <attr name="maxDepth" format="integer"/>
     </declare-styleable>
 
 </resources>

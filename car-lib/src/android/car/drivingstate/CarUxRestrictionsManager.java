@@ -29,6 +29,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
+
 import java.lang.ref.WeakReference;
 
 /**
@@ -107,10 +108,10 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
             // register to the Service to listen for changes.
             mUxRService.registerUxRestrictionsChangeListener(mListenerToService);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not register a listener to Driving State Service " + e);
+            Log.e(TAG, "Could not register a listener to CarUxRestrictionsManagerService " + e);
             throw new CarNotConnectedException(e);
         } catch (IllegalStateException e) {
-            Log.e(TAG, "Could not register a listener to Driving State Service " + e);
+            Log.e(TAG, "Could not register a listener to CarUxRestrictionsManagerService " + e);
             Car.checkCarNotConnectedExceptionFromCarService(e);
         }
     }
@@ -146,7 +147,61 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         try {
             return mUxRService.getCurrentUxRestrictions();
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not get current driving state " + e);
+            Log.e(TAG, "Could not get current UX restrictions " + e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Get the maximum length of general purpose strings that can be displayed when
+     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_STRING_LENGTH} is imposed.
+     *
+     * @return the maximum length of string that can be displayed
+     * @throws CarNotConnectedException
+     */
+    public int getMaxRestrictedStringLength() throws CarNotConnectedException {
+        try {
+            return mUxRService.getMaxRestrictedStringLength();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not get the Max restricted String length " + e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Get the maximum number of cumulative content items that can be displayed when
+     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
+     * <p>
+     * Please refer to this and {@link #getMaxContentDepth()} to know the upper bounds of
+     * content serving when the restriction is in place.
+     *
+     * @return maximum number of cumulative items that can be displayed
+     * @throws CarNotConnectedException
+     */
+    public int getMaxCumulativeContentItems() throws CarNotConnectedException {
+        try {
+            return mUxRService.getMaxCumulativeContentItems();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not get the Max Cumulative content items " + e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     * Get the maximum number of levels that the user can navigate to when
+     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
+     * <p>
+     * Please refer to this and {@link #getMaxCumulativeContentItems()} to know the upper bounds of
+     * content serving when the restriction is in place.
+     *
+     * @return maximum number of cumulative items that can be displayed
+     * @throws CarNotConnectedException
+     */
+    public int getMaxContentDepth() throws CarNotConnectedException {
+        try {
+            return mUxRService.getMaxContentDepth();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not get the Max content depth " + e);
             throw new CarNotConnectedException(e);
         }
     }
@@ -182,7 +237,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     private void handleUxRestrictionsChanged(CarUxRestrictions restrictionInfo) {
         // send a message to the handler
         mEventCallbackHandler.sendMessage(mEventCallbackHandler.obtainMessage(
-                    MSG_HANDLE_UX_RESTRICTIONS_CHANGE, restrictionInfo));
+                MSG_HANDLE_UX_RESTRICTIONS_CHANGE, restrictionInfo));
     }
 
     /**

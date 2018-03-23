@@ -19,6 +19,7 @@ package android.car.drivingstate;
 import android.annotation.IntDef;
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -67,62 +68,78 @@ public class CarUxRestrictions implements Parcelable {
     public static final int UX_RESTRICTIONS_UNRESTRICTED = 0;
 
     // Granular UX Restrictions that are imposed when distraction optimization is required.
-    // This list is still not final - b/72155508
     /**
-     * No text based search allowed
+     * No dialpad for the purpose of initiating a phone call.
      */
-    public static final int UX_RESTRICTIONS_NO_TEXT_SEARCH = 1;
+    public static final int UX_RESTRICTIONS_NO_DIALPAD = 1;
 
     /**
-     * No text based filtering allowed
+     * No filtering a list.
      */
-    public static final int UX_RESTRICTIONS_NO_TEXT_FILTERING = 0x1 << 1;
+    public static final int UX_RESTRICTIONS_NO_FILTERING = 0x1 << 1;
 
     /**
-     * Displayed string length is limited
+     * General purpose strings length cannot exceed the character limit provided by
+     * {@link CarUxRestrictionsManager#getMaxRestrictedStringLength()}
      */
-
     public static final int UX_RESTRICTIONS_LIMIT_STRING_LENGTH = 0x1 << 2;
 
     /**
-     * No field entry like login etc.
+     * No text entry for the purpose of searching etc.
      */
-    public static final int UX_RESTRICTIONS_NO_FIELD_ENTRY = 0x1 << 3;
+    public static final int UX_RESTRICTIONS_NO_KEYBOARD = 0x1 << 3;
 
     /**
-     * No videos or animation allowed
+     * No video - no animated frames > 1fps.
      */
     public static final int UX_RESTRICTIONS_NO_VIDEO = 0x1 << 4;
 
     /**
-     * Limit the number of content items displayed on the screen
+     * Limit the number of items displayed on the screen.
+     * Refer to {@link CarUxRestrictionsManager#getMaxCumulativeContentItems()} and
+     * {@link CarUxRestrictionsManager#getMaxContentDepth()} for the upper bounds on content
+     * serving.
      */
-    public static final int UX_RESTRICTIONS_LIMIT_CONTENT_ITEMS = 0x1 << 5;
+    public static final int UX_RESTRICTIONS_LIMIT_CONTENT = 0x1 << 5;
 
     /**
-     * No setup configuration allowed
+     * No setup that requires form entry or interaction with external devices.
      */
-    public static final int UX_RESTRICTIONS_NO_SETUP_CONFIG = 0x1 << 6;
+    public static final int UX_RESTRICTIONS_NO_SETUP = 0x1 << 6;
+
+    /**
+     * No Text Message (SMS, email, conversational, etc.)
+     */
+    public static final int UX_RESTRICTIONS_NO_TEXT_MESSAGE = 0x1 << 7;
+
+    /**
+     * No text transcription (live or leave behind) of voice can be shown.
+     */
+    public static final int UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION = 0x1 << 8;
+
 
     /**
      * All the above restrictions are in effect.
      */
     public static final int UX_RESTRICTIONS_FULLY_RESTRICTED =
-            UX_RESTRICTIONS_NO_TEXT_SEARCH | UX_RESTRICTIONS_NO_TEXT_FILTERING
-                    | UX_RESTRICTIONS_LIMIT_STRING_LENGTH | UX_RESTRICTIONS_NO_FIELD_ENTRY
-                    | UX_RESTRICTIONS_NO_VIDEO | UX_RESTRICTIONS_LIMIT_CONTENT_ITEMS
-                    | UX_RESTRICTIONS_NO_SETUP_CONFIG;
+            UX_RESTRICTIONS_NO_DIALPAD | UX_RESTRICTIONS_NO_FILTERING
+                    | UX_RESTRICTIONS_LIMIT_STRING_LENGTH | UX_RESTRICTIONS_NO_KEYBOARD
+                    | UX_RESTRICTIONS_NO_VIDEO | UX_RESTRICTIONS_LIMIT_CONTENT
+                    | UX_RESTRICTIONS_NO_SETUP | UX_RESTRICTIONS_NO_TEXT_MESSAGE
+                    | UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION;
 
     @IntDef(flag = true,
             prefix = { "UX_RESTRICTIONS_" },
             value = {UX_RESTRICTIONS_UNRESTRICTED,
-                    UX_RESTRICTIONS_NO_TEXT_SEARCH,
-                    UX_RESTRICTIONS_NO_TEXT_FILTERING,
+                    UX_RESTRICTIONS_NO_DIALPAD,
+                    UX_RESTRICTIONS_NO_FILTERING,
                     UX_RESTRICTIONS_LIMIT_STRING_LENGTH,
-                    UX_RESTRICTIONS_NO_FIELD_ENTRY,
+                    UX_RESTRICTIONS_NO_KEYBOARD,
                     UX_RESTRICTIONS_NO_VIDEO,
-                    UX_RESTRICTIONS_LIMIT_CONTENT_ITEMS,
-                    UX_RESTRICTIONS_NO_SETUP_CONFIG})
+                    UX_RESTRICTIONS_LIMIT_CONTENT,
+                    UX_RESTRICTIONS_NO_SETUP,
+                    UX_RESTRICTIONS_NO_TEXT_MESSAGE,
+                    UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION})
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarUxRestrictionsInfo {
     }

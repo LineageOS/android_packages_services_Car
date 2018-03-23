@@ -46,6 +46,7 @@ import android.os.Message;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
+
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
@@ -54,6 +55,7 @@ import com.android.car.R;
 import com.android.car.SystemActivityMonitoringService;
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -156,12 +158,12 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     @Override
-    public boolean isActivityAllowedWhileDriving(String packageName, String className) {
+    public boolean isActivityDistractionOptimized(String packageName, String className) {
         assertPackageAndClassName(packageName, className);
         synchronized (this) {
             if (DBG_POLICY_CHECK) {
-                Log.i(CarLog.TAG_PACKAGE, "isActivityAllowedWhileDriving" +
-                        dumpPoliciesLocked(false));
+                Log.i(CarLog.TAG_PACKAGE, "isActivityDistractionOptimized"
+                        + dumpPoliciesLocked(false));
             }
             AppBlockingPackageInfo info = searchFromBlacklistsLocked(packageName);
             if (info != null) {
@@ -172,14 +174,14 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     @Override
-    public boolean isServiceAllowedWhileDriving(String packageName, String className) {
+    public boolean isServiceDistractionOptimized(String packageName, String className) {
         if (packageName == null) {
             throw new IllegalArgumentException("Package name null");
         }
         synchronized (this) {
             if (DBG_POLICY_CHECK) {
-                Log.i(CarLog.TAG_PACKAGE, "isServiceAllowedWhileDriving" +
-                        dumpPoliciesLocked(false));
+                Log.i(CarLog.TAG_PACKAGE, "isServiceDistractionOptimized"
+                        + dumpPoliciesLocked(false));
             }
             AppBlockingPackageInfo info = searchFromBlacklistsLocked(packageName);
             if (info != null) {
@@ -208,7 +210,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
         ComponentName activityBehind = ComponentName.unflattenFromString(
                 info.taskNames[info.taskNames.length - 2]);
-        return isActivityAllowedWhileDriving(activityBehind.getPackageName(),
+        return isActivityDistractionOptimized(activityBehind.getPackageName(),
                 activityBehind.getClassName());
     }
 
@@ -585,7 +587,12 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         return activityList.toArray(new String[activityList.size()]);
     }
 
-    private void startAppBlockingPolicies() {
+    /**
+     * Checks if there are any {@link CarAppBlockingPolicyService} and creates a proxy to
+     * bind to them and retrieve the {@link CarAppBlockingPolicy}
+     */
+    @VisibleForTesting
+    public void startAppBlockingPolicies() {
         Intent policyIntent = new Intent();
         policyIntent.setAction(CarAppBlockingPolicyService.SERVICE_INTERFACE);
         List<ResolveInfo> policyInfos = mPackageManager.queryIntentServices(policyIntent, 0);
@@ -710,7 +717,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if (topTask.topActivity == null) {
             return;
         }
-        boolean allowed = isActivityAllowedWhileDriving(
+        boolean allowed = isActivityDistractionOptimized(
                 topTask.topActivity.getPackageName(),
                 topTask.topActivity.getClassName());
         if (DBG_POLICY_ENFORCEMENT) {
