@@ -62,10 +62,10 @@ import java.lang.annotation.RetentionPolicy;
 public class CarUxRestrictions implements Parcelable {
 
     /**
-     * No UX Restrictions.  Vehicle Optimized apps are allowed to display non Drive Optimized
-     * Activities.
+     * No specific restrictions in place, but baseline distraction optimization guidelines need to
+     * be adhered to when {@link #isRequiresDistractionOptimization()} is true.
      */
-    public static final int UX_RESTRICTIONS_UNRESTRICTED = 0;
+    public static final int UX_RESTRICTIONS_BASELINE = 0;
 
     // Granular UX Restrictions that are imposed when distraction optimization is required.
     /**
@@ -130,7 +130,7 @@ public class CarUxRestrictions implements Parcelable {
 
     @IntDef(flag = true,
             prefix = { "UX_RESTRICTIONS_" },
-            value = {UX_RESTRICTIONS_UNRESTRICTED,
+            value = {UX_RESTRICTIONS_BASELINE,
                     UX_RESTRICTIONS_NO_DIALPAD,
                     UX_RESTRICTIONS_NO_FILTERING,
                     UX_RESTRICTIONS_LIMIT_STRING_LENGTH,

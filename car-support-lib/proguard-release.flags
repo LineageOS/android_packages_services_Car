@@ -1898,6 +1898,7 @@
     public static java.lang.String OPSTR_GET_USAGE_STATS;
     public static java.lang.String OPSTR_GPS;
     public static java.lang.String OPSTR_INSTANT_APP_START_FOREGROUND;
+    public static java.lang.String OPSTR_MANAGE_IPSEC_TUNNELS;
     public static java.lang.String OPSTR_MOCK_LOCATION;
     public static java.lang.String OPSTR_MONITOR_HIGH_POWER_LOCATION;
     public static java.lang.String OPSTR_MONITOR_LOCATION;
@@ -1973,6 +1974,7 @@
     public static int OP_GET_USAGE_STATS;
     public static int OP_GPS;
     public static int OP_INSTANT_APP_START_FOREGROUND;
+    public static int OP_MANAGE_IPSEC_TUNNELS;
     public static int OP_MOCK_LOCATION;
     public static int OP_MONITOR_HIGH_POWER_LOCATION;
     public static int OP_MONITOR_LOCATION;
@@ -3722,7 +3724,6 @@
     public static android.app.Notification$Builder recoverBuilder(android.content.Context, android.app.Notification);
     public android.app.Notification$Builder setActions(android.app.Notification$Action[]);
     public android.app.Notification$Builder setAutoCancel(boolean);
-    public void setBackgroundColorHint(int);
     public android.app.Notification$Builder setBadgeIconType(int);
     public android.app.Notification$Builder setCategory(java.lang.String);
     public android.app.Notification$Builder setChannel(java.lang.String);
@@ -7424,6 +7425,7 @@
     public abstract android.content.pm.PackageInfo getPackageInfoVersioned(android.content.pm.VersionedPackage, int, int);
     public abstract android.content.pm.IPackageInstaller getPackageInstaller();
     public abstract void getPackageSizeInfo(java.lang.String, int, android.content.pm.IPackageStatsObserver);
+    public abstract android.os.PersistableBundle getPackageSuspendedAppExtras(java.lang.String, int);
     public abstract int getPackageUid(java.lang.String, int, int);
     public abstract java.lang.String[] getPackagesForUid(int);
     public abstract android.content.pm.ParceledListSlice getPackagesHoldingPermissions(java.lang.String[], int, int);
@@ -7520,9 +7522,10 @@
     public abstract boolean setInstantAppCookie(java.lang.String, byte[], int);
     public abstract void setLastChosenActivity(android.content.Intent, java.lang.String, int, android.content.IntentFilter, int, android.content.ComponentName);
     public abstract void setPackageStoppedState(java.lang.String, boolean, int);
-    public abstract java.lang.String[] setPackagesSuspendedAsUser(java.lang.String[], boolean, int);
+    public abstract java.lang.String[] setPackagesSuspendedAsUser(java.lang.String[], boolean, android.os.PersistableBundle, android.os.PersistableBundle, java.lang.String, int);
     public abstract void setPermissionEnforced(java.lang.String, boolean);
     public abstract boolean setRequiredForSystemUser(java.lang.String, boolean);
+    public abstract void setSuspendedPackageAppExtras(java.lang.String, android.os.PersistableBundle, int);
     public abstract void setUpdateAvailable(java.lang.String, boolean);
     public abstract boolean shouldShowRequestPermissionRationale(java.lang.String, java.lang.String, int);
     public abstract void systemReady();
@@ -8104,6 +8107,8 @@
     public abstract java.util.List getSharedLibrariesAsUser(int, int);
     public abstract java.lang.String getSharedSystemSharedLibraryPackageName();
     public abstract android.content.pm.KeySet getSigningKeySet(java.lang.String);
+    public android.os.PersistableBundle getSuspendedPackageAppExtras(java.lang.String);
+    public android.os.PersistableBundle getSuspendedPackageAppExtras();
     public abstract android.content.pm.FeatureInfo[] getSystemAvailableFeatures();
     public abstract java.lang.String[] getSystemSharedLibraryNames();
     public java.lang.String getSystemTextClassifierPackageName();
@@ -8132,6 +8137,8 @@
     public abstract boolean isInstantApp(java.lang.String);
     public static boolean isMoveStatusFinished(int);
     public abstract boolean isPackageAvailable(java.lang.String);
+    public boolean isPackageSuspended(java.lang.String);
+    public boolean isPackageSuspended();
     public abstract boolean isPackageSuspendedForUser(java.lang.String, int);
     public abstract boolean isPermissionReviewModeEnabled();
     public abstract boolean isPermissionRevokedByPolicy(java.lang.String, java.lang.String);
@@ -8181,7 +8188,8 @@
     public void setHarmfulAppWarning(java.lang.String, java.lang.CharSequence);
     public abstract void setInstallerPackageName(java.lang.String, java.lang.String);
     public abstract boolean setInstantAppCookie(byte[]);
-    public abstract java.lang.String[] setPackagesSuspendedAsUser(java.lang.String[], boolean, int);
+    public java.lang.String[] setPackagesSuspended(java.lang.String[], boolean, android.os.PersistableBundle, android.os.PersistableBundle, java.lang.String);
+    public void setSuspendedPackageAppExtras(java.lang.String, android.os.PersistableBundle);
     public abstract void setUpdateAvailable(java.lang.String, boolean);
     public abstract boolean shouldShowRequestPermissionRationale(java.lang.String);
     public abstract void unregisterMoveCallback(android.content.pm.PackageManager$MoveCallback);
@@ -13117,6 +13125,7 @@
     public boolean isEmptyParcel();
     public boolean isParcelled();
     public java.util.Set keySet();
+    public static boolean kindofEquals(android.os.BaseBundle, android.os.BaseBundle);
     public boolean kindofEquals(android.os.BaseBundle);
     public boolean maybeIsEmpty();
     public void putAll(android.os.PersistableBundle);
@@ -17794,6 +17803,7 @@
     public void output();
     public void registerVectorDrawableAnimator(android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimatorRT);
     public void requestPositionUpdates(android.view.SurfaceView);
+    public boolean resetPivot();
     public boolean setAlpha(float);
     public boolean setAmbientShadowColor(int);
     public boolean setAnimationMatrix(android.graphics.Matrix);
@@ -18614,6 +18624,7 @@
     public boolean isOpaque();
     protected boolean isPaddingOffsetRequired();
     public boolean isPaddingRelative();
+    public boolean isPivotSet();
     public boolean isPressed();
     public boolean isRootNamespace();
     public boolean isSaveEnabled();
@@ -18763,6 +18774,7 @@
     public void requestUnbufferedDispatch(android.view.MotionEvent);
     public android.view.View requireViewById(int);
     public void resetPaddingToInitialValues();
+    public void resetPivot();
     protected void resetResolvedDrawables();
     public void resetResolvedLayoutDirection();
     public void resetResolvedPadding();
@@ -20675,6 +20687,7 @@
     public int copyFrom(android.view.WindowManager$LayoutParams);
     public java.lang.String debug(java.lang.String);
     public int describeContents();
+    public void dumpDimensions(java.lang.StringBuilder);
     protected void encodeProperties(android.view.ViewHierarchyEncoder);
     public int getColorMode();
     public java.lang.CharSequence getTitle();
