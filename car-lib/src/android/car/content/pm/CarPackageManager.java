@@ -150,15 +150,17 @@ public final class CarPackageManager implements CarManagerBase {
     }
 
     /**
-     * Check if given activity is allowed while driving.
+     * Check if given activity is distraction optimized, i.e, allowed in a
+     * restricted driving state
+     *
      * @param packageName
      * @param className
      * @return
      */
-    public boolean isActivityAllowedWhileDriving(String packageName, String className)
+    public boolean isActivityDistractionOptimized(String packageName, String className)
             throws CarNotConnectedException {
         try {
-            return mService.isActivityAllowedWhileDriving(packageName, className);
+            return mService.isActivityDistractionOptimized(packageName, className);
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
@@ -168,15 +170,17 @@ public final class CarPackageManager implements CarManagerBase {
     }
 
     /**
-     * Check if given service is allowed while driving.
+     * Check if given service is distraction optimized, i.e, allowed in a restricted
+     * driving state.
+     *
      * @param packageName
      * @param className
      * @return
      */
-    public boolean isServiceAllowedWhileDriving(String packageName, String className)
+    public boolean isServiceDistractionOptimized(String packageName, String className)
             throws CarNotConnectedException {
         try {
-            return mService.isServiceAllowedWhileDriving(packageName, className);
+            return mService.isServiceDistractionOptimized(packageName, className);
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
