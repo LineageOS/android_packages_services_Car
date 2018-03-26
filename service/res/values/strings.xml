@@ -32,10 +32,6 @@
     <string name="car_permission_label_fuel">Car fuel level</string>
     <!-- Permission text: can access your car's fuel level [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_fuel">Access your car\'s fuel level information.</string>
-    <!-- Permission text: can access your car's fuel level detailed information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_fuel_detailed">Car fuel level detailed </string>
-    <!-- Permission text: can access your car's fuel level detailed [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_fuel_detailed">Access your car\'s fuel level detailed information.</string>
     <!-- Permission text: apps can control car hvac [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_hvac">Car Hvac</string>
     <!-- Permission text: apps can control car hvac [CHAR LIMIT=NONE] -->
@@ -140,48 +136,8 @@
     <!-- Permission text: apps can listen to driving state changes [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_driving_state">Listen to Driving state changes </string>
 
-    <!-- Permission text: apps read Engine Detailed information[CHAR LIMIT=NONE] -->
+    <!-- Permission text: apps read Engine Detailed [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_engine_detailed">Engine Detailed</string>
     <!-- Permission text: apps can listen to Engine Detailed [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_car_engine_detailed">Access your car\'s engine detailed information</string>
-
-    <!-- Permission text: apps read car engine information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_car_engine">Car engine</string>
-    <!-- Permission text: apps read car engine information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_car_engine">Access your car\'s engine information</string>
-
-    <!-- Permission text: apps read car's ev information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_ev">Car EV level</string>
-    <!-- Permission text: apps read car's ev information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_ev">Access your car\'s EV level information</string>
-
-    <!-- Permission text: apps read car's ev detailed information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_ev_detailed">Car ev level detailed</string>
-    <!-- Permission text: apps read car's ev detailed information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_ev_detailed">Access your car\'s ev level detailed information</string>
-
-    <!-- Permission text: apps read car's gear information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_car_gear">Car gear</string>
-    <!-- Permission text: apps read car's gear information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_car_gear">Access your car\'s gear information</string>
-
-    <!-- Permission text: apps access car's lights state [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_car_lights">Car lights</string>
-    <!-- Permission text: apps access car's lights state [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_car_lights">Access your car lights state</string>
-
-    <!-- Permission text: apps read exterior temperature [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_exterior_climate">Exterior climate</string>
-    <!-- Permission text: apps read exterior temperature [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_exterior_climate">Access Exterior climate</string>
-
-    <!-- Permission text: apps read car's basic information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_car_info">Car basic information</string>
-    <!-- Permission text: apps read car's basic information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_car_info">Access car basic information</string>
-
-    <!-- Permission text: apps access range remaining [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_range">Car range remaining</string>
-    <!-- Permission text: apps access range remaining [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_range">Access range remaining of car</string>
+    <string name="car_permission_desc_car_engine_detailed">Read Engine Detailed</string>
 </resources>

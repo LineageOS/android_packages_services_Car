@@ -31,6 +31,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseIntArray;
 
 import com.android.car.internal.CarRatedListeners;
 import com.android.car.internal.SingleMessageHandler;
@@ -39,6 +40,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -56,7 +58,6 @@ public final class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_CAR_SPEED                   = 2;
     /**
      * Represents engine RPM of the car. Sensor data in {@link CarSensorEvent} is a float.
-     * This requires {@link Car#PERMISSION_CAR_ENGINE_DETAILED} permission.
      */
     public static final int SENSOR_TYPE_RPM                         = 3;
     /**
@@ -67,7 +68,7 @@ public final class CarSensorManager implements CarManagerBase {
     /**
      * Indicates fuel level of the car.
      * In {@link CarSensorEvent}, represents fuel level in milliliters.
-     * This requires {@link Car#PERMISSION_FUEL_DETAILED} permission.
+     * This requires {@link Car#PERMISSION_FUEL} permission.
      */
     public static final int SENSOR_TYPE_FUEL_LEVEL                  = 5;
     /**
@@ -81,7 +82,6 @@ public final class CarSensorManager implements CarManagerBase {
      * This represents the current position of transmission gear. Sensor data in
      * {@link CarSensorEvent} is an intValues[0]. For the meaning of the value, check
      * {@link CarSensorEvent#GEAR_NEUTRAL} and other GEAR_*.
-     * This requires {@link Car#PERMISSION_GEAR} permission
      */
     public static final int SENSOR_TYPE_GEAR                        = 7;
     /** @hide */
@@ -122,7 +122,6 @@ public final class CarSensorManager implements CarManagerBase {
     /**
      * Represents ignition state. The value should be one of the constants that starts with
      * IGNITION_STATE_* in {@link CarSensorEvent}.
-     * This requires {@link Car#PERMISSION_ENGINE} permission.
      */
     public static final int SENSOR_TYPE_IGNITION_STATE              = 22;
     /**
@@ -145,7 +144,6 @@ public final class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_TRACTION_CONTROL_ACTIVE     = 25;
     /**
      * Set to true if the engine is on.
-     * This requires {@link Car#PERMISSION_ENGINE} permission.
      */
     public static final int SENSOR_TYPE_ENGINE_ON                   = 26;
     /**
@@ -159,22 +157,20 @@ public final class CarSensorManager implements CarManagerBase {
      * CarSensorEvent#INDEX_EV_BATTERY_CAPACITY_ACTUAL}] represents the actual battery capacity in
      * WH.  The battery degrades over time, so this value is expected to drop slowly over the life
      * of the vehicle.
-     * This requires {@link Car#PERMISSION_FUEL_DETAILED} permission.
+     * This requires {@link Car#PERMISSION_FUEL} permission.
      */
     public static final int SENSOR_TYPE_EV_BATTERY_LEVEL            = 28;
     /**
      * Set to true if EV charging port is open.
-     * This requires {@link Car#PERMISSION_EV} permission.
      */
     public static final int SENSOR_TYPE_EV_CHARGE_PORT_OPEN         = 29;
     /**
      * Set to true if EV charging port is connected.
-     * This requires {@link Car#PERMISSION_EV} permission.
      */
     public static final int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED    = 30;
     /**
      *  Indicates the instantaneous battery charging rate in mW.
-     *  This requires {@link Car#PERMISSION_FUEL_DETAILED} permission.
+     *  This requires {@link Car#PERMISSION_FUEL} permission.
      */
     public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE      = 31;
     /**
@@ -357,7 +353,7 @@ public final class CarSensorManager implements CarManagerBase {
      * <p>
      * Requires {@link Car#PERMISSION_SPEED} for {@link #SENSOR_TYPE_CAR_SPEED} and
      *  {@link #SENSOR_TYPE_WHEEL_TICK_DISTANCE}, {@link Car#PERMISSION_MILEAGE} for
-     *  {@link #SENSOR_TYPE_ODOMETER}, {@link Car#PERMISSION_FUEL_DETAILED} for
+     *  {@link #SENSOR_TYPE_ODOMETER}, {@link Car#PERMISSION_FUEL} for
      *  {@link #SENSOR_TYPE_FUEL_LEVEL} and (@link #SENSOR_TYPE_EV_BATTERY_LEVEL and
      *  {@link #SENSOR_TYPE_EV_CHARGE_RATE}, {@link Car#PERMISSION_VEHICLE_DYNAMICS_STATE} for
      *  {@link #SENSOR_TYPE_ABS_ACTIVE} and {@link #SENSOR_TYPE_TRACTION_CONTROL_ACTIVE}
@@ -377,7 +373,7 @@ public final class CarSensorManager implements CarManagerBase {
      * @throws SecurityException if missing the appropriate permission
      */
     @RequiresPermission(anyOf={Manifest.permission.ACCESS_FINE_LOCATION, Car.PERMISSION_SPEED,
-            Car.PERMISSION_MILEAGE, Car.PERMISSION_FUEL_DETAILED, Car.PERMISSION_VEHICLE_DYNAMICS_STATE},
+            Car.PERMISSION_MILEAGE, Car.PERMISSION_FUEL, Car.PERMISSION_VEHICLE_DYNAMICS_STATE},
             conditional=true)
     public boolean registerListener(OnSensorChangedListener listener, @SensorType int sensorType,
             @SensorRate int rate) throws CarNotConnectedException, IllegalArgumentException {

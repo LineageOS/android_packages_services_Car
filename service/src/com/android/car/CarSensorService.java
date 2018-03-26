@@ -26,6 +26,7 @@ import android.car.hardware.ICarSensor;
 import android.car.hardware.ICarSensorEventListener;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -443,21 +444,6 @@ public class CarSensorService extends ICarSensor.Stub
         }
         String permission = null;
         switch (sensorType) {
-            case CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_OPEN:
-            case CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED:
-                permission = Car.PERMISSION_EV;
-                break;
-            case CarSensorManager.SENSOR_TYPE_IGNITION_STATE:
-            case CarSensorManager.SENSOR_TYPE_ENGINE_ON:
-                permission = Car.PERMISSION_ENGINE;
-                break;
-            case CarSensorManager.SENSOR_TYPE_RPM:
-            case CarSensorManager.SENSOR_TYPE_ENGINE_OIL_LEVEL:
-                permission = Car.PERMISSION_CAR_ENGINE_DETAILED;
-                break;
-            case CarSensorManager.SENSOR_TYPE_GEAR:
-                permission = Car.PERMISSION_GEAR;
-                break;
             case CarSensorManager.SENSOR_TYPE_CAR_SPEED:
             case CarSensorManager.SENSOR_TYPE_WHEEL_TICK_DISTANCE:
                 permission = Car.PERMISSION_SPEED;
@@ -466,11 +452,9 @@ public class CarSensorService extends ICarSensor.Stub
                 permission = Car.PERMISSION_MILEAGE;
                 break;
             case CarSensorManager.SENSOR_TYPE_FUEL_LEVEL:
-                permission = Car.PERMISSION_FUEL_DETAILED;
-                break;
             case CarSensorManager.SENSOR_TYPE_EV_BATTERY_LEVEL:
             case CarSensorManager.SENSOR_TYPE_EV_BATTERY_CHARGE_RATE:
-                permission = Car.PERMISSION_EV_DETAILED;
+                permission = Car.PERMISSION_FUEL;
                 break;
             case CarSensorManager.SENSOR_TYPE_ABS_ACTIVE:
             case CarSensorManager.SENSOR_TYPE_TRACTION_CONTROL_ACTIVE:
