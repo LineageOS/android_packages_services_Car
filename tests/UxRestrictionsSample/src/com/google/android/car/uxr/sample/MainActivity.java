@@ -131,7 +131,7 @@ public class MainActivity extends Activity {
                     requiresDO[0],
                     requiresDO[0]
                             ? CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED
-                            : CarUxRestrictions.UX_RESTRICTIONS_UNRESTRICTED,
+                            : CarUxRestrictions.UX_RESTRICTIONS_BASELINE,
                     elapsedRealtimeNanos());
             updateWidgetText(restrictions);
         });

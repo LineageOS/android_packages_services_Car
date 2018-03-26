@@ -205,6 +205,7 @@ package android.car.drivingstate {
     method public boolean isSameRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.drivingstate.CarUxRestrictions> CREATOR;
+    field public static final int UX_RESTRICTIONS_BASELINE = 0; // 0x0
     field public static final int UX_RESTRICTIONS_FULLY_RESTRICTED = 511; // 0x1ff
     field public static final int UX_RESTRICTIONS_LIMIT_CONTENT = 32; // 0x20
     field public static final int UX_RESTRICTIONS_LIMIT_STRING_LENGTH = 4; // 0x4
@@ -215,7 +216,6 @@ package android.car.drivingstate {
     field public static final int UX_RESTRICTIONS_NO_TEXT_MESSAGE = 128; // 0x80
     field public static final int UX_RESTRICTIONS_NO_VIDEO = 16; // 0x10
     field public static final int UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION = 256; // 0x100
-    field public static final int UX_RESTRICTIONS_UNRESTRICTED = 0; // 0x0
   }
 
   public static abstract class CarUxRestrictions.CarUxRestrictionsInfo implements java.lang.annotation.Annotation {

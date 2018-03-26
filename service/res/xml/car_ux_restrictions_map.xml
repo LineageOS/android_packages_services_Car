@@ -19,7 +19,7 @@ Note:
     <!-- Map the driving states to UX restrictions here -->
     <RestrictionMapping>
         <DrivingState car:state="parked">
-            <Restrictions car:uxr="unrestricted"/>
+            <Restrictions car:uxr="baseline"/>
         </DrivingState>
 
         <DrivingState car:state="idling">
