@@ -60,10 +60,11 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
     private static final boolean DBG = false;
 
     public CarBluetoothService(Context context, CarCabinService carCabinService,
-            CarSensorService carSensorService, PerUserCarServiceHelper userSwitchService) {
+            CarSensorService carSensorService, PerUserCarServiceHelper userSwitchService,
+            CarUxRestrictionsManagerService uxrService) {
         mContext = context;
         mBluetoothDeviceConnectionPolicy = BluetoothDeviceConnectionPolicy.create(mContext,
-                carCabinService, carSensorService, userSwitchService, this);
+                carCabinService, carSensorService, userSwitchService, uxrService, this);
     }
 
     @Override
