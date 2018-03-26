@@ -75,7 +75,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         // state information is not available due to the unavailability of data from VHAL, default
         // mode is unrestricted.
         mCurrentUxRestrictions = createUxRestrictionsEvent(
-                CarUxRestrictions.UX_RESTRICTIONS_UNRESTRICTED);
+                CarUxRestrictions.UX_RESTRICTIONS_BASELINE);
     }
 
     @Override
@@ -414,7 +414,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         int uxRestrictions;
         switch (drivingState) {
             case CarDrivingStateEvent.DRIVING_STATE_PARKED:
-                uxRestrictions = CarUxRestrictions.UX_RESTRICTIONS_UNRESTRICTED;
+                uxRestrictions = CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
                 break;
             case CarDrivingStateEvent.DRIVING_STATE_IDLING:
             case CarDrivingStateEvent.DRIVING_STATE_MOVING:
@@ -426,7 +426,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     private static CarUxRestrictions createUxRestrictionsEvent(@CarUxRestrictionsInfo int uxr) {
         boolean requiresOpt = true;
-        if (uxr == CarUxRestrictions.UX_RESTRICTIONS_UNRESTRICTED) {
+        if (uxr == CarUxRestrictions.UX_RESTRICTIONS_BASELINE) {
             requiresOpt = false;
         }
         return new CarUxRestrictions(requiresOpt, uxr, SystemClock.elapsedRealtimeNanos());

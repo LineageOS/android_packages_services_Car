@@ -62,7 +62,7 @@
         <!-- This has to align with the UX  Restrictions defined in
         packages/services/Car/car-lib/src/android/car/drivingstate/CarUxRestrictions.java-->
         <attr name="uxr">
-            <flag name="unrestricted" value="0"/>
+            <flag name="baseline" value="0"/>
             <flag name="no_dialpad" value="1"/>
             <flag name="no_filtering" value="2"/>
             <flag name="limit_string_length" value="4"/>
