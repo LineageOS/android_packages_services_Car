@@ -34,7 +34,7 @@ interface ICarAudio {
     void setBalanceTowardRight(float value);
 
     String[] getExternalSources();
-    CarAudioPatchHandle createAudioPatch(in String sourceName, int usage, int gainInMillibels);
+    CarAudioPatchHandle createAudioPatch(in String sourceAddress, int usage, int gainInMillibels);
     void releaseAudioPatch(in CarAudioPatchHandle patch);
 
     int getVolumeGroupCount();

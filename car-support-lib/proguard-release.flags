@@ -1036,6 +1036,7 @@
 
     public int addAppTask(android.app.Activity, android.content.Intent, android.app.ActivityManager$TaskDescription, android.graphics.Bitmap);
     public void addOnUidImportanceListener(android.app.ActivityManager$OnUidImportanceListener, int);
+    public void alwaysShowUnsupportedCompileSdkWarning(android.content.ComponentName);
     public static void broadcastStickyIntent(android.content.Intent, int);
     public static void broadcastStickyIntent(android.content.Intent, int, int);
     public static int checkComponentPermission(java.lang.String, int, int, boolean);
@@ -1686,6 +1687,7 @@
     public void onNewActivityOptions(android.os.IBinder, android.app.ActivityOptions);
     public android.app.LoadedApk peekPackageInfo(java.lang.String, boolean);
     public void performRestartActivity(android.os.IBinder, boolean);
+    public android.app.ActivityThread$ActivityClientRecord performResumeActivity(android.os.IBinder, boolean, java.lang.String);
     public android.app.ActivityThread$ActivityClientRecord prepareRelaunchActivity(android.os.IBinder, java.util.List, java.util.List, int, android.util.MergedConfiguration, boolean);
     public void registerOnActivityPausedListener(android.app.Activity, android.app.OnActivityPausedListener);
     public boolean releaseProvider(android.content.IContentProvider, boolean);
@@ -1929,6 +1931,7 @@
     public static java.lang.String OPSTR_RUN_ANY_IN_BACKGROUND;
     public static java.lang.String OPSTR_RUN_IN_BACKGROUND;
     public static java.lang.String OPSTR_SEND_SMS;
+    public static java.lang.String OPSTR_START_FOREGROUND;
     public static java.lang.String OPSTR_SYSTEM_ALERT_WINDOW;
     public static java.lang.String OPSTR_TAKE_AUDIO_FOCUS;
     public static java.lang.String OPSTR_TAKE_MEDIA_BUTTONS;
@@ -2006,6 +2009,7 @@
     public static int OP_RUN_ANY_IN_BACKGROUND;
     public static int OP_RUN_IN_BACKGROUND;
     public static int OP_SEND_SMS;
+    public static int OP_START_FOREGROUND;
     public static int OP_SYSTEM_ALERT_WINDOW;
     public static int OP_TAKE_AUDIO_FOCUS;
     public static int OP_TAKE_MEDIA_BUTTONS;
@@ -2215,6 +2219,7 @@
     <init>();
 
     public abstract void dump(java.io.PrintWriter, java.lang.String);
+    public void executeTransaction(android.app.servertransaction.ClientTransaction);
     public abstract android.app.ActivityThread$ActivityClientRecord getActivityClient(android.os.IBinder);
     public abstract android.app.LoadedApk getPackageInfoNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
     public abstract void handleActivityConfigurationChanged(android.os.IBinder, android.content.res.Configuration, int);
@@ -2826,6 +2831,7 @@
     public abstract int addAppTask(android.os.IBinder, android.content.Intent, android.app.ActivityManager$TaskDescription, android.graphics.Bitmap);
     public abstract void addInstrumentationResults(android.app.IApplicationThread, android.os.Bundle);
     public abstract void addPackageDependency(java.lang.String);
+    public abstract void alwaysShowUnsupportedCompileSdkWarning(android.content.ComponentName);
     public abstract void appNotRespondingViaProvider(android.os.IBinder);
     public abstract void attachApplication(android.app.IApplicationThread, long);
     public abstract void backgroundWhitelistUid(int);
@@ -2944,6 +2950,7 @@
     public abstract boolean isRootVoiceInteraction(android.os.IBinder);
     public abstract boolean isTopActivityImmersive();
     public abstract boolean isTopOfTask(android.os.IBinder);
+    public abstract boolean isUidActive(int, java.lang.String);
     public abstract boolean isUserAMonkey();
     public abstract boolean isUserRunning(int, int);
     public abstract boolean isVrModePackageEnabled(android.content.ComponentName);
@@ -3035,7 +3042,7 @@
     public abstract void setFrontActivityScreenCompatMode(int);
     public abstract void setHasTopUi(boolean);
     public abstract void setImmersive(android.os.IBinder, boolean);
-    public abstract void setLockScreenShown(boolean, int);
+    public abstract void setLockScreenShown(boolean, boolean, int);
     public abstract void setPackageAskScreenCompat(java.lang.String, boolean);
     public abstract void setPackageScreenCompatMode(java.lang.String, int);
     public abstract void setPersistentVrThread(int);
@@ -4013,6 +4020,8 @@
     public java.lang.CharSequence getTitle();
     public boolean isEnabled();
     public void setEnabled(boolean);
+    public void setShouldShowIcon(boolean);
+    public boolean shouldShowIcon();
     public void writeToParcel(android.os.Parcel, int);
 
 
@@ -4164,11 +4173,15 @@
     public android.view.WindowAnimationFrameStats getWindowAnimationFrameStats();
     public android.view.WindowContentFrameStats getWindowContentFrameStats(int);
     public java.util.List getWindows();
+    public void grantRuntimePermission(java.lang.String, java.lang.String);
     public boolean grantRuntimePermission(java.lang.String, java.lang.String, android.os.UserHandle);
+    public void grantRuntimePermissionAsUser(java.lang.String, java.lang.String, android.os.UserHandle);
     public boolean injectInputEvent(android.view.InputEvent, boolean);
     public boolean isDestroyed();
     public boolean performGlobalAction(int);
+    public void revokeRuntimePermission(java.lang.String, java.lang.String);
     public boolean revokeRuntimePermission(java.lang.String, java.lang.String, android.os.UserHandle);
+    public void revokeRuntimePermissionAsUser(java.lang.String, java.lang.String, android.os.UserHandle);
     public void setOnAccessibilityEventListener(android.app.UiAutomation$OnAccessibilityEventListener);
     public boolean setRotation(int);
     public void setRunAsMonkey(boolean);
@@ -5064,6 +5077,9 @@
     public static int SYNC_ERROR_SYNC_ALREADY_IN_PROGRESS;
     public static int SYNC_ERROR_TOO_MANY_DELETIONS;
     public static int SYNC_ERROR_TOO_MANY_RETRIES;
+    public static int SYNC_EXEMPTION_ACTIVE;
+    public static int SYNC_EXEMPTION_ACTIVE_WITH_TEMP;
+    public static int SYNC_EXEMPTION_NONE;
     public static java.lang.String SYNC_EXTRAS_ACCOUNT;
     public static java.lang.String SYNC_EXTRAS_DISALLOW_METERED;
     public static java.lang.String SYNC_EXTRAS_DISCARD_LOCAL_DELETIONS;
@@ -5085,8 +5101,7 @@
     public static int SYNC_OBSERVER_TYPE_PENDING;
     public static int SYNC_OBSERVER_TYPE_SETTINGS;
     public static int SYNC_OBSERVER_TYPE_STATUS;
-    public static java.lang.String SYNC_VIRTUAL_EXTRAS_FORCE_BG_SYNC;
-    public static java.lang.String SYNC_VIRTUAL_EXTRAS_FORCE_FG_SYNC;
+    public static java.lang.String SYNC_VIRTUAL_EXTRAS_EXEMPTION_FLAG;
 }
 
 -keep class android.content.ContentResolver$OpenResourceIdResult {
@@ -6027,6 +6042,8 @@
     public static java.lang.String ACTION_MEDIA_UNMOUNTED;
     public static java.lang.String ACTION_MEDIA_UNSHARED;
     public static java.lang.String ACTION_MY_PACKAGE_REPLACED;
+    public static java.lang.String ACTION_MY_PACKAGE_SUSPENDED;
+    public static java.lang.String ACTION_MY_PACKAGE_UNSUSPENDED;
     public static java.lang.String ACTION_NEW_OUTGOING_CALL;
     public static java.lang.String ACTION_OPEN_DOCUMENT;
     public static java.lang.String ACTION_OPEN_DOCUMENT_TREE;
@@ -6220,6 +6237,7 @@
     public static java.lang.String EXTRA_IS_USING_CARRIER_AGGREGATION;
     public static java.lang.String EXTRA_KEY_CONFIRM;
     public static java.lang.String EXTRA_KEY_EVENT;
+    public static java.lang.String EXTRA_LAUNCHER_EXTRAS;
     public static java.lang.String EXTRA_LOCAL_ONLY;
     public static java.lang.String EXTRA_LONG_VERSION_CODE;
     public static java.lang.String EXTRA_LTE_EARFCN_RSRP_BOOST;
@@ -6271,6 +6289,7 @@
     public static java.lang.String EXTRA_SPLIT_NAME;
     public static java.lang.String EXTRA_STREAM;
     public static java.lang.String EXTRA_SUBJECT;
+    public static java.lang.String EXTRA_SUSPENDED_PACKAGE_EXTRAS;
     public static java.lang.String EXTRA_SYSTEM_ID;
     public static java.lang.String EXTRA_TASK_ID;
     public static java.lang.String EXTRA_TEMPLATE;
@@ -6966,13 +6985,13 @@
     public java.lang.String getBaseResourcePath();
     public static java.lang.CharSequence getCategoryTitle(android.content.Context, int);
     public java.lang.String getCodePath();
+    public int getHiddenApiEnforcementPolicy();
     public java.lang.String getResourcePath();
     public java.lang.String[] getSplitCodePaths();
     public java.lang.String[] getSplitResourcePaths();
     public boolean hasCode();
     public boolean hasRtlSupport();
     public void initForUser(int);
-    public boolean isAllowedToUseHiddenApi();
     public boolean isDefaultToDeviceProtectedStorage();
     public boolean isDirectBootAware();
     public boolean isEncryptionAware();
@@ -6997,6 +7016,7 @@
     public void setBaseCodePath(java.lang.String);
     public void setBaseResourcePath(java.lang.String);
     public void setCodePath(java.lang.String);
+    public void setHiddenApiEnforcementPolicy(int);
     public void setResourcePath(java.lang.String);
     public void setSplitCodePaths(java.lang.String[]);
     public void setSplitResourcePaths(java.lang.String[]);
@@ -7048,6 +7068,11 @@
     public static int FLAG_UPDATED_SYSTEM_APP;
     public static int FLAG_USES_CLEARTEXT_TRAFFIC;
     public static int FLAG_VM_SAFE_MODE;
+    public static int HIDDEN_API_ENFORCEMENT_ALL_LISTS;
+    public static int HIDDEN_API_ENFORCEMENT_BLACK;
+    public static int HIDDEN_API_ENFORCEMENT_DARK_GREY_AND_BLACK;
+    public static int HIDDEN_API_ENFORCEMENT_DEFAULT;
+    public static int HIDDEN_API_ENFORCEMENT_NONE;
     public static java.lang.String METADATA_PRELOADED_FONTS;
     public static int PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE;
     public static int PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION;
@@ -7425,7 +7450,6 @@
     public abstract android.content.pm.PackageInfo getPackageInfoVersioned(android.content.pm.VersionedPackage, int, int);
     public abstract android.content.pm.IPackageInstaller getPackageInstaller();
     public abstract void getPackageSizeInfo(java.lang.String, int, android.content.pm.IPackageStatsObserver);
-    public abstract android.os.PersistableBundle getPackageSuspendedAppExtras(java.lang.String, int);
     public abstract int getPackageUid(java.lang.String, int, int);
     public abstract java.lang.String[] getPackagesForUid(int);
     public abstract android.content.pm.ParceledListSlice getPackagesHoldingPermissions(java.lang.String[], int, int);
@@ -7446,13 +7470,16 @@
     public abstract android.content.pm.ParceledListSlice getSharedLibraries(java.lang.String, int, int);
     public abstract java.lang.String getSharedSystemSharedLibraryPackageName();
     public abstract android.content.pm.KeySet getSigningKeySet(java.lang.String);
+    public abstract android.os.PersistableBundle getSuspendedPackageAppExtras(java.lang.String, int);
     public abstract android.content.pm.ParceledListSlice getSystemAvailableFeatures();
     public abstract java.lang.String[] getSystemSharedLibraryNames();
     public abstract java.lang.String getSystemTextClassifierPackageName();
     public abstract int getUidForSharedUser(java.lang.String);
     public abstract android.content.pm.VerifierDeviceIdentity getVerifierDeviceIdentity();
+    public abstract void grantDefaultPermissionsToActiveLuiApp(java.lang.String, int);
     public abstract void grantDefaultPermissionsToEnabledCarrierApps(java.lang.String[], int);
     public abstract void grantDefaultPermissionsToEnabledImsServices(java.lang.String[], int);
+    public abstract void grantDefaultPermissionsToEnabledTelephonyDataServices(java.lang.String[], int);
     public abstract void grantRuntimePermission(java.lang.String, java.lang.String, int);
     public abstract boolean hasSigningCertificate(java.lang.String, byte[], int);
     public abstract boolean hasSystemFeature(java.lang.String, int);
@@ -7466,6 +7493,7 @@
     public abstract boolean isPackageDeviceAdminOnAnyUser(java.lang.String);
     public abstract boolean isPackageSignedByKeySet(java.lang.String, android.content.pm.KeySet);
     public abstract boolean isPackageSignedByKeySetExactly(java.lang.String, android.content.pm.KeySet);
+    public abstract boolean isPackageStateProtected(java.lang.String, int);
     public abstract boolean isPackageSuspendedForUser(java.lang.String, int);
     public abstract boolean isPermissionEnforced(java.lang.String);
     public abstract boolean isPermissionRevokedByPolicy(java.lang.String, java.lang.String, int);
@@ -7507,6 +7535,8 @@
     public abstract void restoreIntentFilterVerification(byte[], int);
     public abstract void restorePermissionGrants(byte[], int);
     public abstract void restorePreferredActivities(byte[], int);
+    public abstract void revokeDefaultPermissionsFromDisabledTelephonyDataServices(java.lang.String[], int);
+    public abstract void revokeDefaultPermissionsFromLuiApps(java.lang.String[], int);
     public abstract void revokeRuntimePermission(java.lang.String, java.lang.String, int);
     public abstract boolean runBackgroundDexoptJob(java.util.List);
     public abstract void setApplicationCategoryHint(java.lang.String, int, java.lang.String);
@@ -8108,7 +8138,7 @@
     public abstract java.lang.String getSharedSystemSharedLibraryPackageName();
     public abstract android.content.pm.KeySet getSigningKeySet(java.lang.String);
     public android.os.PersistableBundle getSuspendedPackageAppExtras(java.lang.String);
-    public android.os.PersistableBundle getSuspendedPackageAppExtras();
+    public android.os.Bundle getSuspendedPackageAppExtras();
     public abstract android.content.pm.FeatureInfo[] getSystemAvailableFeatures();
     public abstract java.lang.String[] getSystemSharedLibraryNames();
     public java.lang.String getSystemTextClassifierPackageName();
@@ -8137,6 +8167,7 @@
     public abstract boolean isInstantApp(java.lang.String);
     public static boolean isMoveStatusFinished(int);
     public abstract boolean isPackageAvailable(java.lang.String);
+    public boolean isPackageStateProtected(java.lang.String, int);
     public boolean isPackageSuspended(java.lang.String);
     public boolean isPackageSuspended();
     public abstract boolean isPackageSuspendedForUser(java.lang.String, int);
@@ -10335,6 +10366,7 @@
     public int saveLayerAlpha(android.graphics.RectF, int);
     public int saveLayerAlpha(float, float, float, float, int, int);
     public int saveLayerAlpha(float, float, float, float, int);
+    public int saveUnclippedLayer(int, int, int, int);
     public void scale(float, float);
     public void scale(float, float, float, float);
     public void setBitmap(android.graphics.Bitmap);
@@ -11082,7 +11114,6 @@
     public void close();
     public void computeBounds(android.graphics.RectF, boolean);
     public void cubicTo(float, float, float, float, float, float);
-    protected void finalize();
     public android.graphics.Path$FillType getFillType();
     public void incReserve(int);
     public boolean isConvex();
@@ -11876,6 +11907,7 @@
     public void resumeWifiDisplay();
     public void setBrightnessConfiguration(android.hardware.display.BrightnessConfiguration);
     public void setBrightnessConfigurationForUser(android.hardware.display.BrightnessConfiguration, int, java.lang.String);
+    public void setSaturationLevel(float);
     public void setTemporaryAutoBrightnessAdjustment(float);
     public void setTemporaryBrightness(int);
     public void startWifiDisplayScan();
@@ -11932,6 +11964,7 @@
     public void resizeVirtualDisplay(android.hardware.display.IVirtualDisplayCallback, int, int, int);
     public void resumeWifiDisplay();
     public void setBrightnessConfigurationForUser(android.hardware.display.BrightnessConfiguration, int, java.lang.String);
+    public void setSaturationLevel(float);
     public void setTemporaryAutoBrightnessAdjustment(float);
     public void setTemporaryBrightness(int);
     public void setVirtualDisplaySurface(android.hardware.display.IVirtualDisplayCallback, android.view.Surface);
@@ -12472,6 +12505,14 @@
     public long nanoTime;
 }
 
+-keep class android.media.IRemoteVolumeController {
+
+    public abstract void remoteVolumeChanged(android.media.session.ISessionController, int);
+    public abstract void updateRemoteController(android.media.session.ISessionController);
+
+
+}
+
 -keep class android.media.MediaDescription {
 
     public int describeContents();
@@ -12641,6 +12682,28 @@
     public static int RATING_THUMB_UP_DOWN;
 }
 
+-keep class android.media.SessionToken2 {
+    <init>(android.content.Context, java.lang.String, java.lang.String);
+    <init>(android.content.Context, java.lang.String, java.lang.String, int);
+    <init>(android.media.update.SessionToken2Provider);
+
+    public boolean equals(java.lang.Object);
+    public static android.media.SessionToken2 fromBundle(android.os.Bundle);
+    public java.lang.String getId();
+    public java.lang.String getPackageName();
+    public android.media.update.SessionToken2Provider getProvider();
+    public int getType();
+    public int getUid();
+    public int hashCode();
+    public android.os.Bundle toBundle();
+    public java.lang.String toString();
+
+
+    public static int TYPE_LIBRARY_SERVICE;
+    public static int TYPE_SESSION;
+    public static int TYPE_SESSION_SERVICE;
+}
+
 -keep class android.media.VolumeProvider {
     <init>(int, int, int);
 
@@ -12709,10 +12772,70 @@
 
 }
 
+-keep class android.media.session.ISession {
+
+    public abstract void destroy();
+    public abstract android.media.session.ISessionController getController();
+    public abstract void sendEvent(java.lang.String, android.os.Bundle);
+    public abstract void setActive(boolean);
+    public abstract void setCurrentVolume(int);
+    public abstract void setExtras(android.os.Bundle);
+    public abstract void setFlags(int);
+    public abstract void setLaunchPendingIntent(android.app.PendingIntent);
+    public abstract void setMediaButtonReceiver(android.app.PendingIntent);
+    public abstract void setMetadata(android.media.MediaMetadata);
+    public abstract void setPlaybackState(android.media.session.PlaybackState);
+    public abstract void setPlaybackToLocal(android.media.AudioAttributes);
+    public abstract void setPlaybackToRemote(int, int);
+    public abstract void setQueue(android.content.pm.ParceledListSlice);
+    public abstract void setQueueTitle(java.lang.CharSequence);
+    public abstract void setRatingType(int);
+
+
+}
+
+-keep class android.media.session.ISessionCallback {
+
+    public abstract void onAdjustVolume(java.lang.String, int, int, int);
+    public abstract void onCommand(java.lang.String, int, int, java.lang.String, android.os.Bundle, android.os.ResultReceiver);
+    public abstract void onCustomAction(java.lang.String, int, int, java.lang.String, android.os.Bundle);
+    public abstract void onFastForward(java.lang.String, int, int);
+    public abstract void onMediaButton(java.lang.String, int, int, android.content.Intent, int, android.os.ResultReceiver);
+    public abstract void onNext(java.lang.String, int, int);
+    public abstract void onPause(java.lang.String, int, int);
+    public abstract void onPlay(java.lang.String, int, int);
+    public abstract void onPlayFromMediaId(java.lang.String, int, int, java.lang.String, android.os.Bundle);
+    public abstract void onPlayFromSearch(java.lang.String, int, int, java.lang.String, android.os.Bundle);
+    public abstract void onPlayFromUri(java.lang.String, int, int, android.net.Uri, android.os.Bundle);
+    public abstract void onPrepare(java.lang.String, int, int);
+    public abstract void onPrepareFromMediaId(java.lang.String, int, int, java.lang.String, android.os.Bundle);
+    public abstract void onPrepareFromSearch(java.lang.String, int, int, java.lang.String, android.os.Bundle);
+    public abstract void onPrepareFromUri(java.lang.String, int, int, android.net.Uri, android.os.Bundle);
+    public abstract void onPrevious(java.lang.String, int, int);
+    public abstract void onRate(java.lang.String, int, int, android.media.Rating);
+    public abstract void onRewind(java.lang.String, int, int);
+    public abstract void onSeekTo(java.lang.String, int, int, long);
+    public abstract void onSetVolumeTo(java.lang.String, int, int, int);
+    public abstract void onSkipToTrack(java.lang.String, int, int, long);
+    public abstract void onStop(java.lang.String, int, int);
+
+
+}
+
+-keep class android.media.session.ISessionCallback$Stub {
+    <init>();
+
+    public android.os.IBinder asBinder();
+    public static android.media.session.ISessionCallback asInterface(android.os.IBinder);
+    public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int);
+
+
+}
+
 -keep class android.media.session.ISessionController {
 
-    public abstract void adjustVolume(int, int, java.lang.String);
-    public abstract void fastForward();
+    public abstract void adjustVolume(java.lang.String, int, int);
+    public abstract void fastForward(java.lang.String);
     public abstract android.os.Bundle getExtras();
     public abstract long getFlags();
     public abstract android.app.PendingIntent getLaunchPendingIntent();
@@ -12725,27 +12848,27 @@
     public abstract java.lang.String getTag();
     public abstract android.media.session.ParcelableVolumeInfo getVolumeAttributes();
     public abstract boolean isTransportControlEnabled();
-    public abstract void next();
-    public abstract void pause();
-    public abstract void play();
-    public abstract void playFromMediaId(java.lang.String, android.os.Bundle);
-    public abstract void playFromSearch(java.lang.String, android.os.Bundle);
-    public abstract void playFromUri(android.net.Uri, android.os.Bundle);
-    public abstract void prepare();
-    public abstract void prepareFromMediaId(java.lang.String, android.os.Bundle);
-    public abstract void prepareFromSearch(java.lang.String, android.os.Bundle);
-    public abstract void prepareFromUri(android.net.Uri, android.os.Bundle);
-    public abstract void previous();
-    public abstract void rate(android.media.Rating);
+    public abstract void next(java.lang.String);
+    public abstract void pause(java.lang.String);
+    public abstract void play(java.lang.String);
+    public abstract void playFromMediaId(java.lang.String, java.lang.String, android.os.Bundle);
+    public abstract void playFromSearch(java.lang.String, java.lang.String, android.os.Bundle);
+    public abstract void playFromUri(java.lang.String, android.net.Uri, android.os.Bundle);
+    public abstract void prepare(java.lang.String);
+    public abstract void prepareFromMediaId(java.lang.String, java.lang.String, android.os.Bundle);
+    public abstract void prepareFromSearch(java.lang.String, java.lang.String, android.os.Bundle);
+    public abstract void prepareFromUri(java.lang.String, android.net.Uri, android.os.Bundle);
+    public abstract void previous(java.lang.String);
+    public abstract void rate(java.lang.String, android.media.Rating);
     public abstract void registerCallbackListener(android.media.session.ISessionControllerCallback);
-    public abstract void rewind();
-    public abstract void seekTo(long);
-    public abstract void sendCommand(java.lang.String, android.os.Bundle, android.os.ResultReceiver);
-    public abstract void sendCustomAction(java.lang.String, android.os.Bundle);
-    public abstract boolean sendMediaButton(android.view.KeyEvent);
-    public abstract void setVolumeTo(int, int, java.lang.String);
-    public abstract void skipToQueueItem(long);
-    public abstract void stop();
+    public abstract void rewind(java.lang.String);
+    public abstract void seekTo(java.lang.String, long);
+    public abstract void sendCommand(java.lang.String, java.lang.String, android.os.Bundle, android.os.ResultReceiver);
+    public abstract void sendCustomAction(java.lang.String, java.lang.String, android.os.Bundle);
+    public abstract boolean sendMediaButton(java.lang.String, android.view.KeyEvent);
+    public abstract void setVolumeTo(java.lang.String, int, int);
+    public abstract void skipToQueueItem(java.lang.String, long);
+    public abstract void stop(java.lang.String);
     public abstract void unregisterCallbackListener(android.media.session.ISessionControllerCallback);
 
 
@@ -12854,6 +12977,7 @@
 
     public java.lang.String getCallingPackage();
     public android.media.session.MediaController getController();
+    public android.media.session.MediaSessionManager$RemoteUserInfo getCurrentControllerInfo();
     public android.media.session.MediaSession$Token getSessionToken();
     public boolean isActive();
     public static boolean isActiveState(int);
@@ -12879,6 +13003,8 @@
     public static int FLAG_EXCLUSIVE_GLOBAL_PRIORITY;
     public static int FLAG_HANDLES_MEDIA_BUTTONS;
     public static int FLAG_HANDLES_TRANSPORT_CONTROLS;
+    public static int INVALID_PID;
+    public static int INVALID_UID;
 }
 
 -keep class android.media.session.MediaSession$Callback {
@@ -12908,6 +13034,35 @@
 
 }
 
+-keep class android.media.session.MediaSession$CallbackStub {
+    <init>(android.media.session.MediaSession);
+
+    public void onAdjustVolume(java.lang.String, int, int, int);
+    public void onCommand(java.lang.String, int, int, java.lang.String, android.os.Bundle, android.os.ResultReceiver);
+    public void onCustomAction(java.lang.String, int, int, java.lang.String, android.os.Bundle);
+    public void onFastForward(java.lang.String, int, int);
+    public void onMediaButton(java.lang.String, int, int, android.content.Intent, int, android.os.ResultReceiver);
+    public void onNext(java.lang.String, int, int);
+    public void onPause(java.lang.String, int, int);
+    public void onPlay(java.lang.String, int, int);
+    public void onPlayFromMediaId(java.lang.String, int, int, java.lang.String, android.os.Bundle);
+    public void onPlayFromSearch(java.lang.String, int, int, java.lang.String, android.os.Bundle);
+    public void onPlayFromUri(java.lang.String, int, int, android.net.Uri, android.os.Bundle);
+    public void onPrepare(java.lang.String, int, int);
+    public void onPrepareFromMediaId(java.lang.String, int, int, java.lang.String, android.os.Bundle);
+    public void onPrepareFromSearch(java.lang.String, int, int, java.lang.String, android.os.Bundle);
+    public void onPrepareFromUri(java.lang.String, int, int, android.net.Uri, android.os.Bundle);
+    public void onPrevious(java.lang.String, int, int);
+    public void onRate(java.lang.String, int, int, android.media.Rating);
+    public void onRewind(java.lang.String, int, int);
+    public void onSeekTo(java.lang.String, int, int, long);
+    public void onSetVolumeTo(java.lang.String, int, int, int);
+    public void onSkipToTrack(java.lang.String, int, int, long);
+    public void onStop(java.lang.String, int, int);
+
+
+}
+
 -keep class android.media.session.MediaSession$QueueItem {
     <init>(android.media.MediaDescription, long);
 
@@ -12933,6 +13088,90 @@
 
 
     public static android.os.Parcelable$Creator CREATOR;
+}
+
+-keep class android.media.session.MediaSessionManager {
+    <init>(android.content.Context);
+
+    public void addOnActiveSessionsChangedListener(android.media.session.MediaSessionManager$OnActiveSessionsChangedListener, android.content.ComponentName);
+    public void addOnActiveSessionsChangedListener(android.media.session.MediaSessionManager$OnActiveSessionsChangedListener, android.content.ComponentName, android.os.Handler);
+    public void addOnActiveSessionsChangedListener(android.media.session.MediaSessionManager$OnActiveSessionsChangedListener, android.content.ComponentName, int, android.os.Handler);
+    public void addOnSessionTokensChangedListener(java.util.concurrent.Executor, android.media.session.MediaSessionManager$OnSessionTokensChangedListener);
+    public void addOnSessionTokensChangedListener(int, java.util.concurrent.Executor, android.media.session.MediaSessionManager$OnSessionTokensChangedListener);
+    public android.media.session.ISession createSession(android.media.session.MediaSession$CallbackStub, java.lang.String, int);
+    public boolean createSession2(android.media.SessionToken2);
+    public void destroySession2(android.media.SessionToken2);
+    public void dispatchAdjustVolume(int, int, int);
+    public void dispatchMediaKeyEvent(android.view.KeyEvent);
+    public void dispatchMediaKeyEvent(android.view.KeyEvent, boolean);
+    public void dispatchVolumeKeyEvent(android.view.KeyEvent, int, boolean);
+    public java.util.List getActiveSessionTokens();
+    public java.util.List getActiveSessions(android.content.ComponentName);
+    public java.util.List getActiveSessionsForUser(android.content.ComponentName, int);
+    public java.util.List getAllSessionTokens();
+    public java.util.List getSessionServiceTokens();
+    public boolean isGlobalPriorityActive();
+    public boolean isTrustedForMediaControl(android.media.session.MediaSessionManager$RemoteUserInfo);
+    public void removeOnActiveSessionsChangedListener(android.media.session.MediaSessionManager$OnActiveSessionsChangedListener);
+    public void removeOnSessionTokensChangedListener(android.media.session.MediaSessionManager$OnSessionTokensChangedListener);
+    public void setCallback(android.media.session.MediaSessionManager$Callback, android.os.Handler);
+    public void setOnMediaKeyListener(android.media.session.MediaSessionManager$OnMediaKeyListener, android.os.Handler);
+    public void setOnVolumeKeyLongPressListener(android.media.session.MediaSessionManager$OnVolumeKeyLongPressListener, android.os.Handler);
+    public void setRemoteVolumeController(android.media.IRemoteVolumeController);
+
+
+    public static int RESULT_MEDIA_KEY_HANDLED;
+    public static int RESULT_MEDIA_KEY_NOT_HANDLED;
+}
+
+-keep class android.media.session.MediaSessionManager$Callback {
+    <init>();
+
+    public abstract void onAddressedPlayerChanged(android.media.session.MediaSession$Token);
+    public abstract void onAddressedPlayerChanged(android.content.ComponentName);
+    public abstract void onMediaKeyEventDispatched(android.view.KeyEvent, android.media.session.MediaSession$Token);
+    public abstract void onMediaKeyEventDispatched(android.view.KeyEvent, android.content.ComponentName);
+
+
+}
+
+-keep class android.media.session.MediaSessionManager$OnActiveSessionsChangedListener {
+
+    public abstract void onActiveSessionsChanged(java.util.List);
+
+
+}
+
+-keep class android.media.session.MediaSessionManager$OnMediaKeyListener {
+
+    public abstract boolean onMediaKey(android.view.KeyEvent);
+
+
+}
+
+-keep class android.media.session.MediaSessionManager$OnSessionTokensChangedListener {
+
+    public abstract void onSessionTokensChanged(java.util.List);
+
+
+}
+
+-keep class android.media.session.MediaSessionManager$OnVolumeKeyLongPressListener {
+
+    public abstract void onVolumeKeyLongPress(android.view.KeyEvent);
+
+
+}
+
+-keep class android.media.session.MediaSessionManager$RemoteUserInfo {
+    <init>(java.lang.String, int, int);
+
+    public boolean equals(java.lang.Object);
+    public java.lang.String getPackageName();
+    public int getPid();
+    public int getUid();
+
+
 }
 
 -keep class android.media.session.ParcelableVolumeInfo {
@@ -13018,6 +13257,20 @@
 
 
     public static android.os.Parcelable$Creator CREATOR;
+}
+
+-keep class android.media.update.SessionToken2Provider {
+
+    public abstract boolean equals_impl(java.lang.Object);
+    public abstract java.lang.String getId_imp();
+    public abstract java.lang.String getPackageName_impl();
+    public abstract int getType_impl();
+    public abstract int getUid_impl();
+    public abstract int hashCode_impl();
+    public abstract android.os.Bundle toBundle_impl();
+    public abstract java.lang.String toString_impl();
+
+
 }
 
 -keep class android.net.Uri {
@@ -14622,6 +14875,7 @@
     public boolean isPrimaryPhysical();
     public boolean isVisible();
     public boolean isVisibleForRead(int);
+    public boolean isVisibleForUser(int);
     public boolean isVisibleForWrite(int);
     public java.lang.String toString();
     public void writeToParcel(android.os.Parcel, int);
@@ -17925,6 +18179,7 @@
     protected void finalize();
     public int getGenerationId();
     public long getNextFrameNumber();
+    public void hwuiDestroy();
     public boolean isAutoRefreshEnabled();
     public boolean isConsumerRunningBehind();
     public boolean isSharedBufferModeEnabled();
@@ -18249,10 +18504,10 @@
     public void addFocusables(java.util.ArrayList, int);
     public void addFocusables(java.util.ArrayList, int, int);
     public void addFrameMetricsListener(android.view.Window, android.view.Window$OnFrameMetricsAvailableListener, android.os.Handler);
-    public void addKeyFallbackListener(android.view.View$OnKeyFallbackListener);
     public void addKeyboardNavigationClusters(java.util.Collection, int);
     public void addOnAttachStateChangeListener(android.view.View$OnAttachStateChangeListener);
     public void addOnLayoutChangeListener(android.view.View$OnLayoutChangeListener);
+    public void addOnUnhandledKeyEventListener(android.view.View$OnUnhandledKeyEventListener);
     public void addTouchables(java.util.ArrayList);
     public android.view.ViewPropertyAnimator animate();
     public void announceForAccessibility(java.lang.CharSequence);
@@ -18591,6 +18846,7 @@
     public boolean isAutofilled();
     public boolean isClickable();
     public boolean isContextClickable();
+    public static boolean isDefaultFocusHighlightEnabled();
     public boolean isDefaultFocusHighlightNeeded(android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
     public boolean isDirty();
     public boolean isDrawingCacheEnabled();
@@ -18693,7 +18949,6 @@
     public void onInitializeAccessibilityNodeInfo(android.view.accessibility.AccessibilityNodeInfo);
     public void onInitializeAccessibilityNodeInfoInternal(android.view.accessibility.AccessibilityNodeInfo);
     public boolean onKeyDown(int, android.view.KeyEvent);
-    public boolean onKeyFallback(android.view.KeyEvent);
     public boolean onKeyLongPress(int, android.view.KeyEvent);
     public boolean onKeyMultiple(int, int, android.view.KeyEvent);
     public boolean onKeyPreIme(int, android.view.KeyEvent);
@@ -18756,9 +19011,9 @@
     public void releasePointerCapture();
     public boolean removeCallbacks(java.lang.Runnable);
     public void removeFrameMetricsListener(android.view.Window$OnFrameMetricsAvailableListener);
-    public void removeKeyFallbackListener(android.view.View$OnKeyFallbackListener);
     public void removeOnAttachStateChangeListener(android.view.View$OnAttachStateChangeListener);
     public void removeOnLayoutChangeListener(android.view.View$OnLayoutChangeListener);
+    public void removeOnUnhandledKeyEventListener(android.view.View$OnUnhandledKeyEventListener);
     public boolean requestAccessibilityFocus();
     public void requestApplyInsets();
     public void requestFitSystemWindows();
@@ -19315,13 +19570,6 @@
 
 }
 
--keep class android.view.View$OnKeyFallbackListener {
-
-    public abstract boolean onKeyFallback(android.view.View, android.view.KeyEvent);
-
-
-}
-
 -keep class android.view.View$OnKeyListener {
 
     public abstract boolean onKey(android.view.View, int, android.view.KeyEvent);
@@ -19360,6 +19608,13 @@
 -keep class android.view.View$OnTouchListener {
 
     public abstract boolean onTouch(android.view.View, android.view.MotionEvent);
+
+
+}
+
+-keep class android.view.View$OnUnhandledKeyEventListener {
+
+    public abstract boolean onUnhandledKeyEvent(android.view.View, android.view.KeyEvent);
 
 
 }
@@ -20661,6 +20916,8 @@
     public static int TRANSIT_TASK_OPEN_BEHIND;
     public static int TRANSIT_TASK_TO_BACK;
     public static int TRANSIT_TASK_TO_FRONT;
+    public static int TRANSIT_TRANSLUCENT_ACTIVITY_CLOSE;
+    public static int TRANSIT_TRANSLUCENT_ACTIVITY_OPEN;
     public static int TRANSIT_UNSET;
     public static int TRANSIT_WALLPAPER_CLOSE;
     public static int TRANSIT_WALLPAPER_INTRA_CLOSE;
@@ -21709,6 +21966,7 @@
     public static int STATE_FINISHED;
     public static int STATE_SHOWING_SAVE_UI;
     public static int STATE_UNKNOWN;
+    public static int STATE_UNKNOWN_COMPAT_MODE;
 }
 
 -keep class android.view.autofill.AutofillManager$AutofillCallback {
@@ -21790,6 +22048,7 @@
     public abstract void removeClient(android.view.autofill.IAutoFillManagerClient, int);
     public abstract boolean restoreSession(int, android.os.IBinder, android.os.IBinder);
     public abstract void setAuthenticationResult(android.os.Bundle, int, int, int);
+    public abstract void setAutofillFailure(int, java.util.List, int);
     public abstract void setHasCallback(int, int, boolean);
     public abstract void setUserData(android.service.autofill.UserData);
     public abstract int startSession(android.os.IBinder, android.os.IBinder, android.view.autofill.AutofillId, android.graphics.Rect, android.view.autofill.AutofillValue, int, boolean, int, android.content.ComponentName, boolean);
