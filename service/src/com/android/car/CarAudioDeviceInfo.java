@@ -17,7 +17,6 @@ package com.android.car;
 
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
-import android.media.AudioFormat;
 import android.media.AudioGain;
 import android.media.AudioGainConfig;
 import android.media.AudioManager;
@@ -174,21 +173,26 @@ import java.io.PrintWriter;
         return sampleRate;
     }
 
+    /**
+     * Gets the maximum channel count for a given {@link AudioDeviceInfo}
+     *
+     * @param info {@link AudioDeviceInfo} instance to get maximum channel count for
+     * @return Maximum channel count for a given {@link AudioDeviceInfo},
+     * 1 (mono) if there is no channel masks configured
+     */
     private int getMaxChannels(AudioDeviceInfo info) {
+        int numChannels = 1;
         int[] channelMasks = info.getChannelMasks();
         if (channelMasks == null) {
-            return AudioFormat.CHANNEL_OUT_STEREO;
+            return numChannels;
         }
-        int channels = AudioFormat.CHANNEL_OUT_MONO;
-        int numChannels = 1;
         for (int channelMask : channelMasks) {
             int currentNumChannels = Integer.bitCount(channelMask);
             if (currentNumChannels > numChannels) {
                 numChannels = currentNumChannels;
-                channels = channelMask;
             }
         }
-        return channels;
+        return numChannels;
     }
 
     /**
