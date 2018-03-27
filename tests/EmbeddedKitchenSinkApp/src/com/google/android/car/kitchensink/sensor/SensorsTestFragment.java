@@ -58,7 +58,7 @@ public class SensorsTestFragment extends Fragment {
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Car.PERMISSION_MILEAGE,
-        Car.PERMISSION_FUEL_DETAILED,
+        Car.PERMISSION_FUEL,
         Car.PERMISSION_SPEED,
         Car.PERMISSION_VEHICLE_DYNAMICS_STATE
     };

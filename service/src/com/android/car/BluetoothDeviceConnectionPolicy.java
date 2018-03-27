@@ -16,6 +16,11 @@
 
 package com.android.car;
 
+import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES;
+import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES;
+import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICES;
+import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES;
+
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothA2dpSink;
@@ -27,6 +32,11 @@ import android.bluetooth.BluetoothPan;
 import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothUuid;
+import android.car.CarBluetoothManager;
+import android.car.ICarBluetoothUserService;
+import android.car.ICarUserService;
+import android.car.drivingstate.CarUxRestrictions;
+import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
@@ -34,30 +44,19 @@ import android.car.hardware.ICarSensorEventListener;
 import android.car.hardware.cabin.CarCabinManager;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
-import android.car.ICarBluetoothUserService;
-import android.car.ICarUserService;
-
-import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES;
-import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES;
-import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES;
-import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICES;
-
-import android.car.CarBluetoothManager;
-import android.os.ParcelUuid;
-import android.os.Parcelable;
-import android.os.UserHandle;
-import android.provider.Settings;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.ParcelUuid;
+import android.os.Parcelable;
 import android.os.RemoteException;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 
-import java.lang.StringBuilder;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -132,6 +131,9 @@ public class BluetoothDeviceConnectionPolicy {
     // Car Bluetooth Priority Settings Manager
     private final CarBluetoothService mCarBluetoothService;
 
+    // Car UX Restrictions Manager Service to know when user restrictions are in place
+    private final CarUxRestrictionsManagerService mUxRService;
+    private final CarUxRServiceListener mUxRListener;
     // Fast Pair Provider to allow discovery of new phones
     private final FastPairProvider mFastPairProvider;
 
@@ -150,23 +152,25 @@ public class BluetoothDeviceConnectionPolicy {
 
     public static BluetoothDeviceConnectionPolicy create(Context context,
             CarCabinService carCabinService, CarSensorService carSensorService,
-            PerUserCarServiceHelper userServiceHelper, CarBluetoothService bluetoothService) {
+            PerUserCarServiceHelper userServiceHelper, CarUxRestrictionsManagerService uxrService,
+            CarBluetoothService bluetoothService) {
         return new BluetoothDeviceConnectionPolicy(context, carCabinService, carSensorService,
-                userServiceHelper, bluetoothService);
+                userServiceHelper, uxrService, bluetoothService);
     }
 
     private BluetoothDeviceConnectionPolicy(Context context, CarCabinService carCabinService,
             CarSensorService carSensorService, PerUserCarServiceHelper userServiceHelper,
-            CarBluetoothService bluetoothService) {
+            CarUxRestrictionsManagerService uxrService, CarBluetoothService bluetoothService) {
         mContext = context;
         mCarCabinService = carCabinService;
         mCarSensorService = carSensorService;
         mUserServiceHelper = userServiceHelper;
+        mUxRService = uxrService;
         mCarBluetoothService = bluetoothService;
         mCarUserServiceAccessLock = new ReentrantLock();
         mProfilesToConnect = Arrays.asList(
                 BluetoothProfile.HEADSET_CLIENT, BluetoothProfile.A2DP_SINK,
-                BluetoothProfile.PBAP_CLIENT, BluetoothProfile.MAP_CLIENT,BluetoothProfile.PAN);
+                BluetoothProfile.PBAP_CLIENT, BluetoothProfile.MAP_CLIENT, BluetoothProfile.PAN);
         mPrioritiesSupported = Arrays.asList(
                 CarBluetoothManager.BLUETOOTH_DEVICE_CONNECTION_PRIORITY_0,
                 CarBluetoothManager.BLUETOOTH_DEVICE_CONNECTION_PRIORITY_1
@@ -192,7 +196,7 @@ public class BluetoothDeviceConnectionPolicy {
                     mNumSupportedActiveConnections.put(BluetoothProfile.MAP_CLIENT,
                             NUM_SUPPORTED_MSG_CONNECTIONS);
                     break;
-		case BluetoothProfile.PAN:
+                case BluetoothProfile.PAN:
                     mNumSupportedActiveConnections.put(BluetoothProfile.PAN,
                             NUM_SUPPORTED_NETWORK_CONNECTIONS);
                     break;
@@ -201,7 +205,10 @@ public class BluetoothDeviceConnectionPolicy {
 
         // Listen to Cabin events for triggering auto connect
         mCabinEventListener = new CarPropertyListener();
+        // Listen to Sensor Events for triggering auto connect
         mCarSensorEventListener = new CarSensorEventListener();
+        // Listen to UX Restrictions to know when to enable fast-pairing
+        mUxRListener = new CarUxRServiceListener();
         // Listen to User switching to connect to per User device.
         mServiceCallback = new UserServiceConnectionCallback();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -605,8 +612,10 @@ public class BluetoothDeviceConnectionPolicy {
         mCarCabinService.registerListener(mCabinEventListener);
         mCarSensorService.registerOrUpdateSensorListener(
                 CarSensorManager.SENSOR_TYPE_IGNITION_STATE, 0, mCarSensorEventListener);
-        mCarSensorService.registerOrUpdateSensorListener(
-                CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, 0, mCarSensorEventListener);
+        // Get Current restrictions and handle them
+        handleUxRestrictionsChanged(mUxRService.getCurrentUxRestrictions());
+        // Register for future changes to the UxRestrictions
+        mUxRService.registerUxRestrictionsChangeListener(mUxRListener);
         mUserServiceHelper.registerServiceCallback(mServiceCallback);
     }
 
@@ -663,17 +672,27 @@ public class BluetoothDeviceConnectionPolicy {
                     if (event.intValues[0] == CarSensorEvent.IGNITION_STATE_START) {
                         initiateConnection();
                     }
-                } else if (event.sensorType == CarSensorManager.SENSOR_TYPE_DRIVING_STATUS) {
-                    if (DBG) {
-                        Log.d(TAG, "Sensor value : " + event.intValues[0]);
-                    }
-                    if ((event.intValues[0] & CarSensorEvent.DRIVE_STATUS_NO_CONFIG) == CarSensorEvent.DRIVE_STATUS_NO_CONFIG) {
-                        mFastPairProvider.stopAdvertising();
-                    } else {
-                        mFastPairProvider.startAdvertising();
-                    }
                 }
             }
+        }
+    }
+
+    private class CarUxRServiceListener extends ICarUxRestrictionsChangeListener.Stub {
+        @Override
+        public void onUxRestrictionsChanged(CarUxRestrictions restrictions) {
+            handleUxRestrictionsChanged(restrictions);
+        }
+    }
+
+    private void handleUxRestrictionsChanged(CarUxRestrictions restrictions) {
+        if (restrictions == null) {
+            return;
+        }
+        if ((restrictions.getActiveRestrictions() & CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP)
+                == CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP) {
+            mFastPairProvider.stopAdvertising();
+        } else {
+            mFastPairProvider.startAdvertising();
         }
     }
 
@@ -1025,7 +1044,7 @@ public class BluetoothDeviceConnectionPolicy {
      * Creates a device connection for the given profile.
      *
      * @param profile The profile on which the connection is being setup
-     * @param device The device for which the connection is to be made.
+     * @param device  The device for which the connection is to be made.
      * @return true if the connection is setup successfully. False otherwise.
      */
     boolean connectToDeviceOnProfile(Integer profile, BluetoothDevice device) {
@@ -1230,33 +1249,34 @@ public class BluetoothDeviceConnectionPolicy {
         // Normal flow of state machine handles tagging (Primary/Secondary devices) better. So
         // letting statemachine do its job is more desirable.
         if (didConnect && profileToUpdate == BluetoothProfile.HEADSET_CLIENT) {
-           // Unlock the profiles PBAP, MAP in BluetoothDevicesInfo, so that they can be
-           // connected on.
-           for (Integer profile : Arrays.asList(BluetoothProfile.PBAP_CLIENT,
-                   BluetoothProfile.MAP_CLIENT)) {
-               BluetoothDevicesInfo devInfo = mProfileToConnectableDevicesMap.get(profile);
-               if (devInfo == null) {
-                   Log.e(TAG, "Unexpected: No device Queue for this profile: " + profile);
-                   return false;
-               }
-               devInfo.setDeviceAvailableToConnectLocked(true);
-           }
-           boolean newlyPaired = mPairedButUnconnectedDevices.remove(params.getBluetoothDevice());
-           if (newlyPaired) {
-               if (DBG) {
-                   Log.d(TAG, "connect to PBAP/MAP after pairing: ");
-               }
-               mBluetoothAutoConnectStateMachine.sendMessageDelayed(
-                       BluetoothAutoConnectStateMachine.CHECK_CLIENT_PROFILES_AFTER_PAIRING, params,
-                       BluetoothAutoConnectStateMachine.CONNECT_MORE_PROFILES_SHORT_TIMEOUT_MS);
-           } else {
-               if (DBG) {
-                   Log.d(TAG, "connect to PBAP/MAP after disconnect: ");
-               }
-               mBluetoothAutoConnectStateMachine.sendMessageDelayed(
-                       BluetoothAutoConnectStateMachine.CHECK_CLIENT_PROFILES, params,
-                       BluetoothAutoConnectStateMachine.CONNECT_MORE_PROFILES_TIMEOUT_MS);
-           }
+            // Unlock the profiles PBAP, MAP in BluetoothDevicesInfo, so that they can be
+            // connected on.
+            for (Integer profile : Arrays.asList(BluetoothProfile.PBAP_CLIENT,
+                    BluetoothProfile.MAP_CLIENT)) {
+                BluetoothDevicesInfo devInfo = mProfileToConnectableDevicesMap.get(profile);
+                if (devInfo == null) {
+                    Log.e(TAG, "Unexpected: No device Queue for this profile: " + profile);
+                    return false;
+                }
+                devInfo.setDeviceAvailableToConnectLocked(true);
+            }
+            boolean newlyPaired = mPairedButUnconnectedDevices.remove(params.getBluetoothDevice());
+            if (newlyPaired) {
+                if (DBG) {
+                    Log.d(TAG, "connect to PBAP/MAP after pairing: ");
+                }
+                mBluetoothAutoConnectStateMachine.sendMessageDelayed(
+                        BluetoothAutoConnectStateMachine.CHECK_CLIENT_PROFILES_AFTER_PAIRING,
+                        params,
+                        BluetoothAutoConnectStateMachine.CONNECT_MORE_PROFILES_SHORT_TIMEOUT_MS);
+            } else {
+                if (DBG) {
+                    Log.d(TAG, "connect to PBAP/MAP after disconnect: ");
+                }
+                mBluetoothAutoConnectStateMachine.sendMessageDelayed(
+                        BluetoothAutoConnectStateMachine.CHECK_CLIENT_PROFILES, params,
+                        BluetoothAutoConnectStateMachine.CONNECT_MORE_PROFILES_TIMEOUT_MS);
+            }
 
         }
 
@@ -1573,7 +1593,7 @@ public class BluetoothDeviceConnectionPolicy {
      * Bluetooth profile.  If there are tagged devices, update the BluetoothDevicesInfo so the
      * policy can prioritize those devices when making connection attempts.
      *
-     * @param profile - Bluetooth Profile to check
+     * @param profile  - Bluetooth Profile to check
      * @param priority - Priority to check
      */
     private void readAndTagDeviceWithPriorityFromSettings(int profile, int priority) {
