@@ -33,11 +33,6 @@
         android:label="@string/car_permission_label_cabin"
         android:description="@string/car_permission_desc_cabin" />
     <permission
-        android:name="android.car.permission.CAR_CAMERA"
-        android:protectionLevel="system|signature"
-        android:label="@string/car_permission_label_camera"
-        android:description="@string/car_permission_desc_camera" />
-    <permission
         android:name="android.car.permission.CAR_FUEL"
         android:permissionGroup="android.car.permission-group.CAR_MONITORING"
         android:protectionLevel="dangerous"
