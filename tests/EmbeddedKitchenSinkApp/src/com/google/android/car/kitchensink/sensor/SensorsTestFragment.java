@@ -319,6 +319,9 @@ public class SensorsTestFragment extends Fragment {
                     case CarSensorManager.SENSOR_TYPE_EV_BATTERY_CHARGE_RATE:
                         summary.add(getEvChargeRate(event));
                         break;
+                    case CarSensorManager.SENSOR_TYPE_ENGINE_OIL_LEVEL:
+                        summary.add(getEngineOilLevel(event));
+                        break;
                     default:
                         // Should never happen.
                         Log.w(TAG, "Unrecognized event type: " + i);
@@ -485,5 +488,15 @@ public class SensorsTestFragment extends Fragment {
         }
         return getContext().getString(R.string.sensor_ev_charge_rate, getTimestamp(event),
             evChargeRate);
+    }
+
+    private String getEngineOilLevel(CarSensorEvent event) {
+        String engineOilLevel = mNaString;
+        if(event != null) {
+            engineOilLevel = String.valueOf(event.getCarEngineOilLevelData().engineOilLevel);
+        }
+        return  getContext().getString(R.string.sensor_oil_level, getTimestamp(event),
+           engineOilLevel);
+
     }
 }
