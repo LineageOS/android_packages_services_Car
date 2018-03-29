@@ -232,13 +232,6 @@ package android.car.hardware {
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.hardware.CarSensorEvent> CREATOR;
-    field public static final int DRIVE_STATUS_FULLY_RESTRICTED = 31; // 0x1f
-    field public static final int DRIVE_STATUS_LIMIT_MESSAGE_LEN = 16; // 0x10
-    field public static final int DRIVE_STATUS_NO_CONFIG = 8; // 0x8
-    field public static final int DRIVE_STATUS_NO_KEYBOARD_INPUT = 2; // 0x2
-    field public static final int DRIVE_STATUS_NO_VIDEO = 1; // 0x1
-    field public static final int DRIVE_STATUS_NO_VOICE_INPUT = 4; // 0x4
-    field public static final int DRIVE_STATUS_UNRESTRICTED = 0; // 0x0
     field public static final int GEAR_DRIVE = 100; // 0x64
     field public static final int GEAR_EIGHTH = 8; // 0x8
     field public static final int GEAR_FIFTH = 5; // 0x5
@@ -293,7 +286,6 @@ package android.car.hardware {
     field public static final int SENSOR_RATE_UI = 2; // 0x2
     field public static final int SENSOR_TYPE_ABS_ACTIVE = 24; // 0x18
     field public static final int SENSOR_TYPE_CAR_SPEED = 2; // 0x2
-    field public static final int SENSOR_TYPE_DRIVING_STATUS = 11; // 0xb
     field public static final int SENSOR_TYPE_ENGINE_ON = 26; // 0x1a
     field public static final int SENSOR_TYPE_ENVIRONMENT = 12; // 0xc
     field public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE = 31; // 0x1f
