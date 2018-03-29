@@ -33,8 +33,10 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseIntArray;
+
 import com.android.car.CarLog;
 import com.android.car.CarSensorEventFactory;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -68,7 +70,6 @@ public class SensorHalService extends SensorHalServiceBase {
             CarSensorManager.SENSOR_TYPE_GEAR, VehicleProperty.GEAR_SELECTION,
             CarSensorManager.SENSOR_TYPE_NIGHT, VehicleProperty.NIGHT_MODE,
             CarSensorManager.SENSOR_TYPE_PARKING_BRAKE, VehicleProperty.PARKING_BRAKE_ON,
-            CarSensorManager.SENSOR_TYPE_DRIVING_STATUS, VehicleProperty.DRIVING_STATUS,
             CarSensorManager.SENSOR_TYPE_FUEL_LEVEL, VehicleProperty.FUEL_LEVEL,
             CarSensorManager.SENSOR_TYPE_IGNITION_STATE, VehicleProperty.IGNITION_STATE,
             CarSensorManager.SENSOR_TYPE_WHEEL_TICK_DISTANCE, VehicleProperty.WHEEL_TICK,

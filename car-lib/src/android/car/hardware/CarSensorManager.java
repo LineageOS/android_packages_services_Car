@@ -31,7 +31,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 
 import com.android.car.internal.CarRatedListeners;
 import com.android.car.internal.SingleMessageHandler;
@@ -40,7 +39,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -92,11 +90,8 @@ public final class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_NIGHT                       = 9;
     /** @hide */
     public static final int SENSOR_TYPE_RESERVED10                  = 10;
-    /**
-     * Represents the current driving status of car. Different user interaction should be used
-     * depending on the current driving status. Driving status is intValues[0].
-     */
-    public static final int SENSOR_TYPE_DRIVING_STATUS              = 11;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED11                  = 11;
     /**
      * Environment like temperature and pressure.
      */
@@ -209,7 +204,6 @@ public final class CarSensorManager implements CarManagerBase {
         SENSOR_TYPE_PARKING_BRAKE,
         SENSOR_TYPE_GEAR,
         SENSOR_TYPE_NIGHT,
-        SENSOR_TYPE_DRIVING_STATUS,
         SENSOR_TYPE_ENVIRONMENT,
         SENSOR_TYPE_IGNITION_STATE,
         SENSOR_TYPE_WHEEL_TICK_DISTANCE,

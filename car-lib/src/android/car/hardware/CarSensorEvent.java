@@ -92,26 +92,6 @@ public class CarSensorEvent implements Parcelable {
     public static final int IGNITION_STATE_START = 5;
 
     /**
-     * Bitmask of driving restrictions.
-     */
-    /** No restrictions. */
-    public static final int DRIVE_STATUS_UNRESTRICTED = 0;
-    /** No video playback allowed. */
-    public static final int DRIVE_STATUS_NO_VIDEO = 0x1;
-    /** No keyboard or rotary controller input allowed. */
-    public static final int DRIVE_STATUS_NO_KEYBOARD_INPUT = 0x2;
-    /** No voice input allowed. */
-    public static final int DRIVE_STATUS_NO_VOICE_INPUT = 0x4;
-    /** No setup / configuration allowed. */
-    public static final int DRIVE_STATUS_NO_CONFIG = 0x8;
-    /** Limit displayed message length. */
-    public static final int DRIVE_STATUS_LIMIT_MESSAGE_LEN = 0x10;
-    /** represents case where all of the above items are restricted */
-    public static final int DRIVE_STATUS_FULLY_RESTRICTED = DRIVE_STATUS_NO_VIDEO |
-            DRIVE_STATUS_NO_KEYBOARD_INPUT | DRIVE_STATUS_NO_VOICE_INPUT | DRIVE_STATUS_NO_CONFIG |
-            DRIVE_STATUS_LIMIT_MESSAGE_LEN;
-
-    /**
      * Index for {@link CarSensorManager#SENSOR_TYPE_ENVIRONMENT} in floatValues.
      * Temperature in Celsius degrees.
      */
@@ -457,33 +437,6 @@ public class CarSensorEvent implements Parcelable {
         }
         data.timestamp = timestamp;
         data.carSpeed = floatValues[0];
-        return data;
-    }
-
-    /** @hide */
-    public static class DrivingStatusData {
-        public long timestamp;
-        public int status;
-
-        /** @hide */
-        private DrivingStatusData() {};
-    }
-
-    /**
-     * Convenience method for obtaining a {@link DrivingStatusData} object from a CarSensorEvent
-     * object with type {@link CarSensorManager#SENSOR_TYPE_DRIVING_STATUS}.
-     *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
-     * @return a DrivingStatusData object corresponding to the data contained in the CarSensorEvent.
-     * @hide
-     */
-    public DrivingStatusData getDrivingStatusData(DrivingStatusData data) {
-        checkType(CarSensorManager.SENSOR_TYPE_DRIVING_STATUS);
-        if (data == null) {
-            data = new DrivingStatusData();
-        }
-        data.status = intValues[0];
         return data;
     }
 
