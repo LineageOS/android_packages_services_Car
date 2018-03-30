@@ -1,6 +1,8 @@
 <resources>
-    <!-- default activity whitelist which are allowed while driving -->
-    <string name="defauiltActivityWhitelist">com.android.systemui,com.android.car.dialer,com.android.car.hvac,com.android.car.media,com.android.car.radio,com.android.support.car.lenspicker,com.google.android.setupwizard,com.android.car.home,com.android.car.carlauncher,com.google.android.apps.gmm.fishfood,com.google.android.car.bugreport,com.android.contacts,com.google.android.car.kitchensink,com.google.android.googlequicksearchbox,com.android.car.settings,com.android.settings</string>
+    <!-- list of apps and activities to be whitelisted - allowed in any state of driving -->
+    <string name="activityWhitelist">com.android.systemui,com.android.car.dialer,com.android.car.hvac,com.android.car.media,com.android.car.radio,com.android.support.car.lenspicker,com.google.android.setupwizard,com.android.car.home,com.android.car.carlauncher,com.google.android.apps.gmm.fishfood,com.google.android.car.bugreport,com.android.contacts,com.google.android.car.kitchensink,com.google.android.googlequicksearchbox,com.android.car.settings,com.android.settings</string>
+    <!-- list of apps and activities to be blacklisted - not allowed in a restricted state -->
+    <string name="activityBlacklist"></string>
 
     <integer name="ioStatsNumSamplesToStore">15</integer>
     <integer name="maxExcessiveIoSamplesInWindow">11</integer>

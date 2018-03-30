@@ -27,9 +27,7 @@ import android.content.ContextWrapper;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
-import android.hardware.automotive.vehicle.V2_0.VehicleDrivingStatus;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.os.Binder;
@@ -52,7 +50,6 @@ import com.android.car.systeminterface.TimeInterface;
 import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.CarServiceTestApp;
 import com.android.car.test.utils.TemporaryDirectory;
-import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
 import com.android.car.vehiclehal.test.MockedVehicleHal.DefaultPropertyHandler;
 import com.android.car.vehiclehal.test.MockedVehicleHal.StaticPropertyHandler;
@@ -145,10 +142,6 @@ public class MockedCarTestBase {
         releaseRealCarService(getContext());
 
         mMockedVehicleHal = createMockedVehicleHal();
-        addProperty(VehicleProperty.DRIVING_STATUS,
-                VehiclePropValueBuilder.newBuilder(VehicleProperty.DRIVING_STATUS)
-                        .addIntValue(VehicleDrivingStatus.UNRESTRICTED)
-                        .build());
         configureMockedHal();
 
         mFakeSystemInterface = getSystemInterfaceBuilder().build();
