@@ -16,6 +16,7 @@
 package android.car.cluster.sample;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 import static java.lang.Integer.parseInt;
 
 import android.app.ActivityOptions;
@@ -25,7 +26,6 @@ import android.car.cluster.renderer.InstrumentClusterRenderingService;
 import android.car.cluster.renderer.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Binder;
@@ -155,7 +155,6 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
 
     interface Listener {
         void onKeyEvent(KeyEvent event);
-        void onShowToast(String text);
     }
 
     @Override
@@ -171,8 +170,8 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
         }
     }
 
-    private void doKeyEvent(int keyCode) {
-        Log.i(TAG, "doKeyEvent, keyCode: " + keyCode);
+    private void emulateKeyEvent(int keyCode) {
+        Log.i(TAG, "emulateKeyEvent, keyCode: " + keyCode);
         long downTime = SystemClock.uptimeMillis();
         long eventTime = SystemClock.uptimeMillis();
         KeyEvent event = obtainKeyEvent(keyCode, downTime, eventTime, KeyEvent.ACTION_DOWN);
@@ -212,7 +211,7 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
         switch (command) {
             case "injectKey": {
                 if (args.length > 1) {
-                    doKeyEvent(parseInt(args[1]));
+                    emulateKeyEvent(parseInt(args[1]));
                 } else {
                     Log.i(TAG, "Not enough arguments");
                 }
