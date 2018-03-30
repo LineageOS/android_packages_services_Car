@@ -166,6 +166,13 @@
     <string name="tune_left">Tune -</string>
     <string name="music_play">Play</string>
     <string name="music_stop">Stop</string>
+    <string name="steering_wheel">Steering Wheel Buttons:</string>
+    <string name="sw_left">Left</string>
+    <string name="sw_right">Right</string>
+    <string name="sw_up">Up</string>
+    <string name="sw_down">Down</string>
+    <string name="sw_center">Center</string>
+    <string name="sw_back">Back</string>
 
     <!-- power test -->
     <string name="power_get_boot_reason">Get Boot Reason</string>
