@@ -25,8 +25,8 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback;
 import android.car.hardware.hvac.CarHvacManager.PropertyId;
+import android.hardware.automotive.vehicle.V2_0.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaWindow;
-import android.hardware.automotive.vehicle.V2_0.VehicleAreaZone;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
@@ -68,13 +68,13 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         addProperty(VehicleProperty.HVAC_DEFROSTER, handler)
                 .addAreaConfig(VehicleAreaWindow.FRONT_WINDSHIELD, 0, 0);
         addProperty(VehicleProperty.HVAC_FAN_SPEED, handler)
-                .addAreaConfig(VehicleAreaZone.ROW_1_LEFT, 0, 0);
+                .addAreaConfig(VehicleAreaSeat.ROW_1_LEFT, 0, 0);
         addProperty(VehicleProperty.HVAC_TEMPERATURE_SET, handler)
-                .addAreaConfig(VehicleAreaZone.ROW_1_LEFT, 0, 0);
+                .addAreaConfig(VehicleAreaSeat.ROW_1_LEFT, 0, 0);
         addProperty(VehicleProperty.HVAC_TEMPERATURE_CURRENT, handler)
                 .setChangeMode(VehiclePropertyChangeMode.CONTINUOUS)
                 .setAccess(VehiclePropertyAccess.READ)
-                .addAreaConfig(VehicleAreaZone.ROW_1_LEFT|VehicleAreaZone.ROW_1_RIGHT, 0, 0);
+                .addAreaConfig(VehicleAreaSeat.ROW_1_LEFT | VehicleAreaSeat.ROW_1_RIGHT, 0, 0);
     }
 
     @Override
@@ -104,15 +104,15 @@ public class CarHvacManagerTest extends MockedCarTestBase {
     @Test
     public void testHvacFanSpeed() throws Exception {
         mCarHvacManager.setIntProperty(CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT,
-                VehicleAreaZone.ROW_1_LEFT, 15);
+                VehicleAreaSeat.ROW_1_LEFT, 15);
         int speed = mCarHvacManager.getIntProperty(CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT,
-                VehicleAreaZone.ROW_1_LEFT);
+                VehicleAreaSeat.ROW_1_LEFT);
         assertEquals(15, speed);
 
         mCarHvacManager.setIntProperty(CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT,
-                VehicleAreaZone.ROW_1_LEFT, 23);
+                VehicleAreaSeat.ROW_1_LEFT, 23);
         speed = mCarHvacManager.getIntProperty(CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT,
-                VehicleAreaZone.ROW_1_LEFT);
+                VehicleAreaSeat.ROW_1_LEFT);
         assertEquals(23, speed);
     }
 
@@ -120,15 +120,15 @@ public class CarHvacManagerTest extends MockedCarTestBase {
     @Test
     public void testHvacTempSetpoint() throws Exception {
         mCarHvacManager.setFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT,
-                VehicleAreaZone.ROW_1_LEFT, 70);
+                VehicleAreaSeat.ROW_1_LEFT, 70);
         float temp = mCarHvacManager.getFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT,
-                VehicleAreaZone.ROW_1_LEFT);
+                VehicleAreaSeat.ROW_1_LEFT);
         assertEquals(70.0, temp, 0);
 
         mCarHvacManager.setFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT,
-                VehicleAreaZone.ROW_1_LEFT, (float) 65.5);
+                VehicleAreaSeat.ROW_1_LEFT, (float) 65.5);
         temp = mCarHvacManager.getFloatProperty(CarHvacManager.ID_ZONED_TEMP_SETPOINT,
-                VehicleAreaZone.ROW_1_LEFT);
+                VehicleAreaSeat.ROW_1_LEFT);
         assertEquals(65.5, temp, 0);
     }
 
@@ -182,7 +182,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
 
         // Inject a float event and wait for its callback in onPropertySet.
         v = VehiclePropValueBuilder.newBuilder(VehicleProperty.HVAC_TEMPERATURE_CURRENT)
-                .setAreaId(VehicleAreaZone.ROW_1_LEFT|VehicleAreaZone.ROW_1_RIGHT)
+                .setAreaId(VehicleAreaSeat.ROW_1_LEFT | VehicleAreaSeat.ROW_1_RIGHT)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .addFloatValue(67f)
                 .build();
@@ -191,11 +191,11 @@ public class CarHvacManagerTest extends MockedCarTestBase {
 
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertEquals(67, mEventFloatVal, 0);
-        assertEquals(VehicleAreaZone.ROW_1_LEFT|VehicleAreaZone.ROW_1_RIGHT, mEventZoneVal);
+        assertEquals(VehicleAreaSeat.ROW_1_LEFT | VehicleAreaSeat.ROW_1_RIGHT, mEventZoneVal);
 
         // Inject an integer event and wait for its callback in onPropertySet.
         v = VehiclePropValueBuilder.newBuilder(VehicleProperty.HVAC_FAN_SPEED)
-                .setAreaId(VehicleAreaZone.ROW_1_LEFT)
+                .setAreaId(VehicleAreaSeat.ROW_1_LEFT)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .addIntValue(4)
                 .build();
@@ -204,7 +204,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
 
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertEquals(4, mEventIntVal);
-        assertEquals(VehicleAreaZone.ROW_1_LEFT, mEventZoneVal);
+        assertEquals(VehicleAreaSeat.ROW_1_LEFT, mEventZoneVal);
     }
 
     private class HvacPropertyHandler implements VehicleHalPropertyHandler {

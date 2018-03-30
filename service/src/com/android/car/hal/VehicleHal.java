@@ -19,6 +19,7 @@ package com.android.car.hal;
 import static com.android.car.CarServiceUtils.toByteArray;
 import static com.android.car.CarServiceUtils.toFloatArray;
 import static com.android.car.CarServiceUtils.toIntArray;
+
 import static java.lang.Integer.toHexString;
 
 import android.annotation.CheckResult;
@@ -33,7 +34,6 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
-
 import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -42,7 +42,6 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
-import com.android.car.internal.FeatureConfiguration;
 import com.android.internal.annotations.VisibleForTesting;
 
 import com.google.android.collect.Lists;
@@ -73,7 +72,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private final SensorHalService mSensorHal;
     private final InfoHalService mInfoHal;
     private final CabinHalService mCabinHal;
-    private final RadioHalService mRadioHal;
     private final PowerHalService mPowerHal;
     private final HvacHalService mHvacHal;
     private final InputHalService mInputHal;
@@ -103,7 +101,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mSensorHal = new SensorHalService(this);
         mInfoHal = new InfoHalService(this);
         mCabinHal = new CabinHalService(this);
-        mRadioHal = new RadioHalService(this);
         mHvacHal = new HvacHalService(this);
         mInputHal = new InputHalService(this);
         mVendorExtensionHal = new VendorExtensionHalService(this);
@@ -113,7 +110,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
                 mSensorHal,
                 mInfoHal,
                 mCabinHal,
-                mRadioHal,
                 mHvacHal,
                 mInputHal,
                 mVendorExtensionHal,
@@ -127,14 +123,13 @@ public class VehicleHal extends IVehicleCallback.Stub {
     @VisibleForTesting
     public VehicleHal(PowerHalService powerHal, SensorHalService sensorHal, InfoHalService infoHal,
             CabinHalService cabinHal, DiagnosticHalService diagnosticHal,
-            RadioHalService radioHal, HvacHalService hvacHal, HalClient halClient) {
+            HvacHalService hvacHal, HalClient halClient) {
         mHandlerThread = null;
         mPowerHal = powerHal;
         mSensorHal = sensorHal;
         mInfoHal = infoHal;
         mCabinHal = cabinHal;
         mDiagnosticHal = diagnosticHal;
-        mRadioHal = radioHal;
         mHvacHal = hvacHal;
         mInputHal = null;
         mVendorExtensionHal = null;
@@ -226,10 +221,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
 
     public DiagnosticHalService getDiagnosticHal() { return mDiagnosticHal; }
 
-    public RadioHalService getRadioHal() {
-        return mRadioHal;
-    }
-
     public PowerHalService getPowerHal() {
         return mPowerHal;
     }
@@ -262,7 +253,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
      */
     public void subscribeProperty(HalServiceBase service, int property)
             throws IllegalArgumentException {
-        subscribeProperty(service, property, 0f, SubscribeFlags.DEFAULT);
+        subscribeProperty(service, property, 0f, SubscribeFlags.EVENTS_FROM_CAR);
     }
 
     /**
@@ -272,7 +263,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
      */
     public void subscribeProperty(HalServiceBase service, int property, float sampleRateHz)
             throws IllegalArgumentException {
-        subscribeProperty(service, property, sampleRateHz, SubscribeFlags.DEFAULT);
+        subscribeProperty(service, property, sampleRateHz, SubscribeFlags.EVENTS_FROM_CAR);
     }
 
     /**

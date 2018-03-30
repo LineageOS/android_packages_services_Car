@@ -65,10 +65,10 @@ public final class CarHvacManager implements CarManagerBase {
      * Positive values indicate heating.
      * Negative values indicate cooling
      */
-    public static final int ID_STEERING_WHEEL_TEMP = 0x0002;
+    public static final int ID_STEERING_WHEEL_HEAT = 0x0002;
     /**
      * Outside air temperature, float type
-     * Value is in degrees of ID_TEMPERATURE_UNITS
+     * Value is in degrees Celsius
      */
     public static final int ID_OUTSIDE_AIR_TEMP = 0x0003;
     /**
@@ -76,7 +76,7 @@ public final class CarHvacManager implements CarManagerBase {
      *  0x30 = Celsius
      *  0x31 = Fahrenheit
      */
-    public static final int ID_TEMPERATURE_UNITS = 0x0004;
+    public static final int ID_TEMPERATURE_DISPLAY_UNITS = 0x0004;
 
 
     /**
@@ -176,9 +176,9 @@ public final class CarHvacManager implements CarManagerBase {
     /** @hide */
     @IntDef({
             ID_MIRROR_DEFROSTER_ON,
-            ID_STEERING_WHEEL_TEMP,
+            ID_STEERING_WHEEL_HEAT,
             ID_OUTSIDE_AIR_TEMP,
-            ID_TEMPERATURE_UNITS,
+            ID_TEMPERATURE_DISPLAY_UNITS,
             ID_ZONED_TEMP_SETPOINT,
             ID_ZONED_TEMP_ACTUAL,
             ID_ZONED_FAN_SPEED_SETPOINT,

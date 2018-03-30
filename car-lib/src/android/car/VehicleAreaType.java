@@ -22,9 +22,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Represents vehicle area such as window, door, seat, zone, etc.
+ * Represents vehicle area such as window, door, seat, etc.
  * See also {@link android.car.VehicleDoor}, {@link android.car.VehicleSeat},
- * {@link android.car.VehicleWindow}, {@link android.car.VehicleZone}
+ * {@link android.car.VehicleWindow},
  *
  * @hide
  */
@@ -32,8 +32,6 @@ import java.lang.annotation.RetentionPolicy;
 public final class VehicleAreaType {
     /** Used for global properties */
     public static final int VEHICLE_AREA_TYPE_NONE = 0;
-
-    public static final int VEHICLE_AREA_TYPE_ZONE = 1;
     public static final int VEHICLE_AREA_TYPE_WINDOW = 2;
     public static final int VEHICLE_AREA_TYPE_SEAT = 3;
     public static final int VEHICLE_AREA_TYPE_DOOR = 4;
@@ -43,7 +41,6 @@ public final class VehicleAreaType {
     /** @hide */
     @IntDef({
         VEHICLE_AREA_TYPE_NONE,
-        VEHICLE_AREA_TYPE_ZONE,
         VEHICLE_AREA_TYPE_WINDOW,
         VEHICLE_AREA_TYPE_SEAT,
         VEHICLE_AREA_TYPE_DOOR,

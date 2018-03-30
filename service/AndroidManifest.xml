@@ -73,11 +73,6 @@
         android:label="@string/car_permission_label_vendor_extension"
         android:description="@string/car_permission_desc_vendor_extension" />
     <permission
-        android:name="android.car.permission.CAR_RADIO"
-        android:protectionLevel="system|signature"
-        android:label="@string/car_permission_label_radio"
-        android:description="@string/car_permission_desc_radio" />
-    <permission
         android:name="android.car.permission.CAR_PROJECTION"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_projection"
