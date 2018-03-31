@@ -54,7 +54,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     static final int DEFAULT_MAX_CUMULATIVE_ITEMS = 50;
     static final int DEFAULT_MAX_CONTENT_DEPTH = 3;
 
-    static final int UX_RESTRICTIONS_UNKNOWN = -1;
     private final Context mContext;
     private final CarDrivingStateService mDrivingStateService;
     private final CarSensorService mCarSensorService;
@@ -71,10 +70,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         mDrivingStateService = drvService;
         mCarSensorService = sensorService;
         mHelper = new CarUxRestrictionsServiceHelper(mContext, R.xml.car_ux_restrictions_map);
-        // Unrestricted until driving state information is received. During boot up, if driving
-        // state information is not available due to the unavailability of data from VHAL, default
-        // mode is unrestricted.
-        mCurrentUxRestrictions = createUxRestrictionsEvent(
+        // Unrestricted until driving state information is received. During boot up, we don't want
+        // everything to be blocked until data is available from CarSensorManager.  If we start
+        // driving and we don't get speed or gear information, we have bigger problems.
+        mCurrentUxRestrictions = createUxRestrictionsEvent(false,
                 CarUxRestrictions.UX_RESTRICTIONS_BASELINE);
     }
 
@@ -229,6 +228,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     public int getMaxContentDepth() {
         return mHelper.getMaxContentDepth();
     }
+
     /**
      * Class that holds onto client related information - listener interface, process that hosts the
      * binder object etc.
@@ -285,6 +285,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     @Override
     public void dump(PrintWriter writer) {
+        writer.println(
+                "Requires DO? " + mCurrentUxRestrictions.isRequiresDistractionOptimization());
+        writer.println("Current UXR: " + mCurrentUxRestrictions.getActiveRestrictions());
         mHelper.dump(writer);
     }
 
@@ -374,60 +377,64 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      */
     private synchronized void handleDispatchUxRestrictions(@CarDrivingState int currentDrivingState,
             float speed) {
-        int uxRestrictions;
+        CarUxRestrictions uxRestrictions;
         // Get UX restrictions from the parsed configuration XML or fall back to defaults if not
         // available.
         if (mFallbackToDefaults) {
             uxRestrictions = getDefaultRestrictions(currentDrivingState);
         } else {
             uxRestrictions = mHelper.getUxRestrictions(currentDrivingState, speed);
-        }
-        // If the driving state changed to "unknown", restrictions will also change to fully
-        // restricted.
-        if (uxRestrictions == UX_RESTRICTIONS_UNKNOWN) {
-            Log.e(TAG, "Couldn't map " + currentDrivingState
-                    + " to a UX restriction.  Falling back to Fully restricted");
-            uxRestrictions = CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
+
         }
 
         if (DBG) {
-            Log.d(TAG, "UxR old->new: " + mCurrentUxRestrictions.getActiveRestrictions() +
-                    " -> " + uxRestrictions);
+            Log.d(TAG, String.format("DO old->new: %b -> %b",
+                    mCurrentUxRestrictions.isRequiresDistractionOptimization(),
+                    uxRestrictions.isRequiresDistractionOptimization()));
+            Log.d(TAG, String.format("UxR old->new: 0x%x -> 0x%x",
+                    mCurrentUxRestrictions.getActiveRestrictions(),
+                    uxRestrictions.getActiveRestrictions()));
         }
 
-        CarUxRestrictions newRestrictions = createUxRestrictionsEvent(uxRestrictions);
-        if (mCurrentUxRestrictions.isSameRestrictions(newRestrictions)) {
+        if (mCurrentUxRestrictions.isSameRestrictions(uxRestrictions)) {
             // Ignore dispatching if the restrictions has not changed.
             return;
         }
-        mCurrentUxRestrictions = newRestrictions;
+        mCurrentUxRestrictions = uxRestrictions;
         if (DBG) {
             Log.d(TAG, "dispatching to " + mUxRClients.size() + " clients");
         }
         for (UxRestrictionsClient client : mUxRClients) {
-            client.dispatchEventToClients(newRestrictions);
+            client.dispatchEventToClients(uxRestrictions);
         }
     }
 
-    @CarUxRestrictionsInfo
-    private int getDefaultRestrictions(@CarDrivingState int drivingState) {
-        int uxRestrictions;
+    private CarUxRestrictions getDefaultRestrictions(@CarDrivingState int drivingState) {
+        int restrictions;
+        boolean requiresOpt = false;
         switch (drivingState) {
             case CarDrivingStateEvent.DRIVING_STATE_PARKED:
-                uxRestrictions = CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
+                restrictions = CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
                 break;
             case CarDrivingStateEvent.DRIVING_STATE_IDLING:
+                restrictions = CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
+                requiresOpt = true;
+                break;
             case CarDrivingStateEvent.DRIVING_STATE_MOVING:
             default:
-                uxRestrictions = CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
+                restrictions = CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
+                requiresOpt = true;
         }
-        return uxRestrictions;
+        return createUxRestrictionsEvent(requiresOpt, restrictions);
     }
 
-    private static CarUxRestrictions createUxRestrictionsEvent(@CarUxRestrictionsInfo int uxr) {
-        boolean requiresOpt = true;
-        if (uxr == CarUxRestrictions.UX_RESTRICTIONS_BASELINE) {
-            requiresOpt = false;
+    static CarUxRestrictions createUxRestrictionsEvent(boolean requiresOpt,
+            @CarUxRestrictionsInfo int uxr) {
+        // In case the UXR is not baseline, set requiresDistractionOptimization to true since it
+        // doesn't make sense to have an active non baseline restrictions without
+        // requiresDistractionOptimization set to true.
+        if (uxr != CarUxRestrictions.UX_RESTRICTIONS_BASELINE) {
+            requiresOpt = true;
         }
         return new CarUxRestrictions(requiresOpt, uxr, SystemClock.elapsedRealtimeNanos());
     }
