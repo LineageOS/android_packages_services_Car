@@ -59,7 +59,13 @@
 
     <!-- 1.b. UX restriction types-->
     <declare-styleable name="UxRestrictions_Restrictions">
-        <!-- This has to align with the UX  Restrictions defined in
+        <!-- This corresponds to what CarUxRestrictions#mRequiresDistractionOptimization needs to
+         be set to. This means that apps will have to follow the general baseline
+         distraction optimization rules defined in the Driver Distraction Guidelines.  -->
+        <attr name="requiresDistractionOptimization" format="boolean"/>
+        <!-- These are the additional UX restrictions that OEMs can configure in addition to
+        the baseline restrictions defined in the above requiresDistractionOptimization.
+        The values here have to align with the UX  Restrictions defined in
         packages/services/Car/car-lib/src/android/car/drivingstate/CarUxRestrictions.java-->
         <attr name="uxr">
             <flag name="baseline" value="0"/>

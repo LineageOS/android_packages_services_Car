@@ -16,17 +16,19 @@
 
 package com.android.car;
 
-import static com.android.car.CarUxRestrictionsManagerService.UX_RESTRICTIONS_UNKNOWN;
+import static com.android.car.CarUxRestrictionsManagerService.createUxRestrictionsEvent;
 
+import android.annotation.Nullable;
 import android.annotation.XmlRes;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
-import android.car.drivingstate.CarUxRestrictions.CarUxRestrictionsInfo;
+import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Pair;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -49,6 +51,7 @@ import java.util.Map;
  */
 /* package */ class CarUxRestrictionsServiceHelper {
     private static final String TAG = "UxRServiceHelper";
+    private static final int UX_RESTRICTIONS_UNKNOWN = -1;
     // XML tags to parse
     private static final String ROOT_ELEMENT = "UxRestrictions";
     private static final String RESTRICTION_MAPPING = "RestrictionMapping";
@@ -167,15 +170,16 @@ import java.util.Map;
                 }
 
                 // 3. Parse the restrictions for this driving state
-                int restrictions = parseRestrictions(parser, attrs);
+                Pair<Boolean, Integer> restrictions = parseRestrictions(parser, attrs);
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Map " + drivingState + " : " + restrictions);
                 }
 
                 // Update the hashmap if the driving state and restrictions info are valid.
                 if (drivingState != CarDrivingStateEvent.DRIVING_STATE_UNKNOWN
-                        && restrictions != UX_RESTRICTIONS_UNKNOWN) {
-                    addToRestrictionsMap(drivingState, minSpeed, maxSpeed, restrictions);
+                        && restrictions != null) {
+                    addToRestrictionsMap(drivingState, minSpeed, maxSpeed, restrictions.first,
+                            restrictions.second);
                 }
             }
             parser.next();
@@ -187,12 +191,14 @@ import java.util.Map;
      * Parses the <restrictions> tag nested with the <drivingState>.  This provides the restrictions
      * for the enclosing driving state.
      */
-    private int parseRestrictions(XmlResourceParser parser, AttributeSet attrs)
+    @Nullable
+    private Pair<Boolean, Integer> parseRestrictions(XmlResourceParser parser, AttributeSet attrs)
             throws IOException, XmlPullParserException {
         int restrictions = UX_RESTRICTIONS_UNKNOWN;
+        boolean requiresOpt = true;
         if (parser == null || attrs == null) {
             Log.e(TAG, "Invalid Arguments");
-            return restrictions;
+            return null;
         }
 
         while (RESTRICTIONS.equals(parser.getName())
@@ -200,18 +206,19 @@ import java.util.Map;
             TypedArray a = mContext.getResources().obtainAttributes(attrs,
                     R.styleable.UxRestrictions_Restrictions);
             restrictions = a.getInt(
-                    R.styleable.UxRestrictions_Restrictions_uxr,
-                    -1);
+                    R.styleable.UxRestrictions_Restrictions_uxr, UX_RESTRICTIONS_UNKNOWN);
+            requiresOpt = a.getBoolean(
+                    R.styleable.UxRestrictions_Restrictions_requiresDistractionOptimization, true);
             a.recycle();
             parser.next();
         }
-        return restrictions;
+        return new Pair<>(requiresOpt, restrictions);
     }
 
     private void addToRestrictionsMap(int drivingState, float minSpeed, float maxSpeed,
-            int restrictions) {
+            boolean requiresOpt, int restrictions) {
         RestrictionsPerSpeedRange res = new RestrictionsPerSpeedRange(minSpeed, maxSpeed,
-                restrictions);
+                restrictions, requiresOpt);
         RestrictionsInfo restrictionsList = mRestrictionsMap.get(drivingState);
         if (restrictionsList == null) {
             restrictionsList = new RestrictionsInfo();
@@ -305,7 +312,8 @@ import java.util.Map;
                         + list.mRestrictionsList.size());
                 for (RestrictionsPerSpeedRange r : list.mRestrictionsList) {
                     writer.println(
-                            "Speed Range: " + r.mMinSpeed + "-" + r.mMaxSpeed + " Restrictions: 0x"
+                            "Speed Range: " + r.mMinSpeed + "-" + r.mMaxSpeed + " Requires DO? "
+                                    + r.mRequiresDistractionOptimization + " Restrictions: 0x"
                                     + Integer.toHexString(r.mRestrictions));
                     writer.println("===========================================");
                 }
@@ -337,22 +345,31 @@ import java.util.Map;
      * @param currentSpeed speed of the vehicle
      * @return UX restrictions for the given driving state and speed.
      */
-    @CarUxRestrictionsInfo
-    public int getUxRestrictions(@CarDrivingState int drivingState, float currentSpeed) {
-        int restrictions = UX_RESTRICTIONS_UNKNOWN;
+    public CarUxRestrictions getUxRestrictions(@CarDrivingState int drivingState,
+            float currentSpeed) {
+        RestrictionsPerSpeedRange restrictions;
         RestrictionsInfo restrictionsList = mRestrictionsMap.get(drivingState);
         // If the XML hasn't been parsed or if the given driving state is not supported in the
-        // XML, return error.
+        // XML, return fully restricted.
         if (restrictionsList == null || restrictionsList.mRestrictionsList == null
                 || restrictionsList.mRestrictionsList.isEmpty()) {
-            return restrictions;
+            return CarUxRestrictionsManagerService.createUxRestrictionsEvent(true,
+                    CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
         }
         // For Parked and Idling, the restrictions list will have only one item, since multiple
         // speed ranges don't make sense in those driving states.
         if (restrictionsList.mRestrictionsList.size() == 1) {
-            return restrictionsList.mRestrictionsList.get(0).mRestrictions;
+            restrictions = restrictionsList.mRestrictionsList.get(0);
+        } else {
+            restrictions = restrictionsList.findRestrictions(currentSpeed);
         }
-        return restrictionsList.findRestrictions(currentSpeed);
+        if (restrictions != null) {
+            return createUxRestrictionsEvent(restrictions.mRequiresDistractionOptimization,
+                    restrictions.mRestrictions);
+        } else {
+            return CarUxRestrictionsManagerService.createUxRestrictionsEvent(true,
+                    CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
+        }
     }
 
     /**
@@ -403,11 +420,14 @@ import java.util.Map;
         final float mMinSpeed;
         final float mMaxSpeed;
         final int mRestrictions;
+        final boolean mRequiresDistractionOptimization;
 
-        RestrictionsPerSpeedRange(float minSpeed, float maxSpeed, int restrictions) {
+        RestrictionsPerSpeedRange(float minSpeed, float maxSpeed, int restrictions,
+                boolean requiresOpt) {
             mMinSpeed = minSpeed;
             mMaxSpeed = maxSpeed;
             mRestrictions = restrictions;
+            mRequiresDistractionOptimization = requiresOpt;
         }
 
         /**
@@ -442,14 +462,14 @@ import java.util.Map;
          * Find the restrictions for the given speed.  It finds the range that the given speed falls
          * in and gets the restrictions for that speed.
          */
-        @CarUxRestrictionsInfo
-        int findRestrictions(float speed) {
+        @Nullable
+        RestrictionsPerSpeedRange findRestrictions(float speed) {
             for (RestrictionsPerSpeedRange r : mRestrictionsList) {
                 if (r.includes(speed)) {
-                    return r.mRestrictions;
+                    return r;
                 }
             }
-            return UX_RESTRICTIONS_UNKNOWN;
+            return null;
         }
     }
 }

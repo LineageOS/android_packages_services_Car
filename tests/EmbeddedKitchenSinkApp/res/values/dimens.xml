@@ -33,6 +33,7 @@
     <dimen name="car_body1_size">40sp</dimen>
     <dimen name="car_body2_size">32sp</dimen>
     <dimen name="car_action1_size">32sp</dimen>
+    <dimen name="car_button_text_size">32sp</dimen>
 
     <!-- Common icon size for car app -->
     <dimen name="car_icon_size">56dp</dimen>

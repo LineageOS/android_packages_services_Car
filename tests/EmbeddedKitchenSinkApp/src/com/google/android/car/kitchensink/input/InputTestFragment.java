@@ -15,26 +15,38 @@
  */
 package com.google.android.car.kitchensink.input;
 
+import static android.hardware.automotive.vehicle.V2_0.VehicleDisplay.INSTRUMENT_CLUSTER;
+
 import android.annotation.Nullable;
 import android.annotation.StringRes;
-import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
+import android.hardware.automotive.vehicle.V2_0.IVehicle;
+import android.hardware.automotive.vehicle.V2_0.VehicleArea;
+import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyStatus;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.android.car.kitchensink.CarEmulator;
 import com.google.android.car.kitchensink.R;
+import com.google.android.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Test input event handling to system.
@@ -48,13 +60,36 @@ public class InputTestFragment extends Fragment {
 
     private final List<View> mButtons = new ArrayList<>();
 
-    private CarEmulator mCarEmulator;
+    //  This is special property available only in emulated VHAL implementation.
+    private static final int sGenerateFakeDataControllingProperty =
+            0x0666 | VehiclePropertyGroup.VENDOR | VehicleArea.GLOBAL | VehiclePropertyType.MIXED;
+    private static final int sKeyPressCommand = 2;
+
+    private IVehicle mVehicle;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        try {
+            mVehicle = IVehicle.getService();
+        } catch (NoSuchElementException ex) {
+            throw new RuntimeException("Couldn't connect to " + IVehicle.kInterfaceName, ex);
+        } catch (RemoteException e) {
+            throw new RuntimeException("Failed to connect to IVehicle");
+        }
+        Log.d(TAG, "Connected to IVehicle service: " + mVehicle);
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.input_test, container, false);
+
+        TextView steeringWheelLabel = new TextView(getActivity() /*context*/);
+        steeringWheelLabel.setText(R.string.steering_wheel);
+        steeringWheelLabel.setTextSize(getResources().getDimension(R.dimen.car_title2_size));
 
         Collections.addAll(mButtons,
                 BREAK_LINE,
@@ -73,49 +108,59 @@ public class InputTestFragment extends Fragment {
                 createButton(R.string.tune_left, KeyEvent.KEYCODE_CHANNEL_DOWN),
                 BREAK_LINE,
                 createButton(R.string.call_send, KeyEvent.KEYCODE_CALL),
-                createButton(R.string.call_end, KeyEvent.KEYCODE_ENDCALL)
-                );
+                createButton(R.string.call_end, KeyEvent.KEYCODE_ENDCALL),
+                BREAK_LINE,
+                steeringWheelLabel,
+                BREAK_LINE,
+                createButton(R.string.sw_left, KeyEvent.KEYCODE_DPAD_LEFT, INSTRUMENT_CLUSTER),
+                createButton(R.string.sw_right, KeyEvent.KEYCODE_DPAD_RIGHT,
+                        INSTRUMENT_CLUSTER),
+                createButton(R.string.sw_up, KeyEvent.KEYCODE_DPAD_UP, INSTRUMENT_CLUSTER),
+                createButton(R.string.sw_down, KeyEvent.KEYCODE_DPAD_DOWN, INSTRUMENT_CLUSTER),
+                createButton(R.string.sw_center, KeyEvent.KEYCODE_DPAD_CENTER,
+                        INSTRUMENT_CLUSTER),
+                createButton(R.string.sw_back, KeyEvent.KEYCODE_BACK, INSTRUMENT_CLUSTER)
+        );
 
-        mCarEmulator = CarEmulator.create(getContext());
-        addButtonsToPanel((LinearLayout) view.findViewById(R.id.input_buttons), mButtons);
+        addButtonsToPanel(view.findViewById(R.id.input_buttons), mButtons);
 
         return view;
     }
 
     private Button createButton(@StringRes int textResId, int keyCode) {
+        return createButton(textResId, keyCode, VehicleDisplay.MAIN);
+    }
+
+    private Button createButton(@StringRes int textResId, int keyCode, int targetDisplay) {
         Button button = new Button(getContext());
         button.setText(getContext().getString(textResId));
-        button.setTextSize(32f);
-        // Single touch + key event does not work as touch is happening in other window
-        // at the same time. But long press will work.
-        button.setOnTouchListener((v, event) -> {
-            handleTouchEvent(event, keyCode);
-            return true;
-        });
-
+        button.setTextSize(getResources().getDimension(R.dimen.car_button_text_size));
+        button.setOnClickListener(v -> onButtonClick(keyCode, targetDisplay));
         return button;
     }
 
-    private void handleTouchEvent(MotionEvent event, int keyCode) {
-        int androidAction = event.getActionMasked();
-        Log.i(TAG, "handleTouchEvent, action:" + androidAction + ",keyCode:" + keyCode);
+    private void onButtonClick(int keyCode, int targetDisplay) {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = sGenerateFakeDataControllingProperty;
+        prop.value.int32Values.addAll(Lists.newArrayList(
+                sKeyPressCommand, VehicleProperty.HW_KEY_INPUT, keyCode, targetDisplay));
+        int status;
+        try {
+            status = mVehicle.set(prop);
+        } catch (RemoteException e) {
+            throw new RuntimeException("Failed to inject key press");
+        }
 
-        switch (androidAction) {
-            case MotionEvent.ACTION_DOWN:
-                mCarEmulator.injectKey(keyCode, VehicleHwKeyInputAction.ACTION_DOWN);
-                break;
-            case MotionEvent.ACTION_UP:
-                mCarEmulator.injectKey(keyCode, VehicleHwKeyInputAction.ACTION_UP);
-                break;
-            default:
-                Log.w(TAG, "Unhandled touch action: " + androidAction);
-                break;
+        if (VehiclePropertyStatus.AVAILABLE != status) {
+            Toast.makeText(getContext(), "Failed to inject key event, status:" + status,
+                    Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        mButtons.clear();
     }
 
     private void addButtonsToPanel(LinearLayout root, List<View> buttons) {
@@ -127,6 +172,7 @@ public class InputTestFragment extends Fragment {
                 root.addView(panel);
             } else {
                 panel.addView(button);
+                panel.setPadding(0, 10, 10, 0);
             }
         }
     }

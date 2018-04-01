@@ -114,6 +114,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_ASSISTANT, ContextNumber.VOICE_COMMAND);
     }
 
+    private final Object mImplLock = new Object();
+
     private final Context mContext;
     private final TelephonyManager mTelephonyManager;
     private final AudioManager mAudioManager;
@@ -178,23 +180,27 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      */
     @Override
     public void init() {
-        if (!mUseDynamicRouting) {
-            Log.i(CarLog.TAG_AUDIO, "Audio dynamic routing not configured, run in legacy mode");
-            return;
-        }
+        synchronized (mImplLock) {
+            if (!mUseDynamicRouting) {
+                Log.i(CarLog.TAG_AUDIO, "Audio dynamic routing not configured, run in legacy mode");
+                return;
+            }
 
-        setupDynamicRouting();
-        setupVolumeGroups();
+            setupDynamicRouting();
+            setupVolumeGroups();
+        }
     }
 
     @Override
     public void release() {
-        if (mUseDynamicRouting && mAudioPolicy != null) {
-            mAudioManager.unregisterAudioPolicyAsync(mAudioPolicy);
-            mAudioPolicy = null;
-        }
+        synchronized (mImplLock) {
+            if (mUseDynamicRouting && mAudioPolicy != null) {
+                mAudioManager.unregisterAudioPolicyAsync(mAudioPolicy);
+                mAudioPolicy = null;
+            }
 
-        mVolumeCallbackContainer.clear();
+            mVolumeCallbackContainer.clear();
+        }
     }
 
     @Override
@@ -215,25 +221,27 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      */
     @Override
     public void setGroupVolume(int groupId, int index, int flags) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
-        for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
-                mVolumeCallbackContainer.getInterfaces()) {
-            try {
-                callback.binderInterface.onGroupVolumeChanged(groupId);
-            } catch (RemoteException e) {
-                Log.e(CarLog.TAG_AUDIO, "Failed to callback onGroupVolumeChanged", e);
+            for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
+                    mVolumeCallbackContainer.getInterfaces()) {
+                try {
+                    callback.binderInterface.onGroupVolumeChanged(groupId);
+                } catch (RemoteException e) {
+                    Log.e(CarLog.TAG_AUDIO, "Failed to callback onGroupVolumeChanged", e);
+                }
             }
-        }
 
-        // For legacy stream type based volume control
-        if (!mUseDynamicRouting) {
-            mAudioManager.setStreamVolume(STREAM_TYPES[groupId], index, flags);
-            return;
-        }
+            // For legacy stream type based volume control
+            if (!mUseDynamicRouting) {
+                mAudioManager.setStreamVolume(STREAM_TYPES[groupId], index, flags);
+                return;
+            }
 
-        CarVolumeGroup group = getCarVolumeGroup(groupId);
-        group.setCurrentGainIndex(index);
+            CarVolumeGroup group = getCarVolumeGroup(groupId);
+            group.setCurrentGainIndex(index);
+        }
     }
 
     private void setMasterMute(boolean mute, int flags) {
@@ -253,15 +261,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      */
     @Override
     public int getGroupMaxVolume(int groupId) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
-        // For legacy stream type based volume control
-        if (!mUseDynamicRouting) {
-            return mAudioManager.getStreamMaxVolume(STREAM_TYPES[groupId]);
+            // For legacy stream type based volume control
+            if (!mUseDynamicRouting) {
+                return mAudioManager.getStreamMaxVolume(STREAM_TYPES[groupId]);
+            }
+
+            CarVolumeGroup group = getCarVolumeGroup(groupId);
+            return group.getMaxGainIndex();
         }
-
-        CarVolumeGroup group = getCarVolumeGroup(groupId);
-        return group.getMaxGainIndex();
     }
 
     /**
@@ -269,15 +279,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      */
     @Override
     public int getGroupMinVolume(int groupId) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
-        // For legacy stream type based volume control
-        if (!mUseDynamicRouting) {
-            return mAudioManager.getStreamMinVolume(STREAM_TYPES[groupId]);
+            // For legacy stream type based volume control
+            if (!mUseDynamicRouting) {
+                return mAudioManager.getStreamMinVolume(STREAM_TYPES[groupId]);
+            }
+
+            CarVolumeGroup group = getCarVolumeGroup(groupId);
+            return group.getMinGainIndex();
         }
-
-        CarVolumeGroup group = getCarVolumeGroup(groupId);
-        return group.getMinGainIndex();
     }
 
     /**
@@ -285,15 +297,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      */
     @Override
     public int getGroupVolume(int groupId) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
-        // For legacy stream type based volume control
-        if (!mUseDynamicRouting) {
-            return mAudioManager.getStreamVolume(STREAM_TYPES[groupId]);
+            // For legacy stream type based volume control
+            if (!mUseDynamicRouting) {
+                return mAudioManager.getStreamVolume(STREAM_TYPES[groupId]);
+            }
+
+            CarVolumeGroup group = getCarVolumeGroup(groupId);
+            return group.getCurrentGainIndex();
         }
-
-        CarVolumeGroup group = getCarVolumeGroup(groupId);
-        return group.getCurrentGainIndex();
     }
 
     private CarVolumeGroup getCarVolumeGroup(int groupId) {
@@ -470,67 +484,88 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @Override
     public void setFadeTowardFront(float value) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        final IAudioControl audioControlHal = getAudioControl();
-        if (audioControlHal != null) {
-            try {
-                audioControlHal.setFadeTowardFront(value);
-            } catch (RemoteException e) {
-                Log.e(CarLog.TAG_AUDIO, "setFadeTowardFront failed", e);
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+            final IAudioControl audioControlHal = getAudioControl();
+            if (audioControlHal != null) {
+                try {
+                    audioControlHal.setFadeTowardFront(value);
+                } catch (RemoteException e) {
+                    Log.e(CarLog.TAG_AUDIO, "setFadeTowardFront failed", e);
+                }
             }
         }
     }
 
     @Override
     public void setBalanceTowardRight(float value) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        final IAudioControl audioControlHal = getAudioControl();
-        if (audioControlHal != null) {
-            try {
-                audioControlHal.setBalanceTowardRight(value);
-            } catch (RemoteException e) {
-                Log.e(CarLog.TAG_AUDIO, "setBalanceTowardRight failed", e);
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+            final IAudioControl audioControlHal = getAudioControl();
+            if (audioControlHal != null) {
+                try {
+                    audioControlHal.setBalanceTowardRight(value);
+                } catch (RemoteException e) {
+                    Log.e(CarLog.TAG_AUDIO, "setBalanceTowardRight failed", e);
+                }
             }
         }
     }
 
     @Override
     public String[] getExternalSources() {
-        List<String> sourceNames = new ArrayList<>();
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+            List<String> sourceNames = new ArrayList<>();
 
-        AudioDeviceInfo[] devices = mAudioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
-        if (devices.length == 0) {
-            Log.w(CarLog.TAG_AUDIO, "getExternalSources, no input devices found.");
-        }
-
-        // Collect the list of non-microphone input ports
-        for (AudioDeviceInfo info: devices) {
-            switch (info.getType()) {
-                // TODO:  Can we trim this set down?  Espcially duplicates that FM vs FM_TUNER?
-                case AudioDeviceInfo.TYPE_FM:
-                case AudioDeviceInfo.TYPE_FM_TUNER:
-                case AudioDeviceInfo.TYPE_TV_TUNER:
-                case AudioDeviceInfo.TYPE_HDMI:
-                case AudioDeviceInfo.TYPE_AUX_LINE:
-                case AudioDeviceInfo.TYPE_LINE_ANALOG:
-                case AudioDeviceInfo.TYPE_LINE_DIGITAL:
-                case AudioDeviceInfo.TYPE_USB_ACCESSORY:
-                case AudioDeviceInfo.TYPE_USB_DEVICE:
-                case AudioDeviceInfo.TYPE_USB_HEADSET:
-                case AudioDeviceInfo.TYPE_IP:
-                case AudioDeviceInfo.TYPE_BUS:
-                    sourceNames.add(info.getProductName().toString());
+            AudioDeviceInfo[] devices = mAudioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
+            if (devices.length == 0) {
+                Log.w(CarLog.TAG_AUDIO, "getExternalSources, no input devices found.");
             }
-        }
 
-        // Return our list of accumulated device names (or an empty array if we found nothing)
-        return sourceNames.toArray(new String[sourceNames.size()]);
+            // Collect the list of non-microphone input ports
+            for (AudioDeviceInfo info: devices) {
+                switch (info.getType()) {
+                    // TODO:  Can we trim this set down?  Espcially duplicates that FM vs FM_TUNER?
+                    case AudioDeviceInfo.TYPE_FM:
+                    case AudioDeviceInfo.TYPE_FM_TUNER:
+                    case AudioDeviceInfo.TYPE_TV_TUNER:
+                    case AudioDeviceInfo.TYPE_HDMI:
+                    case AudioDeviceInfo.TYPE_AUX_LINE:
+                    case AudioDeviceInfo.TYPE_LINE_ANALOG:
+                    case AudioDeviceInfo.TYPE_LINE_DIGITAL:
+                    case AudioDeviceInfo.TYPE_USB_ACCESSORY:
+                    case AudioDeviceInfo.TYPE_USB_DEVICE:
+                    case AudioDeviceInfo.TYPE_USB_HEADSET:
+                    case AudioDeviceInfo.TYPE_IP:
+                    case AudioDeviceInfo.TYPE_BUS:
+                        sourceNames.add(info.getProductName().toString());
+                }
+            }
+
+            // Return our list of accumulated device names (or an empty array if we found nothing)
+            return sourceNames.toArray(new String[sourceNames.size()]);
+        }
     }
 
     @Override
     public CarAudioPatchHandle createAudioPatch(String sourceName, int usage, int gainInMillibels) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+            return createAudioPatchLocked(sourceName, usage, gainInMillibels);
+        }
+    }
 
+    @Override
+    public void releaseAudioPatch(CarAudioPatchHandle carPatch) {
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+            releaseAudioPatchLocked(carPatch);
+        }
+    }
+
+    private CarAudioPatchHandle createAudioPatchLocked(
+            String sourceName, int usage, int gainInMillibels) {
         // Find the named source port
         AudioDeviceInfo sourcePortInfo = null;
         AudioDeviceInfo[] deviceInfos = mAudioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
@@ -590,10 +625,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return new CarAudioPatchHandle(patch[0]);
     }
 
-    @Override
-    public void releaseAudioPatch(CarAudioPatchHandle carPatch) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
-
+    private void releaseAudioPatchLocked(CarAudioPatchHandle carPatch) {
         // NOTE:  AudioPolicyService::removeNotificationClient will take care of this automatically
         //        if the client that created a patch quits.
 
@@ -622,52 +654,58 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @Override
     public int getVolumeGroupCount() {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
-        // For legacy stream type based volume control
-        if (!mUseDynamicRouting) return STREAM_TYPES.length;
+            // For legacy stream type based volume control
+            if (!mUseDynamicRouting) return STREAM_TYPES.length;
 
-        return mCarVolumeGroups == null ? 0 : mCarVolumeGroups.length;
+            return mCarVolumeGroups == null ? 0 : mCarVolumeGroups.length;
+        }
     }
 
     @Override
     public int getVolumeGroupIdForUsage(@AudioAttributes.AttributeUsage int usage) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
-        if (mCarVolumeGroups == null) {
-            return -1;
-        }
+            if (mCarVolumeGroups == null) {
+                return -1;
+            }
 
-        for (int i = 0; i < mCarVolumeGroups.length; i++) {
-            int[] contexts = mCarVolumeGroups[i].getContexts();
-            for (int context : contexts) {
-                if (USAGE_TO_CONTEXT.get(usage) == context) {
-                    return i;
+            for (int i = 0; i < mCarVolumeGroups.length; i++) {
+                int[] contexts = mCarVolumeGroups[i].getContexts();
+                for (int context : contexts) {
+                    if (USAGE_TO_CONTEXT.get(usage) == context) {
+                        return i;
+                    }
                 }
             }
+            return -1;
         }
-        return -1;
     }
 
     @Override
     public @NonNull int[] getUsagesForVolumeGroupId(int groupId) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
-        // For legacy stream type based volume control
-        if (!mUseDynamicRouting) {
-            return new int[] { STREAM_TYPE_USAGES[groupId] };
-        }
-
-        CarVolumeGroup group = getCarVolumeGroup(groupId);
-        Set<Integer> contexts =
-                Arrays.stream(group.getContexts()).boxed().collect(Collectors.toSet());
-        final List<Integer> usages = new ArrayList<>();
-        for (int i = 0; i < USAGE_TO_CONTEXT.size(); i++) {
-            if (contexts.contains(USAGE_TO_CONTEXT.valueAt(i))) {
-                usages.add(USAGE_TO_CONTEXT.keyAt(i));
+            // For legacy stream type based volume control
+            if (!mUseDynamicRouting) {
+                return new int[] { STREAM_TYPE_USAGES[groupId] };
             }
+
+            CarVolumeGroup group = getCarVolumeGroup(groupId);
+            Set<Integer> contexts =
+                    Arrays.stream(group.getContexts()).boxed().collect(Collectors.toSet());
+            final List<Integer> usages = new ArrayList<>();
+            for (int i = 0; i < USAGE_TO_CONTEXT.size(); i++) {
+                if (contexts.contains(USAGE_TO_CONTEXT.valueAt(i))) {
+                    usages.add(USAGE_TO_CONTEXT.keyAt(i));
+                }
+            }
+            return usages.stream().mapToInt(i -> i).toArray();
         }
-        return usages.stream().mapToInt(i -> i).toArray();
     }
 
     /**
@@ -675,9 +713,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      */
     @Override
     public void registerVolumeCallback(@NonNull IBinder binder) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
-        mVolumeCallbackContainer.addBinder(ICarVolumeCallback.Stub.asInterface(binder));
+            mVolumeCallbackContainer.addBinder(ICarVolumeCallback.Stub.asInterface(binder));
+        }
     }
 
     /**
@@ -685,9 +725,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      */
     @Override
     public void unregisterVolumeCallback(@NonNull IBinder binder) {
-        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        synchronized (mImplLock) {
+            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
-        mVolumeCallbackContainer.removeBinder(ICarVolumeCallback.Stub.asInterface(binder));
+            mVolumeCallbackContainer.removeBinder(ICarVolumeCallback.Stub.asInterface(binder));
+        }
     }
 
     private void enforcePermission(String permissionName) {
