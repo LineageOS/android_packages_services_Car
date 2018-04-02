@@ -35,7 +35,9 @@ LOCAL_DEX_PREOPT := false
 
 LOCAL_USE_AAPT2 := true
 
-LOCAL_PRIVILEGED_MODULE := false
+LOCAL_PRIVILEGED_MODULE := true
+
+LOCAL_CERTIFICATE := platform
 
 LOCAL_STATIC_JAVA_LIBRARIES += vehicle-hal-support-lib
 
