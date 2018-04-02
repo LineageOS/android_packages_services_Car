@@ -37,7 +37,7 @@ LOCAL_MANIFEST_FILE := AndroidManifest.xml
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 LOCAL_JAVA_LIBRARIES += android.car\
-                        android-support-annotations
+                        androidx.annotation_annotation
 
 LOCAL_PROGUARD_ENABLED := custom optimization obfuscation
 LOCAL_PROGUARD_FLAGS := -dontwarn
@@ -67,7 +67,7 @@ LOCAL_MANIFEST_FILE := AndroidManifest.xml
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 LOCAL_JAVA_LIBRARIES += android.car\
-                        android-support-annotations
+                        androidx.annotation_annotation
 
 LOCAL_PROGUARD_ENABLED := disabled
 include $(BUILD_STATIC_JAVA_LIBRARY)
@@ -88,7 +88,7 @@ LOCAL_PRIVATE_PLATFORM_APIS := true
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
 
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-annotations
+LOCAL_STATIC_JAVA_LIBRARIES += androidx.annotation_annotation
 
 LOCAL_JAVA_LIBRARIES += android.car
 
@@ -116,7 +116,7 @@ LOCAL_DROIDDOC_SOURCE_PATH := $(LOCAL_PATH)/src
 
 LOCAL_JAVA_LIBRARIES := \
     android.car \
-    android-support-annotations
+    androidx.annotation_annotation
 
 LOCAL_MODULE := android.support.car
 LOCAL_MODULE_TAGS := optional

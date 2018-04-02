@@ -31,8 +31,9 @@ import android.os.IBinder;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.service.trust.TrustAgentService;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.concurrent.TimeUnit;
 

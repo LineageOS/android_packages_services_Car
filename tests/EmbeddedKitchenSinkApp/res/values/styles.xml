@@ -16,6 +16,16 @@
 */
 -->
 <resources>
+    <style name="TextAppearance.Car.Body1.SingleLine" parent="TextAppearance.Car.Body1">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">marquee</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body2.SingleLine" parent="TextAppearance.Car.Body2">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
     <style name="OverviewButton">
         <item name="android:layout_width">@dimen/overview_icon_size</item>
         <item name="android:layout_height">@dimen/overview_icon_size</item>

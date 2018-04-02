@@ -16,11 +16,11 @@
 
 package android.support.car.hardware;
 
-import android.os.Bundle;
-import android.support.annotation.RestrictTo;
-import java.util.ArrayList;
+import static androidx.annotation.RestrictTo.Scope.GROUP_ID;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import android.os.Bundle;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * A CarSensorConfig object corresponds to a single sensor type coming from the car.

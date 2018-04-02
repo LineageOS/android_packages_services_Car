@@ -40,8 +40,8 @@ LOCAL_PRIVILEGED_MODULE := true
 LOCAL_STATIC_JAVA_LIBRARIES += vehicle-hal-support-lib
 
 LOCAL_STATIC_ANDROID_LIBRARIES := \
-    android-support-v4 \
-    android-support-v7-recyclerview
+    androidx.legacy_legacy-support-v4 \
+    androidx.recyclerview_recyclerview
 
 LOCAL_JAVA_LIBRARIES += android.car
 
