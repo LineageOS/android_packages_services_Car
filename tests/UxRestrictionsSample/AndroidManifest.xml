@@ -14,11 +14,9 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.car.uxr.sample">
+    package="com.google.android.car.uxr.sample" android:sharedUserId="android.uid.system">
 
-    <uses-sdk
-        android:minSdkVersion="20"
-        android:targetSdkVersion="20" />
+    <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE" />
 
     <application android:label="UxRestrictions Sample">
         <activity android:name=".MainActivity">
