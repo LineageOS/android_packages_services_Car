@@ -67,7 +67,6 @@ public class ICarImpl extends ICar.Stub {
     private final CarProjectionService mCarProjectionService;
     private final CarCabinService mCarCabinService;
     private final CarHvacService mCarHvacService;
-    private final CarRadioService mCarRadioService;
     private final CarNightService mCarNightService;
     private final AppFocusService mAppFocusService;
     private final GarageModeService mGarageModeService;
@@ -122,7 +121,6 @@ public class ICarImpl extends ICar.Stub {
         mCarAudioService = new CarAudioService(serviceContext);
         mCarCabinService = new CarCabinService(serviceContext, mHal.getCabinHal());
         mCarHvacService = new CarHvacService(serviceContext, mHal.getHvacHal());
-        mCarRadioService = new CarRadioService(serviceContext, mHal.getRadioHal());
         mCarNightService = new CarNightService(serviceContext, mCarSensorService);
         mInstrumentClusterService = new InstrumentClusterService(serviceContext,
                 mAppFocusService, mCarInputService);
@@ -155,7 +153,6 @@ public class ICarImpl extends ICar.Stub {
                 mCarAudioService,
                 mCarCabinService,
                 mCarHvacService,
-                mCarRadioService,
                 mCarNightService,
                 mInstrumentClusterService,
                 mCarProjectionService,
@@ -235,9 +232,6 @@ public class ICarImpl extends ICar.Stub {
             case Car.POWER_SERVICE:
                 assertPowerPermission(mContext);
                 return mCarPowerManagementService;
-            case Car.RADIO_SERVICE:
-                assertRadioPermission(mContext);
-                return mCarRadioService;
             case Car.CAR_NAVIGATION_SERVICE:
                 assertNavigationManagerPermission(mContext);
                 IInstrumentClusterNavigation navService =
@@ -320,10 +314,6 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertPowerPermission(Context context) {
         assertPermission(context, Car.PERMISSION_CAR_POWER);
-    }
-
-    private static void assertRadioPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_CAR_RADIO);
     }
 
     public static void assertProjectionPermission(Context context) {

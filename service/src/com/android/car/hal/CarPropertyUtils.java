@@ -16,6 +16,7 @@
 package com.android.car.hal;
 
 import static com.android.car.CarServiceUtils.toByteArray;
+
 import static java.lang.Integer.toHexString;
 
 import android.car.VehicleAreaType;
@@ -147,8 +148,6 @@ import java.util.List;
         switch (halArea) {
             case VehicleArea.GLOBAL:
                 return VehicleAreaType.VEHICLE_AREA_TYPE_NONE;
-            case VehicleArea.ZONE:
-                return VehicleAreaType.VEHICLE_AREA_TYPE_ZONE;
             case VehicleArea.SEAT:
                 return VehicleAreaType.VEHICLE_AREA_TYPE_SEAT;
             case VehicleArea.DOOR:

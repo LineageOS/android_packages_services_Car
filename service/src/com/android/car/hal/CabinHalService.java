@@ -137,12 +137,6 @@ public class CabinHalService extends PropertyHalServiceBase {
             CarCabinManager.ID_WINDOW_MOVE,
             VehicleProperty.WINDOW_MOVE,
 
-            CarCabinManager.ID_WINDOW_VENT_POS,
-            VehicleProperty.WINDOW_VENT_POS,
-
-            CarCabinManager.ID_WINDOW_VENT_MOVE,
-            VehicleProperty.WINDOW_VENT_MOVE,
-
             CarCabinManager.ID_WINDOW_LOCK,
             VehicleProperty.WINDOW_LOCK
     );

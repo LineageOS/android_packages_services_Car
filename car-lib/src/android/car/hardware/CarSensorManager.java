@@ -137,10 +137,8 @@ public final class CarSensorManager implements CarManagerBase {
      * This requires {@link Car#PERMISSION_VEHICLE_DYNAMICS_STATE} permission.
      */
     public static final int SENSOR_TYPE_TRACTION_CONTROL_ACTIVE     = 25;
-    /**
-     * Set to true if the engine is on.
-     */
-    public static final int SENSOR_TYPE_ENGINE_ON                   = 26;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED26                  = 26;
     /**
      * Set to true if the fuel door is open.
      */
@@ -209,7 +207,6 @@ public final class CarSensorManager implements CarManagerBase {
         SENSOR_TYPE_WHEEL_TICK_DISTANCE,
         SENSOR_TYPE_ABS_ACTIVE,
         SENSOR_TYPE_TRACTION_CONTROL_ACTIVE,
-        SENSOR_TYPE_ENGINE_ON,
         SENSOR_TYPE_FUEL_DOOR_OPEN,
         SENSOR_TYPE_EV_BATTERY_LEVEL,
         SENSOR_TYPE_EV_CHARGE_PORT_OPEN,

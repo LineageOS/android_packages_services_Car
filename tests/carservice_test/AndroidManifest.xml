@@ -19,7 +19,6 @@
 
     <uses-permission android:name="android.Manifest.permission.MODIFY_AUDIO_ROUTING" />
     <uses-permission android:name="android.car.permission.ADJUST_CAR_CLIMATE" />
-    <uses-permission android:name="android.car.permission.CAR_RADIO" />
     <uses-permission android:name="android.car.permission.ADJUST_CAR_CABIN" />
     <uses-permission android:name="android.car.permission.CAR_FUEL" />
     <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING" />
