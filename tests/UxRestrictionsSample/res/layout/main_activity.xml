@@ -30,6 +30,18 @@
             android:orientation="vertical"
             android:gravity="center">
             <TextView
+                android:id="@+id/driving_state"
+                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/do_status"
+                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:layout_height="wrap_content" />
+            <TextView
                 android:id="@+id/uxr_status"
                 android:layout_gravity="center"
                 android:layout_width="match_parent"
