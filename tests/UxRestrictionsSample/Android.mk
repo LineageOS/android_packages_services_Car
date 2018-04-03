@@ -42,12 +42,9 @@ LOCAL_CERTIFICATE := platform
 LOCAL_STATIC_JAVA_LIBRARIES += vehicle-hal-support-lib
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
-    android-support-car \
-    android-support-design \
+    $(ANDROID_SUPPORT_CAR_TARGETS) \
     android-support-v4 \
-    android-support-v7-appcompat \
-    android-support-v7-cardview \
-    android-support-v7-recyclerview
+    android-support-v7-appcompat
 
 LOCAL_JAVA_LIBRARIES += android.car
 
