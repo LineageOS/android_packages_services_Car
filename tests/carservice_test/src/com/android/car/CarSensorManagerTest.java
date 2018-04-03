@@ -303,7 +303,6 @@ public class CarSensorManagerTest extends MockedCarTestBase {
                 VehicleGear.GEAR_DRIVE, CarSensorEvent.GEAR_DRIVE,
                 VehicleGear.GEAR_NEUTRAL, CarSensorEvent.GEAR_NEUTRAL,
                 VehicleGear.GEAR_REVERSE, CarSensorEvent.GEAR_REVERSE,
-                VehicleGear.GEAR_LOW, CarSensorEvent.GEAR_FIRST,
                 VehicleGear.GEAR_1, CarSensorEvent.GEAR_FIRST,
                 VehicleGear.GEAR_2, CarSensorEvent.GEAR_SECOND,
                 VehicleGear.GEAR_3, CarSensorEvent.GEAR_THIRD,

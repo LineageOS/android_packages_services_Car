@@ -20,17 +20,19 @@ import android.annotation.Nullable;
 import android.car.diagnostic.CarDiagnosticEvent;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.hardware.CarSensorManager;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_0.DiagnosticFloatSensorIndex;
 import android.hardware.automotive.vehicle.V2_0.DiagnosticIntegerSensorIndex;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.util.Log;
 import android.util.SparseArray;
+
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
+
 import java.io.PrintWriter;
 import java.util.BitSet;
 import java.util.LinkedList;
@@ -252,7 +254,6 @@ public class DiagnosticHalService extends SensorHalServiceBase {
         //TODO(egranata): tweak this for diagnostics
         switch (prop.changeMode) {
             case VehiclePropertyChangeMode.ON_CHANGE:
-            case VehiclePropertyChangeMode.ON_SET:
                 return 0;
         }
         float rate = 1.0f;

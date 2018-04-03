@@ -26,12 +26,13 @@ public class VehicleWindowTest extends AndroidTestCase {
     public void testMatchWithVehicleHal() {
         assertEquals(VehicleAreaWindow.FRONT_WINDSHIELD, VehicleWindow.WINDOW_FRONT_WINDSHIELD);
         assertEquals(VehicleAreaWindow.REAR_WINDSHIELD, VehicleWindow.WINDOW_REAR_WINDSHIELD);
-        assertEquals(VehicleAreaWindow.ROOF_TOP, VehicleWindow.WINDOW_ROOF_TOP);
         assertEquals(VehicleAreaWindow.ROW_1_LEFT, VehicleWindow.WINDOW_ROW_1_LEFT);
         assertEquals(VehicleAreaWindow.ROW_1_RIGHT, VehicleWindow.WINDOW_ROW_1_RIGHT);
         assertEquals(VehicleAreaWindow.ROW_2_LEFT, VehicleWindow.WINDOW_ROW_2_LEFT);
         assertEquals(VehicleAreaWindow.ROW_2_RIGHT, VehicleWindow.WINDOW_ROW_2_RIGHT);
         assertEquals(VehicleAreaWindow.ROW_3_LEFT, VehicleWindow.WINDOW_ROW_3_LEFT);
         assertEquals(VehicleAreaWindow.ROW_3_RIGHT, VehicleWindow.WINDOW_ROW_3_RIGHT);
+        assertEquals(VehicleAreaWindow.ROOF_TOP_1, VehicleWindow.WINDOW_ROOF_TOP_1);
+        assertEquals(VehicleAreaWindow.ROOF_TOP_2, VehicleWindow.WINDOW_ROOF_TOP_2);
     }
 }
