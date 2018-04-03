@@ -26,13 +26,14 @@ import android.annotation.SystemApi;
 public final class VehicleWindow {
     public static final int WINDOW_FRONT_WINDSHIELD = 0x0001;
     public static final int WINDOW_REAR_WINDSHIELD = 0x0002;
-    public static final int WINDOW_ROOF_TOP = 0x0004;
     public static final int WINDOW_ROW_1_LEFT = 0x0010;
-    public static final int WINDOW_ROW_1_RIGHT = 0x0020;
+    public static final int WINDOW_ROW_1_RIGHT = 0x0040;
     public static final int WINDOW_ROW_2_LEFT = 0x0100;
-    public static final int WINDOW_ROW_2_RIGHT = 0x0200;
+    public static final int WINDOW_ROW_2_RIGHT = 0x0400;
     public static final int WINDOW_ROW_3_LEFT = 0x1000;
-    public static final int WINDOW_ROW_3_RIGHT = 0x2000;
+    public static final int WINDOW_ROW_3_RIGHT = 0x4000;
+    public static final int WINDOW_ROOF_TOP_1 = 0x10000;
+    public static final int WINDOW_ROOF_TOP_2 = 0x20000;
 
     private VehicleWindow() {}
 }

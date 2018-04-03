@@ -286,7 +286,6 @@ package android.car.hardware {
     field public static final int SENSOR_RATE_UI = 2; // 0x2
     field public static final int SENSOR_TYPE_ABS_ACTIVE = 24; // 0x18
     field public static final int SENSOR_TYPE_CAR_SPEED = 2; // 0x2
-    field public static final int SENSOR_TYPE_ENGINE_ON = 26; // 0x1a
     field public static final int SENSOR_TYPE_ENVIRONMENT = 12; // 0xc
     field public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE = 31; // 0x1f
     field public static final int SENSOR_TYPE_EV_BATTERY_LEVEL = 28; // 0x1c

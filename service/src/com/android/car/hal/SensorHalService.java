@@ -76,7 +76,6 @@ public class SensorHalService extends SensorHalServiceBase {
             CarSensorManager.SENSOR_TYPE_ABS_ACTIVE, VehicleProperty.ABS_ACTIVE,
             CarSensorManager.SENSOR_TYPE_TRACTION_CONTROL_ACTIVE,
             VehicleProperty.TRACTION_CONTROL_ACTIVE,
-            CarSensorManager.SENSOR_TYPE_ENGINE_ON, VehicleProperty.ENGINE_ON,
             CarSensorManager.SENSOR_TYPE_FUEL_DOOR_OPEN, VehicleProperty.FUEL_DOOR_OPEN,
             CarSensorManager.SENSOR_TYPE_EV_BATTERY_LEVEL, VehicleProperty.EV_BATTERY_LEVEL,
             CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_OPEN, VehicleProperty.EV_CHARGE_PORT_OPEN,
@@ -92,7 +91,6 @@ public class SensorHalService extends SensorHalServiceBase {
         VehicleGear.GEAR_REVERSE, CarSensorEvent.GEAR_REVERSE,
         VehicleGear.GEAR_PARK, CarSensorEvent.GEAR_PARK,
         VehicleGear.GEAR_DRIVE, CarSensorEvent.GEAR_DRIVE,
-        VehicleGear.GEAR_LOW, CarSensorEvent.GEAR_FIRST, // Also GEAR_1 - the value is the same.
         VehicleGear.GEAR_2, CarSensorEvent.GEAR_SECOND,
         VehicleGear.GEAR_3, CarSensorEvent.GEAR_THIRD,
         VehicleGear.GEAR_4, CarSensorEvent.GEAR_FOURTH,
@@ -250,7 +248,6 @@ public class SensorHalService extends SensorHalServiceBase {
     protected float fixSamplingRateForProperty(VehiclePropConfig prop, int carSensorManagerRate) {
         switch (prop.changeMode) {
             case VehiclePropertyChangeMode.ON_CHANGE:
-            case VehiclePropertyChangeMode.ON_SET:
                 return 0;
         }
         float rate = 1.0f;

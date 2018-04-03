@@ -13,7 +13,6 @@ package android.car {
     field public static final java.lang.String PERMISSION_CAR_ENGINE_DETAILED = "android.car.permission.CAR_ENGINE_DETAILED";
     field public static final java.lang.String PERMISSION_CAR_POWER = "android.car.permission.CAR_POWER";
     field public static final java.lang.String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
-    field public static final deprecated java.lang.String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
     field public static final java.lang.String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
     field public static final java.lang.String PERMISSION_CONTROL_APP_BLOCKING = "android.car.permission.CONTROL_APP_BLOCKING";
     field public static final deprecated java.lang.String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
@@ -23,7 +22,6 @@ package android.car {
     field public static final java.lang.String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
     field public static final java.lang.String POWER_SERVICE = "power";
     field public static final java.lang.String PROJECTION_SERVICE = "projection";
-    field public static final deprecated java.lang.String RADIO_SERVICE = "radio";
     field public static final java.lang.String STORAGE_MONITORING_SERVICE = "storage_monitoring";
     field public static final java.lang.String TEST_SERVICE = "car-service-test";
     field public static final java.lang.String VENDOR_EXTENSION_SERVICE = "vendor_extension";
@@ -50,7 +48,6 @@ package android.car {
     field public static final int VEHICLE_AREA_TYPE_NONE = 0; // 0x0
     field public static final int VEHICLE_AREA_TYPE_SEAT = 3; // 0x3
     field public static final int VEHICLE_AREA_TYPE_WINDOW = 2; // 0x2
-    field public static final int VEHICLE_AREA_TYPE_ZONE = 1; // 0x1
   }
 
   public final class VehicleDoor {
@@ -85,33 +82,14 @@ package android.car {
   public final class VehicleWindow {
     field public static final int WINDOW_FRONT_WINDSHIELD = 1; // 0x1
     field public static final int WINDOW_REAR_WINDSHIELD = 2; // 0x2
-    field public static final int WINDOW_ROOF_TOP = 4; // 0x4
+    field public static final int WINDOW_ROOF_TOP_1 = 65536; // 0x10000
+    field public static final int WINDOW_ROOF_TOP_2 = 131072; // 0x20000
     field public static final int WINDOW_ROW_1_LEFT = 16; // 0x10
-    field public static final int WINDOW_ROW_1_RIGHT = 32; // 0x20
+    field public static final int WINDOW_ROW_1_RIGHT = 64; // 0x40
     field public static final int WINDOW_ROW_2_LEFT = 256; // 0x100
-    field public static final int WINDOW_ROW_2_RIGHT = 512; // 0x200
+    field public static final int WINDOW_ROW_2_RIGHT = 1024; // 0x400
     field public static final int WINDOW_ROW_3_LEFT = 4096; // 0x1000
-    field public static final int WINDOW_ROW_3_RIGHT = 8192; // 0x2000
-  }
-
-  public final class VehicleZone {
-    field public static final int ZONE_ALL = -2147483648; // 0x80000000
-    field public static final int ZONE_ROW_1_ALL = 8; // 0x8
-    field public static final int ZONE_ROW_1_CENTER = 2; // 0x2
-    field public static final int ZONE_ROW_1_LEFT = 1; // 0x1
-    field public static final int ZONE_ROW_1_RIGHT = 4; // 0x4
-    field public static final int ZONE_ROW_2_ALL = 128; // 0x80
-    field public static final int ZONE_ROW_2_CENTER = 32; // 0x20
-    field public static final int ZONE_ROW_2_LEFT = 16; // 0x10
-    field public static final int ZONE_ROW_2_RIGHT = 64; // 0x40
-    field public static final int ZONE_ROW_3_ALL = 2048; // 0x800
-    field public static final int ZONE_ROW_3_CENTER = 512; // 0x200
-    field public static final int ZONE_ROW_3_LEFT = 256; // 0x100
-    field public static final int ZONE_ROW_3_RIGHT = 1024; // 0x400
-    field public static final int ZONE_ROW_4_ALL = 32768; // 0x8000
-    field public static final int ZONE_ROW_4_CENTER = 8192; // 0x2000
-    field public static final int ZONE_ROW_4_LEFT = 4096; // 0x1000
-    field public static final int ZONE_ROW_4_RIGHT = 16384; // 0x4000
+    field public static final int WINDOW_ROW_3_RIGHT = 16384; // 0x4000
   }
 
 }
@@ -592,11 +570,9 @@ package android.car.hardware.cabin {
     field public static final int ID_SEAT_MEMORY_SET = 8194; // 0x2002
     field public static final int ID_SEAT_TILT_MOVE = 8209; // 0x2011
     field public static final int ID_SEAT_TILT_POS = 8208; // 0x2010
-    field public static final int ID_WINDOW_LOCK = 12293; // 0x3005
+    field public static final int ID_WINDOW_LOCK = 12291; // 0x3003
     field public static final int ID_WINDOW_MOVE = 12290; // 0x3002
     field public static final int ID_WINDOW_POS = 12289; // 0x3001
-    field public static final int ID_WINDOW_VENT_MOVE = 12292; // 0x3004
-    field public static final int ID_WINDOW_VENT_POS = 12291; // 0x3003
   }
 
   public static abstract interface CarCabinManager.CarCabinEventCallback {
@@ -625,8 +601,8 @@ package android.car.hardware.hvac {
     field public static final int FAN_DIRECTION_FLOOR = 2; // 0x2
     field public static final int ID_MIRROR_DEFROSTER_ON = 1; // 0x1
     field public static final int ID_OUTSIDE_AIR_TEMP = 3; // 0x3
-    field public static final int ID_STEERING_WHEEL_TEMP = 2; // 0x2
-    field public static final int ID_TEMPERATURE_UNITS = 4; // 0x4
+    field public static final int ID_STEERING_WHEEL_HEAT = 2; // 0x2
+    field public static final int ID_TEMPERATURE_DISPLAY_UNITS = 4; // 0x4
     field public static final int ID_WINDOW_DEFROSTER_ON = 20481; // 0x5001
     field public static final int ID_ZONED_AC_ON = 16393; // 0x4009
     field public static final int ID_ZONED_AIR_RECIRCULATION_ON = 16395; // 0x400b
@@ -668,43 +644,6 @@ package android.car.hardware.power {
     field public static final int SHUTDOWN_ENTER = 1; // 0x1
     field public static final int SUSPEND_ENTER = 2; // 0x2
     field public static final int SUSPEND_EXIT = 3; // 0x3
-  }
-
-}
-
-package android.car.hardware.radio {
-
-  public deprecated class CarRadioEvent implements android.os.Parcelable {
-    ctor public CarRadioEvent(int, android.car.hardware.radio.CarRadioPreset);
-    method public int describeContents();
-    method public int getEventType();
-    method public android.car.hardware.radio.CarRadioPreset getPreset();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.hardware.radio.CarRadioEvent> CREATOR;
-    field public static final int RADIO_PRESET = 0; // 0x0
-  }
-
-  public final deprecated class CarRadioManager {
-    method public android.car.hardware.radio.CarRadioPreset getPreset(int) throws android.car.CarNotConnectedException;
-    method public int getPresetCount() throws android.car.CarNotConnectedException;
-    method public synchronized void registerListener(android.car.hardware.radio.CarRadioManager.CarRadioEventListener) throws android.car.CarNotConnectedException;
-    method public boolean setPreset(android.car.hardware.radio.CarRadioPreset) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public synchronized void unregisterListener();
-  }
-
-  public static abstract deprecated interface CarRadioManager.CarRadioEventListener {
-    method public abstract void onEvent(android.car.hardware.radio.CarRadioEvent);
-  }
-
-  public deprecated class CarRadioPreset implements android.os.Parcelable {
-    ctor public CarRadioPreset(int, int, int, int);
-    method public int describeContents();
-    method public int getBand();
-    method public int getChannel();
-    method public int getPresetNumber();
-    method public int getSubChannel();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.hardware.radio.CarRadioPreset> CREATOR;
   }
 
 }

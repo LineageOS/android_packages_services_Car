@@ -157,7 +157,6 @@ package android.support.car.hardware {
     field public static final int SENSOR_TYPE_ABS_ACTIVE = 24; // 0x18
     field public static final int SENSOR_TYPE_COMPASS = 1; // 0x1
     field public static final int SENSOR_TYPE_DRIVING_STATUS = 11; // 0xb
-    field public static final int SENSOR_TYPE_ENGINE_ON = 26; // 0x1a
     field public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE = 31; // 0x1f
     field public static final int SENSOR_TYPE_EV_BATTERY_LEVEL = 28; // 0x1c
     field public static final int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED = 30; // 0x1e
