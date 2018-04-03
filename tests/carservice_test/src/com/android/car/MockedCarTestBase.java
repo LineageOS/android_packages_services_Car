@@ -151,7 +151,7 @@ public class MockedCarTestBase {
         configureResourceOverrides(context.getResources());
 
         mCarImpl = new ICarImpl(context, mMockedVehicleHal, mFakeSystemInterface,
-                null /* error notifier */);
+                null /* error notifier */, "MockedCar");
 
         initMockedHal(false /* no need to release */);
 

@@ -92,7 +92,8 @@ public class CarService extends Service {
         mICarImpl = new ICarImpl(this,
                 mVehicle,
                 SystemInterface.Builder.defaultSystemInterface(this).build(),
-                mCanBusErrorNotifier);
+                mCanBusErrorNotifier,
+                mVehicleInterfaceName);
         mICarImpl.init();
         SystemProperties.set("boot.car_service_created", "1");
 
@@ -136,26 +137,10 @@ public class CarService extends Service {
 
     @Override
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
-        if (checkCallingOrSelfPermission(android.Manifest.permission.DUMP)
-                != PackageManager.PERMISSION_GRANTED) {
-            writer.println("Permission Denial: can't dump CarService from from pid="
-                    + Binder.getCallingPid() + ", uid=" + Binder.getCallingUid()
-                    + " without permission " + android.Manifest.permission.DUMP);
-            return;
-        }
-        if (args == null || args.length == 0) {
-            writer.println("*dump car service*");
-            writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
-            mICarImpl.dump(writer);
-
-            writer.println("**Debug info**");
-            writer.println("Vehicle HAL reconnected: "
-                    + mVehicleDeathRecipient.deathCount + " times.");
-        } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
-            mICarImpl.execShellCmd(args, writer);
-        } else {
-            writer.println("Commands not supported in " + Build.TYPE);
-        }
+        // historically, the way to get a dumpsys from CarService has been to use
+        // "dumpsys activity service com.android.car/.CarService" - leaving this
+        // as a forward to car_service makes the previously well-known command still work
+        mICarImpl.dump(fd, writer, args);
     }
 
     @Nullable
