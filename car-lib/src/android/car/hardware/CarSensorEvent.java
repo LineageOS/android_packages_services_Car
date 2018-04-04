@@ -535,36 +535,6 @@ public class CarSensorEvent implements Parcelable {
     }
 
     /** @hide */
-    public static class CarEngineOnData {
-        public long timestamp;
-        public boolean engineIsOn;
-
-        /** @hide */
-        private CarEngineOnData() {};
-    }
-
-    /**
-     * Convenience method for obtaining a {@link CarEngineOnData} object from a
-     * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_ENGINE_ON}.
-     *
-     * @param data an optional output parameter which, if non-null, will be used by this method
-     *     instead of a newly created object.
-     * @return a CarEngineOnData object corresponding to data contained in the
-     *     CarSensorEvent.
-     * @hide
-     */
-    public CarEngineOnData getCarEngineOnData(
-        CarEngineOnData data) {
-        checkType(CarSensorManager.SENSOR_TYPE_ENGINE_ON);
-        if (data == null) {
-            data = new CarEngineOnData();
-        }
-        data.timestamp = timestamp;
-        data.engineIsOn = intValues[0] == 1;
-        return data;
-    }
-
-    /** @hide */
     public static class CarFuelDoorOpenData {
         public long timestamp;
         public boolean fuelDoorIsOpen;

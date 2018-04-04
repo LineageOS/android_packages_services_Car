@@ -25,11 +25,12 @@ public class HvacHalService extends PropertyHalServiceBase {
     private final ManagerToHalPropIdMap mMgrHalPropIdMap = ManagerToHalPropIdMap.create(
             CarHvacManager.ID_MIRROR_DEFROSTER_ON, VehicleProperty.HVAC_SIDE_MIRROR_HEAT,
 
-            CarHvacManager.ID_STEERING_WHEEL_TEMP, VehicleProperty.HVAC_STEERING_WHEEL_TEMP,
+            CarHvacManager.ID_STEERING_WHEEL_HEAT, VehicleProperty.HVAC_STEERING_WHEEL_HEAT,
 
             CarHvacManager.ID_OUTSIDE_AIR_TEMP, VehicleProperty.ENV_OUTSIDE_TEMPERATURE,
 
-            CarHvacManager.ID_TEMPERATURE_UNITS, VehicleProperty.HVAC_TEMPERATURE_UNITS,
+            CarHvacManager.ID_TEMPERATURE_DISPLAY_UNITS,
+            VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS,
 
             CarHvacManager.ID_ZONED_TEMP_SETPOINT, VehicleProperty.HVAC_TEMPERATURE_SET,
 

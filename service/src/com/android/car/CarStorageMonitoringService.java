@@ -469,7 +469,6 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
     @Override
     public void dump(PrintWriter writer) {
-        mStorageMonitoringPermission.assertGranted();
         doInitServiceIfNeeded();
 
         writer.println("*CarStorageMonitoringService*");

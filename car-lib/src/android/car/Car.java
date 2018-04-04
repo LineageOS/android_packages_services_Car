@@ -16,13 +16,6 @@
 
 package android.car;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.HashMap;
-
-import com.android.car.internal.FeatureConfiguration;
-import com.android.internal.annotations.GuardedBy;
-
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
@@ -37,7 +30,6 @@ import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.cabin.CarCabinManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
-import android.car.hardware.radio.CarRadioManager;
 import android.car.media.CarAudioManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
@@ -54,6 +46,12 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
+
+import com.android.internal.annotations.GuardedBy;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
 
 /**
  *   Top level car API for embedded Android Auto deployments.
@@ -107,14 +105,6 @@ public final class Car {
      */
     @SystemApi
     public static final String DIAGNOSTIC_SERVICE = "diagnostic";
-
-    /**
-     * @hide
-     * @deprecated see {@link CarRadioManager}
-     */
-    @SystemApi
-    @Deprecated
-    public static final String RADIO_SERVICE = "radio";
 
     /**
      * @hide
@@ -264,15 +254,6 @@ public final class Car {
      */
     @SystemApi
     public static final String PERMISSION_ADJUST_CAR_CLIMATE = "android.car.permission.ADJUST_CAR_CLIMATE";
-
-    /**
-     * Permission necessary to access Car RADIO system APIs.
-     * @hide
-     * @deprecated see {@link CarRadioManager}
-     */
-    @SystemApi
-    @Deprecated
-    public static final String PERMISSION_CAR_RADIO = "android.car.permission.CAR_RADIO";
 
     /**
      * Permission necessary to access Car POWER APIs.
@@ -703,9 +684,6 @@ public final class Car {
                 break;
             case PROJECTION_SERVICE:
                 manager = new CarProjectionManager(binder, mEventHandler);
-                break;
-            case RADIO_SERVICE:
-                manager = new CarRadioManager(binder, mEventHandler);
                 break;
             case VENDOR_EXTENSION_SERVICE:
                 manager = new CarVendorExtensionManager(binder, mEventHandler);

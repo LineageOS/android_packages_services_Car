@@ -15,24 +15,14 @@
  */
 package com.android.car;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
 import android.car.Car;
 import android.car.media.CarAudioManager;
-import android.os.SystemClock;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
-import com.google.android.collect.Lists;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.HashMap;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
