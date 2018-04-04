@@ -17,11 +17,11 @@ package com.android.car;
 
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
+import android.media.AudioFormat;
 import android.media.AudioGain;
 import android.media.AudioGainConfig;
 import android.media.AudioManager;
 import android.media.AudioPort;
-import android.media.AudioPortConfig;
 import android.util.Log;
 
 import com.android.internal.util.Preconditions;
@@ -31,8 +31,8 @@ import java.io.PrintWriter;
 /**
  * A helper class wraps {@link AudioDeviceInfo}, and helps get/set the gain on a specific port
  * in terms of millibels.
- * Note to the reader.  For whatever reason, it seems that AudioGain contains only configuration
- * information (min/max/step, etc) while the ironicly named AudioGainConfig class contains the
+ * Note to the reader. For whatever reason, it seems that AudioGain contains only configuration
+ * information (min/max/step, etc) while the AudioGainConfig class contains the
  * actual currently active gain value(s).
  */
 /* package */ class CarAudioDeviceInfo {
@@ -40,21 +40,32 @@ import java.io.PrintWriter;
     private final AudioDeviceInfo mAudioDeviceInfo;
     private final int mBusNumber;
     private final int mSampleRate;
+    private final int mEncodingFormat;
     private final int mChannelCount;
     private final int mDefaultGain;
     private final int mMaxGain;
     private final int mMinGain;
 
+    /**
+     * We need to store the current gain because it is not accessible from the current
+     * audio engine implementation. It would be nice if AudioPort#activeConfig() would return it,
+     * but in the current implementation, that function actually works only for mixer ports.
+     */
+    private int mCurrentGain;
+
     CarAudioDeviceInfo(AudioDeviceInfo audioDeviceInfo) {
         mAudioDeviceInfo = audioDeviceInfo;
         mBusNumber = parseDeviceAddress(audioDeviceInfo.getAddress());
         mSampleRate = getMaxSampleRate(audioDeviceInfo);
+        mEncodingFormat = getEncodingFormat(audioDeviceInfo);
         mChannelCount = getMaxChannels(audioDeviceInfo);
         final AudioGain audioGain = Preconditions.checkNotNull(
                 getAudioGain(), "No audio gain on device port " + audioDeviceInfo);
         mDefaultGain = audioGain.defaultValue();
         mMaxGain = audioGain.maxValue();
         mMinGain = audioGain.minValue();
+
+        mCurrentGain = -1; // Not initialized till explicitly set
     }
 
     AudioDeviceInfo getAudioDeviceInfo() {
@@ -81,26 +92,12 @@ import java.io.PrintWriter;
         return mMinGain;
     }
 
-    // Return value is in millibels
-    int getCurrentGain() {
-        final AudioDevicePort audioPort = getAudioDevicePort();
-        final AudioPortConfig activePortConfig = audioPort.activeConfig();
-        if (activePortConfig != null) {
-            final AudioGainConfig activeGainConfig = activePortConfig.gain();
-            if (activeGainConfig != null
-                    && activeGainConfig.values() != null
-                    && activeGainConfig.values().length > 0) {
-                // Since we are always in MODE_JOINT, we can just look at the first channel
-                return activeGainConfig.values()[0];
-            }
-        }
-
-        Log.e(CarLog.TAG_AUDIO, "Incomplete port configuration while fetching gain");
-        return -1;
-    }
-
     int getSampleRate() {
         return mSampleRate;
+    }
+
+    int getEncodingFormat() {
+        return mEncodingFormat;
     }
 
     int getChannelCount() {
@@ -121,21 +118,27 @@ import java.io.PrintWriter;
         AudioGain audioGain = getAudioGain();
         if (audioGain == null) {
             Log.e(CarLog.TAG_AUDIO, "getAudioGain() returned null.");
+            return;
+        }
+
+        // size of gain values is 1 in MODE_JOINT
+        AudioGainConfig audioGainConfig = audioGain.buildConfig(
+                AudioGain.MODE_JOINT,
+                audioGain.channelMask(),
+                new int[] { gainInMillibels },
+                0);
+        if (audioGainConfig == null) {
+            Log.e(CarLog.TAG_AUDIO, "Failed to construct AudioGainConfig");
+            return;
+        }
+
+        int r = AudioManager.setAudioPortGain(getAudioDevicePort(), audioGainConfig);
+        if (r == AudioManager.SUCCESS) {
+            // Since we can't query for the gain on a device port later,
+            // we have to remember what we asked for
+            mCurrentGain = gainInMillibels;
         } else {
-            // size of gain values is 1 in MODE_JOINT
-            AudioGainConfig audioGainConfig = audioGain.buildConfig(
-                    AudioGain.MODE_JOINT,
-                    audioGain.channelMask(),
-                    new int[] { gainInMillibels },
-                    0);
-            if (audioGainConfig == null) {
-                Log.e(CarLog.TAG_AUDIO, "Failed to construct AudioGainConfig");
-            } else {
-                int r = AudioManager.setAudioPortGain(getAudioDevicePort(), audioGainConfig);
-                if (r != AudioManager.SUCCESS) {
-                    Log.e(CarLog.TAG_AUDIO, "Failed to setAudioPortGain: " + r);
-                }
-            }
+            Log.e(CarLog.TAG_AUDIO, "Failed to setAudioPortGain: " + r);
         }
     }
 
@@ -171,6 +174,11 @@ import java.io.PrintWriter;
             }
         }
         return sampleRate;
+    }
+
+    /** Always returns {@link AudioFormat#ENCODING_PCM_16BIT} as for now */
+    private int getEncodingFormat(AudioDeviceInfo info) {
+        return AudioFormat.ENCODING_PCM_16BIT;
     }
 
     /**
@@ -228,19 +236,22 @@ import java.io.PrintWriter;
 
     @Override
     public String toString() {
-        return "device: " + mAudioDeviceInfo.getAddress()
+        return "bus number: " + mBusNumber
+                + " address: " + mAudioDeviceInfo.getAddress()
                 + " sampleRate: " + getSampleRate()
+                + " encodingFormat: " + getEncodingFormat()
                 + " channelCount: " + getChannelCount()
-                + " currentGain: " + getCurrentGain()
+                + " currentGain: " + mCurrentGain
                 + " maxGain: " + mMaxGain
                 + " minGain: " + mMinGain;
     }
 
     void dump(PrintWriter writer) {
-        writer.println("Bus Number " + mBusNumber);
-        writer.printf("\tSample rate: %d and channel count: %d\n",
-                getSampleRate(), getChannelCount());
+        writer.printf("Bus Number (%d) / address (%s)\n ",
+                mBusNumber, mAudioDeviceInfo.getAddress());
+        writer.printf("\tsample rate / encoding format / channel count: %d %d %d\n",
+                getSampleRate(), getEncodingFormat(), getChannelCount());
         writer.printf("\tGain in millibel (min / max / default/ current): %d %d %d %d\n",
-                mMinGain, mMaxGain, mDefaultGain, getCurrentGain());
+                mMinGain, mMaxGain, mDefaultGain, mCurrentGain);
     }
 }

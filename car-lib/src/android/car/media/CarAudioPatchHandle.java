@@ -16,79 +16,74 @@
 
 package android.car.media;
 
-import android.media.AudioManager;
+import android.media.AudioDevicePort;
 import android.media.AudioPatch;
-import android.media.AudioPort;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-
+import com.android.internal.util.Preconditions;
 
 /**
- * A class to encapsulate the handle for a system level audio patch.  This is used
+ * A class to encapsulate the handle for a system level audio patch. This is used
  * to provide a "safe" way for permitted applications to route automotive audio sources
  * outside of android.
  */
 public final class CarAudioPatchHandle implements Parcelable {
 
     // This is enough information to uniquely identify a patch to the system
-    private final int    mHandleId;
-    private final String mSourcePortName;
-    private final String mSinkPortName;
-
+    private final int mHandleId;
+    private final String mSourceAddress;
+    private final String mSinkAddress;
 
     /**
      * Construct a audio patch handle container given the system level handle
-     * NOTE: Assumes (as it true today), that there is exactly one element in the source
+     * NOTE: Assumes (as it true today), that there is exactly one device port in the source
      * and sink arrays.
      */
     public CarAudioPatchHandle(AudioPatch patch) {
-        AudioPort sourcePort = patch.sources()[0].port();
-        AudioPort sinkPort   = patch.sinks()[0].port();
+        Preconditions.checkArgument(patch.sources().length == 1
+                && patch.sources()[0].port() instanceof AudioDevicePort,
+                "Accepts exactly one device port as source");
+        Preconditions.checkArgument(patch.sinks().length == 1
+                && patch.sinks()[0].port() instanceof AudioDevicePort,
+                "Accepts exactly one device port as sink");
 
-        mHandleId       = patch.id();
-        mSourcePortName = sourcePort.name();
-        mSinkPortName   = sinkPort.name();
+        mHandleId = patch.id();
+        mSourceAddress = ((AudioDevicePort) patch.sources()[0].port()).address();
+        mSinkAddress = ((AudioDevicePort) patch.sinks()[0].port()).address();
     }
-
 
     /**
-     * @hide
      * Returns true if this instance matches the provided AudioPatch object.
      * This is intended only for use by the CarAudioManager implementation when
-     * communicating with the AudioManager API
+     * communicating with the AudioManager API.
+     *
+     * Effectively only the {@link #mHandleId} is used for comparison,
+     * {@link android.media.AudioSystem#listAudioPatches(java.util.ArrayList, int[])}
+     * does not populate the device type and address properly.
+     *
+     * @hide
      */
     public boolean represents(AudioPatch patch) {
-        if (patch.id() != mHandleId)                                    return false;
-        if (patch.sources().length != 1)                                return false;
-        if (!patch.sources()[0].port().name().equals(mSourcePortName))  return false;
-        if (patch.sinks().length != 1)                                  return false;
-        if (!patch.sinks()[0].port().name().equals(mSinkPortName))      return false;
-        return true;
+        return patch.sources().length == 1
+                && patch.sinks().length == 1
+                && patch.id() == mHandleId;
     }
-
 
     @Override
     public String toString() {
-        StringBuilder statement = new StringBuilder();
-        statement.append("Patch (");
-        statement.append(mSourcePortName);
-        statement.append("=>");
-        statement.append(mSinkPortName);
-        statement.append(")");
-        return statement.toString();
+        return "Patch (mHandleId=" + mHandleId + "): "
+                + mSourceAddress + " => " + mSinkAddress;
     }
-
 
     /**
      * Given a parcel, populate our data members
      */
     private CarAudioPatchHandle(Parcel in) {
-        mHandleId       = in.readInt();
-        mSourcePortName = in.readString();
-        mSinkPortName   = in.readString();
+        mHandleId = in.readInt();
+        mSourceAddress = in.readString();
+        mSinkAddress = in.readString();
     }
-
 
     /**
      * Serialize our internal data to a parcel
@@ -96,10 +91,9 @@ public final class CarAudioPatchHandle implements Parcelable {
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(mHandleId);
-        out.writeString(mSourcePortName);
-        out.writeString(mSinkPortName);
+        out.writeString(mSourceAddress);
+        out.writeString(mSinkAddress);
     }
-
 
     public static final Parcelable.Creator<CarAudioPatchHandle> CREATOR
             = new Parcelable.Creator<CarAudioPatchHandle>() {
@@ -111,7 +105,6 @@ public final class CarAudioPatchHandle implements Parcelable {
             return new CarAudioPatchHandle[size];
         }
     };
-
 
     @Override
     public int describeContents() {

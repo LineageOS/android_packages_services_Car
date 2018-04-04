@@ -198,13 +198,15 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
      *
-     * @return An array of strings representing input ports.
+     * @return An array of strings representing the available input ports.
+     * Each port is identified by it's "address" tag in the audioPolicyConfiguration xml file.
+     * Empty array if we find nothing.
      *
      * @see #createAudioPatch(String, int, int)
      * @see #releaseAudioPatch(CarAudioPatchHandle)
      */
     @SystemApi
-    public String[] getExternalSources() throws CarNotConnectedException {
+    public @NonNull String[] getExternalSources() throws CarNotConnectedException {
         try {
             return mService.getExternalSources();
         } catch (RemoteException e) {
@@ -221,7 +223,7 @@ public final class CarAudioManager implements CarManagerBase {
      *
      * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
      *
-     * @param sourceName the input port name obtained from getExternalSources().
+     * @param sourceAddress the input port name obtained from getExternalSources().
      * @param usage the type of audio represented by this source (usually USAGE_MEDIA).
      * @param gainInMillibels How many steps above the minimum value defined for the source port to
      *                       set the gain when creating the patch.
@@ -234,10 +236,11 @@ public final class CarAudioManager implements CarManagerBase {
      * @see #releaseAudioPatch(CarAudioPatchHandle)
      */
     @SystemApi
-    public CarAudioPatchHandle createAudioPatch(String sourceName, int usage, int gainInMillibels)
+    public CarAudioPatchHandle createAudioPatch(String sourceAddress,
+            @AudioAttributes.AttributeUsage int usage, int gainInMillibels)
             throws CarNotConnectedException {
         try {
-            return mService.createAudioPatch(sourceName, usage, gainInMillibels);
+            return mService.createAudioPatch(sourceAddress, usage, gainInMillibels);
         } catch (RemoteException e) {
             Log.e(CarLibLog.TAG_CAR, "createAudioPatch failed", e);
             throw new CarNotConnectedException(e);
