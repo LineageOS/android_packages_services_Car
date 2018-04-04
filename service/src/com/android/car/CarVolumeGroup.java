@@ -176,10 +176,8 @@ import java.util.Arrays;
 
     @Nullable
     AudioDevicePort getAudioDevicePortForContext(int contextNumber) {
-        final int busNumber = mContextToBus.get(contextNumber,
-                android.hardware.automotive.audiocontrol.V1_0.ContextNumber.INVALID);
-        if (busNumber == android.hardware.automotive.audiocontrol.V1_0.ContextNumber.INVALID
-                || mBusToCarAudioDeviceInfos.get(busNumber) == null) {
+        final int busNumber = mContextToBus.get(contextNumber, -1);
+        if (busNumber < 0 || mBusToCarAudioDeviceInfos.get(busNumber) == null) {
             return null;
         }
         return mBusToCarAudioDeviceInfos.get(busNumber).getAudioDevicePort();
