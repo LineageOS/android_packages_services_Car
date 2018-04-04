@@ -54,7 +54,7 @@ public class CarEmulator {
         mHalEmulator = new MockedVehicleHal();
         ICarImpl carService = new ICarImpl(context, mHalEmulator,
                 SystemInterface.Builder.defaultSystemInterface(context).build(),
-                null /* error notifier */);
+                null /* error notifier */, "CarEmulator");
         mCar = new Car(context, carService, null /* Handler */);
     }
 
