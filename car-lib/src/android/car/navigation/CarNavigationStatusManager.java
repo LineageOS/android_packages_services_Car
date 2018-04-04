@@ -15,19 +15,15 @@
  */
 package android.car.navigation;
 
-import android.annotation.IntDef;
 import android.car.CarApiUtil;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 /**
  * API for providing navigation status for instrument cluster.
