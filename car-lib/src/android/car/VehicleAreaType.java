@@ -36,6 +36,7 @@ public final class VehicleAreaType {
     public static final int VEHICLE_AREA_TYPE_SEAT = 3;
     public static final int VEHICLE_AREA_TYPE_DOOR = 4;
     public static final int VEHICLE_AREA_TYPE_MIRROR = 5;
+    public static final int VEHICLE_AREA_TYPE_WHEEL = 6;
     private VehicleAreaType() {}
 
     /** @hide */
@@ -44,7 +45,8 @@ public final class VehicleAreaType {
         VEHICLE_AREA_TYPE_WINDOW,
         VEHICLE_AREA_TYPE_SEAT,
         VEHICLE_AREA_TYPE_DOOR,
-        VEHICLE_AREA_TYPE_MIRROR
+        VEHICLE_AREA_TYPE_MIRROR,
+        VEHICLE_AREA_TYPE_WHEEL
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface VehicleAreaTypeValue {}

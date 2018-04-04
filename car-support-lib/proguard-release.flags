@@ -2841,7 +2841,7 @@
     public abstract void bootAnimationComplete();
     public abstract int broadcastIntent(android.app.IApplicationThread, android.content.Intent, java.lang.String, android.content.IIntentReceiver, int, java.lang.String, android.os.Bundle, java.lang.String[], int, android.os.Bundle, boolean, boolean, int);
     public abstract void cancelIntentSender(android.content.IIntentSender);
-    public abstract void cancelRecentsAnimation();
+    public abstract void cancelRecentsAnimation(boolean);
     public abstract void cancelTaskWindowTransition(int);
     public abstract int checkGrantUriPermission(int, java.lang.String, android.net.Uri, int, int);
     public abstract int checkPermission(java.lang.String, int, int);
@@ -16602,6 +16602,7 @@
     public abstract android.app.ActivityManager$TaskSnapshot screenshotTask(int);
     public abstract void setAnimationTargetsBehindSystemBars(boolean);
     public abstract void setInputConsumerEnabled(boolean);
+    public abstract void setSplitScreenMinimized(boolean);
 
 
 }
