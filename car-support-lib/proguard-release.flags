@@ -1687,6 +1687,7 @@
     public void onNewActivityOptions(android.os.IBinder, android.app.ActivityOptions);
     public android.app.LoadedApk peekPackageInfo(java.lang.String, boolean);
     public void performRestartActivity(android.os.IBinder, boolean);
+    public android.app.ActivityThread$ActivityClientRecord performResumeActivity(android.os.IBinder, boolean, java.lang.String);
     public android.app.ActivityThread$ActivityClientRecord prepareRelaunchActivity(android.os.IBinder, java.util.List, java.util.List, int, android.util.MergedConfiguration, boolean);
     public void registerOnActivityPausedListener(android.app.Activity, android.app.OnActivityPausedListener);
     public boolean releaseProvider(android.content.IContentProvider, boolean);
@@ -1930,6 +1931,7 @@
     public static java.lang.String OPSTR_RUN_ANY_IN_BACKGROUND;
     public static java.lang.String OPSTR_RUN_IN_BACKGROUND;
     public static java.lang.String OPSTR_SEND_SMS;
+    public static java.lang.String OPSTR_START_FOREGROUND;
     public static java.lang.String OPSTR_SYSTEM_ALERT_WINDOW;
     public static java.lang.String OPSTR_TAKE_AUDIO_FOCUS;
     public static java.lang.String OPSTR_TAKE_MEDIA_BUTTONS;
@@ -2007,6 +2009,7 @@
     public static int OP_RUN_ANY_IN_BACKGROUND;
     public static int OP_RUN_IN_BACKGROUND;
     public static int OP_SEND_SMS;
+    public static int OP_START_FOREGROUND;
     public static int OP_SYSTEM_ALERT_WINDOW;
     public static int OP_TAKE_AUDIO_FOCUS;
     public static int OP_TAKE_MEDIA_BUTTONS;
@@ -2216,6 +2219,7 @@
     <init>();
 
     public abstract void dump(java.io.PrintWriter, java.lang.String);
+    public void executeTransaction(android.app.servertransaction.ClientTransaction);
     public abstract android.app.ActivityThread$ActivityClientRecord getActivityClient(android.os.IBinder);
     public abstract android.app.LoadedApk getPackageInfoNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
     public abstract void handleActivityConfigurationChanged(android.os.IBinder, android.content.res.Configuration, int);
@@ -2837,7 +2841,7 @@
     public abstract void bootAnimationComplete();
     public abstract int broadcastIntent(android.app.IApplicationThread, android.content.Intent, java.lang.String, android.content.IIntentReceiver, int, java.lang.String, android.os.Bundle, java.lang.String[], int, android.os.Bundle, boolean, boolean, int);
     public abstract void cancelIntentSender(android.content.IIntentSender);
-    public abstract void cancelRecentsAnimation();
+    public abstract void cancelRecentsAnimation(boolean);
     public abstract void cancelTaskWindowTransition(int);
     public abstract int checkGrantUriPermission(int, java.lang.String, android.net.Uri, int, int);
     public abstract int checkPermission(java.lang.String, int, int);
@@ -6233,6 +6237,7 @@
     public static java.lang.String EXTRA_IS_USING_CARRIER_AGGREGATION;
     public static java.lang.String EXTRA_KEY_CONFIRM;
     public static java.lang.String EXTRA_KEY_EVENT;
+    public static java.lang.String EXTRA_LAUNCHER_EXTRAS;
     public static java.lang.String EXTRA_LOCAL_ONLY;
     public static java.lang.String EXTRA_LONG_VERSION_CODE;
     public static java.lang.String EXTRA_LTE_EARFCN_RSRP_BOOST;
@@ -10361,6 +10366,7 @@
     public int saveLayerAlpha(android.graphics.RectF, int);
     public int saveLayerAlpha(float, float, float, float, int, int);
     public int saveLayerAlpha(float, float, float, float, int);
+    public int saveUnclippedLayer(int, int, int, int);
     public void scale(float, float);
     public void scale(float, float, float, float);
     public void setBitmap(android.graphics.Bitmap);
@@ -16596,6 +16602,7 @@
     public abstract android.app.ActivityManager$TaskSnapshot screenshotTask(int);
     public abstract void setAnimationTargetsBehindSystemBars(boolean);
     public abstract void setInputConsumerEnabled(boolean);
+    public abstract void setSplitScreenMinimized(boolean);
 
 
 }
@@ -18497,10 +18504,10 @@
     public void addFocusables(java.util.ArrayList, int);
     public void addFocusables(java.util.ArrayList, int, int);
     public void addFrameMetricsListener(android.view.Window, android.view.Window$OnFrameMetricsAvailableListener, android.os.Handler);
-    public void addKeyFallbackListener(android.view.View$OnKeyFallbackListener);
     public void addKeyboardNavigationClusters(java.util.Collection, int);
     public void addOnAttachStateChangeListener(android.view.View$OnAttachStateChangeListener);
     public void addOnLayoutChangeListener(android.view.View$OnLayoutChangeListener);
+    public void addOnUnhandledKeyEventListener(android.view.View$OnUnhandledKeyEventListener);
     public void addTouchables(java.util.ArrayList);
     public android.view.ViewPropertyAnimator animate();
     public void announceForAccessibility(java.lang.CharSequence);
@@ -18942,7 +18949,6 @@
     public void onInitializeAccessibilityNodeInfo(android.view.accessibility.AccessibilityNodeInfo);
     public void onInitializeAccessibilityNodeInfoInternal(android.view.accessibility.AccessibilityNodeInfo);
     public boolean onKeyDown(int, android.view.KeyEvent);
-    public boolean onKeyFallback(android.view.KeyEvent);
     public boolean onKeyLongPress(int, android.view.KeyEvent);
     public boolean onKeyMultiple(int, int, android.view.KeyEvent);
     public boolean onKeyPreIme(int, android.view.KeyEvent);
@@ -19005,9 +19011,9 @@
     public void releasePointerCapture();
     public boolean removeCallbacks(java.lang.Runnable);
     public void removeFrameMetricsListener(android.view.Window$OnFrameMetricsAvailableListener);
-    public void removeKeyFallbackListener(android.view.View$OnKeyFallbackListener);
     public void removeOnAttachStateChangeListener(android.view.View$OnAttachStateChangeListener);
     public void removeOnLayoutChangeListener(android.view.View$OnLayoutChangeListener);
+    public void removeOnUnhandledKeyEventListener(android.view.View$OnUnhandledKeyEventListener);
     public boolean requestAccessibilityFocus();
     public void requestApplyInsets();
     public void requestFitSystemWindows();
@@ -19564,13 +19570,6 @@
 
 }
 
--keep class android.view.View$OnKeyFallbackListener {
-
-    public abstract boolean onKeyFallback(android.view.View, android.view.KeyEvent);
-
-
-}
-
 -keep class android.view.View$OnKeyListener {
 
     public abstract boolean onKey(android.view.View, int, android.view.KeyEvent);
@@ -19609,6 +19608,13 @@
 -keep class android.view.View$OnTouchListener {
 
     public abstract boolean onTouch(android.view.View, android.view.MotionEvent);
+
+
+}
+
+-keep class android.view.View$OnUnhandledKeyEventListener {
+
+    public abstract boolean onUnhandledKeyEvent(android.view.View, android.view.KeyEvent);
 
 
 }
