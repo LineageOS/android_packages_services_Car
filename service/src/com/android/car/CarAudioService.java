@@ -429,7 +429,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
         }
 
-        // 2nd, enumerate bus for all supported contexts and build the routing policy
+        // 2nd, map context to physical bus
         try {
             for (int contextNumber : CONTEXT_NUMBERS) {
                 int busNumber = audioControl.getBusForContext(contextNumber);
@@ -437,34 +437,48 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 CarAudioDeviceInfo info = mCarAudioDeviceInfos.get(busNumber);
                 if (info == null) {
                     Log.w(CarLog.TAG_AUDIO, "No bus configured for context: " + contextNumber);
-                    continue;
                 }
-                AudioFormat mixFormat = new AudioFormat.Builder()
-                        .setSampleRate(info.getSampleRate())
-                        .setEncoding(info.getEncodingFormat())
-                        .setChannelMask(info.getChannelCount())
-                        .build();
-                int[] usages = getUsagesForContext(contextNumber);
-                Log.i(CarLog.TAG_AUDIO, "Bus number: " + info.getBusNumber()
-                        + " usages: " + Arrays.toString(usages));
-                AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
-                for (int usage : usages) {
-                    mixingRuleBuilder.addRule(
-                            new AudioAttributes.Builder().setUsage(usage).build(),
-                            AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
-                }
-                AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
-                        .setFormat(mixFormat)
-                        .setDevice(info.getAudioDeviceInfo())
-                        .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
-                        .build();
-                builder.addMix(audioMix);
             }
         } catch (RemoteException e) {
             Log.e(CarLog.TAG_AUDIO, "Error mapping context to physical bus", e);
         }
 
-        // 3rd, attach the {@link AudioPolicyVolumeCallback}
+        // 3rd, enumerate all physical buses and build the routing policy.
+        // Note that one can not register audio mix for same bus more than once.
+        for (int i = 0; i < mCarAudioDeviceInfos.size(); i++) {
+            int busNumber = mCarAudioDeviceInfos.keyAt(i);
+            CarAudioDeviceInfo info = mCarAudioDeviceInfos.valueAt(i);
+            AudioFormat mixFormat = new AudioFormat.Builder()
+                    .setSampleRate(info.getSampleRate())
+                    .setEncoding(info.getEncodingFormat())
+                    .setChannelMask(info.getChannelCount())
+                    .build();
+            AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
+            for (int j = 0; j < mContextToBus.size(); j++) {
+                if (mContextToBus.valueAt(j) == busNumber) {
+                    int contextNumber = mContextToBus.keyAt(j);
+                    int[] usages = getUsagesForContext(contextNumber);
+                    for (int usage : usages) {
+                        mixingRuleBuilder.addRule(
+                                new AudioAttributes.Builder().setUsage(usage).build(),
+                                AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
+                    }
+                    Log.i(CarLog.TAG_AUDIO, "Bus number: " + busNumber
+                            + " contextNumber: " + contextNumber
+                            + " sampleRate: " + info.getSampleRate()
+                            + " channels: " + info.getChannelCount()
+                            + " usages: " + Arrays.toString(usages));
+                }
+            }
+            AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
+                    .setFormat(mixFormat)
+                    .setDevice(info.getAudioDeviceInfo())
+                    .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
+                    .build();
+            builder.addMix(audioMix);
+        }
+
+        // 4th, attach the {@link AudioPolicyVolumeCallback}
         builder.setAudioPolicyVolumeCallback(mAudioPolicyVolumeCallback);
 
         return builder.build();
