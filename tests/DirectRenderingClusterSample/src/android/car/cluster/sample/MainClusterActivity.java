@@ -50,7 +50,7 @@ public class MainClusterActivity extends FragmentActivity
     private HashMap<Button, Facet<?>> mButtonToFacet = new HashMap<>();
     private SparseArray<Facet<?>> mOrderToFacet = new SparseArray<>();
 
-    private final InputMethodManager mInputMethodManager = InputMethodManager.getInstance();
+    private InputMethodManager mInputMethodManager;
 
     private final View.OnFocusChangeListener mFacetButtonFocusListener =
             new View.OnFocusChangeListener() {
@@ -66,6 +66,8 @@ public class MainClusterActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mInputMethodManager = getSystemService(InputMethodManager.class);
 
         Intent intent = new Intent(this, SampleClusterServiceImpl.class);
         intent.setAction(LOCAL_BINDING_ACTION);
