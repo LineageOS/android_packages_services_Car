@@ -15,13 +15,9 @@
  */
 package android.support.car.navigation;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.IntDef;
 import android.support.car.CarManagerBase;
 import android.support.car.CarNotConnectedException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 /**
  * APIs for providing navigation status to the instrument cluster. For cars that have a navigation

@@ -23,7 +23,6 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
-
 LOCAL_USE_AAPT2 := true
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
@@ -50,9 +49,6 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     android.hardware.automotive.vehicle-V2.0-java \
     vehicle-hal-support-lib
 
-LOCAL_JAVA_LIBRARIES += android.car
-
-include packages/apps/Car/libs/car-stream-ui-lib/car-stream-ui-lib.mk
 include packages/services/Car/car-support-lib/car-support.mk
 
 include $(BUILD_PACKAGE)

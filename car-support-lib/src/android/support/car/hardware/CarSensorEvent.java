@@ -16,13 +16,14 @@
 
 package android.support.car.hardware;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static androidx.annotation.RestrictTo.Scope.GROUP_ID;
 
 import android.car.VehicleOilLevel;
 import android.location.GpsSatellite;
 import android.location.Location;
 import android.os.SystemClock;
-import android.support.annotation.RestrictTo;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * A CarSensorEvent object corresponds to a single sensor event coming from the car. Sensor
@@ -432,7 +433,7 @@ public class CarSensorEvent {
      * Both byte values and float values are used.
      * Two first bytes encode number of satellites in-use/in-view (or 0xFF if unavailable).
      * Then optionally with INDEX_GPS_SATELLITE_ARRAY_BYTE_OFFSET offset and interval
-     * INDEX_GPS_SATELLITE_ARRAY_BYTE_INTERVAL between elements are encoded boolean flags of 
+     * INDEX_GPS_SATELLITE_ARRAY_BYTE_INTERVAL between elements are encoded boolean flags of
      * whether particular satellite from in-view participate in in-use subset.
      * Float values with INDEX_GPS_SATELLITE_ARRAY_FLOAT_OFFSET offset and interval
      * INDEX_GPS_SATELLITE_ARRAY_FLOAT_INTERVAL between elements can optionally contain
@@ -864,7 +865,7 @@ public class CarSensorEvent {
 
     /**
      * Convenience method for obtaining a {@link GpsSatelliteData} object from a CarSensorEvent
-     * object with type {@link CarSensorManager#SENSOR_TYPE_GPS_SATELLITE} with optional 
+     * object with type {@link CarSensorManager#SENSOR_TYPE_GPS_SATELLITE} with optional
      * per-satellite info.
      *
      * @param withPerSatellite whether to include per-satellite data.
