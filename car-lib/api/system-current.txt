@@ -11,6 +11,7 @@ package android.car {
     field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_READ_ALL = "android.car.permission.CAR_DIAGNOSTICS";
     field public static final java.lang.String PERMISSION_CAR_DRIVING_STATE = "android.car.permission.CAR_DRIVING_STATE";
     field public static final java.lang.String PERMISSION_CAR_ENGINE_DETAILED = "android.car.permission.CAR_ENGINE_DETAILED";
+    field public static final java.lang.String PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL = "android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
     field public static final java.lang.String PERMISSION_CAR_POWER = "android.car.permission.CAR_POWER";
     field public static final java.lang.String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final java.lang.String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
@@ -90,6 +91,22 @@ package android.car {
     field public static final int WINDOW_ROW_2_RIGHT = 1024; // 0x400
     field public static final int WINDOW_ROW_3_LEFT = 4096; // 0x1000
     field public static final int WINDOW_ROW_3_RIGHT = 16384; // 0x4000
+  }
+
+}
+
+package android.car.cluster {
+
+  public class CarInstrumentClusterManager {
+    method public void registerCallback(java.lang.String, android.car.cluster.CarInstrumentClusterManager.Callback) throws android.car.CarNotConnectedException;
+    method public void startActivity(android.content.Intent) throws android.car.CarNotConnectedException;
+    method public void unregisterCallback(android.car.cluster.CarInstrumentClusterManager.Callback) throws android.car.CarNotConnectedException;
+    field public static final java.lang.String CATEGORY_NAVIGATION = "android.car.cluster.NAVIGATION";
+    field public static final java.lang.String KEY_EXTRA_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
+  }
+
+  public static abstract interface CarInstrumentClusterManager.Callback {
+    method public abstract void onClusterActivityStateChanged(java.lang.String, android.os.Bundle);
   }
 
 }
