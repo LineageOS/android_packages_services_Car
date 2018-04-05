@@ -156,6 +156,8 @@ import java.util.List;
                 return VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW;
             case VehicleArea.MIRROR:
                 return VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR;
+            case VehicleArea.WHEEL:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL;
             default:
                 throw new RuntimeException("Unsupported area type " + halArea);
         }
