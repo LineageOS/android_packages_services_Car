@@ -186,10 +186,12 @@ package android.car.content.pm {
 package android.car.drivingstate {
 
   public class CarUxRestrictions implements android.os.Parcelable {
-    ctor public CarUxRestrictions(boolean, int, long);
     ctor public CarUxRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public int describeContents();
     method public int getActiveRestrictions();
+    method public int getMaxContentDepth();
+    method public int getMaxCumulativeContentItems();
+    method public int getMaxRestrictedStringLength();
     method public long getTimeStamp();
     method public boolean isRequiresDistractionOptimization();
     method public boolean isSameRestrictions(android.car.drivingstate.CarUxRestrictions);
@@ -208,14 +210,19 @@ package android.car.drivingstate {
     field public static final int UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION = 256; // 0x100
   }
 
+  public static class CarUxRestrictions.Builder {
+    ctor public CarUxRestrictions.Builder(boolean, int, long);
+    method public android.car.drivingstate.CarUxRestrictions build();
+    method public android.car.drivingstate.CarUxRestrictions.Builder setMaxContentDepth(int);
+    method public android.car.drivingstate.CarUxRestrictions.Builder setMaxCumulativeContentItems(int);
+    method public android.car.drivingstate.CarUxRestrictions.Builder setMaxStringLength(int);
+  }
+
   public static abstract class CarUxRestrictions.CarUxRestrictionsInfo implements java.lang.annotation.Annotation {
   }
 
   public final class CarUxRestrictionsManager {
     method public android.car.drivingstate.CarUxRestrictions getCurrentCarUxRestrictions() throws android.car.CarNotConnectedException;
-    method public int getMaxContentDepth() throws android.car.CarNotConnectedException;
-    method public int getMaxCumulativeContentItems() throws android.car.CarNotConnectedException;
-    method public int getMaxRestrictedStringLength() throws android.car.CarNotConnectedException;
     method public synchronized void registerListener(android.car.drivingstate.CarUxRestrictionsManager.onUxRestrictionsChangedListener) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public synchronized void unregisterListener() throws android.car.CarNotConnectedException;
   }
