@@ -15,14 +15,13 @@
  */
 package android.support.car.media;
 
-import static android.support.annotation.RestrictTo.Scope.GROUP_ID;
+import static androidx.annotation.RestrictTo.Scope.GROUP_ID;
 
-import android.media.AudioAttributes;
 import android.media.AudioFormat;
-import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.AudioRecord;
-import android.support.annotation.RestrictTo;
 import android.support.car.CarNotConnectedException;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * @hide

@@ -206,6 +206,7 @@ public final class Car {
      *
      * @hide
      */
+    @SystemApi
     public static final String PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL =
             "android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
 

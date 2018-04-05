@@ -43,8 +43,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += vehicle-hal-support-lib
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
     $(ANDROID_SUPPORT_CAR_TARGETS) \
-    android-support-v4 \
-    android-support-v7-appcompat
+    androidx.legacy_legacy-support-v4 \
+    androidx.appcompat_appcompat
 
 LOCAL_JAVA_LIBRARIES += android.car
 

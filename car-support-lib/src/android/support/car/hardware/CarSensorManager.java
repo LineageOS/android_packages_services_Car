@@ -17,11 +17,12 @@
 package android.support.car.hardware;
 
 import android.Manifest;
-import android.support.annotation.IntDef;
-import android.support.annotation.RequiresPermission;
 import android.support.car.Car;
 import android.support.car.CarManagerBase;
 import android.support.car.CarNotConnectedException;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.RequiresPermission;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

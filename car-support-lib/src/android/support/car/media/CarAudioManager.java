@@ -16,16 +16,12 @@
 package android.support.car.media;
 
 import android.Manifest;
-import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
-import android.support.annotation.IntDef;
-import android.support.annotation.RequiresPermission;
 import android.support.car.CarManagerBase;
 import android.support.car.CarNotConnectedException;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import androidx.annotation.RequiresPermission;
 
 /**
  * APIs for handling car-specific audio use cases. Provides a set of CAR_AUDIO_USAGE_* constants

@@ -23,11 +23,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.InputDevice;
@@ -35,6 +30,12 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public class MainClusterActivity extends FragmentActivity
     private HashMap<Button, Facet<?>> mButtonToFacet = new HashMap<>();
     private SparseArray<Facet<?>> mOrderToFacet = new SparseArray<>();
 
-    private final InputMethodManager mInputMethodManager = InputMethodManager.getInstance();
+    private InputMethodManager mInputMethodManager;
 
     private final View.OnFocusChangeListener mFacetButtonFocusListener =
             new View.OnFocusChangeListener() {
@@ -66,6 +67,8 @@ public class MainClusterActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mInputMethodManager = getSystemService(InputMethodManager.class);
 
         Intent intent = new Intent(this, SampleClusterServiceImpl.class);
         intent.setAction(LOCAL_BINDING_ACTION);
