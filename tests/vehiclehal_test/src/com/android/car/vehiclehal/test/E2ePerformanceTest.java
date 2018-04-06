@@ -15,13 +15,14 @@
  */
 package com.android.car.vehiclehal.test;
 
-import static java.lang.Integer.toHexString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
+
+import static java.lang.Integer.toHexString;
 
 import android.annotation.Nullable;
 import android.car.Car;
@@ -52,9 +53,10 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
+
 import com.google.android.collect.Lists;
 
-import com.android.car.vehiclehal.VehiclePropValueBuilder;
 
 import org.junit.After;
 import org.junit.Before;
@@ -231,8 +233,8 @@ public class E2ePerformanceTest {
         boolean value = false;
         long actualIterations = 0;
         while (SystemClock.elapsedRealtimeNanos() < start + TEST_DURATION_NANO) {
-            mgr.setBooleanProperty(PROP, 0, value);
-            boolean actualValue = mgr.getBooleanProperty(PROP, 0);
+            mgr.setBooleanProperty(PROP, 1, value);
+            boolean actualValue = mgr.getBooleanProperty(PROP, 1);
             assertEquals(value, actualValue);
             value = !value;
             actualIterations++;

@@ -35,6 +35,7 @@ import android.media.AudioManager;
 import android.media.AudioPatch;
 import android.media.AudioPlaybackConfiguration;
 import android.media.AudioPortConfig;
+import android.media.AudioSystem;
 import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioMixingRule;
 import android.media.audiopolicy.AudioPolicy;
@@ -42,6 +43,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -414,10 +416,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             return null;
         }
         for (AudioDeviceInfo info : deviceInfos) {
-            Log.v(CarLog.TAG_AUDIO, String.format(
-                    "output device=%s id=%d name=%s address=%s type=%s",
-                    info.toString(), info.getId(), info.getProductName(), info.getAddress(),
-                    info.getType()));
+            Log.v(CarLog.TAG_AUDIO, String.format("output id=%d address=%s type=%s",
+                    info.getId(), info.getAddress(), info.getType()));
             if (info.getType() == AudioDeviceInfo.TYPE_BUS) {
                 final CarAudioDeviceInfo carInfo = new CarAudioDeviceInfo(info);
                 // See also the audio_policy_configuration.xml and getBusForContext in
@@ -429,7 +429,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
         }
 
-        // 2nd, enumerate bus for all supported contexts and build the routing policy
+        // 2nd, map context to physical bus
         try {
             for (int contextNumber : CONTEXT_NUMBERS) {
                 int busNumber = audioControl.getBusForContext(contextNumber);
@@ -437,36 +437,48 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 CarAudioDeviceInfo info = mCarAudioDeviceInfos.get(busNumber);
                 if (info == null) {
                     Log.w(CarLog.TAG_AUDIO, "No bus configured for context: " + contextNumber);
-                    continue;
                 }
-                AudioFormat mixFormat = new AudioFormat.Builder()
-                        .setSampleRate(info.getSampleRate())
-                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                        .setChannelMask(info.getChannelCount())
-                        .build();
-                int[] usages = getUsagesForContext(contextNumber);
-                Log.i(CarLog.TAG_AUDIO, "Bus number: " + busNumber
-                        + " sampleRate: " + info.getSampleRate()
-                        + " channels: " + info.getChannelCount()
-                        + " usages: " + Arrays.toString(usages));
-                AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
-                for (int usage : usages) {
-                    mixingRuleBuilder.addRule(
-                            new AudioAttributes.Builder().setUsage(usage).build(),
-                            AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
-                }
-                AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
-                        .setFormat(mixFormat)
-                        .setDevice(info.getAudioDeviceInfo())
-                        .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
-                        .build();
-                builder.addMix(audioMix);
             }
         } catch (RemoteException e) {
             Log.e(CarLog.TAG_AUDIO, "Error mapping context to physical bus", e);
         }
 
-        // 3rd, attach the {@link AudioPolicyVolumeCallback}
+        // 3rd, enumerate all physical buses and build the routing policy.
+        // Note that one can not register audio mix for same bus more than once.
+        for (int i = 0; i < mCarAudioDeviceInfos.size(); i++) {
+            int busNumber = mCarAudioDeviceInfos.keyAt(i);
+            CarAudioDeviceInfo info = mCarAudioDeviceInfos.valueAt(i);
+            AudioFormat mixFormat = new AudioFormat.Builder()
+                    .setSampleRate(info.getSampleRate())
+                    .setEncoding(info.getEncodingFormat())
+                    .setChannelMask(info.getChannelCount())
+                    .build();
+            AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
+            for (int j = 0; j < mContextToBus.size(); j++) {
+                if (mContextToBus.valueAt(j) == busNumber) {
+                    int contextNumber = mContextToBus.keyAt(j);
+                    int[] usages = getUsagesForContext(contextNumber);
+                    for (int usage : usages) {
+                        mixingRuleBuilder.addRule(
+                                new AudioAttributes.Builder().setUsage(usage).build(),
+                                AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
+                    }
+                    Log.i(CarLog.TAG_AUDIO, "Bus number: " + busNumber
+                            + " contextNumber: " + contextNumber
+                            + " sampleRate: " + info.getSampleRate()
+                            + " channels: " + info.getChannelCount()
+                            + " usages: " + Arrays.toString(usages));
+                }
+            }
+            AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
+                    .setFormat(mixFormat)
+                    .setDevice(info.getAudioDeviceInfo())
+                    .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
+                    .build();
+            builder.addMix(audioMix);
+        }
+
+        // 4th, attach the {@link AudioPolicyVolumeCallback}
         builder.setAudioPolicyVolumeCallback(mAudioPolicyVolumeCallback);
 
         return builder.build();
@@ -512,11 +524,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
+    /**
+     * @return Array of accumulated device addresses, empty array if we found nothing
+     */
     @Override
-    public String[] getExternalSources() {
+    public @NonNull String[] getExternalSources() {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
-            List<String> sourceNames = new ArrayList<>();
+            List<String> sourceAddresses = new ArrayList<>();
 
             AudioDeviceInfo[] devices = mAudioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
             if (devices.length == 0) {
@@ -524,9 +539,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
 
             // Collect the list of non-microphone input ports
-            for (AudioDeviceInfo info: devices) {
+            for (AudioDeviceInfo info : devices) {
                 switch (info.getType()) {
-                    // TODO:  Can we trim this set down?  Espcially duplicates that FM vs FM_TUNER?
+                    // TODO:  Can we trim this set down? Especially duplicates like FM vs FM_TUNER?
                     case AudioDeviceInfo.TYPE_FM:
                     case AudioDeviceInfo.TYPE_FM_TUNER:
                     case AudioDeviceInfo.TYPE_TV_TUNER:
@@ -539,20 +554,26 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     case AudioDeviceInfo.TYPE_USB_HEADSET:
                     case AudioDeviceInfo.TYPE_IP:
                     case AudioDeviceInfo.TYPE_BUS:
-                        sourceNames.add(info.getProductName().toString());
+                        String address = info.getAddress();
+                        if (TextUtils.isEmpty(address)) {
+                            Log.w(CarLog.TAG_AUDIO,
+                                    "Discarded device with empty address, type=" + info.getType());
+                        } else {
+                            sourceAddresses.add(address);
+                        }
                 }
             }
 
-            // Return our list of accumulated device names (or an empty array if we found nothing)
-            return sourceNames.toArray(new String[sourceNames.size()]);
+            return sourceAddresses.toArray(new String[sourceAddresses.size()]);
         }
     }
 
     @Override
-    public CarAudioPatchHandle createAudioPatch(String sourceName, int usage, int gainInMillibels) {
+    public CarAudioPatchHandle createAudioPatch(String sourceAddress,
+            @AudioAttributes.AttributeUsage int usage, int gainInMillibels) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
-            return createAudioPatchLocked(sourceName, usage, gainInMillibels);
+            return createAudioPatchLocked(sourceAddress, usage, gainInMillibels);
         }
     }
 
@@ -564,64 +585,59 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
-    private CarAudioPatchHandle createAudioPatchLocked(
-            String sourceName, int usage, int gainInMillibels) {
+    private CarAudioPatchHandle createAudioPatchLocked(String sourceAddress,
+            @AudioAttributes.AttributeUsage int usage, int gainInMillibels) {
         // Find the named source port
         AudioDeviceInfo sourcePortInfo = null;
         AudioDeviceInfo[] deviceInfos = mAudioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
-        for (AudioDeviceInfo info: deviceInfos) {
-            if (sourceName.equals(info.getProductName())) {
+        for (AudioDeviceInfo info : deviceInfos) {
+            if (sourceAddress.equals(info.getAddress())) {
                 // This is the one for which we're looking
                 sourcePortInfo = info;
+                break;
             }
         }
-        if (sourcePortInfo == null) {
-            throw new IllegalArgumentException("Specified source is not available: " + sourceName);
-        }
+        Preconditions.checkNotNull(sourcePortInfo,
+                "Specified source is not available: " + sourceAddress);
 
         // Find the output port associated with the given carUsage
-        AudioDevicePort sinkPort = getAudioPort(usage);
-        if (sinkPort == null) {
-            throw new IllegalArgumentException("Sink not available for usage: " + usage);
-        }
+        AudioDevicePort sinkPort = Preconditions.checkNotNull(getAudioPort(usage),
+                "Sink not available for usage: " + AudioAttributes.usageToString(usage));
 
-        // Use the current port config on the output bus
-        AudioPortConfig sinkConfig = sinkPort.activeConfig();
+        // {@link android.media.AudioPort#activeConfig()} is valid for mixer port only,
+        // since audio framework has no clue what's active on the device ports.
+        // Therefore we construct an empty / default configuration here, which the audio HAL
+        // implementation should ignore.
+        AudioPortConfig sinkConfig = sinkPort.buildConfig(0,
+                AudioFormat.CHANNEL_OUT_DEFAULT, AudioFormat.ENCODING_DEFAULT, null);
+        Log.d(CarLog.TAG_AUDIO, "createAudioPatch sinkConfig: " + sinkConfig);
 
         // Configure the source port to match the output port except for a gain adjustment
         final CarAudioDeviceInfo helper = new CarAudioDeviceInfo(sourcePortInfo);
-        AudioGain audioGain = helper.getAudioGain();
-        if (audioGain == null) {
-            throw new RuntimeException("Gain controller not available");
-        }
+        AudioGain audioGain = Preconditions.checkNotNull(helper.getAudioGain(),
+                "Gain controller not available for source port");
+
         // size of gain values is 1 in MODE_JOINT
-        AudioGainConfig audioGainConfig = audioGain.buildConfig(
-                AudioGain.MODE_JOINT,
-                audioGain.channelMask(),
-                new int[] { gainInMillibels },
-                0);
-        if (audioGainConfig == null) {
-            throw new RuntimeException("Failed to construct AudioGainConfig");
-        }
-        AudioPortConfig sourceConfig = sourcePortInfo.getPort().buildConfig(
-                sinkConfig.samplingRate(),
-                sinkConfig.channelMask(),
-                sinkConfig.format(),
-                audioGainConfig);
+        AudioGainConfig audioGainConfig = audioGain.buildConfig(AudioGain.MODE_JOINT,
+                audioGain.channelMask(), new int[] { gainInMillibels }, 0);
+        // Construct an empty / default configuration excepts gain config here and it's up to the
+        // audio HAL how to interpret this configuration, which the audio HAL
+        // implementation should ignore.
+        AudioPortConfig sourceConfig = sourcePortInfo.getPort().buildConfig(0,
+                AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_DEFAULT, audioGainConfig);
 
         // Create an audioPatch to connect the two ports
-        // TODO(randolphs): refer to TvInputHardwareManager for creating audio patch
         AudioPatch[] patch = new AudioPatch[] { null };
-        AudioPortConfig[] sourceConfigs = { sourceConfig };
-        AudioPortConfig[] sinkConfigs = { sinkConfig };
-        int result = AudioManager.createAudioPatch(patch, sourceConfigs, sinkConfigs);
+        int result = AudioManager.createAudioPatch(patch,
+                new AudioPortConfig[] { sourceConfig },
+                new AudioPortConfig[] { sinkConfig });
         if (result != AudioManager.SUCCESS) {
             throw new RuntimeException("createAudioPatch failed with code " + result);
         }
-        if (patch[0] == null) {
-            throw new RuntimeException("createAudioPatch didn't provide expected single handle");
-        }
 
+        Preconditions.checkNotNull(patch[0],
+                "createAudioPatch didn't provide expected single handle");
+        Log.d(CarLog.TAG_AUDIO, "Audio patch created: " + patch[0]);
         return new CarAudioPatchHandle(patch[0]);
     }
 
@@ -629,15 +645,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         // NOTE:  AudioPolicyService::removeNotificationClient will take care of this automatically
         //        if the client that created a patch quits.
 
-        // Get the list of active patches
+        // FIXME {@link AudioManager#listAudioPatches(ArrayList)} returns old generation of
+        // audio patches after creation
         ArrayList<AudioPatch> patches = new ArrayList<>();
-        int result = AudioManager.listAudioPatches(patches);
+        int result = AudioSystem.listAudioPatches(patches, new int[1]);
         if (result != AudioManager.SUCCESS) {
             throw new RuntimeException("listAudioPatches failed with code " + result);
         }
 
         // Look for a patch that matches the provided user side handle
-        for (AudioPatch patch: patches) {
+        for (AudioPatch patch : patches) {
             if (carPatch.represents(patch)) {
                 // Found it!
                 result = AudioManager.releaseAudioPatch(patch);
@@ -735,8 +752,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private void enforcePermission(String permissionName) {
         if (mContext.checkCallingOrSelfPermission(permissionName)
                 != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException(
-                    "requires permission " + permissionName);
+            throw new SecurityException("requires permission " + permissionName);
         }
     }
 

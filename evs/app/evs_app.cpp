@@ -50,7 +50,7 @@ static bool subscribeToVHal(sp<IVehicle> pVnet,
     SubscribeOptions optionsData[] = {
         {
             .propId = static_cast<int32_t>(propertyId),
-            .flags  = SubscribeFlags::DEFAULT
+            .flags  = SubscribeFlags::EVENTS_FROM_CAR
         },
     };
     hidl_vec <SubscribeOptions> options;

@@ -28,7 +28,6 @@ import android.car.hardware.property.CarPropertyManagerBase.CarPropertyEventCall
 import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.util.ArraySet;
 
 import java.lang.annotation.Retention;
@@ -302,23 +301,10 @@ public final class CarCabinManager implements CarManagerBase {
      */
     public static final int ID_WINDOW_MOVE = 0x3002;
     /**
-     * window vent position, int type
-     * This feature is used to control the vent feature on a sunroof.
-     * Max = vent open.
-     * Min = vent closed.
-     */
-    public static final int ID_WINDOW_VENT_POS = 0x3003;
-    /** window vent move, int type
-     * This feature is used to control the vent feature on a sunroof.
-     * Positive value opens the vent.
-     * Negative value closes the vent.
-     */
-    public static final int ID_WINDOW_VENT_MOVE = 0x3004;
-    /**
      * window lock, bool type
      * True indicates windows are locked and can't be moved.
      */
-    public static final int ID_WINDOW_LOCK = 0x3005;
+    public static final int ID_WINDOW_LOCK = 0x3003;
 
     /** @hide */
     @IntDef({
@@ -360,8 +346,6 @@ public final class CarCabinManager implements CarManagerBase {
         ID_SEAT_HEADREST_FORE_AFT_MOVE,
         ID_WINDOW_POS,
         ID_WINDOW_MOVE,
-        ID_WINDOW_VENT_POS,
-        ID_WINDOW_VENT_MOVE,
         ID_WINDOW_LOCK
     })
     @Retention(RetentionPolicy.SOURCE)

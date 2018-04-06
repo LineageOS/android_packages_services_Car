@@ -304,9 +304,6 @@ public class SensorsTestFragment extends Fragment {
                             getTimestamp(event), event == null ? mNaString :
                             event.getCarTractionControlActiveData().tractionControlIsActive));
                         break;
-                    case CarSensorManager.SENSOR_TYPE_ENGINE_ON:
-                        summary.add(getEngineOn(event));
-                        break;
                     case CarSensorManager.SENSOR_TYPE_EV_BATTERY_LEVEL:
                         summary.add(getEvBatteryLevel(event));
                         break;
@@ -439,14 +436,6 @@ public class SensorsTestFragment extends Fragment {
         }
         return getContext().getString(R.string.sensor_fuel_door_open, getTimestamp(event),
             fuelDoorOpen);
-    }
-
-    private String getEngineOn(CarSensorEvent event) {
-        String engineOn = mNaString;
-        if (event != null) {
-            engineOn = String.valueOf(event.getCarEngineOnData().engineIsOn);
-        }
-        return getContext().getString(R.string.sensor_engine_is_on, getTimestamp(event), engineOn);
     }
 
     private String getEvBatteryLevel(CarSensorEvent event) {

@@ -17,6 +17,7 @@
 package com.android.car;
 
 import static com.android.car.CarServiceUtils.toByteArray;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -25,7 +26,7 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarVendorExtensionManager;
 import android.hardware.automotive.vehicle.V2_0.StatusCode;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
-import android.hardware.automotive.vehicle.V2_0.VehicleAreaZone;
+import android.hardware.automotive.vehicle.V2_0.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
@@ -60,10 +61,10 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
             0x1 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.GLOBAL;
 
     private static final int CUSTOM_ZONED_FLOAT_PROP_ID =
-            0x2 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.FLOAT | VehicleArea.ZONE;
+            0x2 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.FLOAT | VehicleArea.SEAT;
 
     private static final int CUSTOM_BYTES_PROP_ID_1 =
-            0x3 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.BYTES | VehicleArea.ZONE;
+            0x3 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.BYTES | VehicleArea.SEAT;
 
     private static final int CUSTOM_BYTES_PROP_ID_2 =
             0x4 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.BYTES | VehicleArea.GLOBAL;
@@ -87,12 +88,12 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
                     .addAreaConfig(0, MIN_PROP_INT32, MAX_PROP_INT32)
                     .build(),
             VehiclePropConfigBuilder.newBuilder(CUSTOM_ZONED_FLOAT_PROP_ID)
-                    .addAreaConfig(VehicleAreaZone.ROW_1_LEFT | VehicleAreaZone.ROW_1_RIGHT, 0, 0)
-                    .addAreaConfig(VehicleAreaZone.ROW_1_LEFT, MIN_PROP_FLOAT, MAX_PROP_FLOAT)
-                    .addAreaConfig(VehicleAreaZone.ROW_2_RIGHT, MIN_PROP_FLOAT, MAX_PROP_FLOAT)
+                    .addAreaConfig(VehicleAreaSeat.ROW_1_LEFT | VehicleAreaSeat.ROW_1_RIGHT, 0, 0)
+                    .addAreaConfig(VehicleAreaSeat.ROW_1_LEFT, MIN_PROP_FLOAT, MAX_PROP_FLOAT)
+                    .addAreaConfig(VehicleAreaSeat.ROW_2_RIGHT, MIN_PROP_FLOAT, MAX_PROP_FLOAT)
                     .build(),
             VehiclePropConfigBuilder.newBuilder(CUSTOM_BYTES_PROP_ID_1)
-                    .addAreaConfig(VehicleAreaZone.ROW_1_LEFT | VehicleAreaZone.ROW_1_RIGHT, 0, 0)
+                    .addAreaConfig(VehicleAreaSeat.ROW_1_LEFT | VehicleAreaSeat.ROW_1_RIGHT, 0, 0)
                     .build(),
             VehiclePropConfigBuilder.newBuilder(CUSTOM_BYTES_PROP_ID_2).build(),
             VehiclePropConfigBuilder.newBuilder(CUSTOM_STRING_PROP_ID).build(),
@@ -139,11 +140,11 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
         mManager.setProperty(
                 Float.class,
                 CUSTOM_ZONED_FLOAT_PROP_ID,
-                VehicleAreaZone.ROW_1_RIGHT,
+                VehicleAreaSeat.ROW_1_RIGHT,
                 value);
 
         float actualValue = mManager.getProperty(
-                Float.class, CUSTOM_ZONED_FLOAT_PROP_ID, VehicleAreaZone.ROW_1_RIGHT);
+                Float.class, CUSTOM_ZONED_FLOAT_PROP_ID, VehicleAreaSeat.ROW_1_RIGHT);
         assertEquals(value, actualValue, EPS);
     }
 

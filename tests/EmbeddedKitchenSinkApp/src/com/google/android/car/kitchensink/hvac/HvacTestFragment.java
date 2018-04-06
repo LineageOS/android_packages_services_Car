@@ -18,15 +18,12 @@ package com.google.android.car.kitchensink.hvac;
 
 import static java.lang.Integer.toHexString;
 
-import com.google.android.car.kitchensink.KitchenSinkActivity;
-import com.google.android.car.kitchensink.R;
-
 import android.car.CarNotConnectedException;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.hvac.CarHvacManager;
+import android.hardware.automotive.vehicle.V2_0.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaWindow;
-import android.hardware.automotive.vehicle.V2_0.VehicleAreaZone;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -38,6 +35,9 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import com.google.android.car.kitchensink.KitchenSinkActivity;
+import com.google.android.car.kitchensink.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -415,12 +415,12 @@ public class HvacTestFragment extends Fragment {
             mTempStep = 0.5f;
         }
         mZoneForSetTempD = 0;
-        if (prop.hasArea(VehicleAreaZone.ROW_1_LEFT)) {
-            mZoneForSetTempD = VehicleAreaZone.ROW_1_LEFT;
+        if (prop.hasArea(VehicleAreaSeat.ROW_1_LEFT)) {
+            mZoneForSetTempD = VehicleAreaSeat.ROW_1_LEFT;
         }
         mZoneForSetTempP = 0;
-        if (prop.hasArea(VehicleAreaZone.ROW_1_RIGHT)) {
-            mZoneForSetTempP = VehicleAreaZone.ROW_1_RIGHT;
+        if (prop.hasArea(VehicleAreaSeat.ROW_1_RIGHT)) {
+            mZoneForSetTempP = VehicleAreaSeat.ROW_1_RIGHT;
         }
         int[] areas = prop.getAreaIds();
         if (mZoneForSetTempD == 0 && areas.length > 1) {

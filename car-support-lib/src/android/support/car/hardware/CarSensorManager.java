@@ -17,11 +17,12 @@
 package android.support.car.hardware;
 
 import android.Manifest;
-import android.support.annotation.IntDef;
-import android.support.annotation.RequiresPermission;
 import android.support.car.Car;
 import android.support.car.CarManagerBase;
 import android.support.car.CarNotConnectedException;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.RequiresPermission;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -137,10 +138,8 @@ public abstract class CarSensorManager implements CarManagerBase {
      * Requires {@link Car#PERMISSION_VEHICLE_DYNAMICS_STATE} permission.
      */
     public static final int SENSOR_TYPE_TRACTION_CONTROL_ACTIVE     = 25;
-    /**
-     * Set to true if the engine is on.
-     */
-    public static final int SENSOR_TYPE_ENGINE_ON                   = 26;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED26                  = 26;
     /**
      * Set to true if the fuel door is open.
      */
@@ -205,7 +204,6 @@ public abstract class CarSensorManager implements CarManagerBase {
         SENSOR_TYPE_WHEEL_TICK_DISTANCE,
         SENSOR_TYPE_ABS_ACTIVE,
         SENSOR_TYPE_TRACTION_CONTROL_ACTIVE,
-        SENSOR_TYPE_ENGINE_ON,
         SENSOR_TYPE_FUEL_DOOR_OPEN,
         SENSOR_TYPE_EV_BATTERY_LEVEL,
         SENSOR_TYPE_EV_CHARGE_PORT_OPEN,
