@@ -17,9 +17,9 @@
 package com.android.car;
 
 import android.annotation.SystemApi;
-import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.IVmsPublisherClient;
 import android.car.vms.IVmsPublisherService;
+import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsSubscriptionState;
@@ -35,8 +35,10 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.android.car.hal.VmsHalService;
 import com.android.internal.annotations.GuardedBy;
+
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -90,7 +92,12 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
             if (name == null) {
                 Log.e(TAG, "invalid publisher name: " + publisherName);
             }
-            mPublisherManager.bind(name);
+
+            if (mContext.getPackageManager().isPackageAvailable(name.getPackageName())) {
+                mPublisherManager.bind(name);
+            } else {
+                Log.w(TAG, "VMS publisher not installed: " + publisherName);
+            }
         }
     }
 
