@@ -61,6 +61,13 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class CarUxRestrictions implements Parcelable {
 
+    // Default fallback values for the restriction related parameters if the information is
+    // not available from the underlying service.
+    // TODO(b/77606226): Finalize default values.
+    private static final int DEFAULT_MAX_LENGTH = 80;
+    private static final int DEFAULT_MAX_CUMULATIVE_ITEMS = 50;
+    private static final int DEFAULT_MAX_CONTENT_DEPTH = 3;
+
     /**
      * No specific restrictions in place, but baseline distraction optimization guidelines need to
      * be adhered to when {@link #isRequiresDistractionOptimization()} is true.
@@ -80,7 +87,7 @@ public class CarUxRestrictions implements Parcelable {
 
     /**
      * General purpose strings length cannot exceed the character limit provided by
-     * {@link CarUxRestrictionsManager#getMaxRestrictedStringLength()}
+     * {@link #getMaxRestrictedStringLength()}
      */
     public static final int UX_RESTRICTIONS_LIMIT_STRING_LENGTH = 0x1 << 2;
 
@@ -96,8 +103,8 @@ public class CarUxRestrictions implements Parcelable {
 
     /**
      * Limit the number of items displayed on the screen.
-     * Refer to {@link CarUxRestrictionsManager#getMaxCumulativeContentItems()} and
-     * {@link CarUxRestrictionsManager#getMaxContentDepth()} for the upper bounds on content
+     * Refer to {@link #getMaxCumulativeContentItems()} and
+     * {@link #getMaxContentDepth()} for the upper bounds on content
      * serving.
      */
     public static final int UX_RESTRICTIONS_LIMIT_CONTENT = 0x1 << 5;
@@ -129,7 +136,7 @@ public class CarUxRestrictions implements Parcelable {
                     | UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION;
 
     @IntDef(flag = true,
-            prefix = { "UX_RESTRICTIONS_" },
+            prefix = {"UX_RESTRICTIONS_"},
             value = {UX_RESTRICTIONS_BASELINE,
                     UX_RESTRICTIONS_NO_DIALPAD,
                     UX_RESTRICTIONS_NO_FILTERING,
@@ -148,6 +155,65 @@ public class CarUxRestrictions implements Parcelable {
     private final boolean mRequiresDistractionOptimization;
     @CarUxRestrictionsInfo
     private final int mActiveRestrictions;
+    // Restriction Parameters
+    private final int mMaxStringLength;
+    private final int mMaxCumulativeContentItems;
+    private final int mMaxContentDepth;
+
+    /**
+     * Builder class for {@link CarUxRestrictions}
+     */
+    public static class Builder {
+        private final long mTimeStamp;
+        private final boolean mRequiresDistractionOptimization;
+        @CarUxRestrictionsInfo
+        private final int mActiveRestrictions;
+        // Restriction Parameters
+        private int mMaxStringLength = DEFAULT_MAX_LENGTH;
+        private int mMaxCumulativeContentItems = DEFAULT_MAX_CUMULATIVE_ITEMS;
+        private int mMaxContentDepth = DEFAULT_MAX_CONTENT_DEPTH;
+
+        public Builder(boolean reqOpt, @CarUxRestrictionsInfo int restrictions, long time) {
+            mRequiresDistractionOptimization = reqOpt;
+            mActiveRestrictions = restrictions;
+            mTimeStamp = time;
+        }
+
+        /**
+         * Set the maximum length of general purpose strings that can be displayed when
+         * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_STRING_LENGTH} is imposed.
+         */
+        public Builder setMaxStringLength(int length) {
+            mMaxStringLength = length;
+            return this;
+        }
+
+        /**
+         *  Set the maximum number of cumulative content items that can be displayed when
+         * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
+         */
+        public Builder setMaxCumulativeContentItems(int number) {
+            mMaxCumulativeContentItems = number;
+            return this;
+        }
+
+        /**
+         * Set the maximum number of levels that the user can navigate to when
+         * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
+         */
+        public Builder setMaxContentDepth(int depth) {
+            mMaxContentDepth = depth;
+            return this;
+        }
+
+        /**
+         * Build and return the {@link CarUxRestrictions} object
+         */
+        public CarUxRestrictions build() {
+            return new CarUxRestrictions(this);
+        }
+
+    }
 
     /**
      * Time at which this UX restriction event was deduced based on the car's driving state.
@@ -183,6 +249,42 @@ public class CarUxRestrictions implements Parcelable {
         return mActiveRestrictions;
     }
 
+    /**
+     * Get the maximum length of general purpose strings that can be displayed when
+     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_STRING_LENGTH} is imposed.
+     *
+     * @return the maximum length of string that can be displayed
+     */
+    public int getMaxRestrictedStringLength() {
+        return mMaxStringLength;
+    }
+
+    /**
+     * Get the maximum number of cumulative content items that can be displayed when
+     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
+     * <p>
+     * Please refer to this and {@link #getMaxContentDepth()} to know the upper bounds of
+     * content serving when the restriction is in place.
+     *
+     * @return maximum number of cumulative items that can be displayed
+     */
+    public int getMaxCumulativeContentItems() {
+        return mMaxCumulativeContentItems;
+    }
+
+    /**
+     * Get the maximum number of levels that the user can navigate to when
+     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
+     * <p>
+     * Please refer to this and {@link #getMaxCumulativeContentItems()} to know the upper bounds of
+     * content serving when the restriction is in place.
+     *
+     * @return maximum number of cumulative items that can be displayed
+     */
+    public int getMaxContentDepth() {
+        return mMaxContentDepth;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -193,6 +295,9 @@ public class CarUxRestrictions implements Parcelable {
         dest.writeInt(mActiveRestrictions);
         dest.writeLong(mTimeStamp);
         dest.writeInt(mRequiresDistractionOptimization ? 1 : 0);
+        dest.writeInt(mMaxStringLength);
+        dest.writeInt(mMaxCumulativeContentItems);
+        dest.writeInt(mMaxContentDepth);
     }
 
     public static final Parcelable.Creator<CarUxRestrictions> CREATOR
@@ -206,22 +311,31 @@ public class CarUxRestrictions implements Parcelable {
         }
     };
 
-    public CarUxRestrictions(boolean reqOpt, @CarUxRestrictionsInfo int restrictions, long time) {
-        mRequiresDistractionOptimization = reqOpt;
-        mActiveRestrictions = restrictions;
-        mTimeStamp = time;
-    }
-
     public CarUxRestrictions(CarUxRestrictions uxRestrictions) {
         mTimeStamp = uxRestrictions.getTimeStamp();
         mRequiresDistractionOptimization = uxRestrictions.isRequiresDistractionOptimization();
         mActiveRestrictions = uxRestrictions.getActiveRestrictions();
+        mMaxStringLength = uxRestrictions.mMaxStringLength;
+        mMaxCumulativeContentItems = uxRestrictions.mMaxCumulativeContentItems;
+        mMaxContentDepth = uxRestrictions.mMaxContentDepth;
+    }
+
+    private CarUxRestrictions(Builder builder) {
+        mTimeStamp = builder.mTimeStamp;
+        mActiveRestrictions = builder.mActiveRestrictions;
+        mRequiresDistractionOptimization = builder.mRequiresDistractionOptimization;
+        mMaxStringLength = builder.mMaxStringLength;
+        mMaxCumulativeContentItems = builder.mMaxCumulativeContentItems;
+        mMaxContentDepth = builder.mMaxContentDepth;
     }
 
     private CarUxRestrictions(Parcel in) {
         mActiveRestrictions = in.readInt();
         mTimeStamp = in.readLong();
         mRequiresDistractionOptimization = in.readInt() != 0;
+        mMaxStringLength = in.readInt();
+        mMaxCumulativeContentItems = in.readInt();
+        mMaxContentDepth = in.readInt();
     }
 
     @Override

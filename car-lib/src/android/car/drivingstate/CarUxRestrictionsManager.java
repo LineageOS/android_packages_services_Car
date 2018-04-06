@@ -153,60 +153,6 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     }
 
     /**
-     * Get the maximum length of general purpose strings that can be displayed when
-     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_STRING_LENGTH} is imposed.
-     *
-     * @return the maximum length of string that can be displayed
-     * @throws CarNotConnectedException
-     */
-    public int getMaxRestrictedStringLength() throws CarNotConnectedException {
-        try {
-            return mUxRService.getMaxRestrictedStringLength();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Could not get the Max restricted String length " + e);
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    /**
-     * Get the maximum number of cumulative content items that can be displayed when
-     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
-     * <p>
-     * Please refer to this and {@link #getMaxContentDepth()} to know the upper bounds of
-     * content serving when the restriction is in place.
-     *
-     * @return maximum number of cumulative items that can be displayed
-     * @throws CarNotConnectedException
-     */
-    public int getMaxCumulativeContentItems() throws CarNotConnectedException {
-        try {
-            return mUxRService.getMaxCumulativeContentItems();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Could not get the Max Cumulative content items " + e);
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    /**
-     * Get the maximum number of levels that the user can navigate to when
-     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
-     * <p>
-     * Please refer to this and {@link #getMaxCumulativeContentItems()} to know the upper bounds of
-     * content serving when the restriction is in place.
-     *
-     * @return maximum number of cumulative items that can be displayed
-     * @throws CarNotConnectedException
-     */
-    public int getMaxContentDepth() throws CarNotConnectedException {
-        try {
-            return mUxRService.getMaxContentDepth();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Could not get the Max content depth " + e);
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    /**
      * Class that implements the listener interface and gets called back from the
      * {@link com.android.car.CarDrivingStateService} across the binder interface.
      */
