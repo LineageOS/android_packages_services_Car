@@ -30,7 +30,4 @@ interface ICarUxRestrictionsManager {
     void registerUxRestrictionsChangeListener(in ICarUxRestrictionsChangeListener listener) = 0;
     void unregisterUxRestrictionsChangeListener(in ICarUxRestrictionsChangeListener listener) = 1;
     CarUxRestrictions getCurrentUxRestrictions() = 2;
-    int getMaxRestrictedStringLength() = 3;
-    int getMaxCumulativeContentItems() = 4;
-    int getMaxContentDepth() = 5;
 }
