@@ -20,7 +20,6 @@ import android.annotation.Nullable;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
 import android.car.drivingstate.CarUxRestrictions;
-import android.car.drivingstate.CarUxRestrictions.CarUxRestrictionsInfo;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.drivingstate.ICarUxRestrictionsManager;
@@ -30,7 +29,6 @@ import android.car.hardware.ICarSensorEventListener;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -48,12 +46,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         CarServiceBase {
     private static final String TAG = "CarUxR";
     private static final boolean DBG = false;
-    // Default parameters to some of the UX restrictions if not configured in
-    // car_ux_restrictions_map.xml
-    static final int DEFAULT_MAX_LENGTH = 80;
-    static final int DEFAULT_MAX_CUMULATIVE_ITEMS = 50;
-    static final int DEFAULT_MAX_CONTENT_DEPTH = 3;
-
     private final Context mContext;
     private final CarDrivingStateService mDrivingStateService;
     private final CarSensorService mCarSensorService;
@@ -73,7 +65,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         // Unrestricted until driving state information is received. During boot up, we don't want
         // everything to be blocked until data is available from CarSensorManager.  If we start
         // driving and we don't get speed or gear information, we have bigger problems.
-        mCurrentUxRestrictions = createUxRestrictionsEvent(false,
+        mCurrentUxRestrictions = mHelper.createUxRestrictionsEvent(false,
                 CarUxRestrictions.UX_RESTRICTIONS_BASELINE);
     }
 
@@ -190,43 +182,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Nullable
     public synchronized CarUxRestrictions getCurrentUxRestrictions() {
         return mCurrentUxRestrictions;
-    }
-
-    /**
-     * Get the maximum length of general purpose strings that can be displayed when
-     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_STRING_LENGTH} is imposed.
-     *
-     * @return the maximum length of string that can be displayed
-     */
-    @Override
-    public int getMaxRestrictedStringLength() {
-        return mHelper.getMaxStringLength();
-    }
-
-    /**
-     * Get the maximum number of cumulative content items that can be displayed when
-     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
-     * <p>
-     * Please refer to this and {@link #getMaxContentDepth()} to know the upper bounds of
-     * content serving when the restriction is in place.
-     *
-     * @return maximum number of cumulative items that can be displayed
-     */
-    public int getMaxCumulativeContentItems() {
-        return mHelper.getMaxCumulativeContentItems();
-    }
-
-    /**
-     * Get the maximum number of levels that the user can navigate to when
-     * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
-     * <p>
-     * Please refer to this and {@link #getMaxCumulativeContentItems()} to know the upper bounds of
-     * content serving when the restriction is in place.
-     *
-     * @return maximum number of cumulative items that can be displayed
-     */
-    public int getMaxContentDepth() {
-        return mHelper.getMaxContentDepth();
     }
 
     /**
@@ -425,17 +380,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 restrictions = CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
                 requiresOpt = true;
         }
-        return createUxRestrictionsEvent(requiresOpt, restrictions);
-    }
-
-    static CarUxRestrictions createUxRestrictionsEvent(boolean requiresOpt,
-            @CarUxRestrictionsInfo int uxr) {
-        // In case the UXR is not baseline, set requiresDistractionOptimization to true since it
-        // doesn't make sense to have an active non baseline restrictions without
-        // requiresDistractionOptimization set to true.
-        if (uxr != CarUxRestrictions.UX_RESTRICTIONS_BASELINE) {
-            requiresOpt = true;
-        }
-        return new CarUxRestrictions(requiresOpt, uxr, SystemClock.elapsedRealtimeNanos());
+        return mHelper.createUxRestrictionsEvent(requiresOpt, restrictions);
     }
 }

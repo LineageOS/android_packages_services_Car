@@ -43,7 +43,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Sample app that uses components in car support library to demonstrate Car drivingstate UXR status.
+ * Sample app that uses components in car support library to demonstrate Car drivingstate UXR
+ * status.
  */
 public class MainActivity extends Activity {
     public static final String TAG = "drivingstate";
@@ -67,7 +68,7 @@ public class MainActivity extends Activity {
                         mCarDrivingStateManager = (CarDrivingStateManager) mCar.getCarManager(
                                 Car.CAR_DRIVING_STATE_SERVICE);
                         mCarUxRestrictionsManager = (CarUxRestrictionsManager) mCar.getCarManager(
-                                        Car.CAR_UX_RESTRICTION_SERVICE);
+                                Car.CAR_UX_RESTRICTION_SERVICE);
 
                     } catch (CarNotConnectedException e) {
                         Log.e(TAG, "Failed to get a connection", e);
@@ -76,7 +77,7 @@ public class MainActivity extends Activity {
                     // Register listener
                     try {
                         mCarDrivingStateManager.registerListener(mDrvStateChangeListener);
-                        mCarUxRestrictionsManager.registerListener(uxrChangeListener);
+                        mCarUxRestrictionsManager.registerListener(mUxRChangeListener);
                     } catch (CarNotConnectedException e) {
                         e.printStackTrace();
                     }
@@ -96,6 +97,7 @@ public class MainActivity extends Activity {
                     Log.d(TAG, "Disconnected from " + name.flattenToString());
                     try {
                         mCarUxRestrictionsManager.unregisterListener();
+                        mCarDrivingStateManager.unregisterListener();
                     } catch (CarNotConnectedException e) {
                         e.printStackTrace();
                     }
@@ -141,13 +143,12 @@ public class MainActivity extends Activity {
         mDrvStatus.requestLayout();
     }
 
-    private CarUxRestrictionsManager.onUxRestrictionsChangedListener uxrChangeListener = restrictions -> {
-        updateUxRText(restrictions);
-    };
+    private CarUxRestrictionsManager.onUxRestrictionsChangedListener mUxRChangeListener =
+            this::updateUxRText;
 
-    private CarDrivingStateManager.CarDrivingStateEventListener mDrvStateChangeListener = state -> {
-        updateDrivingStateText(state);
-    };
+
+    private CarDrivingStateManager.CarDrivingStateEventListener mDrvStateChangeListener =
+            this::updateDrivingStateText;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -166,12 +167,12 @@ public class MainActivity extends Activity {
         mToggleButton.setOnClickListener(v -> {
             // Create a mock UXR change.
             requiresDO[0] = !requiresDO[0];
-            CarUxRestrictions restrictions = new CarUxRestrictions(
+            CarUxRestrictions restrictions = new CarUxRestrictions.Builder(
                     requiresDO[0],
                     requiresDO[0]
                             ? CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED
                             : CarUxRestrictions.UX_RESTRICTIONS_BASELINE,
-                    elapsedRealtimeNanos());
+                    elapsedRealtimeNanos()).build();
             updateUxRText(restrictions);
         });
 
@@ -192,13 +193,22 @@ public class MainActivity extends Activity {
 
         items.add(createMessage(android.R.drawable.ic_menu_myplaces, "bob",
                 "hey this is a really long message that i have always wanted to say. but before " +
-                        "saying it i feel it's only appropriate if i lay some groundwork for it. "));
+                        "saying it i feel it's only appropriate if i lay some groundwork for it. "
+                        + ""));
         items.add(createMessage(android.R.drawable.ic_menu_myplaces, "mom",
                 "i think you are the best. i think you are the best. i think you are the best. " +
-                        "i think you are the best. i think you are the best. i think you are the best. " +
-                        "i think you are the best. i think you are the best. i think you are the best. " +
-                        "i think you are the best. i think you are the best. i think you are the best. " +
-                        "i think you are the best. i think you are the best. i think you are the best. " +
+                        "i think you are the best. i think you are the best. i think you are the "
+                        + "best. "
+                        +
+                        "i think you are the best. i think you are the best. i think you are the "
+                        + "best. "
+                        +
+                        "i think you are the best. i think you are the best. i think you are the "
+                        + "best. "
+                        +
+                        "i think you are the best. i think you are the best. i think you are the "
+                        + "best. "
+                        +
                         "i think you are the best. i think you are the best. "));
         items.add(createMessage(android.R.drawable.ic_menu_myplaces, "john", "hello world"));
         items.add(createMessage(android.R.drawable.ic_menu_myplaces, "jeremy",

@@ -2,7 +2,6 @@
 ###################################
 # System files
 #
-/system/bin/vehicle_monitor_service              u:object_r:vms_exec:s0
 
 /(vendor|system/vendor)/bin/hw/android\.hardware\.automotive\.audiocontrol@1\.0-service  u:object_r:hal_audiocontrol_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.automotive\.vehicle@2\.0-service  u:object_r:hal_vehicle_default_exec:s0
