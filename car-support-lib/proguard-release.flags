@@ -3700,7 +3700,7 @@
     public android.app.Notification$Builder addAction(android.app.Notification$Action);
     public android.app.Notification$Builder addExtras(android.os.Bundle);
     public android.app.Notification$Builder addPerson(java.lang.String);
-    public android.app.Notification$Builder addPerson(android.app.Notification$Person);
+    public android.app.Notification$Builder addPerson(android.app.Person);
     public android.app.Notification build();
     public android.app.Notification buildInto(android.app.Notification);
     public android.app.Notification buildUnstyled();
@@ -3796,30 +3796,6 @@
     public abstract android.app.Notification$Builder extend(android.app.Notification$Builder);
 
 
-}
-
--keep class android.app.Notification$Person {
-    <init>(android.os.Parcel);
-    <init>();
-
-    public int describeContents();
-    public android.graphics.drawable.Icon getIcon();
-    public java.lang.String getKey();
-    public java.lang.CharSequence getName();
-    public java.lang.String getUri();
-    public boolean isBot();
-    public boolean isImportant();
-    public java.lang.String resolveToLegacyUri();
-    public android.app.Notification$Person setBot(boolean);
-    public android.app.Notification$Person setIcon(android.graphics.drawable.Icon);
-    public android.app.Notification$Person setImportant(boolean);
-    public android.app.Notification$Person setKey(java.lang.String);
-    public android.app.Notification$Person setName(java.lang.CharSequence);
-    public android.app.Notification$Person setUri(java.lang.String);
-    public void writeToParcel(android.os.Parcel, int);
-
-
-    public static android.os.Parcelable$Creator CREATOR;
 }
 
 -keep class android.app.Notification$Style {
@@ -3930,6 +3906,37 @@
 -keep class android.app.PendingIntent$OnMarshaledListener {
 
     public abstract void onMarshaled(android.app.PendingIntent, android.os.Parcel, int);
+
+
+}
+
+-keep class android.app.Person {
+
+    public int describeContents();
+    public android.graphics.drawable.Icon getIcon();
+    public java.lang.String getKey();
+    public java.lang.CharSequence getName();
+    public java.lang.String getUri();
+    public boolean isBot();
+    public boolean isImportant();
+    public java.lang.String resolveToLegacyUri();
+    public android.app.Person$Builder toBuilder();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+}
+
+-keep class android.app.Person$Builder {
+    <init>();
+
+    public android.app.Person build();
+    public android.app.Person$Builder setBot(boolean);
+    public android.app.Person$Builder setIcon(android.graphics.drawable.Icon);
+    public android.app.Person$Builder setImportant(boolean);
+    public android.app.Person$Builder setKey(java.lang.String);
+    public android.app.Person$Builder setName(java.lang.CharSequence);
+    public android.app.Person$Builder setUri(java.lang.String);
 
 
 }
@@ -6088,6 +6095,7 @@
     public static java.lang.String ACTION_SHOW_APP_INFO;
     public static java.lang.String ACTION_SHOW_BRIGHTNESS_DIALOG;
     public static java.lang.String ACTION_SHOW_KEYBOARD_SHORTCUTS;
+    public static java.lang.String ACTION_SHOW_SUSPENDED_APP_DETAILS;
     public static java.lang.String ACTION_SHUTDOWN;
     public static java.lang.String ACTION_SIM_STATE_CHANGED;
     public static java.lang.String ACTION_SPLIT_CONFIGURATION_CHANGED;
@@ -7000,6 +7008,7 @@
     public boolean isPrivilegedApp();
     public boolean isProduct();
     public boolean isRequiredForSystemUser();
+    public boolean isSignedWithPlatformKey();
     public boolean isStaticSharedLibrary();
     public boolean isSystemApp();
     public boolean isUpdatedSystemApp();
@@ -7015,6 +7024,7 @@
     public void setResourcePath(java.lang.String);
     public void setSplitCodePaths(java.lang.String[]);
     public void setSplitResourcePaths(java.lang.String[]);
+    public void setVersionCode(long);
     public java.lang.String toString();
     public boolean usesCompatibilityMode();
     public void writeToParcel(android.os.Parcel, int);
@@ -7063,10 +7073,10 @@
     public static int FLAG_UPDATED_SYSTEM_APP;
     public static int FLAG_USES_CLEARTEXT_TRAFFIC;
     public static int FLAG_VM_SAFE_MODE;
-    public static int HIDDEN_API_ENFORCEMENT_ALL_LISTS;
     public static int HIDDEN_API_ENFORCEMENT_BLACK;
     public static int HIDDEN_API_ENFORCEMENT_DARK_GREY_AND_BLACK;
     public static int HIDDEN_API_ENFORCEMENT_DEFAULT;
+    public static int HIDDEN_API_ENFORCEMENT_JUST_WARN;
     public static int HIDDEN_API_ENFORCEMENT_NONE;
     public static java.lang.String METADATA_PRELOADED_FONTS;
     public static int PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE;
@@ -7086,6 +7096,7 @@
     public static int PRIVATE_FLAG_PRIVILEGED;
     public static int PRIVATE_FLAG_PRODUCT;
     public static int PRIVATE_FLAG_REQUIRED_FOR_SYSTEM_USER;
+    public static int PRIVATE_FLAG_SIGNED_WITH_PLATFORM_KEY;
     public static int PRIVATE_FLAG_STATIC_SHARED_LIBRARY;
     public static int PRIVATE_FLAG_VENDOR;
     public static int PRIVATE_FLAG_VIRTUAL_PRELOAD;
@@ -7107,6 +7118,7 @@
     public int fullBackupContent;
     public int installLocation;
     public int largestWidthLimitDp;
+    public long longVersionCode;
     public java.lang.String manageSpaceActivityName;
     public float maxAspectRatio;
     public int minSdkVersion;
@@ -7141,7 +7153,7 @@
     public int theme;
     public int uiOptions;
     public int uid;
-    public long versionCode;
+    public int versionCode;
     public java.lang.String volumeUuid;
 }
 
@@ -7547,7 +7559,7 @@
     public abstract boolean setInstantAppCookie(java.lang.String, byte[], int);
     public abstract void setLastChosenActivity(android.content.Intent, java.lang.String, int, android.content.IntentFilter, int, android.content.ComponentName);
     public abstract void setPackageStoppedState(java.lang.String, boolean, int);
-    public abstract java.lang.String[] setPackagesSuspendedAsUser(java.lang.String[], boolean, android.os.PersistableBundle, android.os.PersistableBundle, java.lang.String, int);
+    public abstract java.lang.String[] setPackagesSuspendedAsUser(java.lang.String[], boolean, android.os.PersistableBundle, android.os.PersistableBundle, java.lang.String, java.lang.String, int);
     public abstract void setPermissionEnforced(java.lang.String, boolean);
     public abstract boolean setRequiredForSystemUser(java.lang.String, boolean);
     public abstract void setSuspendedPackageAppExtras(java.lang.String, android.os.PersistableBundle, int);
@@ -8296,6 +8308,7 @@
     public static java.lang.String FEATURE_CONSUMER_IR;
     public static java.lang.String FEATURE_CTS;
     public static java.lang.String FEATURE_DEVICE_ADMIN;
+    public static java.lang.String FEATURE_DEVICE_ID_ATTESTATION;
     public static java.lang.String FEATURE_EMBEDDED;
     public static java.lang.String FEATURE_ETHERNET;
     public static java.lang.String FEATURE_FAKETOUCH;
@@ -13152,6 +13165,7 @@
     public java.lang.String getPackageName();
     public int getPid();
     public int getUid();
+    public int hashCode();
 
 
 }
@@ -14483,6 +14497,7 @@
     public static int DETECT_VM_CURSOR_LEAKS;
     public static int DETECT_VM_FILE_URI_EXPOSURE;
     public static int DETECT_VM_INSTANCE_LEAKS;
+    public static int DETECT_VM_NON_SDK_API_USAGE;
     public static int DETECT_VM_REGISTRATION_LEAKS;
     public static int DETECT_VM_UNTAGGED_SOCKET;
     public static java.lang.String DISABLE_PROPERTY;
@@ -18434,6 +18449,7 @@
     public void removeRenderNode(android.view.RenderNode);
     public void serializeDisplayListTree();
     public void setContentDrawBounds(int, int, int, int);
+    public static void setContextPriority(int);
     public static void setDebuggingEnabled(boolean);
     public static void setFPSDivisor(int);
     public static void setHighContrastText(boolean);
@@ -18447,6 +18463,9 @@
     public static java.lang.String DEBUG_OVERDRAW_PROPERTY;
     public static java.lang.String DEBUG_SHOW_LAYERS_UPDATES_PROPERTY;
     public static java.lang.String DEBUG_SHOW_NON_RECTANGULAR_CLIP_PROPERTY;
+    public static int EGL_CONTEXT_PRIORITY_HIGH_IMG;
+    public static int EGL_CONTEXT_PRIORITY_LOW_IMG;
+    public static int EGL_CONTEXT_PRIORITY_MEDIUM_IMG;
     public static java.lang.String OVERDRAW_PROPERTY_SHOW;
     public static java.lang.String PROFILE_PROPERTY;
     public static java.lang.String PROFILE_PROPERTY_VISUALIZE_BARS;

@@ -16,8 +16,6 @@
 
 package com.android.car;
 
-import static com.android.car.CarUxRestrictionsManagerService.createUxRestrictionsEvent;
-
 import android.annotation.Nullable;
 import android.annotation.XmlRes;
 import android.car.drivingstate.CarDrivingStateEvent;
@@ -26,6 +24,7 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
@@ -60,6 +59,7 @@ import java.util.Map;
     private static final String RESTRICTIONS = "Restrictions";
     private static final String STRING_RESTRICTIONS = "StringRestrictions";
     private static final String CONTENT_RESTRICTIONS = "ContentRestrictions";
+
     /* Hashmap that maps driving state to RestrictionsInfo.
     RestrictionsInfo maintains a list of RestrictionsPerSpeedRange.
     The list size will be one for Parked and Idling states, but could be more than one
@@ -206,7 +206,8 @@ import java.util.Map;
             TypedArray a = mContext.getResources().obtainAttributes(attrs,
                     R.styleable.UxRestrictions_Restrictions);
             restrictions = a.getInt(
-                    R.styleable.UxRestrictions_Restrictions_uxr, UX_RESTRICTIONS_UNKNOWN);
+                    R.styleable.UxRestrictions_Restrictions_uxr,
+                    CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
             requiresOpt = a.getBoolean(
                     R.styleable.UxRestrictions_Restrictions_requiresDistractionOptimization, true);
             a.recycle();
@@ -271,7 +272,7 @@ import java.util.Map;
                                 R.styleable.UxRestrictions_StringRestrictions);
                         mRestrictionParameters.mMaxStringLength = a
                                 .getInt(R.styleable.UxRestrictions_StringRestrictions_maxLength,
-                                        CarUxRestrictionsManagerService.DEFAULT_MAX_LENGTH);
+                                        UX_RESTRICTIONS_UNKNOWN);
 
                         break;
                     case CONTENT_RESTRICTIONS:
@@ -279,10 +280,10 @@ import java.util.Map;
                                 R.styleable.UxRestrictions_ContentRestrictions);
                         mRestrictionParameters.mMaxCumulativeContentItems = a.getInt(R.styleable
                                         .UxRestrictions_ContentRestrictions_maxCumulativeItems,
-                                CarUxRestrictionsManagerService.DEFAULT_MAX_CUMULATIVE_ITEMS);
+                                UX_RESTRICTIONS_UNKNOWN);
                         mRestrictionParameters.mMaxContentDepth = a
                                 .getInt(R.styleable.UxRestrictions_ContentRestrictions_maxDepth,
-                                        CarUxRestrictionsManagerService.DEFAULT_MAX_CONTENT_DEPTH);
+                                        UX_RESTRICTIONS_UNKNOWN);
                         break;
                     default:
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -353,7 +354,7 @@ import java.util.Map;
         // XML, return fully restricted.
         if (restrictionsList == null || restrictionsList.mRestrictionsList == null
                 || restrictionsList.mRestrictionsList.isEmpty()) {
-            return CarUxRestrictionsManagerService.createUxRestrictionsEvent(true,
+            return createUxRestrictionsEvent(true,
                     CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
         }
         // For Parked and Idling, the restrictions list will have only one item, since multiple
@@ -367,48 +368,41 @@ import java.util.Map;
             return createUxRestrictionsEvent(restrictions.mRequiresDistractionOptimization,
                     restrictions.mRestrictions);
         } else {
-            return CarUxRestrictionsManagerService.createUxRestrictionsEvent(true,
+            return createUxRestrictionsEvent(true,
                     CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
         }
     }
 
-    /**
-     * Returns the maximum string length allowed parsed from the <StringRestrictions> element.
-     * If that is not available, returns the default max length from
-     * {@link CarUxRestrictionsManagerService#DEFAULT_MAX_LENGTH}
-     */
-    public int getMaxStringLength() {
-        return mRestrictionParameters.mMaxStringLength;
-    }
-
-    /**
-     * Returns the allowed maximum number of cumulative content items parsed from the
-     * <ContentRestrictions> element.
-     * If that is not available, returns the default max length from
-     * {@link CarUxRestrictionsManagerService#DEFAULT_MAX_CUMULATIVE_ITEMS}
-     */
-    public int getMaxCumulativeContentItems() {
-        return mRestrictionParameters.mMaxCumulativeContentItems;
-    }
-
-    /**
-     * Returns the allowed maximum number of levels content can be presented in, parsed from the
-     * <ContentRestrictions> element.
-     * If that is not available, returns the default max length from
-     * {@link CarUxRestrictionsManagerService#DEFAULT_MAX_CONTENT_DEPTH}
-     */
-    public int getMaxContentDepth() {
-        return mRestrictionParameters.mMaxContentDepth;
+    /* package */ CarUxRestrictions createUxRestrictionsEvent(boolean requiresOpt,
+            @CarUxRestrictions.CarUxRestrictionsInfo int uxr) {
+        // In case the UXR is not baseline, set requiresDistractionOptimization to true since it
+        // doesn't make sense to have an active non baseline restrictions without
+        // requiresDistractionOptimization set to true.
+        if (uxr != CarUxRestrictions.UX_RESTRICTIONS_BASELINE) {
+            requiresOpt = true;
+        }
+        CarUxRestrictions.Builder builder = new CarUxRestrictions.Builder(requiresOpt, uxr,
+                SystemClock.elapsedRealtimeNanos());
+        if (mRestrictionParameters.mMaxStringLength != UX_RESTRICTIONS_UNKNOWN) {
+            builder.setMaxStringLength(mRestrictionParameters.mMaxStringLength);
+        }
+        if (mRestrictionParameters.mMaxCumulativeContentItems != UX_RESTRICTIONS_UNKNOWN) {
+            builder.setMaxCumulativeContentItems(
+                    mRestrictionParameters.mMaxCumulativeContentItems);
+        }
+        if (mRestrictionParameters.mMaxContentDepth != UX_RESTRICTIONS_UNKNOWN) {
+            builder.setMaxContentDepth(mRestrictionParameters.mMaxContentDepth);
+        }
+        return builder.build();
     }
 
     /**
      * Container for the UX restrictions that could be parametrized
      */
     private class RestrictionParameters {
-        int mMaxStringLength = CarUxRestrictionsManagerService.DEFAULT_MAX_LENGTH;
-        int mMaxCumulativeContentItems =
-                CarUxRestrictionsManagerService.DEFAULT_MAX_CUMULATIVE_ITEMS;
-        int mMaxContentDepth = CarUxRestrictionsManagerService.DEFAULT_MAX_CONTENT_DEPTH;
+        int mMaxStringLength = UX_RESTRICTIONS_UNKNOWN;
+        int mMaxCumulativeContentItems = UX_RESTRICTIONS_UNKNOWN;
+        int mMaxContentDepth = UX_RESTRICTIONS_UNKNOWN;
     }
 
     /**

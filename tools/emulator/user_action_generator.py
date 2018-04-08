@@ -165,7 +165,11 @@ class UserActionGenerator(object):
         """
             Main method that simulate user in-car actions such as HVAC
         """
-        listener.handle(c.VEHICLEPROPERTY_HVAC_POWER_ON, c.VEHICLEAREAZONE_ROW_1,
+
+        # Turn on HVAC only for front seats
+        listener.handle(c.VEHICLEPROPERTY_HVAC_POWER_ON, c.VEHICLEAREASEAT_ROW_1_LEFT,
+                        1, 'HVAC_POWER_ON')
+        listener.handle(c.VEHICLEPROPERTY_HVAC_POWER_ON, c.VEHICLEAREASEAT_ROW_1_RIGHT,
                         1, 'HVAC_POWER_ON')
         time.sleep(SHORT_SLEEP_TIME_SEC)
 
