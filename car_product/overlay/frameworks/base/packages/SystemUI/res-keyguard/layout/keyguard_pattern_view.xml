@@ -64,6 +64,13 @@
                 android:layout_gravity="center_horizontal"
                 android:gravity="center" />
 
+            <Button
+                android:id="@+id/cancel_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/cancel"/>
+
           <include layout="@layout/keyguard_eca"
               android:id="@+id/keyguard_selector_fade_container"
               android:layout_width="match_parent"
