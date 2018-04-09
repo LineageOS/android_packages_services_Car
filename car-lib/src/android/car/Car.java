@@ -19,7 +19,6 @@ package android.car;
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.CarBluetoothManager;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.content.pm.CarPackageManager;
 import android.car.diagnostic.CarDiagnosticManager;
@@ -167,18 +166,48 @@ public final class Car {
     @SystemApi
     public static final String TEST_SERVICE = "car-service-test";
 
-    /** Permission necessary to access car's mileage information. */
+    /** Permission necessary to access car's mileage information.
+     *  @hide
+     */
+    @SystemApi
     public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
 
-    /** Permission necessary to access car's fuel level. */
-    public static final String PERMISSION_FUEL = "android.car.permission.CAR_FUEL";
+    /** Permission necessary to access car's energy information. */
+    public static final String PERMISSION_ENERGY = "android.car.permission.CAR_ENERGY";
+
+    /** Permission necessary to access car's VIN information */
+    public static final String PERMISSION_IDENTIFICATION =
+            "android.car.permission.CAR_IDENTIFICATION";
 
     /** Permission necessary to access car's speed. */
     public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
 
-    /** Permission necessary to access car's dynamics state. */
-    public static final String PERMISSION_VEHICLE_DYNAMICS_STATE =
-        "android.car.permission.VEHICLE_DYNAMICS_STATE";
+    /** Permission necessary to access car's dynamics state.
+     *  @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CAR_DYNAMICS_STATE =
+            "android.car.permission.CAR_DYNAMICS_STATE";
+
+    /** Permission necessary to access car's fuel door and ev charge port. */
+    public static final String PERMISSION_ENERGY_PORTS = "android.car.permission.CAR_ENERGY_PORTS";
+
+    /** Permission necessary to read car's lights information.
+     *  @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_EXTERIOR_LIGHTS =
+            "android.car.permission.CAR_EXTERIOR_LIGHTS";
+
+    /** Permission necessary to control car's exterior lights.
+     *  @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS =
+            "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
+
+    /** Permission necessary to access car's powertrain information.*/
+    public static final String PERMISSION_POWERTRAIN = "android.car.permission.CAR_POWERTRAIN";
 
     /**
      * Permission necessary to change car audio volume through {@link CarAudioManager}.
@@ -219,6 +248,13 @@ public final class Car {
     public static final String PERMISSION_CAR_DISPLAY_IN_CLUSTER =
             "android.car.permission.CAR_DISPLAY_IN_CLUSTER";
 
+    /** Permission necessary to use {@link CarInfoManager}. */
+    public static final String PERMISSION_CAR_INFO = "android.car.permission.CAR_INFO";
+
+    /** Permission necessary to read temperature of car's exterior environment. */
+    public static final String PERMISSION_EXTERIOR_ENVIRONMENT =
+            "android.car.permission.CAR_EXTERIOR_ENVIRONMENT";
+
     /**
      * Permission necessary to access car specific communication channel.
      * @hide
@@ -239,7 +275,8 @@ public final class Car {
      * @hide
      */
     @SystemApi
-    public static final String PERMISSION_ADJUST_CAR_CABIN = "android.car.permission.ADJUST_CAR_CABIN";
+    public static final String PERMISSION_ADJUST_CAR_CABIN =
+            "android.car.permission.ADJUST_CAR_CABIN";
 
     /**
      * Permission necessary to access car's engine information.
@@ -247,14 +284,54 @@ public final class Car {
      */
     @SystemApi
     public static final String PERMISSION_CAR_ENGINE_DETAILED =
-        "android.car.permission.CAR_ENGINE_DETAILED";
+            "android.car.permission.CAR_ENGINE_DETAILED";
+
+    /**
+     * Permission necessary to access car's tire pressure information.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_TIRES = "android.car.permission.CAR_TIRES";
+
+    /**
+     * Permission necessary to control car's door.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_CAR_DOORS =
+            "android.car.permission.CONTROL_CAR_DOORS";
+
+    /**
+     * Permission necessary to control car's windows.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_CAR_WINDOWS =
+            "android.car.permission.CONTROL_CAR_WINDOWS";
+
+    /**
+     * Permission necessary to control car's seats.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_CAR_SEATS =
+            "android.car.permission.CONTROL_CAR_SEATS";
+
+    /**
+     * Permission necessary to control car's mirrors.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_CAR_MIRRORS =
+            "android.car.permission.CONTROL_CAR_MIRRORS";
 
     /**
      * Permission necessary to access Car HVAC APIs.
      * @hide
      */
     @SystemApi
-    public static final String PERMISSION_ADJUST_CAR_CLIMATE = "android.car.permission.ADJUST_CAR_CLIMATE";
+    public static final String PERMISSION_CONTROL_CAR_CLIMATE =
+            "android.car.permission.CONTROL_CAR_CLIMATE";
 
     /**
      * Permission necessary to access Car POWER APIs.

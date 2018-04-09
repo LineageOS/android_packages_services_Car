@@ -315,7 +315,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     public static void assertHvacPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_ADJUST_CAR_CLIMATE);
+        assertPermission(context, Car.PERMISSION_CONTROL_CAR_CLIMATE);
     }
 
     public static void assertPowerPermission(Context context) {
