@@ -15,6 +15,8 @@
  */
 package com.android.car.trust;
 
+import static android.bluetooth.BluetoothProfile.GATT_SERVER;
+
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -108,7 +110,9 @@ public abstract class SimpleBleServer extends Service {
 
     private final Set<ConnectionCallback> mConnectionCallbacks = new HashSet<>();
 
+    private BluetoothManager mBluetoothManager;
     private BluetoothLeAdvertiser mAdvertiser;
+
     protected BluetoothGattServer mGattServer;
 
     /**
@@ -123,10 +127,8 @@ public abstract class SimpleBleServer extends Service {
             return;
         }
 
-        BluetoothManager btManager =
-                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-
-        mGattServer = btManager.openGattServer(this, mGattServerCallback);
+        mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mGattServer = mBluetoothManager.openGattServer(this, mGattServerCallback);
         if (mGattServer == null) {
             Log.e(Utils.LOG_TAG, "Gatt Server not created");
             return;
@@ -168,7 +170,7 @@ public abstract class SimpleBleServer extends Service {
         if (mGattServer != null) {
             mGattServer.clearServices();
             try {
-                for (BluetoothDevice d : mGattServer.getConnectedDevices()) {
+                for (BluetoothDevice d : mBluetoothManager.getConnectedDevices(GATT_SERVER)) {
                     mGattServer.cancelConnection(d);
                 }
             } catch (UnsupportedOperationException e) {
