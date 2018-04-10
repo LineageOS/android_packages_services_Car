@@ -66,7 +66,7 @@ public final class CarSensorManager implements CarManagerBase {
     /**
      * Indicates fuel level of the car.
      * In {@link CarSensorEvent}, represents fuel level in milliliters.
-     * This requires {@link Car#PERMISSION_FUEL} permission.
+     * This requires {@link Car#PERMISSION_ENERGY} permission.
      */
     public static final int SENSOR_TYPE_FUEL_LEVEL                  = 5;
     /**
@@ -129,12 +129,12 @@ public final class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_WHEEL_TICK_DISTANCE         = 23;
     /**
      * Set to true when ABS is active.  This sensor is event driven.
-     * This requires {@link Car#PERMISSION_VEHICLE_DYNAMICS_STATE} permission.
+     * This requires {@link Car#PERMISSION_CAR_DYNAMICS_STATE} permission.
      */
     public static final int SENSOR_TYPE_ABS_ACTIVE                  = 24;
     /**
      * Set to true when traction control is active.  This sensor is event driven.
-     * This requires {@link Car#PERMISSION_VEHICLE_DYNAMICS_STATE} permission.
+     * This requires {@link Car#PERMISSION_CAR_DYNAMICS_STATE} permission.
      */
     public static final int SENSOR_TYPE_TRACTION_CONTROL_ACTIVE     = 25;
     /** @hide */
@@ -150,7 +150,7 @@ public final class CarSensorManager implements CarManagerBase {
      * CarSensorEvent#INDEX_EV_BATTERY_CAPACITY_ACTUAL}] represents the actual battery capacity in
      * WH.  The battery degrades over time, so this value is expected to drop slowly over the life
      * of the vehicle.
-     * This requires {@link Car#PERMISSION_FUEL} permission.
+     * This requires {@link Car#PERMISSION_ENERGY} permission.
      */
     public static final int SENSOR_TYPE_EV_BATTERY_LEVEL            = 28;
     /**
@@ -163,7 +163,7 @@ public final class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED    = 30;
     /**
      *  Indicates the instantaneous battery charging rate in mW.
-     *  This requires {@link Car#PERMISSION_FUEL} permission.
+     *  This requires {@link Car#PERMISSION_ENERGY} permission.
      */
     public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE      = 31;
     /**
@@ -344,9 +344,9 @@ public final class CarSensorManager implements CarManagerBase {
      * <p>
      * Requires {@link Car#PERMISSION_SPEED} for {@link #SENSOR_TYPE_CAR_SPEED} and
      *  {@link #SENSOR_TYPE_WHEEL_TICK_DISTANCE}, {@link Car#PERMISSION_MILEAGE} for
-     *  {@link #SENSOR_TYPE_ODOMETER}, {@link Car#PERMISSION_FUEL} for
+     *  {@link #SENSOR_TYPE_ODOMETER}, {@link Car#PERMISSION_ENERGY} for
      *  {@link #SENSOR_TYPE_FUEL_LEVEL} and (@link #SENSOR_TYPE_EV_BATTERY_LEVEL and
-     *  {@link #SENSOR_TYPE_EV_CHARGE_RATE}, {@link Car#PERMISSION_VEHICLE_DYNAMICS_STATE} for
+     *  {@link #SENSOR_TYPE_EV_CHARGE_RATE}, {@link Car#PERMISSION_CAR_DYNAMICS_STATE} for
      *  {@link #SENSOR_TYPE_ABS_ACTIVE} and {@link #SENSOR_TYPE_TRACTION_CONTROL_ACTIVE}
      *
      * @param listener
@@ -364,7 +364,7 @@ public final class CarSensorManager implements CarManagerBase {
      * @throws SecurityException if missing the appropriate permission
      */
     @RequiresPermission(anyOf={Manifest.permission.ACCESS_FINE_LOCATION, Car.PERMISSION_SPEED,
-            Car.PERMISSION_MILEAGE, Car.PERMISSION_FUEL, Car.PERMISSION_VEHICLE_DYNAMICS_STATE},
+            Car.PERMISSION_MILEAGE, Car.PERMISSION_ENERGY, Car.PERMISSION_CAR_DYNAMICS_STATE},
             conditional=true)
     public boolean registerListener(OnSensorChangedListener listener, @SensorType int sensorType,
             @SensorRate int rate) throws CarNotConnectedException, IllegalArgumentException {
