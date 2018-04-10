@@ -427,6 +427,15 @@ public class CarSensorService extends ICarSensor.Stub
         }
         String permission = null;
         switch (sensorType) {
+            case CarSensorManager.SENSOR_TYPE_ENGINE_OIL_LEVEL:
+            case CarSensorManager.SENSOR_TYPE_RPM:
+                permission = Car.PERMISSION_CAR_ENGINE_DETAILED;
+                break;
+            case CarSensorManager.SENSOR_TYPE_FUEL_DOOR_OPEN:
+            case CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_OPEN:
+            case CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED:
+                permission = Car.PERMISSION_ENERGY_PORTS;
+                break;
             case CarSensorManager.SENSOR_TYPE_CAR_SPEED:
             case CarSensorManager.SENSOR_TYPE_WHEEL_TICK_DISTANCE:
                 permission = Car.PERMISSION_SPEED;
@@ -437,11 +446,11 @@ public class CarSensorService extends ICarSensor.Stub
             case CarSensorManager.SENSOR_TYPE_FUEL_LEVEL:
             case CarSensorManager.SENSOR_TYPE_EV_BATTERY_LEVEL:
             case CarSensorManager.SENSOR_TYPE_EV_BATTERY_CHARGE_RATE:
-                permission = Car.PERMISSION_FUEL;
+                permission = Car.PERMISSION_ENERGY;
                 break;
             case CarSensorManager.SENSOR_TYPE_ABS_ACTIVE:
             case CarSensorManager.SENSOR_TYPE_TRACTION_CONTROL_ACTIVE:
-                permission = Car.PERMISSION_VEHICLE_DYNAMICS_STATE;
+                permission = Car.PERMISSION_CAR_DYNAMICS_STATE;
                 break;
             default:
                 break;
