@@ -18,12 +18,12 @@ package android.car;
 import android.annotation.SystemApi;
 
 /**
- * VehicleWindow is an abstraction for a window in a car. Some car APIs may provide control per
+ * VehicleAreaWindow is an abstraction for a window in a car. Some car APIs may provide control per
  * window and values defined here should be used to distinguish different windows.
  * @hide
  */
 @SystemApi
-public final class VehicleWindow {
+public final class VehicleAreaWindow {
     public static final int WINDOW_FRONT_WINDSHIELD = 0x0001;
     public static final int WINDOW_REAR_WINDSHIELD = 0x0002;
     public static final int WINDOW_ROW_1_LEFT = 0x0010;
@@ -35,6 +35,6 @@ public final class VehicleWindow {
     public static final int WINDOW_ROOF_TOP_1 = 0x10000;
     public static final int WINDOW_ROOF_TOP_2 = 0x20000;
 
-    private VehicleWindow() {}
+    private VehicleAreaWindow() {}
 }
 

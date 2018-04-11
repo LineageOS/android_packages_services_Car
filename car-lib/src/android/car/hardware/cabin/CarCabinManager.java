@@ -61,7 +61,7 @@ public final class CarCabinManager implements CarManagerBase {
     private final ArraySet<CarCabinEventCallback> mCallbacks = new ArraySet<>();
     private CarPropertyEventListenerToBase mListenerToBase = null;
 
-    /** Door properties are zoned by VehicleDoor */
+    /** Door properties are zoned by VehicleAreaDoor */
     /**
      * door position, int type
      * Max value indicates fully open, min value (0) indicates fully closed.
@@ -79,7 +79,7 @@ public final class CarCabinManager implements CarManagerBase {
      */
     public static final int ID_DOOR_LOCK = 0x0003;
 
-    /** Mirror properties are zoned by VehicleMirror */
+    /** Mirror properties are zoned by VehicleAreaMirror */
     /**
      * mirror z position, int type
      * Positive value indicates tilt upwards, negative value tilt downwards.
@@ -109,7 +109,7 @@ public final class CarCabinManager implements CarManagerBase {
      */
     public static final int ID_MIRROR_FOLD = 0x1006;
 
-    /** Seat properties are zoned by VehicleSeat */
+    /** Seat properties are zoned by VehicleAreaSeat */
     /**
      * seat memory select, int type
      * This parameter selects the memory preset to use to select the seat position.
@@ -288,7 +288,7 @@ public final class CarCabinManager implements CarManagerBase {
      */
     public static final int ID_SEAT_HEADREST_FORE_AFT_MOVE = 0x201B;
 
-    /** Window properties are zoned by VehicleWindow */
+    /** Window properties are zoned by VehicleAreaWindow */
     /**
      * window position, int type
      * Max = window up / closed.

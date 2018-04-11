@@ -52,16 +52,7 @@ package android.car {
     method public abstract void onVoiceAssistantRequest(boolean);
   }
 
-  public final class VehicleAreaType {
-    field public static final int VEHICLE_AREA_TYPE_DOOR = 4; // 0x4
-    field public static final int VEHICLE_AREA_TYPE_MIRROR = 5; // 0x5
-    field public static final int VEHICLE_AREA_TYPE_NONE = 0; // 0x0
-    field public static final int VEHICLE_AREA_TYPE_SEAT = 3; // 0x3
-    field public static final int VEHICLE_AREA_TYPE_WHEEL = 6; // 0x6
-    field public static final int VEHICLE_AREA_TYPE_WINDOW = 2; // 0x2
-  }
-
-  public final class VehicleDoor {
+  public final class VehicleAreaDoor {
     field public static final int DOOR_HOOD = 268435456; // 0x10000000
     field public static final int DOOR_REAR = 536870912; // 0x20000000
     field public static final int DOOR_ROW_1_LEFT = 1; // 0x1
@@ -72,13 +63,13 @@ package android.car {
     field public static final int DOOR_ROW_3_RIGHT = 1024; // 0x400
   }
 
-  public final class VehicleMirror {
+  public final class VehicleAreaMirror {
     field public static final int MIRROR_DRIVER_CENTER = 4; // 0x4
     field public static final int MIRROR_DRIVER_LEFT = 1; // 0x1
     field public static final int MIRROR_DRIVER_RIGHT = 2; // 0x2
   }
 
-  public final class VehicleSeat {
+  public final class VehicleAreaSeat {
     field public static final int SEAT_ROW_1_CENTER = 2; // 0x2
     field public static final int SEAT_ROW_1_LEFT = 1; // 0x1
     field public static final int SEAT_ROW_1_RIGHT = 4; // 0x4
@@ -90,7 +81,16 @@ package android.car {
     field public static final int SEAT_ROW_3_RIGHT = 1024; // 0x400
   }
 
-  public final class VehicleWindow {
+  public final class VehicleAreaType {
+    field public static final int VEHICLE_AREA_TYPE_DOOR = 4; // 0x4
+    field public static final int VEHICLE_AREA_TYPE_MIRROR = 5; // 0x5
+    field public static final int VEHICLE_AREA_TYPE_NONE = 0; // 0x0
+    field public static final int VEHICLE_AREA_TYPE_SEAT = 3; // 0x3
+    field public static final int VEHICLE_AREA_TYPE_WHEEL = 6; // 0x6
+    field public static final int VEHICLE_AREA_TYPE_WINDOW = 2; // 0x2
+  }
+
+  public final class VehicleAreaWindow {
     field public static final int WINDOW_FRONT_WINDSHIELD = 1; // 0x1
     field public static final int WINDOW_REAR_WINDSHIELD = 2; // 0x2
     field public static final int WINDOW_ROOF_TOP_1 = 65536; // 0x10000
