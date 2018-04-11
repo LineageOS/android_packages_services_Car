@@ -33,6 +33,7 @@ import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
 
@@ -43,6 +44,9 @@ import java.util.Set;
  * A generic service to start a BLE
  */
 public abstract class SimpleBleServer extends Service {
+
+    private static final int BLE_RETRY_LIMIT = 5;
+    private static final int BLE_RETRY_INTERVAL_MS = 1000;
 
     private final AdvertiseCallback mAdvertisingCallback = new AdvertiseCallback() {
         @Override
@@ -112,16 +116,21 @@ public abstract class SimpleBleServer extends Service {
 
     private BluetoothManager mBluetoothManager;
     private BluetoothLeAdvertiser mAdvertiser;
-
-    protected BluetoothGattServer mGattServer;
+    private BluetoothGattServer mGattServer;
+    private int mAdvertiserStartCount;
 
     /**
      * Starts the GATT server with the given {@link BluetoothGattService} and begins
      * advertising with the {@link ParcelUuid}.
+     * <p>It is possible that BLE service is still in TURNING_ON state when this method is invoked.
+     * Therefore, several retries will be made to ensure advertising is started.
+     *
      * @param advertiseUuid Service Uuid used in the {@link AdvertiseData}
      * @param service {@link BluetoothGattService} that will be discovered by clients
+     * @param handler {@link Handler} instance to run the retry logic
      */
-    protected void start(ParcelUuid advertiseUuid, BluetoothGattService service) {
+    protected void start(ParcelUuid advertiseUuid, BluetoothGattService service,
+            Handler handler) {
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Log.e(Utils.LOG_TAG, "System does not support BLE");
             return;
@@ -150,12 +159,22 @@ public abstract class SimpleBleServer extends Service {
                 .addServiceUuid(advertiseUuid)
                 .build();
 
+        mAdvertiserStartCount = 0;
+        startAdvertisingInternally(settings, data, handler);
+    }
+
+    private void startAdvertisingInternally(AdvertiseSettings settings,
+            AdvertiseData data, Handler handler) {
+        mAdvertiserStartCount += 1;
         mAdvertiser = BluetoothAdapter.getDefaultAdapter().getBluetoothLeAdvertiser();
-        if (mAdvertiser == null) {
-            Log.e(Utils.LOG_TAG, "Failed to get BLE advertiser");
-            return;
+        if (mAdvertiser == null && mAdvertiserStartCount < BLE_RETRY_LIMIT) {
+            handler.postDelayed(() -> startAdvertisingInternally(settings, data, handler),
+                    BLE_RETRY_INTERVAL_MS);
+        } else {
+            handler.removeCallbacks(null);
+            mAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
+            mAdvertiserStartCount = 0;
         }
-        mAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
     }
 
     /**
@@ -181,6 +200,15 @@ public abstract class SimpleBleServer extends Service {
         }
 
         mConnectionCallbacks.clear();
+    }
+
+    /**
+     * Notifies the characteristic change via {@link BluetoothGattServer}
+     */
+    protected boolean notifyCharacteristicChanged(BluetoothDevice device,
+            BluetoothGattCharacteristic characteristic, boolean confirm) {
+        return (mGattServer != null)
+                && mGattServer.notifyCharacteristicChanged(device, characteristic, confirm);
     }
 
     @Override

@@ -40,7 +40,7 @@ import android.widget.TextView;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.android.car.trust.CarEnrolmentService.EnrolmentListener;
+import com.android.car.trust.CarEnrolmentService.OnEnrolmentDataReceivedListener;
 import com.android.car.trust.SimpleBleServer.ConnectionCallback;
 
 /**
@@ -93,7 +93,7 @@ public class CarEnrolmentActivity extends Activity {
         }
     };
 
-    private final EnrolmentListener mEnrolmentListener = (byte[] token) -> {
+    private final OnEnrolmentDataReceivedListener mEnrolmentListener = (byte[] token) -> {
         appendOutputText("Enrolment data received ");
         addEscrowToken(token);
     };
