@@ -23,8 +23,8 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Represents vehicle area such as window, door, seat, etc.
- * See also {@link android.car.VehicleDoor}, {@link android.car.VehicleSeat},
- * {@link android.car.VehicleWindow},
+ * See also {@link VehicleAreaDoor}, {@link VehicleAreaSeat},
+ * {@link VehicleAreaWindow},
  *
  * @hide
  */

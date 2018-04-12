@@ -19,13 +19,13 @@ import android.annotation.SystemApi;
 import android.car.hardware.CarPropertyValue;
 
 /**
- * VehicleSeat is an abstraction for a seat in a car. Some car APIs like
+ * VehicleAreaSeat is an abstraction for a seat in a car. Some car APIs like
  * {@link CarPropertyValue} may provide control per seat and
  * values defined here should be used to distinguish different seats.
  * @hide
  */
 @SystemApi
-public final class VehicleSeat {
+public final class VehicleAreaSeat {
     public static final int SEAT_ROW_1_LEFT = 0x0001;
     public static final int SEAT_ROW_1_CENTER = 0x0002;
     public static final int SEAT_ROW_1_RIGHT = 0x0004;
@@ -36,5 +36,5 @@ public final class VehicleSeat {
     public static final int SEAT_ROW_3_CENTER = 0x0200;
     public static final int SEAT_ROW_3_RIGHT = 0x0400;
 
-    private VehicleSeat() {}
+    private VehicleAreaSeat() {}
 }
