@@ -18,6 +18,7 @@ ifneq ($(TARGET_BUILD_PDK), true)
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
+LOCAL_JAVA_LIBRARIES += android.car
 LOCAL_USE_AAPT2 := true
 LOCAL_STATIC_ANDROID_LIBRARIES := androidx.legacy_legacy-support-v4
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res

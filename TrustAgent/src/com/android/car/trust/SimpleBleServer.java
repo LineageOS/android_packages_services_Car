@@ -37,13 +37,12 @@ import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * A generic service to start a BLE
  */
 public abstract class SimpleBleServer extends Service {
+
+    private static final String TAG = SimpleBleServer.class.getSimpleName();
 
     private static final int BLE_RETRY_LIMIT = 5;
     private static final int BLE_RETRY_INTERVAL_MS = 1000;
@@ -52,19 +51,15 @@ public abstract class SimpleBleServer extends Service {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
             super.onStartSuccess(settingsInEffect);
-            Log.d(Utils.LOG_TAG, "Successfully started advertising service");
-            for (ConnectionCallback callback : mConnectionCallbacks) {
-                callback.onServerStarted();
-            }
+            Log.d(TAG, "Successfully started advertising service");
+            onAdvertiseStartSuccess();
         }
 
         @Override
         public void onStartFailure(int errorCode) {
             super.onStartFailure(errorCode);
-            Log.e(Utils.LOG_TAG, "Failed to advertise, errorCode: " + errorCode);
-            for (ConnectionCallback callback : mConnectionCallbacks) {
-                callback.onServerStartFailed(errorCode);
-            }
+            Log.e(TAG, "Failed to advertise, errorCode: " + errorCode);
+            onAdvertiseStartFailure(errorCode);
         }
     };
 
@@ -73,46 +68,46 @@ public abstract class SimpleBleServer extends Service {
         @Override
         public void onConnectionStateChange(BluetoothDevice device,
                 final int status, final int newState) {
-            Log.d(Utils.LOG_TAG, "GattServer connection change status: " + status
+            Log.d(TAG, "GattServer connection change status: " + status
                     + " newState: " + newState
                     + " device name: " + device.getName());
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                for (ConnectionCallback callback : mConnectionCallbacks) {
-                    callback.onDeviceConnected(device);
-                }
+            switch (newState) {
+                case BluetoothProfile.STATE_CONNECTED:
+                    onAdvertiseDeviceConnected(device);
+                    break;
+                case BluetoothProfile.STATE_DISCONNECTED:
+                    onAdvertiseDeviceDisconnected(device);
+                    break;
             }
         }
 
         @Override
         public void onServiceAdded(final int status, BluetoothGattService service) {
-            Log.d(Utils.LOG_TAG, "Service added status: " + status + " uuid: " + service.getUuid());
+            Log.d(TAG, "Service added status: " + status + " uuid: " + service.getUuid());
         }
 
         @Override
         public void onCharacteristicReadRequest(BluetoothDevice device,
                 int requestId, int offset, final BluetoothGattCharacteristic characteristic) {
-            Log.d(Utils.LOG_TAG, "Read request for characteristic: " + characteristic.getUuid());
+            Log.d(TAG, "Read request for characteristic: " + characteristic.getUuid());
             mGattServer.sendResponse(device, requestId,
                     BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
-            SimpleBleServer.
-                    this.onCharacteristicRead(device, requestId, offset, characteristic);
+            onCharacteristicRead(device, requestId, offset, characteristic);
         }
 
         @Override
         public void onCharacteristicWriteRequest(final BluetoothDevice device, int requestId,
                 BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean
                 responseNeeded, int offset, byte[] value) {
-            Log.d(Utils.LOG_TAG, "Write request for characteristic: " + characteristic.getUuid());
+            Log.d(TAG, "Write request for characteristic: " + characteristic.getUuid());
             mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS,
                     offset, value);
-
-            SimpleBleServer.
-                    this.onCharacteristicWrite(device, requestId, characteristic,
+            onCharacteristicWrite(device, requestId, characteristic,
                     preparedWrite, responseNeeded, offset, value);
         }
     };
 
-    private final Set<ConnectionCallback> mConnectionCallbacks = new HashSet<>();
+    private final Handler mHandler = new Handler();
 
     private BluetoothManager mBluetoothManager;
     private BluetoothLeAdvertiser mAdvertiser;
@@ -127,19 +122,17 @@ public abstract class SimpleBleServer extends Service {
      *
      * @param advertiseUuid Service Uuid used in the {@link AdvertiseData}
      * @param service {@link BluetoothGattService} that will be discovered by clients
-     * @param handler {@link Handler} instance to run the retry logic
      */
-    protected void start(ParcelUuid advertiseUuid, BluetoothGattService service,
-            Handler handler) {
+    protected void startAdvertising(ParcelUuid advertiseUuid, BluetoothGattService service) {
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Log.e(Utils.LOG_TAG, "System does not support BLE");
+            Log.e(TAG, "System does not support BLE");
             return;
         }
 
         mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mGattServer = mBluetoothManager.openGattServer(this, mGattServerCallback);
         if (mGattServer == null) {
-            Log.e(Utils.LOG_TAG, "Gatt Server not created");
+            Log.e(TAG, "Gatt Server not created");
             return;
         }
 
@@ -160,27 +153,41 @@ public abstract class SimpleBleServer extends Service {
                 .build();
 
         mAdvertiserStartCount = 0;
-        startAdvertisingInternally(settings, data, handler);
+        startAdvertisingInternally(settings, data);
     }
 
-    private void startAdvertisingInternally(AdvertiseSettings settings,
-            AdvertiseData data, Handler handler) {
+    private void startAdvertisingInternally(AdvertiseSettings settings, AdvertiseData data) {
         mAdvertiserStartCount += 1;
         mAdvertiser = BluetoothAdapter.getDefaultAdapter().getBluetoothLeAdvertiser();
         if (mAdvertiser == null && mAdvertiserStartCount < BLE_RETRY_LIMIT) {
-            handler.postDelayed(() -> startAdvertisingInternally(settings, data, handler),
+            mHandler.postDelayed(() -> startAdvertisingInternally(settings, data),
                     BLE_RETRY_INTERVAL_MS);
         } else {
-            handler.removeCallbacks(null);
+            mHandler.removeCallbacks(null);
             mAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
             mAdvertiserStartCount = 0;
         }
     }
 
+    protected void stopAdvertising() {
+        if (mAdvertiser != null) {
+            mAdvertiser.stopAdvertising(mAdvertisingCallback);
+        }
+    }
+
     /**
-     * Stops the advertiser and GATT server. This needs to be done to avoid leaks
+     * Notifies the characteristic change via {@link BluetoothGattServer}
      */
-    protected void stop() {
+    protected void notifyCharacteristicChanged(BluetoothDevice device,
+            BluetoothGattCharacteristic characteristic, boolean confirm) {
+        if (mGattServer != null) {
+            mGattServer.notifyCharacteristicChanged(device, characteristic, confirm);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        // Stops the advertiser and GATT server. This needs to be done to avoid leaks
         if (mAdvertiser != null) {
             mAdvertiser.stopAdvertising(mAdvertisingCallback);
             mAdvertiser.cleanup();
@@ -193,73 +200,32 @@ public abstract class SimpleBleServer extends Service {
                     mGattServer.cancelConnection(d);
                 }
             } catch (UnsupportedOperationException e) {
-                Log.e(Utils.LOG_TAG, "Error getting connected devices", e);
+                Log.e(TAG, "Error getting connected devices", e);
             } finally {
                 mGattServer.close();
             }
         }
-
-        mConnectionCallbacks.clear();
-    }
-
-    /**
-     * Notifies the characteristic change via {@link BluetoothGattServer}
-     */
-    protected boolean notifyCharacteristicChanged(BluetoothDevice device,
-            BluetoothGattCharacteristic characteristic, boolean confirm) {
-        return (mGattServer != null)
-                && mGattServer.notifyCharacteristicChanged(device, characteristic, confirm);
-    }
-
-    @Override
-    public void onDestroy() {
-        stop();
         super.onDestroy();
     }
 
-    public void registerConnectionCallback(ConnectionCallback callback) {
-        Log.d(Utils.LOG_TAG, "Adding connection listener");
-        mConnectionCallbacks.add(callback);
-    }
-
-    public void unregisterConnectionCallback(ConnectionCallback callback) {
-        mConnectionCallbacks.remove(callback);
-    }
+    // Delegate to subclass
+    protected void onAdvertiseStartSuccess() { }
+    protected void onAdvertiseStartFailure(int errorCode) { }
+    protected void onAdvertiseDeviceConnected(BluetoothDevice device) { }
+    protected void onAdvertiseDeviceDisconnected(BluetoothDevice device) { }
 
     /**
      * Triggered when this BleService receives a write request from a remote
      * device. Sub-classes should implement how to handle requests.
      */
-    public abstract void onCharacteristicWrite(final BluetoothDevice device, int requestId,
+    protected abstract void onCharacteristicWrite(BluetoothDevice device, int requestId,
             BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean
             responseNeeded, int offset, byte[] value);
 
     /**
      * Triggered when this BleService receives a read request from a remote device.
      */
-    public abstract void onCharacteristicRead(BluetoothDevice device,
+    protected abstract void onCharacteristicRead(BluetoothDevice device,
             int requestId, int offset, final BluetoothGattCharacteristic characteristic);
 
-    /**
-     * Callback that is notified when the status of the BLE server changes.
-     */
-    public interface ConnectionCallback {
-        /**
-         * Called when the GATT server is started and BLE is successfully advertising.
-         */
-        void onServerStarted();
-
-        /**
-         * Called when the BLE advertisement fails to start.
-         *
-         * @param errorCode Error code (see {@link AdvertiseCallback}#ADVERTISE_FAILED_* constants)
-         */
-        void onServerStartFailed(int errorCode);
-
-        /**
-         * Called when a device is connected.
-         * @param device {@link BluetoothDevice} that is connected
-         */
-        void onDeviceConnected(BluetoothDevice device);
-    }
 }
