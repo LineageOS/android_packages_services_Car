@@ -103,8 +103,6 @@
 
     <!--  Blocking activity: Message to show to user when an application is not allowed. [CHAR LIMIT=NONE] -->
     <string name="activity_blocked_string">%1$s can\'t be used while driving.</string>
-    <!--  Blocking activity: Message on exit button. [CHAR LIMIT=NONE] -->
-    <string name="exit_now">OK</string>
 
     <!-- Permission text: apps can control diagnostic data [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_diag_read">Diagnostic Data</string>
