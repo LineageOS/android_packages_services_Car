@@ -62,6 +62,8 @@ public class CarBleTrustAgent extends TrustAgentService {
     private static final long TRUST_DURATION_MS = TimeUnit.MINUTES.toMicros(5);
     private static final long BLE_RETRY_MS = TimeUnit.SECONDS.toMillis(1);
 
+    private Handler mHandler;
+    private BluetoothManager mBluetoothManager;
     private CarUnlockService mCarUnlockService;
     private LocalBroadcastManager mLocalBroadcastManager;
 
@@ -116,7 +118,7 @@ public class CarBleTrustAgent extends TrustAgentService {
             CarUnlockService.UnlockServiceBinder binder
                     = (CarUnlockService.UnlockServiceBinder) service;
             mCarUnlockService = binder.getService();
-            mCarUnlockService.addUnlockServiceCallback(CarBleTrustAgent.this::unlock);
+            mCarUnlockService.setOnUnlockDeviceListener(CarBleTrustAgent.this::unlock);
             mCarUnlockService.registerConnectionCallback(mConnectionCallback);
             maybeStartBleUnlockService();
         }
@@ -138,6 +140,9 @@ public class CarBleTrustAgent extends TrustAgentService {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        mHandler = new Handler();
+        mBluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
 
         Log.d(Utils.LOG_TAG, "Bluetooth trust agent starting up");
         IntentFilter filter = new IntentFilter();
@@ -164,6 +169,7 @@ public class CarBleTrustAgent extends TrustAgentService {
     @Override
     public void onDestroy() {
         Log.d(Utils.LOG_TAG, "Car Trust agent shutting down");
+        mHandler.removeCallbacks(null);
         mLocalBroadcastManager.unregisterReceiver(mTrustEventReceiver);
 
         // Unbind the service to avoid leaks from BLE stack.
@@ -175,10 +181,8 @@ public class CarBleTrustAgent extends TrustAgentService {
 
     private void maybeStartBleUnlockService() {
         Log.d(Utils.LOG_TAG, "Trying to open a Ble GATT server");
-        BluetoothManager btManager =
-                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        BluetoothGattServer mGattServer
-                = btManager.openGattServer(this, new BluetoothGattServerCallback() {
+        BluetoothGattServer gattServer = mBluetoothManager.openGattServer(
+                this, new BluetoothGattServerCallback() {
             @Override
             public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
                 super.onConnectionStateChange(device, status, newState);
@@ -188,11 +192,12 @@ public class CarBleTrustAgent extends TrustAgentService {
         // The BLE stack is started up before the trust agent service, however Gatt capabilities
         // might not be ready just yet. Keep trying until a GattServer can open up before proceeding
         // to start the rest of the BLE services.
-        if (mGattServer == null) {
+        if (gattServer == null) {
             Log.e(Utils.LOG_TAG, "Gatt not available, will try again...in " + BLE_RETRY_MS + "ms");
-            new Handler().postDelayed(() -> maybeStartBleUnlockService(), BLE_RETRY_MS);
+            mHandler.postDelayed(() -> maybeStartBleUnlockService(), BLE_RETRY_MS);
         } else {
-            mGattServer.close();
+            mHandler.removeCallbacks(null);
+            gattServer.close();
             Log.d(Utils.LOG_TAG, "GATT available, starting up UnlockService");
             mCarUnlockService.start();
         }
