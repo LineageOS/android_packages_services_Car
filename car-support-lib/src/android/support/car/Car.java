@@ -170,10 +170,10 @@ public class Car {
      */
     public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     /**
-     * Permission necessary to access car fuel level.
+     * Permission necessary to access car's energy information.
      * @hide
      */
-    public static final String PERMISSION_FUEL = "android.car.permission.CAR_FUEL";
+    public static final String PERMISSION_ENERGY = "android.car.permission.CAR_ENERGY";
     /**
      * Permission necessary to access car speed.
      * @hide
