@@ -20,6 +20,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.util.Log;
@@ -30,23 +31,17 @@ import java.util.UUID;
  * A service that receives unlock requests from remote devices.
  */
 public class CarUnlockService extends SimpleBleServer {
-    /**
-     * A callback to receives callback
-     */
-    public interface UnlockServiceCallback {
-        void unlockDevice(byte[] token, long handle);
-    }
+
+    private final IBinder mBinder = new UnlockServiceBinder();
 
     private BluetoothGattService mUnlockService;
     private BluetoothGattCharacteristic mUnlockEscrowToken;
     private BluetoothGattCharacteristic mUnlockTokenHandle;
 
-    private UnlockServiceCallback mCallback;
+    private OnUnlockDeviceListener mOnUnlockDeviceListener;
 
     private byte[] mCurrentToken;
     private Long mCurrentHandle;
-
-    private final IBinder mBinder = new UnlockServiceBinder();
 
     public class UnlockServiceBinder extends Binder {
         public CarUnlockService getService() {
@@ -57,7 +52,6 @@ public class CarUnlockService extends SimpleBleServer {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(Utils.LOG_TAG, "CarUnlockService starting up, creating BLE service");
         setupUnlockService();
     }
 
@@ -65,13 +59,13 @@ public class CarUnlockService extends SimpleBleServer {
      * Start advertising the BLE unlock service
      */
     public void start() {
-        ParcelUuid uuid = new ParcelUuid(
-                UUID.fromString(getString(R.string.unlock_service_uuid)));
-        start(uuid, mUnlockService);
+        ParcelUuid uuid = new ParcelUuid(UUID.fromString(getString(R.string.unlock_service_uuid)));
+        Log.d(Utils.LOG_TAG, "CarUnlockService start with uuid: " + uuid);
+        start(uuid, mUnlockService, new Handler());
     }
 
-    public void addUnlockServiceCallback(UnlockServiceCallback callback) {
-        mCallback = callback;
+    public void setOnUnlockDeviceListener(OnUnlockDeviceListener callback) {
+        mOnUnlockDeviceListener = callback;
     }
 
     @Override
@@ -111,9 +105,7 @@ public class CarUnlockService extends SimpleBleServer {
         Log.d(Utils.LOG_TAG, "Handle and token both received, requesting unlock. Time: "
                 + System.currentTimeMillis());
         // Both the handle and token has been received, try to unlock the device.
-
-
-        mCallback.unlockDevice(mCurrentToken, mCurrentHandle);
+        mOnUnlockDeviceListener.onUnlockDevice(mCurrentToken, mCurrentHandle);
 
         // Once we've notified the client of the unlocking data, clear it out.
         mCurrentToken = null;
@@ -143,4 +135,15 @@ public class CarUnlockService extends SimpleBleServer {
         mUnlockService.addCharacteristic(mUnlockTokenHandle);
     }
 
+    /**
+     * Interface to send the token to unlock a device
+     */
+    public interface OnUnlockDeviceListener {
+        /**
+         * Sends token to unlock the trust device
+         * @param token
+         * @param handle
+         */
+        void onUnlockDevice(byte[] token, long handle);
+    }
 }
