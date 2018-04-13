@@ -59,14 +59,13 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-//TODO monitor app installing and refresh policy, bug: 31970400
 
 public class CarPackageManagerService extends ICarPackageManager.Stub implements CarServiceBase {
     private static final boolean DBG_POLICY_SET = false;
@@ -109,7 +108,19 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private final ActivityLaunchListener mActivityLaunchListener = new ActivityLaunchListener();
     private final UxRestrictionsListener mUxRestrictionsListener;
-    private final BootPhaseEventReceiver mBootPhaseEventReceiver = new BootPhaseEventReceiver();
+
+    // Information related to when the installed packages should be parsed for building a white and
+    // black list
+    private final List<String> mPackageManagerActions = Arrays.asList(
+            Intent.ACTION_PACKAGE_ADDED,
+            Intent.ACTION_PACKAGE_CHANGED,
+            Intent.ACTION_PACKAGE_DATA_CLEARED,
+            Intent.ACTION_PACKAGE_REMOVED,
+            Intent.ACTION_PACKAGE_REPLACED,
+            Intent.ACTION_PACKAGE_FULLY_REMOVED);
+
+    private final PackageParsingEventReceiver mPackageParsingEventReceiver =
+            new PackageParsingEventReceiver();
 
     public CarPackageManagerService(Context context,
             CarUxRestrictionsManagerService uxRestrictionsService,
@@ -309,16 +320,21 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
             wakeupClientsWaitingForPolicySetitngLocked();
         }
-        mContext.unregisterReceiver(mBootPhaseEventReceiver);
+        mContext.unregisterReceiver(mPackageParsingEventReceiver);
         mCarUxRestrictionsService.unregisterUxRestrictionsChangeListener(mUxRestrictionsListener);
         mSystemActivityMonitoringService.registerActivityLaunchListener(null);
     }
 
     // run from HandlerThread
     private void doHandleInit() {
-        IntentFilter bootIntent = new IntentFilter();
-        bootIntent.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
-        mContext.registerReceiver(mBootPhaseEventReceiver, bootIntent);
+        startAppBlockingPolicies();
+        IntentFilter pkgParseIntent = new IntentFilter();
+        pkgParseIntent.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
+        for (String action : mPackageManagerActions) {
+            pkgParseIntent.addAction(action);
+        }
+        pkgParseIntent.addDataScheme("package");
+        mContext.registerReceiver(mPackageParsingEventReceiver, pkgParseIntent);
         try {
             mCarUxRestrictionsService.registerUxRestrictionsChangeListener(mUxRestrictionsListener);
         } catch (IllegalArgumentException e) {
@@ -331,7 +347,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     private void doParseInstalledPackages() {
-        startAppBlockingPolicies();
         generateActivityWhitelistMap();
         generateActivityBlacklistMap();
         mUxRestrictionsListener.checkIfTopActivityNeedsBlocking();
@@ -562,6 +577,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             activityWhitelist.put(info.packageName, wrapper);
         }
         synchronized (this) {
+            mActivityWhitelistMap.clear();
             mActivityWhitelistMap.putAll(activityWhitelist);
         }
     }
@@ -613,6 +629,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             activityBlacklist.put(pkg, wrapper);
         }
         synchronized (this) {
+            mActivityBlacklistMap.clear();
             mActivityBlacklistMap.putAll(activityBlacklist);
         }
     }
@@ -893,9 +910,13 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             sendMessage(msg);
         }
 
-        private void requestParsingInstalledPkgs() {
+        private void requestParsingInstalledPkgs(long delayMs) {
             Message msg = obtainMessage(MSG_PARSE_PKG);
-            sendMessage(msg);
+            if (delayMs == 0) {
+                sendMessage(msg);
+            } else {
+                sendMessageDelayed(msg, delayMs);
+            }
         }
 
         @Override
@@ -905,6 +926,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     doHandleInit();
                     break;
                 case MSG_PARSE_PKG:
+                    removeMessages(MSG_PARSE_PKG);
                     doParseInstalledPackages();
                     break;
                 case MSG_SET_POLICY:
@@ -1077,14 +1099,58 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     /**
      * Listens to the boot events to know when to initiate parsing installed packages.
      */
-    private class BootPhaseEventReceiver extends BroadcastReceiver {
+    private class PackageParsingEventReceiver extends BroadcastReceiver {
+        private static final long PACKAGE_PARSING_DELAY_MS = 500;
         @Override
         public void onReceive(Context context, Intent intent) {
             if (DBG_POLICY_CHECK) {
                 Log.d(CarLog.TAG_PACKAGE, "Received " + intent.getAction());
             }
-            if (intent != null && intent.getAction().equals(Intent.ACTION_LOCKED_BOOT_COMPLETED)) {
-                mHandler.requestParsingInstalledPkgs();
+            if (intent == null || intent.getAction() == null) {
+                return;
+            }
+            String action = intent.getAction();
+            if (action.equals(Intent.ACTION_LOCKED_BOOT_COMPLETED)) {
+                mHandler.requestParsingInstalledPkgs(0);
+            } else if (isPackageManagerAction(action)) {
+                // send a delayed message so if we received multiple related intents, we parse
+                // only once.
+                logEventChange(intent);
+                mHandler.requestParsingInstalledPkgs(PACKAGE_PARSING_DELAY_MS);
+            }
+        }
+
+        private boolean isPackageManagerAction(String action) {
+            return mPackageManagerActions.indexOf(action) != -1;
+        }
+
+        /**
+         * Convenience log function to log what changed.  Logs only when more debug logs
+         * are needed - DBG_POLICY_CHECK needs to be true
+         */
+        private void logEventChange(Intent intent) {
+            if (!DBG_POLICY_CHECK || intent == null) {
+                return;
+            }
+
+            String packageName = intent.getData().getSchemeSpecificPart();
+            Log.d(CarLog.TAG_PACKAGE, "Pkg Changed:" + packageName);
+            String action = intent.getAction();
+            if (action == null) {
+                return;
+            }
+            if (action.equals(Intent.ACTION_PACKAGE_CHANGED)) {
+                Log.d(CarLog.TAG_PACKAGE, "Changed components");
+                String[] cc = intent.getStringArrayExtra(Intent.EXTRA_CHANGED_COMPONENT_NAME_LIST);
+                if (cc != null) {
+                    for (String c : cc) {
+                        Log.d(CarLog.TAG_PACKAGE, c);
+                    }
+                }
+            } else if (action.equals(Intent.ACTION_PACKAGE_REMOVED)
+                    || action.equals(Intent.ACTION_PACKAGE_ADDED)) {
+                Log.d(CarLog.TAG_PACKAGE, action + " Replacing?: " + intent.getBooleanExtra(
+                        Intent.EXTRA_REPLACING, false));
             }
         }
     }
