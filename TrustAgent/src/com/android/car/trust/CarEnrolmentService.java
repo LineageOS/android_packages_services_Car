@@ -20,6 +20,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.util.Log;
@@ -33,16 +34,12 @@ import java.util.UUID;
  */
 public class CarEnrolmentService extends SimpleBleServer {
 
-    public interface EnrolmentListener {
-        void onEnrolmentDataReceived(byte[] token);
-    }
+    private final Set<OnEnrolmentDataReceivedListener> mEnrolmentListeners = new HashSet<>();
+    private final IBinder mBinder = new EnrolmentServiceBinder();
 
     private BluetoothGattService mEnrolmentService;
     private BluetoothGattCharacteristic mEnrolmentEscrowToken;
     private BluetoothGattCharacteristic mEnrolmentTokenHandle;
-
-    private final Set<EnrolmentListener> mEnrolmentListeners = new HashSet<>();
-    private final IBinder mBinder = new EnrolmentServiceBinder();
 
     @Override
     public void onCreate() {
@@ -53,8 +50,8 @@ public class CarEnrolmentService extends SimpleBleServer {
     public void start() {
         ParcelUuid uuid = new ParcelUuid(
                 UUID.fromString(getString(R.string.enrollment_service_uuid)));
-        Log.e(Utils.LOG_TAG, "CarEnrolmentService start with uuid: " + uuid);
-        start(uuid, mEnrolmentService);
+        Log.d(Utils.LOG_TAG, "CarEnrolmentService start with uuid: " + uuid);
+        start(uuid, mEnrolmentService, new Handler());
     }
 
     @Override
@@ -68,7 +65,7 @@ public class CarEnrolmentService extends SimpleBleServer {
             boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
         if (characteristic.getUuid().equals(mEnrolmentEscrowToken.getUuid())) {
             Log.d(Utils.LOG_TAG, "Enrolment token received, value: " + Utils.getLong(value));
-            for (EnrolmentListener callback : mEnrolmentListeners) {
+            for (OnEnrolmentDataReceivedListener callback : mEnrolmentListeners) {
                 callback.onEnrolmentDataReceived(value);
             }
         }
@@ -80,11 +77,19 @@ public class CarEnrolmentService extends SimpleBleServer {
         //Enrolment service should not have any read requests.
     }
 
-    public void registerEnrolmentListener(EnrolmentListener listener) {
+    /**
+     * Register {@link OnEnrolmentDataReceivedListener} to receive the enrolment data
+     * @param listener
+     */
+    public void registerEnrolmentListener(OnEnrolmentDataReceivedListener listener) {
         mEnrolmentListeners.add(listener);
     }
 
-    public void unregisterEnrolmentListener(EnrolmentListener listener) {
+    /**
+     * Unregister {@link OnEnrolmentDataReceivedListener} from receiving enrolment data
+     * @param listener
+     */
+    public void unregisterEnrolmentListener(OnEnrolmentDataReceivedListener listener) {
         mEnrolmentListeners.remove(listener);
     }
 
@@ -92,8 +97,7 @@ public class CarEnrolmentService extends SimpleBleServer {
         mEnrolmentTokenHandle.setValue(Utils.getBytes(handle));
 
         Log.d(Utils.LOG_TAG, "Sending notification for EscrowToken Handle");
-        mGattServer.notifyCharacteristicChanged(device,
-                mEnrolmentTokenHandle, false /* confirm */);
+        notifyCharacteristicChanged(device, mEnrolmentTokenHandle, false);
     }
 
     public class EnrolmentServiceBinder extends Binder {
@@ -122,5 +126,16 @@ public class CarEnrolmentService extends SimpleBleServer {
 
         mEnrolmentService.addCharacteristic(mEnrolmentEscrowToken);
         mEnrolmentService.addCharacteristic(mEnrolmentTokenHandle);
+    }
+
+    /**
+     * Interface to receive enrolment data.
+     */
+    public interface OnEnrolmentDataReceivedListener {
+        /**
+         * Called when the enrolment data is received
+         * @param token enrolment data
+         */
+        void onEnrolmentDataReceived(byte[] token);
     }
 }

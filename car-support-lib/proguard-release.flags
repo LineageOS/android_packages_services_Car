@@ -18340,6 +18340,7 @@
     public android.view.SurfaceControl$Transaction setDisplayProjection(android.os.IBinder, int, android.graphics.Rect, android.graphics.Rect);
     public android.view.SurfaceControl$Transaction setDisplaySize(android.os.IBinder, int, int);
     public android.view.SurfaceControl$Transaction setDisplaySurface(android.os.IBinder, android.view.Surface);
+    public android.view.SurfaceControl$Transaction setEarlyWakeup();
     public android.view.SurfaceControl$Transaction setFinalCrop(android.view.SurfaceControl, android.graphics.Rect);
     public android.view.SurfaceControl$Transaction setGeometryAppliesWithResize(android.view.SurfaceControl);
     public android.view.SurfaceControl$Transaction setLayer(android.view.SurfaceControl, int);
