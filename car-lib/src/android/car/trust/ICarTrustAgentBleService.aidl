@@ -19,6 +19,8 @@ package android.car.trust;
 import android.bluetooth.BluetoothDevice;
 import android.car.trust.ICarTrustAgentBleCallback;
 import android.car.trust.ICarTrustAgentEnrolmentCallback;
+import android.car.trust.ICarTrustAgentTokenRequestDelegate;
+import android.car.trust.ICarTrustAgentTokenResponseCallback;
 import android.car.trust.ICarTrustAgentUnlockCallback;
 
 /**
@@ -35,12 +37,25 @@ interface ICarTrustAgentBleService {
     void startEnrolmentAdvertising();
     void stopEnrolmentAdvertising();
     void sendEnrolmentHandle(in BluetoothDevice device, long handle);
-    void registerEnrolmentCallback(ICarTrustAgentEnrolmentCallback callback);
-    void unregisterEnrolmentCallback(ICarTrustAgentEnrolmentCallback callback);
+    void registerEnrolmentCallback(in ICarTrustAgentEnrolmentCallback callback);
+    void unregisterEnrolmentCallback(in ICarTrustAgentEnrolmentCallback callback);
 
     /** Unlock */
     void startUnlockAdvertising();
     void stopUnlockAdvertising();
-    void registerUnlockCallback(ICarTrustAgentUnlockCallback callback);
-    void unregisterUnlockCallback(ICarTrustAgentUnlockCallback callback);
+    void registerUnlockCallback(in ICarTrustAgentUnlockCallback callback);
+    void unregisterUnlockCallback(in ICarTrustAgentUnlockCallback callback);
+
+    /** Token request */
+    void setTokenRequestDelegate(in ICarTrustAgentTokenRequestDelegate delegate);
+    void revokeTrust();
+    void addEscrowToken(in byte[] token, int uid);
+    void removeEscrowToken(long handle, int uid);
+    void isEscrowTokenActive(long handle, int uid);
+
+    /** Token response */
+    void setTokenResponseCallback(in ICarTrustAgentTokenResponseCallback callback);
+    void onEscrowTokenAdded(in byte[] token, long handle, int uid);
+    void onEscrowTokenRemoved(long handle, boolean successful);
+    void onEscrowTokenActiveStateChanged(long handle, boolean active);
 }

@@ -21,12 +21,11 @@ import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothManager;
 import android.car.trust.ICarTrustAgentBleService;
+import android.car.trust.ICarTrustAgentTokenRequestDelegate;
 import android.car.trust.ICarTrustAgentUnlockCallback;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
@@ -35,8 +34,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.service.trust.TrustAgentService;
 import android.util.Log;
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -52,18 +49,6 @@ public class CarBleTrustAgent extends TrustAgentService {
 
     private static final String TAG = CarBleTrustAgent.class.getSimpleName();
 
-    public static final String ACTION_REVOKE_TRUST = "revoke-trust-action";
-    public static final String ACTION_ADD_TOKEN = "add-token-action";
-    public static final String ACTION_IS_TOKEN_ACTIVE = "is-token-active-action";
-    public static final String ACTION_REMOVE_TOKEN = "remove-token-action";
-
-    public static final String ACTION_TOKEN_STATUS_RESULT = "token-status-result-action";
-    public static final String ACTION_ADD_TOKEN_RESULT = "add-token-result-action";
-
-    public static final String INTENT_EXTRA_ESCROW_TOKEN = "extra-escrow-token";
-    public static final String INTENT_EXTRA_TOKEN_HANDLE = "extra-token-handle";
-    public static final String INTENT_EXTRA_TOKEN_STATUS = "extra-token-status";
-
     private static final long TRUST_DURATION_MS = TimeUnit.MINUTES.toMicros(5);
     private static final long BLE_RETRY_MS = TimeUnit.SECONDS.toMillis(1);
 
@@ -71,29 +56,6 @@ public class CarBleTrustAgent extends TrustAgentService {
     private BluetoothManager mBluetoothManager;
     private ICarTrustAgentBleService mCarTrustAgentBleService;
     private boolean mCarTrustAgentBleServiceBound;
-    private LocalBroadcastManager mLocalBroadcastManager;
-
-    // We cannot directly bind to TrustAgentService since the onBind method is final.
-    // As a result, we communicate with the various UI components using a LocalBroadcastManager.
-    private final BroadcastReceiver mTrustEventReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Log.d(TAG, "Received broadcast: " + action);
-            if (ACTION_REVOKE_TRUST.equals(action)) {
-                revokeTrust();
-            } else if (ACTION_ADD_TOKEN.equals(action)) {
-                byte[] token = intent.getByteArrayExtra(INTENT_EXTRA_ESCROW_TOKEN);
-                addEscrowToken(token, getForegroundUserHandle());
-            } else if (ACTION_IS_TOKEN_ACTIVE.equals(action)) {
-                long handle = intent.getLongExtra(INTENT_EXTRA_TOKEN_HANDLE, -1);
-                isEscrowTokenActive(handle, getForegroundUserHandle());
-            } else if (ACTION_REMOVE_TOKEN.equals(action)) {
-                long handle = intent.getLongExtra(INTENT_EXTRA_TOKEN_HANDLE, -1);
-                removeEscrowToken(handle, getForegroundUserHandle());
-            }
-        }
-    };
 
     private final ICarTrustAgentUnlockCallback mUnlockCallback =
             new ICarTrustAgentUnlockCallback.Stub() {
@@ -116,10 +78,30 @@ public class CarBleTrustAgent extends TrustAgentService {
                 Log.d(TAG, getString(R.string.trust_granted_explanation));
                 grantTrust("Granting trust from escrow token",
                         TRUST_DURATION_MS, FLAG_GRANT_TRUST_DISMISS_KEYGUARD);
-                // Trust has been granted, disable the BLE server. This trust agent service does
-                // not need to receive additional BLE data.
-                unbindService(mServiceConnection);
             }
+        }
+    };
+
+    private final ICarTrustAgentTokenRequestDelegate mTokenRequestDelegate =
+            new ICarTrustAgentTokenRequestDelegate.Stub() {
+        @Override
+        public void revokeTrust() {
+            CarBleTrustAgent.this.revokeTrust();
+        }
+
+        @Override
+        public void addEscrowToken(byte[] token, int uid) {
+            CarBleTrustAgent.this.addEscrowToken(token, UserHandle.of(uid));
+        }
+
+        @Override
+        public void removeEscrowToken(long handle, int uid) {
+            CarBleTrustAgent.this.removeEscrowToken(handle, UserHandle.of(uid));
+        }
+
+        @Override
+        public void isEscrowTokenActive(long handle, int uid) {
+            CarBleTrustAgent.this.isEscrowTokenActive(handle, UserHandle.of(uid));
         }
     };
 
@@ -131,6 +113,7 @@ public class CarBleTrustAgent extends TrustAgentService {
             mCarTrustAgentBleService = ICarTrustAgentBleService.Stub.asInterface(service);
             try {
                 mCarTrustAgentBleService.registerUnlockCallback(mUnlockCallback);
+                mCarTrustAgentBleService.setTokenRequestDelegate(mTokenRequestDelegate);
                 maybeStartBleUnlockService();
             } catch (RemoteException e) {
                 Log.e(TAG, "Error registerUnlockCallback", e);
@@ -142,6 +125,7 @@ public class CarBleTrustAgent extends TrustAgentService {
             if (mCarTrustAgentBleService != null) {
                 try {
                     mCarTrustAgentBleService.unregisterUnlockCallback(mUnlockCallback);
+                    mCarTrustAgentBleService.setTokenRequestDelegate(null);
                 } catch (RemoteException e) {
                     Log.e(TAG, "Error unregisterUnlockCallback", e);
                 }
@@ -155,18 +139,9 @@ public class CarBleTrustAgent extends TrustAgentService {
     public void onCreate() {
         super.onCreate();
 
+        Log.d(TAG, "Bluetooth trust agent starting up");
         mHandler = new Handler();
         mBluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
-
-        Log.d(TAG, "Bluetooth trust agent starting up");
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_REVOKE_TRUST);
-        filter.addAction(ACTION_ADD_TOKEN);
-        filter.addAction(ACTION_IS_TOKEN_ACTIVE);
-        filter.addAction(ACTION_REMOVE_TOKEN);
-
-        mLocalBroadcastManager = LocalBroadcastManager.getInstance(this /* context */);
-        mLocalBroadcastManager.registerReceiver(mTrustEventReceiver, filter);
 
         // If the user is already unlocked, don't bother starting the BLE service.
         UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
@@ -183,7 +158,6 @@ public class CarBleTrustAgent extends TrustAgentService {
     public void onDestroy() {
         Log.d(TAG, "Car Trust agent shutting down");
         mHandler.removeCallbacks(null);
-        mLocalBroadcastManager.unregisterReceiver(mTrustEventReceiver);
 
         // Unbind the service to avoid leaks from BLE stack.
         if (mCarTrustAgentBleServiceBound) {
@@ -197,10 +171,12 @@ public class CarBleTrustAgent extends TrustAgentService {
         super.onDeviceLocked();
         if (mCarTrustAgentBleServiceBound) {
             try {
-                // Only one BLE advertising is allowed, ensure enrolment advertising is stopped.
+                // Only one BLE advertising is allowed, ensure enrolment advertising is stopped
+                // before start unlock advertising.
                 mCarTrustAgentBleService.stopEnrolmentAdvertising();
+                mCarTrustAgentBleService.startUnlockAdvertising();
             } catch (RemoteException e) {
-                Log.e(TAG, "Error stopEnrolmentAdvertising", e);
+                Log.e(TAG, "Error startUnlockAdvertising", e);
             }
         }
     }
@@ -248,29 +224,39 @@ public class CarBleTrustAgent extends TrustAgentService {
 
     @Override
     public void onEscrowTokenRemoved(long handle, boolean successful) {
-        Log.d(TAG, "onEscrowTokenRemoved. Handle: " + handle + " successful? " + successful);
+        if (mCarTrustAgentBleServiceBound) {
+            try {
+                mCarTrustAgentBleService.onEscrowTokenRemoved(handle, successful);
+                Log.v(TAG, "Callback onEscrowTokenRemoved");
+            } catch (RemoteException e) {
+                Log.e(TAG, "Error callback onEscrowTokenRemoved", e);
+            }
+        }
     }
 
     @Override
     public void onEscrowTokenStateReceived(long handle, int tokenState) {
         boolean isActive = tokenState == TOKEN_STATE_ACTIVE;
-        Log.d(TAG, "Token handle: " + handle + " isActive: " + isActive);
-
-        Intent intent = new Intent();
-        intent.setAction(ACTION_TOKEN_STATUS_RESULT);
-        intent.putExtra(INTENT_EXTRA_TOKEN_STATUS, isActive);
-
-        mLocalBroadcastManager.sendBroadcast(intent);
+        if (mCarTrustAgentBleServiceBound) {
+            try {
+                mCarTrustAgentBleService.onEscrowTokenActiveStateChanged(handle, isActive);
+                Log.v(TAG, "Callback onEscrowTokenActiveStateChanged");
+            } catch (RemoteException e) {
+                Log.e(TAG, "Error callback onEscrowTokenActiveStateChanged", e);
+            }
+        }
     }
 
     @Override
     public void onEscrowTokenAdded(byte[] token, long handle, UserHandle user) {
-        Log.d(TAG, "onEscrowTokenAdded, handle: " + handle);
-        Intent intent = new Intent();
-        intent.setAction(ACTION_ADD_TOKEN_RESULT);
-        intent.putExtra(INTENT_EXTRA_TOKEN_HANDLE, handle);
-
-        mLocalBroadcastManager.sendBroadcast(intent);
+        if (mCarTrustAgentBleServiceBound) {
+            try {
+                mCarTrustAgentBleService.onEscrowTokenAdded(token, handle, user.getIdentifier());
+                Log.v(TAG, "Callback onEscrowTokenAdded");
+            } catch (RemoteException e) {
+                Log.e(TAG, "Error callback onEscrowTokenAdded", e);
+            }
+        }
     }
 
     /**
