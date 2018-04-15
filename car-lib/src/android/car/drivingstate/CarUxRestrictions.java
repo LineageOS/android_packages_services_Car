@@ -260,11 +260,27 @@ public class CarUxRestrictions implements Parcelable {
     }
 
     /**
-     * Get the maximum number of cumulative content items that can be displayed when
+     * Get the maximum allowable number of content items that can be displayed to a user during
+     * traversal through any one path in a single task, when
      * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
      * <p>
-     * Please refer to this and {@link #getMaxContentDepth()} to know the upper bounds of
-     * content serving when the restriction is in place.
+     * For example, if a task involving only one view, this represents the maximum allowable number
+     * of content items in this single view.
+     * <p>
+     * However, if the task involves selection of a content item in an originating view that then
+     * surfaces a secondary view to the user, then this value represents the maximum allowable
+     * number of content items between the originating and secondary views combined.
+     * <p>
+     * Specifically, if the maximum allowable value was 60 and a task involved browsing a list of
+     * countries and then viewing the top songs within a country, it would be acceptable to do
+     * either of the following:
+     * <ul>
+     * <li> list 10 countries, and then display the top 50 songs after country selection, or
+     * <li> list 20 countries, and then display the top 40 songs after country selection.
+     * </ul>
+     * <p>
+     * Please refer to this and {@link #getMaxContentDepth()} to know the upper bounds on the
+     * content display when the restriction is in place.
      *
      * @return maximum number of cumulative items that can be displayed
      */
@@ -273,11 +289,22 @@ public class CarUxRestrictions implements Parcelable {
     }
 
     /**
-     * Get the maximum number of levels that the user can navigate to when
+     * Get the maximum allowable number of content depth levels or view traversals through any one
+     * path in a single task.  This is applicable when
      * {@link CarUxRestrictions#UX_RESTRICTIONS_LIMIT_CONTENT} is imposed.
      * <p>
-     * Please refer to this and {@link #getMaxCumulativeContentItems()} to know the upper bounds of
-     * content serving when the restriction is in place.
+     * For example, if a task involves only selecting an item from a single list on one view,
+     * the task's content depth would be considered 1.
+     * <p>
+     * However, if the task involves selection of a content item in an originating view that then
+     * surfaces a secondary view to the user, the task's content depth would be considered 2.
+     * <p>
+     * Specifically, if a task involved browsing a list of countries, selecting a genre within the
+     * country, and then viewing the top songs within a country, the task's content depth would be
+     * considered 3.
+     * <p>
+     * Please refer to this and {@link #getMaxCumulativeContentItems()} to know the upper bounds on
+     * the content display when the restriction is in place.
      *
      * @return maximum number of cumulative items that can be displayed
      */
