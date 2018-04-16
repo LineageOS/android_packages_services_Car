@@ -466,7 +466,7 @@ public final class CarCabinManager implements CarManagerBase {
     }
 
     /**
-     * Get list of properties available to Car Cabin Manager
+     * Get list of properties represented by CarCabinManager for this car.
      * @return List of CarPropertyConfig objects available via Car Cabin Manager.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
