@@ -27,7 +27,6 @@ import android.car.storagemonitoring.IoStats;
 import android.car.storagemonitoring.IoStatsEntry;
 import android.os.Bundle;
 import android.os.StatFs;
-import android.support.v4.app.Fragment;
 import android.system.ErrnoException;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +35,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
