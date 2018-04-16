@@ -17,12 +17,6 @@
 */
 -->
 <resources>
-    <!-- The margin of blocking dialog. -->
-    <dimen name="blocking_dialog_margin">80dp</dimen>
-
-    <!-- The space between title and exit button. -->
-    <dimen name="blocking_exit_now_top_margin">40dp</dimen>
-
     <!-- Text size in ActivityBlockingActivity. -->
     <dimen name="blocking_text_size">32sp</dimen>
 </resources>
