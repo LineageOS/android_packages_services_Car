@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -160,24 +161,11 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         vmsSubscriberManager.subscribe(SUBSCRIBED_LAYER);
 
         assertTrue(mAvailabilitySemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(AVAILABLE_LAYERS_WITH_SUBSCRIBED_LAYER_WITH_SEQ,
-                clientCallback.getAvailalbeLayers());
-    }
-
-    /**
-     * The Mock service offers all the subscribed layers as available layers, so in this
-     * test the client subscribes to a layer and verifies that it gets the notification that it
-     * is available.
-     */
-    @Test
-    public void testAvailabilityWithoutSubscription() throws Exception {
-        VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
-                Car.VMS_SUBSCRIBER_SERVICE);
-        TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
-
-        assertTrue(mAvailabilitySemaphore.tryAcquire(2L, TimeUnit.SECONDS));
-        assertEquals(AVAILABLE_LAYERS_WITH_SEQ, clientCallback.getAvailalbeLayers());
+        final Set<VmsAssociatedLayer> associatedLayers =
+                AVAILABLE_LAYERS_WITH_SUBSCRIBED_LAYER_WITH_SEQ.getAssociatedLayers();
+        assertEquals(associatedLayers, clientCallback.getAvailalbeLayers().getAssociatedLayers());
+        assertEquals(associatedLayers,
+                vmsSubscriberManager.getAvailableLayers().getAssociatedLayers());
     }
 
     private class HalHandler implements MockedVehicleHal.VehicleHalPropertyHandler {
