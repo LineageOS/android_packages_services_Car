@@ -26,12 +26,12 @@ import android.support.car.CarAppFocusManager;
 import android.support.car.CarConnectionCallback;
 import android.support.car.CarNotConnectedException;
 import android.support.car.hardware.CarSensorManager;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import androidx.car.drawer.CarDrawerActivity;
 import androidx.car.drawer.CarDrawerAdapter;
 import androidx.car.drawer.DrawerItemViewHolder;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.activityview.ActivityViewTestFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
