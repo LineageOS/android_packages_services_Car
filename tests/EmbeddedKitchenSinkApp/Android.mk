@@ -41,7 +41,7 @@ LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_DEX_PREOPT := false
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
-    android-support-car \
+    androidx.car_car \
     car-service-lib-for-test
 
 LOCAL_STATIC_JAVA_LIBRARIES += \
