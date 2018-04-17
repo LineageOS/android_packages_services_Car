@@ -16,6 +16,7 @@
 
 package com.google.android.car.kitchensink.bluetooth;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
@@ -28,14 +29,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.Manifest;
 import android.net.Uri;
-import android.net.Uri.Builder;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract.PhoneLookup;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.telecom.PhoneAccount;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,6 +42,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
