@@ -28,6 +28,8 @@
 
     <!-- Needed to unlock user -->
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    <!-- TODO(b/77717079) INTERACT_ACROSS_USERS_FULL should have granted INTERACT_ACROSS_USERS -->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
     <uses-permission android:name="android.permission.MANAGE_USERS" />
     <uses-permission android:name="android.permission.CONTROL_KEYGUARD" />
     <uses-permission android:name="android.permission.PROVIDE_TRUST_AGENT" />
@@ -51,10 +53,10 @@
                        android:resource="@xml/car_sample_trust_agent"/>
         </service>
 
-        <!-- CarUnlockService needs to be direct boot aware, since the trust agent
+        <!-- CarTrustAgentBleService needs to be direct boot aware, since the trust agent
              binds to it during direct boot.-->
         <service
-                android:name=".CarUnlockService"
+                android:name=".CarTrustAgentBleService"
                 android:directBootAware="true"
                 android:singleUser="true">
             <!-- Warning: the meta data must be included if the service is direct boot aware.
@@ -63,10 +65,6 @@
             <meta-data android:name="android.service.trust.trustagent"
                        android:resource="@xml/car_sample_trust_agent"/>
         </service>
-
-        <service
-                android:name=".CarEnrolmentService"
-                android:singleUser="true"/>
 
         <activity
                 android:name=".CarEnrolmentActivity"

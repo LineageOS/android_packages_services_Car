@@ -23,6 +23,9 @@ import static com.android.car.trust.CarBleTrustAgent.INTENT_EXTRA_TOKEN_STATUS;
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
+import android.car.trust.ICarTrustAgentBleCallback;
+import android.car.trust.ICarTrustAgentBleService;
+import android.car.trust.ICarTrustAgentEnrolmentCallback;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -40,13 +43,13 @@ import android.widget.TextView;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.android.car.trust.CarEnrolmentService.OnEnrolmentDataReceivedListener;
-import com.android.car.trust.SimpleBleServer.ConnectionCallback;
-
 /**
- * Setup activity that binds {@link CarEnrolmentService} and starts the enrolment process.
+ * Setup activity that binds {@link CarTrustAgentBleService} and starts the enrolment process.
  */
 public class CarEnrolmentActivity extends Activity {
+
+    private static final String TAG = CarEnrolmentActivity.class.getSimpleName();
+
     private static final String SP_HANDLE_KEY = "sp-test";
     private static final int FINE_LOCATION_REQUEST_CODE = 42;
 
@@ -54,77 +57,100 @@ public class CarEnrolmentActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Log.d(Utils.LOG_TAG, "Received broadcast: " + action);
+            Log.d(TAG, "Received broadcast: " + action);
 
             if (ACTION_TOKEN_STATUS_RESULT.equals(action)) {
                 boolean tokenActive = intent.getBooleanExtra(INTENT_EXTRA_TOKEN_STATUS, false);
-                appendOutputText("Is token active? " + tokenActive + " handle: " + mHandle);
+                appendOutputText("Is token active? " + tokenActive + " handle: " + mTokenHandle);
             } else if (ACTION_ADD_TOKEN_RESULT.equals(action)) {
                 final long handle = intent.getLongExtra(INTENT_EXTRA_TOKEN_HANDLE, -1);
 
                 runOnUiThread(() -> {
                     mPrefs.edit().putLong(SP_HANDLE_KEY, handle).apply();
-                    Log.d(Utils.LOG_TAG, "stored new handle");
+                    Log.d(TAG, "stored new handle");
                 });
 
-                mEnrolmentService.sendHandle(handle, mDevice);
-                appendOutputText("Escrow Token Added. Handle: " + handle
-                        + "\nLock and unlock the device to activate token");
+                try {
+                    mCarTrustAgentBleService.sendEnrolmentHandle(mDevice, handle);
+                    appendOutputText("Escrow Token Added. Handle: " + handle
+                            + "\nLock and unlock the device to activate token");
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Error sendEnrolmentHandle", e);
+                }
             }
         }
     };
 
-    private final ConnectionCallback mConnectionCallback = new ConnectionCallback() {
+    private final ICarTrustAgentBleCallback mBleConnectionCallback =
+            new ICarTrustAgentBleCallback.Stub() {
         @Override
-        public void onServerStarted() {
+        public void onBleServerStartSuccess() {
             appendOutputText("Server started");
         }
 
         @Override
-        public void onServerStartFailed(int errorCode) {
+        public void onBleServerStartFailure(int errorCode) {
             appendOutputText("Server failed to start, error code: " + errorCode);
         }
 
         @Override
-        public void onDeviceConnected(BluetoothDevice device) {
+        public void onBleDeviceConnected(BluetoothDevice device) {
             mDevice = device;
             appendOutputText("Device connected: " + device.getName()
-                    + " addr: " + device.getAddress());
+                    + " address: " + device.getAddress());
+        }
+
+        @Override
+        public void onBleDeviceDisconnected(BluetoothDevice device) {
+            mDevice = null;
+            appendOutputText("Device disconnected: " + device.getName()
+                    + " address: " + device.getAddress());
         }
     };
 
-    private final OnEnrolmentDataReceivedListener mEnrolmentListener = (byte[] token) -> {
-        appendOutputText("Enrolment data received ");
-        addEscrowToken(token);
+    private final ICarTrustAgentEnrolmentCallback mEnrolmentCallback =
+            new ICarTrustAgentEnrolmentCallback.Stub() {
+        @Override
+        public void onEnrolmentDataReceived(byte[] token) {
+            appendOutputText("Enrolment data received ");
+            addEscrowToken(token);
+        }
     };
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
-        public void onServiceConnected(ComponentName className,
-                IBinder service) {
-            mServiceBound = true;
-            CarEnrolmentService.EnrolmentServiceBinder binder
-                    = (CarEnrolmentService.EnrolmentServiceBinder) service;
-            mEnrolmentService = binder.getService();
-            mEnrolmentService.registerEnrolmentListener(mEnrolmentListener);
-            mEnrolmentService.registerConnectionCallback(mConnectionCallback);
-            mEnrolmentService.start();
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mCarTrustAgentBleServiceBound = true;
+            mCarTrustAgentBleService = ICarTrustAgentBleService.Stub.asInterface(service);
+            try {
+                mCarTrustAgentBleService.registerBleCallback(mBleConnectionCallback);
+                mCarTrustAgentBleService.registerEnrolmentCallback(mEnrolmentCallback);
+                mCarTrustAgentBleService.startEnrolmentAdvertising();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Error startEnrolmentAdvertising", e);
+            }
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mEnrolmentService.unregisterEnrolmentListener(mEnrolmentListener);
-            mEnrolmentService.unregisterConnectionCallback(mConnectionCallback);
-            mEnrolmentService = null;
-            mServiceBound = false;
+        public void onServiceDisconnected(ComponentName name) {
+            if (mCarTrustAgentBleService != null) {
+                try {
+                    mCarTrustAgentBleService.unregisterBleCallback(mBleConnectionCallback);
+                    mCarTrustAgentBleService.unregisterEnrolmentCallback(mEnrolmentCallback);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Error unregister callbacks", e);
+                }
+                mCarTrustAgentBleService = null;
+            }
+            mCarTrustAgentBleServiceBound = false;
         }
     };
 
     private TextView mOutputText;
-    private long mHandle;
-    private CarEnrolmentService mEnrolmentService;
+    private long mTokenHandle;
+    private ICarTrustAgentBleService mCarTrustAgentBleService;
+    private boolean mCarTrustAgentBleServiceBound;
     private BluetoothDevice mDevice;
-    private boolean mServiceBound;
     private LocalBroadcastManager mLocalBroadcastManager;
     private SharedPreferences mPrefs;
 
@@ -144,7 +170,7 @@ public class CarEnrolmentActivity extends Activity {
         mLocalBroadcastManager.registerReceiver(mReceiver, filter);
 
         findViewById(R.id.start_button).setOnClickListener((view) -> {
-            Intent bindIntent = new Intent(this, CarEnrolmentService.class);
+            Intent bindIntent = new Intent(this, CarTrustAgentBleService.class);
             bindService(bindIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
         });
 
@@ -164,26 +190,20 @@ public class CarEnrolmentActivity extends Activity {
             requestPermissions(
                     new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION },
                     FINE_LOCATION_REQUEST_CODE);
-        }
-
-        if (!mPrefs.contains(SP_HANDLE_KEY)) {
-            appendOutputText("No handles found.");
-            return;
-        }
-
-        try {
-            mHandle = mPrefs.getLong(SP_HANDLE_KEY, -1);
-            Log.d(Utils.LOG_TAG, "onResume, checking handle active: " + mHandle);
-            isTokenActive(mHandle);
-        } catch (RemoteException e) {
-            Log.e(Utils.LOG_TAG, "Error checking if token is valid");
-            appendOutputText("Error checking if token is valid");
+        } else {
+            if (mPrefs.contains(SP_HANDLE_KEY)) {
+                mTokenHandle = mPrefs.getLong(SP_HANDLE_KEY, -1);
+                Log.d(TAG, "onResume, checking handle active: " + mTokenHandle);
+                isTokenActive(mTokenHandle);
+            } else {
+                appendOutputText("No handles found");
+            }
         }
     }
 
     @Override
     protected void onDestroy() {
-        if (mServiceBound) {
+        if (mCarTrustAgentBleServiceBound) {
             unbindService(mServiceConnection);
         }
         super.onDestroy();
@@ -193,7 +213,7 @@ public class CarEnrolmentActivity extends Activity {
         runOnUiThread(() -> mOutputText.append("\n" + text));
     }
 
-    private void isTokenActive(long handle) throws RemoteException {
+    private void isTokenActive(long handle) {
         Intent intent = new Intent();
         intent.setAction(CarBleTrustAgent.ACTION_IS_TOKEN_ACTIVE);
         intent.putExtra(CarBleTrustAgent.INTENT_EXTRA_TOKEN_HANDLE, handle);
