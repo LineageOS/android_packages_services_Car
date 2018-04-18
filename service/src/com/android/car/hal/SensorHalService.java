@@ -87,18 +87,19 @@ public class SensorHalService extends SensorHalServiceBase {
         );
 
     private final static SparseIntArray mMgrGearToHalMap = initSparseIntArray(
-        VehicleGear.GEAR_NEUTRAL, CarSensorEvent.GEAR_NEUTRAL,
-        VehicleGear.GEAR_REVERSE, CarSensorEvent.GEAR_REVERSE,
-        VehicleGear.GEAR_PARK, CarSensorEvent.GEAR_PARK,
-        VehicleGear.GEAR_DRIVE, CarSensorEvent.GEAR_DRIVE,
-        VehicleGear.GEAR_2, CarSensorEvent.GEAR_SECOND,
-        VehicleGear.GEAR_3, CarSensorEvent.GEAR_THIRD,
-        VehicleGear.GEAR_4, CarSensorEvent.GEAR_FOURTH,
-        VehicleGear.GEAR_5, CarSensorEvent.GEAR_FIFTH,
-        VehicleGear.GEAR_6, CarSensorEvent.GEAR_SIXTH,
-        VehicleGear.GEAR_7, CarSensorEvent.GEAR_SEVENTH,
-        VehicleGear.GEAR_8, CarSensorEvent.GEAR_EIGHTH,
-        VehicleGear.GEAR_9, CarSensorEvent.GEAR_NINTH);
+            VehicleGear.GEAR_NEUTRAL, CarSensorEvent.GEAR_NEUTRAL,
+            VehicleGear.GEAR_REVERSE, CarSensorEvent.GEAR_REVERSE,
+            VehicleGear.GEAR_PARK, CarSensorEvent.GEAR_PARK,
+            VehicleGear.GEAR_DRIVE, CarSensorEvent.GEAR_DRIVE,
+            VehicleGear.GEAR_1, CarSensorEvent.GEAR_FIRST,
+            VehicleGear.GEAR_2, CarSensorEvent.GEAR_SECOND,
+            VehicleGear.GEAR_3, CarSensorEvent.GEAR_THIRD,
+            VehicleGear.GEAR_4, CarSensorEvent.GEAR_FOURTH,
+            VehicleGear.GEAR_5, CarSensorEvent.GEAR_FIFTH,
+            VehicleGear.GEAR_6, CarSensorEvent.GEAR_SIXTH,
+            VehicleGear.GEAR_7, CarSensorEvent.GEAR_SEVENTH,
+            VehicleGear.GEAR_8, CarSensorEvent.GEAR_EIGHTH,
+            VehicleGear.GEAR_9, CarSensorEvent.GEAR_NINTH);
 
     private final static SparseIntArray mMgrIgnitionStateToHalMap = initSparseIntArray(
         VehicleIgnitionState.UNDEFINED, CarSensorEvent.IGNITION_STATE_UNDEFINED,
