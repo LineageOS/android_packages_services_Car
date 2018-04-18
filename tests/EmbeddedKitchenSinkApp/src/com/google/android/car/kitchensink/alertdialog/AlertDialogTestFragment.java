@@ -16,27 +16,17 @@
 package com.google.android.car.kitchensink.alertdialog;
 
 import android.annotation.Nullable;
-import android.annotation.StringRes;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
-import com.google.android.car.kitchensink.CarEmulator;
+import androidx.fragment.app.Fragment;
+
 import com.google.android.car.kitchensink.R;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Shows alert dialogs
