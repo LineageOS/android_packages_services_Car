@@ -117,8 +117,18 @@ public final class CarVendorExtensionManager implements CarManagerBase {
         }
     }
 
+    /** Get list of properties represented by CarVendorExtensionManager for this car. */
     public List<CarPropertyConfig> getProperties() throws CarNotConnectedException {
         return mPropertyManager.getPropertyList();
+    }
+
+    /**
+     * Check whether a given property is available or disabled based on the cars current state.
+     * @return true if the property is AVAILABLE, false otherwise
+     */
+    public boolean isPropertyAvailable(int propertyId, int area)
+            throws CarNotConnectedException {
+        return mPropertyManager.isPropertyAvailable(propertyId, area);
     }
 
     /**
