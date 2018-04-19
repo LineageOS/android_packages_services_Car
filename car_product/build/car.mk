@@ -47,7 +47,8 @@ PRODUCT_COPY_FILES := \
     packages/services/Car/car_product/preloaded-classes-car:system/etc/preloaded-classes \
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.carrier=unknown
+    ro.carrier=unknown \
+    persist.bluetooth.enablenewavrcp=false
 
 # Overlay for Google network and fused location providers
 $(call inherit-product, device/sample/products/location_overlay.mk)
