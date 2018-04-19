@@ -29,7 +29,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
@@ -307,29 +306,16 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         }
     }
 
+    /**
+     * block the current task with the provided new activity.
+     */
     private void handleBlockActivity(TopTaskInfoContainer currentTask, Intent newActivityIntent) {
-        Log.i(CarLog.TAG_AM, String.format("stopping activity %s with taskid:%d",
-                currentTask.topActivity, currentTask.taskId));
-        // Put launcher in the activity stack, so that we have something safe to show after the
-        // block activity finishes.
-        String defaultHomeActivity = mContext.getString(R.string.defaultHomeActivity);
-        if (!TextUtils.isEmpty(defaultHomeActivity)) {
-            Intent launcherIntent = new Intent();
-            launcherIntent.setComponent(ComponentName.unflattenFromString(defaultHomeActivity));
-            mContext.startActivity(launcherIntent);
-        }
-
         newActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         mContext.startActivityAsUser(newActivityIntent,
                 new UserHandle(currentTask.stackInfo.userId));
         // now make stack with new activity focused.
         findTaskAndGrantFocus(newActivityIntent.getComponent());
-        try {
-            mAm.removeTask(currentTask.taskId);
-        } catch (RemoteException e) {
-            Log.w(CarLog.TAG_AM, "cannot remove task:" + currentTask.taskId, e);
-        }
     }
 
     private void findTaskAndGrantFocus(ComponentName activity) {
