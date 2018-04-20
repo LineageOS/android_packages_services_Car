@@ -63,6 +63,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         addProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
                 .setConfigArray(Lists.newArrayList(
                         allowSleep ? VehicleApPowerStateConfigFlag.ENABLE_DEEP_SLEEP_FLAG : 0));
+        addProperty(VehicleProperty.AP_POWER_STATE_REPORT, mPowerStateHandler);
 
         addStaticProperty(VehicleProperty.AP_POWER_BOOTUP_REASON,
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_BOOTUP_REASON)

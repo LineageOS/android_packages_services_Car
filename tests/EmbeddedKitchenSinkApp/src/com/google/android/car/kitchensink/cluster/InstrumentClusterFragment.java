@@ -20,18 +20,19 @@ import android.car.cluster.CarInstrumentClusterManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
 import android.support.car.CarConnectionCallback;
 import android.support.car.CarNotConnectedException;
 import android.support.car.navigation.CarNavigationStatusManager;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.R;
 

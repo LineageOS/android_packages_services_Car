@@ -16,12 +16,20 @@
 package com.android.car.pm;
 
 import android.app.Activity;
+import android.car.Car;
+import android.car.CarNotConnectedException;
+import android.car.drivingstate.CarUxRestrictions;
+import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
 import android.widget.TextView;
 
+import com.android.car.CarLog;
 import com.android.car.R;
 
 /**
@@ -31,6 +39,9 @@ import com.android.car.R;
  */
 public class ActivityBlockingActivity extends Activity {
     public static final String INTENT_KEY_BLOCKED_ACTIVITY = "blocked_activity";
+
+    private Car mCar;
+    private CarUxRestrictionsManager mUxRManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +53,32 @@ public class ActivityBlockingActivity extends Activity {
         TextView blockedTitle = findViewById(R.id.activity_blocked_title);
         blockedTitle.setText(getString(R.string.activity_blocked_string,
                 findBlockedApplicationLabel(blockedActivity)));
+
+        // Listen to the CarUxRestrictions so this blocking activity can be dismissed when the
+        // restrictions are lifted.
+        mCar = Car.createCar(this, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                try {
+                    mUxRManager = (CarUxRestrictionsManager) mCar.getCarManager(
+                            Car.CAR_UX_RESTRICTION_SERVICE);
+                    // This activity would have been launched only in a restricted state.
+                    // But ensuring when the service connection is established, that we are still
+                    // in a restricted state.
+                    handleUxRChange(mUxRManager.getCurrentCarUxRestrictions());
+                    mUxRManager.registerListener(ActivityBlockingActivity.this::handleUxRChange);
+                } catch (CarNotConnectedException e) {
+                    Log.e(CarLog.TAG_AM, "Failed to get CarUxRestrictionsManager", e);
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                finish();
+                mUxRManager = null;
+            }
+        });
+        mCar.connect();
     }
 
     /**
@@ -62,5 +99,35 @@ public class ActivityBlockingActivity extends Activity {
             e.printStackTrace();
         }
         return label;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mCar.isConnected() && mUxRManager != null) {
+            try {
+                mUxRManager.unregisterListener();
+            } catch (CarNotConnectedException e) {
+                Log.e(CarLog.TAG_AM, "Cannot unregisterListener", e);
+            }
+            mUxRManager = null;
+            mCar.disconnect();
+        }
+    }
+
+    // If no distraction optimization is required in the new restrictions, then dismiss the
+    // blocking activity (self).
+    private void handleUxRChange(CarUxRestrictions restrictions) {
+        if (restrictions == null) {
+            return;
+        }
+        if (!restrictions.isRequiresDistractionOptimization()) {
+            finish();
+        }
     }
 }
