@@ -28,11 +28,6 @@
 
     <style name="Widget.TextView.NumPadKey" parent="@android:style/Widget.TextView">
         <!-- Only replaces the text size. -->
-        <item name="android:textSize">@dimen/num_pad_key_digit_size</item>
-    </style>
-
-    <style name="Widget.TextView.NumPadKey.Klondike" parent="Widget.TextView.NumPadKey">
-        <!-- Only replaces the text size. -->
-        <item name="android:textSize">@dimen/num_pad_key_text_size</item>
+        <item name="android:textSize">@dimen/car_body1_size</item>
     </style>
 </resources>
