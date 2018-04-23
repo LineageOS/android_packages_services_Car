@@ -332,7 +332,7 @@ public final class CarHvacManager implements CarManagerBase {
     }
 
     /**
-     * Get list of properties available to Car Hvac Manager
+     * Get list of properties represented by Car Hvac Manager for this car.
      * @return List of CarPropertyConfig objects available via Car Hvac Manager.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
@@ -341,7 +341,7 @@ public final class CarHvacManager implements CarManagerBase {
     }
 
     /**
-     * Check whether a given property is available for use by Car Hvac Manager
+     * Check whether a given property is available or disabled based on the cars current state.
      * @return true if the property is AVAILABLE, false otherwise
      */
     public boolean isPropertyAvailable(@PropertyId int propertyId, int area)
