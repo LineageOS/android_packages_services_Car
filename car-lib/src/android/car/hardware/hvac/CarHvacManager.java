@@ -91,7 +91,7 @@ public final class CarHvacManager implements CarManagerBase {
      */
     /**
      * Temperature setpoint, float type
-     * Temperature set by the user, units are determined by ID_TEMPERTURE_UNITS property.
+     * Temperature set by the user, units are in degrees Celsius.
      */
     public static final int ID_ZONED_TEMP_SETPOINT = 0x4001;
     /**
