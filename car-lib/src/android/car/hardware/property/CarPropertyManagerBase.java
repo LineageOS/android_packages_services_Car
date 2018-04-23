@@ -149,7 +149,7 @@ public class CarPropertyManagerBase {
     }
 
     /**
-     * Returns the list of properties available.
+     * Returns the list of properties implemented by this car.
      *
      * @return Caller must check the property type and typecast to the appropriate subclass
      * (CarPropertyBooleanProperty, CarPropertyFloatProperty, CarrPropertyIntProperty)
@@ -163,6 +163,11 @@ public class CarPropertyManagerBase {
         }
     }
 
+    /**
+     * Check whether a given property is available or disabled based on the car's current state.
+     * @return true if STATUS_AVAILABLE, false otherwise (eg STATUS_UNAVAILABLE)
+     * @throws CarNotConnectedException
+     */
     public boolean isPropertyAvailable(int propId, int area) throws CarNotConnectedException {
         try {
             CarPropertyValue propValue = mService.getProperty(propId, area);
