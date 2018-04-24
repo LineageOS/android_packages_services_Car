@@ -114,10 +114,24 @@ import java.util.List;
             return CarPropertyConfig
                     .newBuilder(clazz, propertyId, areaType, /* capacity */ 1)
                     .addAreas(areas)
+                    .setAccess(p.access)
+                    .setChangeMode(p.changeMode)
+                    .setConfigArray(p.configArray)
+                    .setConfigFlags(p.configFlags)
+                    .setConfigString(p.configString)
+                    .setMaxSampleRate(p.maxSampleRate)
+                    .setMinSampleRate(p.minSampleRate)
                     .build();
         } else {
             CarPropertyConfig.Builder builder = CarPropertyConfig
-                    .newBuilder(clazz, propertyId, areaType, /* capacity */  p.areaConfigs.size());
+                    .newBuilder(clazz, propertyId, areaType, /* capacity */ p.areaConfigs.size())
+                    .setAccess(p.access)
+                    .setChangeMode(p.changeMode)
+                    .setConfigArray(p.configArray)
+                    .setConfigFlags(p.configFlags)
+                    .setConfigString(p.configString)
+                    .setMaxSampleRate(p.maxSampleRate)
+                    .setMinSampleRate(p.minSampleRate);
 
             for (VehicleAreaConfig area : p.areaConfigs) {
                 if (classMatched(Integer.class, clazz)) {
