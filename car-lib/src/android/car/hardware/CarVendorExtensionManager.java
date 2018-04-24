@@ -123,6 +123,15 @@ public final class CarVendorExtensionManager implements CarManagerBase {
     }
 
     /**
+     * Check whether a given property is available or disabled based on the cars current state.
+     * @return true if the property is AVAILABLE, false otherwise
+     */
+    public boolean isPropertyAvailable(int propertyId, int area)
+            throws CarNotConnectedException {
+        return mPropertyManager.isPropertyAvailable(propertyId, area);
+    }
+
+    /**
      * Returns property value. Use this function for global vehicle properties.
      *
      * @param propertyClass - data type of the given property, for example property that was
