@@ -117,6 +117,7 @@ public final class CarVendorExtensionManager implements CarManagerBase {
         }
     }
 
+    /** Get list of properties represented by CarVendorExtensionManager for this car. */
     public List<CarPropertyConfig> getProperties() throws CarNotConnectedException {
         return mPropertyManager.getPropertyList();
     }
