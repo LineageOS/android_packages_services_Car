@@ -21,7 +21,10 @@ import android.car.Car;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.ICarAudio;
 import android.car.media.ICarVolumeCallback;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
@@ -148,13 +151,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     }
                     break;
                 case AudioManager.ADJUST_MUTE:
-                    setMasterMute(true, flags);
+                    mAudioManager.setMasterMute(true, flags);
+                    callbackMasterMuteChange();
                     break;
                 case AudioManager.ADJUST_UNMUTE:
-                    setMasterMute(false, flags);
+                    mAudioManager.setMasterMute(false, flags);
+                    callbackMasterMuteChange();
                     break;
                 case AudioManager.ADJUST_TOGGLE_MUTE:
-                    setMasterMute(!mAudioManager.isMasterMute(), flags);
+                    mAudioManager.setMasterMute(!mAudioManager.isMasterMute(), flags);
+                    callbackMasterMuteChange();
                     break;
                 case AudioManager.ADJUST_SAME:
                 default:
@@ -165,6 +171,29 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private final BinderInterfaceContainer<ICarVolumeCallback> mVolumeCallbackContainer =
             new BinderInterfaceContainer<>();
+
+    /**
+     * Simulates {@link ICarVolumeCallback} when it's running in legacy mode.
+     */
+    private final BroadcastReceiver mLegacyVolumeChangedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case AudioManager.VOLUME_CHANGED_ACTION:
+                    int streamType = intent.getIntExtra(AudioManager.EXTRA_VOLUME_STREAM_TYPE, -1);
+                    int groupId = getVolumeGroupIdForStreamType(streamType);
+                    if (groupId == -1) {
+                        Log.w(CarLog.TAG_AUDIO, "Unknown stream type: " + streamType);
+                    } else {
+                        callbackGroupVolumeChange(groupId);
+                    }
+                    break;
+                case AudioManager.MASTER_MUTE_CHANGED_ACTION:
+                    callbackMasterMuteChange();
+                    break;
+            }
+        }
+    };
 
     private AudioPolicy mAudioPolicy;
     private CarVolumeGroup[] mCarVolumeGroups;
@@ -185,20 +214,24 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         synchronized (mImplLock) {
             if (!mUseDynamicRouting) {
                 Log.i(CarLog.TAG_AUDIO, "Audio dynamic routing not configured, run in legacy mode");
-                return;
+                setupLegacyVolumeChangedListener();
+            } else {
+                setupDynamicRouting();
+                setupVolumeGroups();
             }
-
-            setupDynamicRouting();
-            setupVolumeGroups();
         }
     }
 
     @Override
     public void release() {
         synchronized (mImplLock) {
-            if (mUseDynamicRouting && mAudioPolicy != null) {
-                mAudioManager.unregisterAudioPolicyAsync(mAudioPolicy);
-                mAudioPolicy = null;
+            if (mUseDynamicRouting) {
+                if (mAudioPolicy != null) {
+                    mAudioManager.unregisterAudioPolicyAsync(mAudioPolicy);
+                    mAudioPolicy = null;
+                }
+            } else {
+                mContext.unregisterReceiver(mLegacyVolumeChangedReceiver);
             }
 
             mVolumeCallbackContainer.clear();
@@ -226,15 +259,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
-            for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
-                    mVolumeCallbackContainer.getInterfaces()) {
-                try {
-                    callback.binderInterface.onGroupVolumeChanged(groupId);
-                } catch (RemoteException e) {
-                    Log.e(CarLog.TAG_AUDIO, "Failed to callback onGroupVolumeChanged", e);
-                }
-            }
-
+            callbackGroupVolumeChange(groupId);
             // For legacy stream type based volume control
             if (!mUseDynamicRouting) {
                 mAudioManager.setStreamVolume(STREAM_TYPES[groupId], index, flags);
@@ -246,8 +271,18 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
-    private void setMasterMute(boolean mute, int flags) {
-        mAudioManager.setMasterMute(mute, flags);
+    private void callbackGroupVolumeChange(int groupId) {
+        for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
+                mVolumeCallbackContainer.getInterfaces()) {
+            try {
+                callback.binderInterface.onGroupVolumeChanged(groupId);
+            } catch (RemoteException e) {
+                Log.e(CarLog.TAG_AUDIO, "Failed to callback onGroupVolumeChanged", e);
+            }
+        }
+    }
+
+    private void callbackMasterMuteChange() {
         for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
                 mVolumeCallbackContainer.getInterfaces()) {
             try {
@@ -317,6 +352,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         Preconditions.checkArgument(groupId >= 0 && groupId < mCarVolumeGroups.length,
                 "groupId out of range: " + groupId);
         return mCarVolumeGroups[groupId];
+    }
+
+    private void setupLegacyVolumeChangedListener() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(AudioManager.VOLUME_CHANGED_ACTION);
+        intentFilter.addAction(AudioManager.MASTER_MUTE_CHANGED_ACTION);
+        mContext.registerReceiver(mLegacyVolumeChangedReceiver, intentFilter);
     }
 
     private void setupDynamicRouting() {
@@ -791,6 +833,22 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 return DEFAULT_AUDIO_USAGE;
             }
         }
+    }
+
+    /**
+     * Gets volume group by a given legacy stream type
+     * @param streamType Legacy stream type such as {@link AudioManager#STREAM_MUSIC}
+     * @return volume group id mapped from stream type
+     */
+    private int getVolumeGroupIdForStreamType(int streamType) {
+        int groupId = -1;
+        for (int i = 0; i < STREAM_TYPES.length; i++) {
+            if (streamType == STREAM_TYPES[i]) {
+                groupId = i;
+                break;
+            }
+        }
+        return groupId;
     }
 
     @Nullable
