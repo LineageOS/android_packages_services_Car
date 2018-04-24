@@ -52,6 +52,7 @@ public final class CarAudioManager implements CarManagerBase {
 
     /**
      * Registers a {@link ContentObserver} to listen for volume group changes.
+     * Note that this observer is valid for bus based car audio stack only.
      *
      * {@link ContentObserver#onChange(boolean)} will be called on every group volume change.
      *
