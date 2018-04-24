@@ -1641,7 +1641,6 @@
     public static java.lang.String currentOpPackageName();
     public static java.lang.String currentPackageName();
     public static java.lang.String currentProcessName();
-    public void dump(java.io.PrintWriter, java.lang.String);
     public static void dumpMemInfoTable(java.io.PrintWriter, android.os.Debug$MemoryInfo, boolean, boolean, boolean, boolean, int, java.lang.String, long, long, long, long, long, long);
     public static void dumpMemInfoTable(android.util.proto.ProtoOutputStream, android.os.Debug$MemoryInfo, boolean, boolean, long, long, long, long, long, long);
     public android.app.Activity getActivity(android.os.IBinder);
@@ -2218,7 +2217,6 @@
 -keep class android.app.ClientTransactionHandler {
     <init>();
 
-    public abstract void dump(java.io.PrintWriter, java.lang.String);
     public void executeTransaction(android.app.servertransaction.ClientTransaction);
     public abstract android.app.ActivityThread$ActivityClientRecord getActivityClient(android.os.IBinder);
     public abstract android.app.LoadedApk getPackageInfoNoCheck(android.content.pm.ApplicationInfo, android.content.res.CompatibilityInfo);
@@ -4512,13 +4510,9 @@
 
 -keep class android.app.servertransaction.ActivityLifecycleItem {
     <init>();
-    <init>(android.os.Parcel);
 
-    public java.lang.String getDescription();
     public abstract int getTargetState();
     public void recycle();
-    public android.app.servertransaction.ActivityLifecycleItem setDescription(java.lang.String);
-    public void writeToParcel(android.os.Parcel, int);
 
 
     public static int ON_CREATE;
@@ -5751,6 +5745,7 @@
     public abstract void removePeriodicSync(android.accounts.Account, java.lang.String, android.os.Bundle);
     public abstract void removeStatusChangeListener(android.content.ISyncStatusObserver);
     public abstract void requestSync(android.accounts.Account, java.lang.String, android.os.Bundle);
+    public abstract void resetTodayStats();
     public abstract void setIsSyncable(android.accounts.Account, java.lang.String, int);
     public abstract void setMasterSyncAutomatically(boolean);
     public abstract void setMasterSyncAutomaticallyAsUser(boolean, int);
@@ -6780,6 +6775,7 @@
     public long getEventTime(int);
     public int getLastFailureMesgAsInt(int);
     public long getPeriodicSyncTime(int);
+    public void maybeResetTodayStats(boolean, boolean);
     public void removePeriodicSyncTime(int);
     public void setPeriodicSyncTime(int, long);
     public void writeToParcel(android.os.Parcel, int);
@@ -6794,13 +6790,31 @@
     public long lastFailureTime;
     public int lastSuccessSource;
     public long lastSuccessTime;
+    public long lastTodayResetTime;
+    public boolean pending;
+    public android.content.SyncStatusInfo$Stats todayStats;
+    public android.content.SyncStatusInfo$Stats totalStats;
+    public android.content.SyncStatusInfo$Stats yesterdayStats;
+}
+
+-keep class android.content.SyncStatusInfo$Stats {
+    <init>();
+
+    public void clear();
+    public void copyTo(android.content.SyncStatusInfo$Stats);
+    public void readFromParcel(android.os.Parcel);
+    public void writeToParcel(android.os.Parcel);
+
+
+    public int numCancels;
+    public int numFailures;
+    public int numSourceFeed;
     public int numSourceLocal;
+    public int numSourceOther;
     public int numSourcePeriodic;
     public int numSourcePoll;
-    public int numSourceServer;
     public int numSourceUser;
     public int numSyncs;
-    public boolean pending;
     public long totalElapsedTime;
 }
 
@@ -7017,10 +7031,12 @@
     public boolean isStaticSharedLibrary();
     public boolean isSystemApp();
     public boolean isUpdatedSystemApp();
+    public static boolean isValidHiddenApiEnforcementPolicy(int);
     public boolean isVendor();
     public boolean isVirtualPreload();
     public android.graphics.drawable.Drawable loadDefaultIcon(android.content.pm.PackageManager);
     public java.lang.CharSequence loadDescription(android.content.pm.PackageManager);
+    public void maybeUpdateHiddenApiEnforcementPolicy(int, int);
     public boolean requestsIsolatedSplitLoading();
     public void setBaseCodePath(java.lang.String);
     public void setBaseResourcePath(java.lang.String);
@@ -7567,7 +7583,6 @@
     public abstract java.lang.String[] setPackagesSuspendedAsUser(java.lang.String[], boolean, android.os.PersistableBundle, android.os.PersistableBundle, java.lang.String, java.lang.String, int);
     public abstract void setPermissionEnforced(java.lang.String, boolean);
     public abstract boolean setRequiredForSystemUser(java.lang.String, boolean);
-    public abstract void setSuspendedPackageAppExtras(java.lang.String, android.os.PersistableBundle, int);
     public abstract void setUpdateAvailable(java.lang.String, boolean);
     public abstract boolean shouldShowRequestPermissionRationale(java.lang.String, java.lang.String, int);
     public abstract void systemReady();
@@ -7679,7 +7694,9 @@
     public boolean functionalTest;
     public boolean handleProfiling;
     public java.lang.String nativeLibraryDir;
+    public java.lang.String primaryCpuAbi;
     public java.lang.String publicSourceDir;
+    public java.lang.String secondaryCpuAbi;
     public java.lang.String secondaryNativeLibraryDir;
     public java.lang.String sourceDir;
     public android.util.SparseArray splitDependencies;
@@ -7792,7 +7809,7 @@
     public java.lang.String sharedUserId;
     public int sharedUserLabel;
     public android.content.pm.Signature[] signatures;
-    public android.content.pm.Signature[][] signingCertificateHistory;
+    public android.content.pm.SigningInfo signingInfo;
     public java.lang.String[] splitNames;
     public int[] splitRevisionCodes;
     public int versionCode;
@@ -8149,7 +8166,6 @@
     public abstract java.util.List getSharedLibrariesAsUser(int, int);
     public abstract java.lang.String getSharedSystemSharedLibraryPackageName();
     public abstract android.content.pm.KeySet getSigningKeySet(java.lang.String);
-    public android.os.PersistableBundle getSuspendedPackageAppExtras(java.lang.String);
     public android.os.Bundle getSuspendedPackageAppExtras();
     public abstract android.content.pm.FeatureInfo[] getSystemAvailableFeatures();
     public abstract java.lang.String[] getSystemSharedLibraryNames();
@@ -8232,7 +8248,6 @@
     public abstract void setInstallerPackageName(java.lang.String, java.lang.String);
     public abstract boolean setInstantAppCookie(byte[]);
     public java.lang.String[] setPackagesSuspended(java.lang.String[], boolean, android.os.PersistableBundle, android.os.PersistableBundle, java.lang.String);
-    public void setSuspendedPackageAppExtras(java.lang.String, android.os.PersistableBundle);
     public abstract void setUpdateAvailable(java.lang.String, boolean);
     public abstract boolean shouldShowRequestPermissionRationale(java.lang.String);
     public abstract void unregisterMoveCallback(android.content.pm.PackageManager$MoveCallback);
@@ -8586,6 +8601,450 @@
 
 }
 
+-keep class android.content.pm.PackageParser {
+    <init>();
+
+    public static void collectCertificates(android.content.pm.PackageParser$Package, boolean);
+    public static int computeMinSdkVersion(int, java.lang.String, int, java.lang.String[], java.lang.String[]);
+    public static int computeTargetSdkVersion(int, java.lang.String, java.lang.String[], java.lang.String[], boolean);
+    protected android.content.pm.PackageParser$Package fromCacheEntry(byte[]);
+    public static android.content.pm.PackageParser$Package fromCacheEntryStatic(byte[]);
+    public static android.content.pm.ActivityInfo generateActivityInfo(android.content.pm.PackageParser$Activity, int, android.content.pm.PackageUserState, int);
+    public static android.content.pm.ActivityInfo generateActivityInfo(android.content.pm.ActivityInfo, int, android.content.pm.PackageUserState, int);
+    public static android.content.pm.ApplicationInfo generateApplicationInfo(android.content.pm.PackageParser$Package, int, android.content.pm.PackageUserState);
+    public static android.content.pm.ApplicationInfo generateApplicationInfo(android.content.pm.PackageParser$Package, int, android.content.pm.PackageUserState, int);
+    public static android.content.pm.ApplicationInfo generateApplicationInfo(android.content.pm.ApplicationInfo, int, android.content.pm.PackageUserState, int);
+    public static android.content.pm.InstrumentationInfo generateInstrumentationInfo(android.content.pm.PackageParser$Instrumentation, int);
+    public static android.content.pm.PackageInfo generatePackageInfo(android.content.pm.PackageParser$Package, int[], int, long, long, java.util.Set, android.content.pm.PackageUserState);
+    public static android.content.pm.PackageInfo generatePackageInfo(android.content.pm.PackageParser$Package, int[], int, long, long, java.util.Set, android.content.pm.PackageUserState, int);
+    public static android.content.pm.PermissionGroupInfo generatePermissionGroupInfo(android.content.pm.PackageParser$PermissionGroup, int);
+    public static android.content.pm.PermissionInfo generatePermissionInfo(android.content.pm.PackageParser$Permission, int);
+    public static android.content.pm.ProviderInfo generateProviderInfo(android.content.pm.PackageParser$Provider, int, android.content.pm.PackageUserState, int);
+    public static android.content.pm.ServiceInfo generateServiceInfo(android.content.pm.PackageParser$Service, int, android.content.pm.PackageUserState, int);
+    public static int getActivityConfigChanges(int, int);
+    public static boolean isApkFile(java.io.File);
+    public static boolean isApkPath(java.lang.String);
+    public static boolean isAvailable(android.content.pm.PackageUserState);
+    public static android.content.pm.PackageParser$ApkLite parseApkLite(java.io.File, int);
+    public static android.content.pm.PackageParser$ApkLite parseApkLite(java.io.FileDescriptor, java.lang.String, int);
+    public android.content.pm.PackageParser$Package parseMonolithicPackage(java.io.File, int);
+    public android.content.pm.PackageParser$Package parsePackage(java.io.File, int, boolean);
+    public android.content.pm.PackageParser$Package parsePackage(java.io.File, int);
+    public static android.content.pm.PackageParser$PackageLite parsePackageLite(java.io.File, int);
+    public static java.security.PublicKey parsePublicKey(java.lang.String);
+    public void setCacheDir(java.io.File);
+    public void setCallback(android.content.pm.PackageParser$Callback);
+    public static void setCompatibilityModeEnabled(boolean);
+    public void setDisplayMetrics(android.util.DisplayMetrics);
+    public void setOnlyCoreApps(boolean);
+    public void setSeparateProcesses(java.lang.String[]);
+    protected byte[] toCacheEntry(android.content.pm.PackageParser$Package);
+    public static byte[] toCacheEntryStatic(android.content.pm.PackageParser$Package);
+    public static android.util.ArraySet toSigningKeys(android.content.pm.Signature[]);
+
+
+    public static java.lang.String ANDROID_MANIFEST_FILENAME;
+    public static java.lang.String APK_FILE_EXTENSION;
+    public static android.content.pm.PackageParser$NewPermissionInfo[] NEW_PERMISSIONS;
+    public static int PARSE_CHATTY;
+    public static int PARSE_COLLECT_CERTIFICATES;
+    public static int PARSE_ENFORCE_CODE;
+    public static int PARSE_EXTERNAL_STORAGE;
+    public static int PARSE_FORCE_SDK;
+    public static int PARSE_FORWARD_LOCK;
+    public static int PARSE_IGNORE_PROCESSES;
+    public static int PARSE_IS_SYSTEM_DIR;
+    public static int PARSE_MUST_BE_APK;
+    public static android.content.pm.PackageParser$SplitPermissionInfo[] SPLIT_PERMISSIONS;
+    public static java.util.concurrent.atomic.AtomicInteger sCachedPackageReadCount;
+}
+
+-keep class android.content.pm.PackageParser$Activity {
+    <init>(android.content.pm.PackageParser$ParseComponentArgs, android.content.pm.ActivityInfo);
+
+    public int describeContents();
+    public void setPackageName(java.lang.String);
+    public java.lang.String toString();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+    public android.content.pm.ActivityInfo info;
+}
+
+-keep class android.content.pm.PackageParser$ActivityIntentInfo {
+    <init>(android.content.pm.PackageParser$Activity);
+    <init>(android.os.Parcel);
+
+    public java.lang.String toString();
+
+
+    public android.content.pm.PackageParser$Activity activity;
+}
+
+-keep class android.content.pm.PackageParser$ApkLite {
+    <init>(java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, java.lang.String, int, int, int, int, java.util.List, android.content.pm.PackageParser$SigningDetails, boolean, boolean, boolean, boolean, boolean, boolean);
+
+    public long getLongVersionCode();
+
+
+    public java.lang.String codePath;
+    public java.lang.String configForSplit;
+    public boolean coreApp;
+    public boolean debuggable;
+    public boolean extractNativeLibs;
+    public int installLocation;
+    public boolean isFeatureSplit;
+    public boolean isolatedSplits;
+    public boolean multiArch;
+    public java.lang.String packageName;
+    public int revisionCode;
+    public android.content.pm.PackageParser$SigningDetails signingDetails;
+    public java.lang.String splitName;
+    public boolean use32bitAbi;
+    public java.lang.String usesSplitName;
+    public android.content.pm.VerifierInfo[] verifiers;
+    public int versionCode;
+    public int versionCodeMajor;
+}
+
+-keep class android.content.pm.PackageParser$Callback {
+
+    public abstract java.lang.String[] getOverlayApks(java.lang.String);
+    public abstract java.lang.String[] getOverlayPaths(java.lang.String, java.lang.String);
+    public abstract boolean hasFeature(java.lang.String);
+
+
+}
+
+-keep class android.content.pm.PackageParser$Component {
+    <init>(android.content.pm.PackageParser$Package);
+    <init>(android.content.pm.PackageParser$ParsePackageItemArgs, android.content.pm.PackageItemInfo);
+    <init>(android.content.pm.PackageParser$ParseComponentArgs, android.content.pm.ComponentInfo);
+    <init>(android.content.pm.PackageParser$Component);
+    <init>(android.os.Parcel);
+
+    public void appendComponentShortName(java.lang.StringBuilder);
+    public android.content.ComponentName getComponentName();
+    public void printComponentShortName(java.io.PrintWriter);
+    public void setPackageName(java.lang.String);
+    protected void writeToParcel(android.os.Parcel, int);
+
+
+    public java.lang.String className;
+    public java.util.ArrayList intents;
+    public android.os.Bundle metaData;
+    public int order;
+    public android.content.pm.PackageParser$Package owner;
+}
+
+-keep class android.content.pm.PackageParser$Instrumentation {
+    <init>(android.content.pm.PackageParser$ParsePackageItemArgs, android.content.pm.InstrumentationInfo);
+
+    public int describeContents();
+    public void setPackageName(java.lang.String);
+    public java.lang.String toString();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+    public android.content.pm.InstrumentationInfo info;
+}
+
+-keep class android.content.pm.PackageParser$IntentInfo {
+    <init>();
+    <init>(android.os.Parcel);
+
+    public void writeIntentInfoToParcel(android.os.Parcel, int);
+
+
+    public int banner;
+    public boolean hasDefault;
+    public int icon;
+    public int labelRes;
+    public int logo;
+    public java.lang.CharSequence nonLocalizedLabel;
+    public int preferred;
+}
+
+-keep class android.content.pm.PackageParser$NewPermissionInfo {
+    <init>(java.lang.String, int, int);
+
+
+
+    public int fileVersion;
+    public java.lang.String name;
+    public int sdkVersion;
+}
+
+-keep class android.content.pm.PackageParser$Package {
+    <init>(java.lang.String);
+    <init>(android.os.Parcel);
+
+    public boolean canHaveOatDir();
+    public int describeContents();
+    public java.util.List getAllCodePaths();
+    public java.util.List getAllCodePathsExcludingResourceOnly();
+    public java.util.List getChildPackageNames();
+    public long getLatestForegroundPackageUseTimeInMills();
+    public long getLatestPackageUseTimeInMills();
+    public long getLongVersionCode();
+    public boolean hasChildPackage(java.lang.String);
+    public boolean hasComponentClassName(java.lang.String);
+    public boolean isExternal();
+    public boolean isForwardLocked();
+    public boolean isLibrary();
+    public boolean isMatch(int);
+    public boolean isOem();
+    public boolean isPrivileged();
+    public boolean isProduct();
+    public boolean isSystem();
+    public boolean isUpdatedSystemApp();
+    public boolean isVendor();
+    public void setApplicationInfoBaseCodePath(java.lang.String);
+    public void setApplicationInfoBaseResourcePath(java.lang.String);
+    public void setApplicationInfoCodePath(java.lang.String);
+    public void setApplicationInfoFlags(int, int);
+    public void setApplicationInfoResourcePath(java.lang.String);
+    public void setApplicationInfoSplitCodePaths(java.lang.String[]);
+    public void setApplicationInfoSplitResourcePaths(java.lang.String[]);
+    public void setApplicationVolumeUuid(java.lang.String);
+    public void setBaseCodePath(java.lang.String);
+    public void setCodePath(java.lang.String);
+    public void setPackageName(java.lang.String);
+    public void setSigningDetails(android.content.pm.PackageParser$SigningDetails);
+    public void setSplitCodePaths(java.lang.String[]);
+    public void setUse32bitAbi(boolean);
+    public void setVolumeUuid(java.lang.String);
+    public java.lang.String toString();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+    public java.util.ArrayList activities;
+    public android.content.pm.ApplicationInfo applicationInfo;
+    public java.lang.String baseCodePath;
+    public boolean baseHardwareAccelerated;
+    public int baseRevisionCode;
+    public java.util.ArrayList childPackages;
+    public java.lang.String codePath;
+    public java.util.ArrayList configPreferences;
+    public boolean coreApp;
+    public java.lang.String cpuAbiOverride;
+    public java.util.ArrayList featureGroups;
+    public int installLocation;
+    public java.util.ArrayList instrumentation;
+    public boolean isStub;
+    public java.util.ArrayList libraryNames;
+    public java.util.ArrayList mAdoptPermissions;
+    public android.os.Bundle mAppMetaData;
+    public int mCompileSdkVersion;
+    public java.lang.String mCompileSdkVersionCodename;
+    public java.lang.Object mExtras;
+    public android.util.ArrayMap mKeySetMapping;
+    public long[] mLastPackageUsageTimeInMills;
+    public java.util.ArrayList mOriginalPackages;
+    public java.lang.String mOverlayCategory;
+    public boolean mOverlayIsStatic;
+    public int mOverlayPriority;
+    public java.lang.String mOverlayTarget;
+    public int mPreferredOrder;
+    public java.lang.String mRealPackage;
+    public java.lang.String mRequiredAccountType;
+    public boolean mRequiredForAllUsers;
+    public java.lang.String mRestrictedAccountType;
+    public java.lang.String mSharedUserId;
+    public int mSharedUserLabel;
+    public android.content.pm.PackageParser$SigningDetails mSigningDetails;
+    public android.util.ArraySet mUpgradeKeySets;
+    public int mVersionCode;
+    public int mVersionCodeMajor;
+    public java.lang.String mVersionName;
+    public java.lang.String manifestPackageName;
+    public java.lang.String packageName;
+    public android.content.pm.PackageParser$Package parentPackage;
+    public java.util.ArrayList permissionGroups;
+    public java.util.ArrayList permissions;
+    public java.util.ArrayList preferredActivityFilters;
+    public java.util.ArrayList protectedBroadcasts;
+    public java.util.ArrayList providers;
+    public java.util.ArrayList receivers;
+    public java.util.ArrayList reqFeatures;
+    public java.util.ArrayList requestedPermissions;
+    public byte[] restrictUpdateHash;
+    public java.util.ArrayList services;
+    public java.lang.String[] splitCodePaths;
+    public int[] splitFlags;
+    public java.lang.String[] splitNames;
+    public int[] splitPrivateFlags;
+    public int[] splitRevisionCodes;
+    public java.lang.String staticSharedLibName;
+    public long staticSharedLibVersion;
+    public boolean use32bitAbi;
+    public java.util.ArrayList usesLibraries;
+    public java.lang.String[] usesLibraryFiles;
+    public java.util.ArrayList usesOptionalLibraries;
+    public java.util.ArrayList usesStaticLibraries;
+    public java.lang.String[][] usesStaticLibrariesCertDigests;
+    public long[] usesStaticLibrariesVersions;
+    public boolean visibleToInstantApps;
+    public java.lang.String volumeUuid;
+}
+
+-keep class android.content.pm.PackageParser$PackageLite {
+    <init>(java.lang.String, android.content.pm.PackageParser$ApkLite, java.lang.String[], boolean[], java.lang.String[], java.lang.String[], java.lang.String[], int[]);
+
+    public java.util.List getAllCodePaths();
+
+
+    public java.lang.String baseCodePath;
+    public int baseRevisionCode;
+    public java.lang.String codePath;
+    public java.lang.String[] configForSplit;
+    public boolean coreApp;
+    public boolean debuggable;
+    public boolean extractNativeLibs;
+    public int installLocation;
+    public boolean[] isFeatureSplits;
+    public boolean isolatedSplits;
+    public boolean multiArch;
+    public java.lang.String packageName;
+    public java.lang.String[] splitCodePaths;
+    public java.lang.String[] splitNames;
+    public int[] splitRevisionCodes;
+    public boolean use32bitAbi;
+    public java.lang.String[] usesSplitNames;
+    public android.content.pm.VerifierInfo[] verifiers;
+    public int versionCode;
+    public int versionCodeMajor;
+}
+
+-keep class android.content.pm.PackageParser$PackageParserException {
+    <init>(int, java.lang.String);
+    <init>(int, java.lang.String, java.lang.Throwable);
+
+
+
+    public int error;
+}
+
+-keep class android.content.pm.PackageParser$ParseComponentArgs {
+    <init>(android.content.pm.PackageParser$Package, java.lang.String[], int, int, int, int, int, int, java.lang.String[], int, int, int);
+
+
+
+}
+
+-keep class android.content.pm.PackageParser$ParsePackageItemArgs {
+
+
+
+}
+
+-keep class android.content.pm.PackageParser$Permission {
+    <init>(android.content.pm.PackageParser$Package);
+    <init>(android.content.pm.PackageParser$Package, android.content.pm.PermissionInfo);
+
+    public int describeContents();
+    public boolean isAppOp();
+    public void setPackageName(java.lang.String);
+    public java.lang.String toString();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+    public android.content.pm.PackageParser$PermissionGroup group;
+    public android.content.pm.PermissionInfo info;
+    public boolean tree;
+}
+
+-keep class android.content.pm.PackageParser$PermissionGroup {
+    <init>(android.content.pm.PackageParser$Package);
+    <init>(android.content.pm.PackageParser$Package, android.content.pm.PermissionGroupInfo);
+
+    public int describeContents();
+    public void setPackageName(java.lang.String);
+    public java.lang.String toString();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+    public android.content.pm.PermissionGroupInfo info;
+}
+
+-keep class android.content.pm.PackageParser$Provider {
+    <init>(android.content.pm.PackageParser$ParseComponentArgs, android.content.pm.ProviderInfo);
+    <init>(android.content.pm.PackageParser$Provider);
+
+    public int describeContents();
+    public void setPackageName(java.lang.String);
+    public java.lang.String toString();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+    public android.content.pm.ProviderInfo info;
+    public boolean syncable;
+}
+
+-keep class android.content.pm.PackageParser$Service {
+    <init>(android.content.pm.PackageParser$ParseComponentArgs, android.content.pm.ServiceInfo);
+
+    public int describeContents();
+    public void setPackageName(java.lang.String);
+    public java.lang.String toString();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+    public android.content.pm.ServiceInfo info;
+}
+
+-keep class android.content.pm.PackageParser$SigningDetails {
+    <init>(android.content.pm.Signature[], int, android.util.ArraySet, android.content.pm.Signature[], int[]);
+    <init>(android.content.pm.Signature[], int, android.content.pm.Signature[], int[]);
+    <init>(android.content.pm.Signature[], int);
+    <init>(android.content.pm.PackageParser$SigningDetails);
+    <init>(android.os.Parcel);
+
+    public boolean checkCapability(android.content.pm.PackageParser$SigningDetails, int);
+    public boolean checkCapability(java.lang.String, int);
+    public boolean checkCapabilityRecover(android.content.pm.PackageParser$SigningDetails, int);
+    public int describeContents();
+    public boolean equals(java.lang.Object);
+    public boolean hasAncestor(android.content.pm.PackageParser$SigningDetails);
+    public boolean hasAncestorOrSelf(android.content.pm.PackageParser$SigningDetails);
+    public boolean hasCertificate(android.content.pm.Signature);
+    public boolean hasCertificate(android.content.pm.Signature, int);
+    public boolean hasCertificate(byte[]);
+    public boolean hasPastSigningCertificates();
+    public boolean hasSha256Certificate(byte[]);
+    public boolean hasSha256Certificate(byte[], int);
+    public boolean hasSignatures();
+    public int hashCode();
+    public boolean signaturesMatchExactly(android.content.pm.PackageParser$SigningDetails);
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+    public static android.content.pm.PackageParser$SigningDetails UNKNOWN;
+    public android.content.pm.Signature[] pastSigningCertificates;
+    public int[] pastSigningCertificatesFlags;
+    public android.util.ArraySet publicKeys;
+    public int signatureSchemeVersion;
+    public android.content.pm.Signature[] signatures;
+}
+
+-keep class android.content.pm.PackageParser$SplitPermissionInfo {
+    <init>(java.lang.String, java.lang.String[], int);
+
+
+
+    public java.lang.String[] newPerms;
+    public java.lang.String rootPerm;
+    public int targetSdk;
+}
+
 -keep class android.content.pm.PackageStats {
     <init>(java.lang.String);
     <init>(java.lang.String, int);
@@ -8610,6 +9069,40 @@
     public long externalObbSize;
     public java.lang.String packageName;
     public int userHandle;
+}
+
+-keep class android.content.pm.PackageUserState {
+    <init>();
+    <init>(android.content.pm.PackageUserState);
+
+    public boolean equals(java.lang.Object);
+    public boolean isAvailable(int);
+    public boolean isEnabled(android.content.pm.ComponentInfo, int);
+    public boolean isMatch(android.content.pm.ComponentInfo, int);
+
+
+    public int appLinkGeneration;
+    public int categoryHint;
+    public long ceDataInode;
+    public java.lang.String dialogMessage;
+    public android.util.ArraySet disabledComponents;
+    public int domainVerificationStatus;
+    public int enabled;
+    public android.util.ArraySet enabledComponents;
+    public java.lang.String harmfulAppWarning;
+    public boolean hidden;
+    public int installReason;
+    public boolean installed;
+    public boolean instantApp;
+    public java.lang.String lastDisableAppCaller;
+    public boolean notLaunched;
+    public java.lang.String[] overlayPaths;
+    public boolean stopped;
+    public boolean suspended;
+    public android.os.PersistableBundle suspendedAppExtras;
+    public android.os.PersistableBundle suspendedLauncherExtras;
+    public java.lang.String suspendingPackage;
+    public boolean virtualPreload;
 }
 
 -keep class android.content.pm.ParceledListSlice {
@@ -8844,6 +9337,22 @@
     public static android.os.Parcelable$Creator CREATOR;
 }
 
+-keep class android.content.pm.SigningInfo {
+    <init>();
+    <init>(android.content.pm.PackageParser$SigningDetails);
+    <init>(android.content.pm.SigningInfo);
+
+    public int describeContents();
+    public android.content.pm.Signature[] getApkContentsSigners();
+    public android.content.pm.Signature[] getSigningCertificateHistory();
+    public boolean hasMultipleSigners();
+    public boolean hasPastSigningCertificates();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+}
+
 -keep class android.content.pm.UserInfo {
     <init>(int, java.lang.String, int);
     <init>(int, java.lang.String, java.lang.String, int);
@@ -8912,6 +9421,18 @@
 
 
     public static android.os.Parcelable$Creator CREATOR;
+}
+
+-keep class android.content.pm.VerifierInfo {
+    <init>(java.lang.String, java.security.PublicKey);
+
+    public int describeContents();
+    public void writeToParcel(android.os.Parcel, int);
+
+
+    public static android.os.Parcelable$Creator CREATOR;
+    public java.lang.String packageName;
+    public java.security.PublicKey publicKey;
 }
 
 -keep class android.content.pm.VersionedPackage {
@@ -11912,6 +12433,7 @@
     public android.view.Display getDisplay(int);
     public android.view.Display[] getDisplays();
     public android.view.Display[] getDisplays(java.lang.String);
+    public android.util.Pair getMinimumBrightnessCurve();
     public android.graphics.Point getStableDisplaySize();
     public android.hardware.display.WifiDisplayStatus getWifiDisplayStatus();
     public void pauseWifiDisplay();
@@ -11966,6 +12488,7 @@
     public int[] getDisplayIds();
     public android.view.DisplayInfo getDisplayInfo(int);
     public static android.hardware.display.DisplayManagerGlobal getInstance();
+    public android.util.Pair getMinimumBrightnessCurve();
     public android.view.Display getRealDisplay(int);
     public android.graphics.Point getStableDisplaySize();
     public android.hardware.display.WifiDisplayStatus getWifiDisplayStatus();
@@ -14795,6 +15318,7 @@
     public boolean equals(java.lang.Object);
     public java.lang.String getDescription();
     public java.lang.String getId();
+    public java.lang.String getShortDescription();
     public int hashCode();
     public boolean isAdoptable();
     public boolean isDefaultPrimary();
@@ -16411,7 +16935,6 @@
     public android.view.DisplayCutout inset(int, int, int, int);
     public boolean isBoundsEmpty();
     public boolean isEmpty();
-    public android.view.DisplayCutout replaceSafeInsets(android.graphics.Rect);
     public java.lang.String toString();
     public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
@@ -18858,6 +19381,7 @@
     protected void invalidateParentIfNeeded();
     protected void invalidateParentIfNeededAndWasQuickRejected();
     public boolean isAccessibilityFocused();
+    public boolean isAccessibilityHeading();
     public boolean isAccessibilitySelectionExtendable();
     public boolean isActionableForAccessibility();
     public boolean isActivated();
@@ -19078,6 +19602,7 @@
     public void sendAccessibilityEventUnchecked(android.view.accessibility.AccessibilityEvent);
     public void sendAccessibilityEventUncheckedInternal(android.view.accessibility.AccessibilityEvent);
     public void setAccessibilityDelegate(android.view.View$AccessibilityDelegate);
+    public void setAccessibilityHeading(boolean);
     public void setAccessibilityLiveRegion(int);
     public void setAccessibilityPaneTitle(java.lang.CharSequence);
     public void setAccessibilitySelection(int, int);
@@ -20921,6 +21446,7 @@
     public static int TRANSIT_ACTIVITY_CLOSE;
     public static int TRANSIT_ACTIVITY_OPEN;
     public static int TRANSIT_ACTIVITY_RELAUNCH;
+    public static int TRANSIT_CRASHING_ACTIVITY_CLOSE;
     public static int TRANSIT_DOCK_TASK_FROM_RECENTS;
     public static int TRANSIT_FLAG_KEYGUARD_GOING_AWAY_NO_ANIMATION;
     public static int TRANSIT_FLAG_KEYGUARD_GOING_AWAY_TO_SHADE;
@@ -21160,7 +21686,6 @@
     public float dimAmount;
     public int flags;
     public int format;
-    public long frameNumber;
     public int gravity;
     public boolean hasManualSurfaceInsets;
     public boolean hasSystemUiListeners;
@@ -21234,6 +21759,7 @@
     public static int CONTENT_CHANGE_TYPE_TEXT;
     public static int CONTENT_CHANGE_TYPE_UNDEFINED;
     public static android.os.Parcelable$Creator CREATOR;
+    public static boolean DEBUG_ORIGIN;
     public static int INVALID_POSITION;
     public static int MAX_TEXT_LENGTH;
     public static int TYPES_ALL_MASK;
@@ -21273,6 +21799,7 @@
     public static int WINDOWS_CHANGE_PIP;
     public static int WINDOWS_CHANGE_REMOVED;
     public static int WINDOWS_CHANGE_TITLE;
+    public java.lang.StackTraceElement[] originStackTrace;
 }
 
 -keep class android.view.accessibility.AccessibilityNodeInfo {
@@ -21336,6 +21863,7 @@
     public int getWindowId();
     public boolean hasExtras();
     public int hashCode();
+    public static java.lang.String idToString(long);
     public boolean isAccessibilityFocused();
     public boolean isCheckable();
     public boolean isChecked();
@@ -22681,6 +23209,7 @@
     public void setCharSequence(int, java.lang.String, java.lang.CharSequence);
     public void setChronometer(int, long, java.lang.String, boolean);
     public void setChronometerCountDown(int, boolean);
+    public void setColorStateList(int, java.lang.String, android.content.res.ColorStateList);
     public void setContentDescription(int, java.lang.CharSequence);
     public void setDisplayedChild(int, int);
     public void setDouble(int, java.lang.String, double);
