@@ -1492,13 +1492,14 @@
 }
 
 -keep class android.app.ActivityManager$TaskSnapshot {
-    <init>(android.graphics.GraphicBuffer, int, android.graphics.Rect, boolean, float, boolean);
+    <init>(android.graphics.GraphicBuffer, int, android.graphics.Rect, boolean, float, boolean, int);
 
     public int describeContents();
     public android.graphics.Rect getContentInsets();
     public int getOrientation();
     public float getScale();
     public android.graphics.GraphicBuffer getSnapshot();
+    public int getWindowingMode();
     public boolean isRealSnapshot();
     public boolean isReducedResolution();
     public java.lang.String toString();
@@ -1673,7 +1674,7 @@
     public void handleRelaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public void handleRequestAssistContextExtras(android.app.ActivityThread$RequestAssistContextExtras);
     public void handleResumeActivity(android.os.IBinder, boolean, boolean, java.lang.String);
-    public void handleSendResult(android.os.IBinder, java.util.List);
+    public void handleSendResult(android.os.IBinder, java.util.List, java.lang.String);
     public void handleStartActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public void handleStopActivity(android.os.IBinder, boolean, int, android.app.servertransaction.PendingTransactionActions, boolean, java.lang.String);
     public void handleTranslucentConversionComplete(android.os.IBinder, boolean);
@@ -2230,7 +2231,7 @@
     public abstract void handlePictureInPictureModeChanged(android.os.IBinder, boolean, android.content.res.Configuration);
     public abstract void handleRelaunchActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public abstract void handleResumeActivity(android.os.IBinder, boolean, boolean, java.lang.String);
-    public abstract void handleSendResult(android.os.IBinder, java.util.List);
+    public abstract void handleSendResult(android.os.IBinder, java.util.List, java.lang.String);
     public abstract void handleStartActivity(android.app.ActivityThread$ActivityClientRecord, android.app.servertransaction.PendingTransactionActions);
     public abstract void handleStopActivity(android.os.IBinder, boolean, int, android.app.servertransaction.PendingTransactionActions, boolean, java.lang.String);
     public abstract void handleWindowVisibility(android.os.IBinder, boolean);
@@ -3052,6 +3053,7 @@
     public abstract void setRequestedOrientation(android.os.IBinder, int);
     public abstract void setServiceForeground(android.content.ComponentName, android.os.IBinder, int, android.app.Notification, int);
     public abstract void setShowWhenLocked(android.os.IBinder, boolean);
+    public abstract void setSplitScreenResizing(boolean);
     public abstract void setTaskDescription(android.os.IBinder, android.app.ActivityManager$TaskDescription);
     public abstract void setTaskResizeable(int, int);
     public abstract void setTaskWindowingMode(int, int, boolean);
@@ -3525,6 +3527,7 @@
     public boolean suppressAlertingDueToGrouping();
     public java.lang.String toString();
     public static java.lang.String visibilityToString(int);
+    public void visitUris(java.util.function.Consumer);
     public void writeToParcel(android.os.Parcel, int);
     public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
@@ -3593,6 +3596,7 @@
     public static java.lang.String EXTRA_REMOTE_INPUT_HISTORY;
     public static java.lang.String EXTRA_SELF_DISPLAY_NAME;
     public static java.lang.String EXTRA_SHOW_CHRONOMETER;
+    public static java.lang.String EXTRA_SHOW_REMOTE_INPUT_SPINNER;
     public static java.lang.String EXTRA_SHOW_WHEN;
     public static java.lang.String EXTRA_SMALL_ICON;
     public static java.lang.String EXTRA_SUBSTITUTE_APP_NAME;
@@ -3767,6 +3771,7 @@
     public android.app.Notification$Builder setRemoteInputHistory(java.lang.CharSequence[]);
     public android.app.Notification$Builder setSettingsText(java.lang.CharSequence);
     public android.app.Notification$Builder setShortcutId(java.lang.String);
+    public android.app.Notification$Builder setShowRemoteInputSpinner(boolean);
     public android.app.Notification$Builder setShowWhen(boolean);
     public android.app.Notification$Builder setSmallIcon(int);
     public android.app.Notification$Builder setSmallIcon(int, int);
@@ -3811,6 +3816,7 @@
     public boolean displayCustomViewInline();
     public java.lang.CharSequence getHeadsUpStatusBarText();
     protected android.widget.RemoteViews getStandardView(int);
+    protected android.widget.RemoteViews getStandardView(int, android.app.Notification$TemplateBindResult);
     protected boolean hasProgress();
     public boolean hasSummaryInHeader();
     protected void internalSetBigContentTitle(java.lang.CharSequence);
@@ -3828,6 +3834,14 @@
     protected android.app.Notification$Builder mBuilder;
     protected java.lang.CharSequence mSummaryText;
     protected boolean mSummaryTextSet;
+}
+
+-keep class android.app.Notification$TemplateBindResult {
+
+    public int getIconMarginEnd();
+    public void setIconMarginEnd(int);
+
+
 }
 
 -keep class android.app.OnActivityPausedListener {
@@ -3866,6 +3880,7 @@
     public boolean isForegroundService();
     public boolean isTargetedToPackage();
     public static android.app.PendingIntent readPendingIntentOrNullFromParcel(android.os.Parcel);
+    public void registerCancelListener(android.app.PendingIntent$CancelListener);
     public void send();
     public void send(int);
     public void send(android.content.Context, int, android.content.Intent);
@@ -3876,6 +3891,7 @@
     public int sendAndReturnResult(android.content.Context, int, android.content.Intent, android.app.PendingIntent$OnFinished, android.os.Handler, java.lang.String, android.os.Bundle);
     public static void setOnMarshaledListener(android.app.PendingIntent$OnMarshaledListener);
     public java.lang.String toString();
+    public void unregisterCancelListener(android.app.PendingIntent$CancelListener);
     public static void writePendingIntentOrNullToParcel(android.app.PendingIntent, android.os.Parcel);
     public void writeToParcel(android.os.Parcel, int);
     public void writeToProto(android.util.proto.ProtoOutputStream, long);
@@ -3887,6 +3903,13 @@
     public static int FLAG_NO_CREATE;
     public static int FLAG_ONE_SHOT;
     public static int FLAG_UPDATE_CURRENT;
+}
+
+-keep class android.app.PendingIntent$CancelListener {
+
+    public abstract void onCancelled(android.app.PendingIntent);
+
+
 }
 
 -keep class android.app.PendingIntent$CanceledException {
@@ -6777,6 +6800,8 @@
     public long getPeriodicSyncTime(int);
     public void maybeResetTodayStats(boolean, boolean);
     public void removePeriodicSyncTime(int);
+    public void setLastFailure(int, long, java.lang.String);
+    public void setLastSuccess(int, long);
     public void setPeriodicSyncTime(int, long);
     public void writeToParcel(android.os.Parcel, int);
 
@@ -6792,6 +6817,8 @@
     public long lastSuccessTime;
     public long lastTodayResetTime;
     public boolean pending;
+    public long[] perSourceLastFailureTimes;
+    public long[] perSourceLastSuccessTimes;
     public android.content.SyncStatusInfo$Stats todayStats;
     public android.content.SyncStatusInfo$Stats totalStats;
     public android.content.SyncStatusInfo$Stats yesterdayStats;
@@ -9451,7 +9478,7 @@
 }
 
 -keep class android.content.pm.dex.ArtManager {
-    <init>(android.content.pm.dex.IArtManager);
+    <init>(android.content.Context, android.content.pm.dex.IArtManager);
 
     public static java.lang.String getCurrentProfilePath(java.lang.String, int, java.lang.String);
     public static java.lang.String getProfileName(java.lang.String);
@@ -9478,8 +9505,8 @@
 
 -keep class android.content.pm.dex.IArtManager {
 
-    public abstract boolean isRuntimeProfilingEnabled(int);
-    public abstract void snapshotRuntimeProfile(int, java.lang.String, java.lang.String, android.content.pm.dex.ISnapshotRuntimeProfileCallback);
+    public abstract boolean isRuntimeProfilingEnabled(int, java.lang.String);
+    public abstract void snapshotRuntimeProfile(int, java.lang.String, java.lang.String, android.content.pm.dex.ISnapshotRuntimeProfileCallback, java.lang.String);
 
 
 }
@@ -11844,6 +11871,7 @@
     public boolean contains(int, int);
     public boolean contains(int, int, int, int);
     public boolean contains(android.graphics.Rect);
+    public static android.graphics.Rect copyOrNull(android.graphics.Rect);
     public int describeContents();
     public boolean equals(java.lang.Object);
     public float exactCenterX();
@@ -16935,6 +16963,8 @@
     public android.view.DisplayCutout inset(int, int, int, int);
     public boolean isBoundsEmpty();
     public boolean isEmpty();
+    public static android.graphics.Path pathFromResources(android.content.res.Resources, int, int);
+    public android.view.DisplayCutout replaceSafeInsets(android.graphics.Rect);
     public java.lang.String toString();
     public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
@@ -17137,6 +17167,7 @@
 -keep class android.view.IRecentsAnimationController {
 
     public abstract void finish(boolean);
+    public abstract void hideCurrentInputMethod();
     public abstract android.app.ActivityManager$TaskSnapshot screenshotTask(int);
     public abstract void setAnimationTargetsBehindSystemBars(boolean);
     public abstract void setInputConsumerEnabled(boolean);
@@ -23251,12 +23282,14 @@
     public void setTextViewTextSize(int, int, float);
     public void setUri(int, java.lang.String, android.net.Uri);
     public void setViewLayoutMarginBottomDimen(int, int);
+    public void setViewLayoutMarginEnd(int, int);
     public void setViewLayoutMarginEndDimen(int, int);
     public void setViewLayoutWidth(int, int);
     public void setViewPadding(int, int, int, int, int);
     public void setViewVisibility(int, int);
     public void showNext(int);
     public void showPrevious(int);
+    public void visitUris(java.util.function.Consumer);
     public void writeToParcel(android.os.Parcel, int);
 
 
