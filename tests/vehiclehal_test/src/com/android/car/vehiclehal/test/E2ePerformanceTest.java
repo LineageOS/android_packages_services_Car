@@ -87,21 +87,33 @@ public class E2ePerformanceTest {
     private final CarConnectionListener mConnectionListener = new CarConnectionListener();
     private Context mContext;
     private Car mCar;
+    private HalEventsGenerator mEventsGenerator;
 
     private static Handler sEventHandler;
     private static final HandlerThread sHandlerThread = new HandlerThread(TAG);
 
     private static final int DEFAULT_WAIT_TIMEOUT_MS = 1000;
 
+    /**
+     * The following property and the two command bits indicate VHAL to start/stop linear fake data
+     * generation process. It must match kGenerateFakeDataControllingProperty that is defined in
+     * default VHAL implementation:
+     *
+     *    hardware/interfaces/automotive/vehicle/2.0/default/impl/vhal_v2_0/DefaultConfig.h
+     *
+     * TODO: Move the following definition to a common place that can be shared within package
+     */
     private static final int GENERATE_FAKE_DATA_CONTROLLING_PROPERTY = 0x0666
             | VehiclePropertyGroup.VENDOR
             | VehicleArea.GLOBAL
             | VehiclePropertyType.MIXED;
 
-    private static final int CMD_START = 1;
-    private static final int CMD_STOP = 0;
-
-    private HalEventsGenerator mEventsGenerator;
+    /**
+     * The two command bits are sent via GENERATE_FAKE_DATA_CONTROLLING_PROPERTY to start/stop
+     * linear fake data generation from VHAL
+     */
+    private static final int CMD_START_LINEAR = 0;
+    private static final int CMD_STOP_LINEAR = 1;
 
     @BeforeClass
     public static void setupEventHandler() {
@@ -438,7 +450,7 @@ public class E2ePerformanceTest {
         void start(int propId) throws RemoteException {
             VehiclePropValue request =
                     VehiclePropValueBuilder.newBuilder(GENERATE_FAKE_DATA_CONTROLLING_PROPERTY)
-                        .addIntValue(CMD_START, propId)
+                        .addIntValue(CMD_START_LINEAR, propId)
                         .setInt64Value(mIntervalMs * 1000_000)
                         .addFloatValue(mInitialValue, mDispersion, mIncrement)
                         .build();
@@ -452,7 +464,7 @@ public class E2ePerformanceTest {
         void stop(int propId) throws RemoteException {
             VehiclePropValue request =
                     VehiclePropValueBuilder.newBuilder(GENERATE_FAKE_DATA_CONTROLLING_PROPERTY)
-                        .addIntValue(CMD_STOP, propId)
+                        .addIntValue(CMD_STOP_LINEAR, propId)
                         .build();
             assertEquals(StatusCode.OK, mVehicle.set(request));
         }
