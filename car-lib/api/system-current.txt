@@ -535,6 +535,7 @@ package android.car.hardware {
     method public <E> E getGlobalProperty(java.lang.Class<E>, int) throws android.car.CarNotConnectedException;
     method public java.util.List<android.car.hardware.CarPropertyConfig> getProperties() throws android.car.CarNotConnectedException;
     method public <E> E getProperty(java.lang.Class<E>, int, int) throws android.car.CarNotConnectedException;
+    method public boolean isPropertyAvailable(int, int) throws android.car.CarNotConnectedException;
     method public void registerCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback) throws android.car.CarNotConnectedException;
     method public <E> void setGlobalProperty(java.lang.Class<E>, int, E) throws android.car.CarNotConnectedException;
     method public <E> void setProperty(java.lang.Class<E>, int, int, E) throws android.car.CarNotConnectedException;
