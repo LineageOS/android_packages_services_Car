@@ -214,7 +214,7 @@ bool RenderTopView::drawFrame(const BufferDesc& tgtBuffer) {
 
     // Wait for the rendering to finish
     glFinish();
-
+    detachRenderTarget();
     return true;
 }
 
