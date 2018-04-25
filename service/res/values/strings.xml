@@ -184,6 +184,11 @@
     <!-- Permission text: apps control car's exterior lights [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_car_exterior_lights">Control car exterior lights </string>
 
+    <!-- Permission text: apps control car's exterior temperature [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_car_exterior_environment">Car exterior temperature</string>
+    <!-- Permission text: apps control car's exterior lights [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_car_exterior_environment">Access car exterior temperature </string>
+
     <!-- Permission text: apps access car's tire information [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_tires">Car tires</string>
     <!-- Permission text: apps access car's tire information [CHAR LIMIT=NONE] -->
