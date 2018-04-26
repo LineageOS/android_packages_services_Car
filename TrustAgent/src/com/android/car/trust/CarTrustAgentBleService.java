@@ -21,6 +21,8 @@ import android.bluetooth.BluetoothGattService;
 import android.car.trust.ICarTrustAgentBleCallback;
 import android.car.trust.ICarTrustAgentBleService;
 import android.car.trust.ICarTrustAgentEnrolmentCallback;
+import android.car.trust.ICarTrustAgentTokenRequestDelegate;
+import android.car.trust.ICarTrustAgentTokenResponseCallback;
 import android.car.trust.ICarTrustAgentUnlockCallback;
 import android.content.Intent;
 import android.os.IBinder;
@@ -44,6 +46,8 @@ public class CarTrustAgentBleService extends SimpleBleServer {
     private RemoteCallbackList<ICarTrustAgentBleCallback> mBleCallbacks;
     private RemoteCallbackList<ICarTrustAgentEnrolmentCallback> mEnrolmentCallbacks;
     private RemoteCallbackList<ICarTrustAgentUnlockCallback> mUnlockCallbacks;
+    private ICarTrustAgentTokenRequestDelegate mTokenRequestDelegate;
+    private ICarTrustAgentTokenResponseCallback mTokenResponseCallback;
     private CarTrustAgentBleWrapper mCarTrustBleService;
 
     private ParcelUuid mEnrolmentUuid;
@@ -257,6 +261,7 @@ public class CarTrustAgentBleService extends SimpleBleServer {
         @Override
         public void startEnrolmentAdvertising() {
             Log.d(TAG, "startEnrolmentAdvertising");
+            stopUnlockAdvertising();
             startAdvertising(mEnrolmentUuid, mEnrolmentGattServer);
         }
 
@@ -286,6 +291,7 @@ public class CarTrustAgentBleService extends SimpleBleServer {
         @Override
         public void startUnlockAdvertising() {
             Log.d(TAG, "startUnlockAdvertising");
+            stopEnrolmentAdvertising();
             startAdvertising(mUnlockUuid, mUnlockGattServer);
         }
 
@@ -303,6 +309,69 @@ public class CarTrustAgentBleService extends SimpleBleServer {
         @Override
         public void unregisterUnlockCallback(ICarTrustAgentUnlockCallback callback) {
             mUnlockCallbacks.unregister(callback);
+        }
+
+        @Override
+        public void setTokenRequestDelegate(ICarTrustAgentTokenRequestDelegate delegate) {
+            mTokenRequestDelegate = delegate;
+        }
+
+        @Override
+        public void revokeTrust() throws RemoteException {
+            if (mTokenRequestDelegate != null) {
+                mTokenRequestDelegate.revokeTrust();
+            }
+        }
+
+        @Override
+        public void addEscrowToken(byte[] token, int uid) throws RemoteException {
+            if (mTokenRequestDelegate != null) {
+                mTokenRequestDelegate.addEscrowToken(token, uid);
+            }
+        }
+
+        @Override
+        public void removeEscrowToken(long handle, int uid) throws RemoteException {
+            if (mTokenRequestDelegate != null) {
+                mTokenRequestDelegate.removeEscrowToken(handle, uid);
+            }
+        }
+
+        @Override
+        public void isEscrowTokenActive(long handle, int uid) throws RemoteException {
+            if (mTokenRequestDelegate != null) {
+                mTokenRequestDelegate.isEscrowTokenActive(handle, uid);
+            }
+        }
+
+        @Override
+        public void setTokenResponseCallback(ICarTrustAgentTokenResponseCallback callback) {
+            mTokenResponseCallback = callback;
+        }
+
+        @Override
+        public void onEscrowTokenAdded(byte[] token, long handle, int uid)
+                throws RemoteException {
+            Log.d(TAG, "onEscrowTokenAdded handle:" + handle + " uid:" + uid);
+            if (mTokenResponseCallback != null) {
+                mTokenResponseCallback.onEscrowTokenAdded(token, handle, uid);
+            }
+        }
+
+        @Override
+        public void onEscrowTokenRemoved(long handle, boolean successful) throws RemoteException {
+            Log.d(TAG, "onEscrowTokenRemoved handle:" + handle);
+            if (mTokenResponseCallback != null) {
+                mTokenResponseCallback.onEscrowTokenRemoved(handle, successful);
+            }
+        }
+
+        @Override
+        public void onEscrowTokenActiveStateChanged(long handle, boolean active)
+                throws RemoteException {
+            if (mTokenResponseCallback != null) {
+                mTokenResponseCallback.onEscrowTokenActiveStateChanged(handle, active);
+            }
         }
     }
 }
