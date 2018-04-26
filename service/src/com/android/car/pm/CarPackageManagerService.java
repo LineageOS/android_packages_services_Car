@@ -122,6 +122,11 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private final PackageParsingEventReceiver mPackageParsingEventReceiver =
             new PackageParsingEventReceiver();
 
+    // To track if the packages have been parsed for building white/black lists. If we haven't had
+    // received any intents (boot complete or package changed), then the white list is null leading
+    // to blocking everything.  So, no blocking until we have had a chance to parse the packages.
+    private boolean mHasParsedPackages;
+
     public CarPackageManagerService(Context context,
             CarUxRestrictionsManagerService uxRestrictionsService,
             SystemActivityMonitoringService systemActivityMonitoringService) {
@@ -309,6 +314,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 wait();
             } catch (InterruptedException e) {
             }
+            mHasParsedPackages = false;
             mActivityWhitelistMap.clear();
             mActivityBlacklistMap.clear();
             mClientPolicies.clear();
@@ -349,6 +355,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private void doParseInstalledPackages() {
         generateActivityWhitelistMap();
         generateActivityBlacklistMap();
+        synchronized (this) {
+            mHasParsedPackages = true;
+        }
         mUxRestrictionsListener.checkIfTopActivityNeedsBlocking();
     }
 
@@ -1059,6 +1068,13 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                         + restrictions.isRequiresDistractionOptimization()
                         + " : " + restrictions.getActiveRestrictions());
             }
+            // We are not handling the restrictions until we know what is allowed and what is not.
+            // This is to handle some situations, where car service is ready and getting sensor
+            // data but we haven't received the boot complete intents.
+            if (!mHasParsedPackages) {
+                return;
+            }
+
             synchronized (this) {
                 mCurrentUxRestrictions = new CarUxRestrictions(restrictions);
             }
