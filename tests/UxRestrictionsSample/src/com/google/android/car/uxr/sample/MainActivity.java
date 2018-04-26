@@ -15,12 +15,11 @@
  */
 package com.google.android.car.uxr.sample;
 
-import static android.os.SystemClock.elapsedRealtimeNanos;
-
 import android.annotation.DrawableRes;
 import android.app.Activity;
 import android.car.Car;
 import android.car.CarNotConnectedException;
+import android.car.content.pm.CarPackageManager;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateManager;
 import android.car.drivingstate.CarUxRestrictions;
@@ -52,10 +51,12 @@ public class MainActivity extends Activity {
     private Car mCar;
     private CarDrivingStateManager mCarDrivingStateManager;
     private CarUxRestrictionsManager mCarUxRestrictionsManager;
+    private CarPackageManager mCarPackageManager;
     private TextView mDrvStatus;
     private TextView mDistractionOptStatus;
     private TextView mUxrStatus;
     private Button mToggleButton;
+    private boolean mEnableUxR;
     private PagedListView mPagedListView;
 
     private final ServiceConnection mCarConnectionListener =
@@ -69,48 +70,34 @@ public class MainActivity extends Activity {
                                 Car.CAR_DRIVING_STATE_SERVICE);
                         mCarUxRestrictionsManager = (CarUxRestrictionsManager) mCar.getCarManager(
                                 Car.CAR_UX_RESTRICTION_SERVICE);
+                        mCarPackageManager = (CarPackageManager) mCar.getCarManager(
+                                Car.PACKAGE_SERVICE);
+
+                        if (mCarDrivingStateManager != null) {
+                            mCarDrivingStateManager.registerListener(mDrvStateChangeListener);
+                            updateDrivingStateText(
+                                    mCarDrivingStateManager.getCurrentCarDrivingState());
+                        }
+                        if (mCarUxRestrictionsManager != null) {
+                            mCarUxRestrictionsManager.registerListener(mUxRChangeListener);
+                            updateUxRText(mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
+                        }
 
                     } catch (CarNotConnectedException e) {
                         Log.e(TAG, "Failed to get a connection", e);
                     }
-
-                    // Register listener
-                    try {
-                        mCarDrivingStateManager.registerListener(mDrvStateChangeListener);
-                        mCarUxRestrictionsManager.registerListener(mUxRChangeListener);
-                    } catch (CarNotConnectedException e) {
-                        e.printStackTrace();
-                    }
-
-                    // Show current status
-                    try {
-                        updateDrivingStateText(mCarDrivingStateManager.getCurrentCarDrivingState());
-                        updateUxRText(mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
-                    } catch (CarNotConnectedException e) {
-                        e.printStackTrace();
-                    }
-
                 }
 
                 @Override
                 public void onServiceDisconnected(ComponentName name) {
                     Log.d(TAG, "Disconnected from " + name.flattenToString());
-                    try {
-                        mCarUxRestrictionsManager.unregisterListener();
-                        mCarDrivingStateManager.unregisterListener();
-                    } catch (CarNotConnectedException e) {
-                        e.printStackTrace();
-                    }
-
-                    mCar = null;
+                    mCarDrivingStateManager = null;
                     mCarUxRestrictionsManager = null;
+                    mCarPackageManager = null;
                 }
             };
 
     private void updateUxRText(CarUxRestrictions restrictions) {
-        mToggleButton.setText(
-                restrictions.isRequiresDistractionOptimization()
-                        ? "Switch to Park" : "Switch to Drive");
         mDistractionOptStatus.setText(
                 restrictions.isRequiresDistractionOptimization()
                         ? "Requires Distraction Optimization"
@@ -119,12 +106,29 @@ public class MainActivity extends Activity {
         mUxrStatus.setText("Active Restrictions : 0x"
                 + Integer.toHexString(restrictions.getActiveRestrictions()));
 
-        mToggleButton.requestLayout();
         mDistractionOptStatus.requestLayout();
         mUxrStatus.requestLayout();
     }
 
+    private void updateToggleUxREnable() {
+        if (mCarPackageManager == null) {
+            return;
+        }
+        mCarPackageManager.setEnableActivityBlocking(mEnableUxR);
+        if (mEnableUxR) {
+            mToggleButton.setText("Disable UX Restrictions");
+        } else {
+            mToggleButton.setText("Enable UX Restrictions");
+        }
+        mEnableUxR = !mEnableUxR;
+        mToggleButton.requestLayout();
+
+    }
+
     private void updateDrivingStateText(CarDrivingStateEvent state) {
+        if (state == null) {
+            return;
+        }
         String displayText;
         switch (state.eventValue) {
             case CarDrivingStateEvent.DRIVING_STATE_PARKED:
@@ -163,17 +167,8 @@ public class MainActivity extends Activity {
 
         setUpPagedListView();
 
-        final boolean[] requiresDO = {false};
         mToggleButton.setOnClickListener(v -> {
-            // Create a mock UXR change.
-            requiresDO[0] = !requiresDO[0];
-            CarUxRestrictions restrictions = new CarUxRestrictions.Builder(
-                    requiresDO[0],
-                    requiresDO[0]
-                            ? CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED
-                            : CarUxRestrictions.UX_RESTRICTIONS_BASELINE,
-                    elapsedRealtimeNanos()).build();
-            updateUxRText(restrictions);
+            updateToggleUxREnable();
         });
 
         // Connect to car service
@@ -233,6 +228,16 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        try {
+            if (mCarUxRestrictionsManager != null) {
+                mCarUxRestrictionsManager.unregisterListener();
+            }
+            if (mCarDrivingStateManager != null) {
+                mCarDrivingStateManager.unregisterListener();
+            }
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Error unregistering listeners", e);
+        }
         if (mCar != null) {
             mCar.disconnect();
         }
