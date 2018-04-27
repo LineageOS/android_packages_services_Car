@@ -18,22 +18,17 @@ package com.google.android.car.kitchensink.vhal;
 import android.annotation.Nullable;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.StatusCode;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyStatus;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -59,8 +54,8 @@ public class VehicleHalFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater,
-        @Nullable ViewGroup container,
-        @Nullable Bundle savedInstanceState) {
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.vhal, container, false);
         mActivity = (KitchenSinkActivity) getHost();
         mListView = view.findViewById(R.id.hal_prop_list);
@@ -127,13 +122,15 @@ public class VehicleHalFragment extends Fragment {
             return name.compareTo(halPropertyInfo.name);
         }
 
-        public String get(IVehicle vehicle) {
+        public String getValue(IVehicle vehicle) {
             String result[] = new String[] {"<unknown>"};
 
             try {
                 VehiclePropValue request = new VehiclePropValue();
                 // TODO: add zones support
                 request.prop = id;
+
+                // NB: this call is synchronous
                 vehicle.get(request, (status, propValue) -> {
                     if (status == StatusCode.OK) {
                         result[0] = propValue.value.toString();
@@ -160,18 +157,20 @@ public class VehicleHalFragment extends Fragment {
             mLayoutInflater = LayoutInflater.from(context);
         }
 
-        private LinearLayout getLayout(ViewGroup parent) {
-            // this is the value used by the superclass's view inflater
-            final boolean attachToRoot = false;
-
-            return (LinearLayout) mLayoutInflater.inflate(RESOURCE_ID, parent, attachToRoot);
-        }
-
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             final HalPropertyInfo item = getItem(position);
 
-            LinearLayout viewLayout = getLayout(parent);
+            final LinearLayout viewLayout;
+            if (convertView != null && convertView instanceof LinearLayout) {
+                viewLayout  = (LinearLayout)convertView;
+            } else {
+                // this is the value used by the superclass's view inflater
+                final boolean attachToRoot = false;
+
+                viewLayout =
+                        (LinearLayout)mLayoutInflater.inflate(RESOURCE_ID, parent, attachToRoot);
+            }
 
             TextView textString = viewLayout.findViewById(R.id.textString);
             Button infoButton = viewLayout.findViewById(R.id.infoButton);
@@ -189,7 +188,7 @@ public class VehicleHalFragment extends Fragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("Value for " + item.name)
                     .setPositiveButton(android.R.string.yes, (x, y) -> { })
-                    .setMessage(item.get(mVehicle))
+                    .setMessage(item.getValue(mVehicle))
                     .show();
             });
 
