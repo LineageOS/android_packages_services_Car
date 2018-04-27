@@ -180,6 +180,13 @@
     <string name="power_shutdown">Shutdown</string>
     <string name="power_sleep">Sleep</string>
 
+    <!-- property test -->
+    <string name="property_clear">Clear Log</string>
+    <string name="property_get">Get</string>
+    <string name="property_register">Register</string>
+    <string name="property_set">Set</string>
+    <string name="property_unregister">Unregister</string>
+
     <!-- radio test -->
     <string name="radio_open">Open</string>
     <string name="radio_close">Close</string>

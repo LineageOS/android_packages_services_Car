@@ -16,13 +16,15 @@
 
 package com.android.car;
 
-import android.car.hardware.CarSensorEvent;
-import android.car.hardware.CarSensorManager;
-import android.car.hardware.ICarSensorEventListener;
+import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
@@ -64,19 +66,19 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
 
     private final Context mContext;
     private final CarPowerManagementService mCarPowerManagementService;
-    private final CarSensorService mCarSensorService;
-    private final CarSensorEventListener mCarSensorEventListener;
+    private final CarPropertyService mCarPropertyService;
+    private final CarPropertyEventListener mCarPropertyEventListener;
     private int mTaskCount = 0;
     private HandlerThread mHandlerThread;
     private Handler mHandler;
 
     public CarLocationService(Context context, CarPowerManagementService carPowerManagementService,
-            CarSensorService carSensorService) {
+            CarPropertyService carPropertyService) {
         logd("constructed");
         mContext = context;
         mCarPowerManagementService = carPowerManagementService;
-        mCarSensorService = carSensorService;
-        mCarSensorEventListener = new CarSensorEventListener();
+        mCarPropertyService = carPropertyService;
+        mCarPropertyEventListener = new CarPropertyEventListener();
     }
 
     @Override
@@ -87,16 +89,16 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         filter.addAction(LocationManager.MODE_CHANGED_ACTION);
         filter.addAction(LocationManager.GPS_ENABLED_CHANGE_ACTION);
         mContext.registerReceiver(this, filter);
-        mCarSensorService.registerOrUpdateSensorListener(
-                CarSensorManager.SENSOR_TYPE_IGNITION_STATE, 0, mCarSensorEventListener);
+        mCarPropertyService.registerListener(VehicleProperty.IGNITION_STATE, 0,
+                mCarPropertyEventListener);
         mCarPowerManagementService.registerPowerEventProcessingHandler(this);
     }
 
     @Override
     public void release() {
         logd("release");
-        mCarSensorService.unregisterSensorListener(CarSensorManager.SENSOR_TYPE_IGNITION_STATE,
-                mCarSensorEventListener);
+        mCarPropertyService.unregisterListener(VehicleProperty.IGNITION_STATE,
+                mCarPropertyEventListener);
         mContext.unregisterReceiver(this);
     }
 
@@ -104,7 +106,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     public void dump(PrintWriter writer) {
         writer.println(TAG);
         writer.println("Context: " + mContext);
-        writer.println("CarSensorService: " + mCarSensorService);
+        writer.println("CarPropertyService: " + mCarPropertyService);
     }
 
     @Override
@@ -313,15 +315,20 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         }
     }
 
-    private class CarSensorEventListener extends ICarSensorEventListener.Stub {
+    private class CarPropertyEventListener extends ICarPropertyEventListener.Stub {
         @Override
-        public void onSensorChanged(List<CarSensorEvent> events) throws RemoteException {
-            CarSensorEvent event = events.get(0);
-            if (event.sensorType == CarSensorManager.SENSOR_TYPE_IGNITION_STATE) {
-                logd("sensor ignition value: " + event.intValues[0]);
-                if (event.intValues[0] == CarSensorEvent.IGNITION_STATE_OFF) {
-                    logd("ignition off");
-                    asyncOperation(() -> storeLocation());
+        public void onEvent(List<CarPropertyEvent> events) throws RemoteException {
+            for (CarPropertyEvent event : events) {
+                if (event.getEventType() == CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE) {
+                    CarPropertyValue value = event.getCarPropertyValue();
+                    if (value.getPropertyId() == VehicleProperty.IGNITION_STATE) {
+                        int ignitionState = (Integer) value.getValue();
+                        logd("property ignition value: " + ignitionState);
+                        if (ignitionState == VehicleIgnitionState.OFF) {
+                            logd("ignition off");
+                            asyncOperation(() -> storeLocation());
+                        }
+                    }
                 }
             }
         }

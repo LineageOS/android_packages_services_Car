@@ -142,7 +142,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         MutableInt propertyIdReceived = new MutableInt(0);
         MutableInt areaIdReceived = new MutableInt(0);
 
-        mCarHvacManager.registerCallback(new CarHvacEventCallback() {
+        mCarHvacManager.registerCallback(new CarHvacEventCallback()  {
             @Override
             public void onChangeEvent(CarPropertyValue value) {
 
@@ -166,6 +166,11 @@ public class CarHvacManagerTest extends MockedCarTestBase {
     @Test
     public void testEvent() throws Exception {
         mCarHvacManager.registerCallback(new EventListener());
+        // Wait for events generated on registration
+        assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
+        assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
+        assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
+        assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
 
         // Inject a boolean event and wait for its callback in onPropertySet.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.HVAC_DEFROSTER)
@@ -225,6 +230,16 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         @Override
         public synchronized void onPropertySubscribe(int property, float sampleRate) {
             Log.d(TAG, "onPropertySubscribe property " + property + " sampleRate " + sampleRate);
+            if (mMap.get(property) == null) {
+                Log.d(TAG, "onPropertySubscribe add dummy property: " + property);
+                VehiclePropValue dummyValue = VehiclePropValueBuilder.newBuilder(property)
+                        .setAreaId(0)
+                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                        .addIntValue(1)
+                        .addFloatValue(1)
+                        .build();
+                mMap.put(property, dummyValue);
+            }
         }
 
         @Override

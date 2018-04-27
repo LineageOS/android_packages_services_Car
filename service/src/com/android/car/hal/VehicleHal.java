@@ -69,13 +69,9 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private static final int NO_AREA = -1;
 
     private final HandlerThread mHandlerThread;
-    private final SensorHalService mSensorHal;
-    private final InfoHalService mInfoHal;
-    private final CabinHalService mCabinHal;
     private final PowerHalService mPowerHal;
-    private final HvacHalService mHvacHal;
+    private final PropertyHalService mPropertyHal;
     private final InputHalService mInputHal;
-    private final VendorExtensionHalService mVendorExtensionHal;
     private final VmsHalService mVmsHal;
     private DiagnosticHalService mDiagnosticHal = null;
 
@@ -98,21 +94,13 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mHandlerThread.start();
         // passing this should be safe as long as it is just kept and not used in constructor
         mPowerHal = new PowerHalService(this);
-        mSensorHal = new SensorHalService(this);
-        mInfoHal = new InfoHalService(this);
-        mCabinHal = new CabinHalService(this);
-        mHvacHal = new HvacHalService(this);
+        mPropertyHal = new PropertyHalService(this);
         mInputHal = new InputHalService(this);
-        mVendorExtensionHal = new VendorExtensionHalService(this);
         mVmsHal = new VmsHalService(this);
         mDiagnosticHal = new DiagnosticHalService(this);
         mAllServices.addAll(Arrays.asList(mPowerHal,
-                mSensorHal,
-                mInfoHal,
-                mCabinHal,
-                mHvacHal,
                 mInputHal,
-                mVendorExtensionHal,
+                mPropertyHal,
                 mDiagnosticHal,
                 mVmsHal));
 
@@ -121,18 +109,13 @@ public class VehicleHal extends IVehicleCallback.Stub {
 
     /** Dummy version only for testing */
     @VisibleForTesting
-    public VehicleHal(PowerHalService powerHal, SensorHalService sensorHal, InfoHalService infoHal,
-            CabinHalService cabinHal, DiagnosticHalService diagnosticHal,
-            HvacHalService hvacHal, HalClient halClient) {
+    public VehicleHal(PowerHalService powerHal, DiagnosticHalService diagnosticHal,
+            HalClient halClient, PropertyHalService propertyHal) {
         mHandlerThread = null;
         mPowerHal = powerHal;
-        mSensorHal = sensorHal;
-        mInfoHal = infoHal;
-        mCabinHal = cabinHal;
+        mPropertyHal = propertyHal;
         mDiagnosticHal = diagnosticHal;
-        mHvacHal = hvacHal;
         mInputHal = null;
-        mVendorExtensionHal = null;
         mVmsHal = null;
         mHalClient = halClient;
         mDiagnosticHal = diagnosticHal;
@@ -207,34 +190,18 @@ public class VehicleHal extends IVehicleCallback.Stub {
         // keep the looper thread as should be kept for the whole life cycle.
     }
 
-    public SensorHalService getSensorHal() {
-        return mSensorHal;
-    }
-
-    public InfoHalService getInfoHal() {
-        return mInfoHal;
-    }
-
-    public CabinHalService getCabinHal() {
-        return mCabinHal;
-    }
-
     public DiagnosticHalService getDiagnosticHal() { return mDiagnosticHal; }
 
     public PowerHalService getPowerHal() {
         return mPowerHal;
     }
 
-    public HvacHalService getHvacHal() {
-        return mHvacHal;
+    public PropertyHalService getPropertyHal() {
+        return mPropertyHal;
     }
 
     public InputHalService getInputHal() {
         return mInputHal;
-    }
-
-    public VendorExtensionHalService getVendorExtensionHal() {
-        return mVendorExtensionHal;
     }
 
     public VmsHalService getVmsHal() { return mVmsHal; }
@@ -401,6 +368,23 @@ public class VehicleHal extends IVehicleCallback.Stub {
     public VehiclePropValue get(VehiclePropValue requestedPropValue)
             throws PropertyTimeoutException {
         return mHalClient.getValue(requestedPropValue);
+    }
+
+    /**
+     *
+     * @param propId Property ID to return the current sample rate for.
+     *
+     * @return float Returns the current sample rate of the specified propId, or -1 if the
+     *                  property is not currently subscribed.
+     */
+    public float getSampleRate(int propId) {
+        SubscribeOptions opts = mSubscribedProperties.get(propId);
+        if (opts == null) {
+            // No sample rate for this property
+            return -1;
+        } else {
+            return opts.sampleRate;
+        }
     }
 
     void set(VehiclePropValue propValue) throws PropertyTimeoutException {

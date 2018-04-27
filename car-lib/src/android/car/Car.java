@@ -29,6 +29,7 @@ import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.cabin.CarCabinManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.property.CarPropertyManager;
 import android.car.media.CarAudioManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.settings.CarConfigurationManager;
@@ -121,6 +122,12 @@ public final class Car {
      */
     @SystemApi
     public static final String PROJECTION_SERVICE = "projection";
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    public static final String PROPERTY_SERVICE = "property";
 
     /**
      * @hide
@@ -765,6 +772,10 @@ public final class Car {
                 break;
             case PROJECTION_SERVICE:
                 manager = new CarProjectionManager(binder, mEventHandler);
+                break;
+            case PROPERTY_SERVICE:
+                manager = new CarPropertyManager(binder, mEventHandler, false,
+                                                 "CarPropertyManager");
                 break;
             case VENDOR_EXTENSION_SERVICE:
                 manager = new CarVendorExtensionManager(binder, mEventHandler);

@@ -32,6 +32,7 @@ package android.car {
     field public static final java.lang.String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
     field public static final java.lang.String POWER_SERVICE = "power";
     field public static final java.lang.String PROJECTION_SERVICE = "projection";
+    field public static final java.lang.String PROPERTY_SERVICE = "property";
     field public static final java.lang.String STORAGE_MONITORING_SERVICE = "storage_monitoring";
     field public static final java.lang.String TEST_SERVICE = "car-service-test";
     field public static final java.lang.String VENDOR_EXTENSION_SERVICE = "vendor_extension";
@@ -559,7 +560,7 @@ package android.car.hardware {
     method public void registerCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback) throws android.car.CarNotConnectedException;
     method public <E> void setGlobalProperty(java.lang.Class<E>, int, E) throws android.car.CarNotConnectedException;
     method public <E> void setProperty(java.lang.Class<E>, int, int, E) throws android.car.CarNotConnectedException;
-    method public void unregisterCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback);
+    method public void unregisterCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback) throws android.car.CarNotConnectedException;
   }
 
   public static abstract interface CarVendorExtensionManager.CarVendorExtensionCallback {
@@ -581,46 +582,46 @@ package android.car.hardware.cabin {
     method public void setBooleanProperty(int, int, boolean) throws android.car.CarNotConnectedException;
     method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
     method public void setIntProperty(int, int, int) throws android.car.CarNotConnectedException;
-    method public synchronized void unregisterCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback);
-    field public static final int ID_DOOR_LOCK = 3; // 0x3
-    field public static final int ID_DOOR_MOVE = 2; // 0x2
-    field public static final int ID_DOOR_POS = 1; // 0x1
-    field public static final int ID_MIRROR_FOLD = 4102; // 0x1006
-    field public static final int ID_MIRROR_LOCK = 4101; // 0x1005
-    field public static final int ID_MIRROR_Y_MOVE = 4100; // 0x1004
-    field public static final int ID_MIRROR_Y_POS = 4099; // 0x1003
-    field public static final int ID_MIRROR_Z_MOVE = 4098; // 0x1002
-    field public static final int ID_MIRROR_Z_POS = 4097; // 0x1001
-    field public static final int ID_SEAT_BACKREST_ANGLE_1_MOVE = 8201; // 0x2009
-    field public static final int ID_SEAT_BACKREST_ANGLE_1_POS = 8200; // 0x2008
-    field public static final int ID_SEAT_BACKREST_ANGLE_2_MOVE = 8203; // 0x200b
-    field public static final int ID_SEAT_BACKREST_ANGLE_2_POS = 8202; // 0x200a
-    field public static final int ID_SEAT_BELT_BUCKLED = 8195; // 0x2003
-    field public static final int ID_SEAT_BELT_HEIGHT_MOVE = 8197; // 0x2005
-    field public static final int ID_SEAT_BELT_HEIGHT_POS = 8196; // 0x2004
-    field public static final int ID_SEAT_DEPTH_MOVE = 8207; // 0x200f
-    field public static final int ID_SEAT_DEPTH_POS = 8206; // 0x200e
-    field public static final int ID_SEAT_FORE_AFT_MOVE = 8199; // 0x2007
-    field public static final int ID_SEAT_FORE_AFT_POS = 8198; // 0x2006
-    field public static final int ID_SEAT_HEADREST_ANGLE_MOVE = 8217; // 0x2019
-    field public static final int ID_SEAT_HEADREST_ANGLE_POS = 8216; // 0x2018
-    field public static final int ID_SEAT_HEADREST_FORE_AFT_MOVE = 8219; // 0x201b
-    field public static final int ID_SEAT_HEADREST_FORE_AFT_POS = 8218; // 0x201a
-    field public static final int ID_SEAT_HEADREST_HEIGHT_MOVE = 8215; // 0x2017
-    field public static final int ID_SEAT_HEADREST_HEIGHT_POS = 8214; // 0x2016
-    field public static final int ID_SEAT_HEIGHT_MOVE = 8205; // 0x200d
-    field public static final int ID_SEAT_HEIGHT_POS = 8204; // 0x200c
-    field public static final int ID_SEAT_LUMBAR_FORE_AFT_MOVE = 8211; // 0x2013
-    field public static final int ID_SEAT_LUMBAR_FORE_AFT_POS = 8210; // 0x2012
-    field public static final int ID_SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 8213; // 0x2015
-    field public static final int ID_SEAT_LUMBAR_SIDE_SUPPORT_POS = 8212; // 0x2014
-    field public static final int ID_SEAT_MEMORY_SELECT = 8193; // 0x2001
-    field public static final int ID_SEAT_MEMORY_SET = 8194; // 0x2002
-    field public static final int ID_SEAT_TILT_MOVE = 8209; // 0x2011
-    field public static final int ID_SEAT_TILT_POS = 8208; // 0x2010
-    field public static final int ID_WINDOW_LOCK = 12291; // 0x3003
-    field public static final int ID_WINDOW_MOVE = 12290; // 0x3002
-    field public static final int ID_WINDOW_POS = 12289; // 0x3001
+    method public synchronized void unregisterCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback) throws android.car.CarNotConnectedException;
+    field public static final int ID_DOOR_LOCK = 371198722; // 0x16200b02
+    field public static final int ID_DOOR_MOVE = 373295873; // 0x16400b01
+    field public static final int ID_DOOR_POS = 373295872; // 0x16400b00
+    field public static final int ID_MIRROR_FOLD = 287312709; // 0x11200b45
+    field public static final int ID_MIRROR_LOCK = 287312708; // 0x11200b44
+    field public static final int ID_MIRROR_Y_MOVE = 339741507; // 0x14400b43
+    field public static final int ID_MIRROR_Y_POS = 339741506; // 0x14400b42
+    field public static final int ID_MIRROR_Z_MOVE = 339741505; // 0x14400b41
+    field public static final int ID_MIRROR_Z_POS = 339741504; // 0x14400b40
+    field public static final int ID_SEAT_BACKREST_ANGLE_1_MOVE = 356518792; // 0x15400b88
+    field public static final int ID_SEAT_BACKREST_ANGLE_1_POS = 356518791; // 0x15400b87
+    field public static final int ID_SEAT_BACKREST_ANGLE_2_MOVE = 356518794; // 0x15400b8a
+    field public static final int ID_SEAT_BACKREST_ANGLE_2_POS = 356518793; // 0x15400b89
+    field public static final int ID_SEAT_BELT_BUCKLED = 354421634; // 0x15200b82
+    field public static final int ID_SEAT_BELT_HEIGHT_MOVE = 356518788; // 0x15400b84
+    field public static final int ID_SEAT_BELT_HEIGHT_POS = 356518787; // 0x15400b83
+    field public static final int ID_SEAT_DEPTH_MOVE = 356518798; // 0x15400b8e
+    field public static final int ID_SEAT_DEPTH_POS = 356518797; // 0x15400b8d
+    field public static final int ID_SEAT_FORE_AFT_MOVE = 356518790; // 0x15400b86
+    field public static final int ID_SEAT_FORE_AFT_POS = 356518789; // 0x15400b85
+    field public static final int ID_SEAT_HEADREST_ANGLE_MOVE = 356518808; // 0x15400b98
+    field public static final int ID_SEAT_HEADREST_ANGLE_POS = 356518807; // 0x15400b97
+    field public static final int ID_SEAT_HEADREST_FORE_AFT_MOVE = 356518810; // 0x15400b9a
+    field public static final int ID_SEAT_HEADREST_FORE_AFT_POS = 356518809; // 0x15400b99
+    field public static final int ID_SEAT_HEADREST_HEIGHT_MOVE = 356518806; // 0x15400b96
+    field public static final int ID_SEAT_HEADREST_HEIGHT_POS = 356518805; // 0x15400b95
+    field public static final int ID_SEAT_HEIGHT_MOVE = 356518796; // 0x15400b8c
+    field public static final int ID_SEAT_HEIGHT_POS = 356518795; // 0x15400b8b
+    field public static final int ID_SEAT_LUMBAR_FORE_AFT_MOVE = 356518802; // 0x15400b92
+    field public static final int ID_SEAT_LUMBAR_FORE_AFT_POS = 356518801; // 0x15400b91
+    field public static final int ID_SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 356518804; // 0x15400b94
+    field public static final int ID_SEAT_LUMBAR_SIDE_SUPPORT_POS = 356518803; // 0x15400b93
+    field public static final int ID_SEAT_MEMORY_SELECT = 356518784; // 0x15400b80
+    field public static final int ID_SEAT_MEMORY_SET = 356518785; // 0x15400b81
+    field public static final int ID_SEAT_TILT_MOVE = 356518800; // 0x15400b90
+    field public static final int ID_SEAT_TILT_POS = 356518799; // 0x15400b8f
+    field public static final int ID_WINDOW_LOCK = 322964420; // 0x13400bc4
+    field public static final int ID_WINDOW_MOVE = 322964417; // 0x13400bc1
+    field public static final int ID_WINDOW_POS = 322964416; // 0x13400bc0
   }
 
   public static abstract interface CarCabinManager.CarCabinEventCallback {
@@ -638,7 +639,6 @@ package android.car.hardware.hvac {
     method public int getIntProperty(int, int) throws android.car.CarNotConnectedException;
     method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList() throws android.car.CarNotConnectedException;
     method public boolean isPropertyAvailable(int, int) throws android.car.CarNotConnectedException;
-    method public static boolean isZonedProperty(int);
     method public synchronized void registerCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback) throws android.car.CarNotConnectedException;
     method public void setBooleanProperty(int, int, boolean) throws android.car.CarNotConnectedException;
     method public void setFloatProperty(int, int, float) throws android.car.CarNotConnectedException;
@@ -647,26 +647,26 @@ package android.car.hardware.hvac {
     field public static final int FAN_DIRECTION_DEFROST = 4; // 0x4
     field public static final int FAN_DIRECTION_FACE = 1; // 0x1
     field public static final int FAN_DIRECTION_FLOOR = 2; // 0x2
-    field public static final int ID_MIRROR_DEFROSTER_ON = 1; // 0x1
-    field public static final int ID_OUTSIDE_AIR_TEMP = 3; // 0x3
-    field public static final int ID_STEERING_WHEEL_HEAT = 2; // 0x2
-    field public static final int ID_TEMPERATURE_DISPLAY_UNITS = 4; // 0x4
-    field public static final int ID_WINDOW_DEFROSTER_ON = 20481; // 0x5001
-    field public static final int ID_ZONED_AC_ON = 16393; // 0x4009
-    field public static final int ID_ZONED_AIR_RECIRCULATION_ON = 16395; // 0x400b
-    field public static final int ID_ZONED_AUTOMATIC_MODE_ON = 16394; // 0x400a
-    field public static final int ID_ZONED_DUAL_ZONE_ON = 16397; // 0x400d
-    field public static final int ID_ZONED_FAN_DIRECTION = 16391; // 0x4007
-    field public static final int ID_ZONED_FAN_DIRECTION_AVAILABLE = 16390; // 0x4006
-    field public static final int ID_ZONED_FAN_SPEED_RPM = 16389; // 0x4005
-    field public static final int ID_ZONED_FAN_SPEED_SETPOINT = 16388; // 0x4004
-    field public static final int ID_ZONED_HVAC_AUTO_RECIRC_ON = 16399; // 0x400f
-    field public static final int ID_ZONED_HVAC_POWER_ON = 16387; // 0x4003
-    field public static final int ID_ZONED_MAX_AC_ON = 16396; // 0x400c
-    field public static final int ID_ZONED_MAX_DEFROST_ON = 16398; // 0x400e
-    field public static final int ID_ZONED_SEAT_TEMP = 16392; // 0x4008
-    field public static final int ID_ZONED_TEMP_ACTUAL = 16386; // 0x4002
-    field public static final int ID_ZONED_TEMP_SETPOINT = 16385; // 0x4001
+    field public static final int ID_MIRROR_DEFROSTER_ON = 339739916; // 0x1440050c
+    field public static final int ID_OUTSIDE_AIR_TEMP = 291505923; // 0x11600703
+    field public static final int ID_STEERING_WHEEL_HEAT = 289408269; // 0x1140050d
+    field public static final int ID_TEMPERATURE_DISPLAY_UNITS = 289408270; // 0x1140050e
+    field public static final int ID_WINDOW_DEFROSTER_ON = 320865540; // 0x13200504
+    field public static final int ID_ZONED_AC_ON = 354419973; // 0x15200505
+    field public static final int ID_ZONED_AIR_RECIRCULATION_ON = 354419976; // 0x15200508
+    field public static final int ID_ZONED_AUTOMATIC_MODE_ON = 354419978; // 0x1520050a
+    field public static final int ID_ZONED_DUAL_ZONE_ON = 354419977; // 0x15200509
+    field public static final int ID_ZONED_FAN_DIRECTION = 356517121; // 0x15400501
+    field public static final int ID_ZONED_FAN_DIRECTION_AVAILABLE = 356582673; // 0x15410511
+    field public static final int ID_ZONED_FAN_SPEED_RPM = 356517135; // 0x1540050f
+    field public static final int ID_ZONED_FAN_SPEED_SETPOINT = 356517120; // 0x15400500
+    field public static final int ID_ZONED_HVAC_AUTO_RECIRC_ON = 354419986; // 0x15200512
+    field public static final int ID_ZONED_HVAC_POWER_ON = 354419984; // 0x15200510
+    field public static final int ID_ZONED_MAX_AC_ON = 354419974; // 0x15200506
+    field public static final int ID_ZONED_MAX_DEFROST_ON = 354419975; // 0x15200507
+    field public static final int ID_ZONED_SEAT_TEMP = 356517131; // 0x1540050b
+    field public static final int ID_ZONED_TEMP_ACTUAL = 358614274; // 0x15600502
+    field public static final int ID_ZONED_TEMP_SETPOINT = 358614275; // 0x15600503
   }
 
   public static abstract interface CarHvacManager.CarHvacEventCallback {

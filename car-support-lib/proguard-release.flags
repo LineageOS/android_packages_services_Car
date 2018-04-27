@@ -1823,6 +1823,7 @@
     public void finishOp(java.lang.String, int, java.lang.String);
     public void finishOp(int, int, java.lang.String);
     public void finishOp(int);
+    public static int getNumOps();
     public static java.lang.String[] getOpStrs();
     public java.util.List getOpsForPackage(int, java.lang.String, int[]);
     public java.util.List getPackagesForOps(int[]);
@@ -2067,6 +2068,7 @@
 
 -keep class android.app.AppOpsManager$OpEntry {
     <init>(int, int, long, long, int, int, java.lang.String);
+    <init>(int, int, long[], long[], int, boolean, int, java.lang.String);
     <init>(int, int, long[], long[], int, int, java.lang.String);
 
     public int describeContents();
@@ -5132,9 +5134,9 @@
     public static int SYNC_ERROR_SYNC_ALREADY_IN_PROGRESS;
     public static int SYNC_ERROR_TOO_MANY_DELETIONS;
     public static int SYNC_ERROR_TOO_MANY_RETRIES;
-    public static int SYNC_EXEMPTION_ACTIVE;
-    public static int SYNC_EXEMPTION_ACTIVE_WITH_TEMP;
     public static int SYNC_EXEMPTION_NONE;
+    public static int SYNC_EXEMPTION_PROMOTE_BUCKET;
+    public static int SYNC_EXEMPTION_PROMOTE_BUCKET_WITH_TEMP;
     public static java.lang.String SYNC_EXTRAS_ACCOUNT;
     public static java.lang.String SYNC_EXTRAS_DISALLOW_METERED;
     public static java.lang.String SYNC_EXTRAS_DISCARD_LOCAL_DELETIONS;
@@ -7644,6 +7646,7 @@
     public abstract java.lang.String[] setPackagesSuspendedAsUser(java.lang.String[], boolean, android.os.PersistableBundle, android.os.PersistableBundle, java.lang.String, java.lang.String, int);
     public abstract void setPermissionEnforced(java.lang.String, boolean);
     public abstract boolean setRequiredForSystemUser(java.lang.String, boolean);
+    public abstract boolean setSystemAppInstallState(java.lang.String, boolean, int);
     public abstract void setUpdateAvailable(java.lang.String, boolean);
     public abstract boolean shouldShowRequestPermissionRationale(java.lang.String, java.lang.String, int);
     public abstract void systemReady();
@@ -8092,6 +8095,7 @@
     public void writeToProto(android.util.proto.ProtoOutputStream, long);
 
 
+    public static float DEFAULT_MAX_LABEL_SIZE_PX;
     public static int DUMP_FLAG_ALL;
     public static int DUMP_FLAG_APPLICATION;
     public static int DUMP_FLAG_DETAILS;
@@ -8587,6 +8591,7 @@
     public static int MATCH_DISABLED_UNTIL_USED_COMPONENTS;
     public static int MATCH_EXPLICITLY_VISIBLE_ONLY;
     public static int MATCH_FACTORY_ONLY;
+    public static int MATCH_HIDDEN_UNTIL_INSTALLED_COMPONENTS;
     public static int MATCH_INSTANT;
     public static int MATCH_KNOWN_PACKAGES;
     public static int MATCH_STATIC_SHARED_LIBRARIES;
@@ -13402,28 +13407,29 @@
 
 -keep class android.media.session.ISessionCallback {
 
-    public abstract void onAdjustVolume(java.lang.String, int, int, int);
-    public abstract void onCommand(java.lang.String, int, int, java.lang.String, android.os.Bundle, android.os.ResultReceiver);
-    public abstract void onCustomAction(java.lang.String, int, int, java.lang.String, android.os.Bundle);
-    public abstract void onFastForward(java.lang.String, int, int);
+    public abstract void onAdjustVolume(java.lang.String, int, int, android.media.session.ISessionControllerCallback, int);
+    public abstract void onCommand(java.lang.String, int, int, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle, android.os.ResultReceiver);
+    public abstract void onCustomAction(java.lang.String, int, int, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public abstract void onFastForward(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
     public abstract void onMediaButton(java.lang.String, int, int, android.content.Intent, int, android.os.ResultReceiver);
-    public abstract void onNext(java.lang.String, int, int);
-    public abstract void onPause(java.lang.String, int, int);
-    public abstract void onPlay(java.lang.String, int, int);
-    public abstract void onPlayFromMediaId(java.lang.String, int, int, java.lang.String, android.os.Bundle);
-    public abstract void onPlayFromSearch(java.lang.String, int, int, java.lang.String, android.os.Bundle);
-    public abstract void onPlayFromUri(java.lang.String, int, int, android.net.Uri, android.os.Bundle);
-    public abstract void onPrepare(java.lang.String, int, int);
-    public abstract void onPrepareFromMediaId(java.lang.String, int, int, java.lang.String, android.os.Bundle);
-    public abstract void onPrepareFromSearch(java.lang.String, int, int, java.lang.String, android.os.Bundle);
-    public abstract void onPrepareFromUri(java.lang.String, int, int, android.net.Uri, android.os.Bundle);
-    public abstract void onPrevious(java.lang.String, int, int);
-    public abstract void onRate(java.lang.String, int, int, android.media.Rating);
-    public abstract void onRewind(java.lang.String, int, int);
-    public abstract void onSeekTo(java.lang.String, int, int, long);
-    public abstract void onSetVolumeTo(java.lang.String, int, int, int);
-    public abstract void onSkipToTrack(java.lang.String, int, int, long);
-    public abstract void onStop(java.lang.String, int, int);
+    public abstract void onMediaButtonFromController(java.lang.String, int, int, android.media.session.ISessionControllerCallback, android.content.Intent);
+    public abstract void onNext(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
+    public abstract void onPause(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
+    public abstract void onPlay(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
+    public abstract void onPlayFromMediaId(java.lang.String, int, int, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public abstract void onPlayFromSearch(java.lang.String, int, int, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public abstract void onPlayFromUri(java.lang.String, int, int, android.media.session.ISessionControllerCallback, android.net.Uri, android.os.Bundle);
+    public abstract void onPrepare(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
+    public abstract void onPrepareFromMediaId(java.lang.String, int, int, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public abstract void onPrepareFromSearch(java.lang.String, int, int, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public abstract void onPrepareFromUri(java.lang.String, int, int, android.media.session.ISessionControllerCallback, android.net.Uri, android.os.Bundle);
+    public abstract void onPrevious(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
+    public abstract void onRate(java.lang.String, int, int, android.media.session.ISessionControllerCallback, android.media.Rating);
+    public abstract void onRewind(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
+    public abstract void onSeekTo(java.lang.String, int, int, android.media.session.ISessionControllerCallback, long);
+    public abstract void onSetVolumeTo(java.lang.String, int, int, android.media.session.ISessionControllerCallback, int);
+    public abstract void onSkipToTrack(java.lang.String, int, int, android.media.session.ISessionControllerCallback, long);
+    public abstract void onStop(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
 
 
 }
@@ -13440,8 +13446,8 @@
 
 -keep class android.media.session.ISessionController {
 
-    public abstract void adjustVolume(java.lang.String, boolean, int, int);
-    public abstract void fastForward(java.lang.String);
+    public abstract void adjustVolume(java.lang.String, android.media.session.ISessionControllerCallback, boolean, int, int);
+    public abstract void fastForward(java.lang.String, android.media.session.ISessionControllerCallback);
     public abstract android.os.Bundle getExtras();
     public abstract long getFlags();
     public abstract android.app.PendingIntent getLaunchPendingIntent();
@@ -13454,27 +13460,27 @@
     public abstract java.lang.String getTag();
     public abstract android.media.session.ParcelableVolumeInfo getVolumeAttributes();
     public abstract boolean isTransportControlEnabled();
-    public abstract void next(java.lang.String);
-    public abstract void pause(java.lang.String);
-    public abstract void play(java.lang.String);
-    public abstract void playFromMediaId(java.lang.String, java.lang.String, android.os.Bundle);
-    public abstract void playFromSearch(java.lang.String, java.lang.String, android.os.Bundle);
-    public abstract void playFromUri(java.lang.String, android.net.Uri, android.os.Bundle);
-    public abstract void prepare(java.lang.String);
-    public abstract void prepareFromMediaId(java.lang.String, java.lang.String, android.os.Bundle);
-    public abstract void prepareFromSearch(java.lang.String, java.lang.String, android.os.Bundle);
-    public abstract void prepareFromUri(java.lang.String, android.net.Uri, android.os.Bundle);
-    public abstract void previous(java.lang.String);
-    public abstract void rate(java.lang.String, android.media.Rating);
-    public abstract void registerCallbackListener(android.media.session.ISessionControllerCallback);
-    public abstract void rewind(java.lang.String);
-    public abstract void seekTo(java.lang.String, long);
-    public abstract void sendCommand(java.lang.String, java.lang.String, android.os.Bundle, android.os.ResultReceiver);
-    public abstract void sendCustomAction(java.lang.String, java.lang.String, android.os.Bundle);
-    public abstract boolean sendMediaButton(java.lang.String, boolean, android.view.KeyEvent);
-    public abstract void setVolumeTo(java.lang.String, int, int);
-    public abstract void skipToQueueItem(java.lang.String, long);
-    public abstract void stop(java.lang.String);
+    public abstract void next(java.lang.String, android.media.session.ISessionControllerCallback);
+    public abstract void pause(java.lang.String, android.media.session.ISessionControllerCallback);
+    public abstract void play(java.lang.String, android.media.session.ISessionControllerCallback);
+    public abstract void playFromMediaId(java.lang.String, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public abstract void playFromSearch(java.lang.String, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public abstract void playFromUri(java.lang.String, android.media.session.ISessionControllerCallback, android.net.Uri, android.os.Bundle);
+    public abstract void prepare(java.lang.String, android.media.session.ISessionControllerCallback);
+    public abstract void prepareFromMediaId(java.lang.String, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public abstract void prepareFromSearch(java.lang.String, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public abstract void prepareFromUri(java.lang.String, android.media.session.ISessionControllerCallback, android.net.Uri, android.os.Bundle);
+    public abstract void previous(java.lang.String, android.media.session.ISessionControllerCallback);
+    public abstract void rate(java.lang.String, android.media.session.ISessionControllerCallback, android.media.Rating);
+    public abstract void registerCallbackListener(java.lang.String, android.media.session.ISessionControllerCallback);
+    public abstract void rewind(java.lang.String, android.media.session.ISessionControllerCallback);
+    public abstract void seekTo(java.lang.String, android.media.session.ISessionControllerCallback, long);
+    public abstract void sendCommand(java.lang.String, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle, android.os.ResultReceiver);
+    public abstract void sendCustomAction(java.lang.String, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public abstract boolean sendMediaButton(java.lang.String, android.media.session.ISessionControllerCallback, boolean, android.view.KeyEvent);
+    public abstract void setVolumeTo(java.lang.String, android.media.session.ISessionControllerCallback, int, int);
+    public abstract void skipToQueueItem(java.lang.String, android.media.session.ISessionControllerCallback, long);
+    public abstract void stop(java.lang.String, android.media.session.ISessionControllerCallback);
     public abstract void unregisterCallbackListener(android.media.session.ISessionControllerCallback);
 
 
@@ -13645,28 +13651,29 @@
 -keep class android.media.session.MediaSession$CallbackStub {
     <init>(android.media.session.MediaSession);
 
-    public void onAdjustVolume(java.lang.String, int, int, int);
-    public void onCommand(java.lang.String, int, int, java.lang.String, android.os.Bundle, android.os.ResultReceiver);
-    public void onCustomAction(java.lang.String, int, int, java.lang.String, android.os.Bundle);
-    public void onFastForward(java.lang.String, int, int);
+    public void onAdjustVolume(java.lang.String, int, int, android.media.session.ISessionControllerCallback, int);
+    public void onCommand(java.lang.String, int, int, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle, android.os.ResultReceiver);
+    public void onCustomAction(java.lang.String, int, int, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public void onFastForward(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
     public void onMediaButton(java.lang.String, int, int, android.content.Intent, int, android.os.ResultReceiver);
-    public void onNext(java.lang.String, int, int);
-    public void onPause(java.lang.String, int, int);
-    public void onPlay(java.lang.String, int, int);
-    public void onPlayFromMediaId(java.lang.String, int, int, java.lang.String, android.os.Bundle);
-    public void onPlayFromSearch(java.lang.String, int, int, java.lang.String, android.os.Bundle);
-    public void onPlayFromUri(java.lang.String, int, int, android.net.Uri, android.os.Bundle);
-    public void onPrepare(java.lang.String, int, int);
-    public void onPrepareFromMediaId(java.lang.String, int, int, java.lang.String, android.os.Bundle);
-    public void onPrepareFromSearch(java.lang.String, int, int, java.lang.String, android.os.Bundle);
-    public void onPrepareFromUri(java.lang.String, int, int, android.net.Uri, android.os.Bundle);
-    public void onPrevious(java.lang.String, int, int);
-    public void onRate(java.lang.String, int, int, android.media.Rating);
-    public void onRewind(java.lang.String, int, int);
-    public void onSeekTo(java.lang.String, int, int, long);
-    public void onSetVolumeTo(java.lang.String, int, int, int);
-    public void onSkipToTrack(java.lang.String, int, int, long);
-    public void onStop(java.lang.String, int, int);
+    public void onMediaButtonFromController(java.lang.String, int, int, android.media.session.ISessionControllerCallback, android.content.Intent);
+    public void onNext(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
+    public void onPause(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
+    public void onPlay(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
+    public void onPlayFromMediaId(java.lang.String, int, int, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public void onPlayFromSearch(java.lang.String, int, int, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public void onPlayFromUri(java.lang.String, int, int, android.media.session.ISessionControllerCallback, android.net.Uri, android.os.Bundle);
+    public void onPrepare(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
+    public void onPrepareFromMediaId(java.lang.String, int, int, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public void onPrepareFromSearch(java.lang.String, int, int, android.media.session.ISessionControllerCallback, java.lang.String, android.os.Bundle);
+    public void onPrepareFromUri(java.lang.String, int, int, android.media.session.ISessionControllerCallback, android.net.Uri, android.os.Bundle);
+    public void onPrevious(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
+    public void onRate(java.lang.String, int, int, android.media.session.ISessionControllerCallback, android.media.Rating);
+    public void onRewind(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
+    public void onSeekTo(java.lang.String, int, int, android.media.session.ISessionControllerCallback, long);
+    public void onSetVolumeTo(java.lang.String, int, int, android.media.session.ISessionControllerCallback, int);
+    public void onSkipToTrack(java.lang.String, int, int, android.media.session.ISessionControllerCallback, long);
+    public void onStop(java.lang.String, int, int, android.media.session.ISessionControllerCallback);
 
 
 }
@@ -13775,6 +13782,7 @@
 
 -keep class android.media.session.MediaSessionManager$RemoteUserInfo {
     <init>(java.lang.String, int, int);
+    <init>(java.lang.String, int, int, android.os.IBinder);
 
     public boolean equals(java.lang.Object);
     public java.lang.String getPackageName();
@@ -14024,6 +14032,7 @@
     public void dump(java.io.FileDescriptor, java.lang.String[]);
     protected void dump(java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     public void dumpAsync(java.io.FileDescriptor, java.lang.String[]);
+    public static void dumpProxyDebugInfo();
     public static void enableTracing();
     public static void flushPendingCommands();
     public static int getCallingPid();
@@ -15459,6 +15468,7 @@
     <init>(android.os.Parcel);
 
     public android.content.Intent buildBrowseIntent();
+    public android.content.Intent buildBrowseIntentForUser(int);
     public static int buildStableMtpStorageId(java.lang.String);
     public android.os.storage.StorageVolume buildStorageVolume(android.content.Context, int, boolean);
     public android.os.storage.VolumeInfo clone();
@@ -17941,6 +17951,7 @@
     public static int KEYCODE_ZENKAKU_HANKAKU;
     public static int KEYCODE_ZOOM_IN;
     public static int KEYCODE_ZOOM_OUT;
+    public static int LAST_KEYCODE;
     public static int MAX_KEYCODE;
     public static int META_ALT_LEFT_ON;
     public static int META_ALT_LOCKED;
@@ -20806,7 +20817,6 @@
     public void dispatchInvalidateOnAnimation(android.view.View);
     public void dispatchInvalidateRectDelayed(android.view.View$AttachInfo$InvalidateInfo, long);
     public void dispatchInvalidateRectOnAnimation(android.view.View$AttachInfo$InvalidateInfo);
-    public boolean dispatchKeyFallbackEvent(android.view.KeyEvent);
     public void dispatchKeyFromAutofill(android.view.KeyEvent);
     public void dispatchKeyFromIme(android.view.KeyEvent);
     public void dispatchMoved(int, int);
@@ -20814,6 +20824,7 @@
     public void dispatchRequestKeyboardShortcuts(com.android.internal.os.IResultReceiver, int);
     public void dispatchSystemUiVisibilityChanged(int, int, int, int);
     public void dispatchUnhandledInputEvent(android.view.InputEvent);
+    public boolean dispatchUnhandledKeyEvent(android.view.KeyEvent);
     public void dispatchWindowShown();
     public void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     public void dumpGfxInfo(int[]);
@@ -21483,6 +21494,7 @@
     public android.view.WindowInsets consumeSystemWindowInsets(boolean, boolean, boolean, boolean);
     public android.view.WindowInsets consumeWindowDecorInsets();
     public android.view.WindowInsets consumeWindowDecorInsets(boolean, boolean, boolean, boolean);
+    public boolean equals(java.lang.Object);
     public android.view.DisplayCutout getDisplayCutout();
     public int getStableInsetBottom();
     public int getStableInsetLeft();
@@ -21501,6 +21513,9 @@
     public boolean hasStableInsets();
     public boolean hasSystemWindowInsets();
     public boolean hasWindowDecorInsets();
+    public int hashCode();
+    public android.view.WindowInsets inset(android.graphics.Rect);
+    public android.view.WindowInsets inset(int, int, int, int);
     public boolean isConsumed();
     public boolean isRound();
     public android.view.WindowInsets replaceSystemWindowInsets(int, int, int, int);
@@ -23398,6 +23413,8 @@
     protected android.widget.Toolbar$LayoutParams generateLayoutParams(android.view.ViewGroup$LayoutParams);
     protected android.view.ViewGroup$LayoutParams generateLayoutParams(android.view.ViewGroup$LayoutParams);
     public android.view.ViewGroup$LayoutParams generateLayoutParams(android.util.AttributeSet);
+    public java.lang.CharSequence getCollapseContentDescription();
+    public android.graphics.drawable.Drawable getCollapseIcon();
     public int getContentInsetEnd();
     public int getContentInsetEndWithActions();
     public int getContentInsetLeft();
@@ -23438,6 +23455,10 @@
     protected android.os.Parcelable onSaveInstanceState();
     protected void onSetLayoutParams(android.view.View, android.view.ViewGroup$LayoutParams);
     public boolean onTouchEvent(android.view.MotionEvent);
+    public void setCollapseContentDescription(int);
+    public void setCollapseContentDescription(java.lang.CharSequence);
+    public void setCollapseIcon(int);
+    public void setCollapseIcon(android.graphics.drawable.Drawable);
     public void setCollapsible(boolean);
     public void setContentInsetEndWithActions(int);
     public void setContentInsetStartWithNavigation(int);
