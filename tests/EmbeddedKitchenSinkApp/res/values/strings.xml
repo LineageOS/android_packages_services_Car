@@ -229,6 +229,7 @@
     <string name="sensor_ev_charge_port_is_open">EV Charge Port Is Open[%1$s]: %2$s</string>
     <string name="sensor_ev_charge_port_is_connected">EV Charge Port Is Connected[%1$s]: %2$s</string>
     <string name="sensor_ev_charge_rate">EV Charge Rate[%1$s]: %2$s</string>
+    <string name="sensor_oil_level">Oil Level[%1$s]: %2$s</string>
 
     <string name="volume_test">Volume Test</string>
     <string name="volume_up_logical">Vol +</string>

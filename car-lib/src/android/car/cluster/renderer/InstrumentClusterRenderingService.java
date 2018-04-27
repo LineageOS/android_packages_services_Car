@@ -24,7 +24,6 @@ import android.car.CarLibLog;
 import android.car.CarNotConnectedException;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -256,7 +255,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
             Pair<Integer, Integer> owner = mNavContextOwner;
             if (owner == null || owner.first != uid || owner.second != pid) {
                 throw new IllegalStateException("Client (uid:" + uid + ", pid: " + pid + ") is"
-                        + "not an owner of APP_CONTEXT_NAVIGATION");
+                        + " not an owner of APP_FOCUS_TYPE_NAVIGATION");
             }
         }
     }

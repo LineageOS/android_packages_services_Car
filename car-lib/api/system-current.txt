@@ -484,12 +484,19 @@ package android.car.hardware {
 
   public class CarPropertyConfig<T> implements android.os.Parcelable {
     method public int describeContents();
+    method public int getAccess();
     method public int getAreaCount();
     method public int[] getAreaIds();
     method public int getAreaType();
+    method public int getChangeMode();
+    method public java.util.List<java.lang.Integer> getConfigArray();
+    method public int getConfigFlags();
+    method public java.lang.String getConfigString();
     method public int getFirstAndOnlyAreaId();
+    method public float getMaxSampleRate();
     method public T getMaxValue(int);
     method public T getMaxValue();
+    method public float getMinSampleRate();
     method public T getMinValue(int);
     method public T getMinValue();
     method public int getPropertyId();
@@ -515,6 +522,13 @@ package android.car.hardware {
     method public android.car.hardware.CarPropertyConfig.Builder<T> addAreaConfig(int, T, T);
     method public android.car.hardware.CarPropertyConfig.Builder<T> addAreas(int[]);
     method public android.car.hardware.CarPropertyConfig<T> build();
+    method public android.car.hardware.CarPropertyConfig.Builder<T> setAccess(int);
+    method public android.car.hardware.CarPropertyConfig.Builder<T> setChangeMode(int);
+    method public android.car.hardware.CarPropertyConfig.Builder<T> setConfigArray(java.util.ArrayList<java.lang.Integer>);
+    method public android.car.hardware.CarPropertyConfig.Builder<T> setConfigFlags(int);
+    method public android.car.hardware.CarPropertyConfig.Builder<T> setConfigString(java.lang.String);
+    method public android.car.hardware.CarPropertyConfig.Builder<T> setMaxSampleRate(float);
+    method public android.car.hardware.CarPropertyConfig.Builder<T> setMinSampleRate(float);
   }
 
   public class CarPropertyValue<T> implements android.os.Parcelable {
