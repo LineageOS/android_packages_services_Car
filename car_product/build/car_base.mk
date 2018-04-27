@@ -19,6 +19,9 @@
 
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay
 
+# TODO: need to split policy by partition: public/private/vendor
+BOARD_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy
+
 PRODUCT_PACKAGES += \
     ContactsProvider \
     DefaultContainerService \

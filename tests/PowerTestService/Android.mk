@@ -18,9 +18,6 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := com.android.car.powertestservice
 
-BOARD_SEPOLICY_DIRS += \
-    packages/services/Car/tests/PowerTestService/sepolicy
-
 LOCAL_SRC_FILES := \
     src/main.cpp
 
