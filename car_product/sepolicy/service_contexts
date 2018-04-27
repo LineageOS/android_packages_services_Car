@@ -1,2 +1,1 @@
-car_service u:object_r:car_service:s0
-com.android.car.vehiclenetwork.IVehicleNetwork u:object_r:car_service:s0
+car_service                               u:object_r:car_service:s0

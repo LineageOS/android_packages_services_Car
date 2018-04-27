@@ -1,1 +1,9 @@
-allow powertestservice servicemanager:binder call;
+type powertestservice, domain, coredomain;
+type powertestservice_exec, exec_type, file_type;
+
+init_daemon_domain(powertestservice)
+
+binder_use(powertestservice)
+binder_call(powertestservice, system_app)
+
+allow powertestservice car_service:service_manager find;
