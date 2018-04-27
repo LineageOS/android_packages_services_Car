@@ -50,6 +50,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -72,8 +73,7 @@ public class BluetoothAutoConnectPolicyTest extends AndroidTestCase {
     private Handler mMainHandler;
     private Context mMockContext;
     // Mock of Services that the policy interacts with
-    private CarCabinService mMockCarCabinService;
-    private CarSensorService mMockCarSensorService;
+    private CarPropertyService mMockCarPropertyService;
     private CarUxRestrictionsManagerService mMockCarUxRService;
     private CarBluetoothUserService mMockBluetoothUserService;
     private PerUserCarServiceHelper mMockPerUserCarServiceHelper;
@@ -223,7 +223,9 @@ public class BluetoothAutoConnectPolicyTest extends AndroidTestCase {
                 0, false);
         CarPropertyEvent event = new CarPropertyEvent(
                 CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
-        mCabinEventListener.onEvent(event);
+        List<CarPropertyEvent> events = new ArrayList<>();
+        events.add(event);
+        mCabinEventListener.onEvent(events);
     }
 
     /**
@@ -231,8 +233,7 @@ public class BluetoothAutoConnectPolicyTest extends AndroidTestCase {
      */
     private void makeMockServices() {
         mMockContext = mock(Context.class);
-        mMockCarCabinService = mock(CarCabinService.class);
-        mMockCarSensorService = mock(CarSensorService.class);
+        mMockCarPropertyService = mock(CarPropertyService.class);
         mMockCarUxRService = mock(CarUxRestrictionsManagerService.class);
         mMockPerUserCarServiceHelper = mock(PerUserCarServiceHelper.class);
         mMockPerUserCarService = mock(ICarUserService.class);
@@ -296,7 +297,7 @@ public class BluetoothAutoConnectPolicyTest extends AndroidTestCase {
                 .thenReturn(mMockBluetoothUserService);
 
         mBluetoothDeviceConnectionPolicyTest = BluetoothDeviceConnectionPolicy.create(mMockContext,
-                mMockCarCabinService, mMockCarSensorService, mMockPerUserCarServiceHelper,
+                mMockCarPropertyService, mMockPerUserCarServiceHelper,
                 mMockCarUxRService, mMockCarBluetoothService);
         mBluetoothDeviceConnectionPolicyTest.setAllowReadWriteToSettings(false);
         mBluetoothDeviceConnectionPolicyTest.init();
