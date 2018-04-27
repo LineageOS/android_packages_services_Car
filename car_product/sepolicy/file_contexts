@@ -1,9 +1,1 @@
-
-###################################
-# System files
-#
-
-/(vendor|system/vendor)/bin/hw/android\.hardware\.automotive\.audiocontrol@1\.0-service  u:object_r:hal_audiocontrol_default_exec:s0
-/(vendor|system/vendor)/bin/hw/android\.hardware\.automotive\.vehicle@2\.0-service  u:object_r:hal_vehicle_default_exec:s0
-
-###################################
+/system/bin/com\.android\.car\.powertestservice     u:object_r:powertestservice_exec:s0
