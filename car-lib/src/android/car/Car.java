@@ -31,6 +31,7 @@ import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.media.CarAudioManager;
 import android.car.navigation.CarNavigationStatusManager;
+import android.car.settings.CarConfigurationManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.car.vms.VmsSubscriberManager;
@@ -151,6 +152,11 @@ public final class Car {
      * Service name for {@link CarUxRestrictionsManager}
      */
     public static final String CAR_UX_RESTRICTION_SERVICE = "uxrestriction";
+
+    /**
+     * Service name for {@link android.car.settings.CarConfigurationManager}
+     */
+    public static final String CAR_CONFIGURATION_SERVICE = "configuration";
 
     /**
      * @hide
@@ -788,6 +794,9 @@ public final class Car {
                 break;
             case CAR_UX_RESTRICTION_SERVICE:
                 manager = new CarUxRestrictionsManager(binder, mContext, mEventHandler);
+                break;
+            case CAR_CONFIGURATION_SERVICE:
+                manager = new CarConfigurationManager(binder);
                 break;
             default:
                 break;

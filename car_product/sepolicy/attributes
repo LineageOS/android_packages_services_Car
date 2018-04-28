@@ -1,7 +1,0 @@
-# HALs
-attribute hal_vehicle;
-attribute hal_vehicle_client;
-attribute hal_vehicle_server;
-attribute hal_audiocontrol;
-attribute hal_audiocontrol_client;
-attribute hal_audiocontrol_server;
