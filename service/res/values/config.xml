@@ -42,7 +42,7 @@
     <!--  Comma separated list of activities that will be allowed. Format of each entry is either
           to specify package name to whitelist the whole package or use format of
           "packagename/activity_classname" for tagging each activities.-->
-    <string name="activityWhitelist">android,com.android.systemui</string>
+    <string name="activityWhitelist">com.android.systemui,com.android.car.dialer,com.android.car.hvac,com.android.car.media,com.android.car.radio,com.android.support.car.lenspicker,com.google.android.setupwizard,com.android.car.home,com.android.car.carlauncher,com.google.android.apps.gmm.fishfood,com.google.android.car.bugreport,com.android.contacts,com.google.android.car.kitchensink,com.google.android.googlequicksearchbox,com.android.settings</string>
     <!--  Comma separated list of activities that will be blocked during restricted state.
           Format of each entry is either to specify package name to whitelist the whole package
           or use format of "packagename/activity_classname" for tagging each activities.-->
@@ -83,22 +83,22 @@
          The system will keep a sliding window of samples of this size, and allow
          retrieval of activity this many sample windows back in time. Setting this to
          0 means no samples will be collected, effectively disabling I/O metric collection. -->
-    <integer name="ioStatsNumSamplesToStore">0</integer>
+    <integer name="ioStatsNumSamplesToStore">15</integer>
 
     <!-- The maximum number of KB (1024 bytes) that can be written to storage in one sample
          before CarService deems I/O activity excessive. A simple way to set this value
          is - given the total writable amount (storage size * P/E cycles) - to make
          reasonable assumptions about the expected lifetime of the vehicle and the average
          daily driving time, and use that to allocate a per-sample budget. -->
-    <integer name="acceptableWrittenKBytesPerSample">0</integer>
+    <integer name="acceptableWrittenKBytesPerSample">115000</integer>
     <!-- The maximum number of fsync() system calls that can be made in one sample before
          CarService deems I/O activity excessive. -->
-    <integer name="acceptableFsyncCallsPerSample">0</integer>
+    <integer name="acceptableFsyncCallsPerSample">150</integer>
 
     <!-- The maximum number of samples (within an I/O stats sample window) that CarService
          should consider exhibiting excessive I/O activity before broadcasting an intent
          to signal the potential for flash wear. -->
-    <integer name="maxExcessiveIoSamplesInWindow">0</integer>
+    <integer name="maxExcessiveIoSamplesInWindow">11</integer>
 
     <!-- The name of an intent to be notified by CarService whenever it detects too many
          samples with excessive I/O activity. Value must either be an empty string, which
@@ -107,7 +107,7 @@
          must be registered in its containing app's AndroidManifest.xml and it is
          strongly recommended that it be protected with the
          android.car.permission.STORAGE_MONITORING permission. -->
-    <string name="intentReceiverForUnacceptableIoMetrics"></string>
+    <string name="intentReceiverForUnacceptableIoMetrics">com.google.android.car.defaultstoragemonitoringcompanionapp/.ExcessiveIoIntentReceiver</string>
 
     <!-- The Model ID to advertise Bluetooth Fast Pair connections with.  Must be overlayed with
          device specific model id. -->
