@@ -39,10 +39,12 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
 import android.content.res.Resources;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Process;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
@@ -862,7 +864,15 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
     }
 
+    @Override
     public synchronized void setEnableActivityBlocking(boolean enable) {
+        // Check if the caller has the same signature as that of the car service.
+        if (mPackageManager.checkSignatures(Process.myUid(), Binder.getCallingUid())
+                != PackageManager.SIGNATURE_MATCH) {
+            throw new SecurityException(
+                    "Caller " + mPackageManager.getNameForUid(Binder.getCallingUid())
+                            + " does not have the right signature");
+        }
         mEnableActivityBlocking = enable;
     }
 

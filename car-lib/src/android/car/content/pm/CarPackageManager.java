@@ -18,6 +18,7 @@ package android.car.content.pm;
 
 import android.annotation.IntDef;
 import android.annotation.SystemApi;
+import android.annotation.TestApi;
 import android.car.CarApiUtil;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
@@ -147,6 +148,20 @@ public final class CarPackageManager implements CarManagerBase {
             //ignore as CarApi will handle disconnection anyway.
         }
         return true;
+    }
+
+    /**
+     * Enable/Disable Activity Blocking.  This is to provide an option for toggling app blocking
+     * behavior for development purposes.
+     * @hide
+     */
+    @TestApi
+    public void setEnableActivityBlocking(boolean enable) {
+        try {
+            mService.setEnableActivityBlocking(enable);
+        } catch (RemoteException e) {
+            //ignore as CarApi will handle disconnection anyway.
+        }
     }
 
     /**
