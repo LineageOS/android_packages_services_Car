@@ -51,7 +51,8 @@
                 android:id="@+id/toggle_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="toggle status" />
+                android:text="Disable Ux Restrictions"
+                android:textSize="32sp"/>
         </LinearLayout>
 
         <androidx.car.widget.PagedListView

@@ -2029,7 +2029,14 @@
     public static int OP_WRITE_SETTINGS;
     public static int OP_WRITE_SMS;
     public static int OP_WRITE_WALLPAPER;
+    public static int UID_STATE_BACKGROUND;
+    public static int UID_STATE_CACHED;
+    public static int UID_STATE_FOREGROUND;
+    public static int UID_STATE_FOREGROUND_SERVICE;
+    public static int UID_STATE_PERSISTENT;
+    public static int UID_STATE_TOP;
     public static int _NUM_OP;
+    public static int _NUM_UID_STATE;
 }
 
 -keep class android.app.AppOpsManager$OnOpActiveChangedListener {
@@ -2048,6 +2055,7 @@
 
 -keep class android.app.AppOpsManager$OpEntry {
     <init>(int, int, long, long, int, int, java.lang.String);
+    <init>(int, int, long[], long[], int, int, java.lang.String);
 
     public int describeContents();
     public int getDuration();
@@ -2056,7 +2064,9 @@
     public java.lang.String getProxyPackageName();
     public int getProxyUid();
     public long getRejectTime();
+    public long getRejectTimeFor(int);
     public long getTime();
+    public long getTimeFor(int);
     public boolean isRunning();
     public void writeToParcel(android.os.Parcel, int);
 
@@ -10841,6 +10851,7 @@
     public boolean clipRect(float, float, float, float, android.graphics.Region$Op);
     public boolean clipRect(float, float, float, float);
     public boolean clipRect(int, int, int, int);
+    public boolean clipRectUnion(android.graphics.Rect);
     public boolean clipRegion(android.graphics.Region, android.graphics.Region$Op);
     public boolean clipRegion(android.graphics.Region);
     public void concat(android.graphics.Matrix);

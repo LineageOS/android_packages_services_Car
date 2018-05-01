@@ -25,4 +25,5 @@ interface ICarPackageManager {
     boolean isActivityDistractionOptimized(in String packageName, in String className) = 1;
     boolean isServiceDistractionOptimized(in String packageName, in String className) = 2;
     boolean isActivityBackedBySafeActivity(in ComponentName activityName) = 3;
+    void setEnableActivityBlocking(boolean enable) = 4;
 }
