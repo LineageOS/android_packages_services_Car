@@ -16,14 +16,15 @@
 package com.android.car.hal;
 
 import static com.android.car.CarServiceUtils.toByteArray;
+
 import static java.lang.Integer.toHexString;
 
 import android.annotation.SystemApi;
 import android.car.VehicleAreaType;
 import android.car.vms.IVmsSubscriberClient;
-import android.car.vms.VmsLayer;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
+import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsOperationRecorder;
@@ -34,11 +35,12 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerAndPublisherIdIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_0.VmsOfferingMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_0.VmsOfferingMessageIntegerValuesIndex;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+
 import com.android.car.CarLog;
 import com.android.car.VmsLayersAvailability;
 import com.android.car.VmsPublishersInfo;
@@ -46,8 +48,8 @@ import com.android.car.VmsRouting;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -137,6 +139,9 @@ public class VmsHalService extends HalServiceBase {
 
     public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         boolean firstSubscriptionForLayer = false;
+        if (DBG) {
+            Log.d(TAG, "Checking for first subscription. Layer: " + layer);
+        }
         synchronized (mLock) {
             // Check if publishers need to be notified about this change in subscriptions.
             firstSubscriptionForLayer = !mRouting.hasLayerSubscriptions(layer);
@@ -154,7 +159,9 @@ public class VmsHalService extends HalServiceBase {
         boolean layerHasSubscribers = true;
         synchronized (mLock) {
             if (!mRouting.hasLayerSubscriptions(layer)) {
-                Log.i(TAG, "Trying to remove a layer with no subscription: " + layer);
+                if (DBG) {
+                    Log.d(TAG, "Trying to remove a layer with no subscription: " + layer);
+                }
                 return;
             }
 
@@ -354,13 +361,10 @@ public class VmsHalService extends HalServiceBase {
     }
 
     public void setPublisherLayersOffering(IBinder publisherToken, VmsLayersOffering offering) {
-        VmsAvailableLayers availableLayers;
         synchronized (mLock) {
             updateOffering(publisherToken, offering);
             VmsOperationRecorder.get().setPublisherLayersOffering(offering);
-            availableLayers = mAvailableLayers.getAvailableLayers();
         }
-        notifyOfAvailabilityChange(availableLayers);
     }
 
     public VmsAvailableLayers getAvailableLayers() {
