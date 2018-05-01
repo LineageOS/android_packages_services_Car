@@ -1,1 +1,1 @@
-type carservice_service, service_manager_type;
+type car_service,               service_manager_type;
