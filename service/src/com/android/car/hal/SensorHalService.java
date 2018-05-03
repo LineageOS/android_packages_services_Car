@@ -215,6 +215,10 @@ public class SensorHalService extends SensorHalServiceBase {
                 event = CarSensorEventFactory.createFloatEvent(sensorType, v.timestamp,
                     v.value.floatValues.get(0));
                 break;
+            case VehiclePropertyType.INT64_VEC:
+                event = CarSensorEventFactory.createInt64VecEvent(sensorType, v.timestamp,
+                                                                  v.value.int64Values);
+                break;
             default:
                 Log.w(TAG, "createCarSensorEvent: unsupported type: 0x" + toHexString(dataType));
                 break;

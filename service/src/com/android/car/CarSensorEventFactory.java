@@ -19,6 +19,8 @@ package com.android.car;
 import android.car.hardware.CarSensorEvent;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 
+import java.util.List;
+
 //TODO add memory pool and recycling
 public class CarSensorEventFactory {
 
@@ -32,6 +34,23 @@ public class CarSensorEventFactory {
     public static CarSensorEvent createIntEvent(int sensorType, long timestamp, int value) {
         CarSensorEvent event = new CarSensorEvent(sensorType, timestamp, 0, 1, 0);
         event.intValues[0] = value;
+        return event;
+    }
+
+    /**
+     * Create int64 vector event
+     * @param sensorType
+     * @param timestamp
+     * @param value
+     *
+     * @return CarSensorEvent
+     */
+    public static CarSensorEvent createInt64VecEvent(int sensorType, long timestamp,
+                                                     List<Long> value) {
+        CarSensorEvent event = new CarSensorEvent(sensorType, timestamp, 0, 0, value.size());
+        for (int i = 0; i < value.size(); i++) {
+            event.longValues[i] = value.get(i);
+        }
         return event;
     }
 
