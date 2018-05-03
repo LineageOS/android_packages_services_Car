@@ -60,6 +60,7 @@
                 android:id="@+id/lockPatternView"
                 android:layout_width="@dimen/keyguard_pattern_dimension"
                 android:layout_height="@dimen/keyguard_pattern_dimension"
+                android:layout_marginVertical="@dimen/pin_pattern_pad_margin_vertical"
                 android:layout_gravity="center_horizontal"
                 android:gravity="center" />
 

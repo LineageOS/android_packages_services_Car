@@ -75,7 +75,7 @@
             android:id="@+id/container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/num_pad_margin_top"
+            android:layout_marginVertical="@dimen/pin_pattern_pad_margin_vertical"
             android:columnCount="3">
 
             <!-- Row 1 -->
