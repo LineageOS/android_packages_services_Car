@@ -42,7 +42,7 @@ import java.util.List;
  *
  * The MOVE parameter will start moving the device in the indicated direction.  Magnitude
  * indicates relative speed.  For instance, setting the WINDOW_MOVE parameter to +1 rolls
- * the window up.  Setting it to +2 (if available) will roll it up faster.
+ * the window down.  Setting it to +2 (if available) will roll it down faster.
  *
  * POSITION parameter will move the device to the desired position.  For instance, if the
  * WINDOW_POS has a range of 0-100, setting this parameter to 50 will open the window
@@ -291,13 +291,13 @@ public final class CarCabinManager implements CarManagerBase {
     /** Window properties are zoned by VehicleAreaWindow */
     /**
      * window position, int type
-     * Max = window up / closed.
-     * Min = window down / open.
+     * Max = window down / open.
+     * Min = window up / closed.
      */
     public static final int ID_WINDOW_POS = 0x3001;
     /** window move, int type
-     * Positive value moves window up / closes window.
-     * Negative value moves window down / opens window.
+     * Positive value moves window down / opens window.
+     * Negative value moves window up / closes window.
      */
     public static final int ID_WINDOW_MOVE = 0x3002;
     /**
