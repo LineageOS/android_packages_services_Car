@@ -123,11 +123,14 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private final PackageParsingEventReceiver mPackageParsingEventReceiver =
             new PackageParsingEventReceiver();
+    private final BootEventReceiver mBootEventReceiver = new BootEventReceiver();
 
     // To track if the packages have been parsed for building white/black lists. If we haven't had
     // received any intents (boot complete or package changed), then the white list is null leading
     // to blocking everything.  So, no blocking until we have had a chance to parse the packages.
     private boolean mHasParsedPackages;
+    // To track if we received the boot complete intent.
+    private boolean mBootLockedIntentRx;
 
     public CarPackageManagerService(Context context,
             CarUxRestrictionsManagerService uxRestrictionsService,
@@ -329,6 +332,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             wakeupClientsWaitingForPolicySetitngLocked();
         }
         mContext.unregisterReceiver(mPackageParsingEventReceiver);
+        mContext.unregisterReceiver(mBootEventReceiver);
         mCarUxRestrictionsService.unregisterUxRestrictionsChangeListener(mUxRestrictionsListener);
         mSystemActivityMonitoringService.registerActivityLaunchListener(null);
     }
@@ -336,8 +340,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     // run from HandlerThread
     private void doHandleInit() {
         startAppBlockingPolicies();
+        IntentFilter bootIntent = new IntentFilter();
+        bootIntent.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
+        mContext.registerReceiver(mBootEventReceiver, bootIntent);
         IntentFilter pkgParseIntent = new IntentFilter();
-        pkgParseIntent.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
         for (String action : mPackageManagerActions) {
             pkgParseIntent.addAction(action);
         }
@@ -499,10 +505,20 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private void generateActivityWhitelistMap() {
         HashMap<String, AppBlockingPackageInfoWrapper> activityWhitelist = new HashMap<>();
         mConfiguredWhitelist = mContext.getString(R.string.activityWhitelist);
-
+        if (mConfiguredWhitelist == null) {
+            if (DBG_POLICY_CHECK) {
+                Log.d(CarLog.TAG_PACKAGE, "Null whitelist in config");
+            }
+            return;
+        }
         // Get the apps/activities that are whitelisted in the configuration XML resource
         HashMap<String, Set<String>> configWhitelist = parseConfiglist(mConfiguredWhitelist);
-
+        if (configWhitelist == null) {
+            if (DBG_POLICY_CHECK) {
+                Log.w(CarLog.TAG_PACKAGE, "White list null.  No apps whitelisted");
+            }
+            return;
+        }
         // Add the blocking overlay activity to the whitelist, since that needs to run in a
         // restricted state to communicate the reason an app was blocked.
         Set<String> defaultActivity = new ArraySet<>();
@@ -600,7 +616,19 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private void generateActivityBlacklistMap() {
         HashMap<String, AppBlockingPackageInfoWrapper> activityBlacklist = new HashMap<>();
         mConfiguredBlacklist = mContext.getString(R.string.activityBlacklist);
+        if (mConfiguredBlacklist == null) {
+            if (DBG_POLICY_CHECK) {
+                Log.d(CarLog.TAG_PACKAGE, "Null blacklist in config");
+            }
+            return;
+        }
         Map<String, Set<String>> configBlacklist = parseConfiglist(mConfiguredBlacklist);
+        if (configBlacklist == null) {
+            if (DBG_POLICY_CHECK) {
+                Log.w(CarLog.TAG_PACKAGE, "Black list null.  No apps blacklisted");
+            }
+            return;
+        }
 
         for (String pkg : configBlacklist.keySet()) {
             int flags = 0;
@@ -650,7 +678,11 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
      * Key is package name and value is list of activities. Empty list implies whole package is
      * included.
      */
+    @Nullable
     private HashMap<String, Set<String>> parseConfiglist(String configList) {
+        if (configList == null) {
+            return null;
+        }
         HashMap<String, Set<String>> packageToActivityMap = new HashMap<>();
         String[] entries = configList.split(PACKAGE_DELIMITER);
         for (String entry : entries) {
@@ -766,6 +798,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         synchronized (this) {
             writer.println("*PackageManagementService*");
             writer.println("mEnableActivityBlocking:" + mEnableActivityBlocking);
+            writer.println("mHasParsedPackages:" + mHasParsedPackages);
+            writer.println("mBootLockedIntentRx:" + mBootLockedIntentRx);
             writer.println("ActivityRestricted:" + mUxRestrictionsListener.isRestricted());
             writer.print(dumpPoliciesLocked(true));
         }
@@ -832,11 +866,11 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if (allowed) {
             return;
         }
-        synchronized(this) {
+        synchronized (this) {
             if (!mEnableActivityBlocking) {
                 Log.d(CarLog.TAG_PACKAGE, "Current activity " + topTask.topActivity +
-                    " not allowed, blocking disabled. Number of tasks in stack:"
-                    + topTask.stackInfo.taskIds.length);
+                        " not allowed, blocking disabled. Number of tasks in stack:"
+                        + topTask.stackInfo.taskIds.length);
                 return;
             }
         }
@@ -890,6 +924,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             return null;
         }
     }
+
     /**
      * Reading policy and setting policy can take time. Run it in a separate handler thread.
      */
@@ -972,7 +1007,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         private boolean isMatching;
 
         private AppBlockingPackageInfoWrapper(AppBlockingPackageInfo info, boolean isMatching) {
-            this.info =info;
+            this.info = info;
             this.isMatching = isMatching;
         }
 
@@ -1049,7 +1084,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     private class ActivityLaunchListener
-        implements SystemActivityMonitoringService.ActivityLaunchListener {
+            implements SystemActivityMonitoringService.ActivityLaunchListener {
         @Override
         public void onActivityLaunch(TopTaskInfoContainer topTask) {
             blockTopActivityIfNecessary(topTask);
@@ -1123,22 +1158,42 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     /**
-     * Listens to the boot events to know when to initiate parsing installed packages.
+     * Listens to the Boot intent to initiate parsing installed packages.
      */
-    private class PackageParsingEventReceiver extends BroadcastReceiver {
-        private static final long PACKAGE_PARSING_DELAY_MS = 500;
+    private class BootEventReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (DBG_POLICY_CHECK) {
-                Log.d(CarLog.TAG_PACKAGE, "Received " + intent.getAction());
-            }
             if (intent == null || intent.getAction() == null) {
                 return;
             }
-            String action = intent.getAction();
-            if (action.equals(Intent.ACTION_LOCKED_BOOT_COMPLETED)) {
+            if (DBG_POLICY_CHECK) {
+                Log.d(CarLog.TAG_PACKAGE, "BootEventReceiver Received " + intent.getAction());
+            }
+            if (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(intent.getAction())) {
                 mHandler.requestParsingInstalledPkgs(0);
-            } else if (isPackageManagerAction(action)) {
+                mBootLockedIntentRx = true;
+            }
+        }
+    }
+
+    /**
+     * Listens to the package install/uninstall events to know when to initiate parsing
+     * installed packages.
+     */
+    private class PackageParsingEventReceiver extends BroadcastReceiver {
+        private static final long PACKAGE_PARSING_DELAY_MS = 500;
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent == null || intent.getAction() == null) {
+                return;
+            }
+            if (DBG_POLICY_CHECK) {
+                Log.d(CarLog.TAG_PACKAGE,
+                        "PackageParsingEventReceiver Received " + intent.getAction());
+            }
+            String action = intent.getAction();
+            if (isPackageManagerAction(action)) {
                 // send a delayed message so if we received multiple related intents, we parse
                 // only once.
                 logEventChange(intent);

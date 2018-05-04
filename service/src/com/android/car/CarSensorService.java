@@ -121,9 +121,6 @@ public class CarSensorService extends ICarSensor.Stub
 
     private final Context mContext;
 
-    private final DayNightModePolicy mDayNightModePolicy;
-    private boolean mUseDefaultDayNightModePolicy = true;
-
     private final HandlerThread mHandlerThread;
     private final SensorDispatchHandler mSensorDispatchHandler;
 
@@ -139,7 +136,6 @@ public class CarSensorService extends ICarSensor.Stub
         }
         // This triggers sensor hal init as well.
         mSensorHal = sensorHal;
-        mDayNightModePolicy = new DayNightModePolicy(context);
     }
 
     @Override
@@ -153,8 +149,6 @@ public class CarSensorService extends ICarSensor.Stub
             addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_NIGHT, getInitialNightMode());
             addNewSensorRecordLocked(CarSensorManager.SENSOR_TYPE_IGNITION_STATE,
                 getInitialIgnitionState());
-
-            notifyDefaultPoliciesLocked();
         } finally {
             mSensorLock.unlock();
         }
@@ -165,21 +159,17 @@ public class CarSensorService extends ICarSensor.Stub
     }
 
     private CarSensorEvent getInitialNightMode() {
-        CarSensorEvent event = null;
-        if (mUseDefaultDayNightModePolicy) {
-            mDayNightModePolicy.init();
-            mDayNightModePolicy.registerSensorListener(this);
-        } else {
-            event = mSensorHal.getCurrentSensorValue(CarSensorManager.SENSOR_TYPE_NIGHT);
-            Log.i(CarLog.TAG_SENSOR, "initial daynight: "
-                    + ((event == null) ? "not ready" : + event.intValues[0]));
-        }
+        CarSensorEvent event = mSensorHal.getCurrentSensorValue(CarSensorManager.SENSOR_TYPE_NIGHT);
         if (event == null) {
-            event = DayNightModePolicy.getDefaultValue(CarSensorManager.SENSOR_TYPE_NIGHT);
-            if (!mUseDefaultDayNightModePolicy) {
-                Log.w(CarLog.TAG_SENSOR, "Default daynight set as sensor not ready");
-            }
+            Log.e(CarLog.TAG_SENSOR, "Daynight sensor not ready!");
+
+            // Create a place holder event that puts us in NIGHT mode at startup if we failed
+            // to get the actual VHAL value.
+            event = new CarSensorEvent(CarSensorManager.SENSOR_TYPE_NIGHT, 0, 0, 1, 0);
+            event.intValues[0] = 1; // 1 means night mode!
         }
+        Log.i(CarLog.TAG_SENSOR, "initial daynight: " + event.intValues[0]);
+
         return event;
     }
 
@@ -197,9 +187,6 @@ public class CarSensorService extends ICarSensor.Stub
         }
         tryHoldSensorLock();
         try {
-            if (mUseDefaultDayNightModePolicy) {
-                mDayNightModePolicy.release();
-            }
             for (int i = mSensorListeners.size() - 1; i >= 0; --i) {
                 Listeners listener = mSensorListeners.valueAt(i);
                 listener.release();
@@ -223,12 +210,6 @@ public class CarSensorService extends ICarSensor.Stub
     private void releaseSensorLockSafely() {
         if (mSensorLock.isHeldByCurrentThread()) {
             mSensorLock.unlock();
-        }
-    }
-
-    private void notifyDefaultPoliciesLocked() {
-        if (mUseDefaultDayNightModePolicy) {
-            mDayNightModePolicy.onSensorServiceReady();
         }
     }
 
@@ -465,16 +446,15 @@ public class CarSensorService extends ICarSensor.Stub
         if (Log.isLoggable(CarLog.TAG_SENSOR, Log.VERBOSE)) {
             Log.v(CarLog.TAG_SENSOR, "startSensor " + sensorType + " with rate " + rate);
         }
-        SensorBase sensorHal = getSensorHal(sensorType);
-        if (sensorHal != null) {
-            if (!sensorHal.isReady()) {
+        if (mSensorHal != null) {
+            if (!mSensorHal.isReady()) {
                 Log.w(CarLog.TAG_SENSOR, "Sensor channel not available.");
                 return false;
             }
             if (record.enabled) {
                 return true;
             }
-            if (sensorHal.requestSensorStart(sensorType, 0)) {
+            if (mSensorHal.requestSensorStart(sensorType, 0)) {
                 record.enabled = true;
                 return true;
             }
@@ -569,8 +549,7 @@ public class CarSensorService extends ICarSensor.Stub
         if (Log.isLoggable(CarLog.TAG_SENSOR, Log.DEBUG)) {
             Log.d(CarLog.TAG_SENSOR, "stopSensor " + sensorType);
         }
-        SensorBase sensorHal = getSensorHal(sensorType);
-        if (sensorHal == null || !sensorHal.isReady()) {
+        if (mSensorHal == null || !mSensorHal.isReady()) {
             Log.w(CarLog.TAG_SENSOR, "Sensor channel not available.");
             return;
         }
@@ -584,23 +563,7 @@ public class CarSensorService extends ICarSensor.Stub
         if (Log.isLoggable(CarLog.TAG_SENSOR, Log.DEBUG)) {
             Log.d(CarLog.TAG_SENSOR, "stopSensor requestStop " + sensorType);
         }
-        sensorHal.requestSensorStop(sensorType);
-    }
-
-    private SensorBase getSensorHal(int sensorType) {
-        try {
-            mSensorLock.lock();
-            switch (sensorType) {
-                case CarSensorManager.SENSOR_TYPE_NIGHT:
-                    if (mUseDefaultDayNightModePolicy) {
-                        return mDayNightModePolicy;
-                    }
-                    break;
-            }
-            return mSensorHal;
-        } finally {
-            mSensorLock.unlock();
-        }
+        mSensorHal.requestSensorStop(sensorType);
     }
 
     @Override
@@ -621,23 +584,9 @@ public class CarSensorService extends ICarSensor.Stub
     @GuardedBy("mSensorLock")
     private int[] refreshSupportedSensorsLocked() {
         int numCarSensors = (mCarProvidedSensors == null) ? 0 : mCarProvidedSensors.length;
-        for (int i = 0; i < numCarSensors; i++) {
-            int sensor = mCarProvidedSensors[i];
-            if (sensor == CarSensorManager.SENSOR_TYPE_NIGHT) {
-                mUseDefaultDayNightModePolicy = false;
-            }
-        }
-        int totalNumSensors = numCarSensors;
-        if (mUseDefaultDayNightModePolicy) {
-            totalNumSensors++;
-        }
-        // One logical sensor is always added for SENSOR_TYPE_NIGHT.
-        int[] supportedSensors = new int[totalNumSensors];
+
+        int[] supportedSensors = new int[numCarSensors];
         int index = 0;
-        if (mUseDefaultDayNightModePolicy) {
-            supportedSensors[index] = CarSensorManager.SENSOR_TYPE_NIGHT;
-            index++;
-        }
 
         for (int i = 0; i < numCarSensors; i++) {
             int sensor = mCarProvidedSensors[i];
@@ -923,11 +872,6 @@ public class CarSensorService extends ICarSensor.Stub
             }
         }  catch  (ConcurrentModificationException e) {
             writer.println("concurrent modification happened");
-        }
-        writer.println("mUseDefaultDayNightModePolicy: " + mUseDefaultDayNightModePolicy);
-        writer.println("**day/night policy**");
-        if (mUseDefaultDayNightModePolicy) {
-            mDayNightModePolicy.dump(writer);
         }
     }
 }
