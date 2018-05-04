@@ -64,14 +64,20 @@ public class CarNightService implements CarServiceBase {
             return;
         }
         if (event.sensorType == CarSensorManager.SENSOR_TYPE_NIGHT) {
-            if (event.intValues[0] == 1) {
-                mNightSetting = UiModeManager.MODE_NIGHT_YES;
+            if (event.intValues[0] == 0) {
+                mNightSetting = UiModeManager.MODE_NIGHT_NO;
+                if (DBG)  Log.d(CarLog.TAG_SENSOR,"CAR dayNight handleSensorEvent DAY");
             }
             else {
-                mNightSetting = UiModeManager.MODE_NIGHT_NO;
+                mNightSetting = UiModeManager.MODE_NIGHT_YES;
+                if (DBG)  Log.d(CarLog.TAG_SENSOR,"CAR dayNight handleSensorEvent NIGHT");
             }
+
             if (mUiModeManager != null && (mForcedMode == FORCED_SENSOR_MODE)) {
                 mUiModeManager.setNightMode(mNightSetting);
+                if (DBG)  Log.d(CarLog.TAG_SENSOR,"CAR dayNight handleSensorEvent APPLIED");
+            } else {
+                if (DBG)  Log.d(CarLog.TAG_SENSOR,"CAR dayNight handleSensorEvent IGNORED");
             }
         }
     }
@@ -107,7 +113,7 @@ public class CarNightService implements CarServiceBase {
         mCarSensorService = sensorService;
         mUiModeManager = (UiModeManager) mContext.getSystemService(Context.UI_MODE_SERVICE);
         if (mUiModeManager == null) {
-            Log.w(CarLog.TAG_SENSOR,"Failed to get UI_MODE_SERVICE");
+            Log.w(CarLog.TAG_SENSOR, "Failed to get UI_MODE_SERVICE");
         }
     }
 
@@ -130,8 +136,8 @@ public class CarNightService implements CarServiceBase {
     @Override
     public synchronized void dump(PrintWriter writer) {
         writer.println("*DAY NIGHT POLICY*");
-        writer.println("Mode:" + ((mNightSetting == UiModeManager.MODE_NIGHT_YES) ? "night" : "day")
-                );
+        writer.println("Mode:" +
+                ((mNightSetting == UiModeManager.MODE_NIGHT_YES) ? "night" : "day"));
         writer.println("Forced Mode? " + (mForcedMode == FORCED_SENSOR_MODE ? "false"
                 : (mForcedMode == FORCED_DAY_MODE ? "day" : "night")));
     }
