@@ -44,9 +44,7 @@ import com.android.internal.car.ICarServiceHelper;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class ICarImpl extends ICar.Stub {
 
@@ -148,35 +146,34 @@ public class ICarImpl extends ICar.Stub {
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
 
         // Be careful with order. Service depending on other service should be inited later.
-        List<CarServiceBase> allServices = new ArrayList<>(Arrays.asList(
-                mSystemActivityMonitoringService,
-                mCarPowerManagementService,
-                mCarSensorService,
-                mCarDrivingStateService,
-                mCarUXRestrictionsService,
-                mCarPackageManagerService,
-                mCarInputService,
-                mCarLocationService,
-                mGarageModeService,
-                mCarInfoService,
-                mAppFocusService,
-                mCarAudioService,
-                mCarCabinService,
-                mCarHvacService,
-                mCarNightService,
-                mInstrumentClusterService,
-                mCarProjectionService,
-                mSystemStateControllerService,
-                mCarVendorExtensionService,
-                mCarBluetoothService,
-                mCarDiagnosticService,
-                mPerUserCarServiceHelper,
-                mCarStorageMonitoringService,
-                mCarConfigurationService,
-                mVmsSubscriberService,
-                mVmsPublisherService
-        ));
-        mAllServices = allServices.toArray(new CarServiceBase[0]);
+        mAllServices = new CarServiceBase[] {
+            mSystemActivityMonitoringService,
+            mCarPowerManagementService,
+            mCarSensorService,
+            mCarDrivingStateService,
+            mCarUXRestrictionsService,
+            mCarPackageManagerService,
+            mCarInputService,
+            mCarLocationService,
+            mGarageModeService,
+            mCarInfoService,
+            mAppFocusService,
+            mCarAudioService,
+            mCarCabinService,
+            mCarHvacService,
+            mCarNightService,
+            mInstrumentClusterService,
+            mCarProjectionService,
+            mSystemStateControllerService,
+            mCarVendorExtensionService,
+            mCarBluetoothService,
+            mCarDiagnosticService,
+            mPerUserCarServiceHelper,
+            mCarStorageMonitoringService,
+            mCarConfigurationService,
+            mVmsSubscriberService,
+            mVmsPublisherService
+        };
     }
 
     @MainThread
