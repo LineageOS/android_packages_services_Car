@@ -1,4 +1,0 @@
-user=system seinfo=platform name=com.android.car domain=carservice_app type=system_app_data_file
-
-# Allow Kitchen Sink app (for test purpose) to run in the Car Service security domain
-user=system seinfo=platform name=com.google.android.car.kitchensink domain=carservice_app type=system_app_data_file
