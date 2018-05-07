@@ -30,6 +30,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -70,7 +71,7 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
     public VmsPublisherService(Context context, VmsHalService hal) {
         mContext = context;
         mHal = hal;
-        mPublisherManager = new VmsPublisherManager(this);
+        mPublisherManager = new VmsPublisherManager(this, context, new Handler());
     }
 
     // Implements CarServiceBase interface.
@@ -190,9 +191,18 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
         @GuardedBy("mLock")
         private final Map<String, IVmsPublisherClient> mPublisherMap = new HashMap<>();
         private final WeakReference<VmsPublisherService> mPublisherService;
+        private Context mContext;
+        private Handler mHandler;
 
-        public VmsPublisherManager(VmsPublisherService publisherService) {
+
+        VmsPublisherManager(
+                VmsPublisherService publisherService, Context context, Handler handler) {
+            if (context == null) {
+                throw new IllegalArgumentException("Context is null");
+            }
             mPublisherService = new WeakReference<>(publisherService);
+            mContext = context;
+            mHandler = handler;
         }
 
         /**
@@ -215,7 +225,7 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
                 grantPermissions(name);
                 Intent intent = new Intent();
                 intent.setComponent(name);
-                PublisherConnection connection = new PublisherConnection();
+                PublisherConnection connection = new PublisherConnection(mContext, mHandler, name);
                 if (publisherService.mContext.bindServiceAsUser(intent, connection,
                         Context.BIND_AUTO_CREATE, UserHandle.SYSTEM)) {
                     mPublisherConnectionMap.put(publisherName, connection);
@@ -305,7 +315,24 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
 
         class PublisherConnection implements ServiceConnection {
 
+            private final Context mContext;
             private final IBinder mToken = new Binder();
+            private final ComponentName mName;
+            private final Handler mHandler;
+
+            PublisherConnection(Context context, Handler handler, ComponentName name) {
+                mContext = context;
+                mHandler = handler;
+                mName = name;
+            }
+
+            private final Runnable mBindRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "delayed binding for: " + mName);
+                    VmsPublisherManager.this.bind(mName);
+                }
+            };
 
             /**
              * Once the service binds to a publisher service, the publisher binder is added to
@@ -326,7 +353,7 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
                 try {
                     service.setVmsPublisherService(mToken, publisherService);
                 } catch (RemoteException e) {
-                    Log.e(TAG, "unable to configure publisher: " + name);
+                    Log.e(TAG, "unable to configure publisher: " + name, e);
                 }
             }
 
@@ -337,8 +364,16 @@ public class VmsPublisherService extends IVmsPublisherService.Stub
             public void onServiceDisconnected(ComponentName name) {
                 String publisherName = name.flattenToString();
                 Log.d(TAG, "onServiceDisconnected, name: " + publisherName);
+
+                int millisecondsToWait = mContext.getResources().getInteger(
+                        com.android.car.R.integer.millisecondsBeforeRebindToVmsPublisher);
+                if (!mName.flattenToString().equals(name.flattenToString())) {
+                    throw new IllegalArgumentException(
+                        "Mismatch on publisherConnection. Expected: " + mName + " Got: " + name);
+                }
+                mHandler.postDelayed(mBindRunnable, millisecondsToWait);
+
                 VmsPublisherManager.this.unbind(name);
-                VmsPublisherManager.this.bind(name);
             }
         }
     }
