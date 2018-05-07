@@ -23,12 +23,13 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
+
+LOCAL_USE_AAPT2 := true
+
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
 LOCAL_PACKAGE_NAME := EmbeddedKitchenSinkApp
 LOCAL_PRIVATE_PLATFORM_APIS := true
-
-LOCAL_AAPT_FLAGS := --auto-add-overlay
 
 LOCAL_MODULE_TAGS := optional
 
@@ -40,11 +41,13 @@ LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_DEX_PREOPT := false
 
+LOCAL_STATIC_ANDROID_LIBRARIES += \
+    car-service-lib-for-test
+
 LOCAL_STATIC_JAVA_LIBRARIES += \
-        android.hidl.base-V1.0-java \
-        android.hardware.automotive.vehicle-V2.0-java \
-        vehicle-hal-support-lib \
-        car-service-lib-for-test \
+    android.hidl.base-V1.0-java \
+    android.hardware.automotive.vehicle-V2.0-java \
+    vehicle-hal-support-lib
 
 LOCAL_JAVA_LIBRARIES += android.car
 
