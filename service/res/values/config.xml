@@ -60,6 +60,9 @@
         <item>"android.permission.ACCESS_FINE_LOCATION"</item>
     </string-array>
 
+    <!-- Number of milliseconds to wait before trying re-bind to a crashed publisher. -->
+    <integer name="millisecondsBeforeRebindToVmsPublisher">10000</integer>
+
     <!-- Hours of uptime (excluding sleep) after which a 1% increase in the wear of the flash
          storage in the head-unit is considered as acceptable level of wear. -->
     <integer name="acceptableHoursPerOnePercentFlashWear">70</integer>
