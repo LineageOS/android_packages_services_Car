@@ -17,7 +17,6 @@
 package com.android.car;
 
 import android.annotation.Nullable;
-import android.car.Car;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
 import android.car.drivingstate.ICarDrivingState;
@@ -53,6 +52,8 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             CarSensorManager.SENSOR_TYPE_CAR_SPEED,
             CarSensorManager.SENSOR_TYPE_GEAR};
     private CarDrivingStateEvent mCurrentDrivingState;
+    private CarSensorEvent mLastGear;
+    private CarSensorEvent mLastSpeed;
 
 
     public CarDrivingStateService(Context context, CarSensorService sensorService) {
@@ -104,7 +105,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     private synchronized void subscribeToSensors() {
         for (int sensor : mRequiredSensors) {
             mSensorService.registerOrUpdateSensorListener(sensor,
-                    CarSensorManager.SENSOR_RATE_FASTEST,
+                    CarSensorManager.SENSOR_RATE_UI,
                     mICarSensorEventListener);
         }
 
@@ -315,11 +316,41 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     @CarDrivingState
     private int inferDrivingStateLocked() {
         int drivingState = CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
-        CarSensorEvent lastGear = mSensorService.getLatestSensorEvent(
+        CarSensorEvent currentGear = mSensorService.getLatestSensorEvent(
                 CarSensorManager.SENSOR_TYPE_GEAR);
-        CarSensorEvent lastSpeed = mSensorService.getLatestSensorEvent(
+        CarSensorEvent currentSpeed = mSensorService.getLatestSensorEvent(
                 CarSensorManager.SENSOR_TYPE_CAR_SPEED);
 
+        // Ignoring data with older timestamps if we get them out of order.
+        if (currentSpeed != null) {
+            if (DBG) {
+                Log.d(TAG, "Speed: " + currentSpeed.floatValues[0] + "@" + currentSpeed.timestamp);
+            }
+            if (mLastSpeed != null && currentSpeed.timestamp < mLastSpeed.timestamp) {
+                if (DBG) {
+                    Log.d(TAG, "Ignoring speed with older timestamp:" + currentSpeed.timestamp);
+                }
+                // assign the last speed to current speed, since that has a more recent timestamp
+                // and let the logic flow through.
+                currentSpeed = mLastSpeed;
+            } else {
+                mLastSpeed = currentSpeed;
+            }
+        }
+
+        if (currentGear != null) {
+            if (DBG) {
+                Log.d(TAG, "Gear: " + currentGear.intValues[0] + "@" + currentGear.timestamp);
+            }
+            if (mLastGear != null && currentGear.timestamp < mLastGear.timestamp) {
+                if (DBG) {
+                    Log.d(TAG, "Ignoring Gear with older timestamp:" + currentGear.timestamp);
+                }
+                currentGear = mLastGear;
+            } else {
+                mLastGear = currentGear;
+            }
+        }
         /*
             Simple logic to start off deriving driving state:
             1. If gear == parked, then Driving State is parked.
@@ -329,19 +360,13 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
                 2c. if speed unavailable, then driving state is unknown
             This logic needs to be tested and iterated on.  Tracked in b/69859926
          */
-        if (lastGear != null) {
-            if (DBG) {
-                Log.d(TAG, "Last known Gear:" + lastGear.intValues[0]);
-            }
-            if (isGearInParking(lastGear)) {
+        if (currentGear != null) {
+            if (isGearInParking(currentGear)) {
                 drivingState = CarDrivingStateEvent.DRIVING_STATE_PARKED;
-            } else if (lastSpeed == null) {
+            } else if (currentSpeed == null) {
                 drivingState = CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
             } else {
-                if (DBG) {
-                    Log.d(TAG, "Speed: " + lastSpeed);
-                }
-                if (lastSpeed.floatValues[0] == 0f) {
+                if (currentSpeed.floatValues[0] == 0f) {
                     drivingState = CarDrivingStateEvent.DRIVING_STATE_IDLING;
                 } else {
                     drivingState = CarDrivingStateEvent.DRIVING_STATE_MOVING;
