@@ -29,6 +29,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -40,6 +41,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+
+import com.android.car.keventreader.EventReaderService;
+import com.android.car.keventreader.IEventCallback;
+import com.android.car.keventreader.KeypressEvent;
 
 import com.google.android.car.kitchensink.R;
 import com.google.android.collect.Lists;
@@ -68,6 +73,25 @@ public class InputTestFragment extends Fragment {
 
     private IVehicle mVehicle;
 
+    private EventReaderService mEventReaderService;
+
+    private final IEventCallback.Stub mKeypressEventHandler = new IEventCallback.Stub() {
+        private String prettyPrint(KeypressEvent event) {
+            return String.format("Event{source = %s, keycode = %s, key%s}\n",
+                event.source,
+                event.keycodeToString(),
+                event.isKeydown ? "down" : "up");
+        }
+
+        @Override
+        public void onEvent(KeypressEvent keypressEvent) throws RemoteException {
+            Log.d(TAG, "received event " + keypressEvent);
+            mInputEventsList.append(prettyPrint(keypressEvent));
+        }
+    };
+
+    private TextView mInputEventsList;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +104,12 @@ public class InputTestFragment extends Fragment {
             throw new RuntimeException("Failed to connect to IVehicle");
         }
         Log.d(TAG, "Connected to IVehicle service: " + mVehicle);
+
+        mEventReaderService = EventReaderService.tryGet();
+        Log.d(TAG, "Key Event Reader service: " + mEventReaderService);
+        if (mEventReaderService != null) {
+            mEventReaderService.registerCallback(mKeypressEventHandler);
+        }
     }
 
     @Nullable
@@ -87,6 +117,9 @@ public class InputTestFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.input_test, container, false);
+
+        mInputEventsList = view.findViewById(R.id.events_list);
+        mInputEventsList.setMovementMethod(new ScrollingMovementMethod());
 
         TextView steeringWheelLabel = new TextView(getActivity() /*context*/);
         steeringWheelLabel.setText(R.string.steering_wheel);
@@ -162,6 +195,9 @@ public class InputTestFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         mButtons.clear();
+        if (mEventReaderService != null) {
+            mEventReaderService.unregisterCallback(mKeypressEventHandler);
+        }
     }
 
     private void addButtonsToPanel(LinearLayout root, List<View> buttons) {
