@@ -58,8 +58,8 @@ public class CarUserManagerHelper {
         }
     };
 
-    public CarUserManagerHelper(Context applicationContext) {
-        mContext = applicationContext;
+    public CarUserManagerHelper(Context context) {
+        mContext = context.getApplicationContext();
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mActivityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
     }
