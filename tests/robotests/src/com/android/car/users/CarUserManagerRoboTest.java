@@ -56,6 +56,7 @@ public class CarUserManagerRoboTest {
                 RuntimeEnvironment.application.getSystemService(UserManager.class));
         when(mContext.getSystemService(Context.ACTIVITY_SERVICE)).thenReturn(
                 RuntimeEnvironment.application.getSystemService(ActivityManager.class));
+        when(mContext.getApplicationContext()).thenReturn(mContext);
         mHelper = new CarUserManagerHelper(mContext);
     }
 
