@@ -42,7 +42,7 @@
     <!--  Comma separated list of activities that will be allowed. Format of each entry is either
           to specify package name to whitelist the whole package or use format of
           "packagename/activity_classname" for tagging each activities.-->
-    <string name="activityWhitelist">com.android.systemui,com.android.car.dialer,com.android.car.hvac,com.android.car.media,com.android.car.radio,com.android.support.car.lenspicker,com.google.android.setupwizard,com.android.car.home,com.android.car.carlauncher,com.google.android.apps.gmm.fishfood,com.google.android.car.bugreport,com.android.contacts,com.google.android.car.kitchensink,com.google.android.googlequicksearchbox,com.android.settings</string>
+    <string name="activityWhitelist">com.android.systemui,com.android.car.dialer,com.android.car.hvac,com.android.car.media,com.android.car.radio,com.android.support.car.lenspicker,com.google.android.setupwizard,com.android.car.home,com.android.car.carlauncher,com.google.android.apps.gmm.fishfood,com.google.android.car.bugreport,com.android.contacts,com.google.android.car.kitchensink,com.google.android.googlequicksearchbox,com.android.settings,com.android.car.messenger</string>
     <!--  Comma separated list of activities that will be blocked during restricted state.
           Format of each entry is either to specify package name to whitelist the whole package
           or use format of "packagename/activity_classname" for tagging each activities.-->
