@@ -36,6 +36,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -46,6 +47,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         CarServiceBase {
     private static final String TAG = "CarUxR";
     private static final boolean DBG = false;
+    private static final int MAX_TRANSITION_LOG_SIZE = 20;
     private final Context mContext;
     private final CarDrivingStateService mDrivingStateService;
     private final CarSensorService mCarSensorService;
@@ -55,6 +57,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private CarUxRestrictions mCurrentUxRestrictions;
     private float mCurrentMovingSpeed;
     private boolean mFallbackToDefaults;
+    // For dumpsys logging
+    private final LinkedList<Utils.TransitionLog> mTransitionLogs = new LinkedList<>();
+
 
     public CarUxRestrictionsManagerService(Context context, CarDrivingStateService drvService,
             CarSensorService sensorService) {
@@ -244,6 +249,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 "Requires DO? " + mCurrentUxRestrictions.isRequiresDistractionOptimization());
         writer.println("Current UXR: " + mCurrentUxRestrictions.getActiveRestrictions());
         mHelper.dump(writer);
+        writer.println("UX Restriction change log:");
+        for (Utils.TransitionLog tlog : mTransitionLogs) {
+            writer.println(tlog);
+        }
     }
 
     /**
@@ -355,6 +364,17 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             // Ignore dispatching if the restrictions has not changed.
             return;
         }
+        // for dumpsys logging
+        StringBuilder extraInfo = new StringBuilder();
+        extraInfo.append(
+                mCurrentUxRestrictions.isRequiresDistractionOptimization() ? "DO -> "
+                        : "No DO -> ");
+        extraInfo.append(
+                uxRestrictions.isRequiresDistractionOptimization() ? "DO" : "No DO");
+        addTransitionLog(TAG, mCurrentUxRestrictions.getActiveRestrictions(),
+                uxRestrictions.getActiveRestrictions(), System.currentTimeMillis(),
+                extraInfo.toString());
+
         mCurrentUxRestrictions = uxRestrictions;
         if (DBG) {
             Log.d(TAG, "dispatching to " + mUxRClients.size() + " clients");
@@ -382,4 +402,14 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
         return mHelper.createUxRestrictionsEvent(requiresOpt, restrictions);
     }
+
+    private void addTransitionLog(String name, int from, int to, long timestamp, String extra) {
+        if (mTransitionLogs.size() >= MAX_TRANSITION_LOG_SIZE) {
+            mTransitionLogs.remove();
+        }
+
+        Utils.TransitionLog tLog = new Utils.TransitionLog(name, from, to, timestamp, extra);
+        mTransitionLogs.add(tLog);
+    }
+
 }
