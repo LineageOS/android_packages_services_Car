@@ -489,6 +489,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         // Note that one can not register audio mix for same bus more than once.
         for (int i = 0; i < mCarAudioDeviceInfos.size(); i++) {
             int busNumber = mCarAudioDeviceInfos.keyAt(i);
+            boolean hasContext = false;
             CarAudioDeviceInfo info = mCarAudioDeviceInfos.valueAt(i);
             AudioFormat mixFormat = new AudioFormat.Builder()
                     .setSampleRate(info.getSampleRate())
@@ -498,6 +499,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
             for (int j = 0; j < mContextToBus.size(); j++) {
                 if (mContextToBus.valueAt(j) == busNumber) {
+                    hasContext = true;
                     int contextNumber = mContextToBus.keyAt(j);
                     int[] usages = getUsagesForContext(contextNumber);
                     for (int usage : usages) {
@@ -512,12 +514,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                             + " usages: " + Arrays.toString(usages));
                 }
             }
-            AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
-                    .setFormat(mixFormat)
-                    .setDevice(info.getAudioDeviceInfo())
-                    .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
-                    .build();
-            builder.addMix(audioMix);
+            if (hasContext) {
+                // It's a valid case that an audio output bus is defined in
+                // audio_policy_configuration and no context is assigned to it.
+                // In such case, do not build a policy mix with zero rules.
+                AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
+                        .setFormat(mixFormat)
+                        .setDevice(info.getAudioDeviceInfo())
+                        .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
+                        .build();
+                builder.addMix(audioMix);
+            }
         }
 
         // 4th, attach the {@link AudioPolicyVolumeCallback}
