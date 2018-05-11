@@ -18,13 +18,13 @@ package com.android.car;
 
 import android.car.Car;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
-import android.car.storagemonitoring.IIoStatsListener;
 import android.car.storagemonitoring.ICarStorageMonitoring;
-import android.car.storagemonitoring.LifetimeWriteInfo;
-import android.car.storagemonitoring.UidIoRecord;
+import android.car.storagemonitoring.IIoStatsListener;
+import android.car.storagemonitoring.IoStats;
 import android.car.storagemonitoring.IoStatsEntry;
 import android.car.storagemonitoring.IoStatsEntry.Metrics;
-import android.car.storagemonitoring.IoStats;
+import android.car.storagemonitoring.LifetimeWriteInfo;
+import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 import android.content.ActivityNotFoundException;
@@ -37,6 +37,7 @@ import android.os.RemoteException;
 import android.util.JsonWriter;
 import android.util.Log;
 import android.util.SparseArray;
+
 import com.android.car.internal.CarPermission;
 import com.android.car.storagemonitoring.IoStatsTracker;
 import com.android.car.storagemonitoring.UidIoStatsProvider;
@@ -45,6 +46,11 @@ import com.android.car.storagemonitoring.WearHistory;
 import com.android.car.storagemonitoring.WearInformation;
 import com.android.car.storagemonitoring.WearInformationProvider;
 import com.android.car.systeminterface.SystemInterface;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -62,9 +68,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         implements CarServiceBase {
@@ -112,7 +115,9 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         Resources resources = mContext.getResources();
         mConfiguration = new Configuration(resources);
 
-        Log.d(TAG, "service configuration: " + mConfiguration);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "service configuration: " + mConfiguration);
+        }
 
         mUidIoStatsProvider = systemInterface.getUidIoStatsProvider();
         mUptimeTrackerFile = new File(systemInterface.getFilesDir(), UPTIME_TRACKER_FILENAME);
