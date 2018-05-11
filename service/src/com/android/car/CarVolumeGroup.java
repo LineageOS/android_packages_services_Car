@@ -111,7 +111,7 @@ import java.util.Arrays;
         if (info.getMinGain() < mMinGain) {
             mMinGain = info.getMinGain();
         }
-        if (mStoredGainIndex < 0) {
+        if (mStoredGainIndex < getMinGainIndex() || mStoredGainIndex > getMaxGainIndex()) {
             // We expected to load a value from last boot, but if we didn't (perhaps this is the
             // first boot ever?), then use the highest "default" we've seen to initialize
             // ourselves.
