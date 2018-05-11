@@ -80,6 +80,7 @@ public class CarUserManagerTest {
         when(mContext.getSystemService(Context.ACTIVITY_SERVICE)).thenReturn(mActivityManager);
         when(mContext.getResources())
             .thenReturn(InstrumentationRegistry.getTargetContext().getResources());
+        when(mContext.getApplicationContext()).thenReturn(mContext);
         mHelper = new CarUserManagerHelper(mContext);
 
         mCurrentProcessUser = createUserInfoForId(UserHandle.myUserId());

@@ -85,7 +85,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 mICarDrivingStateChangeEventListener);
         // subscribe to Sensor service for speed
         mCarSensorService.registerOrUpdateSensorListener(CarSensorManager.SENSOR_TYPE_CAR_SPEED,
-                CarSensorManager.SENSOR_RATE_FASTEST, mICarSensorEventListener);
+                CarSensorManager.SENSOR_RATE_UI, mICarSensorEventListener);
     }
 
     @Override
