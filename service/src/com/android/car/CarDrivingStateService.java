@@ -32,6 +32,7 @@ import android.util.Log;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -42,6 +43,7 @@ import java.util.List;
 public class CarDrivingStateService extends ICarDrivingState.Stub implements CarServiceBase {
     private static final String TAG = "CarDrivingState";
     private static final boolean DBG = false;
+    private static final int MAX_TRANSITION_LOG_SIZE = 20;
     private final Context mContext;
     private CarSensorService mSensorService;
     // List of clients listening to driving state events.
@@ -54,7 +56,8 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     private CarDrivingStateEvent mCurrentDrivingState;
     private CarSensorEvent mLastGear;
     private CarSensorEvent mLastSpeed;
-
+    // For dumpsys logging
+    private final LinkedList<Utils.TransitionLog> mTransitionLogs = new LinkedList<>();
 
     public CarDrivingStateService(Context context, CarSensorService sensorService) {
         mContext = context;
@@ -254,7 +257,11 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
 
     @Override
     public void dump(PrintWriter writer) {
-
+        writer.println("Driving state chane log:");
+        for (Utils.TransitionLog tLog : mTransitionLogs) {
+            writer.println(tLog);
+        }
+        writer.println("Current Driving State: " + mCurrentDrivingState.eventValue);
     }
 
     /**
@@ -291,6 +298,8 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
                 if (drivingState == mCurrentDrivingState.eventValue) {
                     break;
                 }
+                addTransitionLog(TAG, mCurrentDrivingState.eventValue, drivingState,
+                        System.currentTimeMillis());
                 // Update if there is a change in state.
                 mCurrentDrivingState = createDrivingStateEvent(drivingState);
 
@@ -304,6 +313,15 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             default:
                 break;
         }
+    }
+
+    private void addTransitionLog(String name, int from, int to, long timestamp) {
+        if (mTransitionLogs.size() >= MAX_TRANSITION_LOG_SIZE) {
+            mTransitionLogs.remove();
+        }
+
+        Utils.TransitionLog tLog = new Utils.TransitionLog(name, from, to, timestamp);
+        mTransitionLogs.add(tLog);
     }
 
     /**
@@ -388,4 +406,5 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     private static CarDrivingStateEvent createDrivingStateEvent(int eventValue) {
         return new CarDrivingStateEvent(eventValue, SystemClock.elapsedRealtimeNanos());
     }
+
 }
