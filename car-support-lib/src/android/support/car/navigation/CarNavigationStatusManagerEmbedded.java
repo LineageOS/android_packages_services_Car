@@ -30,6 +30,33 @@ public class CarNavigationStatusManagerEmbedded extends CarNavigationStatusManag
         mManager = (android.car.navigation.CarNavigationStatusManager) manager;
     }
 
+    /**
+     * @param status new instrument cluster navigation status.
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
+     */
+    @Override
+    public void sendNavigationStatus(int status) throws CarNotConnectedException {
+        // Not implemented in embedded.
+    }
+
+    @Override
+    public void sendNavigationTurnEvent(int event, CharSequence eventName, int turnAngle,
+            int turnNumber, int turnSide) throws CarNotConnectedException {
+        // Not implemented in embedded.
+    }
+
+    @Override
+    public void sendNavigationTurnEvent(int event, CharSequence eventName, int turnAngle,
+            int turnNumber, Bitmap image, int turnSide) throws CarNotConnectedException {
+        // Not implemented in embedded.
+    }
+
+    @Override
+    public void sendNavigationTurnDistanceEvent(int distanceMeters, int timeSeconds,
+            int displayDistanceMillis, int displayDistanceUnit) throws CarNotConnectedException {
+        // Not implemented in embedded.
+    }
+
     @Override
     public void sendEvent(int eventType, Bundle bundle) throws CarNotConnectedException {
         try {
