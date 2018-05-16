@@ -16,6 +16,9 @@
 
 # Common make file for all car builds
 
+BOARD_PLAT_PUBLIC_SEPOLICY_DIR += packages/services/Car/car_product/sepolicy/public
+BOARD_PLAT_PRIVATE_SEPOLICY_DIR += packages/services/Car/car_product/sepolicy/private
+
 PRODUCT_PACKAGES += \
     Bluetooth \
     OneTimeInitializer \
@@ -40,6 +43,8 @@ PRODUCT_PACKAGES += \
     DirectRenderingClusterSample \
     com.android.car.powertestservice \
 
+# SEPolicy for test apps / services
+BOARD_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
 endif
 
 PRODUCT_COPY_FILES := \
