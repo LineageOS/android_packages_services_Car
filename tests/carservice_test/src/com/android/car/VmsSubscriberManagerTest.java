@@ -19,7 +19,6 @@ package com.android.car;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import android.car.Car;
 import android.car.VehicleAreaType;
@@ -37,21 +36,18 @@ import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.os.SystemClock;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
-
 import android.util.Log;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -99,6 +95,14 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     private Semaphore mHalHandlerSemaphore;
     // Used to block until a value is propagated to the TestClientCallback.onVmsMessageReceived.
     private Semaphore mSubscriberSemaphore;
+    private Executor mExecutor;
+
+    private class ThreadPerTaskExecutor implements Executor {
+        public void execute(Runnable r) {
+            new Thread(r).start();
+        }
+    }
+
 
     @Override
     protected synchronized void configureMockedHal() {
@@ -111,6 +115,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
     @Override
     public void setUp() throws Exception {
+        mExecutor = new ThreadPerTaskExecutor();
         super.setUp();
         mSubscriberSemaphore = new Semaphore(0);
         mHalHandlerSemaphore = new Semaphore(0);
@@ -122,7 +127,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
 
         // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
@@ -152,7 +157,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
 
         // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
@@ -180,7 +185,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
 
         // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
@@ -210,7 +215,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
         vmsSubscriberManager.unsubscribe(SUBSCRIPTION_LAYER);
 
@@ -238,7 +243,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
 
         // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
@@ -265,7 +270,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
         vmsSubscriberManager.unsubscribe(SUBSCRIPTION_LAYER, PUBLISHER_ID);
 
@@ -293,7 +298,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
         vmsSubscriberManager.startMonitoring();
 
         // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
@@ -323,7 +328,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
 
         // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChanged.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
@@ -368,7 +373,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
         vmsSubscriberManager.subscribe(SUBSCRIPTION_LAYER);
 
         // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChanged.
@@ -408,14 +413,14 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     }
 
     // Test injecting a value in the HAL and verifying it does not propagates to a subscriber after
-    // it has unregistered its callback.
+    // it has cleared its callback.
     @Test
-    public void testSimpleAvailableLayersAfterUnregister() throws Exception {
+    public void testSimpleAvailableLayersAfterClear() throws Exception {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
-        vmsSubscriberManager.unregisterClientCallback();
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
+        vmsSubscriberManager.clearVmsSubscriberClientCallback();
 
 
         // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChanged.
@@ -456,7 +461,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
 
         // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChanged.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
@@ -550,7 +555,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
 
         // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChanged.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
@@ -628,7 +633,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         VmsSubscriberManager vmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         TestClientCallback clientCallback = new TestClientCallback();
-        vmsSubscriberManager.registerClientCallback(clientCallback);
+        vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, clientCallback);
 
         // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChanged.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
