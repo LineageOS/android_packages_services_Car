@@ -49,7 +49,6 @@ public class VehiclePropConfigBuilder {
         newConfig.prop = propConfig.prop;
         newConfig.access = propConfig.access;
         newConfig.changeMode = propConfig.changeMode;
-        newConfig.configFlags = propConfig.configFlags;
         newConfig.configString = propConfig.configString;
         newConfig.minSampleRate = propConfig.minSampleRate;
         newConfig.maxSampleRate = propConfig.maxSampleRate;
@@ -78,12 +77,6 @@ public class VehiclePropConfigBuilder {
     @CheckResult
     public VehiclePropConfigBuilder setChangeMode(int changeMode) {
         mConfig.changeMode = changeMode;
-        return this;
-    }
-
-    @CheckResult
-    public VehiclePropConfigBuilder setConfigFlags(int configFlags) {
-        mConfig.configFlags = configFlags;
         return this;
     }
 
