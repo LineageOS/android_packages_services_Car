@@ -781,7 +781,7 @@ public final class Car {
                 manager = new CarTestManagerBinderWrapper(binder);
                 break;
             case VMS_SUBSCRIBER_SERVICE:
-                manager = new VmsSubscriberManager(binder, mEventHandler);
+                manager = new VmsSubscriberManager(binder);
                 break;
             case BLUETOOTH_SERVICE:
                 manager = new CarBluetoothManager(binder, mContext);

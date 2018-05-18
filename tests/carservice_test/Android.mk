@@ -44,7 +44,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += car-service-lib-for-test \
                                mockito-target-inline \
                                android-support-test \
                                android.hardware.automotive.vehicle-V2.0-java \
-                               com.android.car.test.utils
+                               com.android.car.test.utils \
+                               truth-prebuilt
 
 LOCAL_JAVA_LIBRARIES := android.car android.test.runner android.test.base
 

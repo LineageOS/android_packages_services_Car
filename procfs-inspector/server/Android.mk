@@ -18,9 +18,6 @@ LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 
-BOARD_SEPOLICY_DIRS += \
-    packages/services/Car/procfs-inspector/server/sepolicy
-
 LOCAL_SRC_FILES := \
     main.cpp \
     server.cpp \

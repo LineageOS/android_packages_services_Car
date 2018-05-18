@@ -964,15 +964,14 @@ package android.car.vms {
   }
 
   public final class VmsSubscriberManager {
-    ctor public VmsSubscriberManager(android.os.IBinder, android.os.Handler);
+    method public void clearVmsSubscriberClientCallback() throws android.car.CarNotConnectedException;
     method public android.car.vms.VmsAvailableLayers getAvailableLayers() throws android.car.CarNotConnectedException, java.lang.IllegalStateException;
     method public byte[] getPublisherInfo(int) throws android.car.CarNotConnectedException, java.lang.IllegalStateException;
-    method public void registerClientCallback(android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback) throws android.car.CarNotConnectedException;
+    method public void setVmsSubscriberClientCallback(java.util.concurrent.Executor, android.car.vms.VmsSubscriberManager.VmsSubscriberClientCallback) throws android.car.CarNotConnectedException;
     method public void startMonitoring() throws android.car.CarNotConnectedException;
     method public void stopMonitoring();
     method public void subscribe(android.car.vms.VmsLayer) throws android.car.CarNotConnectedException;
     method public void subscribe(android.car.vms.VmsLayer, int) throws android.car.CarNotConnectedException;
-    method public void unregisterClientCallback() throws android.car.CarNotConnectedException;
     method public void unsubscribe(android.car.vms.VmsLayer);
     method public void unsubscribe(android.car.vms.VmsLayer, int);
   }

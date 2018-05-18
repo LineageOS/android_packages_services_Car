@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -84,6 +85,14 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
     // Used to block until a value is propagated to the TestClientCallback.onVmsMessageReceived.
     private Semaphore mSubscriberSemaphore;
     private Semaphore mAvailabilitySemaphore;
+    private Executor mExecutor;
+
+    private class ThreadPerTaskExecutor implements Executor {
+        public void execute(Runnable r) {
+            new Thread(r).start();
+        }
+    }
+
 
     @Override
     protected synchronized void configureMockedHal() {
@@ -114,6 +123,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
 
     @Override
     public void setUp() throws Exception {
+        mExecutor = new ThreadPerTaskExecutor();
         super.setUp();
         mSubscriberSemaphore = new Semaphore(0);
         mAvailabilitySemaphore = new Semaphore(0);
@@ -121,7 +131,7 @@ public class VmsPublisherSubscriberTest extends MockedCarTestBase {
         mVmsSubscriberManager = (VmsSubscriberManager) getCar().getCarManager(
                 Car.VMS_SUBSCRIBER_SERVICE);
         mClientCallback = new TestClientCallback();
-        mVmsSubscriberManager.registerClientCallback(mClientCallback);
+        mVmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, mClientCallback);
         mVmsSubscriberManager.subscribe(LAYER);
     }
 
