@@ -52,9 +52,6 @@
     <!--  The com.android.car.VmsPublisherService will bind to this list of clients -->
     <string-array translatable="false" name="vmsPublisherClients">
     </string-array>
-    <!--  System privileged packages in this list can access the VMS subscribers API -->
-    <string-array translatable="false" name="allowedVmsSubscriberClients">
-    </string-array>
     <!--  Permissions that the com.android.car.VmsPublisherService is allowed to grant to publishers -->
     <string-array translatable="false" name="vmsSafePermissions">
         <item>"android.permission.ACCESS_FINE_LOCATION"</item>
