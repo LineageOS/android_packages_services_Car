@@ -129,17 +129,17 @@ public class HvacTestFragment extends Fragment {
                             mTbRecirc.setChecked((boolean)value.getValue());
                             break;
                         case CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT:
-                            if ((zones & mZoneForFanSpeed) != 0) {
+                            if ((zones & mZoneForFanSpeed) == mZoneForFanSpeed) {
                                 mCurFanSpeed = (int)value.getValue();
                                 mTvFanSpeed.setText(String.valueOf(mCurFanSpeed));
                             }
                             break;
                         case CarHvacManager.ID_ZONED_TEMP_SETPOINT:
-                            if ((zones & mZoneForSetTempD) != 0) {
+                            if ((zones & mZoneForSetTempD) == mZoneForSetTempD) {
                                 mCurDTemp = (float)value.getValue();
                                 mTvDTemp.setText(String.valueOf(mCurDTemp));
                             }
-                            if ((zones & mZoneForSetTempP) != 0) {
+                            if ((zones & mZoneForSetTempP) == mZoneForSetTempP) {
                                 mCurPTemp = (float)value.getValue();
                                 mTvPTemp.setText(String.valueOf(mCurPTemp));
                             }
@@ -416,12 +416,14 @@ public class HvacTestFragment extends Fragment {
             mTempStep = 0.5f;
         }
         mZoneForSetTempD = 0;
-        if (prop.hasArea(VehicleAreaSeat.ROW_1_LEFT)) {
-            mZoneForSetTempD = VehicleAreaSeat.ROW_1_LEFT;
+        if (prop.hasArea(VehicleAreaSeat.ROW_1_LEFT | VehicleAreaSeat.ROW_2_LEFT
+                         | VehicleAreaSeat.ROW_2_CENTER)) {
+            mZoneForSetTempD = VehicleAreaSeat.ROW_1_LEFT | VehicleAreaSeat.ROW_2_LEFT
+                    | VehicleAreaSeat.ROW_2_CENTER;
         }
         mZoneForSetTempP = 0;
-        if (prop.hasArea(VehicleAreaSeat.ROW_1_RIGHT)) {
-            mZoneForSetTempP = VehicleAreaSeat.ROW_1_RIGHT;
+        if (prop.hasArea(VehicleAreaSeat.ROW_1_RIGHT | VehicleAreaSeat.ROW_2_RIGHT)) {
+            mZoneForSetTempP = VehicleAreaSeat.ROW_1_RIGHT | VehicleAreaSeat.ROW_2_RIGHT;
         }
         int[] areas = prop.getAreaIds();
         if (mZoneForSetTempD == 0 && areas.length > 1) {
