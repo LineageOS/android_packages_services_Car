@@ -40,10 +40,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
-import com.android.car.hal.SensorBase;
 import com.android.car.hal.SensorHalService;
-import com.android.car.hal.SensorHalService.SensorListener;
-import com.android.car.hal.SensorHalServiceBase;
 import com.android.internal.annotations.GuardedBy;
 
 import com.google.android.collect.Lists;
@@ -60,37 +57,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class CarSensorService extends ICarSensor.Stub
         implements CarServiceBase, SensorHalService.SensorListener {
-
-    /**
-     * <pre>
-     * Abstraction for logical sensor which is not physical sensor but presented
-     * as sensor to upper layer. Currently {@link CarSensorManager#SENSOR_TYPE_NIGHT}
-     * falls into this category.
-     * Implementation can call {@link CarSensorService#onSensorData(CarSensorEvent)} when there
-     * is state change for the given sensor after {@link SensorHalServiceBase#init()}
-     * is called.
-     * </pre>
-     */
-    public static abstract class LogicalSensor implements SensorBase {
-        private final LinkedList<CarSensorEvent> mDispatchQ = new LinkedList<>();
-
-        /** Sensor service is ready and all vehicle sensors are available. */
-        public abstract void onSensorServiceReady();
-
-        /**
-         * Utility to help service to send one event as listener only takes list form.
-         * @param listener
-         * @param event
-         *
-         */
-        protected void dispatchCarSensorEvent(SensorListener listener, CarSensorEvent event) {
-            synchronized (mDispatchQ) {
-                mDispatchQ.add(event);
-                listener.onSensorEvents(mDispatchQ);
-                mDispatchQ.clear();
-            }
-        }
-    }
 
     /**
      * When set, sensor service sets its own dispatching rate limit.
@@ -168,7 +134,8 @@ public class CarSensorService extends ICarSensor.Stub
             event = new CarSensorEvent(CarSensorManager.SENSOR_TYPE_NIGHT, 0, 0, 1, 0);
             event.intValues[0] = 1; // 1 means night mode!
         }
-        Log.i(CarLog.TAG_SENSOR, "initial daynight: " + event.intValues[0]);
+        Log.i(CarLog.TAG_SENSOR, "initial daynight: " +
+            (event.intValues[0] == 1 ? "Night" : "Day"));
 
         return event;
     }

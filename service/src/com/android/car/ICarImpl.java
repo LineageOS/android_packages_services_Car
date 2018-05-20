@@ -276,6 +276,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarDrivingStateService;
             case Car.CAR_UX_RESTRICTION_SERVICE:
                 return mCarUXRestrictionsService;
+            case Car.CAR_CONFIGURATION_SERVICE:
+                return mCarConfigurationService;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:" + serviceName);
                 return null;
