@@ -45,7 +45,6 @@ public class CarPropertyConfig<T> implements Parcelable {
     private final int mAreaType;
     private final int mChangeMode;
     private final ArrayList<Integer> mConfigArray;
-    private final int mConfigFlags;
     private final String mConfigString;
     private final float mMaxSampleRate;
     private final float mMinSampleRate;
@@ -54,14 +53,13 @@ public class CarPropertyConfig<T> implements Parcelable {
     private final Class<T> mType;
 
     private CarPropertyConfig(int access, int areaType, int changeMode,
-            ArrayList<Integer> configArray, int configFlags, String configString,
+            ArrayList<Integer> configArray, String configString,
             float maxSampleRate, float minSampleRate, int propertyId,
             SparseArray<AreaConfig<T>> supportedAreas, Class<T> type) {
         mAccess = access;
         mAreaType = areaType;
         mChangeMode = changeMode;
         mConfigArray = configArray;
-        mConfigFlags = configFlags;
         mConfigString = configString;
         mMaxSampleRate = maxSampleRate;
         mMinSampleRate = minSampleRate;
@@ -81,9 +79,6 @@ public class CarPropertyConfig<T> implements Parcelable {
     }
     public List<Integer> getConfigArray() {
         return Collections.unmodifiableList(mConfigArray);
-    }
-    public int getConfigFlags() {
-        return mConfigFlags;
     }
     public String getConfigString() {
         return mConfigString;
@@ -172,7 +167,6 @@ public class CarPropertyConfig<T> implements Parcelable {
         for (int i = 0; i < mConfigArray.size(); i++) {
             dest.writeInt(mConfigArray.get(i));
         }
-        dest.writeInt(mConfigFlags);
         dest.writeString(mConfigString);
         dest.writeFloat(mMaxSampleRate);
         dest.writeFloat(mMinSampleRate);
@@ -195,7 +189,6 @@ public class CarPropertyConfig<T> implements Parcelable {
         for (int i = 0; i < configArraySize; i++) {
             mConfigArray.add(in.readInt());
         }
-        mConfigFlags = in.readInt();
         mConfigString = in.readString();
         mMaxSampleRate = in.readFloat();
         mMinSampleRate = in.readFloat();
@@ -235,7 +228,6 @@ public class CarPropertyConfig<T> implements Parcelable {
                 + ", mAreaType=" + mAreaType
                 + ", mChangeMode=" + mChangeMode
                 + ", mConfigArray=" + mConfigArray
-                + ", mConfigFlags=" + mConfigFlags
                 + ", mConfigString=" + mConfigString
                 + ", mMaxSampleRate=" + mMaxSampleRate
                 + ", mMinSampleRate=" + mMinSampleRate
@@ -324,7 +316,6 @@ public class CarPropertyConfig<T> implements Parcelable {
         private final int mAreaType;
         private int mChangeMode;
         private final ArrayList<Integer> mConfigArray;
-        private int mConfigFlags;
         private String mConfigString;
         private float mMaxSampleRate;
         private float mMinSampleRate;
@@ -411,16 +402,6 @@ public class CarPropertyConfig<T> implements Parcelable {
         }
 
         /**
-         * Set configFlags parameter to CarPropertyConfig
-         *
-         * @return Builder<T>
-         */
-        public Builder<T> setConfigFlags(int configFlags) {
-            mConfigFlags = configFlags;
-            return this;
-        }
-
-        /**
          * Set configString parameter to CarPropertyConfig
          *
          * @return Builder<T>
@@ -452,8 +433,8 @@ public class CarPropertyConfig<T> implements Parcelable {
 
         public CarPropertyConfig<T> build() {
             return new CarPropertyConfig<>(mAccess, mAreaType, mChangeMode, mConfigArray,
-                                           mConfigFlags, mConfigString, mMaxSampleRate,
-                                           mMinSampleRate, mPropertyId, mSupportedAreas, mType);
+                                           mConfigString, mMaxSampleRate, mMinSampleRate,
+                                           mPropertyId, mSupportedAreas, mType);
         }
     }
 }

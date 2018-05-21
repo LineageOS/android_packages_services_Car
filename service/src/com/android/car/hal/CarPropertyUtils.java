@@ -117,7 +117,6 @@ import java.util.List;
                     .setAccess(p.access)
                     .setChangeMode(p.changeMode)
                     .setConfigArray(p.configArray)
-                    .setConfigFlags(p.configFlags)
                     .setConfigString(p.configString)
                     .setMaxSampleRate(p.maxSampleRate)
                     .setMinSampleRate(p.minSampleRate)
@@ -128,7 +127,6 @@ import java.util.List;
                     .setAccess(p.access)
                     .setChangeMode(p.changeMode)
                     .setConfigArray(p.configArray)
-                    .setConfigFlags(p.configFlags)
                     .setConfigString(p.configString)
                     .setMaxSampleRate(p.maxSampleRate)
                     .setMinSampleRate(p.minSampleRate);
