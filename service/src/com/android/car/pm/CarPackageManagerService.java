@@ -45,6 +45,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
+import android.text.format.DateFormat;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
@@ -76,6 +77,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     // Delimiters to parse packages and activities in the configuration XML resource.
     private static final String PACKAGE_DELIMITER = ",";
     private static final String PACKAGE_ACTIVITY_DELIMITER = "/";
+    private static final int LOG_SIZE = 20;
 
     private final Context mContext;
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
@@ -83,6 +85,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private final HandlerThread mHandlerThread;
     private final PackageHandler mHandler;
+
+    // For dumpsys logging.
+    private final LinkedList<String> mBlockedActivityLogs = new LinkedList<>();
 
     // Store the white list and black list strings from the resource file.
     private String mConfiguredWhitelist;
@@ -155,6 +160,14 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             Log.i(CarLog.TAG_PACKAGE, "policy setting from binder call, client:" + packageName);
         }
         doSetAppBlockingPolicy(packageName, policy, flags, true /*setNow*/);
+    }
+
+    /**
+     * Restarts the requested task. If task with {@code taskId} does not exist, do nothing.
+     */
+    @Override
+    public void restartTask(int taskId) {
+        mSystemActivityMonitoringService.restartTask(taskId);
     }
 
     private void doSetAppBlockingPolicy(String packageName, CarAppBlockingPolicy policy, int flags,
@@ -801,6 +814,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             writer.println("mHasParsedPackages:" + mHasParsedPackages);
             writer.println("mBootLockedIntentRx:" + mBootLockedIntentRx);
             writer.println("ActivityRestricted:" + mUxRestrictionsListener.isRestricted());
+            writer.println(String.join("\n", mBlockedActivityLogs));
             writer.print(dumpPoliciesLocked(true));
         }
     }
@@ -879,11 +893,42 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     " not allowed, will block, number of tasks in stack:" +
                     topTask.stackInfo.taskIds.length);
         }
+        StringBuilder blockedActivityLog = new StringBuilder();
         Intent newActivityIntent = new Intent();
         newActivityIntent.setComponent(mActivityBlockingActivity);
         newActivityIntent.putExtra(
                 ActivityBlockingActivity.INTENT_KEY_BLOCKED_ACTIVITY,
                 topTask.topActivity.flattenToString());
+        blockedActivityLog.append("Blocked activity ")
+                .append(topTask.topActivity.flattenToShortString())
+                .append(". Task id ").append(topTask.taskId);
+
+        // If root activity of blocked task is DO, also pass its task id into blocking activity,
+        // which uses the id to display a button for restarting the blocked task.
+        for (int i = 0; i < topTask.stackInfo.taskIds.length; i++) {
+            // topTask.taskId is the task that should be blocked.
+            if (topTask.stackInfo.taskIds[i] == topTask.taskId) {
+                // stackInfo represents an ActivityStack. Its fields taskIds and taskNames
+                // are 1:1 mapped, where taskNames is the name of root activity in this task.
+                String taskRootActivity = topTask.stackInfo.taskNames[i];
+
+                ComponentName rootActivityName = ComponentName.unflattenFromString(
+                        taskRootActivity);
+                if (isActivityDistractionOptimized(
+                        rootActivityName.getPackageName(), rootActivityName.getClassName())) {
+                    newActivityIntent.putExtra(
+                            ActivityBlockingActivity.EXTRA_BLOCKED_TASK, topTask.taskId);
+                    if (Log.isLoggable(CarLog.TAG_PACKAGE, Log.INFO)) {
+                        Log.i(CarLog.TAG_PACKAGE, "Blocked task " + topTask.taskId
+                                + " has DO root activity " + taskRootActivity);
+                    }
+                    blockedActivityLog.append(". Root DO activity ")
+                            .append(rootActivityName.flattenToShortString());
+                }
+                break;
+            }
+        }
+        addLog(blockedActivityLog.toString());
         mSystemActivityMonitoringService.blockActivity(topTask, newActivityIntent);
     }
 
@@ -923,6 +968,23 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         } catch (NameNotFoundException e) {
             return null;
         }
+    }
+
+    /**
+     * Append one line of log for dumpsys.
+     *
+     * <p>Maintains the size of log by {@link #LOG_SIZE} and appends tag and timestamp to the line.
+     */
+    private void addLog(String log) {
+        while (mBlockedActivityLogs.size() >= LOG_SIZE) {
+            mBlockedActivityLogs.remove();
+        }
+        StringBuffer sb = new StringBuffer()
+                .append(CarLog.TAG_PACKAGE).append(':')
+                .append(DateFormat.format(
+                        "MM-dd HH:mm:ss", System.currentTimeMillis())).append(": ")
+                .append(log);
+        mBlockedActivityLogs.add(sb.toString());
     }
 
     /**
