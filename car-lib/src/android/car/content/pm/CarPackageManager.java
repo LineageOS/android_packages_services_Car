@@ -27,6 +27,7 @@ import android.content.Context;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -35,6 +36,7 @@ import java.lang.annotation.RetentionPolicy;
  * Provides car specific API related with package management.
  */
 public final class CarPackageManager implements CarManagerBase {
+    private static final String TAG = "CarPackageManager";
 
     /**
      * Flag for {@link #setAppBlockingPolicy(String, CarAppBlockingPolicy, int)}. When this
@@ -119,7 +121,21 @@ public final class CarPackageManager implements CarManagerBase {
         } catch (IllegalStateException e) {
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
-            //ignore as CarApi will handle disconnection anyway.
+            // Ignore as CarApi will handle disconnection anyway.
+        }
+    }
+
+    /**
+     * Restarts the requested task. If task with {@code taskId} does not exist, do nothing.
+     *
+     * @hide
+     */
+    public void restartTask(int taskId) {
+        try {
+            mService.restartTask(taskId);
+        } catch (RemoteException e) {
+            // Ignore as CarApi will handle disconnection anyway.
+            Log.e(TAG, "Could not restart task " + taskId, e);
         }
     }
 

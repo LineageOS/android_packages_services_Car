@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!--  For permissions -->
     <!-- Permission text: can access your car's information [CHAR LIMIT=NONE] -->
     <string name="car_permission_label">Car information</string>
@@ -101,8 +101,10 @@
     <string name="car_can_bus_failure_desc">CAN bus does not respond. Unplug and plug back headunit
         box and restart the car</string>
 
-    <!--  Blocking activity: Message to show to user when an application is not allowed. [CHAR LIMIT=NONE] -->
-    <string name="activity_blocked_string">%1$s can\'t be used while driving.</string>
+    <!-- Blocking activity: Message to show to user when a feature of current application is not allowed. [CHAR LIMIT=60] -->
+    <string name="activity_blocked_string">This <xliff:g id="app_name" example="Google Maps">%1$s</xliff:g> feature can\'t be used while driving.</string>
+    <!-- Blocking activity: Button text that restarts the current blocked application. [CHAR LIMIT=10] -->
+    <string name="exit_button">OK</string>
 
     <!-- Permission text: apps can control diagnostic data [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_diag_read">Diagnostic Data</string>

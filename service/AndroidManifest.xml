@@ -253,7 +253,8 @@
         <activity android:name="com.android.car.pm.ActivityBlockingActivity"
                   android:excludeFromRecents="true"
                   android:theme="@android:style/Theme.Translucent.NoTitleBar"
-                  android:exported="false">
+                  android:exported="false"
+                  android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
