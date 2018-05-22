@@ -1239,15 +1239,10 @@ public class BluetoothDeviceConnectionPolicy {
 
         // If the device just connected to HEADSET_CLIENT profile, initiate
         // connections on PBAP & MAP profiles but let that begin after a timeout period.
-        // If this is the first time after pairing, timeout is short. This allows A2DP profile
-        // to complete its connection, so that there is no race condition between
+        // timeout allows A2DP profile to complete its connection, so that there is no race
+        // condition between
         //         Phone trying to connect on A2DP
         //         and, Car trying to connect on PBAP & MAP.
-        // If this is *not* the first time after pairing, then let timeout be a bit longer than
-        // above. The longer wait allows the normal statemachine flow work, before jumping in with
-        // this sidebar.
-        // Normal flow of state machine handles tagging (Primary/Secondary devices) better. So
-        // letting statemachine do its job is more desirable.
         if (didConnect && profileToUpdate == BluetoothProfile.HEADSET_CLIENT) {
             // Unlock the profiles PBAP, MAP in BluetoothDevicesInfo, so that they can be
             // connected on.
@@ -1260,24 +1255,12 @@ public class BluetoothDeviceConnectionPolicy {
                 }
                 devInfo.setDeviceAvailableToConnectLocked(true);
             }
-            boolean newlyPaired = mPairedButUnconnectedDevices.remove(params.getBluetoothDevice());
-            if (newlyPaired) {
-                if (DBG) {
-                    Log.d(TAG, "connect to PBAP/MAP after pairing: ");
-                }
-                mBluetoothAutoConnectStateMachine.sendMessageDelayed(
-                        BluetoothAutoConnectStateMachine.CHECK_CLIENT_PROFILES_AFTER_PAIRING,
-                        params,
-                        BluetoothAutoConnectStateMachine.CONNECT_MORE_PROFILES_SHORT_TIMEOUT_MS);
-            } else {
-                if (DBG) {
-                    Log.d(TAG, "connect to PBAP/MAP after disconnect: ");
-                }
-                mBluetoothAutoConnectStateMachine.sendMessageDelayed(
-                        BluetoothAutoConnectStateMachine.CHECK_CLIENT_PROFILES, params,
-                        BluetoothAutoConnectStateMachine.CONNECT_MORE_PROFILES_TIMEOUT_MS);
+            if (DBG) {
+                Log.d(TAG, "connect to PBAP/MAP after disconnect: ");
             }
-
+            mBluetoothAutoConnectStateMachine.sendMessageDelayed(
+                    BluetoothAutoConnectStateMachine.CHECK_CLIENT_PROFILES, params,
+                    BluetoothAutoConnectStateMachine.CONNECT_MORE_PROFILES_TIMEOUT_MS);
         }
 
         // If the connection update is on a different profile or device (a very rare possibility),
