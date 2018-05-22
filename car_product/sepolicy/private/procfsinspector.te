@@ -7,3 +7,6 @@ add_service(procfsinspector, procfsinspector_service)
 binder_use(procfsinspector)
 
 allow carservice_app procfsinspector:binder call;
+
+dontaudit procfsinspector domain:dir getattr;
+

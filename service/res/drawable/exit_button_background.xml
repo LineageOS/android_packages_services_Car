@@ -13,12 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<resources>
-    <!-- TextAppearances for ActivityBlockingActivity. -->
-    <style name="ActivityBlockingActivityText">
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/blocking_text_size</item>
-    </style>
-</resources>
-
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/exit_button_background"/>
+    <corners
+        android:radius="@dimen/exit_button_radius"/>
+</shape>

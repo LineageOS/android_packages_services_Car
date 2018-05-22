@@ -17,14 +17,6 @@
 */
 -->
 <resources>
-    <!-- Text size in ActivityBlockingActivity. -->
-    <dimen name="blocking_text_size">32sp</dimen>
     <!-- Padding of ActivityBlockingActivity. -->
-    <dimen name="blocking_activity_padding">20dp</dimen>
-    <!-- Padding of exit button in ActivityBlockingActivity. -->
-    <dimen name="exit_button_padding">16dp</dimen>
-    <!-- Radius of exit button in ActivityBlockingActivity. -->
-    <dimen name="exit_button_radius">4dp</dimen>
-    <!-- Top margin of exit button in ActivityBlockingActivity. -->
-    <dimen name="exit_button_top_margin">16dp</dimen>
+    <dimen name="blocking_activity_padding">112dp</dimen>
 </resources>
