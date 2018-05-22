@@ -2043,6 +2043,7 @@
     public static int UID_STATE_CACHED;
     public static int UID_STATE_FOREGROUND;
     public static int UID_STATE_FOREGROUND_SERVICE;
+    public static int UID_STATE_LAST_NON_RESTRICTED;
     public static int UID_STATE_PERSISTENT;
     public static int UID_STATE_TOP;
     public static int WATCH_FOREGROUND_CHANGES;
@@ -3603,6 +3604,7 @@
     public static java.lang.String EXTRA_CONTAINS_CUSTOM_VIEW;
     public static java.lang.String EXTRA_CONVERSATION_TITLE;
     public static java.lang.String EXTRA_FOREGROUND_APPS;
+    public static java.lang.String EXTRA_HIDE_SMART_REPLIES;
     public static java.lang.String EXTRA_HISTORIC_MESSAGES;
     public static java.lang.String EXTRA_INFO_TEXT;
     public static java.lang.String EXTRA_IS_GROUP_CONVERSATION;
@@ -3785,6 +3787,7 @@
     public android.app.Notification$Builder setGroup(java.lang.String);
     public android.app.Notification$Builder setGroupAlertBehavior(int);
     public android.app.Notification$Builder setGroupSummary(boolean);
+    public android.app.Notification$Builder setHideSmartReplies(boolean);
     public android.app.Notification$Builder setLargeIcon(android.graphics.Bitmap);
     public android.app.Notification$Builder setLargeIcon(android.graphics.drawable.Icon);
     public android.app.Notification$Builder setLights(int, int, int);
@@ -6042,7 +6045,9 @@
     public static java.lang.String ACTION_DEVICE_STORAGE_OK;
     public static java.lang.String ACTION_DIAL;
     public static java.lang.String ACTION_DISMISS_KEYBOARD_SHORTCUTS;
+    public static java.lang.String ACTION_DOCK_ACTIVE;
     public static java.lang.String ACTION_DOCK_EVENT;
+    public static java.lang.String ACTION_DOCK_IDLE;
     public static java.lang.String ACTION_DREAMING_STARTED;
     public static java.lang.String ACTION_DREAMING_STOPPED;
     public static java.lang.String ACTION_DYNAMIC_SENSOR_CHANGED;
@@ -12846,6 +12851,7 @@
     public static boolean isEncodingLinearPcm(int);
     public static boolean isPublicEncoding(int);
     public static boolean isValidEncoding(int);
+    public static java.lang.String toDisplayName(int);
     public static java.lang.String toLogFriendlyEncoding(int);
     public java.lang.String toLogFriendlyString();
     public java.lang.String toString();
@@ -12931,6 +12937,7 @@
     public static int SAMPLE_RATE_HZ_MAX;
     public static int SAMPLE_RATE_HZ_MIN;
     public static int SAMPLE_RATE_UNSPECIFIED;
+    public static int[] SURROUND_SOUND_ENCODING;
 }
 
 -keep class android.media.AudioGain {
@@ -15413,7 +15420,7 @@
 }
 
 -keep class android.os.storage.StorageVolume {
-    <init>(java.lang.String, java.io.File, java.lang.String, boolean, boolean, boolean, boolean, long, android.os.UserHandle, java.lang.String, java.lang.String);
+    <init>(java.lang.String, java.io.File, java.io.File, java.lang.String, boolean, boolean, boolean, boolean, long, android.os.UserHandle, java.lang.String, java.lang.String);
 
     public boolean allowMassStorage();
     public android.content.Intent createAccessIntent(java.lang.String);
@@ -15424,6 +15431,7 @@
     public java.lang.String getDescription(android.content.Context);
     public int getFatVolumeId();
     public java.lang.String getId();
+    public java.lang.String getInternalPath();
     public long getMaxFileSize();
     public android.os.UserHandle getOwner();
     public java.lang.String getPath();
@@ -16776,6 +16784,7 @@
     public long getFrameTimeNanos();
     public static android.view.Choreographer getInstance();
     public long getLastFrameTimeNanos();
+    public static android.view.Choreographer getMainThreadInstance();
     public static android.view.Choreographer getSfInstance();
     public void postCallback(int, java.lang.Runnable, java.lang.Object);
     public void postCallbackDelayed(int, java.lang.Runnable, java.lang.Object, long);
@@ -19094,6 +19103,13 @@
     public static boolean sTrimForeground;
 }
 
+-keep class android.view.ThreadedRenderer$FrameDrawingCallback {
+
+    public abstract void onFrameDraw(long);
+
+
+}
+
 -keep class android.view.TouchDelegate {
     <init>(android.graphics.Rect, android.view.View);
 
@@ -20851,6 +20867,7 @@
     public void profile();
     public void recomputeViewAttributes(android.view.View);
     public void registerAnimatingRenderNode(android.view.RenderNode);
+    public void registerRtFrameCallback(android.view.ThreadedRenderer$FrameDrawingCallback);
     public void registerVectorDrawableAnimator(android.graphics.drawable.AnimatedVectorDrawable$VectorDrawableAnimatorRT);
     public void removeWindowCallbacks(android.view.WindowCallbacks);
     public void reportActivityRelaunched();
