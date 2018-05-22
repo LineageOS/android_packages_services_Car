@@ -22,5 +22,11 @@
     <color name="activity_blocking_activity_background">#e6eeeeee</color>
 
     <!-- Color of text in blocking activity. -->
-    <color name="activity_blocking_activity_text_color">#ff212121</color>
+    <color name="blocking_text">#ff212121</color>
+
+    <!-- Background color of exit button. -->
+    <color name="exit_button_background">#ff00796b</color>
+
+    <!-- Color of exit button text. -->
+    <color name="exit_button_text">#fffafafa</color>
 </resources>
