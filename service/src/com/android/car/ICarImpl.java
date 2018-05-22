@@ -21,7 +21,6 @@ import android.app.UiModeManager;
 import android.car.Car;
 import android.car.ICar;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
-import android.car.user.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -40,7 +39,6 @@ import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.car.ICarServiceHelper;
 
@@ -83,8 +81,6 @@ public class ICarImpl extends ICar.Stub {
     private final CarDiagnosticService mCarDiagnosticService;
     private final CarStorageMonitoringService mCarStorageMonitoringService;
     private final CarConfigurationService mCarConfigurationService;
-    private final CarUserManagerHelper mCarUserManagerHelper;
-    private final CarUserService mCarUserService;
 
     private VmsSubscriberService mVmsSubscriberService;
     private VmsPublisherService mVmsPublisherService;
@@ -148,13 +144,10 @@ public class ICarImpl extends ICar.Stub {
                 systemInterface);
         mCarConfigurationService =
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
-        mCarUserManagerHelper = new CarUserManagerHelper(serviceContext);
-        mCarUserService = new CarUserService(serviceContext, mCarUserManagerHelper);
 
         // Be careful with order. Service depending on other service should be inited later.
         mAllServices = new CarServiceBase[] {
             mSystemActivityMonitoringService,
-            mCarUserService,
             mCarPowerManagementService,
             mCarSensorService,
             mCarDrivingStateService,
