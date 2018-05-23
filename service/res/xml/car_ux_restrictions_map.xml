@@ -31,7 +31,7 @@ Note:
         </DrivingState>
 
         <DrivingState car:state="idling">
-            <Restrictions car:requiresDistractionOptimization="true" car:uxr="baseline"/>
+            <Restrictions car:requiresDistractionOptimization="false" car:uxr="baseline"/>
         </DrivingState>
 
         <!-- This is to illustrate how to add multiple speed ranges.  The restrictions here
@@ -61,9 +61,9 @@ Note:
     <!-- Configure restriction parameters here-->
     <RestrictionParameters>
         <!-- Parameters to express displayed String related restrictions -->
-        <StringRestrictions car:maxLength="80"/>
+        <StringRestrictions car:maxLength="120"/>
         <!-- Parameters to express content related restrictions -->
-        <ContentRestrictions car:maxCumulativeItems="50" car:maxDepth="3"/>
+        <ContentRestrictions car:maxCumulativeItems="21" car:maxDepth="3"/>
     </RestrictionParameters>
 
 </UxRestrictions>
