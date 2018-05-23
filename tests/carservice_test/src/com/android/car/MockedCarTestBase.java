@@ -397,11 +397,6 @@ public class MockedCarTestBase {
                     return super.getSystemService(name);
             }
         }
-
-        @Override
-        public Context getApplicationContext() {
-            return this;
-        }
     }
 
     static final class MockStorageMonitoringInterface implements StorageMonitoringInterface {}

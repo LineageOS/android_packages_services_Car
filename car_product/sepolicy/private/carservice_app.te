@@ -6,7 +6,7 @@ hal_client_domain(carservice_app, hal_audiocontrol)
 hal_client_domain(carservice_app, hal_vehicle)
 
 # Allow to set boot.car_service_created property
-set_prop(carservice_app, car_prop)
+set_prop(carservice_app, system_prop)
 
 # Allow Car Service to register itself with ServiceManager
 allow carservice_app carservice_service:service_manager add;
