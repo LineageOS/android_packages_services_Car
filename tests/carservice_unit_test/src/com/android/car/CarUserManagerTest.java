@@ -57,7 +57,7 @@ import java.util.List;
  * 4. {@link CarUserManagerHelper.OnUsersUpdateListener} registers a listener for user updates.
  */
 @RunWith(AndroidJUnit4.class)
-public class CarUserManagerHelperTest {
+public class CarUserManagerTest {
     @Mock
     private Context mContext;
     @Mock
@@ -140,6 +140,34 @@ public class CarUserManagerHelperTest {
         assertThat(mHelper.getAllUsers().size()).isEqualTo(4);
         assertThat(mHelper.getAllUsers())
             .containsExactly(mCurrentProcessUser, otherUser1, otherUser2, otherUser3);
+    }
+
+    // Get all users should exclude system user by default.
+    @Test
+    public void testGetAllSwitchableUsers() {
+        UserInfo user1 = createUserInfoForId(10);
+        UserInfo user2 = createUserInfoForId(11);
+        UserInfo user3 = createUserInfoForId(12);
+
+        List<UserInfo> testUsers = new ArrayList<>();
+        testUsers.add(mSystemUser);
+        testUsers.add(user1);
+        testUsers.add(user2);
+        testUsers.add(user3);
+
+        when(mUserManager.getUsers(true)).thenReturn(new ArrayList<>(testUsers));
+
+        // Should return all 3 non-system users.
+        assertThat(mHelper.getAllUsers().size())
+                .isEqualTo(3);
+
+        when(mUserManager.getUserInfo(UserHandle.myUserId())).thenReturn(user1);
+        // Should return user 10, 11 and 12.
+        assertThat(mHelper.getAllSwitchableUsers().size())
+                .isEqualTo(3);
+        assertThat(mHelper.getAllSwitchableUsers()).contains(user1);
+        assertThat(mHelper.getAllSwitchableUsers()).contains(user2);
+        assertThat(mHelper.getAllSwitchableUsers()).contains(user3);
     }
 
     @Test
