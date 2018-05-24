@@ -63,9 +63,8 @@ public class CarUxRestrictions implements Parcelable {
 
     // Default fallback values for the restriction related parameters if the information is
     // not available from the underlying service.
-    // TODO(b/77606226): Finalize default values.
-    private static final int DEFAULT_MAX_LENGTH = 80;
-    private static final int DEFAULT_MAX_CUMULATIVE_ITEMS = 50;
+    private static final int DEFAULT_MAX_LENGTH = 120;
+    private static final int DEFAULT_MAX_CUMULATIVE_ITEMS = 21;
     private static final int DEFAULT_MAX_CONTENT_DEPTH = 3;
 
     /**
