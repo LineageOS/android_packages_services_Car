@@ -15,11 +15,18 @@
  */
 package com.google.android.car.kitchensink.input;
 
+import static android.hardware.automotive.vehicle.V2_0.SubscribeFlags.EVENTS_FROM_ANDROID;
+import static android.hardware.automotive.vehicle.V2_0.SubscribeFlags.EVENTS_FROM_CAR;
 import static android.hardware.automotive.vehicle.V2_0.VehicleDisplay.INSTRUMENT_CLUSTER;
+import static android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction.ACTION_DOWN;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.HW_KEY_INPUT;
 
 import android.annotation.Nullable;
 import android.annotation.StringRes;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
+import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
+import android.hardware.automotive.vehicle.V2_0.IVehicleCallback.Stub;
+import android.hardware.automotive.vehicle.V2_0.SubscribeOptions;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -87,8 +94,35 @@ public class InputTestFragment extends Fragment {
         @Override
         public void onEvent(KeypressEvent keypressEvent) throws RemoteException {
             Log.d(TAG, "received event " + keypressEvent);
-            mInputEventsList.append(prettyPrint(keypressEvent));
+            synchronized (mInputEventsList) {
+                mInputEventsList.append(prettyPrint(keypressEvent));
+            }
         }
+    };
+
+    private final IVehicleCallback.Stub mHalKeyEventHandler = new Stub() {
+        private String prettyPrint(VehiclePropValue event) {
+            if (event.prop != HW_KEY_INPUT) return "";
+            if (event.value == null ||
+                event.value.int32Values == null ||
+                event.value.int32Values.size() < 2) return "";
+            return String.format("Event{source = HAL, keycode = %s, key%s}\n",
+                event.value.int32Values.get(1),
+                event.value.int32Values.get(0) == ACTION_DOWN ? "down" : "up");
+        }
+
+        @Override
+        public void onPropertyEvent(ArrayList<VehiclePropValue> propValues) throws RemoteException {
+            synchronized (mInputEventsList) {
+                propValues.forEach(vpv -> mInputEventsList.append(prettyPrint(vpv)));
+            }
+        }
+
+        @Override
+        public void onPropertySet(VehiclePropValue propValue) {}
+
+        @Override
+        public void onPropertySetError(int errorCode, int propId, int areaId) {}
     };
 
     private TextView mInputEventsList;
@@ -110,6 +144,17 @@ public class InputTestFragment extends Fragment {
         Log.d(TAG, "Key Event Reader service: " + mEventReaderService);
         if (mEventReaderService != null) {
             mEventReaderService.registerCallback(mKeypressEventHandler);
+        }
+
+        SubscribeOptions subscribeOption = new SubscribeOptions();
+        subscribeOption.propId = HW_KEY_INPUT;
+        subscribeOption.flags = EVENTS_FROM_CAR | EVENTS_FROM_ANDROID;
+        ArrayList<SubscribeOptions> subscribeOptions = new ArrayList<>();
+        subscribeOptions.add(subscribeOption);
+        try {
+            mVehicle.subscribe(mHalKeyEventHandler, subscribeOptions);
+        } catch (RemoteException e) {
+            Log.e(TAG, "failed to connect to VHAL for key events", e);
         }
     }
 
@@ -178,7 +223,7 @@ public class InputTestFragment extends Fragment {
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = sGenerateFakeDataControllingProperty;
         prop.value.int32Values.addAll(Lists.newArrayList(
-                sKeyPressCommand, VehicleProperty.HW_KEY_INPUT, keyCode, targetDisplay));
+                sKeyPressCommand, HW_KEY_INPUT, keyCode, targetDisplay));
         int status;
         try {
             status = mVehicle.set(prop);
@@ -198,6 +243,11 @@ public class InputTestFragment extends Fragment {
         mButtons.clear();
         if (mEventReaderService != null) {
             mEventReaderService.unregisterCallback(mKeypressEventHandler);
+        }
+        try {
+            mVehicle.unsubscribe(mHalKeyEventHandler, HW_KEY_INPUT);
+        } catch (RemoteException e) {
+            Log.e(TAG, "failed to remove HAL registration for keypress events", e);
         }
     }
 
