@@ -29,4 +29,7 @@
 
     <!-- Color of exit button text. -->
     <color name="exit_button_text">#fffafafa</color>
+
+    <!-- Ripple color of exit button background. -->
+    <color name="ripple_background">#3d000000</color>
 </resources>

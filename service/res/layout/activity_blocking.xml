@@ -32,11 +32,6 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_marginTop="@dimen/exit_button_top_margin"
-        android:background="@drawable/exit_button_background"
-        android:paddingEnd="@dimen/exit_button_padding"
-        android:paddingStart="@dimen/exit_button_padding"
-        android:textColor="@color/exit_button_text"
-        android:textAllCaps="true"
-        android:textAppearance="@style/ActivityBlockingActivityText"
-        android:text="@string/exit_button"/>
+        android:text="@string/exit_button"
+        style="@style/ExitButtonStyle"/>
 </LinearLayout>
