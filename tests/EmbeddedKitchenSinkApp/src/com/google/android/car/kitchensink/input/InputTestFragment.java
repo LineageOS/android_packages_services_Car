@@ -48,8 +48,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.support.v4.app.Fragment;
-
 import com.android.car.keventreader.EventReaderService;
 import com.android.car.keventreader.IEventCallback;
 import com.android.car.keventreader.KeypressEvent;
@@ -74,10 +72,12 @@ public class InputTestFragment extends Fragment {
 
     private final List<View> mButtons = new ArrayList<>();
 
-    //  This is special property available only in emulated VHAL implementation.
+    // This is fake data generation property available only in emulated VHAL implementation.
     private static final int sGenerateFakeDataControllingProperty =
             0x0666 | VehiclePropertyGroup.VENDOR | VehicleArea.GLOBAL | VehiclePropertyType.MIXED;
-    private static final int sKeyPressCommand = 2;
+    // The key press command is sent with the fake data generation property. It's matching the
+    // command defined in the emulated VHAL implementation.
+    private static final int sKeyPressCommand = 100;
 
     private IVehicle mVehicle;
 
