@@ -83,11 +83,9 @@ public final class Car {
     /** Service name for {@link CarAudioManager} */
     public static final String AUDIO_SERVICE = "audio";
 
-    /**
-     * Service name for {@link CarNavigationStatusManager}
-     * @hide
-     */
+    /** Service name for {@link CarNavigationStatusManager} */
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
+
     /**
      * Service name for {@link CarInstrumentClusterManager}
      * @hide
@@ -230,7 +228,6 @@ public final class Car {
 
     /**
      * Permission necessary to use {@link CarNavigationStatusManager}.
-     * @hide
      */
     public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
             "android.car.permission.CAR_NAVIGATION_MANAGER";
