@@ -88,6 +88,15 @@ public class CarUserManagerHelper {
     }
 
     /**
+     * Gets UserInfo for the system user.
+     *
+     * @return {@link UserInfo} for the system user.
+     */
+    public UserInfo getSystemUserInfo() {
+        return mUserManager.getUserInfo(UserHandle.USER_SYSTEM);
+    }
+
+    /**
      * Gets UserInfo for the current foreground user.
      *
      * Concept of foreground user is relevant for the multi-user deployment. Foreground user
@@ -149,13 +158,22 @@ public class CarUserManagerHelper {
     }
 
     /**
+     * Temporary method: Gets all the users that includes system user.
+     *
+     * @return List of {@code UserInfo} for users that associated with a real person.
+     */
+    public List<UserInfo> getAllUsersIncludingSystemUser() {
+        return mUserManager.getUsers(/*excludeDying=*/true);
+    }
+
+    /**
      * Get all the users except system user and the one with userId passed in.
      *
      * @param userId of the user not to be returned.
      * @return All users other than user with userId.
      */
     private List<UserInfo> getAllUsersExceptSystemUserAndSpecifiedUser(int userId) {
-        List<UserInfo> users = mUserManager.getUsers(true);
+        List<UserInfo> users = mUserManager.getUsers(/*excludeDying=*/true);
 
         for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
             UserInfo userInfo = iterator.next();
