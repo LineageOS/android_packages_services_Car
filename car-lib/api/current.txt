@@ -14,12 +14,14 @@ package android.car {
     field public static final java.lang.String CAR_CONFIGURATION_SERVICE = "configuration";
     field public static final java.lang.String CAR_EXTRA_MEDIA_PACKAGE = "android.car.intent.extra.MEDIA_PACKAGE";
     field public static final java.lang.String CAR_INTENT_ACTION_MEDIA_TEMPLATE = "android.car.intent.action.MEDIA_TEMPLATE";
+    field public static final java.lang.String CAR_NAVIGATION_SERVICE = "car_navigation_service";
     field public static final java.lang.String CAR_UX_RESTRICTION_SERVICE = "uxrestriction";
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
     field public static final java.lang.String INFO_SERVICE = "info";
     field public static final java.lang.String PACKAGE_SERVICE = "package";
     field public static final java.lang.String PERMISSION_CAR_CONTROL_AUDIO_VOLUME = "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
     field public static final java.lang.String PERMISSION_CAR_INFO = "android.car.permission.CAR_INFO";
+    field public static final java.lang.String PERMISSION_CAR_NAVIGATION_MANAGER = "android.car.permission.CAR_NAVIGATION_MANAGER";
     field public static final java.lang.String PERMISSION_ENERGY = "android.car.permission.CAR_ENERGY";
     field public static final java.lang.String PERMISSION_ENERGY_PORTS = "android.car.permission.CAR_ENERGY_PORTS";
     field public static final java.lang.String PERMISSION_EXTERIOR_ENVIRONMENT = "android.car.permission.CAR_EXTERIOR_ENVIRONMENT";
