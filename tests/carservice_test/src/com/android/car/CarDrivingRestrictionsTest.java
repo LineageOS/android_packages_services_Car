@@ -17,6 +17,7 @@ package com.android.car;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -88,7 +89,6 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
                         .build());
 
         // Test Parked state and corresponding restrictions based on car_ux_restrictions_map.xml
-        //listener.reset();
         getMockedVehicleHal().injectEvent(
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
                         .addIntValue(VehicleGear.GEAR_PARK)
@@ -98,7 +98,8 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
         assertNotNull(drivingEvent);
         assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_PARKED);
 
-        // Test Idling state and corresponding restrictions based on car_ux_restrictions_map.xml
+        // Switch gear to drive.  Driving state changes to Idling but the UX restrictions don't
+        // change between parked and idling.
         listener.reset();
         getMockedVehicleHal().injectEvent(
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
@@ -108,12 +109,6 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
         drivingEvent = listener.waitForDrivingStateChange();
         assertNotNull(drivingEvent);
         assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_IDLING);
-        restrictions = listener.waitForUxRestrictionsChange();
-        assertNotNull(restrictions);
-        assertTrue(restrictions.isRequiresDistractionOptimization());
-        assertThat(restrictions.getActiveRestrictions())
-                .isEqualTo(CarUxRestrictions.UX_RESTRICTIONS_BASELINE);
-
 
         // Test Moving state and corresponding restrictions based on car_ux_restrictions_map.xml
         listener.reset();
@@ -130,6 +125,23 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
         assertTrue(restrictions.isRequiresDistractionOptimization());
         assertThat(restrictions.getActiveRestrictions())
                 .isEqualTo(CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
+
+        // Test Idling state and corresponding restrictions based on car_ux_restrictions_map.xml
+        listener.reset();
+        getMockedVehicleHal().injectEvent(
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.PERF_VEHICLE_SPEED)
+                        .addFloatValue(0.0f)
+                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                        .build());
+        drivingEvent = listener.waitForDrivingStateChange();
+        assertNotNull(drivingEvent);
+        assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_IDLING);
+        restrictions = listener.waitForUxRestrictionsChange();
+        assertNotNull(restrictions);
+        assertFalse(restrictions.isRequiresDistractionOptimization());
+        assertThat(restrictions.getActiveRestrictions())
+                .isEqualTo(CarUxRestrictions.UX_RESTRICTIONS_BASELINE);
+
     }
 
     /**
