@@ -344,9 +344,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
         }
 
         Set<IVmsSubscriberClient> subscribers;
-        synchronized (mSubscriberServiceLock) {
-            subscribers = new HashSet<>(mSubscribersManager.getListeners());
-        }
+        subscribers = new HashSet<>(mSubscribersManager.getListeners());
 
         for (IVmsSubscriberClient subscriber : subscribers) {
             try {

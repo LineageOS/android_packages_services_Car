@@ -13,7 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/exit_button_background"/>
-    <corners android:radius="@dimen/exit_button_radius"/>
-</shape>
+<ripple
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/ripple_background">
+    <item android:drawable="@drawable/exit_button_background" />
+</ripple>
