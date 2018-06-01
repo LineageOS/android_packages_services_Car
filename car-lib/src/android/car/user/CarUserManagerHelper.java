@@ -25,6 +25,7 @@ import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
@@ -46,6 +47,7 @@ import java.util.List;
  */
 public class CarUserManagerHelper {
     private static final String TAG = "CarUserManagerHelper";
+    private static final String HEADLESS_SYSTEM_USER = "android.car.systemuser.headless";
     private final Context mContext;
     private final UserManager mUserManager;
     private final ActivityManager mActivityManager;
@@ -85,6 +87,15 @@ public class CarUserManagerHelper {
      */
     public void unregisterOnUsersUpdateListener() {
         unregisterReceiver();
+    }
+
+    /**
+     * Returns {@code true} if the system is in the headless user 0 model.
+     *
+     * @return {@boolean true} if headless system user.
+     */
+    public boolean isHeadlessSystemUser() {
+        return SystemProperties.getBoolean(HEADLESS_SYSTEM_USER, false);
     }
 
     /**
@@ -145,7 +156,11 @@ public class CarUserManagerHelper {
      * @return List of {@code UserInfo} for each user that is not the foreground user.
      */
     public List<UserInfo> getAllSwitchableUsers() {
-        return getAllUsersExceptSystemUserAndSpecifiedUser(getCurrentForegroundUserId());
+        if (isHeadlessSystemUser()) {
+            return getAllUsersExceptSystemUserAndSpecifiedUser(getCurrentForegroundUserId());
+        } else {
+            return getAllUsersExceptSpecifiedUser(getCurrentForegroundUserId());
+        }
     }
 
     /**
@@ -154,7 +169,11 @@ public class CarUserManagerHelper {
      * @return List of {@code UserInfo} for users that associated with a real person.
      */
     public List<UserInfo> getAllUsers() {
-        return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
+        if (isHeadlessSystemUser()) {
+            return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
+        } else {
+            return mUserManager.getUsers(/* excludeDying= */true);
+        }
     }
 
     /**
@@ -163,17 +182,36 @@ public class CarUserManagerHelper {
      * @return List of {@code UserInfo} for users that associated with a real person.
      */
     public List<UserInfo> getAllUsersIncludingSystemUser() {
-        return mUserManager.getUsers(/*excludeDying=*/true);
+        return mUserManager.getUsers(/* excludeDying= */true);
+    }
+
+    /**
+     * Get all the users except the one with userId passed in.
+     *
+     * @param userId of the user not to be returned.
+     * @return All users other than user with userId.
+     */
+    private List<UserInfo> getAllUsersExceptSpecifiedUser(int userId) {
+        List<UserInfo> users = mUserManager.getUsers(/* excludeDying= */true);
+
+        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
+            UserInfo userInfo = iterator.next();
+            if (userInfo.id == userId) {
+                // Remove user with userId from the list.
+                iterator.remove();
+            }
+        }
+        return users;
     }
 
     /**
      * Get all the users except system user and the one with userId passed in.
      *
      * @param userId of the user not to be returned.
-     * @return All users other than user with userId.
+     * @return All users other than system user and user with userId.
      */
     private List<UserInfo> getAllUsersExceptSystemUserAndSpecifiedUser(int userId) {
-        List<UserInfo> users = mUserManager.getUsers(/*excludeDying=*/true);
+        List<UserInfo> users = mUserManager.getUsers(/* excludeDying= */true);
 
         for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
             UserInfo userInfo = iterator.next();
@@ -380,6 +418,20 @@ public class CarUserManagerHelper {
     }
 
     /**
+     * Switches (logs in) to another user given user id.
+     *
+     * @param id User id to switch to.
+     * @return {@code true} if user switching succeed.
+     */
+    public boolean switchToUserId(int id) {
+        if (id == UserHandle.USER_SYSTEM && isHeadlessSystemUser()) {
+            // System User doesn't associate with real person, can not be switched to.
+            return false;
+        }
+        return mActivityManager.switchUser(id);
+    }
+
+    /**
      * Switches (logs in) to another user.
      *
      * @param userInfo User to switch to.
@@ -491,14 +543,6 @@ public class CarUserManagerHelper {
                 ? getGuestDefaultIcon() : getUserDefaultIcon(userInfo);
         mUserManager.setUserIcon(userInfo.id, bitmap);
         return bitmap;
-    }
-
-    private boolean switchToUserId(int id) {
-        if (id == UserHandle.USER_SYSTEM) {
-            // System User doesn't associate with real person, can not be switched to.
-            return false;
-        }
-        return mActivityManager.switchUser(id);
     }
 
     private void unregisterReceiver() {
