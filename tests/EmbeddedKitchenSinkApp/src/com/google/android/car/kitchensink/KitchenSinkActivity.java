@@ -18,6 +18,7 @@ package com.google.android.car.kitchensink;
 
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.property.CarPropertyManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -49,6 +50,7 @@ import com.google.android.car.kitchensink.job.JobSchedulerFragment;
 import com.google.android.car.kitchensink.notification.NotificationFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
+import com.google.android.car.kitchensink.property.PropertyTestFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
 import com.google.android.car.kitchensink.setting.CarServiceSettingsActivity;
 import com.google.android.car.kitchensink.storagelifetime.StorageLifetimeFragment;
@@ -152,6 +154,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
             add("notification", NotificationFragment.class);
             add("orientation test", OrientationTestFragment.class);
             add("power test", PowerTestFragment.class);
+            add("property test", PropertyTestFragment.class);
             add("sensors", SensorsTestFragment.class);
             add("storage lifetime", StorageLifetimeFragment.class);
             add("touch test", TouchTestFragment.class);
@@ -176,6 +179,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private Car mCarApi;
     private CarHvacManager mHvacManager;
     private CarPowerManager mPowerManager;
+    private CarPropertyManager mPropertyManager;
     private CarSensorManager mCarSensorManager;
     private CarAppFocusManager mCarAppFocusManager;
 
@@ -193,6 +197,10 @@ public class KitchenSinkActivity extends CarDrawerActivity {
 
     public CarPowerManager getPowerManager() {
         return mPowerManager;
+    }
+
+    public CarPropertyManager getPropertyManager() {
+        return mPropertyManager;
     }
 
     @Override
@@ -270,6 +278,8 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 mHvacManager = (CarHvacManager) mCarApi.getCarManager(android.car.Car.HVAC_SERVICE);
                 mPowerManager = (CarPowerManager) mCarApi.getCarManager(
                     android.car.Car.POWER_SERVICE);
+                mPropertyManager = (CarPropertyManager) mCarApi.getCarManager(
+                    android.car.Car.PROPERTY_SERVICE);
                 mCarSensorManager = (CarSensorManager) mCarApi.getCarManager(Car.SENSOR_SERVICE);
                 mCarSensorManager.addListener(mListener,
                         CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,

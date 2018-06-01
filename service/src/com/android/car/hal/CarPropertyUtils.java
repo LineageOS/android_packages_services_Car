@@ -51,11 +51,15 @@ import java.util.List;
         if (Boolean.class == clazz) {
             return new CarPropertyValue<>(propertyId, areaId, status, timestamp,
                                           v.int32Values.get(0) == 1);
+        } else if (Boolean[].class == clazz) {
+            Boolean[] values = new Boolean[v.int32Values.size()];
+            int i = 0;
+            for (int val : v.int32Values) {
+                values[i] = val == 1;
+            }
+            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, values);
         } else if (String.class == clazz) {
             return new CarPropertyValue<>(propertyId, areaId, status, timestamp, v.stringValue);
-        } else if (Long.class == clazz) {
-            return new CarPropertyValue<>(propertyId, areaId, status, timestamp,
-                                          v.int64Values.get(0));
         } else if (byte[].class == clazz) {
             byte[] halData = toByteArray(v.bytes);
             return new CarPropertyValue<>(propertyId, areaId, status, timestamp, halData);
@@ -76,15 +80,23 @@ import java.util.List;
         Object o = carProp.getValue();
 
         if (o instanceof Boolean) {
-            v.int32Values.add(((Boolean )o) ? 1 : 0);
+            v.int32Values.add(((Boolean) o) ? 1 : 0);
+        } else if (o instanceof Boolean[]) {
+            for (Boolean b : (Boolean[]) o) {
+                v.int32Values.add(((Boolean) o) ? 1 : 0);
+            }
         } else if (o instanceof Integer) {
             v.int32Values.add((Integer) o);
-        } else if (o instanceof Float) {
-            v.floatValues.add((Float) o);
         } else if (o instanceof Integer[]) {
             Collections.addAll(v.int32Values, (Integer[]) o);
+        } else if (o instanceof Float) {
+            v.floatValues.add((Float) o);
         } else if (o instanceof Float[]) {
             Collections.addAll(v.floatValues, (Float[]) o);
+        } else if (o instanceof Long) {
+            v.int64Values.add((Long) o);
+        } else if (o instanceof Long[]) {
+            Collections.addAll(v.int64Values, (Long[]) o);
         } else if (o instanceof String) {
             v.stringValue = (String) o;
         } else if (o instanceof byte[]) {
@@ -203,10 +215,12 @@ import java.util.List;
     }
 
     private static List getRawValueList(Class<?> clazz, VehiclePropValue.RawValue value) {
-        if (classMatched(Float.class, clazz)) {
+        if (classMatched(Float.class, clazz) || classMatched(Float[].class, clazz)) {
             return value.floatValues;
-        } else if (classMatched(Integer.class, clazz)) {
+        } else if (classMatched(Integer.class, clazz) || classMatched(Integer[].class, clazz)) {
             return value.int32Values;
+        } else if (classMatched(Long.class, clazz) || classMatched(Long[].class, clazz)) {
+            return value.int64Values;
         } else {
             throw new IllegalArgumentException("Unexpected type: " + clazz);
         }

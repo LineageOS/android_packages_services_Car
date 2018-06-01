@@ -152,8 +152,8 @@ package android.support.car.hardware {
     method public abstract boolean isSensorSupported(int) throws android.support.car.CarNotConnectedException;
     method public abstract void removeListener(android.support.car.hardware.CarSensorManager.OnSensorChangedListener);
     method public abstract void removeListener(android.support.car.hardware.CarSensorManager.OnSensorChangedListener, int);
-    field public static final int SENSOR_RATE_FASTEST = 0; // 0x0
-    field public static final int SENSOR_RATE_NORMAL = 3; // 0x3
+    field public static final int SENSOR_RATE_FASTEST = 100; // 0x64
+    field public static final int SENSOR_RATE_NORMAL = 1; // 0x1
     field public static final int SENSOR_TYPE_ABS_ACTIVE = 24; // 0x18
     field public static final int SENSOR_TYPE_COMPASS = 1; // 0x1
     field public static final int SENSOR_TYPE_DRIVING_STATUS = 11; // 0xb

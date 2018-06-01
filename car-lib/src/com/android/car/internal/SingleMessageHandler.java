@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
+
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -60,4 +61,5 @@ public abstract class SingleMessageHandler<EventType> implements Callback {
     public void sendEvents(List<EventType> events) {
         mHandler.sendMessage(mHandler.obtainMessage(mHandledMessageWhat, events));
     }
+
 }
