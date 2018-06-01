@@ -245,20 +245,20 @@ package android.car.hardware {
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.car.hardware.CarSensorEvent> CREATOR;
-    field public static final int GEAR_DRIVE = 100; // 0x64
-    field public static final int GEAR_EIGHTH = 8; // 0x8
-    field public static final int GEAR_FIFTH = 5; // 0x5
-    field public static final int GEAR_FIRST = 1; // 0x1
-    field public static final int GEAR_FOURTH = 4; // 0x4
-    field public static final int GEAR_NEUTRAL = 0; // 0x0
-    field public static final int GEAR_NINTH = 9; // 0x9
-    field public static final int GEAR_PARK = 101; // 0x65
-    field public static final int GEAR_REVERSE = 102; // 0x66
-    field public static final int GEAR_SECOND = 2; // 0x2
-    field public static final int GEAR_SEVENTH = 7; // 0x7
-    field public static final int GEAR_SIXTH = 6; // 0x6
-    field public static final int GEAR_TENTH = 10; // 0xa
-    field public static final int GEAR_THIRD = 3; // 0x3
+    field public static final int GEAR_DRIVE = 8; // 0x8
+    field public static final int GEAR_EIGHTH = 2048; // 0x800
+    field public static final int GEAR_FIFTH = 256; // 0x100
+    field public static final int GEAR_FIRST = 16; // 0x10
+    field public static final int GEAR_FOURTH = 128; // 0x80
+    field public static final int GEAR_NEUTRAL = 1; // 0x1
+    field public static final int GEAR_NINTH = 4096; // 0x1000
+    field public static final int GEAR_PARK = 4; // 0x4
+    field public static final int GEAR_REVERSE = 2; // 0x2
+    field public static final int GEAR_SECOND = 32; // 0x20
+    field public static final int GEAR_SEVENTH = 1024; // 0x400
+    field public static final int GEAR_SIXTH = 512; // 0x200
+    field public static final int GEAR_TENTH = 8192; // 0x2000
+    field public static final int GEAR_THIRD = 64; // 0x40
     field public static final int IGNITION_STATE_ACC = 3; // 0x3
     field public static final int IGNITION_STATE_LOCK = 1; // 0x1
     field public static final int IGNITION_STATE_OFF = 2; // 0x2
@@ -293,28 +293,27 @@ package android.car.hardware {
     method public boolean registerListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int, int) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public void unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener);
     method public void unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int);
-    field public static final int SENSOR_RATE_FAST = 1; // 0x1
-    field public static final int SENSOR_RATE_FASTEST = 0; // 0x0
-    field public static final int SENSOR_RATE_NORMAL = 3; // 0x3
-    field public static final int SENSOR_RATE_UI = 2; // 0x2
-    field public static final int SENSOR_TYPE_ABS_ACTIVE = 24; // 0x18
-    field public static final int SENSOR_TYPE_CAR_SPEED = 2; // 0x2
+    field public static final int SENSOR_RATE_FAST = 10; // 0xa
+    field public static final int SENSOR_RATE_FASTEST = 100; // 0x64
+    field public static final int SENSOR_RATE_NORMAL = 1; // 0x1
+    field public static final int SENSOR_RATE_UI = 5; // 0x5
+    field public static final int SENSOR_TYPE_ABS_ACTIVE = 287310858; // 0x1120040a
+    field public static final int SENSOR_TYPE_CAR_SPEED = 291504647; // 0x11600207
     field public static final int SENSOR_TYPE_ENVIRONMENT = 12; // 0xc
-    field public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE = 31; // 0x1f
-    field public static final int SENSOR_TYPE_EV_BATTERY_LEVEL = 28; // 0x1c
-    field public static final int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED = 30; // 0x1e
-    field public static final int SENSOR_TYPE_EV_CHARGE_PORT_OPEN = 29; // 0x1d
-    field public static final int SENSOR_TYPE_FUEL_DOOR_OPEN = 27; // 0x1b
-    field public static final int SENSOR_TYPE_FUEL_LEVEL = 5; // 0x5
-    field public static final int SENSOR_TYPE_GEAR = 7; // 0x7
-    field public static final int SENSOR_TYPE_IGNITION_STATE = 22; // 0x16
-    field public static final int SENSOR_TYPE_NIGHT = 9; // 0x9
-    field public static final int SENSOR_TYPE_ODOMETER = 4; // 0x4
-    field public static final int SENSOR_TYPE_PARKING_BRAKE = 6; // 0x6
-    field public static final int SENSOR_TYPE_RPM = 3; // 0x3
-    field public static final int SENSOR_TYPE_TRACTION_CONTROL_ACTIVE = 25; // 0x19
-    field public static final int SENSOR_TYPE_VENDOR_EXTENSION_END = 1879048191; // 0x6fffffff
-    field public static final int SENSOR_TYPE_WHEEL_TICK_DISTANCE = 23; // 0x17
+    field public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE = 291504908; // 0x1160030c
+    field public static final int SENSOR_TYPE_EV_BATTERY_LEVEL = 291504905; // 0x11600309
+    field public static final int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED = 287310603; // 0x1120030b
+    field public static final int SENSOR_TYPE_EV_CHARGE_PORT_OPEN = 287310602; // 0x1120030a
+    field public static final int SENSOR_TYPE_FUEL_DOOR_OPEN = 287310600; // 0x11200308
+    field public static final int SENSOR_TYPE_FUEL_LEVEL = 291504903; // 0x11600307
+    field public static final int SENSOR_TYPE_GEAR = 289408000; // 0x11400400
+    field public static final int SENSOR_TYPE_IGNITION_STATE = 289408009; // 0x11400409
+    field public static final int SENSOR_TYPE_NIGHT = 287310855; // 0x11200407
+    field public static final int SENSOR_TYPE_ODOMETER = 291504644; // 0x11600204
+    field public static final int SENSOR_TYPE_PARKING_BRAKE = 287310850; // 0x11200402
+    field public static final int SENSOR_TYPE_RPM = 291504901; // 0x11600305
+    field public static final int SENSOR_TYPE_TRACTION_CONTROL_ACTIVE = 287310859; // 0x1120040b
+    field public static final int SENSOR_TYPE_WHEEL_TICK_DISTANCE = 290521862; // 0x11510306
   }
 
   public static abstract interface CarSensorManager.OnSensorChangedListener {
