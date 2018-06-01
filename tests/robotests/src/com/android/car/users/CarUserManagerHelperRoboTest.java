@@ -43,7 +43,7 @@ import org.robolectric.annotation.Config;
 @RunWith(CarServiceRobolectricTestRunner.class)
 @Config(shadows = { ShadowActivityManager.class,
         ShadowUserHandle.class, ShadowUserManager.class})
-public class CarUserManagerRoboTest {
+public class CarUserManagerHelperRoboTest {
     @Mock
     private Context mContext;
 
@@ -95,7 +95,7 @@ public class CarUserManagerRoboTest {
     }
 
     @Test
-    public void testGetAllUsersExcludesCurrentProcessUser() {
+    public void testGetAllUsers() {
         int currentProcessUserId = 12;
         ShadowUserManager userManager = ShadowUserManager.getShadow();
         userManager.setCurrentUser(currentProcessUserId);
@@ -111,10 +111,14 @@ public class CarUserManagerRoboTest {
         userManager.addUserInfo(otherUser1);
         userManager.addUserInfo(otherUser2);
 
-        // Should return 3 users that don't have currentProcessUser id.
-        assertThat(mHelper.getAllUsers()).hasSize(3);
-        assertThat(mHelper.getAllUsers())
-            .containsExactly(currentProcessUser, otherUser1, otherUser2);
+        if (mHelper.isHeadlessSystemUser()) {
+            // Should return 3 users that don't have system user id.
+            assertThat(mHelper.getAllUsers())
+                .containsExactly(currentProcessUser, otherUser1, otherUser2);
+        } else {
+            assertThat(mHelper.getAllUsers())
+                .containsExactly(systemUser, currentProcessUser, otherUser1, otherUser2);
+        }
     }
 
     @Test
