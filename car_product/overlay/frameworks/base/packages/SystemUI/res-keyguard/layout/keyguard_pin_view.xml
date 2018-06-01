@@ -59,10 +59,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/num_pad_key_margin"
+                android:layout_margin="@dimen/car_padding_2"
                 android:gravity="center"
                 android:textColor="@android:color/white"
-                android:textSize="@dimen/keyguard_pin_prompt_text_size"
+                android:textSize="@dimen/car_body1_size"
                 android:text="@string/keyguard_enter_your_pin" />
 
             <include
@@ -125,7 +125,7 @@
                 android:id="@+id/delete_button"
                 style="@style/NumPadKeyButton"
                 android:gravity="center_vertical"
-                android:src="@drawable/ic_backspace_black_24dp"
+                android:src="@drawable/ic_backspace"
                 android:clickable="true"
                 android:tint="@android:color/white"
                 android:background="@drawable/ripple_drawable"
@@ -137,7 +137,8 @@
             <ImageButton
                 android:id="@+id/key_enter"
                 style="@style/NumPadKeyButton"
-                android:src="@drawable/ic_done_wht"
+                android:src="@drawable/ic_done"
+                android:tint="@android:color/white"
                 android:background="@drawable/ripple_drawable"
                 android:contentDescription="@string/keyboardview_keycode_enter" />
         </GridLayout>
@@ -147,6 +148,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            style="@style/KeyguardButton"
             android:text="@string/cancel"/>
 
     </LinearLayout>
