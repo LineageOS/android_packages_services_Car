@@ -422,7 +422,6 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         assertFalse("Unexpected value", data.isNightMode);
 
         data = listener3.getLastEvent().getNightData(data);
-        listener3.reset();
         assertEquals("Unexpected event timestamp", 1001, data.timestamp);
         assertFalse("Unexpected value", data.isNightMode);
 
@@ -430,12 +429,21 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         event = mCarSensorManager.getLatestSensorEvent(CarSensorManager.SENSOR_TYPE_NIGHT);
         data = event.getNightData(data);
         assertFalse(data.isNightMode);
+
         Log.d(TAG, "Unregistering listener3");
+        listener1.reset();
+        listener2.reset();
+        listener3.reset();
         mCarSensorManager.unregisterListener(listener3);
         Log.d(TAG, "Rate changed - expect sensor restart and change event sent.");
+        value = VehiclePropValueBuilder.newBuilder(VehicleProperty.NIGHT_MODE)
+                .setTimestamp(1002)
+                .setBooleanValue(false)
+                .build();
+        getMockedVehicleHal().injectEvent(value, true);
         assertTrue(listener1.waitForSensorChange());
         assertTrue(listener2.waitForSensorChange());
-        assertFalse(listener3.waitForSensorChange(1001));
+        assertFalse(listener3.waitForSensorChange());
         listener1.reset();
         listener2.reset();
         listener3.reset();
@@ -448,8 +456,6 @@ public class CarSensorManagerTest extends MockedCarTestBase {
 
         assertTrue(listener1.waitForSensorChange());
         assertTrue(listener2.waitForSensorChange());
-        // Wait until events done
-        Thread.sleep(200L);
         listener1.reset();
         listener2.reset();
 
@@ -458,7 +464,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         assertFalse(listener3.waitForSensorChange());
 
         Log.d(TAG, "Unregistering listener2");
-        mCarSensorManager.unregisterListener(listener3);
+        mCarSensorManager.unregisterListener(listener2);
 
         Log.d(TAG, "Rate did nor change - dont expect sensor restart and change event sent.");
         assertFalse(listener1.waitForSensorChange());
