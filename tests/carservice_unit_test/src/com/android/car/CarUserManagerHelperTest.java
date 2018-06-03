@@ -31,6 +31,7 @@ import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.support.test.InstrumentationRegistry;
@@ -57,7 +58,7 @@ import java.util.List;
  * 4. {@link CarUserManagerHelper.OnUsersUpdateListener} registers a listener for user updates.
  */
 @RunWith(AndroidJUnit4.class)
-public class CarUserManagerTest {
+public class CarUserManagerHelperTest {
     @Mock
     private Context mContext;
     @Mock
@@ -101,7 +102,8 @@ public class CarUserManagerTest {
 
     // System user will not be returned when calling get all users.
     @Test
-    public void testGetAllUsers_NotReturnSystemUser() {
+    public void testHeadlessUser0GetAllUsers_NotReturnSystemUser() {
+        SystemProperties.set("android.car.systemuser.headless", "true");
         UserInfo otherUser1 = createUserInfoForId(10);
         UserInfo otherUser2 = createUserInfoForId(11);
         UserInfo otherUser3 = createUserInfoForId(12);
@@ -121,7 +123,8 @@ public class CarUserManagerTest {
     }
 
     @Test
-    public void testGetAllUsersWithActiveForegroundUser_NotReturnSystemUser() {
+    public void testHeadlessUser0GetAllUsersWithActiveForegroundUser_NotReturnSystemUser() {
+        SystemProperties.set("android.car.systemuser.headless", "true");
         mCurrentProcessUser = createUserInfoForId(10);
 
         UserInfo otherUser1 = createUserInfoForId(11);
@@ -142,7 +145,6 @@ public class CarUserManagerTest {
             .containsExactly(mCurrentProcessUser, otherUser1, otherUser2, otherUser3);
     }
 
-    // Get all users should exclude system user by default.
     @Test
     public void testGetAllSwitchableUsers() {
         UserInfo user1 = createUserInfoForId(10);
@@ -168,6 +170,30 @@ public class CarUserManagerTest {
         assertThat(mHelper.getAllSwitchableUsers()).contains(user1);
         assertThat(mHelper.getAllSwitchableUsers()).contains(user2);
         assertThat(mHelper.getAllSwitchableUsers()).contains(user3);
+    }
+
+    // Get all users for headless user 0 model should exclude system user by default.
+    @Test
+    public void testHeadlessUser0GetAllSwitchableUsers() {
+        SystemProperties.set("android.car.systemuser.headless", "true");
+        UserInfo user1 = createUserInfoForId(10);
+        UserInfo user2 = createUserInfoForId(11);
+        UserInfo user3 = createUserInfoForId(12);
+
+        List<UserInfo> testUsers = new ArrayList<>();
+        testUsers.add(mSystemUser);
+        testUsers.add(user1);
+        testUsers.add(user2);
+        testUsers.add(user3);
+
+        when(mUserManager.getUsers(true)).thenReturn(new ArrayList<>(testUsers));
+
+        // Should return all 3 non-system users.
+        assertThat(mHelper.getAllUsers()).hasSize(3);
+
+        when(mUserManager.getUserInfo(UserHandle.myUserId())).thenReturn(user1);
+        // Should return user 10, 11 and 12.
+        assertThat(mHelper.getAllSwitchableUsers()).containsExactly(user1, user2, user3);
     }
 
     @Test
@@ -341,14 +367,12 @@ public class CarUserManagerTest {
         assertThat(filterCaptor.getValue().hasAction(Intent.ACTION_USER_STOPPED)).isTrue();
         assertThat(filterCaptor.getValue().hasAction(Intent.ACTION_USER_UNLOCKED)).isTrue();
 
-
         // Verify that calling the receiver calls the listener.
         receiverCaptor.getValue().onReceive(mContext, new Intent());
         verify(mTestListener).onUsersUpdate();
 
         assertThat(permissionCaptor.getValue()).isNull();
         assertThat(handlerCaptor.getValue()).isNull();
-
 
         // Unregister the receiver.
         mHelper.unregisterOnUsersUpdateListener();
