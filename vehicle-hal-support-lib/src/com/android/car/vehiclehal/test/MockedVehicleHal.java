@@ -189,6 +189,14 @@ public class MockedVehicleHal extends IVehicle.Stub {
                 subscribers = new ArrayList<>();
                 mSubscribers.put(opt.propId, subscribers);
                 notifyAll();
+            } else {
+                for (IVehicleCallback s : subscribers) {
+                    if (callback.asBinder() == s.asBinder()) {
+                        // Remove callback that was registered previously for this property
+                        subscribers.remove(callback);
+                        break;
+                    }
+                }
             }
             subscribers.add(callback);
         }
