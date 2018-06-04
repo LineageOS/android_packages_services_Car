@@ -21,10 +21,13 @@ import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
 import android.car.drivingstate.ICarDrivingState;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
-import android.car.hardware.CarSensorEvent;
-import android.car.hardware.CarSensorManager;
-import android.car.hardware.ICarSensorEventListener;
+import android.car.hardware.CarPropertyConfig;
+import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
+import android.hardware.automotive.vehicle.V2_0.VehicleGear;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -36,66 +39,76 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A service that infers the current driving state of the vehicle.  It doesn't directly listen to
- * vehicle properties from VHAL to do so.  Instead, it computes the driving state from listening to
- * the relevant sensors from {@link CarSensorService}
+ * A service that infers the current driving state of the vehicle.  It computes the driving state
+ * from listening to relevant properties from {@link CarPropertyService}
  */
 public class CarDrivingStateService extends ICarDrivingState.Stub implements CarServiceBase {
     private static final String TAG = "CarDrivingState";
     private static final boolean DBG = false;
     private static final int MAX_TRANSITION_LOG_SIZE = 20;
+    private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz
+    private static final int NOT_RECEIVED = -1;
     private final Context mContext;
-    private CarSensorService mSensorService;
+    private CarPropertyService mPropertyService;
     // List of clients listening to driving state events.
-    private final List<DrivingStateClient> mDivingStateClients = new ArrayList<>();
-    // Array of sensors that the service needs to listen to from CarSensorService for deriving
+    private final List<DrivingStateClient> mDrivingStateClients = new ArrayList<>();
+    // Array of properties that the service needs to listen to from CarPropertyService for deriving
     // the driving state. ToDo (ramperry@) - fine tune this list - b/69859926
-    private static final int[] mRequiredSensors = {
-            CarSensorManager.SENSOR_TYPE_CAR_SPEED,
-            CarSensorManager.SENSOR_TYPE_GEAR};
+    private static final int[] REQUIRED_PROPERTIES = {
+            VehicleProperty.PERF_VEHICLE_SPEED,
+            VehicleProperty.GEAR_SELECTION};
     private CarDrivingStateEvent mCurrentDrivingState;
-    private CarSensorEvent mLastGear;
-    private CarSensorEvent mLastSpeed;
     // For dumpsys logging
     private final LinkedList<Utils.TransitionLog> mTransitionLogs = new LinkedList<>();
+    private int mLastGear;
+    private long mLastGearTimestamp = NOT_RECEIVED;
+    private float mLastSpeed;
+    private long mLastSpeedTimestamp = NOT_RECEIVED;
 
-    public CarDrivingStateService(Context context, CarSensorService sensorService) {
+    public CarDrivingStateService(Context context, CarPropertyService propertyService) {
         mContext = context;
-        mSensorService = sensorService;
+        mPropertyService = propertyService;
         mCurrentDrivingState = createDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_UNKNOWN);
     }
 
     @Override
     public void init() {
-        if (!checkSensorSupport()) {
+        if (!checkPropertySupport()) {
             Log.e(TAG, "init failure.  Driving state will always be fully restrictive");
             return;
         }
-        subscribeToSensors();
+        subscribeToProperties();
     }
 
     @Override
     public synchronized void release() {
-        for (int sensor : mRequiredSensors) {
-            mSensorService.unregisterSensorListener(sensor, mICarSensorEventListener);
+        for (int property : REQUIRED_PROPERTIES) {
+            mPropertyService.unregisterListener(property, mICarPropertyEventListener);
         }
-        for (DrivingStateClient client : mDivingStateClients) {
+        for (DrivingStateClient client : mDrivingStateClients) {
             client.listenerBinder.unlinkToDeath(client, 0);
         }
-        mDivingStateClients.clear();
+        mDrivingStateClients.clear();
         mCurrentDrivingState = createDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_UNKNOWN);
     }
 
     /**
-     * Checks if the {@link CarSensorService} supports the required sensors.
+     * Checks if the {@link CarPropertyService} supports the required properties.
      *
      * @return {@code true} if supported, {@code false} if not
      */
-    private synchronized boolean checkSensorSupport() {
-        int sensorList[] = mSensorService.getSupportedSensors();
-        for (int sensor : mRequiredSensors) {
-            if (!CarSensorManager.isSensorSupported(sensorList, sensor)) {
-                Log.e(TAG, "Required sensor not supported: " + sensor);
+    private synchronized boolean checkPropertySupport() {
+        List<CarPropertyConfig> configs = mPropertyService.getPropertyList();
+        for (int propertyId : REQUIRED_PROPERTIES) {
+            boolean found = false;
+            for (CarPropertyConfig config : configs) {
+                if (config.getPropertyId() == propertyId) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                Log.e(TAG, "Required property not supported: " + propertyId);
                 return false;
             }
         }
@@ -103,13 +116,12 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     }
 
     /**
-     * Subscribe to the {@link CarSensorService} for required sensors.
+     * Subscribe to the {@link CarPropertyService} for required sensors.
      */
-    private synchronized void subscribeToSensors() {
-        for (int sensor : mRequiredSensors) {
-            mSensorService.registerOrUpdateSensorListener(sensor,
-                    CarSensorManager.SENSOR_RATE_UI,
-                    mICarSensorEventListener);
+    private synchronized void subscribeToProperties() {
+        for (int propertyId : REQUIRED_PROPERTIES) {
+            mPropertyService.registerListener(propertyId, PROPERTY_UPDATE_RATE,
+                    mICarPropertyEventListener);
         }
 
     }
@@ -142,7 +154,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
                 Log.e(TAG, "Cannot link death recipient to binder " + e);
                 return;
             }
-            mDivingStateClients.add(client);
+            mDrivingStateClients.add(client);
         }
     }
 
@@ -158,7 +170,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             ICarDrivingStateChangeListener listener) {
         IBinder binder = listener.asBinder();
         // Find the listener by comparing the binder object they host.
-        for (DrivingStateClient client : mDivingStateClients) {
+        for (DrivingStateClient client : mDrivingStateClients) {
             if (client.isHoldingBinder(binder)) {
                 return client;
             }
@@ -186,7 +198,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             return;
         }
         listener.asBinder().unlinkToDeath(client, 0);
-        mDivingStateClients.remove(client);
+        mDrivingStateClients.remove(client);
     }
 
     /**
@@ -222,7 +234,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             }
             listenerBinder.unlinkToDeath(this, 0);
             synchronized (CarDrivingStateService.this) {
-                mDivingStateClients.remove(this);
+                mDrivingStateClients.remove(this);
             }
         }
 
@@ -265,29 +277,60 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     }
 
     /**
-     * {@link CarSensorEvent} listener registered with the {@link CarSensorService} for getting
-     * sensor change notifications.
+     * {@link CarPropertyEvent} listener registered with the {@link CarPropertyService} for getting
+     * property change notifications.
      */
-    private final ICarSensorEventListener mICarSensorEventListener =
-            new ICarSensorEventListener.Stub() {
+    private final ICarPropertyEventListener mICarPropertyEventListener =
+            new ICarPropertyEventListener.Stub() {
                 @Override
-                public void onSensorChanged(List<CarSensorEvent> events) {
-                    for (CarSensorEvent event : events) {
-                        Log.d(TAG, "Sensor Changed:" + event.sensorType);
-                        handleSensorEvent(event);
+                public void onEvent(List<CarPropertyEvent> events) throws RemoteException {
+                    for (CarPropertyEvent event : events) {
+                        handlePropertyEvent(event);
                     }
                 }
             };
 
     /**
-     * Handle the sensor events coming from the {@link CarSensorService}.
-     * Compute the driving state, map it to the corresponding UX Restrictions and dispatch the
-     * events to the registered clients.
+     * Handle events coming from {@link CarPropertyService}.  Compute the driving state, map it to
+     * the corresponding UX Restrictions and dispatch the events to the registered clients.
      */
-    private synchronized void handleSensorEvent(CarSensorEvent event) {
-        switch (event.sensorType) {
-            case CarSensorManager.SENSOR_TYPE_GEAR:
-            case CarSensorManager.SENSOR_TYPE_CAR_SPEED:
+    private synchronized void handlePropertyEvent(CarPropertyEvent event) {
+        switch (event.getEventType()) {
+            case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE:
+                CarPropertyValue value = event.getCarPropertyValue();
+                int propId = value.getPropertyId();
+                long curTimestamp = value.getTimestamp();
+                Log.d(TAG, "Property Changed: propId=" + propId);
+                switch (propId) {
+                    case VehicleProperty.PERF_VEHICLE_SPEED:
+                        float curSpeed = (Float) value.getValue();
+                        if (DBG) {
+                            Log.d(TAG, "Speed: " + curSpeed + "@" + curTimestamp);
+                        }
+                        if (curTimestamp > mLastSpeedTimestamp) {
+                            mLastSpeedTimestamp = curTimestamp;
+                            mLastSpeed = curSpeed;
+                        } else if (DBG) {
+                            Log.d(TAG, "Ignoring speed with older timestamp:" + curTimestamp);
+                        }
+                        break;
+                    case VehicleProperty.GEAR_SELECTION:
+                        int curGear = (Integer) value.getValue();
+                        if (DBG) {
+                            Log.d(TAG, "Gear: " + curGear + "@" + curTimestamp);
+                        }
+                        if (curTimestamp > mLastGearTimestamp) {
+                            mLastGearTimestamp = curTimestamp;
+                            mLastGear = (Integer) value.getValue();
+                        } else if (DBG) {
+                            Log.d(TAG, "Ignoring Gear with older timestamp:" + curTimestamp);
+                        }
+                        break;
+                    default:
+                        Log.e(TAG, "Received property event for unhandled propId=" + propId);
+                        break;
+                }
+
                 int drivingState = inferDrivingStateLocked();
                 // Check if the driving state has changed.  If it has, update our records and
                 // dispatch the new events to the listeners.
@@ -295,22 +338,21 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
                     Log.d(TAG, "Driving state new->old " + drivingState + "->"
                             + mCurrentDrivingState.eventValue);
                 }
-                if (drivingState == mCurrentDrivingState.eventValue) {
-                    break;
-                }
-                addTransitionLog(TAG, mCurrentDrivingState.eventValue, drivingState,
-                        System.currentTimeMillis());
-                // Update if there is a change in state.
-                mCurrentDrivingState = createDrivingStateEvent(drivingState);
-
-                if (DBG) {
-                    Log.d(TAG, "dispatching to " + mDivingStateClients.size() + " clients");
-                }
-                for (DrivingStateClient client : mDivingStateClients) {
-                    client.dispatchEventToClients(mCurrentDrivingState);
+                if (drivingState != mCurrentDrivingState.eventValue) {
+                    addTransitionLog(TAG, mCurrentDrivingState.eventValue, drivingState,
+                            System.currentTimeMillis());
+                    // Update if there is a change in state.
+                    mCurrentDrivingState = createDrivingStateEvent(drivingState);
+                    if (DBG) {
+                        Log.d(TAG, "dispatching to " + mDrivingStateClients.size() + " clients");
+                    }
+                    for (DrivingStateClient client : mDrivingStateClients) {
+                        client.dispatchEventToClients(mCurrentDrivingState);
+                    }
                 }
                 break;
             default:
+                // Unhandled event
                 break;
         }
     }
@@ -333,42 +375,6 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
      */
     @CarDrivingState
     private int inferDrivingStateLocked() {
-        int drivingState = CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
-        CarSensorEvent currentGear = mSensorService.getLatestSensorEvent(
-                CarSensorManager.SENSOR_TYPE_GEAR);
-        CarSensorEvent currentSpeed = mSensorService.getLatestSensorEvent(
-                CarSensorManager.SENSOR_TYPE_CAR_SPEED);
-
-        // Ignoring data with older timestamps if we get them out of order.
-        if (currentSpeed != null) {
-            if (DBG) {
-                Log.d(TAG, "Speed: " + currentSpeed.floatValues[0] + "@" + currentSpeed.timestamp);
-            }
-            if (mLastSpeed != null && currentSpeed.timestamp < mLastSpeed.timestamp) {
-                if (DBG) {
-                    Log.d(TAG, "Ignoring speed with older timestamp:" + currentSpeed.timestamp);
-                }
-                // assign the last speed to current speed, since that has a more recent timestamp
-                // and let the logic flow through.
-                currentSpeed = mLastSpeed;
-            } else {
-                mLastSpeed = currentSpeed;
-            }
-        }
-
-        if (currentGear != null) {
-            if (DBG) {
-                Log.d(TAG, "Gear: " + currentGear.intValues[0] + "@" + currentGear.timestamp);
-            }
-            if (mLastGear != null && currentGear.timestamp < mLastGear.timestamp) {
-                if (DBG) {
-                    Log.d(TAG, "Ignoring Gear with older timestamp:" + currentGear.timestamp);
-                }
-                currentGear = mLastGear;
-            } else {
-                mLastGear = currentGear;
-            }
-        }
         /*
             Simple logic to start off deriving driving state:
             1. If gear == parked, then Driving State is parked.
@@ -378,29 +384,22 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
                 2c. if speed unavailable, then driving state is unknown
             This logic needs to be tested and iterated on.  Tracked in b/69859926
          */
-        if (currentGear != null) {
-            if (isGearInParking(currentGear)) {
-                drivingState = CarDrivingStateEvent.DRIVING_STATE_PARKED;
-            } else if (currentSpeed == null) {
-                drivingState = CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
-            } else {
-                if (currentSpeed.floatValues[0] == 0f) {
-                    drivingState = CarDrivingStateEvent.DRIVING_STATE_IDLING;
-                } else {
-                    drivingState = CarDrivingStateEvent.DRIVING_STATE_MOVING;
-                }
-            }
+        if (DBG) {
+            Log.d(TAG, "Last known Gear:" + mLastGear + " Last known speed:" + mLastSpeed);
         }
-        return drivingState;
-    }
+        if (mLastGearTimestamp == NOT_RECEIVED) {
+            return CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
+        } else if (mLastGear == VehicleGear.GEAR_PARK) {
+            return CarDrivingStateEvent.DRIVING_STATE_PARKED;
+        }
 
-    private boolean isSpeedZero(CarSensorEvent event) {
-        return event.floatValues[0] == 0f;
-    }
-
-    private boolean isGearInParking(CarSensorEvent event) {
-        int gear = event.intValues[0];
-        return gear == CarSensorEvent.GEAR_PARK;
+        if (mLastSpeedTimestamp == NOT_RECEIVED) {
+            return CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
+        } else if (mLastSpeed == 0f) {
+            return CarDrivingStateEvent.DRIVING_STATE_IDLING;
+        } else {
+            return CarDrivingStateEvent.DRIVING_STATE_MOVING;
+        }
     }
 
     private static CarDrivingStateEvent createDrivingStateEvent(int eventValue) {

@@ -37,39 +37,39 @@ public class CarSensorEvent implements Parcelable {
      *  sensor type.
      *  GEAR_NEUTRAL means transmission gear is in neutral state, and the car may be moving.
      */
-    public static final int GEAR_NEUTRAL    = 0;
+    public static final int GEAR_NEUTRAL    = 0x0001;
     /**
      * intValues[0] from 1 to 99 represents transmission gear number for moving forward.
      * GEAR_FIRST is for gear number 1.
      */
-    public static final int GEAR_FIRST      = 1;
+    public static final int GEAR_FIRST      = 0x0010;
     /** Gear number 2. */
-    public static final int GEAR_SECOND     = 2;
+    public static final int GEAR_SECOND     = 0x0020;
     /** Gear number 3. */
-    public static final int GEAR_THIRD      = 3;
+    public static final int GEAR_THIRD      = 0x0040;
     /** Gear number 4. */
-    public static final int GEAR_FOURTH     = 4;
+    public static final int GEAR_FOURTH     = 0x0080;
     /** Gear number 5. */
-    public static final int GEAR_FIFTH      = 5;
+    public static final int GEAR_FIFTH      = 0x0100;
     /** Gear number 6. */
-    public static final int GEAR_SIXTH      = 6;
+    public static final int GEAR_SIXTH      = 0x0200;
     /** Gear number 7. */
-    public static final int GEAR_SEVENTH    = 7;
+    public static final int GEAR_SEVENTH    = 0x0400;
     /** Gear number 8. */
-    public static final int GEAR_EIGHTH     = 8;
+    public static final int GEAR_EIGHTH     = 0x0800;
     /** Gear number 9. */
-    public static final int GEAR_NINTH      = 9;
+    public static final int GEAR_NINTH      = 0x1000;
     /** Gear number 10. */
-    public static final int GEAR_TENTH      = 10;
+    public static final int GEAR_TENTH      = 0x2000;
     /**
      * This is for transmission without specific gear number for moving forward like CVT. It tells
      * that car is in a transmission state to move it forward.
      */
-    public static final int GEAR_DRIVE      = 100;
+    public static final int GEAR_DRIVE      = 0x0008;
     /** Gear in parking state */
-    public static final int GEAR_PARK       = 101;
+    public static final int GEAR_PARK       = 0x0004;
     /** Gear in reverse */
-    public static final int GEAR_REVERSE    = 102;
+    public static final int GEAR_REVERSE    = 0x0002;
 
     /**
      * Ignition state is unknown.

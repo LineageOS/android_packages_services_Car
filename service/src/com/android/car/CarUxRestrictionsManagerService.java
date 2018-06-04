@@ -23,10 +23,11 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.drivingstate.ICarUxRestrictionsManager;
-import android.car.hardware.CarSensorEvent;
-import android.car.hardware.CarSensorManager;
-import android.car.hardware.ICarSensorEventListener;
+import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -48,9 +49,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private static final String TAG = "CarUxR";
     private static final boolean DBG = false;
     private static final int MAX_TRANSITION_LOG_SIZE = 20;
+    private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz
     private final Context mContext;
     private final CarDrivingStateService mDrivingStateService;
-    private final CarSensorService mCarSensorService;
+    private final CarPropertyService mCarPropertyService;
     private final CarUxRestrictionsServiceHelper mHelper;
     // List of clients listening to UX restriction events.
     private final List<UxRestrictionsClient> mUxRClients = new ArrayList<>();
@@ -62,13 +64,13 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
 
     public CarUxRestrictionsManagerService(Context context, CarDrivingStateService drvService,
-            CarSensorService sensorService) {
+            CarPropertyService propertyService) {
         mContext = context;
         mDrivingStateService = drvService;
-        mCarSensorService = sensorService;
+        mCarPropertyService = propertyService;
         mHelper = new CarUxRestrictionsServiceHelper(mContext, R.xml.car_ux_restrictions_map);
         // Unrestricted until driving state information is received. During boot up, we don't want
-        // everything to be blocked until data is available from CarSensorManager.  If we start
+        // everything to be blocked until data is available from CarPropertyManager.  If we start
         // driving and we don't get speed or gear information, we have bigger problems.
         mCurrentUxRestrictions = mHelper.createUxRestrictionsEvent(false,
                 CarUxRestrictions.UX_RESTRICTIONS_BASELINE);
@@ -88,9 +90,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         // subscribe to driving State
         mDrivingStateService.registerDrivingStateChangeListener(
                 mICarDrivingStateChangeEventListener);
-        // subscribe to Sensor service for speed
-        mCarSensorService.registerOrUpdateSensorListener(CarSensorManager.SENSOR_TYPE_CAR_SPEED,
-                CarSensorManager.SENSOR_RATE_UI, mICarSensorEventListener);
+        // subscribe to property service for speed
+        mCarPropertyService.registerListener(VehicleProperty.PERF_VEHICLE_SPEED,
+                PROPERTY_UPDATE_RATE, mICarPropertyEventListener);
     }
 
     @Override
@@ -280,10 +282,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
         int drivingState = event.eventValue;
-        CarSensorEvent speed = mCarSensorService.getLatestSensorEvent(
-                CarSensorManager.SENSOR_TYPE_CAR_SPEED);
-        if (speed != null) {
-            mCurrentMovingSpeed = speed.floatValues[0];
+        CarPropertyValue value = mCarPropertyService.getProperty(VehicleProperty.PERF_VEHICLE_SPEED,
+                0);
+        if (value != null) {
+            mCurrentMovingSpeed = (Float) value.getValue();
         } else if (drivingState == CarDrivingStateEvent.DRIVING_STATE_PARKED
                 || drivingState == CarDrivingStateEvent.DRIVING_STATE_UNKNOWN) {
             // If speed is unavailable, but the driving state is parked or unknown, it can still be
@@ -303,17 +305,19 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     /**
-     * {@link CarSensorEvent} listener registered with the {@link CarSensorService} for getting
+     * {@link CarPropertyEvent} listener registered with the {@link CarPropertyService} for getting
      * speed change notifications.
      */
-    private final ICarSensorEventListener mICarSensorEventListener =
-            new ICarSensorEventListener.Stub() {
+    private final ICarPropertyEventListener mICarPropertyEventListener =
+            new ICarPropertyEventListener.Stub() {
                 @Override
-                public void onSensorChanged(List<CarSensorEvent> events) {
-                    for (CarSensorEvent event : events) {
-                        if (event != null
-                                && event.sensorType == CarSensorManager.SENSOR_TYPE_CAR_SPEED) {
-                            handleSpeedChange(event.floatValues[0]);
+                public void onEvent(List<CarPropertyEvent> events) throws RemoteException {
+                    for (CarPropertyEvent event : events) {
+                        if ((event.getEventType()
+                                == CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE)
+                                && (event.getCarPropertyValue().getPropertyId()
+                                == VehicleProperty.PERF_VEHICLE_SPEED)) {
+                            handleSpeedChange((Float) event.getCarPropertyValue().getValue());
                         }
                     }
                 }

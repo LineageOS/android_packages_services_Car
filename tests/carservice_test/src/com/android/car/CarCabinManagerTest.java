@@ -142,7 +142,9 @@ public class CarCabinManagerTest extends MockedCarTestBase {
     @Test
     public void testEvent() throws Exception {
         mCarCabinManager.registerCallback(new EventListener());
-
+        // Wait for two events generated on registration
+        assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
+        assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         // Inject a boolean event and wait for its callback in onPropertySet.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.DOOR_LOCK)
                 .setAreaId(VehicleAreaDoor.ROW_1_LEFT)
@@ -163,7 +165,6 @@ public class CarCabinManagerTest extends MockedCarTestBase {
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .addIntValue(75)
                 .build();
-
         assertEquals(0, mAvailable.availablePermits());
         getMockedVehicleHal().injectEvent(v);
 
@@ -191,6 +192,15 @@ public class CarCabinManagerTest extends MockedCarTestBase {
         @Override
         public synchronized void onPropertySubscribe(int property, float sampleRate) {
             Log.d(TAG, "onPropertySubscribe property " + property + " sampleRate " + sampleRate);
+            if (mMap.get(property) == null) {
+                Log.d(TAG, "onPropertySubscribe add dummy property: " + property);
+                VehiclePropValue dummyValue = VehiclePropValueBuilder.newBuilder(property)
+                        .setAreaId(VehicleAreaDoor.ROW_1_LEFT)
+                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                        .addIntValue(1)
+                        .build();
+                mMap.put(property, dummyValue);
+            }
         }
 
         @Override

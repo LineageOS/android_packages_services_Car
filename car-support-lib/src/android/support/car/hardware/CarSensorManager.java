@@ -215,13 +215,13 @@ public abstract class CarSensorManager implements CarManagerBase {
     public @interface SensorType {}
 
     /** Read sensor at the default normal rate set for each sensors. This is default rate. */
-    public static final int SENSOR_RATE_NORMAL  = 3;
+    public static final int SENSOR_RATE_NORMAL  = 1;
     /**@hide*/
-    public static final int SENSOR_RATE_UI = 2;
+    public static final int SENSOR_RATE_UI = 5;
     /**@hide*/
-    public static final int SENSOR_RATE_FAST = 1;
+    public static final int SENSOR_RATE_FAST = 10;
     /** Read sensor at the maximum rate. Actual rate will be different depending on the sensor. */
-    public static final int SENSOR_RATE_FASTEST = 0;
+    public static final int SENSOR_RATE_FASTEST = 100;
 
     /** @hide */
     @IntDef({
