@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import static java.lang.Integer.toHexString;
 
 import android.car.Car;
+import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback;
@@ -58,6 +59,8 @@ public class CarHvacTest extends E2eCarTestBase {
     // are in CONTINUOUS mode. They should be omitted when testing ON_CHANGE properties.
     private static final Set<Integer> CONTINUOUS_HVAC_PROPS;
 
+    private Integer mNumPropEventsToSkip;
+
     static {
         CONTINUOUS_HVAC_PROPS = new ArraySet<>();
         CONTINUOUS_HVAC_PROPS.add(VehicleProperty.ENV_OUTSIDE_TEMPERATURE);
@@ -75,7 +78,13 @@ public class CarHvacTest extends E2eCarTestBase {
         public void onChangeEvent(CarPropertyValue carPropertyValue) {
             VehiclePropValue event = Utils.fromHvacPropertyValue(carPropertyValue);
             if (!CONTINUOUS_HVAC_PROPS.contains(event.prop)) {
-                mVerifier.verify(Utils.fromHvacPropertyValue(carPropertyValue));
+                synchronized (mNumPropEventsToSkip) {
+                    if (mNumPropEventsToSkip == 0) {
+                        mVerifier.verify(Utils.fromHvacPropertyValue(carPropertyValue));
+                    } else {
+                        mNumPropEventsToSkip--;
+                    }
+                }
             }
         }
 
@@ -85,6 +94,19 @@ public class CarHvacTest extends E2eCarTestBase {
         }
     }
 
+    private Integer calculateNumPropEventsToSkip(CarHvacManager hvacMgr) {
+        int numToSkip = 0;
+        try {
+            for (CarPropertyConfig c: hvacMgr.getPropertyList()) {
+                if (!CONTINUOUS_HVAC_PROPS.contains(c.getPropertyId())) {
+                    numToSkip += c.getAreaCount();
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Unhandled exception thrown: ", e);
+        }
+        return Integer.valueOf(numToSkip);
+    }
     @Test
     public void testHvacOperations() throws Exception {
         Log.d(TAG, "Prepare HVAC test data");
@@ -93,6 +115,8 @@ public class CarHvacTest extends E2eCarTestBase {
 
         Log.d(TAG, "Start listening to the HAL");
         CarHvacManager hvacMgr = (CarHvacManager) mCar.getCarManager(Car.HVAC_SERVICE);
+        // Calculate number of properties to skip due to registration event
+        mNumPropEventsToSkip = calculateNumPropEventsToSkip(hvacMgr);
         CarHvacEventCallback callback = new CarHvacOnChangeEventListener(verifier);
         hvacMgr.registerCallback(callback);
 
@@ -106,7 +130,6 @@ public class CarHvacTest extends E2eCarTestBase {
 
         Log.d(TAG, "Send command to VHAL to stop generation");
         hvacGenerator.stop();
-
         hvacMgr.unregisterCallback(callback);
 
         assertTrue("Detected mismatched events: " + verifier.getResultString(),

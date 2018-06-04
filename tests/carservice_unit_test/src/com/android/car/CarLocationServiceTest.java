@@ -26,9 +26,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.hardware.CarPropertyValue;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
-import android.car.hardware.ICarSensorEventListener;
+import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -81,7 +83,7 @@ public class CarLocationServiceTest {
     private CountDownLatch mLatch;
     @Mock private Context mMockContext;
     @Mock private LocationManager mMockLocationManager;
-    @Mock private CarSensorService mMockCarSensorService;
+    @Mock private CarPropertyService mMockCarPropertyService;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
 
     /**
@@ -93,7 +95,7 @@ public class CarLocationServiceTest {
         mContext = InstrumentationRegistry.getTargetContext();
         mLatch = new CountDownLatch(1);
         mCarLocationService = new CarLocationService(mMockContext, mMockCarPowerManagementService,
-                mMockCarSensorService) {
+                mMockCarPropertyService) {
             @Override
             void asyncOperation(Runnable operation) {
                 super.asyncOperation(() -> {
@@ -147,8 +149,8 @@ public class CarLocationServiceTest {
         assertTrue(ArrayUtils.contains(actions, Intent.ACTION_LOCKED_BOOT_COMPLETED));
         assertTrue(ArrayUtils.contains(actions, LocationManager.MODE_CHANGED_ACTION));
         assertTrue(ArrayUtils.contains(actions, LocationManager.GPS_ENABLED_CHANGE_ACTION));
-        verify(mMockCarSensorService).registerOrUpdateSensorListener(
-                eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), eq(0), any());
+        verify(mMockCarPropertyService).registerListener(
+                eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), eq(0.0f), any());
     }
 
     /**
@@ -158,7 +160,7 @@ public class CarLocationServiceTest {
     public void testUnregistersEventReceivers() {
         mCarLocationService.release();
         verify(mMockContext).unregisterReceiver(mCarLocationService);
-        verify(mMockCarSensorService).unregisterSensorListener(
+        verify(mMockCarPropertyService).unregisterListener(
                 eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), any());
     }
 
@@ -423,15 +425,17 @@ public class CarLocationServiceTest {
 
     private void sendIgnitionOffEvent() throws RemoteException {
         mCarLocationService.init();
-        ArgumentCaptor<ICarSensorEventListener> argument =
-                ArgumentCaptor.forClass(ICarSensorEventListener.class);
-        verify(mMockCarSensorService).registerOrUpdateSensorListener(
-                eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), eq(0), argument.capture());
-        ICarSensorEventListener carSensorEventListener = argument.getValue();
-        CarSensorEvent ignitionOff = new CarSensorEvent(CarSensorManager.SENSOR_TYPE_IGNITION_STATE,
-                System.currentTimeMillis(), 0, 1, 0);
-        ignitionOff.intValues[0] = CarSensorEvent.IGNITION_STATE_OFF;
-        List<CarSensorEvent> events = new ArrayList<>(Arrays.asList(ignitionOff));
-        carSensorEventListener.onSensorChanged(events);
+        ArgumentCaptor<ICarPropertyEventListener> argument =
+                ArgumentCaptor.forClass(ICarPropertyEventListener.class);
+        verify(mMockCarPropertyService).registerListener(
+                eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), eq(0.0f), argument.capture());
+        ICarPropertyEventListener carPropertyEventListener = argument.getValue();
+        int intValues = CarSensorEvent.IGNITION_STATE_OFF;
+        CarPropertyValue ignitionOff = new CarPropertyValue(
+                CarSensorManager.SENSOR_TYPE_IGNITION_STATE, 0, 0,
+                System.currentTimeMillis(), intValues);
+        CarPropertyEvent event = new CarPropertyEvent(0, ignitionOff);
+        List<CarPropertyEvent> events = new ArrayList<>(Arrays.asList(event));
+        carPropertyEventListener.onEvent(events);
     }
 }
