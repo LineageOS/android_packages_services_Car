@@ -2067,6 +2067,7 @@
 
 -keep class android.app.AppOpsManager$OpEntry {
     <init>(int, int, long, long, int, int, java.lang.String);
+    <init>(int, int, long[], long[], int, boolean, int, java.lang.String);
     <init>(int, int, long[], long[], int, int, java.lang.String);
 
     public int describeContents();
@@ -5133,9 +5134,9 @@
     public static int SYNC_ERROR_SYNC_ALREADY_IN_PROGRESS;
     public static int SYNC_ERROR_TOO_MANY_DELETIONS;
     public static int SYNC_ERROR_TOO_MANY_RETRIES;
-    public static int SYNC_EXEMPTION_ACTIVE;
-    public static int SYNC_EXEMPTION_ACTIVE_WITH_TEMP;
     public static int SYNC_EXEMPTION_NONE;
+    public static int SYNC_EXEMPTION_PROMOTE_BUCKET;
+    public static int SYNC_EXEMPTION_PROMOTE_BUCKET_WITH_TEMP;
     public static java.lang.String SYNC_EXTRAS_ACCOUNT;
     public static java.lang.String SYNC_EXTRAS_DISALLOW_METERED;
     public static java.lang.String SYNC_EXTRAS_DISCARD_LOCAL_DELETIONS;
@@ -7645,6 +7646,7 @@
     public abstract java.lang.String[] setPackagesSuspendedAsUser(java.lang.String[], boolean, android.os.PersistableBundle, android.os.PersistableBundle, java.lang.String, java.lang.String, int);
     public abstract void setPermissionEnforced(java.lang.String, boolean);
     public abstract boolean setRequiredForSystemUser(java.lang.String, boolean);
+    public abstract boolean setSystemAppInstallState(java.lang.String, boolean, int);
     public abstract void setUpdateAvailable(java.lang.String, boolean);
     public abstract boolean shouldShowRequestPermissionRationale(java.lang.String, java.lang.String, int);
     public abstract void systemReady();
@@ -8588,6 +8590,7 @@
     public static int MATCH_DISABLED_UNTIL_USED_COMPONENTS;
     public static int MATCH_EXPLICITLY_VISIBLE_ONLY;
     public static int MATCH_FACTORY_ONLY;
+    public static int MATCH_HIDDEN_UNTIL_INSTALLED_COMPONENTS;
     public static int MATCH_INSTANT;
     public static int MATCH_KNOWN_PACKAGES;
     public static int MATCH_STATIC_SHARED_LIBRARIES;
@@ -14028,6 +14031,7 @@
     public void dump(java.io.FileDescriptor, java.lang.String[]);
     protected void dump(java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     public void dumpAsync(java.io.FileDescriptor, java.lang.String[]);
+    public static void dumpProxyDebugInfo();
     public static void enableTracing();
     public static void flushPendingCommands();
     public static int getCallingPid();
@@ -20808,7 +20812,6 @@
     public void dispatchInvalidateOnAnimation(android.view.View);
     public void dispatchInvalidateRectDelayed(android.view.View$AttachInfo$InvalidateInfo, long);
     public void dispatchInvalidateRectOnAnimation(android.view.View$AttachInfo$InvalidateInfo);
-    public boolean dispatchKeyFallbackEvent(android.view.KeyEvent);
     public void dispatchKeyFromAutofill(android.view.KeyEvent);
     public void dispatchKeyFromIme(android.view.KeyEvent);
     public void dispatchMoved(int, int);
@@ -20816,6 +20819,7 @@
     public void dispatchRequestKeyboardShortcuts(com.android.internal.os.IResultReceiver, int);
     public void dispatchSystemUiVisibilityChanged(int, int, int, int);
     public void dispatchUnhandledInputEvent(android.view.InputEvent);
+    public boolean dispatchUnhandledKeyEvent(android.view.KeyEvent);
     public void dispatchWindowShown();
     public void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     public void dumpGfxInfo(int[]);

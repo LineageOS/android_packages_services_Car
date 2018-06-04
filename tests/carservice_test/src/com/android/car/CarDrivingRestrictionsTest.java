@@ -149,7 +149,7 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
      */
     private class DrivingStateListener implements
             CarDrivingStateManager.CarDrivingStateEventListener,
-            CarUxRestrictionsManager.onUxRestrictionsChangedListener {
+            CarUxRestrictionsManager.OnUxRestrictionsChangedListener {
         private final Object mDrivingStateLock = new Object();
         @GuardedBy("mDrivingStateLock")
         private CarDrivingStateEvent mLastEvent = null;
