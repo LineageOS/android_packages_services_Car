@@ -16,7 +16,6 @@
 
 package com.android.car;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.car.VehicleAreaType;
@@ -59,7 +58,7 @@ public class VmsPublisherPermissionsTest extends MockedCarTestBase {
         addProperty(VehicleProperty.VEHICLE_MAP_SERVICE, mHalHandler)
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE)
                 .setAccess(VehiclePropertyAccess.READ_WRITE)
-                .addAreaConfig(VehicleAreaType.VEHICLE_AREA_TYPE_NONE, 0, 0);
+                .addAreaConfig(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 0, 0);
     }
 
     @Override

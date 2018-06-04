@@ -98,7 +98,7 @@ public class CarPropertyConfig<T> implements Parcelable {
 
     /** Returns true if this property doesn't hold car area-specific configuration */
     public boolean isGlobalProperty() {
-        return mAreaType == VehicleAreaType.VEHICLE_AREA_TYPE_NONE;
+        return mAreaType == VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
     }
 
     public int getAreaCount() {
