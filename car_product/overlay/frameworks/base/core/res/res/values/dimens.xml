@@ -140,5 +140,5 @@
     <dimen name="car_keyline_4">182dp</dimen>
 
     <!-- Make the dots in lock pattern thicker in Car -->
-    <dimen name="lock_pattern_dot_size">16dp</dimen>
+    <dimen name="lock_pattern_dot_size">20dp</dimen>
 </resources>
