@@ -802,7 +802,7 @@ public class VmsHalService extends HalServiceBase {
     private static VehiclePropValue toTypedVmsVehiclePropValue(int messageType) {
         VehiclePropValue vehicleProp = new VehiclePropValue();
         vehicleProp.prop = HAL_PROPERTY_ID;
-        vehicleProp.areaId = VehicleAreaType.VEHICLE_AREA_TYPE_NONE;
+        vehicleProp.areaId = VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
         VehiclePropValue.RawValue v = vehicleProp.value;
 
         v.int32Values.add(messageType);

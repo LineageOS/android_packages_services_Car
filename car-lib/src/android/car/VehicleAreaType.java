@@ -31,7 +31,7 @@ import java.lang.annotation.RetentionPolicy;
 @SystemApi
 public final class VehicleAreaType {
     /** Used for global properties */
-    public static final int VEHICLE_AREA_TYPE_NONE = 0;
+    public static final int VEHICLE_AREA_TYPE_GLOBAL = 0;
     public static final int VEHICLE_AREA_TYPE_WINDOW = 2;
     public static final int VEHICLE_AREA_TYPE_SEAT = 3;
     public static final int VEHICLE_AREA_TYPE_DOOR = 4;
@@ -41,7 +41,7 @@ public final class VehicleAreaType {
 
     /** @hide */
     @IntDef({
-        VEHICLE_AREA_TYPE_NONE,
+        VEHICLE_AREA_TYPE_GLOBAL,
         VEHICLE_AREA_TYPE_WINDOW,
         VEHICLE_AREA_TYPE_SEAT,
         VEHICLE_AREA_TYPE_DOOR,
