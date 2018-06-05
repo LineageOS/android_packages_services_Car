@@ -28,6 +28,7 @@ import android.util.ArraySet;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,41 +45,18 @@ public final class CarVendorExtensionManager implements CarManagerBase {
     private final static boolean DBG = false;
     private final static String TAG = CarVendorExtensionManager.class.getSimpleName();
     private final CarPropertyManager mPropertyManager;
-    private CarPropertyEventListenerToBase mListenerToBase = null;
 
     @GuardedBy("mLock")
     private final ArraySet<CarVendorExtensionCallback> mCallbacks = new ArraySet<>();
     private final Object mLock = new Object();
 
-    private static class CarPropertyEventListenerToBase implements
-            CarPropertyManager.CarPropertyEventListener{
-        private final WeakReference<CarVendorExtensionManager> mManager;
-
-        CarPropertyEventListenerToBase(CarVendorExtensionManager manager) {
-            mManager = new WeakReference<>(manager);
-        }
-
-        @Override
-        public void onChangeEvent(CarPropertyValue value) {
-            CarVendorExtensionManager manager = mManager.get();
-            if (manager != null) {
-                manager.handleOnChangeEvent(value);
-            }
-        }
-
-        @Override
-        public void onErrorEvent(int propertyId, int zone) {
-            CarVendorExtensionManager manager = mManager.get();
-            if (manager != null) {
-                manager.handleOnErrorEvent(propertyId, zone);
-            }
-        }
-    }
+    @GuardedBy("mLock")
+    private CarPropertyEventListenerToBase mListenerToBase = null;
 
     private void handleOnChangeEvent(CarPropertyValue value) {
         Collection<CarVendorExtensionCallback> callbacks;
-        synchronized (this) {
-            callbacks = new ArraySet<>(mCallbacks);
+        synchronized (mLock) {
+            callbacks = new ArrayList<>(mCallbacks);
         }
         for (CarVendorExtensionCallback l: callbacks) {
             l.onChangeEvent(value);
@@ -87,14 +65,13 @@ public final class CarVendorExtensionManager implements CarManagerBase {
 
     private void handleOnErrorEvent(int propertyId, int zone) {
         Collection<CarVendorExtensionCallback> listeners;
-        synchronized (this) {
-            listeners = new ArraySet<>(mCallbacks);
+        synchronized (mLock) {
+            listeners = new ArrayList<>(mCallbacks);
         }
-        if (!listeners.isEmpty()) {
-            for (CarVendorExtensionCallback l: listeners) {
-                l.onErrorEvent(propertyId, zone);
-            }
+        for (CarVendorExtensionCallback l: listeners) {
+            l.onErrorEvent(propertyId, zone);
         }
+
     }
 
     /**
@@ -241,5 +218,29 @@ public final class CarVendorExtensionManager implements CarManagerBase {
     @Override
     public void onCarDisconnected() {
         mPropertyManager.onCarDisconnected();
+    }
+    private static class CarPropertyEventListenerToBase implements
+            CarPropertyManager.CarPropertyEventListener {
+        private final WeakReference<CarVendorExtensionManager> mManager;
+
+        CarPropertyEventListenerToBase(CarVendorExtensionManager manager) {
+            mManager = new WeakReference<>(manager);
+        }
+
+        @Override
+        public void onChangeEvent(CarPropertyValue value) {
+            CarVendorExtensionManager manager = mManager.get();
+            if (manager != null) {
+                manager.handleOnChangeEvent(value);
+            }
+        }
+
+        @Override
+        public void onErrorEvent(int propertyId, int zone) {
+            CarVendorExtensionManager manager = mManager.get();
+            if (manager != null) {
+                manager.handleOnErrorEvent(propertyId, zone);
+            }
+        }
     }
 }
