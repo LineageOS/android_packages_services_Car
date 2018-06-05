@@ -315,6 +315,14 @@ public class CarUserManagerHelper {
         return mUserManager.isGuestUser();
     }
 
+    /**
+     * Check is the calling app is running as a restricted profile user (ie. a LinkedUser).
+     * Restricted profiles are only available when {@link #isHeadlessSystemUser()} is false.
+     */
+    public boolean isCurrentProcessRestrictedProfileUser() {
+        return mUserManager.isRestrictedProfile();
+    }
+
     // Current process user restriction accessors
 
     /**
