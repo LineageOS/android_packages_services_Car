@@ -177,15 +177,6 @@ public class CarUserManagerHelper {
     }
 
     /**
-     * Temporary method: Gets all the users that includes system user.
-     *
-     * @return List of {@code UserInfo} for users that associated with a real person.
-     */
-    public List<UserInfo> getAllUsersIncludingSystemUser() {
-        return mUserManager.getUsers(/* excludeDying= */true);
-    }
-
-    /**
      * Get all the users except the one with userId passed in.
      *
      * @param userId of the user not to be returned.
