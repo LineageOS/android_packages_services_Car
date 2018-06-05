@@ -171,7 +171,7 @@ import java.util.List;
     private static @VehicleAreaType.VehicleAreaTypeValue int getVehicleAreaType(int halArea) {
         switch (halArea) {
             case VehicleArea.GLOBAL:
-                return VehicleAreaType.VEHICLE_AREA_TYPE_NONE;
+                return VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
             case VehicleArea.SEAT:
                 return VehicleAreaType.VEHICLE_AREA_TYPE_SEAT;
             case VehicleArea.DOOR:
