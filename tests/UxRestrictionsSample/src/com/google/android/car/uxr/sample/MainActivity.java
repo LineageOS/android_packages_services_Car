@@ -147,7 +147,7 @@ public class MainActivity extends Activity {
         mDrvStatus.requestLayout();
     }
 
-    private CarUxRestrictionsManager.onUxRestrictionsChangedListener mUxRChangeListener =
+    private CarUxRestrictionsManager.OnUxRestrictionsChangedListener mUxRChangeListener =
             this::updateUxRText;
 
 

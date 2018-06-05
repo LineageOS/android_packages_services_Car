@@ -45,7 +45,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     private final Context mContext;
     private final ICarUxRestrictionsManager mUxRService;
     private final EventCallbackHandler mEventCallbackHandler;
-    private onUxRestrictionsChangedListener mUxRListener;
+    private OnUxRestrictionsChangedListener mUxRListener;
     private CarUxRestrictionsChangeListenerToService mListenerToService;
 
 
@@ -67,7 +67,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
      * Listener Interface for clients to implement to get updated on driving state related
      * changes.
      */
-    public interface onUxRestrictionsChangedListener {
+    public interface OnUxRestrictionsChangedListener {
         /**
          * Called when the UX restrictions due to a car's driving state changes.
          *
@@ -77,15 +77,15 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     }
 
     /**
-     * Register a {@link onUxRestrictionsChangedListener} for listening to changes in the
+     * Register a {@link OnUxRestrictionsChangedListener} for listening to changes in the
      * UX Restrictions to adhere to.
      * <p>
      * If a listener has already been registered, it has to be unregistered before registering
      * the new one.
      *
-     * @param listener {@link onUxRestrictionsChangedListener}
+     * @param listener {@link OnUxRestrictionsChangedListener}
      */
-    public synchronized void registerListener(@NonNull onUxRestrictionsChangedListener listener)
+    public synchronized void registerListener(@NonNull OnUxRestrictionsChangedListener listener)
             throws CarNotConnectedException, IllegalArgumentException {
         if (listener == null) {
             if (VDBG) {
@@ -117,7 +117,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
     }
 
     /**
-     * Unregister the registered {@link onUxRestrictionsChangedListener}
+     * Unregister the registered {@link OnUxRestrictionsChangedListener}
      */
     public synchronized void unregisterListener()
             throws CarNotConnectedException {
@@ -218,7 +218,7 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         if (restrictionInfo == null) {
             return;
         }
-        onUxRestrictionsChangedListener listener;
+        OnUxRestrictionsChangedListener listener;
         synchronized (this) {
             listener = mUxRListener;
         }
@@ -226,5 +226,35 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
             listener.onUxRestrictionsChanged(restrictionInfo);
         }
     }
+
+    /**
+     * To be removed after updating the support library with the new car stubs lib.
+     * b/80506092 has more details.
+     *
+     */
+    public interface onUxRestrictionsChangedListener {
+        /**
+         * To be removed see b/80506092 for details.
+         * @param restrictionInfo
+         */
+        void onUxRestrictionsChanged(CarUxRestrictions restrictionInfo);
+        /**
+         * Temp workaround.  To be removed.
+         * To differentiate from the new OnUxRestrictionsChangedListener for clients calling
+         * registerListener with an anonymous class or lambda functions.
+         */
+        void dummy();
+    }
+
+    /**
+     * To be removed after updating the support library with the new car stubs lib.
+     * b/80506092 has more details.
+     *
+     */
+    public synchronized void registerListener(@NonNull onUxRestrictionsChangedListener listener)
+            throws CarNotConnectedException, IllegalArgumentException {
+        // Intentionally left NOP.
+    }
+
 
 }
