@@ -367,14 +367,12 @@ public class CarUserManagerHelperTest {
         assertThat(filterCaptor.getValue().hasAction(Intent.ACTION_USER_STOPPED)).isTrue();
         assertThat(filterCaptor.getValue().hasAction(Intent.ACTION_USER_UNLOCKED)).isTrue();
 
-
         // Verify that calling the receiver calls the listener.
         receiverCaptor.getValue().onReceive(mContext, new Intent());
         verify(mTestListener).onUsersUpdate();
 
         assertThat(permissionCaptor.getValue()).isNull();
         assertThat(handlerCaptor.getValue()).isNull();
-
 
         // Unregister the receiver.
         mHelper.unregisterOnUsersUpdateListener();
