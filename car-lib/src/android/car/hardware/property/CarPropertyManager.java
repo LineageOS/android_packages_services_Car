@@ -30,7 +30,7 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.android.car.internal.CarRatedListeners2;
+import com.android.car.internal.CarRatedFloatListeners;
 import com.android.car.internal.SingleMessageHandler;
 
 import java.lang.ref.WeakReference;
@@ -370,7 +370,7 @@ public class CarPropertyManager implements CarManagerBase {
     }
 
 
-    private class CarPropertyListeners extends CarRatedListeners2<CarPropertyEventListener> {
+    private class CarPropertyListeners extends CarRatedFloatListeners<CarPropertyEventListener> {
         CarPropertyListeners(float rate) {
             super(rate);
         }
