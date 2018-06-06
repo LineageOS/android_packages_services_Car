@@ -325,9 +325,15 @@ public final class CarSensorManager implements CarManagerBase {
         return new int[0];
     }
 
-    private List<CarPropertyConfig> getPropertyList() throws CarNotConnectedException {
+    /**
+     * Get list of properties represented by CarSensorManager for this car.
+     * @return List of CarPropertyConfig objects available via Car Cabin Manager.
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
+     */
+    public List<CarPropertyConfig> getPropertyList() throws CarNotConnectedException {
         return mCarPropertyMgr.getPropertyList(mSensorConfigIds);
     }
+
     /**
      * Tells if given sensor is supported or not.
      * @param sensorType
