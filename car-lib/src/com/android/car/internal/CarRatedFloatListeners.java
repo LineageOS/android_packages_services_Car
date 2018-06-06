@@ -23,22 +23,24 @@ import java.util.Map;
 
 /**
  * Represent listeners for a property grouped by their rate.
- * @param <EventListenerType>
+ * T is a type of EventListener such as CarPropertyEventListener
+ * in {@link android.car.hardware.property.CarPropertyManager}
+ * @param <T>
  * @hide
  */
-public class CarRatedListeners2<EventListenerType> {
-    private final Map<EventListenerType, Float> mListenersToRate = new HashMap<>(4);
+public class CarRatedFloatListeners<T> {
+    private final Map<T, Float> mListenersToRate = new HashMap<>(4);
 
     private float mUpdateRate;
 
     protected long mLastUpdateTime = -1;
 
-    protected CarRatedListeners2(float rate) {
+    protected CarRatedFloatListeners(float rate) {
         mUpdateRate = rate;
     }
 
     /** Check listener */
-    public boolean contains(EventListenerType listener) {
+    public boolean contains(T listener) {
         return mListenersToRate.containsKey(listener);
     }
     /** Return current rate after updating */
@@ -52,7 +54,7 @@ public class CarRatedListeners2<EventListenerType> {
      * @param listener
      * @return true if rate was updated. Otherwise, returns false.
      */
-    public boolean remove(EventListenerType listener) {
+    public boolean remove(T listener) {
         mListenersToRate.remove(listener);
         if (mListenersToRate.isEmpty()) {
             return false;
@@ -76,7 +78,7 @@ public class CarRatedListeners2<EventListenerType> {
      * @param updateRate
      * @return true if rate was updated. Otherwise, returns false.
      */
-    public boolean addAndUpdateRate(EventListenerType listener, float updateRate) {
+    public boolean addAndUpdateRate(T listener, float updateRate) {
         Float oldUpdateRate = mListenersToRate.put(listener, updateRate);
         if (mUpdateRate < updateRate) {
             mUpdateRate = updateRate;
@@ -87,7 +89,7 @@ public class CarRatedListeners2<EventListenerType> {
         return false;
     }
 
-    public Collection<EventListenerType> getListeners() {
+    public Collection<T> getListeners() {
         return mListenersToRate.keySet();
     }
 }
