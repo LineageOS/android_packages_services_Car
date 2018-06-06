@@ -177,15 +177,6 @@ public class CarUserManagerHelper {
     }
 
     /**
-     * Temporary method: Gets all the users that includes system user.
-     *
-     * @return List of {@code UserInfo} for users that associated with a real person.
-     */
-    public List<UserInfo> getAllUsersIncludingSystemUser() {
-        return mUserManager.getUsers(/* excludeDying= */true);
-    }
-
-    /**
      * Get all the users except the one with userId passed in.
      *
      * @param userId of the user not to be returned.
@@ -313,6 +304,14 @@ public class CarUserManagerHelper {
      */
     public boolean isCurrentProcessGuestUser() {
         return mUserManager.isGuestUser();
+    }
+
+    /**
+     * Check is the calling app is running as a restricted profile user (ie. a LinkedUser).
+     * Restricted profiles are only available when {@link #isHeadlessSystemUser()} is false.
+     */
+    public boolean isCurrentProcessRestrictedProfileUser() {
+        return mUserManager.isRestrictedProfile();
     }
 
     // Current process user restriction accessors
