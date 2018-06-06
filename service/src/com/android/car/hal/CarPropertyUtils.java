@@ -53,9 +53,8 @@ import java.util.List;
                                           v.int32Values.get(0) == 1);
         } else if (Boolean[].class == clazz) {
             Boolean[] values = new Boolean[v.int32Values.size()];
-            int i = 0;
-            for (int val : v.int32Values) {
-                values[i] = val == 1;
+            for (int i = 0; i < values.length; i++) {
+                values[i] = v.int32Values.get(i) == 1;
             }
             return new CarPropertyValue<>(propertyId, areaId, status, timestamp, values);
         } else if (String.class == clazz) {
@@ -63,6 +62,12 @@ import java.util.List;
         } else if (byte[].class == clazz) {
             byte[] halData = toByteArray(v.bytes);
             return new CarPropertyValue<>(propertyId, areaId, status, timestamp, halData);
+        } else if (Long[].class == clazz) {
+            Long[] values = new Long[v.int64Values.size()];
+            for (int i = 0; i < values.length; i++) {
+                values[i] = v.int64Values.get(i);
+            }
+            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, values);
         } else /* All list properties */ {
             Object[] values = getRawValueList(clazz, v).toArray();
             return new CarPropertyValue<>(propertyId, areaId, status, timestamp,
