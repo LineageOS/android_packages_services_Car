@@ -17,6 +17,7 @@ package android.car.user;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.car.settings.CarSettings;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -227,6 +228,16 @@ public class CarUserManagerHelper {
     }
 
     /**
+     * Checks whether the user is default user.
+     *
+     * @param userInfo User to check against system user.
+     * @return {@code true} if is default user, {@code false} otherwise.
+     */
+    public boolean isDefaultUser(UserInfo userInfo) {
+        return userInfo.id == CarSettings.DEFAULT_USER_ID_TO_BOOT_INTO;
+    }
+
+    /**
      * Checks whether passed in user is the foreground user.
      *
      * @param userInfo User to check.
@@ -406,6 +417,13 @@ public class CarUserManagerHelper {
     public boolean removeUser(UserInfo userInfo, String guestUserName) {
         if (isSystemUser(userInfo)) {
             Log.w(TAG, "User " + userInfo.id + " is system user, could not be removed.");
+            return false;
+        }
+
+        // Not allow to delete the default user for now. Since default user is the one to
+        // boot into.
+        if (isHeadlessSystemUser() && isDefaultUser(userInfo)) {
+            Log.w(TAG, "User " + userInfo.id + " is the default user, could not be removed.");
             return false;
         }
 
