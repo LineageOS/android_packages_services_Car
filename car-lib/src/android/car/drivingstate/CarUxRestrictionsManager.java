@@ -226,35 +226,4 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
             listener.onUxRestrictionsChanged(restrictionInfo);
         }
     }
-
-    /**
-     * To be removed after updating the support library with the new car stubs lib.
-     * b/80506092 has more details.
-     *
-     */
-    public interface onUxRestrictionsChangedListener {
-        /**
-         * To be removed see b/80506092 for details.
-         * @param restrictionInfo
-         */
-        void onUxRestrictionsChanged(CarUxRestrictions restrictionInfo);
-        /**
-         * Temp workaround.  To be removed.
-         * To differentiate from the new OnUxRestrictionsChangedListener for clients calling
-         * registerListener with an anonymous class or lambda functions.
-         */
-        void dummy();
-    }
-
-    /**
-     * To be removed after updating the support library with the new car stubs lib.
-     * b/80506092 has more details.
-     *
-     */
-    public synchronized void registerListener(@NonNull onUxRestrictionsChangedListener listener)
-            throws CarNotConnectedException, IllegalArgumentException {
-        // Intentionally left NOP.
-    }
-
-
 }
