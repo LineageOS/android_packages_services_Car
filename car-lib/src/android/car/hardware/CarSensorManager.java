@@ -268,11 +268,9 @@ public final class CarSensorManager implements CarManagerBase {
 
         @Override
         public void onChangeEvent(CarPropertyValue value) {
-            synchronized (this) {
-                CarSensorManager manager = mManager.get();
-                if (manager != null) {
-                    manager.handleOnChangeEvent(value, mListener);
-                }
+            CarSensorManager manager = mManager.get();
+            if (manager != null) {
+                manager.handleOnChangeEvent(value, mListener);
             }
         }
 
@@ -325,9 +323,15 @@ public final class CarSensorManager implements CarManagerBase {
         return new int[0];
     }
 
-    private List<CarPropertyConfig> getPropertyList() throws CarNotConnectedException {
+    /**
+     * Get list of properties represented by CarSensorManager for this car.
+     * @return List of CarPropertyConfig objects available via Car Cabin Manager.
+     * @throws CarNotConnectedException if the connection to the car service has been lost.
+     */
+    public List<CarPropertyConfig> getPropertyList() throws CarNotConnectedException {
         return mCarPropertyMgr.getPropertyList(mSensorConfigIds);
     }
+
     /**
      * Tells if given sensor is supported or not.
      * @param sensorType
@@ -463,22 +467,27 @@ public final class CarSensorManager implements CarManagerBase {
     }
 
     private CarSensorEvent createCarSensorEvent(CarPropertyValue propertyValue) {
-        Class<?> actualClass = propertyValue.getValue().getClass();
         CarSensorEvent event = null;
-        if (actualClass == Float.class) {
+        Object o = propertyValue.getValue();
+        if (o instanceof Float) {
             event = new CarSensorEvent(propertyValue.getPropertyId(),
                     propertyValue.getTimestamp(), 1, 0, 0);
-            event.floatValues[0] = (float) propertyValue.getValue();
-        } else if (actualClass == Integer.class) {
+            event.floatValues[0] = (float) o;
+        } else if (o instanceof Integer) {
             event = new CarSensorEvent(propertyValue.getPropertyId(),
                     propertyValue.getTimestamp(), 0, 1, 0);
-            event.intValues[0] = (int) propertyValue.getValue();
-        } else if (actualClass == Boolean.class) {
+            event.intValues[0] = (int) o;
+        } else if (o instanceof Boolean) {
             event = new CarSensorEvent(propertyValue.getPropertyId(),
                     propertyValue.getTimestamp(), 0, 1, 0);
-            event.intValues[0] = (boolean) propertyValue.getValue() ? 1 : 0;
-        } else {
-            // TODO: handle int64_vec and mixed type
+            event.intValues[0] = (boolean) o ? 1 : 0;
+        } else if (o instanceof Long[]) {
+            Long[] value = (Long[]) o;
+            event = new CarSensorEvent(propertyValue.getPropertyId(),
+                    propertyValue.getTimestamp(), 0, 0, value.length);
+            for (int i = 0; i < value.length; i++) {
+                event.longValues[i] = value[i];
+            }
         }
         return event;
     }
@@ -503,6 +512,7 @@ public final class CarSensorManager implements CarManagerBase {
                 for (CarPropertyConfig p : propertyConfigs) {
                     if (p.getPropertyId() == type) {
                         b = createWheelDistanceTickBundle(p.getConfigArray());
+                        break;
                     }
                 }
                 break;

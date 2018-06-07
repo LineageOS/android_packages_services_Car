@@ -230,16 +230,10 @@ package android.car.drivingstate {
   public final class CarUxRestrictionsManager {
     method public android.car.drivingstate.CarUxRestrictions getCurrentCarUxRestrictions() throws android.car.CarNotConnectedException;
     method public synchronized void registerListener(android.car.drivingstate.CarUxRestrictionsManager.OnUxRestrictionsChangedListener) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
-    method public synchronized void registerListener(android.car.drivingstate.CarUxRestrictionsManager.onUxRestrictionsChangedListener) throws android.car.CarNotConnectedException, java.lang.IllegalArgumentException;
     method public synchronized void unregisterListener() throws android.car.CarNotConnectedException;
   }
 
   public static abstract interface CarUxRestrictionsManager.OnUxRestrictionsChangedListener {
-    method public abstract void onUxRestrictionsChanged(android.car.drivingstate.CarUxRestrictions);
-  }
-
-  public static abstract interface CarUxRestrictionsManager.onUxRestrictionsChangedListener {
-    method public abstract void dummy();
     method public abstract void onUxRestrictionsChanged(android.car.drivingstate.CarUxRestrictions);
   }
 
@@ -293,6 +287,7 @@ package android.car.hardware {
 
   public final class CarSensorManager {
     method public android.car.hardware.CarSensorEvent getLatestSensorEvent(int) throws android.car.CarNotConnectedException;
+    method public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList() throws android.car.CarNotConnectedException;
     method public int[] getSupportedSensors() throws android.car.CarNotConnectedException;
     method public boolean isSensorSupported(int) throws android.car.CarNotConnectedException;
     method public static boolean isSensorSupported(int[], int);
