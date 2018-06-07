@@ -29,6 +29,7 @@ import android.graphics.drawable.Drawable;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.android.internal.util.UserIcons;
@@ -88,6 +89,51 @@ public class CarUserManagerHelper {
      */
     public void unregisterOnUsersUpdateListener() {
         unregisterReceiver();
+    }
+
+    /**
+     * Set default boot into user.
+     *
+     * @param userId default user id to boot into.
+     */
+    public void setDefaultBootUser(int userId) {
+        Settings.Global.putInt(
+                mContext.getContentResolver(),
+                CarSettings.Global.DEFAULT_USER_ID_TO_BOOT_INTO, userId);
+    }
+
+    /**
+     * Set last active user.
+     *
+     * @param userId last active user id.
+     */
+    public void setLastActiveUser(int userId) {
+        Settings.Global.putInt(
+                mContext.getContentResolver(), CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
+    }
+
+    /**
+     * Get user id for the default boot into user.
+     *
+     * @return user id of the default boot into user
+     */
+    public int getDefaultBootUser() {
+        // Make user 10 the original default boot user.
+        return Settings.Global.getInt(
+            mContext.getContentResolver(), CarSettings.Global.DEFAULT_USER_ID_TO_BOOT_INTO,
+            /* default user id= */ 10);
+    }
+
+    /**
+     * Get user id for the last active user.
+     *
+     * @return user id of the last active user
+     */
+    public int getLastActiveUser() {
+        // Make user 10 the original default last active user.
+        return Settings.Global.getInt(
+            mContext.getContentResolver(), CarSettings.Global.LAST_ACTIVE_USER_ID,
+            /* default user id= */ 10);
     }
 
     /**
@@ -234,7 +280,7 @@ public class CarUserManagerHelper {
      * @return {@code true} if is default user, {@code false} otherwise.
      */
     public boolean isDefaultUser(UserInfo userInfo) {
-        return userInfo.id == CarSettings.DEFAULT_USER_ID_TO_BOOT_INTO;
+        return userInfo.id == getDefaultBootUser();
     }
 
     /**
