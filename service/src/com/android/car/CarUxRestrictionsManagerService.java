@@ -50,6 +50,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private static final boolean DBG = false;
     private static final int MAX_TRANSITION_LOG_SIZE = 20;
     private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz
+    private static final float SPEED_NOT_AVAILABLE = -1.0F;
     private final Context mContext;
     private final CarDrivingStateService mDrivingStateService;
     private final CarPropertyService mCarPropertyService;
@@ -77,7 +78,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     @Override
-    public void init() {
+    public synchronized void init() {
         try {
             if (!mHelper.loadUxRestrictionsFromXml()) {
                 Log.e(TAG, "Error reading Ux Restrictions Mapping. Falling back to defaults");
@@ -93,6 +94,38 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         // subscribe to property service for speed
         mCarPropertyService.registerListener(VehicleProperty.PERF_VEHICLE_SPEED,
                 PROPERTY_UPDATE_RATE, mICarPropertyEventListener);
+        initializeUxRestrictions();
+    }
+
+    // Update current restrictions by getting the current driving state and speed.
+    private void initializeUxRestrictions() {
+        CarDrivingStateEvent currentDrivingStateEvent =
+                mDrivingStateService.getCurrentDrivingState();
+        // if we don't have enough information from the CarPropertyService to compute the UX
+        // restrictions, then leave the UX restrictions unchanged from what it was initialized to
+        // in the constructor.
+        if (currentDrivingStateEvent == null || currentDrivingStateEvent.eventValue
+                == CarDrivingStateEvent.DRIVING_STATE_UNKNOWN) {
+            return;
+        }
+        int currentDrivingState = currentDrivingStateEvent.eventValue;
+        Float currentSpeed = getCurrentSpeed();
+        if (currentSpeed == SPEED_NOT_AVAILABLE) {
+            return;
+        }
+        // At this point the underlying CarPropertyService has provided us enough information to
+        // compute the UX restrictions that could be potentially different from the initial UX
+        // restrictions.
+        handleDispatchUxRestrictions(currentDrivingState, currentSpeed);
+    }
+
+    private Float getCurrentSpeed() {
+        CarPropertyValue value = mCarPropertyService.getProperty(VehicleProperty.PERF_VEHICLE_SPEED,
+                0);
+        if (value != null) {
+            return (Float) value.getValue();
+        }
+        return SPEED_NOT_AVAILABLE;
     }
 
     @Override
@@ -155,7 +188,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
         return null;
     }
-
 
     /**
      * Unregister the given UX Restrictions listener
@@ -282,10 +314,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
         int drivingState = event.eventValue;
-        CarPropertyValue value = mCarPropertyService.getProperty(VehicleProperty.PERF_VEHICLE_SPEED,
-                0);
-        if (value != null) {
-            mCurrentMovingSpeed = (Float) value.getValue();
+        Float speed = getCurrentSpeed();
+
+        if (speed != SPEED_NOT_AVAILABLE) {
+            mCurrentMovingSpeed = speed;
         } else if (drivingState == CarDrivingStateEvent.DRIVING_STATE_PARKED
                 || drivingState == CarDrivingStateEvent.DRIVING_STATE_UNKNOWN) {
             // If speed is unavailable, but the driving state is parked or unknown, it can still be
@@ -352,7 +384,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             uxRestrictions = getDefaultRestrictions(currentDrivingState);
         } else {
             uxRestrictions = mHelper.getUxRestrictions(currentDrivingState, speed);
-
         }
 
         if (DBG) {
