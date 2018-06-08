@@ -39,8 +39,7 @@
         android:description="@string/car_permission_desc_energy" />
     <permission
         android:name="android.car.permission.CAR_IDENTIFICATION"
-        android:permissionGroup="android.car.permission-group.CAR_MONITORING"
-        android:protectionLevel="dangerous"
+        android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_car_identification"
         android:description="@string/car_permission_desc_car_identification" />
     <permission
