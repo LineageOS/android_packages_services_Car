@@ -138,7 +138,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                             + " suggested usage: " + AudioAttributes.usageToString(usage));
             final int groupId = getVolumeGroupIdForUsage(usage);
             final int currentVolume = getGroupVolume(groupId);
-            final int flags = AudioManager.FLAG_FROM_KEY;
+            final int flags = AudioManager.FLAG_FROM_KEY | AudioManager.FLAG_SHOW_UI;
             switch (adjustment) {
                 case AudioManager.ADJUST_LOWER:
                     if (currentVolume > getGroupMinVolume(groupId)) {
@@ -152,15 +152,15 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     break;
                 case AudioManager.ADJUST_MUTE:
                     mAudioManager.setMasterMute(true, flags);
-                    callbackMasterMuteChange();
+                    callbackMasterMuteChange(flags);
                     break;
                 case AudioManager.ADJUST_UNMUTE:
                     mAudioManager.setMasterMute(false, flags);
-                    callbackMasterMuteChange();
+                    callbackMasterMuteChange(flags);
                     break;
                 case AudioManager.ADJUST_TOGGLE_MUTE:
                     mAudioManager.setMasterMute(!mAudioManager.isMasterMute(), flags);
-                    callbackMasterMuteChange();
+                    callbackMasterMuteChange(flags);
                     break;
                 case AudioManager.ADJUST_SAME:
                 default:
@@ -185,11 +185,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     if (groupId == -1) {
                         Log.w(CarLog.TAG_AUDIO, "Unknown stream type: " + streamType);
                     } else {
-                        callbackGroupVolumeChange(groupId);
+                        callbackGroupVolumeChange(groupId, 0);
                     }
                     break;
                 case AudioManager.MASTER_MUTE_CHANGED_ACTION:
-                    callbackMasterMuteChange();
+                    callbackMasterMuteChange(0);
                     break;
             }
         }
@@ -260,7 +260,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
-            callbackGroupVolumeChange(groupId);
+            callbackGroupVolumeChange(groupId, flags);
             // For legacy stream type based volume control
             if (!mUseDynamicRouting) {
                 mAudioManager.setStreamVolume(STREAM_TYPES[groupId], index, flags);
@@ -272,22 +272,22 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
-    private void callbackGroupVolumeChange(int groupId) {
+    private void callbackGroupVolumeChange(int groupId, int flags) {
         for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
                 mVolumeCallbackContainer.getInterfaces()) {
             try {
-                callback.binderInterface.onGroupVolumeChanged(groupId);
+                callback.binderInterface.onGroupVolumeChanged(groupId, flags);
             } catch (RemoteException e) {
                 Log.e(CarLog.TAG_AUDIO, "Failed to callback onGroupVolumeChanged", e);
             }
         }
     }
 
-    private void callbackMasterMuteChange() {
+    private void callbackMasterMuteChange(int flags) {
         for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
                 mVolumeCallbackContainer.getInterfaces()) {
             try {
-                callback.binderInterface.onMasterMuteChanged();
+                callback.binderInterface.onMasterMuteChanged(flags);
             } catch (RemoteException e) {
                 Log.e(CarLog.TAG_AUDIO, "Failed to callback onMasterMuteChanged", e);
             }
