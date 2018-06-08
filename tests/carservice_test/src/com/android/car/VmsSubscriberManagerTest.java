@@ -37,8 +37,13 @@ import android.os.SystemClock;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -46,8 +51,6 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -110,7 +113,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
         addProperty(VehicleProperty.VEHICLE_MAP_SERVICE, mHalHandler)
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE)
                 .setAccess(VehiclePropertyAccess.READ_WRITE)
-                .addAreaConfig(VehicleAreaType.VEHICLE_AREA_TYPE_NONE, 0, 0);
+                .addAreaConfig(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 0, 0);
     }
 
     @Override
@@ -132,7 +135,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         v.value.int32Values.add(VmsMessageType.DATA); // MessageType
@@ -162,7 +165,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         v.value.int32Values.add(VmsMessageType.DATA); // MessageType
@@ -190,7 +193,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         v.value.int32Values.add(VmsMessageType.DATA); // MessageType
@@ -221,7 +224,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         v.value.int32Values.add(VmsMessageType.DATA); // MessageType
@@ -248,7 +251,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         v.value.int32Values.add(VmsMessageType.DATA); // MessageType
@@ -276,7 +279,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         v.value.int32Values.add(VmsMessageType.DATA); // MessageType
@@ -303,7 +306,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onVmsMessageReceived.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         v.value.int32Values.add(VmsMessageType.DATA); // MessageType
@@ -332,7 +335,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChanged.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         //
@@ -378,7 +381,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChanged.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         //
@@ -425,7 +428,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChanged.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         //
@@ -465,7 +468,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChanged.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         //
@@ -559,7 +562,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChanged.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         //
@@ -637,7 +640,7 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
 
         // Inject a value and wait for its callback in TestClientCallback.onLayersAvailabilityChanged.
         VehiclePropValue v = VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
-                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_NONE)
+                .setAreaId(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
                 .build();
         //

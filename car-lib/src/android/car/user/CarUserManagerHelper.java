@@ -17,6 +17,7 @@ package android.car.user;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.car.settings.CarSettings;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -177,15 +178,6 @@ public class CarUserManagerHelper {
     }
 
     /**
-     * Temporary method: Gets all the users that includes system user.
-     *
-     * @return List of {@code UserInfo} for users that associated with a real person.
-     */
-    public List<UserInfo> getAllUsersIncludingSystemUser() {
-        return mUserManager.getUsers(/* excludeDying= */true);
-    }
-
-    /**
      * Get all the users except the one with userId passed in.
      *
      * @param userId of the user not to be returned.
@@ -233,6 +225,16 @@ public class CarUserManagerHelper {
      */
     public boolean isSystemUser(UserInfo userInfo) {
         return userInfo.id == UserHandle.USER_SYSTEM;
+    }
+
+    /**
+     * Checks whether the user is default user.
+     *
+     * @param userInfo User to check against system user.
+     * @return {@code true} if is default user, {@code false} otherwise.
+     */
+    public boolean isDefaultUser(UserInfo userInfo) {
+        return userInfo.id == CarSettings.DEFAULT_USER_ID_TO_BOOT_INTO;
     }
 
     /**
@@ -313,6 +315,14 @@ public class CarUserManagerHelper {
      */
     public boolean isCurrentProcessGuestUser() {
         return mUserManager.isGuestUser();
+    }
+
+    /**
+     * Check is the calling app is running as a restricted profile user (ie. a LinkedUser).
+     * Restricted profiles are only available when {@link #isHeadlessSystemUser()} is false.
+     */
+    public boolean isCurrentProcessRestrictedProfileUser() {
+        return mUserManager.isRestrictedProfile();
     }
 
     // Current process user restriction accessors
@@ -407,6 +417,13 @@ public class CarUserManagerHelper {
     public boolean removeUser(UserInfo userInfo, String guestUserName) {
         if (isSystemUser(userInfo)) {
             Log.w(TAG, "User " + userInfo.id + " is system user, could not be removed.");
+            return false;
+        }
+
+        // Not allow to delete the default user for now. Since default user is the one to
+        // boot into.
+        if (isHeadlessSystemUser() && isDefaultUser(userInfo)) {
+            Log.w(TAG, "User " + userInfo.id + " is the default user, could not be removed.");
             return false;
         }
 

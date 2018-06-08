@@ -62,6 +62,20 @@ public class CarSettings {
     public static final int DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW = 10 * 60 * 1000; // 10 mins
 
     /**
+     * Id for user that is set as default to boot into.
+     *
+     * @hide
+     */
+    public static final int DEFAULT_USER_ID_TO_BOOT_INTO = 10; // Default to first created user.
+
+    /**
+     * Id for user that is last logged in to.
+     *
+     * @hide
+     */
+    public static final int LAST_ACTIVE_USER_ID = 10; // Default to first created user.
+
+    /**
      * @hide
      */
     public static final class Secure {

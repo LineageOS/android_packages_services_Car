@@ -21,6 +21,7 @@ import android.app.UiModeManager;
 import android.car.Car;
 import android.car.ICar;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
+import android.car.user.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -39,12 +40,15 @@ import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.car.ICarServiceHelper;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ICarImpl extends ICar.Stub {
 
@@ -78,6 +82,8 @@ public class ICarImpl extends ICar.Stub {
     private final CarStorageMonitoringService mCarStorageMonitoringService;
     private final CarConfigurationService mCarConfigurationService;
 
+    private final CarUserManagerHelper mUserManagerHelper;
+    private CarUserService mCarUserService;
     private VmsSubscriberService mVmsSubscriberService;
     private VmsPublisherService mVmsPublisherService;
 
@@ -135,32 +141,39 @@ public class ICarImpl extends ICar.Stub {
                 systemInterface);
         mCarConfigurationService =
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
+        mUserManagerHelper = new CarUserManagerHelper(serviceContext);
 
         // Be careful with order. Service depending on other service should be inited later.
-        mAllServices = new CarServiceBase[] {
-            mSystemActivityMonitoringService,
-            mCarPowerManagementService,
-            mCarPropertyService,
-            mCarDrivingStateService,
-            mCarUXRestrictionsService,
-            mCarPackageManagerService,
-            mCarInputService,
-            mCarLocationService,
-            mGarageModeService,
-            mAppFocusService,
-            mCarAudioService,
-            mCarNightService,
-            mInstrumentClusterService,
-            mCarProjectionService,
-            mSystemStateControllerService,
-            mCarBluetoothService,
-            mCarDiagnosticService,
-            mPerUserCarServiceHelper,
-            mCarStorageMonitoringService,
-            mCarConfigurationService,
-            mVmsSubscriberService,
-            mVmsPublisherService
-        };
+        List<CarServiceBase> allServices = new ArrayList<>();
+        allServices.add(mSystemActivityMonitoringService);
+        allServices.add(mCarPowerManagementService);
+        allServices.add(mCarPropertyService);
+        allServices.add(mCarDrivingStateService);
+        allServices.add(mCarUXRestrictionsService);
+        allServices.add(mCarPackageManagerService);
+        allServices.add(mCarInputService);
+        allServices.add(mCarLocationService);
+        allServices.add(mGarageModeService);
+        allServices.add(mAppFocusService);
+        allServices.add(mCarAudioService);
+        allServices.add(mCarNightService);
+        allServices.add(mInstrumentClusterService);
+        allServices.add(mCarProjectionService);
+        allServices.add(mSystemStateControllerService);
+        allServices.add(mCarBluetoothService);
+        allServices.add(mCarDiagnosticService);
+        allServices.add(mPerUserCarServiceHelper);
+        allServices.add(mCarStorageMonitoringService);
+        allServices.add(mCarConfigurationService);
+        allServices.add(mVmsSubscriberService);
+        allServices.add(mVmsPublisherService);
+
+        if (mUserManagerHelper.isHeadlessSystemUser()) {
+            mCarUserService = new CarUserService(serviceContext, mUserManagerHelper);
+            allServices.add(mCarUserService);
+        }
+
+        mAllServices = allServices.toArray(new CarServiceBase[allServices.size()]);
     }
 
     @MainThread
