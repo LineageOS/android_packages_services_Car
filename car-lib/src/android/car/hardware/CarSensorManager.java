@@ -24,6 +24,7 @@ import android.car.CarApiUtil;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
+import android.car.VehiclePropertyType;
 import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
 import android.os.Bundle;
@@ -468,26 +469,34 @@ public final class CarSensorManager implements CarManagerBase {
 
     private CarSensorEvent createCarSensorEvent(CarPropertyValue propertyValue) {
         CarSensorEvent event = null;
-        Object o = propertyValue.getValue();
-        if (o instanceof Float) {
-            event = new CarSensorEvent(propertyValue.getPropertyId(),
-                    propertyValue.getTimestamp(), 1, 0, 0);
-            event.floatValues[0] = (float) o;
-        } else if (o instanceof Integer) {
-            event = new CarSensorEvent(propertyValue.getPropertyId(),
-                    propertyValue.getTimestamp(), 0, 1, 0);
-            event.intValues[0] = (int) o;
-        } else if (o instanceof Boolean) {
-            event = new CarSensorEvent(propertyValue.getPropertyId(),
-                    propertyValue.getTimestamp(), 0, 1, 0);
-            event.intValues[0] = (boolean) o ? 1 : 0;
-        } else if (o instanceof Long[]) {
-            Long[] value = (Long[]) o;
-            event = new CarSensorEvent(propertyValue.getPropertyId(),
-                    propertyValue.getTimestamp(), 0, 0, value.length);
-            for (int i = 0; i < value.length; i++) {
-                event.longValues[i] = value[i];
-            }
+        switch (propertyValue.getPropertyId() & VehiclePropertyType.MASK) {
+            case VehiclePropertyType.FLOAT:
+                event = new CarSensorEvent(propertyValue.getPropertyId(),
+                        propertyValue.getTimestamp(), 1, 0, 0);
+                event.floatValues[0] = (float) propertyValue.getValue();
+                break;
+            case VehiclePropertyType.INT32:
+                event = new CarSensorEvent(propertyValue.getPropertyId(),
+                        propertyValue.getTimestamp(), 0, 1, 0);
+                event.intValues[0] = (int) propertyValue.getValue();
+                break;
+            case VehiclePropertyType.BOOLEAN:
+                event = new CarSensorEvent(propertyValue.getPropertyId(),
+                        propertyValue.getTimestamp(), 0, 1, 0);
+                event.intValues[0] = (boolean) propertyValue.getValue() ? 1 : 0;
+                break;
+            case VehiclePropertyType.INT64_VEC:
+                Object[] value = (Object[]) propertyValue.getValue();
+                event = new CarSensorEvent(propertyValue.getPropertyId(),
+                        propertyValue.getTimestamp(), 0, 0, value.length);
+                for (int i = 0; i < value.length; i++) {
+                    event.longValues[i] = (Long) value[i];
+                }
+                break;
+            default:
+                Log.e(TAG, "unhandled VehiclePropertyType for propId="
+                        + propertyValue.getPropertyId());
+                break;
         }
         return event;
     }
