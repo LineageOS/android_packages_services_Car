@@ -16,13 +16,15 @@
 package com.android.car.hal;
 
 import static com.android.car.CarServiceUtils.toByteArray;
+
 import static java.lang.Integer.toHexString;
 
+import android.annotation.SystemApi;
 import android.car.VehicleAreaType;
-import android.car.annotation.FutureFeature;
 import android.car.vms.IVmsSubscriberClient;
-import android.car.vms.VmsLayer;
 import android.car.vms.VmsAssociatedLayer;
+import android.car.vms.VmsAvailableLayers;
+import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsOperationRecorder;
@@ -33,11 +35,12 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerAndPublisherIdIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_0.VmsOfferingMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_0.VmsOfferingMessageIntegerValuesIndex;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+
 import com.android.car.CarLog;
 import com.android.car.VmsLayersAvailability;
 import com.android.car.VmsPublishersInfo;
@@ -45,8 +48,8 @@ import com.android.car.VmsRouting;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,7 +64,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * This is a glue layer between the VehicleHal and the VmsService. It sends VMS properties back and
  * forth.
  */
-@FutureFeature
+@SystemApi
 public class VmsHalService extends HalServiceBase {
 
     private static final boolean DBG = true;
@@ -105,7 +108,7 @@ public class VmsHalService extends HalServiceBase {
         void onDataMessage(VmsLayer layer, int publisherId, byte[] payload);
 
         // Notifies the listener on a change in available layers.
-        void onLayersAvaiabilityChange(List<VmsAssociatedLayer> availableLayers);
+        void onLayersAvaiabilityChange(VmsAvailableLayers availableLayers);
     }
 
     /**
@@ -136,6 +139,9 @@ public class VmsHalService extends HalServiceBase {
 
     public void addSubscription(IVmsSubscriberClient listener, VmsLayer layer) {
         boolean firstSubscriptionForLayer = false;
+        if (DBG) {
+            Log.d(TAG, "Checking for first subscription. Layer: " + layer);
+        }
         synchronized (mLock) {
             // Check if publishers need to be notified about this change in subscriptions.
             firstSubscriptionForLayer = !mRouting.hasLayerSubscriptions(layer);
@@ -153,7 +159,9 @@ public class VmsHalService extends HalServiceBase {
         boolean layerHasSubscribers = true;
         synchronized (mLock) {
             if (!mRouting.hasLayerSubscriptions(layer)) {
-                Log.i(TAG, "Trying to remove a layer with no subscription: " + layer);
+                if (DBG) {
+                    Log.d(TAG, "Trying to remove a layer with no subscription: " + layer);
+                }
                 return;
             }
 
@@ -353,17 +361,13 @@ public class VmsHalService extends HalServiceBase {
     }
 
     public void setPublisherLayersOffering(IBinder publisherToken, VmsLayersOffering offering) {
-        Set<VmsAssociatedLayer> availableLayers = Collections.EMPTY_SET;
         synchronized (mLock) {
             updateOffering(publisherToken, offering);
             VmsOperationRecorder.get().setPublisherLayersOffering(offering);
-            availableLayers = mAvailableLayers.getAvailableLayers();
         }
-        notifyOfAvailabilityChange(availableLayers);
     }
 
-    public Set<VmsAssociatedLayer> getAvailableLayers() {
-        //TODO(b/36872877): wrap available layers in VmsAvailabilityState similar to VmsSubscriptionState.
+    public VmsAvailableLayers getAvailableLayers() {
         synchronized (mLock) {
             return mAvailableLayers.getAvailableLayers();
         }
@@ -401,13 +405,13 @@ public class VmsHalService extends HalServiceBase {
      *
      * @param availableLayers the layers which publishers claim they made publish.
      */
-    private void notifyOfAvailabilityChange(Set<VmsAssociatedLayer> availableLayers) {
+    private void notifyOfAvailabilityChange(VmsAvailableLayers availableLayers) {
         // notify the HAL
         notifyAvailabilityChangeToHal(availableLayers);
 
         // Notify the App subscribers
         for (VmsHalSubscriberListener listener : mSubscriberListeners) {
-            listener.onLayersAvaiabilityChange(new ArrayList<>(availableLayers));
+            listener.onLayersAvaiabilityChange(availableLayers);
         }
     }
 
@@ -489,7 +493,7 @@ public class VmsHalService extends HalServiceBase {
                     handleHalAvailabilityRequestEvent();
                     break;
                 case VmsMessageType.SUBSCRIPTIONS_REQUEST:
-                    handleSubscriptionRequestEvent();
+                    handleSubscriptionsRequestEvent();
                     break;
                 default:
                     throw new IllegalArgumentException("Unexpected message type: " + messageType);
@@ -677,7 +681,7 @@ public class VmsHalService extends HalServiceBase {
      */
     private void handleHalAvailabilityRequestEvent() {
         synchronized (mLock) {
-            Collection<VmsAssociatedLayer> availableLayers = mAvailableLayers.getAvailableLayers();
+            VmsAvailableLayers availableLayers = mAvailableLayers.getAvailableLayers();
             VehiclePropValue vehiclePropertyValue =
                     toAvailabilityUpdateVehiclePropValue(
                             availableLayers,
@@ -701,7 +705,7 @@ public class VmsHalService extends HalServiceBase {
      * <li>Layer type/subtype/version.
      * </ul>
      */
-    private void handleSubscriptionRequestEvent() {
+    private void handleSubscriptionsRequestEvent() {
         VmsSubscriptionState subscription = getSubscriptionState();
         VehiclePropValue vehicleProp =
                 toTypedVmsVehiclePropValue(VmsMessageType.SUBSCRIPTIONS_RESPONSE);
@@ -723,7 +727,7 @@ public class VmsHalService extends HalServiceBase {
     }
 
     private void updateOffering(IBinder publisherToken, VmsLayersOffering offering) {
-        Set<VmsAssociatedLayer> availableLayers = Collections.EMPTY_SET;
+        VmsAvailableLayers availableLayers;
         synchronized (mLock) {
             mOfferings.put(publisherToken, offering);
 
@@ -776,7 +780,7 @@ public class VmsHalService extends HalServiceBase {
         return setPropertyValue(vehiclePropertyValue);
     }
 
-    public boolean notifyAvailabilityChangeToHal(Collection<VmsAssociatedLayer> availableLayers) {
+    public boolean notifyAvailabilityChangeToHal(VmsAvailableLayers availableLayers) {
         VehiclePropValue vehiclePropertyValue =
                 toAvailabilityUpdateVehiclePropValue(
                         availableLayers,
@@ -798,7 +802,7 @@ public class VmsHalService extends HalServiceBase {
     private static VehiclePropValue toTypedVmsVehiclePropValue(int messageType) {
         VehiclePropValue vehicleProp = new VehiclePropValue();
         vehicleProp.prop = HAL_PROPERTY_ID;
-        vehicleProp.areaId = VehicleAreaType.VEHICLE_AREA_TYPE_NONE;
+        vehicleProp.areaId = VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
         VehiclePropValue.RawValue v = vehicleProp.value;
 
         v.int32Values.add(messageType);
@@ -819,25 +823,26 @@ public class VmsHalService extends HalServiceBase {
     }
 
     private static VehiclePropValue toAvailabilityUpdateVehiclePropValue(
-            Collection<VmsAssociatedLayer> availableAssociatedLayers, int messageType) {
+            VmsAvailableLayers availableLayers, int messageType) {
 
         if (!AVAILABILITY_MESSAGE_TYPES.contains(messageType)) {
             throw new IllegalArgumentException("Unsupported availability type: " + messageType);
         }
         VehiclePropValue vehicleProp =
                 toTypedVmsVehiclePropValue(messageType);
-        populateAvailabilityPropValueFields(availableAssociatedLayers, vehicleProp);
+        populateAvailabilityPropValueFields(availableLayers, vehicleProp);
         return vehicleProp;
 
     }
 
     private static void populateAvailabilityPropValueFields(
-            Collection<VmsAssociatedLayer> availableAssociatedLayers,
+            VmsAvailableLayers availableAssociatedLayers,
             VehiclePropValue vehicleProp) {
         VehiclePropValue.RawValue v = vehicleProp.value;
-        int numLayers = availableAssociatedLayers.size();
+        v.int32Values.add(availableAssociatedLayers.getSequence());
+        int numLayers = availableAssociatedLayers.getAssociatedLayers().size();
         v.int32Values.add(numLayers);
-        for (VmsAssociatedLayer layer : availableAssociatedLayers) {
+        for (VmsAssociatedLayer layer : availableAssociatedLayers.getAssociatedLayers()) {
             v.int32Values.add(layer.getVmsLayer().getType());
             v.int32Values.add(layer.getVmsLayer().getSubtype());
             v.int32Values.add(layer.getVmsLayer().getVersion());

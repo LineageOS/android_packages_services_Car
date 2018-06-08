@@ -17,6 +17,7 @@
 package com.google.android.car.vms.subscriber;
 
 import android.app.Activity;
+import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsSubscriberManager;
 import android.content.pm.PackageManager;
@@ -25,8 +26,7 @@ import android.support.car.Car;
 import android.support.car.CarConnectionCallback;
 import android.util.Log;
 import android.widget.TextView;
-
-import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Connects to the Car service during onCreate. CarConnectionCallback.onConnected is invoked when
@@ -42,9 +42,17 @@ public class VmsSubscriberClientSampleActivity extends Activity {
     private Car mCarApi;
     private TextView mTextView;
     private VmsSubscriberManager mVmsSubscriberManager;
+    private Executor mExecutor;
+
+    private class ThreadPerTaskExecutor implements Executor {
+        public void execute(Runnable r) {
+            new Thread(r).start();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mExecutor = new ThreadPerTaskExecutor();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mTextView = (TextView) findViewById(R.id.textview);
@@ -90,24 +98,25 @@ public class VmsSubscriberClientSampleActivity extends Activity {
 
         private void configureSubscriptions(VmsSubscriberManager vmsSubscriberManager) {
             try {
-                vmsSubscriberManager.registerClientCallback(mClientCallback);
+                vmsSubscriberManager.setVmsSubscriberClientCallback(mExecutor, mClientCallback);
                 vmsSubscriberManager.subscribe(TEST_LAYER);
             } catch (android.car.CarNotConnectedException e) {
                 Log.e(TAG, "Car is not connected!", e);
             }
         }
+
     };
 
     private final VmsSubscriberManager.VmsSubscriberClientCallback mClientCallback =
-            new VmsSubscriberManager.VmsSubscriberClientCallback() {
-                @Override
-                public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
-                    mTextView.setText(String.valueOf(payload[0]));
-                }
+        new VmsSubscriberManager.VmsSubscriberClientCallback() {
+            @Override
+            public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
+                mTextView.setText(String.valueOf(payload[0]));
+            }
 
-                @Override
-                public void onLayersAvailabilityChanged(List<VmsLayer> availableLayers) {
-                    mTextView.setText(String.valueOf(availableLayers));
-                }
-            };
+            @Override
+            public void onLayersAvailabilityChanged(VmsAvailableLayers availableLayers) {
+                mTextView.setText(String.valueOf(availableLayers));
+            }
+        };
 }

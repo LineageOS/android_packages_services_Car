@@ -23,7 +23,6 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
-
 LOCAL_USE_AAPT2 := true
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
@@ -42,16 +41,15 @@ LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_DEX_PREOPT := false
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
+    android-support-car \
     car-service-lib-for-test
 
 LOCAL_STATIC_JAVA_LIBRARIES += \
     android.hidl.base-V1.0-java \
     android.hardware.automotive.vehicle-V2.0-java \
-    vehicle-hal-support-lib
+    vehicle-hal-support-lib \
+    com.android.car.keventreader-client
 
-LOCAL_JAVA_LIBRARIES += android.car
-
-include packages/apps/Car/libs/car-stream-ui-lib/car-stream-ui-lib.mk
 include packages/services/Car/car-support-lib/car-support.mk
 
 include $(BUILD_PACKAGE)

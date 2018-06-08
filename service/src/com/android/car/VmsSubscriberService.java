@@ -17,10 +17,9 @@
 package com.android.car;
 
 import android.car.Car;
-import android.car.annotation.FutureFeature;
 import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.IVmsSubscriberService;
-import android.car.vms.VmsAssociatedLayer;
+import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 import android.content.Context;
 import android.os.IBinder;
@@ -32,7 +31,6 @@ import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +41,6 @@ import java.util.Set;
  * + Receives HAL updates by implementing VmsHalService.VmsHalListener.
  * + Offers subscriber/publisher services by implementing IVmsService.Stub.
  */
-@FutureFeature
 public class VmsSubscriberService extends IVmsSubscriberService.Stub
         implements CarServiceBase, VmsHalService.VmsHalSubscriberListener {
     private static final boolean DBG = true;
@@ -125,7 +122,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
          *                                  subscriber.
          */
         public void add(IVmsSubscriberClient subscriber) {
-            ICarImpl.assertPermission(mContext, PERMISSION);
+            ICarImpl.assertVmsSubscriberPermission(mContext);
             if (subscriber == null) {
                 Log.e(TAG, "register: subscriber is null.");
                 throw new IllegalArgumentException("subscriber cannot be null.");
@@ -221,6 +218,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     // Implements IVmsService interface.
     @Override
     public void addVmsSubscriberToNotifications(IVmsSubscriberClient subscriber) {
+        ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             // Add the subscriber so it can subscribe.
             mSubscribersManager.add(subscriber);
@@ -229,6 +227,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     @Override
     public void removeVmsSubscriberToNotifications(IVmsSubscriberClient subscriber) {
+        ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             if (mHal.containsSubscriber(subscriber)) {
                 throw new IllegalArgumentException("Subscriber has active subscriptions.");
@@ -239,6 +238,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     @Override
     public void addVmsSubscriber(IVmsSubscriberClient subscriber, VmsLayer layer) {
+        ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             // Add the subscriber so it can subscribe.
             mSubscribersManager.add(subscriber);
@@ -250,6 +250,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     @Override
     public void removeVmsSubscriber(IVmsSubscriberClient subscriber, VmsLayer layer) {
+        ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
             mHal.removeSubscription(subscriber, layer);
@@ -258,8 +259,9 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     @Override
     public void addVmsSubscriberToPublisher(IVmsSubscriberClient subscriber,
-                                                  VmsLayer layer,
-                                                  int publisherId) {
+                                            VmsLayer layer,
+                                            int publisherId) {
+        ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             // Add the subscriber so it can subscribe.
             mSubscribersManager.add(subscriber);
@@ -271,8 +273,9 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     @Override
     public void removeVmsSubscriberToPublisher(IVmsSubscriberClient subscriber,
-                                                     VmsLayer layer,
-                                                     int publisherId) {
+                                               VmsLayer layer,
+                                               int publisherId) {
+        ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
             mHal.removeSubscription(subscriber, layer, publisherId);
@@ -281,6 +284,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     @Override
     public void addVmsSubscriberPassive(IVmsSubscriberClient subscriber) {
+        ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             mSubscribersManager.add(subscriber);
             mHal.addSubscription(subscriber);
@@ -289,6 +293,7 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     @Override
     public void removeVmsSubscriberPassive(IVmsSubscriberClient subscriber) {
+        ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             // Remove the subscription.
             mHal.removeSubscription(subscriber);
@@ -297,15 +302,16 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
 
     @Override
     public byte[] getPublisherInfo(int publisherId) {
+        ICarImpl.assertVmsSubscriberPermission(mContext);
         synchronized (mSubscriberServiceLock) {
             return mHal.getPublisherInfo(publisherId);
         }
     }
 
     @Override
-    public List<VmsLayer> getAvailableLayers() {
-        //TODO(asafro): return the list of available layers once logic is implemented.
-        return Collections.emptyList();
+    public VmsAvailableLayers getAvailableLayers() {
+        return mHal.getAvailableLayers();
+
     }
 
     // Implements VmsHalSubscriberListener interface
@@ -330,15 +336,13 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     }
 
     @Override
-    public void onLayersAvaiabilityChange(List<VmsAssociatedLayer> availableLayers) {
+    public void onLayersAvaiabilityChange(VmsAvailableLayers availableLayers) {
         if (DBG) {
             Log.d(TAG, "Publishing layers availability change: " + availableLayers);
         }
 
         Set<IVmsSubscriberClient> subscribers;
-        synchronized (mSubscriberServiceLock) {
-            subscribers = new HashSet<>(mSubscribersManager.getListeners());
-        }
+        subscribers = new HashSet<>(mSubscribersManager.getListeners());
 
         for (IVmsSubscriberClient subscriber : subscribers) {
             try {

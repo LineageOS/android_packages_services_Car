@@ -16,14 +16,16 @@
 
 package android.car.vms;
 
-import android.car.annotation.FutureFeature;
+import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -31,7 +33,7 @@ import java.util.Set;
  *
  * @hide
  */
-@FutureFeature
+@SystemApi
 public final class VmsLayerDependency implements Parcelable {
     private final VmsLayer mLayer;
     private final Set<VmsLayer> mDependency;
@@ -64,17 +66,32 @@ public final class VmsLayerDependency implements Parcelable {
     }
 
     public static final Parcelable.Creator<VmsLayerDependency> CREATOR = new
-        Parcelable.Creator<VmsLayerDependency>() {
-            public VmsLayerDependency createFromParcel(Parcel in) {
-                return new VmsLayerDependency(in);
-            }
-            public VmsLayerDependency[] newArray(int size) {
-                return new VmsLayerDependency[size];
-            }
-        };
+            Parcelable.Creator<VmsLayerDependency>() {
+                public VmsLayerDependency createFromParcel(Parcel in) {
+                    return new VmsLayerDependency(in);
+                }
+
+                public VmsLayerDependency[] newArray(int size) {
+                    return new VmsLayerDependency[size];
+                }
+            };
 
     public String toString() {
         return "VmsLayerDependency{ Layer: " + mLayer + " Dependency: " + mDependency + "}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof VmsLayerDependency)) {
+            return false;
+        }
+        VmsLayerDependency p = (VmsLayerDependency) o;
+        return Objects.equals(p.mLayer, mLayer) && p.mDependency.equals(mDependency);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mLayer, mDependency);
     }
 
     @Override

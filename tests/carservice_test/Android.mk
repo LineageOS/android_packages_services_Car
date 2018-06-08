@@ -37,13 +37,18 @@ LOCAL_MODULE_PATH := $(TARGET_OUT_DATA_APPS)
 
 LOCAL_PROGUARD_ENABLED := disabled
 
-LOCAL_STATIC_JAVA_LIBRARIES := junit legacy-android-test
+LOCAL_STATIC_JAVA_LIBRARIES := junit
 LOCAL_STATIC_JAVA_LIBRARIES += car-service-lib-for-test \
                                vehicle-hal-support-lib \
                                car-systemtest \
+                               mockito-target-inline \
                                android-support-test \
-                               android.hardware.automotive.vehicle-V2.0-java-static
+                               android.hardware.automotive.vehicle-V2.0-java \
+                               com.android.car.test.utils \
+                               truth-prebuilt
 
-LOCAL_JAVA_LIBRARIES := android.car android.test.runner
+LOCAL_JAVA_LIBRARIES := android.car android.test.runner android.test.base
+
+LOCAL_JNI_SHARED_LIBRARIES := libdexmakerjvmtiagent
 
 include $(BUILD_PACKAGE)
