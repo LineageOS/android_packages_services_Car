@@ -17,6 +17,7 @@
 package com.google.android.car.kitchensink;
 
 
+import android.car.hardware.CarSensorManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.property.CarPropertyManager;
@@ -27,7 +28,6 @@ import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
 import android.support.car.CarConnectionCallback;
 import android.support.car.CarNotConnectedException;
-import android.support.car.hardware.CarSensorManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
@@ -181,16 +181,8 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private CarHvacManager mHvacManager;
     private CarPowerManager mPowerManager;
     private CarPropertyManager mPropertyManager;
-    private CarSensorManager mCarSensorManager;
+    private CarSensorManager mSensorManager;
     private CarAppFocusManager mCarAppFocusManager;
-
-    private final CarSensorManager.OnSensorChangedListener mListener = (manager, event) -> {
-        switch (event.sensorType) {
-            case CarSensorManager.SENSOR_TYPE_DRIVING_STATUS:
-                Log.d(TAG, "driving status:" + event.intValues[0]);
-                break;
-        }
-    };
 
     public CarHvacManager getHvacManager() {
         return mHvacManager;
@@ -207,6 +199,10 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     @Override
     protected CarDrawerAdapter getRootAdapter() {
         return new DrawerAdapter();
+    }
+
+    public CarSensorManager getSensorManager() {
+        return mSensorManager;
     }
 
     @Override
@@ -255,9 +251,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mCarSensorManager != null) {
-            mCarSensorManager.removeListener(mListener);
-        }
         if (mCarApi != null) {
             mCarApi.disconnect();
         }
@@ -281,10 +274,8 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                     android.car.Car.POWER_SERVICE);
                 mPropertyManager = (CarPropertyManager) mCarApi.getCarManager(
                     android.car.Car.PROPERTY_SERVICE);
-                mCarSensorManager = (CarSensorManager) mCarApi.getCarManager(Car.SENSOR_SERVICE);
-                mCarSensorManager.addListener(mListener,
-                        CarSensorManager.SENSOR_TYPE_DRIVING_STATUS,
-                        CarSensorManager.SENSOR_RATE_NORMAL);
+                mSensorManager = (CarSensorManager) mCarApi.getCarManager(
+                    android.car.Car.SENSOR_SERVICE);
                 mCarAppFocusManager =
                         (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
             } catch (CarNotConnectedException e) {
