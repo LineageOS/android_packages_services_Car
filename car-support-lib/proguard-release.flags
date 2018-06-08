@@ -7646,7 +7646,6 @@
     public abstract java.lang.String[] setPackagesSuspendedAsUser(java.lang.String[], boolean, android.os.PersistableBundle, android.os.PersistableBundle, java.lang.String, java.lang.String, int);
     public abstract void setPermissionEnforced(java.lang.String, boolean);
     public abstract boolean setRequiredForSystemUser(java.lang.String, boolean);
-    public abstract boolean setSystemAppInstallState(java.lang.String, boolean, int);
     public abstract void setUpdateAvailable(java.lang.String, boolean);
     public abstract boolean shouldShowRequestPermissionRationale(java.lang.String, java.lang.String, int);
     public abstract void systemReady();
@@ -8590,7 +8589,6 @@
     public static int MATCH_DISABLED_UNTIL_USED_COMPONENTS;
     public static int MATCH_EXPLICITLY_VISIBLE_ONLY;
     public static int MATCH_FACTORY_ONLY;
-    public static int MATCH_HIDDEN_UNTIL_INSTALLED_COMPONENTS;
     public static int MATCH_INSTANT;
     public static int MATCH_KNOWN_PACKAGES;
     public static int MATCH_STATIC_SHARED_LIBRARIES;
@@ -14031,7 +14029,6 @@
     public void dump(java.io.FileDescriptor, java.lang.String[]);
     protected void dump(java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     public void dumpAsync(java.io.FileDescriptor, java.lang.String[]);
-    public static void dumpProxyDebugInfo();
     public static void enableTracing();
     public static void flushPendingCommands();
     public static int getCallingPid();
