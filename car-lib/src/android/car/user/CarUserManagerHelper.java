@@ -15,7 +15,9 @@
  */
 package android.car.user;
 
+import android.Manifest;
 import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -301,6 +303,13 @@ public class CarUserManagerHelper {
     }
 
     /**
+     * Checks if the calling app is running as an admin user.
+     */
+    public boolean isCurrentProcessAdminUser() {
+        return mUserManager.isAdminUser();
+    }
+
+    /**
      * Checks if the calling app is running as a guest user.
      */
     public boolean isCurrentProcessGuestUser() {
@@ -356,6 +365,24 @@ public class CarUserManagerHelper {
      */
     public boolean canCurrentProcessSwitchUsers() {
         return !isCurrentProcessUserHasRestriction(UserManager.DISALLOW_USER_SWITCH);
+    }
+
+    /**
+     * Assigns admin privileges to the user.
+     *
+     * @param user User to be upgraded to Admin status.
+     */
+    @RequiresPermission(allOf = {
+            Manifest.permission.INTERACT_ACROSS_USERS_FULL,
+            Manifest.permission.MANAGE_USERS
+    })
+    public void assignAdminPrivileges(UserInfo user) {
+        if (!isCurrentProcessAdminUser()) {
+            Log.w(TAG, "Only admin users can assign admin privileges.");
+            return;
+        }
+
+        mUserManager.setUserAdmin(user.id);
     }
 
     /**
