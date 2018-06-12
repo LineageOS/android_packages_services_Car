@@ -23,23 +23,25 @@
 -->
 
 <com.android.keyguard.KeyguardPINView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/keyguard_pin_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/keyguard_pin_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/car_margin">
 
     <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/num_pad_margin_left"
-        android:layout_marginRight="@dimen/num_pad_margin_right">
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent">
 
         <GridLayout
             android:id="@+id/container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|start"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:columnCount="3">
 
             <!-- Row 1 -->
@@ -106,51 +108,51 @@
                 android:background="@drawable/ripple_drawable"
                 android:contentDescription="@string/keyboardview_keycode_enter" />
         </GridLayout>
+    </FrameLayout>
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <com.android.keyguard.PasswordTextView
+            android:id="@+id/pinEntry"
+            android:layout_width="@dimen/keyguard_security_width"
+            android:layout_height="@dimen/pin_entry_height"
+            android:gravity="center"
+            app:scaledTextSize="@integer/password_text_view_scale"
+            android:contentDescription="@string/keyguard_accessibility_pin_area" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="@dimen/keyguard_security_width"
+            android:layout_height="@dimen/divider_height"
+            android:background="@android:color/white" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
+            android:layout_margin="@dimen/car_padding_2"
             android:gravity="center"
-            android:orientation="vertical">
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/car_body1_size"
+            android:text="@string/keyguard_enter_your_pin" />
 
-            <com.android.keyguard.PasswordTextView
-                android:id="@+id/pinEntry"
-                android:layout_width="@dimen/keyguard_security_width"
-                android:layout_height="@dimen/pin_entry_height"
-                android:gravity="center"
-                app:scaledTextSize="@integer/password_text_view_scale"
-                android:contentDescription="@string/keyguard_accessibility_pin_area" />
+        <include layout="@layout/keyguard_message_area"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginBottom="@dimen/car_padding_4"/>
 
-            <View
-                android:id="@+id/divider"
-                android:layout_width="@dimen/keyguard_security_width"
-                android:layout_height="@dimen/divider_height"
-                android:background="@android:color/white" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/car_padding_2"
-                android:gravity="center"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/car_body1_size"
-                android:text="@string/keyguard_enter_your_pin" />
-
-            <include layout="@layout/keyguard_message_area"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_marginBottom="@dimen/car_padding_4"/>
-
-            <Button
-                android:id="@+id/cancel_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                style="@style/KeyguardButton"
-                android:text="@string/cancel"/>
-        </LinearLayout>
-    </FrameLayout>
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            style="@style/KeyguardButton"
+            android:text="@string/cancel"/>
+    </LinearLayout>
 
     <!-- KeyguardPinView references these resources ids in code so removing them will cause the
          keyguard to crash. Instead put them down here where they are out of the way and set their
