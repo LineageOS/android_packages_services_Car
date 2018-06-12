@@ -17,7 +17,6 @@
 package com.android.car.user;
 
 import android.annotation.Nullable;
-import android.car.settings.CarSettings;
 import android.car.user.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -92,7 +91,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
                 UserInfo admin = mCarUserManagerHelper.createNewAdminUser(OWNER_NAME);
                 mCarUserManagerHelper.switchToUser(admin);
             } else {
-                mCarUserManagerHelper.switchToUserId(CarSettings.DEFAULT_USER_ID_TO_BOOT_INTO);
+                mCarUserManagerHelper.switchToUserId(mCarUserManagerHelper.getDefaultBootUser());
             }
         }
     }
