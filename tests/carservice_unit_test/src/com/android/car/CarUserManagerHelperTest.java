@@ -18,6 +18,7 @@ package com.android.car;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -313,6 +314,31 @@ public class CarUserManagerHelperTest {
         String newName = "New Test Name";
         mHelper.setUserName(testInfo, newName);
         verify(mUserManager).setUserName(mCurrentProcessUser.id + 3, newName);
+    }
+
+    @Test
+    public void testIsCurrentProcessSystemUser() {
+        when(mUserManager.isAdminUser()).thenReturn(true);
+        assertThat(mHelper.isCurrentProcessAdminUser()).isTrue();
+
+        when(mUserManager.isAdminUser()).thenReturn(false);
+        assertThat(mHelper.isCurrentProcessAdminUser()).isFalse();
+    }
+
+    @Test
+    public void testAssignAdminPrivileges() {
+        int userId = 30;
+        UserInfo testInfo = createUserInfoForId(userId);
+
+        // Test that non-admins cannot assign admin privileges.
+        when(mUserManager.isAdminUser()).thenReturn(false); // Current user non-admin.
+        mHelper.assignAdminPrivileges(testInfo);
+        verify(mUserManager, never()).setUserAdmin(userId);
+
+        // Admins can assign admin privileges.
+        when(mUserManager.isAdminUser()).thenReturn(true);
+        mHelper.assignAdminPrivileges(testInfo);
+        verify(mUserManager).setUserAdmin(userId);
     }
 
     @Test
