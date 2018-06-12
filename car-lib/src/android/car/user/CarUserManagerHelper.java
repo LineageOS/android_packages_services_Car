@@ -34,8 +34,11 @@ import android.util.Log;
 
 import com.android.internal.util.UserIcons;
 
+import com.google.android.collect.Sets;
+
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Helper class for {@link UserManager}, this is meant to be used by builds that support
@@ -50,6 +53,14 @@ import java.util.List;
 public class CarUserManagerHelper {
     private static final String TAG = "CarUserManagerHelper";
     private static final String HEADLESS_SYSTEM_USER = "android.car.systemuser.headless";
+    /**
+     * Default set of restrictions for Non-Admin users.
+     */
+    private static final Set<String> DEFAULT_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
+            UserManager.DISALLOW_REMOVE_USER,
+            UserManager.DISALLOW_FACTORY_RESET
+    );
+
     private final Context mContext;
     private final UserManager mUserManager;
     private final ActivityManager mActivityManager;
@@ -383,6 +394,9 @@ public class CarUserManagerHelper {
         }
 
         mUserManager.setUserAdmin(user.id);
+
+        // Remove restrictions imposed on non-admins.
+        setDefaultNonAdminRestrictions(user, /* enable= */ false);
     }
 
     /**
@@ -419,8 +433,34 @@ public class CarUserManagerHelper {
             Log.w(TAG, "can't create non-admin user.");
             return null;
         }
+        setDefaultNonAdminRestrictions(user, /* enable= */ true);
         assignDefaultIcon(user);
         return user;
+    }
+
+    /**
+     * Sets the values of default Non-Admin restrictions to the passed in value.
+     *
+     * @param userInfo User to set restrictions on.
+     * @param enable If true, restriction is ON, If false, restriction is OFF.
+     */
+    private void setDefaultNonAdminRestrictions(UserInfo userInfo, boolean enable) {
+        for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
+            setUserRestriction(userInfo, restriction, enable);
+        }
+    }
+
+    /**
+     * Sets the value of the specified restriction for the specified user.
+     *
+     * @param userInfo the user whose restriction is to be changed
+     * @param restriction the key of the restriction
+     * @param enable the value for the restriction. if true, turns the restriction ON, if false,
+     *               turns the restriction OFF.
+     */
+    public void setUserRestriction(UserInfo userInfo, String restriction, boolean enable) {
+        UserHandle userHandle = UserHandle.of(userInfo.id);
+        mUserManager.setUserRestriction(restriction, enable, userHandle);
     }
 
     /**
