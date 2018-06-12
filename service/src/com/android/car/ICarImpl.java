@@ -36,6 +36,7 @@ import android.util.Slog;
 import android.util.TimingsTraceLog;
 
 import com.android.car.cluster.InstrumentClusterService;
+import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.car.pm.CarPackageManagerService;
