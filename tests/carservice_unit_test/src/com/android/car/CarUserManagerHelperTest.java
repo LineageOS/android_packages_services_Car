@@ -35,6 +35,7 @@ import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
@@ -45,6 +46,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -54,10 +56,11 @@ import java.util.List;
  * The following mocks are used:
  * 1. {@link Context} provides system services and resources.
  * 2. {@link UserManager} provides dummy users and user info.
- * 3. {@link ActivityManager} provides dummy current process user.
+ * 3. {@link ActivityManager} to verify user switch is invoked.
  * 4. {@link CarUserManagerHelper.OnUsersUpdateListener} registers a listener for user updates.
  */
 @RunWith(AndroidJUnit4.class)
+@SmallTest
 public class CarUserManagerHelperTest {
     @Mock
     private Context mContext;
@@ -73,6 +76,8 @@ public class CarUserManagerHelperTest {
     private UserInfo mSystemUser;
     private String mGuestUserName = "testGuest";
     private String mTestUserName = "testUser";
+    private int mForegroundUserId;
+    private UserInfo mForegroundUser;
 
     @Before
     public void setUpMocksAndVariables() throws Exception {
@@ -87,6 +92,16 @@ public class CarUserManagerHelperTest {
         mCurrentProcessUser = createUserInfoForId(UserHandle.myUserId());
         mSystemUser = createUserInfoForId(UserHandle.USER_SYSTEM);
         when(mUserManager.getUserInfo(UserHandle.myUserId())).thenReturn(mCurrentProcessUser);
+
+        // Get the ID of the foreground user running this test. This should be non-root (non
+        // user 0) secondary user.
+        // We cannot mock the foreground user since getCurrentUser is static.
+        mForegroundUserId = ActivityManager.getCurrentUser();
+        mForegroundUser = createUserInfoForId(mForegroundUserId);
+
+        // Restore the non-headless state before every test. Individual tests can set the property
+        // to true to test the headless system user scenario.
+        SystemProperties.set("android.car.systemuser.headless", "false");
     }
 
     @Test
@@ -104,95 +119,60 @@ public class CarUserManagerHelperTest {
     @Test
     public void testHeadlessUser0GetAllUsers_NotReturnSystemUser() {
         SystemProperties.set("android.car.systemuser.headless", "true");
-        UserInfo otherUser1 = createUserInfoForId(10);
-        UserInfo otherUser2 = createUserInfoForId(11);
-        UserInfo otherUser3 = createUserInfoForId(12);
+        UserInfo otherUser1 = createUserInfoForId(mForegroundUserId + 1);
+        UserInfo otherUser2 = createUserInfoForId(mForegroundUserId + 2);
+        UserInfo otherUser3 = createUserInfoForId(mForegroundUserId + 3);
 
         List<UserInfo> testUsers = new ArrayList<>();
         testUsers.add(mSystemUser);
+        testUsers.add(mForegroundUser);
         testUsers.add(otherUser1);
         testUsers.add(otherUser2);
         testUsers.add(otherUser3);
 
         when(mUserManager.getUsers(true)).thenReturn(testUsers);
 
-        // Should return 3 users that don't have SYSTEM USER id.
-        assertThat(mHelper.getAllUsers()).hasSize(3);
+        assertThat(mHelper.getAllUsers()).hasSize(4);
         assertThat(mHelper.getAllUsers())
-            .containsExactly(otherUser1, otherUser2, otherUser3);
-    }
-
-    @Test
-    public void testHeadlessUser0GetAllUsersWithActiveForegroundUser_NotReturnSystemUser() {
-        SystemProperties.set("android.car.systemuser.headless", "true");
-        mCurrentProcessUser = createUserInfoForId(10);
-
-        UserInfo otherUser1 = createUserInfoForId(11);
-        UserInfo otherUser2 = createUserInfoForId(12);
-        UserInfo otherUser3 = createUserInfoForId(13);
-
-        List<UserInfo> testUsers = new ArrayList<>();
-        testUsers.add(mSystemUser);
-        testUsers.add(mCurrentProcessUser);
-        testUsers.add(otherUser1);
-        testUsers.add(otherUser2);
-        testUsers.add(otherUser3);
-
-        when(mUserManager.getUsers(true)).thenReturn(testUsers);
-
-        assertThat(mHelper.getAllUsers().size()).isEqualTo(4);
-        assertThat(mHelper.getAllUsers())
-            .containsExactly(mCurrentProcessUser, otherUser1, otherUser2, otherUser3);
+            .containsExactly(mForegroundUser, otherUser1, otherUser2, otherUser3);
     }
 
     @Test
     public void testGetAllSwitchableUsers() {
-        UserInfo user1 = createUserInfoForId(10);
-        UserInfo user2 = createUserInfoForId(11);
-        UserInfo user3 = createUserInfoForId(12);
+        // Create two non-foreground users.
+        UserInfo user1 = createUserInfoForId(mForegroundUserId + 1);
+        UserInfo user2 = createUserInfoForId(mForegroundUserId + 2);
 
-        List<UserInfo> testUsers = new ArrayList<>();
-        testUsers.add(mSystemUser);
-        testUsers.add(user1);
-        testUsers.add(user2);
-        testUsers.add(user3);
+        List<UserInfo> testUsers = Arrays.asList(mForegroundUser, mSystemUser, user1, user2);
 
         when(mUserManager.getUsers(true)).thenReturn(new ArrayList<>(testUsers));
 
-        // Should return all 3 non-system users.
-        assertThat(mHelper.getAllUsers().size())
-                .isEqualTo(3);
+        // Should return all 4 users.
+        assertThat(mHelper.getAllUsers()).hasSize(4);
 
-        when(mUserManager.getUserInfo(UserHandle.myUserId())).thenReturn(user1);
-        // Should return user 10, 11 and 12.
-        assertThat(mHelper.getAllSwitchableUsers().size())
-                .isEqualTo(3);
-        assertThat(mHelper.getAllSwitchableUsers()).contains(user1);
-        assertThat(mHelper.getAllSwitchableUsers()).contains(user2);
-        assertThat(mHelper.getAllSwitchableUsers()).contains(user3);
+        // Should return all non-foreground users.
+        assertThat(mHelper.getAllSwitchableUsers()).hasSize(3);
+        assertThat(mHelper.getAllSwitchableUsers()).containsExactly(mSystemUser, user1, user2);
     }
 
     // Get all users for headless user 0 model should exclude system user by default.
     @Test
     public void testHeadlessUser0GetAllSwitchableUsers() {
         SystemProperties.set("android.car.systemuser.headless", "true");
-        UserInfo user1 = createUserInfoForId(10);
-        UserInfo user2 = createUserInfoForId(11);
-        UserInfo user3 = createUserInfoForId(12);
 
-        List<UserInfo> testUsers = new ArrayList<>();
-        testUsers.add(mSystemUser);
-        testUsers.add(user1);
-        testUsers.add(user2);
-        testUsers.add(user3);
+        // Create three non-foreground users.
+        UserInfo user1 = createUserInfoForId(mForegroundUserId + 1);
+        UserInfo user2 = createUserInfoForId(mForegroundUserId + 2);
+        UserInfo user3 = createUserInfoForId(mForegroundUserId + 3);
+
+        List<UserInfo> testUsers = Arrays.asList(mForegroundUser, mSystemUser, user1, user2, user3);
 
         when(mUserManager.getUsers(true)).thenReturn(new ArrayList<>(testUsers));
 
-        // Should return all 3 non-system users.
-        assertThat(mHelper.getAllUsers()).hasSize(3);
+        // Should return all 4 non-system users.
+        assertThat(mHelper.getAllUsers()).hasSize(4);
 
-        when(mUserManager.getUserInfo(UserHandle.myUserId())).thenReturn(user1);
-        // Should return user 10, 11 and 12.
+        // Should return all non-system, non-foreground users.
         assertThat(mHelper.getAllSwitchableUsers()).containsExactly(user1, user2, user3);
     }
 
