@@ -151,8 +151,9 @@ public class CarUserManagerHelper {
     }
 
     /**
-     * Gets all the existing foreground users on the system that are not currently running as
+     * Gets all the existing users on the system that are not currently running as
      * the foreground user.
+     * These are all the users that can be switched to from the foreground user.
      *
      * @return List of {@code UserInfo} for each user that is not the foreground user.
      */
