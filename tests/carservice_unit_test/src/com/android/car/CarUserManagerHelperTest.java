@@ -342,6 +342,51 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
+    public void testSetUserRestriction() {
+        int userId = 20;
+        UserInfo testInfo = createUserInfoForId(userId);
+
+        mHelper.setUserRestriction(testInfo, UserManager.DISALLOW_ADD_USER, /* enable= */ true);
+        verify(mUserManager).setUserRestriction(
+                UserManager.DISALLOW_ADD_USER, true, UserHandle.of(userId));
+
+        mHelper.setUserRestriction(testInfo, UserManager.DISALLOW_REMOVE_USER, /* enable= */ false);
+        verify(mUserManager).setUserRestriction(
+                UserManager.DISALLOW_REMOVE_USER, false, UserHandle.of(userId));
+    }
+
+    @Test
+    public void testDefaultNonAdminRestrictions() {
+        String testUserName = "Test User";
+        int testUserId = 20;
+        boolean restrictionEnabled = true;
+        UserInfo newNonAdmin = createUserInfoForId(testUserId);
+        when(mUserManager.createUser(testUserName, /* flags= */ 0)).thenReturn(newNonAdmin);
+
+        mHelper.createNewNonAdminUser(testUserName);
+
+        verify(mUserManager).setUserRestriction(
+                UserManager.DISALLOW_REMOVE_USER, restrictionEnabled, UserHandle.of(testUserId));
+        verify(mUserManager).setUserRestriction(
+                UserManager.DISALLOW_FACTORY_RESET, restrictionEnabled, UserHandle.of(testUserId));
+    }
+
+    @Test
+    public void testAssigningAdminPrivilegesRemovesNonAdminRestrictions() {
+        int testUserId = 30;
+        boolean restrictionEnabled = false;
+        UserInfo testInfo = createUserInfoForId(testUserId);
+        when(mUserManager.isAdminUser()).thenReturn(true); // Only admins can assign privileges.
+
+        mHelper.assignAdminPrivileges(testInfo);
+
+        verify(mUserManager).setUserRestriction(
+                UserManager.DISALLOW_REMOVE_USER, restrictionEnabled, UserHandle.of(testUserId));
+        verify(mUserManager).setUserRestriction(
+                UserManager.DISALLOW_FACTORY_RESET, restrictionEnabled, UserHandle.of(testUserId));
+    }
+
+    @Test
     public void testRegisterUserChangeReceiver() {
         mHelper.registerOnUsersUpdateListener(mTestListener);
 
