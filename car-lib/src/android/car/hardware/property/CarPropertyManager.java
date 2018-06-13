@@ -44,6 +44,7 @@ import java.util.function.Consumer;
  * @hide
  */
 public class CarPropertyManager implements CarManagerBase {
+    private final List<CarPropertyConfig> mConfigs;
     private final boolean mDbg;
     private final SingleMessageHandler<CarPropertyEvent> mHandler;
     private final ICarProperty mService;
@@ -73,6 +74,12 @@ public class CarPropertyManager implements CarManagerBase {
         mDbg = dbg;
         mTag = tag;
         mService = ICarProperty.Stub.asInterface(service);
+        try {
+            mConfigs = mService.getPropertyList();
+        } catch (Exception e) {
+            Log.e(mTag, "getPropertyList exception ", e);
+            throw new RuntimeException(e);
+        }
         mHandler = new SingleMessageHandler<CarPropertyEvent>(handler.getLooper(),
                 MSG_GENERIC_EVENT) {
             @Override
@@ -207,41 +214,24 @@ public class CarPropertyManager implements CarManagerBase {
     }
 
     /**
-     * Returns the list of properties implemented by this car.
-     *
-     * @return Caller must check the property type and typecast to the appropriate subclass
-     * (CarPropertyBooleanProperty, CarPropertyFloatProperty, CarrPropertyIntProperty)
+     * @return List of properties implemented by this car that the application may access.
      */
-    public List<CarPropertyConfig> getPropertyList() throws CarNotConnectedException {
-        try {
-            return mService.getPropertyList();
-        } catch (RemoteException e) {
-            Log.e(mTag, "getPropertyList exception ", e);
-            throw new CarNotConnectedException(e);
-        }
+    public List<CarPropertyConfig> getPropertyList() {
+        return mConfigs;
     }
 
     /**
-     * Returns the list of properties implemented by this car in given property id list.
-     *
-     * @return Caller must check the property type and typecast to the appropriate subclass
-     * (CarPropertyBooleanProperty, CarPropertyFloatProperty, CarrPropertyIntProperty)
+     * @return List of properties implemented by this car in given property ID list that application
+     *          may access.
      */
-    public List<CarPropertyConfig> getPropertyList(ArraySet<Integer> propertyIds)
-            throws CarNotConnectedException {
-        try {
-            List<CarPropertyConfig> configs = new ArrayList<>();
-            for (CarPropertyConfig c : mService.getPropertyList()) {
-                if (propertyIds.contains(c.getPropertyId())) {
-                    configs.add(c);
-                }
+    public List<CarPropertyConfig> getPropertyList(ArraySet<Integer> propertyIds) {
+        List<CarPropertyConfig> configs = new ArrayList<>();
+        for (CarPropertyConfig c : mConfigs) {
+            if (propertyIds.contains(c.getPropertyId())) {
+                configs.add(c);
             }
-            return configs;
-        } catch (RemoteException e) {
-            Log.e(mTag, "getPropertyList exception ", e);
-            throw new CarNotConnectedException(e);
         }
-
+        return configs;
     }
 
     /**
