@@ -19,12 +19,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
 import android.car.Car;
-import android.car.hardware.CarPropertyValue;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.StatusCode;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.ConditionVariable;
 import android.os.FileUtils;
 import android.os.IBinder;
@@ -82,7 +82,7 @@ public class E2eCarTestBase {
         }
     }
 
-    protected List<CarPropertyValue> getExpectedEvents(String fileName)
+    protected List<VehiclePropValue> getExpectedEvents(String fileName)
             throws IOException, JSONException {
         try (InputStream in = mContext.getAssets().open(fileName)) {
             Log.d(TAG, "Reading golden test data" + fileName);

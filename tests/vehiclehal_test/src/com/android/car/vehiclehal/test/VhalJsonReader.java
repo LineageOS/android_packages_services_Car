@@ -17,9 +17,10 @@ package com.android.car.vehiclehal.test;
 
 import static java.lang.Integer.toHexString;
 
-import android.car.hardware.CarPropertyValue;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,10 +45,10 @@ class VhalJsonReader {
     private static final String JSON_FIELD_TIMESTAMP = "timestamp";
     private static final String JSON_FIELD_VALUE = "value";
 
-    public static List<CarPropertyValue> readFromJson(InputStream in)
+    public static List<VehiclePropValue> readFromJson(InputStream in)
             throws IOException, JSONException {
         JSONArray rawEvents = new JSONArray(readJsonString(in));
-        List<CarPropertyValue> events = new ArrayList<>();
+        List<VehiclePropValue> events = new ArrayList<>();
         for (int i = 0; i < rawEvents.length(); i++) {
             events.add(getEvent(rawEvents.getJSONObject(i)));
         }
@@ -63,33 +64,32 @@ class VhalJsonReader {
         return builder.toString();
     }
 
-    private static CarPropertyValue<?> getEvent(JSONObject rawEvent) throws JSONException {
+    private static VehiclePropValue getEvent(JSONObject rawEvent) throws JSONException {
         int prop = rawEvent.getInt(JSON_FIELD_PROP);
-        int areaId = rawEvent.getInt(JSON_FIELD_AREA_ID);
-        long timestamp = rawEvent.getLong(JSON_FIELD_TIMESTAMP);
+        VehiclePropValueBuilder builder = VehiclePropValueBuilder.newBuilder(prop)
+                .setAreaId(rawEvent.getInt(JSON_FIELD_AREA_ID))
+                .setTimestamp(rawEvent.getLong(JSON_FIELD_TIMESTAMP));
 
         switch (prop & VehiclePropertyType.MASK) {
             case VehiclePropertyType.BOOLEAN:
-                return new CarPropertyValue<>(prop, areaId, CarPropertyValue.STATUS_AVAILABLE,
-                                            timestamp, rawEvent.getInt(JSON_FIELD_VALUE) != 0);
             case VehiclePropertyType.INT32:
-                return new CarPropertyValue<>(prop, areaId, CarPropertyValue.STATUS_AVAILABLE,
-                                            timestamp, rawEvent.getInt(JSON_FIELD_VALUE));
+                builder.addIntValue(rawEvent.getInt(JSON_FIELD_VALUE));
+                break;
             case VehiclePropertyType.INT64:
-                return new CarPropertyValue<>(prop, areaId, CarPropertyValue.STATUS_AVAILABLE,
-                                            timestamp, rawEvent.getLong(JSON_FIELD_VALUE));
+                builder.setInt64Value(rawEvent.getLong(JSON_FIELD_VALUE));
+                break;
             case VehiclePropertyType.FLOAT:
-                return new CarPropertyValue<>(prop, areaId,
-                                              CarPropertyValue.STATUS_AVAILABLE, timestamp,
-                                              (float) rawEvent.getDouble(JSON_FIELD_VALUE));
+                builder.addFloatValue((float) rawEvent.getDouble(JSON_FIELD_VALUE));
+                break;
             case VehiclePropertyType.STRING:
-                return new CarPropertyValue<>(prop, areaId, CarPropertyValue.STATUS_AVAILABLE,
-                                            timestamp, rawEvent.getString(JSON_FIELD_VALUE));
+                builder.setStringValue(rawEvent.getString(JSON_FIELD_VALUE));
+                break;
             //TODO: Add VehiclePropertyType.MIXED type support
             default:
                 throw new IllegalArgumentException("Property type 0x"
                         + toHexString(prop & VehiclePropertyType.MASK)
                         + " is not supported in the test.");
         }
+        return builder.build();
     }
 }
