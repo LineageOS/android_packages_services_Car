@@ -94,9 +94,9 @@ public class CarUserManagerHelperTest {
         mSystemUser = createUserInfoForId(UserHandle.USER_SYSTEM);
         when(mUserManager.getUserInfo(UserHandle.myUserId())).thenReturn(mCurrentProcessUser);
 
-        // Get the ID of the foreground user running this test. This should be non-root (non
-        // user 0) secondary user.
+        // Get the ID of the foreground user running this test.
         // We cannot mock the foreground user since getCurrentUser is static.
+        // We cannot rely on foreground_id != system_id, they could be the same user.
         mForegroundUserId = ActivityManager.getCurrentUser();
         mForegroundUser = createUserInfoForId(mForegroundUserId);
 
@@ -120,22 +120,21 @@ public class CarUserManagerHelperTest {
     @Test
     public void testHeadlessUser0GetAllUsers_NotReturnSystemUser() {
         SystemProperties.set("android.car.systemuser.headless", "true");
-        UserInfo otherUser1 = createUserInfoForId(mForegroundUserId + 1);
-        UserInfo otherUser2 = createUserInfoForId(mForegroundUserId + 2);
-        UserInfo otherUser3 = createUserInfoForId(mForegroundUserId + 3);
+        UserInfo otherUser1 = createUserInfoForId(10);
+        UserInfo otherUser2 = createUserInfoForId(11);
+        UserInfo otherUser3 = createUserInfoForId(12);
 
         List<UserInfo> testUsers = new ArrayList<>();
         testUsers.add(mSystemUser);
-        testUsers.add(mForegroundUser);
         testUsers.add(otherUser1);
         testUsers.add(otherUser2);
         testUsers.add(otherUser3);
 
         when(mUserManager.getUsers(true)).thenReturn(testUsers);
 
-        assertThat(mHelper.getAllUsers()).hasSize(4);
+        assertThat(mHelper.getAllUsers()).hasSize(3);
         assertThat(mHelper.getAllUsers())
-            .containsExactly(mForegroundUser, otherUser1, otherUser2, otherUser3);
+            .containsExactly(otherUser1, otherUser2, otherUser3);
     }
 
     @Test
@@ -144,37 +143,16 @@ public class CarUserManagerHelperTest {
         UserInfo user1 = createUserInfoForId(mForegroundUserId + 1);
         UserInfo user2 = createUserInfoForId(mForegroundUserId + 2);
 
-        List<UserInfo> testUsers = Arrays.asList(mForegroundUser, mSystemUser, user1, user2);
+        List<UserInfo> testUsers = Arrays.asList(mForegroundUser, user1, user2);
 
         when(mUserManager.getUsers(true)).thenReturn(new ArrayList<>(testUsers));
 
-        // Should return all 4 users.
-        assertThat(mHelper.getAllUsers()).hasSize(4);
+        // Should return all 3 users.
+        assertThat(mHelper.getAllUsers()).hasSize(3);
 
         // Should return all non-foreground users.
-        assertThat(mHelper.getAllSwitchableUsers()).hasSize(3);
-        assertThat(mHelper.getAllSwitchableUsers()).containsExactly(mSystemUser, user1, user2);
-    }
-
-    // Get all users for headless user 0 model should exclude system user by default.
-    @Test
-    public void testHeadlessUser0GetAllSwitchableUsers() {
-        SystemProperties.set("android.car.systemuser.headless", "true");
-
-        // Create three non-foreground users.
-        UserInfo user1 = createUserInfoForId(mForegroundUserId + 1);
-        UserInfo user2 = createUserInfoForId(mForegroundUserId + 2);
-        UserInfo user3 = createUserInfoForId(mForegroundUserId + 3);
-
-        List<UserInfo> testUsers = Arrays.asList(mForegroundUser, mSystemUser, user1, user2, user3);
-
-        when(mUserManager.getUsers(true)).thenReturn(new ArrayList<>(testUsers));
-
-        // Should return all 4 non-system users.
-        assertThat(mHelper.getAllUsers()).hasSize(4);
-
-        // Should return all non-system, non-foreground users.
-        assertThat(mHelper.getAllSwitchableUsers()).containsExactly(user1, user2, user3);
+        assertThat(mHelper.getAllSwitchableUsers()).hasSize(2);
+        assertThat(mHelper.getAllSwitchableUsers()).containsExactly(user1, user2);
     }
 
     @Test
