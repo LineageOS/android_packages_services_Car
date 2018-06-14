@@ -91,14 +91,17 @@ public final class CarSensorManager implements CarManagerBase {
      * Day/night sensor. Sensor data is intValues[0].
      */
     public static final int SENSOR_TYPE_NIGHT                       = 0x11200407;
+    /**
+     * Outside Environment like temperature.
+     * This requires {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT} permission.
+     */
+    public static final int SENSOR_TYPE_ENV_OUTSIDE_TEMPERATURE     = 0x11600703;
     /** @hide */
     public static final int SENSOR_TYPE_RESERVED10                  = 10;
     /** @hide */
     public static final int SENSOR_TYPE_RESERVED11                  = 11;
-    /**
-     * Environment like temperature and pressure.
-     */
-    public static final int SENSOR_TYPE_ENVIRONMENT                 = 12;
+    /** @hide */
+    public static final int SENSOR_TYPE_RESERVED12                  = 12;
     /** @hide */
     public static final int SENSOR_TYPE_RESERVED13                  = 13;
     /** @hide */
@@ -186,7 +189,7 @@ public final class CarSensorManager implements CarManagerBase {
             SENSOR_TYPE_PARKING_BRAKE,
             SENSOR_TYPE_GEAR,
             SENSOR_TYPE_NIGHT,
-            SENSOR_TYPE_ENVIRONMENT,
+            SENSOR_TYPE_ENV_OUTSIDE_TEMPERATURE,
             SENSOR_TYPE_IGNITION_STATE,
             SENSOR_TYPE_WHEEL_TICK_DISTANCE,
             SENSOR_TYPE_ABS_ACTIVE,
@@ -209,7 +212,7 @@ public final class CarSensorManager implements CarManagerBase {
             SENSOR_TYPE_PARKING_BRAKE,
             SENSOR_TYPE_GEAR,
             SENSOR_TYPE_NIGHT,
-            SENSOR_TYPE_ENVIRONMENT,
+            SENSOR_TYPE_ENV_OUTSIDE_TEMPERATURE,
             SENSOR_TYPE_IGNITION_STATE,
             SENSOR_TYPE_WHEEL_TICK_DISTANCE,
             SENSOR_TYPE_ABS_ACTIVE,
