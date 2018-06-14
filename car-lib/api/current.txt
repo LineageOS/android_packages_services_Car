@@ -265,7 +265,6 @@ package android.car.hardware {
     field public static final int IGNITION_STATE_ON = 4; // 0x4
     field public static final int IGNITION_STATE_START = 5; // 0x5
     field public static final int IGNITION_STATE_UNDEFINED = 0; // 0x0
-    field public static final int INDEX_ENVIRONMENT_PRESSURE = 1; // 0x1
     field public static final int INDEX_ENVIRONMENT_TEMPERATURE = 0; // 0x0
     field public static final int INDEX_WHEEL_DISTANCE_FRONT_LEFT = 1; // 0x1
     field public static final int INDEX_WHEEL_DISTANCE_FRONT_RIGHT = 2; // 0x2
@@ -280,7 +279,6 @@ package android.car.hardware {
   }
 
   public static class CarSensorEvent.EnvironmentData {
-    field public float pressure;
     field public float temperature;
     field public long timestamp;
   }
@@ -300,7 +298,7 @@ package android.car.hardware {
     field public static final int SENSOR_RATE_UI = 5; // 0x5
     field public static final int SENSOR_TYPE_ABS_ACTIVE = 287310858; // 0x1120040a
     field public static final int SENSOR_TYPE_CAR_SPEED = 291504647; // 0x11600207
-    field public static final int SENSOR_TYPE_ENVIRONMENT = 12; // 0xc
+    field public static final int SENSOR_TYPE_ENV_OUTSIDE_TEMPERATURE = 291505923; // 0x11600703
     field public static final int SENSOR_TYPE_EV_BATTERY_CHARGE_RATE = 291504908; // 0x1160030c
     field public static final int SENSOR_TYPE_EV_BATTERY_LEVEL = 291504905; // 0x11600309
     field public static final int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED = 287310603; // 0x1120030b
