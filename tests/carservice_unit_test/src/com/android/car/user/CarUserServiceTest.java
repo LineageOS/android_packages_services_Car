@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
+import android.os.UserManager;
 import android.support.test.runner.AndroidJUnit4;
 
 import java.util.ArrayList;
@@ -117,5 +118,25 @@ public class CarUserServiceTest {
 
         verify(mCarUserManagerHelper).createNewAdminUser(CarUserService.OWNER_NAME);
         verify(mCarUserManagerHelper).switchToUser(admin);
+    }
+
+    /**
+     * Test that the {@link CarUserService} disable modify account for user 0 upon first run.
+     */
+    @Test
+    public void testDisableModifyAccountsForSystemUserOnFirstRun() {
+        List<UserInfo> users = new ArrayList<>();
+
+        int systemUserId = 0;
+        UserInfo user0 = new UserInfo(systemUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
+
+        doReturn(users).when(mCarUserManagerHelper).getAllUsers();
+        doReturn(user0).when(mCarUserManagerHelper).getSystemUserInfo();
+
+        mCarUserService.onReceive(mMockContext,
+                new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
+
+        verify(mCarUserManagerHelper).
+                setUserRestriction(user0, UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
     }
 }
