@@ -72,6 +72,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         car-systemtest \
         com.android.car.procfsinspector-client \
 
+LOCAL_MIN_SDK_VERSION := 25
+
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 include $(call all-makefiles-under,$(LOCAL_PATH))
