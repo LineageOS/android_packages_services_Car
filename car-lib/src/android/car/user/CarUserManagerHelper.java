@@ -233,7 +233,7 @@ public class CarUserManagerHelper {
         if (isHeadlessSystemUser()) {
             return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
         } else {
-            return mUserManager.getUsers(/* excludeDying= */true);
+            return mUserManager.getUsers(/* excludeDying= */ true);
         }
     }
 
