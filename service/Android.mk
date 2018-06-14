@@ -66,6 +66,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         vehicle-hal-support-lib \
         car-systemtest \
 
+LOCAL_MIN_SDK_VERSION := 25
+
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 include $(call all-makefiles-under,$(LOCAL_PATH))
