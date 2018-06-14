@@ -243,6 +243,9 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void testCreateNewAdminUser() {
+        // Make sure current user is admin, since only admins can create other admins.
+        when(mUserManager.isAdminUser()).thenReturn(true);
+
         // Verify createUser on UserManager gets called.
         mHelper.createNewAdminUser(mTestUserName);
         verify(mUserManager).createUser(mTestUserName, UserInfo.FLAG_ADMIN);
@@ -254,6 +257,44 @@ public class CarUserManagerHelperTest {
         newUser.name = mTestUserName;
         when(mUserManager.createUser(mTestUserName, UserInfo.FLAG_ADMIN)).thenReturn(newUser);
         assertThat(mHelper.createNewAdminUser(mTestUserName)).isEqualTo(newUser);
+    }
+
+    @Test
+    public void testAdminsCanCreateAdmins() {
+        String newAdminName = "Test new admin";
+        UserInfo expectedAdmin = new UserInfo();
+        expectedAdmin.name = newAdminName;
+        when(mUserManager.createUser(newAdminName, UserInfo.FLAG_ADMIN)).thenReturn(expectedAdmin);
+
+        // Admins can create other admins.
+        when(mUserManager.isAdminUser()).thenReturn(true);
+        UserInfo actualAdmin = mHelper.createNewAdminUser(newAdminName);
+        assertThat(actualAdmin).isEqualTo(expectedAdmin);
+    }
+
+    @Test
+    public void testNonAdminsCanNotCreateAdmins() {
+        String newAdminName = "Test new admin";
+        UserInfo expectedAdmin = new UserInfo();
+        expectedAdmin.name = newAdminName;
+        when(mUserManager.createUser(newAdminName, UserInfo.FLAG_ADMIN)).thenReturn(expectedAdmin);
+
+        // Test that non-admins cannot create new admins.
+        when(mUserManager.isAdminUser()).thenReturn(false); // Current user non-admin.
+        assertThat(mHelper.createNewAdminUser(newAdminName)).isNull();
+    }
+
+    @Test
+    public void testSystemUserCanCreateAdmins() {
+        String newAdminName = "Test new admin";
+        UserInfo expectedAdmin = new UserInfo();
+        expectedAdmin.name = newAdminName;
+        when(mUserManager.createUser(newAdminName, UserInfo.FLAG_ADMIN)).thenReturn(expectedAdmin);
+
+        // System user can create admins.
+        when(mUserManager.isSystemUser()).thenReturn(true);
+        UserInfo actualAdmin = mHelper.createNewAdminUser(newAdminName);
+        assertThat(actualAdmin).isEqualTo(expectedAdmin);
     }
 
     @Test
