@@ -458,16 +458,22 @@ public class CarUserManagerHelper {
 
     /**
      * Creates a new user on the system, the created user would be granted admin role.
+     * Only admins can create other admins.
      *
      * @param userName Name to give to the newly created user.
      * @return Newly created admin user, null if failed to create a user.
      */
     @Nullable
     public UserInfo createNewAdminUser(String userName) {
+        if (!(isCurrentProcessAdminUser() || isCurrentProcessSystemUser())) {
+            // Only Admins or System user can create other privileged users.
+            Log.e(TAG, "Only admin users and system user can create other admins.");
+            return null;
+        }
+
         UserInfo user = mUserManager.createUser(userName, UserInfo.FLAG_ADMIN);
         if (user == null) {
-            // Couldn't create user, most likely because there are too many, but we haven't
-            // been able to reload the list yet.
+            // Couldn't create user, most likely because there are too many.
             Log.w(TAG, "can't create admin user.");
             return null;
         }
@@ -485,8 +491,7 @@ public class CarUserManagerHelper {
     public UserInfo createNewNonAdminUser(String userName) {
         UserInfo user = mUserManager.createUser(userName, 0);
         if (user == null) {
-            // Couldn't create user, most likely because there are too many, but we haven't
-            // been able to reload the list yet.
+            // Couldn't create user, most likely because there are too many.
             Log.w(TAG, "can't create non-admin user.");
             return null;
         }
