@@ -17,13 +17,13 @@
 package com.android.car.user;
 
 import android.annotation.Nullable;
-import android.car.settings.CarSettings;
 import android.car.user.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
+import android.os.UserManager;
 import android.util.Log;
 
 import com.android.car.CarServiceBase;
@@ -89,10 +89,14 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
 
         if (intent.getAction() == Intent.ACTION_LOCKED_BOOT_COMPLETED) {
             if (mCarUserManagerHelper.getAllUsers().size() == 0) {
+                // Disable adding accounts for user 0.
+                mCarUserManagerHelper.setUserRestriction(mCarUserManagerHelper.getSystemUserInfo(),
+                        UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
+                // On very first boot, create an admin user and switch to that user.
                 UserInfo admin = mCarUserManagerHelper.createNewAdminUser(OWNER_NAME);
                 mCarUserManagerHelper.switchToUser(admin);
             } else {
-                mCarUserManagerHelper.switchToUserId(CarSettings.DEFAULT_USER_ID_TO_BOOT_INTO);
+                mCarUserManagerHelper.switchToUserId(mCarUserManagerHelper.getDefaultBootUser());
             }
         }
     }

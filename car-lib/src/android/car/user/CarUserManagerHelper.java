@@ -15,7 +15,9 @@
  */
 package android.car.user;
 
+import android.Manifest;
 import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.app.ActivityManager;
 import android.car.settings.CarSettings;
 import android.content.BroadcastReceiver;
@@ -29,12 +31,16 @@ import android.graphics.drawable.Drawable;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.android.internal.util.UserIcons;
 
+import com.google.android.collect.Sets;
+
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Helper class for {@link UserManager}, this is meant to be used by builds that support
@@ -49,6 +55,14 @@ import java.util.List;
 public class CarUserManagerHelper {
     private static final String TAG = "CarUserManagerHelper";
     private static final String HEADLESS_SYSTEM_USER = "android.car.systemuser.headless";
+    /**
+     * Default set of restrictions for Non-Admin users.
+     */
+    private static final Set<String> DEFAULT_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
+            UserManager.DISALLOW_REMOVE_USER,
+            UserManager.DISALLOW_FACTORY_RESET
+    );
+
     private final Context mContext;
     private final UserManager mUserManager;
     private final ActivityManager mActivityManager;
@@ -88,6 +102,51 @@ public class CarUserManagerHelper {
      */
     public void unregisterOnUsersUpdateListener() {
         unregisterReceiver();
+    }
+
+    /**
+     * Set default boot into user.
+     *
+     * @param userId default user id to boot into.
+     */
+    public void setDefaultBootUser(int userId) {
+        Settings.Global.putInt(
+                mContext.getContentResolver(),
+                CarSettings.Global.DEFAULT_USER_ID_TO_BOOT_INTO, userId);
+    }
+
+    /**
+     * Set last active user.
+     *
+     * @param userId last active user id.
+     */
+    public void setLastActiveUser(int userId) {
+        Settings.Global.putInt(
+                mContext.getContentResolver(), CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
+    }
+
+    /**
+     * Get user id for the default boot into user.
+     *
+     * @return user id of the default boot into user
+     */
+    public int getDefaultBootUser() {
+        // Make user 10 the original default boot user.
+        return Settings.Global.getInt(
+            mContext.getContentResolver(), CarSettings.Global.DEFAULT_USER_ID_TO_BOOT_INTO,
+            /* default user id= */ 10);
+    }
+
+    /**
+     * Get user id for the last active user.
+     *
+     * @return user id of the last active user
+     */
+    public int getLastActiveUser() {
+        // Make user 10 the original default last active user.
+        return Settings.Global.getInt(
+            mContext.getContentResolver(), CarSettings.Global.LAST_ACTIVE_USER_ID,
+            /* default user id= */ 10);
     }
 
     /**
@@ -174,7 +233,7 @@ public class CarUserManagerHelper {
         if (isHeadlessSystemUser()) {
             return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
         } else {
-            return mUserManager.getUsers(/* excludeDying= */true);
+            return mUserManager.getUsers(/* excludeDying= */ true);
         }
     }
 
@@ -235,7 +294,7 @@ public class CarUserManagerHelper {
      * @return {@code true} if is default user, {@code false} otherwise.
      */
     public boolean isDefaultUser(UserInfo userInfo) {
-        return userInfo.id == CarSettings.DEFAULT_USER_ID_TO_BOOT_INTO;
+        return userInfo.id == getDefaultBootUser();
     }
 
     /**
@@ -312,6 +371,13 @@ public class CarUserManagerHelper {
     }
 
     /**
+     * Checks if the calling app is running as an admin user.
+     */
+    public boolean isCurrentProcessAdminUser() {
+        return mUserManager.isAdminUser();
+    }
+
+    /**
      * Checks if the calling app is running as a guest user.
      */
     public boolean isCurrentProcessGuestUser() {
@@ -370,6 +436,27 @@ public class CarUserManagerHelper {
     }
 
     /**
+     * Assigns admin privileges to the user.
+     *
+     * @param user User to be upgraded to Admin status.
+     */
+    @RequiresPermission(allOf = {
+            Manifest.permission.INTERACT_ACROSS_USERS_FULL,
+            Manifest.permission.MANAGE_USERS
+    })
+    public void assignAdminPrivileges(UserInfo user) {
+        if (!isCurrentProcessAdminUser()) {
+            Log.w(TAG, "Only admin users can assign admin privileges.");
+            return;
+        }
+
+        mUserManager.setUserAdmin(user.id);
+
+        // Remove restrictions imposed on non-admins.
+        setDefaultNonAdminRestrictions(user, /* enable= */ false);
+    }
+
+    /**
      * Creates a new user on the system, the created user would be granted admin role.
      *
      * @param userName Name to give to the newly created user.
@@ -403,8 +490,34 @@ public class CarUserManagerHelper {
             Log.w(TAG, "can't create non-admin user.");
             return null;
         }
+        setDefaultNonAdminRestrictions(user, /* enable= */ true);
         assignDefaultIcon(user);
         return user;
+    }
+
+    /**
+     * Sets the values of default Non-Admin restrictions to the passed in value.
+     *
+     * @param userInfo User to set restrictions on.
+     * @param enable If true, restriction is ON, If false, restriction is OFF.
+     */
+    private void setDefaultNonAdminRestrictions(UserInfo userInfo, boolean enable) {
+        for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
+            setUserRestriction(userInfo, restriction, enable);
+        }
+    }
+
+    /**
+     * Sets the value of the specified restriction for the specified user.
+     *
+     * @param userInfo the user whose restriction is to be changed
+     * @param restriction the key of the restriction
+     * @param enable the value for the restriction. if true, turns the restriction ON, if false,
+     *               turns the restriction OFF.
+     */
+    public void setUserRestriction(UserInfo userInfo, String restriction, boolean enable) {
+        UserHandle userHandle = UserHandle.of(userInfo.id);
+        mUserManager.setUserRestriction(restriction, enable, userHandle);
     }
 
     /**
