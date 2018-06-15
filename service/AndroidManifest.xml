@@ -236,7 +236,7 @@
     <uses-permission android:name="android.permission.LOCATION_HARDWARE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <application android:label="Car service"
+    <application android:label="@string/app_title"
                  android:directBootAware="true"
                  android:allowBackup="false"
                  android:persistent="true">
