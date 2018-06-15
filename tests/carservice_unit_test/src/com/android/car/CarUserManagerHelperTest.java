@@ -134,7 +134,7 @@ public class CarUserManagerHelperTest {
 
         assertThat(mHelper.getAllUsers()).hasSize(3);
         assertThat(mHelper.getAllUsers())
-                .containsExactly(mForegroundUser, otherUser1, otherUser2, otherUser3);
+                .containsExactly(otherUser1, otherUser2, otherUser3);
     }
 
     @Test
