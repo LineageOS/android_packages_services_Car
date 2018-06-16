@@ -88,7 +88,7 @@ import java.util.List;
             v.int32Values.add(((Boolean) o) ? 1 : 0);
         } else if (o instanceof Boolean[]) {
             for (Boolean b : (Boolean[]) o) {
-                v.int32Values.add(((Boolean) o) ? 1 : 0);
+                v.int32Values.add(b ? 1 : 0);
             }
         } else if (o instanceof Integer) {
             v.int32Values.add((Integer) o);
