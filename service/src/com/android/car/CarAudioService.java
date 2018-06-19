@@ -52,6 +52,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.view.KeyEvent;
 
 import com.android.internal.util.Preconditions;
 
@@ -154,15 +155,15 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     }
                     break;
                 case AudioManager.ADJUST_MUTE:
-                    mAudioManager.setMasterMute(true, flags);
+                    setMasterMute(true, flags);
                     callbackMasterMuteChange(flags);
                     break;
                 case AudioManager.ADJUST_UNMUTE:
-                    mAudioManager.setMasterMute(false, flags);
+                    setMasterMute(false, flags);
                     callbackMasterMuteChange(flags);
                     break;
                 case AudioManager.ADJUST_TOGGLE_MUTE:
-                    mAudioManager.setMasterMute(!mAudioManager.isMasterMute(), flags);
+                    setMasterMute(!mAudioManager.isMasterMute(), flags);
                     callbackMasterMuteChange(flags);
                     break;
                 case AudioManager.ADJUST_SAME:
@@ -229,7 +230,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             if (mPersistMasterMuteState) {
                 boolean storedMasterMute = Settings.Global.getInt(mContext.getContentResolver(),
                         CarAudioManager.VOLUME_SETTINGS_KEY_MASTER_MUTE, 0) != 0;
-                mAudioManager.setMasterMute(storedMasterMute, 0);
+                setMasterMute(storedMasterMute, 0);
             }
         }
     }
@@ -294,6 +295,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 Log.e(CarLog.TAG_AUDIO, "Failed to callback onGroupVolumeChanged", e);
             }
         }
+    }
+
+    private void setMasterMute(boolean mute, int flags) {
+        mAudioManager.setMasterMute(mute, flags);
+
+        // When the master mute is turned ON, we want the playing app to get a "pause" command.
+        // When the volume is unmuted, we want to resume playback.
+        int keycode = mute ? KeyEvent.KEYCODE_MEDIA_PAUSE : KeyEvent.KEYCODE_MEDIA_PLAY;
+        mAudioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keycode));
+        mAudioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keycode));
     }
 
     private void callbackMasterMuteChange(int flags) {
