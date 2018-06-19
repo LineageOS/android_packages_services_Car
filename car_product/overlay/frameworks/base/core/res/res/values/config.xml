@@ -24,6 +24,8 @@
     <bool name="config_enableMultiUserUI">true</bool>
     <!-- Arbitrary max 8 users. -->
     <integer name="config_multiuserMaximumUsers">8</integer>
+    <!-- If true, all guest users created on the device will be ephemeral. -->
+    <bool name="config_guestUserEphemeral">true</bool>
     <!-- Car Mode -->
     <integer name="config_defaultUiModeType">3</integer>
     <!-- Can't leave car mode -->
