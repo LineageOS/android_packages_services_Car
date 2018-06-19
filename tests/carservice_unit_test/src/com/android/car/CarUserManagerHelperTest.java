@@ -18,6 +18,7 @@ package com.android.car;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -291,15 +292,39 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testRemoveUser() {
-        // Cannot remove system user.
+    public void testCannotRemoveSystemUser() {
         assertThat(mHelper.removeUser(mSystemUser, mGuestUserName)).isFalse();
+    }
 
-        // Removing non-current, non-system user, simply calls removeUser.
-        UserInfo userToRemove = createUserInfoForId(mCurrentProcessUser.id + 2);
+    @Test
+    public void testAdminsCanRemoveOtherUsers() {
+        int idToRemove = mCurrentProcessUser.id + 2;
+        UserInfo userToRemove = createUserInfoForId(idToRemove);
+        when(mUserManager.removeUser(idToRemove)).thenReturn(true);
 
-        mHelper.removeUser(userToRemove, mGuestUserName);
-        verify(mUserManager).removeUser(mCurrentProcessUser.id + 2);
+        // If Admin is removing non-current, non-system user, simply calls removeUser.
+        when(mUserManager.isAdminUser()).thenReturn(true);
+        assertThat(mHelper.removeUser(userToRemove, mGuestUserName)).isTrue();
+        verify(mUserManager).removeUser(idToRemove);
+    }
+
+    @Test
+    public void testNonAdminsCanOnlyRemoveThemselves() {
+        UserInfo otherUser = createUserInfoForId(mCurrentProcessUser.id + 2);
+
+        // Make current user non-admin.
+        when(mUserManager.isAdminUser()).thenReturn(false);
+
+        // Mock so that removeUser always pretends it's successful.
+        when(mUserManager.removeUser(anyInt())).thenReturn(true);
+
+        // If Non-Admin is trying to remove someone other than themselves, they should fail.
+        assertThat(mHelper.removeUser(otherUser, mGuestUserName)).isFalse();
+        verify(mUserManager, never()).removeUser(otherUser.id);
+
+        // If Non-Admin is trying to remove themselves, that's ok.
+        assertThat(mHelper.removeUser(mCurrentProcessUser, mGuestUserName)).isTrue();
+        verify(mUserManager).removeUser(mCurrentProcessUser.id);
     }
 
     @Test
@@ -377,17 +402,18 @@ public class CarUserManagerHelperTest {
     @Test
     public void testDefaultNonAdminRestrictions() {
         String testUserName = "Test User";
-        int testUserId = 20;
-        boolean restrictionEnabled = true;
-        UserInfo newNonAdmin = createUserInfoForId(testUserId);
+        int userId = 20;
+        UserInfo newNonAdmin = createUserInfoForId(userId);
         when(mUserManager.createUser(testUserName, /* flags= */ 0)).thenReturn(newNonAdmin);
 
         mHelper.createNewNonAdminUser(testUserName);
 
         verify(mUserManager).setUserRestriction(
-                UserManager.DISALLOW_REMOVE_USER, restrictionEnabled, UserHandle.of(testUserId));
+                UserManager.DISALLOW_FACTORY_RESET, /* enable= */ true, UserHandle.of(userId));
         verify(mUserManager).setUserRestriction(
-                UserManager.DISALLOW_FACTORY_RESET, restrictionEnabled, UserHandle.of(testUserId));
+                UserManager.DISALLOW_SMS, /* enable= */ false, UserHandle.of(userId));
+        verify(mUserManager).setUserRestriction(
+                UserManager.DISALLOW_OUTGOING_CALLS, /* enable= */ false, UserHandle.of(userId));
     }
 
     @Test
@@ -399,8 +425,6 @@ public class CarUserManagerHelperTest {
 
         mHelper.assignAdminPrivileges(testInfo);
 
-        verify(mUserManager).setUserRestriction(
-                UserManager.DISALLOW_REMOVE_USER, restrictionEnabled, UserHandle.of(testUserId));
         verify(mUserManager).setUserRestriction(
                 UserManager.DISALLOW_FACTORY_RESET, restrictionEnabled, UserHandle.of(testUserId));
     }

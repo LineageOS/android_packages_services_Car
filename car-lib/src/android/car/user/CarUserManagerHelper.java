@@ -59,7 +59,6 @@ public class CarUserManagerHelper {
      * Default set of restrictions for Non-Admin users.
      */
     private static final Set<String> DEFAULT_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
-            UserManager.DISALLOW_REMOVE_USER,
             UserManager.DISALLOW_FACTORY_RESET
     );
 
@@ -496,6 +495,12 @@ public class CarUserManagerHelper {
             return null;
         }
         setDefaultNonAdminRestrictions(user, /* enable= */ true);
+
+        // Each non-admin has sms and outgoing call restrictions applied by the UserManager on
+        // creation. We want to enable these permissions by default in the car.
+        setUserRestriction(user, UserManager.DISALLOW_SMS, /* enable= */ false);
+        setUserRestriction(user, UserManager.DISALLOW_OUTGOING_CALLS, /* enable= */ false);
+
         assignDefaultIcon(user);
         return user;
     }
@@ -543,6 +548,12 @@ public class CarUserManagerHelper {
         // boot into.
         if (isHeadlessSystemUser() && isDefaultUser(userInfo)) {
             Log.w(TAG, "User " + userInfo.id + " is the default user, could not be removed.");
+            return false;
+        }
+
+        if (!isCurrentProcessAdminUser() && !isCurrentProcessUser(userInfo)) {
+            // If the caller is non-admin, they can only delete themselves.
+            Log.e(TAG, "Non-admins cannot remove other users.");
             return false;
         }
 
