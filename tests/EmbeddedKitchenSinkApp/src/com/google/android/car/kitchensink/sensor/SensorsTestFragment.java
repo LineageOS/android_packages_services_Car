@@ -99,17 +99,19 @@ public class SensorsTestFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.sensors, container, false);
         mActivity = (KitchenSinkActivity) getHost();
-
         mSensorInfo = (TextView) view.findViewById(R.id.sensor_info);
         mNaString = getContext().getString(R.string.sensor_na);
-
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        initPermissions();
+        final Runnable r = () -> {
+            initPermissions();
+        };
+        ((KitchenSinkActivity) getActivity()).requestRefreshManager(r,
+                new Handler(getContext().getMainLooper()));
     }
 
     @Override
