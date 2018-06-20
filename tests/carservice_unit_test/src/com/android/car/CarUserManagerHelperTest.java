@@ -321,10 +321,6 @@ public class CarUserManagerHelperTest {
         // If Non-Admin is trying to remove someone other than themselves, they should fail.
         assertThat(mHelper.removeUser(otherUser, mGuestUserName)).isFalse();
         verify(mUserManager, never()).removeUser(otherUser.id);
-
-        // If Non-Admin is trying to remove themselves, that's ok.
-        assertThat(mHelper.removeUser(mCurrentProcessUser, mGuestUserName)).isTrue();
-        verify(mUserManager).removeUser(mCurrentProcessUser.id);
     }
 
     @Test
