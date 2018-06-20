@@ -112,7 +112,7 @@ public final class CarInfoManager implements CarManagerBase{
      * Passed in basic info Bundle.
      * @hide
      */
-    @ValueTypeDef(type = Integer.class)
+    @ValueTypeDef(type = Integer[].class)
     public static final int BASIC_INFO_EV_CONNECTOR_TYPES = 0x11410107;
 
     private final ICarProperty mService;
