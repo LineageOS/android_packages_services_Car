@@ -291,6 +291,26 @@ public class CarPropertyManager implements CarManagerBase {
         return carProp != null ? carProp.getValue() : 0;
     }
 
+    /**
+     * Returns value of a integer array property
+     *
+     * @param prop Property ID to get
+     * @param area Zone of the property to get
+     */
+    public int[] getIntArrayProperty(int prop, int area) throws CarNotConnectedException {
+        CarPropertyValue<Integer[]> carProp = getProperty(Integer[].class, prop, area);
+        return carProp != null ? toIntArray(carProp.getValue()) : new int[0];
+    }
+
+    private static int[] toIntArray(Integer[] input) {
+        int len = input.length;
+        int[] arr = new int[len];
+        for (int i = 0; i < len; i++) {
+            arr[i] = input[i];
+        }
+        return arr;
+    }
+
     /** Return CarPropertyValue */
     @SuppressWarnings("unchecked")
     public <E> CarPropertyValue<E> getProperty(Class<E> clazz, int propId, int area)

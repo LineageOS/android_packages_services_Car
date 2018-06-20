@@ -169,9 +169,7 @@ public final class CarInfoManager implements CarManagerBase{
      *         types available.
      */
     public @FuelType.Enum int[] getFuelTypes() throws CarNotConnectedException {
-        CarPropertyValue<int[]> carProp = mCarPropertyMgr.getProperty(
-                int[].class, BASIC_INFO_FUEL_TYPES, 0);
-        return carProp != null ? carProp.getValue() : new int[0];
+        return mCarPropertyMgr.getIntArrayProperty(BASIC_INFO_FUEL_TYPES, 0);
     }
 
     /**
@@ -189,9 +187,7 @@ public final class CarInfoManager implements CarManagerBase{
      *         no connector types available.
      */
     public @EvConnectorType.Enum int[] getEvConnectorTypes() throws CarNotConnectedException {
-        CarPropertyValue<int[]> carProp = mCarPropertyMgr.getProperty(int[].class,
-                BASIC_INFO_EV_CONNECTOR_TYPES, 0);
-        return carProp != null ? carProp.getValue() : new int[0];
+        return mCarPropertyMgr.getIntArrayProperty(BASIC_INFO_EV_CONNECTOR_TYPES, 0);
     }
 
     /** @hide */
