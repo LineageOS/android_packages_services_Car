@@ -719,6 +719,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         Preconditions.checkNotNull(patch[0],
                 "createAudioPatch didn't provide expected single handle");
         Log.d(CarLog.TAG_AUDIO, "Audio patch created: " + patch[0]);
+
+        // Ensure the initial volume on output device port
+        int groupId = getVolumeGroupIdForUsage(usage);
+        setGroupVolume(groupId, getGroupVolume(groupId), 0);
+
         return new CarAudioPatchHandle(patch[0]);
     }
 
