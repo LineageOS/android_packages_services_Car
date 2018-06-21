@@ -19,9 +19,9 @@ package com.android.car;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
 import android.car.user.CarUserManagerHelper;
@@ -40,16 +40,16 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * This class contains unit tests for the {@link CarUserManagerHelper}.
@@ -73,7 +73,7 @@ public class CarUserManagerHelperTest {
     @Mock
     private CarUserManagerHelper.OnUsersUpdateListener mTestListener;
 
-    private CarUserManagerHelper mHelper;
+    private CarUserManagerHelper mCarUserManagerHelper;
     private UserInfo mCurrentProcessUser;
     private UserInfo mSystemUser;
     private String mGuestUserName = "testGuest";
@@ -84,16 +84,16 @@ public class CarUserManagerHelperTest {
     @Before
     public void setUpMocksAndVariables() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(mContext.getSystemService(Context.USER_SERVICE)).thenReturn(mUserManager);
-        when(mContext.getSystemService(Context.ACTIVITY_SERVICE)).thenReturn(mActivityManager);
-        when(mContext.getResources())
-            .thenReturn(InstrumentationRegistry.getTargetContext().getResources());
-        when(mContext.getApplicationContext()).thenReturn(mContext);
-        mHelper = new CarUserManagerHelper(mContext);
+        doReturn(mUserManager).when(mContext).getSystemService(Context.USER_SERVICE);
+        doReturn(mActivityManager).when(mContext).getSystemService(Context.ACTIVITY_SERVICE);
+        doReturn(InstrumentationRegistry.getTargetContext().getResources())
+                .when(mContext).getResources();
+        doReturn(mContext).when(mContext).getApplicationContext();
+        mCarUserManagerHelper = new CarUserManagerHelper(mContext);
 
         mCurrentProcessUser = createUserInfoForId(UserHandle.myUserId());
         mSystemUser = createUserInfoForId(UserHandle.USER_SYSTEM);
-        when(mUserManager.getUserInfo(UserHandle.myUserId())).thenReturn(mCurrentProcessUser);
+        doReturn(mCurrentProcessUser).when(mUserManager).getUserInfo(UserHandle.myUserId());
 
         // Get the ID of the foreground user running this test.
         // We cannot mock the foreground user since getCurrentUser is static.
@@ -111,10 +111,10 @@ public class CarUserManagerHelperTest {
         UserInfo testInfo = new UserInfo();
 
         testInfo.id = UserHandle.USER_SYSTEM;
-        assertThat(mHelper.isSystemUser(testInfo)).isTrue();
+        assertThat(mCarUserManagerHelper.isSystemUser(testInfo)).isTrue();
 
         testInfo.id = UserHandle.USER_SYSTEM + 2; // Make it different than system id.
-        assertThat(mHelper.isSystemUser(testInfo)).isFalse();
+        assertThat(mCarUserManagerHelper.isSystemUser(testInfo)).isFalse();
     }
 
     // System user will not be returned when calling get all users.
@@ -131,10 +131,10 @@ public class CarUserManagerHelperTest {
         testUsers.add(otherUser2);
         testUsers.add(otherUser3);
 
-        when(mUserManager.getUsers(true)).thenReturn(testUsers);
+        doReturn(testUsers).when(mUserManager).getUsers(true);
 
-        assertThat(mHelper.getAllUsers()).hasSize(3);
-        assertThat(mHelper.getAllUsers())
+        assertThat(mCarUserManagerHelper.getAllUsers()).hasSize(3);
+        assertThat(mCarUserManagerHelper.getAllUsers())
                 .containsExactly(otherUser1, otherUser2, otherUser3);
     }
 
@@ -146,14 +146,14 @@ public class CarUserManagerHelperTest {
 
         List<UserInfo> testUsers = Arrays.asList(mForegroundUser, user1, user2);
 
-        when(mUserManager.getUsers(true)).thenReturn(new ArrayList<>(testUsers));
+        doReturn(new ArrayList<>(testUsers)).when(mUserManager).getUsers(true);
 
         // Should return all 3 users.
-        assertThat(mHelper.getAllUsers()).hasSize(3);
+        assertThat(mCarUserManagerHelper.getAllUsers()).hasSize(3);
 
         // Should return all non-foreground users.
-        assertThat(mHelper.getAllSwitchableUsers()).hasSize(2);
-        assertThat(mHelper.getAllSwitchableUsers()).containsExactly(user1, user2);
+        assertThat(mCarUserManagerHelper.getAllSwitchableUsers()).hasSize(2);
+        assertThat(mCarUserManagerHelper.getAllSwitchableUsers()).containsExactly(user1, user2);
     }
 
     @Test
@@ -162,80 +162,89 @@ public class CarUserManagerHelperTest {
 
         // System user cannot be removed.
         testInfo.id = UserHandle.USER_SYSTEM;
-        assertThat(mHelper.canUserBeRemoved(testInfo)).isFalse();
+        assertThat(mCarUserManagerHelper.canUserBeRemoved(testInfo)).isFalse();
 
         testInfo.id = UserHandle.USER_SYSTEM + 2; // Make it different than system id.
-        assertThat(mHelper.canUserBeRemoved(testInfo)).isTrue();
+        assertThat(mCarUserManagerHelper.canUserBeRemoved(testInfo)).isTrue();
     }
 
     @Test
     public void testCurrentProcessCanAddUsers() {
-        when(mUserManager.hasUserRestriction(UserManager.DISALLOW_ADD_USER)).thenReturn(false);
-        assertThat(mHelper.canCurrentProcessAddUsers()).isTrue();
+        doReturn(false).when(mUserManager)
+            .hasUserRestriction(UserManager.DISALLOW_ADD_USER);
+        assertThat(mCarUserManagerHelper.canCurrentProcessAddUsers()).isTrue();
 
-        when(mUserManager.hasUserRestriction(UserManager.DISALLOW_ADD_USER)).thenReturn(true);
-        assertThat(mHelper.canCurrentProcessAddUsers()).isFalse();
+        doReturn(true).when(mUserManager)
+            .hasUserRestriction(UserManager.DISALLOW_ADD_USER);
+        assertThat(mCarUserManagerHelper.canCurrentProcessAddUsers()).isFalse();
     }
 
     @Test
     public void testCurrentProcessCanRemoveUsers() {
-        when(mUserManager.hasUserRestriction(UserManager.DISALLOW_REMOVE_USER)).thenReturn(false);
-        assertThat(mHelper.canCurrentProcessRemoveUsers()).isTrue();
+        doReturn(false).when(mUserManager)
+            .hasUserRestriction(UserManager.DISALLOW_REMOVE_USER);
+        assertThat(mCarUserManagerHelper.canCurrentProcessRemoveUsers()).isTrue();
 
-        when(mUserManager.hasUserRestriction(UserManager.DISALLOW_REMOVE_USER)).thenReturn(true);
-        assertThat(mHelper.canCurrentProcessRemoveUsers()).isFalse();
+        doReturn(true).when(mUserManager)
+            .hasUserRestriction(UserManager.DISALLOW_REMOVE_USER);
+        assertThat(mCarUserManagerHelper.canCurrentProcessRemoveUsers()).isFalse();
     }
 
     @Test
     public void testCurrentProcessCanSwitchUsers() {
-        when(mUserManager.hasUserRestriction(UserManager.DISALLOW_USER_SWITCH)).thenReturn(false);
-        assertThat(mHelper.canCurrentProcessSwitchUsers()).isTrue();
+        doReturn(false).when(mUserManager)
+            .hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
+        assertThat(mCarUserManagerHelper.canCurrentProcessSwitchUsers()).isTrue();
 
-        when(mUserManager.hasUserRestriction(UserManager.DISALLOW_USER_SWITCH)).thenReturn(true);
-        assertThat(mHelper.canCurrentProcessSwitchUsers()).isFalse();
+        doReturn(true).when(mUserManager)
+            .hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
+        assertThat(mCarUserManagerHelper.canCurrentProcessSwitchUsers()).isFalse();
     }
 
     @Test
     public void testCurrentGuestProcessCannotModifyAccounts() {
-        assertThat(mHelper.canCurrentProcessModifyAccounts()).isTrue();
+        assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isTrue();
 
-        when(mUserManager.isGuestUser()).thenReturn(true);
-        assertThat(mHelper.canCurrentProcessModifyAccounts()).isFalse();
+        doReturn(true).when(mUserManager).isGuestUser();
+
+        assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isFalse();
     }
 
     @Test
     public void testCurrentDemoProcessCannotModifyAccounts() {
-        assertThat(mHelper.canCurrentProcessModifyAccounts()).isTrue();
+        assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isTrue();
 
-        when(mUserManager.isDemoUser()).thenReturn(true);
-        assertThat(mHelper.canCurrentProcessModifyAccounts()).isFalse();
+        doReturn(true).when(mUserManager).isDemoUser();
+
+        assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isFalse();
     }
 
     @Test
     public void testCurrentDisallowModifyAccountsProcessIsEnforced() {
-        assertThat(mHelper.canCurrentProcessModifyAccounts()).isTrue();
+        assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isTrue();
 
-        when(mUserManager.hasUserRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS))
-            .thenReturn(true);
-        assertThat(mHelper.canCurrentProcessModifyAccounts()).isFalse();
+        doReturn(true).when(mUserManager)
+                .hasUserRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS);
+
+        assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isFalse();
     }
 
     @Test
     public void testCreateNewAdminUser() {
         // Make sure current user is admin, since only admins can create other admins.
-        when(mUserManager.isAdminUser()).thenReturn(true);
+        doReturn(true).when(mUserManager).isAdminUser();
 
         // Verify createUser on UserManager gets called.
-        mHelper.createNewAdminUser(mTestUserName);
+        mCarUserManagerHelper.createNewAdminUser(mTestUserName);
         verify(mUserManager).createUser(mTestUserName, UserInfo.FLAG_ADMIN);
 
-        when(mUserManager.createUser(mTestUserName, UserInfo.FLAG_ADMIN)).thenReturn(null);
-        assertThat(mHelper.createNewAdminUser(mTestUserName)).isNull();
+        doReturn(null).when(mUserManager).createUser(mTestUserName, UserInfo.FLAG_ADMIN);
+        assertThat(mCarUserManagerHelper.createNewAdminUser(mTestUserName)).isNull();
 
         UserInfo newUser = new UserInfo();
         newUser.name = mTestUserName;
-        when(mUserManager.createUser(mTestUserName, UserInfo.FLAG_ADMIN)).thenReturn(newUser);
-        assertThat(mHelper.createNewAdminUser(mTestUserName)).isEqualTo(newUser);
+        doReturn(newUser).when(mUserManager).createUser(mTestUserName, UserInfo.FLAG_ADMIN);
+        assertThat(mCarUserManagerHelper.createNewAdminUser(mTestUserName)).isEqualTo(newUser);
     }
 
     @Test
@@ -243,11 +252,11 @@ public class CarUserManagerHelperTest {
         String newAdminName = "Test new admin";
         UserInfo expectedAdmin = new UserInfo();
         expectedAdmin.name = newAdminName;
-        when(mUserManager.createUser(newAdminName, UserInfo.FLAG_ADMIN)).thenReturn(expectedAdmin);
+        doReturn(expectedAdmin).when(mUserManager).createUser(newAdminName, UserInfo.FLAG_ADMIN);
 
         // Admins can create other admins.
-        when(mUserManager.isAdminUser()).thenReturn(true);
-        UserInfo actualAdmin = mHelper.createNewAdminUser(newAdminName);
+        doReturn(true).when(mUserManager).isAdminUser();
+        UserInfo actualAdmin = mCarUserManagerHelper.createNewAdminUser(newAdminName);
         assertThat(actualAdmin).isEqualTo(expectedAdmin);
     }
 
@@ -256,11 +265,11 @@ public class CarUserManagerHelperTest {
         String newAdminName = "Test new admin";
         UserInfo expectedAdmin = new UserInfo();
         expectedAdmin.name = newAdminName;
-        when(mUserManager.createUser(newAdminName, UserInfo.FLAG_ADMIN)).thenReturn(expectedAdmin);
+        doReturn(expectedAdmin).when(mUserManager).createUser(newAdminName, UserInfo.FLAG_ADMIN);
 
         // Test that non-admins cannot create new admins.
-        when(mUserManager.isAdminUser()).thenReturn(false); // Current user non-admin.
-        assertThat(mHelper.createNewAdminUser(newAdminName)).isNull();
+        doReturn(false).when(mUserManager).isAdminUser(); // Current user non-admin.
+        assertThat(mCarUserManagerHelper.createNewAdminUser(newAdminName)).isNull();
     }
 
     @Test
@@ -268,82 +277,99 @@ public class CarUserManagerHelperTest {
         String newAdminName = "Test new admin";
         UserInfo expectedAdmin = new UserInfo();
         expectedAdmin.name = newAdminName;
-        when(mUserManager.createUser(newAdminName, UserInfo.FLAG_ADMIN)).thenReturn(expectedAdmin);
+
+        doReturn(expectedAdmin).when(mUserManager).createUser(newAdminName, UserInfo.FLAG_ADMIN);
 
         // System user can create admins.
-        when(mUserManager.isSystemUser()).thenReturn(true);
-        UserInfo actualAdmin = mHelper.createNewAdminUser(newAdminName);
+        doReturn(true).when(mUserManager).isSystemUser();
+        UserInfo actualAdmin = mCarUserManagerHelper.createNewAdminUser(newAdminName);
         assertThat(actualAdmin).isEqualTo(expectedAdmin);
     }
 
     @Test
     public void testCreateNewNonAdminUser() {
         // Verify createUser on UserManager gets called.
-        mHelper.createNewNonAdminUser(mTestUserName);
+        mCarUserManagerHelper.createNewNonAdminUser(mTestUserName);
         verify(mUserManager).createUser(mTestUserName, 0);
 
-        when(mUserManager.createUser(mTestUserName, 0)).thenReturn(null);
-        assertThat(mHelper.createNewNonAdminUser(mTestUserName)).isNull();
+        doReturn(null).when(mUserManager).createUser(mTestUserName, 0);
+        assertThat(mCarUserManagerHelper.createNewNonAdminUser(mTestUserName)).isNull();
 
         UserInfo newUser = new UserInfo();
         newUser.name = mTestUserName;
-        when(mUserManager.createUser(mTestUserName, 0)).thenReturn(newUser);
-        assertThat(mHelper.createNewNonAdminUser(mTestUserName)).isEqualTo(newUser);
+        doReturn(newUser).when(mUserManager).createUser(mTestUserName, 0);
+        assertThat(mCarUserManagerHelper.createNewNonAdminUser(mTestUserName)).isEqualTo(newUser);
     }
 
     @Test
     public void testCannotRemoveSystemUser() {
-        assertThat(mHelper.removeUser(mSystemUser, mGuestUserName)).isFalse();
+        assertThat(mCarUserManagerHelper.removeUser(mSystemUser, mGuestUserName)).isFalse();
     }
 
     @Test
     public void testAdminsCanRemoveOtherUsers() {
         int idToRemove = mCurrentProcessUser.id + 2;
         UserInfo userToRemove = createUserInfoForId(idToRemove);
-        when(mUserManager.removeUser(idToRemove)).thenReturn(true);
+
+        doReturn(true).when(mUserManager).removeUser(idToRemove);
 
         // If Admin is removing non-current, non-system user, simply calls removeUser.
-        when(mUserManager.isAdminUser()).thenReturn(true);
-        assertThat(mHelper.removeUser(userToRemove, mGuestUserName)).isTrue();
+        doReturn(true).when(mUserManager).isAdminUser();
+        assertThat(mCarUserManagerHelper.removeUser(userToRemove, mGuestUserName)).isTrue();
         verify(mUserManager).removeUser(idToRemove);
     }
 
     @Test
-    public void testNonAdminsCanOnlyRemoveThemselves() {
+    public void testNonAdminsCanNotRemoveOtherUsers() {
         UserInfo otherUser = createUserInfoForId(mCurrentProcessUser.id + 2);
 
         // Make current user non-admin.
-        when(mUserManager.isAdminUser()).thenReturn(false);
+        doReturn(false).when(mUserManager).isAdminUser();
 
         // Mock so that removeUser always pretends it's successful.
-        when(mUserManager.removeUser(anyInt())).thenReturn(true);
+        doReturn(true).when(mUserManager).removeUser(anyInt());
 
         // If Non-Admin is trying to remove someone other than themselves, they should fail.
-        assertThat(mHelper.removeUser(otherUser, mGuestUserName)).isFalse();
+        assertThat(mCarUserManagerHelper.removeUser(otherUser, mGuestUserName)).isFalse();
         verify(mUserManager, never()).removeUser(otherUser.id);
     }
 
     @Test
+    public void testRemoveLastActiveUser() {
+        // Cannot remove system user.
+        assertThat(mCarUserManagerHelper.removeUser(mSystemUser, mGuestUserName)).isFalse();
+
+        UserInfo adminInfo = new UserInfo(/* id= */10, "admin", UserInfo.FLAG_ADMIN);
+        List<UserInfo> users = new ArrayList<UserInfo>();
+        users.add(adminInfo);
+
+        doReturn(users).when(mUserManager).getUsers(true);
+
+        assertThat(mCarUserManagerHelper.removeUser(adminInfo, mGuestUserName))
+            .isEqualTo(false);
+    }
+
+    @Test
     public void testSwitchToGuest() {
-        mHelper.startNewGuestSession(mGuestUserName);
+        mCarUserManagerHelper.startNewGuestSession(mGuestUserName);
         verify(mUserManager).createGuest(mContext, mGuestUserName);
 
-        UserInfo guestInfo = new UserInfo(21, mGuestUserName, UserInfo.FLAG_GUEST);
-        when(mUserManager.createGuest(mContext, mGuestUserName)).thenReturn(guestInfo);
-        mHelper.startNewGuestSession(mGuestUserName);
+        UserInfo guestInfo = new UserInfo(/* id= */21, mGuestUserName, UserInfo.FLAG_GUEST);
+        doReturn(guestInfo).when(mUserManager).createGuest(mContext, mGuestUserName);
+        mCarUserManagerHelper.startNewGuestSession(mGuestUserName);
         verify(mActivityManager).switchUser(21);
     }
 
     @Test
     public void testGetUserIcon() {
-        mHelper.getUserIcon(mCurrentProcessUser);
+        mCarUserManagerHelper.getUserIcon(mCurrentProcessUser);
         verify(mUserManager).getUserIcon(mCurrentProcessUser.id);
     }
 
     @Test
     public void testScaleUserIcon() {
         Bitmap fakeIcon = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-        Drawable scaledIcon = mHelper.scaleUserIcon(fakeIcon, 300);
+        Drawable scaledIcon = mCarUserManagerHelper.scaleUserIcon(fakeIcon, 300);
         assertThat(scaledIcon.getIntrinsicWidth()).isEqualTo(300);
         assertThat(scaledIcon.getIntrinsicHeight()).isEqualTo(300);
     }
@@ -352,17 +378,17 @@ public class CarUserManagerHelperTest {
     public void testSetUserName() {
         UserInfo testInfo = createUserInfoForId(mCurrentProcessUser.id + 3);
         String newName = "New Test Name";
-        mHelper.setUserName(testInfo, newName);
+        mCarUserManagerHelper.setUserName(testInfo, newName);
         verify(mUserManager).setUserName(mCurrentProcessUser.id + 3, newName);
     }
 
     @Test
     public void testIsCurrentProcessSystemUser() {
-        when(mUserManager.isAdminUser()).thenReturn(true);
-        assertThat(mHelper.isCurrentProcessAdminUser()).isTrue();
+        doReturn(true).when(mUserManager).isAdminUser();
+        assertThat(mCarUserManagerHelper.isCurrentProcessAdminUser()).isTrue();
 
-        when(mUserManager.isAdminUser()).thenReturn(false);
-        assertThat(mHelper.isCurrentProcessAdminUser()).isFalse();
+        doReturn(false).when(mUserManager).isAdminUser();
+        assertThat(mCarUserManagerHelper.isCurrentProcessAdminUser()).isFalse();
     }
 
     @Test
@@ -371,13 +397,13 @@ public class CarUserManagerHelperTest {
         UserInfo testInfo = createUserInfoForId(userId);
 
         // Test that non-admins cannot assign admin privileges.
-        when(mUserManager.isAdminUser()).thenReturn(false); // Current user non-admin.
-        mHelper.assignAdminPrivileges(testInfo);
+        doReturn(false).when(mUserManager).isAdminUser(); // Current user non-admin.
+        mCarUserManagerHelper.assignAdminPrivileges(testInfo);
         verify(mUserManager, never()).setUserAdmin(userId);
 
         // Admins can assign admin privileges.
-        when(mUserManager.isAdminUser()).thenReturn(true);
-        mHelper.assignAdminPrivileges(testInfo);
+        doReturn(true).when(mUserManager).isAdminUser();
+        mCarUserManagerHelper.assignAdminPrivileges(testInfo);
         verify(mUserManager).setUserAdmin(userId);
     }
 
@@ -386,11 +412,13 @@ public class CarUserManagerHelperTest {
         int userId = 20;
         UserInfo testInfo = createUserInfoForId(userId);
 
-        mHelper.setUserRestriction(testInfo, UserManager.DISALLOW_ADD_USER, /* enable= */ true);
+        mCarUserManagerHelper.setUserRestriction(
+                testInfo, UserManager.DISALLOW_ADD_USER, /* enable= */ true);
         verify(mUserManager).setUserRestriction(
                 UserManager.DISALLOW_ADD_USER, true, UserHandle.of(userId));
 
-        mHelper.setUserRestriction(testInfo, UserManager.DISALLOW_REMOVE_USER, /* enable= */ false);
+        mCarUserManagerHelper.setUserRestriction(
+                testInfo, UserManager.DISALLOW_REMOVE_USER, /* enable= */ false);
         verify(mUserManager).setUserRestriction(
                 UserManager.DISALLOW_REMOVE_USER, false, UserHandle.of(userId));
     }
@@ -400,9 +428,10 @@ public class CarUserManagerHelperTest {
         String testUserName = "Test User";
         int userId = 20;
         UserInfo newNonAdmin = createUserInfoForId(userId);
-        when(mUserManager.createUser(testUserName, /* flags= */ 0)).thenReturn(newNonAdmin);
 
-        mHelper.createNewNonAdminUser(testUserName);
+        doReturn(newNonAdmin).when(mUserManager).createUser(testUserName, /* flags= */ 0);
+
+        mCarUserManagerHelper.createNewNonAdminUser(testUserName);
 
         verify(mUserManager).setUserRestriction(
                 UserManager.DISALLOW_FACTORY_RESET, /* enable= */ true, UserHandle.of(userId));
@@ -417,9 +446,11 @@ public class CarUserManagerHelperTest {
         int testUserId = 30;
         boolean restrictionEnabled = false;
         UserInfo testInfo = createUserInfoForId(testUserId);
-        when(mUserManager.isAdminUser()).thenReturn(true); // Only admins can assign privileges.
 
-        mHelper.assignAdminPrivileges(testInfo);
+        // Only admins can assign privileges.
+        doReturn(true).when(mUserManager).isAdminUser();
+
+        mCarUserManagerHelper.assignAdminPrivileges(testInfo);
 
         verify(mUserManager).setUserRestriction(
                 UserManager.DISALLOW_FACTORY_RESET, restrictionEnabled, UserHandle.of(testUserId));
@@ -427,7 +458,7 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void testRegisterUserChangeReceiver() {
-        mHelper.registerOnUsersUpdateListener(mTestListener);
+        mCarUserManagerHelper.registerOnUsersUpdateListener(mTestListener);
 
         ArgumentCaptor<BroadcastReceiver> receiverCaptor =
                 ArgumentCaptor.forClass(BroadcastReceiver.class);
@@ -465,8 +496,50 @@ public class CarUserManagerHelperTest {
         assertThat(handlerCaptor.getValue()).isNull();
 
         // Unregister the receiver.
-        mHelper.unregisterOnUsersUpdateListener();
+        mCarUserManagerHelper.unregisterOnUsersUpdateListener();
         verify(mContext).unregisterReceiver(receiverCaptor.getValue());
+    }
+
+    @Test
+    public void testGetInitialUserWithValidLastActiveUser() {
+        SystemProperties.set("android.car.systemuser.headless", "true");
+        int lastActiveUserId = 12;
+
+        UserInfo otherUser1 = createUserInfoForId(lastActiveUserId - 2);
+        UserInfo otherUser2 = createUserInfoForId(lastActiveUserId - 1);
+        UserInfo otherUser3 = createUserInfoForId(lastActiveUserId);
+
+        List<UserInfo> testUsers = new ArrayList<>();
+        testUsers.add(mSystemUser);
+        testUsers.add(otherUser1);
+        testUsers.add(otherUser2);
+        testUsers.add(otherUser3);
+
+        mCarUserManagerHelper.setLastActiveUser(
+                lastActiveUserId, /* skipGlobalSettings= */ true);
+        doReturn(testUsers).when(mUserManager).getUsers(true);
+
+        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(lastActiveUserId);
+    }
+
+    @Test
+    public void testGetInitialUserWithNonExistLastActiveUser() {
+        SystemProperties.set("android.car.systemuser.headless", "true");
+        int lastActiveUserId = 12;
+
+        UserInfo otherUser1 = createUserInfoForId(lastActiveUserId - 2);
+        UserInfo otherUser2 = createUserInfoForId(lastActiveUserId - 1);
+
+        List<UserInfo> testUsers = new ArrayList<>();
+        testUsers.add(mSystemUser);
+        testUsers.add(otherUser1);
+        testUsers.add(otherUser2);
+
+        mCarUserManagerHelper.setLastActiveUser(
+                lastActiveUserId, /* skipGlobalSettings= */ true);
+        doReturn(testUsers).when(mUserManager).getUsers(true);
+
+        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(lastActiveUserId - 2);
     }
 
     private UserInfo createUserInfoForId(int id) {

@@ -34,6 +34,7 @@ import android.os.UserManager;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.UserIcons;
 
 import com.google.android.collect.Sets;
@@ -65,6 +66,7 @@ public class CarUserManagerHelper {
     private final Context mContext;
     private final UserManager mUserManager;
     private final ActivityManager mActivityManager;
+    private int mLastActiveUser = UserHandle.USER_SYSTEM;
     private Bitmap mDefaultGuestUserIcon;
     private OnUsersUpdateListener mUpdateListener;
     private final BroadcastReceiver mUserChangeReceiver = new BroadcastReceiver() {
@@ -107,7 +109,9 @@ public class CarUserManagerHelper {
      * Set default boot into user.
      *
      * @param userId default user id to boot into.
+     * @deprecated Setting default user is obsolete
      */
+    @Deprecated
     public void setDefaultBootUser(int userId) {
         Settings.Global.putInt(
                 mContext.getContentResolver(),
@@ -118,17 +122,23 @@ public class CarUserManagerHelper {
      * Set last active user.
      *
      * @param userId last active user id.
+     * @param skipGlobalSetting whether to skip set the global settings value.
      */
-    public void setLastActiveUser(int userId) {
-        Settings.Global.putInt(
-                mContext.getContentResolver(), CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
+    public void setLastActiveUser(int userId, boolean skipGlobalSetting) {
+        mLastActiveUser = userId;
+        if (!skipGlobalSetting) {
+            Settings.Global.putInt(
+                    mContext.getContentResolver(), CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
+        }
     }
 
     /**
      * Get user id for the default boot into user.
      *
      * @return user id of the default boot into user
+     * @deprecated Use {@link #getLastActiveUser()} instead.
      */
+    @Deprecated
     public int getDefaultBootUser() {
         // Make user 10 the original default boot user.
         return Settings.Global.getInt(
@@ -139,13 +149,46 @@ public class CarUserManagerHelper {
     /**
      * Get user id for the last active user.
      *
-     * @return user id of the last active user
+     * @return user id of the last active user.
      */
     public int getLastActiveUser() {
-        // Make user 10 the original default last active user.
+        if (mLastActiveUser != UserHandle.USER_SYSTEM) {
+            return mLastActiveUser;
+        }
         return Settings.Global.getInt(
             mContext.getContentResolver(), CarSettings.Global.LAST_ACTIVE_USER_ID,
-            /* default user id= */ 10);
+            /* default user id= */ UserHandle.USER_SYSTEM);
+    }
+
+    /**
+     * Get user id for the initial user to boot into.
+     *
+     * <p>If failed to retrieve the id stored in global settings or the retrieved id does not
+     * exist on device, then return the user with smallest user id.
+     *
+     * @return user id of the last active user or the smallest user id on the device.
+     */
+    public int getInitialUser() {
+        int lastActiveUserId = getLastActiveUser();
+
+        boolean isUserExist = false;
+        List<UserInfo> allUsers = getAllPersistentUsers();
+        int smallestUserId = Integer.MAX_VALUE;
+        for (UserInfo user : allUsers) {
+            if (user.id == lastActiveUserId) {
+                isUserExist = true;
+            }
+            smallestUserId = Math.min(user.id, smallestUserId);
+        }
+
+        // If the last active user is system user or the user id doesn't exist on device,
+        // return the smallest id or all users.
+        if (lastActiveUserId == UserHandle.USER_SYSTEM || !isUserExist) {
+            Log.e(TAG, "Can't get last active user id or the user no longer exist.");
+            lastActiveUserId = smallestUserId;
+        }
+
+        return lastActiveUserId;
     }
 
     /**
@@ -237,6 +280,41 @@ public class CarUserManagerHelper {
     }
 
     /**
+     * Gets all the users that are non-ephemeral and can be brought to the foreground on the system.
+     *
+     * @return List of {@code UserInfo} for non-ephemeral users that associated with a real person.
+     */
+    public List<UserInfo> getAllPersistentUsers() {
+        List<UserInfo> users = getAllUsers();
+        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
+            UserInfo userInfo = iterator.next();
+            if (userInfo.isEphemeral()) {
+                // Remove user that is not admin.
+                iterator.remove();
+            }
+        }
+        return users;
+    }
+
+    /**
+     * Gets all the users that can be brought to the foreground on the system that have admin roles.
+     *
+     * @return List of {@code UserInfo} for admin users that associated with a real person.
+     */
+    public List<UserInfo> getAllAdminUsers() {
+        List<UserInfo> users = getAllUsers();
+
+        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
+            UserInfo userInfo = iterator.next();
+            if (!userInfo.isAdmin()) {
+                // Remove user that is not admin.
+                iterator.remove();
+            }
+        }
+        return users;
+    }
+
+    /**
      * Get all the users except the one with userId passed in.
      *
      * @param userId of the user not to be returned.
@@ -291,9 +369,22 @@ public class CarUserManagerHelper {
      *
      * @param userInfo User to check against system user.
      * @return {@code true} if is default user, {@code false} otherwise.
+     *
+     * @deprecated Default user is obsolete
      */
+    @Deprecated
     public boolean isDefaultUser(UserInfo userInfo) {
         return userInfo.id == getDefaultBootUser();
+    }
+
+    /**
+     * Checks whether the user is last active user.
+     *
+     * @param userInfo User to check against last active user.
+     * @return {@code true} if is last active user, {@code false} otherwise.
+     */
+    public boolean isLastActiveUser(UserInfo userInfo) {
+        return userInfo.id == getLastActiveUser();
     }
 
     /**
@@ -544,10 +635,9 @@ public class CarUserManagerHelper {
             return false;
         }
 
-        // Not allow to delete the default user for now. Since default user is the one to
-        // boot into.
-        if (isHeadlessSystemUser() && isDefaultUser(userInfo)) {
-            Log.w(TAG, "User " + userInfo.id + " is the default user, could not be removed.");
+        // Not allow to delete the last admin user on the device for now.
+        if (userInfo.isAdmin() && getAllAdminUsers().size() <= 1) {
+            Log.w(TAG, "User " + userInfo.id + " is the last admin user on device.");
             return false;
         }
 

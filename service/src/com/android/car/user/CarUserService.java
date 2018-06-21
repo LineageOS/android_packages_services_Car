@@ -36,7 +36,7 @@ import java.io.PrintWriter;
  *
  * <ol>
  *   <li> Creates a secondary admin user on first run.
- *   <li> Log in to a default user.
+ *   <li> Log in to the last active user.
  * <ol/>
  */
 public class CarUserService extends BroadcastReceiver implements CarServiceBase {
@@ -63,6 +63,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         }
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
+        filter.addAction(Intent.ACTION_USER_SWITCHED);
 
         mContext.registerReceiver(this, filter);
     }
@@ -95,8 +96,19 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
                 // On very first boot, create an admin user and switch to that user.
                 UserInfo admin = mCarUserManagerHelper.createNewAdminUser(OWNER_NAME);
                 mCarUserManagerHelper.switchToUser(admin);
+                mCarUserManagerHelper.setLastActiveUser(
+                        admin.id, /* skipGlobalSettings= */ false);
             } else {
-                mCarUserManagerHelper.switchToUserId(mCarUserManagerHelper.getDefaultBootUser());
+                mCarUserManagerHelper.switchToUserId(mCarUserManagerHelper.getInitialUser());
+            }
+        }
+        if (intent.getAction() == Intent.ACTION_USER_SWITCHED) {
+            UserInfo foregroundUser = mCarUserManagerHelper.getCurrentForegroundUserInfo();
+            // Update last active user if foreground user is not ephemeral.
+            if (!foregroundUser.isEphemeral() && !foregroundUser.isGuest()) {
+                mCarUserManagerHelper.setLastActiveUser(
+                        mCarUserManagerHelper.getCurrentForegroundUserId(),
+                        /* skipGlobalSettings= */ false);
             }
         }
     }
