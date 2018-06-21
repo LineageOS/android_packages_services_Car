@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
+import android.os.UserHandle;
 import android.os.UserManager;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -110,7 +111,6 @@ public class CarUserServiceTest {
         UserInfo admin = new UserInfo(adminUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
 
         doReturn(users).when(mCarUserManagerHelper).getAllUsers();
-        // doReturn(users).when(mCarUserManagerHelper.getAllUsers());
         doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser(CarUserService.OWNER_NAME);
         doReturn(true).when(mCarUserManagerHelper).switchToUser(admin);
 
@@ -128,17 +128,23 @@ public class CarUserServiceTest {
     public void testDisableModifyAccountsForSystemUserOnFirstRun() {
         List<UserInfo> users = new ArrayList<>();
 
-        int systemUserId = 0;
-        UserInfo user0 = new UserInfo(systemUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
+        UserInfo user0 = new UserInfo();
+        user0.id = UserHandle.USER_SYSTEM;
+        int adminUserId = 10;
+        UserInfo admin = new UserInfo(adminUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
 
         doReturn(users).when(mCarUserManagerHelper).getAllUsers();
         doReturn(user0).when(mCarUserManagerHelper).getSystemUserInfo();
+        doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser(CarUserService.OWNER_NAME);
+        doReturn(true).when(mCarUserManagerHelper).switchToUser(admin);
 
         mCarUserService.onReceive(mMockContext,
                 new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
 
-        verify(mCarUserManagerHelper).
-                setUserRestriction(user0, UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
+        verify(mCarUserManagerHelper)
+                .setUserRestriction(user0, UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
+        verify(mCarUserManagerHelper)
+                .setLastActiveUser(adminUserId, /* skipGlobalSetting= */ false);
     }
 
     /**
@@ -159,7 +165,7 @@ public class CarUserServiceTest {
         users.add(secUser);
 
         doReturn(users).when(mCarUserManagerHelper).getAllUsers();
-        doReturn(secUserId).when(mCarUserManagerHelper).getLastActiveUser();
+        doReturn(secUserId).when(mCarUserManagerHelper).getInitialUser();
 
         mCarUserService.onReceive(mMockContext,
                 new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
@@ -174,7 +180,7 @@ public class CarUserServiceTest {
     public void testLastActiveUserUpdatedOnUserSwitch() {
         int lastActiveUserId = 11;
 
-        doReturn(false).when(mCarUserManagerHelper).isForegroundUserGuest();
+        doReturn(false).when(mCarUserManagerHelper).isForegroundUserEphemeral();
         doReturn(lastActiveUserId).when(mCarUserManagerHelper).getCurrentForegroundUserId();
 
         mCarUserService.onReceive(mMockContext,
