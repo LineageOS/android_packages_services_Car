@@ -103,9 +103,8 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
             }
         }
         if (intent.getAction() == Intent.ACTION_USER_SWITCHED) {
-            UserInfo foregroundUser = mCarUserManagerHelper.getCurrentForegroundUserInfo();
             // Update last active user if foreground user is not ephemeral.
-            if (!foregroundUser.isEphemeral() && !foregroundUser.isGuest()) {
+            if (!mCarUserManagerHelper.isForegroundUserEphemeral()) {
                 mCarUserManagerHelper.setLastActiveUser(
                         mCarUserManagerHelper.getCurrentForegroundUserId(),
                         /* skipGlobalSettings= */ false);
