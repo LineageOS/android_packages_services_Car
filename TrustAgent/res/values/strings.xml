@@ -36,4 +36,6 @@
     <string name="start_advertising">Start Advertising</string>
     <string name="revoke_trust">Revoke Trust</string>
 
+    <string translatable="false" name="token_handle_shared_preferences">com.android.car.trust.TOKEN_HANDLE</string>
+
 </resources>
