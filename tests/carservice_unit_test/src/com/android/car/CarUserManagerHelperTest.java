@@ -157,6 +157,29 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
+    public void testGetAllPersistentUsers() {
+        // Create two non-ephemeral users.
+        UserInfo user1 = createUserInfoForId(mForegroundUserId);
+        UserInfo user2 = createUserInfoForId(mForegroundUserId + 1);
+        // Create two ephemeral users.
+        UserInfo user3 = new UserInfo(
+              /* id= */mForegroundUserId + 2, /* name = */ "user3", UserInfo.FLAG_EPHEMERAL);
+        UserInfo user4 = new UserInfo(
+              /* id= */mForegroundUserId + 3, /* name = */ "user4", UserInfo.FLAG_EPHEMERAL);
+
+        List<UserInfo> testUsers = Arrays.asList(user1, user2, user3, user4);
+
+        doReturn(new ArrayList<>(testUsers)).when(mUserManager).getUsers(true);
+
+        // Should return all 4 users.
+        assertThat(mCarUserManagerHelper.getAllUsers()).hasSize(4);
+
+        // Should return all non-ephemeral users.
+        assertThat(mCarUserManagerHelper.getAllPersistentUsers()).hasSize(2);
+        assertThat(mCarUserManagerHelper.getAllPersistentUsers()).containsExactly(user1, user2);
+    }
+
+    @Test
     public void testUserCanBeRemoved() {
         UserInfo testInfo = new UserInfo();
 
