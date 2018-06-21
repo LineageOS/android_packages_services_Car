@@ -161,7 +161,8 @@ public class CarUserManagerHelper {
     }
 
     /**
-     * Get user id for the initial user to boot into.
+     * Get user id for the initial user to boot into. This is only applicable for headless
+     * user 0 model.
      *
      * <p>If failed to retrieve the id stored in global settings or the retrieved id does not
      * exist on device, then return the user with smallest user id.
@@ -184,7 +185,8 @@ public class CarUserManagerHelper {
         // If the last active user is system user or the user id doesn't exist on device,
         // return the smallest id or all users.
         if (lastActiveUserId == UserHandle.USER_SYSTEM || !isUserExist) {
-            Log.e(TAG, "Can't get last active user id or the user no longer exist.");
+            Log.e(TAG, "Can't get last active user id or the user no longer exist, user id: ."
+                    + lastActiveUserId);
             lastActiveUserId = smallestUserId;
         }
 
@@ -289,7 +291,7 @@ public class CarUserManagerHelper {
         for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
             UserInfo userInfo = iterator.next();
             if (userInfo.isEphemeral()) {
-                // Remove user that is not admin.
+                // Remove user that is ephemeral.
                 iterator.remove();
             }
         }
@@ -414,6 +416,13 @@ public class CarUserManagerHelper {
      */
     public boolean isForegroundUserGuest() {
         return getCurrentForegroundUserInfo().isGuest();
+    }
+
+    /**
+     * Checks if the foreground user is ephemeral.
+     */
+    public boolean isForegroundUserEphemeral() {
+        return getCurrentForegroundUserInfo().isEphemeral();
     }
 
     /**
