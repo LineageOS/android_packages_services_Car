@@ -393,6 +393,8 @@ public class MockedCarTestBase {
             switch (name) {
                 case BLUETOOTH_SERVICE:
                     return CarServiceTestApp.getAppContext().getSystemService(name);
+                case AUDIO_SERVICE:
+                    return CarServiceTestApp.getAppContext().getSystemService(name);
                 default:
                     return super.getSystemService(name);
             }
