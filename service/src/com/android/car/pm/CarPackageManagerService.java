@@ -40,6 +40,7 @@ import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -92,6 +93,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     // Store the white list and black list strings from the resource file.
     private String mConfiguredWhitelist;
     private String mConfiguredBlacklist;
+    private final List<String> mAllowedAppInstallSources;
+
     /**
      * Hold policy set from policy service or client.
      * Key: packageName of policy service
@@ -152,7 +155,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mEnableActivityBlocking = res.getBoolean(R.bool.enableActivityBlockingForSafety);
         String blockingActivity = res.getString(R.string.activityBlockingActivity);
         mActivityBlockingActivity = ComponentName.unflattenFromString(blockingActivity);
+        mAllowedAppInstallSources = Arrays.asList(
+                res.getStringArray(R.array.allowedAppInstallSources));
     }
+
 
     @Override
     public void setAppBlockingPolicy(String packageName, CarAppBlockingPolicy policy, int flags) {
@@ -583,7 +589,31 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 }
             } else {
                 /* 2. If app is not listed in the config.xml check their Manifest meta-data to
-                  see if they have any Distraction Optimized(DO) activities */
+                  see if they have any Distraction Optimized(DO) activities.
+                  For non system apps, we check if the app install source was a permittable
+                  source. This prevents side-loaded apps to fake DO.  Bypass the check
+                  for debug builds for development convenience. */
+                if (!isDebugBuild()
+                        && !info.applicationInfo.isSystemApp()
+                        && !info.applicationInfo.isUpdatedSystemApp()) {
+                    try {
+                        if (mAllowedAppInstallSources != null) {
+                            String installerName = mPackageManager.getInstallerPackageName(
+                                    info.packageName);
+                            if (installerName == null || (installerName != null
+                                    && !mAllowedAppInstallSources.contains(installerName))) {
+                                Log.w(CarLog.TAG_PACKAGE,
+                                        info.packageName + " not installed from permitted sources "
+                                                + installerName == null ? "NULL" : installerName);
+                                continue;
+                            }
+                        }
+                    } catch (IllegalArgumentException e) {
+                        Log.w(CarLog.TAG_PACKAGE, info.packageName + " not installed!");
+                        continue;
+                    }
+                }
+
                 try {
                     activities = CarAppMetadataReader.findDistractionOptimizedActivities(
                             mContext,
@@ -620,6 +650,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             mActivityWhitelistMap.clear();
             mActivityWhitelistMap.putAll(activityWhitelist);
         }
+    }
+
+    private boolean isDebugBuild() {
+        return Build.IS_USERDEBUG || Build.IS_ENG;
     }
 
     /**

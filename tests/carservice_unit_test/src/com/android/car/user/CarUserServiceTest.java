@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
+import android.os.UserHandle;
 import android.os.UserManager;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -84,9 +85,10 @@ public class CarUserServiceTest {
         mCarUserService.init();
         verify(mMockContext).registerReceiver(eq(mCarUserService), argument.capture());
         IntentFilter intentFilter = argument.getValue();
-        assertThat(intentFilter.countActions()).isEqualTo(1);
+        assertThat(intentFilter.countActions()).isEqualTo(2);
 
         assertThat(intentFilter.getAction(0)).isEqualTo(Intent.ACTION_LOCKED_BOOT_COMPLETED);
+        assertThat(intentFilter.getAction(1)).isEqualTo(Intent.ACTION_USER_SWITCHED);
     }
 
     /**
@@ -109,7 +111,6 @@ public class CarUserServiceTest {
         UserInfo admin = new UserInfo(adminUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
 
         doReturn(users).when(mCarUserManagerHelper).getAllUsers();
-        // doReturn(users).when(mCarUserManagerHelper.getAllUsers());
         doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser(CarUserService.OWNER_NAME);
         doReturn(true).when(mCarUserManagerHelper).switchToUser(admin);
 
@@ -127,16 +128,65 @@ public class CarUserServiceTest {
     public void testDisableModifyAccountsForSystemUserOnFirstRun() {
         List<UserInfo> users = new ArrayList<>();
 
-        int systemUserId = 0;
-        UserInfo user0 = new UserInfo(systemUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
+        UserInfo user0 = new UserInfo();
+        user0.id = UserHandle.USER_SYSTEM;
+        int adminUserId = 10;
+        UserInfo admin = new UserInfo(adminUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
 
         doReturn(users).when(mCarUserManagerHelper).getAllUsers();
         doReturn(user0).when(mCarUserManagerHelper).getSystemUserInfo();
+        doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser(CarUserService.OWNER_NAME);
+        doReturn(true).when(mCarUserManagerHelper).switchToUser(admin);
 
         mCarUserService.onReceive(mMockContext,
                 new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
 
-        verify(mCarUserManagerHelper).
-                setUserRestriction(user0, UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
+        verify(mCarUserManagerHelper)
+                .setUserRestriction(user0, UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
+        verify(mCarUserManagerHelper)
+                .setLastActiveUser(adminUserId, /* skipGlobalSetting= */ false);
+    }
+
+    /**
+     * Test that the {@link CarUserService} starts up the last active user on reboot.
+     */
+    @Test
+    public void testStartsLastActiveUserOnReboot() {
+        List<UserInfo> users = new ArrayList<>();
+
+        int adminUserId = 10;
+        UserInfo admin = new UserInfo(adminUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
+
+        int secUserId = 11;
+        UserInfo secUser =
+                new UserInfo(secUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
+
+        users.add(admin);
+        users.add(secUser);
+
+        doReturn(users).when(mCarUserManagerHelper).getAllUsers();
+        doReturn(secUserId).when(mCarUserManagerHelper).getInitialUser();
+
+        mCarUserService.onReceive(mMockContext,
+                new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
+
+        verify(mCarUserManagerHelper).switchToUserId(secUserId);
+    }
+
+    /**
+     * Test that the {@link CarUserService} updates last active user on user switch intent.
+     */
+    @Test
+    public void testLastActiveUserUpdatedOnUserSwitch() {
+        int lastActiveUserId = 11;
+
+        doReturn(false).when(mCarUserManagerHelper).isForegroundUserEphemeral();
+        doReturn(lastActiveUserId).when(mCarUserManagerHelper).getCurrentForegroundUserId();
+
+        mCarUserService.onReceive(mMockContext,
+                new Intent(Intent.ACTION_USER_SWITCHED));
+
+        verify(mCarUserManagerHelper).setLastActiveUser(
+                lastActiveUserId, /* skipGlobalSetting= */ false);
     }
 }
