@@ -20,6 +20,7 @@ import static java.lang.Integer.toHexString;
 import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,6 +44,10 @@ class VhalJsonReader {
     private static final String JSON_FIELD_AREA_ID = "areaId";
     private static final String JSON_FIELD_TIMESTAMP = "timestamp";
     private static final String JSON_FIELD_VALUE = "value";
+    private static final String JSON_FIELD_INT32_VALUES = "int32Values";
+    private static final String JSON_FIELD_INT64_VALUES = "int64Values";
+    private static final String JSON_FIELD_FLOAT_VALUES = "floatValues";
+    private static final String JSON_FIELD_STRING_VALUE = "stringValue";
 
     public static List<CarPropertyValue> readFromJson(InputStream in)
             throws IOException, JSONException {
@@ -85,11 +90,42 @@ class VhalJsonReader {
             case VehiclePropertyType.STRING:
                 return new CarPropertyValue<>(prop, areaId, CarPropertyValue.STATUS_AVAILABLE,
                                             timestamp, rawEvent.getString(JSON_FIELD_VALUE));
-            //TODO: Add VehiclePropertyType.MIXED type support
+            // TODO: CarPropertyValue API has not supported VehiclePropertyType.MIXED type yet.
+            // Here is a temporary solution to use VehiclePropValue.RawValue
+            case VehiclePropertyType.MIXED:
+                VehiclePropValueBuilder builder = VehiclePropValueBuilder.newBuilder(prop);
+                JSONObject rawValueJson = rawEvent.getJSONObject(JSON_FIELD_VALUE);
+                copyValuesArray(
+                        builder, rawValueJson.optJSONArray(JSON_FIELD_INT32_VALUES), Integer.class);
+                copyValuesArray(
+                        builder, rawValueJson.optJSONArray(JSON_FIELD_INT64_VALUES), Long.class);
+                copyValuesArray(
+                        builder, rawValueJson.optJSONArray(JSON_FIELD_FLOAT_VALUES), Float.class);
+                builder.setStringValue(rawValueJson.getString(JSON_FIELD_STRING_VALUE));
+
+                return new CarPropertyValue<>(prop, areaId, CarPropertyValue.STATUS_AVAILABLE,
+                                              timestamp, builder.build().value);
             default:
                 throw new IllegalArgumentException("Property type 0x"
                         + toHexString(prop & VehiclePropertyType.MASK)
                         + " is not supported in the test.");
+        }
+    }
+
+    private static void copyValuesArray(VehiclePropValueBuilder builder, JSONArray jsonArray,
+            Class clazz) throws JSONException {
+        if (jsonArray == null) {
+            return;
+        }
+        for (int i = 0; i < jsonArray.length(); i++) {
+            if (clazz == Integer.class) {
+                builder.addIntValue(jsonArray.getInt(i));
+            } else if (clazz == Long.class) {
+                // It is really "add" the value
+                builder.setInt64Value(jsonArray.getLong(i));
+            } else if (clazz == Float.class) {
+                builder.addFloatValue((float) jsonArray.getDouble(i));
+            } // TODO: Add support for byte array if required
         }
     }
 }
