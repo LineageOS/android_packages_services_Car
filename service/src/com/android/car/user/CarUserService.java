@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
+import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 
@@ -88,7 +89,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
             Log.d(TAG, "onReceive " + intent);
         }
 
-        if (intent.getAction() == Intent.ACTION_LOCKED_BOOT_COMPLETED) {
+        if (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(intent.getAction())) {
             if (mCarUserManagerHelper.getAllUsers().size() == 0) {
                 // Disable adding accounts for user 0.
                 mCarUserManagerHelper.setUserRestriction(mCarUserManagerHelper.getSystemUserInfo(),
@@ -101,13 +102,13 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
             } else {
                 mCarUserManagerHelper.switchToUserId(mCarUserManagerHelper.getInitialUser());
             }
-        }
-        if (intent.getAction() == Intent.ACTION_USER_SWITCHED) {
-            // Update last active user if foreground user is not ephemeral.
-            if (!mCarUserManagerHelper.isForegroundUserEphemeral()) {
+        } else if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
+            // Update last active user if the switched-to user is a persistent, non-system user.
+            int currentUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
+            if (currentUser > UserHandle.USER_SYSTEM
+                        && mCarUserManagerHelper.isPersistentUser(currentUser)) {
                 mCarUserManagerHelper.setLastActiveUser(
-                        mCarUserManagerHelper.getCurrentForegroundUserId(),
-                        /* skipGlobalSettings= */ false);
+                        currentUser, /* skipGlobalSetting= */ false);
             }
         }
     }
