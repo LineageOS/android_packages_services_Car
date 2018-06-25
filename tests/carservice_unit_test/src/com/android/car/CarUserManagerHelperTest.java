@@ -19,8 +19,10 @@ package com.android.car;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.app.ActivityManager;
@@ -40,16 +42,17 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class contains unit tests for the {@link CarUserManagerHelper}.
@@ -519,8 +522,104 @@ public class CarUserManagerHelperTest {
         assertThat(handlerCaptor.getValue()).isNull();
 
         // Unregister the receiver.
-        mCarUserManagerHelper.unregisterOnUsersUpdateListener();
+        mCarUserManagerHelper.unregisterOnUsersUpdateListener(mTestListener);
         verify(mContext).unregisterReceiver(receiverCaptor.getValue());
+    }
+
+    @Test
+    public void testMultipleRegistrationsOfSameListener() {
+        CarUserManagerHelper.OnUsersUpdateListener listener =
+                Mockito.mock(CarUserManagerHelper.OnUsersUpdateListener.class);
+
+        ArgumentCaptor<BroadcastReceiver> receiverCaptor =
+                ArgumentCaptor.forClass(BroadcastReceiver.class);
+
+        mCarUserManagerHelper.registerOnUsersUpdateListener(listener);
+        mCarUserManagerHelper.registerOnUsersUpdateListener(listener);
+        // Even for multiple registrations of the same listener, broadcast receiver registered once.
+        verify(mContext, times(1))
+                .registerReceiverAsUser(receiverCaptor.capture(), any(), any(), any(), any());
+
+        // Verify that calling the receiver calls the listener.
+        receiverCaptor.getValue().onReceive(mContext, new Intent());
+        verify(listener).onUsersUpdate();
+
+        // Verify that a single removal unregisters the listener.
+        mCarUserManagerHelper.unregisterOnUsersUpdateListener(listener);
+        verify(mContext).unregisterReceiver(any());
+    }
+
+    @Test
+    public void testMultipleUnregistrationsOfTheSameListener() {
+        CarUserManagerHelper.OnUsersUpdateListener listener =
+                Mockito.mock(CarUserManagerHelper.OnUsersUpdateListener.class);
+        mCarUserManagerHelper.registerOnUsersUpdateListener(listener);
+
+        // Verify that a multiple unregistrations cause only one unregister for broadcast receiver.
+        mCarUserManagerHelper.unregisterOnUsersUpdateListener(listener);
+        mCarUserManagerHelper.unregisterOnUsersUpdateListener(listener);
+        mCarUserManagerHelper.unregisterOnUsersUpdateListener(listener);
+        verify(mContext, times(1)).unregisterReceiver(any());
+    }
+
+    @Test
+    public void testUnregisterReceiverCalledAfterAllListenersUnregister() {
+        CarUserManagerHelper.OnUsersUpdateListener listener1 =
+                Mockito.mock(CarUserManagerHelper.OnUsersUpdateListener.class);
+        CarUserManagerHelper.OnUsersUpdateListener listener2 =
+                Mockito.mock(CarUserManagerHelper.OnUsersUpdateListener.class);
+
+        mCarUserManagerHelper.registerOnUsersUpdateListener(listener1);
+        mCarUserManagerHelper.registerOnUsersUpdateListener(listener2);
+
+        mCarUserManagerHelper.unregisterOnUsersUpdateListener(listener1);
+        verify(mContext, never()).unregisterReceiver(any());
+
+        mCarUserManagerHelper.unregisterOnUsersUpdateListener(listener2);
+        verify(mContext, times(1)).unregisterReceiver(any());
+    }
+
+    @Test
+    public void testRegisteringMultipleListeners() {
+        CarUserManagerHelper.OnUsersUpdateListener listener1 =
+                Mockito.mock(CarUserManagerHelper.OnUsersUpdateListener.class);
+        CarUserManagerHelper.OnUsersUpdateListener listener2 =
+                Mockito.mock(CarUserManagerHelper.OnUsersUpdateListener.class);
+        ArgumentCaptor<BroadcastReceiver> receiverCaptor =
+                ArgumentCaptor.forClass(BroadcastReceiver.class);
+
+        mCarUserManagerHelper.registerOnUsersUpdateListener(listener1);
+        mCarUserManagerHelper.registerOnUsersUpdateListener(listener2);
+        verify(mContext, times(1))
+                .registerReceiverAsUser(receiverCaptor.capture(), any(), any(), any(), any());
+
+        // Verify that calling the receiver calls both listeners.
+        receiverCaptor.getValue().onReceive(mContext, new Intent());
+        verify(listener1).onUsersUpdate();
+        verify(listener2).onUsersUpdate();
+    }
+
+    @Test
+    public void testUnregisteringListenerStopsUpdatesForListener() {
+        CarUserManagerHelper.OnUsersUpdateListener listener1 =
+                Mockito.mock(CarUserManagerHelper.OnUsersUpdateListener.class);
+        CarUserManagerHelper.OnUsersUpdateListener listener2 =
+                Mockito.mock(CarUserManagerHelper.OnUsersUpdateListener.class);
+        ArgumentCaptor<BroadcastReceiver> receiverCaptor =
+                ArgumentCaptor.forClass(BroadcastReceiver.class);
+
+        mCarUserManagerHelper.registerOnUsersUpdateListener(listener1);
+        mCarUserManagerHelper.registerOnUsersUpdateListener(listener2);
+        verify(mContext, times(1))
+                .registerReceiverAsUser(receiverCaptor.capture(), any(), any(), any(), any());
+
+        // Unregister listener2
+        mCarUserManagerHelper.unregisterOnUsersUpdateListener(listener2);
+
+        // Verify that calling the receiver calls only one listener.
+        receiverCaptor.getValue().onReceive(mContext, new Intent());
+        verify(listener1).onUsersUpdate();
+        verify(listener2, never()).onUsersUpdate();
     }
 
     @Test
