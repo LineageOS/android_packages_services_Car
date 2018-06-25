@@ -181,10 +181,10 @@ public class CarUserServiceTest {
         int lastActiveUserId = 11;
 
         doReturn(false).when(mCarUserManagerHelper).isForegroundUserEphemeral();
-        doReturn(lastActiveUserId).when(mCarUserManagerHelper).getCurrentForegroundUserId();
 
-        mCarUserService.onReceive(mMockContext,
-                new Intent(Intent.ACTION_USER_SWITCHED));
+        Intent intent = new Intent(Intent.ACTION_USER_SWITCHED);
+        intent.putExtra(Intent.EXTRA_USER_HANDLE, lastActiveUserId);
+        mCarUserService.onReceive(mMockContext, intent);
 
         verify(mCarUserManagerHelper).setLastActiveUser(
                 lastActiveUserId, /* skipGlobalSetting= */ false);
