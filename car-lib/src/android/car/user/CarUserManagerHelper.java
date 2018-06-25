@@ -34,7 +34,6 @@ import android.os.UserManager;
 import android.provider.Settings;
 import android.util.Log;
 
-import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.UserIcons;
 
 import com.google.android.collect.Sets;
@@ -109,9 +108,7 @@ public class CarUserManagerHelper {
      * Set default boot into user.
      *
      * @param userId default user id to boot into.
-     * @deprecated Setting default user is obsolete
      */
-    @Deprecated
     public void setDefaultBootUser(int userId) {
         Settings.Global.putInt(
                 mContext.getContentResolver(),
@@ -136,9 +133,7 @@ public class CarUserManagerHelper {
      * Get user id for the default boot into user.
      *
      * @return user id of the default boot into user
-     * @deprecated Use {@link #getLastActiveUser()} instead.
      */
-    @Deprecated
     public int getDefaultBootUser() {
         // Make user 10 the original default boot user.
         return Settings.Global.getInt(
@@ -371,10 +366,7 @@ public class CarUserManagerHelper {
      *
      * @param userInfo User to check against system user.
      * @return {@code true} if is default user, {@code false} otherwise.
-     *
-     * @deprecated Default user is obsolete
      */
-    @Deprecated
     public boolean isDefaultUser(UserInfo userInfo) {
         return userInfo.id == getDefaultBootUser();
     }
@@ -423,6 +415,17 @@ public class CarUserManagerHelper {
      */
     public boolean isForegroundUserEphemeral() {
         return getCurrentForegroundUserInfo().isEphemeral();
+    }
+
+    /**
+     * Checks if the given user is non-ephemeral.
+     *
+     * @param userId User to check
+     * @return {@code true} if given user is persistent user.
+     */
+    public boolean isPersistentUser(int userId) {
+        UserInfo user = mUserManager.getUserInfo(userId);
+        return !user.isEphemeral();
     }
 
     /**
