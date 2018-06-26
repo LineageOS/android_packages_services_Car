@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
+import android.location.LocationManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
@@ -91,9 +92,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
 
         if (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(intent.getAction())) {
             if (mCarUserManagerHelper.getAllUsers().size() == 0) {
-                // Disable adding accounts for user 0.
-                mCarUserManagerHelper.setUserRestriction(mCarUserManagerHelper.getSystemUserInfo(),
-                        UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
+                setSystemUserRestrictions();
                 // On very first boot, create an admin user and switch to that user.
                 UserInfo admin = mCarUserManagerHelper.createNewAdminUser(OWNER_NAME);
                 mCarUserManagerHelper.switchToUser(admin);
@@ -111,5 +110,17 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
                         currentUser, /* skipGlobalSetting= */ false);
             }
         }
+    }
+
+    private void setSystemUserRestrictions() {
+        // Disable adding accounts for system user.
+        mCarUserManagerHelper.setUserRestriction(mCarUserManagerHelper.getSystemUserInfo(),
+                UserManager.DISALLOW_MODIFY_ACCOUNTS, /* enable= */ true);
+
+        // Disable Location service for system user.
+        LocationManager locationManager =
+                (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        locationManager.setLocationEnabledForUser(
+                /* enabled= */ false, UserHandle.of(UserHandle.USER_SYSTEM));
     }
 }
