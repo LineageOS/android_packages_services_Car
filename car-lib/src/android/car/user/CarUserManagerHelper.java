@@ -34,11 +34,11 @@ import android.os.UserManager;
 import android.provider.Settings;
 import android.util.Log;
 
-import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.UserIcons;
 
 import com.google.android.collect.Sets;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -68,15 +68,23 @@ public class CarUserManagerHelper {
     private final ActivityManager mActivityManager;
     private int mLastActiveUser = UserHandle.USER_SYSTEM;
     private Bitmap mDefaultGuestUserIcon;
-    private OnUsersUpdateListener mUpdateListener;
+    private ArrayList<OnUsersUpdateListener> mUpdateListeners;
     private final BroadcastReceiver mUserChangeReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mUpdateListener.onUsersUpdate();
+            ArrayList<OnUsersUpdateListener> copyOfUpdateListeners;
+            synchronized (mUpdateListeners) {
+                copyOfUpdateListeners = new ArrayList(mUpdateListeners);
+            }
+
+            for (OnUsersUpdateListener listener : copyOfUpdateListeners) {
+                listener.onUsersUpdate();
+            }
         }
     };
 
     public CarUserManagerHelper(Context context) {
+        mUpdateListeners = new ArrayList<>();
         mContext = context.getApplicationContext();
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mActivityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
@@ -85,33 +93,49 @@ public class CarUserManagerHelper {
     /**
      * Registers a listener for updates to all users - removing, adding users or changing user info.
      *
-     * <p> Best practise is to keep one listener per helper.
-     *
      * @param listener Instance of {@link OnUsersUpdateListener}.
      */
     public void registerOnUsersUpdateListener(OnUsersUpdateListener listener) {
-        if (mUpdateListener != null) {
-            unregisterOnUsersUpdateListener();
+        if (listener == null) {
+            return;
         }
 
-        mUpdateListener = listener;
-        registerReceiver();
+        synchronized (mUpdateListeners) {
+            if (mUpdateListeners.isEmpty()) {
+                // First listener being added, register receiver.
+                registerReceiver();
+            }
+
+            if (!mUpdateListeners.contains(listener)) {
+                mUpdateListeners.add(listener);
+            }
+        }
     }
 
     /**
-     * Unregisters on user update listener by unregistering {@code BroadcastReceiver}.
+     * Unregisters on user update listener.
+     * Unregisters {@code BroadcastReceiver} if no listeners remain.
+     *
+     * @param listener Instance of {@link OnUsersUpdateListener} to unregister.
      */
-    public void unregisterOnUsersUpdateListener() {
-        unregisterReceiver();
+    public void unregisterOnUsersUpdateListener(OnUsersUpdateListener listener) {
+        synchronized (mUpdateListeners) {
+            if (mUpdateListeners.contains(listener)) {
+                mUpdateListeners.remove(listener);
+
+                if (mUpdateListeners.isEmpty()) {
+                    // No more listeners, unregister broadcast receiver.
+                    unregisterReceiver();
+                }
+            }
+        }
     }
 
     /**
      * Set default boot into user.
      *
      * @param userId default user id to boot into.
-     * @deprecated Setting default user is obsolete
      */
-    @Deprecated
     public void setDefaultBootUser(int userId) {
         Settings.Global.putInt(
                 mContext.getContentResolver(),
@@ -136,9 +160,7 @@ public class CarUserManagerHelper {
      * Get user id for the default boot into user.
      *
      * @return user id of the default boot into user
-     * @deprecated Use {@link #getLastActiveUser()} instead.
      */
-    @Deprecated
     public int getDefaultBootUser() {
         // Make user 10 the original default boot user.
         return Settings.Global.getInt(
@@ -371,10 +393,7 @@ public class CarUserManagerHelper {
      *
      * @param userInfo User to check against system user.
      * @return {@code true} if is default user, {@code false} otherwise.
-     *
-     * @deprecated Default user is obsolete
      */
-    @Deprecated
     public boolean isDefaultUser(UserInfo userInfo) {
         return userInfo.id == getDefaultBootUser();
     }
@@ -423,6 +442,17 @@ public class CarUserManagerHelper {
      */
     public boolean isForegroundUserEphemeral() {
         return getCurrentForegroundUserInfo().isEphemeral();
+    }
+
+    /**
+     * Checks if the given user is non-ephemeral.
+     *
+     * @param userId User to check
+     * @return {@code true} if given user is persistent user.
+     */
+    public boolean isPersistentUser(int userId) {
+        UserInfo user = mUserManager.getUserInfo(userId);
+        return !user.isEphemeral();
     }
 
     /**
