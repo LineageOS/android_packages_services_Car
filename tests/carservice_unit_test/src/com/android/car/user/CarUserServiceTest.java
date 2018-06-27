@@ -21,13 +21,13 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.car.user.CarUserManagerHelper;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
+import android.location.LocationManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.support.test.runner.AndroidJUnit4;
@@ -62,6 +62,9 @@ public class CarUserServiceTest {
     private Context mApplicationContext;
 
     @Mock
+    private LocationManager mLocationManager;
+
+    @Mock
     private CarUserManagerHelper mCarUserManagerHelper;
 
     /**
@@ -70,7 +73,8 @@ public class CarUserServiceTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(mMockContext.getApplicationContext()).thenReturn(mApplicationContext);
+        doReturn(mApplicationContext).when(mMockContext).getApplicationContext();
+        doReturn(mLocationManager).when(mMockContext).getSystemService(Context.LOCATION_SERVICE);
 
         mCarUserService = new CarUserService(mMockContext, mCarUserManagerHelper);
     }
@@ -112,7 +116,6 @@ public class CarUserServiceTest {
 
         doReturn(users).when(mCarUserManagerHelper).getAllUsers();
         doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser(CarUserService.OWNER_NAME);
-        doReturn(true).when(mCarUserManagerHelper).switchToUser(admin);
 
         mCarUserService.onReceive(mMockContext,
                 new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
@@ -128,21 +131,64 @@ public class CarUserServiceTest {
     public void testDisableModifyAccountsForSystemUserOnFirstRun() {
         List<UserInfo> users = new ArrayList<>();
 
-        UserInfo user0 = new UserInfo();
-        user0.id = UserHandle.USER_SYSTEM;
+        UserInfo systemUser = new UserInfo();
+        systemUser.id = UserHandle.USER_SYSTEM;
         int adminUserId = 10;
         UserInfo admin = new UserInfo(adminUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
 
         doReturn(users).when(mCarUserManagerHelper).getAllUsers();
-        doReturn(user0).when(mCarUserManagerHelper).getSystemUserInfo();
+        doReturn(systemUser).when(mCarUserManagerHelper).getSystemUserInfo();
         doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser(CarUserService.OWNER_NAME);
-        doReturn(true).when(mCarUserManagerHelper).switchToUser(admin);
 
         mCarUserService.onReceive(mMockContext,
                 new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
 
         verify(mCarUserManagerHelper)
-                .setUserRestriction(user0, UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
+                .setUserRestriction(systemUser, UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
+    }
+
+    /**
+     * Test that the {@link CarUserService} disable location service for user 0 upon first run.
+     */
+    @Test
+    public void testDisableLocationForSystemUserOnFirstRun() {
+        List<UserInfo> users = new ArrayList<>();
+
+        UserInfo systemUser = new UserInfo();
+        systemUser.id = UserHandle.USER_SYSTEM;
+        int adminUserId = 10;
+        UserInfo admin = new UserInfo(adminUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
+
+        doReturn(users).when(mCarUserManagerHelper).getAllUsers();
+        doReturn(systemUser).when(mCarUserManagerHelper).getSystemUserInfo();
+        doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser(CarUserService.OWNER_NAME);
+
+        mCarUserService.onReceive(mMockContext,
+                new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
+
+        verify(mLocationManager)
+                .setLocationEnabledForUser(/* enabled= */ false, UserHandle.of(systemUser.id));
+    }
+
+    /**
+     * Test that the {@link CarUserService} updates last active user to the first admin user
+     * on first run.
+     */
+    @Test
+    public void testUpdateLastActiveUserOnFirstRun() {
+        List<UserInfo> users = new ArrayList<>();
+
+        UserInfo systemUser = new UserInfo();
+        systemUser.id = UserHandle.USER_SYSTEM;
+        int adminUserId = 10;
+        UserInfo admin = new UserInfo(adminUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
+
+        doReturn(users).when(mCarUserManagerHelper).getAllUsers();
+        doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser(CarUserService.OWNER_NAME);
+
+        mCarUserService.onReceive(mMockContext,
+                new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
+
         verify(mCarUserManagerHelper)
                 .setLastActiveUser(adminUserId, /* skipGlobalSetting= */ false);
     }
@@ -180,10 +226,11 @@ public class CarUserServiceTest {
     public void testLastActiveUserUpdatedOnUserSwitch() {
         int lastActiveUserId = 11;
 
-        doReturn(false).when(mCarUserManagerHelper).isForegroundUserEphemeral();
-
         Intent intent = new Intent(Intent.ACTION_USER_SWITCHED);
         intent.putExtra(Intent.EXTRA_USER_HANDLE, lastActiveUserId);
+
+        doReturn(true).when(mCarUserManagerHelper).isPersistentUser(lastActiveUserId);
+
         mCarUserService.onReceive(mMockContext, intent);
 
         verify(mCarUserManagerHelper).setLastActiveUser(
