@@ -93,6 +93,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         if (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(intent.getAction())) {
             if (mCarUserManagerHelper.getAllUsers().size() == 0) {
                 setSystemUserRestrictions();
+                mCarUserManagerHelper.initDefaultGuestRestrictions();
                 // On very first boot, create an admin user and switch to that user.
                 UserInfo admin = mCarUserManagerHelper.createNewAdminUser(OWNER_NAME);
                 mCarUserManagerHelper.switchToUser(admin);
