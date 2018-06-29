@@ -178,8 +178,12 @@ public class CarPropertyManager implements CarManagerBase {
      */
     public void unregisterListener(CarPropertyEventListener listener) {
         synchronized (mActivePropertyListener) {
+            int [] propertyIds = new int[mActivePropertyListener.size()];
             for (int i = 0; i < mActivePropertyListener.size(); i++) {
-                doUnregisterListenerLocked(listener, mActivePropertyListener.keyAt(i));
+                propertyIds[i] = mActivePropertyListener.keyAt(i);
+            }
+            for (int prop : propertyIds) {
+                doUnregisterListenerLocked(listener, prop);
             }
         }
     }

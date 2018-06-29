@@ -51,7 +51,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -128,15 +127,8 @@ public class CarUserManagerHelperTest {
         UserInfo otherUser2 = createUserInfoForId(11);
         UserInfo otherUser3 = createUserInfoForId(12);
 
-        List<UserInfo> testUsers = new ArrayList<>();
-        testUsers.add(mSystemUser);
-        testUsers.add(otherUser1);
-        testUsers.add(otherUser2);
-        testUsers.add(otherUser3);
+        mockGetUsers(mSystemUser, otherUser1, otherUser2, otherUser3);
 
-        doReturn(testUsers).when(mUserManager).getUsers(true);
-
-        assertThat(mCarUserManagerHelper.getAllUsers()).hasSize(3);
         assertThat(mCarUserManagerHelper.getAllUsers())
                 .containsExactly(otherUser1, otherUser2, otherUser3);
     }
@@ -147,15 +139,9 @@ public class CarUserManagerHelperTest {
         UserInfo user1 = createUserInfoForId(mForegroundUserId + 1);
         UserInfo user2 = createUserInfoForId(mForegroundUserId + 2);
 
-        List<UserInfo> testUsers = Arrays.asList(mForegroundUser, user1, user2);
-
-        doReturn(new ArrayList<>(testUsers)).when(mUserManager).getUsers(true);
-
-        // Should return all 3 users.
-        assertThat(mCarUserManagerHelper.getAllUsers()).hasSize(3);
+        mockGetUsers(mForegroundUser, user1, user2);
 
         // Should return all non-foreground users.
-        assertThat(mCarUserManagerHelper.getAllSwitchableUsers()).hasSize(2);
         assertThat(mCarUserManagerHelper.getAllSwitchableUsers()).containsExactly(user1, user2);
     }
 
@@ -170,16 +156,38 @@ public class CarUserManagerHelperTest {
         UserInfo user4 = new UserInfo(
               /* id= */mForegroundUserId + 3, /* name = */ "user4", UserInfo.FLAG_EPHEMERAL);
 
-        List<UserInfo> testUsers = Arrays.asList(user1, user2, user3, user4);
-
-        doReturn(new ArrayList<>(testUsers)).when(mUserManager).getUsers(true);
-
-        // Should return all 4 users.
-        assertThat(mCarUserManagerHelper.getAllUsers()).hasSize(4);
+        mockGetUsers(user1, user2, user3, user4);
 
         // Should return all non-ephemeral users.
-        assertThat(mCarUserManagerHelper.getAllPersistentUsers()).hasSize(2);
         assertThat(mCarUserManagerHelper.getAllPersistentUsers()).containsExactly(user1, user2);
+    }
+
+    @Test
+    public void testGetAllAdminUsers() {
+        // Create two admin, and two non-admin users.
+        UserInfo user1 = new UserInfo(/* id= */ 10, /* name = */ "user10", UserInfo.FLAG_ADMIN);
+        UserInfo user2 = createUserInfoForId(11);
+        UserInfo user3 = createUserInfoForId(12);
+        UserInfo user4 = new UserInfo(/* id= */ 13, /* name = */ "user13", UserInfo.FLAG_ADMIN);
+
+        mockGetUsers(user1, user2, user3, user4);
+
+        // Should return only admin users.
+        assertThat(mCarUserManagerHelper.getAllAdminUsers()).containsExactly(user1, user4);
+    }
+
+    @Test
+    public void testGetAllUsersExceptGuests() {
+        // Create two users and a guest user.
+        UserInfo user1 = createUserInfoForId(10);
+        UserInfo user2 = createUserInfoForId(12);
+        UserInfo user3 = new UserInfo(/* id= */ 13, /* name = */ "user13", UserInfo.FLAG_GUEST);
+
+        mockGetUsers(user1, user2, user3);
+
+        // Should not return guests.
+        assertThat(mCarUserManagerHelper.getAllUsersExceptGuests())
+                .containsExactly(user1, user2);
     }
 
     @Test
@@ -253,6 +261,80 @@ public class CarUserManagerHelperTest {
                 .hasUserRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS);
 
         assertThat(mCarUserManagerHelper.canCurrentProcessModifyAccounts()).isFalse();
+    }
+
+    @Test
+    public void testGetMaxSupportedUsers() {
+        SystemProperties.set("fw.max_users", "11");
+
+        assertThat(mCarUserManagerHelper.getMaxSupportedUsers()).isEqualTo(11);
+
+        // In headless user 0 model, we want to exclude the system user.
+        SystemProperties.set("android.car.systemuser.headless", "true");
+        assertThat(mCarUserManagerHelper.getMaxSupportedUsers()).isEqualTo(10);
+    }
+
+    @Test
+    public void testGetMaxSupportedRealUsers() {
+        SystemProperties.set("fw.max_users", "7");
+
+        // Create three managed profiles, and two normal users.
+        UserInfo user1 = createUserInfoForId(10);
+        UserInfo user2 =
+                new UserInfo(/* id= */ 11, /* name = */ "user11", UserInfo.FLAG_MANAGED_PROFILE);
+        UserInfo user3 =
+                new UserInfo(/* id= */ 12, /* name = */ "user12", UserInfo.FLAG_MANAGED_PROFILE);
+        UserInfo user4 = createUserInfoForId(13);
+        UserInfo user5 =
+                new UserInfo(/* id= */ 14, /* name = */ "user14", UserInfo.FLAG_MANAGED_PROFILE);
+
+        mockGetUsers(user1, user2, user3, user4, user5);
+
+        // Max users - # managed profiles.
+        assertThat(mCarUserManagerHelper.getMaxSupportedRealUsers()).isEqualTo(4);
+    }
+
+    @Test
+    public void testIsUserLimitReached() {
+        UserInfo user1 = createUserInfoForId(10);
+        UserInfo user2 =
+                new UserInfo(/* id= */ 11, /* name = */ "user11", UserInfo.FLAG_MANAGED_PROFILE);
+        UserInfo user3 =
+                new UserInfo(/* id= */ 12, /* name = */ "user12", UserInfo.FLAG_MANAGED_PROFILE);
+        UserInfo user4 = createUserInfoForId(13);
+
+        mockGetUsers(user1, user2, user3, user4);
+
+        SystemProperties.set("fw.max_users", "5");
+        assertThat(mCarUserManagerHelper.isUserLimitReached()).isFalse();
+
+        SystemProperties.set("fw.max_users", "4");
+        assertThat(mCarUserManagerHelper.isUserLimitReached()).isTrue();
+    }
+
+    @Test
+    public void testIsUserLimitReachedIgnoresGuests() {
+        SystemProperties.set("fw.max_users", "5");
+
+        UserInfo user1 = createUserInfoForId(10);
+        UserInfo user2 =
+                new UserInfo(/* id= */ 11, /* name = */ "user11", UserInfo.FLAG_MANAGED_PROFILE);
+        UserInfo user3 =
+                new UserInfo(/* id= */ 12, /* name = */ "user12", UserInfo.FLAG_MANAGED_PROFILE);
+        UserInfo user4 = createUserInfoForId(13);
+        UserInfo user5 = new UserInfo(/* id= */ 14, /* name = */ "user14", UserInfo.FLAG_GUEST);
+        UserInfo user6 = createUserInfoForId(15);
+
+        mockGetUsers(user1, user2, user3, user4);
+        assertThat(mCarUserManagerHelper.isUserLimitReached()).isFalse();
+
+        // Add guest user. Verify it doesn't affect the limit.
+        mockGetUsers(user1, user2, user3, user4, user5);
+        assertThat(mCarUserManagerHelper.isUserLimitReached()).isFalse();
+
+        // Add normal user. Limit is reached
+        mockGetUsers(user1, user2, user3, user4, user5, user6);
+        assertThat(mCarUserManagerHelper.isUserLimitReached()).isTrue();
     }
 
     @Test
@@ -366,10 +448,7 @@ public class CarUserManagerHelperTest {
         assertThat(mCarUserManagerHelper.removeUser(mSystemUser, mGuestUserName)).isFalse();
 
         UserInfo adminInfo = new UserInfo(/* id= */10, "admin", UserInfo.FLAG_ADMIN);
-        List<UserInfo> users = new ArrayList<UserInfo>();
-        users.add(adminInfo);
-
-        doReturn(users).when(mUserManager).getUsers(true);
+        mockGetUsers(adminInfo);
 
         assertThat(mCarUserManagerHelper.removeUser(adminInfo, mGuestUserName))
             .isEqualTo(false);
@@ -631,15 +710,9 @@ public class CarUserManagerHelperTest {
         UserInfo otherUser2 = createUserInfoForId(lastActiveUserId - 1);
         UserInfo otherUser3 = createUserInfoForId(lastActiveUserId);
 
-        List<UserInfo> testUsers = new ArrayList<>();
-        testUsers.add(mSystemUser);
-        testUsers.add(otherUser1);
-        testUsers.add(otherUser2);
-        testUsers.add(otherUser3);
-
         mCarUserManagerHelper.setLastActiveUser(
                 lastActiveUserId, /* skipGlobalSettings= */ true);
-        doReturn(testUsers).when(mUserManager).getUsers(true);
+        mockGetUsers(mSystemUser, otherUser1, otherUser2, otherUser3);
 
         assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(lastActiveUserId);
     }
@@ -652,14 +725,9 @@ public class CarUserManagerHelperTest {
         UserInfo otherUser1 = createUserInfoForId(lastActiveUserId - 2);
         UserInfo otherUser2 = createUserInfoForId(lastActiveUserId - 1);
 
-        List<UserInfo> testUsers = new ArrayList<>();
-        testUsers.add(mSystemUser);
-        testUsers.add(otherUser1);
-        testUsers.add(otherUser2);
-
         mCarUserManagerHelper.setLastActiveUser(
                 lastActiveUserId, /* skipGlobalSettings= */ true);
-        doReturn(testUsers).when(mUserManager).getUsers(true);
+        mockGetUsers(mSystemUser, otherUser1, otherUser2);
 
         assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(lastActiveUserId - 2);
     }
@@ -668,5 +736,13 @@ public class CarUserManagerHelperTest {
         UserInfo userInfo = new UserInfo();
         userInfo.id = id;
         return userInfo;
+    }
+
+    private void mockGetUsers(UserInfo... users) {
+        List<UserInfo> testUsers = new ArrayList<>();
+        for (UserInfo user: users) {
+            testUsers.add(user);
+        }
+        doReturn(testUsers).when(mUserManager).getUsers(true);
     }
 }
