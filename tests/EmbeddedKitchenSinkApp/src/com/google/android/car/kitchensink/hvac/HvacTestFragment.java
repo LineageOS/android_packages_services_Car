@@ -25,6 +25,7 @@ import android.car.hardware.hvac.CarHvacManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaWindow;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,6 +77,8 @@ public class HvacTestFragment extends Fragment {
     private int mZoneForSetTempP;
     private int mZoneForFanSpeed;
     private int mZoneForFanPosition;
+    private List<CarPropertyConfig> mCarPropertyConfigs;
+    private View mHvacView;
 
     private final CarHvacManager.CarHvacEventCallback mHvacCallback =
             new CarHvacManager.CarHvacEventCallback () {
@@ -171,13 +174,9 @@ public class HvacTestFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        mCarHvacManager = ((KitchenSinkActivity)getActivity()).getHvacManager();
+
         super.onCreate(savedInstanceState);
-        try {
-            mCarHvacManager.registerCallback(mHvacCallback);
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Car is not connected!");
-        }
+
     }
 
     @Override
@@ -188,77 +187,85 @@ public class HvacTestFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
-        View v = inflater.inflate(R.layout.hvac_test, container, false);
+        mHvacView = inflater.inflate(R.layout.hvac_test, container, false);
+        final Runnable r = () -> {
+            mCarHvacManager = ((KitchenSinkActivity) getActivity()).getHvacManager();
+            try {
+                mCarHvacManager.registerCallback(mHvacCallback);
+            } catch (CarNotConnectedException e) {
+                Log.e(TAG, "Car is not connected!");
+            }
+            try {
+                mCarPropertyConfigs = mCarHvacManager.getPropertyList();
+            } catch (CarNotConnectedException e) {
+                Log.e(TAG, "Failed to get list of properties", e);
+                mCarPropertyConfigs = new ArrayList<>();
+            }
+            for (CarPropertyConfig prop : mCarPropertyConfigs) {
+                int propId = prop.getPropertyId();
 
-        List<CarPropertyConfig> props;
-        try {
-            props = mCarHvacManager.getPropertyList();
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to get list of properties", e);
-            props = new ArrayList<>();
-        }
+                if (DBG) {
+                    Log.d(TAG, prop.toString());
+                }
 
-        for(CarPropertyConfig prop : props) {
-            int propId = prop.getPropertyId();
-
-            if(DBG) {
-                Log.d(TAG, prop.toString());
+                switch(propId) {
+                    case CarHvacManager.ID_OUTSIDE_AIR_TEMP:
+                        configureOutsideTemp(mHvacView, prop);
+                        break;
+                    case CarHvacManager.ID_ZONED_DUAL_ZONE_ON:
+                        configureDualOn(mHvacView, prop);
+                        break;
+                    case CarHvacManager.ID_ZONED_AC_ON:
+                        configureAcOn(mHvacView, prop);
+                        break;
+                    case CarHvacManager.ID_ZONED_FAN_DIRECTION:
+                        configureFanPosition(mHvacView, prop);
+                        break;
+                    case CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT:
+                        configureFanSpeed(mHvacView, prop);
+                        break;
+                    case CarHvacManager.ID_ZONED_TEMP_SETPOINT:
+                        configureTempSetpoint(mHvacView, prop);
+                        break;
+                    case CarHvacManager.ID_ZONED_AUTOMATIC_MODE_ON:
+                        configureAutoModeOn(mHvacView, prop);
+                        break;
+                    case CarHvacManager.ID_ZONED_AIR_RECIRCULATION_ON:
+                        configureRecircOn(mHvacView, prop);
+                        break;
+                    case CarHvacManager.ID_ZONED_MAX_AC_ON:
+                        configureMaxAcOn(mHvacView, prop);
+                        break;
+                    case CarHvacManager.ID_ZONED_MAX_DEFROST_ON:
+                        configureMaxDefrostOn(mHvacView, prop);
+                        break;
+                    case CarHvacManager.ID_WINDOW_DEFROSTER_ON:
+                        configureDefrosterOn(mHvacView, prop);
+                        break;
+                    default:
+                        Log.w(TAG, "propertyId " + propId + " is not handled");
+                        break;
+                }
             }
 
-            switch(propId) {
-                case CarHvacManager.ID_OUTSIDE_AIR_TEMP:
-                    configureOutsideTemp(v, prop);
-                    break;
-                case CarHvacManager.ID_ZONED_DUAL_ZONE_ON:
-                    configureDualOn(v, prop);
-                    break;
-                case CarHvacManager.ID_ZONED_AC_ON:
-                    configureAcOn(v, prop);
-                    break;
-                case CarHvacManager.ID_ZONED_FAN_DIRECTION:
-                    configureFanPosition(v, prop);
-                    break;
-                case CarHvacManager.ID_ZONED_FAN_SPEED_SETPOINT:
-                    configureFanSpeed(v, prop);
-                    break;
-                case CarHvacManager.ID_ZONED_TEMP_SETPOINT:
-                    configureTempSetpoint(v, prop);
-                    break;
-                case CarHvacManager.ID_ZONED_AUTOMATIC_MODE_ON:
-                    configureAutoModeOn(v, prop);
-                    break;
-                case CarHvacManager.ID_ZONED_AIR_RECIRCULATION_ON:
-                    configureRecircOn(v, prop);
-                    break;
-                case CarHvacManager.ID_ZONED_MAX_AC_ON:
-                    configureMaxAcOn(v, prop);
-                    break;
-                case CarHvacManager.ID_ZONED_MAX_DEFROST_ON:
-                    configureMaxDefrostOn(v, prop);
-                    break;
-                case CarHvacManager.ID_WINDOW_DEFROSTER_ON:
-                    configureDefrosterOn(v, prop);
-                    break;
-                default:
-                    Log.w(TAG, "propertyId " + propId + " is not handled");
-                    break;
-            }
-        }
+            mTvFanSpeed = (TextView) mHvacView.findViewById(R.id.tvFanSpeed);
+            mTvFanSpeed.setText(String.valueOf(mCurFanSpeed));
+            mTvDTemp = (TextView) mHvacView.findViewById(R.id.tvDTemp);
+            mTvDTemp.setText(String.valueOf(mCurDTemp));
+            mTvPTemp = (TextView) mHvacView.findViewById(R.id.tvPTemp);
+            mTvPTemp.setText(String.valueOf(mCurPTemp));
+            mTvOutsideTemp = (TextView) mHvacView.findViewById(R.id.tvOutsideTemp);
+            mTvOutsideTemp.setText("N/A");
+        };
 
-        mTvFanSpeed = (TextView) v.findViewById(R.id.tvFanSpeed);
-        mTvFanSpeed.setText(String.valueOf(mCurFanSpeed));
-        mTvDTemp = (TextView) v.findViewById(R.id.tvDTemp);
-        mTvDTemp.setText(String.valueOf(mCurDTemp));
-        mTvPTemp = (TextView) v.findViewById(R.id.tvPTemp);
-        mTvPTemp.setText(String.valueOf(mCurPTemp));
-        mTvOutsideTemp = (TextView) v.findViewById(R.id.tvOutsideTemp);
-        mTvOutsideTemp.setText("N/A");
+        ((KitchenSinkActivity) getActivity()).requestRefreshManager(r,
+                new Handler(getContext().getMainLooper()));
 
         if(DBG) {
             Log.d(TAG, "Starting HvacTestFragment");
         }
 
-        return v;
+        return mHvacView;
     }
 
     private void configureOutsideTemp(View v, CarPropertyConfig prop) {

@@ -26,6 +26,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -85,20 +86,23 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         mPropertyId = view.findViewById(R.id.sPropertyId);
         mScrollView = view.findViewById(R.id.svEventLog);
         mSetValue = view.findViewById(R.id.etSetPropertyValue);
+        mActivity = (KitchenSinkActivity) getActivity();
 
-        populateConfigList();
-        mListView.setAdapter(new PropertyListAdapter(mPropInfo, mMgr, mEventLog, mScrollView,
-                                                     mActivity));
+        final Runnable r = () -> {
+            mMgr = mActivity.getPropertyManager();
+            populateConfigList();
+            mListView.setAdapter(new PropertyListAdapter(mPropInfo, mMgr, mEventLog, mScrollView,
+                    mActivity));
 
-        // Configure dropdown menu for propertyId spinner
-        ArrayAdapter<PropertyInfo> adapter =
-                new ArrayAdapter<PropertyInfo>(mActivity, android.R.layout.simple_spinner_item,
-                                               mPropInfo);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mPropertyId.setAdapter(adapter);
-        mPropertyId.setOnItemSelectedListener(this);
-
-
+            // Configure dropdown menu for propertyId spinner
+            ArrayAdapter<PropertyInfo> adapter =
+                    new ArrayAdapter<PropertyInfo>(mActivity, android.R.layout.simple_spinner_item,
+                            mPropInfo);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mPropertyId.setAdapter(adapter);
+            mPropertyId.setOnItemSelectedListener(this);
+        };
+        mActivity.requestRefreshManager(r, new Handler(getContext().getMainLooper()));
 
         // Configure listeners for buttons
         Button b = view.findViewById(R.id.bGetProperty);

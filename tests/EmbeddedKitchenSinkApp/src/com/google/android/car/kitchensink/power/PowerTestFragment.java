@@ -20,6 +20,7 @@ import android.car.CarNotConnectedException;
 import android.car.hardware.power.CarPowerManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
@@ -58,16 +59,20 @@ public class PowerTestFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        mCarPowerManager = ((KitchenSinkActivity)getActivity()).getPowerManager();
-        mExecutor = new ThreadPerTaskExecutor();
+        final Runnable r = () -> {
+            mCarPowerManager = ((KitchenSinkActivity) getActivity()).getPowerManager();
+            mExecutor = new ThreadPerTaskExecutor();
+            try {
+                mCarPowerManager.setListener(mPowerListener, mExecutor);
+            } catch (CarNotConnectedException e) {
+                Log.e(TAG, "Car is not connected!");
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "CarPowerManager listener was not cleared");
+            }
+        };
+        ((KitchenSinkActivity) getActivity()).requestRefreshManager(r,
+                new Handler(getContext().getMainLooper()));
         super.onCreate(savedInstanceState);
-        try {
-            mCarPowerManager.setListener(mPowerListener, mExecutor);
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Car is not connected!");
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "CarPowerManager listener was not cleared");
-        }
     }
 
     @Override
