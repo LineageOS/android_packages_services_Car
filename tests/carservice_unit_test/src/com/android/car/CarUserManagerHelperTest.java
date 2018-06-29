@@ -313,6 +313,25 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
+    public void testHeadlessSystemUser_IsUserLimitReached() {
+        SystemProperties.set("android.car.systemuser.headless", "true");
+        UserInfo user1 = createUserInfoForId(10);
+        UserInfo user2 =
+                new UserInfo(/* id= */ 11, /* name = */ "user11", UserInfo.FLAG_MANAGED_PROFILE);
+        UserInfo user3 =
+                new UserInfo(/* id= */ 12, /* name = */ "user12", UserInfo.FLAG_MANAGED_PROFILE);
+        UserInfo user4 = createUserInfoForId(13);
+
+        mockGetUsers(mSystemUser, user1, user2, user3, user4);
+
+        SystemProperties.set("fw.max_users", "6");
+        assertThat(mCarUserManagerHelper.isUserLimitReached()).isFalse();
+
+        SystemProperties.set("fw.max_users", "5");
+        assertThat(mCarUserManagerHelper.isUserLimitReached()).isTrue();
+    }
+
+    @Test
     public void testIsUserLimitReachedIgnoresGuests() {
         SystemProperties.set("fw.max_users", "5");
 

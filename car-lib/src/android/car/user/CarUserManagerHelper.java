@@ -427,14 +427,14 @@ public class CarUserManagerHelper {
      */
     public boolean isUserLimitReached() {
         int countNonGuestUsers = getAllUsersExceptGuests().size();
-        int maxSupportedUsers = UserManager.getMaxSupportedUsers();
+        int maxSupportedUsers = getMaxSupportedUsers();
 
         if (countNonGuestUsers > maxSupportedUsers) {
             Log.e(TAG, "There are more users on the device than allowed.");
             return true;
         }
 
-        return getAllUsersExceptGuests().size() == UserManager.getMaxSupportedUsers();
+        return getAllUsersExceptGuests().size() == maxSupportedUsers;
     }
 
     private int getManagedProfilesCount() {
