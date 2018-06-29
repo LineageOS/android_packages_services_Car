@@ -16,7 +16,7 @@
 package com.android.car;
 
 import static android.hardware.input.InputManager.INJECT_INPUT_EVENT_MODE_ASYNC;
-import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_ASSIST_GESTURE;
+import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK;
 
 import android.app.ActivityManager;
 import android.car.input.CarInputHandlingService;
@@ -355,7 +355,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         args.putBoolean(EXTRA_CAR_PUSH_TO_TALK, true);
 
         mAssistUtils.showSessionForActiveService(args,
-                SHOW_SOURCE_ASSIST_GESTURE, mShowCallback, null /*activityToken*/);
+                SHOW_SOURCE_PUSH_TO_TALK, mShowCallback, null /*activityToken*/);
     }
 
     private void handleInstrumentClusterKey(KeyEvent event) {
