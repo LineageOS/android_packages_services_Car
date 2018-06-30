@@ -34,6 +34,7 @@ import android.content.IntentFilter;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemProperties;
 import android.os.UserHandle;
@@ -563,6 +564,26 @@ public class CarUserManagerHelperTest {
                 UserManager.DISALLOW_SMS, /* enable= */ false, UserHandle.of(userId));
         verify(mUserManager).setUserRestriction(
                 UserManager.DISALLOW_OUTGOING_CALLS, /* enable= */ false, UserHandle.of(userId));
+    }
+
+    @Test
+    public void testDefaultGuestRestrictions() {
+        int guestRestrictionsExpectedCount = 7;
+
+        ArgumentCaptor<Bundle> bundleCaptor = ArgumentCaptor.forClass(Bundle.class);
+        mCarUserManagerHelper.initDefaultGuestRestrictions();
+
+        verify(mUserManager).setDefaultGuestRestrictions(bundleCaptor.capture());
+        Bundle guestRestrictions = bundleCaptor.getValue();
+
+        assertThat(guestRestrictions.keySet()).hasSize(guestRestrictionsExpectedCount);
+        assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_FACTORY_RESET)).isTrue();
+        assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_REMOVE_USER)).isTrue();
+        assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_MODIFY_ACCOUNTS)).isTrue();
+        assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_OUTGOING_CALLS)).isTrue();
+        assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_SMS)).isTrue();
+        assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_INSTALL_APPS)).isTrue();
+        assertThat(guestRestrictions.getBoolean(UserManager.DISALLOW_UNINSTALL_APPS)).isTrue();
     }
 
     @Test
