@@ -28,6 +28,7 @@ import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -61,6 +62,18 @@ public class CarUserManagerHelper {
      */
     private static final Set<String> DEFAULT_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
             UserManager.DISALLOW_FACTORY_RESET
+    );
+    /**
+     * Default set of restrictions for Guest users.
+     */
+    private static final Set<String> DEFAULT_GUEST_RESTRICTIONS = Sets.newArraySet(
+            UserManager.DISALLOW_FACTORY_RESET,
+            UserManager.DISALLOW_REMOVE_USER,
+            UserManager.DISALLOW_MODIFY_ACCOUNTS,
+            UserManager.DISALLOW_OUTGOING_CALLS,
+            UserManager.DISALLOW_SMS,
+            UserManager.DISALLOW_INSTALL_APPS,
+            UserManager.DISALLOW_UNINSTALL_APPS
     );
 
     private final Context mContext;
@@ -213,6 +226,19 @@ public class CarUserManagerHelper {
         }
 
         return lastActiveUserId;
+    }
+
+    /**
+     * Sets default guest restrictions that will be applied every time a Guest user is created.
+     *
+     * <p> Restrictions are written to disk and persistent across boots.
+     */
+    public void initDefaultGuestRestrictions() {
+        Bundle defaultGuestRestrictions = new Bundle();
+        for (String restriction : DEFAULT_GUEST_RESTRICTIONS) {
+            defaultGuestRestrictions.putBoolean(restriction, true);
+        }
+        mUserManager.setDefaultGuestRestrictions(defaultGuestRestrictions);
     }
 
     /**
