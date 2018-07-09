@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="app_name">GarageMode Test App</string>
+
+  <string name="job_info_btn">Job Info</string>
+  <string name="require_persisted">Persisted?</string>
+  <string name="require_idleness">Require idleness?</string>
+  <string name="require_charging">Require charging?</string>
+  <string name="add_job_btn">Add job</string>
+  <string name="enter_garage_mode">Enter GarageMode</string>
+  <string name="exit_garage_mode">Exit GarageMode</string>
+  <string name="empty_list_txt">No Results</string>
+
+  <string-array name="network_types_list">
+    <item>ANY</item>
+    <item>NONE</item>
+    <item>UNMETERED</item>
+  </string-array>
+
+  <string-array name="duration_list">
+    <item>1 second</item>
+    <item>5 seconds</item>
+    <item>10 seconds</item>
+    <item>30 seconds</item>
+    <item>1 minute</item>
+    <item>5 minutes</item>
+    <item>1 hour</item>
+  </string-array>
+
+</resources>
