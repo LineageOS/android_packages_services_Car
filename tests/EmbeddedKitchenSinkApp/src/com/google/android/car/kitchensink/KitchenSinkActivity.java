@@ -44,6 +44,7 @@ import com.google.android.car.kitchensink.audio.AudioTestFragment;
 import com.google.android.car.kitchensink.bluetooth.BluetoothHeadsetFragment;
 import com.google.android.car.kitchensink.bluetooth.MapMceTestFragment;
 import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
+import com.google.android.car.kitchensink.connectivity.ConnectivityFragment;
 import com.google.android.car.kitchensink.cube.CubesTestFragment;
 import com.google.android.car.kitchensink.diagnostic.DiagnosticTestFragment;
 import com.google.android.car.kitchensink.displayinfo.DisplayInfoFragment;
@@ -169,6 +170,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 startActivity(intent);
             });
             add("activity view", ActivityViewTestFragment.class);
+            add("connectivity", ConnectivityFragment.class);
             add("quit", KitchenSinkActivity.this::finish);
         }
 
