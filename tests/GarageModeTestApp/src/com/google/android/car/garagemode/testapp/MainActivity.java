@@ -21,9 +21,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ListView;
 import android.widget.Spinner;
 
 public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener {
@@ -55,18 +53,15 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
         mJobSchedulerWrapper = new JobSchedulerWrapper(
                 this,
-                (ListView) findViewById(R.id.jobsListView));
+                findViewById(R.id.jobsListView));
 
-        ((Button) findViewById(R.id.addJobBtn)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                LOG.d("Adding a job...");
-                mJobSchedulerWrapper.scheduleAJob(
-                        mJobDurationSelected,
-                        parseNetworkRequirement(),
-                        mRequireCharging.isChecked(),
-                        mRequireIdleness.isChecked());
-            }
+        (findViewById(R.id.addJobBtn)).setOnClickListener(view -> {
+            LOG.d("Adding a job...");
+            mJobSchedulerWrapper.scheduleAJob(
+                    mJobDurationSelected,
+                    parseNetworkRequirement(),
+                    mRequireCharging.isChecked(),
+                    mRequireIdleness.isChecked());
         });
     }
 
@@ -85,7 +80,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
     private void populateGarageModeSpinner() {
         populateSpinner(
-                (Spinner) findViewById(R.id.garageModeDuration),
+                findViewById(R.id.garageModeDuration),
                 ArrayAdapter.createFromResource(
                         this,
                         R.array.duration_list,
@@ -94,7 +89,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
     private void populateJobDurationSpinner() {
         populateSpinner(
-                (Spinner) findViewById(R.id.jobDuration),
+                findViewById(R.id.jobDuration),
                 ArrayAdapter.createFromResource(
                         this,
                         R.array.duration_list,
@@ -103,7 +98,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
     private void populateNetworkTypeSpinner() {
         populateSpinner(
-                (Spinner) findViewById(R.id.networkType),
+                findViewById(R.id.networkType),
                 ArrayAdapter.createFromResource(
                         this,
                         R.array.network_types_list,
