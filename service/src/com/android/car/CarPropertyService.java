@@ -159,6 +159,9 @@ public class CarPropertyService extends ICarProperty.Stub
         if (DBG) {
             Log.d(TAG, "registerListener: propId=0x" + toHexString(propId) + " rate=" + rate);
         }
+        if (mConfigs == null) {
+            mConfigs = mHal.getPropertyList();
+        }
         if (mConfigs.get(propId) == null) {
             // Do not attempt to register an invalid propId
             Log.e(TAG, "registerListener:  propId is not in config list:  " + propId);
@@ -197,14 +200,20 @@ public class CarPropertyService extends ICarProperty.Stub
                 mHal.subscribeProperty(propId, rate);
             }
         }
-
         // Send the latest value(s) to the registering listener only
         List<CarPropertyEvent> events = new LinkedList<CarPropertyEvent>();
-        for (int areaId : mConfigs.get(propId).getAreaIds()) {
-            CarPropertyValue value = mHal.getProperty(propId, areaId);
+        if (mConfigs.get(propId).isGlobalProperty()) {
+            CarPropertyValue value = mHal.getProperty(propId, 0);
             CarPropertyEvent event = new CarPropertyEvent(
                     CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
             events.add(event);
+        } else {
+            for (int areaId : mConfigs.get(propId).getAreaIds()) {
+                CarPropertyValue value = mHal.getProperty(propId, areaId);
+                CarPropertyEvent event = new CarPropertyEvent(
+                        CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
+                events.add(event);
+            }
         }
         try {
             listener.onEvent(events);
@@ -276,6 +285,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
     /**
      * Return the list of properties that the caller may access.
+     * Should be called before get/setProperty().
      */
     @Override
     public List<CarPropertyConfig> getPropertyList() {
