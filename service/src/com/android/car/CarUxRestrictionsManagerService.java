@@ -428,7 +428,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 break;
             case CarDrivingStateEvent.DRIVING_STATE_IDLING:
                 restrictions = CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
-                requiresOpt = true;
+                requiresOpt = false;
                 break;
             case CarDrivingStateEvent.DRIVING_STATE_MOVING:
             default:
