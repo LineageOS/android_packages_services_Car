@@ -46,6 +46,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.ArraySet;
 import android.util.Log;
@@ -541,8 +542,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         // Add the blocking overlay activity to the whitelist, since that needs to run in a
         // restricted state to communicate the reason an app was blocked.
         Set<String> defaultActivity = new ArraySet<>();
-        defaultActivity.add(mActivityBlockingActivity.getClassName());
-        configWhitelist.put(mActivityBlockingActivity.getPackageName(), defaultActivity);
+        if (mActivityBlockingActivity != null) {
+            defaultActivity.add(mActivityBlockingActivity.getClassName());
+            configWhitelist.put(mActivityBlockingActivity.getPackageName(), defaultActivity);
+        }
 
         List<PackageInfo> packages = mPackageManager.getInstalledPackages(
                 PackageManager.GET_SIGNATURES | PackageManager.GET_ACTIVITIES
@@ -678,6 +681,11 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
 
         for (String pkg : configBlacklist.keySet()) {
+            if (TextUtils.isEmpty(pkg)) {
+                // This means there is nothing to blacklist
+                Log.d(CarLog.TAG_PACKAGE, "Empty string in blacklist pkg");
+                continue;
+            }
             int flags = 0;
             PackageInfo pkgInfo;
             String[] activities;
@@ -688,7 +696,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                                 | PackageManager.MATCH_DIRECT_BOOT_AWARE
                                 | PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
             } catch (NameNotFoundException e) {
-                Log.e(CarLog.TAG_PACKAGE, pkg + " not found to blacklist " + e);
+                Log.e(CarLog.TAG_PACKAGE, pkg + " not found to blacklist ", e);
                 continue;
             }
 
