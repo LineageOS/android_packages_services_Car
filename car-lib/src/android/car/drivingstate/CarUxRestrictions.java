@@ -24,30 +24,32 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Car UX Restrictions event.  This contains information on the set of UX restrictions
- * that is in place due to the car's driving state.
+ * Car UX Restrictions event.  This contains information on the set of UX restrictions that is in
+ * place due to the car's driving state.
  * <p>
  * The restriction information is organized as follows:
  * <ul>
  * <li> When there are no restrictions in place, for example when the car is parked,
  * <ul>
- * <li> {@link #mRequiresDistractionOptimization} is set to false.  Apps can display activities
+ * <li> {@link #isRequiresDistractionOptimization()} returns false.  Apps can display activities
  * that are not distraction optimized.
- * <li> {@link #mActiveRestrictions} should contain UX_RESTRICTIONS_UNRESTRICTED.  Apps don't
- * have to check for this since {@code mRequiresDistractionOptimization} is false.
+ * <li> When {@link #isRequiresDistractionOptimization()} returns false, apps don't have to call
+ * {@link #getActiveRestrictions()}, since there is no distraction optimization required.
  * </ul>
  * <li> When the driving state changes, causing the UX restrictions to come in effect,
  * <ul>
- * <li> {@code mRequiresDistractionOptimization} is set to true.  Apps can only display
- * activities that are distraction optimized.  Distraction optimized activities follow the base
- * design guidelines that provide a distraction free driving user experience.
- * <li> In addition, apps will have to check for the content of mActiveRestrictions.
- * {@code mActiveRestrictions} will have additional granular information on the set of UX
- * restrictions that are in place for the current driving state.  The content of
- * {@code mActiveRestrictions}, for the same driving state of the vehicle, could vary depending
- * on the car maker and the market.  For example, when the car is idling, the set of active
- * UX restrictions contained in the {@code mActiveRestrictions} will depend on the car maker
- * and the safety standards of the market that the vehicle is deployed in.
+ * <li> {@link #isRequiresDistractionOptimization()} returns true.  Apps can only display activities
+ * that are distraction optimized.  Distraction optimized activities must follow the base design
+ * guidelines to ensure a distraction free driving experience for the user.
+ * <li> When {@link #isRequiresDistractionOptimization()} returns true, apps must call
+ * {@link #getActiveRestrictions()}, to get the currently active UX restrictions to adhere to.
+ * {@link #getActiveRestrictions()} provides additional information on the set of UX
+ * restrictions that are in place for the current driving state.
+ * <p>
+ * The UX restrictions returned by {@link #getActiveRestrictions()}, for the same driving state of
+ * the vehicle, could vary depending on the OEM and the market.  For example, when the car is
+ * idling, the set of active UX restrictions will depend on the car maker and the safety standards
+ * of the market that the vehicle is deployed in.
  * </ul>
  * </ul>
  * <p>
