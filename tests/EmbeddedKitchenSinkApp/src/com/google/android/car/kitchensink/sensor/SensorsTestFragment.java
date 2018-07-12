@@ -75,7 +75,7 @@ public class SensorsTestFragment extends Fragment {
                     synchronized (SensorsTestFragment.this) {
                         mEventMap.put(event.sensorType, event);
                     }
-                    refreshUi();
+                    refreshSensorInfoText();
                 }
             };
     private final Handler mHandler = new Handler();
@@ -83,12 +83,18 @@ public class SensorsTestFragment extends Fragment {
     private final DateFormat mDateFormat = SimpleDateFormat.getDateTimeInstance();
 
     private KitchenSinkActivity mActivity;
-    private TextView mSensorInfo;
     private Car mCar;
-    private CarSensorManager mSensorManager;
+    private CarSensorManager mCarSensorManager;
+    private LocationListeners mLocationListener;
     private String mNaString;
     private int[] supportedSensors = new int[0];
     private Set<String> mActivePermissions = new HashSet<String>();
+
+    private TextView mSensorInfo;
+    private TextView mLocationInfo;
+    private TextView mAccelInfo;
+    private TextView mGyroInfo;
+    private TextView mMagInfo;
 
     @Nullable
     @Override
@@ -100,7 +106,13 @@ public class SensorsTestFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.sensors, container, false);
         mActivity = (KitchenSinkActivity) getHost();
+
         mSensorInfo = (TextView) view.findViewById(R.id.sensor_info);
+        mLocationInfo = (TextView) view.findViewById(R.id.location_info);
+        mAccelInfo = (TextView) view.findViewById(R.id.accel_info);
+        mGyroInfo = (TextView) view.findViewById(R.id.gyro_info);
+        mMagInfo = (TextView) view.findViewById(R.id.mag_info);
+
         mNaString = getContext().getString(R.string.sensor_na);
         return view;
     }
@@ -118,24 +130,38 @@ public class SensorsTestFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (mSensorManager != null) {
-            mSensorManager.unregisterListener(mOnSensorChangedListener);
+        if (mCarSensorManager != null) {
+            mCarSensorManager.unregisterListener(mOnSensorChangedListener);
+        }
+        if (mLocationListener != null) {
+            mLocationListener.stopListening();
         }
     }
 
     private void initSensors() {
         try {
-            mSensorManager =
-                (CarSensorManager) ((KitchenSinkActivity) getActivity()).getSensorManager();
-            supportedSensors = mSensorManager.getSupportedSensors();
+            if (mCarSensorManager == null) {
+                mCarSensorManager =
+                    (CarSensorManager) ((KitchenSinkActivity) getActivity()).getSensorManager();
+            }
+            supportedSensors = mCarSensorManager.getSupportedSensors();
             for (Integer sensor : supportedSensors) {
-                mSensorManager.registerListener(mOnSensorChangedListener, sensor,
+                mCarSensorManager.registerListener(mOnSensorChangedListener, sensor,
                         CarSensorManager.SENSOR_RATE_NORMAL);
             }
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Car not connected or not supported", e);
         } catch (Exception e) {
-            Log.e(TAG, "initSensors() exception caught: ", e);
+            Log.e(TAG, "initSensors() exception caught SensorManager: ", e);
+        }
+        try {
+            if (mLocationListener == null) {
+                mLocationListener = new LocationListeners(getContext(),
+                                                          new LocationInfoTextUpdateListener());
+            }
+            mLocationListener.startListening();
+        } catch (Exception e) {
+            Log.e(TAG, "initSensors() exception caught from LocationListeners: ", e);
         }
     }
 
@@ -143,6 +169,7 @@ public class SensorsTestFragment extends Fragment {
         Set<String> missingPermissions = checkExistingPermissions();
         if (!missingPermissions.isEmpty()) {
             requestPermissions(missingPermissions);
+            // The callback with premission results will take care of calling initSensors for us
         } else {
             initSensors();
         }
@@ -182,7 +209,7 @@ public class SensorsTestFragment extends Fragment {
         }
     }
 
-    private void refreshUi() {
+    private void refreshSensorInfoText() {
         String summaryString;
         synchronized (this) {
             List<String> summary = new ArrayList<>();
@@ -257,7 +284,7 @@ public class SensorsTestFragment extends Fragment {
                         }
                         // Get the config data
                         try {
-                            CarSensorConfig c = mSensorManager.getSensorConfig(
+                            CarSensorConfig c = mCarSensorManager.getSensorConfig(
                                 CarSensorManager.SENSOR_TYPE_WHEEL_TICK_DISTANCE);
                             summary.add(getContext().getString(R.string.sensor_wheel_ticks_cfg,
                                 c.getInt(CarSensorConfig.WHEEL_TICK_DISTANCE_SUPPORTED_WHEELS),
@@ -317,6 +344,10 @@ public class SensorsTestFragment extends Fragment {
             return mNaString;
         }
         return mDateFormat.format(new Date(event.timestamp / (1000L * 1000L)));
+    }
+
+    private String getTimestampNow() {
+        return mDateFormat.format(new Date(System.nanoTime() / (1000L * 1000L)));
     }
 
     private String getFuelLevel(CarSensorEvent event) {
@@ -381,6 +412,30 @@ public class SensorsTestFragment extends Fragment {
         }
         return  getContext().getString(R.string.sensor_oil_level, getTimestamp(event),
            engineOilLevel);
+    }
 
+    public class LocationInfoTextUpdateListener {
+        public void setLocationField(String value) {
+            setTimestampedTextField(mLocationInfo, value);
+        }
+
+        public void setAccelField(String value) {
+            setTimestampedTextField(mAccelInfo, value);
+        }
+
+        public void setGyroField(String value) {
+            setTimestampedTextField(mGyroInfo, value);
+        }
+
+        public void setMagField(String value) {
+            setTimestampedTextField(mMagInfo, value);
+        }
+
+        private void setTimestampedTextField(TextView text, String value) {
+            synchronized (SensorsTestFragment.this) {
+                text.setText(getTimestampNow() + ": " + value);
+                Log.d(TAG, "setText: " + value);
+            }
+        }
     }
 }
