@@ -7201,6 +7201,7 @@
     public int enabledSetting;
     public int flags;
     public int fullBackupContent;
+    public boolean hiddenUntilInstalled;
     public int installLocation;
     public int largestWidthLimitDp;
     public long longVersionCode;
@@ -7646,6 +7647,8 @@
     public abstract java.lang.String[] setPackagesSuspendedAsUser(java.lang.String[], boolean, android.os.PersistableBundle, android.os.PersistableBundle, java.lang.String, java.lang.String, int);
     public abstract void setPermissionEnforced(java.lang.String, boolean);
     public abstract boolean setRequiredForSystemUser(java.lang.String, boolean);
+    public abstract void setSystemAppHiddenUntilInstalled(java.lang.String, boolean);
+    public abstract boolean setSystemAppInstallState(java.lang.String, boolean, int);
     public abstract void setUpdateAvailable(java.lang.String, boolean);
     public abstract boolean shouldShowRequestPermissionRationale(java.lang.String, java.lang.String, int);
     public abstract void systemReady();
@@ -8589,6 +8592,7 @@
     public static int MATCH_DISABLED_UNTIL_USED_COMPONENTS;
     public static int MATCH_EXPLICITLY_VISIBLE_ONLY;
     public static int MATCH_FACTORY_ONLY;
+    public static int MATCH_HIDDEN_UNTIL_INSTALLED_COMPONENTS;
     public static int MATCH_INSTANT;
     public static int MATCH_KNOWN_PACKAGES;
     public static int MATCH_STATIC_SHARED_LIBRARIES;
@@ -17003,8 +17007,8 @@
 
     public boolean equals(java.lang.Object);
     public static android.view.DisplayCutout fromBoundingRect(int, int, int, int);
-    public static android.view.DisplayCutout fromBounds(android.graphics.Path);
-    public static android.view.DisplayCutout fromResources(android.content.res.Resources, int, int);
+    public static android.view.DisplayCutout fromBounds(android.graphics.Region);
+    public static android.view.DisplayCutout fromResourcesRectApproximation(android.content.res.Resources, int, int);
     public static android.view.DisplayCutout fromSpec(java.lang.String, int, int, float);
     public java.util.List getBoundingRects();
     public android.graphics.Region getBounds();
