@@ -28,12 +28,14 @@ allow carservice_app {
     input_method_service
     input_service
     location_service
+    media_session_service
     network_management_service
     power_service
     procfsinspector_service
     sensorservice_service
     surfaceflinger_service
     uimode_service
+    voiceinteraction_service
 }:service_manager find;
 
 # Read and write /data/data subdirectory.
