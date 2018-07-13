@@ -44,7 +44,7 @@ import java.io.PrintWriter;
 public class CarUserService extends BroadcastReceiver implements CarServiceBase {
     // Place holder for user name of the first user created.
     @VisibleForTesting
-    static final String OWNER_NAME = "Owner";
+    static final String OWNER_NAME = "Driver";
     private static final String TAG = "CarUserService";
     private final Context mContext;
     private final CarUserManagerHelper mCarUserManagerHelper;
