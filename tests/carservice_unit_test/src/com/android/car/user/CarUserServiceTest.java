@@ -170,9 +170,10 @@ public class CarUserServiceTest {
     }
 
     private UserInfo mockAdmin(int adminId) {
-        String adminName = "driver";
-        UserInfo admin = new UserInfo(adminId, adminName, UserInfo.FLAG_ADMIN);
-        doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser(adminName);
+        UserInfo admin = new UserInfo(adminId, CarUserManagerHelper.DEFAULT_FIRST_ADMIN_NAME,
+                UserInfo.FLAG_ADMIN);
+        doReturn(admin).when(mCarUserManagerHelper)
+                .createNewAdminUser(CarUserManagerHelper.DEFAULT_FIRST_ADMIN_NAME);
         return admin;
     }
 }
