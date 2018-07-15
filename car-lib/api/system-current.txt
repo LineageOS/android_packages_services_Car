@@ -112,6 +112,13 @@ package android.car {
     field public static final int WINDOW_ROW_3_RIGHT = 16384; // 0x4000
   }
 
+  public final class VehiclePropertyAccess {
+    field public static final int NONE = 0; // 0x0
+    field public static final int READ = 1; // 0x1
+    field public static final int READ_WRITE = 3; // 0x3
+    field public static final int WRITE = 2; // 0x2
+  }
+
 }
 
 package android.car.cluster {
