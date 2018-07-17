@@ -21,6 +21,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="start|top"
+    android:background="@color/car_card"
     android:orientation="vertical">
 
     <include layout="@layout/alert_dialog_title_material" />
