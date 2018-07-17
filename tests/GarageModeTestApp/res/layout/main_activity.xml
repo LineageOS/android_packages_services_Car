@@ -131,11 +131,11 @@
             </LinearLayout>
         </LinearLayout>
         <TextView
+            android:id="@+id/garageModeWatchdog"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="LOGS">
-
-        </TextView>
+            android:textSize="14sp"
+            android:text="@string/empty_list_txt"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"

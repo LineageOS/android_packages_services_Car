@@ -36,6 +36,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     private CheckBox mRequireIdleness;
     private CheckBox mRequireCharging;
 
+    private Watchdog mWatchdog;
     private JobSchedulerWrapper mJobSchedulerWrapper;
 
     @Override
@@ -63,6 +64,25 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     mRequireCharging.isChecked(),
                     mRequireIdleness.isChecked());
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LOG.d("Resuming app");
+        mWatchdog = new Watchdog(getApplicationContext(), findViewById(R.id.garageModeWatchdog));
+        mWatchdog.start();
+        mJobSchedulerWrapper.setWatchdog(mWatchdog);
+        mJobSchedulerWrapper.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LOG.d("Pausing app");
+        mWatchdog.stop();
+        mWatchdog = null;
+        mJobSchedulerWrapper.stop();
     }
 
     private int parseNetworkRequirement() {
@@ -144,6 +164,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         if (metric.startsWith("hour")) {
             mGarageModeDurationSelected *= 3600;
         }
+        mWatchdog.logEvent("GarageMode duration is now: " + mGarageModeDurationSelected + "s");
     }
 
     private void applyJobDuration(String value) {
@@ -155,10 +176,12 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         if (metric.startsWith("hour")) {
             mJobDurationSelected *= 3600;
         }
+        mWatchdog.logEvent("Job duration is now: " + mJobDurationSelected + "s");
     }
 
     private void applyNetworkTypeRequirement(String value) {
         mNetworkRequirement = value;
+        mWatchdog.logEvent("Job network requirement changed to: " + value);
     }
 
     @Override
