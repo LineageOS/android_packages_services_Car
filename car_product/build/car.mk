@@ -41,6 +41,7 @@ PRODUCT_PACKAGES += \
     android.car.cluster.loggingrenderer \
     DirectRenderingClusterSample \
     com.android.car.powertestservice \
+    GarageModeTestApp \
 
 # SEPolicy for test apps / services
 BOARD_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
