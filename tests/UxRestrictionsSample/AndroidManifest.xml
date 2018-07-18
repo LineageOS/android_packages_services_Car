@@ -19,7 +19,7 @@
     <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE" />
 
     <application android:label="UxRestrictions Sample">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity" android:theme="@style/Theme.Car.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
