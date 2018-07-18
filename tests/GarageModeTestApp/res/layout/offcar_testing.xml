@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2017 The Android Open Source Project
+<!-- Copyright (C) 2018 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -94,7 +94,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="@string/add_job_btn"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:layout_margin="5dp"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -122,12 +123,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@string/enter_garage_mode"/>
+                    android:text="@string/enter_garage_mode"
+                    android:layout_margin="5dp"/>
                 <Button
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@string/exit_garage_mode"/>
+                    android:text="@string/exit_garage_mode"
+                    android:layout_margin="5dp"/>
             </LinearLayout>
         </LinearLayout>
         <TextView
@@ -135,7 +138,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textSize="14sp"
-            android:text="@string/empty_list_txt"/>
+            android:text="@string/empty_list_txt"
+            android:scrollbars = "vertical"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"

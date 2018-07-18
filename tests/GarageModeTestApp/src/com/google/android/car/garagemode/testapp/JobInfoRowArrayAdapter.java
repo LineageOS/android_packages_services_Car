@@ -27,6 +27,7 @@ import android.widget.Toast;
 import java.util.List;
 
 public class JobInfoRowArrayAdapter extends ArrayAdapter<JobInfoRow> {
+    public static final Logger LOG = new Logger("JobInfoRowArrayAdapter");
     private class ViewHolder {
         TextView mJobIDView;
         TextView mJobStateView;
@@ -65,9 +66,13 @@ public class JobInfoRowArrayAdapter extends ArrayAdapter<JobInfoRow> {
         holder.mJobIDView.setText("ID: " + info.getId());
         holder.mJobStateView.setText("State: " + info.getState());
 
-        holder.mButton.setOnClickListener(
-                v -> Toast.makeText(
-                        getContext(), "Show more detailed job info", Toast.LENGTH_LONG));
+        holder.mButton.setOnClickListener(v -> {
+            LOG.d("Button clicked, showing toast with more info on job" + info.getId());
+            Toast.makeText(
+                    getContext(),
+                    "Show more detailed job info for " + info.getId(),
+                    Toast.LENGTH_SHORT).show();
+        });
         return row;
     }
 }

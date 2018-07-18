@@ -59,8 +59,7 @@ class JobSchedulerWrapper {
         reportCompletedJobs(mLastList, list);
 
         mLastList = list;
-        mListView.setAdapter(
-                new JobInfoRowArrayAdapter(mContext, mListView.getId(), list));
+        mListView.setAdapter(new JobInfoRowArrayAdapter(mContext, mListView.getId(), list));
     }
 
     public void start() {
@@ -158,7 +157,9 @@ class JobSchedulerWrapper {
 
         List<JobInfo> jobs = mJobScheduler.getAllPendingJobs();
         for (JobInfo job : jobs) {
-            listJobs.add(new JobInfoRow(job.getId()));
+            JobInfoRow row = new JobInfoRow(job.getId());
+            row.setFailingConstraints("Failing constraints are not implemented yet.");
+            listJobs.add(row);
         }
         return listJobs;
     }
