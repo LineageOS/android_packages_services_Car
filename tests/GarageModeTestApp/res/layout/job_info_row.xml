@@ -13,32 +13,27 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-  <Button
-      android:id="@+id/jobInfoButton"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_alignParentRight="true"
-      android:layout_alignParentTop="true"
-      android:text="@string/job_info_btn"
-      android:layout_margin="5dp"/>
+    android:layout_height="match_parent"
+    android:weightSum="3">
   <TextView
+      style="@style/ListEntryField"
       android:id="@+id/jobId"
-      android:layout_height="wrap_content"
-      android:layout_width="wrap_content"
-      android:layout_alignParentLeft="true"
-      android:layout_alignParentTop="true"
-      android:textStyle="bold"
-      android:layout_toLeftOf="@id/jobInfoButton"/>
+      android:layout_height="match_parent"
+      android:layout_width="match_parent"
+      android:layout_weight="1"/>
   <TextView
+      style="@style/ListEntryField"
       android:id="@+id/jobState"
-      android:layout_height="wrap_content"
-      android:layout_width="wrap_content"
-      android:layout_alignParentLeft="true"
-      android:layout_alignParentBottom="true"
-      android:textStyle="bold"
-      android:layout_toLeftOf="@id/jobInfoButton"
-      android:layout_below="@id/jobId"/>
-</RelativeLayout>
+      android:layout_height="match_parent"
+      android:layout_width="match_parent"
+      android:layout_weight="1"/>
+  <Button
+      style="@style/Button"
+      android:id="@+id/jobInfoButton"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:text="@string/button_job_info"
+      android:layout_weight="1"/>
+</LinearLayout>
