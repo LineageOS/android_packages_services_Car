@@ -99,17 +99,19 @@ public class SensorsTestFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.sensors, container, false);
         mActivity = (KitchenSinkActivity) getHost();
-
         mSensorInfo = (TextView) view.findViewById(R.id.sensor_info);
         mNaString = getContext().getString(R.string.sensor_na);
-
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        initPermissions();
+        final Runnable r = () -> {
+            initPermissions();
+        };
+        ((KitchenSinkActivity) getActivity()).requestRefreshManager(r,
+                new Handler(getContext().getMainLooper()));
     }
 
     @Override
@@ -207,6 +209,12 @@ public class SensorsTestFragment extends Fragment {
                     case CarSensorManager.SENSOR_TYPE_FUEL_DOOR_OPEN:
                         summary.add(getFuelDoorOpen(event));
                         break;
+                    case CarSensorManager.SENSOR_TYPE_IGNITION_STATE:
+                        summary.add(getContext().getString(R.string.sensor_ignition_status,
+                                getTimestamp(event),
+                                event == null ? mNaString :
+                                event.getIgnitionStateData(null).ignitionState));
+                        break;
                     case CarSensorManager.SENSOR_TYPE_PARKING_BRAKE:
                         summary.add(getContext().getString(R.string.sensor_parking_brake,
                                 getTimestamp(event),
@@ -223,18 +231,15 @@ public class SensorsTestFragment extends Fragment {
                                 getTimestamp(event),
                                 event == null ? mNaString : event.getNightData(null).isNightMode));
                         break;
-                    case CarSensorManager.SENSOR_TYPE_ENVIRONMENT:
+                    case CarSensorManager.SENSOR_TYPE_ENV_OUTSIDE_TEMPERATURE:
                         String temperature = mNaString;
-                        String pressure = mNaString;
                         if (event != null) {
                             CarSensorEvent.EnvironmentData env = event.getEnvironmentData(null);
                             temperature = Float.isNaN(env.temperature) ? temperature :
                                     String.valueOf(env.temperature);
-                            pressure = Float.isNaN(env.pressure) ? pressure :
-                                    String.valueOf(env.pressure);
                         }
                         summary.add(getContext().getString(R.string.sensor_environment,
-                                getTimestamp(event), temperature, pressure));
+                                getTimestamp(event), temperature));
                         break;
                     case CarSensorManager.SENSOR_TYPE_WHEEL_TICK_DISTANCE:
                         if(event != null) {

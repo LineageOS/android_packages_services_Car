@@ -17,13 +17,15 @@
 package com.android.car.user;
 
 import android.annotation.Nullable;
-import android.car.settings.CarSettings;
 import android.car.user.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
+import android.location.LocationManager;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.Log;
 
 import com.android.car.CarServiceBase;
@@ -36,13 +38,13 @@ import java.io.PrintWriter;
  *
  * <ol>
  *   <li> Creates a secondary admin user on first run.
- *   <li> Log in to a default user.
+ *   <li> Log in to the last active user.
  * <ol/>
  */
 public class CarUserService extends BroadcastReceiver implements CarServiceBase {
     // Place holder for user name of the first user created.
     @VisibleForTesting
-    static final String OWNER_NAME = "Owner";
+    static final String OWNER_NAME = "Driver";
     private static final String TAG = "CarUserService";
     private final Context mContext;
     private final CarUserManagerHelper mCarUserManagerHelper;
@@ -63,6 +65,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         }
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
+        filter.addAction(Intent.ACTION_USER_SWITCHED);
 
         mContext.registerReceiver(this, filter);
     }
@@ -87,13 +90,38 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
             Log.d(TAG, "onReceive " + intent);
         }
 
-        if (intent.getAction() == Intent.ACTION_LOCKED_BOOT_COMPLETED) {
+        if (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(intent.getAction())) {
             if (mCarUserManagerHelper.getAllUsers().size() == 0) {
+                setSystemUserRestrictions();
+                mCarUserManagerHelper.initDefaultGuestRestrictions();
+                // On very first boot, create an admin user and switch to that user.
                 UserInfo admin = mCarUserManagerHelper.createNewAdminUser(OWNER_NAME);
                 mCarUserManagerHelper.switchToUser(admin);
+                mCarUserManagerHelper.setLastActiveUser(
+                        admin.id, /* skipGlobalSettings= */ false);
             } else {
-                mCarUserManagerHelper.switchToUserId(CarSettings.DEFAULT_USER_ID_TO_BOOT_INTO);
+                mCarUserManagerHelper.switchToUserId(mCarUserManagerHelper.getInitialUser());
+            }
+        } else if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
+            // Update last active user if the switched-to user is a persistent, non-system user.
+            int currentUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
+            if (currentUser > UserHandle.USER_SYSTEM
+                        && mCarUserManagerHelper.isPersistentUser(currentUser)) {
+                mCarUserManagerHelper.setLastActiveUser(
+                        currentUser, /* skipGlobalSetting= */ false);
             }
         }
+    }
+
+    private void setSystemUserRestrictions() {
+        // Disable adding accounts for system user.
+        mCarUserManagerHelper.setUserRestriction(mCarUserManagerHelper.getSystemUserInfo(),
+                UserManager.DISALLOW_MODIFY_ACCOUNTS, /* enable= */ true);
+
+        // Disable Location service for system user.
+        LocationManager locationManager =
+                (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        locationManager.setLocationEnabledForUser(
+                /* enabled= */ false, UserHandle.of(UserHandle.USER_SYSTEM));
     }
 }

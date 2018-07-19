@@ -16,7 +16,9 @@
 package com.android.car;
 
 import static android.hardware.input.InputManager.INJECT_INPUT_EVENT_MODE_ASYNC;
+import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_ASSIST_GESTURE;
 
+import android.app.ActivityManager;
 import android.car.input.CarInputHandlingService;
 import android.car.input.CarInputHandlingService.InputFilter;
 import android.car.input.ICarInputListener;
@@ -30,19 +32,18 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
-import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.CallLog.Calls;
-import android.speech.RecognizerIntent;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 
 import com.android.car.hal.InputHalService;
-import com.android.car.hal.VehicleHal;
+import com.android.internal.app.AssistUtils;
+import com.android.internal.app.IVoiceInteractionSessionShowCallback;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -83,12 +84,30 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         }
     }
 
+    private IVoiceInteractionSessionShowCallback mShowCallback =
+            new IVoiceInteractionSessionShowCallback.Stub() {
+        @Override
+        public void onFailed() {
+            Log.w(CarLog.TAG_INPUT, "Failed to show VoiceInteractionSession");
+        }
+
+        @Override
+        public void onShown() {
+            if (DBG) {
+                Log.d(CarLog.TAG_INPUT, "IVoiceInteractionSessionShowCallback onShown()");
+            }
+        }
+    };
+
     private static final boolean DBG = false;
+    private static final String EXTRA_CAR_PUSH_TO_TALK =
+            "com.android.car.input.EXTRA_CAR_PUSH_TO_TALK";
 
     private final Context mContext;
     private final InputHalService mInputHalService;
     private final TelecomManager mTelecomManager;
     private final InputManager mInputManager;
+    private final AssistUtils mAssistUtils;
 
     private KeyEventListener mVoiceAssistantKeyListener;
     private KeyEventListener mLongVoiceAssistantKeyListener;
@@ -153,6 +172,7 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
         mInputHalService = inputHalService;
         mTelecomManager = context.getSystemService(TelecomManager.class);
         mInputManager = context.getSystemService(InputManager.class);
+        mAssistUtils = new AssistUtils(context);
     }
 
     private synchronized void setHandledKeys(InputFilter[] handledKeys) {
@@ -324,10 +344,18 @@ public class CarInputService implements CarServiceBase, InputHalService.InputLis
     }
 
     private void launchDefaultVoiceAssistantHandler() {
-        Log.i(CarLog.TAG_INPUT, "voice key, launch default intent");
-        Intent voiceIntent =
-                new Intent(RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE);
-        mContext.startActivityAsUser(voiceIntent, null, UserHandle.CURRENT_OR_SELF);
+        Log.i(CarLog.TAG_INPUT, "voice key, invoke AssistUtils");
+
+        if (mAssistUtils.getAssistComponentForUser(ActivityManager.getCurrentUser()) == null) {
+            Log.w(CarLog.TAG_INPUT, "Unable to retrieve assist component for current user");
+            return;
+        }
+
+        final Bundle args = new Bundle();
+        args.putBoolean(EXTRA_CAR_PUSH_TO_TALK, true);
+
+        mAssistUtils.showSessionForActiveService(args,
+                SHOW_SOURCE_ASSIST_GESTURE, mShowCallback, null /*activityToken*/);
     }
 
     private void handleInstrumentClusterKey(KeyEvent event) {

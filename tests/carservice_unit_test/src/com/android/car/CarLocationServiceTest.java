@@ -31,6 +31,7 @@ import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.user.CarUserManagerHelper;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -72,7 +73,9 @@ import java.util.stream.Collectors;
  * The following mocks are used:
  * 1. {@link Context} provides files and a mocked {@link LocationManager}.
  * 2. {@link LocationManager} provides dummy {@link Location}s.
- * 3. {@link CarSensorService} registers a handler for sensor events and sends ignition-off events.
+ * 3. {@link CarPropertyService} registers a listener for ignition state events.
+ * 3. {@link CarPowerManagementService} registers a handler for power events.
+ * 4. {@link CarUserManagerHelper} tells whether or not the system user is headless.
  */
 @RunWith(AndroidJUnit4.class)
 public class CarLocationServiceTest {
@@ -85,6 +88,7 @@ public class CarLocationServiceTest {
     @Mock private LocationManager mMockLocationManager;
     @Mock private CarPropertyService mMockCarPropertyService;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
+    @Mock private CarUserManagerHelper mMockCarUserManagerHelper;
 
     /**
      * Initialize all of the objects with the @Mock annotation.
@@ -95,7 +99,7 @@ public class CarLocationServiceTest {
         mContext = InstrumentationRegistry.getTargetContext();
         mLatch = new CountDownLatch(1);
         mCarLocationService = new CarLocationService(mMockContext, mMockCarPowerManagementService,
-                mMockCarPropertyService) {
+                mMockCarPropertyService, mMockCarUserManagerHelper) {
             @Override
             void asyncOperation(Runnable operation) {
                 super.asyncOperation(() -> {
@@ -143,12 +147,13 @@ public class CarLocationServiceTest {
                 mCarLocationService);
         verify(mMockContext).registerReceiver(eq(mCarLocationService), argument.capture());
         IntentFilter intentFilter = argument.getValue();
-        assertEquals(3, intentFilter.countActions());
+        assertEquals(4, intentFilter.countActions());
         String[] actions = {intentFilter.getAction(0), intentFilter.getAction(1),
-                intentFilter.getAction(2)};
+                intentFilter.getAction(2), intentFilter.getAction(3)};
         assertTrue(ArrayUtils.contains(actions, Intent.ACTION_LOCKED_BOOT_COMPLETED));
         assertTrue(ArrayUtils.contains(actions, LocationManager.MODE_CHANGED_ACTION));
         assertTrue(ArrayUtils.contains(actions, LocationManager.GPS_ENABLED_CHANGE_ACTION));
+        assertTrue(ArrayUtils.contains(actions, Intent.ACTION_USER_SWITCHED));
         verify(mMockCarPropertyService).registerListener(
                 eq(CarSensorManager.SENSOR_TYPE_IGNITION_STATE), eq(0.0f), any());
     }
@@ -166,10 +171,11 @@ public class CarLocationServiceTest {
 
     /**
      * Test that the {@link CarLocationService} parses a location from a JSON serialization and then
-     * injects it into the {@link LocationManager} upon boot complete.
+     * injects it into the {@link LocationManager} upon boot complete if the system user is not
+     * headless.
      */
     @Test
-    public void testLoadsLocation() throws IOException, InterruptedException {
+    public void testLoadsLocationOnLockedBootComplete() throws IOException, InterruptedException {
         long currentTime = System.currentTimeMillis();
         long elapsedTime = SystemClock.elapsedRealtimeNanos();
         long pastTime = currentTime - 60000;
@@ -181,9 +187,43 @@ public class CarLocationServiceTest {
         when(mMockLocationManager.injectLocation(argument.capture())).thenReturn(true);
         when(mMockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
+        when(mMockCarUserManagerHelper.isHeadlessSystemUser()).thenReturn(false);
 
         mCarLocationService.onReceive(mMockContext,
                 new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
+        mLatch.await();
+
+        Location location = argument.getValue();
+        assertEquals("gps", location.getProvider());
+        assertEquals(16.7666, location.getLatitude());
+        assertEquals(3.0026, location.getLongitude());
+        assertEquals(12.3f, location.getAccuracy());
+        assertTrue(location.getTime() >= currentTime);
+        assertTrue(location.getElapsedRealtimeNanos() >= elapsedTime);
+    }
+
+    /**
+     * Test that the {@link CarLocationService} parses a location from a JSON seialization and then
+     * injects it into the {@link LocationManager} upon user switch if the system user is headless.
+     */
+    @Test
+    public void testLoadsLocationWithHeadlessSystemUser() throws IOException, InterruptedException {
+        long currentTime = System.currentTimeMillis();
+        long elapsedTime = SystemClock.elapsedRealtimeNanos();
+        long pastTime = currentTime - 60000;
+        writeCacheFile("{\"provider\": \"gps\", \"latitude\": 16.7666, \"longitude\": 3.0026,"
+                + "\"accuracy\":12.3, \"captureTime\": " + pastTime + "}");
+        ArgumentCaptor<Location> argument = ArgumentCaptor.forClass(Location.class);
+        when(mMockContext.getSystemService(Context.LOCATION_SERVICE))
+                .thenReturn(mMockLocationManager);
+        when(mMockLocationManager.injectLocation(argument.capture())).thenReturn(true);
+        when(mMockContext.getFileStreamPath("location_cache.json"))
+                .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
+        when(mMockCarUserManagerHelper.isHeadlessSystemUser()).thenReturn(true);
+
+        Intent userSwitchedIntent = new Intent(Intent.ACTION_USER_SWITCHED);
+        userSwitchedIntent.putExtra(Intent.EXTRA_USER_HANDLE, 11);
+        mCarLocationService.onReceive(mMockContext, userSwitchedIntent);
         mLatch.await();
 
         Location location = argument.getValue();

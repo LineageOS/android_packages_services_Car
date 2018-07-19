@@ -16,16 +16,12 @@
 
 package android.car;
 
-import static java.lang.Integer.toHexString;
-
 import android.annotation.Nullable;
 import android.car.annotation.ValueTypeDef;
 import android.car.hardware.CarPropertyValue;
-import android.car.hardware.property.ICarProperty;
+import android.car.hardware.property.CarPropertyManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.RemoteException;
-import android.util.Log;
 
 
 /**
@@ -36,6 +32,7 @@ public final class CarInfoManager implements CarManagerBase{
 
     private static final boolean DBG = false;
     private static final String TAG = "CarInfoManager";
+    private final CarPropertyManager mCarPropertyMgr;
     /**
      * Key for manufacturer of the car. Passed in basic info Bundle.
      * @hide
@@ -112,17 +109,15 @@ public final class CarInfoManager implements CarManagerBase{
      * Passed in basic info Bundle.
      * @hide
      */
-    @ValueTypeDef(type = Integer.class)
+    @ValueTypeDef(type = Integer[].class)
     public static final int BASIC_INFO_EV_CONNECTOR_TYPES = 0x11410107;
-
-    private final ICarProperty mService;
 
     /**
      * @return Manufacturer of the car.  Null if not available.
      */
     @Nullable
     public String getManufacturer() throws CarNotConnectedException {
-        CarPropertyValue<String> carProp = getProperty(String.class,
+        CarPropertyValue<String> carProp = mCarPropertyMgr.getProperty(String.class,
                 BASIC_INFO_KEY_MANUFACTURER, 0);
         return carProp != null ? carProp.getValue() : null;
     }
@@ -134,7 +129,8 @@ public final class CarInfoManager implements CarManagerBase{
      */
     @Nullable
     public String getModel() throws CarNotConnectedException {
-        CarPropertyValue<String> carProp = getProperty(String.class, BASIC_INFO_KEY_MODEL, 0);
+        CarPropertyValue<String> carProp = mCarPropertyMgr.getProperty(
+                String.class, BASIC_INFO_KEY_MODEL, 0);
         return carProp != null ? carProp.getValue() : null;
     }
 
@@ -143,7 +139,7 @@ public final class CarInfoManager implements CarManagerBase{
      */
     @Nullable
     public String getModelYear() throws CarNotConnectedException {
-        CarPropertyValue<String> carProp = getProperty(String.class,
+        CarPropertyValue<String> carProp = mCarPropertyMgr.getProperty(String.class,
                 BASIC_INFO_KEY_MODEL_YEAR, 0);
         return carProp != null ? carProp.getValue() : null;
     }
@@ -163,7 +159,7 @@ public final class CarInfoManager implements CarManagerBase{
      *         fuel.
      */
     public float getFuelCapacity() throws CarNotConnectedException {
-        CarPropertyValue<Float> carProp = getProperty(Float.class,
+        CarPropertyValue<Float> carProp = mCarPropertyMgr.getProperty(Float.class,
                 BASIC_INFO_FUEL_CAPACITY, 0);
         return carProp != null ? carProp.getValue() : 0f;
     }
@@ -173,8 +169,7 @@ public final class CarInfoManager implements CarManagerBase{
      *         types available.
      */
     public @FuelType.Enum int[] getFuelTypes() throws CarNotConnectedException {
-        CarPropertyValue<int[]> carProp = getProperty(int[].class, BASIC_INFO_FUEL_TYPES, 0);
-        return carProp != null ? carProp.getValue() : new int[0];
+        return mCarPropertyMgr.getIntArrayProperty(BASIC_INFO_FUEL_TYPES, 0);
     }
 
     /**
@@ -182,7 +177,7 @@ public final class CarInfoManager implements CarManagerBase{
      *         battery.
      */
     public float getEvBatteryCapacity() throws CarNotConnectedException {
-        CarPropertyValue<Float> carProp = getProperty(Float.class,
+        CarPropertyValue<Float> carProp = mCarPropertyMgr.getProperty(Float.class,
                 BASIC_INFO_EV_BATTERY_CAPACITY, 0);
         return carProp != null ? carProp.getValue() : 0f;
     }
@@ -192,42 +187,17 @@ public final class CarInfoManager implements CarManagerBase{
      *         no connector types available.
      */
     public @EvConnectorType.Enum int[] getEvConnectorTypes() throws CarNotConnectedException {
-        CarPropertyValue<int[]> carProp = getProperty(int[].class,
-                BASIC_INFO_EV_CONNECTOR_TYPES, 0);
-        return carProp != null ? carProp.getValue() : new int[0];
+        return mCarPropertyMgr.getIntArrayProperty(BASIC_INFO_EV_CONNECTOR_TYPES, 0);
     }
 
     /** @hide */
     CarInfoManager(IBinder service) {
-        mService = ICarProperty.Stub.asInterface(service);
+        mCarPropertyMgr = new CarPropertyManager(service, null, DBG, TAG);
     }
 
     /** @hide */
     public void onCarDisconnected() {
+        mCarPropertyMgr.onCarDisconnected();
     }
 
-    private  <E> CarPropertyValue<E> getProperty(Class<E> clazz, int propId, int area)
-            throws CarNotConnectedException {
-        if (DBG) {
-            Log.d(TAG, "getProperty, propId: 0x" + toHexString(propId)
-                    + ", area: 0x" + toHexString(area) + ", class: " + clazz);
-        }
-        try {
-            CarPropertyValue<E> propVal = mService.getProperty(propId, area);
-            if (propVal != null && propVal.getValue() != null) {
-                Class<?> actualClass = propVal.getValue().getClass();
-                if (actualClass != clazz) {
-                    throw new IllegalArgumentException("Invalid property type. " + "Expected: "
-                            + clazz + ", but was: " + actualClass);
-                }
-            }
-            return propVal;
-        } catch (RemoteException e) {
-            Log.e(TAG, "getProperty failed with " + e.toString()
-                    + ", propId: 0x" + toHexString(propId) + ", area: 0x" + toHexString(area), e);
-            throw new CarNotConnectedException(e);
-        } catch (IllegalArgumentException e)  {
-            return null;
-        }
-    }
 }

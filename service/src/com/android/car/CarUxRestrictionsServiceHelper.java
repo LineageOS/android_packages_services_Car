@@ -83,6 +83,10 @@ import java.util.Map;
     public boolean loadUxRestrictionsFromXml() throws IOException, XmlPullParserException {
         mRestrictionsMap.clear();
         XmlResourceParser parser = mContext.getResources().getXml(mXmlResource);
+        if (parser == null) {
+            Log.e(TAG, "Invalid Xml resource");
+            return  false;
+        }
         AttributeSet attrs = Xml.asAttributeSet(parser);
         int type;
         // Traverse till we get to the first tag

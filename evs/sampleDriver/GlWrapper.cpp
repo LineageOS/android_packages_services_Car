@@ -308,6 +308,11 @@ bool GlWrapper::initialize() {
         return false;
     }
 
+    // Turn off mip-mapping for the created texture surface
+    // (the inbound camera imagery doesn't have MIPs)
+    glBindTexture(GL_TEXTURE_2D, mTextureMap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     return true;
 }

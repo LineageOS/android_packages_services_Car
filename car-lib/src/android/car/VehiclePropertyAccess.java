@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_0_SERVICENAMES_H
-#define ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_0_SERVICENAMES_H
+package android.car;
 
-const static char kEnumeratorServiceName[] = "EvsEnumeratorHw";
+import android.annotation.SystemApi;
 
-#endif // ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_0_SERVICENAMES_H
+/**
+ * Define value for getAccess() in {@link android.car.hardware.CarPropertyConfig}
+ * @hide
+ */
+@SystemApi
+public final class VehiclePropertyAccess {
+    /**
+     * List of VehiclePropertyAccess from VHAL
+     */
+    public static final int NONE = 0x00;
+    public static final int READ = 0x01;
+    public static final int WRITE = 0x02;
+    public static final int READ_WRITE = 0x03;
+
+    private VehiclePropertyAccess() {}
+}

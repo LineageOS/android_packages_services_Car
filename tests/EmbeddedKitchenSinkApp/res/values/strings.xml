@@ -211,14 +211,14 @@
     <!-- sensors test -->
     <string name="sensor_na">N/A</string>
 
-    <string name="sensor_environment">Environment[%1$s]: temperature=%2$s, pressure=%3$s</string>
+    <string name="sensor_environment">Environment[%1$s]: temperature=%2$s</string>
     <string name="sensor_night">Night[%1$s]: isNight=%2$s</string>
     <string name="sensor_gear">Gear[%1$s]: gear=%2$s</string>
     <string name="sensor_parking_brake">Parking brake[%1$s]: isEngaged=%2$s</string>
     <string name="sensor_odometer">Odometer[%1$s]: kms=%2$s</string>
     <string name="sensor_rpm">RPM[%1$s]: rpm=%2$s</string>
     <string name="sensor_speed">Speed[%1$s]: speed=%2$s</string>
-    <string name="sensor_driving_status">Driving status[%1$s]: status=%2$s [bin=%3$s]</string>
+    <string name="sensor_ignition_status">Ignition status[%1$s]: status=%2$s</string>
     <string name="sensor_compass">Compass[%1$s]: bear=%2$s, pitch=%3$s, roll=%4$s</string>
     <string name="sensor_accelerometer">Accelerometer[%1$s]: x=%2$s, y=%3$s, z=%4$s</string>
     <string name="sensor_gyroscope">Gyroscope[%1$s]: x=%2$s, y=%3$s, z=%4$s</string>
@@ -231,6 +231,7 @@
     <string name="sensor_traction_control_is_active">Traction Control[%1$s]: isActive=%2$s</string>
     <string name="sensor_fuel_level">Fuel Level[%1$s]: %2$s</string>
     <string name="sensor_fuel_door_open">Fuel Door Open[%1$s]: %2$s</string>
+    <string name="sensor_engine_oil_level">Engine Oil Level[%1$s]: %2$s</string>
     <string name="sensor_engine_is_on">Engine Is On[%1$s]: %2$s</string>
     <string name="sensor_ev_battery_level">EV Battery Level[%1$s]: %2$s</string>
     <string name="sensor_ev_charge_port_is_open">EV Charge Port Is Open[%1$s]: %2$s</string>
