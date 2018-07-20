@@ -27,10 +27,16 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
+import android.os.Process;
 import android.os.RemoteException;
 import android.util.Log;
+
+import com.android.internal.annotations.GuardedBy;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -60,6 +66,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private CarUxRestrictions mCurrentUxRestrictions;
     private float mCurrentMovingSpeed;
     private boolean mFallbackToDefaults;
+    // Flag to disable broadcasting UXR changes - for development purposes
+    @GuardedBy("this")
+    private boolean mUxRChangeBroadcastEnabled = true;
     // For dumpsys logging
     private final LinkedList<Utils.TransitionLog> mTransitionLogs = new LinkedList<>();
 
@@ -224,6 +233,42 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     /**
+     * Enable/disable UX restrictions change broadcast blocking.
+     * Setting this to true will stop broadcasts of UX restriction change to listeners.
+     * This method works only on debug builds and the caller of this method needs to have the same
+     * signature of the car service.
+     *
+     */
+    public synchronized void setUxRChangeBroadcastEnabled(boolean enable) {
+        if (!isDebugBuild()) {
+            Log.e(TAG, "Cannot set UX restriction change broadcast.");
+            return;
+        }
+        // Check if the caller has the same signature as that of the car service.
+        if (mContext.getPackageManager().checkSignatures(Process.myUid(), Binder.getCallingUid())
+                != PackageManager.SIGNATURE_MATCH) {
+            throw new SecurityException(
+                    "Caller " + mContext.getPackageManager().getNameForUid(Binder.getCallingUid())
+                            + " does not have the right signature");
+        }
+        if (enable) {
+            // if enabling it back, send the current restrictions
+            mUxRChangeBroadcastEnabled = enable;
+            handleDispatchUxRestrictions(mDrivingStateService.getCurrentDrivingState().eventValue,
+                    getCurrentSpeed());
+        } else {
+            // fake parked state, so if the system is currently restricted, the restrictions are
+            // relaxed.
+            handleDispatchUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_PARKED, 0);
+            mUxRChangeBroadcastEnabled = enable;
+        }
+    }
+
+    private boolean isDebugBuild() {
+        return Build.IS_USERDEBUG || Build.IS_ENG;
+    }
+
+    /**
      * Class that holds onto client related information - listener interface, process that hosts the
      * binder object etc.
      * It also registers for death notifications of the host.
@@ -282,6 +327,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         writer.println(
                 "Requires DO? " + mCurrentUxRestrictions.isRequiresDistractionOptimization());
         writer.println("Current UXR: " + mCurrentUxRestrictions.getActiveRestrictions());
+        if (isDebugBuild()) {
+            writer.println("mUxRChangeBroadcastEnabled? " + mUxRChangeBroadcastEnabled);
+        }
         mHelper.dump(writer);
         writer.println("UX Restriction change log:");
         for (Utils.TransitionLog tlog : mTransitionLogs) {
@@ -377,6 +425,11 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      */
     private synchronized void handleDispatchUxRestrictions(@CarDrivingState int currentDrivingState,
             float speed) {
+        if (isDebugBuild() && !mUxRChangeBroadcastEnabled) {
+            Log.d(TAG, "Not dispatching UX Restriction due to setting");
+            return;
+        }
+
         CarUxRestrictions uxRestrictions;
         // Get UX restrictions from the parsed configuration XML or fall back to defaults if not
         // available.
