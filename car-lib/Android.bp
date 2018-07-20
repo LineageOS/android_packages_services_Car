@@ -68,4 +68,5 @@ java_library {
             enabled: false,
         },
     },
+    installable: true,
 }
