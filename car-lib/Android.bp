@@ -47,3 +47,25 @@ cc_library {
     ],
 }
 
+java_library {
+    name: "android.car",
+    srcs: [
+        "src/**/*.java",
+        "src_feature_future/**/*.java",
+        "src/**/I*.aidl",
+    ],
+    aidl: {
+        include_dirs: [
+            "system/bt/binder",
+        ],
+    },
+    exclude_srcs: [
+        "src/android/car/storagemonitoring/IoStats.aidl",
+        "src/android/car/storagemonitoring/IoStatsEntry.aidl",
+    ],
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+}
