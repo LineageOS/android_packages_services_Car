@@ -17,13 +17,12 @@
 package com.android.car.garagemode;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.android.car.R;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,72 +31,70 @@ import java.util.Map;
  * The first wake up time is set to be 1am the next day. And it keeps waking up every day for a
  * week. After that, wake up every 7 days for a month, and wake up every 30 days thereafter.
  */
-public class GarageModePolicy {
-    private static final String TAG = "GarageModePolicy";
-    private static final Map<Character, Integer> TIME_UNITS_LOOKUP;
+class WakeupPolicy {
+    private static final Logger LOG = new Logger("Policy");
+    private static final Map<Character, Integer> TIME_UNITS_LOOKUP_MS;
     static {
-        TIME_UNITS_LOOKUP = new HashMap<>();
-        TIME_UNITS_LOOKUP.put('m', 60);
-        TIME_UNITS_LOOKUP.put('h', 3600);
-        TIME_UNITS_LOOKUP.put('d', 86400);
+        TIME_UNITS_LOOKUP_MS = new HashMap<>();
+        TIME_UNITS_LOOKUP_MS.put('m', 60);
+        TIME_UNITS_LOOKUP_MS.put('h', 3600);
+        TIME_UNITS_LOOKUP_MS.put('d', 86400);
     }
-
     private LinkedList<WakeupInterval> mWakeupIntervals;
+    @VisibleForTesting protected int mIndex;
 
-    public GarageModePolicy(String[] policy) {
+    WakeupPolicy(String[] policy) {
         mWakeupIntervals = parsePolicy(policy);
+        mIndex = 0;
     }
 
     /**
-     * Initializes GarageModePolicy from config_garageModeCadence resource array.
+     * Initializes Policy from config_garageModeCadence resource array.
      * @param context to access resources
-     * @return GarageModePolicy instance, created from values in resources
+     * @return Policy instance, created from values in resources
      */
-    public static GarageModePolicy initFromResources(Context context) {
-        return new GarageModePolicy(
+    public static WakeupPolicy initFromResources(Context context) {
+        LOG.d("Initiating WakupPolicy from resources ...");
+        return new WakeupPolicy(
                 context.getResources().getStringArray(R.array.config_garageModeCadence));
     }
 
     /**
      * Returns the interval in milliseconds, which defines next wake up time.
-     * @param index amount of times system woken up
      * @return the interval in milliseconds
      */
-    public int getNextWakeUpInterval(int index) {
+    public int getNextWakeUpInterval() {
         if (mWakeupIntervals.size() == 0) {
-            Log.e(TAG, "No wake up policy configuration was loaded.");
+            LOG.e("No wake up policy configuration was loaded.");
             return 0;
         }
 
+        int index = mIndex;
         for (WakeupInterval wakeupTime : mWakeupIntervals) {
-            if (index < wakeupTime.getNumAttempts()) {
-                return wakeupTime.getWakeupInterval();
+            if (index <= wakeupTime.getNumAttempts()) {
+                return wakeupTime.getWakeupIntervalMs();
             }
             index -= wakeupTime.getNumAttempts();
         }
-        Log.w(TAG, "No more garage mode wake ups scheduled; been sleeping too long.");
+        LOG.w("No more garage mode wake ups scheduled; been sleeping too long.");
         return 0;
     }
 
-    /**
-     * Get list of {@link com.android.car.garagemode.WakeupInterval}s in this policy
-     * @return list as List\<WakeupInterval\>
-     */
-    public List<WakeupInterval> getWakeupIntervals() {
-        return mWakeupIntervals;
+    protected int getWakupIntervalsAmount() {
+        return mWakeupIntervals.size();
     }
 
     private LinkedList<WakeupInterval> parsePolicy(String[] policy) {
         LinkedList<WakeupInterval> intervals = new LinkedList<>();
         if (policy == null || policy.length == 0) {
-            Log.e(TAG, "Trying to parse empty policies!");
+            LOG.e("Trying to parse empty policies!");
             return intervals;
         }
 
         for (String rule : policy) {
             WakeupInterval interval = parseRule(rule);
             if (interval == null) {
-                Log.e(TAG, "Invalid Policy! This rule has bad format: " + rule);
+                LOG.e("Invalid Policy! This rule has bad format: " + rule);
                 return new LinkedList<>();
             }
             intervals.add(interval);
@@ -109,7 +106,7 @@ public class GarageModePolicy {
         String[] str = rule.split(",");
 
         if (str.length != 2) {
-            Log.e(TAG, "Policy has bad format: " + rule);
+            LOG.e("Policy has bad format: " + rule);
             return null;
         }
 
@@ -117,7 +114,7 @@ public class GarageModePolicy {
         String timesStr = str[1];
 
         if (intervalStr.isEmpty() || timesStr.isEmpty()) {
-            Log.e(TAG, "One of the values is empty. Please check format: " + rule);
+            LOG.e("One of the values is empty. Please check format: " + rule);
             return null;
         }
 
@@ -131,27 +128,67 @@ public class GarageModePolicy {
             interval = Integer.parseInt(intervalStr);
             times = Integer.parseInt(timesStr);
         } catch (NumberFormatException ex)  {
-            Log.d(TAG, "Invalid input Rule for interval " + rule);
+            LOG.d("Invalid input Rule for interval " + rule);
             return null;
         }
 
-        if (!TIME_UNITS_LOOKUP.containsKey(unit)) {
-            Log.e(TAG, "Time units map does not contain extension " + unit);
+        if (!TIME_UNITS_LOOKUP_MS.containsKey(unit)) {
+            LOG.e("Time units map does not contain extension " + unit);
             return null;
         }
 
         if (interval <= 0) {
-            Log.e(TAG, "Wake up policy time must be > 0!" + interval);
+            LOG.e("Wake up policy time must be > 0!" + interval);
             return null;
         }
 
         if (times <= 0) {
-            Log.e(TAG, "Wake up attempts in policy must be > 0!" + times);
+            LOG.e("Wake up attempts in policy must be > 0!" + times);
             return null;
         }
 
-        interval *= TIME_UNITS_LOOKUP.get(unit);
+        interval *= TIME_UNITS_LOOKUP_MS.get(unit);
 
         return new WakeupInterval(interval, times);
     }
+
+    public void incrementCounter() {
+        mIndex++;
+    }
+
+    public void resetCounter() {
+        mIndex = 0;
+    }
+
+    /**
+     * Defines wake up interval which then will be used by
+     * {@link com.android.car.garagemode.GarageModeService} to determine when to schedule next wake
+     * up from {@link com.android.car.CarPowerManagementService}
+     */
+    private class WakeupInterval {
+        private int mWakeupIntervalMs;
+        private int mNumAttempts;
+
+        WakeupInterval(int wakeupTime, int numAttempts) {
+            mWakeupIntervalMs = wakeupTime;
+            mNumAttempts = numAttempts;
+        }
+
+        /**
+         * Returns interval between now and next weke up.
+         * @return interval in seconds
+         */
+        public int getWakeupIntervalMs() {
+            return mWakeupIntervalMs;
+        }
+
+        /**
+         * Returns amount of attempts to wake up with mWakeupInterval
+         * @return amount of attempts
+         */
+        public int getNumAttempts() {
+            return mNumAttempts;
+        }
+    }
+
 }

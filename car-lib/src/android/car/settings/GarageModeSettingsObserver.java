@@ -44,7 +44,7 @@ public abstract class GarageModeSettingsObserver extends ContentObserver {
 
     public GarageModeSettingsObserver(Context context, Handler handler) {
         super(handler);
-        mContext = new WeakReference<Context>(context);
+        mContext = new WeakReference<>(context);
     }
 
     public void register() {
