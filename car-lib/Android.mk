@@ -21,40 +21,19 @@ LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := android.car
-LOCAL_MODULE_TAGS := optional
-
-ifneq ($(TARGET_USES_CAR_FUTURE_FEATURES),true)
-#TODO need a tool to generate proguard rule to drop all items under @FutureFeature
-#LOCAL_PROGUARD_ENABLED := custom
-#LOCAL_PROGUARD_FLAG_FILES := proguard_drop_future.flags
-endif
-
 car_lib_sources := $(call all-java-files-under, src)
-ifeq ($(TARGET_USES_CAR_FUTURE_FEATURES),true)
 car_lib_sources += $(call all-java-files-under, src_feature_future)
-else
-car_lib_sources += $(call all-java-files-under, src_feature_current)
-endif
 car_lib_sources += $(call all-Iaidl-files-under, src)
-LOCAL_AIDL_INCLUDES += system/bt/binder
-
-LOCAL_SRC_FILES := $(car_lib_sources)
-
-ifeq ($(EMMA_INSTRUMENT_FRAMEWORK),true)
-LOCAL_EMMA_INSTRUMENT := true
-endif
-
-include $(BUILD_JAVA_LIBRARY)
 
 ifeq ($(BOARD_IS_AUTOMOTIVE), true)
-$(call dist-for-goals,dist_files,$(LOCAL_BUILT_MODULE):$(LOCAL_MODULE).jar)
+full_classes_jar := $(call intermediates-dir-for,JAVA_LIBRARIES,android.car,,COMMON)/classes.jar
+$(call dist-for-goals,dist_files,$(full_classes_jar):android.car.jar)
 endif
 
 # API Check
 # ---------------------------------------------
-car_module := $(LOCAL_MODULE)
-car_module_src_files := $(LOCAL_SRC_FILES)
+car_module := android.car
+car_module_src_files := $(car_lib_sources)
 car_module_api_dir := $(LOCAL_PATH)/api
 car_module_java_libraries := framework
 car_module_include_systemapi := true
