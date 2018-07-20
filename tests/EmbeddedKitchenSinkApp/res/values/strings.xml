@@ -117,22 +117,6 @@
     <string name="mock_audio_on">Audio Mocking On</string>
     <string name="mock_audio_off">Audio Mocking Off</string>
 
-    <!-- job scheduler -->
-    <string name="schedule_button">Schedule a  New Job</string>
-    <string name="refresh_button">Refresh pending jobs</string>
-    <string name="cancel_button">Cancel All Jobs</string>
-    <string name="job_info">Current Pending Jobs</string>
-    <string name="require_charging">Require Charging</string>
-    <string name="require_persisted">Persisted</string>
-    <string name="require_periodic">Periodic</string>
-    <string name="require_network">Network Type</string>
-    <string name="require_idle">Device Idle</string>
-    <string name="dish_num">Number of Plates</string>
-    <string name="default_dish_num">50</string>
-    <string name="network_any">ANY</string>
-    <string name="network_none">NONE</string>
-    <string name="network_unmetered">UNMETERED</string>
-
     <!-- keyboard test fragment -->
     <string name="keyboard_test_title">Keyboard Test</string>
     <string name="on_search">OnSearch:</string>

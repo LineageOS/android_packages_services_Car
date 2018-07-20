@@ -24,6 +24,8 @@
   <string name="enter_garage_mode">Enter GarageMode</string>
   <string name="exit_garage_mode">Exit GarageMode</string>
   <string name="empty_list_txt">No Results</string>
+  <string name="job_duration_label">Job duration:</string>
+  <string name="garage_mode_duration_label">GarageMode max duration:</string>
 
   <string-array name="network_types_list">
     <item>ANY</item>

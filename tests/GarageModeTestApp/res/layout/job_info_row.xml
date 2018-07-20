@@ -15,6 +15,7 @@
       android:layout_width="wrap_content"
       android:layout_alignParentLeft="true"
       android:layout_alignParentTop="true"
+      android:textStyle="bold"
       android:layout_toLeftOf="@id/jobInfoButton" />
   <TextView
       android:id="@+id/jobState"
@@ -22,6 +23,7 @@
       android:layout_width="wrap_content"
       android:layout_alignParentLeft="true"
       android:layout_alignParentBottom="true"
+      android:textStyle="bold"
       android:layout_toLeftOf="@id/jobInfoButton"
       android:layout_below="@id/jobId" />
 </RelativeLayout>

@@ -44,7 +44,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@string/require_persisted" />
+                    android:text="@string/require_persisted"/>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -55,19 +55,33 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@string/require_idleness" />
+                    android:text="@string/require_idleness"/>
                 <CheckBox
                     android:id="@+id/requireChargingCheckbox"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@string/require_charging" />
+                    android:text="@string/require_charging"/>
             </LinearLayout>
-            <Spinner
-                android:id="@+id/jobDuration"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:weightSum="2"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="250px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:textStyle="bold"
+                    android:gravity="center_vertical|end"
+                    android:text="@string/job_duration_label"/>
+                <Spinner
+                    android:id="@+id/jobDuration"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+            </LinearLayout>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -81,11 +95,24 @@
                 android:layout_height="match_parent"
                 android:text="@string/add_job_btn"
                 android:layout_weight="1"/>
-            <Spinner
-                android:id="@+id/garageModeDuration"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="250px"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:textStyle="bold"
+                    android:gravity="center_vertical|end"
+                    android:text="@string/garage_mode_duration_label"/>
+                <Spinner
+                    android:id="@+id/garageModeDuration"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+            </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -120,10 +147,10 @@
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:focusable="false" />
+            android:focusable="false"/>
         <TextView android:id="@android:id/empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/empty_list_txt" />
+            android:text="@string/empty_list_txt"/>
     </LinearLayout>
 </LinearLayout>
