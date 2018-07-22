@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.internal;
+package com.google.android.car.garagemode.testapp;
 
-/**
- * Class to hold static boolean flag for enabling / disabling features.
- *
- * @hide
- */
-public class FeatureConfiguration {
-    /** Disable future feature by default. */
-    public static final boolean DEFAULT = false;
-    /** product configuration in CarInfoManager */
-    public static final boolean ENABLE_PRODUCT_CONFIGURATION_INFO = DEFAULT;
+public class JobInfoRow {
+    public enum JobState {
+        QUEUED,
+        IN_PROGRESS,
+        COMPLETE
+    }
+
+    private int mJobId;
+    private JobState mState;
+
+    public JobInfoRow(int id) {
+        mJobId = id;
+        mState = JobState.QUEUED;
+    }
+
+    public String getId() {
+        return "" + mJobId;
+    }
+
+    public String getState() {
+        return mState.name();
+    }
 }

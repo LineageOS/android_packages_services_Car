@@ -985,8 +985,18 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
     }
 
+    /**
+     * Enable/Disable activity blocking by correspondingly enabling/disabling broadcasting UXR
+     * changes in {@link CarUxRestrictionsManagerService}. This is only available in
+     * engineering builds for development convenience.
+     *
+     */
     @Override
     public synchronized void setEnableActivityBlocking(boolean enable) {
+        if (!isDebugBuild()) {
+            Log.e(CarLog.TAG_PACKAGE, "Cannot enable/disable activity blocking");
+            return;
+        }
         // Check if the caller has the same signature as that of the car service.
         if (mPackageManager.checkSignatures(Process.myUid(), Binder.getCallingUid())
                 != PackageManager.SIGNATURE_MATCH) {
@@ -994,7 +1004,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     "Caller " + mPackageManager.getNameForUid(Binder.getCallingUid())
                             + " does not have the right signature");
         }
-        mEnableActivityBlocking = enable;
+        mCarUxRestrictionsService.setUxRChangeBroadcastEnabled(enable);
     }
 
     /**
