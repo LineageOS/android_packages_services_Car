@@ -281,14 +281,6 @@ public final class Car {
             "android.car.permission.CONTROL_APP_BLOCKING";
 
     /**
-     * Permission necessary to access Car Cabin APIs.
-     * @hide
-     */
-    @SystemApi
-    public static final String PERMISSION_ADJUST_CAR_CABIN =
-            "android.car.permission.ADJUST_CAR_CABIN";
-
-    /**
      * Permission necessary to access car's engine information.
      * @hide
      */

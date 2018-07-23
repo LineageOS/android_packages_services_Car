@@ -27,11 +27,6 @@
         android:description="@string/car_permission_desc"
         android:label="@string/car_permission_label" />
     <permission
-        android:name="android.car.permission.ADJUST_CAR_CABIN"
-        android:protectionLevel="system|signature"
-        android:label="@string/car_permission_label_cabin"
-        android:description="@string/car_permission_desc_cabin" />
-    <permission
         android:name="android.car.permission.CAR_ENERGY"
         android:permissionGroup="android.car.permission-group.CAR_MONITORING"
         android:protectionLevel="dangerous"
