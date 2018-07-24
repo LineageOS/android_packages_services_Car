@@ -173,7 +173,7 @@ public class MockedCarTestBase {
     protected MockContext getCarServiceContext() throws NameNotFoundException {
         if (mMockContext == null) {
             mMockContext = new MockContext(getContext()
-                .createPackageContext("com.android.car", Context.CONTEXT_IGNORE_SECURITY));
+                .createPackageContext("com.android.car.test", Context.CONTEXT_IGNORE_SECURITY));
         }
         return mMockContext;
     }
