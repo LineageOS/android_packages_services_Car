@@ -13,9 +13,14 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<!-- We use this container to place app fragments. It insets the fragment contents -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/activity_content"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-</FrameLayout>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+  <corners
+      android:bottomRightRadius="5dp"
+      android:bottomLeftRadius="5dp"
+      android:topLeftRadius="5dp"
+      android:topRightRadius="5dp"/>
+  <stroke
+      android:width="2dip"
+      android:color="#212121" />
+</shape>

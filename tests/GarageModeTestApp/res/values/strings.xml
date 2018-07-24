@@ -16,16 +16,25 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="app_name">GarageMode Test App</string>
 
-  <string name="job_info_btn">Job Info</string>
-  <string name="require_persisted">Persisted?</string>
-  <string name="require_idleness">Require idleness?</string>
-  <string name="require_charging">Require charging?</string>
-  <string name="add_job_btn">Add job</string>
-  <string name="enter_garage_mode">Enter GarageMode</string>
-  <string name="exit_garage_mode">Exit GarageMode</string>
-  <string name="empty_list_txt">No Results</string>
-  <string name="job_duration_label">Job duration:</string>
-  <string name="garage_mode_duration_label">GarageMode max duration:</string>
+  <string name="button_schedule_job">Schedule Job</string>
+  <string name="button_job_info">Job Info</string>
+  <string name="button_enter_garage_mode">Enter GarageMode</string>
+  <string name="button_exit_garage_mode">Exit GarageMode</string>
+
+  <string name="checkbox_require_persisted">Persisted?</string>
+  <string name="checkbox_require_idleness">Require idleness?</string>
+  <string name="checkbox_require_charging">Require charging?</string>
+
+  <string name="no_results">No Results</string>
+
+  <string name="section_header_garage_mode_config">GarageMode Settings</string>
+  <string name="section_header_job_configuration">Job Configuration</string>
+  <string name="section_header_jobs_list">Scheduled Jobs</string>
+  <string name="section_header_watchdog">Watchdog</string>
+
+  <string name="spinner_label_garage_mode_duration">GarageMode max duration:</string>
+  <string name="spinner_label_job_duration">Job duration:</string>
+  <string name="spinner_label_network_type">Network type:</string>
 
   <string-array name="network_types_list">
     <item>ANY</item>
