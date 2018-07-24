@@ -30,6 +30,11 @@ import java.util.List;
 
 class JobSchedulerWrapper {
     private static final Logger LOG = new Logger("JobSchedulerWrapper");
+    private static final boolean DEBUG = false;
+
+    private static final String ANDROID_COMPONENT_PREFIX = "android/com.android.";
+    private static final String ANDROID_SETTINGS_PREFIX =
+            "com.android.settings/com.android.settings.";
 
     private static final String PREFS_FILE_NAME = "garage_mode_job_scheduler";
     private static final String PREFS_NEXT_JOB_ID = "next_job_id";
@@ -39,13 +44,28 @@ class JobSchedulerWrapper {
     private ListView mListView;
     private Handler mHandler;
     private Watchdog mWatchdog;
-    private List<JobInfoRow> mLastList;
     private Runnable mRefreshWorker;
+
+    private List<JobInfo> mLastJobsList;
+    private List<JobInfo> mNewJobs;
+    private List<JobInfo> mCompletedJobs;
+    private JobInfoRowArrayAdapter mJobsListAdapter;
 
     JobSchedulerWrapper(Context context, ListView listView) {
         mContext = context;
         mJobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         mListView = listView;
+
+        mLastJobsList = new LinkedList<>();
+        mNewJobs = new LinkedList<>();
+        mCompletedJobs = new LinkedList<>();
+        mJobsListAdapter = new JobInfoRowArrayAdapter(mContext, mListView.getId(), mLastJobsList);
+        mListView.setAdapter(mJobsListAdapter);
+
+        updateJobs();
+        if (DEBUG) {
+            printJobsOnce(mJobScheduler.getAllPendingJobs());
+        }
     }
 
     public void setWatchdog(Watchdog watchdog) {
@@ -53,13 +73,14 @@ class JobSchedulerWrapper {
     }
 
     public synchronized void refresh() {
-        List<JobInfoRow> list = convertToJobInfoRows();
+        updateJobs();
 
-        reportNewJobs(mLastList, list);
-        reportCompletedJobs(mLastList, list);
+        reportNewJobs();
+        reportCompletedJobs();
 
-        mLastList = list;
-        mListView.setAdapter(new JobInfoRowArrayAdapter(mContext, mListView.getId(), list));
+        if (mNewJobs.size() > 0 || mCompletedJobs.size() > 0) {
+            updateListView();
+        }
     }
 
     public void start() {
@@ -93,6 +114,10 @@ class JobSchedulerWrapper {
 
         bundle.putInt(DishService.EXTRA_DISH_COUNT, amountOfSeconds);
 
+        while (checkIdForExistence(jobId)) {
+            jobId++;
+        }
+
         JobInfo jobInfo = new JobInfo.Builder(jobId, jobComponentName)
                 .setRequiresCharging(isChargingRequired)
                 .setRequiresDeviceIdle(isIdleRequired)
@@ -113,54 +138,105 @@ class JobSchedulerWrapper {
         refresh();
     }
 
-    private void reportNewJobs(List<JobInfoRow> oldList, List<JobInfoRow> newList) {
-        // TODO(serikb): Improve complexity of the search
-        if (oldList != null && newList != null) {
-            boolean found;
-            for (JobInfoRow newInfo : newList) {
-                found = false;
-                for (JobInfoRow oldInfo : oldList) {
-                    if (newInfo.getId().equals(oldInfo.getId())) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found && mWatchdog != null) {
-                    mWatchdog.logEvent(
-                            "New job with id(" + newInfo.getId() + ") has been scheduled");
-                }
+    private void updateListView() {
+        int index = mListView.getFirstVisiblePosition();
+        mJobsListAdapter.notifyDataSetChanged();
+        mListView.smoothScrollToPosition(index);
+    }
+
+    private boolean checkIdForExistence(int jobId) {
+        for (JobInfo job : mJobScheduler.getAllPendingJobs()) {
+            if (job.getId() == jobId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void printJobsOnce(List<JobInfo> list) {
+        LOG.d("=========================================================");
+        for (JobInfo job : list) {
+            LOG.d("Job(" + job.getId() + ") will run " + job.getService());
+        }
+    }
+
+    private void reportNewJobs() {
+        for (JobInfo job : mNewJobs) {
+            if (mWatchdog != null) {
+                mWatchdog.logEvent("New job with id(" + job.getId() + ") has been scheduled");
             }
         }
     }
 
-    private void reportCompletedJobs(List<JobInfoRow> oldList, List<JobInfoRow> newList) {
-        // TODO(serikb): Improve complexity of the search
-        if (oldList != null && newList != null) {
-            boolean found;
-            for (JobInfoRow oldInfo : oldList) {
-                found = false;
-                for (JobInfoRow newInfo : newList) {
-                    if (oldInfo.getId().equals(newInfo.getId())) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found && mWatchdog != null) {
-                    mWatchdog.logEvent("Job with id(" + oldInfo.getId() + ") has been completed.");
-                }
+    private void reportCompletedJobs() {
+        for (JobInfo job : mCompletedJobs) {
+            if (mWatchdog != null) {
+                mWatchdog.logEvent("Job with id(" + job.getId() + ") has been completed.");
             }
         }
     }
 
-    private List<JobInfoRow> convertToJobInfoRows() {
-        List<JobInfoRow> listJobs = new LinkedList<>();
+    private synchronized void updateJobs() {
+        List<JobInfo> currentJobs = mJobScheduler.getAllPendingJobs();
 
-        List<JobInfo> jobs = mJobScheduler.getAllPendingJobs();
-        for (JobInfo job : jobs) {
-            JobInfoRow row = new JobInfoRow(job.getId());
-            row.setFailingConstraints("Failing constraints are not implemented yet.");
-            listJobs.add(row);
+        if (DEBUG) {
+            printJobsOnce(currentJobs);
+            printJobsOnce(mLastJobsList);
         }
-        return listJobs;
+
+        removeSystemJobsFromList(currentJobs);
+
+        mNewJobs = newJobsSince(mLastJobsList, currentJobs);
+        mCompletedJobs = completedJobsSince(mLastJobsList, currentJobs);
+
+        for (JobInfo job : mNewJobs) {
+            mLastJobsList.add(job);
+        }
+
+        for (JobInfo job : mCompletedJobs) {
+            mLastJobsList.remove(job);
+        }
+    }
+
+    private synchronized List<JobInfo> newJobsSince(List<JobInfo> oldList, List<JobInfo> newList) {
+        return findDiffBetween(newList, oldList);
+    }
+
+    private synchronized List<JobInfo> completedJobsSince(
+            List<JobInfo> oldList, List<JobInfo> newList) {
+        return findDiffBetween(oldList, newList);
+    }
+
+    private synchronized List<JobInfo> findDiffBetween(
+            List<JobInfo> fromList, List<JobInfo> toList) {
+        List<JobInfo> diffList = new LinkedList<>();
+        for (JobInfo fromJob : fromList) {
+            if (!toList.contains(fromJob)) {
+                diffList.add(fromJob);
+            }
+        }
+        return diffList;
+    }
+
+    private synchronized void removeSystemJobsFromList(List<JobInfo> list) {
+        List<JobInfo> jobsToRemove = new LinkedList<>();
+        for (JobInfo job : list) {
+            if (isSystemService(job)) {
+                jobsToRemove.add(job);
+            }
+        }
+        for (JobInfo job : jobsToRemove) {
+            list.remove(job);
+        }
+    }
+
+    private boolean isSystemService(JobInfo job) {
+        if (job.getService().toString().contains(ANDROID_COMPONENT_PREFIX)) {
+            return true;
+        }
+        if (job.getService().toString().contains(ANDROID_SETTINGS_PREFIX)) {
+            return true;
+        }
+        return false;
     }
 }

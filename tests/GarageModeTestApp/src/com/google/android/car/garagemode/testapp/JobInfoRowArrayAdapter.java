@@ -15,46 +15,70 @@
  */
 package com.google.android.car.garagemode.testapp;
 
+import static android.graphics.Typeface.BOLD;
+
+import android.app.job.JobInfo;
 import android.content.Context;
+import android.graphics.Color;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
-public class JobInfoRowArrayAdapter extends ArrayAdapter<JobInfoRow> {
+public class JobInfoRowArrayAdapter extends ArrayAdapter<JobInfo> {
     public static final Logger LOG = new Logger("JobInfoRowArrayAdapter");
     private class ViewHolder {
         TextView mJobIDView;
-        TextView mJobStateView;
-        Button mButton;
-        JobInfoRow mInfo;
-    }
 
-    public JobInfoRowArrayAdapter(Context context, int resource, List<JobInfoRow> objects) {
+        TextView mRequiredNetworkView;
+        TextView mIsPeriodicView;
+        TextView mIsPersistedView;
+        TextView mIsPrefetchView;
+
+        TextView mIsRequireBatteryNotLowView;
+        TextView mIsRequireChargingView;
+        TextView mIsRequireDeviceIdleView;
+        TextView mIsRequireStorageNotLowView;
+
+        JobInfo mInfo;
+    }
+    private LayoutInflater mInflater;
+
+    public JobInfoRowArrayAdapter(Context context, int resource, List<JobInfo> objects) {
         super(context, resource, objects);
+        mInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
-        final JobInfoRow info = getItem(position);
+        final JobInfo info = getItem(position);
 
         ViewHolder holder;
 
         if (row == null) {
-            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(
-                    Context.LAYOUT_INFLATER_SERVICE);
-            row = inflater.inflate(R.layout.job_info_row, parent, false);
+            row = mInflater.inflate(R.layout.job_info_row, parent, false);
 
             holder = new ViewHolder();
             holder.mJobIDView = row.findViewById(R.id.jobId);
-            holder.mJobStateView = row.findViewById(R.id.jobState);
-            holder.mButton = row.findViewById(R.id.jobInfoButton);
+
+            holder.mRequiredNetworkView = row.findViewById(R.id.requiredNetwork);
+            holder.mIsPeriodicView = row.findViewById(R.id.isPeriodic);
+            holder.mIsPersistedView = row.findViewById(R.id.isPersisted);
+            holder.mIsPrefetchView = row.findViewById(R.id.isPrefetch);
+
+            holder.mIsRequireBatteryNotLowView = row.findViewById(R.id.isRequireBatteryNotLow);
+            holder.mIsRequireChargingView = row.findViewById(R.id.isRequireCharging);
+            holder.mIsRequireDeviceIdleView = row.findViewById(R.id.isRequireDeviceIdle);
+            holder.mIsRequireStorageNotLowView = row.findViewById(R.id.isRequireStorageNotLow);
+
             holder.mInfo = info;
 
             row.setTag(holder);
@@ -64,15 +88,54 @@ public class JobInfoRowArrayAdapter extends ArrayAdapter<JobInfoRow> {
         }
 
         holder.mJobIDView.setText("ID: " + info.getId());
-        holder.mJobStateView.setText("State: " + info.getState());
 
-        holder.mButton.setOnClickListener(v -> {
-            LOG.d("Button clicked, showing toast with more info on job" + info.getId());
-            Toast.makeText(
-                    getContext(),
-                    "Show more detailed job info for " + info.getId(),
-                    Toast.LENGTH_SHORT).show();
-        });
+        setColoredText(holder.mRequiredNetworkView, "Network", info.getRequiredNetwork() == null);
+
+        setColoredText(holder.mIsPeriodicView, "Periodic", info.isPeriodic());
+        setColoredText(holder.mIsPersistedView, "Persisted", info.isPersisted());
+        setColoredText(holder.mIsPrefetchView, "Prefetch", info.isPrefetch());
+
+        setColoredText(
+                holder.mIsRequireBatteryNotLowView,
+                "BatteryNotLow",
+                info.isRequireBatteryNotLow());
+        setColoredText(holder.mIsRequireChargingView, "Charging", info.isRequireCharging());
+        setColoredText(holder.mIsRequireDeviceIdleView, "DeviceIdle", info.isRequireDeviceIdle());
+        setColoredText(
+                holder.mIsRequireStorageNotLowView,
+                "StorageNotLow",
+                info.isRequireStorageNotLow());
+
         return row;
+    }
+
+    private void setColoredText(TextView view, String label, boolean condition) {
+        SpannableStringBuilder sb;
+        if (!condition) {
+            sb = new SpannableStringBuilder(label + ": No");
+            sb.setSpan(
+                    new ForegroundColorSpan(Color.RED),
+                    label.length() + 2,
+                    label.length() + 4,
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            sb.setSpan(
+                    new StyleSpan(BOLD),
+                    label.length() + 2,
+                    label.length() + 4,
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        } else {
+            sb = new SpannableStringBuilder(label + ": Yes");
+            sb.setSpan(
+                    new ForegroundColorSpan(Color.GREEN),
+                    label.length() + 2,
+                    label.length() + 5,
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            sb.setSpan(
+                    new StyleSpan(BOLD),
+                    label.length() + 2,
+                    label.length() + 5,
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+        view.setText(sb);
     }
 }
