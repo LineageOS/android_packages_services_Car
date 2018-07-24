@@ -15,177 +15,152 @@
  */
 package com.google.android.car.garagemode.testapp;
 
-import android.app.Activity;
-import android.app.job.JobInfo;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.Spinner;
 
-public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener {
-    private static final Logger LOG = new Logger("GarageModeTestApp");
+import androidx.car.drawer.CarDrawerActivity;
+import androidx.car.drawer.CarDrawerAdapter;
+import androidx.car.drawer.DrawerItemViewHolder;
+import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
+import java.util.List;
 
-    private String mNetworkRequirement;
-    private int mJobDurationSelected;
-    private int mGarageModeDurationSelected;
+public class MainActivity extends CarDrawerActivity {
+    private static final Logger LOG = new Logger("MainActivity");
 
-    private CheckBox mRequirePersisted;
-    private CheckBox mRequireIdleness;
-    private CheckBox mRequireCharging;
+    private final List<MenuEntry> mMenuEntries = new ArrayList<MenuEntry>() {
+        {
+            add("Offcar testing", OffcarTestingFragment.class);
+            add("Incar testing", IncarTestingFragment.class);
+            add("Quit", MainActivity.this::finish);
+        }
 
-    private Watchdog mWatchdog;
-    private JobSchedulerWrapper mJobSchedulerWrapper;
+        <T extends Fragment> void add(String text, Class<T> clazz) {
+            add(new FragmentMenuEntry(text, clazz));
+        }
+
+        void add(String text, ClickHandler onClick) {
+            add(new OnClickMenuEntry(text, onClick));
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
-
-        populateNetworkTypeSpinner();
-        populateJobDurationSpinner();
-        populateGarageModeSpinner();
-
-        mRequirePersisted = findViewById(R.id.requirePersistedCheckbox);
-        mRequireIdleness = findViewById(R.id.requireIdlenessCheckbox);
-        mRequireCharging = findViewById(R.id.requireChargingCheckbox);
-
-        mJobSchedulerWrapper = new JobSchedulerWrapper(
-                this,
-                findViewById(R.id.jobsListView));
-
-        (findViewById(R.id.addJobBtn)).setOnClickListener(view -> {
-            LOG.d("Adding a job...");
-            mJobSchedulerWrapper.scheduleAJob(
-                    mJobDurationSelected,
-                    parseNetworkRequirement(),
-                    mRequireCharging.isChecked(),
-                    mRequireIdleness.isChecked());
-        });
+        setMainContent(R.layout.activity_content);
+        mMenuEntries.get(0).onClick();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        LOG.d("Resuming app");
-        mWatchdog = new Watchdog(getApplicationContext(), findViewById(R.id.garageModeWatchdog));
-        mWatchdog.start();
-        mJobSchedulerWrapper.setWatchdog(mWatchdog);
-        mJobSchedulerWrapper.start();
+    protected CarDrawerAdapter getRootAdapter() {
+        return new DrawerAdapter();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        LOG.d("Pausing app");
-        mWatchdog.stop();
-        mWatchdog = null;
-        mJobSchedulerWrapper.stop();
+    private interface ClickHandler {
+        void onClick();
     }
 
-    private int parseNetworkRequirement() {
-        if (mNetworkRequirement.equals("NONE")) {
-            return JobInfo.NETWORK_TYPE_NONE;
+    private abstract static class MenuEntry implements ClickHandler {
+        abstract String getText();
+    }
+
+    private final class OnClickMenuEntry extends MenuEntry {
+        private final String mText;
+        private final ClickHandler mClickHandler;
+
+        OnClickMenuEntry(String text, ClickHandler clickHandler) {
+            mText = text;
+            mClickHandler = clickHandler;
         }
-        if (mNetworkRequirement.equals("UNMETERED")) {
-            return JobInfo.NETWORK_TYPE_UNMETERED;
+
+        @Override
+        String getText() {
+            return mText;
         }
-        if (mNetworkRequirement.equals("ANY")) {
-            return JobInfo.NETWORK_TYPE_ANY;
-        }
-        return JobInfo.NETWORK_BYTES_UNKNOWN;
-    }
 
-    private void populateGarageModeSpinner() {
-        populateSpinner(
-                findViewById(R.id.garageModeDuration),
-                ArrayAdapter.createFromResource(
-                        this,
-                        R.array.duration_list,
-                        android.R.layout.simple_spinner_item));
-    }
-
-    private void populateJobDurationSpinner() {
-        populateSpinner(
-                findViewById(R.id.jobDuration),
-                ArrayAdapter.createFromResource(
-                        this,
-                        R.array.duration_list,
-                        android.R.layout.simple_spinner_item));
-    }
-
-    private void populateNetworkTypeSpinner() {
-        populateSpinner(
-                findViewById(R.id.networkType),
-                ArrayAdapter.createFromResource(
-                        this,
-                        R.array.network_types_list,
-                        android.R.layout.simple_spinner_item));
-    }
-
-    private void populateSpinner(Spinner spinner, ArrayAdapter adapter) {
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-        String value = (String) parent.getItemAtPosition(pos);
-        switch (parent.getId()) {
-            case R.id.networkType:
-                applyNetworkTypeRequirement(value);
-                break;
-            case R.id.jobDuration:
-                applyJobDuration(value);
-                break;
-            case R.id.garageModeDuration:
-                applyGarageModeDuration(value);
-                break;
+        @Override
+        public void onClick() {
+            mClickHandler.onClick();
         }
     }
 
-    private String stringDump() {
-        String s = "";
-        s += "Network Type: " + mNetworkRequirement + "\n";
-        s += "Job Duration: " + mJobDurationSelected + "\n";
-        s += "GarageMode Duration: " + mGarageModeDurationSelected + "\n";
-        return s;
+    private final class FragmentMenuEntry<T extends Fragment> extends MenuEntry {
+        private final class FragmentClassOrInstance<T extends Fragment> {
+            final Class<T> mClazz;
+            T mFragment = null;
+
+            FragmentClassOrInstance(Class<T> clazz) {
+                mClazz = clazz;
+            }
+
+            T getFragment() {
+                if (mFragment == null) {
+                    try {
+                        mFragment = mClazz.newInstance();
+                    } catch (InstantiationException | IllegalAccessException e) {
+                        LOG.e("unable to create fragment", e);
+                    }
+                }
+                return mFragment;
+            }
+        }
+
+        private final String mText;
+        private final FragmentClassOrInstance<T> mFragment;
+
+        FragmentMenuEntry(String text, Class<T> clazz) {
+            mText = text;
+            mFragment = new FragmentClassOrInstance<>(clazz);
+        }
+
+        @Override
+        String getText() {
+            return mText;
+        }
+
+        @Override
+        public void onClick() {
+            Fragment fragment = mFragment.getFragment();
+            if (fragment != null) {
+                MainActivity.this.showFragment(fragment);
+            } else {
+                LOG.e("cannot show fragment for " + getText());
+            }
+        }
     }
 
-    private void applyGarageModeDuration(String value) {
-        String metric = value.split(" ")[1];
-        mGarageModeDurationSelected = Integer.parseInt(value.split(" ")[0]);
-        if (metric.startsWith("minute")) {
-            mGarageModeDurationSelected *= 60;
-        }
-        if (metric.startsWith("hour")) {
-            mGarageModeDurationSelected *= 3600;
-        }
-        mWatchdog.logEvent("GarageMode duration is now: " + mGarageModeDurationSelected + "s");
+    private void showFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_content, fragment)
+                .commit();
     }
 
-    private void applyJobDuration(String value) {
-        String metric = value.split(" ")[1];
-        mJobDurationSelected = Integer.parseInt(value.split(" ")[0]);
-        if (metric.startsWith("minute")) {
-            mJobDurationSelected *= 60;
+    private final class DrawerAdapter extends CarDrawerAdapter {
+        DrawerAdapter() {
+            super(MainActivity.this, true /* showDisabledOnListOnEmpty */);
+            setTitle(getString(R.string.app_name));
         }
-        if (metric.startsWith("hour")) {
-            mJobDurationSelected *= 3600;
+
+        @Override
+        protected int getActualItemCount() {
+            return mMenuEntries.size();
         }
-        mWatchdog.logEvent("Job duration is now: " + mJobDurationSelected + "s");
-    }
 
-    private void applyNetworkTypeRequirement(String value) {
-        mNetworkRequirement = value;
-        mWatchdog.logEvent("Job network requirement changed to: " + value);
-    }
+        @Override
+        protected void populateViewHolder(DrawerItemViewHolder holder, int position) {
+            holder.getTitle().setText(mMenuEntries.get(position).getText());
+        }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
+        @Override
+        public void onItemClick(int position) {
+            if ((position < 0) || (position >= mMenuEntries.size())) {
+                LOG.wtf("Unknown menu item: " + position);
+                return;
+            }
 
+            mMenuEntries.get(position).onClick();
+
+            getDrawerController().closeDrawer();
+        }
     }
 }
