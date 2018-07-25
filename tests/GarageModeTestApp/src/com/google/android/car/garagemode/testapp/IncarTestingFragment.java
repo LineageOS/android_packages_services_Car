@@ -15,26 +15,8 @@
  */
 package com.google.android.car.garagemode.testapp;
 
-public class JobInfoRow {
-    public enum JobState {
-        QUEUED,
-        IN_PROGRESS,
-        COMPLETE
-    }
+import androidx.fragment.app.Fragment;
 
-    private int mJobId;
-    private JobState mState;
+public class IncarTestingFragment extends Fragment {
 
-    public JobInfoRow(int id) {
-        mJobId = id;
-        mState = JobState.QUEUED;
-    }
-
-    public String getId() {
-        return "" + mJobId;
-    }
-
-    public String getState() {
-        return mState.name();
-    }
 }

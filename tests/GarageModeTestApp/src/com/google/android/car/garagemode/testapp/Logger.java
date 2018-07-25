@@ -76,6 +76,16 @@ class Logger {
         Log.e(mTag, buildMessage(msg), ex);
     }
 
+    /** Passing message further to Log.e() */
+    public void wtf(String msg) {
+        Log.wtf(mTag, buildMessage(msg));
+    }
+
+    /** Passing message further to Log.e() */
+    public void wtf(String msg, Exception ex) {
+        Log.wtf(mTag, buildMessage(msg), ex);
+    }
+
     private String buildMessage(String msg) {
         return String.format("[%s]: %s", mPrefix, msg);
     }
