@@ -193,6 +193,8 @@
     <string name="radio_na">N/A</string>
 
     <!-- sensors test -->
+    <string name="location_title">Location/Orientation:</string>
+    <string name="sensor_title">Car Sensor Data:</string>
     <string name="sensor_na">N/A</string>
 
     <string name="sensor_environment">Environment[%1$s]: temperature=%2$s</string>
@@ -203,12 +205,6 @@
     <string name="sensor_rpm">RPM[%1$s]: rpm=%2$s</string>
     <string name="sensor_speed">Speed[%1$s]: speed=%2$s</string>
     <string name="sensor_ignition_status">Ignition status[%1$s]: status=%2$s</string>
-    <string name="sensor_compass">Compass[%1$s]: bear=%2$s, pitch=%3$s, roll=%4$s</string>
-    <string name="sensor_accelerometer">Accelerometer[%1$s]: x=%2$s, y=%3$s, z=%4$s</string>
-    <string name="sensor_gyroscope">Gyroscope[%1$s]: x=%2$s, y=%3$s, z=%4$s</string>
-    <string name="sensor_location">Location[%1$s]: lat=%2$s, lon=%3$s, accuracy=%4$s, altitude=%5$s, speed=%6$s, bearing=%7$s</string>
-    <string name="sensor_gps">GPS Satellites[%1$s]: inView: %2$s, inUse: %3$s. %4$s</string>
-    <string name="sensor_single_gps_satellite">(%1$s): usedInFix: %2$s, prn: %3$s, snr: %4$s, azimuth: %5$s, elevation: %6$s</string>
     <string name="sensor_wheel_ticks">Wheel Distance[%1$s]: reset=%2$s, FL=%3$s, FR=%4$s, RL=%5$s, RR=%6$s</string>
     <string name="sensor_wheel_ticks_cfg">Wheel Distance Config: Wheels=%1$s, FL=%2$s, FR=%3$s, RL=%4$s, RR=%5$s</string>
     <string name="sensor_abs_is_active">ABS[%1$s]: isActive=%2$s</string>
