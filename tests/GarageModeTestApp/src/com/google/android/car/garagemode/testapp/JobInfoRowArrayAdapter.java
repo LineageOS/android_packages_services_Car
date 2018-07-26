@@ -16,10 +16,14 @@
 package com.google.android.car.garagemode.testapp;
 
 import static android.graphics.Typeface.BOLD;
+import static android.net.NetworkCapabilities.NET_CAPABILITY_NOT_METERED;
+import static android.net.NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING;
+import static android.net.NetworkCapabilities.TRANSPORT_CELLULAR;
 
 import android.app.job.JobInfo;
 import android.content.Context;
 import android.graphics.Color;
+import android.net.NetworkRequest;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -89,7 +93,7 @@ public class JobInfoRowArrayAdapter extends ArrayAdapter<JobInfo> {
 
         holder.mJobIDView.setText("ID: " + info.getId());
 
-        setColoredText(holder.mRequiredNetworkView, "Network", info.getRequiredNetwork() == null);
+        setNetworkColoredText(holder.mRequiredNetworkView, "Network", info.getRequiredNetwork());
 
         setColoredText(holder.mIsPeriodicView, "Periodic", info.isPeriodic());
         setColoredText(holder.mIsPersistedView, "Persisted", info.isPersisted());
@@ -111,31 +115,38 @@ public class JobInfoRowArrayAdapter extends ArrayAdapter<JobInfo> {
 
     private void setColoredText(TextView view, String label, boolean condition) {
         SpannableStringBuilder sb;
-        if (!condition) {
-            sb = new SpannableStringBuilder(label + ": No");
-            sb.setSpan(
-                    new ForegroundColorSpan(Color.RED),
-                    label.length() + 2,
-                    label.length() + 4,
-                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-            sb.setSpan(
-                    new StyleSpan(BOLD),
-                    label.length() + 2,
-                    label.length() + 4,
-                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-        } else {
-            sb = new SpannableStringBuilder(label + ": Yes");
-            sb.setSpan(
-                    new ForegroundColorSpan(Color.GREEN),
-                    label.length() + 2,
-                    label.length() + 5,
-                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-            sb.setSpan(
-                    new StyleSpan(BOLD),
-                    label.length() + 2,
-                    label.length() + 5,
-                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-        }
+        String value = (condition ? "Yes" : "No");
+        int color = (condition ? Color.GREEN : Color.RED);
+        sb = new SpannableStringBuilder(label + ": " + value);
+        applyColorAndBoldness(
+                sb, color, label.length() + 2, label.length() + 2 + value.length());
         view.setText(sb);
+    }
+
+    private void setNetworkColoredText(TextView view, String label, NetworkRequest networkReq) {
+        String networkType = getNetworkType(networkReq);
+        SpannableStringBuilder sb = new SpannableStringBuilder(label + ": " + networkType);
+        applyColorAndBoldness(
+                sb, Color.GREEN, label.length() + 2, label.length() + 2 + networkType.length());
+        view.setText(sb);
+    }
+
+    private void applyColorAndBoldness(SpannableStringBuilder sb, int color, int start, int end) {
+        sb.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(new StyleSpan(BOLD), start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+    }
+
+    private String getNetworkType(NetworkRequest networkRequest) {
+        if (networkRequest == null) {
+            return "None";
+        } else if (networkRequest.networkCapabilities.hasCapability(NET_CAPABILITY_NOT_METERED)) {
+            return "Unmetered";
+        } else if (networkRequest.networkCapabilities.hasCapability(NET_CAPABILITY_NOT_ROAMING)) {
+            return "Not roaming";
+        } else if (networkRequest.networkCapabilities.hasTransport(TRANSPORT_CELLULAR)) {
+            return "Cellular";
+        } else {
+            return "Any";
+        }
     }
 }
