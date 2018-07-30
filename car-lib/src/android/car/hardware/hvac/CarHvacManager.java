@@ -54,10 +54,6 @@ public final class CarHvacManager implements CarManagerBase {
      * HVAC property IDs for get/set methods
      */
     /**
-     * Global HVAC properties.  There is only a single instance in a car.
-     * Global properties are in the range of 0-0x3FFF.
-     */
-    /**
      * Mirror defrosters state, bool type
      * true indicates mirror defroster is on
      */
@@ -80,10 +76,6 @@ public final class CarHvacManager implements CarManagerBase {
      */
     public static final int ID_TEMPERATURE_DISPLAY_UNITS = 0x1140050e;
 
-    /**
-     * ID_ZONED_* represents properties available on a per-zone basis.  All zones in a car are
-     * not required to have the same properties.  Zone specific properties start at 0x4000.
-     */
     /**
      * Temperature setpoint, float type
      * Temperature set by the user, units are in degrees Celsius.
