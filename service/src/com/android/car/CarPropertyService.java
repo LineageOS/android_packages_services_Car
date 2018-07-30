@@ -137,6 +137,13 @@ public class CarPropertyService extends ICarProperty.Stub
 
     @Override
     public void init() {
+        if (mConfigs == null) {
+            // Cache the configs list to avoid subsequent binder calls
+            mConfigs = mHal.getPropertyList();
+            if (DBG) {
+                Log.d(TAG, "cache CarPropertyConfigs " + mConfigs.size());
+            }
+        }
     }
 
     @Override
@@ -158,9 +165,6 @@ public class CarPropertyService extends ICarProperty.Stub
     public void registerListener(int propId, float rate, ICarPropertyEventListener listener) {
         if (DBG) {
             Log.d(TAG, "registerListener: propId=0x" + toHexString(propId) + " rate=" + rate);
-        }
-        if (mConfigs == null) {
-            mConfigs = mHal.getPropertyList();
         }
         if (mConfigs.get(propId) == null) {
             // Do not attempt to register an invalid propId
@@ -285,15 +289,10 @@ public class CarPropertyService extends ICarProperty.Stub
 
     /**
      * Return the list of properties that the caller may access.
-     * Should be called before get/setProperty().
      */
     @Override
     public List<CarPropertyConfig> getPropertyList() {
         List<CarPropertyConfig> returnList = new ArrayList<CarPropertyConfig>();
-        if (mConfigs == null) {
-            // Cache the configs list to avoid subsequent binder calls
-            mConfigs = mHal.getPropertyList();
-        }
         for (CarPropertyConfig c : mConfigs.values()) {
             if (ICarImpl.hasPermission(mContext, mHal.getReadPermission(c.getPropertyId()))) {
                 // Only add properties the list if the process has permissions to read it
