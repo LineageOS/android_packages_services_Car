@@ -22,14 +22,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.UserInfo;
 import android.location.LocationManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 
 import com.android.car.CarServiceBase;
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 
@@ -42,9 +40,6 @@ import java.io.PrintWriter;
  * <ol/>
  */
 public class CarUserService extends BroadcastReceiver implements CarServiceBase {
-    // Place holder for user name of the first user created.
-    @VisibleForTesting
-    static final String OWNER_NAME = "Driver";
     private static final String TAG = "CarUserService";
     private final Context mContext;
     private final CarUserManagerHelper mCarUserManagerHelper;
@@ -94,13 +89,6 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
             if (mCarUserManagerHelper.getAllUsers().size() == 0) {
                 setSystemUserRestrictions();
                 mCarUserManagerHelper.initDefaultGuestRestrictions();
-                // On very first boot, create an admin user and switch to that user.
-                UserInfo admin = mCarUserManagerHelper.createNewAdminUser(OWNER_NAME);
-                mCarUserManagerHelper.switchToUser(admin);
-                mCarUserManagerHelper.setLastActiveUser(
-                        admin.id, /* skipGlobalSettings= */ false);
-            } else {
-                mCarUserManagerHelper.switchToUserId(mCarUserManagerHelper.getInitialUser());
             }
         } else if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
             // Update last active user if the switched-to user is a persistent, non-system user.
