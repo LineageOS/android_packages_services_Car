@@ -203,6 +203,9 @@ public class VmsSubscriberService extends IVmsSubscriberService.Stub
     @Override
     public void init() {
         mHal.addSubscriberListener(this);
+
+        // Signal to subscribers that the SubscriberService is ready.
+        mHal.signalSubscriberServiceIsReady();
     }
 
     @Override

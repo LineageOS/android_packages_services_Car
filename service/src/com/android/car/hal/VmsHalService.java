@@ -117,8 +117,24 @@ public class VmsHalService extends HalServiceBase {
     protected VmsHalService(VehicleHal vehicleHal) {
         mVehicleHal = vehicleHal;
         if (DBG) {
-            Log.d(TAG, "started VmsHalService!");
+            Log.d(TAG, "Started VmsHalService!");
         }
+    }
+
+    /**
+     * VMS subscribers should wait for a layers availability message which indicates
+     * the subscriber service is ready to handle subscription requests.
+     */
+    public void signalSubscriberServiceIsReady() {
+        notifyOfAvailabilityChange();
+    }
+
+    /**
+     * VMS publishers should wait for a subscription state message which indicates
+     * the publisher service is ready to handle offerings and publishing.
+     */
+    public void signalPublisherServiceIsReady() {
+        notifyOfSubscriptionChange();
     }
 
     public void addPublisherListener(VmsHalPublisherListener listener) {
@@ -151,7 +167,7 @@ public class VmsHalService extends HalServiceBase {
         }
         if (firstSubscriptionForLayer) {
             notifyHalPublishers(layer, true);
-            notifyClientPublishers();
+            notifyOfSubscriptionChange();
         }
     }
 
@@ -173,7 +189,7 @@ public class VmsHalService extends HalServiceBase {
         }
         if (!layerHasSubscribers) {
             notifyHalPublishers(layer, false);
-            notifyClientPublishers();
+            notifyOfSubscriptionChange();
         }
     }
 
@@ -201,7 +217,7 @@ public class VmsHalService extends HalServiceBase {
         }
         if (firstSubscriptionForLayer) {
             notifyHalPublishers(layer, true);
-            notifyClientPublishers();
+            notifyOfSubscriptionChange();
         }
     }
 
@@ -223,7 +239,7 @@ public class VmsHalService extends HalServiceBase {
         }
         if (!layerHasSubscribers) {
             notifyHalPublishers(layer, false);
-            notifyClientPublishers();
+            notifyOfSubscriptionChange();
         }
     }
 
@@ -293,7 +309,7 @@ public class VmsHalService extends HalServiceBase {
         }
         if (firstSubscriptionForLayer) {
             notifyHalPublishers(layer, true);
-            notifyClientPublishers();
+            notifyOfSubscriptionChange();
         }
     }
 
@@ -309,7 +325,7 @@ public class VmsHalService extends HalServiceBase {
         }
         if (firstSubscriptionForLayer) {
             notifyHalPublishers(layer, publisherId, true);
-            notifyClientPublishers();
+            notifyOfSubscriptionChange();
         }
     }
 
@@ -329,7 +345,7 @@ public class VmsHalService extends HalServiceBase {
         }
         if (!layerHasSubscribers) {
             notifyHalPublishers(layer, false);
-            notifyClientPublishers();
+            notifyOfSubscriptionChange();
         }
     }
 
@@ -350,7 +366,7 @@ public class VmsHalService extends HalServiceBase {
         }
         if (!layerHasSubscribers) {
             notifyHalPublishers(layer, publisherId, false);
-            notifyClientPublishers();
+            notifyOfSubscriptionChange();
         }
     }
 
@@ -390,7 +406,11 @@ public class VmsHalService extends HalServiceBase {
         setSubscriptionToPublisherRequest(layer, publisherId, hasSubscribers);
     }
 
-    private void notifyClientPublishers() {
+    private void notifyOfSubscriptionChange() {
+        if (DBG) {
+            Log.d(TAG, "Notifying publishers on subscriptions");
+        }
+
         // Notify the App publishers
         for (VmsHalPublisherListener listener : mPublisherListeners) {
             // Besides the list of layers, also a timestamp is provided to the clients.
@@ -405,7 +425,16 @@ public class VmsHalService extends HalServiceBase {
      *
      * @param availableLayers the layers which publishers claim they made publish.
      */
-    private void notifyOfAvailabilityChange(VmsAvailableLayers availableLayers) {
+    private void notifyOfAvailabilityChange() {
+        if (DBG) {
+            Log.d(TAG, "Notifying subscribers on layers availability");
+        }
+
+        VmsAvailableLayers availableLayers;
+        synchronized (mLock) {
+            availableLayers = mAvailableLayers.getAvailableLayers();
+        }
+
         // notify the HAL
         notifyAvailabilityChangeToHal(availableLayers);
 
@@ -727,16 +756,13 @@ public class VmsHalService extends HalServiceBase {
     }
 
     private void updateOffering(IBinder publisherToken, VmsLayersOffering offering) {
-        VmsAvailableLayers availableLayers;
         synchronized (mLock) {
             mOfferings.put(publisherToken, offering);
 
             // Update layers availability.
             mAvailableLayers.setPublishersOffering(mOfferings.values());
-
-            availableLayers = mAvailableLayers.getAvailableLayers();
         }
-        notifyOfAvailabilityChange(availableLayers);
+        notifyOfAvailabilityChange();
     }
 
     @Override

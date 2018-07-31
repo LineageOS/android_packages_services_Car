@@ -105,6 +105,8 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
             mContext.registerReceiver(mBootCompleteReceiver,
                     new IntentFilter(Intent.ACTION_LOCKED_BOOT_COMPLETED));
         }
+        // Signal to publishers that the PublisherService is ready.
+        mHal.signalPublisherServiceIsReady();
     }
 
     private void bindToAllPublishers() {
