@@ -53,6 +53,7 @@ PRODUCT_PACKAGES += \
     libwebrtc_audio_preprocessing \
     wifi-service \
     A2dpSinkService \
+    PackageInstaller
 
 # EVS resources
 PRODUCT_PACKAGES += android.automotive.evs.manager@1.0
