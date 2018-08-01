@@ -18,12 +18,9 @@ package com.android.car.garagemode;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.settings.CarSettings;
-import android.car.settings.GarageModeSettingsObserver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.support.test.filters.SmallTest;
@@ -48,7 +45,6 @@ public class GarageModeServiceTest {
     @Mock private Context mMockContext;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
     @Mock private Controller mMockController;
-    @Mock private GarageModeSettingsObserver mMockGarageModeSettingsObserver;
     @Mock private ContentResolver mMockContentResolver;
     @Mock private PrintWriter mMockPrintWriter;
     @Captor private ArgumentCaptor<String> mCaptorString;
@@ -62,35 +58,28 @@ public class GarageModeServiceTest {
         mService = new GarageModeService(
                 mMockContext,
                 mMockCarPowerManagementService,
-                mMockController,
-                mMockGarageModeSettingsObserver);
+                mMockController);
     }
 
     @Test
     public void testInit_shouldSucceed() {
         mService.init();
         verify(mMockController).start();
-        verify(mMockGarageModeSettingsObserver).register();
-        verify(mMockController)
-                .setMaintenanceTimeout(CarSettings.DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW);
     }
 
     @Test
     public void testRelease_shouldSucceed() {
         mService.release();
         verify(mMockController).stop();
-        verify(mMockGarageModeSettingsObserver).unregister();
     }
 
     @Test
     public void testDump_shouldSucceed() {
-        when(mMockController.isGarageModeEnabled()).thenReturn(true);
-        when(mMockController.getMaintenanceTimeout()).thenReturn(100);
+        when(mMockController.isGarageModeActive()).thenReturn(true);
 
         mService.dump(mMockPrintWriter);
-        verify(mMockPrintWriter, times(2)).println(mCaptorString.capture());
+        verify(mMockPrintWriter).println(mCaptorString.capture());
         List<String> strings = mCaptorString.getAllValues();
-        assertThat(strings.get(0)).isEqualTo("GarageModeEnabled true");
-        assertThat(strings.get(1)).isEqualTo("GarageModeTimeWindow 100 ms");
+        assertThat(strings.get(0)).isEqualTo("GarageModeInProgress true");
     }
 }

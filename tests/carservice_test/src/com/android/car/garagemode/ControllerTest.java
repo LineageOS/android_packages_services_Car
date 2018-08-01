@@ -16,18 +16,25 @@
 
 package com.android.car.garagemode;
 
+import static com.android.car.garagemode.GarageMode.ACTION_GARAGE_MODE_OFF;
+import static com.android.car.garagemode.GarageMode.ACTION_GARAGE_MODE_ON;
+import static com.android.car.garagemode.GarageMode.JOB_SNAPSHOT_INITIAL_UPDATE_MS;
+
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.android.car.CarPowerManagementService;
-import com.android.car.garagemode.Controller.CommandHandler;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,9 +50,8 @@ public class ControllerTest {
     @Mock private Context mContextMock;
     @Mock private CarPowerManagementService mCarPowerManagementServiceMock;
     @Mock private Looper mLooperMock;
-    @Mock private DeviceIdleControllerWrapper mDeviceIdleControllerWrapperMock;
-    @Mock private CommandHandler mCommandHandlerMock;
-    @Captor private ArgumentCaptor<Message> mMessageCaptor;
+    @Mock private Handler mHandlerMock;
+    @Captor private ArgumentCaptor<Intent> mIntentCaptor;
 
     private Controller mController;
     private WakeupPolicy mWakeupPolicy;
@@ -53,7 +59,6 @@ public class ControllerTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-
         mWakeupPolicy = new WakeupPolicy(new String[] {
                 "15m,1",
                 "6h,8",
@@ -64,56 +69,68 @@ public class ControllerTest {
                 mCarPowerManagementServiceMock,
                 mLooperMock,
                 mWakeupPolicy,
-                mCommandHandlerMock,
-                mDeviceIdleControllerWrapperMock);
-        // We need to enable GarageMode, before testing
-        mController.enableGarageMode();
+                mHandlerMock,
+                null);
     }
 
     @Test
     public void testOnPrepareShutdown_shouldInitiateGarageMode() {
         assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(0);
 
+        // Shutting down the car
         mController.onPrepareShutdown(true);
 
-        assertThat(mController.isGarageModeInProgress()).isTrue();
+        assertThat(mController.isGarageModeActive()).isTrue();
         assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(1);
 
-        verify(mCommandHandlerMock).sendMessageDelayed(null, mController.getMaintenanceTimeout());
-    }
+        // Verify that worker that polls running jobs from JobScheduler is scheduled.
+        verify(mHandlerMock).postDelayed(any(), eq(JOB_SNAPSHOT_INITIAL_UPDATE_MS));
 
-    @Test
-    public void testInitiateGarageMode_garageModeDisabled_shouldSkip() {
-        assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(0);
+        // Verify that GarageMode is sending the proper broadcast to JobScheduler to go idle
+        verify(mContextMock).sendBroadcast(mIntentCaptor.capture());
 
-        mController.disableGarageMode();
-        mController.initiateGarageMode();
-        assertThat(mController.isGarageModeInProgress()).isFalse();
-        assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(0);
-    }
-
-    @Test
-    public void testOnPrepareShutdown_garageModeDisabled_shouldSkip() {
-        mController.disableGarageMode();
-        assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(0);
-
-        mController.onPrepareShutdown(true);
-
-        // Verify that no intervals were taken from policy
-        assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(0);
-        assertThat(mController.isGarageModeInProgress()).isFalse();
+        Intent i = mIntentCaptor.getValue();
+        // Verify that broadcasting signal is correct
+        assertThat(i.getAction()).isEqualTo(ACTION_GARAGE_MODE_ON);
+        // Verify that additional critical flags are bundled as well
+        final int flags = Intent.FLAG_RECEIVER_REGISTERED_ONLY | Intent.FLAG_RECEIVER_NO_ABORT;
+        final boolean areRequiredFlagsSet = ((flags & i.getFlags()) == flags);
+        assertThat(areRequiredFlagsSet).isTrue();
     }
 
     @Test
     public void testOnPowerOn_shouldResetGarageMode() {
         assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(0);
+        // Shutting down the car
         mController.onPrepareShutdown(true);
         assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(1);
-        assertThat(mController.isGarageModeInProgress()).isTrue();
+        assertThat(mController.isGarageModeActive()).isTrue();
+        verify(mHandlerMock).postDelayed(any(), eq(JOB_SNAPSHOT_INITIAL_UPDATE_MS));
 
+        // Turning on the car
         mController.onPowerOn(true);
         assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(0);
-        assertThat(mController.isGarageModeInProgress()).isFalse();
+        assertThat(mController.isGarageModeActive()).isFalse();
+        // Verify that CPMS is notified that GarageMode is completed
+        verify(mCarPowerManagementServiceMock)
+                .notifyPowerEventProcessingCompletion(eq(mController));
+
+        // Verify that GarageMode is sending the proper broadcast to JobScheduler to get out of idle
+        verify(mContextMock, times(2)).sendBroadcast(mIntentCaptor.capture());
+
+        Intent onIntent = mIntentCaptor.getAllValues().get(0);
+        Intent offIntent = mIntentCaptor.getAllValues().get(1);
+
+        // Verify that broadcasting signals are correct
+        assertThat(onIntent.getAction()).isEqualTo(ACTION_GARAGE_MODE_ON);
+        assertThat(offIntent.getAction()).isEqualTo(ACTION_GARAGE_MODE_OFF);
+
+        // Verify that additional critical flags are bundled as well
+        final int flags = Intent.FLAG_RECEIVER_REGISTERED_ONLY | Intent.FLAG_RECEIVER_NO_ABORT;
+        boolean areRequiredFlagsSet = ((flags & onIntent.getFlags()) == flags);
+        assertThat(areRequiredFlagsSet).isTrue();
+        areRequiredFlagsSet = ((flags & offIntent.getFlags()) == flags);
+        assertThat(areRequiredFlagsSet).isTrue();
     }
 
     @Test
@@ -121,13 +138,13 @@ public class ControllerTest {
         assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(0);
         mController.onPrepareShutdown(true);
         assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(1);
-        assertThat(mController.isGarageModeInProgress()).isTrue();
+        assertThat(mController.isGarageModeActive()).isTrue();
         assertThat(mController.getWakeupTime()).isEqualTo(15 * 60);
         mController.onSleepEntry();
-        assertThat(mController.isGarageModeInProgress()).isFalse();
+        assertThat(mController.isGarageModeActive()).isFalse();
         mController.onPrepareShutdown(true);
         assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(2);
-        assertThat(mController.isGarageModeInProgress()).isTrue();
+        assertThat(mController.isGarageModeActive()).isTrue();
         assertThat(mController.getWakeupTime()).isEqualTo(6 * 60 * 60);
         for (int i = 0; i < 8; i++) {
             mController.onSleepEntry();
