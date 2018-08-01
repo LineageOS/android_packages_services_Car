@@ -321,7 +321,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
 
         @Override
         protected void populateViewHolder(DrawerItemViewHolder holder, int position) {
-            holder.getTitle().setText(mMenuEntries.get(position).getText());
+            holder.getTitleView().setText(mMenuEntries.get(position).getText());
         }
 
         @Override
