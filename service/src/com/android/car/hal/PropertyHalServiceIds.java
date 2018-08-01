@@ -258,6 +258,9 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.PERF_VEHICLE_SPEED, new Pair<>(
                 Car.PERMISSION_SPEED,
                 Car.PERMISSION_SPEED));
+        mProps.put(VehicleProperty.PERF_VEHICLE_SPEED_DISPLAY, new Pair<>(
+                Car.PERMISSION_SPEED,
+                Car.PERMISSION_SPEED));
         mProps.put(VehicleProperty.ENGINE_COOLANT_TEMP, new Pair<>(
                 Car.PERMISSION_CAR_ENGINE_DETAILED,
                 Car.PERMISSION_CAR_ENGINE_DETAILED));
