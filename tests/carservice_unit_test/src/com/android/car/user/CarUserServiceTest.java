@@ -40,7 +40,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class contains unit tests for the {@link CarUserService}.
@@ -107,20 +106,6 @@ public class CarUserServiceTest {
     }
 
     /**
-     * Test that the {@link CarUserService} starts up a secondary admin user upon first run.
-     */
-    @Test
-    public void testStartsSecondaryAdminUserOnFirstRun() {
-        UserInfo admin = mockAdmin(/* adminId= */ 10);
-
-        mCarUserService.onReceive(mMockContext,
-                new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
-
-        verify(mCarUserManagerHelper).createNewAdminUser(CarUserService.OWNER_NAME);
-        verify(mCarUserManagerHelper).switchToUser(admin);
-    }
-
-    /**
      * Test that the {@link CarUserService} disable modify account for user 0 upon first run.
      */
     @Test
@@ -151,47 +136,6 @@ public class CarUserServiceTest {
 
         verify(mLocationManager).setLocationEnabledForUser(
                 /* enabled= */ false, UserHandle.of(UserHandle.USER_SYSTEM));
-    }
-
-    /**
-     * Test that the {@link CarUserService} updates last active user to the first admin user
-     * on first run.
-     */
-    @Test
-    public void testUpdateLastActiveUserOnFirstRun() {
-        UserInfo admin = mockAdmin(/* adminId= */ 10);
-
-        mCarUserService.onReceive(mMockContext,
-                new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
-
-        verify(mCarUserManagerHelper)
-                .setLastActiveUser(admin.id, /* skipGlobalSetting= */ false);
-    }
-
-    /**
-     * Test that the {@link CarUserService} starts up the last active user on reboot.
-     */
-    @Test
-    public void testStartsLastActiveUserOnReboot() {
-        List<UserInfo> users = new ArrayList<>();
-
-        int adminUserId = 10;
-        UserInfo admin = new UserInfo(adminUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
-
-        int secUserId = 11;
-        UserInfo secUser =
-                new UserInfo(secUserId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
-
-        users.add(admin);
-        users.add(secUser);
-
-        doReturn(users).when(mCarUserManagerHelper).getAllUsers();
-        doReturn(secUserId).when(mCarUserManagerHelper).getInitialUser();
-
-        mCarUserService.onReceive(mMockContext,
-                new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
-
-        verify(mCarUserManagerHelper).switchToUserId(secUserId);
     }
 
     /**
@@ -226,8 +170,9 @@ public class CarUserServiceTest {
     }
 
     private UserInfo mockAdmin(int adminId) {
-        UserInfo admin = new UserInfo(adminId, CarUserService.OWNER_NAME, UserInfo.FLAG_ADMIN);
-        doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser(CarUserService.OWNER_NAME);
+        String adminName = "driver";
+        UserInfo admin = new UserInfo(adminId, adminName, UserInfo.FLAG_ADMIN);
+        doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser(adminName);
         return admin;
     }
 }
