@@ -36,19 +36,19 @@ public class OffcarTestingFragment extends Fragment implements AdapterView.OnIte
 
     private String mNetworkRequirement;
     private int mJobDurationSelected;
-    private int mGarageModeDurationSelected;
 
     private CheckBox mRequirePersisted;
     private CheckBox mRequireIdleness;
     private CheckBox mRequireCharging;
 
-    private Spinner mGarageModeDurationSpinner;
     private Spinner mJobDurationSpinner;
     private Spinner mNetworkTypeSpinner;
 
     private TextView mWatchdogTextView;
     private ListView mJobsListView;
 
+    private Button mEnterGarageModeBtn;
+    private Button mExitGarageModeBtn;
     private Button mAddJobBtn;
 
     private Watchdog mWatchdog;
@@ -64,20 +64,8 @@ public class OffcarTestingFragment extends Fragment implements AdapterView.OnIte
 
         populateNetworkTypeSpinner();
         populateJobDurationSpinner();
-        populateGarageModeSpinner();
 
-        mAddJobBtn.setOnClickListener(view -> {
-            LOG.d("Adding a job...");
-            if (mJobSchedulerWrapper == null) {
-                LOG.e("JobSchedulerWrapper is not initialized yet. Try again later.");
-                return;
-            }
-            mJobSchedulerWrapper.scheduleAJob(
-                    mJobDurationSelected,
-                    parseNetworkRequirement(),
-                    mRequireCharging.isChecked(),
-                    mRequireIdleness.isChecked());
-        });
+        defineButtonActions();
 
         return v;
     }
@@ -91,9 +79,6 @@ public class OffcarTestingFragment extends Fragment implements AdapterView.OnIte
                 break;
             case R.id.jobDuration:
                 applyJobDuration(value);
-                break;
-            case R.id.garageModeDuration:
-                applyGarageModeDuration(value);
                 break;
         }
     }
@@ -132,26 +117,50 @@ public class OffcarTestingFragment extends Fragment implements AdapterView.OnIte
         mRequireIdleness = v.findViewById(R.id.requireIdlenessCheckbox);
         mRequireCharging = v.findViewById(R.id.requireChargingCheckbox);
 
-        mGarageModeDurationSpinner = v.findViewById(R.id.garageModeDuration);
         mJobDurationSpinner = v.findViewById(R.id.jobDuration);
         mNetworkTypeSpinner = v.findViewById(R.id.networkType);
 
         mWatchdogTextView = v.findViewById(R.id.garageModeWatchdog);
         mJobsListView = v.findViewById(R.id.jobsListView);
 
+        mEnterGarageModeBtn = v.findViewById(R.id.enterGarageModeBtn);
+        mExitGarageModeBtn = v.findViewById(R.id.exitGarageModeBtn);
         mAddJobBtn = v.findViewById(R.id.addJobBtn);
     }
 
-    private void applyGarageModeDuration(String value) {
-        String metric = value.split(" ")[1];
-        mGarageModeDurationSelected = Integer.parseInt(value.split(" ")[0]);
-        if (metric.startsWith("minute")) {
-            mGarageModeDurationSelected *= 60;
+    private void defineButtonActions() {
+        mEnterGarageModeBtn.setOnClickListener(view -> onEnterGarageModeBtnClick());
+        mExitGarageModeBtn.setOnClickListener(view -> onExitGarageModeBtnClick());
+        mAddJobBtn.setOnClickListener(view -> onAddJobBtnClick());
+    }
+
+    private void onEnterGarageModeBtnClick() {
+        LOG.d("Entering garage mode...");
+        CarIdlenessTrackerWrapper.sendBroadcastToEnterGarageMode(getContext());
+        if (mWatchdog != null) {
+            mWatchdog.logEvent("Entering garage mode...");
         }
-        if (metric.startsWith("hour")) {
-            mGarageModeDurationSelected *= 3600;
+    }
+
+    private void onExitGarageModeBtnClick() {
+        LOG.d("Exiting garage mode...");
+        CarIdlenessTrackerWrapper.sendBroadcastToExitGarageMode(getContext());
+        if (mWatchdog != null) {
+            mWatchdog.logEvent("Exiting garage mode...");
         }
-        mWatchdog.logEvent("GarageMode duration is now: " + mGarageModeDurationSelected + "s");
+    }
+
+    private void onAddJobBtnClick() {
+        LOG.d("Adding a job...");
+        if (mJobSchedulerWrapper == null) {
+            LOG.e("JobSchedulerWrapper is not initialized yet. Try again later.");
+            return;
+        }
+        mJobSchedulerWrapper.scheduleAJob(
+                mJobDurationSelected,
+                parseNetworkRequirement(),
+                mRequireCharging.isChecked(),
+                mRequireIdleness.isChecked());
     }
 
     private void applyJobDuration(String value) {
@@ -182,15 +191,6 @@ public class OffcarTestingFragment extends Fragment implements AdapterView.OnIte
             return JobInfo.NETWORK_TYPE_ANY;
         }
         return JobInfo.NETWORK_BYTES_UNKNOWN;
-    }
-
-    private void populateGarageModeSpinner() {
-        populateSpinner(
-                mGarageModeDurationSpinner,
-                ArrayAdapter.createFromResource(
-                        getContext(),
-                        R.array.duration_list,
-                        android.R.layout.simple_spinner_item));
     }
 
     private void populateJobDurationSpinner() {

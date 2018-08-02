@@ -26,7 +26,6 @@
             style="@style/SectionContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:weightSum="2"
             android:orientation="vertical">
             <TextView
                 style="@style/SectionHeader"
@@ -34,34 +33,17 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-                <TextView
-                    style="@style/SpinnerLabel"
-                    android:layout_height="match_parent"
-                    android:text="@string/spinner_label_garage_mode_duration"/>
-                <LinearLayout
-                    style="@style/SectionContainer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent">
-                    <Spinner
-                        style="@style/Spinner"
-                        android:id="@+id/garageModeDuration"/>
-                </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:weightSum="2">
                 <Button
                     style="@style/Button"
+                    android:id="@+id/enterGarageModeBtn"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="@string/button_enter_garage_mode"/>
                 <Button
                     style="@style/Button"
+                    android:id="@+id/exitGarageModeBtn"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -76,13 +58,17 @@
             <TextView
                 style="@style/SectionHeader"
                 android:text="@string/section_header_watchdog"/>
-            <TextView
-                android:id="@+id/garageModeWatchdog"
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:text="@string/no_results"
-                android:scrollbars="vertical"/>
+                android:fillViewport="true">
+                <TextView
+                    android:id="@+id/garageModeWatchdog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:text="@string/no_results"/>
+            </ScrollView>
         </LinearLayout>
     </LinearLayout>
     <LinearLayout
