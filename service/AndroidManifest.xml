@@ -129,6 +129,11 @@
         android:label="@string/car_permission_label_control_car_exterior_lights"
         android:description="@string/car_permission_desc_control_car_exterior_lights" />
     <permission
+        android:name="android.car.permission.CAR_POWER"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_car_power"
+        android:description="@string/car_permission_desc_car_power" />
+    <permission
         android:name="android.car.permission.CAR_POWERTRAIN"
         android:protectionLevel="normal"
         android:label="@string/car_permission_label_car_powertrain"

@@ -202,4 +202,9 @@
     <string name="car_permission_label_car_powertrain">Car Powertrain</string>
     <!-- Permission text: apps read information of car's powertrain [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_powertrain">Access car powertrain information</string>
+
+    <!-- Permission text: apps read information of car's power state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_car_power">Car Power</string>
+    <!-- Permission text: apps read information of car's power state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_car_power">Access car power state</string>
 </resources>
