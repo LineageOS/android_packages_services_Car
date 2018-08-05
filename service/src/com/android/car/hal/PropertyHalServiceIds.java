@@ -319,8 +319,8 @@ public class PropertyHalServiceIds {
                 Car.PERMISSION_EXTERIOR_LIGHTS,
                 Car.PERMISSION_EXTERIOR_LIGHTS));
         mProps.put(VehicleProperty.IGNITION_STATE, new Pair<>(
-                Car.PERMISSION_CAR_POWER,
-                Car.PERMISSION_CAR_POWER));
+                Car.PERMISSION_POWERTRAIN,
+                Car.PERMISSION_POWERTRAIN));
         mProps.put(VehicleProperty.ABS_ACTIVE, new Pair<>(
                 Car.PERMISSION_CAR_DYNAMICS_STATE,
                 Car.PERMISSION_CAR_DYNAMICS_STATE));
