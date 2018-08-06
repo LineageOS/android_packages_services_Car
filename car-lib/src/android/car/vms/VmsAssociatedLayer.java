@@ -16,7 +16,6 @@
 
 package android.car.vms;
 
-import android.car.annotation.FutureFeature;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -27,7 +26,6 @@ import java.util.*;
  *
  * @hide
  */
-@FutureFeature
 public final class VmsAssociatedLayer implements Parcelable {
 
     // The VmsLayer.
@@ -82,20 +80,22 @@ public final class VmsAssociatedLayer implements Parcelable {
     }
 
     @Override
-    public int describeContents() {
-        return 0;
+    public int hashCode() {
+        return Objects.hash(mLayer, mPublisherIds);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(mLayer, mPublisherIds);
+    public int describeContents() {
+        return 0;
     }
 
     private VmsAssociatedLayer(Parcel in) {
         mLayer = in.readParcelable(VmsLayer.class.getClassLoader());
 
+        Object[] objects = in.readArray(Integer.class.getClassLoader());
+        Integer[] integers = Arrays.copyOf(objects, objects.length, Integer[].class);
+
         mPublisherIds = Collections.unmodifiableSet(
-                new HashSet<>(Arrays.asList(
-                        (Integer[]) in.readArray(Integer.class.getClassLoader()))));
+                new HashSet<>(Arrays.asList(integers)));
     }
 }

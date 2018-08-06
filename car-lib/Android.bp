@@ -12,6 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+cc_library {
+    name: "libcarpowermanager",
+
+    aidl: {
+        export_aidl_headers: true,
+        local_include_dirs: [
+            "src",
+        ],
+    },
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wno-unused-parameter",
+    ],
+
+    include_dirs: [
+        "packages/services/Car/car-lib/native/include",
+    ],
+
+    shared_libs: [
+        "libbinder",
+        "liblog",
+        "libutils",
+    ],
+
+    srcs: [
+        "src/android/car/ICar.aidl",
+        "src/android/car/hardware/power/ICarPower.aidl",
+        "src/android/car/hardware/power/ICarPowerStateListener.aidl",
+        "native/CarPowerManager/CarPowerManager.cpp",
+    ],
+}
+
 java_library {
     name: "android.car",
     srcs: [
@@ -24,6 +59,10 @@ java_library {
             "system/bt/binder",
         ],
     },
+    exclude_srcs: [
+        "src/android/car/storagemonitoring/IoStats.aidl",
+        "src/android/car/storagemonitoring/IoStatsEntry.aidl",
+    ],
     product_variables: {
         pdk: {
             enabled: false,

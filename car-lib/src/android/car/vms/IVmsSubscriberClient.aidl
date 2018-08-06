@@ -16,7 +16,7 @@
 
 package android.car.vms;
 
-import android.car.vms.VmsAssociatedLayer;
+import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 
 /**
@@ -28,5 +28,5 @@ oneway interface IVmsSubscriberClient {
      */
     void onVmsMessageReceived(in VmsLayer layer, in byte[] payload) = 0;
 
-    void onLayersAvailabilityChanged(in List<VmsAssociatedLayer> availableLayers) = 1;
+    void onLayersAvailabilityChanged(in VmsAvailableLayers availableLayers) = 1;
 }

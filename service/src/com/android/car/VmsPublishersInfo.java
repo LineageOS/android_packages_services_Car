@@ -16,8 +16,6 @@
 
 package com.android.car;
 
-
-import android.car.annotation.FutureFeature;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -26,7 +24,6 @@ import java.util.Arrays;
 import com.android.internal.annotations.GuardedBy;
 import android.util.Log;
 
-@FutureFeature
 public class VmsPublishersInfo {
     private static final String TAG = "VmsPublishersInfo";
     private static final boolean DBG = true;
@@ -85,6 +82,7 @@ public class VmsPublishersInfo {
         }
     }
 
+    @GuardedBy("mLock")
     private void maybeAddPublisherInfoLocked(InfoWrapper wrappedPublisherInfo) {
         if (!mPublishersIds.containsKey(wrappedPublisherInfo)) {
             // Assign ID to the info
