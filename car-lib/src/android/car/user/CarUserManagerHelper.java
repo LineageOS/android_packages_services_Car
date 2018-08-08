@@ -538,6 +538,13 @@ public class CarUserManagerHelper {
     }
 
     /**
+     * Checks if the foreground user is a demo user.
+     */
+    public boolean isForegroundUserDemo() {
+        return getCurrentForegroundUserInfo().isDemo();
+    }
+
+    /**
      * Checks if the foreground user is ephemeral.
      */
     public boolean isForegroundUserEphemeral() {
@@ -581,6 +588,16 @@ public class CarUserManagerHelper {
      */
     public boolean canForegroundUserAddUsers() {
         return !foregroundUserHasUserRestriction(UserManager.DISALLOW_ADD_USER);
+    }
+
+    /**
+     * Checks if the current process user can modify accounts. Demo and Guest users cannot modify
+     * accounts even if the DISALLOW_MODIFY_ACCOUNTS restriction is not applied.
+     */
+    public boolean canForegroundUserModifyAccounts() {
+        return !foregroundUserHasUserRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS)
+            && !isForegroundUserDemo()
+            && !isForegroundUserGuest();
     }
 
     // Current process user information accessors
