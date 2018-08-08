@@ -604,6 +604,13 @@ public class CarUserManagerHelper {
             && !isForegroundUserGuest();
     }
 
+    /**
+     * Checks if the foreground user can switch to other users.
+     */
+    public boolean canForegroundUserSwitchUsers() {
+        return !foregroundUserHasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
+    }
+
     // Current process user information accessors
 
     /**
@@ -807,6 +814,12 @@ public class CarUserManagerHelper {
         }
 
         if (userInfo.id == getCurrentForegroundUserId()) {
+            if (!canCurrentProcessSwitchUsers()) {
+                // If we can't switch to a different user, we can't exit this one and therefore
+                // can't delete it.
+                Log.w(TAG, "User switching is not allowed. Current user cannot be deleted");
+                return false;
+            }
             startNewGuestSession(guestUserName);
         }
 
@@ -838,6 +851,12 @@ public class CarUserManagerHelper {
             // System User doesn't associate with real person, can not be switched to.
             return false;
         }
+        if (!canCurrentProcessSwitchUsers()) {
+            return false;
+        }
+        if (id == getCurrentForegroundUserId()) {
+            return false;
+        }
         return mActivityManager.switchUser(id);
     }
 
@@ -848,10 +867,6 @@ public class CarUserManagerHelper {
      * @return {@code true} if user switching succeed.
      */
     public boolean switchToUser(UserInfo userInfo) {
-        if (userInfo.id == getCurrentForegroundUserId()) {
-            return false;
-        }
-
         return switchToUserId(userInfo.id);
     }
 
