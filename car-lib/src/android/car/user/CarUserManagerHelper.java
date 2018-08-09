@@ -57,6 +57,10 @@ import java.util.Set;
 public class CarUserManagerHelper {
     private static final String TAG = "CarUserManagerHelper";
     private static final String HEADLESS_SYSTEM_USER = "android.car.systemuser.headless";
+
+    // Place holder for user name of the first user created.
+    public static final String DEFAULT_FIRST_ADMIN_NAME = "Driver";
+
     /**
      * Default set of restrictions for Non-Admin users.
      */
@@ -791,10 +795,9 @@ public class CarUserManagerHelper {
             return false;
         }
 
-        // Not allow to delete the last admin user on the device for now.
+        // Try to create a new admin before deleting the current one.
         if (userInfo.isAdmin() && getAllAdminUsers().size() <= 1) {
-            Log.w(TAG, "User " + userInfo.id + " is the last admin user on device.");
-            return false;
+            return removeLastAdmin(userInfo);
         }
 
         if (!isCurrentProcessAdminUser() && !isCurrentProcessUser(userInfo)) {
@@ -807,6 +810,20 @@ public class CarUserManagerHelper {
             startNewGuestSession(guestUserName);
         }
 
+        return mUserManager.removeUser(userInfo.id);
+    }
+
+    private boolean removeLastAdmin(UserInfo userInfo) {
+        Log.i(TAG, "User " + userInfo.id
+                + " is the last admin user on device. Creating a new admin.");
+
+        UserInfo newAdmin = createNewAdminUser(DEFAULT_FIRST_ADMIN_NAME);
+        if (newAdmin == null) {
+            Log.w(TAG, "Couldn't create another admin, cannot delete current user.");
+            return false;
+        }
+
+        switchToUser(newAdmin);
         return mUserManager.removeUser(userInfo.id);
     }
 
