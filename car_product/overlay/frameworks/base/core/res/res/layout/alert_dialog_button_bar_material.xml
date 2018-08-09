@@ -26,9 +26,9 @@
     <com.android.internal.widget.ButtonBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/car_keyline_1"
-        android:layout_marginEnd="@dimen/car_keyline_1"
-        android:layout_marginTop="@dimen/car_padding_2"
+        android:paddingStart="@dimen/car_keyline_1"
+        android:paddingEnd="@dimen/car_keyline_1"
+        android:paddingTop="@dimen/car_padding_2"
         android:layoutDirection="locale"
         android:orientation="horizontal"
         android:gravity="center_vertical">
