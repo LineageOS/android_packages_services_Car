@@ -25,6 +25,8 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.V2_0.VmsAvailabilityStateIntegerValuesIndex;
+import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsSubscriptionsStateIntegerValuesIndex;
@@ -66,9 +68,9 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
 
     @Override
     public void setUp() throws Exception {
+        mHalHandlerSemaphore = new Semaphore(0);
         super.setUp();
         mHal = getMockedVehicleHal();
-        mHalHandlerSemaphore = new Semaphore(0);
     }
 
     @Test
@@ -99,19 +101,30 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
      * responds with the same layers.
      */
     private void subscriptionTestLogic(List<VmsLayer> layers) throws Exception {
+        // Wait for availability change message that signals the service is ready.
+        assertTrue(mHalHandlerSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+        // Validate response.
+        ArrayList<Integer> v = mHalHandler.getValues();
+        int messageType = v.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
+        int sequenceNumber = v.get(VmsAvailabilityStateIntegerValuesIndex.SEQUENCE_NUMBER);
+        assertEquals(VmsMessageType.AVAILABILITY_CHANGE, messageType);
+        assertEquals(0, sequenceNumber);
+
         for (VmsLayer layer : layers) {
             subscribeViaHal(layer);
         }
         // Send subscription request.
         mHal.injectEvent(createHalSubscriptionRequest());
-        // Wait for response.
+
+        // Wait for subscription response
         assertTrue(mHalHandlerSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
+
         // Validate response.
-        ArrayList<Integer> v = mHalHandler.getValues();
-        int messageType = v.get(VmsSubscriptionsStateIntegerValuesIndex.MESSAGE_TYPE);
-        int sequenceNumber = v.get(VmsSubscriptionsStateIntegerValuesIndex.SEQUENCE_NUMBER);
-        int numberLayers = v.get(VmsSubscriptionsStateIntegerValuesIndex.NUMBER_OF_LAYERS);
+        v = mHalHandler.getValues();
+        messageType = v.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
         assertEquals(VmsMessageType.SUBSCRIPTIONS_RESPONSE, messageType);
+        sequenceNumber = v.get(VmsSubscriptionsStateIntegerValuesIndex.SEQUENCE_NUMBER);
+        int numberLayers = v.get(VmsSubscriptionsStateIntegerValuesIndex.NUMBER_OF_LAYERS);
         assertEquals(layers.size(), numberLayers);
         List<VmsLayer> receivedLayers = new ArrayList<>();
         int start = VmsSubscriptionsStateIntegerValuesIndex.SUBSCRIPTIONS_START;
@@ -136,11 +149,11 @@ public class VmsHalServiceSubscriptionEventTest extends MockedCarTestBase {
         assertTrue(mHalHandlerSemaphore.tryAcquire(2L, TimeUnit.SECONDS));
         // Validate response.
         ArrayList<Integer> v = mHalHandler.getValues();
-        int messsageType = v.get(VmsMessageWithLayerIntegerValuesIndex.MESSAGE_TYPE);
+        int messsageType = v.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
+        assertEquals(VmsMessageType.SUBSCRIBE, messsageType);
         int layerId = v.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_TYPE);
         int layerVersion = v.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_VERSION);
         int fused = v.get(VmsMessageWithLayerIntegerValuesIndex.LAYER_SUBTYPE);
-        assertEquals(VmsMessageType.SUBSCRIBE, messsageType);
         assertEquals(layer.getType(), layerId);
         assertEquals(layer.getVersion(), layerVersion);
     }

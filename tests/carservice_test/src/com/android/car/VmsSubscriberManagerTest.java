@@ -119,9 +119,9 @@ public class VmsSubscriberManagerTest extends MockedCarTestBase {
     @Override
     public void setUp() throws Exception {
         mExecutor = new ThreadPerTaskExecutor();
-        super.setUp();
         mSubscriberSemaphore = new Semaphore(0);
         mHalHandlerSemaphore = new Semaphore(0);
+        super.setUp();
     }
 
     // Test injecting a value in the HAL and verifying it propagates to a subscriber.
