@@ -15,7 +15,6 @@
  */
 package com.google.android.car.uxr.sample;
 
-import android.annotation.DrawableRes;
 import android.app.Activity;
 import android.car.Car;
 import android.car.CarNotConnectedException;
@@ -25,21 +24,14 @@ import android.car.drivingstate.CarDrivingStateManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.ComponentName;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import androidx.car.widget.ListItem;
-import androidx.car.widget.ListItemAdapter;
-import androidx.car.widget.ListItemProvider;
-import androidx.car.widget.PagedListView;
-import androidx.car.widget.TextListItem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Sample app that uses components in car support library to demonstrate Car drivingstate UXR
@@ -47,7 +39,6 @@ import java.util.List;
  */
 public class MainActivity extends Activity {
     public static final String TAG = "drivingstate";
-
     private Car mCar;
     private CarDrivingStateManager mCarDrivingStateManager;
     private CarUxRestrictionsManager mCarUxRestrictionsManager;
@@ -56,8 +47,9 @@ public class MainActivity extends Activity {
     private TextView mDistractionOptStatus;
     private TextView mUxrStatus;
     private Button mToggleButton;
+    private Button mSampleMsgButton;
+
     private boolean mEnableUxR;
-    private PagedListView mPagedListView;
 
     private final ServiceConnection mCarConnectionListener =
             new ServiceConnection() {
@@ -163,68 +155,24 @@ public class MainActivity extends Activity {
         mDistractionOptStatus = findViewById(R.id.do_status);
         mUxrStatus = findViewById(R.id.uxr_status);
         mToggleButton = findViewById(R.id.toggle_status);
-        mPagedListView = findViewById(R.id.paged_list_view);
-
-        setUpPagedListView();
 
         mToggleButton.setOnClickListener(v -> {
             updateToggleUxREnable();
         });
+
+        mSampleMsgButton = findViewById(R.id.launch_message);
+        mSampleMsgButton.setOnClickListener(this::launchSampleMsgActivity);
 
         // Connect to car service
         mCar = Car.createCar(this, mCarConnectionListener);
         mCar.connect();
     }
 
-    private void setUpPagedListView() {
-        ListItemAdapter adapter = new ListItemAdapter(this, populateData());
-        mPagedListView.setAdapter(adapter);
+    private void launchSampleMsgActivity(View view) {
+        Intent msgIntent = new Intent(this, SampleMessageActivity.class);
+        startActivity(msgIntent);
     }
 
-    private ListItemProvider populateData() {
-        List<ListItem> items = new ArrayList<>();
-        items.add(createMessage(android.R.drawable.ic_menu_myplaces, "alice",
-                "i have a really important message but it may hinder your ability to drive. "));
-
-        items.add(createMessage(android.R.drawable.ic_menu_myplaces, "bob",
-                "hey this is a really long message that i have always wanted to say. but before " +
-                        "saying it i feel it's only appropriate if i lay some groundwork for it. "
-                        + ""));
-        items.add(createMessage(android.R.drawable.ic_menu_myplaces, "mom",
-                "i think you are the best. i think you are the best. i think you are the best. " +
-                        "i think you are the best. i think you are the best. i think you are the "
-                        + "best. "
-                        +
-                        "i think you are the best. i think you are the best. i think you are the "
-                        + "best. "
-                        +
-                        "i think you are the best. i think you are the best. i think you are the "
-                        + "best. "
-                        +
-                        "i think you are the best. i think you are the best. i think you are the "
-                        + "best. "
-                        +
-                        "i think you are the best. i think you are the best. "));
-        items.add(createMessage(android.R.drawable.ic_menu_myplaces, "john", "hello world"));
-        items.add(createMessage(android.R.drawable.ic_menu_myplaces, "jeremy",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " +
-                        "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, " +
-                        "quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo " +
-                        "consequat. Duis aute irure dolor in reprehenderit in voluptate velit " +
-                        "esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat " +
-                        "cupidatat non proident, sunt in culpa qui officia deserunt mollit " +
-                        "anim id est laborum."));
-        return new ListItemProvider.ListProvider(items);
-    }
-
-    private TextListItem createMessage(@DrawableRes int profile, String contact, String message) {
-        TextListItem item = new TextListItem(this);
-        item.setPrimaryActionIcon(profile, false /* useLargeIcon */);
-        item.setTitle(contact);
-        item.setBody(message);
-        item.setSupplementalIcon(android.R.drawable.stat_notify_chat, false);
-        return item;
-    }
 
     @Override
     protected void onDestroy() {
