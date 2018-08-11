@@ -18,6 +18,7 @@ package com.android.car.garagemode;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.app.job.JobSnapshot;
 import android.content.Intent;
 import android.os.Handler;
 
@@ -56,7 +57,6 @@ class GarageMode {
     private JobScheduler mJobScheduler;
     private Handler mHandler;
     private Runnable mRunnable;
-    private List<JobInfo> mStartedJobs;
 
     GarageMode(Controller controller) {
         mGarageModeActive = false;
@@ -67,12 +67,11 @@ class GarageMode {
 
         mRunnable = () -> {
             updateJobSnapshots();
-            if (mStartedJobs.size() > 0) {
-                mGarageModeJobsRunning = true;
+            if (mGarageModeJobsRunning) {
                 LOG.d("Some jobs are still running. Need to wait more ...");
                 mHandler.postDelayed(mRunnable, JOB_SNAPSHOT_UPDATE_FREQUENCY_MS);
             } else {
-                mGarageModeJobsRunning = false;
+                LOG.d("No jobs are currently running.");
                 exitGarageMode();
             }
         };
@@ -117,6 +116,17 @@ class GarageMode {
     }
 
     private synchronized void updateJobSnapshots() {
-        mStartedJobs = mJobScheduler.getStartedJobs();
+        List<JobInfo> startedJobs = mJobScheduler.getStartedJobs();
+        mGarageModeJobsRunning = false;
+
+        List<JobSnapshot> jobSnapshots = mJobScheduler.getAllJobSnapshots();
+        for (JobSnapshot snap : jobSnapshots) {
+            if (startedJobs.contains(snap.getJobInfo())) {
+                if (snap.getJobInfo().isRequireDeviceIdle()) {
+                    mGarageModeJobsRunning = true;
+                    return;
+                }
+            }
+        }
     }
 }

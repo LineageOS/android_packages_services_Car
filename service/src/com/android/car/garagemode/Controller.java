@@ -39,7 +39,7 @@ public class Controller implements PowerEventProcessingHandler, PowerServiceEven
      * that have idleness constraint finished.
      */
     @VisibleForTesting
-    static final int GARAGE_MODE_TIMEOUT_SEC = 86400; // One day
+    static final int GARAGE_MODE_TIMEOUT_MS = 86400000; // One day
 
     private final CarPowerManagementService mCarPowerManagementService;
     @VisibleForTesting
@@ -73,14 +73,14 @@ public class Controller implements PowerEventProcessingHandler, PowerServiceEven
      * 0 as a response to this method call
      *
      * @param shuttingDown whether system is shutting down or not (= sleep entry).
-     * @return integer that represents amount of seconds PowerManager should wait before checking
-     * again. If we return 0, PowerManager will proceed to shutdown.
+     * @return integer that represents amount of milliseconds PowerManager should wait before
+     * checking again. If we return 0, PowerManager will proceed to shutdown.
      */
     @Override
     public long onPrepareShutdown(boolean shuttingDown) {
         LOG.d("Received onPrepareShutdown() signal from CPMS.\nInitiating GarageMode ...");
         initiateGarageMode();
-        return GARAGE_MODE_TIMEOUT_SEC;
+        return GARAGE_MODE_TIMEOUT_MS;
     }
 
     /**
@@ -201,7 +201,7 @@ public class Controller implements PowerEventProcessingHandler, PowerServiceEven
         // Increment WakeupPolicy index each time entering the GarageMode
         mWakeupPolicy.incrementCounter();
         // Schedule GarageMode exit, that will kick in if updates are taking too long
-        mHandler.postDelayed(() -> mGarageMode.exitGarageMode(), GARAGE_MODE_TIMEOUT_SEC);
+        mHandler.postDelayed(() -> mGarageMode.exitGarageMode(), GARAGE_MODE_TIMEOUT_MS);
     }
 
     /**

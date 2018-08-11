@@ -430,8 +430,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
                 mProcessingStartTime = SystemClock.elapsedRealtime();
                 releaseTimerLocked();
                 mTimer = new Timer();
-                mTimer.scheduleAtFixedRate(new ShutdownProcessingTimerTask(shuttingDown,
-                        pollingCount),
+                mTimer.scheduleAtFixedRate(
+                        new ShutdownProcessingTimerTask(shuttingDown, pollingCount),
                         0 /*delay*/,
                         SHUTDOWN_POLLING_INTERVAL_MS);
             }
