@@ -32,7 +32,7 @@ import java.util.Map;
  * week. After that, wake up every 7 days for a month, and wake up every 30 days thereafter.
  */
 class WakeupPolicy {
-    private static final Logger LOG = new Logger("Policy");
+    private static final Logger LOG = new Logger("WakeupPolicy");
     private static final Map<Character, Integer> TIME_UNITS_LOOKUP_MS;
     static {
         TIME_UNITS_LOOKUP_MS = new HashMap<>();

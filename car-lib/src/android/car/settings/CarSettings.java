@@ -32,17 +32,24 @@ public class CarSettings {
      */
     public static final class Global {
         /**
-         * Key for when to wake up to run garage mode.
+         * DEPRECATED. Will be removed in Q. Key for when to wake up to run garage mode.
+         * @deprecated not used by GarageMode anymore. Will be removed in Q.
          */
+        @Deprecated
         public static final String KEY_GARAGE_MODE_WAKE_UP_TIME =
                 "android.car.GARAGE_MODE_WAKE_UP_TIME";
         /**
-         * Key for whether garage mode is enabled.
+         * DEPRECATED. Will be removed in Q. Key for whether garage mode is enabled.
+         * @deprecated not used by GarageMode anymore. Will be removed in Q.
          */
+        @Deprecated
         public static final String KEY_GARAGE_MODE_ENABLED = "android.car.GARAGE_MODE_ENABLED";
+
         /**
-         * Key for garage mode maintenance window.
+         * DEPRECATED. Will be removed in Q. Key for garage mode maintenance window.
+         * @deprecated not used by GarageMode anymore. Will be removed in Q.
          */
+        @Deprecated
         public static final String KEY_GARAGE_MODE_MAINTENANCE_WINDOW =
                 "android.car.GARAGE_MODE_MAINTENANCE_WINDOW";
 

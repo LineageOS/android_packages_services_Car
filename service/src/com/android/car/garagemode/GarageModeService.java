@@ -16,138 +16,85 @@
 
 package com.android.car.garagemode;
 
-import static android.car.settings.GarageModeSettingsObserver.GARAGE_MODE_ENABLED_URI;
-import static android.car.settings.GarageModeSettingsObserver.GARAGE_MODE_MAINTENANCE_WINDOW_URI;
-import static android.car.settings.GarageModeSettingsObserver.GARAGE_MODE_WAKE_UP_TIME_URI;
-
-import android.car.settings.CarSettings;
-import android.car.settings.GarageModeSettingsObserver;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Looper;
-import android.provider.Settings;
 
 import com.android.car.CarPowerManagementService;
 import com.android.car.CarServiceBase;
-import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 
 /**
- * Controls car garage mode.
+ * Main service container for car garage mode.
  *
- * Car garage mode is a time window for the car to do maintenance work when the car is not in use.
- * The {@link com.android.car.garagemode.GarageModeService} interacts with
- * {@link com.android.car.CarPowerManagementService} to start and end garage mode.
- * A {@link WakeupPolicy} defines when the garage mode should start and how long it should last.
+ * GarageMode enables idle time in cars.
+ * {@link com.android.car.garagemode.GarageModeService} registers itself as a user of
+ * {@link com.android.car.CarPowerManagementService}, which then starts GarageMode flow.
  */
 public class GarageModeService implements CarServiceBase {
     private static final Logger LOG = new Logger("Service");
 
     private final Context mContext;
-    private final CarPowerManagementService mCarPowerManagementService;
     private final Controller mController;
 
-    private GarageModeSettingsObserver mSettingsObserver;
-
-    public GarageModeService(
-            Context context, CarPowerManagementService carPowerManagementService) {
-        this(
-                context,
-                carPowerManagementService,
-                new Controller(context, carPowerManagementService, Looper.myLooper()),
-                null);
+    public GarageModeService(Context context, CarPowerManagementService carPowerManagementService) {
+        this(context, carPowerManagementService, null);
     }
 
     @VisibleForTesting
     protected GarageModeService(
             Context context,
             CarPowerManagementService carPowerManagementService,
-            Controller controller,
-            GarageModeSettingsObserver settingsObserver) {
+            Controller controller) {
         mContext = context;
-        mCarPowerManagementService = carPowerManagementService;
-        mController = controller;
-        if (settingsObserver == null) {
-            mSettingsObserver = new GarageModeSettingsObserver(mContext, null) {
-                @Override
-                public void onChange(boolean selfChange, Uri uri) {
-                    onSettingsChangedInternal(uri);
-                }
-            };
-        } else {
-            mSettingsObserver = settingsObserver;
-        }
+        mController = (controller != null ? controller
+                : new Controller(context, carPowerManagementService, Looper.myLooper()));
     }
 
+    /**
+     * Initializes GarageMode
+     */
     @Override
     public void init() {
-        readFromSettingsLocked(
-                CarSettings.Global.KEY_GARAGE_MODE_MAINTENANCE_WINDOW,
-                CarSettings.Global.KEY_GARAGE_MODE_ENABLED);
         mController.start();
-        mSettingsObserver.register();
     }
 
+    /**
+     * Cleans up GarageMode processes
+     */
     @Override
     public void release() {
-        mSettingsObserver.unregister();
         mController.stop();
     }
 
+    /**
+     * Dumps useful information about GarageMode
+     * @param writer
+     */
     @Override
     public void dump(PrintWriter writer) {
-        writer.println("GarageModeEnabled " + mController.isGarageModeEnabled());
-        writer.println("GarageModeTimeWindow " + mController.getMaintenanceTimeout() + " ms");
+        writer.println("GarageModeInProgress " + mController.isGarageModeActive());
     }
-
-    // local methods
 
     /**
-     * Returns {@link Controller} to hack enforce some flows.
-     * @return controller instance
+     * @return whether GarageMode is in progress. Used by {@link com.android.car.ICarImpl}.
      */
-    public Controller getController() {
-        return mController;
+    public boolean isGarageModeActive() {
+        return mController.isGarageModeActive();
     }
 
-    @GuardedBy("this")
-    private void readFromSettingsLocked(String... keys) {
-        for (String key : keys) {
-            switch (key) {
-                case CarSettings.Global.KEY_GARAGE_MODE_ENABLED:
-                    int enabled = Settings.Global.getInt(mContext.getContentResolver(), key, 1);
-                    if (enabled == 1) {
-                        mController.enableGarageMode();
-                    } else {
-                        mController.disableGarageMode();
-                    }
-                    break;
-                case CarSettings.Global.KEY_GARAGE_MODE_MAINTENANCE_WINDOW:
-                    int timeout = Settings.Global.getInt(
-                            mContext.getContentResolver(),
-                            key,
-                            CarSettings.DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW);
-                    mController.setMaintenanceTimeout(timeout);
-                    break;
-                default:
-                    LOG.e("Unknown setting key " + key);
-            }
-        }
+    /**
+     * Forces GarageMode to start. Used by {@link com.android.car.ICarImpl}.
+     */
+    public void forceStartGarageMode() {
+        mController.initiateGarageMode();
     }
 
-    private synchronized void onSettingsChangedInternal(Uri uri) {
-        LOG.d("Content Observer onChange: " + uri);
-        if (uri.equals(GARAGE_MODE_ENABLED_URI)) {
-            readFromSettingsLocked(CarSettings.Global.KEY_GARAGE_MODE_ENABLED);
-        } else if (uri.equals(GARAGE_MODE_WAKE_UP_TIME_URI)) {
-            readFromSettingsLocked(CarSettings.Global.KEY_GARAGE_MODE_WAKE_UP_TIME);
-        } else if (uri.equals(GARAGE_MODE_MAINTENANCE_WINDOW_URI)) {
-            readFromSettingsLocked(CarSettings.Global.KEY_GARAGE_MODE_MAINTENANCE_WINDOW);
-        }
-        LOG.d(String.format(
-                "onSettingsChanged %s. enabled: %s, timeout: %d",
-                uri, mController.isGarageModeEnabled(), mController.getMaintenanceTimeout()));
+    /**
+     * Stops and resets the GarageMode. Used by {@link com.android.car.ICarImpl}.
+     */
+    public void stopAndResetGarageMode() {
+        mController.resetGarageMode();
     }
 }

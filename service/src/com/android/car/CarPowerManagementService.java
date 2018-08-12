@@ -424,8 +424,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
         processingTimeMs += sendPowerManagerEvent(shuttingDown);
         if (processingTimeMs > 0) {
             int pollingCount = (int)(processingTimeMs / SHUTDOWN_POLLING_INTERVAL_MS) + 1;
-            Log.i(CarLog.TAG_POWER, "processing before shutdown expected for :" + processingTimeMs +
-                    " ms, adding polling:" + pollingCount);
+            Log.i(CarLog.TAG_POWER, "processing before shutdown expected for: "
+                    + processingTimeMs + " ms, adding polling:" + pollingCount);
             synchronized (this) {
                 mProcessingStartTime = SystemClock.elapsedRealtime();
                 releaseTimerLocked();
@@ -464,7 +464,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
             }
             mPowerManagerListeners.finishBroadcast();
             if (!mPowerManagerListenerTokens.isEmpty()) {
-                Log.i(CarLog.TAG_POWER, "mPowerMangerListenerTokens not empty, add APP_EXTEND_MAX_MS");
+                Log.i(CarLog.TAG_POWER,
+                        "mPowerMangerListenerTokens not empty, add APP_EXTEND_MAX_MS");
                 processingTimeMs += APP_EXTEND_MAX_MS;
             }
         }
@@ -683,7 +684,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
             if (mPowerManagerListenerTokens.isEmpty() &&
                 (mCurrentState.mState == PowerHalService.STATE_SHUTDOWN_PREPARE)) {
                 // All apps are ready to shutdown/suspend.
-                Log.i(CarLog.TAG_POWER, "Apps are finished, call notifyPowerEventProcessingCompletion");
+                Log.i(CarLog.TAG_POWER,
+                        "Apps are finished, call notifyPowerEventProcessingCompletion");
                 notifyPowerEventProcessingCompletion(null);
             }
         }

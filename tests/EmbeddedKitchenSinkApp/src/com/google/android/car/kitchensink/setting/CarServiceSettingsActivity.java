@@ -18,7 +18,6 @@ package com.google.android.car.kitchensink.setting;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import android.view.View;
 import android.widget.Button;
 
 import com.google.android.car.kitchensink.R;
@@ -33,12 +32,7 @@ public class CarServiceSettingsActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         Button button = new Button(this);
         button.setText("Finish");
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        button.setOnClickListener(view -> finish());
         setListFooter(button);
     }
 
@@ -49,8 +43,7 @@ public class CarServiceSettingsActivity extends PreferenceActivity {
 
     @Override
     protected boolean isValidFragment(String fragmentName) {
-        if (GarageModeSettingsFragment.class.getName().equals(fragmentName)
-                || UsbManagerFragment.class.getName().equals(fragmentName)) {
+        if (UsbManagerFragment.class.getName().equals(fragmentName)) {
             return true;
         }
         return false;
