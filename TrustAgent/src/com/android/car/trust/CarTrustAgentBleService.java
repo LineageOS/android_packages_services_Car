@@ -25,6 +25,7 @@ import android.car.trust.ICarTrustAgentTokenRequestDelegate;
 import android.car.trust.ICarTrustAgentTokenResponseCallback;
 import android.car.trust.ICarTrustAgentUnlockCallback;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.os.RemoteCallbackList;
@@ -62,6 +63,8 @@ public class CarTrustAgentBleService extends SimpleBleServer {
     private byte[] mCurrentUnlockToken;
     private Long mCurrentUnlockHandle;
 
+    private SharedPreferences mTokenHandleSharedPreferences;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -72,6 +75,10 @@ public class CarTrustAgentBleService extends SimpleBleServer {
 
         setupEnrolmentBleServer();
         setupUnlockBleServer();
+
+        mTokenHandleSharedPreferences = getSharedPreferences(
+                getString(R.string.token_handle_shared_preferences),
+                MODE_PRIVATE);
     }
 
     @Override
@@ -260,8 +267,8 @@ public class CarTrustAgentBleService extends SimpleBleServer {
 
         @Override
         public void startEnrolmentAdvertising() {
-            Log.d(TAG, "startEnrolmentAdvertising");
             stopUnlockAdvertising();
+            Log.d(TAG, "startEnrolmentAdvertising");
             startAdvertising(mEnrolmentUuid, mEnrolmentGattServer);
         }
 
@@ -290,8 +297,8 @@ public class CarTrustAgentBleService extends SimpleBleServer {
 
         @Override
         public void startUnlockAdvertising() {
-            Log.d(TAG, "startUnlockAdvertising");
             stopEnrolmentAdvertising();
+            Log.d(TAG, "startUnlockAdvertising");
             startAdvertising(mUnlockUuid, mUnlockGattServer);
         }
 
@@ -353,6 +360,9 @@ public class CarTrustAgentBleService extends SimpleBleServer {
         public void onEscrowTokenAdded(byte[] token, long handle, int uid)
                 throws RemoteException {
             Log.d(TAG, "onEscrowTokenAdded handle:" + handle + " uid:" + uid);
+            mTokenHandleSharedPreferences.edit()
+                    .putInt(String.valueOf(handle), uid)
+                    .apply();
             if (mTokenResponseCallback != null) {
                 mTokenResponseCallback.onEscrowTokenAdded(token, handle, uid);
             }
@@ -361,6 +371,9 @@ public class CarTrustAgentBleService extends SimpleBleServer {
         @Override
         public void onEscrowTokenRemoved(long handle, boolean successful) throws RemoteException {
             Log.d(TAG, "onEscrowTokenRemoved handle:" + handle);
+            mTokenHandleSharedPreferences.edit()
+                    .remove(String.valueOf(handle))
+                    .apply();
             if (mTokenResponseCallback != null) {
                 mTokenResponseCallback.onEscrowTokenRemoved(handle, successful);
             }
@@ -372,6 +385,11 @@ public class CarTrustAgentBleService extends SimpleBleServer {
             if (mTokenResponseCallback != null) {
                 mTokenResponseCallback.onEscrowTokenActiveStateChanged(handle, active);
             }
+        }
+
+        @Override
+        public int getUserIdByEscrowTokenHandle(long tokenHandle) {
+            return mTokenHandleSharedPreferences.getInt(String.valueOf(tokenHandle), -1);
         }
     }
 }

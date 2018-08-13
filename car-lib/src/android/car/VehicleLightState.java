@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_0_SERVICENAMES_H
-#define ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_0_SERVICENAMES_H
+package android.car;
 
-const static char kEnumeratorServiceName[] = "EvsEnumeratorHw";
+/**
+ * Used by Lights state properties to enumerate the current state of the lights.
+ * Use getProperty and setProperty in {@link android.car.hardware.property.CarPropertyManager} to
+ * set and get this VHAL property.
+ * @hide
+ */
+public final class VehicleLightState {
+    public static final int OFF = 0;
+    public static final int ON = 1;
+    public static final int DAYTIME_RUNNING = 2;
 
-#endif // ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_0_SERVICENAMES_H
+    private VehicleLightState() {}
+
+}

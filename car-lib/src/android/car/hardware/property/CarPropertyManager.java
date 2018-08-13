@@ -18,6 +18,7 @@ package android.car.hardware.property;
 
 import static java.lang.Integer.toHexString;
 
+import android.annotation.Nullable;
 import android.car.CarApiUtil;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
@@ -44,6 +45,7 @@ import java.util.function.Consumer;
  * @hide
  */
 public class CarPropertyManager implements CarManagerBase {
+    private final List<CarPropertyConfig> mConfigs;
     private final boolean mDbg;
     private final SingleMessageHandler<CarPropertyEvent> mHandler;
     private final ICarProperty mService;
@@ -69,10 +71,20 @@ public class CarPropertyManager implements CarManagerBase {
     /**
      * Get an instance of the CarPropertyManager.
      */
-    public CarPropertyManager(IBinder service, Handler handler, boolean dbg, String tag) {
+    public CarPropertyManager(IBinder service, @Nullable Handler handler, boolean dbg, String tag) {
         mDbg = dbg;
         mTag = tag;
         mService = ICarProperty.Stub.asInterface(service);
+        try {
+            mConfigs = mService.getPropertyList();
+        } catch (Exception e) {
+            Log.e(mTag, "getPropertyList exception ", e);
+            throw new RuntimeException(e);
+        }
+        if (handler == null) {
+            mHandler = null;
+            return;
+        }
         mHandler = new SingleMessageHandler<CarPropertyEvent>(handler.getLooper(),
                 MSG_GENERIC_EVENT) {
             @Override
@@ -154,7 +166,9 @@ public class CarPropertyManager implements CarManagerBase {
     }
 
     private void handleEvent(List<CarPropertyEvent> events) {
-        mHandler.sendEvents(events);
+        if (mHandler != null) {
+            mHandler.sendEvents(events);
+        }
     }
 
     /**
@@ -164,8 +178,12 @@ public class CarPropertyManager implements CarManagerBase {
      */
     public void unregisterListener(CarPropertyEventListener listener) {
         synchronized (mActivePropertyListener) {
+            int [] propertyIds = new int[mActivePropertyListener.size()];
             for (int i = 0; i < mActivePropertyListener.size(); i++) {
-                doUnregisterListenerLocked(listener, mActivePropertyListener.keyAt(i));
+                propertyIds[i] = mActivePropertyListener.keyAt(i);
+            }
+            for (int prop : propertyIds) {
+                doUnregisterListenerLocked(listener, prop);
             }
         }
     }
@@ -207,41 +225,24 @@ public class CarPropertyManager implements CarManagerBase {
     }
 
     /**
-     * Returns the list of properties implemented by this car.
-     *
-     * @return Caller must check the property type and typecast to the appropriate subclass
-     * (CarPropertyBooleanProperty, CarPropertyFloatProperty, CarrPropertyIntProperty)
+     * @return List of properties implemented by this car that the application may access.
      */
-    public List<CarPropertyConfig> getPropertyList() throws CarNotConnectedException {
-        try {
-            return mService.getPropertyList();
-        } catch (RemoteException e) {
-            Log.e(mTag, "getPropertyList exception ", e);
-            throw new CarNotConnectedException(e);
-        }
+    public List<CarPropertyConfig> getPropertyList() {
+        return mConfigs;
     }
 
     /**
-     * Returns the list of properties implemented by this car in given property id list.
-     *
-     * @return Caller must check the property type and typecast to the appropriate subclass
-     * (CarPropertyBooleanProperty, CarPropertyFloatProperty, CarrPropertyIntProperty)
+     * @return List of properties implemented by this car in given property ID list that application
+     *          may access.
      */
-    public List<CarPropertyConfig> getPropertyList(ArraySet<Integer> propertyIds)
-            throws CarNotConnectedException {
-        try {
-            List<CarPropertyConfig> configs = new ArrayList<>();
-            for (CarPropertyConfig c : mService.getPropertyList()) {
-                if (propertyIds.contains(c.getPropertyId())) {
-                    configs.add(c);
-                }
+    public List<CarPropertyConfig> getPropertyList(ArraySet<Integer> propertyIds) {
+        List<CarPropertyConfig> configs = new ArrayList<>();
+        for (CarPropertyConfig c : mConfigs) {
+            if (propertyIds.contains(c.getPropertyId())) {
+                configs.add(c);
             }
-            return configs;
-        } catch (RemoteException e) {
-            Log.e(mTag, "getPropertyList exception ", e);
-            throw new CarNotConnectedException(e);
         }
-
+        return configs;
     }
 
     /**
@@ -292,6 +293,26 @@ public class CarPropertyManager implements CarManagerBase {
     public int getIntProperty(int prop, int area) throws CarNotConnectedException {
         CarPropertyValue<Integer> carProp = getProperty(Integer.class, prop, area);
         return carProp != null ? carProp.getValue() : 0;
+    }
+
+    /**
+     * Returns value of a integer array property
+     *
+     * @param prop Property ID to get
+     * @param area Zone of the property to get
+     */
+    public int[] getIntArrayProperty(int prop, int area) throws CarNotConnectedException {
+        CarPropertyValue<Integer[]> carProp = getProperty(Integer[].class, prop, area);
+        return carProp != null ? toIntArray(carProp.getValue()) : new int[0];
+    }
+
+    private static int[] toIntArray(Integer[] input) {
+        int len = input.length;
+        int[] arr = new int[len];
+        for (int i = 0; i < len; i++) {
+            arr[i] = input[i];
+        }
+        return arr;
     }
 
     /** Return CarPropertyValue */

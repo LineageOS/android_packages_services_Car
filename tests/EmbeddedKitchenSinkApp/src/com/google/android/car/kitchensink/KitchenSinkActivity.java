@@ -23,7 +23,9 @@ import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.property.CarPropertyManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.car.Car;
 import android.support.car.CarAppFocusManager;
 import android.support.car.CarConnectionCallback;
@@ -42,6 +44,7 @@ import com.google.android.car.kitchensink.audio.AudioTestFragment;
 import com.google.android.car.kitchensink.bluetooth.BluetoothHeadsetFragment;
 import com.google.android.car.kitchensink.bluetooth.MapMceTestFragment;
 import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
+import com.google.android.car.kitchensink.connectivity.ConnectivityFragment;
 import com.google.android.car.kitchensink.cube.CubesTestFragment;
 import com.google.android.car.kitchensink.diagnostic.DiagnosticTestFragment;
 import com.google.android.car.kitchensink.displayinfo.DisplayInfoFragment;
@@ -167,6 +170,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 startActivity(intent);
             });
             add("activity view", ActivityViewTestFragment.class);
+            add("connectivity", ConnectivityFragment.class);
             add("quit", KitchenSinkActivity.this::finish);
         }
 
@@ -183,6 +187,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     private CarPropertyManager mPropertyManager;
     private CarSensorManager mSensorManager;
     private CarAppFocusManager mCarAppFocusManager;
+    private Object mPropertyManagerReady = new Object();
 
     public CarHvacManager getHvacManager() {
         return mHvacManager;
@@ -212,10 +217,18 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         setMainContent(R.layout.kitchen_content);
         // Connection to Car Service does not work for non-automotive yet.
         if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
-            mCarApi = Car.createCar(this, mCarConnectionCallback);
-            mCarApi.connect();
+            initCarApi();
         }
         Log.i(TAG, "onCreate");
+    }
+
+    private void initCarApi() {
+        if (mCarApi != null && mCarApi.isConnected()) {
+            mCarApi.disconnect();
+            mCarApi = null;
+        }
+        mCarApi = Car.createCar(this, mCarConnectionCallback);
+        mCarApi.connect();
     }
 
     @Override
@@ -268,18 +281,22 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         @Override
         public void onConnected(Car car) {
             Log.d(TAG, "Connected to Car Service");
-            try {
-                mHvacManager = (CarHvacManager) mCarApi.getCarManager(android.car.Car.HVAC_SERVICE);
-                mPowerManager = (CarPowerManager) mCarApi.getCarManager(
-                    android.car.Car.POWER_SERVICE);
-                mPropertyManager = (CarPropertyManager) mCarApi.getCarManager(
-                    android.car.Car.PROPERTY_SERVICE);
-                mSensorManager = (CarSensorManager) mCarApi.getCarManager(
-                    android.car.Car.SENSOR_SERVICE);
-                mCarAppFocusManager =
-                        (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
-            } catch (CarNotConnectedException e) {
-                Log.e(TAG, "Car is not connected!", e);
+            synchronized (mPropertyManagerReady) {
+                try {
+                    mHvacManager = (CarHvacManager) mCarApi.getCarManager(
+                            android.car.Car.HVAC_SERVICE);
+                    mPowerManager = (CarPowerManager) mCarApi.getCarManager(
+                            android.car.Car.POWER_SERVICE);
+                    mPropertyManager = (CarPropertyManager) mCarApi.getCarManager(
+                            android.car.Car.PROPERTY_SERVICE);
+                    mSensorManager = (CarSensorManager) mCarApi.getCarManager(
+                            android.car.Car.SENSOR_SERVICE);
+                    mCarAppFocusManager =
+                            (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
+                    mPropertyManagerReady.notifyAll();
+                } catch (CarNotConnectedException e) {
+                    Log.e(TAG, "Car is not connected!", e);
+                }
             }
         }
 
@@ -321,5 +338,30 @@ public class KitchenSinkActivity extends CarDrawerActivity {
 
             getDrawerController().closeDrawer();
         }
+    }
+
+    // Use AsyncTask to refresh Car*Manager after car service connected
+    public void requestRefreshManager(final Runnable r, final Handler h) {
+        final AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... unused) {
+                synchronized (mPropertyManagerReady) {
+                    while (!mCarApi.isConnected()) {
+                        try {
+                            mPropertyManagerReady.wait();
+                        } catch (InterruptedException e) {
+                            return null;
+                        }
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void unused) {
+                h.post(r);
+            }
+        };
+        task.execute();
     }
 }
