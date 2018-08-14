@@ -45,6 +45,8 @@ public class NotificationFragment extends Fragment {
         Button importanceDefaultButton = view.findViewById(R.id.importance_default_button);
         Button ongoingButton = view.findViewById(R.id.ongoing_button);
         Button messageButton = view.findViewById(R.id.category_message_button);
+        Button emerg = view.findViewById(R.id.category_car_emerg_button);
+        Button warn = view.findViewById(R.id.category_car_warning_button);
 
         NotificationManager manager =
                 (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -182,6 +184,28 @@ public class NotificationFragment extends Fragment {
                     .extend(new Notification.CarExtender().setColor(R.color.car_red_500))
                     .build();
             manager.notify(3, notification);
+        });
+
+        emerg.setOnClickListener(v -> {
+
+            Notification notification = new Notification.Builder(getActivity(), CHANNEL_ID_1)
+                    .setContentTitle("OMG")
+                    .setContentText("This is of top importance")
+                    .setCategory(Notification.CATEGORY_CAR_EMERGENCY)
+                    .setSmallIcon(R.drawable.car_ic_mode)
+                    .build();
+            manager.notify(10, notification);
+        });
+
+        warn.setOnClickListener(v -> {
+
+            Notification notification = new Notification.Builder(getActivity(), CHANNEL_ID_1)
+                    .setContentTitle("OMG -ish ")
+                    .setContentText("This is of less importance but still")
+                    .setCategory(Notification.CATEGORY_CAR_WARNING)
+                    .setSmallIcon(R.drawable.car_ic_mode)
+                    .build();
+            manager.notify(11, notification);
         });
 
         return view;

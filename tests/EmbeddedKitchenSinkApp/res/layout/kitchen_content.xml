@@ -17,7 +17,6 @@
 <!-- We use this container to place kitchen app fragments. It insets the fragment contents -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/kitchen_content"
-    android:background="#A8A9AA"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingStart="56dp"
