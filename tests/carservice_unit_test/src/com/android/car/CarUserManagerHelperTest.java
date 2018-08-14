@@ -486,6 +486,32 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
+    public void testSwitchToId() {
+        int userIdToSwitchTo = mForegroundUserId + 2;
+        doReturn(true).when(mActivityManager).switchUser(userIdToSwitchTo);
+
+        assertThat(mCarUserManagerHelper.switchToUserId(userIdToSwitchTo)).isTrue();
+        verify(mActivityManager).switchUser(userIdToSwitchTo);
+    }
+
+    @Test
+    public void testSwitchToForegroundIdExitsEarly() {
+        doReturn(true).when(mActivityManager).switchUser(mForegroundUserId);
+
+        assertThat(mCarUserManagerHelper.switchToUserId(mForegroundUserId)).isFalse();
+        verify(mActivityManager, never()).switchUser(mForegroundUserId);
+    }
+
+    @Test
+    public void testCannotSwitchIfSwitchingNotAllowed() {
+        int userIdToSwitchTo = mForegroundUserId + 2;
+        doReturn(true).when(mActivityManager).switchUser(userIdToSwitchTo);
+        doReturn(true).when(mUserManager).hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
+        assertThat(mCarUserManagerHelper.switchToUserId(userIdToSwitchTo)).isFalse();
+        verify(mActivityManager, never()).switchUser(userIdToSwitchTo);
+    }
+
+    @Test
     public void testGetUserIcon() {
         mCarUserManagerHelper.getUserIcon(mCurrentProcessUser);
         verify(mUserManager).getUserIcon(mCurrentProcessUser.id);
