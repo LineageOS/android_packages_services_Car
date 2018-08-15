@@ -38,6 +38,7 @@ import java.util.List;
 public class SampleMessageActivity extends Activity {
     private Button mHomeButton;
     private PagedListView mPagedListView;
+    private ListItemAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,15 +51,30 @@ public class SampleMessageActivity extends Activity {
         setUpPagedListView();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mAdapter != null) {
+            mAdapter.start();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAdapter != null) {
+            mAdapter.stop();
+        }
+    }
+
     private void returnHome(View view) {
         Intent homeIntent = new Intent(this, MainActivity.class);
         startActivity(homeIntent);
-
     }
 
     private void setUpPagedListView() {
-        ListItemAdapter adapter = new ListItemAdapter(this, populateData());
-        mPagedListView.setAdapter(adapter);
+        mAdapter = new ListItemAdapter(this, populateData());
+        mPagedListView.setAdapter(mAdapter);
     }
 
     private ListItemProvider populateData() {
