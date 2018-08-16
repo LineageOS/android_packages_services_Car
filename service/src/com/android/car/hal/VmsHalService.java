@@ -446,18 +446,22 @@ public class VmsHalService extends HalServiceBase {
 
     @Override
     public void init() {
-        if (DBG) {
-            Log.d(TAG, "init()");
-        }
         if (mIsSupported) {
             mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID);
+            if (DBG) {
+                Log.d(TAG, "Initializing VmsHalService VHAL property");
+            }
+        } else {
+            if (DBG) {
+                Log.d(TAG, "VmsHalService VHAL property not supported");
+            }
         }
     }
 
     @Override
     public void release() {
         if (DBG) {
-            Log.d(TAG, "release()");
+            Log.d(TAG, "Releasing VmsHalService");
         }
         if (mIsSupported) {
             mVehicleHal.unsubscribeProperty(this, HAL_PROPERTY_ID);
@@ -815,12 +819,15 @@ public class VmsHalService extends HalServiceBase {
         return setPropertyValue(vehiclePropertyValue);
     }
 
-    public boolean setPropertyValue(VehiclePropValue vehiclePropertyValue) {
-        try {
-            mVehicleHal.set(vehiclePropertyValue);
-            return true;
-        } catch (PropertyTimeoutException e) {
-            Log.e(CarLog.TAG_PROPERTY, "set, property not ready 0x" + toHexString(HAL_PROPERTY_ID));
+    private boolean setPropertyValue(VehiclePropValue vehiclePropertyValue) {
+        if (mIsSupported) {
+            try {
+                mVehicleHal.set(vehiclePropertyValue);
+                return true;
+            } catch (PropertyTimeoutException e) {
+                Log.e(CarLog.TAG_PROPERTY,
+                        "set, property not ready 0x" + toHexString(HAL_PROPERTY_ID));
+            }
         }
         return false;
     }
