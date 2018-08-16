@@ -167,12 +167,9 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarConfigurationService);
         allServices.add(mVmsSubscriberService);
         allServices.add(mVmsPublisherService);
-
         if (mUserManagerHelper.isHeadlessSystemUser()) {
-            mCarUserService = new CarUserService(serviceContext, mUserManagerHelper);
-            allServices.add(mCarUserService);
+            allServices.add(new CarUserService(serviceContext, mUserManagerHelper));
         }
-
         allServices.add(mCarLocationService);
         mAllServices = allServices.toArray(new CarServiceBase[allServices.size()]);
     }
