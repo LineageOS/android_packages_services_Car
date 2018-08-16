@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CarTrustAgentClient</string>
+
+    <!-- service/characteristics uuid for unlocking a device -->
+    <string name="unlock_service_uuid">5e2a68a1-27be-43f9-8d1e-4546976fabd7</string>
+    <string name="unlock_escrow_token_uiid">5e2a68a2-27be-43f9-8d1e-4546976fabd7</string>
+    <string name="unlock_handle_uiid">5e2a68a3-27be-43f9-8d1e-4546976fabd7</string>
+
+    <!-- service/characteristics uuid for adding new escrow token -->
+    <string name="enrollment_service_uuid">5e2a68a4-27be-43f9-8d1e-4546976fabd7</string>
+    <string name="enrollment_handle_uuid">5e2a68a5-27be-43f9-8d1e-4546976fabd7</string>
+    <string name="enrollment_token_uuid">5e2a68a6-27be-43f9-8d1e-4546976fabd7</string>
+
+    <string name="pref_key_token_handle">token-handle-key</string>
+    <string name="pref_key_escrow_token">escrow-token-key</string>
+
+    <string name="enroll_button">Enroll new token</string>
+    <string name="enroll_scan">Scan to enroll</string>
+    <string name="unlock_button">Unlock</string>
+    <string name="unlock_scan">Scan to unlock</string>
+</resources>
