@@ -111,7 +111,7 @@ public class SampleMessageActivity extends Activity {
 
     private TextListItem createMessage(@DrawableRes int profile, String contact, String message) {
         TextListItem item = new TextListItem(this);
-        item.setPrimaryActionIcon(profile, false /* useLargeIcon */);
+        item.setPrimaryActionIcon(profile, TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item.setTitle(contact);
         item.setBody(message);
         item.setSupplementalIcon(android.R.drawable.stat_notify_chat, false);
