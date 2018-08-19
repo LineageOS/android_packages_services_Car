@@ -149,10 +149,10 @@ public class MainActivity extends CarDrawerActivity {
         @Override
         protected void populateViewHolder(DrawerItemViewHolder holder, int position) {
             holder.getTitleView().setText(mMenuEntries.get(position).getText());
+            holder.itemView.setOnClickListener(v -> onItemClick(holder.getAdapterPosition()));
         }
 
-        @Override
-        public void onItemClick(int position) {
+        private void onItemClick(int position) {
             if ((position < 0) || (position >= mMenuEntries.size())) {
                 LOG.wtf("Unknown menu item: " + position);
                 return;
