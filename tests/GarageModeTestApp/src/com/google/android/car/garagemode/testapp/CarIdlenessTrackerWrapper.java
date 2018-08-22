@@ -24,24 +24,24 @@ import android.content.Intent;
 public class CarIdlenessTrackerWrapper {
     public static final Logger LOG = new Logger("CarIdlenessTrackerWrapper");
 
-    public static final String ACTION_GARAGE_MODE_ENABLE =
-            "com.android.server.jobscheduler.GARAGE_MODE_ENABLE";
-    public static final String ACTION_GARAGE_MODE_DISABLE =
-            "com.android.server.jobscheduler.GARAGE_MODE_DISABLE";
+    public static final String ACTION_GARAGE_MODE_ON =
+            "com.android.server.jobscheduler.GARAGE_MODE_ON";
+    public static final String ACTION_GARAGE_MODE_OFF =
+            "com.android.server.jobscheduler.GARAGE_MODE_OFF";
 
     public static final String ACTION_FORCE_IDLE = "com.android.server.jobscheduler.FORCE_IDLE";
     public static final String ACTION_UNFORCE_IDLE = "com.android.server.jobscheduler.UNFORCE_IDLE";
 
     public static void sendBroadcastToEnterGarageMode(Context context) {
         Intent i = new Intent();
-        i.setAction(ACTION_GARAGE_MODE_ENABLE);
+        i.setAction(ACTION_GARAGE_MODE_ON);
         i.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY | Intent.FLAG_RECEIVER_NO_ABORT);
         context.sendBroadcast(i);
     }
 
     public static void sendBroadcastToExitGarageMode(Context context) {
         Intent i = new Intent();
-        i.setAction(ACTION_GARAGE_MODE_DISABLE);
+        i.setAction(ACTION_GARAGE_MODE_OFF);
         i.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY | Intent.FLAG_RECEIVER_NO_ABORT);
         context.sendBroadcast(i);
     }
