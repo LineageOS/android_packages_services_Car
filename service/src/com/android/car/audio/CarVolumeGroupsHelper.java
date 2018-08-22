@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.audio;
 
 import android.annotation.XmlRes;
 import android.content.Context;
@@ -23,12 +23,18 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 
+import com.android.car.CarLog;
+import com.android.car.R;
+
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A helper class loads all volume groups from the configuration XML file.
+ */
 /* package */ class CarVolumeGroupsHelper {
 
     private static final String TAG_VOLUME_GROUPS = "volumeGroups";
@@ -43,14 +49,18 @@ import java.util.List;
         mXmlConfiguration = xmlConfiguration;
     }
 
+    /**
+     * @return all {@link CarVolumeGroup} read from configuration.
+     */
     CarVolumeGroup[] loadVolumeGroups() {
         List<CarVolumeGroup> carVolumeGroups = new ArrayList<>();
         try (XmlResourceParser parser = mContext.getResources().getXml(mXmlConfiguration)) {
             AttributeSet attrs = Xml.asAttributeSet(parser);
             int type;
             // Traverse to the first start tag
-            while ((type=parser.next()) != XmlResourceParser.END_DOCUMENT
+            while ((type = parser.next()) != XmlResourceParser.END_DOCUMENT
                     && type != XmlResourceParser.START_TAG) {
+                // ignored
             }
 
             if (!TAG_VOLUME_GROUPS.equals(parser.getName())) {
@@ -58,7 +68,7 @@ import java.util.List;
             }
             int outerDepth = parser.getDepth();
             int id = 0;
-            while ((type=parser.next()) != XmlResourceParser.END_DOCUMENT
+            while ((type = parser.next()) != XmlResourceParser.END_DOCUMENT
                     && (type != XmlResourceParser.END_TAG || parser.getDepth() > outerDepth)) {
                 if (type == XmlResourceParser.END_TAG) {
                     continue;
@@ -80,7 +90,7 @@ import java.util.List;
 
         List<Integer> contexts = new ArrayList<>();
         int innerDepth = parser.getDepth();
-        while ((type=parser.next()) != XmlResourceParser.END_DOCUMENT
+        while ((type = parser.next()) != XmlResourceParser.END_DOCUMENT
                 && (type != XmlResourceParser.END_TAG || parser.getDepth() > innerDepth)) {
             if (type == XmlResourceParser.END_TAG) {
                 continue;
