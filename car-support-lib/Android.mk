@@ -76,59 +76,8 @@ ifeq ($(BOARD_IS_AUTOMOTIVE), true)
     $(call dist-for-goals, dist_files, $(built_aar):android.support.car-1p.aar)
 endif
 
-# Build support library.
-# ---------------------------------------------
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := android.support.car
-
-#TODO(b/72620511) support lib should be able to be using public APIs only
-#LOCAL_SDK_VERSION := current
-LOCAL_PRIVATE_PLATFORM_APIS := true
-
-LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
-
-LOCAL_STATIC_JAVA_LIBRARIES += androidx.annotation_annotation
-
-LOCAL_JAVA_LIBRARIES += android.car
-
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# API Check
-# ---------------------------------------------
-car_module := $(LOCAL_MODULE)
-car_module_src_files := $(LOCAL_SRC_FILES)
-car_module_proguard_file := $(LOCAL_PATH)/proguard-release.flags
-car_module_api_dir := $(LOCAL_PATH)/api
-car_module_java_libraries := $(LOCAL_JAVA_LIBRARIES) $(LOCAL_STATIC_JAVA_LIBRARIES) framework
-car_module_java_packages := android.support.car*
-car_module_include_proguard := true
-include $(CAR_API_CHECK)
-
-
-# Generate offline docs
-#---------------------------------------------
-include $(CLEAR_VARS)
-
-LOCAL_SRC_FILES := $(call all-java-files-under, src) $(call all-Iaidl-files-under, src)
-
-LOCAL_DROIDDOC_SOURCE_PATH := $(LOCAL_PATH)/src
-
-LOCAL_JAVA_LIBRARIES := \
-    android.car \
-    androidx.annotation_annotation
-
-LOCAL_MODULE := android.support.car
-LOCAL_MODULE_TAGS := optional
-
-LOCAL_MODULE_CLASS := JAVA_LIBRARIES
-LOCAL_IS_HOST_MODULE := false
-
-LOCAL_ADDITIONAL_JAVA_DIR := $(call intermediates-dir-for,$(LOCAL_MODULE_CLASS),android.support.car,,COMMON)
-
-LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := external/doclava/res/assets/templates-sdk
-
-include $(BUILD_DROIDDOC)
-
+update-support-car-proguard-api: $(INTERNAL_PLATFORM_ANDROID_SUPPORT_CAR_PROGUARD_PROGUARD_FILE) | $(ACP)
+	@echo $(PRIVATE_CAR_MODULE) copying $(INTERNAL_PLATFORM_ANDROID_SUPPORT_CAR_PROGUARD_PROGUARD_FILE) to $(LOCAL_PATH)/proguard-release.flags
+	$(hide) $(ACP) $(INTERNAL_PLATFORM_ANDROID_SUPPORT_CAR_PROGUARD_PROGUARD_FILE) $(LOCAL_PATH)/proguard-release.flags
 
 endif #TARGET_BUILD_PDK
