@@ -208,8 +208,7 @@ public class StorageLifetimeFragment extends Fragment {
                 "\nBlock size: " + mStatFs.getBlockSizeLong() + " bytes" +
                 "\nfor a total free space of: " +
                 (mStatFs.getBlockSizeLong() * mStatFs.getAvailableBlocksLong() / MEGABYTE) + "MB");
-        } catch (android.car.CarNotConnectedException|
-                 android.support.car.CarNotConnectedException e) {
+        } catch (CarNotConnectedException e) {
             Log.e(TAG, "Car not connected or not supported", e);
         }
     }

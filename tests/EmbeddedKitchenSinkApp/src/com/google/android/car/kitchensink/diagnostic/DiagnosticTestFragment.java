@@ -18,12 +18,13 @@ package com.google.android.car.kitchensink.diagnostic;
 
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.CarNotConnectedException;
 import android.car.diagnostic.CarDiagnosticEvent;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener;
+import android.car.hardware.CarSensorManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.car.hardware.CarSensorManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -108,7 +109,7 @@ public class DiagnosticTestFragment extends Fragment {
                     CarDiagnosticManager.FRAME_TYPE_FREEZE,
                     CarSensorManager.SENSOR_RATE_NORMAL);
             }
-        } catch (android.car.CarNotConnectedException|android.support.car.CarNotConnectedException e) {
+        } catch (CarNotConnectedException e) {
             Log.e(TAG, "Car not connected or not supported", e);
         }
     }

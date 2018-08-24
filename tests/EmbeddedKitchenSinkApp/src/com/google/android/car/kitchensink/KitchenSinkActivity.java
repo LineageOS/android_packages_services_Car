@@ -16,19 +16,21 @@
 
 package com.google.android.car.kitchensink;
 
+import android.car.Car;
+import android.car.CarAppFocusManager;
+import android.car.CarNotConnectedException;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.property.CarPropertyManager;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.car.Car;
-import android.support.car.CarAppFocusManager;
-import android.support.car.CarConnectionCallback;
-import android.support.car.CarNotConnectedException;
+import android.os.IBinder;
 import android.util.Log;
 
 import androidx.car.drawer.CarDrawerActivity;
@@ -224,7 +226,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
             mCarApi.disconnect();
             mCarApi = null;
         }
-        mCarApi = Car.createCar(this, mCarConnectionCallback);
+        mCarApi = Car.createCar(this, mServiceConnection);
         mCarApi.connect();
     }
 
@@ -273,10 +275,9 @@ public class KitchenSinkActivity extends CarDrawerActivity {
                 .commit();
     }
 
-    private final CarConnectionCallback mCarConnectionCallback =
-            new CarConnectionCallback() {
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
-        public void onConnected(Car car) {
+        public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Connected to Car Service");
             synchronized (mPropertyManagerReady) {
                 try {
@@ -298,7 +299,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         }
 
         @Override
-        public void onDisconnected(Car car) {
+        public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "Disconnect from Car Service");
         }
     };

@@ -16,15 +16,17 @@
 package com.google.android.car.kitchensink.cluster;
 
 import android.app.AlertDialog;
+import android.car.Car;
+import android.car.CarAppFocusManager;
+import android.car.CarNotConnectedException;
 import android.car.cluster.CarInstrumentClusterManager;
+import android.car.navigation.CarNavigationStatusManager;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.car.Car;
-import android.support.car.CarAppFocusManager;
-import android.support.car.CarConnectionCallback;
-import android.support.car.CarNotConnectedException;
-import android.support.car.navigation.CarNavigationStatusManager;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,23 +50,25 @@ public class InstrumentClusterFragment extends Fragment {
     private CarAppFocusManager mCarAppFocusManager;
     private Car mCarApi;
 
-    private final CarConnectionCallback mCarConnectionCallback = new CarConnectionCallback() {
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
             @Override
-            public void onConnected(Car car) {
+            public void onServiceConnected(ComponentName name, IBinder service) {
                 Log.d(TAG, "Connected to Car Service");
                 try {
                     mCarNavigationStatusManager =
-                            mCarApi.getCarManager(CarNavigationStatusManager.class);
-                    mCarAppFocusManager = mCarApi.getCarManager(CarAppFocusManager.class);
+                            (CarNavigationStatusManager) mCarApi.getCarManager(
+                                    Car.CAR_NAVIGATION_SERVICE);
+                    mCarAppFocusManager =
+                        (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
                 } catch (CarNotConnectedException e) {
                     Log.e(TAG, "Car is not connected!", e);
                 }
             }
 
             @Override
-            public void onDisconnected(Car car) {
-            Log.d(TAG, "Disconnect from Car Service");
-        }
+            public void onServiceDisconnected(ComponentName name) {
+                Log.d(TAG, "Disconnect from Car Service");
+            }
     };
 
     private void initCarApi() {
@@ -73,7 +77,7 @@ public class InstrumentClusterFragment extends Fragment {
             mCarApi = null;
         }
 
-        mCarApi = Car.createCar(getContext(), mCarConnectionCallback);
+        mCarApi = Car.createCar(getContext(), mServiceConnection);
         mCarApi.connect();
     }
 
@@ -138,8 +142,7 @@ public class InstrumentClusterFragment extends Fragment {
             mCarAppFocusManager
                     .addFocusListener(new CarAppFocusManager.OnAppFocusChangedListener() {
                         @Override
-                        public void onAppFocusChanged(CarAppFocusManager manager, int appType,
-                                boolean active) {
+                        public void onAppFocusChanged(int appType, boolean active) {
                             Log.d(TAG, "onAppFocusChanged, appType: " + appType + " active: "
                                     + active);
                         }
@@ -151,7 +154,7 @@ public class InstrumentClusterFragment extends Fragment {
         CarAppFocusManager.OnAppFocusOwnershipCallback
                 focusCallback = new CarAppFocusManager.OnAppFocusOwnershipCallback() {
             @Override
-            public void onAppFocusOwnershipLost(CarAppFocusManager manager, int focus) {
+            public void onAppFocusOwnershipLost(int focus) {
                 Log.w(TAG, "onAppFocusOwnershipLost, focus: " + focus);
                 new AlertDialog.Builder(getContext())
                         .setTitle(getContext().getApplicationInfo().name)
@@ -160,7 +163,7 @@ public class InstrumentClusterFragment extends Fragment {
             }
 
             @Override
-            public void onAppFocusOwnershipGranted(CarAppFocusManager manager, int focus) {
+            public void onAppFocusOwnershipGranted(int focus) {
                 Log.w(TAG, "onAppFocusOwnershipGranted, focus: " + focus);
             }
 
@@ -174,7 +177,7 @@ public class InstrumentClusterFragment extends Fragment {
 
         try {
             boolean ownsFocus = mCarAppFocusManager.isOwningFocus(
-                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, focusCallback);
+                    focusCallback, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
             Log.d(TAG, "Owns APP_FOCUS_TYPE_NAVIGATION: " + ownsFocus);
             if (!ownsFocus) {
                 throw new RuntimeException("Focus was not acquired.");
