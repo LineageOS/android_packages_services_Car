@@ -126,5 +126,11 @@ ifeq (,$(INCLUDED_ANDROID_CAR_TO_PRODUCT_BOOT_JARS))
 PRODUCT_BOOT_JARS += \
     android.car
 
+PRODUCT_HIDDENAPI_STUBS := \
+    android.car-stubs
+
+PRODUCT_HIDDENAPI_STUBS_SYSTEM := \
+    android.car-system-stubs
+
 INCLUDED_ANDROID_CAR_TO_PRODUCT_BOOT_JARS := yes
 endif

@@ -196,4 +196,21 @@ java_library_static {
             enabled: false,
         },
     },
+    compile_dex: true,
+}
+
+java_library_static {
+    name: "android.car-system-stubs",
+    srcs: [
+        ":android.car-system-stubs-docs",
+    ],
+    libs: [
+        "android.car",
+    ],
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+    compile_dex: true,
 }
