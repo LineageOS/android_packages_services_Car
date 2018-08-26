@@ -310,9 +310,8 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
     }
 
     private boolean isTestEnvironment() {
-        // If the context is derived from other package it means we're running under
-        // environment.
-        return !TextUtils.equals(mContext.getBasePackageName(), mContext.getPackageName());
+        // If the context has "test" in it.
+        return mContext.getBasePackageName().contains("test");
     }
 
     class PublisherConnection implements ServiceConnection {
