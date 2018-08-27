@@ -94,7 +94,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
     }
 
     public void testDisplayOff() throws Exception {
-        initTest(0,0);
+        initTest(0, 0);
         // it will call display on for initial state
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_ON_DISP_OFF, 0));
@@ -105,7 +105,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         // start with display off
         mSystemInterface.setDisplayState(false);
         mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS);
-        initTest(0,0);
+        initTest(0, 0);
 
         // display should be turned on as it started with off state.
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
@@ -116,9 +116,12 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         initTest(0, wakeupTime);
         assertTrue(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
 
-        mPowerHal.setCurrentPowerState(new PowerState(PowerHalService.STATE_SHUTDOWN_PREPARE,
-                PowerHalService.SHUTDOWN_IMMEDIATELY));
-        assertStateReceived(PowerHalService.SET_SHUTDOWN_START, wakeupTime);
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        PowerHalService.STATE_SHUTDOWN_PREPARE,
+                        PowerHalService.SHUTDOWN_IMMEDIATELY));
+        // In case of immediate shutdown, no modules will schedule a next wake up
+        assertStateReceived(PowerHalService.SET_SHUTDOWN_START, 0);
         assertFalse(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS));
         mPowerEventListener.waitForShutdown(WAIT_TIMEOUT_MS);
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
@@ -208,7 +211,8 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         wakeupTimeReceived = mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         assertEquals(wakeupTime, wakeupTimeReceived);
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
-        assertStateReceived(PowerHalService.SET_SHUTDOWN_START, wakeupTime);
+        // Since we just woke up from shutdown, wake up time will be 0
+        assertStateReceived(PowerHalService.SET_SHUTDOWN_START, 0);
         mPowerEventListener.waitForShutdown(WAIT_TIMEOUT_MS);
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
         assertFalse(mDisplayInterface.getDisplayState());
@@ -411,6 +415,7 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
         public long onPrepareShutdown(boolean shuttingDown) {
             mShuttingDown = shuttingDown;
             mPrepareShutdownWait.release();
+            mService.scheduleNextWakeupTime(mWakeupTime);
             return mProcessingTime;
         }
         public boolean waitForPrepareShutdown(long timeoutMs) throws Exception {

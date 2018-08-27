@@ -126,6 +126,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
     private PowerHandler mHandler;
     private int mBootReason;
     private boolean mShutdownOnNextSuspend = false;
+    private int mNextWakeupSec;
 
     // TODO:  Make this OEM configurable.
     private final static int APP_EXTEND_MAX_MS = 10000;
@@ -484,16 +485,18 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
         for (PowerServiceEventListener listener : mListeners) {
             listener.onSleepEntry();
         }
-        int wakeupTimeSec = getWakeupTime();
         mHal.sendSleepEntry();
         synchronized (this) {
             mLastSleepEntryTime = SystemClock.elapsedRealtime();
         }
-        if (mSystemInterface.enterDeepSleep(wakeupTimeSec) == false) {
+        if (!mSystemInterface.enterDeepSleep(mNextWakeupSec)) {
             // System did not suspend.  Need to shutdown
             // TODO:  Shutdown gracefully
             Log.e(CarLog.TAG_POWER, "Sleep did not succeed.  Need to shutdown");
         }
+        // When we wake up, we reset the next wake up time and if no one will set it
+        // System will suspend / shutdown forever.
+        mNextWakeupSec = 0;
         mHal.sendSleepExit();
         for (PowerServiceEventListener listener : mListeners) {
             listener.onSleepExit();
@@ -552,23 +555,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
         for (PowerServiceEventListener listener : mListeners) {
             listener.onShutdown();
         }
-        int wakeupTimeSec = 0;
-        if (mHal.isTimedWakeupAllowed()) {
-            wakeupTimeSec = getWakeupTime();
-        }
-        mHal.sendShutdownStart(wakeupTimeSec);
+        mHal.sendShutdownStart(mHal.isTimedWakeupAllowed() ? mNextWakeupSec : 0);
         mSystemInterface.shutdown();
-    }
-
-    private int getWakeupTime() {
-        int wakeupTimeSec = 0;
-        for (PowerEventProcessingHandlerWrapper wrapper : mPowerEventProcessingHandlers) {
-            int t = wrapper.handler.getWakeupTime();
-            if (t > wakeupTimeSec) {
-                wakeupTimeSec = t;
-            }
-        }
-        return wakeupTimeSec;
     }
 
     private void doHandleProcessingComplete(boolean shutdownWhenCompleted) {
@@ -674,6 +662,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         synchronized (mPowerManagerListenerTokens) {
             finishedLocked(listener.asBinder(), token);
+        }
+    }
+
+    @Override
+    public synchronized void scheduleNextWakeupTime(int seconds) {
+        if (seconds < 0) {
+            Log.w(CarLog.TAG_POWER, "Next wake up can not be in negative time. Ignoring!");
+            return;
+        }
+        if (mNextWakeupSec == 0 || mNextWakeupSec > seconds) {
+            mNextWakeupSec = seconds;
+        } else {
+            Log.d(CarLog.TAG_POWER, "Tried to schedule next wake up, but already had shorter "
+                    + " scheduled time");
         }
     }
 
