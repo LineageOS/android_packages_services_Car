@@ -693,7 +693,7 @@ package android.car.hardware.power {
   }
 
   public static abstract interface CarPowerManager.CarPowerStateListener {
-    method public abstract void onStateChanged(int);
+    method public abstract void onStateChanged(int, java.util.concurrent.CompletableFuture<java.lang.Void>);
     field public static final int SHUTDOWN_CANCELLED = 0; // 0x0
     field public static final int SHUTDOWN_ENTER = 1; // 0x1
     field public static final int SUSPEND_ENTER = 2; // 0x2

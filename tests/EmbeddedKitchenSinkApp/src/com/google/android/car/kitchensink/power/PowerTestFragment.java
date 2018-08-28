@@ -35,36 +35,26 @@ import androidx.fragment.app.Fragment;
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
-import java.util.concurrent.Executor;
-
 public class PowerTestFragment extends Fragment {
     private final boolean DBG = false;
     private final String TAG = "PowerTestFragment";
     private CarPowerManager mCarPowerManager;
     private TextView mTvBootReason;
-    private Executor mExecutor;
-
-    private class ThreadPerTaskExecutor implements Executor {
-        public void execute(Runnable r) {
-            new Thread(r).start();
-        }
-    }
 
     private final CarPowerManager.CarPowerStateListener mPowerListener =
-            new CarPowerManager.CarPowerStateListener () {
-                @Override
-                public void onStateChanged(int state) {
-                    Log.i(TAG, "onStateChanged() state = " + state);
+            (state, future) -> {
+                if (future != null) {
+                    future.complete(null);
                 }
+                Log.i(TAG, "onStateChanged() state = " + state);
             };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         final Runnable r = () -> {
             mCarPowerManager = ((KitchenSinkActivity) getActivity()).getPowerManager();
-            mExecutor = new ThreadPerTaskExecutor();
             try {
-                mCarPowerManager.setListener(mPowerListener, mExecutor);
+                mCarPowerManager.setListener(mPowerListener);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "Car is not connected!");
             } catch (IllegalStateException e) {
