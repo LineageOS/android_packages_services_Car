@@ -50,7 +50,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     vehicle-hal-support-lib \
     com.android.car.keventreader-client
 
-include packages/services/Car/car-support-lib/car-support.mk
+LOCAL_JAVA_LIBRARIES += android.car
 
 include $(BUILD_PACKAGE)
 
