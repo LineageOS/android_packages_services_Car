@@ -17,125 +17,97 @@
 package com.android.car.garagemode;
 
 import android.app.job.JobScheduler;
+import android.car.Car;
+import android.car.CarNotConnectedException;
+import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 
-import com.android.car.CarPowerManagementService;
-import com.android.car.CarPowerManagementService.PowerEventProcessingHandler;
-import com.android.car.CarPowerManagementService.PowerServiceEventListener;
 import com.android.internal.annotations.VisibleForTesting;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Main controller for GarageMode. It controls all the flows of GarageMode and defines the logic.
  */
-public class Controller implements PowerEventProcessingHandler, PowerServiceEventListener {
-
+public class Controller implements CarPowerStateListener {
     private static final Logger LOG = new Logger("Controller");
 
-    /**
-     * Setting large number, since we expect that GarageMode will exit early if running jobs
-     * that have idleness constraint finished.
-     */
-    @VisibleForTesting
-    static final int GARAGE_MODE_TIMEOUT_MS = 86400000; // One day
-
-    private final CarPowerManagementService mCarPowerManagementService;
-    @VisibleForTesting
-    protected final WakeupPolicy mWakeupPolicy;
+    @VisibleForTesting final WakeupPolicy mWakeupPolicy;
     private final GarageMode mGarageMode;
     private final Handler mHandler;
     private final Context mContext;
+    private final Car mCar;
 
-    public Controller(
-            Context context, CarPowerManagementService carPowerManagementService, Looper looper) {
-        this(context, carPowerManagementService, looper, null, null, null);
+    private CarPowerManager mCarPowerManager;
+
+    public Controller(Context context, Looper looper) {
+        this(context, looper, null, null, null, null);
     }
 
     public Controller(
             Context context,
-            CarPowerManagementService carPowerManagementService,
             Looper looper,
             WakeupPolicy wakeupPolicy,
             Handler handler,
-            GarageMode garageMode) {
+            GarageMode garageMode,
+            Car car) {
         mContext = context;
-        mCarPowerManagementService = carPowerManagementService;
         mHandler = (handler == null ? new Handler(looper) : handler);
         mWakeupPolicy =
                 (wakeupPolicy == null ? WakeupPolicy.initFromResources(context) : wakeupPolicy);
         mGarageMode = (garageMode == null ? new GarageMode(this) : garageMode);
+        if (car == null) {
+            mCar = Car.createCar(context, new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    try {
+                        mCarPowerManager = (CarPowerManager) mCar.getCarManager(Car.POWER_SERVICE);
+                        mCarPowerManager.setListener(Controller.this);
+                    } catch (CarNotConnectedException e) {
+                        LOG.e("Failed to get CarPowerManager instance", e);
+                    }
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                    if (mCarPowerManager != null) {
+                        mCarPowerManager.clearListener();
+                    }
+                }
+            });
+        } else {
+            mCar = car;
+        }
     }
 
-    /**
-     * We are controlling PowerManager through this method. PowerManager wont sleep until we return
-     * 0 as a response to this method call
-     *
-     * @param shuttingDown whether system is shutting down or not (= sleep entry).
-     * @return integer that represents amount of milliseconds PowerManager should wait before
-     * checking again. If we return 0, PowerManager will proceed to shutdown.
-     */
     @Override
-    public long onPrepareShutdown(boolean shuttingDown) {
-        LOG.d("Received onPrepareShutdown() signal from CPMS.\nInitiating GarageMode ...");
-        initiateGarageMode();
-        return GARAGE_MODE_TIMEOUT_MS;
-    }
-
-    /**
-     * When car went into full on mode, this method will be called and GarageMode should get the
-     * system out of idle state and cancel jobs that depend on idleness
-     */
-    @Override
-    public void onPowerOn(boolean displayOn) {
-        LOG.d("Received onPowerOn() signal from CPMS. Resetting GarageMode");
-        // Car is going into full on mode, reset the GarageMode
-        resetGarageMode();
-    }
-
-    /**
-     * When we are done with GarageMode and completed running JobScheduler jobs, PowerManager
-     * will call this method to find out when to wake up next time.
-     *
-     * @return integer that represents amount of seconds after which car will wake up again
-     */
-    @Override
-    public int getWakeupTime() {
-        LOG.d("Received getWakeupTime() signal from CPMS");
-        return mWakeupPolicy.getNextWakeUpInterval();
-    }
-
-    /**
-     * When PowerManager exits suspend to RAM, it calls this method to notify subscribed components
-     */
-    @Override
-    public void onSleepExit() {
-        LOG.d("Received onSleepExit() signal from CPMS");
-        // ignored
-    }
-
-    /**
-     * When PowerManager is actually going into suspend to RAM, it will call this method.
-     * If GarageMode did not complete before this time, it means there are some other reasons
-     * (like low battery) for PowerManager to shutdown early.
-     */
-    @Override
-    public void onSleepEntry() {
-        LOG.d("Received onSleepEntry() signal from CPMS");
-        // We are exiting GarageMode at this time, since onPrepareShutdown() sequence from
-        // CarPowerManagementService is completed.
-        mGarageMode.exitGarageMode();
-    }
-
-    /**
-     * When PowerManager is going cold (full shutdown) this method will be called. Since we don't
-     * have much to do in GarageMode in this case, we simply ignore this.
-     */
-    @Override
-    public void onShutdown() {
-        LOG.d("Received onShutdown() signal from CPMS");
-        // We are not considering restorations from shutdown state for now. Thus, ignoring
+    public void onStateChanged(int state, CompletableFuture<Void> future) {
+        switch (state) {
+            case CarPowerStateListener.SHUTDOWN_CANCELLED:
+                LOG.d("CPM state changed to SHUTDOWN_CANCELLED");
+                handleShutdownCancelled();
+                break;
+            case CarPowerStateListener.SHUTDOWN_ENTER:
+                LOG.d("CPM state changed to SHUTDOWN_ENTER");
+                handleShutdownEnter(future);
+                break;
+            case CarPowerStateListener.SUSPEND_ENTER:
+                LOG.d("CPM state changed to SUSPEND_ENTER");
+                handleSuspendEnter(future);
+                break;
+            case CarPowerStateListener.SUSPEND_EXIT:
+                LOG.d("CPM state changed to SUSPEND_EXIT");
+                handleSuspendExit();
+                break;
+            default:
+        }
     }
 
     /**
@@ -146,35 +118,12 @@ public class Controller implements PowerEventProcessingHandler, PowerServiceEven
     }
 
     /**
-     * Starts the GarageMode listeners
-     */
-    void start() {
-        LOG.d("Received start() command. Starting to listen to CPMS");
-        mCarPowerManagementService.registerPowerEventProcessingHandler(this);
-    }
-
-    /**
-     * Stops GarageMode listeners
-     */
-    void stop() {
-        LOG.d("Received stop() command. Finishing ...");
-        // There is no ability in CPMS to unregister power event processing handlers
-    }
-
-    /**
-     * Notifies CarPowerManagementService that GarageMode is completed and it can proceed with
-     * shutting down or putting system into suspend RAM
-     */
-    synchronized void notifyGarageModeEndToPowerManager() {
-        mCarPowerManagementService.notifyPowerEventProcessingCompletion(Controller.this);
-    }
-
-    /**
      * Wrapper method to send a broadcast
      *
      * @param i intent that contains broadcast data
      */
     void sendBroadcast(Intent i) {
+        LOG.d("Sending broadcast with action: " + i.getAction());
         mContext.sendBroadcast(i);
     }
 
@@ -196,19 +145,55 @@ public class Controller implements PowerEventProcessingHandler, PowerServiceEven
      * Initiates GarageMode flow which will set the system idleness to true and will start
      * monitoring jobs which has idleness constraint enabled.
      */
-    void initiateGarageMode() {
-        mGarageMode.enterGarageMode();
-        // Increment WakeupPolicy index each time entering the GarageMode
+    void initiateGarageMode(CompletableFuture<Void> future) {
         mWakeupPolicy.incrementCounter();
-        // Schedule GarageMode exit, that will kick in if updates are taking too long
-        mHandler.postDelayed(() -> mGarageMode.exitGarageMode(), GARAGE_MODE_TIMEOUT_MS);
+        mGarageMode.enterGarageMode(future);
     }
 
     /**
      * Resets GarageMode.
      */
     void resetGarageMode() {
-        mGarageMode.exitGarageMode();
+        mGarageMode.cancel();
         mWakeupPolicy.resetCounter();
+    }
+
+    @VisibleForTesting
+    void finishGarageMode() {
+        mGarageMode.finish();
+    }
+
+    @VisibleForTesting
+    void setCarPowerManager(CarPowerManager cpm) {
+        mCarPowerManager = cpm;
+    }
+
+    void scheduleNextWakeup() {
+        if (mWakeupPolicy.getNextWakeUpInterval() <= 0) {
+            // Either there is no policy or nothing left to schedule
+            return;
+        }
+        int seconds = mWakeupPolicy.getNextWakeUpInterval();
+        try {
+            mCarPowerManager.scheduleNextWakeupTime(seconds);
+        } catch (CarNotConnectedException e) {
+            LOG.e("Car is not connected.", e);
+        }
+    }
+
+    private void handleSuspendExit() {
+        resetGarageMode();
+    }
+
+    private void handleSuspendEnter(CompletableFuture<Void> future) {
+        initiateGarageMode(future);
+    }
+
+    private void handleShutdownEnter(CompletableFuture<Void> future) {
+        initiateGarageMode(future);
+    }
+
+    private void handleShutdownCancelled() {
+        resetGarageMode();
     }
 }

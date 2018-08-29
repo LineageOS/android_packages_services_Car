@@ -77,6 +77,11 @@ class Logger {
         Log.e(mTag, buildMessage(msg), ex);
     }
 
+    /** Passing message further to Log.e() */
+    public void e(String msg, Throwable ex) {
+        Log.e(mTag, buildMessage(msg), ex);
+    }
+
     private String buildMessage(String msg) {
         return String.format("[%s]: %s", mPrefix, msg);
     }
