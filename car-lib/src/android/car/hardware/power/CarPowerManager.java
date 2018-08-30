@@ -182,6 +182,20 @@ public class CarPowerManager implements CarManagerBase {
     }
 
     /**
+     * Schedule next wake up time in CarPowerManagementSystem
+     * @throws CarNotConnectedException
+     * @hide
+     */
+    public void scheduleNextWakeupTime(int seconds) throws CarNotConnectedException {
+        try {
+            mService.scheduleNextWakeupTime(seconds);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Exception while scheduling next wakeup time", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
      * Sets a listener to receive power state changes.  Only one listener may be set at a time.
      * For calls that require completion before continue, we attach a {@link CompletableFuture}
      * which is being used as a signal that caller is finished and ready to proceed.

@@ -17,13 +17,15 @@
 package com.google.android.car.kitchensink.cluster;
 
 import android.app.Activity;
+import android.car.Car;
+import android.car.CarNotConnectedException;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
+import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.car.Car;
-import android.support.car.CarConnectionCallback;
-import android.support.car.CarNotConnectedException;
+import android.os.IBinder;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -50,16 +52,15 @@ public class FakeClusterNavigationActivity
         setContentView(R.layout.fake_cluster_navigation_activity);
         mUnobscuredArea = findViewById(R.id.unobscuredArea);
 
-        mCarApi = Car.createCar(this /* context */, new CarConnectionCallback() {
-
+        mCarApi = Car.createCar(this /* context */, new ServiceConnection() {
             @Override
-            public void onConnected(Car car) {
-                onCarConnected(car);
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                onCarConnected(mCarApi);
             }
 
             @Override
-            public void onDisconnected(Car car) {
-                onCarDisconnected(car);
+            public void onServiceDisconnected(ComponentName name) {
+                onCarDisconnected(mCarApi);
             }
         });
         Log.i(TAG, "Connecting to car api...");

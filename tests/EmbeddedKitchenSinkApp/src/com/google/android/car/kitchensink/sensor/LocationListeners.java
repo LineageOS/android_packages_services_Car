@@ -102,7 +102,7 @@ public class LocationListeners {
         @Override
         public void onLocationChanged(Location location) {
             String s = String.format("Location: lat=%10.6f, lon=%10.6f, altitude=%5.0f, "
-                                   + "speed=%5.1, bearing=%3.0f, accuracy=%5.1$s",
+                                   + "speed=%5.1f, bearing=%3.0f, accuracy=%5.1f",
                     location.getLatitude(),
                     location.getLongitude(),
                     location.getAltitude(),
