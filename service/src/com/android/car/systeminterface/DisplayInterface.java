@@ -20,6 +20,7 @@ import static com.android.settingslib.display.BrightnessUtils.GAMMA_SPACE_MAX;
 import static com.android.settingslib.display.BrightnessUtils.convertGammaToLinear;
 import static com.android.settingslib.display.BrightnessUtils.convertLinearToGamma;
 
+import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.ContentObserver;
@@ -29,6 +30,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.os.UserHandle;
 import android.provider.Settings.SettingNotFoundException;
 import android.provider.Settings.System;
 import android.util.Log;
@@ -50,6 +52,7 @@ public interface DisplayInterface {
     void stopDisplayStateMonitoring();
 
     class DefaultImpl implements DisplayInterface {
+        private final ActivityManager mActivityManager;
         private final ContentResolver mContentResolver;
         private final Context mContext;
         private final DisplayManager mDisplayManager;
@@ -59,15 +62,23 @@ public interface DisplayInterface {
         private final WakeLockInterface mWakeLockInterface;
         private CarPowerManagementService mService;
         private boolean mDisplayStateSet;
+        private boolean mSuppressOnChange;
+        private boolean mSuppressSetBrightness;
 
         private ContentObserver mBrightnessObserver =
                 new ContentObserver(new Handler(Looper.getMainLooper())) {
                     @Override
                     public void onChange(boolean selfChange) {
+                        if (mSuppressOnChange) {
+                            // This is in response to a VHAL setDisplayBrightness
+                            mSuppressOnChange = false;
+                            return;
+                        }
                         int linear = GAMMA_SPACE_MAX;
-
                         try {
-                            linear = System.getInt(mContentResolver, System.SCREEN_BRIGHTNESS);
+                            linear = System.getIntForUser(mContentResolver,
+                                                          System.SCREEN_BRIGHTNESS,
+                                                          mActivityManager.getCurrentUser());
                         } catch (SettingNotFoundException e) {
                             Log.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS:  " + e);
                         }
@@ -75,6 +86,7 @@ public interface DisplayInterface {
                                                          mMaximumBacklight);
                         int percentBright = (gamma * 100 + ((GAMMA_SPACE_MAX + 1) / 2))
                                 / GAMMA_SPACE_MAX;
+                        mSuppressSetBrightness = true;
                         mService.sendDisplayBrightness(percentBright);
                     }
                 };
@@ -99,6 +111,7 @@ public interface DisplayInterface {
         };
 
         DefaultImpl(Context context, WakeLockInterface wakeLockInterface) {
+            mActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
             mContext = context;
             mContentResolver = mContext.getContentResolver();
             mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
@@ -127,9 +140,16 @@ public interface DisplayInterface {
 
         @Override
         public void setDisplayBrightness(int percentBright) {
+            if (mSuppressSetBrightness) {
+                // In response to an onChange() callback to VHAL
+                mSuppressSetBrightness = false;
+                return;
+            }
             int gamma = (percentBright * GAMMA_SPACE_MAX + 50) / 100;
             int linear = convertGammaToLinear(gamma, mMinimumBacklight, mMaximumBacklight);
-            System.putInt(mContentResolver, System.SCREEN_BRIGHTNESS, linear);
+            mSuppressOnChange = true;
+            System.putIntForUser(mContentResolver, System.SCREEN_BRIGHTNESS, linear,
+                                 mActivityManager.getCurrentUser());
         }
 
         @Override
@@ -139,7 +159,9 @@ public interface DisplayInterface {
                 mDisplayStateSet = isMainDisplayOn();
             }
             mContentResolver.registerContentObserver(System.getUriFor(System.SCREEN_BRIGHTNESS),
-                                                     false, mBrightnessObserver);
+                                                     false,
+                                                     mBrightnessObserver,
+                                                     UserHandle.USER_ALL);
             mDisplayManager.registerDisplayListener(mDisplayListener, service.getHandler());
         }
 
