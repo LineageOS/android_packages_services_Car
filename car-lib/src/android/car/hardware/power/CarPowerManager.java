@@ -201,7 +201,7 @@ public class CarPowerManager implements CarManagerBase {
      * which is being used as a signal that caller is finished and ready to proceed.
      * Once future is completed, the {@link finished} method will automatically be called to notify
      * {@link CarPowerManagementService} that the application has handled the
-     * {@link #SHUTDOWN_PREPARE} state transition.
+     * {@link #SHUTDOWN_ENTER} or {@link #SUSPEND_ENTER} state transition.
      *
      * @param listener
      * @throws CarNotConnectedException, IllegalStateException
@@ -273,7 +273,8 @@ public class CarPowerManager implements CarManagerBase {
 
     private void updateFuture(int state, int token) {
         cleanupFuture();
-        if (state == CarPowerStateListener.SHUTDOWN_PREPARE) {
+        if (state == CarPowerStateListener.SHUTDOWN_ENTER
+                || state == CarPowerStateListener.SUSPEND_ENTER) {
             mFuture = new CompletableFuture<>();
             mFuture.whenComplete((result, exception) -> {
                 if (exception != null) {
