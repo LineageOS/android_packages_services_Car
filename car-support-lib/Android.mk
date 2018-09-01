@@ -76,6 +76,7 @@ ifeq ($(BOARD_IS_AUTOMOTIVE), true)
     $(call dist-for-goals, dist_files, $(built_aar):android.support.car-1p.aar)
 endif
 
+.PHONY: update-support-car-proguard-api
 update-support-car-proguard-api: $(INTERNAL_PLATFORM_ANDROID_SUPPORT_CAR_PROGUARD_PROGUARD_FILE) | $(ACP)
 	@echo $(PRIVATE_CAR_MODULE) copying $(INTERNAL_PLATFORM_ANDROID_SUPPORT_CAR_PROGUARD_PROGUARD_FILE) to $(LOCAL_PATH)/proguard-release.flags
 	$(hide) $(ACP) $(INTERNAL_PLATFORM_ANDROID_SUPPORT_CAR_PROGUARD_PROGUARD_FILE) $(LOCAL_PATH)/proguard-release.flags
