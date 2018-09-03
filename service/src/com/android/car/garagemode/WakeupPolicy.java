@@ -33,12 +33,12 @@ import java.util.Map;
  */
 class WakeupPolicy {
     private static final Logger LOG = new Logger("WakeupPolicy");
-    private static final Map<Character, Integer> TIME_UNITS_LOOKUP_MS;
+    private static final Map<Character, Integer> TIME_UNITS_LOOKUP_SEC;
     static {
-        TIME_UNITS_LOOKUP_MS = new HashMap<>();
-        TIME_UNITS_LOOKUP_MS.put('m', 60);
-        TIME_UNITS_LOOKUP_MS.put('h', 3600);
-        TIME_UNITS_LOOKUP_MS.put('d', 86400);
+        TIME_UNITS_LOOKUP_SEC = new HashMap<>();
+        TIME_UNITS_LOOKUP_SEC.put('m', 60);
+        TIME_UNITS_LOOKUP_SEC.put('h', 3600);
+        TIME_UNITS_LOOKUP_SEC.put('d', 86400);
     }
     private LinkedList<WakeupInterval> mWakeupIntervals;
     @VisibleForTesting protected int mIndex;
@@ -60,8 +60,8 @@ class WakeupPolicy {
     }
 
     /**
-     * Returns the interval in milliseconds, which defines next wake up time.
-     * @return the interval in milliseconds
+     * Returns the interval in seconds, which defines next wake up time.
+     * @return the interval in seconds
      */
     public int getNextWakeUpInterval() {
         if (mWakeupIntervals.size() == 0) {
@@ -72,7 +72,7 @@ class WakeupPolicy {
         int index = mIndex;
         for (WakeupInterval wakeupTime : mWakeupIntervals) {
             if (index <= wakeupTime.getNumAttempts()) {
-                return wakeupTime.getWakeupIntervalMs();
+                return wakeupTime.getWakeupInterval();
             }
             index -= wakeupTime.getNumAttempts();
         }
@@ -132,7 +132,7 @@ class WakeupPolicy {
             return null;
         }
 
-        if (!TIME_UNITS_LOOKUP_MS.containsKey(unit)) {
+        if (!TIME_UNITS_LOOKUP_SEC.containsKey(unit)) {
             LOG.e("Time units map does not contain extension " + unit);
             return null;
         }
@@ -147,7 +147,7 @@ class WakeupPolicy {
             return null;
         }
 
-        interval *= TIME_UNITS_LOOKUP_MS.get(unit);
+        interval *= TIME_UNITS_LOOKUP_SEC.get(unit);
 
         return new WakeupInterval(interval, times);
     }
@@ -162,24 +162,24 @@ class WakeupPolicy {
 
     /**
      * Defines wake up interval which then will be used by
-     * {@link com.android.car.garagemode.GarageModeService} to determine when to schedule next wake
-     * up from {@link com.android.car.CarPowerManagementService}
+     * {@link com.android.car.garagemode.GarageModeService} to schedule next wake up time in
+     * {@link android.car.hardware.power.CarPowerManager}
      */
     private class WakeupInterval {
-        private int mWakeupIntervalMs;
+        private int mWakeupInterval;
         private int mNumAttempts;
 
         WakeupInterval(int wakeupTime, int numAttempts) {
-            mWakeupIntervalMs = wakeupTime;
+            mWakeupInterval = wakeupTime;
             mNumAttempts = numAttempts;
         }
 
         /**
-         * Returns interval between now and next weke up.
+         * Returns interval between now and next wakeup.
          * @return interval in seconds
          */
-        public int getWakeupIntervalMs() {
-            return mWakeupIntervalMs;
+        public int getWakeupInterval() {
+            return mWakeupInterval;
         }
 
         /**

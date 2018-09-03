@@ -26,8 +26,6 @@ import android.content.Context;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.android.car.CarPowerManagementService;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +41,6 @@ import java.util.List;
 @SmallTest
 public class GarageModeServiceTest {
     @Mock private Context mMockContext;
-    @Mock private CarPowerManagementService mMockCarPowerManagementService;
     @Mock private Controller mMockController;
     @Mock private ContentResolver mMockContentResolver;
     @Mock private PrintWriter mMockPrintWriter;
@@ -55,22 +52,7 @@ public class GarageModeServiceTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         when(mMockContext.getContentResolver()).thenReturn(mMockContentResolver);
-        mService = new GarageModeService(
-                mMockContext,
-                mMockCarPowerManagementService,
-                mMockController);
-    }
-
-    @Test
-    public void testInit_shouldSucceed() {
-        mService.init();
-        verify(mMockController).start();
-    }
-
-    @Test
-    public void testRelease_shouldSucceed() {
-        mService.release();
-        verify(mMockController).stop();
+        mService = new GarageModeService(mMockContext, mMockController);
     }
 
     @Test
