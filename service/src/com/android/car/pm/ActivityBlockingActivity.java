@@ -24,11 +24,8 @@ import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -107,8 +104,7 @@ public class ActivityBlockingActivity extends Activity {
 
         // blockedActivity is expected to be always passed in as the topmost activity of task.
         String blockedActivity = getIntent().getStringExtra(INTENT_KEY_BLOCKED_ACTIVITY);
-        mBlockedTitle.setText(getString(R.string.activity_blocked_string,
-                findHumanReadableLabel(blockedActivity)));
+        mBlockedTitle.setText(getString(R.string.activity_blocked_string));
         if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
             Log.d(CarLog.TAG_AM, "Blocking activity " + blockedActivity);
         }
@@ -151,35 +147,6 @@ public class ActivityBlockingActivity extends Activity {
         if (!restrictions.isRequiresDistractionOptimization()) {
             finish();
         }
-    }
-
-    /**
-     * Returns a human-readable string for {@code flattenComponentName}.
-     *
-     * <p>It first attempts to return the application label for this activity. If that fails,
-     * it will return the last part in the activity name.
-     */
-    private String findHumanReadableLabel(String flattenComponentName) {
-        ComponentName componentName = ComponentName.unflattenFromString(flattenComponentName);
-        String label = null;
-        // Attempt to find application label.
-        try {
-            ApplicationInfo applicationInfo = getPackageManager().getApplicationInfo(
-                    componentName.getPackageName(), 0);
-            CharSequence appLabel = getPackageManager().getApplicationLabel(applicationInfo);
-            if (appLabel != null) {
-                label = appLabel.toString();
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                Log.i(CarLog.TAG_AM, "Could not find package for component name "
-                        + componentName.toString());
-            }
-        }
-        if (TextUtils.isEmpty(label)) {
-            label = componentName.getClass().getSimpleName();
-        }
-        return label;
     }
 
     private void handleFinish() {
