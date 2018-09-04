@@ -19,18 +19,14 @@ package com.android.car.garagemode;
 import android.content.Context;
 import android.os.Looper;
 
-import com.android.car.CarPowerManagementService;
 import com.android.car.CarServiceBase;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 
 /**
- * Main service container for car garage mode.
- *
- * GarageMode enables idle time in cars.
- * {@link com.android.car.garagemode.GarageModeService} registers itself as a user of
- * {@link com.android.car.CarPowerManagementService}, which then starts GarageMode flow.
+ * Main service container for car Garage Mode.
+ * Garage Mode enables idle time in cars.
  */
 public class GarageModeService implements CarServiceBase {
     private static final Logger LOG = new Logger("Service");
@@ -38,18 +34,15 @@ public class GarageModeService implements CarServiceBase {
     private final Context mContext;
     private final Controller mController;
 
-    public GarageModeService(Context context, CarPowerManagementService carPowerManagementService) {
-        this(context, carPowerManagementService, null);
+    public GarageModeService(Context context) {
+        this(context, null);
     }
 
     @VisibleForTesting
-    protected GarageModeService(
-            Context context,
-            CarPowerManagementService carPowerManagementService,
-            Controller controller) {
+    protected GarageModeService(Context context, Controller controller) {
         mContext = context;
         mController = (controller != null ? controller
-                : new Controller(context, carPowerManagementService, Looper.myLooper()));
+                : new Controller(context, Looper.myLooper()));
     }
 
     /**
@@ -57,7 +50,6 @@ public class GarageModeService implements CarServiceBase {
      */
     @Override
     public void init() {
-        mController.start();
     }
 
     /**
@@ -65,7 +57,6 @@ public class GarageModeService implements CarServiceBase {
      */
     @Override
     public void release() {
-        mController.stop();
     }
 
     /**
@@ -88,7 +79,7 @@ public class GarageModeService implements CarServiceBase {
      * Forces GarageMode to start. Used by {@link com.android.car.ICarImpl}.
      */
     public void forceStartGarageMode() {
-        mController.initiateGarageMode();
+        mController.initiateGarageMode(null);
     }
 
     /**

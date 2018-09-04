@@ -122,7 +122,7 @@ public class ICarImpl extends ICar.Stub {
                 mSystemActivityMonitoringService);
         mCarInputService = new CarInputService(serviceContext, mHal.getInputHal());
         mCarProjectionService = new CarProjectionService(serviceContext, mCarInputService);
-        mGarageModeService = new GarageModeService(mContext, mCarPowerManagementService);
+        mGarageModeService = new GarageModeService(mContext);
         mAppFocusService = new AppFocusService(serviceContext, mSystemActivityMonitoringService);
         mCarAudioService = new CarAudioService(serviceContext);
         mCarNightService = new CarNightService(serviceContext, mCarPropertyService);

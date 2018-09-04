@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.os.Handler;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Class that interacts with JobScheduler, controls system idleness and monitor jobs which are
@@ -46,33 +47,30 @@ class GarageMode {
     public static final String ACTION_GARAGE_MODE_OFF =
             "com.android.server.jobscheduler.GARAGE_MODE_OFF";
 
-
     static final long JOB_SNAPSHOT_INITIAL_UPDATE_MS = 10000; // 10 seconds
     static final long JOB_SNAPSHOT_UPDATE_FREQUENCY_MS = 1000; // 1 second
 
     private final Controller mController;
 
     private boolean mGarageModeActive;
-    private boolean mGarageModeJobsRunning;
     private JobScheduler mJobScheduler;
     private Handler mHandler;
     private Runnable mRunnable;
+    private CompletableFuture<Void> mFuture;
 
     GarageMode(Controller controller) {
         mGarageModeActive = false;
-        mGarageModeJobsRunning = false;
         mController = controller;
         mJobScheduler = controller.getJobSchedulerService();
         mHandler = controller.getHandler();
 
         mRunnable = () -> {
-            updateJobSnapshots();
-            if (mGarageModeJobsRunning) {
+            if (areAnyIdleJobsRunning()) {
                 LOG.d("Some jobs are still running. Need to wait more ...");
                 mHandler.postDelayed(mRunnable, JOB_SNAPSHOT_UPDATE_FREQUENCY_MS);
             } else {
                 LOG.d("No jobs are currently running.");
-                exitGarageMode();
+                finish();
             }
         };
     }
@@ -81,19 +79,56 @@ class GarageMode {
         return mGarageModeActive;
     }
 
-    synchronized void enterGarageMode() {
+    void enterGarageMode(CompletableFuture<Void> future) {
         LOG.d("Entering GarageMode");
-        mGarageModeActive = true;
+        synchronized (this) {
+            mGarageModeActive = true;
+        }
+        updateFuture(future);
         broadcastSignalToJobSchedulerTo(true);
         startMonitoringThread();
     }
 
-    synchronized void exitGarageMode() {
-        LOG.d("Exiting GarageMode");
-        mGarageModeActive = false;
+    synchronized void cancel() {
+        if (mFuture != null && !mFuture.isDone()) {
+            mFuture.cancel(true);
+        }
+        mFuture = null;
+    }
+
+    synchronized void finish() {
+        mController.scheduleNextWakeup();
+        synchronized (this) {
+            if (mFuture != null && !mFuture.isDone()) {
+                mFuture.complete(null);
+            }
+            mFuture = null;
+        }
+    }
+
+    private void cleanupGarageMode() {
+        LOG.d("Cleaning up GarageMode");
+        synchronized (this) {
+            mGarageModeActive = false;
+        }
         broadcastSignalToJobSchedulerTo(false);
-        mController.notifyGarageModeEndToPowerManager();
         stopMonitoringThread();
+    }
+
+    private void updateFuture(CompletableFuture<Void> future) {
+        synchronized (this) {
+            mFuture = future;
+        }
+        if (mFuture != null) {
+            mFuture.whenComplete((result, exception) -> {
+                if (exception != null) {
+                    LOG.e("Seems like GarageMode got canceled, cleaning up", exception);
+                } else {
+                    LOG.d("Seems like GarageMode is completed, cleaning up");
+                }
+                cleanupGarageMode();
+            });
+        }
     }
 
     private void broadcastSignalToJobSchedulerTo(boolean enableGarageMode) {
@@ -107,26 +142,23 @@ class GarageMode {
         mController.sendBroadcast(i);
     }
 
-    private void startMonitoringThread() {
+    private synchronized void startMonitoringThread() {
         mHandler.postDelayed(mRunnable, JOB_SNAPSHOT_INITIAL_UPDATE_MS);
     }
 
-    private void stopMonitoringThread() {
+    private synchronized void stopMonitoringThread() {
         mHandler.removeCallbacks(mRunnable);
     }
 
-    private synchronized void updateJobSnapshots() {
+    private boolean areAnyIdleJobsRunning() {
         List<JobInfo> startedJobs = mJobScheduler.getStartedJobs();
-        mGarageModeJobsRunning = false;
-
-        List<JobSnapshot> jobSnapshots = mJobScheduler.getAllJobSnapshots();
-        for (JobSnapshot snap : jobSnapshots) {
+        for (JobSnapshot snap : mJobScheduler.getAllJobSnapshots()) {
             if (startedJobs.contains(snap.getJobInfo())) {
                 if (snap.getJobInfo().isRequireDeviceIdle()) {
-                    mGarageModeJobsRunning = true;
-                    return;
+                    return true;
                 }
             }
         }
+        return false;
     }
 }
