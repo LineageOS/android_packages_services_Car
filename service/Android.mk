@@ -49,7 +49,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         car-systemtest \
         com.android.car.procfsinspector-client \
 
-include frameworks/base/packages/SettingsLib/common.mk
+LOCAL_STATIC_ANDROID_LIBRARIES := SettingsLib androidx.preference_preference
 
 include $(BUILD_PACKAGE)
 
@@ -78,7 +78,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
 
 LOCAL_MIN_SDK_VERSION := 25
 
-include frameworks/base/packages/SettingsLib/common.mk
+LOCAL_STATIC_ANDROID_LIBRARIES := SettingsLib androidx.preference_preference
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
