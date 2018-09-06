@@ -141,8 +141,8 @@ public class ICarImpl extends ICar.Stub {
         mCarConfigurationService =
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
         mUserManagerHelper = new CarUserManagerHelper(serviceContext);
-        mCarLocationService = new CarLocationService(mContext, mCarPowerManagementService,
-                mCarPropertyService, mUserManagerHelper);
+        mCarLocationService = new CarLocationService(
+                mContext, mCarPropertyService, mUserManagerHelper);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();

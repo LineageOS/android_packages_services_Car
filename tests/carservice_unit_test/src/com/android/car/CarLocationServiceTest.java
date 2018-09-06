@@ -26,9 +26,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.Car;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.CarSensorEvent;
 import android.car.hardware.CarSensorManager;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.user.CarUserManagerHelper;
@@ -84,10 +86,10 @@ public class CarLocationServiceTest {
     private CarLocationService mCarLocationService;
     private Context mContext;
     private CountDownLatch mLatch;
+    private Car mCar;
     @Mock private Context mMockContext;
     @Mock private LocationManager mMockLocationManager;
     @Mock private CarPropertyService mMockCarPropertyService;
-    @Mock private CarPowerManagementService mMockCarPowerManagementService;
     @Mock private CarUserManagerHelper mMockCarUserManagerHelper;
 
     /**
@@ -98,8 +100,9 @@ public class CarLocationServiceTest {
         MockitoAnnotations.initMocks(this);
         mContext = InstrumentationRegistry.getTargetContext();
         mLatch = new CountDownLatch(1);
-        mCarLocationService = new CarLocationService(mMockContext, mMockCarPowerManagementService,
-                mMockCarPropertyService, mMockCarUserManagerHelper) {
+        mCar = new Car(mContext, null, null);
+        mCarLocationService = new CarLocationService(
+                mMockContext, mMockCarPropertyService, mMockCarUserManagerHelper, mCar) {
             @Override
             void asyncOperation(Runnable operation) {
                 super.asyncOperation(() -> {
@@ -143,8 +146,6 @@ public class CarLocationServiceTest {
     public void testRegistersToReceiveEvents() {
         ArgumentCaptor<IntentFilter> argument = ArgumentCaptor.forClass(IntentFilter.class);
         mCarLocationService.init();
-        verify(mMockCarPowerManagementService).registerPowerEventProcessingHandler(
-                mCarLocationService);
         verify(mMockContext).registerReceiver(eq(mCarLocationService), argument.capture());
         IntentFilter intentFilter = argument.getValue();
         assertEquals(4, intentFilter.countActions());
@@ -203,7 +204,7 @@ public class CarLocationServiceTest {
     }
 
     /**
-     * Test that the {@link CarLocationService} parses a location from a JSON seialization and then
+     * Test that the {@link CarLocationService} parses a location from a JSON serialization and then
      * injects it into the {@link LocationManager} upon user switch if the system user is headless.
      */
     @Test
@@ -385,7 +386,7 @@ public class CarLocationServiceTest {
                 .thenReturn(timbuktu);
         when(mMockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
-        mCarLocationService.onPrepareShutdown(true);
+        mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_ENTER, null);
         mLatch.await();
         verify(mMockLocationManager).getLastKnownLocation(LocationManager.GPS_PROVIDER);
         String actualContents = readCacheFile();
