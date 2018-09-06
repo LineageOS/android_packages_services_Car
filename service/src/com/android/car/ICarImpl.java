@@ -128,8 +128,8 @@ public class ICarImpl extends ICar.Stub {
         mCarNightService = new CarNightService(serviceContext, mCarPropertyService);
         mInstrumentClusterService = new InstrumentClusterService(serviceContext,
                 mAppFocusService, mCarInputService);
-        mSystemStateControllerService = new SystemStateControllerService(serviceContext,
-                mCarPowerManagementService, mCarAudioService, this);
+        mSystemStateControllerService = new SystemStateControllerService(
+                serviceContext, mCarAudioService, this);
         mPerUserCarServiceHelper = new PerUserCarServiceHelper(serviceContext);
         mCarBluetoothService = new CarBluetoothService(serviceContext, mCarPropertyService,
                 mPerUserCarServiceHelper, mCarUXRestrictionsService);
