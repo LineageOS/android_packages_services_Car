@@ -44,6 +44,26 @@ public class Controller implements CarPowerStateListener {
     private final Handler mHandler;
     private final Context mContext;
     private final Car mCar;
+    private final ServiceConnection mCarServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            LOG.e("Car is now connected, getting CarPowerManager service");
+            try {
+                mCarPowerManager = (CarPowerManager) mCar.getCarManager(Car.POWER_SERVICE);
+                mCarPowerManager.setListener(Controller.this);
+            } catch (CarNotConnectedException e) {
+                LOG.e("Failed to get CarPowerManager instance", e);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            LOG.e("Car is now disconnected!");
+            if (mCarPowerManager != null) {
+                mCarPowerManager.clearListener();
+            }
+        }
+    };
 
     private CarPowerManager mCarPowerManager;
 
@@ -64,24 +84,9 @@ public class Controller implements CarPowerStateListener {
                 (wakeupPolicy == null ? WakeupPolicy.initFromResources(context) : wakeupPolicy);
         mGarageMode = (garageMode == null ? new GarageMode(this) : garageMode);
         if (car == null) {
-            mCar = Car.createCar(context, new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    try {
-                        mCarPowerManager = (CarPowerManager) mCar.getCarManager(Car.POWER_SERVICE);
-                        mCarPowerManager.setListener(Controller.this);
-                    } catch (CarNotConnectedException e) {
-                        LOG.e("Failed to get CarPowerManager instance", e);
-                    }
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                    if (mCarPowerManager != null) {
-                        mCarPowerManager.clearListener();
-                    }
-                }
-            });
+            LOG.e("Creating a connection to car service to get CarPowerManager");
+            mCar = Car.createCar(context, mCarServiceConnection);
+            mCar.connect();
         } else {
             mCar = car;
         }

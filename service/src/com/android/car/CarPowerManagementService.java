@@ -129,7 +129,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
     private int mNextWakeupSec;
 
     // TODO:  Make this OEM configurable.
-    private final static int APP_EXTEND_MAX_MS = 10000;
+    private static final int APP_EXTEND_MAX_MS = 86400000; // 1 day
     private final static int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
     private final static int SHUTDOWN_EXTEND_MAX_MS = 5000;
 
