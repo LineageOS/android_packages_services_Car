@@ -328,12 +328,14 @@ public class CarUxRestrictions implements Parcelable {
         dest.writeInt(mMaxContentDepth);
     }
 
-    public static final Parcelable.Creator<CarUxRestrictions> CREATOR
-            = new Parcelable.Creator<CarUxRestrictions>() {
+    public static final Parcelable.Creator<CarUxRestrictions> CREATOR =
+            new Parcelable.Creator<CarUxRestrictions>() {
+        @Override
         public CarUxRestrictions createFromParcel(Parcel in) {
             return new CarUxRestrictions(in);
         }
 
+        @Override
         public CarUxRestrictions[] newArray(int size) {
             return new CarUxRestrictions[size];
         }
