@@ -15,6 +15,7 @@
  */
 package android.car.usb.handler;
 
+import android.annotation.Nullable;
 import android.car.IUsbAoapSupportCheckService;
 import android.content.ComponentName;
 import android.content.Context;
@@ -37,13 +38,16 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.Pair;
+
 import com.android.internal.util.XmlUtils;
+
+import org.xmlpull.v1.XmlPullParser;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import org.xmlpull.v1.XmlPullParser;
 
 /** Resolves supported handlers for USB device. */
 public final class UsbDeviceHandlerResolver {
@@ -70,7 +74,7 @@ public final class UsbDeviceHandlerResolver {
 
     private class DeviceContext {
         public final UsbDevice usbDevice;
-        public final UsbDeviceConnection connection;
+        @Nullable public final UsbDeviceConnection connection;
         public final UsbDeviceSettings settings;
         public final List<UsbDeviceSettings> activeDeviceSettings;
         public final Queue<Pair<ResolveInfo, DeviceFilter>> mActiveDeviceOptions =
@@ -484,7 +488,8 @@ public final class UsbDeviceHandlerResolver {
         }
         DeviceContext deviceContext =
                 new DeviceContext(device, UsbDeviceSettings.constructSettings(device), settings);
-        if (AoapInterface.isSupported(deviceContext.connection)) {
+        if (deviceContext.connection != null
+                && AoapInterface.isSupported(deviceContext.connection)) {
             deviceContext.mActiveDeviceOptions.addAll(getDeviceMatches(device, intent, true));
             queryNextAoapHandler(deviceContext);
         } else {
@@ -516,6 +521,10 @@ public final class UsbDeviceHandlerResolver {
 
     private void requestAoapSwitch(UsbDevice device, DeviceFilter filter) {
         UsbDeviceConnection connection = UsbUtil.openConnection(mUsbManager, device);
+        if (connection == null) {
+            Log.e(TAG, "Failed to connect to usb device.");
+            return;
+        }
         try {
             UsbUtil.sendAoapAccessoryStart(
                     connection,
