@@ -15,10 +15,12 @@
  */
 package android.car.usb.handler;
 
+import android.annotation.Nullable;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.text.TextUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +32,7 @@ import java.util.List;
 class UsbUtil {
     public static List<UsbDevice> findAllPossibleAndroidDevices(UsbManager usbManager) {
         HashMap<String, UsbDevice> devices = usbManager.getDeviceList();
-    ArrayList<UsbDevice> androidDevices = new ArrayList<>(devices.size());
+        ArrayList<UsbDevice> androidDevices = new ArrayList<>(devices.size());
         for (UsbDevice device : devices.values()) {
             UsbDeviceConnection connection = openConnection(usbManager, device);
             if (AoapInterface.isSupported(connection)) {
@@ -41,11 +43,12 @@ class UsbUtil {
         return androidDevices;
     }
 
+    @Nullable
     public static UsbDeviceConnection openConnection(UsbManager manager, UsbDevice device) {
-    manager.grantPermission(device);
-    return manager.openDevice(device);
+        manager.grantPermission(device);
+        return manager.openDevice(device);
     }
-    
+
     public static void sendAoapAccessoryStart(UsbDeviceConnection connection, String manufacturer,
             String model, String description, String version, String uri, String serial)
                     throws IOException {

@@ -132,6 +132,7 @@ public final class VmsOperationRecorder {
         if (isEnabled()) {
             try {
                 JSONObject args = new JSONObject();
+                args.put("publisherId", layersOffering.getPublisherId());
                 JSONArray offering = toJson(layersOffering);
                 if (offering.length() > 0) {
                     args.put("layerDependency", offering);
