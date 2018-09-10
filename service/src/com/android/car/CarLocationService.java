@@ -45,7 +45,6 @@ import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
 
-import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.FileInputStream;
@@ -105,8 +104,6 @@ public class CarLocationService extends BroadcastReceiver implements
     private HandlerThread mHandlerThread;
     private Handler mHandler;
     private CarPowerManager mCarPowerManager;
-    @GuardedBy("this")
-    private CompletableFuture mFuture;
 
     public CarLocationService(
             Context context,
@@ -167,37 +164,20 @@ public class CarLocationService extends BroadcastReceiver implements
         switch (state) {
             case CarPowerStateListener.SHUTDOWN_ENTER:
             case CarPowerStateListener.SUSPEND_ENTER:
-                // We need to call complete(null) on future, once operations are completed.
-                updateFuture(future);
-                logd("onPrepareShutdown");
-                asyncOperation(() -> storeLocation());
+                logd("onStateChanged: " + state);
+                asyncOperation(() -> {
+                    storeLocation();
+                    // Notify the CarPowerManager that it may proceed to shutdown or suspend.
+                    future.complete(null);
+                });
                 break;
             case CarPowerStateListener.SHUTDOWN_CANCELLED:
             case CarPowerStateListener.SUSPEND_EXIT:
-                // We are not doing anything here
+                // This service does not need to do any work for these events but should still
+                // notify the CarPowerManager that it may proceed.
+                future.complete(null);
                 break;
         }
-    }
-
-    private synchronized void updateFuture(CompletableFuture<Void> future) {
-        mFuture = future;
-        if (mFuture != null) {
-            mFuture.whenComplete((result, exception) -> {
-                if (exception != null) {
-                    Log.e(TAG, "Seems like we got canceled, cleaning up", (Throwable) exception);
-                } else {
-                    Log.d(TAG, "Seems like we are done, cleaning up");
-                }
-                cleanupFuture();
-            });
-        }
-    }
-
-    private void cleanupFuture() {
-        if (mFuture != null && !mFuture.isDone()) {
-            mFuture.cancel(true);
-        }
-        mFuture = null;
     }
 
     @Override
@@ -310,12 +290,6 @@ public class CarLocationService extends BroadcastReceiver implements
                 Log.e(TAG, "Unable to write to disk", e);
                 atomicFile.failWrite(fos);
             }
-        }
-        // Once we are done, let's check if we have future and notify
-        // CarPowerManagementService that it can proceed to shutdown.
-        if (mFuture != null) {
-            mFuture.complete(null);
-            mFuture = null;
         }
     }
 

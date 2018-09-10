@@ -64,6 +64,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -76,7 +77,6 @@ import java.util.stream.Collectors;
  * 1. {@link Context} provides files and a mocked {@link LocationManager}.
  * 2. {@link LocationManager} provides dummy {@link Location}s.
  * 3. {@link CarPropertyService} registers a listener for ignition state events.
- * 3. {@link CarPowerManagementService} registers a handler for power events.
  * 4. {@link CarUserManagerHelper} tells whether or not the system user is headless.
  */
 @RunWith(AndroidJUnit4.class)
@@ -386,9 +386,11 @@ public class CarLocationServiceTest {
                 .thenReturn(timbuktu);
         when(mMockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
-        mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_ENTER, null);
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_ENTER, future);
         mLatch.await();
         verify(mMockLocationManager).getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        assertTrue(future.isDone());
         String actualContents = readCacheFile();
         long oneDayMs = 24 * 60 * 60 * 1000;
         long granularCurrentTime = (currentTime / oneDayMs) * oneDayMs;
