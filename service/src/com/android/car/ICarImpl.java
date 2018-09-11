@@ -128,8 +128,8 @@ public class ICarImpl extends ICar.Stub {
         mCarNightService = new CarNightService(serviceContext, mCarPropertyService);
         mInstrumentClusterService = new InstrumentClusterService(serviceContext,
                 mAppFocusService, mCarInputService);
-        mSystemStateControllerService = new SystemStateControllerService(serviceContext,
-                mCarPowerManagementService, mCarAudioService, this);
+        mSystemStateControllerService = new SystemStateControllerService(
+                serviceContext, mCarAudioService, this);
         mPerUserCarServiceHelper = new PerUserCarServiceHelper(serviceContext);
         mCarBluetoothService = new CarBluetoothService(serviceContext, mCarPropertyService,
                 mPerUserCarServiceHelper, mCarUXRestrictionsService);
@@ -141,8 +141,8 @@ public class ICarImpl extends ICar.Stub {
         mCarConfigurationService =
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
         mUserManagerHelper = new CarUserManagerHelper(serviceContext);
-        mCarLocationService = new CarLocationService(mContext, mCarPowerManagementService,
-                mCarPropertyService, mUserManagerHelper);
+        mCarLocationService = new CarLocationService(
+                mContext, mCarPropertyService, mUserManagerHelper);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();

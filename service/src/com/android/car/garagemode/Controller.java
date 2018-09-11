@@ -47,7 +47,7 @@ public class Controller implements CarPowerStateListener {
     private final ServiceConnection mCarServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            LOG.e("Car is now connected, getting CarPowerManager service");
+            LOG.i("Car is now connected, getting CarPowerManager service");
             try {
                 mCarPowerManager = (CarPowerManager) mCar.getCarManager(Car.POWER_SERVICE);
                 mCarPowerManager.setListener(Controller.this);
@@ -58,7 +58,7 @@ public class Controller implements CarPowerStateListener {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            LOG.e("Car is now disconnected!");
+            LOG.i("Car is now disconnected!");
             if (mCarPowerManager != null) {
                 mCarPowerManager.clearListener();
             }
@@ -84,7 +84,7 @@ public class Controller implements CarPowerStateListener {
                 (wakeupPolicy == null ? WakeupPolicy.initFromResources(context) : wakeupPolicy);
         mGarageMode = (garageMode == null ? new GarageMode(this) : garageMode);
         if (car == null) {
-            LOG.e("Creating a connection to car service to get CarPowerManager");
+            LOG.i("Creating a connection to car service to get CarPowerManager");
             mCar = Car.createCar(context, mCarServiceConnection);
             mCar.connect();
         } else {
