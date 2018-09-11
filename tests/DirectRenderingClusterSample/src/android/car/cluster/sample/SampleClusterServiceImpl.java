@@ -38,6 +38,8 @@ import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 
+import androidx.car.cluster.navigation.NavigationState;
+
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -52,6 +54,8 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
     private Listener mListener;
     private final Binder mLocalBinder = new LocalBinder();
     static final String LOCAL_BINDING_ACTION = "local";
+    private static final String NAV_STATE_BUNDLE_KEY = "navstate";
+    private static final int NAV_STATE_EVENT_ID = 1;
 
     private ClusterDisplayProvider mDisplayProvider;
 
@@ -132,11 +136,17 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
             @Override
             public void onEvent(int eventType, Bundle bundle) {
                 StringBuilder bundleSummary = new StringBuilder();
-                for (String key : bundle.keySet()) {
-                    bundleSummary.append(key);
-                    bundleSummary.append("=");
-                    bundleSummary.append(bundle.get(key));
-                    bundleSummary.append(" ");
+                if (eventType == NAV_STATE_EVENT_ID && bundle.containsKey(NAV_STATE_BUNDLE_KEY)) {
+                    NavigationState navState = NavigationState
+                            .fromParcelable(bundle.getParcelable("navstate"));
+                    bundleSummary.append(navState.toString());
+                } else {
+                    for (String key : bundle.keySet()) {
+                        bundleSummary.append(key);
+                        bundleSummary.append("=");
+                        bundleSummary.append(bundle.get(key));
+                        bundleSummary.append(" ");
+                    }
                 }
                 Log.i(TAG, "onEvent(" + eventType + ", " + bundleSummary + ")");
             }

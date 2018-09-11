@@ -35,6 +35,8 @@ LOCAL_USE_AAPT2 := true
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
 LOCAL_JAVA_LIBRARIES += android.car
-LOCAL_STATIC_ANDROID_LIBRARIES += androidx.legacy_legacy-support-v4
+LOCAL_STATIC_ANDROID_LIBRARIES += \
+    androidx.legacy_legacy-support-v4 \
+    androidx.car_car-cluster
 
 include $(BUILD_PACKAGE)
