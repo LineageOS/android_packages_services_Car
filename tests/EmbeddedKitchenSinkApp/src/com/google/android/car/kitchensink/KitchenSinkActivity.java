@@ -200,11 +200,6 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         return mPropertyManager;
     }
 
-    @Override
-    protected CarDrawerAdapter getRootAdapter() {
-        return new DrawerAdapter();
-    }
-
     public CarSensorManager getSensorManager() {
         return mSensorManager;
     }
@@ -214,6 +209,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
         super.onCreate(savedInstanceState);
         setToolbarElevation(0f);
         setMainContent(R.layout.kitchen_content);
+        getDrawerController().setRootAdapter(new DrawerAdapter());
         // Connection to Car Service does not work for non-automotive yet.
         if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
             initCarApi();
