@@ -30,8 +30,13 @@ public class MockedPowerHalService extends PowerHalService {
     private final boolean mIsTimedWakeupAllowed;
     private PowerState mCurrentPowerState = new PowerState(PowerHalService.STATE_ON_FULL, 0);
     private PowerEventListener mListener;
+    private SignalListener mSignalListener;
 
     private final LinkedList<int[]> mSentStates = new LinkedList<>();
+
+    interface SignalListener {
+        void sendingSignal(int signal);
+    }
 
     public MockedPowerHalService(boolean isPowerStateSupported, boolean isDeepSleepAllowed,
             boolean isTimedWakeupAllowed) {
@@ -44,6 +49,11 @@ public class MockedPowerHalService extends PowerHalService {
     @Override
     public synchronized void setListener(PowerEventListener listener) {
         mListener = listener;
+    }
+
+    // For testing purposes only
+    public synchronized void setSignalListener(SignalListener listener) {
+        mSignalListener =  listener;
     }
 
     @Override
@@ -96,6 +106,13 @@ public class MockedPowerHalService extends PowerHalService {
     }
 
     private synchronized void doSendState(int state, int param) {
+        SignalListener listener;
+        synchronized (this) {
+            listener = mSignalListener;
+        }
+        if (listener != null) {
+            listener.sendingSignal(state);
+        }
         int[] toSend = new int[] {state, param};
         mSentStates.addLast(toSend);
         notifyAll();
