@@ -48,6 +48,16 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
             .getSimpleName();
     private CarDrivingStateManager mCarDrivingStateManager;
     private CarUxRestrictionsManager mCarUxRManager;
+    // Currently set restrictions currently set in car_ux_restrictions_map.xml
+    private static final int UX_RESTRICTIONS_MOVING = CarUxRestrictions.UX_RESTRICTIONS_NO_DIALPAD
+            | CarUxRestrictions.UX_RESTRICTIONS_NO_FILTERING
+            | CarUxRestrictions.UX_RESTRICTIONS_LIMIT_STRING_LENGTH
+            | CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD
+            | CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO
+            | CarUxRestrictions.UX_RESTRICTIONS_LIMIT_CONTENT
+            | CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP
+            | CarUxRestrictions.UX_RESTRICTIONS_NO_TEXT_MESSAGE;
+
 
     @Override
     protected synchronized void configureMockedHal() {
@@ -128,8 +138,7 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
         restrictions = listener.waitForUxRestrictionsChange();
         assertNotNull(restrictions);
         assertTrue(restrictions.isRequiresDistractionOptimization());
-        assertThat(restrictions.getActiveRestrictions())
-                .isEqualTo(CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
+        assertThat(restrictions.getActiveRestrictions()).isEqualTo(UX_RESTRICTIONS_MOVING);
 
         // Test Idling state and corresponding restrictions based on car_ux_restrictions_map.xml
         listener.reset();
