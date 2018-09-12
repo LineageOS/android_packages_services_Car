@@ -17,6 +17,7 @@
 package com.android.car.user;
 
 import android.annotation.Nullable;
+import android.car.settings.CarSettings;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,6 +26,7 @@ import android.content.IntentFilter;
 import android.location.LocationManager;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.android.car.CarServiceBase;
@@ -86,10 +88,16 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
         }
 
         if (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(intent.getAction())) {
-            if (mCarUserManagerHelper.getAllUsers().size() == 0) {
+            // We want to set restrictions on system and guest users only once. These are persisted
+            // onto disk, so it's sufficient to do it once + we minimize the number of disk writes.
+            if (Settings.Global.getInt(mContext.getContentResolver(),
+                    CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, /* default= */ 0) == 0) {
                 setSystemUserRestrictions();
                 mCarUserManagerHelper.initDefaultGuestRestrictions();
+                Settings.Global.putInt(mContext.getContentResolver(),
+                        CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
             }
+
         } else if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
             // Update last active user if the switched-to user is a persistent, non-system user.
             int currentUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
