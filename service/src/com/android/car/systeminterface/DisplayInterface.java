@@ -74,16 +74,16 @@ public interface DisplayInterface {
                             mSuppressOnChange = false;
                             return;
                         }
-                        int linear = GAMMA_SPACE_MAX;
+                        int gamma = GAMMA_SPACE_MAX;
                         try {
-                            linear = System.getIntForUser(mContentResolver,
+                            int linear = System.getIntForUser(mContentResolver,
                                                           System.SCREEN_BRIGHTNESS,
                                                           mActivityManager.getCurrentUser());
+                            gamma = convertLinearToGamma(linear, mMinimumBacklight,
+                                                         mMaximumBacklight);
                         } catch (SettingNotFoundException e) {
                             Log.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS:  " + e);
                         }
-                        int gamma = convertLinearToGamma(linear, mMinimumBacklight,
-                                                         mMaximumBacklight);
                         int percentBright = (gamma * 100 + ((GAMMA_SPACE_MAX + 1) / 2))
                                 / GAMMA_SPACE_MAX;
                         mSuppressSetBrightness = true;
