@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.user;
+package android.car.userlib;
 
 import android.Manifest;
 import android.annotation.Nullable;
