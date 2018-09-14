@@ -18,19 +18,31 @@ package android.car;
 
 import android.annotation.SystemApi;
 import android.content.Intent;
+import android.net.wifi.WifiConfiguration;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 
 /**
  * CarProjectionManager allows applications implementing projection to register/unregister itself
  * with projection manager, listen for voice notification.
+ *
+ * A client must have {@link Car#PERMISSION_CAR_PROJECTION} permission in order to access this
+ * manager.
+ *
  * @hide
  */
 @SystemApi
 public final class CarProjectionManager implements CarManagerBase {
+    private static final String TAG = CarProjectionManager.class.getSimpleName();
+
     /**
      * Listener to get projected notifications.
      *
@@ -52,12 +64,24 @@ public final class CarProjectionManager implements CarManagerBase {
      */
     public static final int PROJECTION_LONG_PRESS_VOICE_SEARCH = 0x2;
 
+    /** @hide */
+    public static final int PROJECTION_AP_STARTED = 0;
+    /** @hide */
+    public static final int PROJECTION_AP_STOPPED = 1;
+    /** @hide */
+    public static final int PROJECTION_AP_FAILED = 2;
+
     private final ICarProjection mService;
     private final Handler mHandler;
     private final ICarProjectionCallbackImpl mBinderListener;
 
     private CarProjectionListener mListener;
     private int mVoiceSearchFilter;
+
+    private ProjectionAccessPointCallbackProxy mProjectionAccessPointCallbackProxy;
+
+    // Only one access point proxy object per process.
+    private static final IBinder mAccessPointProxyToken = new Binder();
 
     /**
      * @hide
@@ -171,6 +195,123 @@ public final class CarProjectionManager implements CarManagerBase {
         // nothing to do
     }
 
+    /**
+     * Request to start Wi-Fi access point if it hasn't been started yet for wireless projection
+     * receiver app.
+     *
+     * <p>A process can have only one request to start an access point, subsequent call of this
+     * method will invalidate previous calls.
+     */
+    public void startProjectionAccessPoint(ProjectionAccessPointCallback callback) {
+        synchronized (this) {
+            Looper looper = mHandler.getLooper();
+            ProjectionAccessPointCallbackProxy proxy =
+                    new ProjectionAccessPointCallbackProxy(this, looper, callback);
+            try {
+                mService.startProjectionAccessPoint(proxy.getMessenger(), mAccessPointProxyToken);
+                mProjectionAccessPointCallbackProxy = proxy;
+            } catch (RemoteException e) {
+                throw e.rethrowFromSystemServer();
+            }
+        }
+    }
+
+    /**
+     * Stop Wi-Fi Access Point for wireless projection receiver app.
+     */
+    public void stopProjectionAccessPoint() {
+        ProjectionAccessPointCallbackProxy proxy;
+        synchronized (this) {
+            proxy = mProjectionAccessPointCallbackProxy;
+            mProjectionAccessPointCallbackProxy = null;
+        }
+        if (proxy == null) {
+            return;
+        }
+
+        try {
+            mService.stopProjectionAccessPoint(mAccessPointProxyToken);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Callback class for applications to receive updates about the LocalOnlyHotspot status.
+     */
+    public abstract static class ProjectionAccessPointCallback {
+        public static final int ERROR_NO_CHANNEL = 1;
+        public static final int ERROR_GENERIC = 2;
+        public static final int ERROR_INCOMPATIBLE_MODE = 3;
+        public static final int ERROR_TETHERING_DISALLOWED = 4;
+
+        /** Called when access point started successfully. */
+        public void onStarted(WifiConfiguration wifiConfiguration) {}
+        /** Called when access point is stopped. No events will be sent after that. */
+        public void onStopped() {}
+        /** Called when access point failed to start. No events will be sent after that. */
+        public void onFailed(int reason) {}
+    }
+
+    /**
+     * Callback proxy for LocalOnlyHotspotCallback objects.
+     */
+    private static class ProjectionAccessPointCallbackProxy {
+        private static final String LOG_PREFIX =
+                ProjectionAccessPointCallbackProxy.class.getSimpleName() + ": ";
+
+        private final Handler mHandler;
+        private final WeakReference<CarProjectionManager> mCarProjectionManagerRef;
+        private final Messenger mMessenger;
+
+        ProjectionAccessPointCallbackProxy(CarProjectionManager manager, Looper looper,
+                final ProjectionAccessPointCallback callback) {
+            mCarProjectionManagerRef = new WeakReference<>(manager);
+
+            mHandler = new Handler(looper) {
+                @Override
+                public void handleMessage(Message msg) {
+                    Log.d(TAG, LOG_PREFIX + "handle message what: " + msg.what + " msg: " + msg);
+
+                    CarProjectionManager manager = mCarProjectionManagerRef.get();
+                    if (manager == null) {
+                        Log.w(TAG, LOG_PREFIX + "handle message post GC");
+                        return;
+                    }
+
+                    switch (msg.what) {
+                        case PROJECTION_AP_STARTED:
+                            WifiConfiguration config = (WifiConfiguration) msg.obj;
+                            if (config == null) {
+                                Log.e(TAG, LOG_PREFIX + "config cannot be null.");
+                                callback.onFailed(ProjectionAccessPointCallback.ERROR_GENERIC);
+                                return;
+                            }
+                            callback.onStarted(config);
+                            break;
+                        case PROJECTION_AP_STOPPED:
+                            Log.i(TAG, LOG_PREFIX + "hotspot stopped");
+                            callback.onStopped();
+                            break;
+                        case PROJECTION_AP_FAILED:
+                            int reasonCode = msg.arg1;
+                            Log.w(TAG, LOG_PREFIX + "failed to start.  reason: "
+                                    + reasonCode);
+                            callback.onFailed(reasonCode);
+                            break;
+                        default:
+                            Log.e(TAG, LOG_PREFIX + "unhandled message.  type: " + msg.what);
+                    }
+                }
+            };
+            mMessenger = new Messenger(mHandler);
+        }
+
+        Messenger getMessenger() {
+            return mMessenger;
+        }
+    }
+
     private void handleVoiceAssistantRequest(boolean fromLongPress) {
         CarProjectionListener listener;
         synchronized (this) {
@@ -196,12 +337,7 @@ public final class CarProjectionManager implements CarManagerBase {
             if (manager == null) {
                 return;
             }
-            manager.mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    manager.handleVoiceAssistantRequest(fromLongPress);
-                }
-            });
+            manager.mHandler.post(() -> manager.handleVoiceAssistantRequest(fromLongPress));
         }
     }
 }

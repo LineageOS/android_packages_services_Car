@@ -18,6 +18,7 @@ package android.car;
 
 import android.car.ICarProjectionCallback;
 import android.content.Intent;
+import android.os.Messenger;
 
 /**
  * Binder interface for {@link android.car.CarProjectionManager}.
@@ -48,4 +49,15 @@ interface ICarProjection {
      * Unregisters projection callback.
      */
     void unregisterProjectionListener(ICarProjectionCallback callback) = 3;
+
+    /**
+     * Starts Wi-Fi access point if it hasn't been started yet for wireless projection and returns
+     * WiFiConfiguration object with access point details.
+     */
+    void startProjectionAccessPoint(in Messenger messenger, in IBinder binder) = 4;
+
+    /**
+     * Stops previously requested Wi-Fi access point.
+     */
+    void stopProjectionAccessPoint(in IBinder binder) = 5;
 }
