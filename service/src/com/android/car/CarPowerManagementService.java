@@ -42,73 +42,18 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-public class CarPowerManagementService extends ICarPower.Stub implements CarServiceBase,
-    PowerHalService.PowerEventListener {
-
-    /**
-     * Listener for other services to monitor power events.
-     */
-    public interface PowerServiceEventListener {
-        /**
-         * Shutdown is happening
-         */
-        void onShutdown();
-
-        /**
-         * Entering deep sleep.
-         */
-        void onSleepEntry();
-
-        /**
-         * Got out of deep sleep.
-         */
-        void onSleepExit();
-    }
-
-    /**
-     * Interface for components requiring processing time before shutting-down or
-     * entering sleep, and wake-up after shut-down.
-     */
-    public interface PowerEventProcessingHandler {
-        /**
-         * Called before shutdown or sleep entry to allow running some processing. This call
-         * should only queue such task in different thread and should return quickly.
-         * Blocking inside this call can trigger watchdog timer which can terminate the
-         * whole system.
-         * @param shuttingDown whether system is shutting down or not (= sleep entry).
-         * @return time necessary to run processing in ms. should return 0 if there is no
-         *         processing necessary.
-         */
-        long onPrepareShutdown(boolean shuttingDown);
-
-        /**
-         * Called when power state is changed to ON state. Display can be either on or off.
-         * @param displayOn
-         */
-        void onPowerOn(boolean displayOn);
-
-        /**
-         * Returns wake up time after system is fully shutdown. Power controller will power on
-         * the system after this time. This power on is meant for regular maintenance kind of
-         * operation.
-         * @return 0 of wake up is not necessary.
-         */
-        int getWakeupTime();
-    }
-
+/**
+ * Power Management service class for cars. Controls the power states and interacts with other
+ * parts of the system to ensure its own state.
+ */
+public class CarPowerManagementService extends ICarPower.Stub implements
+        CarServiceBase, PowerHalService.PowerEventListener {
     private final Context mContext;
     private final PowerHalService mHal;
     private final SystemInterface mSystemInterface;
-
-    private final CopyOnWriteArrayList<PowerServiceEventListener> mListeners =
-            new CopyOnWriteArrayList<>();
-    private final CopyOnWriteArrayList<PowerEventProcessingHandlerWrapper>
-            mPowerEventProcessingHandlers = new CopyOnWriteArrayList<>();
     private final PowerManagerCallbackList mPowerManagerListeners = new PowerManagerCallbackList();
     private final Map<IBinder, Integer> mPowerManagerListenerTokens = new ConcurrentHashMap<>();
-    private int mTokenValue = 1;
 
     @GuardedBy("this")
     private PowerState mCurrentState;
@@ -127,6 +72,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
     private int mBootReason;
     private boolean mShutdownOnNextSuspend = false;
     private int mNextWakeupSec;
+    private int mTokenValue = 1;
 
     // TODO:  Make this OEM configurable.
     private static final int APP_EXTEND_MAX_MS = 86400000; // 1 day
@@ -145,8 +91,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
         }
     }
 
-    public CarPowerManagementService(Context context, PowerHalService powerHal,
-                                     SystemInterface systemInterface) {
+    public CarPowerManagementService(
+            Context context, PowerHalService powerHal, SystemInterface systemInterface) {
         mContext = context;
         mHal = powerHal;
         mSystemInterface = systemInterface;
@@ -207,55 +153,19 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
             Log.e(CarLog.TAG_POWER, "Timeout while joining for handler thread to join.");
         }
         mSystemInterface.stopDisplayStateMonitoring();
-        mListeners.clear();
-        mPowerEventProcessingHandlers.clear();
         mPowerManagerListeners.kill();
         mPowerManagerListenerTokens.clear();
         mSystemInterface.releaseAllWakeLocks();
     }
 
     /**
-     * Register listener to monitor power event. There is no unregister counter-part and the list
-     * will be cleared when the service is released.
-     * @param listener
+     * Notifies earlier completion of power event processing. If some user modules need pre-shutdown
+     * processing time, they will get up to #APP_EXTEND_MAX_MS to complete their tasks. Modules
+     * are expected to finish earlier than that, and this call can be called in such case to trigger
+     * shutdown without waiting further.
      */
-    public synchronized void registerPowerEventListener(PowerServiceEventListener listener) {
-        mListeners.add(listener);
-    }
-
-    /**
-     * Register PowerEventPreprocessingHandler to run pre-processing before shutdown or
-     * sleep entry. There is no unregister counter-part and the list
-     * will be cleared when the service is released.
-     * @param handler
-     */
-    public synchronized void registerPowerEventProcessingHandler(
-            PowerEventProcessingHandler handler) {
-        mPowerEventProcessingHandlers.add(new PowerEventProcessingHandlerWrapper(handler));
-        // onPowerOn will not be called if power on notification is already done inside the
-        // handler thread. So request it once again here. Wrapper will have its own
-        // gatekeeping to prevent calling onPowerOn twice.
-        mHandler.handlePowerOn();
-    }
-
-    /**
-     * Notifies earlier completion of power event processing. PowerEventProcessingHandler quotes
-     * time necessary from onPrePowerEvent() call, but actual processing can finish earlier than
-     * that, and this call can be called in such case to trigger shutdown without waiting further.
-     *
-     * @param handler PowerEventProcessingHandler that was already registered with
-     *        {@link #registerPowerEventListener(PowerServiceEventListener)} call. If it was not
-     *        registered before, this call will be ignored.
-     */
-    public void notifyPowerEventProcessingCompletion(PowerEventProcessingHandler handler) {
+    public void notifyPowerEventProcessingCompletion() {
         long processingTime = 0;
-        for (PowerEventProcessingHandlerWrapper wrapper : mPowerEventProcessingHandlers) {
-            if (wrapper.handler == handler) {
-                wrapper.markProcessingDone();
-            } else if (!wrapper.isProcessingDone()) {
-                processingTime = Math.max(processingTime, wrapper.getProcessingTime());
-            }
-        }
         synchronized (mPowerManagerListenerTokens) {
             if (!mPowerManagerListenerTokens.isEmpty()) {
                 processingTime += APP_EXTEND_MAX_MS;
@@ -294,10 +204,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
         writer.print("mCurrentState:" + mCurrentState);
         writer.print(",mProcessingStartTime:" + mProcessingStartTime);
         writer.println(",mLastSleepEntryTime:" + mLastSleepEntryTime);
-        writer.println("**PowerEventProcessingHandlers");
-        for (PowerEventProcessingHandlerWrapper wrapper : mPowerEventProcessingHandlers) {
-            writer.println(wrapper.toString());
-        }
     }
 
     @Override
@@ -337,11 +243,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
         switch (state.mState) {
             case PowerHalService.STATE_ON_DISP_OFF:
                 handleDisplayOff(state);
-                notifyPowerOn(false);
                 break;
             case PowerHalService.STATE_ON_FULL:
                 handleFullOn(state);
-                notifyPowerOn(true);
                 break;
             case PowerHalService.STATE_SHUTDOWN_PREPARE:
                 handleShutdownPrepare(state);
@@ -357,27 +261,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
     private void handleFullOn(PowerState newState) {
         setCurrentState(newState);
         mSystemInterface.setDisplayState(true);
-    }
-
-    @VisibleForTesting
-    protected void notifyPowerOn(boolean displayOn) {
-        for (PowerEventProcessingHandlerWrapper wrapper : mPowerEventProcessingHandlers) {
-            wrapper.callOnPowerOn(displayOn);
-        }
-    }
-
-    @VisibleForTesting
-    protected long notifyPrepareShutdown(boolean shuttingDown) {
-        long processingTimeMs = 0;
-        for (PowerEventProcessingHandlerWrapper wrapper : mPowerEventProcessingHandlers) {
-            long handlerProcessingTime = wrapper.handler.onPrepareShutdown(shuttingDown);
-            if (handlerProcessingTime > processingTimeMs) {
-                processingTimeMs = handlerProcessingTime;
-            }
-        }
-        // Add time for powerManager events
-        processingTimeMs += sendPowerManagerEvent(shuttingDown);
-        return processingTimeMs;
     }
 
     private void handleShutdownPrepare(PowerState newState) {
@@ -411,18 +294,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
     }
 
     private void doHandlePreprocessing(boolean shuttingDown) {
-        long processingTimeMs = 0;
-        for (PowerEventProcessingHandlerWrapper wrapper : mPowerEventProcessingHandlers) {
-            long handlerProcessingTime = wrapper.handler.onPrepareShutdown(shuttingDown);
-            if (handlerProcessingTime > 0) {
-                wrapper.setProcessingTimeAndResetProcessingDone(handlerProcessingTime);
-            }
-            if (handlerProcessingTime > processingTimeMs) {
-                processingTimeMs = handlerProcessingTime;
-            }
-        }
-        // Add time for powerManager events
-        processingTimeMs += sendPowerManagerEvent(shuttingDown);
+        // Set time for powerManager events
+        long processingTimeMs = sendPowerManagerEvent(shuttingDown);
         if (processingTimeMs > 0) {
             int pollingCount = (int)(processingTimeMs / SHUTDOWN_POLLING_INTERVAL_MS) + 1;
             Log.i(CarLog.TAG_POWER, "processing before shutdown expected for: "
@@ -466,7 +339,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
             mPowerManagerListeners.finishBroadcast();
             if (!mPowerManagerListenerTokens.isEmpty()) {
                 Log.i(CarLog.TAG_POWER,
-                        "mPowerMangerListenerTokens not empty, add APP_EXTEND_MAX_MS");
+                        "mPowerManagerListenerTokens not empty, add APP_EXTEND_MAX_MS");
                 processingTimeMs += APP_EXTEND_MAX_MS;
             }
         }
@@ -482,9 +355,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
             handler = mHandler;
         }
         handler.cancelProcessingComplete();
-        for (PowerServiceEventListener listener : mListeners) {
-            listener.onSleepEntry();
-        }
         mHal.sendSleepEntry();
         synchronized (this) {
             mLastSleepEntryTime = SystemClock.elapsedRealtime();
@@ -498,9 +368,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
         // System will suspend / shutdown forever.
         mNextWakeupSec = 0;
         mHal.sendSleepExit();
-        for (PowerServiceEventListener listener : mListeners) {
-            listener.onSleepExit();
-        }
         // Notify applications
         int i = mPowerManagerListeners.beginBroadcast();
         while (i-- > 0) {
@@ -535,10 +402,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
                 displayOn = true;
             }
         }
-        for (PowerEventProcessingHandlerWrapper wrapper : mPowerEventProcessingHandlers) {
-            // wrapper will not send it forward if it is already called.
-            wrapper.callOnPowerOn(displayOn);
-        }
     }
 
     private boolean needPowerStateChange(PowerState newState) {
@@ -552,9 +415,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
 
     private void doHandleShutdown() {
         // now shutdown
-        for (PowerServiceEventListener listener : mListeners) {
-            listener.onShutdown();
-        }
         mHal.sendShutdownStart(mHal.isTimedWakeupAllowed() ? mNextWakeupSec : 0);
         mSystemInterface.shutdown();
     }
@@ -688,7 +548,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
                 // All apps are ready to shutdown/suspend.
                 Log.i(CarLog.TAG_POWER,
                         "Apps are finished, call notifyPowerEventProcessingCompletion");
-                notifyPowerEventProcessingCompletion(null);
+                notifyPowerEventProcessingCompletion();
             }
         }
     }
@@ -794,56 +654,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements CarServ
             } else {
                 mHal.sendShutdownPostpone(SHUTDOWN_EXTEND_MAX_MS);
             }
-        }
-    }
-
-    private static class PowerEventProcessingHandlerWrapper {
-        public final PowerEventProcessingHandler handler;
-        private long mProcessingTime = 0;
-        private boolean mProcessingDone = true;
-        private boolean mPowerOnSent = false;
-        private int mLastDisplayState = -1;
-
-        public PowerEventProcessingHandlerWrapper(PowerEventProcessingHandler handler) {
-            this.handler = handler;
-        }
-
-        public synchronized void setProcessingTimeAndResetProcessingDone(long processingTime) {
-            mProcessingTime = processingTime;
-            mProcessingDone = false;
-        }
-
-        public synchronized long getProcessingTime() {
-            return mProcessingTime;
-        }
-
-        public synchronized void markProcessingDone() {
-            mProcessingDone = true;
-        }
-
-        public synchronized boolean isProcessingDone() {
-            return mProcessingDone;
-        }
-
-        public void callOnPowerOn(boolean displayOn) {
-            int newDisplayState = displayOn ? 1 : 0;
-            boolean shouldCall = false;
-            synchronized (this) {
-                if (!mPowerOnSent || (mLastDisplayState != newDisplayState)) {
-                    shouldCall = true;
-                    mPowerOnSent = true;
-                    mLastDisplayState = newDisplayState;
-                }
-            }
-            if (shouldCall) {
-                handler.onPowerOn(displayOn);
-            }
-        }
-
-        @Override
-        public String toString() {
-            return "PowerEventProcessingHandlerWrapper [handler=" + handler + ", mProcessingTime="
-                    + mProcessingTime + ", mProcessingDone=" + mProcessingDone + "]";
         }
     }
 }
