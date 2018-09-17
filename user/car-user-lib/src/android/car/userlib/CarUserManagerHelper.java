@@ -577,14 +577,23 @@ public class CarUserManagerHelper {
     }
 
     /**
+     * Returns whether a user has a restriction.
+     *
+     * @param restriction Restriction to check. Should be a UserManager.* restriction.
+     * @param userInfo the user whose restriction is to be checked
+     */
+    public boolean hasUserRestriction(String restriction, UserInfo userInfo) {
+        return mUserManager.hasUserRestriction(restriction, userInfo.getUserHandle());
+    }
+
+    /**
      * Return whether the foreground user has a restriction.
      *
      * @param restriction Restriction to check. Should be a UserManager.* restriction.
      * @return Whether that restriction exists for the foreground user.
      */
     public boolean foregroundUserHasUserRestriction(String restriction) {
-        return mUserManager.hasUserRestriction(
-            restriction, getCurrentForegroundUserInfo().getUserHandle());
+        return hasUserRestriction(restriction, getCurrentForegroundUserInfo());
     }
 
     /**
