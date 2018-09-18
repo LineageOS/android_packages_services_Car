@@ -49,11 +49,7 @@ public class MainActivity extends CarDrawerActivity {
         super.onCreate(savedInstanceState);
         setMainContent(R.layout.activity_content);
         mMenuEntries.get(0).onClick();
-    }
-
-    @Override
-    protected CarDrawerAdapter getRootAdapter() {
-        return new DrawerAdapter();
+        getDrawerController().setRootAdapter(new DrawerAdapter());
     }
 
     private interface ClickHandler {
