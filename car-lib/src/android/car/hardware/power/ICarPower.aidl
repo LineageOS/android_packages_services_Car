@@ -26,9 +26,7 @@ interface ICarPower {
 
     void requestShutdownOnNextSuspend() = 2;
 
-    int getBootReason() = 3;
+    void finished(in ICarPowerStateListener listener, int token) = 3;
 
-    void finished(in ICarPowerStateListener listener, int token) = 4;
-
-    void scheduleNextWakeupTime(int seconds) = 5;
+    void scheduleNextWakeupTime(int seconds) = 4;
 }

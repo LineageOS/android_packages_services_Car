@@ -16,7 +16,6 @@
 
 package android.car.hardware.power;
 
-import android.annotation.IntDef;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
@@ -29,8 +28,6 @@ import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -51,43 +48,6 @@ public class CarPowerManager implements CarManagerBase {
     private final Object mLock = new Object();
 
     /**
-     * Power boot up reasons, returned by {@link getBootReason}
-     */
-    /**
-     * User powered on the vehicle.  These definitions must match the ones located in the native
-     * CarPowerManager:  packages/services/Car/car-lib/native/CarPowerManager/CarPowerManager.h
-     *
-     */
-    public static final int BOOT_REASON_USER_POWER_ON = 1;
-    /**
-     * Door unlock caused device to boot
-     */
-    public static final int BOOT_REASON_DOOR_UNLOCK = 2;
-    /**
-     * Timer expired and vehicle woke up the AP
-     */
-    public static final int BOOT_REASON_TIMER = 3;
-    /**
-     * Door open caused device to boot
-     */
-    public static final int BOOT_REASON_DOOR_OPEN = 4;
-    /**
-     * User activated remote start
-     */
-    public static final int BOOT_REASON_REMOTE_START = 5;
-
-    /** @hide */
-    @IntDef({
-        BOOT_REASON_USER_POWER_ON,
-        BOOT_REASON_DOOR_UNLOCK,
-        BOOT_REASON_TIMER,
-        BOOT_REASON_DOOR_OPEN,
-        BOOT_REASON_REMOTE_START,
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface BootReason{}
-
-    /**
      *  Applications set a {@link CarPowerStateListener} for power state event updates.
      */
     public interface CarPowerStateListener {
@@ -96,37 +56,35 @@ public class CarPowerManager implements CarManagerBase {
          * CarPowerManager:  packages/services/Car/car-lib/native/CarPowerManager/CarPowerManager.h
          */
         /**
-         * Shutdown is cancelled, return to normal state.
+         * Android is up, but vendor is controlling the audio / display
+         * @hide
          */
-        int SHUTDOWN_CANCELLED = 0;
+        int WAIT_FOR_VHAL = 1;
         /**
-         * Enter shutdown state.  Application is expected to cleanup and be ready to shutdown.
-         */
-        int SHUTDOWN_ENTER = 1;
-        /**
-         * Enter suspend state.  Application is expected to cleanup and be ready to suspend.
+         * Enter suspend state.  CPMS is switching to WAIT_FOR_FINISHED state.
          */
         int SUSPEND_ENTER = 2;
         /**
-         * Wake up from suspend, or resume from a cancelled suspend.  Application transitions to
-         * normal state.
+         * Wake up from suspend.
          */
         int SUSPEND_EXIT = 3;
         /**
-         * NonInteractive state
-         * @hide
+         * Enter shutdown state.  CPMS is switching to WAIT_FOR_FINISHED state.
          */
-        int NON_INTERACTIVE = 4;
+        int SHUTDOWN_ENTER = 5;
         /**
-         * Interactive state (Full On State)
-         * @hide
+         * On state
          */
-        int INTERACTIVE = 5;
+        int ON = 6;
         /**
-         * State where system is getting ready for shutdown or suspend
-         * @hide
+         * State where system is getting ready for shutdown or suspend.  Application is expected to
+         * cleanup and be ready to suspend
          */
-        int SHUTDOWN_PREPARE = 6;
+        int SHUTDOWN_PREPARE = 7;
+        /**
+         * Shutdown is cancelled, return to normal state.
+         */
+        int SHUTDOWN_CANCELLED = 8;
 
         /**
          *  Called when power state changes
@@ -149,22 +107,6 @@ public class CarPowerManager implements CarManagerBase {
      */
     public CarPowerManager(IBinder service, Context context, Handler handler) {
         mService = ICarPower.Stub.asInterface(service);
-    }
-
-    /**
-     * Returns the current {@link BootReason}.  This value does not change until the device goes
-     * through a suspend/resume cycle.
-     * @return int
-     * @throws CarNotConnectedException
-     * @hide
-     */
-    public int getBootReason() throws CarNotConnectedException {
-        try {
-            return mService.getBootReason();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Exception in getBootReason", e);
-            throw new CarNotConnectedException(e);
-        }
     }
 
     /**
@@ -273,8 +215,7 @@ public class CarPowerManager implements CarManagerBase {
 
     private void updateFuture(int state, int token) {
         cleanupFuture();
-        if (state == CarPowerStateListener.SHUTDOWN_ENTER
-                || state == CarPowerStateListener.SUSPEND_ENTER) {
+        if (state == CarPowerStateListener.SHUTDOWN_PREPARE) {
             mFuture = new CompletableFuture<>();
             mFuture.whenComplete((result, exception) -> {
                 if (exception != null) {

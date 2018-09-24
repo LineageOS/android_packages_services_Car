@@ -15,6 +15,7 @@
  */
 package com.android.car;
 
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.util.Log;
 
 import com.android.car.hal.PowerHalService;
@@ -28,7 +29,7 @@ public class MockedPowerHalService extends PowerHalService {
     private final boolean mIsPowerStateSupported;
     private final boolean mIsDeepSleepAllowed;
     private final boolean mIsTimedWakeupAllowed;
-    private PowerState mCurrentPowerState = new PowerState(PowerHalService.STATE_ON_FULL, 0);
+    private PowerState mCurrentPowerState = new PowerState(VehicleApPowerStateReq.ON, 0);
     private PowerEventListener mListener;
     private SignalListener mSignalListener;
 
@@ -57,15 +58,15 @@ public class MockedPowerHalService extends PowerHalService {
     }
 
     @Override
-    public void sendBootComplete() {
+    public void sendWaitForVhal() {
         Log.i(TAG, "sendBootComplete");
-        doSendState(SET_BOOT_COMPLETE, 0);
+        doSendState(SET_WAIT_FOR_VHAL, 0);
     }
 
     @Override
-    public void sendSleepEntry() {
+    public void sendSleepEntry(int wakeupTimeSec) {
         Log.i(TAG, "sendSleepEntry");
-        doSendState(SET_DEEP_SLEEP_ENTRY, 0);
+        doSendState(SET_DEEP_SLEEP_ENTRY, wakeupTimeSec);
     }
 
     @Override
@@ -84,18 +85,6 @@ public class MockedPowerHalService extends PowerHalService {
     public void sendShutdownStart(int wakeupTimeSec) {
         Log.i(TAG, "sendShutdownStart");
         doSendState(SET_SHUTDOWN_START, wakeupTimeSec);
-    }
-
-    @Override
-    public void sendDisplayOn() {
-        Log.i(TAG, "sendDisplayOn");
-        doSendState(SET_DISPLAY_ON, 0);
-    }
-
-    @Override
-    public void sendDisplayOff() {
-        Log.i(TAG, "sendDisplayOff");
-        doSendState(SET_DISPLAY_OFF, 0);
     }
 
     public synchronized int[] waitForSend(long timeoutMs) throws Exception {

@@ -159,7 +159,6 @@
     <string name="sw_back">Back</string>
 
     <!-- power test -->
-    <string name="power_get_boot_reason">Get Boot Reason</string>
     <string name="power_request_shutdown">Request Shutdown</string>
     <string name="power_shutdown">Shutdown</string>
     <string name="power_sleep">Sleep</string>

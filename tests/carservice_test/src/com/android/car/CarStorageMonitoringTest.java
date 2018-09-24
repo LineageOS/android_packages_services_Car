@@ -27,8 +27,8 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
-import android.car.storagemonitoring.IoStatsEntry;
 import android.car.storagemonitoring.IoStats;
+import android.car.storagemonitoring.IoStatsEntry;
 import android.car.storagemonitoring.LifetimeWriteInfo;
 import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.WearEstimate;
@@ -55,13 +55,6 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.TimeInterface;
 
-import com.android.car.test.utils.TemporaryFile;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Queue;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -78,6 +71,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /** Test the public entry points for the CarStorageMonitoringManager */
 @RunWith(AndroidJUnit4.class)
@@ -914,7 +908,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         public void shutdown() {}
 
         @Override
-        public boolean enterDeepSleep(int wakeupTimeSec) {
+        public boolean enterDeepSleep() {
             return true;
         }
 

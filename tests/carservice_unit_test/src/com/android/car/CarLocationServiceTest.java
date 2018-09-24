@@ -388,7 +388,7 @@ public class CarLocationServiceTest {
         when(mMockContext.getFileStreamPath("location_cache.json"))
                 .thenReturn(mContext.getFileStreamPath(TEST_FILENAME));
         CompletableFuture<Void> future = new CompletableFuture<>();
-        mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_ENTER, future);
+        mCarLocationService.onStateChanged(CarPowerStateListener.SHUTDOWN_PREPARE, future);
         mLatch.await();
         verify(mMockLocationManager).getLastKnownLocation(LocationManager.GPS_PROVIDER);
         assertTrue(future.isDone());
@@ -406,7 +406,12 @@ public class CarLocationServiceTest {
     @Test
     public void testDoesNotThrowExceptionUponStateChanged() {
         try {
+            mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_ENTER, null);
             mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_EXIT, null);
+            mCarLocationService.onStateChanged(CarPowerStateListener.SHUTDOWN_ENTER, null);
+            mCarLocationService.onStateChanged(CarPowerStateListener.ON, null);
+            mCarLocationService.onStateChanged(CarPowerStateListener.WAIT_FOR_VHAL, null);
+            mCarLocationService.onStateChanged(CarPowerStateListener.SHUTDOWN_CANCELLED, null);
         } catch (Exception e) {
             fail("onStateChanged should not throw an exception: " + e);
         }

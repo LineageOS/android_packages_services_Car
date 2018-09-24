@@ -101,11 +101,15 @@ public class Controller implements CarPowerStateListener {
                 break;
             case CarPowerStateListener.SHUTDOWN_ENTER:
                 LOG.d("CPM state changed to SHUTDOWN_ENTER");
-                handleShutdownEnter(future);
+                handleShutdownEnter();
+                break;
+            case CarPowerStateListener.SHUTDOWN_PREPARE:
+                LOG.d("CPM state changed to SHUTDOWN_PREPARE");
+                handleShutdownPrepare(future);
                 break;
             case CarPowerStateListener.SUSPEND_ENTER:
                 LOG.d("CPM state changed to SUSPEND_ENTER");
-                handleSuspendEnter(future);
+                handleSuspendEnter();
                 break;
             case CarPowerStateListener.SUSPEND_EXIT:
                 LOG.d("CPM state changed to SUSPEND_EXIT");
@@ -190,11 +194,15 @@ public class Controller implements CarPowerStateListener {
         resetGarageMode();
     }
 
-    private void handleSuspendEnter(CompletableFuture<Void> future) {
-        initiateGarageMode(future);
+    private void handleSuspendEnter() {
+        resetGarageMode();
     }
 
-    private void handleShutdownEnter(CompletableFuture<Void> future) {
+    private void handleShutdownEnter() {
+        resetGarageMode();
+    }
+
+    private void handleShutdownPrepare(CompletableFuture<Void> future) {
         initiateGarageMode(future);
     }
 
