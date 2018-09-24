@@ -543,18 +543,18 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testAssignAdminPrivileges() {
+    public void testGrantAdminPermissions() {
         int userId = 30;
         UserInfo testInfo = createUserInfoForId(userId);
 
-        // Test that non-admins cannot assign admin privileges.
+        // Test that non-admins cannot grant admin permissions.
         doReturn(false).when(mUserManager).isAdminUser(); // Current user non-admin.
-        mCarUserManagerHelper.assignAdminPrivileges(testInfo);
+        mCarUserManagerHelper.grantAdminPermissions(testInfo);
         verify(mUserManager, never()).setUserAdmin(userId);
 
-        // Admins can assign admin privileges.
+        // Admins can grant admin permissions.
         doReturn(true).when(mUserManager).isAdminUser();
-        mCarUserManagerHelper.assignAdminPrivileges(testInfo);
+        mCarUserManagerHelper.grantAdminPermissions(testInfo);
         verify(mUserManager).setUserAdmin(userId);
     }
 
@@ -613,15 +613,15 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testAssigningAdminPrivilegesRemovesNonAdminRestrictions() {
+    public void testGrantingAdminPermissionsRemovesNonAdminRestrictions() {
         int testUserId = 30;
         boolean restrictionEnabled = false;
         UserInfo testInfo = createUserInfoForId(testUserId);
 
-        // Only admins can assign privileges.
+        // Only admins can grant permissions.
         doReturn(true).when(mUserManager).isAdminUser();
 
-        mCarUserManagerHelper.assignAdminPrivileges(testInfo);
+        mCarUserManagerHelper.grantAdminPermissions(testInfo);
 
         verify(mUserManager).setUserRestriction(
                 UserManager.DISALLOW_FACTORY_RESET, restrictionEnabled, UserHandle.of(testUserId));
