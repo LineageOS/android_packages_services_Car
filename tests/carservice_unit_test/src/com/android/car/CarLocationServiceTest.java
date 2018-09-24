@@ -18,6 +18,7 @@ package com.android.car;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -367,10 +368,10 @@ public class CarLocationServiceTest {
 
     /**
      * Test that the {@link CarLocationService} stores the {@link LocationManager}'s last known
-     * location upon prepare-shutdown events.
+     * location upon power state-changed SUSPEND events.
      */
     @Test
-    public void testStoresLocationUponPrepareShutdown()
+    public void testStoresLocationUponStateChanged()
             throws IOException, RemoteException, InterruptedException {
         long currentTime = System.currentTimeMillis();
         long elapsedTime = SystemClock.elapsedRealtimeNanos();
@@ -397,6 +398,18 @@ public class CarLocationServiceTest {
         String expectedContents = "{\"provider\":\"gps\",\"latitude\":16.7666,\"longitude\":"
                 + "3.0026,\"accuracy\":13.75,\"captureTime\":" + granularCurrentTime + "}";
         assertEquals(expectedContents, actualContents);
+    }
+
+    /**
+     * Test that the {@link CarLocationService} does not throw an exception on SUSPEND_EXIT events.
+     */
+    @Test
+    public void testDoesNotThrowExceptionUponStateChanged() {
+        try {
+            mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_EXIT, null);
+        } catch (Exception e) {
+            fail("onStateChanged should not throw an exception: " + e);
+        }
     }
 
     /**

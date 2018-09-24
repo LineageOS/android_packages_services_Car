@@ -168,14 +168,18 @@ public class CarLocationService extends BroadcastReceiver implements
                 asyncOperation(() -> {
                     storeLocation();
                     // Notify the CarPowerManager that it may proceed to shutdown or suspend.
-                    future.complete(null);
+                    if (future != null) {
+                        future.complete(null);
+                    }
                 });
                 break;
             case CarPowerStateListener.SHUTDOWN_CANCELLED:
             case CarPowerStateListener.SUSPEND_EXIT:
                 // This service does not need to do any work for these events but should still
                 // notify the CarPowerManager that it may proceed.
-                future.complete(null);
+                if (future != null) {
+                    future.complete(null);
+                }
                 break;
         }
     }
