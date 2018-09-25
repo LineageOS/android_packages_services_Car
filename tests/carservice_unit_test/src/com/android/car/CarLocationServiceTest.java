@@ -34,7 +34,7 @@ import android.car.hardware.CarSensorManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
-import android.car.user.CarUserManagerHelper;
+import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
