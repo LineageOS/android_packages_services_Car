@@ -41,17 +41,29 @@ LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_DEX_PREOPT := false
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
+    car-service-lib-for-test \
+    car-apps-common \
     androidx.car_car \
-    car-service-lib-for-test
+    androidx.car_car-cluster
 
 LOCAL_STATIC_JAVA_LIBRARIES += \
     android.hidl.base-V1.0-java \
     android.hardware.automotive.vehicle-V2.0-java \
     vehicle-hal-support-lib \
-    com.android.car.keventreader-client
+    com.android.car.keventreader-client \
+    kitchensink-gson
 
 LOCAL_JAVA_LIBRARIES += android.car
 
 include $(BUILD_PACKAGE)
+
+include $(CLEAR_VARS)
+
+LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
+    kitchensink-gson:libs/gson-2.1.jar
+
+include $(BUILD_MULTI_PREBUILT)
+
+include $(CLEAR_VARS)
 
 endif #TARGET_BUILD_PDK
