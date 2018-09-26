@@ -21,17 +21,17 @@
     <color name="notification_action_list">#ff11181d</color>   <!-- Dark Blue Grey 800 -->
 
     <!-- The primary text color if the text is on top of a dark background. -->
-    <color name="notification_primary_text_color_light">#fff5f5f5</color>  <!-- Grey 100 -->
+    <color name="notification_primary_text_color_light">@color/car_grey_100</color>
 
     <!-- The primary text color if the text is on top of a light background. -->
-    <color name="notification_primary_text_color_dark">#ff212121</color>  <!-- Grey 900 -->
+    <color name="notification_primary_text_color_dark">@color/car_grey_900</color>
 
     <!-- The secondary text color if the text is on top of a dark background. -->
-    <color name="notification_secondary_text_color_light">#ffe0e0e0</color>  <!-- Grey 300 -->
+    <color name="notification_secondary_text_color_light">@color/car_grey_300</color>
 
     <!-- The background color of a notification card. -->
     <color name="notification_material_background_color">#ff172026</color>   <!-- Dark Blue Grey 700 -->
 
     <!-- The secondary text color if the text is on top of a dark background. -->
-    <color name="notification_secondary_text_color_dark">#ff6B6B6B</color>  <!-- Grey 650 -->
+    <color name="notification_secondary_text_color_dark">@color/car_grey_700</color>
 </resources>
