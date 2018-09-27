@@ -250,6 +250,7 @@
     <string name="bluetooth_hold_call">Hold call</string>
     <string name="bluetooth_voice_recognition_enable">Start Voice Recognition</string>
     <string name="bluetooth_voice_recognition_disable">Stop Voice Recognition</string>
+    <string name="uploading_supported_feature">Uploading_Supported bit value</string>
 
     <!--Car Service Settings-->
     <string name="garage_title">Garage Mode</string>

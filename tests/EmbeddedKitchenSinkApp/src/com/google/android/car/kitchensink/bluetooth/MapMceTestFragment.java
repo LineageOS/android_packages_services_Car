@@ -75,6 +75,7 @@ public class MapMceTestFragment extends Fragment {
     private KitchenSinkActivity mActivity;
     private Intent mSendIntent;
     private Intent mDeliveryIntent;
+    EditText mUploadingSupportedFeatureText;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -95,6 +96,18 @@ public class MapMceTestFragment extends Fragment {
         mMessage = (TextView) v.findViewById(R.id.messageContent);
         mDevicePicker = (Button) v.findViewById(R.id.bluetooth_pick_device);
         mDeviceDisconnect = (Button) v.findViewById(R.id.bluetooth_disconnect_device);
+        Button uploadingFeatureValue = (Button) v.findViewById(R.id.uploading_supported_feature);
+        mUploadingSupportedFeatureText =
+            (EditText) v.findViewById(R.id.uploading_supported_feature_value);
+
+        uploadingFeatureValue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int value = getUploadingFeatureValue();
+                mUploadingSupportedFeatureText.setText(value + "");
+            }
+        });
+
         //TODO add manual entry option for phone number
         reply.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,6 +204,25 @@ public class MapMceTestFragment extends Fragment {
                 Log.d(TAG, "Getting Messages");
                 mMapProfile.getUnreadMessages(remoteDevice);
             }
+        }
+    }
+
+    private int getUploadingFeatureValue() {
+        synchronized (mLock) {
+            BluetoothDevice remoteDevice;
+            try {
+                remoteDevice = mBluetoothAdapter.getRemoteDevice(
+                        mBluetoothDevice.getText().toString());
+            } catch (java.lang.IllegalArgumentException e) {
+                Log.e(TAG, e.toString());
+                return -1;
+            }
+
+            if (mMapProfile != null) {
+                Log.d(TAG, "getUploadingFeatureValue");
+                return (mMapProfile.isUploadingSupported(remoteDevice)) ? 1 : 0;
+            }
+            return -1;
         }
     }
 
