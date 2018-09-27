@@ -77,4 +77,6 @@
 
     <!-- Corner radius of system dialogs -->
     <dimen name="config_dialogCornerRadius">16dp</dimen>
+
+    <string name="config_headlineFontFamilyMedium">sans-serif-medium</string>
 </resources>
