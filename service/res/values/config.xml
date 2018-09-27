@@ -34,7 +34,7 @@
 
     <string name="inputService">android.car.input.service/.DefaultInputService</string>
 
-    <string name="instrumentClusterRendererService">android.car.cluster.sample/.SampleClusterServiceImpl</string>
+    <string name="instrumentClusterRendererService">android.car.cluster.loggingrenderer/.LoggingClusterRenderingService</string>
 
     <!--  Whether to enable Activity blocking for safety. When Activity blocking is enabled,
           only whitelisted safe Activities will be allowed while car is not parked. -->
