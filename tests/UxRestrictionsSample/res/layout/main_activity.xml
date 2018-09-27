@@ -13,114 +13,111 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<androidx.car.moderator.SpeedBumpView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <LinearLayout
-        android:orientation="horizontal"
+
+  <LinearLayout
+      android:layout_height="match_parent"
+      android:layout_width="0dp"
+      android:layout_weight="1"
+      android:orientation="vertical">
+
+    <TextView
+        android:text="@string/status_header"
+        android:layout_gravity="center"
+        android:padding="@dimen/section_padding"
+        android:textSize="@dimen/header_text_size"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:textAppearance="?android:textAppearanceLarge"
+        android:layout_height="wrap_content"/>
 
-        <LinearLayout
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+    <TextView
+        android:id="@+id/driving_state"
+        android:text="@string/driving_state"
+        android:textSize="@dimen/info_text_size"
+        android:layout_gravity="center"
+        android:padding="@dimen/section_padding"
+        android:layout_width="match_parent"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:layout_height="wrap_content"/>
 
-            <TextView
-                android:text="@string/status_header"
-                android:layout_gravity="center"
-                android:padding="@dimen/section_padding"
-                android:textSize="@dimen/header_text_size"
-                android:layout_width="match_parent"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/do_status"
+        android:text="@string/is_do_reqd"
+        android:textSize="@dimen/info_text_size"
+        android:padding="@dimen/section_padding"
+        android:layout_width="match_parent"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:layout_height="wrap_content"/>
 
-            <TextView
-                android:id="@+id/driving_state"
-                android:text="@string/driving_state"
-                android:textSize="@dimen/info_text_size"
-                android:layout_gravity="center"
-                android:padding="@dimen/section_padding"
-                android:layout_width="match_parent"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/uxr_status"
+        android:text="@string/active_restrictions"
+        android:padding="@dimen/section_padding"
+        android:textSize="@dimen/info_text_size"
+        android:layout_width="match_parent"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:layout_height="wrap_content"/>
 
-            <TextView
-                android:id="@+id/do_status"
-                android:text="@string/is_do_reqd"
-                android:textSize="@dimen/info_text_size"
-                android:padding="@dimen/section_padding"
-                android:layout_width="match_parent"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:layout_height="wrap_content" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:padding="@dimen/section_padding"
+        android:layout_marginBottom="10dp"
+        android:background="@android:color/darker_gray"/>
 
-            <TextView
-                android:id="@+id/uxr_status"
-                android:text="@string/active_restrictions"
-                android:padding="@dimen/section_padding"
-                android:textSize="@dimen/info_text_size"
-                android:layout_width="match_parent"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:layout_height="wrap_content" />
+    <TextView
+        android:text="@string/action_header"
+        android:padding="@dimen/section_padding"
+        android:textSize="@dimen/header_text_size"
+        android:layout_width="match_parent"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:layout_height="wrap_content"/>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:padding="@dimen/section_padding"
-                android:layout_marginBottom="10dp"
-                android:background="@android:color/darker_gray"/>
-
-            <TextView
-                android:text="@string/action_header"
-                android:padding="@dimen/section_padding"
-                android:textSize="@dimen/header_text_size"
-                android:layout_width="match_parent"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:layout_height="wrap_content" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <Button
-                    android:id="@+id/toggle_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/section_padding"
-                    android:text="@string/disable_uxr"
-                    android:textAllCaps="false"
-                    android:textSize="@dimen/info_text_size" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="@dimen/section_padding"
-                android:layout_marginBottom="10dp"
-                android:background="@android:color/darker_gray"/>
-
-            <TextView
-                android:text="@string/sample_header"
-                android:padding="@dimen/section_padding"
-                android:textSize="@dimen/header_text_size"
-                android:layout_width="match_parent"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:layout_height="wrap_content" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <Button
-                    android:id="@+id/launch_message"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/sample_msg_activity"
-                    android:textAllCaps="false"
-                    android:textSize="@dimen/info_text_size" />
-            </LinearLayout>
-        </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+      <Button
+          android:id="@+id/toggle_status"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:padding="@dimen/section_padding"
+          android:text="@string/disable_uxr"
+          android:textAllCaps="false"
+          android:textSize="@dimen/info_text_size"/>
     </LinearLayout>
-</androidx.car.moderator.SpeedBumpView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/section_padding"
+        android:layout_marginBottom="10dp"
+        android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:text="@string/sample_header"
+        android:padding="@dimen/section_padding"
+        android:textSize="@dimen/header_text_size"
+        android:layout_width="match_parent"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+      <Button
+          android:id="@+id/launch_message"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/sample_msg_activity"
+          android:textAllCaps="false"
+          android:textSize="@dimen/info_text_size"/>
+    </LinearLayout>
+  </LinearLayout>
+</LinearLayout>
+
 
 
