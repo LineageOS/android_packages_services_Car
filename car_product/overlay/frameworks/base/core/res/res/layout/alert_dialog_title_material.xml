@@ -51,7 +51,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/car_keyline_1"
             android:layout_marginEnd="@dimen/car_keyline_1"
-            style="@style/CarTitle"/>
+            style="?attr/windowTitleStyle" />
     </RelativeLayout>
 
     <Space
