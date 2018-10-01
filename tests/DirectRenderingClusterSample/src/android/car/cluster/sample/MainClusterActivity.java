@@ -55,6 +55,7 @@ public class MainClusterActivity extends FragmentActivity {
     private static final String TAG = "Cluster.MainActivity";
     private static final NavigationState NULL_NAV_STATE = new NavigationState.Builder().build();
     private ViewPager mPager;
+    private NavStateController mNavStateController;
 
     private HashMap<Button, Facet<?>> mButtonToFacet = new HashMap<>();
     private SparseArray<Facet<?>> mOrderToFacet = new SparseArray<>();
@@ -137,6 +138,8 @@ public class MainClusterActivity extends FragmentActivity {
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(new ClusterPageAdapter(getSupportFragmentManager()));
         mOrderToFacet.get(0).button.requestFocus();
+        mNavStateController = new NavStateController(findViewById(R.id.maneuver),
+                findViewById(R.id.distance), findViewById(R.id.segment));
     }
 
     @Override
@@ -162,7 +165,9 @@ public class MainClusterActivity extends FragmentActivity {
 
     private void onNavigationStateChange(NavigationState state) {
         Log.d(TAG, "onNavigationStateChange: " + state);
-        // TODO: Display new navigation state on the UI.
+        if (mNavStateController != null) {
+            mNavStateController.update(state);
+        }
     }
 
     /**
