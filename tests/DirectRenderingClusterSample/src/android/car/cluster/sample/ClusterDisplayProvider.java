@@ -34,7 +34,7 @@ import android.view.Display;
  * @see {@link NetworkedVirtualDisplay}
  */
 public class ClusterDisplayProvider {
-    private static final String TAG = ClusterDisplayProvider.class.getSimpleName();
+    private static final String TAG = "Cluster.DisplayProvider";
 
     private static final int NETWORKED_DISPLAY_WIDTH = 1280;
     private static final int NETWORKED_DISPLAY_HEIGHT = 720;
@@ -52,6 +52,9 @@ public class ClusterDisplayProvider {
 
         Display clusterDisplay = getInstrumentClusterDisplay(mDisplayManager);
         if (clusterDisplay != null) {
+            Log.i(TAG, String.format("Found display: %s (id: %d, owner: %s)",
+                    clusterDisplay.getName(), clusterDisplay.getDisplayId(),
+                    clusterDisplay.getOwnerPackageName()));
             mClusterDisplayId = clusterDisplay.getDisplayId();
             clusterDisplayListener.onDisplayAdded(clusterDisplay.getDisplayId());
             trackClusterDisplay(null /* no need to track display by name */);
@@ -112,10 +115,14 @@ public class ClusterDisplayProvider {
         Display[] displays = displayManager.getDisplays();
         Log.d(TAG, "There are currently " + displays.length + " displays connected.");
 
-        if (displays.length > 1) {
-            // TODO: assuming that secondary display is instrument cluster. Put this into settings?
-            // We could use name and ownerPackageName to verify this is the right display.
-            return displays[1];
+        // TODO: assuming that secondary display is instrument cluster. Put this into
+        // settings?
+        // We could use name and ownerPackageName to verify this is the right display.
+        // For now we consider the second system display to be the one to be used.
+        for (int i = 1; i < displays.length; i++) {
+            if (displays[i].getOwnerPackageName() == null) {
+                return displays[i];
+            }
         }
         return null;
     }

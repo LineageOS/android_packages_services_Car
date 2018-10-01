@@ -28,10 +28,14 @@ import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager.DisplayListener;
-import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.os.SystemClock;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.provider.Settings.Global;
 import android.util.Log;
@@ -39,37 +43,91 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 
 import androidx.car.cluster.navigation.NavigationState;
+import androidx.versionedparcelable.ParcelUtils;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
- * Dummy implementation of {@link SampleClusterServiceImpl} to log all interaction.
+ * Implementation of {@link InstrumentClusterRenderingService} which renders an activity on a
+ * virtual display that is transmitted to an external screen.
  */
 public class SampleClusterServiceImpl extends InstrumentClusterRenderingService {
+    private static final String TAG = "Cluster.SampleService";
 
-    private static final String TAG = SampleClusterServiceImpl.class.getSimpleName();
-
-    private Listener mListener;
-    private final Binder mLocalBinder = new LocalBinder();
     static final String LOCAL_BINDING_ACTION = "local";
-    private static final String NAV_STATE_BUNDLE_KEY = "navstate";
-    private static final int NAV_STATE_EVENT_ID = 1;
+    static final String NAV_STATE_BUNDLE_KEY = "navstate";
+    static final int NAV_STATE_EVENT_ID = 1;
+    static final int MSG_SET_ACTIVITY_LAUNCH_OPTIONS = 1;
+    static final int MSG_SET_ACTIVITY_STATE = 2;
+    static final int MSG_ON_NAVIGATION_STATE_CHANGED = 3;
+    static final int MSG_ON_KEY_EVENT = 4;
+    static final int MSG_REGISTER_CLIENT = 5;
+    static final int MSG_UNREGISTER_CLIENT = 6;
+    static final String MSG_KEY_CATEGORY = "category";
+    static final String MSG_KEY_ACTIVITY_OPTIONS = "activity_options";
+    static final String MSG_KEY_ACTIVITY_STATE = "activity_state";
+    static final String MSG_KEY_KEY_EVENT = "key_event";
 
+    private List<Messenger> mClients = new ArrayList<>();
     private ClusterDisplayProvider mDisplayProvider;
+
+    private static class MessageHandler extends Handler {
+        private final WeakReference<SampleClusterServiceImpl> mService;
+
+        MessageHandler(SampleClusterServiceImpl service) {
+            mService = new WeakReference<>(service);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            Log.d(TAG, "handleMessage: " + msg.what);
+            try {
+                switch (msg.what) {
+                    case MSG_SET_ACTIVITY_LAUNCH_OPTIONS:
+                        mService.get().setClusterActivityLaunchOptions(
+                                msg.getData().getString(MSG_KEY_CATEGORY),
+                                ActivityOptions.fromBundle(
+                                        msg.getData().getBundle(MSG_KEY_ACTIVITY_OPTIONS)
+                                ));
+                        break;
+                    case MSG_SET_ACTIVITY_STATE:
+                        mService.get().setClusterActivityState(
+                                msg.getData().getString(MSG_KEY_CATEGORY),
+                                msg.getData().getBundle(MSG_KEY_ACTIVITY_STATE)
+                        );
+                        break;
+                    case MSG_REGISTER_CLIENT:
+                        mService.get().mClients.add(msg.replyTo);
+                        break;
+                    case MSG_UNREGISTER_CLIENT:
+                        mService.get().mClients.remove(msg.replyTo);
+                        break;
+                    default:
+                        super.handleMessage(msg);
+                }
+            } catch (CarNotConnectedException ex) {
+                Log.e(TAG, "Unable to execute message " + msg.what, ex);
+            }
+        }
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.i(TAG, "onBind, intent: " + intent);
+        Log.d(TAG, "onBind, intent: " + intent);
         return (LOCAL_BINDING_ACTION.equals(intent.getAction()))
-                ? mLocalBinder : super.onBind(intent);
+                ? new Messenger(new MessageHandler(this)).getBinder()
+                : super.onBind(intent);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i(TAG, "onCreate");
+        Log.d(TAG, "onCreate");
 
         mDisplayProvider = new ClusterDisplayProvider(this,
                 new DisplayListener() {
@@ -96,14 +154,36 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
         options.setLaunchDisplayId(displayId);
         Intent intent = new Intent(this, MainClusterActivity.class);
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent, options.toBundle());
+        startActivityAsUser(intent, options.toBundle(), UserHandle.CURRENT);
+        Log.d(TAG, "launching main activity: " + intent);
     }
 
     @Override
     protected void onKeyEvent(KeyEvent keyEvent) {
-        Log.i(TAG, "onKeyEvent, keyEvent: " + keyEvent + ", listener: " + mListener);
-        if (mListener != null) {
-            mListener.onKeyEvent(keyEvent);
+        Log.d(TAG, "onKeyEvent, keyEvent: " + keyEvent);
+        Bundle data = new Bundle();
+        data.putParcelable(MSG_KEY_KEY_EVENT, keyEvent);
+        broadcastClientMessage(MSG_ON_KEY_EVENT, data);
+    }
+
+    /**
+     * Broadcasts a message to all the registered service clients
+     *
+     * @param what event identifier
+     * @param data event data
+     */
+    private void broadcastClientMessage(int what, Bundle data) {
+        Log.d(TAG, "broadcast message " + what + " to " + mClients.size() + " clients");
+        for (int i = mClients.size() - 1; i >= 0; i--) {
+            Messenger client = mClients.get(i);
+            try {
+                Message msg = Message.obtain(null, what);
+                msg.setData(data);
+                client.send(msg);
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Client " + i + " is dead", ex);
+                mClients.remove(i);
+            }
         }
     }
 
@@ -113,33 +193,28 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
         Log.w(TAG, "onDestroy");
     }
 
-    void registerListener(Listener listener) {
-        mListener = listener;
-    }
-
-    void unregisterListener() {
-        mListener = null;
-    }
-
     @Override
     protected NavigationRenderer getNavigationRenderer() {
         NavigationRenderer navigationRenderer = new NavigationRenderer() {
             @Override
             public CarNavigationInstrumentCluster getNavigationProperties() {
-                Log.i(TAG, "getNavigationProperties");
                 CarNavigationInstrumentCluster config =
                         CarNavigationInstrumentCluster.createCluster(1000);
-                Log.i(TAG, "getNavigationProperties, returns: " + config);
+                Log.d(TAG, "getNavigationProperties, returns: " + config);
                 return config;
             }
 
             @Override
             public void onEvent(int eventType, Bundle bundle) {
                 StringBuilder bundleSummary = new StringBuilder();
-                if (eventType == NAV_STATE_EVENT_ID && bundle.containsKey(NAV_STATE_BUNDLE_KEY)) {
+                if (eventType == NAV_STATE_EVENT_ID) {
+                    bundle.setClassLoader(ParcelUtils.class.getClassLoader());
                     NavigationState navState = NavigationState
-                            .fromParcelable(bundle.getParcelable("navstate"));
+                            .fromParcelable(bundle.getParcelable(NAV_STATE_BUNDLE_KEY));
                     bundleSummary.append(navState.toString());
+
+                    // Update clients
+                    broadcastClientMessage(MSG_ON_NAVIGATION_STATE_CHANGED, bundle);
                 } else {
                     for (String key : bundle.keySet()) {
                         bundleSummary.append(key);
@@ -148,23 +223,12 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
                         bundleSummary.append(" ");
                     }
                 }
-                Log.i(TAG, "onEvent(" + eventType + ", " + bundleSummary + ")");
+                Log.d(TAG, "onEvent(" + eventType + ", " + bundleSummary + ")");
             }
         };
 
         Log.i(TAG, "createNavigationRenderer, returns: " + navigationRenderer);
         return navigationRenderer;
-    }
-
-    class LocalBinder extends Binder {
-        SampleClusterServiceImpl getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return SampleClusterServiceImpl.this;
-        }
-    }
-
-    interface Listener {
-        void onKeyEvent(KeyEvent event);
     }
 
     @Override

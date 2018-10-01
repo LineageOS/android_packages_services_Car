@@ -16,13 +16,21 @@
 package android.car.cluster.sample;
 
 import static android.car.cluster.sample.SampleClusterServiceImpl.LOCAL_BINDING_ACTION;
+import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_KEY_KEY_EVENT;
+import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_ON_KEY_EVENT;
+import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_ON_NAVIGATION_STATE_CHANGED;
+import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_REGISTER_CLIENT;
+import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_UNREGISTER_CLIENT;
 
-import android.car.cluster.sample.SampleClusterServiceImpl.Listener;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.InputDevice;
@@ -31,27 +39,29 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
+import androidx.car.cluster.navigation.NavigationState;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.versionedparcelable.ParcelUtils;
 import androidx.viewpager.widget.ViewPager;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
-public class MainClusterActivity extends FragmentActivity
-        implements Listener {
-    private static final String TAG = MainClusterActivity.class.getSimpleName();
-
+public class MainClusterActivity extends FragmentActivity {
+    private static final String TAG = "Cluster.MainActivity";
+    private static final NavigationState NULL_NAV_STATE = new NavigationState.Builder().build();
     private ViewPager mPager;
-
-    private SampleClusterServiceImpl mService;
 
     private HashMap<Button, Facet<?>> mButtonToFacet = new HashMap<>();
     private SparseArray<Facet<?>> mOrderToFacet = new SparseArray<>();
 
     private InputMethodManager mInputMethodManager;
+    private Messenger mService;
+    private Messenger mServiceCallbacks = new Messenger(new MessageHandler(this));
 
     private final View.OnFocusChangeListener mFacetButtonFocusListener =
             new View.OnFocusChangeListener() {
@@ -63,31 +73,60 @@ public class MainClusterActivity extends FragmentActivity
         }
     };
 
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i(TAG, "onServiceConnected, name: " + name + ", service: " + service);
+            mService = new Messenger(service);
+            sendServiceMessage(MSG_REGISTER_CLIENT, null, mServiceCallbacks);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG, "onServiceDisconnected, name: " + name);
+            mService = null;
+            onNavigationStateChange(NULL_NAV_STATE);
+        }
+    };
+
+    private static class MessageHandler extends Handler {
+        private final WeakReference<MainClusterActivity> mActivity;
+
+        MessageHandler(MainClusterActivity activity) {
+            mActivity = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            Bundle data = msg.getData();
+            switch (msg.what) {
+                case MSG_ON_KEY_EVENT:
+                    mActivity.get().onKeyEvent(data.getParcelable(MSG_KEY_KEY_EVENT));
+                    break;
+                case MSG_ON_NAVIGATION_STATE_CHANGED:
+                    data.setClassLoader(ParcelUtils.class.getClassLoader());
+                    NavigationState navState = NavigationState
+                            .fromParcelable(data.getParcelable(
+                                    SampleClusterServiceImpl.NAV_STATE_BUNDLE_KEY));
+                    mActivity.get().onNavigationStateChange(navState);
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
 
         mInputMethodManager = getSystemService(InputMethodManager.class);
 
         Intent intent = new Intent(this, SampleClusterServiceImpl.class);
         intent.setAction(LOCAL_BINDING_ACTION);
-        bindService(intent,
-                new ServiceConnection() {
-                    @Override
-                    public void onServiceConnected(ComponentName name, IBinder service) {
-                        Log.i(TAG, "onServiceConnected, name: " + name + ", service: " + service);
-                        mService = ((SampleClusterServiceImpl.LocalBinder) service)
-                                .getService();
-                        mService.registerListener(MainClusterActivity.this);
-                    }
-
-                    @Override
-                    public void onServiceDisconnected(ComponentName name) {
-                        Log.i(TAG, "onServiceDisconnected, name: " + name);
-                        mService = null;
-                    }
-                }, BIND_AUTO_CREATE);
+        bindService(intent, mServiceConnection, 0);
 
         registerFacets(
                 new Facet<>(findViewById(R.id.btn_nav), 0, NavigationFragment.class),
@@ -103,13 +142,15 @@ public class MainClusterActivity extends FragmentActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy");
         if (mService != null) {
-            mService.unregisterListener();
+            sendServiceMessage(MSG_UNREGISTER_CLIENT, null, mServiceCallbacks);
+            unbindService(mServiceConnection);
+            mService = null;
         }
     }
 
-    @Override
-    public void onKeyEvent(KeyEvent event) {
+    private void onKeyEvent(KeyEvent event) {
         Log.i(TAG, "onKeyEvent, event: " + event);
 
         // This is a hack. We use SOURCE_CLASS_POINTER here because this type of input is associated
@@ -119,6 +160,28 @@ public class MainClusterActivity extends FragmentActivity
         mInputMethodManager.dispatchKeyEventFromInputMethod(getCurrentFocus(), event);
     }
 
+    private void onNavigationStateChange(NavigationState state) {
+        Log.d(TAG, "onNavigationStateChange: " + state);
+        // TODO: Display new navigation state on the UI.
+    }
+
+    /**
+     * Sends a message to the {@link SampleClusterServiceImpl}, which runs on a different process.
+
+     * @param what action to perform
+     * @param data action data
+     * @param replyTo {@link Messenger} where to reply back
+     */
+    public void sendServiceMessage(int what, Bundle data, Messenger replyTo) {
+        try {
+            Message message = Message.obtain(null, what);
+            message.setData(data);
+            message.replyTo = replyTo;
+            mService.send(message);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Unable to deliver message " + what + ". Service died");
+        }
+    }
 
     public class ClusterPageAdapter extends FragmentPagerAdapter {
         public ClusterPageAdapter(FragmentManager fm) {
@@ -172,9 +235,5 @@ public class MainClusterActivity extends FragmentActivity
             }
             return mFragment;
         }
-    }
-
-    SampleClusterServiceImpl getService() {
-        return mService;
     }
 }
