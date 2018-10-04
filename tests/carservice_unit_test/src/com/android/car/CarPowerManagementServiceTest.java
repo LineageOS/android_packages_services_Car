@@ -270,6 +270,9 @@ public class CarPowerManagementServiceTest extends AndroidTestCase {
 
         @Override
         public void stopDisplayStateMonitoring() {}
+
+        @Override
+        public void refreshDisplayBrightness() {}
     }
 
     private static final class MockSystemStateInterface implements SystemStateInterface {

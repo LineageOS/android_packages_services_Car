@@ -92,8 +92,8 @@ public class ICarImpl extends ICar.Stub {
 
     private static final String TAG = "ICarImpl";
     private static final String VHAL_TIMING_TAG = "VehicleHalTiming";
-    private static final TimingsTraceLog mBootTiming = new TimingsTraceLog(VHAL_TIMING_TAG,
-            Trace.TRACE_TAG_HAL);
+
+    private TimingsTraceLog mBootTiming;
 
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("this")
@@ -176,6 +176,7 @@ public class ICarImpl extends ICar.Stub {
 
     @MainThread
     void init() {
+        mBootTiming = new TimingsTraceLog(VHAL_TIMING_TAG, Trace.TRACE_TAG_HAL);
         traceBegin("VehicleHal.init");
         mHal.init();
         traceEnd();
@@ -410,13 +411,13 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @MainThread
-    private static void traceBegin(String name) {
+    private void traceBegin(String name) {
         Slog.i(TAG, name);
         mBootTiming.traceBegin(name);
     }
 
     @MainThread
-    private static void traceEnd() {
+    private void traceEnd() {
         mBootTiming.traceEnd();
     }
 

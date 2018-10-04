@@ -172,6 +172,11 @@ public final class SystemInterface implements DisplayInterface, IOInterface,
         return mSystemStateInterface.isSystemSupportingDeepSleep();
     }
 
+    @Override
+    public void refreshDisplayBrightness() {
+        mDisplayInterface.refreshDisplayBrightness();
+    }
+
     public final static class Builder {
         private DisplayInterface mDisplayInterface;
         private IOInterface mIOInterface;
