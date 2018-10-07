@@ -702,7 +702,7 @@ public class CarUserManagerHelper {
     }
 
     /**
-     * Assigns admin privileges to the user.
+     * Grants admin permissions to the user.
      *
      * @param user User to be upgraded to Admin status.
      */
@@ -710,9 +710,9 @@ public class CarUserManagerHelper {
             Manifest.permission.INTERACT_ACROSS_USERS_FULL,
             Manifest.permission.MANAGE_USERS
     })
-    public void assignAdminPrivileges(UserInfo user) {
+    public void grantAdminPermissions(UserInfo user) {
         if (!isCurrentProcessAdminUser()) {
-            Log.w(TAG, "Only admin users can assign admin privileges.");
+            Log.w(TAG, "Only admin users can assign admin permissions.");
             return;
         }
 
