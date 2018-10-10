@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.StatFs;
 import android.support.v4.app.Fragment;
 import android.system.ErrnoException;
+import android.system.Os;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,8 +40,6 @@ import android.widget.TextView;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
-
-import libcore.io.Libcore;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -147,16 +146,16 @@ public class StorageLifetimeFragment extends Fragment {
     private void fsyncFile() {
         try {
             final Path filePath = getFilePath();
-            FileDescriptor fd = Libcore.os.open(filePath.toString(), O_APPEND | O_RDWR, 0);
+            FileDescriptor fd = Os.open(filePath.toString(), O_APPEND | O_RDWR, 0);
             if (!fd.valid()) {
                 Log.w(TAG, "file descriptor is invalid");
                 return;
             }
             // fill byteBuffer with arbitrary data in order to make an fsync() meaningful
             ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[] {101, 110, 114, 105, 99, 111});
-            Libcore.os.write(fd, byteBuffer);
-            Libcore.os.fsync(fd);
-            Libcore.os.close(fd);
+            Os.write(fd, byteBuffer);
+            Os.fsync(fd);
+            Os.close(fd);
         } catch (ErrnoException | IOException e) {
             Log.w(TAG, "could not fsync data", e);
         }
