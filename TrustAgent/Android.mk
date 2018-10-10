@@ -18,9 +18,14 @@ ifneq ($(TARGET_BUILD_PDK), true)
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
-LOCAL_JAVA_LIBRARIES += android.car
-LOCAL_USE_AAPT2 := true
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+
+LOCAL_USE_AAPT2 := true
+
+LOCAL_JAVA_LIBRARIES += android.car
+
+LOCAL_STATIC_ANDROID_LIBRARIES += \
+    androidx.car_car
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
