@@ -42,6 +42,8 @@ package android.car {
     method public void onCarDisconnected();
     method public void registerProjectionListener(android.car.CarProjectionManager.CarProjectionListener, int) throws android.car.CarNotConnectedException;
     method public void registerProjectionRunner(android.content.Intent) throws android.car.CarNotConnectedException;
+    method public void startProjectionAccessPoint(android.car.CarProjectionManager.ProjectionAccessPointCallback);
+    method public void stopProjectionAccessPoint();
     method public void unregisterProjectionListener();
     method public void unregisterProjectionRunner(android.content.Intent);
     field public static final int PROJECTION_LONG_PRESS_VOICE_SEARCH = 2; // 0x2
@@ -50,6 +52,17 @@ package android.car {
 
   public static abstract interface CarProjectionManager.CarProjectionListener {
     method public abstract void onVoiceAssistantRequest(boolean);
+  }
+
+  public static abstract class CarProjectionManager.ProjectionAccessPointCallback {
+    ctor public CarProjectionManager.ProjectionAccessPointCallback();
+    method public void onFailed(int);
+    method public void onStarted(android.net.wifi.WifiConfiguration);
+    method public void onStopped();
+    field public static final int ERROR_GENERIC = 2; // 0x2
+    field public static final int ERROR_INCOMPATIBLE_MODE = 3; // 0x3
+    field public static final int ERROR_NO_CHANNEL = 1; // 0x1
+    field public static final int ERROR_TETHERING_DISALLOWED = 4; // 0x4
   }
 
   public final class VehicleAreaDoor {

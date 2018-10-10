@@ -135,4 +135,6 @@
         <item>7d,3</item>
     </string-array>
 
+    <string name="config_TetheredProjectionAccessPointSsid" translatable="false">CarAP</string>
+
 </resources>
