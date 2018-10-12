@@ -22,8 +22,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- Enable multi-user. -->
     <bool name="config_enableMultiUserUI">true</bool>
-    <!-- Arbitrary max 8 users. -->
-    <integer name="config_multiuserMaximumUsers">8</integer>
     <!-- If true, all guest users created on the device will be ephemeral. -->
     <bool name="config_guestUserEphemeral">true</bool>
     <!-- Car Mode -->
