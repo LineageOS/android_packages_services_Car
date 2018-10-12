@@ -29,70 +29,29 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.nio.ByteBuffer;
 import java.util.UUID;
 
 /**
  * A controller that sets up a {@link SimpleBleClient} to connect to the BLE unlock service.
  */
 public class PhoneUnlockController {
+    private static final String TAG = "PhoneUnlockController";
 
-    private final SimpleBleClient.ClientCallback mCallback = new SimpleBleClient.ClientCallback() {
-        @Override
-        public void onDeviceConnected(BluetoothDevice device) {
-            appendOutputText("Device connected: " + device.getName()
-                    + " addr: " + device.getAddress());
-        }
-
-        @Override
-        public void onDeviceDisconnected() {
-            appendOutputText("Device disconnected");
-        }
-
-        @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt,
-                BluetoothGattCharacteristic characteristic) {
-            // Not expecting any characteristics changes for the unlocking client.
-        }
-
-        @Override
-        public void onServiceDiscovered(BluetoothGattService service) {
-            if (!service.getUuid().equals(mUnlockServiceUuid.getUuid())) {
-                Log.d(Utils.LOG_TAG, "Service UUID: " + service.getUuid()
-                        + " does not match Enrolment UUID " + mUnlockServiceUuid.getUuid());
-                return;
-            }
-
-            Log.d(Utils.LOG_TAG, "Unlock Service # characteristics: "
-                    + service.getCharacteristics().size());
-            mUnlockEscrowToken = Utils.getCharacteristic(
-                    R.string.unlock_escrow_token_uiid, service, mContext);
-            mUnlockTokenHandle = Utils.getCharacteristic(
-                    R.string.unlock_handle_uiid, service, mContext);
-            appendOutputText("Unlock BLE client successfully connected");
-
-            mHandler.post(() -> {
-                // Services are now set up, allow users to enrol new escrow tokens.
-                mUnlockButton.setEnabled(true);
-                mUnlockButton.setAlpha(1.0f);
-            });
-        }
-    };
-
-    private String mTokenHandleKey;
-    private String mEscrowTokenKey;
+    private final String mTokenHandleKey;
+    private final String mEscrowTokenKey;
 
     // BLE characteristics associated with the enrolment/add escrow token service.
     private BluetoothGattCharacteristic mUnlockTokenHandle;
     private BluetoothGattCharacteristic mUnlockEscrowToken;
 
-    private ParcelUuid mUnlockServiceUuid;
+    private final ParcelUuid mUnlockServiceUuid;
 
-    private SimpleBleClient mClient;
-    private Context mContext;
+    private final SimpleBleClient mClient;
+    private final Context mContext;
+    private final Handler mHandler;
 
     private TextView mTextView;
-    private Handler mHandler;
-
     private Button mUnlockButton;
 
     public PhoneUnlockController(Context context) {
@@ -120,11 +79,11 @@ public class PhoneUnlockController {
         mTextView = textView;
         mUnlockButton = enrolButton;
 
-        scanButton.setOnClickListener((view) -> mClient.start(mUnlockServiceUuid));
+        scanButton.setOnClickListener(v -> mClient.start(mUnlockServiceUuid));
 
         mUnlockButton.setEnabled(false);
         mUnlockButton.setAlpha(0.3f);
-        mUnlockButton.setOnClickListener((view) -> {
+        mUnlockButton.setOnClickListener(v -> {
             appendOutputText("Sending unlock token and handle to remote device");
             sendUnlockRequest();
         });
@@ -137,13 +96,66 @@ public class PhoneUnlockController {
         byte[] token = Base64.decode(prefs.getString(mEscrowTokenKey, null), Base64.DEFAULT);
 
         mUnlockEscrowToken.setValue(token);
-        mUnlockTokenHandle.setValue(Utils.getBytes(handle));
+        mUnlockTokenHandle.setValue(convertToBytes(handle));
 
         mClient.writeCharacteristic(mUnlockEscrowToken);
         mClient.writeCharacteristic(mUnlockTokenHandle);
     }
 
-    private void appendOutputText(final String text) {
+    private void appendOutputText(String text) {
         mHandler.post(() -> mTextView.append("\n" + text));
     }
+
+    private static byte[] convertToBytes(long l) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.SIZE / Byte.SIZE);
+        buffer.putLong(0, l);
+        return buffer.array();
+    }
+
+    private final SimpleBleClient.ClientCallback mCallback = new SimpleBleClient.ClientCallback() {
+        @Override
+        public void onDeviceConnected(BluetoothDevice device) {
+            appendOutputText("Device connected: " + device.getName()
+                    + " addr: " + device.getAddress());
+        }
+
+        @Override
+        public void onDeviceDisconnected() {
+            appendOutputText("Device disconnected");
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt,
+                BluetoothGattCharacteristic characteristic) {
+            // Not expecting any characteristics changes for the unlocking client.
+        }
+
+        @Override
+        public void onServiceDiscovered(BluetoothGattService service) {
+            if (!service.getUuid().equals(mUnlockServiceUuid.getUuid())) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Service UUID: " + service.getUuid()
+                            + " does not match Enrolment UUID " + mUnlockServiceUuid.getUuid());
+                }
+                return;
+            }
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Unlock Service # characteristics: "
+                        + service.getCharacteristics().size());
+            }
+
+            mUnlockEscrowToken = BluetoothUtils.getCharacteristic(
+                    R.string.unlock_escrow_token_uiid, service, mContext);
+            mUnlockTokenHandle = BluetoothUtils.getCharacteristic(
+                    R.string.unlock_handle_uiid, service, mContext);
+            appendOutputText("Unlock BLE client successfully connected");
+
+            mHandler.post(() -> {
+                // Services are now set up, allow users to enrol new escrow tokens.
+                mUnlockButton.setEnabled(true);
+                mUnlockButton.setAlpha(1.0f);
+            });
+        }
+    };
 }

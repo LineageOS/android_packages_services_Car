@@ -38,74 +38,22 @@ import java.util.UUID;
  * It also binds the UI components to control the enrollment process.
  */
 public class PhoneEnrolmentController {
+    private static final String TAG = "PhoneEnrollmentCltr";
 
-    private final SimpleBleClient.ClientCallback mCallback = new SimpleBleClient.ClientCallback() {
-        @Override
-        public void onDeviceConnected(BluetoothDevice device) {
-            appendOutputText("Device connected: " + device.getName()
-                    + " addr: " + device.getAddress());
-        }
+    private final String mTokenHandleKey;
+    private final String mEscrowTokenKey;
 
-        @Override
-        public void onDeviceDisconnected() {
-            appendOutputText("Device disconnected");
-        }
+    private final ParcelUuid mEnrolmentServiceUuid;
 
-        @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt,
-                BluetoothGattCharacteristic characteristic) {
-
-            Log.d(Utils.LOG_TAG, "onCharacteristicChanged: "
-                    + Utils.getLong(characteristic.getValue()));
-            if (characteristic.getUuid().equals(mEnrolmentTokenHandle.getUuid())) {
-                // Store the new token handle that the BLE server is sending us. This required
-                // to unlock the device.
-                long handle = Utils.getLong(characteristic.getValue());
-                storeHandle(handle);
-                appendOutputText("Token handle received: " + handle);
-            }
-        }
-
-        @Override
-        public void onServiceDiscovered(BluetoothGattService service) {
-            if (!service.getUuid().equals(mEnrolmentServiceUuid.getUuid())) {
-                Log.d(Utils.LOG_TAG, "Service UUID: " + service.getUuid()
-                        + " does not match Enrolment UUID " + mEnrolmentServiceUuid.getUuid());
-                return;
-            }
-
-            Log.d(Utils.LOG_TAG, "Enrolment Service # characteristics: "
-                    + service.getCharacteristics().size());
-            mEnrolmentEscrowToken = Utils.getCharacteristic(
-                    R.string.enrollment_token_uuid, service, mContext);
-            mEnrolmentTokenHandle = Utils.getCharacteristic(
-                    R.string.enrollment_handle_uuid, service, mContext);
-            mClient.setCharacteristicNotification(mEnrolmentTokenHandle, true /* enable */);
-            appendOutputText("Enrolment BLE client successfully connected");
-
-            mHandler.post(() -> {
-                // Services are now set up, allow users to enrol new escrow tokens.
-                mEnrolButton.setEnabled(true);
-                mEnrolButton.setAlpha(1.0f);
-            });
-        }
-    };
-
-    private String mTokenHandleKey;
-    private String mEscrowTokenKey;
+    private final SimpleBleClient mClient;
+    private final Context mContext;
+    private final Handler mHandler;
 
     // BLE characteristics associated with the enrollment/add escrow token service.
     private BluetoothGattCharacteristic mEnrolmentTokenHandle;
     private BluetoothGattCharacteristic mEnrolmentEscrowToken;
 
-    private ParcelUuid mEnrolmentServiceUuid;
-
-    private SimpleBleClient mClient;
-    private Context mContext;
-
     private TextView mTextView;
-    private Handler mHandler;
-
     private Button mEnrolButton;
 
     public PhoneEnrolmentController(Context context) {
@@ -133,11 +81,11 @@ public class PhoneEnrolmentController {
         mTextView = textView;
         mEnrolButton = enrolButton;
 
-        scanButton.setOnClickListener((view) -> mClient.start(mEnrolmentServiceUuid));
+        scanButton.setOnClickListener(v -> mClient.start(mEnrolmentServiceUuid));
 
         mEnrolButton.setEnabled(false);
         mEnrolButton.setAlpha(0.3f);
-        mEnrolButton.setOnClickListener((view) -> {
+        mEnrolButton.setOnClickListener(v -> {
             appendOutputText("Sending new escrow token to remote device");
 
             byte[] token = generateEscrowToken();
@@ -180,4 +128,70 @@ public class PhoneEnrolmentController {
     private void appendOutputText(final String text) {
         mHandler.post(() -> mTextView.append("\n" + text));
     }
+
+    private final SimpleBleClient.ClientCallback mCallback = new SimpleBleClient.ClientCallback() {
+        @Override
+        public void onDeviceConnected(BluetoothDevice device) {
+            appendOutputText("Device connected: " + device.getName()
+                    + " addr: " + device.getAddress());
+        }
+
+        @Override
+        public void onDeviceDisconnected() {
+            appendOutputText("Device disconnected");
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt,
+                BluetoothGattCharacteristic characteristic) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onCharacteristicChanged: "
+                        + convertToLong(characteristic.getValue()));
+            }
+
+            if (characteristic.getUuid().equals(mEnrolmentTokenHandle.getUuid())) {
+                // Store the new token handle that the BLE server is sending us. This required
+                // to unlock the device.
+                long handle = convertToLong(characteristic.getValue());
+                storeHandle(handle);
+                appendOutputText("Token handle received: " + handle);
+            }
+        }
+
+        @Override
+        public void onServiceDiscovered(BluetoothGattService service) {
+            if (!service.getUuid().equals(mEnrolmentServiceUuid.getUuid())) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Service UUID: " + service.getUuid()
+                            + " does not match Enrolment UUID " + mEnrolmentServiceUuid.getUuid());
+                }
+                return;
+            }
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Enrolment Service # characteristics: "
+                        + service.getCharacteristics().size());
+            }
+
+            mEnrolmentEscrowToken = BluetoothUtils.getCharacteristic(
+                    R.string.enrollment_token_uuid, service, mContext);
+            mEnrolmentTokenHandle = BluetoothUtils.getCharacteristic(
+                    R.string.enrollment_handle_uuid, service, mContext);
+            mClient.setCharacteristicNotification(mEnrolmentTokenHandle, true /* enable */);
+            appendOutputText("Enrolment BLE client successfully connected");
+
+            mHandler.post(() -> {
+                // Services are now set up, allow users to enrol new escrow tokens.
+                mEnrolButton.setEnabled(true);
+                mEnrolButton.setAlpha(1.0f);
+            });
+        }
+
+        private long convertToLong(byte[] bytes) {
+            ByteBuffer buffer = ByteBuffer.allocate(Long.SIZE / Byte.SIZE);
+            buffer.put(bytes);
+            buffer.flip();
+            return buffer.getLong();
+        }
+    };
 }
