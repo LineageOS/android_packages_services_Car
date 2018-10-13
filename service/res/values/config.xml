@@ -62,11 +62,6 @@
     <!--  The com.android.car.VmsPublisherService will bind to this list of clients -->
     <string-array translatable="false" name="vmsPublisherClients">
     </string-array>
-    <!--  Permissions that the com.android.car.VmsPublisherService is allowed to grant to publishers -->
-    <string-array translatable="false" name="vmsSafePermissions">
-        <item>"android.permission.ACCESS_FINE_LOCATION"</item>
-    </string-array>
-
     <!-- Number of milliseconds to wait before trying re-bind to a crashed publisher. -->
     <integer name="millisecondsBeforeRebindToVmsPublisher">10000</integer>
 

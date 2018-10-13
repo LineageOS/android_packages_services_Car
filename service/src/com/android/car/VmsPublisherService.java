@@ -28,8 +28,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -38,14 +36,12 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.ArrayMap;
-import android.util.ArraySet;
 import android.util.Log;
 
 import com.android.car.hal.VmsHalService;
 import com.android.car.hal.VmsHalService.VmsHalPublisherListener;
 
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,7 +60,6 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
     private final VmsHalService mHal;
     private final Map<String, PublisherConnection> mPublisherConnectionMap = new ArrayMap<>();
     private final Map<String, IVmsPublisherClient> mPublisherMap = new ArrayMap<>();
-    private final Set<String> mSafePermissions;
     private final Handler mHandler = new EventHandler();
     private final VmsHalPublisherListener mHalPublisherListener;
 
@@ -76,10 +71,6 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
 
         mHalPublisherListener = subscriptionState -> mHandler.sendMessage(
                 mHandler.obtainMessage(MSG_HAL_SUBSCRIPTION_CHANGED, subscriptionState));
-
-        // Load permissions that can be granted to publishers.
-        mSafePermissions = new ArraySet<>(
-                Arrays.asList(mContext.getResources().getStringArray(R.array.vmsSafePermissions)));
     }
 
     // Implements CarServiceBase interface.
@@ -152,7 +143,6 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*" + getClass().getSimpleName() + "*");
-        writer.println("mSafePermissions: " + mSafePermissions);
         writer.println("mPublisherMap:" + mPublisherMap);
         writer.println("mPublisherConnectionMap:" + mPublisherConnectionMap);
     }
@@ -245,7 +235,6 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
             // Already registered, nothing to do.
             return;
         }
-        grantPermissions(name);
         Intent intent = new Intent();
         intent.setComponent(name);
         PublisherConnection connection = new PublisherConnection(name);
@@ -275,37 +264,6 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
             mPublisherConnectionMap.remove(publisherName);
         } else {
             Log.e(TAG, "unbind: unknown publisher." + publisherName);
-        }
-    }
-
-    private void grantPermissions(ComponentName component) {
-        final PackageManager packageManager = mContext.getPackageManager();
-        final String packageName = component.getPackageName();
-        PackageInfo packageInfo;
-        try {
-            packageInfo = packageManager.getPackageInfo(packageName,
-                    PackageManager.GET_PERMISSIONS);
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Error getting package info for " + packageName, e);
-            return;
-        }
-        if (packageInfo.requestedPermissions == null) return;
-        for (String permission : packageInfo.requestedPermissions) {
-            if (!mSafePermissions.contains(permission)) {
-                continue;
-            }
-            if (packageManager.checkPermission(permission, packageName)
-                    == PackageManager.PERMISSION_GRANTED) {
-                continue;
-            }
-            try {
-                packageManager.grantRuntimePermission(packageName, permission,
-                        UserHandle.SYSTEM);
-                Log.d(TAG, "Permission " + permission + " granted to " + packageName);
-            } catch (SecurityException | IllegalArgumentException e) {
-                Log.e(TAG, "Error while trying to grant " + permission + " to " + packageName,
-                        e);
-            }
         }
     }
 
