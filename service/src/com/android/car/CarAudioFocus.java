@@ -96,6 +96,13 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     // This is used both for focus dispatch and death handling
     // Note that the clientId reflects the AudioManager instance and listener object (if any)
     // so that one app can have more than one unique clientId by setting up distinct listeners.
+    // Because the listener gets only LOSS/GAIN messages, this is important for an app to do if
+    // it expects to request focus concurrently for different USAGEs so it knows which USAGE
+    // gained or lost focus at any given moment.  If the SAME listener is used for requests of
+    // different USAGE while the earlier request is still in the focus stack (whether holding
+    // focus or pending), the new request will be REJECTED so as to avoid any confusion about
+    // the meaning of subsequent GAIN/LOSS events (which would continue to apply to the focus
+    // request that was already active or pending).
     private HashMap<String, FocusEntry> mFocusHolders = new HashMap<String, FocusEntry>();
     private HashMap<String, FocusEntry> mFocusLosers = new HashMap<String, FocusEntry>();
 
@@ -129,8 +136,13 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
 
     /** @see AudioManager#requestAudioFocus(AudioManager.OnAudioFocusChangeListener, int, int, int) */
-    // TODO:  How should we handle focus requests from clients who are already in the focus stack?
-    // Especially if they're requesting with different AudioAttributes?
+    // Note that we replicate most, but not all of the behaviors of the default MediaFocusControl
+    // engine as of Android P.
+    // Besides the interaction matrix which allows concurrent focus for multiple requestors, which
+    // is the reason for this module, we also treat repeated requests from the same clientId
+    // slightly differently.
+    // If a focus request for the same listener (clientId) is received while that listener is
+    // already in the focus stack, we REJECT it outright unless it is for the same USAGE.
     // The default audio framework's behavior is to remove the previous entry in the stack (no-op
     // if the requester is already holding focus).
     int evaluateFocusRequest(AudioFocusInfo afi) {
@@ -152,12 +164,17 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         final int requestedContext = mCarAudioService.getContextForUsage(
                 afi.getAttributes().getUsage());
 
+        // If we happen find an entry that this new request should replace, we'll store it here.
+        FocusEntry deprecatedBlockedEntry = null;
 
         // Scan all active and pending focus requests.  If any should cause rejection of
         // this new request, then we're done.  Keep a list of those against whom we're exclusive
         // so we can update the relationships if/when we are sure we won't get rejected.
+        Log.i(TAG, "Scanning focus holders...");
         final ArrayList<FocusEntry> losers = new ArrayList<FocusEntry>();
         for (FocusEntry entry : mFocusHolders.values()) {
+            Log.i(TAG, entry.mAfi.getClientId());
+
             // If this request is for Notifications and a current focus holder has specified
             // AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE, then reject the request.
             // This matches the hardwired behavior in the default audio policy engine which apps
@@ -167,6 +184,20 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                     (entry.mAfi.getGainRequest() ==
                             AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)) {
                 return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+            }
+
+            // We don't allow sharing listeners (client IDs) between two concurrent requests
+            // (because the app would have no way to know to which request a later event applied)
+            if (afi.getClientId().equals(entry.mAfi.getClientId())) {
+                if (entry.mAudioContext == requestedContext) {
+                    // Trivially accept if this request is a duplicate
+                    Log.i(TAG, "Duplicate request from focus holder is accepted");
+                    return AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+                } else {
+                    // Trivially reject a request for a different USAGE
+                    Log.i(TAG, "Different request from focus holder is rejected");
+                    return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+                }
             }
 
             // Check the interaction matrix for the relationship between this entry and the request
@@ -191,14 +222,35 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                     }
             }
         }
+        Log.i(TAG, "Scanning those who've already lost focus...");
         final ArrayList<FocusEntry> blocked = new ArrayList<FocusEntry>();
         for (FocusEntry entry : mFocusLosers.values()) {
+            Log.i(TAG, entry.mAfi.getClientId());
+
             // If this request is for Notifications and a pending focus holder has specified
             // AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE, then reject the request
             if ((requestedContext == ContextNumber.NOTIFICATION) &&
                     (entry.mAfi.getGainRequest() ==
                             AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)) {
                 return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+            }
+
+            // We don't allow sharing listeners (client IDs) between two concurrent requests
+            // (because the app would have no way to know to which request a later event applied)
+            if (afi.getClientId().equals(entry.mAfi.getClientId())) {
+                if (entry.mAudioContext == requestedContext) {
+                    // This is a repeat of a request that is currently blocked.
+                    // Evaluate it as if it were a new request, but note that we should remove
+                    // the old pending request, and move it.
+                    // We do not want to evaluate the new request against itself.
+                    Log.i(TAG, "Duplicate request while waiting is being evaluated");
+                    deprecatedBlockedEntry = entry;
+                    continue;
+                } else {
+                    // Trivially reject a request for a different USAGE
+                    Log.i(TAG, "Different request while waiting is rejected");
+                    return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+                }
             }
 
             // Check the interaction matrix for the relationship between this entry and the request
@@ -262,9 +314,16 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             }
         }
 
+        // If we encountered a duplicate of this request that was pending, but now we're going to
+        // grant focus, we need to remove the old pending request (without sending a LOSS message).
+        if (deprecatedBlockedEntry != null) {
+            mFocusLosers.remove(deprecatedBlockedEntry.mAfi.getClientId());
+        }
+
         // Finally, add the request we're granting to the focus holders' list
         mFocusHolders.put(afi.getClientId(), newEntry);
 
+        Log.i(TAG, "AUDIOFOCUS_REQUEST_GRANTED");
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
     }
 
