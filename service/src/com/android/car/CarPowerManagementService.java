@@ -344,8 +344,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     int token = 0;
                     ICarPowerStateListener listener = mPowerManagerListeners.getBroadcastItem(i);
                     if (useTokens) {
-                        listener.onStateChanged(newState, mTokenValue);
                         mPowerManagerListenerTokens.put(listener.asBinder(), mTokenValue);
+                        listener.onStateChanged(newState, mTokenValue);
                         mTokenValue++;
                     } else {
                         listener.onStateChanged(newState, 0);
