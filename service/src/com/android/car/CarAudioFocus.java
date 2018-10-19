@@ -354,9 +354,16 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             deadEntry = mFocusLosers.remove(afi.getClientId());
             if (deadEntry == null) {
                 // Caller is providing an unrecognzied clientId!?
-                Log.e(TAG, "Audio focus abandoned by unrecognzied client id: " + afi.getClientId());
-                // NOTE:  We could choose to silently ignore this, but lets make it clear for now
-                throw new RuntimeException("Unrecognized client abandoning audio focus");
+                Log.w(TAG, "Audio focus abandoned by unrecognized client id: " + afi.getClientId());
+                // This probably means an app double released focused for some reason.  One
+                // harmless possibility is a race between an app being told it lost focus and the
+                // app voluntarily abandoning focus.  More likely the app is just sloppy.  :)
+                // The more nefarious possibility is that the clientId is actually corrupted
+                // somehow, in which case we might have a real focus entry that we're going to fail
+                // to remove. If that were to happen, I'd expect either the app to swallow it
+                // silently, or else take unexpected action (eg: resume playing spontaneously), or
+                // else to see "Failure to signal ..." gain/loss error messages in the log from
+                // this module when a focus change tries to take action on a truly zombie entry.
             }
         }
 
