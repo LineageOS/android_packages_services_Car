@@ -24,6 +24,9 @@
           dynamic audio routing is disabled and audio works in legacy mode. It may be useful
           during initial development where audio hal does not support bus based addressing yet. -->
     <bool name="audioUseDynamicRouting">false</bool>
+    <!--  Configuration to persist master mute state. If this is set to true,
+          Android will restore the master mute state on boot. -->
+    <bool name="audioPersistMasterMuteState">true</bool>
     <!-- Whether to block other audio while media audio is muted with display off. When set to true,
          other sounds cannot be played either while display is off. If false, only media is muted
          and other sounds can be still played. -->
@@ -51,6 +54,9 @@
           Format of each entry is either to specify package name to whitelist the whole package
           or use format of "packagename/activity_classname" for tagging each activities.-->
     <string name="activityBlacklist"></string>
+    <!-- List of play store package names that are allowed sources of app installation-->
+    <string-array translateble="false" name="allowedAppInstallSources">
+    </string-array>
     <!-- Default home activity -->
     <string name="defaultHomeActivity"><!--com.your.package/com.your.package.Activity--></string>
     <!--  The com.android.car.VmsPublisherService will bind to this list of clients -->

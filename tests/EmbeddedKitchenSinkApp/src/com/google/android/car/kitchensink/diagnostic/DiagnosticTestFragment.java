@@ -24,12 +24,13 @@ import android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.car.hardware.CarSensorManager;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;

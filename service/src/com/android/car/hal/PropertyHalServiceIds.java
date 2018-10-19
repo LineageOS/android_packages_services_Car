@@ -215,9 +215,6 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.HVAC_SEAT_VENTILATION, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.ENV_OUTSIDE_TEMPERATURE, new Pair<>(
-                    Car.PERMISSION_CONTROL_CAR_CLIMATE,
-                    Car.PERMISSION_CONTROL_CAR_CLIMATE));
 
         // Info properties
         mProps.put(VehicleProperty.INFO_VIN, new Pair<>(

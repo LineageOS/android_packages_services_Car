@@ -47,6 +47,13 @@ public final class CarAudioManager implements CarManagerBase {
         return VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX + groupId;
     }
 
+    /**
+     * Key to persist master mute state in {@link Settings.Global}
+     *
+     * @hide
+     */
+    public static final String VOLUME_SETTINGS_KEY_MASTER_MUTE = "android.car.MASTER_MUTE";
+
     private final ContentResolver mContentResolver;
     private final ICarAudio mService;
 

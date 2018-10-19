@@ -16,26 +16,24 @@
 
 package com.android.car.trust;
 
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGattServer;
-import android.bluetooth.BluetoothGattServerCallback;
-import android.bluetooth.BluetoothManager;
+import android.annotation.Nullable;
+import android.app.ActivityManager;
+import android.app.UserSwitchObserver;
+import android.bluetooth.BluetoothAdapter;
 import android.car.trust.ICarTrustAgentBleService;
 import android.car.trust.ICarTrustAgentTokenRequestDelegate;
 import android.car.trust.ICarTrustAgentUnlockCallback;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.service.trust.TrustAgentService;
 import android.util.Log;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * A BluetoothLE (BLE) based {@link TrustAgentService} that uses the escrow token unlock APIs. </p>
@@ -49,39 +47,44 @@ public class CarBleTrustAgent extends TrustAgentService {
 
     private static final String TAG = CarBleTrustAgent.class.getSimpleName();
 
-    private static final long TRUST_DURATION_MS = TimeUnit.MINUTES.toMicros(5);
-    private static final long BLE_RETRY_MS = TimeUnit.SECONDS.toMillis(1);
-
-    private Handler mHandler;
-    private BluetoothManager mBluetoothManager;
-    private ICarTrustAgentBleService mCarTrustAgentBleService;
-    private boolean mCarTrustAgentBleServiceBound;
-
+    /**
+     * {@link CarTrustAgentBleService} will callback this function when it receives both
+     * handle and token.
+     */
     private final ICarTrustAgentUnlockCallback mUnlockCallback =
             new ICarTrustAgentUnlockCallback.Stub() {
         @Override
-        public void onUnlockDataReceived(byte[] token, long handle) {
-            UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
-            // TODO(b/77854782): get the actual user to unlock by token
-            UserHandle userHandle = getForegroundUserHandle();
+        public void onUnlockDataReceived(byte[] token, long handle) throws RemoteException {
+            UserHandle userHandle = getUserHandleByTokenHandle(handle);
+            if (userHandle == null) {
+                Log.e(TAG, "Unable to find user by token handle " + handle);
+                return;
+            }
 
-            Log.d(TAG, "About to unlock user. Handle: " + handle
-                    + " Time: " + System.currentTimeMillis());
-            unlockUserWithToken(handle, token, userHandle);
-
-            Log.d(TAG, "Attempted to unlock user, is user unlocked: "
-                    + um.isUserUnlocked(userHandle)
-                    + " Time: " + System.currentTimeMillis());
-            setManagingTrust(true);
-
-            if (um.isUserUnlocked(userHandle)) {
-                Log.d(TAG, getString(R.string.trust_granted_explanation));
-                grantTrust("Granting trust from escrow token",
-                        TRUST_DURATION_MS, FLAG_GRANT_TRUST_DISMISS_KEYGUARD);
+            int uid = userHandle.getIdentifier();
+            if (ActivityManager.getCurrentUser() != uid) {
+                Log.d(TAG, "Switch to user: " + uid);
+                // Try to unlock when user switch completes
+                ActivityManager.getService().registerUserSwitchObserver(
+                        getUserSwitchObserver(uid, token, handle), TAG);
+                ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+                am.switchUser(uid);
+            } else {
+                unlockUserInternally(uid, token, handle);
             }
         }
     };
 
+    /**
+     * Delegates the escrow token API calls from {@link CarTrustAgentBleService} to
+     * {@link TrustAgentService}. Due to the asynchronous nature, the results will be posted to
+     * {@link CarTrustAgentBleService} by the following calls
+     * <ul>
+     *     <li>{@link #onEscrowTokenAdded(byte[], long, UserHandle)}</li>
+     *     <li>{@link #onEscrowTokenRemoved(long, boolean)}</li>
+     *     <li>{@link #onEscrowTokenStateReceived(long, int)}</li>
+     * </ul>
+     */
     private final ICarTrustAgentTokenRequestDelegate mTokenRequestDelegate =
             new ICarTrustAgentTokenRequestDelegate.Stub() {
         @Override
@@ -105,6 +108,9 @@ public class CarBleTrustAgent extends TrustAgentService {
         }
     };
 
+    /**
+     * Service connection to {@link CarTrustAgentBleService}
+     */
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -114,7 +120,6 @@ public class CarBleTrustAgent extends TrustAgentService {
             try {
                 mCarTrustAgentBleService.registerUnlockCallback(mUnlockCallback);
                 mCarTrustAgentBleService.setTokenRequestDelegate(mTokenRequestDelegate);
-                maybeStartBleUnlockService();
             } catch (RemoteException e) {
                 Log.e(TAG, "Error registerUnlockCallback", e);
             }
@@ -122,10 +127,12 @@ public class CarBleTrustAgent extends TrustAgentService {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG, "CarTrustAgentBleService disconnected");
             if (mCarTrustAgentBleService != null) {
                 try {
                     mCarTrustAgentBleService.unregisterUnlockCallback(mUnlockCallback);
                     mCarTrustAgentBleService.setTokenRequestDelegate(null);
+                    mCarTrustAgentBleService.stopUnlockAdvertising();
                 } catch (RemoteException e) {
                     Log.e(TAG, "Error unregisterUnlockCallback", e);
                 }
@@ -135,45 +142,57 @@ public class CarBleTrustAgent extends TrustAgentService {
         }
     };
 
+    /**
+     * Receives the bluetooth state change broadcasts. Bluetooth is restarted when switching user,
+     * we need to ensure calling {@link ICarTrustAgentBleService#startUnlockAdvertising} after
+     * bluetooth is started.
+     */
+    private final BroadcastReceiver mBluetoothBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case BluetoothAdapter.ACTION_STATE_CHANGED:
+                    onBluetoothStateChanged(intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1));
+                    break;
+            }
+        }
+    };
+
+    private ICarTrustAgentBleService mCarTrustAgentBleService;
+    private boolean mCarTrustAgentBleServiceBound;
+
+    /**
+     * TODO: Currently it relies on {@link #onDeviceLocked()} and {@link #onDeviceUnlocked()}
+     * callback, and these callbacks won't happen if the user has unlocked once.
+     */
+    private boolean mIsOnLockScreen;
+
     @Override
     public void onCreate() {
         super.onCreate();
-
-        Log.d(TAG, "Bluetooth trust agent starting up");
-        mHandler = new Handler();
-        mBluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
-
-        // If the user is already unlocked, don't bother starting the BLE service.
-        UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
-        if (!um.isUserUnlocked(getForegroundUserHandle())) {
-            Log.d(TAG, "User locked, will now bind CarTrustAgentBleService");
-            Intent intent = new Intent(this, CarTrustAgentBleService.class);
-            bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        } else {
-            setManagingTrust(true);
-        }
+        setManagingTrust(true);
+        bindService(new Intent(this, CarTrustAgentBleService.class),
+                mServiceConnection, Context.BIND_AUTO_CREATE);
+        IntentFilter intentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(mBluetoothBroadcastReceiver, intentFilter);
     }
 
     @Override
     public void onDestroy() {
         Log.d(TAG, "Car Trust agent shutting down");
-        mHandler.removeCallbacks(null);
-
-        // Unbind the service to avoid leaks from BLE stack.
         if (mCarTrustAgentBleServiceBound) {
             unbindService(mServiceConnection);
         }
+        unregisterReceiver(mBluetoothBroadcastReceiver);
         super.onDestroy();
     }
 
     @Override
     public void onDeviceLocked() {
         super.onDeviceLocked();
+        mIsOnLockScreen = true;
         if (mCarTrustAgentBleServiceBound) {
             try {
-                // Only one BLE advertising is allowed, ensure enrolment advertising is stopped
-                // before start unlock advertising.
-                mCarTrustAgentBleService.stopEnrolmentAdvertising();
                 mCarTrustAgentBleService.startUnlockAdvertising();
             } catch (RemoteException e) {
                 Log.e(TAG, "Error startUnlockAdvertising", e);
@@ -184,36 +203,47 @@ public class CarBleTrustAgent extends TrustAgentService {
     @Override
     public void onDeviceUnlocked() {
         super.onDeviceUnlocked();
+        mIsOnLockScreen = false;
         if (mCarTrustAgentBleServiceBound) {
             try {
-                // Only one BLE advertising is allowed, ensure unlock advertising is stopped.
                 mCarTrustAgentBleService.stopUnlockAdvertising();
             } catch (RemoteException e) {
                 Log.e(TAG, "Error stopUnlockAdvertising", e);
             }
         }
+        // Revoke trust right after to enable keyguard when switching user
+        revokeTrust();
     }
 
-    private void maybeStartBleUnlockService() {
-        Log.d(TAG, "Trying to open a Ble GATT server");
-        BluetoothGattServer gattServer = mBluetoothManager.openGattServer(
-                this, new BluetoothGattServerCallback() {
+    private UserSwitchObserver getUserSwitchObserver(int uid,
+            byte[] token, long handle) {
+        return new UserSwitchObserver() {
             @Override
-            public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
-                super.onConnectionStateChange(device, status, newState);
+            public void onUserSwitchComplete(int newUserId) throws RemoteException {
+                if (uid != newUserId) return;
+                unlockUserInternally(uid, token, handle);
+                ActivityManager.getService().unregisterUserSwitchObserver(this);
             }
-        });
 
-        // The BLE stack is started up before the trust agent service, however Gatt capabilities
-        // might not be ready just yet. Keep trying until a GattServer can open up before proceeding
-        // to start the rest of the BLE services.
-        if (gattServer == null) {
-            Log.e(TAG, "Gatt not available, will try again...in " + BLE_RETRY_MS + "ms");
-            mHandler.postDelayed(this::maybeStartBleUnlockService, BLE_RETRY_MS);
-        } else {
-            mHandler.removeCallbacks(null);
-            gattServer.close();
-            Log.d(TAG, "GATT available, starting up UnlockService");
+            @Override
+            public void onLockedBootComplete(int newUserId) {
+                // ignored.
+            }
+        };
+    }
+
+    private void unlockUserInternally(int uid, byte[] token, long handle) {
+        Log.d(TAG, "About to unlock user: " + uid);
+        unlockUserWithToken(handle, token, UserHandle.of(uid));
+        grantTrust("Granting trust from escrow token",
+                0, FLAG_GRANT_TRUST_DISMISS_KEYGUARD);
+    }
+
+    private void onBluetoothStateChanged(int state) {
+        Log.d(TAG, "onBluetoothStateChanged: " + state);
+        if ((state == BluetoothAdapter.STATE_ON || state == BluetoothAdapter.STATE_BLE_ON)
+                && mCarTrustAgentBleServiceBound
+                && mIsOnLockScreen) {
             try {
                 mCarTrustAgentBleService.startUnlockAdvertising();
             } catch (RemoteException e) {
@@ -259,12 +289,15 @@ public class CarBleTrustAgent extends TrustAgentService {
         }
     }
 
-    /**
-     * TODO(b/77854782): return the {@link UserHandle} of foreground user.
-     * CarBleTrustAgent itself runs as user-0
-     */
-    private UserHandle getForegroundUserHandle() {
-        Log.d(TAG, "getForegroundUserHandle for " + UserHandle.myUserId());
-        return UserHandle.of(UserHandle.myUserId());
+    private @Nullable UserHandle getUserHandleByTokenHandle(long tokenHandle) {
+        if (mCarTrustAgentBleServiceBound) {
+            try {
+                int userId = mCarTrustAgentBleService.getUserIdByEscrowTokenHandle(tokenHandle);
+                return userId < 0 ? null : UserHandle.of(userId);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Error getUserHandleByTokenHandle");
+            }
+        }
+        return null;
     }
 }

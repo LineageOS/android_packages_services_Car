@@ -212,6 +212,9 @@ bool RenderTopView::drawFrame(const BufferDesc& tgtBuffer) {
     // Draw the car image
     renderCarTopView();
 
+    // Now that everythign is submitted, release our hold on the texture resource
+    detachRenderTarget();
+
     // Wait for the rendering to finish
     glFinish();
     detachRenderTarget();
