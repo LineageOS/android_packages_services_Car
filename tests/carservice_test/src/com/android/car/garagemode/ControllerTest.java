@@ -93,22 +93,15 @@ public class ControllerTest {
     }
 
     @Test
-    public void testOnSuspendEnter_shouldInitiateGarageMode() {
-        startAndAssertGarageModeWithSignal(CarPowerStateListener.SUSPEND_ENTER);
-        verify(mContextMock).sendBroadcast(mIntentCaptor.capture());
-        verifyGarageModeBroadcast(mIntentCaptor.getAllValues(), 1, ACTION_GARAGE_MODE_ON);
-    }
-
-    @Test
-    public void testOnShutdownEnter_shouldInitiateGarageMode() {
-        startAndAssertGarageModeWithSignal(CarPowerStateListener.SHUTDOWN_ENTER);
+    public void testOnShutdownPrepare_shouldInitiateGarageMode() {
+        startAndAssertGarageModeWithSignal(CarPowerStateListener.SHUTDOWN_PREPARE);
         verify(mContextMock).sendBroadcast(mIntentCaptor.capture());
         verifyGarageModeBroadcast(mIntentCaptor.getAllValues(), 1, ACTION_GARAGE_MODE_ON);
     }
 
     @Test
     public void testOnShutdownCancelled_shouldCancelGarageMode() {
-        startAndAssertGarageModeWithSignal(CarPowerStateListener.SUSPEND_ENTER);
+        startAndAssertGarageModeWithSignal(CarPowerStateListener.SHUTDOWN_PREPARE);
 
         // Sending shutdown cancelled signal to controller, GarageMode should wrap up and stop
         mController.onStateChanged(CarPowerStateListener.SHUTDOWN_CANCELLED, null);
@@ -133,7 +126,7 @@ public class ControllerTest {
     @Test
     public void testWakeupTimeProgression() throws CarNotConnectedException {
         // Doing initial suspend
-        startAndAssertGarageModeWithSignal(CarPowerStateListener.SUSPEND_ENTER);
+        startAndAssertGarageModeWithSignal(CarPowerStateListener.SHUTDOWN_PREPARE);
 
         // Finish GarageMode and check next scheduled time
         mController.finishGarageMode();
@@ -141,7 +134,7 @@ public class ControllerTest {
 
         // Start GarageMode again without waking up car
         mFuture = new CompletableFuture<>();
-        mController.onStateChanged(CarPowerStateListener.SUSPEND_ENTER, mFuture);
+        mController.onStateChanged(CarPowerStateListener.SHUTDOWN_PREPARE, mFuture);
 
         assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(2);
         assertThat(mController.isGarageModeActive()).isTrue();
@@ -152,7 +145,7 @@ public class ControllerTest {
 
         for (int i = 0; i < 4; i++) {
             mFuture = new CompletableFuture<>();
-            mController.onStateChanged(CarPowerStateListener.SUSPEND_ENTER, mFuture);
+            mController.onStateChanged(CarPowerStateListener.SHUTDOWN_PREPARE, mFuture);
             mController.finishGarageMode();
             assertThat(mController.isGarageModeActive()).isFalse();
             assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(i + 3);

@@ -28,7 +28,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
@@ -39,7 +38,6 @@ public class PowerTestFragment extends Fragment {
     private final boolean DBG = false;
     private final String TAG = "PowerTestFragment";
     private CarPowerManager mCarPowerManager;
-    private TextView mTvBootReason;
 
     private final CarPowerManager.CarPowerStateListener mPowerListener =
             (state, future) -> {
@@ -76,10 +74,7 @@ public class PowerTestFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
         View v = inflater.inflate(R.layout.power_test, container, false);
 
-        Button b = v.findViewById(R.id.btnPwrGetBootReason);
-        b.setOnClickListener(this::getBootReasonBtn);
-
-        b = v.findViewById(R.id.btnPwrRequestShutdown);
+        Button b = v.findViewById(R.id.btnPwrRequestShutdown);
         b.setOnClickListener(this::requestShutdownBtn);
 
         b = v.findViewById(R.id.btnPwrShutdown);
@@ -88,22 +83,11 @@ public class PowerTestFragment extends Fragment {
         b = v.findViewById(R.id.btnPwrSleep);
         b.setOnClickListener(this::sleepBtn);
 
-        mTvBootReason = v.findViewById(R.id.tvPowerBootReason);
-
         if(DBG) {
             Log.d(TAG, "Starting PowerTestFragment");
         }
 
         return v;
-    }
-
-    private void getBootReasonBtn(View v) {
-        try {
-            int bootReason = mCarPowerManager.getBootReason();
-            mTvBootReason.setText(String.valueOf(bootReason));
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to getBootReason()", e);
-        }
     }
 
     private void requestShutdownBtn(View v) {

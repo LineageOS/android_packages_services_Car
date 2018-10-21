@@ -161,10 +161,9 @@ public class CarLocationService extends BroadcastReceiver implements
 
     @Override
     public void onStateChanged(int state, CompletableFuture<Void> future) {
+        logd("onStateChanged: " + state);
         switch (state) {
-            case CarPowerStateListener.SHUTDOWN_ENTER:
-            case CarPowerStateListener.SUSPEND_ENTER:
-                logd("onStateChanged: " + state);
+            case CarPowerStateListener.SHUTDOWN_PREPARE:
                 asyncOperation(() -> {
                     storeLocation();
                     // Notify the CarPowerManager that it may proceed to shutdown or suspend.
@@ -173,8 +172,7 @@ public class CarLocationService extends BroadcastReceiver implements
                     }
                 });
                 break;
-            case CarPowerStateListener.SHUTDOWN_CANCELLED:
-            case CarPowerStateListener.SUSPEND_EXIT:
+            default:
                 // This service does not need to do any work for these events but should still
                 // notify the CarPowerManager that it may proceed.
                 if (future != null) {

@@ -153,8 +153,8 @@ public final class SystemInterface implements DisplayInterface, IOInterface,
     }
 
     @Override
-    public boolean enterDeepSleep(int wakeupTimeSec) {
-        return mSystemStateInterface.enterDeepSleep(wakeupTimeSec);
+    public boolean enterDeepSleep() {
+        return mSystemStateInterface.enterDeepSleep();
     }
 
     @Override

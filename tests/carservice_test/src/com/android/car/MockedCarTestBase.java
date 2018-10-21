@@ -413,7 +413,7 @@ public class MockedCarTestBase {
         public void shutdown() {}
 
         @Override
-        public boolean enterDeepSleep(int wakeupTimeSec) {
+        public boolean enterDeepSleep() {
             return true;
         }
 
