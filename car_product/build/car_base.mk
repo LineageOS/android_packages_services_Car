@@ -34,7 +34,6 @@ PRODUCT_PACKAGES += \
     Launcher2 \
     ManagedProvisioning \
     PacProcessor \
-    libpac \
     PrintSpooler \
     ProxyHandler \
     Settings \
