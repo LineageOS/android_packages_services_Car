@@ -38,13 +38,13 @@ public:
     //  NOTE:  The entries in this enum must match the ones in CarPowerStateListener located in
     //      packages/services/Car/car-lib/src/android/car/hardware/power/CarPowerManager.java
     enum class State {
-        kWaitForVhal = 1,
-        kSuspendEnter = 2,
-        kSuspendExit = 3,
-        kShutdownEnter = 5,
-        kOn = 6,
-        kShutdownPrepare = 7,
-        kShutdownCancelled = 8,
+        kShutdownCancelled = 0,
+        kShutdownEnter = 1,
+        kWaitForVhal = 2,
+        kSuspendEnter = 3,
+        kSuspendExit = 4,
+        kOn = 5,
+        kShutdownPrepare = 6,
 
         kFirst = kWaitForVhal,
         kLast = kShutdownCancelled,

@@ -698,16 +698,17 @@ package android.car.hardware.hvac {
 package android.car.hardware.power {
 
   public class CarPowerManager {
+    field public static final int BOOT_REASON_DOOR_OPEN = 4; // 0x4
+    field public static final int BOOT_REASON_DOOR_UNLOCK = 2; // 0x2
+    field public static final int BOOT_REASON_REMOTE_START = 5; // 0x5
+    field public static final int BOOT_REASON_TIMER = 3; // 0x3
+    field public static final int BOOT_REASON_USER_POWER_ON = 1; // 0x1
   }
 
   public static abstract interface CarPowerManager.CarPowerStateListener {
-    method public abstract void onStateChanged(int, java.util.concurrent.CompletableFuture<java.lang.Void>);
-    field public static final int ON = 6; // 0x6
-    field public static final int SHUTDOWN_CANCELLED = 8; // 0x8
-    field public static final int SHUTDOWN_ENTER = 5; // 0x5
-    field public static final int SHUTDOWN_PREPARE = 7; // 0x7
-    field public static final int SUSPEND_ENTER = 2; // 0x2
-    field public static final int SUSPEND_EXIT = 3; // 0x3
+    method public abstract void onStateChanged(int);
+    field public static final int SHUTDOWN_CANCELLED = 0; // 0x0
+    field public static final int SHUTDOWN_ENTER = 1; // 0x1
   }
 
 }

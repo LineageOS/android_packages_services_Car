@@ -93,6 +93,12 @@ public class Controller implements CarPowerStateListener {
     }
 
     @Override
+    public void onStateChanged(int state) {
+        throw new UnsupportedOperationException(
+                "Should not be here. This API obsolete and is not used.");
+    }
+
+    @Override
     public void onStateChanged(int state, CompletableFuture<Void> future) {
         switch (state) {
             case CarPowerStateListener.SHUTDOWN_CANCELLED:

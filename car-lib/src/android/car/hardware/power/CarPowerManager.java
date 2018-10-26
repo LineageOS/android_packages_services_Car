@@ -48,6 +48,27 @@ public class CarPowerManager implements CarManagerBase {
     private final Object mLock = new Object();
 
     /**
+     * Deleted! Don't use.
+     */
+    public static final int BOOT_REASON_USER_POWER_ON = 1;
+    /**
+     * Deleted! Don't use.
+     */
+    public static final int BOOT_REASON_DOOR_UNLOCK = 2;
+    /**
+     * Deleted! Don't use.
+     */
+    public static final int BOOT_REASON_TIMER = 3;
+    /**
+     * Deleted! Don't use.
+     */
+    public static final int BOOT_REASON_DOOR_OPEN = 4;
+    /**
+     * Deleted! Don't use.
+     */
+    public static final int BOOT_REASON_REMOTE_START = 5;
+
+    /**
      *  Applications set a {@link CarPowerStateListener} for power state event updates.
      */
     public interface CarPowerStateListener {
@@ -55,36 +76,46 @@ public class CarPowerManager implements CarManagerBase {
          * onStateChanged() states.  These definitions must match the ones located in the native
          * CarPowerManager:  packages/services/Car/car-lib/native/CarPowerManager/CarPowerManager.h
          */
+
+        /**
+         * Shutdown is cancelled, return to normal state.
+         */
+        int SHUTDOWN_CANCELLED = 0;
+        /**
+         * Enter shutdown state.  CPMS is switching to WAIT_FOR_FINISHED state.
+         */
+        int SHUTDOWN_ENTER = 1;
         /**
          * Android is up, but vendor is controlling the audio / display
          * @hide
          */
-        int WAIT_FOR_VHAL = 1;
+        int WAIT_FOR_VHAL = 2;
         /**
          * Enter suspend state.  CPMS is switching to WAIT_FOR_FINISHED state.
+         * @hide
          */
-        int SUSPEND_ENTER = 2;
+        int SUSPEND_ENTER = 3;
         /**
          * Wake up from suspend.
+         * @hide
          */
-        int SUSPEND_EXIT = 3;
-        /**
-         * Enter shutdown state.  CPMS is switching to WAIT_FOR_FINISHED state.
-         */
-        int SHUTDOWN_ENTER = 5;
+        int SUSPEND_EXIT = 4;
         /**
          * On state
+         * @hide
          */
-        int ON = 6;
+        int ON = 5;
         /**
          * State where system is getting ready for shutdown or suspend.  Application is expected to
          * cleanup and be ready to suspend
+         * @hide
          */
-        int SHUTDOWN_PREPARE = 7;
+        int SHUTDOWN_PREPARE = 6;
+        
         /**
-         * Shutdown is cancelled, return to normal state.
+         * Deleted! Don't use.
          */
-        int SHUTDOWN_CANCELLED = 8;
+        void onStateChanged(int state);
 
         /**
          *  Called when power state changes
@@ -92,6 +123,7 @@ public class CarPowerManager implements CarManagerBase {
          *  @param future CompletableFuture used by consumer modules to notify CPMS that
          *                they are ready to continue shutting down. CPMS will wait until this future
          *                is completed.
+         * @hide
          */
         void onStateChanged(int state, CompletableFuture<Void> future);
     }
