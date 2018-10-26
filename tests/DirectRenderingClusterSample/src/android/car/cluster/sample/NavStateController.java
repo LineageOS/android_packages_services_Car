@@ -15,6 +15,7 @@
  */
 package android.car.cluster.sample;
 
+import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -55,14 +56,14 @@ public class NavStateController {
     /**
      * Updates views to reflect the provided navigation state
      */
-    public void update(NavigationState state) {
+    public void update(@Nullable NavigationState state) {
         Log.i(TAG, "Updating nav state: " + state);
         Step step = getImmediateStep(state);
         mManeuver.setImageDrawable(getManeuverIcon(step != null ? step.getManeuver() : null));
         mDistance.setText(formatDistance(step != null ? step.getDistance() : null));
     }
 
-    private Drawable getManeuverIcon(Maneuver maneuver) {
+    private Drawable getManeuverIcon(@Nullable Maneuver maneuver) {
         if (maneuver == null) {
             return null;
         }
@@ -179,11 +180,11 @@ public class NavStateController {
         return null;
     }
 
-    private Step getImmediateStep(NavigationState state) {
-        return state.getSteps().size() > 0 ? state.getSteps().get(0) : null;
+    private Step getImmediateStep(@Nullable NavigationState state) {
+        return state != null && state.getSteps().size() > 0 ? state.getSteps().get(0) : null;
     }
 
-    private String formatDistance(Distance distance) {
+    private String formatDistance(@Nullable Distance distance) {
         if (distance == null || distance.getDisplayUnit() == Distance.Unit.UNKNOWN) {
             return null;
         }

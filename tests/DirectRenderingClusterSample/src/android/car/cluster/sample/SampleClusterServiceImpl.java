@@ -15,17 +15,23 @@
  */
 package android.car.cluster.sample;
 
+import static android.content.Intent.ACTION_USER_SWITCHED;
+import static android.content.Intent.ACTION_USER_UNLOCKED;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 import static java.lang.Integer.parseInt;
 
+import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.car.CarNotConnectedException;
 import android.car.cluster.ClusterActivityState;
 import android.car.cluster.renderer.InstrumentClusterRenderingService;
 import android.car.cluster.renderer.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Bundle;
@@ -59,6 +65,8 @@ import java.util.List;
 public class SampleClusterServiceImpl extends InstrumentClusterRenderingService {
     private static final String TAG = "Cluster.SampleService";
 
+    private static final int NO_DISPLAY = -1;
+
     static final String LOCAL_BINDING_ACTION = "local";
     static final String NAV_STATE_BUNDLE_KEY = "navstate";
     static final int NAV_STATE_EVENT_ID = 1;
@@ -75,6 +83,52 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
 
     private List<Messenger> mClients = new ArrayList<>();
     private ClusterDisplayProvider mDisplayProvider;
+    private int mDisplayId = NO_DISPLAY;
+    private UserReceiver mUserReceiver;
+
+    private final DisplayListener mDisplayListener = new DisplayListener() {
+        @Override
+        public void onDisplayAdded(int displayId) {
+            Log.i(TAG, "Cluster display found, displayId: " + displayId);
+            mDisplayId = displayId;
+            tryLaunchActivity();
+        }
+
+        @Override
+        public void onDisplayRemoved(int displayId) {
+            Log.w(TAG, "Cluster display has been removed");
+        }
+
+        @Override
+        public void onDisplayChanged(int displayId) {
+
+        }
+    };
+
+    private static class UserReceiver extends BroadcastReceiver {
+        private WeakReference<SampleClusterServiceImpl> mService;
+
+        UserReceiver(SampleClusterServiceImpl service) {
+            mService = new WeakReference<>(service);
+        }
+
+        public void register(Context context) {
+            IntentFilter intentFilter =  new IntentFilter(ACTION_USER_UNLOCKED);
+            intentFilter.addAction(ACTION_USER_SWITCHED);
+            context.registerReceiver(this, intentFilter);
+        }
+
+        public void unregister(Context context) {
+            context.unregisterReceiver(this);
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            SampleClusterServiceImpl service = mService.get();
+            Log.d(TAG, "Broadcast received: " + intent);
+            service.tryLaunchActivity();
+        }
+    }
 
     private static class MessageHandler extends Handler {
         private final WeakReference<SampleClusterServiceImpl> mService;
@@ -88,19 +142,22 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
             Log.d(TAG, "handleMessage: " + msg.what);
             try {
                 switch (msg.what) {
-                    case MSG_SET_ACTIVITY_LAUNCH_OPTIONS:
-                        mService.get().setClusterActivityLaunchOptions(
-                                msg.getData().getString(MSG_KEY_CATEGORY),
-                                ActivityOptions.fromBundle(
-                                        msg.getData().getBundle(MSG_KEY_ACTIVITY_OPTIONS)
-                                ));
+                    case MSG_SET_ACTIVITY_LAUNCH_OPTIONS: {
+                        ActivityOptions options = ActivityOptions.fromBundle(
+                                msg.getData().getBundle(MSG_KEY_ACTIVITY_OPTIONS));
+                        String category = msg.getData().getString(MSG_KEY_CATEGORY);
+                        mService.get().setClusterActivityLaunchOptions(category, options);
+                        Log.d(TAG, String.format("activity options set: %s = %s (displayeId: %d)",
+                                category, options, options.getLaunchDisplayId()));
                         break;
-                    case MSG_SET_ACTIVITY_STATE:
-                        mService.get().setClusterActivityState(
-                                msg.getData().getString(MSG_KEY_CATEGORY),
-                                msg.getData().getBundle(MSG_KEY_ACTIVITY_STATE)
-                        );
+                    }
+                    case MSG_SET_ACTIVITY_STATE: {
+                        Bundle state = msg.getData().getBundle(MSG_KEY_ACTIVITY_STATE);
+                        String category = msg.getData().getString(MSG_KEY_CATEGORY);
+                        mService.get().setClusterActivityState(category, state);
+                        Log.d(TAG, String.format("activity state set: %s = %s", category, state));
                         break;
+                    }
                     case MSG_REGISTER_CLIENT:
                         mService.get().mClients.add(msg.replyTo);
                         break;
@@ -128,34 +185,26 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-
-        mDisplayProvider = new ClusterDisplayProvider(this,
-                new DisplayListener() {
-                    @Override
-                    public void onDisplayAdded(int displayId) {
-                        Log.i(TAG, "Cluster display found, displayId: " + displayId);
-                        doClusterDisplayConnected(displayId);
-                    }
-
-                    @Override
-                    public void onDisplayRemoved(int displayId) {
-                        Log.w(TAG, "Cluster display has been removed");
-                    }
-
-                    @Override
-                    public void onDisplayChanged(int displayId) {
-
-                    }
-                });
+        mDisplayProvider = new ClusterDisplayProvider(this, mDisplayListener);
+        mUserReceiver = new UserReceiver(this);
+        mUserReceiver.register(this);
     }
 
-    private void doClusterDisplayConnected(int displayId) {
+    private void tryLaunchActivity() {
+        int userHandle = ActivityManager.getCurrentUser();
+        if (userHandle == UserHandle.USER_SYSTEM || mDisplayId == NO_DISPLAY) {
+            Log.d(TAG, String.format("Launch activity ignored (user: %d, display: %d)", userHandle,
+                    mDisplayId));
+            // Not ready to launch yet.
+            return;
+        }
         ActivityOptions options = ActivityOptions.makeBasic();
-        options.setLaunchDisplayId(displayId);
+        options.setLaunchDisplayId(mDisplayId);
         Intent intent = new Intent(this, MainClusterActivity.class);
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-        startActivityAsUser(intent, options.toBundle(), UserHandle.CURRENT);
-        Log.d(TAG, "launching main activity: " + intent);
+        startActivityAsUser(intent, options.toBundle(), UserHandle.of(userHandle));
+        Log.i(TAG, String.format("launching main activity: %s (user: %d, display: %d)", intent,
+                userHandle, mDisplayId));
     }
 
     @Override
@@ -191,6 +240,7 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
     public void onDestroy() {
         super.onDestroy();
         Log.w(TAG, "onDestroy");
+        mUserReceiver.unregister(this);
     }
 
     @Override
@@ -206,24 +256,31 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
 
             @Override
             public void onEvent(int eventType, Bundle bundle) {
-                StringBuilder bundleSummary = new StringBuilder();
-                if (eventType == NAV_STATE_EVENT_ID) {
-                    bundle.setClassLoader(ParcelUtils.class.getClassLoader());
-                    NavigationState navState = NavigationState
-                            .fromParcelable(bundle.getParcelable(NAV_STATE_BUNDLE_KEY));
-                    bundleSummary.append(navState.toString());
+                try {
+                    StringBuilder bundleSummary = new StringBuilder();
+                    if (eventType == NAV_STATE_EVENT_ID) {
+                        bundle.setClassLoader(ParcelUtils.class.getClassLoader());
+                        NavigationState navState = NavigationState
+                                .fromParcelable(bundle.getParcelable(NAV_STATE_BUNDLE_KEY));
+                        bundleSummary.append(navState.toString());
 
-                    // Update clients
-                    broadcastClientMessage(MSG_ON_NAVIGATION_STATE_CHANGED, bundle);
-                } else {
-                    for (String key : bundle.keySet()) {
-                        bundleSummary.append(key);
-                        bundleSummary.append("=");
-                        bundleSummary.append(bundle.get(key));
-                        bundleSummary.append(" ");
+                        // Update clients
+                        broadcastClientMessage(MSG_ON_NAVIGATION_STATE_CHANGED, bundle);
+                    } else {
+                        for (String key : bundle.keySet()) {
+                            bundleSummary.append(key);
+                            bundleSummary.append("=");
+                            bundleSummary.append(bundle.get(key));
+                            bundleSummary.append(" ");
+                        }
                     }
+                    Log.d(TAG, "onEvent(" + eventType + ", " + bundleSummary + ")");
+                } catch (Exception e) {
+                    Log.e(TAG, "Error parsing event data (" + eventType + ", " + bundle + ")", e);
+                    bundle.putParcelable(NAV_STATE_BUNDLE_KEY, new NavigationState.Builder().build()
+                            .toParcelable());
+                    broadcastClientMessage(MSG_ON_NAVIGATION_STATE_CHANGED, bundle);
                 }
-                Log.d(TAG, "onEvent(" + eventType + ", " + bundleSummary + ")");
             }
         };
 

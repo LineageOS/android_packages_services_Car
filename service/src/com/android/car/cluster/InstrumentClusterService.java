@@ -19,6 +19,7 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.app.ActivityOptions;
 import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.cluster.CarInstrumentClusterManager;
@@ -42,6 +43,7 @@ import android.os.IBinder.DeathRecipient;
 import android.os.Message;
 import android.os.Process;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -323,6 +325,8 @@ public class InstrumentClusterService implements CarServiceBase,
 
         resolveList = checkPermission(resolveList, Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER);
         if (resolveList.isEmpty()) {
+            Log.w(TAG, String.format("intent didn't have permission %s: %s",
+                    Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER, intent));
             return;
         }
 
@@ -348,7 +352,10 @@ public class InstrumentClusterService implements CarServiceBase,
         // Virtual display could be private and not available to calling process.
         final long token = Binder.clearCallingIdentity();
         try {
-            mContext.startActivity(intent, opts.launchOptions);
+            mContext.startActivityAsUser(intent, opts.launchOptions, UserHandle.CURRENT);
+            Log.i(TAG, String.format("activity launched: %s (options: %s, displayId: %d)",
+                    opts.launchOptions, intent, new ActivityOptions(opts.launchOptions)
+                            .getLaunchDisplayId()));
         } finally {
             Binder.restoreCallingIdentity(token);
         }
@@ -422,8 +429,11 @@ public class InstrumentClusterService implements CarServiceBase,
             Set<String> registeredCategories = mActivityInfoByCategory.keySet();
 
             for (ResolveInfo resolveInfo : resolveList) {
+                if (resolveInfo.filter == null) {
+                    continue;
+                }
                 for (String category : registeredCategories) {
-                    if (resolveInfo.filter != null && resolveInfo.filter.hasCategory(category)) {
+                    if (resolveInfo.filter.hasCategory(category)) {
                         ClusterActivityInfo categoryInfo = mActivityInfoByCategory.get(category);
                         return new Pair<>(resolveInfo, categoryInfo);
                     }
