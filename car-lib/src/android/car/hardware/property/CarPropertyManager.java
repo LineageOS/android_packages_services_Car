@@ -246,6 +246,44 @@ public class CarPropertyManager implements CarManagerBase {
     }
 
     /**
+     *
+     * @param propId Property ID to query
+     *
+     * @return String Permission needed to read this property.  NULL if propId not available.
+     */
+    public String getReadPermission(int propId) throws CarNotConnectedException {
+        if (mDbg) {
+            Log.d(mTag, "getReadPermission, propId: 0x" + toHexString(propId));
+        }
+        try {
+            String permission = mService.getReadPermission(propId);
+            return permission;
+        } catch (RemoteException e) {
+            Log.e(mTag, "getReadPermission failed with " + e.toString(), e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
+     *
+     * @param propId Property ID to query
+     *
+     * @return String Permission needed to write this property.  NULL if propId not available.
+     */
+    public String getWritePermission(int propId) throws CarNotConnectedException {
+        if (mDbg) {
+            Log.d(mTag, "getWritePermission, propId: 0x" + toHexString(propId));
+        }
+        try {
+            String permission = mService.getWritePermission(propId);
+            return permission;
+        } catch (RemoteException e) {
+            Log.e(mTag, "getWritePermission failed with " + e.toString(), e);
+            throw new CarNotConnectedException(e);
+        }
+    }
+
+    /**
      * Check whether a given property is available or disabled based on the car's current state.
      * @return true if STATUS_AVAILABLE, false otherwise (eg STATUS_UNAVAILABLE)
      * @throws CarNotConnectedException

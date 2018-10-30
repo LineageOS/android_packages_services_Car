@@ -120,7 +120,9 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                 } else {
                     mGetValue.setText("Timestamp=" + value.getTimestamp()
                                       + "\nstatus=" + value.getStatus()
-                                      + "\nvalue=" + value.getValue());
+                                      + "\nvalue=" + value.getValue()
+                                      + "\nread=" + mMgr.getReadPermission(propId)
+                                      + "\nwrite=" + mMgr.getWritePermission(propId));
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Failed to get property", e);
