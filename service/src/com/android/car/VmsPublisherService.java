@@ -211,11 +211,13 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
      */
     private void handleHalSubscriptionChanged(VmsSubscriptionState subscriptionState) {
         // Send the message to application listeners.
-        for (IVmsPublisherClient client : mPublisherMap.values()) {
-            try {
-                client.onVmsSubscriptionChange(subscriptionState);
-            } catch (RemoteException ex) {
-                Log.e(TAG, "unable to send notification to: " + client, ex);
+        synchronized (mPublisherMap) {
+            for (IVmsPublisherClient client : mPublisherMap.values()) {
+                try {
+                    client.onVmsSubscriptionChange(subscriptionState);
+                } catch (RemoteException ex) {
+                    Log.e(TAG, "unable to send notification to: " + client, ex);
+                }
             }
         }
     }

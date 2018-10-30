@@ -372,7 +372,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         // On wake, reset nextWakeup time.  If not set again, system will suspend/shutdown forever.
         mNextWakeupSec = 0;
-
+        mSystemInterface.refreshDisplayBrightness();
         onApPowerStateChange(CpmsState.WAIT_FOR_VHAL, CarPowerStateListener.SUSPEND_EXIT);
     }
 
