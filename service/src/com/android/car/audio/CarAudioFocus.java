@@ -341,7 +341,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     /**
      * @see AudioManager#abandonAudioFocus(AudioManager.OnAudioFocusChangeListener, AudioAttributes)
-     * Note that we'll get this call for a focus holder that dies while in the focus statck, so
+     * Note that we'll get this call for a focus holder that dies while in the focus stack, so
      * we don't need to watch for death notifications directly.
      * */
     @Override
@@ -364,6 +364,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                 // silently, or else take unexpected action (eg: resume playing spontaneously), or
                 // else to see "Failure to signal ..." gain/loss error messages in the log from
                 // this module when a focus change tries to take action on a truly zombie entry.
+                return;
             }
         }
 
