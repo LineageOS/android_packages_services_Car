@@ -10,6 +10,9 @@ public class Utils {
     static final Boolean DBG = false;
 
     static String getDeviceDebugInfo(BluetoothDevice device) {
+        if (device == null) {
+            return "(null)";
+        }
         return "(name = " + device.getName() + ", addr = " + device.getAddress() + ")";
     }
 
