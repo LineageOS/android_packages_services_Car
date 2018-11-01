@@ -317,6 +317,26 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     @Override
+    public String getReadPermission(int propId) {
+        if (mConfigs.get(propId) == null) {
+            // Property ID does not exist
+            Log.e(TAG, "getReadPermission: propId is not in config list:0x" + toHexString(propId));
+            return null;
+        }
+        return mHal.getReadPermission(propId);
+    }
+
+    @Override
+    public String getWritePermission(int propId) {
+        if (mConfigs.get(propId) == null) {
+            // Property ID does not exist
+            Log.e(TAG, "getWritePermission: propId is not in config list:0x" + toHexString(propId));
+            return null;
+        }
+        return mHal.getWritePermission(propId);
+    }
+
+    @Override
     public void setProperty(CarPropertyValue prop) {
         int propId = prop.getPropertyId();
         if (mConfigs.get(propId) == null) {
