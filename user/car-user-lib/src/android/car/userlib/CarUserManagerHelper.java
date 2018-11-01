@@ -67,6 +67,7 @@ public class CarUserManagerHelper {
     private static final Set<String> DEFAULT_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
             UserManager.DISALLOW_FACTORY_RESET
     );
+
     /**
      * Default set of restrictions for Guest users.
      */
@@ -829,7 +830,7 @@ public class CarUserManagerHelper {
                 Log.w(TAG, "User switching is not allowed. Current user cannot be deleted");
                 return false;
             }
-            startNewGuestSession(guestUserName);
+            startGuestSession(guestUserName);
         }
 
         return mUserManager.removeUser(userInfo.id);
@@ -880,21 +881,54 @@ public class CarUserManagerHelper {
     }
 
     /**
-     * Creates a new guest session and switches into the guest session.
+     * Creates a new guest or finds the existing one, and switches into it.
      *
      * @param guestName Username for the guest user.
      * @return {@code true} if switch to guest user succeed.
      */
-    public boolean startNewGuestSession(String guestName) {
-        UserInfo guest = mUserManager.createGuest(mContext, guestName);
+    public boolean startGuestSession(String guestName) {
+        UserInfo guest = createNewOrFindExistingGuest(guestName);
         if (guest == null) {
-            // Couldn't create user, most likely because there are too many, but we haven't
-            // been able to reload the list yet.
-            Log.w(TAG, "can't create user.");
             return false;
         }
-        assignDefaultIcon(guest);
         return switchToUserId(guest.id);
+    }
+
+    /**
+     * Creates and returns a new guest user or returns the existing one.
+     * Returns null if it fails to create a new guest.
+     *
+     * @param guestName Username for guest if new guest is being created.
+     */
+    @Nullable
+    public UserInfo createNewOrFindExistingGuest(String guestName) {
+        // CreateGuest will return null if a guest already exists.
+        UserInfo newGuest = mUserManager.createGuest(mContext, guestName);
+        if (newGuest != null) {
+            assignDefaultIcon(newGuest);
+            return newGuest;
+        }
+
+        UserInfo existingGuest = findExistingGuestUser();
+        if (existingGuest == null) {
+            // Most likely a guest got removed just before we tried to look for it.
+            Log.w(TAG, "Couldn't create a new guest and couldn't find an existing one.");
+        }
+
+        return existingGuest;
+    }
+
+    /**
+     * Returns UserInfo for the existing guest user, or null if there are no guests on the device.
+     */
+    @Nullable
+    private UserInfo findExistingGuestUser() {
+        for (UserInfo userInfo : getAllUsers()) {
+            if (userInfo.isGuest() && !userInfo.guestToRemove) {
+                return userInfo;
+            }
+        }
+        return null;
     }
 
     /**
