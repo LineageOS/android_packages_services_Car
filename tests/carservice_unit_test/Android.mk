@@ -36,7 +36,7 @@ LOCAL_INSTRUMENTATION_FOR := CarService
 
 LOCAL_JAVA_LIBRARIES := \
     android.car \
-    android.car.user \
+    android.car.userlib \
     android.test.runner \
     android.test.base
 

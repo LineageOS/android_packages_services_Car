@@ -25,12 +25,12 @@ car_user_lib_sources := $(call all-java-files-under, src)
 
 # API Check
 # ---------------------------------------------
-car_user_module := android.car.user
+car_user_module := android.car.userlib
 car_user_module_src_files := $(car_user_lib_sources)
 car_user_module_api_dir := $(LOCAL_PATH)/api
 car_user_module_java_libraries := framework
 car_user_module_include_systemapi := true
-car_user_module_java_packages := android.car.user*
+car_user_module_java_packages := android.car.userlib*
 include $(CAR_API_CHECK)
 
 # Build stubs jar for target android-support-car
@@ -39,22 +39,22 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
-LOCAL_JAVA_LIBRARIES := android.car.user
+LOCAL_JAVA_LIBRARIES := android.car.userlib
 
-LOCAL_ADDITIONAL_JAVA_DIR := $(call intermediates-dir-for,JAVA_LIBRARIES,android.car.user,,COMMON)/src
+LOCAL_ADDITIONAL_JAVA_DIR := $(call intermediates-dir-for,JAVA_LIBRARIES,android.car.userlib,,COMMON)/src
 
-android_car_user_stub_packages := \
-    android.car.user*
+android_car_userlib_stub_packages := \
+    android.car.userlib*
 
-android_car_user_api := \
-    $(TARGET_OUT_COMMON_INTERMEDIATES)/PACKAGING/android.car.user_api.txt
+android_car_userlib_api := \
+    $(TARGET_OUT_COMMON_INTERMEDIATES)/PACKAGING/android.car.userlib_api.txt
 
-# Note: The make target is android.car.user-stub-docs
-LOCAL_MODULE := android.car.user-stub
+# Note: The make target is android.car.userlib-stub-docs
+LOCAL_MODULE := android.car.userlib-stub
 LOCAL_DROIDDOC_OPTIONS := \
-    -stubs $(call intermediates-dir-for,JAVA_LIBRARIES,android.car.user-stubs,,COMMON)/src \
-    -stubpackages $(subst $(space),:,$(android_car_user_stub_packages)) \
-    -api $(android_car_user_api) \
+    -stubs $(call intermediates-dir-for,JAVA_LIBRARIES,android.car.userlib-stubs,,COMMON)/src \
+    -stubpackages $(subst $(space),:,$(android_car_userlib_stub_packages)) \
+    -api $(android_car_userlib_api) \
     -nodocs
 
 LOCAL_DROIDDOC_SOURCE_PATH := $(LOCAL_PATH)/java/
@@ -66,9 +66,9 @@ LOCAL_UNINSTALLABLE_MODULE := true
 
 include $(BUILD_DROIDDOC)
 
-$(android_car_user_api): $(full_target)
+$(android_car_userlib_api): $(full_target)
 
-android.car.user-stubs_stamp := $(full_target)
+android.car.userlib-stubs_stamp := $(full_target)
 
 ###############################################
 # Build the stubs java files into a jar. This build rule relies on the
@@ -78,17 +78,13 @@ include $(CLEAR_VARS)
 
 # CAR_API_CHECK uses the same name to generate a module, but BUILD_DROIDDOC
 # appends "-docs" to module name.
-LOCAL_MODULE := android.car.user-stubs
+LOCAL_MODULE := android.car.userlib-stubs
 LOCAL_SOURCE_FILES_ALL_GENERATED := true
 
 # Make sure to run droiddoc first to generate the stub source files.
-LOCAL_ADDITIONAL_DEPENDENCIES := $(android.car.user-stubs_stamp)
+LOCAL_ADDITIONAL_DEPENDENCIES := $(android.car.userlib-stubs_stamp)
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
-
-android.car.user-stubs_stamp :=
-android_car_user_stub_packages :=
-android_car_user_api :=
 
 include $(call all-makefiles-under,$(LOCAL_PATH))
 
