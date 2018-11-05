@@ -15,16 +15,23 @@
  */
 package android.car.cluster.sample;
 
+import static android.car.cluster.CarInstrumentClusterManager.CATEGORY_NAVIGATION;
 import static android.car.cluster.sample.SampleClusterServiceImpl.LOCAL_BINDING_ACTION;
+import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_KEY_ACTIVITY_DISPLAY_ID;
+import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_KEY_ACTIVITY_STATE;
+import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_KEY_CATEGORY;
 import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_KEY_KEY_EVENT;
 import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_ON_KEY_EVENT;
 import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_ON_NAVIGATION_STATE_CHANGED;
 import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_REGISTER_CLIENT;
+import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_SET_ACTIVITY_LAUNCH_OPTIONS;
 import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_UNREGISTER_CLIENT;
 
+import android.car.cluster.ClusterActivityState;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -33,6 +40,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Display;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.View;
@@ -53,7 +61,9 @@ import java.util.HashMap;
 
 public class MainClusterActivity extends FragmentActivity {
     private static final String TAG = "Cluster.MainActivity";
+
     private static final NavigationState NULL_NAV_STATE = new NavigationState.Builder().build();
+
     private ViewPager mPager;
     private NavStateController mNavStateController;
 
@@ -63,6 +73,18 @@ public class MainClusterActivity extends FragmentActivity {
     private InputMethodManager mInputMethodManager;
     private Messenger mService;
     private Messenger mServiceCallbacks = new Messenger(new MessageHandler(this));
+    private VirtualDisplay mPendingVirtualDisplay = null;
+    private final Handler mHandler = new Handler();
+
+    public static class VirtualDisplay {
+        public final int mDisplayId;
+        public final Rect mBounds;
+
+        public VirtualDisplay(int displayId, Rect bounds) {
+            mDisplayId = displayId;
+            mBounds = bounds;
+        }
+    }
 
     private final View.OnFocusChangeListener mFacetButtonFocusListener =
             new View.OnFocusChangeListener() {
@@ -80,6 +102,11 @@ public class MainClusterActivity extends FragmentActivity {
             Log.i(TAG, "onServiceConnected, name: " + name + ", service: " + service);
             mService = new Messenger(service);
             sendServiceMessage(MSG_REGISTER_CLIENT, null, mServiceCallbacks);
+            if (mPendingVirtualDisplay != null) {
+                // If haven't reported the virtual display yet, do so on service connect.
+                reportNavDisplay(mPendingVirtualDisplay);
+                mPendingVirtualDisplay = null;
+            }
         }
 
         @Override
@@ -174,6 +201,27 @@ public class MainClusterActivity extends FragmentActivity {
         }
     }
 
+    public void updateNavDisplay(VirtualDisplay virtualDisplay) {
+        if (mService == null) {
+            // Service is not bound yet. Hold the information and notify when the service is bound.
+            mPendingVirtualDisplay = virtualDisplay;
+            return;
+        } else {
+            reportNavDisplay(virtualDisplay);
+        }
+    }
+
+    private void reportNavDisplay(VirtualDisplay virtualDisplay) {
+        Bundle data = new Bundle();
+        data.putString(MSG_KEY_CATEGORY, CATEGORY_NAVIGATION);
+        data.putInt(MSG_KEY_ACTIVITY_DISPLAY_ID, virtualDisplay.mDisplayId);
+        data.putBundle(MSG_KEY_ACTIVITY_STATE, ClusterActivityState
+                .create(virtualDisplay.mDisplayId != Display.INVALID_DISPLAY,
+                        virtualDisplay.mBounds)
+                .toBundle());
+        sendServiceMessage(MSG_SET_ACTIVITY_LAUNCH_OPTIONS, data, null);
+    }
+
     /**
      * Sends a message to the {@link SampleClusterServiceImpl}, which runs on a different process.
 
@@ -181,7 +229,7 @@ public class MainClusterActivity extends FragmentActivity {
      * @param data action data
      * @param replyTo {@link Messenger} where to reply back
      */
-    public void sendServiceMessage(int what, Bundle data, Messenger replyTo) {
+    private void sendServiceMessage(int what, Bundle data, Messenger replyTo) {
         try {
             Message message = Message.obtain(null, what);
             message.setData(data);

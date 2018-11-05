@@ -238,8 +238,8 @@ public class InstrumentClusterService implements CarServiceBase,
                 InstrumentClusterRenderingService.EXTRA_KEY_CALLBACK_SERVICE,
                 mClusterCallback);
         intent.putExtras(extras);
-        return mContext.bindService(intent, mRendererServiceConnection,
-                Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT);
+        return mContext.bindServiceAsUser(intent, mRendererServiceConnection,
+                Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT, UserHandle.SYSTEM);
     }
 
     @Nullable
