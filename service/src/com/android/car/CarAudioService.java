@@ -145,14 +145,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             final int flags = AudioManager.FLAG_FROM_KEY | AudioManager.FLAG_SHOW_UI;
             switch (adjustment) {
                 case AudioManager.ADJUST_LOWER:
-                    if (currentVolume > getGroupMinVolume(groupId)) {
-                        setGroupVolume(groupId, currentVolume - 1, flags);
-                    }
+                    int minValue = Math.max(currentVolume - 1, getGroupMinVolume(groupId));
+                    setGroupVolume(groupId, minValue , flags);
                     break;
                 case AudioManager.ADJUST_RAISE:
-                    if (currentVolume < getGroupMaxVolume(groupId)) {
-                        setGroupVolume(groupId, currentVolume + 1, flags);
-                    }
+                    int maxValue =  Math.min(currentVolume + 1, getGroupMaxVolume(groupId));
+                    setGroupVolume(groupId, maxValue, flags);
                     break;
                 case AudioManager.ADJUST_MUTE:
                     setMasterMute(true, flags);
