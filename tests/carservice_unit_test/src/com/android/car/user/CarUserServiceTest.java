@@ -152,8 +152,7 @@ public class CarUserServiceTest {
 
         mCarUserService.onReceive(mMockContext, intent);
 
-        verify(mCarUserManagerHelper).setLastActiveUser(
-                lastActiveUserId, /* skipGlobalSetting= */ false);
+        verify(mCarUserManagerHelper).setLastActiveUser(lastActiveUserId);
     }
 
     /**
