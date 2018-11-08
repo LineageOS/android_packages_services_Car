@@ -50,7 +50,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
 
 LOCAL_JAVA_LIBRARIES := \
     android.car \
-    android.car.user \
+    android.car.userlib \
     android.test.runner \
     android.test.base
 
