@@ -20,6 +20,18 @@
 -->
 <resources>
 
+    <style name="TextAppearance.DeviceDefault" parent="TextAppearance.Material.Large">
+        <item name="textSize">@dimen/car_body3_size</item>
+    </style>
+    <style name="TextAppearance.DeviceDefault.Large" parent="TextAppearance.Material.Large">
+        <item name="textSize">@dimen/car_body1_size</item>
+    </style>
+    <style name="TextAppearance.DeviceDefault.Medium" parent="TextAppearance.Material.Medium">
+        <item name="textSize">@dimen/car_body2_size</item>
+    </style>
+    <style name="TextAppearance.DeviceDefault.Small" parent="TextAppearance.Material.Small">
+        <item name="textSize">@dimen/car_body4_size</item>
+    </style>
     <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored"
            parent="TextAppearance.DeviceDefault.Widget.Button">
         <item name="textColor">@color/car_borderless_button_text_color</item>
