@@ -71,9 +71,9 @@ public class LocationListeners {
             mSensorMgr.registerListener(mSensorListener, magneticFieldSensor,
                     SensorManager.SENSOR_DELAY_FASTEST);
 
-            mTextUpdateHandler.setAccelField("waiting to hear from SensorManager");
-            mTextUpdateHandler.setGyroField("waiting to hear from SensorManager");
-            mTextUpdateHandler.setMagField("waiting to hear from SensorManager");
+            mTextUpdateHandler.setAccelField("Accel waiting to hear from SensorManager");
+            mTextUpdateHandler.setGyroField("Gyro waiting to hear from SensorManager");
+            mTextUpdateHandler.setMagField("Mag waiting to hear from SensorManager");
         } else {
             mTextUpdateHandler.setAccelField("SensorManager not available");
             mTextUpdateHandler.setGyroField("SensorManager not available");
