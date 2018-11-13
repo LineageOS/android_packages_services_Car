@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.audio;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -54,6 +54,10 @@ import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 
+import com.android.car.BinderInterfaceContainer;
+import com.android.car.CarLog;
+import com.android.car.CarServiceBase;
+import com.android.car.R;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
@@ -65,6 +69,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Service responsible for interaction with car's audio system.
+ */
 public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private static final int DEFAULT_AUDIO_USAGE = AudioAttributes.USAGE_MEDIA;
