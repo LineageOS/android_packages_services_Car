@@ -18,11 +18,11 @@
 -->
 
 <resources>
-    <!-- Defines the attributes and values used in res/xml/car_volume_group.xml -->
-    <declare-styleable name="volumeGroups" />
-
+    <!-- Defines the attributes and values used in res/xml/car_volume_groups.xml -->
+    <declare-styleable name="volumeGroups">
+        <attr name="isDeprecated" format="boolean"/>
+    </declare-styleable>
     <declare-styleable name="volumeGroups_group"/>
-
     <declare-styleable name="volumeGroups_context">
         <!-- Align with hardware/interfaces/automotive/audiocontrol/1.0/types.hal:ContextNumber -->
         <attr name="context">
@@ -35,6 +35,18 @@
             <enum name="notification" value="7"/>
             <enum name="system_sound" value="8"/>
         </attr>
+    </declare-styleable>
+
+    <!--
+      Defines the attributes and values used in car_audio_configuration.xml
+      This is a superset of car_volume_groups.xml
+    -->
+    <declare-styleable name="carAudioConfiguration">
+        <attr name="version" format="integer"/>
+        <attr name="isPrimary" format="boolean"/>
+        <attr name="name" format="string"/>
+        <attr name="address" format="string"/>
+        <attr name="display" format="string"/>
     </declare-styleable>
 
     <!-- Defines the UX restrictions to be imposed for different driving states of a vehicle -->
