@@ -69,7 +69,7 @@ import java.util.List;
  * Implementation of {@link InstrumentClusterRenderingService} which renders an activity on a
  * virtual display that is transmitted to an external screen.
  */
-public class SampleClusterServiceImpl extends InstrumentClusterRenderingService {
+public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingService {
     private static final String TAG = "Cluster.SampleService";
 
     private static final int NO_DISPLAY = -1;
@@ -118,9 +118,9 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
     };
 
     private static class UserReceiver extends BroadcastReceiver {
-        private WeakReference<SampleClusterServiceImpl> mService;
+        private WeakReference<ClusterRenderingServiceImpl> mService;
 
-        UserReceiver(SampleClusterServiceImpl service) {
+        UserReceiver(ClusterRenderingServiceImpl service) {
             mService = new WeakReference<>(service);
         }
 
@@ -136,16 +136,16 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            SampleClusterServiceImpl service = mService.get();
+            ClusterRenderingServiceImpl service = mService.get();
             Log.d(TAG, "Broadcast received: " + intent);
             service.tryLaunchActivity();
         }
     }
 
     private static class MessageHandler extends Handler {
-        private final WeakReference<SampleClusterServiceImpl> mService;
+        private final WeakReference<ClusterRenderingServiceImpl> mService;
 
-        MessageHandler(SampleClusterServiceImpl service) {
+        MessageHandler(ClusterRenderingServiceImpl service) {
             mService = new WeakReference<>(service);
         }
 
@@ -364,7 +364,7 @@ public class SampleClusterServiceImpl extends InstrumentClusterRenderingService 
             }
             case "destroyOverlayDisplay": {
                 Settings.Global.putString(getContentResolver(),
-                    Global.OVERLAY_DISPLAY_DEVICES, "");
+                        Global.OVERLAY_DISPLAY_DEVICES, "");
                 break;
             }
 

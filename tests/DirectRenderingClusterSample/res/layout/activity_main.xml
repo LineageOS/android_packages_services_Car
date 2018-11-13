@@ -60,29 +60,12 @@
                 android:layout_width="20dp"
                 android:layout_height="1dp" />
 
-            <ImageView
-                android:id="@+id/maneuver"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_margin="10dp"
-                android:tint="@android:color/white"/>
+            <include
+                android:id="@+id/navigation_state"
+                layout="@layout/include_navigation_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
-            <LinearLayout
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/distance"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:textSize="30sp"/>
-                <TextView
-                    android:id="@+id/segment"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:textSize="18sp"/>
-            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
