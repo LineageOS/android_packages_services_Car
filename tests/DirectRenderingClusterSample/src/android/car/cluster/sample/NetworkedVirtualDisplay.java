@@ -38,6 +38,7 @@ import android.view.Surface;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -46,10 +47,10 @@ import java.util.UUID;
 /**
  * This class encapsulates all work related to managing networked virtual display.
  * <p>
- * It opens server socket and listens on port {@code PORT} for incoming connections. Once connection
- * is established it creates virtual display and media encoder and starts streaming video to that
- * socket.  If the receiving part is disconnected, it will keep port open and virtual display won't
- * be destroyed.
+ * It opens a socket and listens on port {@code PORT} for connections, or the emulator pipe. Once
+ * connection is established it creates virtual display and media encoder and starts streaming video
+ * to that socket.  If the receiving part is disconnected, it will keep port open and virtual
+ * display won't be destroyed.
  */
 public class NetworkedVirtualDisplay {
     private static final String TAG = "Cluster." + NetworkedVirtualDisplay.class.getSimpleName();
@@ -61,21 +62,29 @@ public class NetworkedVirtualDisplay {
     private final int mHeight;
     private final int mDpi;
 
-    private static final int PORT = 5151;
     private static final int FPS = 25;
     private static final int BITRATE = 6144000;
     private static final String MEDIA_FORMAT_MIMETYPE = MediaFormat.MIMETYPE_VIDEO_AVC;
 
-    private static final int MSG_START = 0;
-    private static final int MSG_STOP = 1;
-    private static final int MSG_SEND_FRAME = 2;
+    public static final int MSG_START = 0;
+    public static final int MSG_STOP = 1;
+    public static final int MSG_SEND_FRAME = 2;
+
+    private static final String PIPE_NAME = "pipe:qemud:carCluster";
+    private static final String PIPE_DEVICE = "/dev/qemu_pipe";
+
+    // Constants shared with emulator in car-cluster-widget.cpp
+    public static final int PIPE_START = 1;
+    public static final int PIPE_STOP = 2;
+
+    private static final int PORT = 5151;
+
+    private SenderThread mActiveThread;
+    private HandlerThread mBroadcastThread = new HandlerThread("BroadcastThread");
 
     private VirtualDisplay mVirtualDisplay;
     private MediaCodec mVideoEncoder;
-    private HandlerThread mThread = new HandlerThread("NetworkThread");
     private Handler mHandler;
-    private ServerSocket mServerSocket;
-    private OutputStream mOutputStream;
     private byte[] mBuffer = null;
     private int mLastFrameLength = 0;
 
@@ -120,30 +129,30 @@ public class NetworkedVirtualDisplay {
      * @throws IllegalStateException thrown if networked display already started
      */
     public String start() {
-        if (mThread.isAlive()) {
+        if (mBroadcastThread.isAlive()) {
             throw new IllegalStateException("Already started");
         }
-        mThread.start();
-        mHandler = new NetworkThreadHandler(mThread.getLooper());
-        mHandler.sendMessage(Message.obtain(mHandler, MSG_START));
 
+        mBroadcastThread.start();
+        mHandler = new BroadcastThreadHandler(mBroadcastThread.getLooper());
+        mHandler.sendMessage(Message.obtain(mHandler, MSG_START));
         return getDisplayName();
     }
 
     public void release() {
-        stopCasting();
+        mHandler.sendMessage(Message.obtain(mHandler, MSG_STOP));
+        mBroadcastThread.quitSafely();
 
         if (mVirtualDisplay != null) {
+            mVirtualDisplay.setSurface(null);
             mVirtualDisplay.release();
             mVirtualDisplay = null;
         }
-        mThread.quit();
     }
 
     private String getDisplayName() {
         return "Cluster-" + mUniqueId;
     }
-
 
     private VirtualDisplay createVirtualDisplay() {
         Log.i(TAG, "createVirtualDisplay " + mWidth + "x" + mHeight +"@" + mDpi);
@@ -157,14 +166,18 @@ public class NetworkedVirtualDisplay {
 
     private void startCasting(Handler handler) {
         Log.i(TAG, "Start casting...");
+        if (mVideoEncoder != null) {
+            Log.i(TAG, "Already started casting");
+            return;
+        }
         mVideoEncoder = createVideoStream(handler);
 
         if (mVirtualDisplay == null) {
             mVirtualDisplay = createVirtualDisplay();
         }
+
         mVirtualDisplay.setSurface(mVideoEncoder.createInputSurface());
         mVideoEncoder.start();
-
         Log.i(TAG, "Video encoder started");
     }
 
@@ -194,6 +207,8 @@ public class NetworkedVirtualDisplay {
             public void onError(@NonNull MediaCodec codec, @NonNull CodecException e) {
                 Log.e(TAG, "onError, codec: " + codec, e);
                 mCounter.bufferErrors++;
+                stopCasting();
+                startCasting(handler);
             }
 
             @Override
@@ -242,43 +257,28 @@ public class NetworkedVirtualDisplay {
     }
 
     private void sendFrame(byte[] buf, int len) {
-        try {
-            if (mOutputStream != null) {
-                mOutputStream.write(buf, 0, len);
-            }
-        } catch (IOException e) {
-            mCounter.clientsDisconnected++;
-            mOutputStream = null;
-            Log.e(TAG, "Failed to write data to socket, restart casting", e);
-            restart();
+        if (mActiveThread != null) {
+            mActiveThread.send(buf, len);
         }
     }
 
     private void stopCasting() {
         Log.i(TAG, "Stopping casting...");
-        if (mServerSocket != null) {
-            try {
-                mServerSocket.close();
-            } catch (IOException e) {
-                Log.w(TAG, "Failed to close server socket, ignoring", e);
-            }
-            mServerSocket = null;
-        }
 
         if (mVirtualDisplay != null) {
-            // We do not want to destroy virtual display (as it will also destroy all the
-            // activities on that display, instead we will turn off the display by setting
-            // a null surface.
             Surface surface = mVirtualDisplay.getSurface();
             if (surface != null) surface.release();
-            mVirtualDisplay.setSurface(null);
         }
 
         if (mVideoEncoder != null) {
             // Releasing encoder as stop/start didn't work well (couldn't create or reuse input
             // surface).
-            mVideoEncoder.stop();
-            mVideoEncoder.release();
+            try {
+                mVideoEncoder.stop();
+                mVideoEncoder.release();
+            } catch (IllegalStateException e) {
+                // do nothing, already released
+            }
             mVideoEncoder = null;
         }
         Log.i(TAG, "Casting stopped");
@@ -287,14 +287,17 @@ public class NetworkedVirtualDisplay {
     private synchronized void restart() {
         // This method could be called from different threads when receiver has disconnected.
         if (mHandler.hasMessages(MSG_START)) return;
-
         mHandler.sendMessage(Message.obtain(mHandler, MSG_STOP));
         mHandler.sendMessage(Message.obtain(mHandler, MSG_START));
     }
 
-    private class NetworkThreadHandler extends Handler {
+    private class BroadcastThreadHandler extends Handler {
+        private static final int MAX_FAIL_COUNT = 10;
+        private int mFailConnectCounter;
+        private SocketThread mSocketThread;
+        private PipeThread mPipeThread;
 
-        NetworkThreadHandler(Looper looper) {
+        BroadcastThreadHandler(Looper looper) {
             super(looper);
         }
 
@@ -302,32 +305,100 @@ public class NetworkedVirtualDisplay {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_START:
-                    if (mServerSocket == null) {
-                        mServerSocket = openServerSocket();
+                    Log.i(TAG, "Received start message");
+                    // Failure to connect to either pipe or network returns null
+                    if (mActiveThread == null) {
+                        mActiveThread = tryPipeConnect();
                     }
-                    Log.i(TAG, "Server socket opened");
-
-                    mOutputStream = waitForReceiver(mServerSocket);
-                    if (mOutputStream == null) {
-                        sendMessage(Message.obtain(this, MSG_START));
+                    if (mActiveThread == null) {
+                        mActiveThread = tryNetworkConnect();
+                    }
+                    if (mActiveThread == null) {
+                        // When failed attempt limit is reached, clean up and quit this thread.
+                        mFailConnectCounter++;
+                        if (mFailConnectCounter >= MAX_FAIL_COUNT) {
+                            Log.e(TAG, "Too many failed connection attempts; aborting");
+                            release();
+                            throw new RuntimeException("Abort after failed connection attempts");
+                        }
+                        mHandler.sendMessage(Message.obtain(mHandler, MSG_START));
                         break;
                     }
+                    mFailConnectCounter = 0;
                     mCounter.clientsConnected++;
-
+                    mActiveThread.start();
                     startCasting(this);
                     break;
 
                 case MSG_STOP:
+                    Log.i(TAG, "Received stop message");
                     stopCasting();
+                    mCounter.clientsDisconnected++;
+                    if (mActiveThread != null) {
+                        mActiveThread.close();
+                        try {
+                            mActiveThread.join();
+                        } catch (InterruptedException e) {
+                            Log.e(TAG, "Waiting for active thread to close failed", e);
+                        }
+                        mActiveThread = null;
+                    }
                     break;
 
                 case MSG_SEND_FRAME:
-                    if (mServerSocket != null && mOutputStream != null) {
-                        sendFrame(mBuffer, mLastFrameLength);
+                    if (mActiveThread == null) {
+                        // Stop the chaining signal if there's no client to send to
+                        break;
                     }
+                    sendFrame(mBuffer, mLastFrameLength);
                     // We will keep sending last frame every second as a heartbeat.
                     sendFrameAsync(1000L);
                     break;
+            }
+        }
+
+        // Returns null if can't establish pipe connection
+        // Otherwise returns the corresponding client thread
+        private PipeThread tryPipeConnect() {
+            try {
+                RandomAccessFile pipe = new RandomAccessFile(PIPE_DEVICE, "rw");
+                byte[] temp = new byte[PIPE_NAME.length() + 1];
+                temp[PIPE_NAME.length()] = 0;
+                System.arraycopy(PIPE_NAME.getBytes(), 0, temp, 0, PIPE_NAME.length());
+                pipe.write(temp);
+
+                // At this point, the pipe exists, so we will just wait for a start signal
+                // This is in case pipe still sends leftover stops from last instantiation
+                int signal = pipe.read();
+                while (signal != PIPE_START) {
+                    Log.i(TAG, "Received non-start signal: " + signal);
+                    signal = pipe.read();
+                }
+                return new PipeThread(mHandler, pipe);
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to establish pipe connection", e);
+                return null;
+            }
+        }
+
+        // Returns null if can't establish network connection
+        // Otherwise returns the corresponding client thread
+        private SocketThread tryNetworkConnect() {
+            try {
+                ServerSocket serverSocket = new ServerSocket(PORT);
+                Log.i(TAG, "Server socket opened");
+                Socket socket = serverSocket.accept();
+                socket.setTcpNoDelay(true);
+                socket.setKeepAlive(true);
+                socket.setSoLinger(true, 0);
+
+                InputStream inputStream = socket.getInputStream();
+                OutputStream outputStream = socket.getOutputStream();
+
+                return new SocketThread(mHandler, serverSocket, inputStream, outputStream);
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to establish network connection", e);
+                return null;
             }
         }
     }
@@ -349,51 +420,12 @@ public class NetworkedVirtualDisplay {
         codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
     }
 
-    private OutputStream waitForReceiver(ServerSocket serverSocket) {
-        try {
-            Log.i(TAG, "Listening for incoming connections on port: " + PORT);
-            Socket socket = serverSocket.accept();
-            socket.setTcpNoDelay(true);
-            socket.setKeepAlive(true);
-            socket.setSoLinger(true, 0);
-
-            Log.i(TAG, "Receiver connected: " + socket);
-            listenReceiverDisconnected(socket.getInputStream());
-
-            return socket.getOutputStream();
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to accept connection");
-            return null;
-        }
-    }
-
-    private void listenReceiverDisconnected(InputStream inputStream) {
-        new Thread(() -> {
-            try {
-                if (inputStream.read() == -1) throw new IOException();
-            } catch (IOException e) {
-                Log.w(TAG, "Receiver has disconnected", e);
-            }
-            restart();
-        }).start();
-    }
-
-    private static ServerSocket openServerSocket() {
-        try {
-            return new ServerSocket(PORT);
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to create server socket", e);
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
     public String toString() {
         return getClass() + "{"
-                + mServerSocket
-                +", receiver connected: " + (mOutputStream != null)
-                +", encoder: " + mVideoEncoder
-                +", virtualDisplay" + mVirtualDisplay
+                + ", receiver connected: " + (mActiveThread != null)
+                + ", encoder: " + mVideoEncoder
+                + ", virtualDisplay" + mVirtualDisplay
                 + "}";
     }
 
