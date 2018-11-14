@@ -19,19 +19,55 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/activity_blocking_activity_background"
-    android:padding="@dimen/blocking_activity_padding"
     android:gravity="center">
     <TextView
-        android:id="@+id/activity_blocked_title"
+        android:id="@+id/blocking_text"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:textColor="@color/blocking_text"
         android:textAppearance="@style/ActivityBlockingActivityText" />
+
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/common_margin"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <ImageView
+            android:id="@+id/blocked_app_icon"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
+        <TextView
+            android:id="@+id/blocked_app_name"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="@dimen/common_margin"
+            android:textColor="@color/blocking_text"
+            android:textAppearance="@style/ActivityBlockingActivityText" />
+    </LinearLayout>
+
     <Button
         android:id="@+id/exit"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_marginTop="@dimen/exit_button_top_margin"
+        android:layout_marginTop="@dimen/common_margin"
         android:text="@string/exit_button"
-        style="@style/ExitButtonStyle"/>
+        style="@style/ButtonStyle"/>
+
+    <!-- Widgets to display debug info. They should not show for non-user build. -->
+    <Button
+        android:id="@+id/toggle_debug_info"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="@dimen/common_margin"
+        android:text="@string/debug_button_text"
+        style="@style/ButtonStyle"/>
+
+    <TextView
+        android:id="@+id/debug_info"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="@dimen/common_margin"
+        android:textAppearance="@style/ActivityBlockingActivityText" />
 </LinearLayout>

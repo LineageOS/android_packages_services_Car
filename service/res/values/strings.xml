@@ -103,10 +103,12 @@
     <string name="car_can_bus_failure_desc">CAN bus does not respond. Unplug and plug back headunit
         box and restart the car</string>
 
-    <!-- Blocking activity: Message to show to user when an activity is not allowed during driving. [CHAR LIMIT=120] -->
-    <string name="activity_blocked_string">For your safety, this activity isn’t available while you’re driving</string>
-    <!-- Blocking activity: Button text that restarts the current blocked application. [CHAR LIMIT=10] -->
-    <string name="exit_button">OK</string>
+    <!-- Blocking activity: Message to show to user when a feature of current application is not allowed. [CHAR LIMIT=120] -->
+    <string name="activity_blocked_text">For your safety, this activity isn’t available while you’re driving</string>
+    <!-- Blocking activity: Text for button that shows debug info for non-user build. [CHAR LIMIT=10] -->
+    <string name="debug_button_text">Debug Info</string>
+    <!-- Blocking activity: Text for button that restarts the current blocked application. [CHAR LIMIT=15] -->
+    <string name="exit_button">Restart App</string>
 
     <!-- Permission text: apps can control diagnostic data [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_diag_read">Diagnostic Data</string>

@@ -15,6 +15,11 @@
  */
 package com.android.car.pm;
 
+import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME;
+import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID;
+import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO;
+import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME;
+
 import android.app.Activity;
 import android.car.Car;
 import android.car.CarNotConnectedException;
@@ -24,32 +29,39 @@ import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import com.android.car.CarLog;
 import com.android.car.R;
 
 /**
  * Default activity that will be launched when the current foreground activity is not allowed.
- * Additional information on blocked Activity will be passed as extra in Intent
- * via {@link #INTENT_KEY_BLOCKED_ACTIVITY} key.
+ * Additional information on blocked Activity should be passed as intent extras.
  */
 public class ActivityBlockingActivity extends Activity {
-    public static final String INTENT_KEY_BLOCKED_ACTIVITY = "blocked_activity";
-    public static final String EXTRA_BLOCKED_TASK = "blocked_task";
-
     private static final int INVALID_TASK_ID = -1;
 
     private Car mCar;
     private CarUxRestrictionsManager mUxRManager;
 
-    private TextView mBlockedTitle;
+    private TextView mBlockingText;
+    private TextView mBlockedAppName;
+    private ImageView mBlockedAppIcon;
     private Button mExitButton;
+
     // Exiting depends on Car connection, which might not be available at the time exit was
     // requested (e.g. user presses Exit Button). In that case, we record exiting was requested, and
     // Car connection will perform exiting once it is established.
@@ -61,9 +73,12 @@ public class ActivityBlockingActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blocking);
 
-        mBlockedTitle = findViewById(R.id.activity_blocked_title);
+        mBlockingText = findViewById(R.id.blocking_text);
+        mBlockedAppName = findViewById(R.id.blocked_app_name);
+        mBlockedAppIcon = findViewById(R.id.blocked_app_icon);
         mExitButton = findViewById(R.id.exit);
-        mExitButton.setOnClickListener(v -> handleFinish());
+
+        mBlockingText.setText(getString(R.string.activity_blocked_text));
 
         // Listen to the CarUxRestrictions so this blocking activity can be dismissed when the
         // restrictions are lifted.
@@ -72,7 +87,7 @@ public class ActivityBlockingActivity extends Activity {
             public void onServiceConnected(ComponentName name, IBinder service) {
                 try {
                     if (mExitRequested) {
-                        handleFinish();
+                        handleRestartingTask();
                     }
                     mUxRManager = (CarUxRestrictionsManager) mCar.getCarManager(
                             Car.CAR_UX_RESTRICTION_SERVICE);
@@ -99,23 +114,80 @@ public class ActivityBlockingActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        // Display message about the current blocked activity, and optionally show an exit button
+        // Display info about the current blocked activity, and optionally show an exit button
         // to restart the blocked task (stack of activities) if its root activity is DO.
+        mBlockedTaskId = getIntent().getIntExtra(BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID,
+                INVALID_TASK_ID);
 
         // blockedActivity is expected to be always passed in as the topmost activity of task.
-        String blockedActivity = getIntent().getStringExtra(INTENT_KEY_BLOCKED_ACTIVITY);
-        mBlockedTitle.setText(getString(R.string.activity_blocked_string));
-        if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
-            Log.d(CarLog.TAG_AM, "Blocking activity " + blockedActivity);
+        String blockedActivity = getIntent().getStringExtra(
+                BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME);
+        if (!TextUtils.isEmpty(blockedActivity)) {
+            if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
+                Log.d(CarLog.TAG_AM, "Blocking activity " + blockedActivity);
+            }
+            // Show application icon and name of blocked activity.
+            Drawable appIcon = findApplicationIcon(blockedActivity);
+            if (appIcon != null) {
+                mBlockedAppIcon.setImageDrawable(appIcon);
+            } else {
+                mBlockedAppIcon.setVisibility(View.GONE);
+            }
+            mBlockedAppName.setText(findHumanReadableLabel(blockedActivity));
         }
 
-        // taskId is available as extra if the task can be restarted.
-        mBlockedTaskId = getIntent().getIntExtra(EXTRA_BLOCKED_TASK, INVALID_TASK_ID);
+        boolean isRootDO = getIntent().getBooleanExtra(
+                BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO, false);
 
-        mExitButton.setVisibility(mBlockedTaskId == INVALID_TASK_ID ? View.GONE : View.VISIBLE);
-        if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG) && mBlockedTaskId == INVALID_TASK_ID) {
-            Log.d(CarLog.TAG_AM, "Blocked task ID is not available. Hiding exit button.");
+        // Display a button to restart task if root task is DO.
+        boolean showButton = mBlockedTaskId != INVALID_TASK_ID && isRootDO;
+        mExitButton.setVisibility(showButton ? View.VISIBLE : View.GONE);
+        mExitButton.setOnClickListener(v -> handleRestartingTask());
+
+        // Show more debug info for non-user build.
+        if (Build.IS_ENG || Build.IS_USERDEBUG) {
+            displayDebugInfo();
         }
+    }
+
+    private void displayDebugInfo() {
+        String blockedActivity = getIntent().getStringExtra(
+                BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME);
+        String rootActivity = getIntent().getStringExtra(BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME);
+
+        TextView debugInfo = findViewById(R.id.debug_info);
+        debugInfo.setText(getDebugInfo(blockedActivity, rootActivity));
+
+        // We still want to ensure driving safety for non-user build;
+        // toggle visibility of debug info with this button.
+        Button toggleDebug = findViewById(R.id.toggle_debug_info);
+        toggleDebug.setVisibility(View.VISIBLE);
+        toggleDebug.setOnClickListener(v -> {
+            boolean isDebugVisible = debugInfo.getVisibility() == View.VISIBLE;
+            debugInfo.setVisibility(isDebugVisible ? View.GONE : View.VISIBLE);
+        });
+    }
+
+    private String getDebugInfo(String blockedActivity, String rootActivity) {
+        StringBuilder debug = new StringBuilder();
+
+        ComponentName blocked = ComponentName.unflattenFromString(blockedActivity);
+        debug.append("Blocked activity is ")
+                .append(blocked.getShortClassName())
+                .append("\nBlocked activity package is ")
+                .append(blocked.getPackageName());
+
+        if (rootActivity != null) {
+            ComponentName root = ComponentName.unflattenFromString(rootActivity);
+            // Optionally show root activity info if it differs from the blocked activity.
+            if (!root.equals(blocked)) {
+                debug.append("\n\nRoot activity is ").append(root.getShortClassName());
+            }
+            if (!root.getPackageName().equals(blocked.getPackageName())) {
+                debug.append("\nRoot activity package is ").append(root.getPackageName());
+            }
+        }
+        return debug.toString();
     }
 
     @Override
@@ -149,7 +221,51 @@ public class ActivityBlockingActivity extends Activity {
         }
     }
 
-    private void handleFinish() {
+    // Finds the icon of the application (package) the component belongs to.
+    @Nullable
+    private Drawable findApplicationIcon(String flattenComponentName) {
+        ComponentName componentName = ComponentName.unflattenFromString(flattenComponentName);
+        try {
+            return getPackageManager().getApplicationIcon(componentName.getPackageName());
+        } catch (PackageManager.NameNotFoundException e) {
+            if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
+                Log.i(CarLog.TAG_AM, "Could not find package for component name "
+                        + componentName.toString());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns a human-readable string for {@code flattenComponentName}.
+     *
+     * <p>It first attempts to return the application label for this activity. If that fails,
+     * it will return the last part in the activity name.
+     */
+    private String findHumanReadableLabel(String flattenComponentName) {
+        ComponentName componentName = ComponentName.unflattenFromString(flattenComponentName);
+        String label = null;
+        // Attempt to find application label.
+        try {
+            ApplicationInfo applicationInfo = getPackageManager().getApplicationInfo(
+                    componentName.getPackageName(), 0);
+            CharSequence appLabel = getPackageManager().getApplicationLabel(applicationInfo);
+            if (appLabel != null) {
+                label = appLabel.toString();
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
+                Log.i(CarLog.TAG_AM, "Could not find package for component name "
+                        + componentName.toString());
+            }
+        }
+        if (TextUtils.isEmpty(label)) {
+            label = componentName.getClass().getSimpleName();
+        }
+        return label;
+    }
+
+    private void handleRestartingTask() {
         if (!mCar.isConnected()) {
             mExitRequested = true;
             return;
@@ -158,9 +274,12 @@ public class ActivityBlockingActivity extends Activity {
             return;
         }
 
-        // Lock on self (assuming single instance) to avoid restarting the same task twice.
+        // Lock on self to avoid restarting the same task twice.
         synchronized (this) {
             try {
+                if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
+                    Log.i(CarLog.TAG_AM, "Restarting task " + mBlockedTaskId);
+                }
                 CarPackageManager carPm = (CarPackageManager)
                         mCar.getCarManager(Car.PACKAGE_SERVICE);
                 carPm.restartTask(mBlockedTaskId);

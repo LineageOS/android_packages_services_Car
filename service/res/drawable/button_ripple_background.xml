@@ -16,5 +16,5 @@ limitations under the License.
 <ripple
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="@color/ripple_background">
-    <item android:drawable="@drawable/exit_button_background" />
+    <item android:drawable="@drawable/button_background" />
 </ripple>
