@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.android.car;
+package com.android.car.audio;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -60,7 +59,7 @@ import java.util.Arrays;
         mContexts = contexts;
 
         mStoredGainIndex = Settings.Global.getInt(mContentResolver,
-                CarAudioManager.getVolumeSettingsKeyForGroup(mId), -1);;
+                CarAudioManager.getVolumeSettingsKeyForGroup(mId), -1);
     }
 
     int getId() {
@@ -71,6 +70,9 @@ import java.util.Arrays;
         return mContexts;
     }
 
+    /**
+     * @return Array of bus numbers in this {@link CarVolumeGroup}
+     */
     int[] getBusNumbers() {
         final int[] busNumbers = new int[mBusToCarAudioDeviceInfos.size()];
         for (int i = 0; i < busNumbers.length; i++) {
@@ -123,7 +125,7 @@ import java.util.Arrays;
         }
     }
 
-    int getDefaultGainIndex() {
+    private int getDefaultGainIndex() {
         return getIndexForGain(mDefaultGain);
     }
 
@@ -139,16 +141,20 @@ import java.util.Arrays;
         return mCurrentGainIndex;
     }
 
+    /**
+     * Sets the gain on this group, gain will be set on all buses within same bus.
+     * @param gainIndex The gain index
+     */
     void setCurrentGainIndex(int gainIndex) {
         int gainInMillibels = getGainForIndex(gainIndex);
 
         Preconditions.checkArgument(
                 gainInMillibels >= mMinGain && gainInMillibels <= mMaxGain,
-                "Gain out of range (" +
-                        mMinGain + ":" +
-                        mMaxGain +") " +
-                        gainInMillibels + "index " +
-                        gainIndex);
+                "Gain out of range ("
+                        + mMinGain + ":"
+                        + mMaxGain + ") "
+                        + gainInMillibels + "index "
+                        + gainIndex);
 
         for (int i = 0; i < mBusToCarAudioDeviceInfos.size(); i++) {
             CarAudioDeviceInfo info = mBusToCarAudioDeviceInfos.valueAt(i);
@@ -174,6 +180,9 @@ import java.util.Arrays;
         return (gainInMillibel - mMinGain) / mStepSize;
     }
 
+    /**
+     * Gets {@link AudioDevicePort} from a context number
+     */
     @Nullable
     AudioDevicePort getAudioDevicePortForContext(int contextNumber) {
         final int busNumber = mContextToBus.get(contextNumber, -1);
@@ -191,6 +200,7 @@ import java.util.Arrays;
                 + " buses: " + Arrays.toString(getBusNumbers());
     }
 
+    /** Writes to dumpsys output */
     void dump(PrintWriter writer) {
         writer.println("CarVolumeGroup " + mId);
         writer.printf("\tGain in millibel (min / max / default/ current): %d %d %d %d\n",

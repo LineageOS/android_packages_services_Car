@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.audio;
 
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
@@ -24,6 +24,7 @@ import android.media.AudioManager;
 import android.media.AudioPort;
 import android.util.Log;
 
+import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;

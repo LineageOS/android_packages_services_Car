@@ -35,6 +35,7 @@ import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
 
+import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.VehicleHal;

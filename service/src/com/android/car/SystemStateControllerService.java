@@ -18,6 +18,8 @@ package com.android.car;
 import android.content.Context;
 import android.content.res.Resources;
 
+import com.android.car.audio.CarAudioService;
+
 import java.io.PrintWriter;
 
 public class SystemStateControllerService implements CarServiceBase {
