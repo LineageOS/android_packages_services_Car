@@ -85,6 +85,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         void onActivityLaunch(TopTaskInfoContainer topTask);
     }
 
+    private static final int INVALID_STACK_ID = -1;
     private final Context mContext;
     private final IActivityManager mAm;
     private final ProcessObserver mProcessObserver;
@@ -97,7 +98,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     private final SparseArray<TopTaskInfoContainer> mTopTasks = new SparseArray<>();
     /** K: uid, V : list of pid */
     private final Map<Integer, Set<Integer>> mForegroundUidPids = new ArrayMap<>();
-    private int mFocusedStackId = -1;
+    private int mFocusedStackId = INVALID_STACK_ID;
 
     /**
      * Temporary container to dispatch tasks for onActivityLaunch. Only used in handler thread.
@@ -253,7 +254,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
             Log.e(CarLog.TAG_AM, "cannot getTasks", e);
             return;
         }
-        int focusedStackId = -1;
+        int focusedStackId = INVALID_STACK_ID;
         try {
             // TODO(b/66955160): Someone on the Auto-team should probably re-work the code in the
             // synchronized block below based on this new API.
@@ -269,10 +270,13 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         ActivityLaunchListener listener;
         synchronized (this) {
             listener = mActivityLaunchListener;
+            Set<Integer> allStackIds = new ArraySet<>(infos.size());
+            Set<Integer> stackIdsToRemove = new ArraySet<>(infos.size());
             for (StackInfo info : infos) {
                 int stackId = info.stackId;
+                allStackIds.add(info.stackId);
                 if (info.taskNames.length == 0 || !info.visible) { // empty stack or not shown
-                    mTopTasks.remove(stackId);
+                    stackIdsToRemove.add(stackId);
                     continue;
                 }
                 TopTaskInfoContainer newTopTaskInfo = new TopTaskInfoContainer(
@@ -289,6 +293,19 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                         Log.i(CarLog.TAG_AM, "New top task: " + newTopTaskInfo);
                     }
                 }
+            }
+            for (int i = 0; i < mTopTasks.size(); i++) {
+                TopTaskInfoContainer topTask = mTopTasks.valueAt(i);
+                if (topTask == null) {
+                    Log.wtf(CarLog.TAG_AM, "unexpected null value in sparse array");
+                    continue;
+                }
+                if (!allStackIds.contains(mTopTasks.keyAt(i))) {
+                    stackIdsToRemove.add(mTopTasks.keyAt(i));
+                }
+            }
+            for (int stackIdToRemove : stackIdsToRemove) {
+                mTopTasks.remove(stackIdToRemove);
             }
             mFocusedStackId = focusedStackId;
         }
