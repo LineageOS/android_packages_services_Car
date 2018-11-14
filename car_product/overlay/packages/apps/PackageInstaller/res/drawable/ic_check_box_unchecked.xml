@@ -16,9 +16,9 @@
   -->
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:width="@*android:dimen/car_icon_size"
-        android:height="@*android:dimen/car_icon_size"
-        android:tint="@*android:color/car_tint"
+        android:width="@dimen/checkbox_size"
+        android:height="@dimen/checkbox_size"
+        android:tint="@color/checkbox_color_unchecked"
         android:viewportWidth="24.0"
         android:viewportHeight="24.0">
     <path
