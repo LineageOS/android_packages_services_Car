@@ -95,8 +95,7 @@ public class CarUserService extends BroadcastReceiver implements CarServiceBase 
             int currentUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
             if (currentUser > UserHandle.USER_SYSTEM
                         && mCarUserManagerHelper.isPersistentUser(currentUser)) {
-                mCarUserManagerHelper.setLastActiveUser(
-                        currentUser, /* skipGlobalSetting= */ false);
+                mCarUserManagerHelper.setLastActiveUser(currentUser);
             }
         }
     }
