@@ -84,7 +84,6 @@ public class CarUserManagerHelper {
     private final Context mContext;
     private final UserManager mUserManager;
     private final ActivityManager mActivityManager;
-    private int mLastActiveUser = UserHandle.USER_SYSTEM;
     private Bitmap mDefaultGuestUserIcon;
     private ArrayList<OnUsersUpdateListener> mUpdateListeners;
     private final BroadcastReceiver mUserChangeReceiver = new BroadcastReceiver() {
@@ -164,10 +163,21 @@ public class CarUserManagerHelper {
      * Set last active user.
      *
      * @param userId last active user id.
-     * @param skipGlobalSetting whether to skip set the global settings value.
      */
+    public void setLastActiveUser(int userId) {
+        Settings.Global.putInt(
+                mContext.getContentResolver(), Settings.Global.LAST_ACTIVE_USER_ID, userId);
+    }
+
+    /**
+     * Set last active user.
+     *
+     * @param userId last active user id.
+     * @param skipGlobalSetting whether to skip set the global settings value.
+     * @deprecated Use {@link #setDefaultBootUser(int)} instead.
+     */
+    @Deprecated
     public void setLastActiveUser(int userId, boolean skipGlobalSetting) {
-        mLastActiveUser = userId;
         if (!skipGlobalSetting) {
             Settings.Global.putInt(
                     mContext.getContentResolver(), Settings.Global.LAST_ACTIVE_USER_ID, userId);
@@ -192,9 +202,6 @@ public class CarUserManagerHelper {
      * @return user id of the last active user.
      */
     public int getLastActiveUser() {
-        if (mLastActiveUser != UserHandle.USER_SYSTEM) {
-            return mLastActiveUser;
-        }
         return Settings.Global.getInt(
             mContext.getContentResolver(), Settings.Global.LAST_ACTIVE_USER_ID,
             /* default user id= */ UserHandle.USER_SYSTEM);

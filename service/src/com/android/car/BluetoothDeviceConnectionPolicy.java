@@ -97,7 +97,7 @@ public class BluetoothDeviceConnectionPolicy {
     private final Object mSetupLock = new Object();
 
     // The main data structure that holds on to the {profile:list of known and connectible devices}
-    private HashMap<Integer, BluetoothDevicesInfo> mProfileToConnectableDevicesMap;
+    HashMap<Integer, BluetoothDevicesInfo> mProfileToConnectableDevicesMap;
 
     /// TODO(vnori): fix this. b/70029056
     private static final int NUM_SUPPORTED_PHONE_CONNECTIONS = 4; // num of HFP and PBAP connections
@@ -133,10 +133,11 @@ public class BluetoothDeviceConnectionPolicy {
     private final FastPairProvider mFastPairProvider;
 
     // The Bluetooth profiles that the CarService will try to auto-connect on.
-    private final List<Integer> mProfilesToConnect;
+    final List<Integer> mProfilesToConnect;
     private final List<Integer> mPrioritiesSupported;
     private static final int MAX_CONNECT_RETRIES = 1;
     private static final int PROFILE_NOT_AVAILABLE = -1;
+    private int mUserId;
 
     // Device & Profile currently being connected on
     private ConnectionParams mConnectionInFlight;
@@ -318,6 +319,8 @@ public class BluetoothDeviceConnectionPolicy {
                     initiateConnection();
                 } else if (currState == BluetoothAdapter.STATE_OFF) {
                     // Write currently connected device snapshot to file.
+                    mBluetoothAutoConnectStateMachine.sendMessage(
+                            BluetoothAutoConnectStateMachine.ADAPTER_OFF);
                     writeDeviceInfoToSettings();
                     resetBluetoothDevicesConnectionInfo();
                 }
@@ -539,6 +542,7 @@ public class BluetoothDeviceConnectionPolicy {
                 }
                 return;
             }
+            mUserId = ActivityManager.getCurrentUser();
             mBluetoothAutoConnectStateMachine = BluetoothAutoConnectStateMachine.make(this);
             readAndRebuildDeviceMapFromSettings();
             setupBluetoothEventsIntentFilterLocked();
@@ -1217,32 +1221,6 @@ public class BluetoothDeviceConnectionPolicy {
                     + deviceThatConnected);
         }
 
-        // If the device just connected to HEADSET_CLIENT profile, initiate
-        // connections on PBAP & MAP profiles but let that begin after a timeout period.
-        // timeout allows A2DP profile to complete its connection, so that there is no race
-        // condition between
-        //         Phone trying to connect on A2DP
-        //         and, Car trying to connect on PBAP & MAP.
-        if (didConnect && profileToUpdate == BluetoothProfile.HEADSET_CLIENT) {
-            // Unlock the profiles PBAP, MAP in BluetoothDevicesInfo, so that they can be
-            // connected on.
-            for (Integer profile : Arrays.asList(BluetoothProfile.PBAP_CLIENT,
-                    BluetoothProfile.MAP_CLIENT)) {
-                BluetoothDevicesInfo devInfo = mProfileToConnectableDevicesMap.get(profile);
-                if (devInfo == null) {
-                    Log.e(TAG, "Unexpected: No device Queue for this profile: " + profile);
-                    return false;
-                }
-                devInfo.setDeviceAvailableToConnectLocked(true);
-            }
-            if (DBG) {
-                Log.d(TAG, "connect to PBAP/MAP after disconnect: ");
-            }
-            mBluetoothAutoConnectStateMachine.sendMessageDelayed(
-                    BluetoothAutoConnectStateMachine.CHECK_CLIENT_PROFILES, params,
-                    BluetoothAutoConnectStateMachine.CONNECT_MORE_PROFILES_TIMEOUT_MS);
-        }
-
         // If the connection update is on a different profile or device (a very rare possibility),
         // it is handled automatically.  Just logging it here.
         if (DBG) {
@@ -1422,18 +1400,17 @@ public class BluetoothDeviceConnectionPolicy {
             if (DBG) {
                 Log.d(TAG, "Profile: " + profileToUpdate + " Writing: " + joinedDeviceNames);
             }
-            long userId = ActivityManager.getCurrentUser();
             switch (profileToUpdate) {
                 case BluetoothProfile.A2DP_SINK:
                     Settings.Secure.putStringForUser(mContext.getContentResolver(),
                             KEY_BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES,
-                            joinedDeviceNames, (int) userId);
+                            joinedDeviceNames, mUserId);
                     break;
 
                 case BluetoothProfile.HEADSET_CLIENT:
                     Settings.Secure.putStringForUser(mContext.getContentResolver(),
                             KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES,
-                            joinedDeviceNames, (int) userId);
+                            joinedDeviceNames, mUserId);
                     break;
 
                 case BluetoothProfile.PBAP_CLIENT:
@@ -1443,12 +1420,12 @@ public class BluetoothDeviceConnectionPolicy {
                 case BluetoothProfile.MAP_CLIENT:
                     Settings.Secure.putStringForUser(mContext.getContentResolver(),
                             KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES,
-                            joinedDeviceNames, (int) userId);
+                            joinedDeviceNames, mUserId);
                     break;
                 case BluetoothProfile.PAN:
                     Settings.Secure.putStringForUser(mContext.getContentResolver(),
                             KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICES,
-                            joinedDeviceNames, (int) userId);
+                            joinedDeviceNames, mUserId);
                     break;
             }
         }
@@ -1489,26 +1466,25 @@ public class BluetoothDeviceConnectionPolicy {
         }
         // Read from Settings.Secure for the current user.  There are 3 keys 1 each for Phone
         // (HFP & PBAP), 1 for Music (A2DP) and 1 for Messaging device (MAP)
-        long userId = ActivityManager.getCurrentUser();
         for (Integer profile : mProfilesToConnect) {
             switch (profile) {
                 case BluetoothProfile.A2DP_SINK:
                     devices = Settings.Secure.getStringForUser(mContext.getContentResolver(),
-                            KEY_BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES, (int) userId);
+                            KEY_BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES, mUserId);
                     break;
                 case BluetoothProfile.PBAP_CLIENT:
                     // fall through
                 case BluetoothProfile.HEADSET_CLIENT:
                     devices = Settings.Secure.getStringForUser(mContext.getContentResolver(),
-                            KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES, (int) userId);
+                            KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES, mUserId);
                     break;
                 case BluetoothProfile.MAP_CLIENT:
                     devices = Settings.Secure.getStringForUser(mContext.getContentResolver(),
-                            KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES, (int) userId);
+                            KEY_BLUETOOTH_AUTOCONNECT_MESSAGING_DEVICES, mUserId);
                     break;
                 case BluetoothProfile.PAN:
                     devices = Settings.Secure.getStringForUser(mContext.getContentResolver(),
-                            KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICES, (int) userId);
+                            KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICES, mUserId);
                 default:
                     Log.e(TAG, "Unexpected profile");
                     break;

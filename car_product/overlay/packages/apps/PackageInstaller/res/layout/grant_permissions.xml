@@ -50,7 +50,7 @@
             <CheckBox
                 android:id="@+id/do_not_ask_checkbox"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/checkbox_height"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/checkbox_start_margin"
                 android:layout_marginEnd="@dimen/checkbox_end_margin"
                 android:gravity="center_vertical"

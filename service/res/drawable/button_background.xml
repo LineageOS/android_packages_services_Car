@@ -14,6 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/exit_button_background"/>
-    <corners android:radius="@dimen/exit_button_radius"/>
+    <solid android:color="@color/button_background"/>
+    <corners android:radius="@dimen/button_radius"/>
 </shape>

@@ -39,6 +39,7 @@ import android.os.Handler;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -91,6 +92,8 @@ public class CarUserManagerHelperTest {
         doReturn(mActivityManager).when(mContext).getSystemService(Context.ACTIVITY_SERVICE);
         doReturn(InstrumentationRegistry.getTargetContext().getResources())
                 .when(mContext).getResources();
+        doReturn(InstrumentationRegistry.getTargetContext().getContentResolver())
+                .when(mContext).getContentResolver();
         doReturn(mContext).when(mContext).getApplicationContext();
         mCarUserManagerHelper = new CarUserManagerHelper(mContext);
 
@@ -776,8 +779,7 @@ public class CarUserManagerHelperTest {
         UserInfo otherUser2 = createUserInfoForId(lastActiveUserId - 1);
         UserInfo otherUser3 = createUserInfoForId(lastActiveUserId);
 
-        mCarUserManagerHelper.setLastActiveUser(
-                lastActiveUserId, /* skipGlobalSettings= */ true);
+        setLastActiveUser(lastActiveUserId);
         mockGetUsers(mSystemUser, otherUser1, otherUser2, otherUser3);
 
         assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(lastActiveUserId);
@@ -791,8 +793,7 @@ public class CarUserManagerHelperTest {
         UserInfo otherUser1 = createUserInfoForId(lastActiveUserId - 2);
         UserInfo otherUser2 = createUserInfoForId(lastActiveUserId - 1);
 
-        mCarUserManagerHelper.setLastActiveUser(
-                lastActiveUserId, /* skipGlobalSettings= */ true);
+        setLastActiveUser(lastActiveUserId);
         mockGetUsers(mSystemUser, otherUser1, otherUser2);
 
         assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(lastActiveUserId - 2);
@@ -841,5 +842,10 @@ public class CarUserManagerHelperTest {
             testUsers.add(user);
         }
         doReturn(testUsers).when(mUserManager).getUsers(true);
+    }
+
+    private void setLastActiveUser(int userId) {
+        Settings.Global.putInt(InstrumentationRegistry.getTargetContext().getContentResolver(),
+                Settings.Global.LAST_ACTIVE_USER_ID, userId);
     }
 }

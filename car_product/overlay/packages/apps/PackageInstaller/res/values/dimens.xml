@@ -30,11 +30,13 @@
     <dimen name="checkbox_end_margin">@*android:dimen/car_keyline_1</dimen>
 
     <dimen name="checkbox_left_padding">@*android:dimen/car_keyline_1_keyline_3_diff</dimen>
-    <dimen name="checkbox_text_size">@*android:dimen/car_body3_size</dimen>
-    <dimen name="checkbox_height">@*android:dimen/car_single_line_list_item_height</dimen>
+    <dimen name="checkbox_text_size">@*android:dimen/car_label1_size</dimen>
+    <dimen name="checkbox_text_height">@*android:dimen/car_single_line_list_item_height</dimen>
 
     <dimen name="permission_dialog_button_margin_top">@*android:dimen/car_padding_2</dimen>
     <dimen name="permission_dialog_allow_button_height">@*android:dimen/car_dialog_action_bar_height</dimen>
 
     <dimen name="permission_dialog_appearance_padding_end">@*android:dimen/car_keyline_1</dimen>
+
+    <dimen name="checkbox_size">@*android:dimen/car_primary_icon_size</dimen>
 </resources>

@@ -48,12 +48,9 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
     public static final int CONNECT_TIMEOUT = 103;
     public static final int DEVICE_CONNECTED = 104;
     public static final int DEVICE_DISCONNECTED = 105;
-    // The following is used when PBAP and MAP should be connected to,
-    // after device connects on HFP.
-    public static final int CHECK_CLIENT_PROFILES = 1006;
+    public static final int ADAPTER_OFF = 106;
 
     public static final int CONNECTION_TIMEOUT_MS = 8000;
-    static final int CONNECT_MORE_PROFILES_TIMEOUT_MS = 2000;
 
 
     BluetoothAutoConnectStateMachine(BluetoothDeviceConnectionPolicy policy) {
@@ -84,9 +81,7 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
 
     /**
      * Idle State is the Initial State, when the system is accepting incoming 'CONNECT' requests.
-     * Attempts a connection whenever the state transitions into Idle.
-     * If the policy finds a device to connect on a profile, transitions to Processing.
-     * If there is nothing to connect to, wait for the next 'CONNECT' message to try next.
+     * Upon 'CONNECT' message move to processing and beging connecting to devices.
      */
     private class Idle extends State {
         @Override
@@ -94,7 +89,6 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
             if (DBG) {
                 Log.d(TAG, "Enter Idle");
             }
-            connectToBluetoothDevice();
         }
 
         @Override
@@ -107,29 +101,21 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
                     if (DBG) {
                         Log.d(TAG, "Idle->Connect:");
                     }
-                    connectToBluetoothDevice();
+                    transitionTo(mProcessing);
                     break;
                 }
 
                 case DEVICE_CONNECTED: {
-                    if (DBG) {
-                        Log.d(TAG, "Idle->DeviceConnected: Ignored");
-                    }
-                    break;
-                }
-
-                case CHECK_CLIENT_PROFILES: {
-                    removeMessages(CHECK_CLIENT_PROFILES);
                     BluetoothDeviceConnectionPolicy.ConnectionParams params =
                             (BluetoothDeviceConnectionPolicy.ConnectionParams) msg.obj;
-                    BluetoothDevice device = params.getBluetoothDevice();
-                    // After pairing/disconnect, always try to connect to both PBAP and MAP
-                    if (DBG) {
-                        Log.d(TAG, "try to connect to PBAP/MAP after pairing or disconnect: "
-                                + Utils.getDeviceDebugInfo(device));
+                    if (params.getBluetoothProfile() == BluetoothProfile.HEADSET_CLIENT) {
+                        mPolicy.connectToDeviceOnProfile(BluetoothProfile.PBAP_CLIENT,
+                                params.getBluetoothDevice());
+                        mPolicy.connectToDeviceOnProfile(BluetoothProfile.MAP_CLIENT,
+                                params.getBluetoothDevice());
+                    } else if (DBG) {
+                        Log.d(TAG, "Idle->DeviceConnected: Ignored");
                     }
-                    mPolicy.connectToDeviceOnProfile(BluetoothProfile.PBAP_CLIENT, device);
-                    mPolicy.connectToDeviceOnProfile(BluetoothProfile.MAP_CLIENT, device);
                     break;
                 }
 
@@ -141,24 +127,6 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
                 }
             }
             return true;
-        }
-
-        /**
-         * Instruct the policy to find and connect to a device on a connectable profile.
-         * If the policy reports that there is nothing to connect to, stay in the Idle state.
-         * If it found a {device, profile} combination to attempt a connection, move to
-         * Processing state
-         */
-        private void connectToBluetoothDevice() {
-            boolean deviceToConnectFound = mPolicy.findDeviceToConnect();
-            if (deviceToConnectFound) {
-                transitionTo(mProcessing);
-            } else {
-                // Stay in Idle State and wait for the next 'CONNECT' message.
-                if (DBG) {
-                    Log.d(TAG, "Idle->No device to connect");
-                }
-            }
         }
 
         @Override
@@ -173,20 +141,30 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
     /**
      * Processing state indicates the system is processing a auto connect trigger and will ignore
      * connection requests.
+     * If there are no devices to connect or upon completion, transition back to idle.
      */
     private class Processing extends State {
+        int mConnectionsInProgress;
         @Override
         public void enter() {
             if (DBG) {
                 Log.d(TAG, "Enter Processing");
             }
-
+            mConnectionsInProgress = 0;
+            sendMessageDelayed(CONNECT_TIMEOUT, CONNECTION_TIMEOUT_MS);
+            for (Integer profile : mPolicy.mProfilesToConnect) {
+                connectDeviceOnProfile(profile);
+            }
+            if (mConnectionsInProgress == 0) {
+                transitionTo(mIdle);
+            }
         }
 
         @Override
         public boolean processMessage(Message msg) {
             if (DBG) {
                 Log.d(TAG, "Processing processMessage " + msg.what);
+                Log.d(TAG, "Connections in Progress = " + mConnectionsInProgress);
             }
             BluetoothDeviceConnectionPolicy.ConnectionParams params;
             switch (msg.what) {
@@ -203,10 +181,21 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
                 case DEVICE_CONNECTED:
                     // fall through
                 case DEVICE_DISCONNECTED: {
-                    removeMessages(CONNECT_TIMEOUT);
-                    transitionTo(mIdle);
+                    mConnectionsInProgress--;
+                    params = (BluetoothDeviceConnectionPolicy.ConnectionParams) msg.obj;
+                    connectDeviceOnProfile(params.getBluetoothProfile());
+
+                    if (mConnectionsInProgress == 0) {
+                        transitionTo(mIdle);
+                    } else {
+                        removeMessages(CONNECT_TIMEOUT);
+                        sendMessageDelayed(CONNECT_TIMEOUT, CONNECTION_TIMEOUT_MS);
+                    }
                     break;
                 }
+                case ADAPTER_OFF:
+                    transitionTo(mIdle);
+                    break;
 
                 default:
                     if (DBG) {
@@ -221,6 +210,19 @@ public class BluetoothAutoConnectStateMachine extends StateMachine {
         public void exit() {
             if (DBG) {
                 Log.d(TAG, "Exit Processing");
+            }
+            removeMessages(CONNECT_TIMEOUT);
+
+        }
+
+        void connectDeviceOnProfile(int profile) {
+            BluetoothDevicesInfo devInfo = mPolicy.mProfileToConnectableDevicesMap.get(profile);
+            if (devInfo != null && devInfo.isProfileConnectableLocked()) {
+                BluetoothDevice device = devInfo.getNextDeviceInQueueLocked();
+                if (device != null) {
+                    mConnectionsInProgress++;
+                    mPolicy.connectToDeviceOnProfile(profile, device);
+                }
             }
         }
     }
