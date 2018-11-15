@@ -33,22 +33,38 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.cluster.navigation.NavigationState;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.R;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 /**
  * Contains functions to test instrument cluster API.
  */
 public class InstrumentClusterFragment extends Fragment {
-    private static final String TAG = InstrumentClusterFragment.class.getSimpleName();
+    private static final String TAG = "Cluster.KitchenSink";
 
     private static final int DISPLAY_IN_CLUSTER_PERMISSION_REQUEST = 1;
 
     private CarNavigationStatusManager mCarNavigationStatusManager;
     private CarAppFocusManager mCarAppFocusManager;
     private Car mCarApi;
+    private Timer mTimer;
+    private NavigationState[] mNavStateData;
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
             @Override
@@ -81,6 +97,37 @@ public class InstrumentClusterFragment extends Fragment {
         mCarApi.connect();
     }
 
+    /**
+     * Loads sample navigation data from the "nav_state_data.json" file.
+     */
+    @NonNull
+    private NavigationState[] getNavStateData() {
+        try {
+            Gson gson = new GsonBuilder().create();
+            String navStateData = getRawResourceAsString(R.raw.nav_state_data);
+            NavigationState[] navigationState = gson.fromJson(navStateData,
+                    NavigationState[].class);
+            return navigationState;
+        } catch (IOException ex) {
+            Log.e(TAG, "Unable to read navigation state data", ex);
+            return new NavigationState[0];
+        }
+    }
+
+    /**
+     * Loads a raw resource as a single string.
+     */
+    @NonNull
+    private String getRawResourceAsString(@IdRes int resId) throws IOException {
+        InputStream inputStream = getResources().openRawResource(resId);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder builder = new StringBuilder();
+        for (String line = null; (line = reader.readLine()) != null; ) {
+            builder.append(line).append("\n");
+        }
+        return builder.toString();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -88,7 +135,7 @@ public class InstrumentClusterFragment extends Fragment {
         View view = inflater.inflate(R.layout.instrument_cluster, container, false);
 
         view.findViewById(R.id.cluster_start_button).setOnClickListener(v -> initCluster());
-        view.findViewById(R.id.cluster_turn_left_button).setOnClickListener(v -> sendTurn());
+        view.findViewById(R.id.cluster_turn_left_button).setOnClickListener(v -> toogleSendTurn());
         view.findViewById(R.id.cluster_start_activity).setOnClickListener(v -> startNavActivity());
 
         return view;
@@ -97,7 +144,6 @@ public class InstrumentClusterFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         initCarApi();
-
         super.onCreate(savedInstanceState);
     }
 
@@ -126,12 +172,46 @@ public class InstrumentClusterFragment extends Fragment {
         }
     }
 
-    private void sendTurn() {
-        // TODO(deanh): Make this actually meaningful.
-        Bundle bundle = new Bundle();
-        bundle.putString("someName", "someValue time=" + System.currentTimeMillis());
+    /**
+     * Enables/disables sending turn-by-turn data through the {@link CarNavigationStatusManager}
+     */
+    private void toogleSendTurn() {
+        // If we haven't yet load the sample navigation state data, do so.
+        if (mNavStateData == null) {
+            mNavStateData = getNavStateData();
+            Log.i(TAG, "Loaded: " + Arrays.asList(mNavStateData)
+                    .stream()
+                    .map(n -> n.toString())
+                    .collect(Collectors.joining(", ")));
+        }
+
+        // Toggle a timer to send update periodically.
+        if (mTimer == null) {
+            mTimer = new Timer();
+            mTimer.schedule(new TimerTask() {
+                private int mPos;
+
+                @Override
+                public void run() {
+                    sendTurn(mNavStateData[mPos]);
+                    mPos = (mPos + 1) % mNavStateData.length;
+                }
+            }, 0, 1000);
+        } else {
+            mTimer.cancel();
+            mTimer = null;
+        }
+    }
+
+    /**
+     * Sends one update of the navigation state through the {@link CarNavigationStatusManager}
+     */
+    private void sendTurn(@NonNull NavigationState state) {
         try {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("navstate", state.toParcelable());
             mCarNavigationStatusManager.sendEvent(1, bundle);
+            Log.i(TAG, "Sending nav state: " + state);
         } catch(CarNotConnectedException e) {
             Log.e(TAG, "Failed to send turn information.", e);
         }
@@ -185,8 +265,6 @@ public class InstrumentClusterFragment extends Fragment {
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Failed to get owned focus", e);
         }
-
-        // TODO(deanh): re-implement this using sendEvent()
     }
 
     @Override
