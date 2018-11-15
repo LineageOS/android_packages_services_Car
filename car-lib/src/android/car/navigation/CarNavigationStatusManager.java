@@ -55,6 +55,7 @@ public final class CarNavigationStatusManager implements CarManagerBase {
         try {
             mService.onEvent(eventType, bundle);
         } catch (IllegalStateException e) {
+            Log.e(TAG, "Illegal state sending event " + eventType, e);
             CarApiUtil.checkCarNotConnectedExceptionFromCarService(e);
         } catch (RemoteException e) {
             handleCarServiceRemoteExceptionAndThrow(e);
@@ -63,7 +64,9 @@ public final class CarNavigationStatusManager implements CarManagerBase {
 
     /** @hide */
     @Override
-    public void onCarDisconnected() {}
+    public void onCarDisconnected() {
+        Log.e(TAG, "Car service disconnected");
+    }
 
     /** Returns navigation features of instrument cluster */
     public CarNavigationInstrumentCluster getInstrumentClusterInfo()
@@ -78,12 +81,7 @@ public final class CarNavigationStatusManager implements CarManagerBase {
 
     private void handleCarServiceRemoteExceptionAndThrow(RemoteException e)
             throws CarNotConnectedException {
-        handleCarServiceRemoteException(e);
-        throw new CarNotConnectedException();
-    }
-
-    private void handleCarServiceRemoteException(RemoteException e) {
-        Log.w(TAG, "RemoteException from car service:" + e.getMessage());
-        // nothing to do for now
+        Log.e(TAG, "RemoteException from car service:" + e);
+        throw new CarNotConnectedException(e);
     }
 }

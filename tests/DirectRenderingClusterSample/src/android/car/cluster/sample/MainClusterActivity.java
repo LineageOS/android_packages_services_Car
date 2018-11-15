@@ -105,11 +105,15 @@ public class MainClusterActivity extends FragmentActivity {
                     mActivity.get().onKeyEvent(data.getParcelable(MSG_KEY_KEY_EVENT));
                     break;
                 case MSG_ON_NAVIGATION_STATE_CHANGED:
-                    data.setClassLoader(ParcelUtils.class.getClassLoader());
-                    NavigationState navState = NavigationState
-                            .fromParcelable(data.getParcelable(
-                                    SampleClusterServiceImpl.NAV_STATE_BUNDLE_KEY));
-                    mActivity.get().onNavigationStateChange(navState);
+                    if (data == null) {
+                        mActivity.get().onNavigationStateChange(null);
+                    } else {
+                        data.setClassLoader(ParcelUtils.class.getClassLoader());
+                        NavigationState navState = NavigationState
+                                .fromParcelable(data.getParcelable(
+                                        SampleClusterServiceImpl.NAV_STATE_BUNDLE_KEY));
+                        mActivity.get().onNavigationStateChange(navState);
+                    }
                     break;
                 default:
                     super.handleMessage(msg);
@@ -148,9 +152,9 @@ public class MainClusterActivity extends FragmentActivity {
         Log.d(TAG, "onDestroy");
         if (mService != null) {
             sendServiceMessage(MSG_UNREGISTER_CLIENT, null, mServiceCallbacks);
-            unbindService(mServiceConnection);
             mService = null;
         }
+        unbindService(mServiceConnection);
     }
 
     private void onKeyEvent(KeyEvent event) {
