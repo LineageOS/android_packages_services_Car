@@ -18,17 +18,23 @@ package android.car.cluster.loggingrenderer;
 import android.car.cluster.renderer.InstrumentClusterRenderingService;
 import android.car.cluster.renderer.NavigationRenderer;
 import android.car.navigation.CarNavigationInstrumentCluster;
-import android.graphics.Bitmap;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.util.Log;
+
+import androidx.car.cluster.navigation.NavigationState;
+import androidx.versionedparcelable.ParcelUtils;
+
 import com.google.android.collect.Lists;
 
 /**
  * Dummy implementation of {@link LoggingClusterRenderingService} to log all interaction.
  */
 public class LoggingClusterRenderingService extends InstrumentClusterRenderingService {
-
     private static final String TAG = LoggingClusterRenderingService.class.getSimpleName();
+    private static final String NAV_STATE_BUNDLE_KEY = "navstate";
+    private static final int NAV_STATE_EVENT_ID = 1;
 
     @Override
     protected NavigationRenderer getNavigationRenderer() {
@@ -45,7 +51,26 @@ public class LoggingClusterRenderingService extends InstrumentClusterRenderingSe
 
             @Override
             public void onEvent(int eventType, Bundle bundle) {
-                Log.i(TAG, "onEvent, eventType: " + eventType + ", bundle: " + bundle);
+                StringBuilder bundleSummary = new StringBuilder();
+                if (eventType == NAV_STATE_EVENT_ID) {
+                    bundle.setClassLoader(ParcelUtils.class.getClassLoader());
+                    NavigationState navState = NavigationState
+                            .fromParcelable(bundle.getParcelable(NAV_STATE_BUNDLE_KEY));
+                    bundleSummary.append(navState.toString());
+
+                    // Sending broadcast for testing.
+                    Intent intent = new Intent("android.car.cluster.NAVIGATION_STATE_UPDATE");
+                    intent.putExtra(NAV_STATE_BUNDLE_KEY, bundle);
+                    sendBroadcastAsUser(intent, UserHandle.ALL);
+                } else {
+                    for (String key : bundle.keySet()) {
+                        bundleSummary.append(key);
+                        bundleSummary.append("=");
+                        bundleSummary.append(bundle.get(key));
+                        bundleSummary.append(" ");
+                    }
+                }
+                Log.i(TAG, "onEvent(" + eventType + ", " + bundleSummary + ")");
             }
         };
 

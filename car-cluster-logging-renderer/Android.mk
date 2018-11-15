@@ -32,5 +32,8 @@ LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_JAVA_LIBRARIES += android.car
 
+LOCAL_STATIC_ANDROID_LIBRARIES += \
+    androidx.car_car-cluster
+
 include $(BUILD_PACKAGE)
 endif

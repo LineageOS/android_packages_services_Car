@@ -15,8 +15,14 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="android.car.cluster.loggingrenderer"
+      android:sharedUserId="android.uid.system"
       android:versionCode="1"
       android:versionName="1.0">
+
+    <protected-broadcast android:name="android.car.cluster.NAVIGATION_STATE_UPDATE"/>
+
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+
     <application android:label="@string/app_name"
                  android:icon="@drawable/ic_launcher"
                  android:directBootAware="true"
