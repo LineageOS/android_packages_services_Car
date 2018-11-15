@@ -94,4 +94,8 @@
         <item name="thumb">@drawable/car_seekbar_thumb</item>
     </style>
 
+    <style name="Widget.DeviceDefault.ActionBar.Solid" parent="Widget.Material.ActionBar.Solid">
+        <item name="textSize">@dimen/car_body3_size</item>
+    </style>
+
 </resources>
