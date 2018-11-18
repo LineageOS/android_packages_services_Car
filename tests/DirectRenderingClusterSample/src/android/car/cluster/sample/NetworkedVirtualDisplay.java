@@ -180,13 +180,12 @@ public class NetworkedVirtualDisplay {
         encoder.setCallback(new MediaCodec.Callback() {
             @Override
             public void onInputBufferAvailable(@NonNull MediaCodec codec, int index) {
-                Log.i(TAG, "onInputBufferAvailable, index: " + index);
+                // Nothing to do
             }
 
             @Override
             public void onOutputBufferAvailable(@NonNull MediaCodec codec, int index,
                     @NonNull BufferInfo info) {
-                Log.i(TAG, "onOutputBufferAvailable, index: " + index);
                 mCounter.outputBuffers++;
                 doOutputBufferAvailable(index, info);
             }
@@ -247,8 +246,9 @@ public class NetworkedVirtualDisplay {
 
     private void sendFrame(byte[] buf, int len) {
         try {
-            mOutputStream.write(buf, 0, len);
-            Log.i(TAG, "Bytes written: " + len);
+            if (mOutputStream != null) {
+                mOutputStream.write(buf, 0, len);
+            }
         } catch (IOException e) {
             mCounter.clientsDisconnected++;
             mOutputStream = null;
@@ -326,7 +326,6 @@ public class NetworkedVirtualDisplay {
 
                 case MSG_RESUBMIT_FRAME:
                     if (mServerSocket != null && mOutputStream != null) {
-                        Log.i(TAG, "Resending the last frame again. Buffer: " + mLastFrameLength);
                         sendFrame(mBuffer, mLastFrameLength);
                     }
                     // We will keep sending last frame every second as a heartbeat.

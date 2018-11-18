@@ -79,6 +79,7 @@ public class CarInstrumentClusterManager implements CarManagerBase {
         try {
             mService.startClusterActivity(intent);
         } catch (RemoteException e) {
+            Log.e(TAG, "Unable to launch activity (" + intent + ")", e);
             throw new CarNotConnectedException(e);
         }
     }

@@ -15,15 +15,6 @@
  */
 package android.car.cluster.sample;
 
-import static android.car.cluster.CarInstrumentClusterManager.CATEGORY_NAVIGATION;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_KEY_ACTIVITY_OPTIONS;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_KEY_ACTIVITY_STATE;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_KEY_CATEGORY;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_SET_ACTIVITY_LAUNCH_OPTIONS;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_SET_ACTIVITY_STATE;
-
-import android.app.ActivityOptions;
-import android.car.cluster.ClusterActivityState;
 import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
@@ -55,10 +46,12 @@ public class NavigationFragment extends Fragment {
     // ViewPager (this fragment gets dynamically destroyed and created)
     private static VirtualDisplay mVirtualDisplay;
     private static int mRegisteredNavDisplayId = Display.INVALID_DISPLAY;
+    private boolean mNavigationDisplayUpdatePending = false;
 
     public NavigationFragment() {
         // Required empty public constructor
     }
+
 
     private final DisplayListener mDisplayListener = new DisplayListener() {
         @Override
@@ -68,21 +61,8 @@ public class NavigationFragment extends Fragment {
                     + ", navigation display id: " + navDisplayId);
 
             if (navDisplayId == displayId) {
-                Bundle data = new Bundle();
-                data.putString(MSG_KEY_CATEGORY, CATEGORY_NAVIGATION);
-                data.putBundle(MSG_KEY_ACTIVITY_OPTIONS, ActivityOptions.makeBasic()
-                        .setLaunchDisplayId(displayId)
-                        .toBundle());
-                mMainClusterActivity.sendServiceMessage(MSG_SET_ACTIVITY_LAUNCH_OPTIONS, data,
-                        null);
                 mRegisteredNavDisplayId = displayId;
-
-                data = new Bundle();
-                data.putString(MSG_KEY_CATEGORY, CATEGORY_NAVIGATION);
-                data.putBundle(MSG_KEY_ACTIVITY_STATE, ClusterActivityState
-                        .create(true, mUnobscuredBounds)
-                        .toBundle());
-                mMainClusterActivity.sendServiceMessage(MSG_SET_ACTIVITY_STATE, data, null);
+                updateNavigationDisplay();
             }
         }
 
@@ -90,10 +70,7 @@ public class NavigationFragment extends Fragment {
         public void onDisplayRemoved(int displayId) {
             if (mRegisteredNavDisplayId == displayId) {
                 mRegisteredNavDisplayId = Display.INVALID_DISPLAY;
-                Bundle data = new Bundle();
-                data.putString(MSG_KEY_CATEGORY, CATEGORY_NAVIGATION);
-                mMainClusterActivity.sendServiceMessage(MSG_SET_ACTIVITY_LAUNCH_OPTIONS, data,
-                        null);
+                updateNavigationDisplay();
             }
         }
 
@@ -101,10 +78,31 @@ public class NavigationFragment extends Fragment {
         public void onDisplayChanged(int displayId) {}
     };
 
+    private void updateNavigationDisplay() {
+        if (mMainClusterActivity == null) {
+            // Not attached to the activity yet. Let's wait.
+            mNavigationDisplayUpdatePending = true;
+            return;
+        }
+
+        mNavigationDisplayUpdatePending = false;
+        mMainClusterActivity.updateNavDisplay(new MainClusterActivity.VirtualDisplay(
+                mRegisteredNavDisplayId, mUnobscuredBounds));
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         mMainClusterActivity = (MainClusterActivity) context;
+        if (mNavigationDisplayUpdatePending) {
+            updateNavigationDisplay();
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        mMainClusterActivity = null;
+        super.onDetach();
     }
 
     @Override
