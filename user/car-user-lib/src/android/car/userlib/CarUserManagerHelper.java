@@ -756,10 +756,10 @@ public class CarUserManagerHelper {
     }
 
     /**
-     * Creates a new restricted user on the system.
+     * Creates a new non-admin user on the system.
      *
      * @param userName Name to give to the newly created user.
-     * @return Newly created restricted user, null if failed to create a user.
+     * @return Newly created non-admin user, null if failed to create a user.
      */
     @Nullable
     public UserInfo createNewNonAdminUser(String userName) {
