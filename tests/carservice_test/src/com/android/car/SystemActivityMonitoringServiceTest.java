@@ -16,12 +16,14 @@
 package com.android.car;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -42,7 +44,7 @@ public class SystemActivityMonitoringServiceTest {
     private static final long ACTIVITY_TIME_OUT = 5000;
 
     private SystemActivityMonitoringService mService;
-    private Semaphore mSemaphore = new Semaphore(0);
+    private Semaphore mActivityLaunchSemaphore = new Semaphore(0);
 
     private final TopTaskInfoContainer[] mTopTaskInfo = new TopTaskInfoContainer[1];
 
@@ -51,12 +53,12 @@ public class SystemActivityMonitoringServiceTest {
         mService = new SystemActivityMonitoringService(getContext());
         mService.registerActivityLaunchListener(topTask -> {
             if (!getTestContext().getPackageName().equals(topTask.topActivity.getPackageName())) {
-                return; // Ignore activities outside of this test case.
+                return;  // Ignore activities outside of this test case.
             }
             synchronized (mTopTaskInfo) {
                 mTopTaskInfo[0] = topTask;
             }
-            mSemaphore.release();
+            mActivityLaunchSemaphore.release();
         });
     }
 
@@ -93,6 +95,22 @@ public class SystemActivityMonitoringServiceTest {
         assertTopTaskActivity(blockingActivity);
     }
 
+    @Test
+    public void testRemovesFromTopTasks() throws Exception {
+        ComponentName activityThatFinishesImmediately =
+                toComponentName(getTestContext(), ActivityThatFinishesImmediately.class);
+        startActivity(getContext(), activityThatFinishesImmediately);
+        assertTrue(mActivityLaunchSemaphore.tryAcquire(2, TimeUnit.SECONDS));
+
+        // We won't know if the stack changes, unless we launch another activity.
+        startActivity(getContext(), toComponentName(getTestContext(), ActivityA.class));
+        assertTrue(mActivityLaunchSemaphore.tryAcquire(2, TimeUnit.SECONDS));
+
+        for (TopTaskInfoContainer topTaskInfoContainer: mService.getTopTasks()) {
+            assertNotEquals(topTaskInfoContainer.topActivity, activityThatFinishesImmediately);
+        }
+    }
+
     /** Activity that closes itself after some timeout to clean up the screen. */
     public static class TempActivity extends Activity {
         @Override
@@ -105,10 +123,20 @@ public class SystemActivityMonitoringServiceTest {
     public static class ActivityA extends TempActivity {}
     public static class ActivityB extends TempActivity {}
     public static class ActivityC extends TempActivity {}
+
+    public static class ActivityThatFinishesImmediately extends Activity {
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            finish();
+        }
+    }
+
     public static class BlockingActivity extends TempActivity {}
 
     private void assertTopTaskActivity(ComponentName activity) throws Exception{
-        assertTrue(mSemaphore.tryAcquire(2, TimeUnit.SECONDS));
+        assertTrue(mActivityLaunchSemaphore.tryAcquire(2, TimeUnit.SECONDS));
         synchronized (mTopTaskInfo) {
             assertEquals(activity, mTopTaskInfo[0].topActivity);
         }

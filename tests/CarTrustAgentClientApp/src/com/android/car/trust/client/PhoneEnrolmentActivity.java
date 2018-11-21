@@ -16,9 +16,10 @@
 package com.android.car.trust.client;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+
+import androidx.fragment.app.FragmentActivity;
 
 /**
  * Activity to allow the user to add an escrow token to a remote device. <p/>
@@ -29,7 +30,7 @@ import android.os.Bundle;
  * The config must set config_allowEscrowTokenForTrustAgent to true.  For the desired car
  * experience, the config should also set config_strongAuthRequiredOnBoot to false.
  */
-public class PhoneEnrolmentActivity extends Activity {
+public class PhoneEnrolmentActivity extends FragmentActivity {
 
     private static final int FINE_LOCATION_REQUEST_CODE = 42;
 
