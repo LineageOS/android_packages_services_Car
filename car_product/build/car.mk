@@ -91,7 +91,6 @@ PRODUCT_PACKAGES += \
     OverviewApp \
     CarLauncher \
     CarSystemUI \
-    CarLensPickerApp \
     LocalMediaPlayer \
     CarMediaApp \
     CarMessengerApp \
