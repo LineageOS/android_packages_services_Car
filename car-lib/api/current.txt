@@ -447,20 +447,37 @@ package android.car.media {
     method public android.car.media.CarAudioPatchHandle createAudioPatch(java.lang.String, int, int) throws android.car.CarNotConnectedException;
     method public java.lang.String[] getExternalSources() throws android.car.CarNotConnectedException;
     method public int getGroupMaxVolume(int) throws android.car.CarNotConnectedException;
+    method public int getGroupMaxVolume(int, int) throws android.car.CarNotConnectedException;
     method public int getGroupMinVolume(int) throws android.car.CarNotConnectedException;
+    method public int getGroupMinVolume(int, int) throws android.car.CarNotConnectedException;
     method public int getGroupVolume(int) throws android.car.CarNotConnectedException;
+    method public int getGroupVolume(int, int) throws android.car.CarNotConnectedException;
     method public int[] getUsagesForVolumeGroupId(int) throws android.car.CarNotConnectedException;
+    method public int[] getUsagesForVolumeGroupId(int, int) throws android.car.CarNotConnectedException;
     method public int getVolumeGroupCount() throws android.car.CarNotConnectedException;
+    method public int getVolumeGroupCount(int) throws android.car.CarNotConnectedException;
     method public int getVolumeGroupIdForUsage(int) throws android.car.CarNotConnectedException;
+    method public int getVolumeGroupIdForUsage(int, int) throws android.car.CarNotConnectedException;
     method public static java.lang.String getVolumeSettingsKeyForGroup(int);
-    method public void registerVolumeCallback(android.os.IBinder) throws android.car.CarNotConnectedException;
+    method public static java.lang.String getVolumeSettingsKeyForGroup(int, int);
+    method public void registerCarVolumeCallback(android.car.media.CarAudioManager.CarVolumeCallback);
+    method public deprecated void registerVolumeCallback(android.os.IBinder) throws android.car.CarNotConnectedException;
     method public void registerVolumeChangeObserver(android.database.ContentObserver);
     method public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
     method public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
     method public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
     method public void setGroupVolume(int, int, int) throws android.car.CarNotConnectedException;
-    method public void unregisterVolumeCallback(android.os.IBinder) throws android.car.CarNotConnectedException;
+    method public void setGroupVolume(int, int, int, int) throws android.car.CarNotConnectedException;
+    method public void unregisterCarVolumeCallback(android.car.media.CarAudioManager.CarVolumeCallback);
+    method public deprecated void unregisterVolumeCallback(android.os.IBinder) throws android.car.CarNotConnectedException;
     method public void unregisterVolumeChangeObserver(android.database.ContentObserver);
+    field public static final int PRIMARY_AUDIO_ZONE = 0; // 0x0
+  }
+
+  public static abstract class CarAudioManager.CarVolumeCallback {
+    ctor public CarAudioManager.CarVolumeCallback();
+    method public void onGroupVolumeChanged(int, int, int);
+    method public void onMasterMuteChanged(int, int);
   }
 
   public final class CarAudioPatchHandle implements android.os.Parcelable {

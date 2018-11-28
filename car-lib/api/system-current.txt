@@ -734,29 +734,6 @@ package android.car.input {
 
 }
 
-package android.car.media {
-
-  public final class CarAudioManager {
-    method public android.car.media.CarAudioPatchHandle createAudioPatch(java.lang.String, int, int) throws android.car.CarNotConnectedException;
-    method public java.lang.String[] getExternalSources() throws android.car.CarNotConnectedException;
-    method public int getGroupMaxVolume(int) throws android.car.CarNotConnectedException;
-    method public int getGroupMinVolume(int) throws android.car.CarNotConnectedException;
-    method public int getGroupVolume(int) throws android.car.CarNotConnectedException;
-    method public int[] getUsagesForVolumeGroupId(int) throws android.car.CarNotConnectedException;
-    method public int getVolumeGroupCount() throws android.car.CarNotConnectedException;
-    method public int getVolumeGroupIdForUsage(int) throws android.car.CarNotConnectedException;
-    method public void registerVolumeCallback(android.os.IBinder) throws android.car.CarNotConnectedException;
-    method public void registerVolumeChangeObserver(android.database.ContentObserver);
-    method public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
-    method public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
-    method public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
-    method public void setGroupVolume(int, int, int) throws android.car.CarNotConnectedException;
-    method public void unregisterVolumeCallback(android.os.IBinder) throws android.car.CarNotConnectedException;
-    method public void unregisterVolumeChangeObserver(android.database.ContentObserver);
-  }
-
-}
-
 package android.car.navigation {
 
   public class CarNavigationInstrumentCluster implements android.os.Parcelable {
