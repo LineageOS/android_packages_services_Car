@@ -16,10 +16,12 @@
 
 package android.car.apitest;
 
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_IDLING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
+import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO;
 import static android.car.drivingstate.CarUxRestrictionsConfiguration.Builder.SpeedRange.MAX_SPEED;
 
 import android.car.drivingstate.CarUxRestrictions;
@@ -34,6 +36,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 
 /**
  * Unit test for UXR config and its subclasses.
@@ -298,6 +301,67 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
                 .build();
 
         verifyConfigThroughJsonSerialization(config);
+    }
+
+    public void testDump() {
+        CarUxRestrictionsConfiguration[] configs = new CarUxRestrictionsConfiguration[] {
+                // Driving state with no speed range
+                new CarUxRestrictionsConfiguration.Builder()
+                        .setUxRestrictions(DRIVING_STATE_PARKED, false, UX_RESTRICTIONS_BASELINE)
+                        .setUxRestrictions(DRIVING_STATE_IDLING, true, UX_RESTRICTIONS_NO_VIDEO)
+                        .setUxRestrictions(DRIVING_STATE_MOVING, true, UX_RESTRICTIONS_NO_VIDEO)
+                        .build(),
+                // Parameters
+                new CarUxRestrictionsConfiguration.Builder()
+                        .setMaxStringLength(1)
+                        .setMaxContentDepth(1)
+                        .setMaxCumulativeContentItems(1)
+                        .build(),
+                // Driving state with single speed range
+                new CarUxRestrictionsConfiguration.Builder()
+                        .setUxRestrictions(DRIVING_STATE_MOVING,
+                                new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f),
+                                true, UX_RESTRICTIONS_NO_VIDEO)
+                        .build(),
+                // Driving state with multiple speed ranges
+                new CarUxRestrictionsConfiguration.Builder()
+                        .setUxRestrictions(DRIVING_STATE_MOVING,
+                                new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 1f),
+                                true, UX_RESTRICTIONS_NO_VIDEO)
+                        .setUxRestrictions(DRIVING_STATE_MOVING,
+                                new CarUxRestrictionsConfiguration.Builder.SpeedRange(1f),
+                                true, UX_RESTRICTIONS_NO_VIDEO)
+                        .build(),
+        };
+
+        for (CarUxRestrictionsConfiguration config : configs) {
+            config.dump(new PrintWriter(new ByteArrayOutputStream()));
+        }
+    }
+
+    public void testDumpContainsNecessaryInfo() {
+
+        CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
+                .setUxRestrictions(DRIVING_STATE_MOVING,
+                        new CarUxRestrictionsConfiguration.Builder.SpeedRange(0f, 1f),
+                        true, UX_RESTRICTIONS_NO_VIDEO)
+                .setUxRestrictions(DRIVING_STATE_MOVING,
+                        new CarUxRestrictionsConfiguration.Builder.SpeedRange(1f),
+                        true, UX_RESTRICTIONS_NO_VIDEO)
+                .build();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try (PrintWriter writer = new PrintWriter(output)) {
+            config.dump(writer);
+        }
+
+        String dump = new String(output.toByteArray());
+        assertTrue(dump.contains("Max String length"));
+        assertTrue(dump.contains("Max Cumulative Content Items"));
+        assertTrue(dump.contains("Max Content depth"));
+        assertTrue(dump.contains("State:moving"));
+        assertTrue(dump.contains("Speed Range"));
+        assertTrue(dump.contains("Requires DO?"));
+        assertTrue(dump.contains("Restrictions"));
     }
 
     private void verifyConfigThroughJsonSerialization(CarUxRestrictionsConfiguration config) {

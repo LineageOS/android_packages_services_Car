@@ -337,9 +337,9 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
                 for (RestrictionsPerSpeedRange r : list) {
                     writer.println("Requires DO? " + r.mReqOpt
                             + "\nRestrictions: 0x" + Integer.toHexString(r.mRestrictions)
-                            + "\nSpeed Range: " + r.mSpeedRange == null
+                            + "\nSpeed Range: " + (r.mSpeedRange == null
                             ? "None"
-                            : r.mSpeedRange.mMinSpeed + " - " + r.mSpeedRange.mMaxSpeed);
+                            : r.mSpeedRange.mMinSpeed + " - " + r.mSpeedRange.mMaxSpeed));
                     writer.println("===========================================");
                 }
             }
@@ -586,7 +586,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             }
 
             public SpeedRange(@FloatRange(from = 0.0) float minSpeed,
-                    @FloatRange(from = 0.0)float maxSpeed) {
+                    @FloatRange(from = 0.0) float maxSpeed) {
                 if (minSpeed == MAX_SPEED) {
                     throw new IllegalArgumentException("Min speed cannot be MAX_SPEED.");
                 }
