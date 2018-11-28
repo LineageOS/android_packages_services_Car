@@ -25,6 +25,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.test.filters.RequiresDevice;
 import android.test.suitebuilder.annotation.LargeTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -103,6 +104,8 @@ public class CarProjectionManagerTest extends CarApiTestBase {
         mManager.unregisterProjectionRunner(intent);
     }
 
+    //TODO(b/120081013): move this test to CTS
+    @Suppress
     @RequiresDevice
     public void testAccessPoint() throws Exception {
         CountDownLatch startedLatch = new CountDownLatch(1);
