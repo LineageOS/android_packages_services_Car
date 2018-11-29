@@ -132,7 +132,7 @@ public class AudioTestFragment extends Fragment {
                         .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
                         .build();
                 mVrAudioAttrib = new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setUsage(AudioAttributes.USAGE_ASSISTANT)
                         .build();
                 mRadioAudioAttrib = new AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -147,7 +147,6 @@ public class AudioTestFragment extends Fragment {
                         mMusicAudioAttrib);
                 mNavGuidancePlayer = new AudioPlayer(mContext, R.raw.turnright,
                         mNavAudioAttrib);
-                // no Usage for voice command yet.
                 mVrPlayer = new AudioPlayer(mContext, R.raw.one2six,
                         mVrAudioAttrib);
                 mSystemPlayer = new AudioPlayer(mContext, R.raw.ring_classic_01,
@@ -197,6 +196,7 @@ public class AudioTestFragment extends Fragment {
         view.findViewById(R.id.button_wav_play_stop).setOnClickListener(v -> mWavPlayer.stop());
         view.findViewById(R.id.button_nav_play_once).setOnClickListener(v -> {
             if (mAppFocusManager == null) {
+                Log.e(TAG, "mAppFocusManager is null");
                 return;
             }
             if (DBG) {
@@ -217,6 +217,7 @@ public class AudioTestFragment extends Fragment {
         });
         view.findViewById(R.id.button_vr_play_once).setOnClickListener(v -> {
             if (mAppFocusManager == null) {
+                Log.e(TAG, "mAppFocusManager is null");
                 return;
             }
             if (DBG) {
@@ -300,6 +301,7 @@ public class AudioTestFragment extends Fragment {
 
     private void handleNavStart() {
         if (mAppFocusManager == null) {
+            Log.e(TAG, "mAppFocusManager is null");
             return;
         }
         if (DBG) {
@@ -317,6 +319,7 @@ public class AudioTestFragment extends Fragment {
 
     private void handleNavEnd() {
         if (mAppFocusManager == null) {
+            Log.e(TAG, "mAppFocusManager is null");
             return;
         }
         if (DBG) {
@@ -329,6 +332,7 @@ public class AudioTestFragment extends Fragment {
 
     private void handleVrStart() {
         if (mAppFocusManager == null) {
+            Log.e(TAG, "mAppFocusManager is null");
             return;
         }
         if (DBG) {
@@ -346,6 +350,7 @@ public class AudioTestFragment extends Fragment {
 
     private void handleVrEnd() {
         if (mAppFocusManager == null) {
+            Log.e(TAG, "mAppFocusManager is null");
             return;
         }
         if (DBG) {
