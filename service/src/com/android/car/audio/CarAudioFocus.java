@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.audio;
 
 import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.media.AudioAttributes;
