@@ -137,6 +137,13 @@ public class CarPropertyService extends ICarProperty.Stub
 
     @Override
     public void init() {
+        if (mConfigs == null) {
+            // Cache the configs list to avoid subsequent binder calls
+            mConfigs = mHal.getPropertyList();
+            if (DBG) {
+                Log.d(TAG, "cache CarPropertyConfigs " + mConfigs.size());
+            }
+        }
     }
 
     @Override
@@ -197,14 +204,20 @@ public class CarPropertyService extends ICarProperty.Stub
                 mHal.subscribeProperty(propId, rate);
             }
         }
-
         // Send the latest value(s) to the registering listener only
         List<CarPropertyEvent> events = new LinkedList<CarPropertyEvent>();
-        for (int areaId : mConfigs.get(propId).getAreaIds()) {
-            CarPropertyValue value = mHal.getProperty(propId, areaId);
+        if (mConfigs.get(propId).isGlobalProperty()) {
+            CarPropertyValue value = mHal.getProperty(propId, 0);
             CarPropertyEvent event = new CarPropertyEvent(
                     CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
             events.add(event);
+        } else {
+            for (int areaId : mConfigs.get(propId).getAreaIds()) {
+                CarPropertyValue value = mHal.getProperty(propId, areaId);
+                CarPropertyEvent event = new CarPropertyEvent(
+                        CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
+                events.add(event);
+            }
         }
         try {
             listener.onEvent(events);
@@ -280,10 +293,6 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public List<CarPropertyConfig> getPropertyList() {
         List<CarPropertyConfig> returnList = new ArrayList<CarPropertyConfig>();
-        if (mConfigs == null) {
-            // Cache the configs list to avoid subsequent binder calls
-            mConfigs = mHal.getPropertyList();
-        }
         for (CarPropertyConfig c : mConfigs.values()) {
             if (ICarImpl.hasPermission(mContext, mHal.getReadPermission(c.getPropertyId()))) {
                 // Only add properties the list if the process has permissions to read it

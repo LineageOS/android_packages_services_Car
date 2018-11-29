@@ -27,6 +27,8 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(car_service_sources)
 
+LOCAL_USE_AAPT2 := true
+
 LOCAL_PACKAGE_NAME := CarService
 LOCAL_PRIVATE_PLATFORM_APIS := true
 
@@ -46,6 +48,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         car-frameworks-service \
         car-systemtest \
         com.android.car.procfsinspector-client \
+
+include frameworks/base/packages/SettingsLib/common.mk
 
 include $(BUILD_PACKAGE)
 
@@ -71,6 +75,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         vehicle-hal-support-lib \
         car-systemtest \
         com.android.car.procfsinspector-client \
+
+include frameworks/base/packages/SettingsLib/common.mk
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 

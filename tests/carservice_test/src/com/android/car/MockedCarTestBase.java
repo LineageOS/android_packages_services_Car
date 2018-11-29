@@ -173,7 +173,7 @@ public class MockedCarTestBase {
     protected MockContext getCarServiceContext() throws NameNotFoundException {
         if (mMockContext == null) {
             mMockContext = new MockContext(getContext()
-                .createPackageContext("com.android.car", Context.CONTEXT_IGNORE_SECURITY));
+                .createPackageContext("com.android.car.test", Context.CONTEXT_IGNORE_SECURITY));
         }
         return mMockContext;
     }
@@ -392,6 +392,8 @@ public class MockedCarTestBase {
         public Object getSystemService(String name) {
             switch (name) {
                 case BLUETOOTH_SERVICE:
+                    return CarServiceTestApp.getAppContext().getSystemService(name);
+                case AUDIO_SERVICE:
                     return CarServiceTestApp.getAppContext().getSystemService(name);
                 default:
                     return super.getSystemService(name);

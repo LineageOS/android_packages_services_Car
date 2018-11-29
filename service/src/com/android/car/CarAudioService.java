@@ -18,6 +18,7 @@ package com.android.car;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.media.CarAudioManager;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.ICarAudio;
 import android.car.media.ICarVolumeCallback;
@@ -45,11 +46,13 @@ import android.media.audiopolicy.AudioPolicy;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.view.KeyEvent;
 
 import com.android.internal.util.Preconditions;
 
@@ -125,6 +128,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final TelephonyManager mTelephonyManager;
     private final AudioManager mAudioManager;
     private final boolean mUseDynamicRouting;
+    private final boolean mPersistMasterMuteState;
     private final SparseIntArray mContextToBus = new SparseIntArray();
     private final SparseArray<CarAudioDeviceInfo> mCarAudioDeviceInfos = new SparseArray<>();
 
@@ -151,15 +155,15 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     }
                     break;
                 case AudioManager.ADJUST_MUTE:
-                    mAudioManager.setMasterMute(true, flags);
+                    setMasterMute(true, flags);
                     callbackMasterMuteChange(flags);
                     break;
                 case AudioManager.ADJUST_UNMUTE:
-                    mAudioManager.setMasterMute(false, flags);
+                    setMasterMute(false, flags);
                     callbackMasterMuteChange(flags);
                     break;
                 case AudioManager.ADJUST_TOGGLE_MUTE:
-                    mAudioManager.setMasterMute(!mAudioManager.isMasterMute(), flags);
+                    setMasterMute(!mAudioManager.isMasterMute(), flags);
                     callbackMasterMuteChange(flags);
                     break;
                 case AudioManager.ADJUST_SAME:
@@ -203,6 +207,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
+        mPersistMasterMuteState = mContext.getResources().getBoolean(
+                R.bool.audioPersistMasterMuteState);
     }
 
     /**
@@ -218,6 +224,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             } else {
                 setupDynamicRouting();
                 setupVolumeGroups();
+            }
+
+            // Restore master mute state if applicable
+            if (mPersistMasterMuteState) {
+                boolean storedMasterMute = Settings.Global.getInt(mContext.getContentResolver(),
+                        CarAudioManager.VOLUME_SETTINGS_KEY_MASTER_MUTE, 0) != 0;
+                setMasterMute(storedMasterMute, 0);
             }
         }
     }
@@ -242,7 +255,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void dump(PrintWriter writer) {
         writer.println("*CarAudioService*");
         writer.println("\tRun in legacy mode? " + (!mUseDynamicRouting));
-        writer.println("\tMaster mute? " + mAudioManager.isMasterMute());
+        writer.println("\tPersist master mute state? " + mPersistMasterMuteState);
+        writer.println("\tMaster muted? " + mAudioManager.isMasterMute());
         // Empty line for comfortable reading
         writer.println();
         if (mUseDynamicRouting) {
@@ -283,6 +297,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
+    private void setMasterMute(boolean mute, int flags) {
+        mAudioManager.setMasterMute(mute, flags);
+
+        // When the master mute is turned ON, we want the playing app to get a "pause" command.
+        // When the volume is unmuted, we want to resume playback.
+        int keycode = mute ? KeyEvent.KEYCODE_MEDIA_PAUSE : KeyEvent.KEYCODE_MEDIA_PLAY;
+        mAudioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keycode));
+        mAudioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keycode));
+    }
+
     private void callbackMasterMuteChange(int flags) {
         for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
                 mVolumeCallbackContainer.getInterfaces()) {
@@ -291,6 +315,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             } catch (RemoteException e) {
                 Log.e(CarLog.TAG_AUDIO, "Failed to callback onMasterMuteChanged", e);
             }
+        }
+
+        // Persists master mute state if applicable
+        if (mPersistMasterMuteState) {
+            Settings.Global.putInt(mContext.getContentResolver(),
+                    CarAudioManager.VOLUME_SETTINGS_KEY_MASTER_MUTE,
+                    mAudioManager.isMasterMute() ? 1 : 0);
         }
     }
 
@@ -688,6 +719,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         Preconditions.checkNotNull(patch[0],
                 "createAudioPatch didn't provide expected single handle");
         Log.d(CarLog.TAG_AUDIO, "Audio patch created: " + patch[0]);
+
+        // Ensure the initial volume on output device port
+        int groupId = getVolumeGroupIdForUsage(usage);
+        setGroupVolume(groupId, getGroupVolume(groupId), 0);
+
         return new CarAudioPatchHandle(patch[0]);
     }
 

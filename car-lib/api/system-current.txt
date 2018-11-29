@@ -5,7 +5,6 @@ package android.car {
     field public static final java.lang.String CAR_DRIVING_STATE_SERVICE = "drivingstate";
     field public static final java.lang.String DIAGNOSTIC_SERVICE = "diagnostic";
     field public static final java.lang.String HVAC_SERVICE = "hvac";
-    field public static final java.lang.String PERMISSION_ADJUST_CAR_CABIN = "android.car.permission.ADJUST_CAR_CABIN";
     field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.CLEAR_CAR_DIAGNOSTICS";
     field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_READ_ALL = "android.car.permission.CAR_DIAGNOSTICS";
     field public static final java.lang.String PERMISSION_CAR_DRIVING_STATE = "android.car.permission.CAR_DRIVING_STATE";
@@ -110,6 +109,13 @@ package android.car {
     field public static final int WINDOW_ROW_2_RIGHT = 1024; // 0x400
     field public static final int WINDOW_ROW_3_LEFT = 4096; // 0x1000
     field public static final int WINDOW_ROW_3_RIGHT = 16384; // 0x4000
+  }
+
+  public final class VehiclePropertyAccess {
+    field public static final int NONE = 0; // 0x0
+    field public static final int READ = 1; // 0x1
+    field public static final int READ_WRITE = 3; // 0x3
+    field public static final int WRITE = 2; // 0x2
   }
 
 }

@@ -133,6 +133,9 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
     glDisableVertexAttribArray(1);
 
 
+    // Now that everything is submitted, release our hold on the texture resource
+    detachRenderTarget();
+
     // Wait for the rendering to finish
     glFinish();
 

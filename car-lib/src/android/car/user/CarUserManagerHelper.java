@@ -15,7 +15,9 @@
  */
 package android.car.user;
 
+import android.Manifest;
 import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.app.ActivityManager;
 import android.car.settings.CarSettings;
 import android.content.BroadcastReceiver;
@@ -26,15 +28,21 @@ import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.android.internal.util.UserIcons;
 
+import com.google.android.collect.Sets;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Helper class for {@link UserManager}, this is meant to be used by builds that support
@@ -49,19 +57,47 @@ import java.util.List;
 public class CarUserManagerHelper {
     private static final String TAG = "CarUserManagerHelper";
     private static final String HEADLESS_SYSTEM_USER = "android.car.systemuser.headless";
+    /**
+     * Default set of restrictions for Non-Admin users.
+     */
+    private static final Set<String> DEFAULT_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
+            UserManager.DISALLOW_FACTORY_RESET
+    );
+    /**
+     * Default set of restrictions for Guest users.
+     */
+    private static final Set<String> DEFAULT_GUEST_RESTRICTIONS = Sets.newArraySet(
+            UserManager.DISALLOW_FACTORY_RESET,
+            UserManager.DISALLOW_REMOVE_USER,
+            UserManager.DISALLOW_MODIFY_ACCOUNTS,
+            UserManager.DISALLOW_OUTGOING_CALLS,
+            UserManager.DISALLOW_SMS,
+            UserManager.DISALLOW_INSTALL_APPS,
+            UserManager.DISALLOW_UNINSTALL_APPS
+    );
+
     private final Context mContext;
     private final UserManager mUserManager;
     private final ActivityManager mActivityManager;
+    private int mLastActiveUser = UserHandle.USER_SYSTEM;
     private Bitmap mDefaultGuestUserIcon;
-    private OnUsersUpdateListener mUpdateListener;
+    private ArrayList<OnUsersUpdateListener> mUpdateListeners;
     private final BroadcastReceiver mUserChangeReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mUpdateListener.onUsersUpdate();
+            ArrayList<OnUsersUpdateListener> copyOfUpdateListeners;
+            synchronized (mUpdateListeners) {
+                copyOfUpdateListeners = new ArrayList(mUpdateListeners);
+            }
+
+            for (OnUsersUpdateListener listener : copyOfUpdateListeners) {
+                listener.onUsersUpdate();
+            }
         }
     };
 
     public CarUserManagerHelper(Context context) {
+        mUpdateListeners = new ArrayList<>();
         mContext = context.getApplicationContext();
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
         mActivityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
@@ -70,24 +106,139 @@ public class CarUserManagerHelper {
     /**
      * Registers a listener for updates to all users - removing, adding users or changing user info.
      *
-     * <p> Best practise is to keep one listener per helper.
-     *
      * @param listener Instance of {@link OnUsersUpdateListener}.
      */
     public void registerOnUsersUpdateListener(OnUsersUpdateListener listener) {
-        if (mUpdateListener != null) {
-            unregisterOnUsersUpdateListener();
+        if (listener == null) {
+            return;
         }
 
-        mUpdateListener = listener;
-        registerReceiver();
+        synchronized (mUpdateListeners) {
+            if (mUpdateListeners.isEmpty()) {
+                // First listener being added, register receiver.
+                registerReceiver();
+            }
+
+            if (!mUpdateListeners.contains(listener)) {
+                mUpdateListeners.add(listener);
+            }
+        }
     }
 
     /**
-     * Unregisters on user update listener by unregistering {@code BroadcastReceiver}.
+     * Unregisters on user update listener.
+     * Unregisters {@code BroadcastReceiver} if no listeners remain.
+     *
+     * @param listener Instance of {@link OnUsersUpdateListener} to unregister.
      */
-    public void unregisterOnUsersUpdateListener() {
-        unregisterReceiver();
+    public void unregisterOnUsersUpdateListener(OnUsersUpdateListener listener) {
+        synchronized (mUpdateListeners) {
+            if (mUpdateListeners.contains(listener)) {
+                mUpdateListeners.remove(listener);
+
+                if (mUpdateListeners.isEmpty()) {
+                    // No more listeners, unregister broadcast receiver.
+                    unregisterReceiver();
+                }
+            }
+        }
+    }
+
+    /**
+     * Set default boot into user.
+     *
+     * @param userId default user id to boot into.
+     */
+    public void setDefaultBootUser(int userId) {
+        Settings.Global.putInt(
+                mContext.getContentResolver(),
+                CarSettings.Global.DEFAULT_USER_ID_TO_BOOT_INTO, userId);
+    }
+
+    /**
+     * Set last active user.
+     *
+     * @param userId last active user id.
+     * @param skipGlobalSetting whether to skip set the global settings value.
+     */
+    public void setLastActiveUser(int userId, boolean skipGlobalSetting) {
+        mLastActiveUser = userId;
+        if (!skipGlobalSetting) {
+            Settings.Global.putInt(
+                    mContext.getContentResolver(), CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
+        }
+    }
+
+    /**
+     * Get user id for the default boot into user.
+     *
+     * @return user id of the default boot into user
+     */
+    public int getDefaultBootUser() {
+        // Make user 10 the original default boot user.
+        return Settings.Global.getInt(
+            mContext.getContentResolver(), CarSettings.Global.DEFAULT_USER_ID_TO_BOOT_INTO,
+            /* default user id= */ 10);
+    }
+
+    /**
+     * Get user id for the last active user.
+     *
+     * @return user id of the last active user.
+     */
+    public int getLastActiveUser() {
+        if (mLastActiveUser != UserHandle.USER_SYSTEM) {
+            return mLastActiveUser;
+        }
+        return Settings.Global.getInt(
+            mContext.getContentResolver(), CarSettings.Global.LAST_ACTIVE_USER_ID,
+            /* default user id= */ UserHandle.USER_SYSTEM);
+    }
+
+    /**
+     * Get user id for the initial user to boot into. This is only applicable for headless
+     * system user model.
+     *
+     * <p>If failed to retrieve the id stored in global settings or the retrieved id does not
+     * exist on device, then return the user with smallest user id.
+     *
+     * @return user id of the last active user or the smallest user id on the device.
+     */
+    public int getInitialUser() {
+        int lastActiveUserId = getLastActiveUser();
+
+        boolean isUserExist = false;
+        List<UserInfo> allUsers = getAllPersistentUsers();
+        int smallestUserId = Integer.MAX_VALUE;
+        for (UserInfo user : allUsers) {
+            if (user.id == lastActiveUserId) {
+                isUserExist = true;
+            }
+            smallestUserId = Math.min(user.id, smallestUserId);
+        }
+
+        // If the last active user is system user or the user id doesn't exist on device,
+        // return the smallest id or all users.
+        if (lastActiveUserId == UserHandle.USER_SYSTEM || !isUserExist) {
+            Log.e(TAG, "Can't get last active user id or the user no longer exist, user id: ."
+                    + lastActiveUserId);
+            lastActiveUserId = smallestUserId;
+        }
+
+        return lastActiveUserId;
+    }
+
+    /**
+     * Sets default guest restrictions that will be applied every time a Guest user is created.
+     *
+     * <p> Restrictions are written to disk and persistent across boots.
+     */
+    public void initDefaultGuestRestrictions() {
+        Bundle defaultGuestRestrictions = new Bundle();
+        for (String restriction : DEFAULT_GUEST_RESTRICTIONS) {
+            defaultGuestRestrictions.putBoolean(restriction, true);
+        }
+        mUserManager.setDefaultGuestRestrictions(defaultGuestRestrictions);
     }
 
     /**
@@ -151,8 +302,9 @@ public class CarUserManagerHelper {
     }
 
     /**
-     * Gets all the existing foreground users on the system that are not currently running as
+     * Gets all the existing users on the system that are not currently running as
      * the foreground user.
+     * These are all the users that can be switched to from the foreground user.
      *
      * @return List of {@code UserInfo} for each user that is not the foreground user.
      */
@@ -173,8 +325,61 @@ public class CarUserManagerHelper {
         if (isHeadlessSystemUser()) {
             return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
         } else {
-            return mUserManager.getUsers(/* excludeDying= */true);
+            return mUserManager.getUsers(/* excludeDying= */ true);
         }
+    }
+
+    /**
+     * Gets all the users that are non-ephemeral and can be brought to the foreground on the system.
+     *
+     * @return List of {@code UserInfo} for non-ephemeral users that associated with a real person.
+     */
+    public List<UserInfo> getAllPersistentUsers() {
+        List<UserInfo> users = getAllUsers();
+        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
+            UserInfo userInfo = iterator.next();
+            if (userInfo.isEphemeral()) {
+                // Remove user that is ephemeral.
+                iterator.remove();
+            }
+        }
+        return users;
+    }
+
+    /**
+     * Gets all the users that can be brought to the foreground on the system that have admin roles.
+     *
+     * @return List of {@code UserInfo} for admin users that associated with a real person.
+     */
+    public List<UserInfo> getAllAdminUsers() {
+        List<UserInfo> users = getAllUsers();
+
+        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
+            UserInfo userInfo = iterator.next();
+            if (!userInfo.isAdmin()) {
+                // Remove user that is not admin.
+                iterator.remove();
+            }
+        }
+        return users;
+    }
+
+    /**
+     * Gets all users that are not guests.
+     *
+     * @return List of {@code UserInfo} for all users who are not guest users.
+     */
+    public List<UserInfo> getAllUsersExceptGuests() {
+        List<UserInfo> users = getAllUsers();
+
+        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
+            UserInfo userInfo = iterator.next();
+            if (userInfo.isGuest()) {
+                // Remove guests.
+                iterator.remove();
+            }
+        }
+        return users;
     }
 
     /**
@@ -215,6 +420,62 @@ public class CarUserManagerHelper {
         return users;
     }
 
+    /**
+     * Maximum number of users allowed on the device. This includes real users, managed profiles
+     * and restricted users, but excludes guests.
+     *
+     * <p> It excludes system user in headless system user model.
+     *
+     * @return Maximum number of users that can be present on the device.
+     */
+    public int getMaxSupportedUsers() {
+        if (isHeadlessSystemUser()) {
+            return UserManager.getMaxSupportedUsers() - 1;
+        }
+        return UserManager.getMaxSupportedUsers();
+    }
+
+    /**
+     * Get the maximum number of real (non-guest, non-managed profile) users that can be created on
+     * the device. This is a dynamic value and it decreases with the increase of the number of
+     * managed profiles on the device.
+     *
+     * <p> It excludes system user in headless system user model.
+     *
+     * @return Maximum number of real users that can be created.
+     */
+    public int getMaxSupportedRealUsers() {
+        return getMaxSupportedUsers() - getManagedProfilesCount();
+    }
+
+    /**
+     * Returns true if the maximum number of users on the device has been reached, false otherwise.
+     */
+    public boolean isUserLimitReached() {
+        int countNonGuestUsers = getAllUsersExceptGuests().size();
+        int maxSupportedUsers = getMaxSupportedUsers();
+
+        if (countNonGuestUsers > maxSupportedUsers) {
+            Log.e(TAG, "There are more users on the device than allowed.");
+            return true;
+        }
+
+        return getAllUsersExceptGuests().size() == maxSupportedUsers;
+    }
+
+    private int getManagedProfilesCount() {
+        List<UserInfo> users = getAllUsers();
+
+        // Count all users that are managed profiles of another user.
+        int managedProfilesCount = 0;
+        for (UserInfo user : users) {
+            if (user.isManagedProfile()) {
+                managedProfilesCount++;
+            }
+        }
+        return managedProfilesCount;
+    }
+
     // User information accessors
 
     /**
@@ -234,7 +495,17 @@ public class CarUserManagerHelper {
      * @return {@code true} if is default user, {@code false} otherwise.
      */
     public boolean isDefaultUser(UserInfo userInfo) {
-        return userInfo.id == CarSettings.DEFAULT_USER_ID_TO_BOOT_INTO;
+        return userInfo.id == getDefaultBootUser();
+    }
+
+    /**
+     * Checks whether the user is last active user.
+     *
+     * @param userInfo User to check against last active user.
+     * @return {@code true} if is last active user, {@code false} otherwise.
+     */
+    public boolean isLastActiveUser(UserInfo userInfo) {
+        return userInfo.id == getLastActiveUser();
     }
 
     /**
@@ -264,6 +535,24 @@ public class CarUserManagerHelper {
      */
     public boolean isForegroundUserGuest() {
         return getCurrentForegroundUserInfo().isGuest();
+    }
+
+    /**
+     * Checks if the foreground user is ephemeral.
+     */
+    public boolean isForegroundUserEphemeral() {
+        return getCurrentForegroundUserInfo().isEphemeral();
+    }
+
+    /**
+     * Checks if the given user is non-ephemeral.
+     *
+     * @param userId User to check
+     * @return {@code true} if given user is persistent user.
+     */
+    public boolean isPersistentUser(int userId) {
+        UserInfo user = mUserManager.getUserInfo(userId);
+        return !user.isEphemeral();
     }
 
     /**
@@ -308,6 +597,13 @@ public class CarUserManagerHelper {
      */
     public boolean isCurrentProcessDemoUser() {
         return mUserManager.isDemoUser();
+    }
+
+    /**
+     * Checks if the calling app is running as an admin user.
+     */
+    public boolean isCurrentProcessAdminUser() {
+        return mUserManager.isAdminUser();
     }
 
     /**
@@ -369,17 +665,44 @@ public class CarUserManagerHelper {
     }
 
     /**
+     * Assigns admin privileges to the user.
+     *
+     * @param user User to be upgraded to Admin status.
+     */
+    @RequiresPermission(allOf = {
+            Manifest.permission.INTERACT_ACROSS_USERS_FULL,
+            Manifest.permission.MANAGE_USERS
+    })
+    public void assignAdminPrivileges(UserInfo user) {
+        if (!isCurrentProcessAdminUser()) {
+            Log.w(TAG, "Only admin users can assign admin privileges.");
+            return;
+        }
+
+        mUserManager.setUserAdmin(user.id);
+
+        // Remove restrictions imposed on non-admins.
+        setDefaultNonAdminRestrictions(user, /* enable= */ false);
+    }
+
+    /**
      * Creates a new user on the system, the created user would be granted admin role.
+     * Only admins can create other admins.
      *
      * @param userName Name to give to the newly created user.
      * @return Newly created admin user, null if failed to create a user.
      */
     @Nullable
     public UserInfo createNewAdminUser(String userName) {
+        if (!(isCurrentProcessAdminUser() || isCurrentProcessSystemUser())) {
+            // Only Admins or System user can create other privileged users.
+            Log.e(TAG, "Only admin users and system user can create other admins.");
+            return null;
+        }
+
         UserInfo user = mUserManager.createUser(userName, UserInfo.FLAG_ADMIN);
         if (user == null) {
-            // Couldn't create user, most likely because there are too many, but we haven't
-            // been able to reload the list yet.
+            // Couldn't create user, most likely because there are too many.
             Log.w(TAG, "can't create admin user.");
             return null;
         }
@@ -397,13 +720,44 @@ public class CarUserManagerHelper {
     public UserInfo createNewNonAdminUser(String userName) {
         UserInfo user = mUserManager.createUser(userName, 0);
         if (user == null) {
-            // Couldn't create user, most likely because there are too many, but we haven't
-            // been able to reload the list yet.
+            // Couldn't create user, most likely because there are too many.
             Log.w(TAG, "can't create non-admin user.");
             return null;
         }
+        setDefaultNonAdminRestrictions(user, /* enable= */ true);
+
+        // Each non-admin has sms and outgoing call restrictions applied by the UserManager on
+        // creation. We want to enable these permissions by default in the car.
+        setUserRestriction(user, UserManager.DISALLOW_SMS, /* enable= */ false);
+        setUserRestriction(user, UserManager.DISALLOW_OUTGOING_CALLS, /* enable= */ false);
+
         assignDefaultIcon(user);
         return user;
+    }
+
+    /**
+     * Sets the values of default Non-Admin restrictions to the passed in value.
+     *
+     * @param userInfo User to set restrictions on.
+     * @param enable If true, restriction is ON, If false, restriction is OFF.
+     */
+    private void setDefaultNonAdminRestrictions(UserInfo userInfo, boolean enable) {
+        for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
+            setUserRestriction(userInfo, restriction, enable);
+        }
+    }
+
+    /**
+     * Sets the value of the specified restriction for the specified user.
+     *
+     * @param userInfo the user whose restriction is to be changed
+     * @param restriction the key of the restriction
+     * @param enable the value for the restriction. if true, turns the restriction ON, if false,
+     *               turns the restriction OFF.
+     */
+    public void setUserRestriction(UserInfo userInfo, String restriction, boolean enable) {
+        UserHandle userHandle = UserHandle.of(userInfo.id);
+        mUserManager.setUserRestriction(restriction, enable, userHandle);
     }
 
     /**
@@ -420,10 +774,15 @@ public class CarUserManagerHelper {
             return false;
         }
 
-        // Not allow to delete the default user for now. Since default user is the one to
-        // boot into.
-        if (isHeadlessSystemUser() && isDefaultUser(userInfo)) {
-            Log.w(TAG, "User " + userInfo.id + " is the default user, could not be removed.");
+        // Not allow to delete the last admin user on the device for now.
+        if (userInfo.isAdmin() && getAllAdminUsers().size() <= 1) {
+            Log.w(TAG, "User " + userInfo.id + " is the last admin user on device.");
+            return false;
+        }
+
+        if (!isCurrentProcessAdminUser() && !isCurrentProcessUser(userInfo)) {
+            // If the caller is non-admin, they can only delete themselves.
+            Log.e(TAG, "Non-admins cannot remove other users.");
             return false;
         }
 

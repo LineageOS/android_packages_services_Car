@@ -23,7 +23,7 @@
     <dimen name="pin_entry_height">@dimen/num_pad_key_height</dimen>
     <dimen name="divider_height">1dp</dimen>
     <dimen name="key_enter_margin_top">128dp</dimen>
-    <dimen name="keyguard_pattern_dimension">350dp</dimen>
+    <dimen name="keyguard_pattern_dimension">400dp</dimen>
     <dimen name="password_field_width">350dp</dimen>
     <dimen name="pin_pattern_pad_margin_vertical">0dp</dimen>
 </resources>
