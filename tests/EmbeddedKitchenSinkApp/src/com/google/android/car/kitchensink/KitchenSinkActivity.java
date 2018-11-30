@@ -61,6 +61,7 @@ import com.google.android.car.kitchensink.storagelifetime.StorageLifetimeFragmen
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.vhal.VehicleHalFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
+import com.google.android.car.kitchensink.weblinks.WebLinksTestFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -170,6 +171,7 @@ public class KitchenSinkActivity extends CarDrawerActivity {
             });
             add("activity view", ActivityViewTestFragment.class);
             add("connectivity", ConnectivityFragment.class);
+            add("web links", WebLinksTestFragment.class);
             add("quit", KitchenSinkActivity.this::finish);
         }
 
