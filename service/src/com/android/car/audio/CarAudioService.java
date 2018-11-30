@@ -74,6 +74,13 @@ import java.util.stream.Collectors;
  */
 public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
+    // Turning this off will result in falling back to the default focus policy of Android
+    // (which boils down to "grant if not in a phone call, else deny").
+    // Aside from the obvious effect of ignoring the logic in CarAudioFocus, this will also
+    // result in the framework taking over responsibility for ducking in TRANSIENT_LOSS cases.
+    // Search for "DUCK_VSHAPE" in PLaybackActivityMonitor.java to see where this happens.
+    private static boolean sUseCarAudioFocus = true;
+
     private static final int DEFAULT_AUDIO_USAGE = AudioAttributes.USAGE_MEDIA;
 
     private static final int[] CONTEXT_NUMBERS = new int[] {
@@ -205,6 +212,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     };
 
     private AudioPolicy mAudioPolicy;
+    private CarAudioFocus mFocusHandler;
     private CarVolumeGroup[] mCarVolumeGroups;
 
     public CarAudioService(Context context) {
@@ -247,6 +255,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 if (mAudioPolicy != null) {
                     mAudioManager.unregisterAudioPolicyAsync(mAudioPolicy);
                     mAudioPolicy = null;
+                    mFocusHandler.setOwningPolicy(null, null);
+                    mFocusHandler = null;
                 }
             } else {
                 mContext.unregisterReceiver(mLegacyVolumeChangedReceiver);
@@ -401,13 +411,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private void setupDynamicRouting() {
         final IAudioControl audioControl = getAudioControl();
         if (audioControl == null) {
-            return;
+            throw new RuntimeException(
+                "Dynamic routing requested but audioControl HAL not available");
         }
+
         AudioPolicy audioPolicy = getDynamicAudioPolicy(audioControl);
         int r = mAudioManager.registerAudioPolicy(audioPolicy);
         if (r != AudioManager.SUCCESS) {
             throw new RuntimeException("registerAudioPolicy failed " + r);
         }
+
         mAudioPolicy = audioPolicy;
     }
 
@@ -488,7 +501,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
         builder.setLooper(Looper.getMainLooper());
 
-        // 1st, enumerate all output bus device ports
+        // Enumerate all output bus device ports
         AudioDeviceInfo[] deviceInfos = mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
         if (deviceInfos.length == 0) {
             Log.e(CarLog.TAG_AUDIO, "getDynamicAudioPolicy, no output device available, ignore");
@@ -508,7 +521,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
         }
 
-        // 2nd, map context to physical bus
+        // Map context to physical bus
         try {
             for (int contextNumber : CONTEXT_NUMBERS) {
                 int busNumber = audioControl.getBusForContext(contextNumber);
@@ -522,7 +535,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Log.e(CarLog.TAG_AUDIO, "Error mapping context to physical bus", e);
         }
 
-        // 3rd, enumerate all physical buses and build the routing policy.
+        // Enumerate all physical buses and build the routing policy.
         // Note that one can not register audio mix for same bus more than once.
         for (int i = 0; i < mCarAudioDeviceInfos.size(); i++) {
             int busNumber = mCarAudioDeviceInfos.keyAt(i);
@@ -564,10 +577,36 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
         }
 
-        // 4th, attach the {@link AudioPolicyVolumeCallback}
+        // Attach the {@link AudioPolicyVolumeCallback}
         builder.setAudioPolicyVolumeCallback(mAudioPolicyVolumeCallback);
 
-        return builder.build();
+        if (sUseCarAudioFocus) {
+            // Configure our AudioPolicy to handle focus events.
+            // This gives us the ability to decide which audio focus requests to accept and bypasses
+            // the framework ducking logic.
+            mFocusHandler = new CarAudioFocus(mAudioManager);
+            builder.setAudioPolicyFocusListener(mFocusHandler);
+            builder.setIsAudioFocusPolicy(true);
+        }
+
+        // Instantiate the AudioPolicy
+        final AudioPolicy audioPolicy = builder.build();
+
+        if (sUseCarAudioFocus) {
+            // Connect the AudioPolicy and the focus listener
+            mFocusHandler.setOwningPolicy(this, audioPolicy);
+        }
+
+        // Send the completed AudioPolicy back for use
+        return audioPolicy;
+    }
+
+    // This is public so it can be used by our CarAudioFocus policy implementation, but since
+    // "context" is a HAL level concept, this API should not be visible through the
+    // CarAudioManager interface.
+    // Returns 0 (INVALID) context if an unrecognized audio usage is passed in.
+    public int getContextForUsage(int audioUsage) {
+        return USAGE_TO_CONTEXT.get(audioUsage);
     }
 
     private int[] getUsagesForContext(int contextNumber) {
@@ -784,7 +823,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             for (int i = 0; i < mCarVolumeGroups.length; i++) {
                 int[] contexts = mCarVolumeGroups[i].getContexts();
                 for (int context : contexts) {
-                    if (USAGE_TO_CONTEXT.get(usage) == context) {
+                    if (getContextForUsage(usage) == context) {
                         return i;
                     }
                 }
@@ -856,7 +895,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         final CarVolumeGroup group = Preconditions.checkNotNull(mCarVolumeGroups[groupId],
                 "Can not find CarVolumeGroup by usage: "
                         + AudioAttributes.usageToString(usage));
-        return group.getAudioDevicePortForContext(USAGE_TO_CONTEXT.get(usage));
+        return group.getAudioDevicePortForContext(getContextForUsage(usage));
     }
 
     /**
