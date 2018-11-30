@@ -18,10 +18,10 @@ package android.car.drivingstate;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
-import android.car.drivingstate.ICarUxRestrictionsManager;
 import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
@@ -113,6 +113,31 @@ public final class CarUxRestrictionsManager implements CarManagerBase {
         } catch (IllegalStateException e) {
             Log.e(TAG, "Could not register a listener to CarUxRestrictionsManagerService " + e);
             Car.checkCarNotConnectedExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Set a new {@link CarUxRestrictionsConfiguration} for next trip.
+     * <p>
+     * Saving a new configuration does not affect current configuration. The new configuration will
+     * only be used after UX Restrictions service restarts when the vehicle is parked.
+     * <p>
+     * Requires Permission:
+     * {@link android.car.Manifest.permission#CAR_UX_RESTRICTIONS_CONFIGURATION}.
+     *
+     * @param config UX restrictions configuration to be persisted.
+     * @return {@code true} if input config was successfully saved; {@code false} otherwise.
+     *
+     * @hide
+     */
+    @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
+    public synchronized boolean saveUxRestrictionsConfigurationForNextBoot(
+            CarUxRestrictionsConfiguration config) throws CarNotConnectedException {
+        try {
+            return mUxRService.saveUxRestrictionsConfigurationForNextBoot(config);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not save new UX restrictions configuration", e);
+            throw new CarNotConnectedException(e);
         }
     }
 

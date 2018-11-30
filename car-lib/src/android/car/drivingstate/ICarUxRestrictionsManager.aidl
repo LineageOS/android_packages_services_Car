@@ -17,6 +17,7 @@
 package android.car.drivingstate;
 
 import android.car.drivingstate.CarUxRestrictions;
+import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 
 /**
@@ -30,4 +31,5 @@ interface ICarUxRestrictionsManager {
     void registerUxRestrictionsChangeListener(in ICarUxRestrictionsChangeListener listener) = 0;
     void unregisterUxRestrictionsChangeListener(in ICarUxRestrictionsChangeListener listener) = 1;
     CarUxRestrictions getCurrentUxRestrictions() = 2;
+    boolean saveUxRestrictionsConfigurationForNextBoot(in CarUxRestrictionsConfiguration config) = 3;
 }

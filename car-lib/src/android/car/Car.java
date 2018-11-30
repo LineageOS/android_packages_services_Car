@@ -405,7 +405,16 @@ public final class Car {
      * @hide
      */
     @SystemApi
-    public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.CLEAR_CAR_DIAGNOSTICS";
+    public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR =
+            "android.car.permission.CLEAR_CAR_DIAGNOSTICS";
+
+    /**
+     * Permission necessary to configure UX restrictions through {@link CarUxRestrictionsManager}.
+     *
+     * @hide
+     */
+    public static final String PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION =
+            "android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION";
 
     /**
      * Permissions necessary to clear diagnostic information.
@@ -413,7 +422,8 @@ public final class Car {
      * @hide
      */
     @SystemApi
-    public static final String PERMISSION_STORAGE_MONITORING = "android.car.permission.STORAGE_MONITORING";
+    public static final String PERMISSION_STORAGE_MONITORING =
+            "android.car.permission.STORAGE_MONITORING";
 
     /** Type of car connection: platform runs directly in car. */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;

@@ -111,13 +111,14 @@ public class ICarImpl extends ICar.Stub {
         mSystemInterface = systemInterface;
         mHal = new VehicleHal(vehicle);
         mVehicleInterfaceName = vehicleInterfaceName;
+        mUserManagerHelper = new CarUserManagerHelper(serviceContext);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
                 systemInterface);
         mCarPropertyService = new CarPropertyService(serviceContext, mHal.getPropertyHal());
         mCarDrivingStateService = new CarDrivingStateService(serviceContext, mCarPropertyService);
         mCarUXRestrictionsService = new CarUxRestrictionsManagerService(serviceContext,
-                mCarDrivingStateService, mCarPropertyService);
+                mCarDrivingStateService, mCarPropertyService, mUserManagerHelper);
         mCarPackageManagerService = new CarPackageManagerService(serviceContext,
                 mCarUXRestrictionsService,
                 mSystemActivityMonitoringService);
@@ -141,7 +142,6 @@ public class ICarImpl extends ICar.Stub {
                 systemInterface);
         mCarConfigurationService =
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
-        mUserManagerHelper = new CarUserManagerHelper(serviceContext);
         mCarLocationService = new CarLocationService(
                 mContext, mCarPropertyService, mUserManagerHelper);
 
