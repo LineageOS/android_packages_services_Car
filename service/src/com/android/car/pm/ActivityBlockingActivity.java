@@ -57,9 +57,10 @@ public class ActivityBlockingActivity extends Activity {
     private Car mCar;
     private CarUxRestrictionsManager mUxRManager;
 
-    private TextView mBlockingText;
     private TextView mBlockedAppName;
     private ImageView mBlockedAppIcon;
+    private TextView mBlockingText;
+    private TextView mExitButtonMessage;
     private Button mExitButton;
 
     // Exiting depends on Car connection, which might not be available at the time exit was
@@ -76,7 +77,8 @@ public class ActivityBlockingActivity extends Activity {
         mBlockingText = findViewById(R.id.blocking_text);
         mBlockedAppName = findViewById(R.id.blocked_app_name);
         mBlockedAppIcon = findViewById(R.id.blocked_app_icon);
-        mExitButton = findViewById(R.id.exit);
+        mExitButton = findViewById(R.id.exit_button);
+        mExitButtonMessage = findViewById(R.id.exit_button_message);
 
         mBlockingText.setText(getString(R.string.activity_blocked_text));
 
@@ -143,6 +145,9 @@ public class ActivityBlockingActivity extends Activity {
         boolean showButton = mBlockedTaskId != INVALID_TASK_ID && isRootDO;
         mExitButton.setVisibility(showButton ? View.VISIBLE : View.GONE);
         mExitButton.setOnClickListener(v -> handleRestartingTask());
+        mExitButtonMessage.setVisibility(showButton ? View.VISIBLE : View.GONE);
+        mExitButtonMessage.setText(
+                getString(R.string.exit_button_message, getString(R.string.exit_button)));
 
         // Show more debug info for non-user build.
         if (Build.IS_ENG || Build.IS_USERDEBUG) {
