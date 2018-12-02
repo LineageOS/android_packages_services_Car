@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!--
+  Defines the audio configuration in a car, including
+    - Audio zones
+    - Display to audio zone mappings
+    - Context to audio bus mappings
+    - Volume groups
+  in the car environment.
+-->
+<carAudioConfiguration
+        xmlns:car="http://schemas.android.com/apk/res-auto"
+        car:version="1">
+    <zones>
+        <zone car:name="primary zone" car:isPrimary="true">
+            <volumeGroups>
+                <group>
+                    <device car:address="bus0_media_out">
+                        <context car:context="music"/>
+                    </device>
+                    <device car:address="bus3_call_ring_out">
+                        <context car:context="call_ring"/>
+                    </device>
+                    <device car:address="bus6_notification_out">
+                        <context car:context="notification"/>
+                    </device>
+                    <device car:address="bus7_system_sound_out">
+                        <context car:context="system_sound"/>
+                    </device>
+                </group>
+                <group>
+                    <device car:address="bus1_navigation_out">
+                        <context car:context="notification"/>
+                    </device>
+                    <device car:address="bus2_voice_command_out">
+                        <context car:context="voice_command"/>
+                    </device>
+                </group>
+                <group>
+                    <device car:address="bus4_call_out">
+                        <context car:context="call"/>
+                    </device>
+                </group>
+                <group>
+                    <device car:address="bus5_alarm_out">
+                        <context car:context="alarm"/>
+                    </device>
+                </group>
+            </volumeGroups>
+            <displays>
+                <display car:display="primary_display"/>
+            </displays>
+        </zone>
+        <zone car:name="rear seat zone">
+            <volumeGroups>
+                <group>
+                    <device car:address="bus100_rear_seat">
+                        <context car:context="music"/>
+                        <context car:context="notification"/>
+                        <context car:context="voice_command"/>
+                        <context car:context="call_ring"/>
+                        <context car:context="call"/>
+                        <context car:context="alarm"/>
+                        <context car:context="notification"/>
+                        <context car:context="system_sound"/>
+                    </device>
+                </group>
+            </volumeGroups>
+            <displays>
+                <display car:display="rear_seat_display"/>
+            </displays>
+        </zone>
+    </zones>
+</carAudioConfiguration>
