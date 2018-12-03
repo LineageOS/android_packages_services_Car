@@ -64,7 +64,10 @@ import java.util.List;
  * and connection results can be injected (imitating results from the stack)
  * 2. {@link CarCabinService} & {@link CarSensorService} - Fake vehicle events are injected to the
  * policy's Broadcast Receiver.
+ *
+ * TODO(b/77825248): Fix the flakiness to enable the test class again
  */
+@Suppress
 public class BluetoothAutoConnectPolicyTest extends AndroidTestCase {
     private BluetoothDeviceConnectionPolicy mBluetoothDeviceConnectionPolicyTest;
     private BluetoothAdapter mBluetoothAdapter;
