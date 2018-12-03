@@ -15,12 +15,18 @@
  */
 package com.android.car.audio;
 
+import android.annotation.NonNull;
 import android.annotation.XmlRes;
+import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
+import android.os.RemoteException;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.util.Xml;
 
 import com.android.car.CarLog;
@@ -33,9 +39,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A helper class loads all volume groups from the configuration XML file.
+ * A helper class loads volume groups from car_volume_groups.xml configuration into one zone.
+ *
+ * @deprecated This is replaced by {@link CarAudioZonesHelper}.
  */
-/* package */ class CarVolumeGroupsHelper {
+@Deprecated
+/* package */ class CarAudioZonesHelperLegacy implements CarAudioService.CarAudioZonesLoader {
 
     private static final String TAG_VOLUME_GROUPS = "volumeGroups";
     private static final String TAG_GROUP = "group";
@@ -43,16 +52,47 @@ import java.util.List;
 
     private final Context mContext;
     private final @XmlRes int mXmlConfiguration;
+    private final SparseIntArray mContextToBus;
+    private final SparseArray<CarAudioDeviceInfo> mBusToCarAudioDeviceInfo;
 
-    CarVolumeGroupsHelper(Context context, @XmlRes int xmlConfiguration) {
+    CarAudioZonesHelperLegacy(Context context, @XmlRes int xmlConfiguration,
+            @NonNull SparseArray<CarAudioDeviceInfo> busToCarAudioDeviceInfo,
+            @NonNull IAudioControl audioControl) {
         mContext = context;
         mXmlConfiguration = xmlConfiguration;
+        mBusToCarAudioDeviceInfo = busToCarAudioDeviceInfo;
+
+        // Initialize context => bus mapping once.
+        mContextToBus = new SparseIntArray();
+        try {
+            for (int contextNumber : CarAudioDynamicRouting.CONTEXT_NUMBERS) {
+                mContextToBus.put(contextNumber, audioControl.getBusForContext(contextNumber));
+            }
+        } catch (RemoteException e) {
+            Log.e(CarLog.TAG_AUDIO, "Failed to query IAudioControl HAL", e);
+            e.rethrowAsRuntimeException();
+        }
+    }
+
+    @Override
+    public CarAudioZone[] loadAudioZones() {
+        final CarAudioZone zone = new CarAudioZone(CarAudioManager.PRIMARY_AUDIO_ZONE,
+                "Primary zone");
+        for (CarVolumeGroup group : loadVolumeGroups()) {
+            zone.addVolumeGroup(group);
+            // Binding audio device to volume group.
+            for (int contextNumber : group.getContexts()) {
+                int busNumber = mContextToBus.get(contextNumber);
+                group.bind(contextNumber, busNumber, mBusToCarAudioDeviceInfo.get(busNumber));
+            }
+        }
+        return new CarAudioZone[] { zone };
     }
 
     /**
      * @return all {@link CarVolumeGroup} read from configuration.
      */
-    CarVolumeGroup[] loadVolumeGroups() {
+    private List<CarVolumeGroup> loadVolumeGroups() {
         List<CarVolumeGroup> carVolumeGroups = new ArrayList<>();
         try (XmlResourceParser parser = mContext.getResources().getXml(mXmlConfiguration)) {
             AttributeSet attrs = Xml.asAttributeSet(parser);
@@ -81,14 +121,13 @@ import java.util.List;
         } catch (Exception e) {
             Log.e(CarLog.TAG_AUDIO, "Error parsing volume groups configuration", e);
         }
-        return carVolumeGroups.toArray(new CarVolumeGroup[carVolumeGroups.size()]);
+        return carVolumeGroups;
     }
 
     private CarVolumeGroup parseVolumeGroup(int id, AttributeSet attrs, XmlResourceParser parser)
             throws XmlPullParserException, IOException {
-        int type;
-
         List<Integer> contexts = new ArrayList<>();
+        int type;
         int innerDepth = parser.getDepth();
         while ((type = parser.next()) != XmlResourceParser.END_DOCUMENT
                 && (type != XmlResourceParser.END_TAG || parser.getDepth() > innerDepth)) {
@@ -103,7 +142,7 @@ import java.util.List;
             }
         }
 
-        return new CarVolumeGroup(mContext, id,
+        return new CarVolumeGroup(mContext, CarAudioManager.PRIMARY_AUDIO_ZONE, id,
                 contexts.stream().mapToInt(i -> i).filter(i -> i >= 0).toArray());
     }
 }

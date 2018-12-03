@@ -29,7 +29,9 @@ import android.util.SparseIntArray;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * A class encapsulates a volume group in car.
@@ -41,10 +43,10 @@ import java.util.Arrays;
 /* package */ final class CarVolumeGroup {
 
     private final ContentResolver mContentResolver;
+    private final int mZoneId;
     private final int mId;
-    private final int[] mContexts;
     private final SparseIntArray mContextToBus = new SparseIntArray();
-    private final SparseArray<CarAudioDeviceInfo> mBusToCarAudioDeviceInfos = new SparseArray<>();
+    private final SparseArray<CarAudioDeviceInfo> mBusToCarAudioDeviceInfo = new SparseArray<>();
 
     private int mDefaultGain = Integer.MIN_VALUE;
     private int mMaxGain = Integer.MIN_VALUE;
@@ -53,30 +55,78 @@ import java.util.Arrays;
     private int mStoredGainIndex;
     private int mCurrentGainIndex = -1;
 
-    CarVolumeGroup(Context context, int id, @NonNull int[] contexts) {
+    /**
+     * Constructs a {@link CarVolumeGroup} instance
+     * @param context {@link Context} instance
+     * @param zoneId Audio zone this volume group belongs to
+     * @param id ID of this volume group
+     */
+    CarVolumeGroup(Context context, int zoneId, int id) {
         mContentResolver = context.getContentResolver();
+        mZoneId = zoneId;
         mId = id;
-        mContexts = contexts;
-
         mStoredGainIndex = Settings.Global.getInt(mContentResolver,
-                CarAudioService.getVolumeSettingsKeyForGroup(mId), -1);
+                CarAudioService.getVolumeSettingsKeyForGroup(mZoneId, mId), -1);
     }
 
-    int getId() {
-        return mId;
+    /**
+     * Constructs a {@link CarVolumeGroup} instance
+     * @param context {@link Context} instance
+     * @param zoneId Audio zone this volume group belongs to
+     * @param id ID of this volume group
+     * @param contexts Pre-populated array of car contexts, for legacy car_volume_groups.xml only
+     * @deprecated In favor of {@link #CarVolumeGroup(Context, int, int)}
+     */
+    @Deprecated
+    CarVolumeGroup(Context context, int zoneId, int id, @NonNull int[] contexts) {
+        this(context, zoneId, id);
+        // Deal with the pre-populated car audio contexts
+        for (int audioContext : contexts) {
+            mContextToBus.put(audioContext, -1);
+        }
     }
 
+    /**
+     * @param busNumber Physical bus number for the audio device port
+     * @return {@link CarAudioDeviceInfo} associated with a given bus number
+     */
+    CarAudioDeviceInfo getCarAudioDeviceInfoForBus(int busNumber) {
+        return mBusToCarAudioDeviceInfo.get(busNumber);
+    }
+
+    /**
+     * @return Array of context numbers in this {@link CarVolumeGroup}
+     */
     int[] getContexts() {
-        return mContexts;
+        final int[] contextNumbers = new int[mContextToBus.size()];
+        for (int i = 0; i < contextNumbers.length; i++) {
+            contextNumbers[i] = mContextToBus.keyAt(i);
+        }
+        return contextNumbers;
+    }
+
+    /**
+     * @param busNumber Physical bus number for the audio device port
+     * @return Array of context numbers assigned to a given bus number
+     */
+    int[] getContextsForBus(int busNumber) {
+        List<Integer> contextNumbers = new ArrayList<>();
+        for (int i = 0; i < mContextToBus.size(); i++) {
+            int value = mContextToBus.valueAt(i);
+            if (value == busNumber) {
+                contextNumbers.add(mContextToBus.keyAt(i));
+            }
+        }
+        return contextNumbers.stream().mapToInt(i -> i).toArray();
     }
 
     /**
      * @return Array of bus numbers in this {@link CarVolumeGroup}
      */
     int[] getBusNumbers() {
-        final int[] busNumbers = new int[mBusToCarAudioDeviceInfos.size()];
+        final int[] busNumbers = new int[mBusToCarAudioDeviceInfo.size()];
         for (int i = 0; i < busNumbers.length; i++) {
-            busNumbers[i] = mBusToCarAudioDeviceInfos.keyAt(i);
+            busNumbers[i] = mBusToCarAudioDeviceInfo.keyAt(i);
         }
         return busNumbers;
     }
@@ -92,7 +142,7 @@ import java.util.Arrays;
      * @param info {@link CarAudioDeviceInfo} instance relates to the physical bus
      */
     void bind(int contextNumber, int busNumber, CarAudioDeviceInfo info) {
-        if (mBusToCarAudioDeviceInfos.size() == 0) {
+        if (mBusToCarAudioDeviceInfo.size() == 0) {
             mStepSize = info.getAudioGain().stepValue();
         } else {
             Preconditions.checkArgument(
@@ -101,7 +151,7 @@ import java.util.Arrays;
         }
 
         mContextToBus.put(contextNumber, busNumber);
-        mBusToCarAudioDeviceInfos.put(busNumber, info);
+        mBusToCarAudioDeviceInfo.put(busNumber, info);
 
         if (info.getDefaultGain() > mDefaultGain) {
             // We're arbitrarily selecting the highest bus default gain as the group's default.
@@ -156,14 +206,14 @@ import java.util.Arrays;
                         + gainInMillibels + "index "
                         + gainIndex);
 
-        for (int i = 0; i < mBusToCarAudioDeviceInfos.size(); i++) {
-            CarAudioDeviceInfo info = mBusToCarAudioDeviceInfos.valueAt(i);
+        for (int i = 0; i < mBusToCarAudioDeviceInfo.size(); i++) {
+            CarAudioDeviceInfo info = mBusToCarAudioDeviceInfo.valueAt(i);
             info.setCurrentGain(gainInMillibels);
         }
 
         mCurrentGainIndex = gainIndex;
         Settings.Global.putInt(mContentResolver,
-                CarAudioService.getVolumeSettingsKeyForGroup(mId), gainIndex);
+                CarAudioService.getVolumeSettingsKeyForGroup(mZoneId, mId), gainIndex);
     }
 
     // Given a group level gain index, return the computed gain in millibells
@@ -186,33 +236,35 @@ import java.util.Arrays;
     @Nullable
     AudioDevicePort getAudioDevicePortForContext(int contextNumber) {
         final int busNumber = mContextToBus.get(contextNumber, -1);
-        if (busNumber < 0 || mBusToCarAudioDeviceInfos.get(busNumber) == null) {
+        if (busNumber < 0 || mBusToCarAudioDeviceInfo.get(busNumber) == null) {
             return null;
         }
-        return mBusToCarAudioDeviceInfos.get(busNumber).getAudioDevicePort();
+        return mBusToCarAudioDeviceInfo.get(busNumber).getAudioDevicePort();
     }
 
     @Override
     public String toString() {
         return "CarVolumeGroup id: " + mId
                 + " currentGainIndex: " + mCurrentGainIndex
-                + " contexts: " + Arrays.toString(mContexts)
+                + " contexts: " + Arrays.toString(getContexts())
                 + " buses: " + Arrays.toString(getBusNumbers());
     }
 
     /** Writes to dumpsys output */
-    void dump(PrintWriter writer) {
-        writer.println("CarVolumeGroup " + mId);
-        writer.printf("\tGain in millibel (min / max / default/ current): %d %d %d %d\n",
-                mMinGain, mMaxGain, mDefaultGain, getGainForIndex(mCurrentGainIndex));
-        writer.printf("\tGain in index (min / max / default / current): %d %d %d %d\n",
-                getMinGainIndex(), getMaxGainIndex(), getDefaultGainIndex(), mCurrentGainIndex);
+    void dump(String indent, PrintWriter writer) {
+        writer.printf("%sCarVolumeGroup(%d)\n", indent, mId);
+        writer.printf("%sGain values (min / max / default/ current): %d %d %d %d\n",
+                indent, mMinGain, mMaxGain,
+                mDefaultGain, getGainForIndex(mCurrentGainIndex));
+        writer.printf("%sGain indexes (min / max / default / current): %d %d %d %d\n",
+                indent, getMinGainIndex(), getMaxGainIndex(),
+                getDefaultGainIndex(), mCurrentGainIndex);
         for (int i = 0; i < mContextToBus.size(); i++) {
-            writer.printf("\tContext: %s -> Bus: %d\n",
+            writer.printf("%sContext: %s -> Bus: %d\n", indent,
                     ContextNumber.toString(mContextToBus.keyAt(i)), mContextToBus.valueAt(i));
         }
-        for (int i = 0; i < mBusToCarAudioDeviceInfos.size(); i++) {
-            mBusToCarAudioDeviceInfos.valueAt(i).dump(writer);
+        for (int i = 0; i < mBusToCarAudioDeviceInfo.size(); i++) {
+            mBusToCarAudioDeviceInfo.valueAt(i).dump(indent, writer);
         }
         // Empty line for comfortable reading
         writer.println();

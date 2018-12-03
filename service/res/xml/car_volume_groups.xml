@@ -18,13 +18,12 @@
   This configuration is replaced by car_audio_configuration.xml
 
   Notes on backward compatibility
-    - A new isDeprecated=true attr is added to the stock car_volume_groups.xml
-    - Existing car_volume_groups.xml overlays from OEM, without isDeprecated
-      attr being set, should default to isDeprecated=false
-    - If isDeprecated=true, CarAudioService loads the new
-      car_audio_configuration.xml
-    - Otherwise, CarAudioService loads car_volume_groups.xml queries
-      IAudioControl HAL (getBusForContext)
+  - A new audioUseUnifiedConfiguration flag is added, and the default value
+  is false
+  - If OEM does not explicitly set audioUseUnifiedConfiguration to be true,
+  car_volume_groups.xml will be used, CarAudioService also queries
+  IAudioControl HAL (getBusForContext)
+  - Otherwise, CarAudioService loads the new car_audio_configuration.xml
 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

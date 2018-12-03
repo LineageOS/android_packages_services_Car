@@ -38,6 +38,26 @@ import java.io.PrintWriter;
  */
 /* package */ class CarAudioDeviceInfo {
 
+    /**
+     * Parse device address. Expected format is BUS%d_%s, address, usage hint
+     * @return valid address (from 0 to positive) or -1 for invalid address.
+     */
+    static int parseDeviceAddress(String address) {
+        String[] words = address.split("_");
+        int addressParsed = -1;
+        if (words[0].toLowerCase().startsWith("bus")) {
+            try {
+                addressParsed = Integer.parseInt(words[0].substring(3));
+            } catch (NumberFormatException e) {
+                //ignore
+            }
+        }
+        if (addressParsed < 0) {
+            return -1;
+        }
+        return addressParsed;
+    }
+
     private final AudioDeviceInfo mAudioDeviceInfo;
     private final int mBusNumber;
     private final int mSampleRate;
@@ -143,26 +163,6 @@ import java.io.PrintWriter;
         }
     }
 
-    /**
-     * Parse device address. Expected format is BUS%d_%s, address, usage hint
-     * @return valid address (from 0 to positive) or -1 for invalid address.
-     */
-    private int parseDeviceAddress(String address) {
-        String[] words = address.split("_");
-        int addressParsed = -1;
-        if (words[0].toLowerCase().startsWith("bus")) {
-            try {
-                addressParsed = Integer.parseInt(words[0].substring(3));
-            } catch (NumberFormatException e) {
-                //ignore
-            }
-        }
-        if (addressParsed < 0) {
-            return -1;
-        }
-        return addressParsed;
-    }
-
     private int getMaxSampleRate(AudioDeviceInfo info) {
         int[] sampleRates = info.getSampleRates();
         if (sampleRates == null || sampleRates.length == 0) {
@@ -247,12 +247,12 @@ import java.io.PrintWriter;
                 + " minGain: " + mMinGain;
     }
 
-    void dump(PrintWriter writer) {
-        writer.printf("Bus Number (%d) / address (%s)\n ",
-                mBusNumber, mAudioDeviceInfo.getAddress());
-        writer.printf("\tsample rate / encoding format / channel count: %d %d %d\n",
-                getSampleRate(), getEncodingFormat(), getChannelCount());
-        writer.printf("\tGain in millibel (min / max / default/ current): %d %d %d %d\n",
-                mMinGain, mMaxGain, mDefaultGain, mCurrentGain);
+    void dump(String indent, PrintWriter writer) {
+        writer.printf("%sCarAudioDeviceInfo Bus(%d: %s)\n ",
+                indent, mBusNumber, mAudioDeviceInfo.getAddress());
+        writer.printf("%s\tsample rate / encoding format / channel count: %d %d %d\n",
+                indent, getSampleRate(), getEncodingFormat(), getChannelCount());
+        writer.printf("%s\tGain values (min / max / default/ current): %d %d %d %d\n",
+                indent, mMinGain, mMaxGain, mDefaultGain, mCurrentGain);
     }
 }
