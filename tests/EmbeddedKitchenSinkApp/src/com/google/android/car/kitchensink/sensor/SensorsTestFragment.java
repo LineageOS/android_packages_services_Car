@@ -43,7 +43,6 @@ import com.google.android.car.kitchensink.R;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -343,11 +342,11 @@ public class SensorsTestFragment extends Fragment {
         if (event == null) {
             return mNaString;
         }
-        return mDateFormat.format(new Date(event.timestamp / (1000L * 1000L)));
+        return Double.toString(event.timestamp / (1000L * 1000L * 1000L)) + " seconds";
     }
 
     private String getTimestampNow() {
-        return mDateFormat.format(new Date(System.nanoTime() / (1000L * 1000L)));
+        return Double.toString(System.nanoTime() / (1000L * 1000L * 1000L)) + " seconds";
     }
 
     private String getFuelLevel(CarSensorEvent event) {
