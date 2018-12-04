@@ -16,17 +16,20 @@
 package android.car.cluster.sample;
 
 import static android.car.cluster.CarInstrumentClusterManager.CATEGORY_NAVIGATION;
-import static android.car.cluster.sample.SampleClusterServiceImpl.LOCAL_BINDING_ACTION;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_KEY_ACTIVITY_DISPLAY_ID;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_KEY_ACTIVITY_STATE;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_KEY_CATEGORY;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_KEY_KEY_EVENT;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_ON_KEY_EVENT;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_ON_NAVIGATION_STATE_CHANGED;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_REGISTER_CLIENT;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_SET_ACTIVITY_LAUNCH_OPTIONS;
-import static android.car.cluster.sample.SampleClusterServiceImpl.MSG_UNREGISTER_CLIENT;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl.LOCAL_BINDING_ACTION;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_ACTIVITY_DISPLAY_ID;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_ACTIVITY_STATE;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_CATEGORY;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_KEY_EVENT;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_ON_KEY_EVENT;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_ON_NAVIGATION_STATE_CHANGED;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_REGISTER_CLIENT;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_SET_ACTIVITY_LAUNCH_OPTIONS;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_UNREGISTER_CLIENT;
 
+import android.car.Car;
+import android.car.CarAppFocusManager;
+import android.car.CarNotConnectedException;
 import android.car.cluster.ClusterActivityState;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -74,7 +77,8 @@ public class MainClusterActivity extends FragmentActivity {
     private Messenger mService;
     private Messenger mServiceCallbacks = new Messenger(new MessageHandler(this));
     private VirtualDisplay mPendingVirtualDisplay = null;
-    private final Handler mHandler = new Handler();
+    private Car mCar;
+    private CarAppFocusManager mCarAppFocusManager;
 
     public static class VirtualDisplay {
         public final int mDisplayId;
@@ -96,7 +100,7 @@ public class MainClusterActivity extends FragmentActivity {
         }
     };
 
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
+    private ServiceConnection mClusterRenderingServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.i(TAG, "onServiceConnected, name: " + name + ", service: " + service);
@@ -114,6 +118,32 @@ public class MainClusterActivity extends FragmentActivity {
             Log.i(TAG, "onServiceDisconnected, name: " + name);
             mService = null;
             onNavigationStateChange(NULL_NAV_STATE);
+        }
+    };
+
+    private ServiceConnection mCarServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            try {
+                Log.i(TAG, "onServiceConnected, name: " + name + ", service: " + service);
+                mCarAppFocusManager = (CarAppFocusManager) mCar.getCarManager(
+                        Car.APP_FOCUS_SERVICE);
+                if (mCarAppFocusManager == null) {
+                    Log.e(TAG, "onServiceConnected: unable to obtain CarAppFocusManager");
+                    return;
+                }
+                mCarAppFocusManager.addFocusListener((appType, active) -> {
+                    onNavigationFocusChanged(active);
+                }, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+            } catch (CarNotConnectedException e) {
+                Log.e(TAG, "onServiceConnected: error obtaining manager", e);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG, "onServiceDisconnected, name: " + name);
+            mCarAppFocusManager = null;
         }
     };
 
@@ -138,7 +168,7 @@ public class MainClusterActivity extends FragmentActivity {
                         data.setClassLoader(ParcelUtils.class.getClassLoader());
                         NavigationState navState = NavigationState
                                 .fromParcelable(data.getParcelable(
-                                        SampleClusterServiceImpl.NAV_STATE_BUNDLE_KEY));
+                                        ClusterRenderingServiceImpl.NAV_STATE_BUNDLE_KEY));
                         mActivity.get().onNavigationStateChange(navState);
                     }
                     break;
@@ -156,9 +186,9 @@ public class MainClusterActivity extends FragmentActivity {
 
         mInputMethodManager = getSystemService(InputMethodManager.class);
 
-        Intent intent = new Intent(this, SampleClusterServiceImpl.class);
+        Intent intent = new Intent(this, ClusterRenderingServiceImpl.class);
         intent.setAction(LOCAL_BINDING_ACTION);
-        bindService(intent, mServiceConnection, 0);
+        bindService(intent, mClusterRenderingServiceConnection, 0);
 
         registerFacets(
                 new Facet<>(findViewById(R.id.btn_nav), 0, NavigationFragment.class),
@@ -169,19 +199,23 @@ public class MainClusterActivity extends FragmentActivity {
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(new ClusterPageAdapter(getSupportFragmentManager()));
         mOrderToFacet.get(0).button.requestFocus();
-        mNavStateController = new NavStateController(findViewById(R.id.maneuver),
-                findViewById(R.id.distance), findViewById(R.id.segment));
+        mNavStateController = new NavStateController(findViewById(R.id.navigation_state));
+
+        mCar = Car.createCar(this, mCarServiceConnection);
+        mCar.connect();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
+        mCar.disconnect();
+        mCarAppFocusManager = null;
         if (mService != null) {
             sendServiceMessage(MSG_UNREGISTER_CLIENT, null, mServiceCallbacks);
             mService = null;
         }
-        unbindService(mServiceConnection);
+        unbindService(mClusterRenderingServiceConnection);
     }
 
     private void onKeyEvent(KeyEvent event) {
@@ -198,6 +232,12 @@ public class MainClusterActivity extends FragmentActivity {
         Log.d(TAG, "onNavigationStateChange: " + state);
         if (mNavStateController != null) {
             mNavStateController.update(state);
+        }
+    }
+
+    private void onNavigationFocusChanged(boolean active) {
+        if (mNavStateController != null) {
+            mNavStateController.setActive(active);
         }
     }
 
@@ -223,8 +263,8 @@ public class MainClusterActivity extends FragmentActivity {
     }
 
     /**
-     * Sends a message to the {@link SampleClusterServiceImpl}, which runs on a different process.
-
+     * Sends a message to the {@link ClusterRenderingServiceImpl}, which runs on a different
+     * process.
      * @param what action to perform
      * @param data action data
      * @param replyTo {@link Messenger} where to reply back
