@@ -25,7 +25,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+
 import com.android.internal.annotations.GuardedBy;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,7 +92,6 @@ public final class UsbHostController
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         context.registerReceiver(mUsbBroadcastReceiver, filter);
-
     }
 
     private synchronized void setActiveDeviceIfMatch(UsbDevice device) {
@@ -129,11 +130,11 @@ public final class UsbHostController
         return activeDevice != null && UsbUtil.isDevicesMatching(activeDevice, device);
     }
 
-    private String generateTitle() {
-        String manufacturer = mActiveDevice.getManufacturerName();
-        String product = mActiveDevice.getProductName();
+    private static String generateTitle(Context context, UsbDevice usbDevice) {
+        String manufacturer = usbDevice.getManufacturerName();
+        String product = usbDevice.getProductName();
         if (manufacturer == null && product == null) {
-            return mContext.getString(R.string.usb_unknown_device);
+            return context.getString(R.string.usb_unknown_device);
         }
         if (manufacturer != null && product != null) {
             return manufacturer + " " + product;
@@ -158,14 +159,14 @@ public final class UsbHostController
 
         UsbDeviceSettings settings = mUsbSettingsStorage.getSettings(device);
         if (settings != null && mUsbResolver.dispatch(
-                    mActiveDevice, settings.getHandler(), settings.getAoap())) {
+                    device, settings.getHandler(), settings.getAoap())) {
             if (LOCAL_LOGV) {
                 Log.v(TAG, "Usb Device: " + device + " was sent to component: "
                         + settings.getHandler());
             }
             return;
         }
-        mCallback.titleChanged(generateTitle());
+        mCallback.titleChanged(generateTitle(mContext, device));
         mUsbResolver.resolve(device);
     }
 
