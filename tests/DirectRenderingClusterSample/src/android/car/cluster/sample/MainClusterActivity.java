@@ -20,11 +20,18 @@ import static android.car.cluster.sample.ClusterRenderingServiceImpl.LOCAL_BINDI
 import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_ACTIVITY_DISPLAY_ID;
 import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_ACTIVITY_STATE;
 import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_CATEGORY;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_FREE_NAVIGATION_ACTIVITY_NAME;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl
+        .MSG_KEY_FREE_NAVIGATION_ACTIVITY_VISIBLE;
 import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_KEY_EVENT;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl
+        .MSG_ON_FREE_NAVIGATION_ACTIVITY_STATE_CHANGED;
 import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_ON_KEY_EVENT;
-import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_ON_NAVIGATION_STATE_CHANGED;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl
+        .MSG_ON_NAVIGATION_STATE_CHANGED;
 import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_REGISTER_CLIENT;
-import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_SET_ACTIVITY_LAUNCH_OPTIONS;
+import static android.car.cluster.sample.ClusterRenderingServiceImpl
+        .MSG_SET_ACTIVITY_LAUNCH_OPTIONS;
 import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_UNREGISTER_CLIENT;
 
 import android.car.Car;
@@ -55,6 +62,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.viewpager.widget.ViewPager;
 
@@ -69,6 +77,7 @@ public class MainClusterActivity extends FragmentActivity {
 
     private ViewPager mPager;
     private NavStateController mNavStateController;
+    private ClusterViewModel mClusterViewModel;
 
     private HashMap<Button, Facet<?>> mButtonToFacet = new HashMap<>();
     private SparseArray<Facet<?>> mOrderToFacet = new SparseArray<>();
@@ -132,9 +141,9 @@ public class MainClusterActivity extends FragmentActivity {
                     Log.e(TAG, "onServiceConnected: unable to obtain CarAppFocusManager");
                     return;
                 }
-                mCarAppFocusManager.addFocusListener((appType, active) -> {
-                    onNavigationFocusChanged(active);
-                }, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+                mCarAppFocusManager.addFocusListener(
+                        (appType, active) -> mClusterViewModel.setNavigationFocus(active),
+                        CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "onServiceConnected: error obtaining manager", e);
             }
@@ -159,7 +168,10 @@ public class MainClusterActivity extends FragmentActivity {
             Bundle data = msg.getData();
             switch (msg.what) {
                 case MSG_ON_KEY_EVENT:
-                    mActivity.get().onKeyEvent(data.getParcelable(MSG_KEY_KEY_EVENT));
+                    KeyEvent event = data.getParcelable(MSG_KEY_KEY_EVENT);
+                    if (event != null) {
+                        mActivity.get().onKeyEvent(event);
+                    }
                     break;
                 case MSG_ON_NAVIGATION_STATE_CHANGED:
                     if (data == null) {
@@ -171,6 +183,13 @@ public class MainClusterActivity extends FragmentActivity {
                                         ClusterRenderingServiceImpl.NAV_STATE_BUNDLE_KEY));
                         mActivity.get().onNavigationStateChange(navState);
                     }
+                    break;
+                case MSG_ON_FREE_NAVIGATION_ACTIVITY_STATE_CHANGED:
+                    ComponentName activity = data.getParcelable(
+                            MSG_KEY_FREE_NAVIGATION_ACTIVITY_NAME);
+                    boolean isVisible = data.getBoolean(MSG_KEY_FREE_NAVIGATION_ACTIVITY_VISIBLE);
+                    mActivity.get().mClusterViewModel.setFreeNavigationActivity(activity,
+                            isVisible);
                     break;
                 default:
                     super.handleMessage(msg);
@@ -200,6 +219,10 @@ public class MainClusterActivity extends FragmentActivity {
         mPager.setAdapter(new ClusterPageAdapter(getSupportFragmentManager()));
         mOrderToFacet.get(0).button.requestFocus();
         mNavStateController = new NavStateController(findViewById(R.id.navigation_state));
+
+        mClusterViewModel = ViewModelProviders.of(this).get(ClusterViewModel.class);
+        mClusterViewModel.getNavigationFocus().observe(this, active ->
+                mNavStateController.setActive(active));
 
         mCar = Car.createCar(this, mCarServiceConnection);
         mCar.connect();
@@ -232,12 +255,6 @@ public class MainClusterActivity extends FragmentActivity {
         Log.d(TAG, "onNavigationStateChange: " + state);
         if (mNavStateController != null) {
             mNavStateController.update(state);
-        }
-    }
-
-    private void onNavigationFocusChanged(boolean active) {
-        if (mNavStateController != null) {
-            mNavStateController.setActive(active);
         }
     }
 

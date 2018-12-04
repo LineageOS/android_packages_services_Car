@@ -64,6 +64,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Implementation of {@link InstrumentClusterRenderingService} which renders an activity on a
@@ -82,10 +83,14 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
     static final int MSG_ON_KEY_EVENT = 3;
     static final int MSG_REGISTER_CLIENT = 4;
     static final int MSG_UNREGISTER_CLIENT = 5;
+    static final int MSG_ON_FREE_NAVIGATION_ACTIVITY_STATE_CHANGED = 6;
     static final String MSG_KEY_CATEGORY = "category";
     static final String MSG_KEY_ACTIVITY_DISPLAY_ID = "activity_display_id";
     static final String MSG_KEY_ACTIVITY_STATE = "activity_state";
     static final String MSG_KEY_KEY_EVENT = "key_event";
+    static final String MSG_KEY_FREE_NAVIGATION_ACTIVITY_NAME = "free_navigation_activity_name";
+    static final String MSG_KEY_FREE_NAVIGATION_ACTIVITY_VISIBLE =
+            "free_navigation_activity_visible";
 
     private static final int NAVIGATION_ACTIVITY_MAX_RETRIES = 10;
     private static final int NAVIGATION_ACTIVITY_RETRY_INTERVAL_MS = 1000;
@@ -95,8 +100,12 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
     private int mDisplayId = NO_DISPLAY;
     private UserReceiver mUserReceiver;
     private final Handler mHandler = new Handler();
+    private final IBinder mLocalBinder = new Messenger(new MessageHandler(this)).getBinder();
     private final Runnable mRetryLaunchNavigationActivity = this::tryLaunchNavigationActivity;
     private int mNavigationDisplayId = NO_DISPLAY;
+    private ComponentName mFreeNavigationActivity;
+    private ActivityMonitor mActivityMonitor = new ActivityMonitor();
+    private boolean mFreeNavigationActivityVisible;
 
     private final DisplayListener mDisplayListener = new DisplayListener() {
         @Override
@@ -174,6 +183,7 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
                     }
                     case MSG_REGISTER_CLIENT:
                         mService.get().mClients.add(msg.replyTo);
+                        mService.get().notifyFreeNavigationActivityChange();
                         break;
                     case MSG_UNREGISTER_CLIENT:
                         mService.get().mClients.remove(msg.replyTo);
@@ -187,11 +197,22 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
         }
     }
 
+    private ActivityMonitor.ActivityListener mNavigationActivityMonitor = (displayId, activity) -> {
+        if (displayId != mNavigationDisplayId) {
+            return;
+        }
+        boolean activityVisible = activity != null && activity.equals(mFreeNavigationActivity);
+        if (activityVisible != mFreeNavigationActivityVisible) {
+            mFreeNavigationActivityVisible = activityVisible;
+            notifyFreeNavigationActivityChange();
+        }
+    };
+
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "onBind, intent: " + intent);
-        return (LOCAL_BINDING_ACTION.equals(intent.getAction()))
-                ? new Messenger(new MessageHandler(this)).getBinder()
+        return LOCAL_BINDING_ACTION.equals(intent.getAction())
+                ? mLocalBinder
                 : super.onBind(intent);
     }
 
@@ -202,6 +223,7 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
         mDisplayProvider = new ClusterDisplayProvider(this, mDisplayListener);
         mUserReceiver = new UserReceiver(this);
         mUserReceiver.register(this);
+        mActivityMonitor.start();
     }
 
     private void launchMainActivity() {
@@ -247,6 +269,7 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
         super.onDestroy();
         Log.w(TAG, "onDestroy");
         mUserReceiver.unregister(this);
+        mActivityMonitor.stop();
     }
 
     @Override
@@ -299,11 +322,8 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
         if (args != null && args.length > 0) {
             execShellCommand(args);
         } else {
-
-            if (args == null || args.length == 0) {
-                writer.println("* dump " + getClass().getCanonicalName() + " *");
-                writer.println("DisplayProvider: " + mDisplayProvider);
-            }
+            writer.println("* dump " + getClass().getCanonicalName() + " *");
+            writer.println("DisplayProvider: " + mDisplayProvider);
         }
     }
 
@@ -388,6 +408,8 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
     }
 
     private void startNavigationActivity(int displayId) {
+        mActivityMonitor.removeListener(mNavigationDisplayId, mNavigationActivityMonitor);
+        mActivityMonitor.addListener(displayId, mNavigationActivityMonitor);
         mNavigationDisplayId = displayId;
         tryLaunchNavigationActivity();
     }
@@ -410,12 +432,23 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
         }
         mHandler.removeCallbacks(mRetryLaunchNavigationActivity);
 
-        Intent intent = getNavigationActivityIntent();
+        ComponentName navigationActivity = getNavigationActivity();
+        if (!Objects.equals(navigationActivity, mFreeNavigationActivity)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Navigation activity change detected: " + navigationActivity);
+            }
+            mFreeNavigationActivity = navigationActivity;
+            notifyFreeNavigationActivityChange();
+        }
 
         try {
-            if (intent == null) {
+            if (navigationActivity == null) {
                 throw new ActivityNotFoundException();
             }
+            Intent intent = new Intent(Intent.ACTION_MAIN).addCategory(CATEGORY_NAVIGATION)
+                    .setPackage(navigationActivity.getPackageName())
+                    .setComponent(navigationActivity)
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Log.d(TAG, "Launching: " + intent + " on display: " + mNavigationDisplayId);
             Bundle activityOptions = ActivityOptions.makeBasic()
                     .setLaunchDisplayId(mNavigationDisplayId)
@@ -427,8 +460,15 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
             mHandler.postDelayed(mRetryLaunchNavigationActivity,
                     NAVIGATION_ACTIVITY_RETRY_INTERVAL_MS);
         } catch (Exception ex) {
-            Log.e(TAG, "Unable to start navigation activity: " + intent, ex);
+            Log.e(TAG, "Unable to start navigation activity: " + navigationActivity, ex);
         }
+    }
+
+    private void notifyFreeNavigationActivityChange() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(MSG_KEY_FREE_NAVIGATION_ACTIVITY_NAME, mFreeNavigationActivity);
+        bundle.putBoolean(MSG_KEY_FREE_NAVIGATION_ACTIVITY_VISIBLE, mFreeNavigationActivityVisible);
+        broadcastClientMessage(MSG_ON_FREE_NAVIGATION_ACTIVITY_STATE_CHANGED, bundle);
     }
 
     /**
@@ -436,13 +476,13 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
      * In the current implementation we search for an activity with the
      * {@link CarInstrumentClusterManager#CATEGORY_NAVIGATION} category from the same navigation app
      * selected from CarLauncher (see CarLauncher#getMapsIntent()).
-     * Alternatively, other implementations could
+     * Alternatively, other implementations could:
      * <ul>
      * <li>Read this package from a resource (having a OEM default activity to show)
      * <li>Let the user select one from settings.
      * </ul>
      */
-    private Intent getNavigationActivityIntent() {
+    private ComponentName getNavigationActivity() {
         PackageManager pm = getPackageManager();
         int userId = ActivityManager.getCurrentUser();
 
@@ -464,11 +504,8 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
                 if (candidate.activityInfo.packageName.equals(navigationApp.activityInfo
                         .packageName)) {
                     Log.d(TAG, "Found activity: " + candidate);
-                    intent.setPackage(navigationApp.activityInfo.packageName);
-                    intent.setComponent(new ComponentName(candidate.activityInfo.packageName,
-                            candidate.activityInfo.name));
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    return intent;
+                    return new ComponentName(candidate.activityInfo.packageName,
+                            candidate.activityInfo.name);
                 }
             }
         } else {
