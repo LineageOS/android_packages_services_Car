@@ -43,7 +43,7 @@
     <application android:label="@string/app_name"
                  android:icon="@mipmap/ic_launcher"
                  android:directBootAware="true">
-        <service android:name=".SampleClusterServiceImpl"
+        <service android:name=".ClusterRenderingServiceImpl"
                  android:exported="false"
                  android:singleUser="true"
                  android:permission="android.car.permission.BIND_INSTRUMENT_CLUSTER_RENDERER_SERVICE"/>

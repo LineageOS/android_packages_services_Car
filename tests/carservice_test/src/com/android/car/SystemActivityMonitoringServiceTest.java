@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -95,6 +96,10 @@ public class SystemActivityMonitoringServiceTest {
         assertTopTaskActivity(blockingActivity);
     }
 
+    /**
+    * TODO(b/120435244): Fix the flakiness to enable this test method again.
+    */
+    @FlakyTest
     @Test
     public void testRemovesFromTopTasks() throws Exception {
         ComponentName activityThatFinishesImmediately =

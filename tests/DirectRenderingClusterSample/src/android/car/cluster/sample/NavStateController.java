@@ -19,6 +19,7 @@ import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -36,21 +37,21 @@ public class NavStateController {
     private ImageView mManeuver;
     private TextView mDistance;
     private TextView mSegment;
+    private View mNavigationState;
     private Context mContext;
 
     /**
      * Creates a controller to coordinate updates to the views displaying navigation state
      * data.
      *
-     * @param maneuver {@link ImageView} used to display the immediate navigation maneuver
-     * @param distance {@link TextView} displaying distance to the maneuver
-     * @param segment {@link TextView} displaying the current street.
+     * @param container {@link View} containing the navigation state views
      */
-    public NavStateController(ImageView maneuver, TextView distance, TextView segment) {
-        mManeuver = maneuver;
-        mDistance = distance;
-        mSegment = segment;
-        mContext = maneuver.getContext();
+    public NavStateController(View container) {
+        mNavigationState = container;
+        mManeuver = container.findViewById(R.id.maneuver);
+        mDistance = container.findViewById(R.id.distance);
+        mSegment = container.findViewById(R.id.segment);
+        mContext = container.getContext();
     }
 
     /**
@@ -61,6 +62,18 @@ public class NavStateController {
         Step step = getImmediateStep(state);
         mManeuver.setImageDrawable(getManeuverIcon(step != null ? step.getManeuver() : null));
         mDistance.setText(formatDistance(step != null ? step.getDistance() : null));
+    }
+
+    /**
+     * Updates whether turn-by-turn display is active or not. Turn-by-turn would be active whenever
+     * a navigation application has focus.
+     */
+    public void setActive(boolean active) {
+        Log.i(TAG, "Navigation status active: " + active);
+        if (!active) {
+            mManeuver.setImageDrawable(null);
+            mDistance.setText(null);
+        }
     }
 
     private Drawable getManeuverIcon(@Nullable Maneuver maneuver) {
