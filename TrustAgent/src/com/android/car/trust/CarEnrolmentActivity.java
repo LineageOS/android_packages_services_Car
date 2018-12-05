@@ -55,6 +55,7 @@ public class CarEnrolmentActivity extends Activity {
     private static final String SP_HANDLE_KEY = "sp-test";
     private static final int FINE_LOCATION_REQUEST_CODE = 42;
 
+    private PagedListView mList;
     private OutputAdapter mOutputAdapter;
     private BluetoothDevice mBluetoothDevice;
     private ICarTrustAgentBleService mCarTrustAgentBleService;
@@ -87,8 +88,8 @@ public class CarEnrolmentActivity extends Activity {
 
         mOutputAdapter = new OutputAdapter();
 
-        PagedListView list = findViewById(R.id.list);
-        list.setAdapter(mOutputAdapter);
+        mList = findViewById(R.id.list);
+        mList.setAdapter(mOutputAdapter);
     }
 
     @Override
@@ -114,7 +115,10 @@ public class CarEnrolmentActivity extends Activity {
     }
 
     private void appendOutputText(String text) {
-        runOnUiThread(() -> mOutputAdapter.addOutput(text));
+        runOnUiThread(() -> {
+            mOutputAdapter.addOutput(text);
+            mList.scrollToPosition(mOutputAdapter.getItemCount() - 1);
+        });
     }
 
     private void addEscrowToken(byte[] token) throws RemoteException {
