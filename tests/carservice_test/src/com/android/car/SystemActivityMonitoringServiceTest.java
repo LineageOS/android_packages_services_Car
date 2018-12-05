@@ -16,7 +16,6 @@
 package com.android.car;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
@@ -25,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.FlakyTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -38,11 +36,13 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class SystemActivityMonitoringServiceTest {
     private static final long ACTIVITY_TIME_OUT = 5000;
+    private static final long DEFAULT_TIMEOUT_SECONDS = 2;
 
     private SystemActivityMonitoringService mService;
     private Semaphore mActivityLaunchSemaphore = new Semaphore(0);
@@ -96,24 +96,33 @@ public class SystemActivityMonitoringServiceTest {
         assertTopTaskActivity(blockingActivity);
     }
 
-    /**
-    * TODO(b/120435244): Fix the flakiness to enable this test method again.
-    */
-    @FlakyTest
     @Test
     public void testRemovesFromTopTasks() throws Exception {
         ComponentName activityThatFinishesImmediately =
                 toComponentName(getTestContext(), ActivityThatFinishesImmediately.class);
         startActivity(getContext(), activityThatFinishesImmediately);
-        assertTrue(mActivityLaunchSemaphore.tryAcquire(2, TimeUnit.SECONDS));
+        waitUntil(() -> topTasksHasComponent(activityThatFinishesImmediately));
+        waitUntil(() -> !topTasksHasComponent(activityThatFinishesImmediately));
+    }
 
-        // We won't know if the stack changes, unless we launch another activity.
-        startActivity(getContext(), toComponentName(getTestContext(), ActivityA.class));
-        assertTrue(mActivityLaunchSemaphore.tryAcquire(2, TimeUnit.SECONDS));
 
-        for (TopTaskInfoContainer topTaskInfoContainer: mService.getTopTasks()) {
-            assertNotEquals(topTaskInfoContainer.topActivity, activityThatFinishesImmediately);
+    private void waitUntil(BooleanSupplier condition) throws Exception {
+        while (!condition.getAsBoolean()) {
+            boolean didAquire =
+                    mActivityLaunchSemaphore.tryAcquire(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            if (!didAquire && !condition.getAsBoolean()) {
+                throw new RuntimeException("failed while waiting for condition to become true");
+            }
         }
+    }
+
+    private boolean topTasksHasComponent(ComponentName component) {
+        for (TopTaskInfoContainer topTaskInfoContainer: mService.getTopTasks()) {
+            if (topTaskInfoContainer.topActivity.equals(component)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Activity that closes itself after some timeout to clean up the screen. */
