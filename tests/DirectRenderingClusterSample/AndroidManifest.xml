@@ -50,7 +50,8 @@
 
         <activity android:name=".MainClusterActivity"
             android:exported="false"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+            android:showForAllUsers="true"
+            android:theme="@style/Theme.ClusterTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>

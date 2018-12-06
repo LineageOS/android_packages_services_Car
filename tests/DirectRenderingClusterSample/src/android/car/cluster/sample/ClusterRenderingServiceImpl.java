@@ -103,7 +103,7 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
         public void onDisplayAdded(int displayId) {
             Log.i(TAG, "Cluster display found, displayId: " + displayId);
             mDisplayId = displayId;
-            tryLaunchActivity();
+            launchMainActivity();
         }
 
         @Override
@@ -138,7 +138,7 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
         public void onReceive(Context context, Intent intent) {
             ClusterRenderingServiceImpl service = mService.get();
             Log.d(TAG, "Broadcast received: " + intent);
-            service.tryLaunchActivity();
+            service.tryLaunchNavigationActivity();
         }
     }
 
@@ -204,21 +204,13 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
         mUserReceiver.register(this);
     }
 
-    private void tryLaunchActivity() {
-        int userHandle = ActivityManager.getCurrentUser();
-        if (userHandle == UserHandle.USER_SYSTEM || mDisplayId == NO_DISPLAY) {
-            Log.d(TAG, String.format("Launch activity ignored (user: %d, display: %d)", userHandle,
-                    mDisplayId));
-            // Not ready to launch yet.
-            return;
-        }
+    private void launchMainActivity() {
         ActivityOptions options = ActivityOptions.makeBasic();
         options.setLaunchDisplayId(mDisplayId);
         Intent intent = new Intent(this, MainClusterActivity.class);
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-        startActivityAsUser(intent, options.toBundle(), UserHandle.of(userHandle));
-        Log.i(TAG, String.format("launching main activity: %s (user: %d, display: %d)", intent,
-                userHandle, mDisplayId));
+        startActivityAsUser(intent, options.toBundle(), UserHandle.SYSTEM);
+        Log.i(TAG, String.format("launching main activity: %s (display: %d)", intent, mDisplayId));
     }
 
     @Override
@@ -407,6 +399,15 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
      * have a default navigation activity selected yet.
      */
     private void tryLaunchNavigationActivity() {
+        int userHandle = ActivityManager.getCurrentUser();
+        if (userHandle == UserHandle.USER_SYSTEM || mNavigationDisplayId == NO_DISPLAY) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, String.format("Launch activity ignored (user: %d, display: %d)",
+                        userHandle, mNavigationDisplayId));
+            }
+            // Not ready to launch yet.
+            return;
+        }
         mHandler.removeCallbacks(mRetryLaunchNavigationActivity);
 
         Intent intent = getNavigationActivityIntent();
@@ -466,8 +467,7 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
                     intent.setPackage(navigationApp.activityInfo.packageName);
                     intent.setComponent(new ComponentName(candidate.activityInfo.packageName,
                             candidate.activityInfo.name));
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                            | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     return intent;
                 }
             }

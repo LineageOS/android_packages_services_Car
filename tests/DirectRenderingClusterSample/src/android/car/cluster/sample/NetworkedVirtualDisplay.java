@@ -68,7 +68,7 @@ public class NetworkedVirtualDisplay {
 
     private static final int MSG_START = 0;
     private static final int MSG_STOP = 1;
-    private static final int MSG_RESUBMIT_FRAME = 2;
+    private static final int MSG_SEND_FRAME = 2;
 
     private VirtualDisplay mVirtualDisplay;
     private MediaCodec mVideoEncoder;
@@ -209,7 +209,7 @@ public class NetworkedVirtualDisplay {
     }
 
     private void doOutputBufferAvailable(int index, @NonNull BufferInfo info) {
-        mHandler.removeMessages(MSG_RESUBMIT_FRAME);
+        mHandler.removeMessages(MSG_SEND_FRAME);
 
         ByteBuffer encodedData = mVideoEncoder.getOutputBuffer(index);
         if (encodedData == null) {
@@ -227,20 +227,17 @@ public class NetworkedVirtualDisplay {
             encodedData.get(mBuffer, 0, mLastFrameLength);
             mVideoEncoder.releaseOutputBuffer(index, false);
 
-            sendFrame(mBuffer, mLastFrameLength);
-
-            // If nothing happens in Virtual Display we won't receive new frames. If we won't keep
-            // sending frames it could be a problem for the receiver because it needs certain
-            // number of frames in order to start decoding.
-            scheduleResendingLastFrame(1000 / FPS);
+            // Send this frame asynchronously (avoiding blocking on the socket). We might miss
+            // frames if the consumer is not fast enough, but this is acceptable.
+            sendFrameAsync(0);
         } else {
             Log.e(TAG, "Skipping empty buffer");
             mVideoEncoder.releaseOutputBuffer(index, false);
         }
     }
 
-    private void scheduleResendingLastFrame(long delayMs) {
-        Message msg = mHandler.obtainMessage(MSG_RESUBMIT_FRAME);
+    private void sendFrameAsync(long delayMs) {
+        Message msg = mHandler.obtainMessage(MSG_SEND_FRAME);
         mHandler.sendMessageDelayed(msg, delayMs);
     }
 
@@ -324,12 +321,12 @@ public class NetworkedVirtualDisplay {
                     stopCasting();
                     break;
 
-                case MSG_RESUBMIT_FRAME:
+                case MSG_SEND_FRAME:
                     if (mServerSocket != null && mOutputStream != null) {
                         sendFrame(mBuffer, mLastFrameLength);
                     }
                     // We will keep sending last frame every second as a heartbeat.
-                    scheduleResendingLastFrame(1000L);
+                    sendFrameAsync(1000L);
                     break;
             }
         }
@@ -356,6 +353,9 @@ public class NetworkedVirtualDisplay {
         try {
             Log.i(TAG, "Listening for incoming connections on port: " + PORT);
             Socket socket = serverSocket.accept();
+            socket.setTcpNoDelay(true);
+            socket.setKeepAlive(true);
+            socket.setSoLinger(true, 0);
 
             Log.i(TAG, "Receiver connected: " + socket);
             listenReceiverDisconnected(socket.getInputStream());
