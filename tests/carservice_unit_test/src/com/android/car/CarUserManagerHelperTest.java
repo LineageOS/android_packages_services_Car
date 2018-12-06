@@ -78,11 +78,13 @@ public class CarUserManagerHelperTest {
     @Mock
     private CarUserManagerHelper.OnUsersUpdateListener mTestListener;
 
+    private static final String GUEST_USER_NAME = "testGuest";
+    private static final String TEST_USER_NAME = "testUser";
+    private static final String DEFAULT_ADMIN_NAME = "defaultAdminName";
+
     private CarUserManagerHelper mCarUserManagerHelper;
     private UserInfo mCurrentProcessUser;
     private UserInfo mSystemUser;
-    private String mGuestUserName = "testGuest";
-    private String mTestUserName = "testUser";
     private int mForegroundUserId;
     private UserInfo mForegroundUser;
 
@@ -96,7 +98,8 @@ public class CarUserManagerHelperTest {
         doReturn(InstrumentationRegistry.getTargetContext().getContentResolver())
                 .when(mContext).getContentResolver();
         doReturn(mContext).when(mContext).getApplicationContext();
-        mCarUserManagerHelper = new CarUserManagerHelper(mContext);
+        mCarUserManagerHelper =
+                new CarUserManagerHelper(mContext, DEFAULT_ADMIN_NAME);
 
         mCurrentProcessUser = createUserInfoForId(UserHandle.myUserId());
         mSystemUser = createUserInfoForId(UserHandle.USER_SYSTEM);
@@ -362,21 +365,61 @@ public class CarUserManagerHelperTest {
     }
 
     @Test
-    public void testCreateNewAdminUser() {
+    public void testCreateNewAdminUserCallsCreateUser() {
         // Make sure current user is admin, since only admins can create other admins.
         doReturn(true).when(mUserManager).isAdminUser();
 
-        // Verify createUser on UserManager gets called.
-        mCarUserManagerHelper.createNewAdminUser(mTestUserName);
-        verify(mUserManager).createUser(mTestUserName, UserInfo.FLAG_ADMIN);
+        mCarUserManagerHelper.createNewAdminUser(TEST_USER_NAME);
+        verify(mUserManager).createUser(TEST_USER_NAME, UserInfo.FLAG_ADMIN);
+    }
 
-        doReturn(null).when(mUserManager).createUser(mTestUserName, UserInfo.FLAG_ADMIN);
-        assertThat(mCarUserManagerHelper.createNewAdminUser(mTestUserName)).isNull();
+    @Test
+    public void testCreateNewAdminUserReturnsNullUsers() {
+        // Make sure current user is admin, since only admins can create other admins.
+        doReturn(true).when(mUserManager).isAdminUser();
+
+        doReturn(null).when(mUserManager).createUser(TEST_USER_NAME, UserInfo.FLAG_ADMIN);
+        assertThat(mCarUserManagerHelper.createNewAdminUser(TEST_USER_NAME)).isNull();
+    }
+
+    @Test
+    public void testCreateNewAdminUserReturnsCreatedUser() {
+        // Make sure current user is admin, since only admins can create other admins.
+        doReturn(true).when(mUserManager).isAdminUser();
 
         UserInfo newUser = new UserInfo();
-        newUser.name = mTestUserName;
-        doReturn(newUser).when(mUserManager).createUser(mTestUserName, UserInfo.FLAG_ADMIN);
-        assertThat(mCarUserManagerHelper.createNewAdminUser(mTestUserName)).isEqualTo(newUser);
+        newUser.name = TEST_USER_NAME;
+        doReturn(newUser).when(mUserManager).createUser(TEST_USER_NAME, UserInfo.FLAG_ADMIN);
+        assertThat(mCarUserManagerHelper.createNewAdminUser(TEST_USER_NAME)).isEqualTo(newUser);
+    }
+
+    @Test
+    public void testCreateNewAdminUserWithDefaultUserNameCallsCreateUser() {
+        // Make sure current user is admin, since only admins can create other admins.
+        doReturn(true).when(mUserManager).isAdminUser();
+
+        mCarUserManagerHelper.createNewAdminUser();
+        verify(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
+    }
+
+    @Test
+    public void testCreateNewAdminUserWithDefaultUserNameReturnsNullUsers() {
+        // Make sure current user is admin, since only admins can create other admins.
+        doReturn(true).when(mUserManager).isAdminUser();
+
+        doReturn(null).when(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
+        assertThat(mCarUserManagerHelper.createNewAdminUser(DEFAULT_ADMIN_NAME)).isNull();
+    }
+
+    @Test
+    public void testCreateNewAdminUserWithDefaultUserNameReturnsCreatedUser() {
+        // Make sure current user is admin, since only admins can create other admins.
+        doReturn(true).when(mUserManager).isAdminUser();
+
+        UserInfo newUser = new UserInfo();
+        newUser.name = DEFAULT_ADMIN_NAME;
+        doReturn(newUser).when(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
+        assertThat(mCarUserManagerHelper.createNewAdminUser()).isEqualTo(newUser);
     }
 
     @Test
@@ -421,21 +464,21 @@ public class CarUserManagerHelperTest {
     @Test
     public void testCreateNewNonAdminUser() {
         // Verify createUser on UserManager gets called.
-        mCarUserManagerHelper.createNewNonAdminUser(mTestUserName);
-        verify(mUserManager).createUser(mTestUserName, 0);
+        mCarUserManagerHelper.createNewNonAdminUser(TEST_USER_NAME);
+        verify(mUserManager).createUser(TEST_USER_NAME, 0);
 
-        doReturn(null).when(mUserManager).createUser(mTestUserName, 0);
-        assertThat(mCarUserManagerHelper.createNewNonAdminUser(mTestUserName)).isNull();
+        doReturn(null).when(mUserManager).createUser(TEST_USER_NAME, 0);
+        assertThat(mCarUserManagerHelper.createNewNonAdminUser(TEST_USER_NAME)).isNull();
 
         UserInfo newUser = new UserInfo();
-        newUser.name = mTestUserName;
-        doReturn(newUser).when(mUserManager).createUser(mTestUserName, 0);
-        assertThat(mCarUserManagerHelper.createNewNonAdminUser(mTestUserName)).isEqualTo(newUser);
+        newUser.name = TEST_USER_NAME;
+        doReturn(newUser).when(mUserManager).createUser(TEST_USER_NAME, 0);
+        assertThat(mCarUserManagerHelper.createNewNonAdminUser(TEST_USER_NAME)).isEqualTo(newUser);
     }
 
     @Test
     public void testCannotRemoveSystemUser() {
-        assertThat(mCarUserManagerHelper.removeUser(mSystemUser, mGuestUserName)).isFalse();
+        assertThat(mCarUserManagerHelper.removeUser(mSystemUser, GUEST_USER_NAME)).isFalse();
     }
 
     @Test
@@ -447,7 +490,7 @@ public class CarUserManagerHelperTest {
 
         // If Admin is removing non-current, non-system user, simply calls removeUser.
         doReturn(true).when(mUserManager).isAdminUser();
-        assertThat(mCarUserManagerHelper.removeUser(userToRemove, mGuestUserName)).isTrue();
+        assertThat(mCarUserManagerHelper.removeUser(userToRemove, GUEST_USER_NAME)).isTrue();
         verify(mUserManager).removeUser(idToRemove);
     }
 
@@ -462,30 +505,72 @@ public class CarUserManagerHelperTest {
         doReturn(true).when(mUserManager).removeUser(anyInt());
 
         // If Non-Admin is trying to remove someone other than themselves, they should fail.
-        assertThat(mCarUserManagerHelper.removeUser(otherUser, mGuestUserName)).isFalse();
+        assertThat(mCarUserManagerHelper.removeUser(otherUser, GUEST_USER_NAME)).isFalse();
         verify(mUserManager, never()).removeUser(otherUser.id);
     }
 
     @Test
     public void testRemoveLastActiveUser() {
         // Cannot remove system user.
-        assertThat(mCarUserManagerHelper.removeUser(mSystemUser, mGuestUserName)).isFalse();
+        assertThat(mCarUserManagerHelper.removeUser(mSystemUser, GUEST_USER_NAME)).isFalse();
 
         UserInfo adminInfo = new UserInfo(/* id= */10, "admin", UserInfo.FLAG_ADMIN);
         mockGetUsers(adminInfo);
 
-        assertThat(mCarUserManagerHelper.removeUser(adminInfo, mGuestUserName))
+        assertThat(mCarUserManagerHelper.removeUser(adminInfo, GUEST_USER_NAME))
             .isEqualTo(false);
     }
 
     @Test
-    public void testSwitchToGuest() {
-        mCarUserManagerHelper.startGuestSession(mGuestUserName);
-        verify(mUserManager).createGuest(mContext, mGuestUserName);
+    public void testRemoveLastAdminUser() {
+        // Make current user admin.
+        doReturn(true).when(mUserManager).isAdminUser();
 
-        UserInfo guestInfo = new UserInfo(/* id= */21, mGuestUserName, UserInfo.FLAG_GUEST);
-        doReturn(guestInfo).when(mUserManager).createGuest(mContext, mGuestUserName);
-        mCarUserManagerHelper.startGuestSession(mGuestUserName);
+        UserInfo adminInfo = new UserInfo(/* id= */10, "admin", UserInfo.FLAG_ADMIN);
+        UserInfo nonAdminInfo = new UserInfo(/* id= */11, "non-admin", 0);
+        mockGetUsers(adminInfo, nonAdminInfo);
+
+        UserInfo newAdminInfo = new UserInfo(/* id= */12, DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
+        doReturn(newAdminInfo)
+                .when(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
+
+        mCarUserManagerHelper.removeUser(adminInfo, GUEST_USER_NAME);
+        verify(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
+        verify(mActivityManager).switchUser(newAdminInfo.id);
+        verify(mUserManager).removeUser(adminInfo.id);
+    }
+
+    @Test
+    public void testRemoveLastAdminUserFailsToCreateNewUser() {
+        // Make current user admin.
+        doReturn(true).when(mUserManager).isAdminUser();
+
+        UserInfo adminInfo = new UserInfo(/* id= */10, "admin", UserInfo.FLAG_ADMIN);
+        UserInfo nonAdminInfo = new UserInfo(/* id= */11, "non-admin", 0);
+        mockGetUsers(adminInfo, nonAdminInfo);
+
+        UserInfo newAdminInfo = new UserInfo(/* id= */12, DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
+        doReturn(newAdminInfo)
+                .when(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
+
+        // Fail to create a new user to force a failure case
+        doReturn(null)
+                .when(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
+
+        mCarUserManagerHelper.removeUser(adminInfo, GUEST_USER_NAME);
+        verify(mUserManager).createUser(DEFAULT_ADMIN_NAME, UserInfo.FLAG_ADMIN);
+        verify(mActivityManager, never()).switchUser(anyInt());
+        verify(mUserManager, never()).removeUser(adminInfo.id);
+    }
+
+    @Test
+    public void testSwitchToGuest() {
+        mCarUserManagerHelper.startGuestSession(GUEST_USER_NAME);
+        verify(mUserManager).createGuest(mContext, GUEST_USER_NAME);
+
+        UserInfo guestInfo = new UserInfo(/* id= */21, GUEST_USER_NAME, UserInfo.FLAG_GUEST);
+        doReturn(guestInfo).when(mUserManager).createGuest(mContext, GUEST_USER_NAME);
+        mCarUserManagerHelper.startGuestSession(GUEST_USER_NAME);
         verify(mActivityManager).switchUser(21);
     }
 
@@ -810,7 +895,7 @@ public class CarUserManagerHelperTest {
         mockGetUsers(user1, user2, user3);
         doReturn(null).when(mUserManager).createGuest(any(), any());
 
-        UserInfo guest = mCarUserManagerHelper.createNewOrFindExistingGuest(mGuestUserName);
+        UserInfo guest = mCarUserManagerHelper.createNewOrFindExistingGuest(GUEST_USER_NAME);
         assertThat(guest).isEqualTo(user3);
     }
 
@@ -823,11 +908,11 @@ public class CarUserManagerHelperTest {
         mockGetUsers(user1, user2);
 
         // Create a user for the "new guest" user.
-        UserInfo guestInfo = new UserInfo(/* id= */21, mGuestUserName, UserInfo.FLAG_GUEST);
-        doReturn(guestInfo).when(mUserManager).createGuest(mContext, mGuestUserName);
+        UserInfo guestInfo = new UserInfo(/* id= */21, GUEST_USER_NAME, UserInfo.FLAG_GUEST);
+        doReturn(guestInfo).when(mUserManager).createGuest(mContext, GUEST_USER_NAME);
 
-        UserInfo guest = mCarUserManagerHelper.createNewOrFindExistingGuest(mGuestUserName);
-        verify(mUserManager).createGuest(mContext, mGuestUserName);
+        UserInfo guest = mCarUserManagerHelper.createNewOrFindExistingGuest(GUEST_USER_NAME);
+        verify(mUserManager).createGuest(mContext, GUEST_USER_NAME);
         assertThat(guest).isEqualTo(guestInfo);
     }
 
