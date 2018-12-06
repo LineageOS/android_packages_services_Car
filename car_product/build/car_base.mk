@@ -42,6 +42,7 @@ PRODUCT_PACKAGES += \
     MmsService \
     ExternalStorageProvider \
     atrace \
+    cameraserver \
     libandroidfw \
     libaudioutils \
     libmdnssd \
