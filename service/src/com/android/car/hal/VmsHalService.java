@@ -88,7 +88,7 @@ public class VmsHalService extends HalServiceBase {
     private final Object mLock = new Object();
     private final VmsRouting mRouting = new VmsRouting();
     @GuardedBy("mLock")
-    private final Map<IBinder, VmsLayersOffering> mOfferings = new HashMap<>();
+    private final Map<IBinder, Map<Integer, VmsLayersOffering>> mOfferings = new HashMap<>();
     @GuardedBy("mLock")
     private final VmsLayersAvailability mAvailableLayers = new VmsLayersAvailability();
     private final VmsPublishersInfo mPublishersInfo = new VmsPublishersInfo();
@@ -761,10 +761,22 @@ public class VmsHalService extends HalServiceBase {
 
     private void updateOffering(IBinder publisherToken, VmsLayersOffering offering) {
         synchronized (mLock) {
-            mOfferings.put(publisherToken, offering);
+            Map<Integer, VmsLayersOffering> publisherOfferings = mOfferings.get(publisherToken);
+            if (publisherOfferings == null) {
+                publisherOfferings = new HashMap<>();
+                mOfferings.put(publisherToken, publisherOfferings);
+            }
+            publisherOfferings.put(offering.getPublisherId(), offering);
 
             // Update layers availability.
-            mAvailableLayers.setPublishersOffering(mOfferings.values());
+            Set<VmsLayersOffering> allPublisherOfferings = new HashSet<>();
+            for (Map<Integer, VmsLayersOffering> offerings : mOfferings.values()) {
+                allPublisherOfferings.addAll(offerings.values());
+            }
+            if (DBG) {
+                Log.d(TAG, "New layer availability: " + allPublisherOfferings);
+            }
+            mAvailableLayers.setPublishersOffering(allPublisherOfferings);
         }
         notifyOfAvailabilityChange();
     }
