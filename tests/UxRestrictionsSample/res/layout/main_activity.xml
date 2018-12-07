@@ -116,6 +116,32 @@
           android:textAllCaps="false"
           android:textSize="@dimen/info_text_size"/>
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/section_padding"
+        android:layout_marginBottom="10dp"
+        android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:text="@string/save_uxr_config_header"
+        android:padding="@dimen/section_padding"
+        android:textSize="@dimen/header_text_size"
+        android:layout_width="match_parent"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+      <Button
+          android:id="@+id/save_uxr_config"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/save_uxr_config"
+          android:textSize="@dimen/info_text_size"/>
+    </LinearLayout>
   </LinearLayout>
 </LinearLayout>
 

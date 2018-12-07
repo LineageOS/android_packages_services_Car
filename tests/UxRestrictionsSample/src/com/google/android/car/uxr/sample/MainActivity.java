@@ -15,13 +15,19 @@
  */
 package com.google.android.car.uxr.sample;
 
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_IDLING;
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
+
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.car.Car;
 import android.car.CarNotConnectedException;
 import android.car.content.pm.CarPackageManager;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateManager;
 import android.car.drivingstate.CarUxRestrictions;
+import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -39,6 +45,21 @@ import android.widget.TextView;
  */
 public class MainActivity extends Activity {
     public static final String TAG = "drivingstate";
+
+    // Order of elements is based on number of bits shifted in value of the constants.
+    private static final CharSequence[] UX_RESTRICTION_NAMES = new CharSequence[] {
+            "BASELINE",
+            "NO_DIALPAD",
+            "NO_FILTERING",
+            "LIMIT_STRING_LENGTH",
+            "NO_KEYBOARD",
+            "NO_VIDEO",
+            "LIMIT_CONTENT",
+            "NO_SETUP",
+            "NO_TEXT_MESSAGE",
+            "NO_VOICE_TRANSCRIPTION",
+    };
+
     private Car mCar;
     private CarDrivingStateManager mCarDrivingStateManager;
     private CarUxRestrictionsManager mCarUxRestrictionsManager;
@@ -48,6 +69,7 @@ public class MainActivity extends Activity {
     private TextView mUxrStatus;
     private Button mToggleButton;
     private Button mSampleMsgButton;
+    private Button mSaveUxrConfigButton;
 
     private boolean mEnableUxR;
 
@@ -74,7 +96,6 @@ public class MainActivity extends Activity {
                             mCarUxRestrictionsManager.registerListener(mUxRChangeListener);
                             updateUxRText(mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
                         }
-
                     } catch (CarNotConnectedException e) {
                         Log.e(TAG, "Failed to get a connection", e);
                     }
@@ -96,7 +117,9 @@ public class MainActivity extends Activity {
                         : "No Distraction Optimization required");
 
         mUxrStatus.setText("Active Restrictions : 0x"
-                + Integer.toHexString(restrictions.getActiveRestrictions()));
+                + Integer.toHexString(restrictions.getActiveRestrictions())
+                + " - "
+                + Integer.toBinaryString(restrictions.getActiveRestrictions()));
 
         mDistractionOptStatus.requestLayout();
         mUxrStatus.requestLayout();
@@ -123,13 +146,13 @@ public class MainActivity extends Activity {
         }
         String displayText;
         switch (state.eventValue) {
-            case CarDrivingStateEvent.DRIVING_STATE_PARKED:
+            case DRIVING_STATE_PARKED:
                 displayText = "Parked";
                 break;
-            case CarDrivingStateEvent.DRIVING_STATE_IDLING:
+            case DRIVING_STATE_IDLING:
                 displayText = "Idling";
                 break;
-            case CarDrivingStateEvent.DRIVING_STATE_MOVING:
+            case DRIVING_STATE_MOVING:
                 displayText = "Moving";
                 break;
             default:
@@ -147,8 +170,9 @@ public class MainActivity extends Activity {
             this::updateDrivingStateText;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.main_activity);
 
         mDrvStatus = findViewById(R.id.driving_state);
@@ -156,9 +180,10 @@ public class MainActivity extends Activity {
         mUxrStatus = findViewById(R.id.uxr_status);
         mToggleButton = findViewById(R.id.toggle_status);
 
-        mToggleButton.setOnClickListener(v -> {
-            updateToggleUxREnable();
-        });
+        mSaveUxrConfigButton = findViewById(R.id.save_uxr_config);
+        mSaveUxrConfigButton.setOnClickListener(v -> saveUxrConfig());
+
+        mToggleButton.setOnClickListener(v -> updateToggleUxREnable());
 
         mSampleMsgButton = findViewById(R.id.launch_message);
         mSampleMsgButton.setOnClickListener(this::launchSampleMsgActivity);
@@ -168,14 +193,49 @@ public class MainActivity extends Activity {
         mCar.connect();
     }
 
+    private void saveUxrConfig() {
+        // Pop up a dialog to build the IDLING restrictions.
+        boolean[] selected = new boolean[UX_RESTRICTION_NAMES.length];
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.set_uxr_config_dialog_title)
+                .setMultiChoiceItems(UX_RESTRICTION_NAMES, null,
+                        (dialog, which, isChecked) -> selected[which] = isChecked)
+                .setPositiveButton(R.string.set_uxr_config_dialog_positive_button,
+                        (dialog, id) -> setUxRestrictionsConfig(selected))
+                .setNegativeButton(R.string.set_uxr_config_dialog_negative_button, null)
+                .show();
+    }
+
+    private void setUxRestrictionsConfig(boolean[] selected) {
+        int selectedRestrictions = 0;
+        // Iteration starts at 1 because 0 is BASELINE (no restrictions).
+        for (int i = 1; i < selected.length; i++) {
+            if (selected[i]) {
+                selectedRestrictions += 1 << (i - 1);
+            }
+        }
+        boolean reqOpt = selectedRestrictions != 0;
+        CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
+                .setUxRestrictions(DRIVING_STATE_PARKED, false, 0)
+                .setUxRestrictions(DRIVING_STATE_IDLING, reqOpt, selectedRestrictions)
+                .setUxRestrictions(DRIVING_STATE_MOVING, reqOpt, selectedRestrictions)
+                .build();
+
+        try {
+            mCarUxRestrictionsManager.saveUxRestrictionsConfigurationForNextBoot(config);
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Car not connected", e);
+        }
+    }
+
     private void launchSampleMsgActivity(View view) {
         Intent msgIntent = new Intent(this, SampleMessageActivity.class);
         startActivity(msgIntent);
     }
 
-
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         try {
             if (mCarUxRestrictionsManager != null) {
                 mCarUxRestrictionsManager.unregisterListener();
