@@ -19,14 +19,11 @@ import android.annotation.NonNull;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.database.ContentObserver;
 import android.media.AudioAttributes;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.provider.Settings;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -51,44 +48,11 @@ import java.util.List;
  */
 public final class CarAudioManager implements CarManagerBase {
 
-    // The trailing slash forms a directory-liked hierarchy and
-    // allows listening for both GROUP/MEDIA and GROUP/NAVIGATION.
-    private static final String VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX = "android.car.VOLUME_GROUP/";
-
-    /**
-     * Gets the key to persist volume for a volume group in settings, in primary zone
-     *
-     * @see {@link #getVolumeSettingsKeyForGroup(int, int)}
-     */
-    public static String getVolumeSettingsKeyForGroup(int groupId) {
-        return getVolumeSettingsKeyForGroup(PRIMARY_AUDIO_ZONE, groupId);
-    }
-
-    /**
-     * Gets the key to persist volume for a volume group in settings
-     *
-     * @param zoneId The audio zone id
-     * @param groupId The volume group id
-     * @return Key to persist volume index for volume group in {@link Settings.Global}
-     */
-    public static String getVolumeSettingsKeyForGroup(int zoneId, int groupId) {
-        final int maskedGroupId = (zoneId << 8) + groupId;
-        return VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX + maskedGroupId;
-    }
-
-    /**
-     * Key to persist master mute state in {@link Settings.Global}
-     *
-     * @hide
-     */
-    public static final String VOLUME_SETTINGS_KEY_MASTER_MUTE = "android.car.MASTER_MUTE";
-
     /**
      * Zone id of the primary audio zone.
      */
     public static final int PRIMARY_AUDIO_ZONE = 0x0;
 
-    private final ContentResolver mContentResolver;
     private final ICarAudio mService;
     private final List<CarVolumeCallback> mCarVolumeCallbacks;
 
@@ -107,29 +71,6 @@ public final class CarAudioManager implements CarManagerBase {
             }
         }
     };
-
-    /**
-     * Registers a {@link ContentObserver} to listen for volume group changes.
-     * Note that this observer is valid for bus based car audio stack only.
-     *
-     * {@link ContentObserver#onChange(boolean)} will be called on every group volume change.
-     *
-     * @param observer The {@link ContentObserver} instance to register, non-null
-     */
-    public void registerVolumeChangeObserver(@NonNull ContentObserver observer) {
-        mContentResolver.registerContentObserver(
-                Settings.Global.getUriFor(VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX),
-                true, observer);
-    }
-
-    /**
-     * Unregisters the {@link ContentObserver} which listens for volume group changes.
-     *
-     * @param observer The {@link ContentObserver} instance to unregister, non-null
-     */
-    public void unregisterVolumeChangeObserver(@NonNull ContentObserver observer) {
-        mContentResolver.unregisterContentObserver(observer);
-    }
 
     /**
      * Sets the volume index for a volume group in primary zone.
@@ -440,55 +381,20 @@ public final class CarAudioManager implements CarManagerBase {
         }
     }
 
-    /**
-     * Register {@link ICarVolumeCallback} to receive the volume key events.
-     *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
-     * @param binder {@link IBinder} instance of {@link ICarVolumeCallback} to receive
-     *                              volume key event callbacks
-     * @throws CarNotConnectedException
-     * @deprecated Use {@link #registerCarVolumeCallback(CarVolumeCallback)} instead
-     */
-    public void registerVolumeCallback(@NonNull IBinder binder)
-            throws CarNotConnectedException {
-        try {
-            mService.registerVolumeCallback(binder);
-        } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "registerVolumeCallback failed", e);
-            throw new CarNotConnectedException(e);
-        }
-    }
-
-    /**
-     * Unregister {@link ICarVolumeCallback} from receiving volume key events.
-     *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
-     * @param binder {@link IBinder} instance of {@link ICarVolumeCallback} to stop receiving
-     *                              volume key event callbacks
-     * @throws CarNotConnectedException
-     * @deprecated Use {@link #unregisterCarVolumeCallback(CarVolumeCallback)}
-     *             and {@link #registerCarVolumeCallback(CarVolumeCallback)}
-     */
-    public void unregisterVolumeCallback(@NonNull IBinder binder)
-            throws CarNotConnectedException {
-        try {
-            mService.unregisterVolumeCallback(binder);
-        } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "unregisterVolumeCallback failed", e);
-            throw new CarNotConnectedException(e);
-        }
-    }
-
     /** @hide */
     @Override
     public void onCarDisconnected() {
+        if (mService != null) {
+            try {
+                mService.unregisterVolumeCallback(mCarVolumeCallbackImpl.asBinder());
+            } catch (RemoteException e) {
+                Log.e(CarLibLog.TAG_CAR, "unregisterVolumeCallback failed", e);
+            }
+        }
     }
 
     /** @hide */
     public CarAudioManager(IBinder service, Context context, Handler handler) {
-        mContentResolver = context.getContentResolver();
         mService = ICarAudio.Stub.asInterface(service);
         mCarVolumeCallbacks = new ArrayList<>();
 

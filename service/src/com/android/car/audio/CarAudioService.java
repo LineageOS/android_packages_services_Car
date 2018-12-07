@@ -109,6 +109,35 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             AudioAttributes.USAGE_NOTIFICATION_RINGTONE
     };
 
+
+    // Key to persist master mute state in system settings
+    private static final String VOLUME_SETTINGS_KEY_MASTER_MUTE = "android.car.MASTER_MUTE";
+
+    // The trailing slash forms a directory-liked hierarchy and
+    // allows listening for both GROUP/MEDIA and GROUP/NAVIGATION.
+    private static final String VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX = "android.car.VOLUME_GROUP/";
+
+    /**
+     * Gets the key to persist volume for a volume group in settings, in primary zone
+     *
+     * @see {@link #getVolumeSettingsKeyForGroup(int, int)}
+     */
+    static String getVolumeSettingsKeyForGroup(int groupId) {
+        return getVolumeSettingsKeyForGroup(CarAudioManager.PRIMARY_AUDIO_ZONE, groupId);
+    }
+
+    /**
+     * Gets the key to persist volume for a volume group in settings
+     *
+     * @param zoneId The audio zone id
+     * @param groupId The volume group id
+     * @return Key to persist volume index for volume group in system settings
+     */
+    static String getVolumeSettingsKeyForGroup(int zoneId, int groupId) {
+        final int maskedGroupId = (zoneId << 8) + groupId;
+        return VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX + maskedGroupId;
+    }
+
     static {
         USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_UNKNOWN, ContextNumber.MUSIC);
         USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_MEDIA, ContextNumber.MUSIC);
@@ -245,7 +274,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             // Restore master mute state if applicable
             if (mPersistMasterMuteState) {
                 boolean storedMasterMute = Settings.Global.getInt(mContext.getContentResolver(),
-                        CarAudioManager.VOLUME_SETTINGS_KEY_MASTER_MUTE, 0) != 0;
+                        VOLUME_SETTINGS_KEY_MASTER_MUTE, 0) != 0;
                 setMasterMute(storedMasterMute, 0);
             }
         }
@@ -338,7 +367,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         // Persists master mute state if applicable
         if (mPersistMasterMuteState) {
             Settings.Global.putInt(mContext.getContentResolver(),
-                    CarAudioManager.VOLUME_SETTINGS_KEY_MASTER_MUTE,
+                    VOLUME_SETTINGS_KEY_MASTER_MUTE,
                     mAudioManager.isMasterMute() ? 1 : 0);
         }
     }
@@ -859,9 +888,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
-    /**
-     * See {@link android.car.media.CarAudioManager#registerVolumeCallback(IBinder)}
-     */
     @Override
     public void registerVolumeCallback(@NonNull IBinder binder) {
         synchronized (mImplLock) {
@@ -871,9 +897,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
-    /**
-     * See {@link android.car.media.CarAudioManager#unregisterVolumeCallback(IBinder)}
-     */
     @Override
     public void unregisterVolumeCallback(@NonNull IBinder binder) {
         synchronized (mImplLock) {

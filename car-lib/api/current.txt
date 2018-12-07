@@ -458,19 +458,13 @@ package android.car.media {
     method public int getVolumeGroupCount(int) throws android.car.CarNotConnectedException;
     method public int getVolumeGroupIdForUsage(int) throws android.car.CarNotConnectedException;
     method public int getVolumeGroupIdForUsage(int, int) throws android.car.CarNotConnectedException;
-    method public static java.lang.String getVolumeSettingsKeyForGroup(int);
-    method public static java.lang.String getVolumeSettingsKeyForGroup(int, int);
     method public void registerCarVolumeCallback(android.car.media.CarAudioManager.CarVolumeCallback);
-    method public deprecated void registerVolumeCallback(android.os.IBinder) throws android.car.CarNotConnectedException;
-    method public void registerVolumeChangeObserver(android.database.ContentObserver);
     method public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
     method public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
     method public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
     method public void setGroupVolume(int, int, int) throws android.car.CarNotConnectedException;
     method public void setGroupVolume(int, int, int, int) throws android.car.CarNotConnectedException;
     method public void unregisterCarVolumeCallback(android.car.media.CarAudioManager.CarVolumeCallback);
-    method public deprecated void unregisterVolumeCallback(android.os.IBinder) throws android.car.CarNotConnectedException;
-    method public void unregisterVolumeChangeObserver(android.database.ContentObserver);
     field public static final int PRIMARY_AUDIO_ZONE = 0; // 0x0
   }
 
