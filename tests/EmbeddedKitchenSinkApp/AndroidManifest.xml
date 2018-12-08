@@ -113,5 +113,12 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
+
+        <!-- Content provider for images -->
+        <provider android:name=".cluster.ClusterContentProvider"
+                  android:authorities="com.google.android.car.kitchensink.cluster.clustercontentprovider"
+                  android:grantUriPermissions="true"
+                  android:exported="true" />
+
     </application>
 </manifest>

@@ -19,4 +19,23 @@
     <dimen name="info_height">80dp</dimen>
     <dimen name="info_label_text_size">10sp</dimen>
     <dimen name="info_value_text_size">20sp</dimen>
+
+    <!--                              -->
+    <!-- Navigation state componenets -->
+    <!--                              -->
+    <dimen name="nav_state_width">170dp</dimen>
+    <!-- Maneuver -->
+    <dimen name="maneuver_width">60dp</dimen>
+    <dimen name="maneuver_height">60dp</dimen>
+    <dimen name="maneuver_margin">10dp</dimen>
+    <!-- Distance -->
+    <dimen name="distance_text_size">20sp</dimen>
+    <!-- Segment -->
+    <dimen name="segment_text_size">15sp</dimen>
+    <!-- Cue -->
+    <dimen name="cue_line_height">15sp</dimen>
+    <!-- Lane -->
+    <dimen name="laneview_height">25dp</dimen>
+    <dimen name="lane_width">50dp</dimen>
+    <dimen name="lane_height">50dp</dimen>
 </resources>

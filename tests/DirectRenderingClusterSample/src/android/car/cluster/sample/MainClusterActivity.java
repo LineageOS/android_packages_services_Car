@@ -140,13 +140,13 @@ public class MainClusterActivity extends FragmentActivity {
 
     private final View.OnFocusChangeListener mFacetButtonFocusListener =
             new View.OnFocusChangeListener() {
-        @Override
-        public void onFocusChange(View v, boolean hasFocus) {
-            if (hasFocus) {
-                mPager.setCurrentItem(mButtonToFacet.get(v).order);
-            }
-        }
-    };
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) {
+                        mPager.setCurrentItem(mButtonToFacet.get(v).order);
+                    }
+                }
+            };
 
     private ServiceConnection mClusterRenderingServiceConnection = new ServiceConnection() {
         @Override
