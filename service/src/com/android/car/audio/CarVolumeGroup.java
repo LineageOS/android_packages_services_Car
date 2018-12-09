@@ -59,7 +59,7 @@ import java.util.Arrays;
         mContexts = contexts;
 
         mStoredGainIndex = Settings.Global.getInt(mContentResolver,
-                CarAudioManager.getVolumeSettingsKeyForGroup(mId), -1);
+                CarAudioService.getVolumeSettingsKeyForGroup(mId), -1);
     }
 
     int getId() {
@@ -163,7 +163,7 @@ import java.util.Arrays;
 
         mCurrentGainIndex = gainIndex;
         Settings.Global.putInt(mContentResolver,
-                CarAudioManager.getVolumeSettingsKeyForGroup(mId), gainIndex);
+                CarAudioService.getVolumeSettingsKeyForGroup(mId), gainIndex);
     }
 
     // Given a group level gain index, return the computed gain in millibells

@@ -109,6 +109,35 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             AudioAttributes.USAGE_NOTIFICATION_RINGTONE
     };
 
+
+    // Key to persist master mute state in system settings
+    private static final String VOLUME_SETTINGS_KEY_MASTER_MUTE = "android.car.MASTER_MUTE";
+
+    // The trailing slash forms a directory-liked hierarchy and
+    // allows listening for both GROUP/MEDIA and GROUP/NAVIGATION.
+    private static final String VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX = "android.car.VOLUME_GROUP/";
+
+    /**
+     * Gets the key to persist volume for a volume group in settings, in primary zone
+     *
+     * @see {@link #getVolumeSettingsKeyForGroup(int, int)}
+     */
+    static String getVolumeSettingsKeyForGroup(int groupId) {
+        return getVolumeSettingsKeyForGroup(CarAudioManager.PRIMARY_AUDIO_ZONE, groupId);
+    }
+
+    /**
+     * Gets the key to persist volume for a volume group in settings
+     *
+     * @param zoneId The audio zone id
+     * @param groupId The volume group id
+     * @return Key to persist volume index for volume group in system settings
+     */
+    static String getVolumeSettingsKeyForGroup(int zoneId, int groupId) {
+        final int maskedGroupId = (zoneId << 8) + groupId;
+        return VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX + maskedGroupId;
+    }
+
     static {
         USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_UNKNOWN, ContextNumber.MUSIC);
         USAGE_TO_CONTEXT.put(AudioAttributes.USAGE_MEDIA, ContextNumber.MUSIC);
@@ -154,29 +183,31 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Log.v(CarLog.TAG_AUDIO,
                     "onVolumeAdjustment: " + AudioManager.adjustToString(adjustment)
                             + " suggested usage: " + AudioAttributes.usageToString(usage));
-            final int groupId = getVolumeGroupIdForUsage(usage);
-            final int currentVolume = getGroupVolume(groupId);
+            // TODO: Pass zone id into this callback.
+            final int zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
+            final int groupId = getVolumeGroupIdForUsage(zoneId, usage);
+            final int currentVolume = getGroupVolume(zoneId, groupId);
             final int flags = AudioManager.FLAG_FROM_KEY | AudioManager.FLAG_SHOW_UI;
             switch (adjustment) {
                 case AudioManager.ADJUST_LOWER:
-                    int minValue = Math.max(currentVolume - 1, getGroupMinVolume(groupId));
-                    setGroupVolume(groupId, minValue , flags);
+                    int minValue = Math.max(currentVolume - 1, getGroupMinVolume(zoneId, groupId));
+                    setGroupVolume(zoneId, groupId, minValue , flags);
                     break;
                 case AudioManager.ADJUST_RAISE:
-                    int maxValue =  Math.min(currentVolume + 1, getGroupMaxVolume(groupId));
-                    setGroupVolume(groupId, maxValue, flags);
+                    int maxValue =  Math.min(currentVolume + 1, getGroupMaxVolume(zoneId, groupId));
+                    setGroupVolume(zoneId, groupId, maxValue, flags);
                     break;
                 case AudioManager.ADJUST_MUTE:
                     setMasterMute(true, flags);
-                    callbackMasterMuteChange(flags);
+                    callbackMasterMuteChange(zoneId, flags);
                     break;
                 case AudioManager.ADJUST_UNMUTE:
                     setMasterMute(false, flags);
-                    callbackMasterMuteChange(flags);
+                    callbackMasterMuteChange(zoneId, flags);
                     break;
                 case AudioManager.ADJUST_TOGGLE_MUTE:
                     setMasterMute(!mAudioManager.isMasterMute(), flags);
-                    callbackMasterMuteChange(flags);
+                    callbackMasterMuteChange(zoneId, flags);
                     break;
                 case AudioManager.ADJUST_SAME:
                 default:
@@ -190,6 +221,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     /**
      * Simulates {@link ICarVolumeCallback} when it's running in legacy mode.
+     * This receiver assumes the intent is sent to {@link CarAudioManager#PRIMARY_AUDIO_ZONE}.
      */
     private final BroadcastReceiver mLegacyVolumeChangedReceiver = new BroadcastReceiver() {
         @Override
@@ -201,11 +233,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     if (groupId == -1) {
                         Log.w(CarLog.TAG_AUDIO, "Unknown stream type: " + streamType);
                     } else {
-                        callbackGroupVolumeChange(groupId, 0);
+                        callbackGroupVolumeChange(CarAudioManager.PRIMARY_AUDIO_ZONE, groupId, 0);
                     }
                     break;
                 case AudioManager.MASTER_MUTE_CHANGED_ACTION:
-                    callbackMasterMuteChange(0);
+                    callbackMasterMuteChange(CarAudioManager.PRIMARY_AUDIO_ZONE, 0);
                     break;
             }
         }
@@ -242,7 +274,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             // Restore master mute state if applicable
             if (mPersistMasterMuteState) {
                 boolean storedMasterMute = Settings.Global.getInt(mContext.getContentResolver(),
-                        CarAudioManager.VOLUME_SETTINGS_KEY_MASTER_MUTE, 0) != 0;
+                        VOLUME_SETTINGS_KEY_MASTER_MUTE, 0) != 0;
                 setMasterMute(storedMasterMute, 0);
             }
         }
@@ -282,14 +314,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     /**
-     * @see {@link android.car.media.CarAudioManager#setGroupVolume(int, int, int)}
+     * @see {@link android.car.media.CarAudioManager#setGroupVolume(int, int, int, int)}
      */
     @Override
-    public void setGroupVolume(int groupId, int index, int flags) {
+    public void setGroupVolume(int zoneId, int groupId, int index, int flags) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
-            callbackGroupVolumeChange(groupId, flags);
+            callbackGroupVolumeChange(zoneId, groupId, flags);
             // For legacy stream type based volume control
             if (!mUseDynamicRouting) {
                 mAudioManager.setStreamVolume(STREAM_TYPES[groupId], index, flags);
@@ -301,11 +333,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
-    private void callbackGroupVolumeChange(int groupId, int flags) {
+    private void callbackGroupVolumeChange(int zoneId, int groupId, int flags) {
         for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
                 mVolumeCallbackContainer.getInterfaces()) {
             try {
-                callback.binderInterface.onGroupVolumeChanged(groupId, flags);
+                callback.binderInterface.onGroupVolumeChanged(zoneId, groupId, flags);
             } catch (RemoteException e) {
                 Log.e(CarLog.TAG_AUDIO, "Failed to callback onGroupVolumeChanged", e);
             }
@@ -322,11 +354,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mAudioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keycode));
     }
 
-    private void callbackMasterMuteChange(int flags) {
+    private void callbackMasterMuteChange(int zoneId, int flags) {
         for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
                 mVolumeCallbackContainer.getInterfaces()) {
             try {
-                callback.binderInterface.onMasterMuteChanged(flags);
+                callback.binderInterface.onMasterMuteChanged(zoneId, flags);
             } catch (RemoteException e) {
                 Log.e(CarLog.TAG_AUDIO, "Failed to callback onMasterMuteChanged", e);
             }
@@ -335,16 +367,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         // Persists master mute state if applicable
         if (mPersistMasterMuteState) {
             Settings.Global.putInt(mContext.getContentResolver(),
-                    CarAudioManager.VOLUME_SETTINGS_KEY_MASTER_MUTE,
+                    VOLUME_SETTINGS_KEY_MASTER_MUTE,
                     mAudioManager.isMasterMute() ? 1 : 0);
         }
     }
 
     /**
-     * @see {@link android.car.media.CarAudioManager#getGroupMaxVolume(int)}
+     * @see {@link android.car.media.CarAudioManager#getGroupMaxVolume(int, int)}
      */
     @Override
-    public int getGroupMaxVolume(int groupId) {
+    public int getGroupMaxVolume(int zoneId, int groupId) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
@@ -359,10 +391,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     /**
-     * @see {@link android.car.media.CarAudioManager#getGroupMinVolume(int)}
+     * @see {@link android.car.media.CarAudioManager#getGroupMinVolume(int, int)}
      */
     @Override
-    public int getGroupMinVolume(int groupId) {
+    public int getGroupMinVolume(int zoneId, int groupId) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
@@ -377,10 +409,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     /**
-     * @see {@link android.car.media.CarAudioManager#getGroupVolume(int)}
+     * @see {@link android.car.media.CarAudioManager#getGroupVolume(int, int)}
      */
     @Override
-    public int getGroupVolume(int groupId) {
+    public int getGroupVolume(int zoneId, int groupId) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
@@ -765,8 +797,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         Log.d(CarLog.TAG_AUDIO, "Audio patch created: " + patch[0]);
 
         // Ensure the initial volume on output device port
-        int groupId = getVolumeGroupIdForUsage(usage);
-        setGroupVolume(groupId, getGroupVolume(groupId), 0);
+        int groupId = getVolumeGroupIdForUsage(CarAudioManager.PRIMARY_AUDIO_ZONE, usage);
+        setGroupVolume(CarAudioManager.PRIMARY_AUDIO_ZONE, groupId,
+                getGroupVolume(CarAudioManager.PRIMARY_AUDIO_ZONE, groupId), 0);
 
         return new CarAudioPatchHandle(patch[0]);
     }
@@ -800,7 +833,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     @Override
-    public int getVolumeGroupCount() {
+    public int getVolumeGroupCount(int zoneId) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
@@ -812,7 +845,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     @Override
-    public int getVolumeGroupIdForUsage(@AudioAttributes.AttributeUsage int usage) {
+    public int getVolumeGroupIdForUsage(int zoneId, @AudioAttributes.AttributeUsage int usage) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
@@ -833,7 +866,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     @Override
-    public @NonNull int[] getUsagesForVolumeGroupId(int groupId) {
+    public @NonNull int[] getUsagesForVolumeGroupId(int zoneId, int groupId) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
@@ -855,9 +888,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
-    /**
-     * See {@link android.car.media.CarAudioManager#registerVolumeCallback(IBinder)}
-     */
     @Override
     public void registerVolumeCallback(@NonNull IBinder binder) {
         synchronized (mImplLock) {
@@ -867,9 +897,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
-    /**
-     * See {@link android.car.media.CarAudioManager#unregisterVolumeCallback(IBinder)}
-     */
     @Override
     public void unregisterVolumeCallback(@NonNull IBinder binder) {
         synchronized (mImplLock) {
@@ -891,7 +918,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      * Multiple usages may share one {@link AudioDevicePort}
      */
     private @Nullable AudioDevicePort getAudioPort(@AudioAttributes.AttributeUsage int usage) {
-        final int groupId = getVolumeGroupIdForUsage(usage);
+        final int groupId = getVolumeGroupIdForUsage(CarAudioManager.PRIMARY_AUDIO_ZONE, usage);
         final CarVolumeGroup group = Preconditions.checkNotNull(mCarVolumeGroups[groupId],
                 "Can not find CarVolumeGroup by usage: "
                         + AudioAttributes.usageToString(usage));
