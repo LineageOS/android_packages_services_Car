@@ -6,3 +6,11 @@ package android.car.content.pm {
 
 }
 
+package android.car.media {
+
+  public final class CarAudioManager {
+    method public boolean isDynamicRoutingEnabled() throws android.car.CarNotConnectedException;
+  }
+
+}
+
