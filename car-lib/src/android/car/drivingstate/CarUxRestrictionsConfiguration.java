@@ -22,6 +22,7 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.util.ArrayMap;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
@@ -30,7 +31,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +60,8 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
     private final int mMaxContentDepth;
     private final int mMaxCumulativeContentItems;
     private final int mMaxStringLength;
-    private final Map<Integer, List<RestrictionsPerSpeedRange>> mUxRestrictions = new HashMap<>();
+    private final Map<Integer, List<RestrictionsPerSpeedRange>> mUxRestrictions =
+            new ArrayMap<>(DRIVING_STATES.length);
 
     private CarUxRestrictionsConfiguration(CarUxRestrictionsConfiguration.Builder builder) {
         mMaxContentDepth = builder.mMaxContentDepth;
@@ -336,9 +337,9 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
                 for (RestrictionsPerSpeedRange r : list) {
                     writer.println("Requires DO? " + r.mReqOpt
                             + "\nRestrictions: 0x" + Integer.toHexString(r.mRestrictions)
-                            + "\nSpeed Range: " + r.mSpeedRange == null
+                            + "\nSpeed Range: " + (r.mSpeedRange == null
                             ? "None"
-                            : r.mSpeedRange.mMinSpeed + " - " + r.mSpeedRange.mMaxSpeed);
+                            : r.mSpeedRange.mMinSpeed + " - " + r.mSpeedRange.mMaxSpeed));
                     writer.println("===========================================");
                 }
             }
@@ -422,7 +423,8 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         private int mMaxCumulativeContentItems = UX_RESTRICTIONS_UNKNOWN;
         private int mMaxStringLength = UX_RESTRICTIONS_UNKNOWN;
 
-        private Map<Integer, List<RestrictionsPerSpeedRange>> mUxRestrictions = new HashMap<>();
+        private Map<Integer, List<RestrictionsPerSpeedRange>> mUxRestrictions =
+                new ArrayMap<>(DRIVING_STATES.length);
 
         public Builder() {
             for (int drivingState : DRIVING_STATES) {
@@ -584,7 +586,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             }
 
             public SpeedRange(@FloatRange(from = 0.0) float minSpeed,
-                    @FloatRange(from = 0.0)float maxSpeed) {
+                    @FloatRange(from = 0.0) float maxSpeed) {
                 if (minSpeed == MAX_SPEED) {
                     throw new IllegalArgumentException("Min speed cannot be MAX_SPEED.");
                 }

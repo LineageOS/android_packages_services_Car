@@ -155,11 +155,11 @@ public final class VmsSubscriberManager implements CarManagerBase {
         } catch (RemoteException e) {
             Log.e(TAG, "Could not connect: ", e);
             throw new CarNotConnectedException(e);
-        }
-
-        synchronized (mClientCallbackLock) {
-            mClientCallback = null;
-            mExecutor = null;
+        } finally {
+            synchronized (mClientCallbackLock) {
+                mClientCallback = null;
+                mExecutor = null;
+            }
         }
     }
 

@@ -88,6 +88,14 @@ public class VmsSubscriberClientSampleActivity extends Activity {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "Disconnect from Car Service");
+            if (mVmsSubscriberManager != null) {
+                try {
+                    mVmsSubscriberManager.clearVmsSubscriberClientCallback();
+                    mVmsSubscriberManager.unsubscribe(TEST_LAYER);
+                } catch (android.car.CarNotConnectedException e) {
+                    Log.e(TAG, "Car is not connected!", e);
+                }
+            }
         }
 
         private VmsSubscriberManager getVmsSubscriberManager() {

@@ -18,6 +18,8 @@ package com.android.car.trust;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.le.AdvertiseCallback;
+import android.bluetooth.le.AdvertiseSettings;
 import android.car.trust.ICarTrustAgentBleCallback;
 import android.car.trust.ICarTrustAgentBleService;
 import android.car.trust.ICarTrustAgentEnrolmentCallback;
@@ -27,12 +29,12 @@ import android.car.trust.ICarTrustAgentUnlockCallback;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.IBinder;
-import android.os.ParcelUuid;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
+import java.text.DateFormat;
 import java.util.UUID;
 
 /**
@@ -41,7 +43,6 @@ import java.util.UUID;
  * {@link ICarTrustAgentBleService}.
  */
 public class CarTrustAgentBleService extends SimpleBleServer {
-
     private static final String TAG = CarTrustAgentBleService.class.getSimpleName();
 
     private RemoteCallbackList<ICarTrustAgentBleCallback> mBleCallbacks;
@@ -51,15 +52,14 @@ public class CarTrustAgentBleService extends SimpleBleServer {
     private ICarTrustAgentTokenResponseCallback mTokenResponseCallback;
     private CarTrustAgentBleWrapper mCarTrustBleService;
 
-    private ParcelUuid mEnrolmentUuid;
-    private BluetoothGattCharacteristic mEnrolmentEscrowToken;
-    private BluetoothGattCharacteristic mEnrolmentTokenHandle;
-    private BluetoothGattService mEnrolmentGattServer;
+    private UUID mEnrolmentEscrowTokenUuid;
+    private UUID mEnrolmentTokenHandleUuid;
+    private BluetoothGattService mEnrolmentGattService;
 
-    private ParcelUuid mUnlockUuid;
-    private BluetoothGattCharacteristic mUnlockEscrowToken;
-    private BluetoothGattCharacteristic mUnlockTokenHandle;
-    private BluetoothGattService mUnlockGattServer;
+    private UUID mUnlockEscrowTokenUuid;
+    private UUID mUnlockTokenHandleUuid;
+    private BluetoothGattService mUnlockGattService;
+
     private byte[] mCurrentUnlockToken;
     private Long mCurrentUnlockHandle;
 
@@ -72,6 +72,11 @@ public class CarTrustAgentBleService extends SimpleBleServer {
         mEnrolmentCallbacks = new RemoteCallbackList<>();
         mUnlockCallbacks = new RemoteCallbackList<>();
         mCarTrustBleService = new CarTrustAgentBleWrapper();
+
+        mEnrolmentEscrowTokenUuid = UUID.fromString(getString(R.string.enrollment_token_uuid));
+        mEnrolmentTokenHandleUuid = UUID.fromString(getString(R.string.enrollment_handle_uuid));
+        mUnlockEscrowTokenUuid = UUID.fromString(getString(R.string.unlock_escrow_token_uiid));
+        mUnlockTokenHandleUuid = UUID.fromString(getString(R.string.unlock_handle_uiid));
 
         setupEnrolmentBleServer();
         setupUnlockBleServer();
@@ -97,8 +102,12 @@ public class CarTrustAgentBleService extends SimpleBleServer {
             BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean
             responseNeeded, int offset, byte[] value) {
         UUID uuid = characteristic.getUuid();
-        Log.d(TAG, "onCharacteristicWrite received uuid: " + uuid);
-        if (uuid.equals(mEnrolmentEscrowToken.getUuid())) {
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "onCharacteristicWrite received uuid: " + uuid);
+        }
+
+        if (uuid.equals(mEnrolmentEscrowTokenUuid)) {
             final int callbackCount = mEnrolmentCallbacks.beginBroadcast();
             for (int i = 0; i < callbackCount; i++) {
                 try {
@@ -108,10 +117,10 @@ public class CarTrustAgentBleService extends SimpleBleServer {
                 }
             }
             mEnrolmentCallbacks.finishBroadcast();
-        } else if (uuid.equals(mUnlockEscrowToken.getUuid())) {
+        } else if (uuid.equals(mUnlockEscrowTokenUuid)) {
             mCurrentUnlockToken = value;
             maybeSendUnlockToken();
-        } else if (uuid.equals(mUnlockTokenHandle.getUuid())) {
+        } else if (uuid.equals(mUnlockTokenHandleUuid)) {
             mCurrentUnlockHandle = getLong(value);
             maybeSendUnlockToken();
         }
@@ -175,59 +184,67 @@ public class CarTrustAgentBleService extends SimpleBleServer {
         mBleCallbacks.finishBroadcast();
     }
 
+    @Override
+    public void onDestroy() {
+        stopAdvertising(mEnrolmentAdvertisingCallback);
+        stopAdvertising(mUnlockAdvertisingCallback);
+        super.onDestroy();
+    }
+
     private void setupEnrolmentBleServer() {
-        mEnrolmentUuid = new ParcelUuid(
-                UUID.fromString(getString(R.string.enrollment_service_uuid)));
-        mEnrolmentGattServer = new BluetoothGattService(
+        mEnrolmentGattService = new BluetoothGattService(
                 UUID.fromString(getString(R.string.enrollment_service_uuid)),
                 BluetoothGattService.SERVICE_TYPE_PRIMARY);
 
         // Characteristic to describe the escrow token being used for unlock
-        mEnrolmentEscrowToken = new BluetoothGattCharacteristic(
-                UUID.fromString(getString(R.string.enrollment_token_uuid)),
+        BluetoothGattCharacteristic enrolmentEscrowToken = new BluetoothGattCharacteristic(
+                mEnrolmentEscrowTokenUuid,
                 BluetoothGattCharacteristic.PROPERTY_WRITE,
                 BluetoothGattCharacteristic.PERMISSION_WRITE);
 
         // Characteristic to describe the handle being used for this escrow token
-        mEnrolmentTokenHandle = new BluetoothGattCharacteristic(
-                UUID.fromString(getString(R.string.enrollment_handle_uuid)),
+        BluetoothGattCharacteristic enrolmentTokenHandle = new BluetoothGattCharacteristic(
+                mEnrolmentTokenHandleUuid,
                 BluetoothGattCharacteristic.PROPERTY_NOTIFY,
                 BluetoothGattCharacteristic.PERMISSION_READ);
 
-        mEnrolmentGattServer.addCharacteristic(mEnrolmentEscrowToken);
-        mEnrolmentGattServer.addCharacteristic(mEnrolmentTokenHandle);
+        mEnrolmentGattService.addCharacteristic(enrolmentEscrowToken);
+        mEnrolmentGattService.addCharacteristic(enrolmentTokenHandle);
     }
 
     private void setupUnlockBleServer() {
-        mUnlockUuid = new ParcelUuid(
-                UUID.fromString(getString(R.string.unlock_service_uuid)));
-        mUnlockGattServer = new BluetoothGattService(
+        mUnlockGattService = new BluetoothGattService(
                 UUID.fromString(getString(R.string.unlock_service_uuid)),
                 BluetoothGattService.SERVICE_TYPE_PRIMARY);
 
         // Characteristic to describe the escrow token being used for unlock
-        mUnlockEscrowToken = new BluetoothGattCharacteristic(
-                UUID.fromString(getString(R.string.unlock_escrow_token_uiid)),
+        BluetoothGattCharacteristic unlockEscrowToken = new BluetoothGattCharacteristic(
+                mUnlockEscrowTokenUuid,
                 BluetoothGattCharacteristic.PROPERTY_WRITE,
                 BluetoothGattCharacteristic.PERMISSION_WRITE);
 
         // Characteristic to describe the handle being used for this escrow token
-        mUnlockTokenHandle = new BluetoothGattCharacteristic(
-                UUID.fromString(getString(R.string.unlock_handle_uiid)),
+        BluetoothGattCharacteristic unlockTokenHandle = new BluetoothGattCharacteristic(
+                mUnlockTokenHandleUuid,
                 BluetoothGattCharacteristic.PROPERTY_WRITE,
                 BluetoothGattCharacteristic.PERMISSION_WRITE);
 
-        mUnlockGattServer.addCharacteristic(mUnlockEscrowToken);
-        mUnlockGattServer.addCharacteristic(mUnlockTokenHandle);
+        mUnlockGattService.addCharacteristic(unlockEscrowToken);
+        mUnlockGattService.addCharacteristic(unlockTokenHandle);
     }
 
     private synchronized void maybeSendUnlockToken() {
         if (mCurrentUnlockToken == null || mCurrentUnlockHandle == null) {
             return;
         }
-        Log.d(TAG, "Handle and token both received, requesting unlock. Time: "
-                + System.currentTimeMillis());
-        final int callbackCount = mUnlockCallbacks.beginBroadcast();
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Handle and token both received, requesting unlock. Time: "
+                    + DateFormat.getDateInstance(DateFormat.SHORT).format(
+                            System.currentTimeMillis()));
+        }
+
+        int callbackCount = mUnlockCallbacks.beginBroadcast();
         for (int i = 0; i < callbackCount; i++) {
             try {
                 mUnlockCallbacks.getBroadcastItem(i).onUnlockDataReceived(
@@ -254,6 +271,46 @@ public class CarTrustAgentBleService extends SimpleBleServer {
         return buffer.getLong();
     }
 
+    private final AdvertiseCallback mEnrolmentAdvertisingCallback = new AdvertiseCallback() {
+        @Override
+        public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+            super.onStartSuccess(settingsInEffect);
+            onAdvertiseStartSuccess();
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Successfully started advertising service");
+            }
+        }
+
+        @Override
+        public void onStartFailure(int errorCode) {
+            Log.e(TAG, "Failed to advertise, errorCode: " + errorCode);
+
+            super.onStartFailure(errorCode);
+            onAdvertiseStartFailure(errorCode);
+        }
+    };
+
+    private final AdvertiseCallback mUnlockAdvertisingCallback = new AdvertiseCallback() {
+        @Override
+        public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+            super.onStartSuccess(settingsInEffect);
+            onAdvertiseStartSuccess();
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Successfully started advertising service");
+            }
+        }
+
+        @Override
+        public void onStartFailure(int errorCode) {
+            Log.e(TAG, "Failed to advertise, errorCode: " + errorCode);
+
+            super.onStartFailure(errorCode);
+            onAdvertiseStartFailure(errorCode);
+        }
+    };
+
     private final class CarTrustAgentBleWrapper extends ICarTrustAgentBleService.Stub {
         @Override
         public void registerBleCallback(ICarTrustAgentBleCallback callback) {
@@ -267,22 +324,33 @@ public class CarTrustAgentBleService extends SimpleBleServer {
 
         @Override
         public void startEnrolmentAdvertising() {
+            stopEnrolmentAdvertising();
             stopUnlockAdvertising();
-            Log.d(TAG, "startEnrolmentAdvertising");
-            startAdvertising(mEnrolmentUuid, mEnrolmentGattServer);
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "startEnrolmentAdvertising");
+            }
+            startAdvertising(mEnrolmentGattService, mEnrolmentAdvertisingCallback);
         }
 
         @Override
         public void stopEnrolmentAdvertising() {
-            Log.d(TAG, "stopEnrolmentAdvertising");
-            stopAdvertising();
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "stopEnrolmentAdvertising");
+            }
+
+            stopAdvertising(mEnrolmentAdvertisingCallback);
         }
 
         @Override
         public void sendEnrolmentHandle(BluetoothDevice device, long handle) {
-            Log.d(TAG, "sendEnrolmentHandle: " + handle);
-            mEnrolmentTokenHandle.setValue(getBytes(handle));
-            notifyCharacteristicChanged(device, mEnrolmentTokenHandle, false);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "sendEnrolmentHandle: " + handle);
+            }
+            BluetoothGattCharacteristic enrolmentTokenHandle =
+                    mEnrolmentGattService.getCharacteristic(mEnrolmentTokenHandleUuid);
+            enrolmentTokenHandle.setValue(getBytes(handle));
+            notifyCharacteristicChanged(device, enrolmentTokenHandle, false);
         }
 
         @Override
@@ -297,15 +365,21 @@ public class CarTrustAgentBleService extends SimpleBleServer {
 
         @Override
         public void startUnlockAdvertising() {
+            stopUnlockAdvertising();
             stopEnrolmentAdvertising();
-            Log.d(TAG, "startUnlockAdvertising");
-            startAdvertising(mUnlockUuid, mUnlockGattServer);
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "startUnlockAdvertising");
+            }
+            startAdvertising(mUnlockGattService, mUnlockAdvertisingCallback);
         }
 
         @Override
         public void stopUnlockAdvertising() {
-            Log.d(TAG, "stopUnlockAdvertising");
-            stopAdvertising();
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "stopUnlockAdvertising");
+            }
+            stopAdvertising(mUnlockAdvertisingCallback);
         }
 
         @Override
@@ -359,7 +433,10 @@ public class CarTrustAgentBleService extends SimpleBleServer {
         @Override
         public void onEscrowTokenAdded(byte[] token, long handle, int uid)
                 throws RemoteException {
-            Log.d(TAG, "onEscrowTokenAdded handle:" + handle + " uid:" + uid);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onEscrowTokenAdded handle:" + handle + " uid:" + uid);
+            }
+
             mTokenHandleSharedPreferences.edit()
                     .putInt(String.valueOf(handle), uid)
                     .apply();
@@ -370,7 +447,10 @@ public class CarTrustAgentBleService extends SimpleBleServer {
 
         @Override
         public void onEscrowTokenRemoved(long handle, boolean successful) throws RemoteException {
-            Log.d(TAG, "onEscrowTokenRemoved handle:" + handle);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onEscrowTokenRemoved handle:" + handle);
+            }
+
             mTokenHandleSharedPreferences.edit()
                     .remove(String.valueOf(handle))
                     .apply();

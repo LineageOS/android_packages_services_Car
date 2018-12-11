@@ -16,32 +16,54 @@
 
 package com.android.car;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 import android.annotation.Nullable;
+import android.car.Car;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
 import android.car.drivingstate.CarUxRestrictions;
+import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.drivingstate.ICarUxRestrictionsManager;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.userlib.CarUserManagerHelper;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
+import android.os.SystemClock;
+import android.os.UserHandle;
+import android.util.AtomicFile;
+import android.util.JsonReader;
+import android.util.JsonWriter;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,6 +71,13 @@ import java.util.List;
 /**
  * A service that listens to current driving state of the vehicle and maps it to the
  * appropriate UX restrictions for that driving state.
+ * <p>
+ * <h1>UX Restrictions Configuration</h1>
+ * When this service starts, it will first try reading the configuration set through
+ * {@link #saveUxRestrictionsConfigurationForNextBoot(CarUxRestrictionsConfiguration)}.
+ * If one is not available, it will try reading the configuration saved in
+ * {@code R.xml.car_ux_restrictions_map}. If XML is somehow unavailable, it will
+ * fall back to a hard-coded configuration.
  */
 public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.Stub implements
         CarServiceBase {
@@ -57,53 +86,185 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private static final int MAX_TRANSITION_LOG_SIZE = 20;
     private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz
     private static final float SPEED_NOT_AVAILABLE = -1.0F;
+
+    @VisibleForTesting
+    /* package */ static final String CONFIG_FILENAME_PRODUCTION = "prod_config.json";
+    @VisibleForTesting
+    /* package */ static final String CONFIG_FILENAME_STAGED = "staged_config.json";
+
     private final Context mContext;
     private final CarDrivingStateService mDrivingStateService;
     private final CarPropertyService mCarPropertyService;
-    private final CarUxRestrictionsServiceHelper mHelper;
+    private final CarUserManagerHelper mCarUserManagerHelper;
     // List of clients listening to UX restriction events.
     private final List<UxRestrictionsClient> mUxRClients = new ArrayList<>();
+    private CarUxRestrictionsConfiguration mCarUxRestrictionsConfiguration;
     private CarUxRestrictions mCurrentUxRestrictions;
     private float mCurrentMovingSpeed;
-    private boolean mFallbackToDefaults;
     // Flag to disable broadcasting UXR changes - for development purposes
     @GuardedBy("this")
     private boolean mUxRChangeBroadcastEnabled = true;
     // For dumpsys logging
     private final LinkedList<Utils.TransitionLog> mTransitionLogs = new LinkedList<>();
 
+    // When UXR service boots up the context does not have access to storage yet, so it
+    // will likely read configuration from XML resource. Register to receive broadcast to
+    // attempt to read saved configuration when it becomes available.
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(action)) {
+                // If the system user is not headless, then we can read config as soon as the
+                // system has completed booting.
+                if (!mCarUserManagerHelper.isHeadlessSystemUser()) {
+                    logd("not headless on boot complete");
+                    PendingResult pendingResult = goAsync();
+                    LoadRestrictionsTask task = new LoadRestrictionsTask(pendingResult);
+                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                }
+            } else if (Intent.ACTION_USER_SWITCHED.equals(action)) {
+                int userHandle = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
+                logd("USER_SWITCHED: " + userHandle);
+                if (mCarUserManagerHelper.isHeadlessSystemUser()
+                        && userHandle > UserHandle.USER_SYSTEM) {
+                    PendingResult pendingResult = goAsync();
+                    LoadRestrictionsTask task = new LoadRestrictionsTask(pendingResult);
+                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                }
+            }
+        }
+    };
+
+    private class LoadRestrictionsTask extends AsyncTask<Void, Void, Void> {
+        private final BroadcastReceiver.PendingResult mPendingResult;
+
+        private LoadRestrictionsTask(BroadcastReceiver.PendingResult pendingResult) {
+            mPendingResult = pendingResult;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            mCarUxRestrictionsConfiguration = loadConfig();
+            handleDispatchUxRestrictions(mDrivingStateService.getCurrentDrivingState().eventValue,
+                    getCurrentSpeed());
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            mPendingResult.finish();
+        }
+    }
 
     public CarUxRestrictionsManagerService(Context context, CarDrivingStateService drvService,
-            CarPropertyService propertyService) {
+            CarPropertyService propertyService, CarUserManagerHelper carUserManagerHelper) {
         mContext = context;
         mDrivingStateService = drvService;
         mCarPropertyService = propertyService;
-        mHelper = new CarUxRestrictionsServiceHelper(mContext, R.xml.car_ux_restrictions_map);
+        mCarUserManagerHelper = carUserManagerHelper;
+        // NOTE: during boot phase context cannot access file system so we most likely will
+        // use XML config. If prod config is set, it will be loaded in broadcast receiver.
+        mCarUxRestrictionsConfiguration = loadConfig();
         // Unrestricted until driving state information is received. During boot up, we don't want
         // everything to be blocked until data is available from CarPropertyManager.  If we start
         // driving and we don't get speed or gear information, we have bigger problems.
-        mCurrentUxRestrictions = mHelper.createUxRestrictionsEvent(false,
-                CarUxRestrictions.UX_RESTRICTIONS_BASELINE);
+        mCurrentUxRestrictions = new CarUxRestrictions.Builder(/* reqOpt= */ false,
+                CarUxRestrictions.UX_RESTRICTIONS_BASELINE, SystemClock.elapsedRealtimeNanos())
+                .build();
     }
 
     @Override
     public synchronized void init() {
-        try {
-            if (!mHelper.loadUxRestrictionsFromXml()) {
-                Log.e(TAG, "Error reading Ux Restrictions Mapping. Falling back to defaults");
-                mFallbackToDefaults = true;
-            }
-        } catch (IOException | XmlPullParserException e) {
-            Log.e(TAG, "Exception reading UX restrictions XML mapping", e);
-            mFallbackToDefaults = true;
-        }
         // subscribe to driving State
         mDrivingStateService.registerDrivingStateChangeListener(
                 mICarDrivingStateChangeEventListener);
         // subscribe to property service for speed
         mCarPropertyService.registerListener(VehicleProperty.PERF_VEHICLE_SPEED,
                 PROPERTY_UPDATE_RATE, mICarPropertyEventListener);
+        registerReceiverToLoadConfig();
         initializeUxRestrictions();
+    }
+
+    private void registerReceiverToLoadConfig() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_USER_SWITCHED);
+        filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
+        mContext.registerReceiver(mBroadcastReceiver, filter);
+    }
+
+    @VisibleForTesting
+    @Nullable
+    /* package */ CarUxRestrictionsConfiguration getConfig() {
+        return mCarUxRestrictionsConfiguration;
+    }
+
+    /**
+     * Loads a UX restrictions configuration and returns it.
+     * <p>Reads config from the following sources in order:
+     * <ol>
+     * <li>saved config set by
+     * {@link #saveUxRestrictionsConfigurationForNextBoot(CarUxRestrictionsConfiguration)};
+     * <li>XML resource config from {@code R.xml.car_ux_restrictions_map};
+     * <li>hardcoded default config.
+     * </ol>
+     */
+    @VisibleForTesting
+    /* package */ synchronized CarUxRestrictionsConfiguration loadConfig() {
+        promoteStagedConfig();
+
+        CarUxRestrictionsConfiguration config = null;
+        // Production config, if available, is the first choice.
+        File prodConfig = mContext.getFileStreamPath(CONFIG_FILENAME_PRODUCTION);
+        if (prodConfig.exists()) {
+            logd("Attempting to read production config");
+            config = readPersistedConfig(prodConfig);
+            if (config != null) {
+                return config;
+            }
+        }
+
+        // XML config is the second choice.
+        logd("Attempting to read config from XML resource");
+        config = readXmlConfig();
+        if (config != null) {
+            return config;
+        }
+
+        // This should rarely happen.
+        Log.w(TAG, "Creating default config");
+        return createDefaultConfig();
+    }
+
+    @Nullable
+    private CarUxRestrictionsConfiguration readXmlConfig() {
+        try {
+            return CarUxRestrictionsConfigurationXmlParser.parse(mContext,
+                    R.xml.car_ux_restrictions_map);
+        } catch (IOException | XmlPullParserException e) {
+            Log.e(TAG, "Could not read config from XML resource", e);
+        }
+        return null;
+    }
+
+    private void promoteStagedConfig() {
+        Path stagedConfig = mContext.getFileStreamPath(CONFIG_FILENAME_STAGED).toPath();
+
+        CarDrivingStateEvent currentDrivingStateEvent =
+                mDrivingStateService.getCurrentDrivingState();
+        // Only promote staged config when car is parked.
+        if (currentDrivingStateEvent != null
+                && currentDrivingStateEvent.eventValue == CarDrivingStateEvent.DRIVING_STATE_PARKED
+                && Files.exists(stagedConfig)) {
+            Path prod = mContext.getFileStreamPath(CONFIG_FILENAME_PRODUCTION).toPath();
+            try {
+                logd("Attempting to promote stage config");
+                Files.move(stagedConfig, prod, REPLACE_EXISTING);
+            } catch (IOException e) {
+                Log.e(TAG, "Could not promote state config", e);
+            }
+        }
     }
 
     // Update current restrictions by getting the current driving state and speed.
@@ -159,9 +320,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     public synchronized void registerUxRestrictionsChangeListener(
             ICarUxRestrictionsChangeListener listener) {
         if (listener == null) {
-            if (DBG) {
-                Log.e(TAG, "registerUxRestrictionsChangeListener(): listener null");
-            }
+            Log.e(TAG, "registerUxRestrictionsChangeListener(): listener null");
             throw new IllegalArgumentException("Listener is null");
         }
         // If a new client is registering, create a new DrivingStateClient and add it to the list
@@ -232,6 +391,56 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         return mCurrentUxRestrictions;
     }
 
+    @Override
+    public synchronized boolean saveUxRestrictionsConfigurationForNextBoot(
+            CarUxRestrictionsConfiguration config) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+        return persistConfig(config, CONFIG_FILENAME_STAGED);
+    }
+
+    /**
+     * Writes configuration into the specified file.
+     *
+     * IO access on file is not thread safe. Caller should ensure threading protection.
+     */
+    private boolean persistConfig(CarUxRestrictionsConfiguration config, String filename) {
+        AtomicFile stagedFile = new AtomicFile(mContext.getFileStreamPath(filename));
+        FileOutputStream fos;
+        try {
+            fos = stagedFile.startWrite();
+        } catch (IOException e) {
+            Log.e(TAG, "Could not open file to persist config", e);
+            return false;
+        }
+        try (JsonWriter jsonWriter = new JsonWriter(
+                new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
+            config.writeJson(jsonWriter);
+        } catch (IOException e) {
+            Log.e(TAG, "Could not persist config", e);
+            stagedFile.failWrite(fos);
+            return false;
+        }
+        stagedFile.finishWrite(fos);
+        return true;
+    }
+
+    @Nullable
+    private CarUxRestrictionsConfiguration readPersistedConfig(File file) {
+        if (!file.exists()) {
+            Log.e(TAG, "Could not find config file: " + file.getName());
+            return null;
+        }
+
+        AtomicFile config = new AtomicFile(file);
+        try (JsonReader reader = new JsonReader(
+                new InputStreamReader(config.openRead(), StandardCharsets.UTF_8))) {
+            return CarUxRestrictionsConfiguration.readJson(reader);
+        } catch (IOException e) {
+            Log.e(TAG, "Could not read persisted config file " + file.getName(), e);
+        }
+        return null;
+    }
+
     /**
      * Enable/disable UX restrictions change broadcast blocking.
      * Setting this to true will stop broadcasts of UX restriction change to listeners.
@@ -284,9 +493,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
         @Override
         public void binderDied() {
-            if (DBG) {
-                Log.d(TAG, "Binder died " + listenerBinder);
-            }
+            logd("Binder died " + listenerBinder);
             listenerBinder.unlinkToDeath(this, 0);
             synchronized (CarUxRestrictionsManagerService.this) {
                 mUxRClients.remove(this);
@@ -315,9 +522,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             try {
                 listener.onUxRestrictionsChanged(event);
             } catch (RemoteException e) {
-                if (DBG) {
-                    Log.d(TAG, "Dispatch to listener failed");
-                }
+                Log.e(TAG, "Dispatch to listener failed", e);
             }
         }
     }
@@ -330,7 +535,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         if (isDebugBuild()) {
             writer.println("mUxRChangeBroadcastEnabled? " + mUxRChangeBroadcastEnabled);
         }
-        mHelper.dump(writer);
+        mCarUxRestrictionsConfiguration.dump(writer);
         writer.println("UX Restriction change log:");
         for (Utils.TransitionLog tlog : mTransitionLogs) {
             writer.println(tlog);
@@ -345,9 +550,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             new ICarDrivingStateChangeListener.Stub() {
                 @Override
                 public void onDrivingStateChanged(CarDrivingStateEvent event) {
-                    if (DBG) {
-                        Log.d(TAG, "Driving State Changed:" + event.eventValue);
-                    }
+                    logd("Driving State Changed:" + event.eventValue);
                     handleDrivingStateEvent(event);
                 }
             };
@@ -370,9 +573,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 || drivingState == CarDrivingStateEvent.DRIVING_STATE_UNKNOWN) {
             // If speed is unavailable, but the driving state is parked or unknown, it can still be
             // handled.
-            if (DBG) {
-                Log.d(TAG, "Speed null when driving state is: " + drivingState);
-            }
+            logd("Speed null when driving state is: " + drivingState);
             mCurrentMovingSpeed = 0;
         } else {
             // If we get here with driving state != parked or unknown && speed == null,
@@ -430,14 +631,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
 
-        CarUxRestrictions uxRestrictions;
-        // Get UX restrictions from the parsed configuration XML or fall back to defaults if not
-        // available.
-        if (mFallbackToDefaults) {
-            uxRestrictions = getDefaultRestrictions(currentDrivingState);
-        } else {
-            uxRestrictions = mHelper.getUxRestrictions(currentDrivingState, speed);
-        }
+        CarUxRestrictions uxRestrictions =
+                mCarUxRestrictionsConfiguration.getUxRestrictions(currentDrivingState, speed);
 
         if (DBG) {
             Log.d(TAG, String.format("DO old->new: %b -> %b",
@@ -464,31 +659,23 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 extraInfo.toString());
 
         mCurrentUxRestrictions = uxRestrictions;
-        if (DBG) {
-            Log.d(TAG, "dispatching to " + mUxRClients.size() + " clients");
-        }
+        logd("dispatching to " + mUxRClients.size() + " clients");
         for (UxRestrictionsClient client : mUxRClients) {
             client.dispatchEventToClients(uxRestrictions);
         }
     }
 
-    private CarUxRestrictions getDefaultRestrictions(@CarDrivingState int drivingState) {
-        int restrictions;
-        boolean requiresOpt = false;
-        switch (drivingState) {
-            case CarDrivingStateEvent.DRIVING_STATE_PARKED:
-                restrictions = CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
-                break;
-            case CarDrivingStateEvent.DRIVING_STATE_IDLING:
-                restrictions = CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
-                requiresOpt = false;
-                break;
-            case CarDrivingStateEvent.DRIVING_STATE_MOVING:
-            default:
-                restrictions = CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
-                requiresOpt = true;
-        }
-        return mHelper.createUxRestrictionsEvent(requiresOpt, restrictions);
+    CarUxRestrictionsConfiguration createDefaultConfig() {
+        return new CarUxRestrictionsConfiguration.Builder()
+                .setUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_PARKED,
+                      false, CarUxRestrictions.UX_RESTRICTIONS_BASELINE)
+                .setUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_IDLING,
+                      false, CarUxRestrictions.UX_RESTRICTIONS_BASELINE)
+                .setUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_MOVING,
+                      true, CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED)
+                .setUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_UNKNOWN,
+                      true, CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED)
+                .build();
     }
 
     private void addTransitionLog(String name, int from, int to, long timestamp, String extra) {
@@ -500,4 +687,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         mTransitionLogs.add(tLog);
     }
 
+    private static void logd(String msg) {
+        if (DBG) {
+            Log.d(TAG, msg);
+        }
+    }
 }
