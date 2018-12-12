@@ -19,7 +19,7 @@
     <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE"/>
 
     <application android:label="UxRestrictions Sample">
-        <activity android:name=".MainActivity" android:theme="@style/Theme.Car.NoActionBar">
+        <activity android:name=".MainActivity" android:theme="@style/AppTheme" android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -27,7 +27,7 @@
             <meta-data android:name="distractionOptimized" android:value="true"/>
         </activity>
         <activity android:name=".SampleMessageActivity"
-                  android:theme="@style/Theme.Car.NoActionBar">
+                  android:theme="@style/AppTheme">
             <meta-data android:name="distractionOptimized" android:value="true"/>
         </activity>
     </application>

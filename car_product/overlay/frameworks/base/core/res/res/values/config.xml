@@ -65,9 +65,6 @@
     <!-- The action buttons should always take the default color. -->
     <bool name="config_tintNotificationActionButtons">false</bool>
 
-    <!-- Home screen(Launcher) app presence -->
-    <bool name="config_noHomeScreen">true</bool>
-
     <!-- Flag indicating that this device does not rotate and will always remain in its default
          orientation. Activities that desire to run in a non-compatible orientation will find that
          they are not able to. -->

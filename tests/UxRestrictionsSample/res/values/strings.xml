@@ -25,4 +25,9 @@
     <string name="sample_header"><u>Sample Activities</u></string>
     <string name="sample_msg_activity">Sample Message Activity</string>
     <string name="return_home"><u>Return Home</u></string>
+    <string name="save_uxr_config_header"><u>Save UX Restrictions For Next Boot</u></string>
+    <string name="save_uxr_config">Save UX Restrictions</string>
+    <string name="set_uxr_config_dialog_title">Select restrictions for IDLING/MOVING</string>
+    <string name="set_uxr_config_dialog_negative_button">Cancel</string>
+    <string name="set_uxr_config_dialog_positive_button">Save UXR Config</string>
 </resources>

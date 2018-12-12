@@ -13,29 +13,24 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<androidx.car.moderator.SpeedBumpView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <Button
-            android:id="@+id/home_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/return_home"
-            android:textAllCaps="false"
-            android:textAppearance="?android:textAppearanceLarge"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <androidx.car.widget.PagedListView
-                android:id="@+id/paged_list_view"
-                android:layout_height="match_parent"
-                android:layout_width="wrap_content"
-                android:layout_weight="4"/>
-        </LinearLayout>
-    </LinearLayout>
-</androidx.car.moderator.SpeedBumpView>
+  <Button
+      android:id="@+id/home_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/return_home"
+      android:textAllCaps="false"
+      android:textAppearance="?android:textAppearanceLarge"/>
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+    <androidx.car.widget.PagedListView
+        android:id="@+id/paged_list_view"
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_weight="4"/>
+  </LinearLayout>
+</LinearLayout>
