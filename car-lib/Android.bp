@@ -110,6 +110,17 @@ genrule {
     ],
 }
 
+genrule {
+    name: "android-car-last-released-test-api",
+    srcs: [
+        "api/test-released/*.txt",
+    ],
+    cmd: "cp -f $$(echo $(in) | tr \" \" \"\\n\" | sort -n | tail -1) $(genDir)/last-released-test-api.txt",
+    out: [
+        "last-released-test-api.txt",
+    ],
+}
+
 droiddoc {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
@@ -164,6 +175,26 @@ droiddoc {
 }
 
 droiddoc {
+    name: "android.car-test-stubs-docs",
+    defaults: ["android.car-docs-default"],
+    api_tag_name: "ANDROID_CAR_SYSTEM",
+    api_filename: "api.txt",
+    removed_api_filename: "removed.txt",
+    args: "-hide 113 -hide 110 -nodocs -stubpackages android.car* " +
+        "-showAnnotation android.annotation.TestApi ",
+    installable: false,
+    check_api: {
+        current: {
+            api_file: "api/test-current.txt",
+            removed_api_file: "api/test-removed.txt",
+            args: " -error 2 -error 3 -error 4 -error 5 -error 6 -error 7 -error 8 -error 9 -error 10 -error 11 " +
+                  " -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 " +
+                  " -error 21 -error 23 -error 24 -error 25 -hide 113 ",
+        },
+    },
+}
+
+droiddoc {
     name: "android.car-stub-docs",
     srcs: [
         "src/**/*.java",
@@ -203,6 +234,22 @@ java_library_static {
     name: "android.car-system-stubs",
     srcs: [
         ":android.car-system-stubs-docs",
+    ],
+    libs: [
+        "android.car",
+    ],
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+    compile_dex: true,
+}
+
+java_library_static {
+    name: "android.car-test-stubs",
+    srcs: [
+        ":android.car-test-stubs-docs",
     ],
     libs: [
         "android.car",
