@@ -23,7 +23,7 @@
     <original-package android:name="com.android.car" />
      <permission-group
         android:name="android.car.permission-group.CAR_MONITORING"
-        android:icon="@drawable/car_ic_mode"
+        android:icon="@drawable/perm_group_car"
         android:description="@string/car_permission_desc"
         android:label="@string/car_permission_label" />
     <permission
