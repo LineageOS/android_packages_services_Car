@@ -33,10 +33,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
-import androidx.car.drawer.CarDrawerActivity;
 import androidx.car.drawer.CarDrawerAdapter;
 import androidx.car.drawer.DrawerItemViewHolder;
 import androidx.fragment.app.Fragment;
+
+import com.android.car.apps.common.DrawerActivity;
 
 import com.google.android.car.kitchensink.activityview.ActivityViewTestFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
@@ -66,7 +67,8 @@ import com.google.android.car.kitchensink.weblinks.WebLinksTestFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class KitchenSinkActivity extends CarDrawerActivity {
+
+public class KitchenSinkActivity extends DrawerActivity {
     private static final String TAG = "KitchenSinkActivity";
 
     private interface ClickHandler {
@@ -209,14 +211,14 @@ public class KitchenSinkActivity extends CarDrawerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setToolbarElevation(0f);
-        setMainContent(R.layout.kitchen_content);
-        getDrawerController().setRootAdapter(new DrawerAdapter());
+        setContentView(R.layout.kitchen_content);
+
         // Connection to Car Service does not work for non-automotive yet.
         if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
             initCarApi();
         }
         Log.i(TAG, "onCreate");
+        getDrawerController().setRootAdapter(new DrawerAdapter());
     }
 
     private void initCarApi() {
