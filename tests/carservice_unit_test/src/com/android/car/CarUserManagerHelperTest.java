@@ -42,6 +42,7 @@ import android.os.UserManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.sysprop.CarProperties;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -106,7 +107,7 @@ public class CarUserManagerHelperTest {
 
         // Restore the non-headless state before every test. Individual tests can set the property
         // to true to test the headless system user scenario.
-        SystemProperties.set("android.car.systemuser.headless", "false");
+        CarProperties.headless_system_user(false);
     }
 
     @Test
@@ -123,7 +124,7 @@ public class CarUserManagerHelperTest {
     // System user will not be returned when calling get all users.
     @Test
     public void testHeadlessUser0GetAllUsers_NotReturnSystemUser() {
-        SystemProperties.set("android.car.systemuser.headless", "true");
+        CarProperties.headless_system_user(true);
         UserInfo otherUser1 = createUserInfoForId(10);
         UserInfo otherUser2 = createUserInfoForId(11);
         UserInfo otherUser3 = createUserInfoForId(12);
@@ -271,7 +272,7 @@ public class CarUserManagerHelperTest {
         assertThat(mCarUserManagerHelper.getMaxSupportedUsers()).isEqualTo(11);
 
         // In headless user 0 model, we want to exclude the system user.
-        SystemProperties.set("android.car.systemuser.headless", "true");
+        CarProperties.headless_system_user(true);
         assertThat(mCarUserManagerHelper.getMaxSupportedUsers()).isEqualTo(10);
     }
 
@@ -315,7 +316,7 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void testHeadlessSystemUser_IsUserLimitReached() {
-        SystemProperties.set("android.car.systemuser.headless", "true");
+        CarProperties.headless_system_user(true);
         UserInfo user1 = createUserInfoForId(10);
         UserInfo user2 =
                 new UserInfo(/* id= */ 11, /* name = */ "user11", UserInfo.FLAG_MANAGED_PROFILE);
@@ -743,7 +744,7 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void testGetInitialUserWithValidLastActiveUser() {
-        SystemProperties.set("android.car.systemuser.headless", "true");
+        CarProperties.headless_system_user(true);
         int lastActiveUserId = 12;
 
         UserInfo otherUser1 = createUserInfoForId(lastActiveUserId - 2);
@@ -759,7 +760,7 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void testGetInitialUserWithNonExistLastActiveUser() {
-        SystemProperties.set("android.car.systemuser.headless", "true");
+        CarProperties.headless_system_user(true);
         int lastActiveUserId = 12;
 
         UserInfo otherUser1 = createUserInfoForId(lastActiveUserId - 2);

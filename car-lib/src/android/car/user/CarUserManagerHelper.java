@@ -29,10 +29,10 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
+import android.sysprop.CarProperties;
 import android.util.Log;
 
 import com.android.internal.util.UserIcons;
@@ -56,7 +56,6 @@ import java.util.Set;
  */
 public class CarUserManagerHelper {
     private static final String TAG = "CarUserManagerHelper";
-    private static final String HEADLESS_SYSTEM_USER = "android.car.systemuser.headless";
     /**
      * Default set of restrictions for Non-Admin users.
      */
@@ -247,7 +246,7 @@ public class CarUserManagerHelper {
      * @return {@boolean true} if headless system user.
      */
     public boolean isHeadlessSystemUser() {
-        return SystemProperties.getBoolean(HEADLESS_SYSTEM_USER, false);
+        return CarProperties.headless_system_user().orElse(false);
     }
 
     /**
