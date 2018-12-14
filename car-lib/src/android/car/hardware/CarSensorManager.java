@@ -16,7 +16,6 @@
 
 package android.car.hardware;
 
-import android.Manifest;
 import android.annotation.IntDef;
 import android.annotation.RequiresPermission;
 import android.car.Car;
@@ -59,6 +58,7 @@ public final class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_CAR_SPEED                   = 0x11600207;
     /**
      * Represents engine RPM of the car. Sensor data in {@link CarSensorEvent} is a float.
+     * This requires {@link Car#PERMISSION_CAR_ENGINE_DETAILED} permission.
      */
     public static final int SENSOR_TYPE_RPM                         = 0x11600305;
     /**
@@ -77,18 +77,21 @@ public final class CarSensorManager implements CarManagerBase {
      * intValues[0]. Value of 1 represents parking brake applied while 0 means the other way
      * around. For this sensor, rate in {@link #registerListener(OnSensorChangedListener, int, int)}
      * will be ignored and all changes will be notified.
+     * This requires {@link Car#PERMISSION_POWERTRAIN} permission.
      */
     public static final int SENSOR_TYPE_PARKING_BRAKE               = 0x11200402;
     /**
      * This represents the current position of transmission gear. Sensor data in
      * {@link CarSensorEvent} is an intValues[0]. For the meaning of the value, check
      * {@link CarSensorEvent#GEAR_NEUTRAL} and other GEAR_*.
+     * This requires {@link Car#PERMISSION_POWERTRAIN} permission.
      */
     public static final int SENSOR_TYPE_GEAR                        = 0x11400400;
     /** @hide */
     public static final int SENSOR_TYPE_RESERVED8                   = 8;
     /**
      * Day/night sensor. Sensor data is intValues[0].
+     * This requires {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT} permission.
      */
     public static final int SENSOR_TYPE_NIGHT                       = 0x11200407;
     /**
@@ -123,6 +126,7 @@ public final class CarSensorManager implements CarManagerBase {
     /**
      * Represents ignition state. The value should be one of the constants that starts with
      * IGNITION_STATE_* in {@link CarSensorEvent}.
+     * This requires {@link Car#PERMISSION_POWERTRAIN} permission.
      */
     public static final int SENSOR_TYPE_IGNITION_STATE              = 0x11400409;
     /**
@@ -147,6 +151,7 @@ public final class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_RESERVED26                  = 26;
     /**
      * Set to true if the fuel door is open.
+     * This requires {@link Car#PERMISSION_ENERGY_PORTS} permission.
      */
     public static final int SENSOR_TYPE_FUEL_DOOR_OPEN              = 0x11200308;
 
@@ -161,10 +166,12 @@ public final class CarSensorManager implements CarManagerBase {
     public static final int SENSOR_TYPE_EV_BATTERY_LEVEL            = 0x11600309;
     /**
      * Set to true if EV charging port is open.
+     * This requires {@link Car#PERMISSION_ENERGY_PORTS} permission.
      */
     public static final int SENSOR_TYPE_EV_CHARGE_PORT_OPEN         = 0x1120030a;
     /**
      * Set to true if EV charging port is connected.
+     * This requires {@link Car#PERMISSION_ENERGY_PORTS} permission.
      */
     public static final int SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED    = 0x1120030b;
     /**
@@ -374,11 +381,18 @@ public final class CarSensorManager implements CarManagerBase {
      * updated depending on the rate.
      * <p>
      * Requires {@link Car#PERMISSION_SPEED} for {@link #SENSOR_TYPE_CAR_SPEED} and
-     *  {@link #SENSOR_TYPE_WHEEL_TICK_DISTANCE}, {@link Car#PERMISSION_MILEAGE} for
-     *  {@link #SENSOR_TYPE_ODOMETER}, {@link Car#PERMISSION_ENERGY} for
-     *  {@link #SENSOR_TYPE_FUEL_LEVEL} and (@link #SENSOR_TYPE_EV_BATTERY_LEVEL and
-     *  {@link #SENSOR_TYPE_EV_CHARGE_RATE}, {@link Car#PERMISSION_CAR_DYNAMICS_STATE} for
-     *  {@link #SENSOR_TYPE_ABS_ACTIVE} and {@link #SENSOR_TYPE_TRACTION_CONTROL_ACTIVE}
+     * {@link #SENSOR_TYPE_WHEEL_TICK_DISTANCE}, {@link Car#PERMISSION_CAR_ENGINE_DETAILED} for
+     * {@link #SENSOR_TYPE_RPM} and {@link #SENSOR_TYPE_ENGINE_OIL_LEVEL},
+     * {@link Car#PERMISSION_MILEAGE} for {@link #SENSOR_TYPE_ODOMETER},
+     * {@link Car#PERMISSION_ENERGY} for {@link #SENSOR_TYPE_FUEL_LEVEL} and
+     * {@link #SENSOR_TYPE_EV_BATTERY_LEVEL} and {@link #SENSOR_TYPE_EV_CHARGE_RATE},
+     * {@link Car#PERMISSION_POWERTRAIN} for {@link #SENSOR_TYPE_PARKING_BRAKE} and
+     * {@link #SENSOR_TYPE_GEAR} and {@link #SENSOR_TYPE_IGNITION_STATE},
+     * {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT} for {@link #SENSOR_TYPE_NIGHT} and
+     * {@link #SENSOR_TYPE_ENV_OUTSIDE_TEMPERATURE}, {@link Car#PERMISSION_CAR_DYNAMICS_STATE} for
+     * {@link #SENSOR_TYPE_ABS_ACTIVE} and {@link #SENSOR_TYPE_TRACTION_CONTROL_ACTIVE},
+     * {@link Car#PERMISSION_ENERGY_PORTS} for {@link #SENSOR_TYPE_FUEL_DOOR_OPEN} and
+     * {@link #SENSOR_TYPE_EV_CHARGE_PORT_OPEN} and {@link #SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED}
      *
      * @param listener
      * @param sensorType sensor type to subscribe.
@@ -394,9 +408,10 @@ public final class CarSensorManager implements CarManagerBase {
      * @throws IllegalArgumentException for wrong argument like wrong rate
      * @throws SecurityException if missing the appropriate permission
      */
-    @RequiresPermission(anyOf={Manifest.permission.ACCESS_FINE_LOCATION, Car.PERMISSION_SPEED,
-            Car.PERMISSION_MILEAGE, Car.PERMISSION_ENERGY, Car.PERMISSION_CAR_DYNAMICS_STATE},
-            conditional=true)
+    @RequiresPermission(anyOf = {Car.PERMISSION_SPEED, Car.PERMISSION_CAR_ENGINE_DETAILED,
+            Car.PERMISSION_MILEAGE, Car.PERMISSION_ENERGY, Car.PERMISSION_POWERTRAIN,
+            Car.PERMISSION_EXTERIOR_ENVIRONMENT, Car.PERMISSION_CAR_DYNAMICS_STATE,
+            Car.PERMISSION_ENERGY_PORTS}, conditional = true)
     public boolean registerListener(OnSensorChangedListener listener, @SensorType int sensorType,
             @SensorRate int rate) throws CarNotConnectedException, IllegalArgumentException {
         if (rate != SENSOR_RATE_FASTEST && rate != SENSOR_RATE_NORMAL
@@ -422,7 +437,6 @@ public final class CarSensorManager implements CarManagerBase {
      * @param listener
      */
     public void unregisterListener(OnSensorChangedListener listener) {
-        //TODO: removing listener should reset update rate, bug: 32060307
         synchronized (mListenerMap) {
             mCarPropertyEventListener = mListenerMap.get(listener);
             mCarPropertyMgr.unregisterListener(mCarPropertyEventListener);
