@@ -35,11 +35,12 @@ import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.MediumTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.util.JsonReader;
 import android.util.JsonWriter;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.MediumTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;

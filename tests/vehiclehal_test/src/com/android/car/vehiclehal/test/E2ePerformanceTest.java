@@ -21,8 +21,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import static java.lang.Integer.toHexString;
-
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarNotConnectedException;
@@ -32,16 +30,19 @@ import android.car.hardware.CarSensorManager.OnSensorChangedListener;
 import android.car.hardware.hvac.CarHvacManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
-import android.support.test.filters.MediumTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+
+import androidx.test.filters.MediumTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.google.android.collect.Lists;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static java.lang.Integer.toHexString;
 
 import java.util.ArrayList;
 import java.util.List;

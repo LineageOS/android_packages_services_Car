@@ -31,9 +31,10 @@ import android.car.drivingstate.CarUxRestrictionsManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.SystemClock;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.internal.annotations.GuardedBy;

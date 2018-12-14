@@ -34,10 +34,11 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.annotation.UiThreadTest;
 import android.util.Log;
 import android.util.SparseArray;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.annotation.UiThreadTest;
 
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.DisplayInterface;

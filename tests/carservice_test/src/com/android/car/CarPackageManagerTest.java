@@ -24,10 +24,11 @@ import android.car.CarNotConnectedException;
 import android.car.content.pm.AppBlockingPackageInfo;
 import android.car.content.pm.CarAppBlockingPolicy;
 import android.car.content.pm.CarPackageManager;
-import android.support.test.filters.SmallTest;
-import android.support.test.filters.Suppress;
-import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+
+import androidx.test.filters.SmallTest;
+import androidx.test.filters.Suppress;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.pm.CarPackageManagerService;
 

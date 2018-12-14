@@ -26,9 +26,10 @@ import static android.car.drivingstate.CarUxRestrictionsConfiguration.Builder.Sp
 
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
-import android.support.test.filters.SmallTest;
 import android.util.JsonReader;
 import android.util.JsonWriter;
+
+import androidx.test.filters.SmallTest;
 
 import junit.framework.TestCase;
 
