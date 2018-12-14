@@ -140,7 +140,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             public void onServiceDisconnected(ComponentName className) {
                 // Service has crashed.
                 Log.w(CarLog.TAG_PROJECTION, "Service disconnected: " + className);
-                synchronized (CarProjectionService.this) {
+                synchronized (mLock) {
                     mRegisteredService = null;
                 }
                 unbindServiceIfBound();
@@ -163,7 +163,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     public void registerProjectionRunner(Intent serviceIntent) {
         // We assume one active projection app running in the system at one time.
         synchronized (mLock) {
-            if (serviceIntent.filterEquals(mRegisteredService)) {
+            if (serviceIntent.filterEquals(mRegisteredService) && mBound) {
                 return;
             }
             if (mRegisteredService != null) {
@@ -203,6 +203,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
                 return;
             }
             mBound = false;
+            mRegisteredService = null;
         }
         mContext.unbindService(mConnection);
     }
@@ -529,6 +530,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             writer.println("Wireless clients: " +  mWirelessClients.size());
             writer.println("Current wifi mode: " + mWifiMode);
             writer.println("SoftApCallback: " + mSoftApCallback);
+            writer.println("Bound to projection app: " + mBound);
+            writer.println("Registered Service: " + mRegisteredService);
         }
     }
 
