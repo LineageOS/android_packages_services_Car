@@ -15,18 +15,27 @@
  */
 package com.google.android.car.garagemode.testapp;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.MenuItem;
 
-import androidx.car.drawer.CarDrawerActivity;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.car.drawer.CarDrawerAdapter;
+import androidx.car.drawer.CarDrawerController;
 import androidx.car.drawer.DrawerItemViewHolder;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends CarDrawerActivity {
+public class MainActivity extends AppCompatActivity {
     private static final Logger LOG = new Logger("MainActivity");
+
+    private CarDrawerController mDrawerController;
+    private Toolbar mToolbar;
 
     private final List<MenuEntry> mMenuEntries = new ArrayList<MenuEntry>() {
         {
@@ -47,9 +56,47 @@ public class MainActivity extends CarDrawerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setMainContent(R.layout.activity_content);
+        setContentView(R.layout.main_activity);
+
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
+                /* activity= */ this,
+                drawerLayout,
+                R.string.car_drawer_open,
+                R.string.car_drawer_close);
+
+        mToolbar = findViewById(R.id.car_toolbar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
         mMenuEntries.get(0).onClick();
-        getDrawerController().setRootAdapter(new DrawerAdapter());
+
+        mDrawerController = new CarDrawerController(drawerLayout, drawerToggle);
+        mDrawerController.setRootAdapter(new DrawerAdapter());
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerController.syncState();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mDrawerController.closeDrawer();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerController.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return mDrawerController.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
     private interface ClickHandler {
@@ -155,8 +202,7 @@ public class MainActivity extends CarDrawerActivity {
             }
 
             mMenuEntries.get(position).onClick();
-
-            getDrawerController().closeDrawer();
+            mDrawerController.closeDrawer();
         }
     }
 }
