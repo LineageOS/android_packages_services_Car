@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <resources>
-  <style name="GarageModeTheme" parent="Theme.Car.Light.NoActionBar.Drawer">
+  <style name="GarageModeTheme" parent="Theme.Car.Dark.NoActionBar.Drawer">
     <item name="android:textSize">24sp</item>
   </style>
   <style name="SectionContainer">

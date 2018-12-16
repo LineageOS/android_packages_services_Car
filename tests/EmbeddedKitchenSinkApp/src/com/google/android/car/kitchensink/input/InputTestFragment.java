@@ -30,7 +30,6 @@ import android.hardware.automotive.vehicle.V2_0.SubscribeOptions;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;

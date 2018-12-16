@@ -127,5 +127,8 @@ PRODUCT_HIDDENAPI_STUBS := \
 PRODUCT_HIDDENAPI_STUBS_SYSTEM := \
     android.car-system-stubs
 
+PRODUCT_HIDDENAPI_STUBS_TEST := \
+    android.car-test-stubs
+
 INCLUDED_ANDROID_CAR_TO_PRODUCT_BOOT_JARS := yes
 endif

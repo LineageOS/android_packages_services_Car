@@ -44,7 +44,7 @@
                 </group>
                 <group>
                     <device car:address="bus1_navigation_out">
-                        <context car:context="notification"/>
+                        <context car:context="navigation"/>
                     </device>
                     <device car:address="bus2_voice_command_out">
                         <context car:context="voice_command"/>
@@ -70,7 +70,7 @@
                 <group>
                     <device car:address="bus100_rear_seat">
                         <context car:context="music"/>
-                        <context car:context="notification"/>
+                        <context car:context="navigation"/>
                         <context car:context="voice_command"/>
                         <context car:context="call_ring"/>
                         <context car:context="call"/>

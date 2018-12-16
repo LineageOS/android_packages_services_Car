@@ -65,4 +65,21 @@
         android:layout_height="wrap_content"
         android:text="Category: CATEGORY_MESSAGE"
         android:textSize="35sp"/>
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
+         <Button
+        android:id="@+id/category_car_emerg_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Category: CATEGORY_EMERG"
+        android:textSize="35sp"/>
+         <Button
+        android:id="@+id/category_car_warning_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Category: CATEGORY_WARN"
+        android:textSize="35sp"/>
+    </LinearLayout>
 </LinearLayout>
