@@ -25,6 +25,8 @@ import android.car.media.CarAudioPatchHandle;
  * @hide
  */
 interface ICarAudio {
+    boolean isDynamicRoutingEnabled();
+
     void setGroupVolume(int zoneId, int groupId, int index, int flags);
     int getGroupMaxVolume(int zoneId, int groupId);
     int getGroupMinVolume(int zoneId, int groupId);
