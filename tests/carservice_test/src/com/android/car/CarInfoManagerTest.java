@@ -17,7 +17,6 @@ package com.android.car;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import android.car.Car;
 import android.car.CarInfoManager;
@@ -64,8 +63,8 @@ public class CarInfoManagerTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testNullItems() throws Exception {
-        assertNull(mCarInfoManager.getModel());
-        assertNull(mCarInfoManager.getModelYear());
+    public void testNotNullItems() throws Exception {
+        assertNotNull(mCarInfoManager.getModel());
+        assertNotNull(mCarInfoManager.getModelYear());
     }
 }

@@ -56,7 +56,7 @@ public final class FuelType {
      */
     public static final int OTHER = 12;
 
-    @Retention(RetentionPolicy.SOURCE)
+    /** @hide */
     @IntDef({
         UNKNOWN,
         UNLEADED,
@@ -72,8 +72,8 @@ public final class FuelType {
         HYDROGEN,
         OTHER
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface Enum {}
-
 
     private FuelType() {}
 }

@@ -23,7 +23,7 @@ import java.util.Map;
 
 /**
  * Represent listeners for a property grouped by their rate.
- * T is a type of EventListener such as CarPropertyEventListener
+ * T is a type of EventListener such as CarPropertyEventCallback
  * in {@link android.car.hardware.property.CarPropertyManager}
  * @param <T>
  * @hide
