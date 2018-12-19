@@ -16,6 +16,7 @@
 package android.car.media;
 
 import android.annotation.NonNull;
+import android.annotation.TestApi;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
@@ -71,6 +72,20 @@ public final class CarAudioManager implements CarManagerBase {
             }
         }
     };
+
+    /**
+     * @return Whether dynamic routing is enabled or not.
+     * @hide
+     */
+    @TestApi
+    public boolean isDynamicRoutingEnabled() throws CarNotConnectedException {
+        try {
+            return mService.isDynamicRoutingEnabled();
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "isDynamicRoutingEnabled failed", e);
+            throw new CarNotConnectedException(e);
+        }
+    }
 
     /**
      * Sets the volume index for a volume group in primary zone.

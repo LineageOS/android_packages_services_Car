@@ -266,6 +266,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
+    @Override
+    public boolean isDynamicRoutingEnabled() {
+        return mUseDynamicRouting;
+    }
+
     /**
      * @see {@link android.car.media.CarAudioManager#setGroupVolume(int, int, int, int)}
      */
