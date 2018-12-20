@@ -41,6 +41,7 @@
         <item name="textAppearanceListItem">@style/TextAppearance.DeviceDefault.Large</item>
         <item name="textAppearanceListItemSmall">@style/TextAppearance.DeviceDefault.Large</item>
         <item name="textAppearanceListItemSecondary">@style/TextAppearance.DeviceDefault.Small</item>
+        <item name="actionBarSize">@dimen/car_app_bar_height</item>
     </style>
     <style name="Theme.DeviceDefault.Dialog" parent="Theme.Material.Dialog">
         <item name="textAppearanceLarge">@style/TextAppearance.DeviceDefault.Large</item>
