@@ -58,7 +58,8 @@ public interface SystemStateInterface {
 
     default boolean isSystemSupportingDeepSleep() {
         //TODO should return by checking some kernel suspend control sysfs, bug: 32061842
-        return true;
+        //TODO should be enabled for cars that support STR. b: 121342851
+        return false;
     }
 
     default List<ProcessInfo> getRunningProcesses() {
