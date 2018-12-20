@@ -3,4 +3,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Message to show when a navigation app hasn't been selected yet. [CHAR LIMIT=100]-->
+    <string name="select_nav_app">Select a navigation app on the main unit.</string>
 </resources>

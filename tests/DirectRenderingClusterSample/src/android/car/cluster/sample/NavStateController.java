@@ -58,7 +58,9 @@ public class NavStateController {
      * Updates views to reflect the provided navigation state
      */
     public void update(@Nullable NavigationState state) {
-        Log.i(TAG, "Updating nav state: " + state);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Updating nav state: " + state);
+        }
         Step step = getImmediateStep(state);
         mManeuver.setImageDrawable(getManeuverIcon(step != null ? step.getManeuver() : null));
         mDistance.setText(formatDistance(step != null ? step.getDistance() : null));
@@ -69,7 +71,9 @@ public class NavStateController {
      * a navigation application has focus.
      */
     public void setActive(boolean active) {
-        Log.i(TAG, "Navigation status active: " + active);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Navigation status active: " + active);
+        }
         if (!active) {
             mManeuver.setImageDrawable(null);
             mDistance.setText(null);

@@ -39,6 +39,8 @@
     <uses-permission android:name="android.permission.MANAGE_USERS" />
     <!-- Required to launch navigation apps -->
     <uses-permission android:name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL"/>
+    <!-- Required to watch activities running on the cluster -->
+    <uses-permission android:name="android.permission.SET_ACTIVITY_WATCHER"/>
 
     <application android:label="@string/app_name"
                  android:icon="@mipmap/ic_launcher"
