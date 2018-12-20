@@ -37,7 +37,7 @@ public class LoggingClusterRenderingService extends InstrumentClusterRenderingSe
     private static final int NAV_STATE_EVENT_ID = 1;
 
     @Override
-    protected NavigationRenderer getNavigationRenderer() {
+    public NavigationRenderer getNavigationRenderer() {
         NavigationRenderer navigationRenderer = new NavigationRenderer() {
             @Override
             public CarNavigationInstrumentCluster getNavigationProperties() {

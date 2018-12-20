@@ -20,6 +20,7 @@ import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.cluster.CarInstrumentClusterManager;
+import android.car.cluster.ClusterActivityState;
 import android.car.content.pm.CarPackageManager;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.drivingstate.CarDrivingStateManager;
@@ -91,8 +92,11 @@ public final class Car {
 
     /**
      * Service name for {@link CarInstrumentClusterManager}
+     *
+     * @deprecated CarInstrumentClusterManager is being deprecated
      * @hide
      */
+    @Deprecated
     public static final String CAR_INSTRUMENT_CLUSTER_SERVICE = "cluster_service";
 
     /**
@@ -482,6 +486,26 @@ public final class Car {
     private static final String CAR_SERVICE_PACKAGE = "com.android.car";
 
     private static final String CAR_SERVICE_CLASS = "com.android.car.CarService";
+
+    /**
+     * Category used by navigation applications to indicate which activity should be launched on
+     * the instrument cluster when such application holds
+     * {@link CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION} focus.
+     *
+     * @hide
+     */
+    public static final String CAR_CATEGORY_NAVIGATION = "android.car.cluster.NAVIGATION";
+
+    /**
+     * When an activity is launched in the cluster, it will receive {@link ClusterActivityState} in
+     * the intent's extra under this key, containing instrument cluster information such as
+     * unobscured area, visibility, etc.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE =
+            "android.car.cluster.ClusterActivityState";
 
     private static final long CAR_SERVICE_BIND_RETRY_INTERVAL_MS = 500;
     private static final long CAR_SERVICE_BIND_MAX_RETRY = 20;
