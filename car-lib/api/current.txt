@@ -1,9 +1,11 @@
 package android.car {
 
   public final class Car {
-    method public void connect() throws java.lang.IllegalStateException;
-    method public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection, android.os.Handler);
-    method public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection);
+    method public deprecated void connect() throws java.lang.IllegalStateException;
+    method public static deprecated android.car.Car createCar(android.content.Context, android.content.ServiceConnection, android.os.Handler);
+    method public static deprecated android.car.Car createCar(android.content.Context, android.content.ServiceConnection);
+    method public static android.car.Car createCar(android.content.Context);
+    method public static android.car.Car createCar(android.content.Context, android.os.Handler);
     method public void disconnect();
     method public int getCarConnectionType();
     method public java.lang.Object getCarManager(java.lang.String) throws android.car.CarNotConnectedException;
