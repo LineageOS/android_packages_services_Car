@@ -45,6 +45,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.util.Log;
 
@@ -537,7 +538,10 @@ public final class Car {
      * service's main thread. Note: the service connection listener will be always on the main
      * thread regardless of the handler given.
      * @return Car instance if system is in car environment and returns {@code null} otherwise.
+     *
+     * @deprecated use {@link #createCar(Context, Handler)} instead.
      */
+    @Deprecated
     public static Car createCar(Context context, ServiceConnection serviceConnectionListener,
             @Nullable Handler handler) {
         if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
@@ -557,9 +561,42 @@ public final class Car {
      * Looper}.
      *
      * @see #createCar(Context, ServiceConnection, Handler)
+     *
+     * @deprecated use {@link #createCar(Context, Handler)} instead.
      */
+    @Deprecated
     public static Car createCar(Context context, ServiceConnection serviceConnectionListener) {
       return createCar(context, serviceConnectionListener, null);
+    }
+
+    /**
+     * Creates new {@link Car} object which connected synchronously to Car Service and ready to use.
+     *
+     * @param context application's context
+     *
+     * @return Car object if operation succeeded, otherwise null.
+     */
+    @Nullable
+    public static Car createCar(Context context) {
+        return createCar(context, (Handler) null);
+    }
+
+    /**
+     * Creates new {@link Car} object which connected synchronously to Car Service and ready to use.
+     *
+     * @param context application's context
+     * @param handler the handler on which the manager's callbacks will be executed, or null to
+     * execute on the application's main thread.
+     *
+     * @return Car object if operation succeeded, otherwise null.
+     */
+    @Nullable
+    public static Car createCar(Context context, @Nullable Handler handler) {
+        IBinder service = ServiceManager.getService("car_service");
+        if (service == null) {
+            return null;
+        }
+        return new Car(context, ICar.Stub.asInterface(service), handler);
     }
 
     private Car(Context context, ServiceConnection serviceConnectionListener,
@@ -606,7 +643,11 @@ public final class Car {
      * Connect to car service. This can be called while it is disconnected.
      * @throws IllegalStateException If connection is still on-going from previous
      *         connect call or it is already connected
+     *
+     * @deprecated this method is not need if this object is created via
+     * {@link #createCar(Context, Handler)}.
      */
+    @Deprecated
     public void connect() throws IllegalStateException {
         synchronized (this) {
             if (mConnectionState != STATE_DISCONNECTED) {

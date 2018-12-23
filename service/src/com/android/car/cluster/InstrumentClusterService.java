@@ -122,6 +122,7 @@ public class InstrumentClusterService implements CarServiceBase,
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "onServiceDisconnected, name: " + name);
+            mContext.unbindService(this);
             mRendererBound = false;
 
             synchronized (mSync) {

@@ -31,8 +31,12 @@ import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 public class NavigationFragment extends Fragment {
     private static final String TAG = "Cluster.NavFragment";
@@ -41,6 +45,10 @@ public class NavigationFragment extends Fragment {
     private DisplayManager mDisplayManager;
     private Rect mUnobscuredBounds;
     private MainClusterActivity mMainClusterActivity;
+    private ClusterViewModel mViewModel;
+    private ProgressBar mProgressBar;
+    private TextView mMessage;
+
 
     // Static because we want to keep alive this virtual display when navigating through
     // ViewPager (this fragment gets dynamically destroyed and created)
@@ -109,6 +117,9 @@ public class NavigationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView");
+        ViewModelProvider provider = ViewModelProviders.of(requireActivity());
+        mViewModel = provider.get(ClusterViewModel.class);
+
         mDisplayManager = getActivity().getSystemService(DisplayManager.class);
         mDisplayManager.registerDisplayListener(mDisplayListener, new Handler());
 
@@ -144,6 +155,14 @@ public class NavigationFragment extends Fragment {
                 // detaching surface is similar to turning off the display
                 mVirtualDisplay.setSurface(null);
             }
+        });
+        mProgressBar = root.findViewById(R.id.progress_bar);
+        mMessage = root.findViewById(R.id.message);
+
+        mViewModel.getFreeNavigationActivity().observe(this, app -> {
+            mProgressBar.setVisibility(app.mComponent != null && !app.mIsVisible ? View.VISIBLE
+                    : View.GONE);
+            mMessage.setVisibility(app.mComponent == null ? View.VISIBLE : View.GONE);
         });
 
         return root;
