@@ -33,6 +33,7 @@
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
     <uses-permission android:name="android.car.permission.VEHICLE_DYNAMICS_STATE"/>
     <uses-permission android:name="android.car.permission.CAR_DISPLAY_IN_CLUSTER"/>
+    <uses-permission android:name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL"/>
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.MANAGE_USB" />
@@ -97,10 +98,9 @@
                   android:launchMode="singleInstance"
                   android:resizeableActivity="true"
                   android:allowEmbedded="true"
-                  android:permission="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL">
+                  android:permission="android.car.permission.CAR_DISPLAY_IN_CLUSTER">
             <intent-filter android:priority="-1">
                 <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.car.cluster.NAVIGATION"/>
             </intent-filter>
         </activity>
@@ -108,7 +108,7 @@
         <activity android:name=".activityview.ActivityViewTestFragment"/>
 
         <!-- temporary solution until b/68882625 is fixed. -->
-        <receiver android:name=".touchsound.DisableTouchSoundOnBoot"  android:exported="true">
+        <receiver android:name=".touchsound.DisableTouchSoundOnBoot" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>

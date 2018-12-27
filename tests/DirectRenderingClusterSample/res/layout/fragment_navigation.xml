@@ -34,13 +34,13 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="@dimen/navigation_gradient_height"
         android:src="@drawable/gradient_top"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="@dimen/navigation_gradient_height"
         android:src="@drawable/gradient_bottom"
         app:layout_constraintBottom_toBottomOf="parent"/>
 

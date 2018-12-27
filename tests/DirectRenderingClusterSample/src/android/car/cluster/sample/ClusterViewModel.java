@@ -17,6 +17,7 @@ package android.car.cluster.sample;
 
 import android.app.Application;
 import android.content.ComponentName;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -29,44 +30,21 @@ import java.util.Objects;
  * {@link AndroidViewModel} for cluster information.
  */
 public class ClusterViewModel extends AndroidViewModel {
-    /**
-     * Reference to a component (e.g.: an activity) and whether such component is visible or not.
-     */
-    public static class ComponentVisibility {
-        /**
-         * Application component name
-         */
-        public final ComponentName mComponent;
-        /**
-         * Whether the component is currently visible to the user or not.
-         */
-        public final boolean mIsVisible;
+    private static final String TAG = "Cluster.ViewModel";
 
-        /**
-         * Creates a new component visibility reference
-         */
-        private ComponentVisibility(ComponentName component, boolean isVisible) {
-            mComponent = component;
-            mIsVisible = isVisible;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            ComponentVisibility that = (ComponentVisibility) o;
-            return mIsVisible == that.mIsVisible
-                    && Objects.equals(mComponent, that.mComponent);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(mComponent, mIsVisible);
-        }
+    public enum NavigationActivityState {
+        /** No activity has been selected to be displayed on the navigation fragment yet */
+        NOT_SELECTED,
+        /** An activity has been selected, but it is not yet visible to the user */
+        LOADING,
+        /** Navigation activity is visible to the user */
+        VISIBLE,
     }
 
-    private final MutableLiveData<ComponentVisibility> mFreeNavigationActivity =
-            new MutableLiveData<>(new ComponentVisibility(null, false));
+    private ComponentName mFreeNavigationActivity;
+    private ComponentName mCurrentNavigationActivity;
+    private final MutableLiveData<NavigationActivityState> mNavigationActivityStateLiveData =
+            new MutableLiveData<>();
     private final MutableLiveData<Boolean> mNavigationFocus = new MutableLiveData<>(false);
 
     /**
@@ -77,20 +55,17 @@ public class ClusterViewModel extends AndroidViewModel {
     }
 
     /**
-     * Returns a {@link LiveData} providing the activity selected to be displayed on the cluster
-     * when navigation focus is not granted (a.k.a.: free navigation). It also indicates whether
-     * such activity is currently visible to the user or not.
+     * Returns a {@link LiveData} providing the current state of the activity displayed on the
+     * navigation fragment.
      */
-    public LiveData<ComponentVisibility> getFreeNavigationActivity() {
-        return mFreeNavigationActivity;
+    public LiveData<NavigationActivityState> getNavigationActivityState() {
+        return mNavigationActivityStateLiveData;
     }
 
     /**
      * Returns a {@link LiveData} indicating whether navigation focus is currently being granted
      * or not. This indicates whether a navigation application is currently providing driving
-     * directions. Instrument cluster can use this signal to show/hide turn-by-turn
-     * directions UI, and hide/show the free navigation activity
-     * (see {@link #getFreeNavigationActivity()}).
+     * directions.
      */
     public LiveData<Boolean> getNavigationFocus() {
         return mNavigationFocus;
@@ -98,12 +73,22 @@ public class ClusterViewModel extends AndroidViewModel {
 
     /**
      * Sets the activity selected to be displayed on the cluster when no driving directions are
-     * being provided, and whether such activity is currently visible to the user or not
+     * being provided.
      */
-    public void setFreeNavigationActivity(ComponentName application, boolean isVisible) {
-        ComponentVisibility newValue = new ComponentVisibility(application, isVisible);
-        if (!Objects.equals(mFreeNavigationActivity.getValue(), newValue)) {
-            mFreeNavigationActivity.setValue(new ComponentVisibility(application, isVisible));
+    public void setFreeNavigationActivity(ComponentName activity) {
+        if (!Objects.equals(activity, mFreeNavigationActivity)) {
+            mFreeNavigationActivity = activity;
+            updateNavigationActivityLiveData();
+        }
+    }
+
+    /**
+     * Sets the activity currently being displayed on the cluster.
+     */
+    public void setCurrentNavigationActivity(ComponentName activity) {
+        if (!Objects.equals(activity, mCurrentNavigationActivity)) {
+            mCurrentNavigationActivity = activity;
+            updateNavigationActivityLiveData();
         }
     }
 
@@ -113,6 +98,34 @@ public class ClusterViewModel extends AndroidViewModel {
     public void setNavigationFocus(boolean navigationFocus) {
         if (mNavigationFocus.getValue() == null || mNavigationFocus.getValue() != navigationFocus) {
             mNavigationFocus.setValue(navigationFocus);
+            updateNavigationActivityLiveData();
+        }
+    }
+
+    private void updateNavigationActivityLiveData() {
+        NavigationActivityState newState = calculateNavigationActivityState();
+        if (newState != mNavigationActivityStateLiveData.getValue()) {
+            mNavigationActivityStateLiveData.setValue(newState);
+        }
+    }
+
+    private NavigationActivityState calculateNavigationActivityState() {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, String.format("Current state: current activity = '%s', free nav activity = "
+                            + "'%s', focus = %s", mCurrentNavigationActivity,
+                    mFreeNavigationActivity,
+                    mNavigationFocus.getValue()));
+        }
+        if (mNavigationFocus.getValue() != null && mNavigationFocus.getValue()) {
+            // Car service controls which activity is displayed while driving, so we assume this
+            // has already been taken care of.
+            return NavigationActivityState.VISIBLE;
+        } else if (mFreeNavigationActivity == null) {
+            return NavigationActivityState.NOT_SELECTED;
+        } else if (Objects.equals(mFreeNavigationActivity, mCurrentNavigationActivity)) {
+            return NavigationActivityState.VISIBLE;
+        } else {
+            return NavigationActivityState.LOADING;
         }
     }
 }
