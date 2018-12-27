@@ -95,6 +95,10 @@
         <item name="textAppearanceListItemSmall">@style/TextAppearance.DeviceDefault.Large</item>
         <item name="textAppearanceListItemSecondary">@style/TextAppearance.DeviceDefault.Small</item>
     </style>
+
+    <style name="Theme.DeviceDefault.Settings.Dialog" parent="Theme.DeviceDefault.Dialog.Alert">
+    </style>
+
     <!-- The light theme is defined to be the same as the default since currently there is only one
         defined theme palette -->
     <style name="Theme.DeviceDefault.Light"/>
