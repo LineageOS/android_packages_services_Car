@@ -24,4 +24,6 @@ interface ICarBluetooth {
     void clearBluetoothDeviceConnectionPriority(in int profileToClear,in int priorityToClear);
     boolean isPriorityDevicePresent(in int profile, in int priorityToCheck);
     String getDeviceNameWithPriority(in int profile, in int priorityToCheck);
+    boolean requestTemporaryDisconnect(in BluetoothDevice device, in int profile, in IBinder token);
+    boolean releaseTemporaryDisconnect(in BluetoothDevice device, in int profile, in IBinder token);
 }

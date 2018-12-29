@@ -193,6 +193,12 @@ public class CarSettings {
         public static final String KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICE_PRIORITY_1 =
                 "android.car.BLUETOOTH_AUTOCONNECT_NETWORK_DEVICE_PRIORITY_1";
 
-
+        /**
+         * Key for storing temporarily-disconnected devices and profiles.
+         * Read and written by {@link com.android.car.BluetoothDeviceConnectionPolicy}.
+         * @hide
+         */
+        public static final String KEY_BLUETOOTH_TEMPORARY_DISCONNECTS =
+                "android.car.BLUETOOTH_TEMPORARY_DISCONNECTS";
     }
 }
