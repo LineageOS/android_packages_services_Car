@@ -62,6 +62,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -218,29 +219,20 @@ public class BluetoothDeviceConnectionPolicy {
      * Used as the currency that methods use to talk to each other in the policy.
      */
     public static class ConnectionParams {
-        private BluetoothDevice mBluetoothDevice;
-        private Integer mBluetoothProfile;
+        private final BluetoothDevice mBluetoothDevice;
+        private final Integer mBluetoothProfile;
 
         public ConnectionParams() {
-            // default constructor
+            this(null, null);
         }
 
         public ConnectionParams(Integer profile) {
-            mBluetoothProfile = profile;
+            this(profile, null);
         }
 
         public ConnectionParams(Integer profile, BluetoothDevice device) {
             mBluetoothProfile = profile;
             mBluetoothDevice = device;
-        }
-
-        // getters & Setters
-        public void setBluetoothDevice(BluetoothDevice device) {
-            mBluetoothDevice = device;
-        }
-
-        public void setBluetoothProfile(Integer profile) {
-            mBluetoothProfile = profile;
         }
 
         public BluetoothDevice getBluetoothDevice() {
@@ -249,6 +241,24 @@ public class BluetoothDeviceConnectionPolicy {
 
         public Integer getBluetoothProfile() {
             return mBluetoothProfile;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof ConnectionParams)) {
+                return false;
+            }
+            ConnectionParams otherParams = (ConnectionParams) other;
+            return Objects.equals(mBluetoothDevice, otherParams.mBluetoothDevice)
+                && Objects.equals(mBluetoothProfile, otherParams.mBluetoothProfile);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mBluetoothDevice, mBluetoothProfile);
         }
     }
 
@@ -946,13 +956,9 @@ public class BluetoothDeviceConnectionPolicy {
                 if (DBG) {
                     Log.d(TAG, "Found device to connect to");
                 }
-                BluetoothDeviceConnectionPolicy.ConnectionParams btParams =
-                        new BluetoothDeviceConnectionPolicy.ConnectionParams(
-                                mConnectionInFlight.getBluetoothProfile(),
-                                mConnectionInFlight.getBluetoothDevice());
                 // set up a time out
                 mBluetoothAutoConnectStateMachine.sendMessageDelayed(
-                        BluetoothAutoConnectStateMachine.CONNECT_TIMEOUT, btParams,
+                        BluetoothAutoConnectStateMachine.CONNECT_TIMEOUT, mConnectionInFlight,
                         BluetoothAutoConnectStateMachine.CONNECTION_TIMEOUT_MS);
                 break;
             } else {
@@ -1072,8 +1078,7 @@ public class BluetoothDeviceConnectionPolicy {
                 devInfo.setConnectionStateLocked(device, BluetoothProfile.STATE_CONNECTING);
                 // Increment the retry count & cache what is being connected to
                 // This method is already called from a synchronized context.
-                mConnectionInFlight.setBluetoothDevice(device);
-                mConnectionInFlight.setBluetoothProfile(profile);
+                mConnectionInFlight = new ConnectionParams(profile, device);
                 devInfo.incrementRetryCountLocked();
                 if (DBG) {
                     Log.d(TAG, "Increment Retry to: " + devInfo.getRetryCountLocked() +
@@ -1097,8 +1102,7 @@ public class BluetoothDeviceConnectionPolicy {
      * @param devInfo the {@link BluetoothDevicesInfo} where the info is to be reset.
      */
     private void setProfileOnDeviceToUnavailable(BluetoothDevicesInfo devInfo) {
-        mConnectionInFlight.setBluetoothProfile(0);
-        mConnectionInFlight.setBluetoothDevice(null);
+        mConnectionInFlight = new ConnectionParams(0, null);
         devInfo.setDeviceAvailableToConnectLocked(false);
     }
 
