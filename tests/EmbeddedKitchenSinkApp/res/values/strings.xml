@@ -126,11 +126,14 @@
     <string name="open_kb_button">Hide/Show Input</string>
 
     <!-- instrument cluster -->
-    <string name="cluster_start">Start metadata</string>
-    <string name="cluster_turn_left">Send turn-by-turn</string>
-    <string name="cluster_stop">Stop metadata</string>
+    <string name="cluster_start">Request focus</string>
+    <string name="cluster_start_guidance">Start turn-by-turn</string>
+    <string name="cluster_stop">Abandon focus</string>
+    <string name="cluster_stop_guidance">Stop turn-by-turn</string>
     <string name="cluster_nav_app_context_loss">Navigation app context lost!</string>
     <string name="cluster_start_activity">Start Nav Activity</string>
+    <string name="cluster_start_activity_failed">Failed to start activity in cluster</string>
+    <string name="cluster_not_started">Missing navigation focus</string>
 
     <!--  input test -->
     <string name="volume_up">Volume +</string>

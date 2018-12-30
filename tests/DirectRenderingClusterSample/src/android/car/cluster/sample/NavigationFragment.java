@@ -138,8 +138,13 @@ public class NavigationFragment extends Fragment {
                 Log.i(TAG, "surfaceChanged, holder: " + holder + ", size:" + width + "x" + height
                         + ", format:" + format);
 
-                //Create dummy unobscured area to report to navigation activity.
-                mUnobscuredBounds = new Rect(40, 0, width - 80, height - 40);
+                // Create dummy unobscured area to report to navigation activity.
+                int obscuredWidth = (int) getResources()
+                        .getDimension(R.dimen.speedometer_overlap_width);
+                int obscuredHeight = (int) getResources()
+                        .getDimension(R.dimen.navigation_gradient_height);
+                mUnobscuredBounds = new Rect(obscuredWidth, obscuredHeight, width - obscuredWidth,
+                        height - obscuredHeight);
 
                 if (mVirtualDisplay == null) {
                     mVirtualDisplay = createVirtualDisplay(holder.getSurface(), width, height);
@@ -159,10 +164,14 @@ public class NavigationFragment extends Fragment {
         mProgressBar = root.findViewById(R.id.progress_bar);
         mMessage = root.findViewById(R.id.message);
 
-        mViewModel.getFreeNavigationActivity().observe(this, app -> {
-            mProgressBar.setVisibility(app.mComponent != null && !app.mIsVisible ? View.VISIBLE
-                    : View.GONE);
-            mMessage.setVisibility(app.mComponent == null ? View.VISIBLE : View.GONE);
+        mViewModel.getNavigationActivityState().observe(this, state -> {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "State: " + state);
+            }
+            mProgressBar.setVisibility(state == ClusterViewModel.NavigationActivityState.LOADING
+                    ? View.VISIBLE : View.INVISIBLE);
+            mMessage.setVisibility(state == ClusterViewModel.NavigationActivityState.NOT_SELECTED
+                    ? View.VISIBLE : View.INVISIBLE);
         });
 
         return root;

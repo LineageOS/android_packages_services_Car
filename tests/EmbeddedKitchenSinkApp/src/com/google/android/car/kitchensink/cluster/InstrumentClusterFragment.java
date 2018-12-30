@@ -15,7 +15,7 @@
  */
 package com.google.android.car.kitchensink.cluster;
 
-import android.app.AlertDialog;
+import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.CarNotConnectedException;
@@ -31,14 +31,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.cluster.navigation.NavigationState;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,10 +48,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.stream.Collectors;
 
 /**
  * Contains functions to test instrument cluster API.
@@ -65,27 +64,53 @@ public class InstrumentClusterFragment extends Fragment {
     private Car mCarApi;
     private Timer mTimer;
     private NavigationState[] mNavStateData;
+    private Button mTurnByTurnButton;
 
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                Log.d(TAG, "Connected to Car Service");
-                try {
-                    mCarNavigationStatusManager =
-                            (CarNavigationStatusManager) mCarApi.getCarManager(
-                                    Car.CAR_NAVIGATION_SERVICE);
-                    mCarAppFocusManager =
-                        (CarAppFocusManager) mCarApi.getCarManager(Car.APP_FOCUS_SERVICE);
-                } catch (CarNotConnectedException e) {
-                    Log.e(TAG, "Car is not connected!", e);
-                }
+    private ServiceConnection mCarServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(TAG, "Connected to Car Service");
+            try {
+                mCarNavigationStatusManager = (CarNavigationStatusManager) mCarApi
+                        .getCarManager(Car.CAR_NAVIGATION_SERVICE);
+                mCarAppFocusManager = (CarAppFocusManager) mCarApi
+                        .getCarManager(Car.APP_FOCUS_SERVICE);
+            } catch (CarNotConnectedException e) {
+                Log.e(TAG, "Car is not connected!", e);
             }
+        }
 
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                Log.d(TAG, "Disconnect from Car Service");
-            }
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG, "Disconnect from Car Service");
+        }
     };
+
+    private final CarAppFocusManager.OnAppFocusOwnershipCallback mFocusCallback =
+            new CarAppFocusManager.OnAppFocusOwnershipCallback() {
+        @Override
+        public void onAppFocusOwnershipLost(@CarAppFocusManager.AppFocusType int appType) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onAppFocusOwnershipLost, appType: " + appType);
+            }
+            Toast.makeText(getContext(), getText(R.string.cluster_nav_app_context_loss),
+                    Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onAppFocusOwnershipGranted(@CarAppFocusManager.AppFocusType int appType) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onAppFocusOwnershipGranted, appType: " + appType);
+            }
+        }
+    };
+    private CarAppFocusManager.OnAppFocusChangedListener mOnAppFocusChangedListener =
+            (appType, active) -> {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "onAppFocusChanged, appType: " + appType + " active: " + active);
+                }
+            };
+
 
     private void initCarApi() {
         if (mCarApi != null && mCarApi.isConnected()) {
@@ -93,7 +118,7 @@ public class InstrumentClusterFragment extends Fragment {
             mCarApi = null;
         }
 
-        mCarApi = Car.createCar(getContext(), mServiceConnection);
+        mCarApi = Car.createCar(getContext(), mCarServiceConnection);
         mCarApi.connect();
     }
 
@@ -122,7 +147,7 @@ public class InstrumentClusterFragment extends Fragment {
         InputStream inputStream = getResources().openRawResource(resId);
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder builder = new StringBuilder();
-        for (String line = null; (line = reader.readLine()) != null; ) {
+        for (String line; (line = reader.readLine()) != null; ) {
             builder.append(line).append("\n");
         }
         return builder.toString();
@@ -135,8 +160,11 @@ public class InstrumentClusterFragment extends Fragment {
         View view = inflater.inflate(R.layout.instrument_cluster, container, false);
 
         view.findViewById(R.id.cluster_start_button).setOnClickListener(v -> initCluster());
-        view.findViewById(R.id.cluster_turn_left_button).setOnClickListener(v -> toogleSendTurn());
+        view.findViewById(R.id.cluster_stop_button).setOnClickListener(v -> stopCluster());
         view.findViewById(R.id.cluster_start_activity).setOnClickListener(v -> startNavActivity());
+
+        mTurnByTurnButton = view.findViewById(R.id.cluster_turn_left_button);
+        mTurnByTurnButton.setOnClickListener(v -> toggleSendTurn());
 
         return view;
     }
@@ -159,14 +187,15 @@ public class InstrumentClusterFragment extends Fragment {
             return;
         }
 
-        // Implicit intent
+        // Implicit intent ("startActivity" method doesn't work with explicit intents)
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(CarInstrumentClusterManager.CATEGORY_NAVIGATION);
+        intent.setPackage(KitchenSinkActivity.class.getPackage().getName());
         try {
             clusterManager.startActivity(intent);
         } catch (android.car.CarNotConnectedException e) {
             Log.e(TAG, "Failed to startActivity in cluster", e);
-            Toast.makeText(getContext(), "Failed to start activity in cluster",
+            Toast.makeText(getContext(), getText(R.string.cluster_start_activity_failed),
                     Toast.LENGTH_LONG).show();
             return;
         }
@@ -175,32 +204,48 @@ public class InstrumentClusterFragment extends Fragment {
     /**
      * Enables/disables sending turn-by-turn data through the {@link CarNavigationStatusManager}
      */
-    private void toogleSendTurn() {
+    private void toggleSendTurn() {
         // If we haven't yet load the sample navigation state data, do so.
         if (mNavStateData == null) {
             mNavStateData = getNavStateData();
-            Log.i(TAG, "Loaded: " + Arrays.asList(mNavStateData)
-                    .stream()
-                    .map(n -> n.toString())
-                    .collect(Collectors.joining(", ")));
         }
 
         // Toggle a timer to send update periodically.
         if (mTimer == null) {
-            mTimer = new Timer();
-            mTimer.schedule(new TimerTask() {
-                private int mPos;
-
-                @Override
-                public void run() {
-                    sendTurn(mNavStateData[mPos]);
-                    mPos = (mPos + 1) % mNavStateData.length;
-                }
-            }, 0, 1000);
+            startSendTurn();
         } else {
+            stopSendTurn();
+        }
+    }
+
+    private void startSendTurn() {
+        if (mTimer != null) {
+            stopSendTurn();
+        }
+        if (!hasFocus()) {
+            Toast.makeText(getContext(), getText(R.string.cluster_not_started), Toast.LENGTH_LONG)
+                    .show();
+            return;
+        }
+        mTimer = new Timer();
+        mTimer.schedule(new TimerTask() {
+            private int mPos;
+
+            @Override
+            public void run() {
+                sendTurn(mNavStateData[mPos]);
+                mPos = (mPos + 1) % mNavStateData.length;
+            }
+        }, 0, 1000);
+        mTurnByTurnButton.setText(R.string.cluster_stop_guidance);
+    }
+
+    private void stopSendTurn() {
+        if (mTimer != null) {
             mTimer.cancel();
             mTimer = null;
         }
+        mTurnByTurnButton.setText(R.string.cluster_start_guidance);
     }
 
     /**
@@ -218,53 +263,42 @@ public class InstrumentClusterFragment extends Fragment {
     }
 
     private void initCluster() {
-        try {
-            mCarAppFocusManager
-                    .addFocusListener(new CarAppFocusManager.OnAppFocusChangedListener() {
-                        @Override
-                        public void onAppFocusChanged(int appType, boolean active) {
-                            Log.d(TAG, "onAppFocusChanged, appType: " + appType + " active: "
-                                    + active);
-                        }
-                    }, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to register focus listener", e);
+        if (hasFocus()) {
+            return;
         }
-
-        CarAppFocusManager.OnAppFocusOwnershipCallback
-                focusCallback = new CarAppFocusManager.OnAppFocusOwnershipCallback() {
-            @Override
-            public void onAppFocusOwnershipLost(int focus) {
-                Log.w(TAG, "onAppFocusOwnershipLost, focus: " + focus);
-                new AlertDialog.Builder(getContext())
-                        .setTitle(getContext().getApplicationInfo().name)
-                        .setMessage(R.string.cluster_nav_app_context_loss)
-                        .show();
-            }
-
-            @Override
-            public void onAppFocusOwnershipGranted(int focus) {
-                Log.w(TAG, "onAppFocusOwnershipGranted, focus: " + focus);
-            }
-
-        };
         try {
+            mCarAppFocusManager.addFocusListener(mOnAppFocusChangedListener,
+                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
             mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
-                    focusCallback);
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to set active focus", e);
-        }
-
-        try {
-            boolean ownsFocus = mCarAppFocusManager.isOwningFocus(
-                    focusCallback, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-            Log.d(TAG, "Owns APP_FOCUS_TYPE_NAVIGATION: " + ownsFocus);
-            if (!ownsFocus) {
+                    mFocusCallback);
+            if (!hasFocus()) {
                 throw new RuntimeException("Focus was not acquired.");
             }
         } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to get owned focus", e);
+            Log.e(TAG, "Failed to set active focus", e);
         }
+    }
+
+    private boolean hasFocus() {
+        try {
+            boolean ownsFocus = mCarAppFocusManager.isOwningFocus(mFocusCallback,
+                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Owns APP_FOCUS_TYPE_NAVIGATION: " + ownsFocus);
+            }
+            return ownsFocus;
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Failed to get owned focus", e);
+            return false;
+        }
+    }
+
+    private void stopCluster() {
+        stopSendTurn();
+        mCarAppFocusManager.removeFocusListener(mOnAppFocusChangedListener,
+                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+        mCarAppFocusManager.abandonAppFocus(mFocusCallback,
+                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
     }
 
     @Override

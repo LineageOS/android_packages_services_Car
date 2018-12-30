@@ -22,6 +22,7 @@ import android.app.IActivityManager;
 import android.app.IProcessObserver;
 import android.app.TaskStackListener;
 import android.content.ComponentName;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -51,6 +52,7 @@ public class ActivityMonitor {
     private IActivityManager mActivityManager;
     // Listeners of top activity changes, indexed by the displayId they are interested on.
     private final Map<Integer, Set<ActivityListener>> mListeners = new HashMap<>();
+    private final Handler mHandler = new Handler();
     private final IProcessObserver.Stub mProcessObserver = new IProcessObserver.Stub() {
         @Override
         public void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
@@ -120,19 +122,25 @@ public class ActivityMonitor {
         mActivityManager = null;
     }
 
+    /**
+     * Notifies listeners on changes of top activities. {@link ActivityManager} might trigger
+     * updates on threads different than UI.
+     */
     private void notifyTopActivities() {
-        try {
-            List<StackInfo> infos = mActivityManager.getAllStackInfos();
-            for (StackInfo info : infos) {
-                Set<ActivityListener> listeners = mListeners.get(info.displayId);
-                if (listeners != null && !listeners.isEmpty()) {
-                    for (ActivityListener listener : listeners) {
-                        listener.onTopActivityChanged(info.displayId, info.topActivity);
+        mHandler.post(() -> {
+            try {
+                List<StackInfo> infos = mActivityManager.getAllStackInfos();
+                for (StackInfo info : infos) {
+                    Set<ActivityListener> listeners = mListeners.get(info.displayId);
+                    if (listeners != null && !listeners.isEmpty()) {
+                        for (ActivityListener listener : listeners) {
+                            listener.onTopActivityChanged(info.displayId, info.topActivity);
+                        }
                     }
                 }
+            } catch (RemoteException e) {
+                Log.e(TAG, "Cannot getTasks", e);
             }
-        } catch (RemoteException e) {
-            Log.e(TAG, "Cannot getTasks", e);
-        }
+        });
     }
 }
