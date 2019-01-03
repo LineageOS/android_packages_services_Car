@@ -37,6 +37,7 @@ public class LocationListeners {
     LocationManager mLocationMgr;
     SensorManager   mSensorMgr;
 
+    Sensor mAccelerometerSensor, mMagneticFieldSensor, mGyroscopeSensor;
 
     public LocationListeners(Context context,
                              SensorsTestFragment.LocationInfoTextUpdateListener listener) {
@@ -44,6 +45,10 @@ public class LocationListeners {
 
         mLocationMgr = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         mSensorMgr = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+
+        mAccelerometerSensor = mSensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mMagneticFieldSensor = mSensorMgr.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        mGyroscopeSensor = mSensorMgr.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
     }
 
     public void startListening() {
@@ -51,7 +56,7 @@ public class LocationListeners {
             if (mLocationMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 mLocationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
                         mLocationListener);
-                mTextUpdateHandler.setMagField("waiting to hear from GPS");
+                mTextUpdateHandler.setLocationField("waiting to hear from GPS");
             } else {
                 mTextUpdateHandler.setLocationField("GPS_PROVIDER not available");
             }
@@ -60,20 +65,47 @@ public class LocationListeners {
         }
 
         if (mSensorMgr != null) {
-            Sensor accelerometerSensor = mSensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            Sensor magneticFieldSensor = mSensorMgr.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-            Sensor gyroscopeSensor = mSensorMgr.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+            // Accelerometer.
+            if (mAccelerometerSensor != null) {
+                if (!mSensorMgr.registerListener(mSensorListener, mAccelerometerSensor,
+                        SensorManager.SENSOR_DELAY_FASTEST)) {
+                    mTextUpdateHandler.setAccelField(
+                            "Accelerometer: failed to register listener.");
+                } else {
+                    mTextUpdateHandler.setAccelField(
+                            "Accelerometer: waiting to hear from SensorManager");
+                }
+            } else {
+                mTextUpdateHandler.setAccelField("Accelerometer: sensor not available.");
+            }
 
-            mSensorMgr.registerListener(mSensorListener, accelerometerSensor,
-                    SensorManager.SENSOR_DELAY_FASTEST);
-            mSensorMgr.registerListener(mSensorListener, gyroscopeSensor,
-                    SensorManager.SENSOR_DELAY_FASTEST);
-            mSensorMgr.registerListener(mSensorListener, magneticFieldSensor,
-                    SensorManager.SENSOR_DELAY_FASTEST);
+            // Gyroscope.
+            if (mGyroscopeSensor != null) {
+                if (!mSensorMgr.registerListener(mSensorListener, mGyroscopeSensor,
+                        SensorManager.SENSOR_DELAY_FASTEST)) {
+                    mTextUpdateHandler.setGyroField(
+                            "Gyroscope: failed to register listener.");
+                } else {
+                    mTextUpdateHandler.setGyroField(
+                            "Gyroscope: waiting to hear from SensorManager");
+                }
+            } else {
+                mTextUpdateHandler.setGyroField("Gyroscope: sensor not available.");
+            }
 
-            mTextUpdateHandler.setAccelField("Accel waiting to hear from SensorManager");
-            mTextUpdateHandler.setGyroField("Gyro waiting to hear from SensorManager");
-            mTextUpdateHandler.setMagField("Mag waiting to hear from SensorManager");
+            // Magnetometer.
+            if (mMagneticFieldSensor != null) {
+                if (!mSensorMgr.registerListener(mSensorListener, mMagneticFieldSensor,
+                        SensorManager.SENSOR_DELAY_FASTEST)) {
+                    mTextUpdateHandler.setMagField(
+                            "Magnetometer: failed to register listener.");
+                } else {
+                    mTextUpdateHandler.setMagField(
+                            "Magnetometer: waiting to hear from SensorManager");
+                }
+            } else {
+                mTextUpdateHandler.setMagField("Magnetometer: sensor not available.");
+            }
         } else {
             mTextUpdateHandler.setAccelField("SensorManager not available");
             mTextUpdateHandler.setGyroField("SensorManager not available");
@@ -134,7 +166,7 @@ public class LocationListeners {
                 case Sensor.TYPE_GYROSCOPE:
                     String gs = String.format("Gyroscope Rad/s: (%6.2f, %6.2f, %6.2f)",
                             event.values[0], event.values[1], event.values[2]);
-                    mTextUpdateHandler.setLocationField(gs);
+                    mTextUpdateHandler.setGyroField(gs);
                     break;
                 case Sensor.TYPE_MAGNETIC_FIELD:
                     // NOTE:  If we wanted to report yaw/pitch/roll, we would use both
@@ -145,12 +177,12 @@ public class LocationListeners {
                     // SensorManager.getOrientation(mR, orientation);
                     String ms = String.format("Magnetic uT: (%6.2f, %6.2f, %6.2f)",
                             event.values[0], event.values[1], event.values[2]);
-                    mTextUpdateHandler.setLocationField(ms);
+                    mTextUpdateHandler.setMagField(ms);
                     break;
                 case Sensor.TYPE_ACCELEROMETER:
                     String as = String.format("Accelerometer m/s2: (%6.2f, %6.2f, %6.2f)",
                             event.values[0], event.values[1], event.values[2]);
-                    mTextUpdateHandler.setLocationField(as);
+                    mTextUpdateHandler.setAccelField(as);
                     break;
                 default:
                     Log.w(TAG, "Unexpected sensor event type: " + type);
