@@ -143,8 +143,12 @@ public class NavigationFragment extends Fragment {
                         .getDimension(R.dimen.speedometer_overlap_width);
                 int obscuredHeight = (int) getResources()
                         .getDimension(R.dimen.navigation_gradient_height);
-                mUnobscuredBounds = new Rect(obscuredWidth, obscuredHeight, width - obscuredWidth,
-                        height - obscuredHeight);
+                mUnobscuredBounds = new Rect(
+                        obscuredWidth,          /* left: size of gauge */
+                        obscuredHeight,         /* top: gradient */
+                        width - obscuredWidth,  /* right: size of the display - size of gauge */
+                        height - obscuredHeight /* bottom: size of display - gradient */
+                );
 
                 if (mVirtualDisplay == null) {
                     mVirtualDisplay = createVirtualDisplay(holder.getSurface(), width, height);

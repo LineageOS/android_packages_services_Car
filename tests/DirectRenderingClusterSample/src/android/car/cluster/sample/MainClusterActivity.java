@@ -33,11 +33,9 @@ import static android.content.Intent.ACTION_USER_UNLOCKED;
 
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
-import android.car.Car;
-import android.car.CarAppFocusManager;
-import android.car.CarNotConnectedException;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
+import android.car.cluster.sample.sensors.Sensors;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -63,12 +61,14 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.car.cluster.navigation.NavigationState;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.viewpager.widget.ViewPager;
@@ -77,6 +77,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Main activity displayed on the instrument cluster. This activity contains fragments for each of
@@ -105,15 +106,14 @@ public class MainClusterActivity extends FragmentActivity {
     private NavStateController mNavStateController;
     private ClusterViewModel mClusterViewModel;
 
-    private HashMap<Button, Facet<?>> mButtonToFacet = new HashMap<>();
+    private Map<View, Facet<?>> mButtonToFacet = new HashMap<>();
     private SparseArray<Facet<?>> mOrderToFacet = new SparseArray<>();
 
+    private Map<Sensors.Gear, View> mGearsToIcon = new HashMap<>();
     private InputMethodManager mInputMethodManager;
     private Messenger mService;
     private Messenger mServiceCallbacks = new Messenger(new MessageHandler(this));
     private VirtualDisplay mPendingVirtualDisplay = null;
-    private Car mCar;
-    private CarAppFocusManager mCarAppFocusManager;
 
     private static final int NAVIGATION_ACTIVITY_RETRY_INTERVAL_MS = 1000;
 
@@ -166,32 +166,6 @@ public class MainClusterActivity extends FragmentActivity {
             Log.i(TAG, "onServiceDisconnected, name: " + name);
             mService = null;
             onNavigationStateChange(NULL_NAV_STATE);
-        }
-    };
-
-    private ServiceConnection mCarServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            try {
-                Log.i(TAG, "onServiceConnected, name: " + name + ", service: " + service);
-                mCarAppFocusManager = (CarAppFocusManager) mCar.getCarManager(
-                        Car.APP_FOCUS_SERVICE);
-                if (mCarAppFocusManager == null) {
-                    Log.e(TAG, "onServiceConnected: unable to obtain CarAppFocusManager");
-                    return;
-                }
-                mCarAppFocusManager.addFocusListener(
-                        (appType, active) -> mClusterViewModel.setNavigationFocus(active),
-                        CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-            } catch (CarNotConnectedException e) {
-                Log.e(TAG, "onServiceConnected: error obtaining manager", e);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.i(TAG, "onServiceDisconnected, name: " + name);
-            mCarAppFocusManager = null;
         }
     };
 
@@ -275,11 +249,14 @@ public class MainClusterActivity extends FragmentActivity {
         intent.setAction(LOCAL_BINDING_ACTION);
         bindService(intent, mClusterRenderingServiceConnection, 0);
 
-        registerFacets(
-                new Facet<>(findViewById(R.id.btn_nav), 0, NavigationFragment.class),
-                new Facet<>(findViewById(R.id.btn_phone), 1, PhoneFragment.class),
-                new Facet<>(findViewById(R.id.btn_music), 2, MusicFragment.class),
-                new Facet<>(findViewById(R.id.btn_car_info), 3, CarInfoFragment.class));
+        registerFacet(new Facet<>(findViewById(R.id.btn_nav), 0, NavigationFragment.class));
+        registerFacet(new Facet<>(findViewById(R.id.btn_phone), 1, PhoneFragment.class));
+        registerFacet(new Facet<>(findViewById(R.id.btn_music), 2, MusicFragment.class));
+        registerFacet(new Facet<>(findViewById(R.id.btn_car_info), 3, CarInfoFragment.class));
+        registerGear(findViewById(R.id.gear_parked), Sensors.Gear.PARK);
+        registerGear(findViewById(R.id.gear_reverse), Sensors.Gear.REVERSE);
+        registerGear(findViewById(R.id.gear_neutral), Sensors.Gear.NEUTRAL);
+        registerGear(findViewById(R.id.gear_drive), Sensors.Gear.DRIVE);
 
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(new ClusterPageAdapter(getSupportFragmentManager()));
@@ -295,13 +272,26 @@ public class MainClusterActivity extends FragmentActivity {
             }
         });
 
-        mCar = Car.createCar(this, mCarServiceConnection);
-        mCar.connect();
+        mClusterViewModel.getSensor(Sensors.SENSOR_GEAR).observe(this, this::updateSelectedGear);
+
+        registerSensor(findViewById(R.id.info_fuel), mClusterViewModel.getFuelLevel());
+        registerSensor(findViewById(R.id.info_speed),
+                mClusterViewModel.getSensor(Sensors.SENSOR_SPEED));
+        registerSensor(findViewById(R.id.info_range),
+                mClusterViewModel.getSensor(Sensors.SENSOR_FUEL_RANGE));
+        registerSensor(findViewById(R.id.info_rpm),
+                mClusterViewModel.getSensor(Sensors.SENSOR_RPM));
 
         mActivityMonitor.start();
 
         mUserReceiver = new UserReceiver(this);
         mUserReceiver.register(this);
+    }
+
+    private <V> void registerSensor(TextView textView, LiveData<V> source) {
+        String emptyValue = getString(R.string.info_value_empty);
+        source.observe(this, value -> textView.setText(value != null
+                ? value.toString() : emptyValue));
     }
 
     @Override
@@ -310,8 +300,6 @@ public class MainClusterActivity extends FragmentActivity {
         Log.d(TAG, "onDestroy");
         mUserReceiver.unregister(this);
         mActivityMonitor.stop();
-        mCar.disconnect();
-        mCarAppFocusManager = null;
         if (mService != null) {
             sendServiceMessage(MSG_UNREGISTER_CLIENT, null, mServiceCallbacks);
             mService = null;
@@ -392,12 +380,6 @@ public class MainClusterActivity extends FragmentActivity {
         @Override
         public Fragment getItem(int position) {
             return mOrderToFacet.get(position).getOrCreateFragment();
-        }
-    }
-
-    private void registerFacets(Facet<?>... facets) {
-        for (Facet<?> f : facets) {
-            registerFacet(f);
         }
     }
 
@@ -525,5 +507,15 @@ public class MainClusterActivity extends FragmentActivity {
         // retry until we find one, or we exhaust the retries.
         Log.d(TAG, "No default activity found (it might not be available yet).");
         return null;
+    }
+
+    private void registerGear(View view, Sensors.Gear gear) {
+        mGearsToIcon.put(gear, view);
+    }
+
+    private void updateSelectedGear(Sensors.Gear gear) {
+        for (Map.Entry<Sensors.Gear, View> entry : mGearsToIcon.entrySet()) {
+            entry.getValue().setSelected(entry.getKey() == gear);
+        }
     }
 }
