@@ -1,3 +1,4 @@
+// Signature format: 2.0
 package android.car.content.pm {
 
   public final class CarPackageManager {
@@ -9,8 +10,8 @@ package android.car.content.pm {
 package android.car.drivingstate {
 
   public final class CarUxRestrictionsManager {
-    method public synchronized android.car.drivingstate.CarUxRestrictionsConfiguration getConfig() throws android.car.CarNotConnectedException;
-    method public synchronized android.car.drivingstate.CarUxRestrictionsConfiguration getStagedConfig() throws android.car.CarNotConnectedException;
+    method @RequiresPermission("android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION") public android.car.drivingstate.CarUxRestrictionsConfiguration getConfig() throws android.car.CarNotConnectedException;
+    method @Nullable @RequiresPermission("android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION") public android.car.drivingstate.CarUxRestrictionsConfiguration getStagedConfig() throws android.car.CarNotConnectedException;
   }
 
 }
