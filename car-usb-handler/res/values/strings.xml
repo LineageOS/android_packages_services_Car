@@ -17,9 +17,6 @@
     <string name="app_name">USB Handler</string>
 
     <!-- USB Manager Settings -->
-    <string name="usb_title">USB Devices settings</string>
-    <string name="usb_description">Customize your USB Devices settings</string>
-    <string name="usb_available_devices">Connected devices</string>
     <string name="usb_saved_devices">Saved devices</string>
     <string name="usb_pref_delete_title">Remove handling app for USB device</string>
     <string name="usb_pref_delete_message">Are you sure you wan to delete dafault handling app for %1$s?</string>

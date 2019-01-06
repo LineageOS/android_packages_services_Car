@@ -3,9 +3,20 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <!-- Size and position of speedometers -->
-    <dimen name="speedometer_height">500dp</dimen>
-    <dimen name="speedometer_width">500dp</dimen>
-    <dimen name="speedometer_overlap_width">80dp</dimen>
+    <dimen name="speedometer_height">600dp</dimen>
+    <dimen name="speedometer_width">600dp</dimen>
+    <dimen name="speedometer_overlap_width">90dp</dimen>
+    <dimen name="speedometer_top">20dp</dimen>
     <!-- Navigation fragment gradients -->
-    <dimen name="navigation_gradient_height">30dp</dimen>
+    <dimen name="navigation_gradient_height">15dp</dimen>
+    <!-- Facet buttons -->
+    <dimen name="facet_icon_size">30dp</dimen>
+    <dimen name="facet_icon_margin">5dp</dimen>
+    <!-- Gears -->
+    <dimen name="gear_text_size">28sp</dimen>
+    <dimen name="gear_icon_margin">5dp</dimen>
+    <!-- Information space -->
+    <dimen name="info_height">80dp</dimen>
+    <dimen name="info_label_text_size">10sp</dimen>
+    <dimen name="info_value_text_size">20sp</dimen>
 </resources>
