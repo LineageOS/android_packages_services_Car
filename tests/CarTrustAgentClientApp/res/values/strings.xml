@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 <resources>
-    <string name="app_name">CarTrustAgentClient</string>
+    <string name="app_name" translatable="false">CarTrustAgentClient</string>
 
     <!-- service/characteristics uuid for unlocking a device -->
     <string name="unlock_service_uuid" translatable="false">5e2a68a1-27be-43f9-8d1e-4546976fabd7</string>
@@ -30,8 +30,8 @@
     <string name="pref_key_token_handle" translatable="false">token-handle-key</string>
     <string name="pref_key_escrow_token" translatable="false">escrow-token-key</string>
 
-    <string name="enroll_button">Enroll new token</string>
-    <string name="enroll_scan">Scan to enroll</string>
-    <string name="unlock_button">Unlock</string>
-    <string name="unlock_scan">Scan to unlock</string>
+    <string name="enroll_button" translatable="false">Enroll new token</string>
+    <string name="enroll_scan" translatable="false">Scan to enroll</string>
+    <string name="unlock_button" translatable="false">Unlock</string>
+    <string name="unlock_scan" translatable="false">Scan to unlock</string>
 </resources>
