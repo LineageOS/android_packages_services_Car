@@ -281,7 +281,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             synchronized (this) {
                 releaseTimerLocked();
             }
-            doHandleShutdown();
+            // Notify hal that we are shutting down and since it is immediate, don't schedule next
+            // wake up
+            mHal.sendShutdownStart(0);
+            // shutdown HU
+            mSystemInterface.shutdown();
         }
     }
 
@@ -299,7 +303,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void handleFinish() {
         if (mShutdownOnFinish) {
-            doHandleShutdown();
+            // shutdown HU
+            mSystemInterface.shutdown();
         } else {
             doHandleDeepSleep();
         }
@@ -408,12 +413,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void doHandleShutdown() {
-        // now shutdown
-        mHal.sendShutdownStart(mHal.isTimedWakeupAllowed() ? mNextWakeupSec : 0);
-        mSystemInterface.shutdown();
-    }
-
     private void doHandleProcessingComplete() {
         synchronized (this) {
             releaseTimerLocked();
@@ -515,6 +514,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public synchronized void scheduleNextWakeupTime(int seconds) {
         if (seconds < 0) {
             Log.w(CarLog.TAG_POWER, "Next wake up can not be in negative time. Ignoring!");
+            return;
+        }
+        if (!mHal.isTimedWakeupAllowed()) {
+            Log.w(CarLog.TAG_POWER, "Setting timed wakeups are disabled in HAL. Skipping");
+            mNextWakeupSec = 0;
             return;
         }
         if (mNextWakeupSec == 0 || mNextWakeupSec > seconds) {
