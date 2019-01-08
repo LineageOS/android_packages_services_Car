@@ -551,14 +551,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private void generateActivityWhitelistMap() {
         HashMap<String, AppBlockingPackageInfoWrapper> activityWhitelist = new HashMap<>();
         mConfiguredWhitelist = mContext.getString(R.string.activityWhitelist);
-        if (mConfiguredWhitelist == null) {
-            if (DBG_POLICY_CHECK) {
-                Log.d(CarLog.TAG_PACKAGE, "Null whitelist in config");
-            }
-            return;
-        }
         // Get the apps/activities that are whitelisted in the configuration XML resource
-        HashMap<String, Set<String>> configWhitelist = parseConfiglist(mConfiguredWhitelist);
+        HashMap<String, Set<String>> configWhitelist = parseConfigList(mConfiguredWhitelist);
         if (configWhitelist == null) {
             if (DBG_POLICY_CHECK) {
                 Log.w(CarLog.TAG_PACKAGE, "White list null.  No apps whitelisted");
@@ -584,7 +578,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
 
             int flags = 0;
-            String[] activities = null;
+            Set<String> activities = new ArraySet<>();
 
             if (info.applicationInfo.isSystemApp()
                     || info.applicationInfo.isUpdatedSystemApp()) {
@@ -602,9 +596,13 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     // Whole Pkg has been whitelisted
                     flags |= AppBlockingPackageInfo.FLAG_WHOLE_ACTIVITY;
                     // Add all activities to the whitelist
-                    activities = getActivitiesInPackage(info);
-                    if (activities == null && DBG_POLICY_CHECK) {
-                        Log.d(CarLog.TAG_PACKAGE, info.packageName + ": Activities null");
+                    List<String> activitiesForPackage = getActivitiesInPackage(info);
+                    if (activitiesForPackage != null) {
+                        activities.addAll(activitiesForPackage);
+                    } else {
+                        if (DBG_POLICY_CHECK) {
+                            Log.d(CarLog.TAG_PACKAGE, info.packageName + ": Activities null");
+                        }
                     }
                 } else {
                     if (DBG_POLICY_CHECK) {
@@ -613,64 +611,64 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                             Log.d(CarLog.TAG_PACKAGE, a);
                         }
                     }
-                    activities = configActivitiesForPackage.toArray(
-                            new String[configActivitiesForPackage.size()]);
+                    activities.addAll(configActivitiesForPackage);
                 }
-            } else {
-                /* 2. If app is not listed in the config.xml check their Manifest meta-data to
-                  see if they have any Distraction Optimized(DO) activities.
-                  For non system apps, we check if the app install source was a permittable
-                  source. This prevents side-loaded apps to fake DO.  Bypass the check
-                  for debug builds for development convenience. */
-                if (!isDebugBuild()
-                        && !info.applicationInfo.isSystemApp()
-                        && !info.applicationInfo.isUpdatedSystemApp()) {
-                    try {
-                        if (mAllowedAppInstallSources != null) {
-                            String installerName = mPackageManager.getInstallerPackageName(
-                                    info.packageName);
-                            if (installerName == null || (installerName != null
-                                    && !mAllowedAppInstallSources.contains(installerName))) {
-                                Log.w(CarLog.TAG_PACKAGE,
-                                        info.packageName + " not installed from permitted sources "
-                                                + installerName == null ? "NULL" : installerName);
-                                continue;
-                            }
-                        }
-                    } catch (IllegalArgumentException e) {
-                        Log.w(CarLog.TAG_PACKAGE, info.packageName + " not installed!");
-                        continue;
-                    }
-                }
-
+            }
+            /* 2. If app is not listed in the config.xml check their Manifest meta-data to
+              see if they have any Distraction Optimized(DO) activities.
+              For non system apps, we check if the app install source was a permittable
+              source. This prevents side-loaded apps to fake DO.  Bypass the check
+              for debug builds for development convenience. */
+            if (!isDebugBuild()
+                    && !info.applicationInfo.isSystemApp()
+                    && !info.applicationInfo.isUpdatedSystemApp()) {
                 try {
-                    activities = CarAppMetadataReader.findDistractionOptimizedActivities(
-                            mContext,
-                            info.packageName);
-                } catch (NameNotFoundException e) {
-                    Log.w(CarLog.TAG_PACKAGE, "Error reading metadata: " + info.packageName);
+                    if (mAllowedAppInstallSources != null) {
+                        String installerName = mPackageManager.getInstallerPackageName(
+                                info.packageName);
+                        if (installerName == null || (installerName != null
+                                && !mAllowedAppInstallSources.contains(installerName))) {
+                            Log.w(CarLog.TAG_PACKAGE,
+                                    info.packageName + " not installed from permitted sources "
+                                            + installerName == null ? "NULL" : installerName);
+                            continue;
+                        }
+                    }
+                } catch (IllegalArgumentException e) {
+                    Log.w(CarLog.TAG_PACKAGE, info.packageName + " not installed!");
                     continue;
                 }
-                if (activities != null) {
+            }
+
+            try {
+                String[] doActivities = CarAppMetadataReader.findDistractionOptimizedActivities(
+                        mContext, info.packageName);
+                if (doActivities != null) {
                     // Some of the activities in this app are Distraction Optimized.
                     if (DBG_POLICY_CHECK) {
-                        for (String activity : activities) {
+                        for (String activity : doActivities) {
                             Log.d(CarLog.TAG_PACKAGE,
                                     "adding " + activity + " from " + info.packageName
                                             + " to whitelist");
                         }
                     }
+                    activities.addAll(Arrays.asList(doActivities));
                 }
+            } catch (NameNotFoundException e) {
+                Log.w(CarLog.TAG_PACKAGE, "Error reading metadata: " + info.packageName);
+                continue;
             }
+
             // Nothing to add to whitelist
-            if (activities == null) {
+            if (activities.isEmpty()) {
                 continue;
             }
 
             Signature[] signatures;
             signatures = info.signatures;
             AppBlockingPackageInfo appBlockingInfo = new AppBlockingPackageInfo(
-                    info.packageName, 0, 0, flags, signatures, activities);
+                    info.packageName, 0, 0, flags, signatures,
+                    activities.toArray(new String[activities.size()]));
             AppBlockingPackageInfoWrapper wrapper = new AppBlockingPackageInfoWrapper(
                     appBlockingInfo, true);
             activityWhitelist.put(info.packageName, wrapper);
@@ -698,7 +696,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
             return;
         }
-        Map<String, Set<String>> configBlacklist = parseConfiglist(mConfiguredBlacklist);
+        Map<String, Set<String>> configBlacklist = parseConfigList(mConfiguredBlacklist);
         if (configBlacklist == null) {
             if (DBG_POLICY_CHECK) {
                 Log.w(CarLog.TAG_PACKAGE, "Black list null.  No apps blacklisted");
@@ -714,7 +712,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
             int flags = 0;
             PackageInfo pkgInfo;
-            String[] activities;
+            Set<String> activities = new ArraySet<>();
             try {
                 pkgInfo = mPackageManager.getPackageInfo(
                         pkg, PackageManager.GET_ACTIVITIES
@@ -734,16 +732,19 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             if (configActivities.size() == 0) {
                 // whole package
                 flags |= AppBlockingPackageInfo.FLAG_WHOLE_ACTIVITY;
-                activities = getActivitiesInPackage(pkgInfo);
+                List<String> activitiesInPackage = getActivitiesInPackage(pkgInfo);
+                if (activitiesInPackage != null && !activitiesInPackage.isEmpty()) {
+                    activities.addAll(activitiesInPackage);
+                }
             } else {
-                activities = configActivities.toArray(new String[configActivities.size()]);
+                activities.addAll(configActivities);
             }
 
-            if (activities == null) {
+            if (activities.isEmpty()) {
                 continue;
             }
             AppBlockingPackageInfo appBlockingInfo = new AppBlockingPackageInfo(pkg, 0, 0, flags,
-                    pkgInfo.signatures, activities);
+                    pkgInfo.signatures, activities.toArray(new String[activities.size()]));
             AppBlockingPackageInfoWrapper wrapper = new AppBlockingPackageInfoWrapper(
                     appBlockingInfo, true);
             activityBlacklist.put(pkg, wrapper);
@@ -760,7 +761,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
      * included.
      */
     @Nullable
-    private HashMap<String, Set<String>> parseConfiglist(String configList) {
+    private HashMap<String, Set<String>> parseConfigList(String configList) {
         if (configList == null) {
             return null;
         }
@@ -788,7 +789,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     @Nullable
-    private String[] getActivitiesInPackage(PackageInfo info) {
+    private List<String> getActivitiesInPackage(PackageInfo info) {
         if (info == null || info.activities == null) {
             return null;
         }
@@ -796,7 +797,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         for (ActivityInfo aInfo : info.activities) {
             activityList.add(aInfo.name);
         }
-        return activityList.toArray(new String[activityList.size()]);
+        return activityList;
     }
 
     /**
