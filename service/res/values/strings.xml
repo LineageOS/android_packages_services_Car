@@ -193,15 +193,40 @@
     <!-- Permission text: apps control car's exterior lights [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_car_exterior_lights">Control car exterior lights </string>
 
+    <!-- Permission text: apps access car's interior lights state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_car_interior_lights">Car interior lights</string>
+    <!-- Permission text: apps access car's interior lights state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_car_interior_lights">Access car interior lights state</string>
+
+    <!-- Permission text: apps control car's interior lights [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_car_interior_lights">Car interior lights</string>
+    <!-- Permission text: apps control car's interior lights [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_car_interior_lights">Control car interior lights </string>
+
     <!-- Permission text: apps control car's exterior temperature [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_exterior_environment">Car exterior temperature</string>
-    <!-- Permission text: apps control car's exterior lights [CHAR LIMIT=NONE] -->
+    <!-- Permission text: apps control car's exterior temperature [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_exterior_environment">Access car exterior temperature </string>
 
     <!-- Permission text: apps access car's tire information [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_tires">Car tires</string>
     <!-- Permission text: apps access car's tire information [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_tires">Access car tire information</string>
+
+    <!-- Permission text: apps access car's steering angle information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_car_steering">Car Steering</string>
+    <!-- Permission text: apps access car's steering angle information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_car_steering">Access car steering angle information</string>
+
+    <!-- Permission text: apps read display units [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_car_display_units">Car Display Units</string>
+    <!-- Permission text: apps read display units [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_car_display_units">Read display units</string>
+
+    <!-- Permission text: apps control display units [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_car_display_units">Car Display Units</string>
+    <!-- Permission text: apps control display units [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_car_display_units">Control display units</string>
 
     <!-- Permission text: apps read information of car's powertrain [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_powertrain">Car Powertrain</string>

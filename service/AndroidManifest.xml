@@ -73,6 +73,21 @@
         android:label="@string/car_permission_label_car_tires"
         android:description="@string/car_permission_desc_car_tires" />
     <permission
+        android:name="android.car.permission.READ_CAR_STEERING"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_car_steering"
+        android:description="@string/car_permission_desc_car_steering" />
+    <permission
+        android:name="android.car.permission.READ_CAR_DISPLAY_UNITS"
+        android:protectionLevel="normal"
+        android:label="@string/car_permission_label_read_car_display_units"
+        android:description="@string/car_permission_desc_read_car_display_units" />
+    <permission
+        android:name="android.car.permission.CONTROL_CAR_DISPLAY_UNITS"
+        android:protectionLevel="normal"
+        android:label="@string/car_permission_label_control_car_display_units"
+        android:description="@string/car_permission_desc_control_car_display_units" />
+    <permission
         android:name="android.car.permission.CAR_SPEED"
         android:permissionGroup="android.permission-group.LOCATION"
         android:protectionLevel="dangerous"
@@ -128,6 +143,16 @@
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_control_car_exterior_lights"
         android:description="@string/car_permission_desc_control_car_exterior_lights" />
+    <permission
+        android:name="android.car.permission.READ_CAR_INTERIOR_LIGHTS"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_car_interior_lights"
+        android:description="@string/car_permission_desc_car_interior_lights" />
+    <permission
+        android:name="android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
+        android:protectionLevel="system|signature"
+        android:label="@string/car_permission_label_control_car_interior_lights"
+        android:description="@string/car_permission_desc_control_car_interior_lights" />
     <permission
         android:name="android.car.permission.CAR_POWER"
         android:protectionLevel="system|signature"

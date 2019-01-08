@@ -218,12 +218,18 @@ public final class Car {
     /** Permission necessary to access car's fuel door and ev charge port. */
     public static final String PERMISSION_ENERGY_PORTS = "android.car.permission.CAR_ENERGY_PORTS";
 
-    /** Permission necessary to read car's lights information.
+    /** Permission necessary to read car's exterior lights information.
      *  @hide
      */
     @SystemApi
     public static final String PERMISSION_EXTERIOR_LIGHTS =
             "android.car.permission.CAR_EXTERIOR_LIGHTS";
+
+    /**
+     * Permission necessary to read car's interior lights information.
+     */
+    public static final String PERMISSION_READ_INTERIOR_LIGHTS =
+            "android.car.permission.READ_CAR_INTERIOR_LIGHTS";
 
     /** Permission necessary to control car's exterior lights.
      *  @hide
@@ -231,6 +237,12 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS =
             "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
+
+    /**
+     * Permission necessary to control car's interior lights.
+     */
+    public static final String PERMISSION_CONTROL_INTERIOR_LIGHTS =
+            "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS";
 
     /** Permission necessary to access car's powertrain information.*/
     public static final String PERMISSION_POWERTRAIN = "android.car.permission.CAR_POWERTRAIN";
@@ -308,6 +320,25 @@ public final class Car {
      */
     @SystemApi
     public static final String PERMISSION_TIRES = "android.car.permission.CAR_TIRES";
+
+    /**
+     * Permission necessary to access car's steering angle information.
+     */
+    public static final String PERMISSION_READ_STEERING_STATE =
+            "android.car.permission.READ_CAR_STEERING";
+
+    /**
+     * Permission necessary to read and write display units for distance, fuel volume, tire pressure
+     * and ev battery.
+     */
+    public static final String PERMISSION_READ_DISPLAY_UNITS =
+            "android.car.permission.READ_CAR_DISPLAY_UNITS";
+    /**
+     * Permission necessary to control display units for distance, fuel volume, tire pressure
+     * and ev battery.
+     */
+    public static final String PERMISSION_CONTROL_DISPLAY_UNITS =
+            "android.car.permission.CONTROL_CAR_DISPLAY_UNITS";
 
     /**
      * Permission necessary to control car's door.
