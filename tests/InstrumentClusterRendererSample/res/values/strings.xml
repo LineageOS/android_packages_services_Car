@@ -15,47 +15,47 @@
 -->
 
 <resources xmlns:xliff="http://schemas.android.com/tools">
-    <string name="app_name">InstrumentClusterRendererImpl</string>
+    <string name="app_name" translatable="false">InstrumentClusterRendererImpl</string>
 
-    <string name="incoming_call">Incoming call</string>
-    <string name="dialing">Dialing</string>
-    <string name="dummy_call_type">• Mobile</string>
+    <string name="incoming_call" translatable="false">Incoming call</string>
+    <string name="dialing" translatable="false">Dialing</string>
+    <string name="dummy_call_type" translatable="false">• Mobile</string>
 
-    <string name="font_family_primary">sans-serif-medium</string>
-    <string name="font_family_secondary">sans-serif-regular</string>
+    <string name="font_family_primary" translatable="false">sans-serif-medium</string>
+    <string name="font_family_secondary" translatable="false">sans-serif-regular</string>
 
-    <string name="dummy_weather_forecast">Partly cloudy</string>
-    <string name="dummy_weather_location">Mountain View, CA</string>
-    <string name="dummy_weather_temperature">82°</string>
+    <string name="dummy_weather_forecast" translatable="false">Partly cloudy</string>
+    <string name="dummy_weather_location" translatable="false">Mountain View, CA</string>
+    <string name="dummy_weather_temperature" translatable="false">82°</string>
 
-    <string name="nav_distance_units_ft">ft</string>
-    <string name="nav_distance_units_meters">m</string>
-    <string name="nav_distance_units_kilometers">km</string>
-    <string name="nav_distance_units_miles">mi</string>
-    <string name="nav_distance_units_yards">yd</string>
+    <string name="nav_distance_units_ft" translatable="false">ft</string>
+    <string name="nav_distance_units_meters" translatable="false">m</string>
+    <string name="nav_distance_units_kilometers" translatable="false">km</string>
+    <string name="nav_distance_units_miles" translatable="false">mi</string>
+    <string name="nav_distance_units_yards" translatable="false">yd</string>
 
-    <string name="incoming_message">Incoming message</string>
+    <string name="incoming_message" translatable="false">Incoming message</string>
 
-    <string name="unknown">Unknown</string>
-    <string name="voicemail">Voicemail</string>
-    <string name="phone_label_with_info">
+    <string name="unknown" translatable="false">Unknown</string>
+    <string name="voicemail" translatable="false">Voicemail</string>
+    <string name="phone_label_with_info" translatable="false">
         <xliff:g id="label" example="Mobile">%1$s</xliff:g>
         " \u00B7 "
         <xliff:g id="duration" example="1:20">%2$s</xliff:g>
     </string>
     <!-- Status label for phone state [CHAR LIMIT=20] -->
-    <string name="call_state_connecting">Connecting</string>
+    <string name="call_state_connecting" translatable="false">Connecting</string>
     <!-- Status label for phone state [CHAR LIMIT=20] -->
-    <string name="call_state_dialing">Dialing</string>
+    <string name="call_state_dialing" translatable="false">Dialing</string>
     <!-- Status label for phone state [CHAR LIMIT=20] -->
-    <string name="call_state_hold">On Hold</string>
+    <string name="call_state_hold" translatable="false">On Hold</string>
     <!-- Status label for phone state [CHAR LIMIT=20] -->
-    <string name="call_state_call_ended">Call Ended</string>
+    <string name="call_state_call_ended" translatable="false">Call Ended</string>
     <!-- Status label for phone state [CHAR LIMIT=20] -->
-    <string name="call_state_call_active">Connected</string>
+    <string name="call_state_call_active" translatable="false">Connected</string>
     <!-- Status label for phone state [CHAR LIMIT=20] -->
-    <string name="call_state_call_ringing">Ringing</string>
+    <string name="call_state_call_ringing" translatable="false">Ringing</string>
     <!-- Status label for phone state [CHAR LIMIT=20] -->
-    <string name="call_state_call_ending">Disconnecting</string>
+    <string name="call_state_call_ending" translatable="false">Disconnecting</string>
 
 </resources>
