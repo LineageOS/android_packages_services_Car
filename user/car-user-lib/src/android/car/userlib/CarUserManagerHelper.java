@@ -33,8 +33,10 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.sysprop.CarProperties;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.UserIcons;
 
 import com.google.android.collect.Sets;
@@ -80,7 +82,7 @@ public class CarUserManagerHelper {
     private final Context mContext;
     private final UserManager mUserManager;
     private final ActivityManager mActivityManager;
-    private final String mDefaultAdminName;
+    private String mDefaultAdminName;
     private Bitmap mDefaultGuestUserIcon;
     private ArrayList<OnUsersUpdateListener> mUpdateListeners;
     private final BroadcastReceiver mUserChangeReceiver = new BroadcastReceiver() {
@@ -103,17 +105,6 @@ public class CarUserManagerHelper {
      * @param context Application Context
      */
     public CarUserManagerHelper(Context context) {
-        this(context, context.getString(com.android.internal.R.string.owner_name));
-    }
-
-    /**
-     * Initializes with the provided default name for admin users.
-     *
-     * @param context Application Context
-     * @param defaultAdminName Default name to use for admin users
-     */
-    public CarUserManagerHelper(Context context, String defaultAdminName) {
-        mDefaultAdminName = defaultAdminName;
         mUpdateListeners = new ArrayList<>();
         mContext = context.getApplicationContext();
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
@@ -752,7 +743,7 @@ public class CarUserManagerHelper {
      */
     @Nullable
     public UserInfo createNewAdminUser() {
-        return createNewAdminUser(mDefaultAdminName);
+        return createNewAdminUser(getDefaultAdminName());
     }
 
     /**
@@ -876,7 +867,7 @@ public class CarUserManagerHelper {
                     + " is the last admin user on device. Creating a new admin.");
         }
 
-        UserInfo newAdmin = createNewAdminUser(mDefaultAdminName);
+        UserInfo newAdmin = createNewAdminUser(getDefaultAdminName());
         if (newAdmin == null) {
             Log.w(TAG, "Couldn't create another admin, cannot delete current user.");
             return false;
@@ -1051,6 +1042,18 @@ public class CarUserManagerHelper {
 
     private void unregisterReceiver() {
         mContext.unregisterReceiver(mUserChangeReceiver);
+    }
+
+    private String getDefaultAdminName() {
+        if (TextUtils.isEmpty(mDefaultAdminName)) {
+            mDefaultAdminName = mContext.getString(com.android.internal.R.string.owner_name);
+        }
+        return mDefaultAdminName;
+    }
+
+    @VisibleForTesting
+    void setDefaultAdminName(String defaultAdminName) {
+        mDefaultAdminName = defaultAdminName;
     }
 
     /**
