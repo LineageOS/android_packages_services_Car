@@ -34,10 +34,13 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.JsonWriter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.io.CharArrayWriter;
 
 /**
  * Sample app that uses components in car support library to demonstrate Car drivingstate UXR
@@ -47,7 +50,7 @@ public class MainActivity extends Activity {
     public static final String TAG = "drivingstate";
 
     // Order of elements is based on number of bits shifted in value of the constants.
-    private static final CharSequence[] UX_RESTRICTION_NAMES = new CharSequence[] {
+    private static final CharSequence[] UX_RESTRICTION_NAMES = new CharSequence[]{
             "BASELINE",
             "NO_DIALPAD",
             "NO_FILTERING",
@@ -70,6 +73,8 @@ public class MainActivity extends Activity {
     private Button mToggleButton;
     private Button mSampleMsgButton;
     private Button mSaveUxrConfigButton;
+    private Button mShowStagedConfig;
+    private Button mShowProdConfig;
 
     private boolean mEnableUxR;
 
@@ -86,7 +91,6 @@ public class MainActivity extends Activity {
                                 Car.CAR_UX_RESTRICTION_SERVICE);
                         mCarPackageManager = (CarPackageManager) mCar.getCarManager(
                                 Car.PACKAGE_SERVICE);
-
                         if (mCarDrivingStateManager != null) {
                             mCarDrivingStateManager.registerListener(mDrvStateChangeListener);
                             updateDrivingStateText(
@@ -183,6 +187,10 @@ public class MainActivity extends Activity {
         mSaveUxrConfigButton = findViewById(R.id.save_uxr_config);
         mSaveUxrConfigButton.setOnClickListener(v -> saveUxrConfig());
 
+        mShowStagedConfig = findViewById(R.id.show_staged_config);
+        mShowStagedConfig.setOnClickListener(v -> showStagedUxRestrictionsConfig());
+        mShowProdConfig = findViewById(R.id.show_prod_config);
+        mShowProdConfig.setOnClickListener(v -> showProdUxRestrictionsConfig());
         mToggleButton.setOnClickListener(v -> updateToggleUxREnable());
 
         mSampleMsgButton = findViewById(R.id.launch_message);
@@ -225,6 +233,56 @@ public class MainActivity extends Activity {
             mCarUxRestrictionsManager.saveUxRestrictionsConfigurationForNextBoot(config);
         } catch (CarNotConnectedException e) {
             Log.e(TAG, "Car not connected", e);
+        }
+    }
+
+    private void showStagedUxRestrictionsConfig() {
+        try {
+            CarUxRestrictionsConfiguration stagedConfig =
+                    mCarUxRestrictionsManager.getStagedConfig();
+            if (stagedConfig == null) {
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.no_staged_config)
+                        .show();
+                return;
+            }
+            CharArrayWriter charWriter = new CharArrayWriter();
+            JsonWriter writer = new JsonWriter(charWriter);
+            writer.setIndent("\t");
+            stagedConfig.writeJson(writer);
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.staged_config_title)
+                    .setMessage(charWriter.toString())
+                    .show();
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Car not connected", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showProdUxRestrictionsConfig() {
+        try {
+            CarUxRestrictionsConfiguration prodConfig =
+                    mCarUxRestrictionsManager.getConfig();
+            if (prodConfig == null) {
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.no_prod_config)
+                        .show();
+                return;
+            }
+            CharArrayWriter charWriter = new CharArrayWriter();
+            JsonWriter writer = new JsonWriter(charWriter);
+            writer.setIndent("\t");
+            prodConfig.writeJson(writer);
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.prod_config_title)
+                    .setMessage(charWriter.toString())
+                    .show();
+        } catch (CarNotConnectedException e) {
+            Log.e(TAG, "Car not connected", e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

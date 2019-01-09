@@ -20,8 +20,11 @@
     <string name="driving_state" translatable="false">Driving State: </string>
     <string name="is_do_reqd" translatable="false">Distraction Optimization Required? </string>
     <string name="active_restrictions" translatable="false">Active UX Restrictions: </string>
+    <string name="uxr_config_header" translatable="false">UxR Configuration: </string>
     <string name="action_header" translatable="false"><u>Available Actions</u></string>
     <string name="disable_uxr" translatable="false">Disable Ux Restriction Engine</string>
+    <string name="show_staged_config" translatable="false">Show Staged Config</string>
+    <string name="show_prod_config" translatable="false">Show Production Config</string>
     <string name="sample_header" translatable="false"><u>Sample Activities</u></string>
     <string name="sample_msg_activity" translatable="false">Sample Message Activity</string>
     <string name="return_home" translatable="false"><u>Return Home</u></string>
@@ -30,4 +33,8 @@
     <string name="set_uxr_config_dialog_title" translatable="false">Select restrictions for IDLING/MOVING</string>
     <string name="set_uxr_config_dialog_negative_button" translatable="false">Cancel</string>
     <string name="set_uxr_config_dialog_positive_button" translatable="false">Save UXR Config</string>
+    <string name="no_staged_config" translatable="false">There is no staged configuration found</string>
+    <string name="no_prod_config" translatable="false">There is no production configuration found</string>
+    <string name="staged_config_title" translatable="false">Staged Config</string>
+    <string name="prod_config_title" translatable="false">Production Config</string>
 </resources>
