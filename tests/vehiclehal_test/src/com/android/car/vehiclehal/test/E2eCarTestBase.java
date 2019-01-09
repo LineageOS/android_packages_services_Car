@@ -28,8 +28,9 @@ import android.hardware.automotive.vehicle.V2_0.StatusCode;
 import android.os.ConditionVariable;
 import android.os.FileUtils;
 import android.os.IBinder;
-import android.support.test.InstrumentationRegistry;
 import android.util.Log;
+
+import androidx.test.InstrumentationRegistry;
 
 import com.google.android.collect.Lists;
 
@@ -43,7 +44,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-
 
 public class E2eCarTestBase {
     private static final String TAG = Utils.concatTag(E2eCarTestBase.class);

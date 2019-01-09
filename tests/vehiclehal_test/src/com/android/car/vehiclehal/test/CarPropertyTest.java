@@ -18,20 +18,21 @@ package com.android.car.vehiclehal.test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import static java.lang.Integer.toHexString;
-
 import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
-import android.support.test.filters.LargeTest;
-import android.support.test.runner.AndroidJUnit4;
 import android.util.ArraySet;
 import android.util.Log;
+
+import androidx.test.filters.LargeTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static java.lang.Integer.toHexString;
 
 import java.io.File;
 import java.time.Duration;

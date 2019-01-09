@@ -23,9 +23,10 @@ import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.test.filters.RequiresDevice;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.Suppress;
+
+import androidx.test.filters.RequiresDevice;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
