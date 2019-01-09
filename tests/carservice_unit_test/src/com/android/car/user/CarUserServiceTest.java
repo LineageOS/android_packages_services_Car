@@ -66,6 +66,8 @@ public class CarUserServiceTest {
     @Mock
     private CarUserManagerHelper mCarUserManagerHelper;
 
+    private static final String DEFAULT_ADMIN_NAME = "defaultName";
+
     /**
      * Initialize all of the objects with the @Mock annotation.
      */
@@ -169,10 +171,10 @@ public class CarUserServiceTest {
     }
 
     private UserInfo mockAdmin(int adminId) {
-        UserInfo admin = new UserInfo(adminId, CarUserManagerHelper.DEFAULT_FIRST_ADMIN_NAME,
+        UserInfo admin = new UserInfo(adminId, DEFAULT_ADMIN_NAME,
                 UserInfo.FLAG_ADMIN);
-        doReturn(admin).when(mCarUserManagerHelper)
-                .createNewAdminUser(CarUserManagerHelper.DEFAULT_FIRST_ADMIN_NAME);
+        doReturn(admin).when(mCarUserManagerHelper).createNewAdminUser();
+
         return admin;
     }
 }
