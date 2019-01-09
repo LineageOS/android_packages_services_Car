@@ -23,7 +23,11 @@
                  android:directBootAware="true" >
         <activity android:name=".UsbHostManagementActivity"
                   android:theme="@android:style/Theme.Material.Light.Dialog"
-                  android:launchMode="singleTop" />
+                  android:launchMode="singleTop">
+            <meta-data
+                android:name="distractionOptimized"
+                android:value="true" />
+        </activity>
         <receiver android:name=".BootUsbScanner" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
