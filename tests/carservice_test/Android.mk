@@ -44,7 +44,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     vehicle-hal-support-lib \
     car-systemtest \
     mockito-target-inline \
-    android-support-test \
+    androidx.test.rules \
     android.hardware.automotive.vehicle-V2.0-java \
     com.android.car.test.utils \
     truth-prebuilt
