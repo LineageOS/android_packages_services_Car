@@ -32,4 +32,6 @@ interface ICarUxRestrictionsManager {
     void unregisterUxRestrictionsChangeListener(in ICarUxRestrictionsChangeListener listener) = 1;
     CarUxRestrictions getCurrentUxRestrictions() = 2;
     boolean saveUxRestrictionsConfigurationForNextBoot(in CarUxRestrictionsConfiguration config) = 3;
+    CarUxRestrictionsConfiguration getStagedConfig() = 4;
+    CarUxRestrictionsConfiguration getConfig() = 5;
 }

@@ -26,41 +26,50 @@
       android:orientation="vertical">
 
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/status_header"
         android:layout_gravity="center"
         android:padding="@dimen/section_padding"
         android:textSize="@dimen/header_text_size"
-        android:layout_width="match_parent"
-        android:textAppearance="?android:textAppearanceLarge"
-        android:layout_height="wrap_content"/>
+        android:textAppearance="?android:textAppearanceLarge"/>
 
     <TextView
         android:id="@+id/driving_state"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/driving_state"
         android:textSize="@dimen/info_text_size"
         android:layout_gravity="center"
         android:padding="@dimen/section_padding"
-        android:layout_width="match_parent"
-        android:textAppearance="?android:textAppearanceLarge"
-        android:layout_height="wrap_content"/>
+        android:textAppearance="?android:textAppearanceLarge"/>
 
     <TextView
         android:id="@+id/do_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/is_do_reqd"
         android:textSize="@dimen/info_text_size"
         android:padding="@dimen/section_padding"
-        android:layout_width="match_parent"
-        android:textAppearance="?android:textAppearanceLarge"
-        android:layout_height="wrap_content"/>
+        android:textAppearance="?android:textAppearanceLarge"/>
 
     <TextView
         android:id="@+id/uxr_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/active_restrictions"
         android:padding="@dimen/section_padding"
         android:textSize="@dimen/info_text_size"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:id="@+id/show_uxr_config"
         android:layout_width="match_parent"
-        android:textAppearance="?android:textAppearanceLarge"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="@string/uxr_config_header"
+        android:padding="@dimen/section_padding"
+        android:textSize="@dimen/info_text_size"
+        android:textAppearance="?android:textAppearanceLarge"/>
 
     <View
         android:layout_width="match_parent"
@@ -70,12 +79,12 @@
         android:background="@android:color/darker_gray"/>
 
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/action_header"
         android:padding="@dimen/section_padding"
         android:textSize="@dimen/header_text_size"
-        android:layout_width="match_parent"
-        android:textAppearance="?android:textAppearanceLarge"
-        android:layout_height="wrap_content"/>
+        android:textAppearance="?android:textAppearanceLarge"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -84,8 +93,27 @@
           android:id="@+id/toggle_status"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
+          android:layout_marginLeft="@dimen/section_padding"
           android:padding="@dimen/section_padding"
           android:text="@string/disable_uxr"
+          android:textAllCaps="false"
+          android:textSize="@dimen/info_text_size"/>
+      <Button
+          android:id="@+id/show_staged_config"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="@dimen/section_padding"
+          android:padding="@dimen/section_padding"
+          android:text="@string/show_staged_config"
+          android:textAllCaps="false"
+          android:textSize="@dimen/info_text_size"/>
+      <Button
+          android:id="@+id/show_prod_config"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="@dimen/section_padding"
+          android:padding="@dimen/section_padding"
+          android:text="@string/show_prod_config"
           android:textAllCaps="false"
           android:textSize="@dimen/info_text_size"/>
     </LinearLayout>
@@ -98,12 +126,12 @@
         android:background="@android:color/darker_gray"/>
 
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/sample_header"
         android:padding="@dimen/section_padding"
         android:textSize="@dimen/header_text_size"
-        android:layout_width="match_parent"
-        android:textAppearance="?android:textAppearanceLarge"
-        android:layout_height="wrap_content"/>
+        android:textAppearance="?android:textAppearanceLarge"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -112,6 +140,7 @@
           android:id="@+id/launch_message"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
+          android:padding="@dimen/section_padding"
           android:text="@string/sample_msg_activity"
           android:textAllCaps="false"
           android:textSize="@dimen/info_text_size"/>
@@ -125,12 +154,12 @@
         android:background="@android:color/darker_gray"/>
 
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/save_uxr_config_header"
         android:padding="@dimen/section_padding"
         android:textSize="@dimen/header_text_size"
-        android:layout_width="match_parent"
-        android:textAppearance="?android:textAppearanceLarge"
-        android:layout_height="wrap_content"/>
+        android:textAppearance="?android:textAppearanceLarge"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -139,6 +168,7 @@
           android:id="@+id/save_uxr_config"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
+          android:padding="@dimen/section_padding"
           android:text="@string/save_uxr_config"
           android:textSize="@dimen/info_text_size"/>
     </LinearLayout>

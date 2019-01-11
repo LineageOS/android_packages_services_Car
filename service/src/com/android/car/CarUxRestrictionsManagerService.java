@@ -194,9 +194,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         mContext.registerReceiver(mBroadcastReceiver, filter);
     }
 
-    @VisibleForTesting
-    @Nullable
-    /* package */ CarUxRestrictionsConfiguration getConfig() {
+    @Override
+    public CarUxRestrictionsConfiguration getConfig() {
         return mCarUxRestrictionsConfiguration;
     }
 
@@ -396,6 +395,18 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             CarUxRestrictionsConfiguration config) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
         return persistConfig(config, CONFIG_FILENAME_STAGED);
+    }
+
+    @Override
+    @Nullable
+    public CarUxRestrictionsConfiguration getStagedConfig() {
+        File stagedConfig = mContext.getFileStreamPath(CONFIG_FILENAME_STAGED);
+        if (stagedConfig.exists()) {
+            logd("Attempting to read staged config");
+            return readPersistedConfig(stagedConfig);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -668,13 +679,13 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     CarUxRestrictionsConfiguration createDefaultConfig() {
         return new CarUxRestrictionsConfiguration.Builder()
                 .setUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_PARKED,
-                      false, CarUxRestrictions.UX_RESTRICTIONS_BASELINE)
+                        false, CarUxRestrictions.UX_RESTRICTIONS_BASELINE)
                 .setUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_IDLING,
-                      false, CarUxRestrictions.UX_RESTRICTIONS_BASELINE)
+                        false, CarUxRestrictions.UX_RESTRICTIONS_BASELINE)
                 .setUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_MOVING,
-                      true, CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        true, CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED)
                 .setUxRestrictions(CarDrivingStateEvent.DRIVING_STATE_UNKNOWN,
-                      true, CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        true, CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED)
                 .build();
     }
 
