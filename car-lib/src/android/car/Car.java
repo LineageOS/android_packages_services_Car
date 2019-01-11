@@ -426,6 +426,15 @@ public final class Car {
     public static final String PERMISSION_STORAGE_MONITORING =
             "android.car.permission.STORAGE_MONITORING";
 
+    /**
+     * Permission necessary to enroll a device as a trusted authenticator device.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CAR_ENROLL_TRUST =
+            "android.car.permission.CAR_ENROLL_TRUST";
+
     /** Type of car connection: platform runs directly in car. */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
 
