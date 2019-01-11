@@ -179,6 +179,11 @@
       android:label="@string/car_permission_label_diag_clear"
       android:description="@string/car_permission_desc_diag_clear" />
     <permission
+        android:name="android.car.permission.BIND_VMS_CLIENT"
+        android:protectionLevel="signature"
+        android:label="@string/car_permission_label_bind_vms_client"
+        android:description="@string/car_permission_desc_bind_vms_client" />
+    <permission
         android:name="android.car.permission.VMS_PUBLISHER"
         android:protectionLevel="system|signature"
         android:label="@string/car_permission_label_vms_publisher"
