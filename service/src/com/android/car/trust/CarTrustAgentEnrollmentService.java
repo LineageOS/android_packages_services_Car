@@ -21,6 +21,12 @@ import static android.car.trust.CarTrustAgentEnrollmentManager.ENROLLMENT_NOT_AL
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
+import android.car.encryptionrunner.EncryptionRunner;
+import android.car.encryptionrunner.EncryptionRunnerFactory;
+import android.car.encryptionrunner.HandshakeException;
+import android.car.encryptionrunner.HandshakeMessage;
+import android.car.encryptionrunner.HandshakeMessage.HandshakeState;
+import android.car.encryptionrunner.Key;
 import android.car.trust.ICarTrustAgentBleCallback;
 import android.car.trust.ICarTrustAgentEnrollment;
 import android.car.trust.ICarTrustAgentEnrollmentCallback;
@@ -38,6 +44,7 @@ import com.android.car.Utils;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
+import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,21 +64,32 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     private static final String FAKE_AUTH_STRING = "000000";
     private static final String TRUSTED_DEVICE_ENROLLMENT_ENABLED_KEY =
             "trusted_device_enrollment_enabled";
+    private static final byte[] CONFIRMATION_SIGNAL = "True".getBytes();
+
     private final CarTrustedDeviceService mTrustedDeviceService;
     // List of clients listening to Enrollment state change events.
     private final List<EnrollmentStateClient> mEnrollmentStateClients = new ArrayList<>();
     // List of clients listening to BLE state changes events during enrollment.
     private final List<BleStateChangeClient> mBleStateChangeClients = new ArrayList<>();
+
     private final CarTrustAgentBleManager mCarTrustAgentBleManager;
     private CarTrustAgentEnrollmentRequestDelegate mEnrollmentDelegate;
+
     private Object mRemoteDeviceLock = new Object();
     @GuardedBy("mRemoteDeviceLock")
     private BluetoothDevice mRemoteEnrollmentDevice;
     @GuardedBy("this")
     private boolean mEnrollmentHandshakeAccepted;
+
     private final Map<Long, Boolean> mTokenActiveState = new HashMap<>();
     private String mDeviceName;
     private final Context mContext;
+
+    private EncryptionRunner mEncryptionRunner = EncryptionRunnerFactory.newRunner();
+    private HandshakeMessage mHandshakeMessage;
+    private Key mEncryptionKey;
+    @HandshakeState
+    private int mEncryptionState = HandshakeState.UNKNOWN;
 
     public CarTrustAgentEnrollmentService(Context context, CarTrustedDeviceService service,
             CarTrustAgentBleManager bleService) {
@@ -140,7 +158,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
      */
     @Override
     public void enrollmentHandshakeAccepted(BluetoothDevice device) {
-        mCarTrustAgentBleManager.sendPairingCodeConfirmation(device);
+        mCarTrustAgentBleManager.sendPairingCodeConfirmation(device, CONFIRMATION_SIGNAL);
         setEnrollmentHandshakeAccepted(true);
     }
 
@@ -315,7 +333,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     }
 
     /**
-     * @param handle        the handle whose activa state change
+     * @param handle        the handle whose active state change
      * @param isTokenActive the active state of the handle
      * @param uid           id of current user
      */
@@ -344,7 +362,13 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             // To conveniently get the devices info regarding certain user.
             editor.putStringSet(String.valueOf(uid), deviceInfo);
             editor.apply();
-            mCarTrustAgentBleManager.sendEnrollmentHandle(mRemoteEnrollmentDevice, handle);
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Sending handle: " + handle);
+            }
+
+            mCarTrustAgentBleManager.sendEnrollmentHandle(mRemoteEnrollmentDevice,
+                    mEncryptionKey.encryptData(Utils.longToBytes(handle)));
         } else {
             removeEscrowToken(handle, uid);
         }
@@ -371,6 +395,8 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     }
 
     void onRemoteDeviceConnected(BluetoothDevice device) {
+        resetEncryptionState();
+
         synchronized (mRemoteDeviceLock) {
             mRemoteEnrollmentDevice = device;
         }
@@ -381,11 +407,11 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
                 Log.e(TAG, "onAdvertiseSuccess dispatch failed", e);
             }
         }
-        // TODO(b/11788064) Fake Authentication to enable clients to go through the enrollment flow.
-        fakeAuthentication();
     }
 
     void onRemoteDeviceDisconnected(BluetoothDevice device) {
+        resetEncryptionState();
+
         synchronized (mRemoteDeviceLock) {
             mRemoteEnrollmentDevice = null;
         }
@@ -405,37 +431,165 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
             }
             return;
         }
+
         // The phone is not expected to send any data until the user has accepted the
         // pairing.
-        if (!mEnrollmentHandshakeAccepted) {
-            Log.e(TAG, "User has not accepted the pairing code yet."
-                    + Utils.byteArrayToHexString(value));
+        if (mEnrollmentHandshakeAccepted) {
+            notifyEscrowTokenReceived(value);
             return;
         }
-        mEnrollmentDelegate.addEscrowToken(value, ActivityManager.getCurrentUser());
+
+        // Otherwise, the message should be one that continues the encryption handshake.
+        try {
+            processInitEncryptionMessage(value);
+        } catch (HandshakeException e) {
+            Log.e(TAG, "HandshakeException during set up of encryption: ", e);
+        }
     }
 
     void onDeviceNameRetrieved(String deviceName) {
         mDeviceName = deviceName;
     }
 
-    // TODO(b/11788064) Fake Authentication until we hook up the crypto lib
-    private void fakeAuthentication() {
-        if (mRemoteEnrollmentDevice == null) {
-            Log.e(TAG, "Remote Device disconnected before Enrollment completed");
-            return;
+    private void notifyEscrowTokenReceived(byte[] token) {
+        try {
+            mEnrollmentDelegate.addEscrowToken(
+                    mEncryptionKey.decryptData(token), ActivityManager.getCurrentUser());
+        } catch (SignatureException e) {
+            Log.e(TAG, "Could not decrypt escrow token", e);
         }
+    }
+
+    /**
+     * Processes the given message as one that will establish encryption for secure communication.
+     *
+     * <p>This method should be called continually until {@link #mEnrollmentHandshakeAccepted} is
+     * {@code true}, meaning an secure channel has been set up.
+     *
+     * @param  message The message received from the connected device.
+     * @throws HandshakeException If an error was encountered during the handshake flow.
+     */
+    private void processInitEncryptionMessage(byte[] message) throws HandshakeException {
+        switch (mEncryptionState) {
+            case HandshakeState.UNKNOWN:
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Responding to handshake init request.");
+                }
+
+                mHandshakeMessage = mEncryptionRunner.respondToInitRequest(message);
+                mEncryptionState = mHandshakeMessage.getHandshakeState();
+                mCarTrustAgentBleManager.sendEncryptionHandshakeMessage(
+                        mRemoteEnrollmentDevice, mHandshakeMessage.getNextMessage());
+
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Updated encryption state: " + mEncryptionState);
+                }
+                break;
+
+            case HandshakeState.IN_PROGRESS:
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Continuing handshake.");
+                }
+
+                mHandshakeMessage = mEncryptionRunner.continueHandshake(message);
+                mEncryptionState = mHandshakeMessage.getHandshakeState();
+
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Updated encryption state: " + mEncryptionState);
+                }
+
+                // The state is updated after a call to continueHandshake(). Thus, need to check
+                // if we're in the next stage.
+                if (mEncryptionState == HandshakeState.VERIFICATION_NEEDED) {
+                    showVerificationCode();
+                    return;
+                }
+
+                mCarTrustAgentBleManager.sendEncryptionHandshakeMessage(
+                        mRemoteEnrollmentDevice, mHandshakeMessage.getNextMessage());
+                break;
+            case HandshakeState.VERIFICATION_NEEDED:
+                Log.w(TAG, "Encountered VERIFICATION_NEEDED state when it should have been "
+                        + "transitioned to after IN_PROGRESS.");
+                // This case should never happen because this state should occur right after
+                // a call to "continueHandshake". But just in case, call the appropriate method.
+                showVerificationCode();
+                break;
+
+            case HandshakeState.FINISHED:
+                // Should never reach this case since this state should occur after a verification
+                // code has been accepted. But it should mean handshake is done and the message
+                // is one for the escrow token.
+                notifyEscrowTokenReceived(message);
+                break;
+
+            default:
+                Log.w(TAG, "Encountered invalid handshake state: " + mEncryptionState);
+                break;
+        }
+    }
+
+    private void showVerificationCode() {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "showVerificationCode(): " + mHandshakeMessage.getVerificationCode());
+        }
+
         for (EnrollmentStateClient client : mEnrollmentStateClients) {
             try {
-                client.mListener.onAuthStringAvailable(mRemoteEnrollmentDevice, FAKE_AUTH_STRING);
+                client.mListener.onAuthStringAvailable(mRemoteEnrollmentDevice,
+                        mHandshakeMessage.getVerificationCode());
             } catch (RemoteException e) {
-                Log.e(TAG, "onAdvertiseSuccess dispatch failed", e);
+                Log.e(TAG, "Broadcast verification code failed", e);
             }
         }
     }
 
+    /**
+     * Resets the encryption status of this service.
+     *
+     * <p>This method should be called each time a device connects so that a new handshake can be
+     * started and encryption keys exchanged.
+     */
+    private void resetEncryptionState() {
+        setEnrollmentHandshakeAccepted(false);
+
+        mEncryptionRunner = EncryptionRunnerFactory.newRunner();
+        mHandshakeMessage = null;
+        mEncryptionKey = null;
+        mEncryptionState = HandshakeState.UNKNOWN;
+    }
+
     private synchronized void setEnrollmentHandshakeAccepted(boolean accepted) {
         mEnrollmentHandshakeAccepted = accepted;
+
+        if (!accepted) {
+            return;
+        }
+
+        if (mEncryptionRunner == null) {
+            Log.e(TAG, "Received notification that enrollment handshake was accepted, "
+                    + "but encryption was never set up.");
+            return;
+        }
+
+        HandshakeMessage message;
+        try {
+            message = mEncryptionRunner.verifyPin();
+        } catch (HandshakeException e) {
+            Log.e(TAG, "Error during PIN verification", e);
+            return;
+        }
+
+        if (message.getHandshakeState() != HandshakeState.FINISHED) {
+            Log.e(TAG, "Handshake not finished after calling verify PIN. Instead got state: "
+                    + message.getHandshakeState());
+            return;
+        }
+
+        mEncryptionState = HandshakeState.FINISHED;
+        mEncryptionKey = message.getKey();
+
+        // TODO(ajchen): Save the key to a secure database.
     }
 
     /**
