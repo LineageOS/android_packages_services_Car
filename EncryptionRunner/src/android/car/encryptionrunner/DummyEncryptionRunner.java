@@ -31,7 +31,7 @@ class DummyEncryptionRunner implements EncryptionRunner {
     private static final String INIT = "init";
     private static final String INIT_RESPONSE = "initResponse";
     private static final String CLIENT_RESPONSE = "clientResponse";
-    public static final String PIN = "1234";
+    public static final String VERIFICATION_CODE = "1234";
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({Mode.UNKNOWN, Mode.CLIENT, Mode.SERVER})
@@ -42,25 +42,18 @@ class DummyEncryptionRunner implements EncryptionRunner {
         int SERVER = 2;
     }
 
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({State.UNKNOWN, State.WAITING_FOR_RESPONSE, State.FINISHED})
-    private @interface State {
-
-        int UNKNOWN = 0;
-        int WAITING_FOR_RESPONSE = 1;
-        int FINISHED = 2;
-    }
-
     @Mode
     private int mMode;
-    @State
+    @HandshakeMessage.HandshakeState
     private int mState;
 
     @Override
     public HandshakeMessage initHandshake() {
+        checkRunnerIsNew();
         mMode = Mode.CLIENT;
-        mState = State.WAITING_FOR_RESPONSE;
+        mState = HandshakeMessage.HandshakeState.IN_PROGRESS;
         return HandshakeMessage.newBuilder()
+                .setHandshakeState(mState)
                 .setNextMessage(INIT.getBytes())
                 .build();
     }
@@ -68,19 +61,27 @@ class DummyEncryptionRunner implements EncryptionRunner {
     @Override
     public HandshakeMessage respondToInitRequest(byte[] initializationRequest)
             throws HandshakeException {
+        checkRunnerIsNew();
         mMode = Mode.SERVER;
         if (!new String(initializationRequest).equals(INIT)) {
             throw new HandshakeException("Unexpected initialization request");
         }
-        mState = State.WAITING_FOR_RESPONSE;
+        mState = HandshakeMessage.HandshakeState.IN_PROGRESS;
         return HandshakeMessage.newBuilder()
+                .setHandshakeState(HandshakeMessage.HandshakeState.IN_PROGRESS)
                 .setNextMessage(INIT_RESPONSE.getBytes())
                 .build();
     }
 
+    private void checkRunnerIsNew() {
+        if (mState != HandshakeMessage.HandshakeState.UNKNOWN) {
+            throw new IllegalStateException("runner already initialized.");
+        }
+    }
+
     @Override
     public HandshakeMessage continueHandshake(byte[] response) throws HandshakeException {
-        if (mState != State.WAITING_FOR_RESPONSE) {
+        if (mState != HandshakeMessage.HandshakeState.IN_PROGRESS) {
             throw new HandshakeException("not waiting for response but got one");
         }
         switch(mMode) {
@@ -88,23 +89,23 @@ class DummyEncryptionRunner implements EncryptionRunner {
                 if (!CLIENT_RESPONSE.equals(new String(response))) {
                     throw new HandshakeException("unexpected response: " + new String(response));
                 }
-                mState = State.FINISHED;
+                mState = HandshakeMessage.HandshakeState.VERIFICATION_NEEDED;
                 return HandshakeMessage.newBuilder()
-                        .setHandshakeComplete(true)
-                        .setKey(new DummyKey())
+                        .setVerificationCode(VERIFICATION_CODE)
+                        .setHandshakeState(mState)
                         .build();
             case Mode.CLIENT:
                 if (!INIT_RESPONSE.equals(new String(response))) {
                     throw new HandshakeException("unexpected response: " + new String(response));
                 }
-                mState = State.FINISHED;
+                mState = HandshakeMessage.HandshakeState.VERIFICATION_NEEDED;
                 return HandshakeMessage.newBuilder()
-                        .setHandshakeComplete(true)
-                        .setKey(new DummyKey())
+                        .setHandshakeState(mState)
                         .setNextMessage(CLIENT_RESPONSE.getBytes())
+                        .setVerificationCode(VERIFICATION_CODE)
                         .build();
             default:
-                throw new IllegalStateException();
+                throw new IllegalStateException("unexpected state: "  + mState);
         }
     }
 
@@ -114,18 +115,20 @@ class DummyEncryptionRunner implements EncryptionRunner {
     }
 
     @Override
-    public String getPin() {
-        return PIN;
+    public HandshakeMessage verifyPin() throws HandshakeException {
+        if (mState != HandshakeMessage.HandshakeState.VERIFICATION_NEEDED) {
+            throw new IllegalStateException("asking to verify pin, state = " + mState);
+        }
+        mState = HandshakeMessage.HandshakeState.FINISHED;
+        return HandshakeMessage.newBuilder()
+                .setHandshakeState(mState)
+                .setKey(new DummyKey())
+                .build();
     }
 
     @Override
-    public byte[] encryptData(Key key, byte[] data) {
-        return data;
-    }
-
-    @Override
-    public byte[] decryptData(Key key, byte[] encryptedData) {
-        return encryptedData;
+    public void invalidPin() {
+        mState = HandshakeMessage.HandshakeState.INVALID;
     }
 
     private class DummyKey implements Key {
@@ -133,6 +136,16 @@ class DummyEncryptionRunner implements EncryptionRunner {
         @Override
         public byte[] asBytes() {
             return KEY.getBytes();
+        }
+
+        @Override
+        public byte[] encryptData(byte[] data) {
+            return data;
+        }
+
+        @Override
+        public byte[] decryptData(byte[] encryptedData) {
+            return encryptedData;
         }
     }
 }
