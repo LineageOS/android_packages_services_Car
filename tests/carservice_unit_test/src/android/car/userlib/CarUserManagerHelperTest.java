@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package android.car.userlib;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -26,7 +26,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.app.ActivityManager;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -99,8 +98,8 @@ public class CarUserManagerHelperTest {
         doReturn(InstrumentationRegistry.getTargetContext().getContentResolver())
                 .when(mContext).getContentResolver();
         doReturn(mContext).when(mContext).getApplicationContext();
-        mCarUserManagerHelper =
-                new CarUserManagerHelper(mContext, DEFAULT_ADMIN_NAME);
+        mCarUserManagerHelper = new CarUserManagerHelper(mContext);
+        mCarUserManagerHelper.setDefaultAdminName(DEFAULT_ADMIN_NAME);
 
         mCurrentProcessUser = createUserInfoForId(UserHandle.myUserId());
         mSystemUser = createUserInfoForId(UserHandle.USER_SYSTEM);

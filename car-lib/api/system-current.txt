@@ -10,6 +10,7 @@ package android.car {
     field public static final java.lang.String PERMISSION_CAR_DRIVING_STATE = "android.car.permission.CAR_DRIVING_STATE";
     field public static final java.lang.String PERMISSION_CAR_DYNAMICS_STATE = "android.car.permission.CAR_DYNAMICS_STATE";
     field public static final java.lang.String PERMISSION_CAR_ENGINE_DETAILED = "android.car.permission.CAR_ENGINE_DETAILED";
+    field public static final java.lang.String PERMISSION_CAR_ENROLL_TRUST = "android.car.permission.CAR_ENROLL_TRUST";
     field public static final java.lang.String PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL = "android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
     field public static final java.lang.String PERMISSION_CAR_POWER = "android.car.permission.CAR_POWER";
     field public static final java.lang.String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
@@ -887,6 +888,38 @@ package android.car.test {
     ctor public CarTestManagerBinderWrapper(android.os.IBinder);
     method public void onCarDisconnected();
     field public final android.os.IBinder binder;
+  }
+
+}
+
+package android.car.trust {
+
+  public final class CarTrustAgentEnrollmentManager {
+    method public void activateToken(long) throws android.car.CarNotConnectedException;
+    method public void enrollmentHandshakeAccepted() throws android.car.CarNotConnectedException;
+    method public java.util.List<java.lang.Integer> getEnrollmentHandlesForUser(int) throws android.car.CarNotConnectedException;
+    method public void initiateEnrollmentHandshake(android.bluetooth.BluetoothDevice) throws android.car.CarNotConnectedException;
+    method public void revokeTrust(long) throws android.car.CarNotConnectedException;
+    method public void setBleCallback(android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback) throws android.car.CarNotConnectedException;
+    method public void setEnrollmentCallback(android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback) throws android.car.CarNotConnectedException;
+    method public void startEnrollmentAdvertising() throws android.car.CarNotConnectedException;
+    method public void stopEnrollmentAdvertising() throws android.car.CarNotConnectedException;
+    method public void terminateEnrollmentHandshake() throws android.car.CarNotConnectedException;
+  }
+
+  public static abstract interface CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback {
+    method public abstract void onBleEnrollmentDeviceConnected(android.bluetooth.BluetoothDevice);
+    method public abstract void onBleEnrollmentDeviceDisconnected(android.bluetooth.BluetoothDevice);
+    method public abstract void onEnrollmentAdvertisingFailed(int);
+    method public abstract void onEnrollmentAdvertisingStarted();
+  }
+
+  public static abstract interface CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback {
+    method public abstract void onAuthStringAvailable(android.bluetooth.BluetoothDevice, java.lang.String);
+    method public abstract void onEnrollmentHandshakeFailure(android.bluetooth.BluetoothDevice, int);
+    method public abstract void onEscrowTokenActiveStateChanged(long, boolean);
+    method public abstract void onEscrowTokenAdded(long);
+    method public abstract void onTrustRevoked(long, boolean);
   }
 
 }

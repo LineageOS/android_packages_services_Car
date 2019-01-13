@@ -6,6 +6,15 @@ package android.car.content.pm {
 
 }
 
+package android.car.drivingstate {
+
+  public final class CarUxRestrictionsManager {
+    method public synchronized android.car.drivingstate.CarUxRestrictionsConfiguration getConfig() throws android.car.CarNotConnectedException;
+    method public synchronized android.car.drivingstate.CarUxRestrictionsConfiguration getStagedConfig() throws android.car.CarNotConnectedException;
+  }
+
+}
+
 package android.car.media {
 
   public final class CarAudioManager {
