@@ -56,13 +56,13 @@ doc_defaults {
     },
 }
 
-droiddoc {
+droidstubs {
     name: "android.support.car-stubs-docs",
     defaults: ["android.support.car-docs-default"],
     api_tag_name: "ANDROID_SUPPORT_CAR",
     api_filename: "api.txt",
     removed_api_filename: "removed.txt",
-    args: "-hide 113 -hide 110 -nodocs -stubpackages android.support.car* ",
+    args: "--hide DeprecationMismatch -hide UnavailableSymbol --hide UnhiddenSystemApi --hide HiddenTypedefConstant --hide ReferencesHidden --no-docs --stub-packages android.support.car* ",
     installable: false,
     check_api: {
         current: {
