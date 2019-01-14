@@ -42,6 +42,7 @@ import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.trust.CarTrustAgentEnrollmentService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.car.ICarServiceHelper;
@@ -83,6 +84,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarDiagnosticService mCarDiagnosticService;
     private final CarStorageMonitoringService mCarStorageMonitoringService;
     private final CarConfigurationService mCarConfigurationService;
+    private final CarTrustAgentEnrollmentService mCarTrustAgentEnrollmentService;
 
     private final CarUserManagerHelper mUserManagerHelper;
     private CarUserService mCarUserService;
@@ -144,6 +146,7 @@ public class ICarImpl extends ICar.Stub {
                 new CarConfigurationService(serviceContext, new JsonReaderImpl());
         mCarLocationService = new CarLocationService(
                 mContext, mCarPropertyService, mUserManagerHelper);
+        mCarTrustAgentEnrollmentService = new CarTrustAgentEnrollmentService(serviceContext);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
@@ -168,6 +171,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarConfigurationService);
         allServices.add(mVmsSubscriberService);
         allServices.add(mVmsPublisherService);
+        allServices.add(mCarTrustAgentEnrollmentService);
         if (mUserManagerHelper.isHeadlessSystemUser()) {
             allServices.add(new CarUserService(serviceContext, mUserManagerHelper));
         }
@@ -272,6 +276,9 @@ public class ICarImpl extends ICar.Stub {
                 return mCarUXRestrictionsService;
             case Car.CAR_CONFIGURATION_SERVICE:
                 return mCarConfigurationService;
+            case Car.CAR_TRUST_AGENT_ENROLLMENT_SERVICE:
+                assertTrustAgentEnrollmentPermission(mContext);
+                return mCarTrustAgentEnrollmentService;
             default:
                 Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:" + serviceName);
                 return null;
@@ -332,6 +339,14 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertVmsSubscriberPermission(Context context) {
         assertPermission(context, Car.PERMISSION_VMS_SUBSCRIBER);
+    }
+
+    /**
+     * Ensures the caller has the permission to enroll a Trust Agent.
+     * @param context
+     */
+    public static void assertTrustAgentEnrollmentPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_ENROLL_TRUST);
     }
 
     public static void assertPermission(Context context, String permission) {

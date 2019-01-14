@@ -3,6 +3,7 @@ package android.car {
   public final class Car {
     field public static final java.lang.String CABIN_SERVICE = "cabin";
     field public static final java.lang.String CAR_DRIVING_STATE_SERVICE = "drivingstate";
+    field public static final java.lang.String CAR_TRUST_AGENT_ENROLLMENT_SERVICE = "trust_enroll";
     field public static final java.lang.String DIAGNOSTIC_SERVICE = "diagnostic";
     field public static final java.lang.String HVAC_SERVICE = "hvac";
     field public static final java.lang.String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.CLEAR_CAR_DIAGNOSTICS";
