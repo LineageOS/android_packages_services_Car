@@ -71,7 +71,7 @@ java_library {
     installable: true,
 }
 
-doc_defaults {
+stubs_defaults {
     name: "android.car-docs-default",
     srcs: [
         "src/**/*.java",
@@ -80,7 +80,6 @@ doc_defaults {
     libs: [
         "android.car",
     ],
-    custom_template: "droiddoc-templates-sdk",
     product_variables: {
         pdk: {
             enabled: false,
@@ -121,13 +120,13 @@ genrule {
     ],
 }
 
-droiddoc {
+droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
     api_tag_name: "ANDROID_CAR",
     api_filename: "api.txt",
     removed_api_filename: "removed.txt",
-    args: "-hide 113 -hide 110 -nodocs -stubpackages android.car* ",
+    args: "--hide DeprecationMismatch --hide UnavailableSymbol --hide HiddenTypedefConstant --hide ReferencesHidden --no-docs --stub-packages android.car* ",
     installable: false,
     check_api: {
         last_released: {
@@ -147,14 +146,14 @@ droiddoc {
     },
 }
 
-droiddoc {
+droidstubs {
     name: "android.car-system-stubs-docs",
     defaults: ["android.car-docs-default"],
     api_tag_name: "ANDROID_CAR_SYSTEM",
     api_filename: "api.txt",
     removed_api_filename: "removed.txt",
-    args: "-hide 113 -hide 110 -nodocs -stubpackages android.car* " +
-        "-showAnnotation android.annotation.SystemApi ",
+    args: "--hide DeprecationMismatch --hide UnavailableSymbol --hide HiddenTypedefConstant --hide ReferencesHidden --no-docs --stub-packages android.car* " +
+        "--show-annotation android.annotation.SystemApi ",
     installable: false,
     check_api: {
         last_released: {
@@ -174,14 +173,14 @@ droiddoc {
     },
 }
 
-droiddoc {
+droidstubs {
     name: "android.car-test-stubs-docs",
     defaults: ["android.car-docs-default"],
     api_tag_name: "ANDROID_CAR_SYSTEM",
     api_filename: "api.txt",
     removed_api_filename: "removed.txt",
-    args: "-hide 113 -hide 110 -nodocs -stubpackages android.car* " +
-        "-showAnnotation android.annotation.TestApi ",
+    args: "--hide DeprecationMismatch --hide UnavailableSymbol --hide HiddenTypedefConstant --hide ReferencesHidden --no-docs --stub-packages android.car* " +
+        "--show-annotation android.annotation.TestApi ",
     installable: false,
     check_api: {
         current: {
@@ -194,7 +193,7 @@ droiddoc {
     },
 }
 
-droiddoc {
+droidstubs {
     name: "android.car-stub-docs",
     srcs: [
         "src/**/*.java",
@@ -204,8 +203,7 @@ droiddoc {
     ],
     api_tag_name: "ANDROID_CAR_STUB",
     api_filename: "api.txt",
-    custom_template: "droiddoc-templates-sdk",
-    args: "-nodocs -stubpackages android.car* ",
+    args: "--hide DeprecationMismatch --hide UnavailableSymbol --hide HiddenTypedefConstant --hide ReferencesHidden --no-docs --stub-packages android.car* ",
     installable: false,
     product_variables: {
         pdk: {
