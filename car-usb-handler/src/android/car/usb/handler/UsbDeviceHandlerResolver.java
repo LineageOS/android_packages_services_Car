@@ -489,7 +489,7 @@ public final class UsbDeviceHandlerResolver {
         DeviceContext deviceContext =
                 new DeviceContext(device, UsbDeviceSettings.constructSettings(device), settings);
         if (deviceContext.connection != null
-                && AoapInterface.isSupported(deviceContext.connection)) {
+                && AoapInterface.isSupported(mContext, device, deviceContext.connection)) {
             deviceContext.mActiveDeviceOptions.addAll(getDeviceMatches(device, intent, true));
             queryNextAoapHandler(deviceContext);
         } else {

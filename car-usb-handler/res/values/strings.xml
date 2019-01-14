@@ -24,4 +24,11 @@
     <string name="usb_pref_delete_cancel">Cancel</string>
     <string name="usb_resolving_handlers">Getting supported handlers</string>
     <string name="usb_unknown_device">Unknown USB device</string>
+
+    <!-- VID:PID pairs (in hexadecimal and separated by a colon, e.g. 18d1:4e11)
+         of Android devices known to be incompatible with AOAP. Devices in this
+         list will not be probed by UsbHostManagementActivity for AOAP support. -->
+    <string-array name="config_AoapIncompatibleDeviceIds">
+        <item>18d1:9302</item>
+    </string-array>
 </resources>
