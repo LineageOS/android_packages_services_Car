@@ -1,0 +1,55 @@
+// Baseline format: 1.0
+HiddenTypeParameter: android.car.drivingstate.CarUxRestrictionsManager#getConfig():
+    Method android.car.drivingstate.CarUxRestrictionsManager.getConfig() references hidden type android.car.drivingstate.CarUxRestrictionsConfiguration.
+HiddenTypeParameter: android.car.drivingstate.CarUxRestrictionsManager#getStagedConfig():
+    Method android.car.drivingstate.CarUxRestrictionsManager.getStagedConfig() references hidden type android.car.drivingstate.CarUxRestrictionsConfiguration.
+HiddenTypeParameter: android.car.hardware.CarSensorManager#getPropertyList():
+    Method android.car.hardware.CarSensorManager.getPropertyList() references hidden type class android.car.hardware.CarPropertyConfig.
+HiddenTypeParameter: android.car.navigation.CarNavigationStatusManager#getInstrumentClusterInfo():
+    Method android.car.navigation.CarNavigationStatusManager.getInstrumentClusterInfo() references hidden type android.car.navigation.CarNavigationInstrumentCluster.
+
+
+HiddenTypedefConstant: android.car.CarInfoManager#getEvConnectorTypes():
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.EvConnectorType#UNKNOWN
+HiddenTypedefConstant: android.car.CarInfoManager#getFuelTypes():
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.FuelType#UNKNOWN
+HiddenTypedefConstant: android.car.hardware.CarSensorManager#getLatestSensorEvent(int) parameter #0:
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.hardware.CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL
+HiddenTypedefConstant: android.car.hardware.CarSensorManager#isSensorSupported(int) parameter #0:
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.hardware.CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL
+HiddenTypedefConstant: android.car.hardware.CarSensorManager#isSensorSupported(int[], int) parameter #1:
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.hardware.CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL
+HiddenTypedefConstant: android.car.hardware.CarSensorManager#registerListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int, int) parameter #1:
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.hardware.CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL
+HiddenTypedefConstant: android.car.hardware.CarSensorManager#unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int) parameter #1:
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.hardware.CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL
+
+
+MissingPermission: android.car.drivingstate.CarUxRestrictionsManager#getConfig():
+    Permission Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION required by method android.car.drivingstate.CarUxRestrictionsManager.getConfig() is hidden or removed
+MissingPermission: android.car.drivingstate.CarUxRestrictionsManager#getStagedConfig():
+    Permission Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION required by method android.car.drivingstate.CarUxRestrictionsManager.getStagedConfig() is hidden or removed
+
+
+ReferencesHidden: android.car.drivingstate.CarUxRestrictionsManager#getConfig():
+    Class android.car.drivingstate.CarUxRestrictionsConfiguration is hidden but was referenced (as return type) from public method android.car.drivingstate.CarUxRestrictionsManager.getConfig()
+ReferencesHidden: android.car.drivingstate.CarUxRestrictionsManager#getStagedConfig():
+    Class android.car.drivingstate.CarUxRestrictionsConfiguration is hidden but was referenced (as return type) from public method android.car.drivingstate.CarUxRestrictionsManager.getStagedConfig()
+ReferencesHidden: android.car.hardware.CarSensorManager#getPropertyList():
+    Class android.car.hardware.CarPropertyConfig is hidden but was referenced (as return type parameter) from public method android.car.hardware.CarSensorManager.getPropertyList()
+ReferencesHidden: android.car.navigation.CarNavigationStatusManager#getInstrumentClusterInfo():
+    Class android.car.navigation.CarNavigationInstrumentCluster is hidden but was referenced (as return type) from public method android.car.navigation.CarNavigationStatusManager.getInstrumentClusterInfo()
+
+
+RequiresPermission: android.car.hardware.CarSensorManager#registerListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int, int):
+    Method 'registerListener' documentation mentions permissions already declared by @RequiresPermission
+
+
+SdkConstant: android.car.Car#CAR_INTENT_ACTION_MEDIA_TEMPLATE:
+    Field 'CAR_INTENT_ACTION_MEDIA_TEMPLATE' is missing @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
+
+
+Todo: android.car.CarInfoManager#getVehicleId():
+    Documentation mentions 'TODO'
+
+
