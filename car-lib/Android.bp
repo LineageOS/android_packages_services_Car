@@ -126,7 +126,7 @@ droidstubs {
     api_tag_name: "ANDROID_CAR",
     api_filename: "api.txt",
     removed_api_filename: "removed.txt",
-    args: "--hide DeprecationMismatch --hide UnavailableSymbol --hide HiddenTypedefConstant --hide ReferencesHidden --no-docs --stub-packages android.car* ",
+    args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* ",
     installable: false,
     check_api: {
         last_released: {
@@ -152,7 +152,7 @@ droidstubs {
     api_tag_name: "ANDROID_CAR_SYSTEM",
     api_filename: "api.txt",
     removed_api_filename: "removed.txt",
-    args: "--hide DeprecationMismatch --hide UnavailableSymbol --hide HiddenTypedefConstant --hide ReferencesHidden --no-docs --stub-packages android.car* " +
+    args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* " +
         "--show-annotation android.annotation.SystemApi ",
     installable: false,
     check_api: {
@@ -179,7 +179,7 @@ droidstubs {
     api_tag_name: "ANDROID_CAR_SYSTEM",
     api_filename: "api.txt",
     removed_api_filename: "removed.txt",
-    args: "--hide DeprecationMismatch --hide UnavailableSymbol --hide HiddenTypedefConstant --hide ReferencesHidden --no-docs --stub-packages android.car* " +
+    args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* " +
         "--show-annotation android.annotation.TestApi ",
     installable: false,
     check_api: {
@@ -203,7 +203,7 @@ droidstubs {
     ],
     api_tag_name: "ANDROID_CAR_STUB",
     api_filename: "api.txt",
-    args: "--hide DeprecationMismatch --hide UnavailableSymbol --hide HiddenTypedefConstant --hide ReferencesHidden --no-docs --stub-packages android.car* ",
+    args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* ",
     installable: false,
     product_variables: {
         pdk: {
