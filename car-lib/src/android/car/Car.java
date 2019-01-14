@@ -35,6 +35,7 @@ import android.car.navigation.CarNavigationStatusManager;
 import android.car.settings.CarConfigurationManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.test.CarTestManagerBinderWrapper;
+import android.car.trust.CarTrustAgentEnrollmentManager;
 import android.car.vms.VmsSubscriberManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -169,6 +170,13 @@ public final class Car {
      */
     @SystemApi
     public static final String STORAGE_MONITORING_SERVICE = "storage_monitoring";
+
+    /**
+     * Service name for {@link android.car.trust.CarTrustAgentEnrollmentManager}
+     * @hide
+     */
+    @SystemApi
+    public static final String CAR_TRUST_AGENT_ENROLLMENT_SERVICE = "trust_enroll";
 
     /**
      * Service for testing. This is system app only feature.
@@ -720,6 +728,7 @@ public final class Car {
      * @return Matching service manager or null if there is no such service.
      * @throws CarNotConnectedException if the connection to the car service has been lost.
      */
+    @Nullable
     public Object getCarManager(String serviceName) throws CarNotConnectedException {
         CarManagerBase manager;
         ICar service = getICarOrThrow();
@@ -788,6 +797,7 @@ public final class Car {
         }
     }
 
+    @Nullable
     private CarManagerBase createCarManager(String serviceName, IBinder binder)
             throws CarNotConnectedException {
         CarManagerBase manager = null;
@@ -857,6 +867,9 @@ public final class Car {
                 break;
             case CAR_CONFIGURATION_SERVICE:
                 manager = new CarConfigurationManager(binder);
+                break;
+            case CAR_TRUST_AGENT_ENROLLMENT_SERVICE:
+                manager = new CarTrustAgentEnrollmentManager(binder, mContext, mEventHandler);
                 break;
             default:
                 break;
