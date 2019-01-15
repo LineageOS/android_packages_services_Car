@@ -13,11 +13,16 @@
  */
 package android.car.usb.handler;
 
+import android.content.Context;
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.util.Log;
+import android.util.Pair;
+
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 final class AoapInterface {
     /**
@@ -94,6 +99,12 @@ final class AoapInterface {
      */
     public static final int AOAP_TIMEOUT_MS = 2000;
 
+    /**
+     * Set of VID:PID pairs blacklisted through config_AoapIncompatibleDeviceIds. Only
+     * isDeviceBlacklisted() should ever access this variable.
+     */
+    private static Set<Pair<Integer, Integer>> sBlacklistedVidPidPairs;
+
     private static final String TAG = AoapInterface.class.getSimpleName();
 
     public static int getProtocol(UsbDeviceConnection conn) {
@@ -107,8 +118,8 @@ final class AoapInterface {
         return (buffer[1] << 8) | buffer[0];
     }
 
-    public static boolean isSupported(UsbDeviceConnection conn) {
-        return getProtocol(conn) >= 1;
+    public static boolean isSupported(Context context, UsbDevice device, UsbDeviceConnection conn) {
+        return !isDeviceBlacklisted(context, device) && getProtocol(conn) >= 1;
     }
 
     public static void sendString(UsbDeviceConnection conn, int index, String string)
@@ -132,6 +143,33 @@ final class AoapInterface {
         if (len < 0) {
             throw new IOException("Control transfer for accessory start failed: " + len);
         }
+    }
+
+    public static synchronized boolean isDeviceBlacklisted(Context context, UsbDevice device) {
+        if (sBlacklistedVidPidPairs == null) {
+            sBlacklistedVidPidPairs = new HashSet<>();
+            String[] idPairs =
+                context.getResources().getStringArray(R.array.config_AoapIncompatibleDeviceIds);
+            for (String idPair : idPairs) {
+                boolean success = false;
+                String[] tokens = idPair.split(":");
+                if (tokens.length == 2) {
+                    try {
+                        sBlacklistedVidPidPairs.add(Pair.create(Integer.parseInt(tokens[0], 16),
+                                                                Integer.parseInt(tokens[1], 16)));
+                        success = true;
+                    } catch (NumberFormatException e) {
+                    }
+                }
+                if (!success) {
+                    Log.e(TAG, "config_AoapIncompatibleDeviceIds contains malformed value: "
+                            + idPair);
+                }
+            }
+        }
+
+        return sBlacklistedVidPidPairs.contains(Pair.create(device.getVendorId(),
+                                                            device.getProductId()));
     }
 
     public static boolean isDeviceInAoapMode(UsbDevice device) {

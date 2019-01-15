@@ -1,0 +1,59 @@
+// Baseline format: 1.0
+HiddenTypeParameter: android.car.vms.VmsAvailableLayers#VmsAvailableLayers(java.util.Set<android.car.vms.VmsAssociatedLayer>, int) parameter #0:
+    Parameter associatedLayers references hidden type class android.car.vms.VmsAssociatedLayer.
+HiddenTypeParameter: android.car.vms.VmsAvailableLayers#getAssociatedLayers():
+    Method android.car.vms.VmsAvailableLayers.getAssociatedLayers() references hidden type class android.car.vms.VmsAssociatedLayer.
+HiddenTypeParameter: android.car.vms.VmsOperationRecorder#VmsOperationRecorder(android.car.vms.VmsOperationRecorder.Writer) parameter #0:
+    Parameter writer references hidden type android.car.vms.VmsOperationRecorder.Writer.
+HiddenTypeParameter: android.car.vms.VmsPublisherClientService#getSubscriptions():
+    Method android.car.vms.VmsPublisherClientService.getSubscriptions() references hidden type android.car.vms.VmsSubscriptionState.
+HiddenTypeParameter: android.car.vms.VmsPublisherClientService#onVmsSubscriptionChange(android.car.vms.VmsSubscriptionState) parameter #0:
+    Parameter subscriptionState references hidden type android.car.vms.VmsSubscriptionState.
+
+
+HiddenTypedefConstant: android.car.CarInfoManager#getEvConnectorTypes():
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.EvConnectorType#UNKNOWN
+HiddenTypedefConstant: android.car.CarInfoManager#getFuelTypes():
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.FuelType#UNKNOWN
+HiddenTypedefConstant: android.car.hardware.CarPropertyValue#getStatus():
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.hardware.CarPropertyValue#STATUS_AVAILABLE
+HiddenTypedefConstant: android.car.hardware.CarSensorManager#getLatestSensorEvent(int) parameter #0:
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.hardware.CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL
+HiddenTypedefConstant: android.car.hardware.CarSensorManager#isSensorSupported(int) parameter #0:
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.hardware.CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL
+HiddenTypedefConstant: android.car.hardware.CarSensorManager#isSensorSupported(int[], int) parameter #1:
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.hardware.CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL
+HiddenTypedefConstant: android.car.hardware.CarSensorManager#registerListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int, int) parameter #1:
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.hardware.CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL
+HiddenTypedefConstant: android.car.hardware.CarSensorManager#unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int) parameter #1:
+    Typedef references constant which isn't part of the API, skipping in documentation: android.car.hardware.CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL
+
+
+ReferencesHidden: android.car.vms.VmsAvailableLayers#VmsAvailableLayers(java.util.Set<android.car.vms.VmsAssociatedLayer>, int) parameter #0:
+    Class android.car.vms.VmsAssociatedLayer is hidden but was referenced (as parameter type) from public parameter associatedLayers in android.car.vms.VmsAvailableLayers(java.util.Set<android.car.vms.VmsAssociatedLayer> associatedLayers, int sequence)
+ReferencesHidden: android.car.vms.VmsAvailableLayers#getAssociatedLayers():
+    Class android.car.vms.VmsAssociatedLayer is hidden but was referenced (as return type parameter) from public method android.car.vms.VmsAvailableLayers.getAssociatedLayers()
+ReferencesHidden: android.car.vms.VmsOperationRecorder#VmsOperationRecorder(android.car.vms.VmsOperationRecorder.Writer) parameter #0:
+    Class android.car.vms.VmsOperationRecorder.Writer is hidden but was referenced (as parameter type) from public parameter writer in android.car.vms.VmsOperationRecorder(android.car.vms.VmsOperationRecorder.Writer writer)
+ReferencesHidden: android.car.vms.VmsPublisherClientService#getSubscriptions():
+    Class android.car.vms.VmsSubscriptionState is hidden but was referenced (as return type) from public method android.car.vms.VmsPublisherClientService.getSubscriptions()
+ReferencesHidden: android.car.vms.VmsPublisherClientService#onVmsSubscriptionChange(android.car.vms.VmsSubscriptionState) parameter #0:
+    Class android.car.vms.VmsSubscriptionState is hidden but was referenced (as parameter type) from public parameter subscriptionState in android.car.vms.VmsPublisherClientService.onVmsSubscriptionChange(android.car.vms.VmsSubscriptionState subscriptionState)
+
+
+RequiresPermission: android.car.hardware.CarSensorManager#registerListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int, int):
+    Method 'registerListener' documentation mentions permissions already declared by @RequiresPermission
+
+
+SdkConstant: android.car.Car#CAR_INTENT_ACTION_MEDIA_TEMPLATE:
+    Field 'CAR_INTENT_ACTION_MEDIA_TEMPLATE' is missing @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
+
+
+Todo: android.car.CarInfoManager#getVehicleId():
+    Documentation mentions 'TODO'
+Todo: android.car.cluster.renderer.InstrumentClusterRenderer:
+    Documentation mentions 'TODO'
+Todo: android.car.drivingstate.CarDrivingStateEvent#DRIVING_STATE_IDLING:
+    Documentation mentions 'TODO'
+
+

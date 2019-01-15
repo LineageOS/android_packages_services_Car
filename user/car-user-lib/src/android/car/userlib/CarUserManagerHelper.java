@@ -63,7 +63,8 @@ public class CarUserManagerHelper {
      * Default set of restrictions for Non-Admin users.
      */
     private static final Set<String> DEFAULT_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
-            UserManager.DISALLOW_FACTORY_RESET
+            UserManager.DISALLOW_FACTORY_RESET,
+            UserManager.DISALLOW_RUN_IN_BACKGROUND
     );
 
     /**

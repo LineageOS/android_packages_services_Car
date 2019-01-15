@@ -20,7 +20,8 @@ public class BootUsbScanner extends BroadcastReceiver {
             } else {
                 UsbDeviceConnection connection = UsbUtil.openConnection(manager, device);
                 try {
-                    if (connection != null && AoapInterface.isSupported(connection)) {
+                    if (connection != null
+                            && AoapInterface.isSupported(context, device, connection)) {
                         handle(context, device);
                     }
                 } finally {
