@@ -508,13 +508,11 @@ public final class Car {
 
         public void onServiceDisconnected(ComponentName name) {
             synchronized (Car.this) {
-                mService = null;
                 if (mConnectionState  == STATE_DISCONNECTED) {
                     return;
                 }
-                mConnectionState = STATE_DISCONNECTED;
             }
-            // unbind explicitly here.
+            // unbind explicitly and set connectionState to STATE_DISCONNECTED here.
             disconnect();
             mServiceConnectionListenerClient.onServiceDisconnected(name);
         }
