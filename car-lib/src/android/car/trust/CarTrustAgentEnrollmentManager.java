@@ -25,9 +25,13 @@ import android.bluetooth.BluetoothDevice;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -48,8 +52,8 @@ import java.util.stream.Collectors;
  * <li> startEnrollmentAdvertising()
  * <li> wait for onEnrollmentAdvertisingStarted() or
  * <li> wait for onBleEnrollmentDeviceConnected() and check if the device connected is the right
- *  one.
- * <li> initiateEnrollmentHandhake()
+ * one.
+ * <li> initiateEnrollmentHandshake()
  * <li> wait for onAuthStringAvailable() to get the pairing code to display to the user
  * <li> enrollmentHandshakeAccepted() after user confirms the pairing code
  * <li> wait for onEscrowTokenAdded()
@@ -64,6 +68,19 @@ import java.util.stream.Collectors;
 @SystemApi
 public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
     private static final String TAG = "CarTrustEnrollMgr";
+    private static final String KEY_HANDLE = "handle";
+    private static final String KEY_ACTIVE = "active";
+    private static final String KEY_SUCCESS = "success";
+    private static final int MSG_ENROLL_ADVERTISING_STARTED = 0;
+    private static final int MSG_ENROLL_ADVERTISING_FAILED = 1;
+    private static final int MSG_ENROLL_DEVICE_CONNECTED = 2;
+    private static final int MSG_ENROLL_DEVICE_DISCONNECTED = 3;
+    private static final int MSG_ENROLL_HANDSHAKE_FAILURE = 4;
+    private static final int MSG_ENROLL_AUTH_STRING_AVAILABLE = 5;
+    private static final int MSG_ENROLL_TOKEN_ADDED = 6;
+    private static final int MSG_ENROLL_TOKEN_REVOKED = 7;
+    private static final int MSG_ENROLL_TOKEN_STATE_CHANGED = 8;
+
     private final Context mContext;
     private final ICarTrustAgentEnrollment mEnrollmentService;
     private Object mListenerLock = new Object();
@@ -75,12 +92,14 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
     private final ListenerToEnrollmentService mListenerToEnrollmentService =
             new ListenerToEnrollmentService(this);
     private final ListenerToBleService mListenerToBleService = new ListenerToBleService(this);
+    private final EventCallbackHandler mEventCallbackHandler;
 
 
     /** @hide */
     public CarTrustAgentEnrollmentManager(IBinder service, Context context, Handler handler) {
         mContext = context;
         mEnrollmentService = ICarTrustAgentEnrollment.Stub.asInterface(service);
+        mEventCallbackHandler = new EventCallbackHandler(this, handler.getLooper());
     }
 
     /** @hide */
@@ -284,6 +303,10 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         }
     }
 
+    private Handler getEventCallbackHandler() {
+        return mEventCallbackHandler;
+    }
+
     /**
      * Callback interface for Trusted device enrollment applications to implement.  The applications
      * get notified on various enrollment state change events.
@@ -292,7 +315,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         /**
          * Communicate about failure/timeouts in the handshake process.
          *
-         * @param device the remote device trying to enroll
+         * @param device    the remote device trying to enroll
          * @param errorCode information on what failed.
          */
         void onEnrollmentHandshakeFailure(BluetoothDevice device, int errorCode);
@@ -300,7 +323,7 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         /**
          * Present the pairing/authentication string to the user.
          *
-         * @param device the remote device trying to enroll
+         * @param device     the remote device trying to enroll
          * @param authString the authentication string to show to the user to confirm across
          *                   both devices
          */
@@ -358,9 +381,8 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         void onEnrollmentAdvertisingFailed(int errorCode);
     }
 
-    // TODO(ramperry) - call the client callbacks from the methods of this listener to the service
-    // callbacks.
-    private class ListenerToEnrollmentService extends ICarTrustAgentEnrollmentCallback.Stub {
+    private static final class ListenerToEnrollmentService extends
+            ICarTrustAgentEnrollmentCallback.Stub {
         private final WeakReference<CarTrustAgentEnrollmentManager> mMgr;
 
         ListenerToEnrollmentService(CarTrustAgentEnrollmentManager mgr) {
@@ -370,38 +392,87 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
         /**
          * Communicate about failure/timeouts in the handshake process.
          */
+        @Override
         public void onEnrollmentHandshakeFailure(BluetoothDevice device, int errorCode) {
+            CarTrustAgentEnrollmentManager enrollmentManager = mMgr.get();
+            if (enrollmentManager == null) {
+                return;
+            }
+            enrollmentManager.getEventCallbackHandler().sendMessage(
+                    enrollmentManager.getEventCallbackHandler().obtainMessage(
+                            MSG_ENROLL_HANDSHAKE_FAILURE, new AuthInfo(device, null, errorCode)));
         }
 
         /**
          * Present the pairing/authentication string to the user.
          */
-        public void onAuthStringAvailable(BluetoothDevice device, byte[] authString) {
+        @Override
+        public void onAuthStringAvailable(BluetoothDevice device, String authString) {
+            CarTrustAgentEnrollmentManager enrollmentManager = mMgr.get();
+            if (enrollmentManager == null) {
+                return;
+            }
+            enrollmentManager.getEventCallbackHandler().sendMessage(
+                    enrollmentManager.getEventCallbackHandler().obtainMessage(
+                            MSG_ENROLL_AUTH_STRING_AVAILABLE, new AuthInfo(device, authString, 0)));
         }
 
         /**
          * Escrow token was received and the Trust Agent framework has generated a corresponding
          * handle.
          */
+        @Override
         public void onEscrowTokenAdded(long handle) {
+            CarTrustAgentEnrollmentManager enrollmentManager = mMgr.get();
+            if (enrollmentManager == null) {
+                return;
+            }
+            Message message = enrollmentManager.getEventCallbackHandler().obtainMessage(
+                    MSG_ENROLL_TOKEN_ADDED);
+            Bundle data = new Bundle();
+            data.putLong(KEY_HANDLE, handle);
+            message.setData(data);
+            enrollmentManager.getEventCallbackHandler().sendMessage(message);
         }
 
         /**
          * Escrow token corresponding to the given handle has been removed.
          */
+        @Override
         public void onTrustRevoked(long handle, boolean success) {
+            CarTrustAgentEnrollmentManager enrollmentManager = mMgr.get();
+            if (enrollmentManager == null) {
+                return;
+            }
+            Message message = enrollmentManager.getEventCallbackHandler().obtainMessage(
+                    MSG_ENROLL_TOKEN_REVOKED);
+            Bundle data = new Bundle();
+            data.putLong(KEY_HANDLE, handle);
+            data.putBoolean(KEY_SUCCESS, success);
+            message.setData(data);
+            enrollmentManager.getEventCallbackHandler().sendMessage(message);
         }
 
         /**
          * Escrow token's active state changed.
          */
+        @Override
         public void onEscrowTokenActiveStateChanged(long handle, boolean active) {
+            CarTrustAgentEnrollmentManager enrollmentManager = mMgr.get();
+            if (enrollmentManager == null) {
+                return;
+            }
+            Message message = enrollmentManager.getEventCallbackHandler().obtainMessage(
+                    MSG_ENROLL_TOKEN_STATE_CHANGED);
+            Bundle data = new Bundle();
+            data.putLong(KEY_HANDLE, handle);
+            data.putBoolean(KEY_ACTIVE, active);
+            message.setData(data);
+            enrollmentManager.getEventCallbackHandler().sendMessage(message);
         }
     }
 
-    // TODO(ramperry) - call the client callbacks from the methods of this listener to the service
-    // callbacks.
-    private class ListenerToBleService extends ICarTrustAgentBleCallback.Stub {
+    private static final class ListenerToBleService extends ICarTrustAgentBleCallback.Stub {
         private final WeakReference<CarTrustAgentEnrollmentManager> mMgr;
 
         ListenerToBleService(CarTrustAgentEnrollmentManager mgr) {
@@ -413,6 +484,13 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
          * enrollment.
          */
         public void onEnrollmentAdvertisingStarted() {
+            CarTrustAgentEnrollmentManager enrollmentManager = mMgr.get();
+            if (enrollmentManager == null) {
+                return;
+            }
+            enrollmentManager.getEventCallbackHandler().sendMessage(
+                    enrollmentManager.getEventCallbackHandler().obtainMessage(
+                            MSG_ENROLL_ADVERTISING_STARTED));
         }
 
         /**
@@ -420,18 +498,179 @@ public final class CarTrustAgentEnrollmentManager implements CarManagerBase {
          * see AdvertiseCallback#ADVERTISE_FAILED_* for possible error codes.
          */
         public void onEnrollmentAdvertisingFailed(int errorCode) {
+            CarTrustAgentEnrollmentManager enrollmentManager = mMgr.get();
+            if (enrollmentManager == null) {
+                return;
+            }
+            enrollmentManager.getEventCallbackHandler().sendMessage(
+                    enrollmentManager.getEventCallbackHandler().obtainMessage(
+                            MSG_ENROLL_ADVERTISING_FAILED, errorCode));
         }
 
         /**
          * Called when a remote device is connected on BLE.
          */
         public void onBleEnrollmentDeviceConnected(BluetoothDevice device) {
+            CarTrustAgentEnrollmentManager enrollmentManager = mMgr.get();
+            if (enrollmentManager == null) {
+                return;
+            }
+            enrollmentManager.getEventCallbackHandler().sendMessage(
+                    enrollmentManager.getEventCallbackHandler().obtainMessage(
+                            MSG_ENROLL_DEVICE_CONNECTED, device));
         }
 
         /**
          * Called when a remote device is disconnected on BLE.
          */
         public void onBleEnrollmentDeviceDisconnected(BluetoothDevice device) {
+            CarTrustAgentEnrollmentManager enrollmentManager = mMgr.get();
+            if (enrollmentManager == null) {
+                return;
+            }
+            enrollmentManager.getEventCallbackHandler().sendMessage(
+                    enrollmentManager.getEventCallbackHandler().obtainMessage(
+                            MSG_ENROLL_DEVICE_DISCONNECTED, device));
+        }
+    }
+
+    /**
+     * Callback Handler to handle dispatching the enrollment state changes to the corresponding
+     * listeners
+     */
+    private static final class EventCallbackHandler extends Handler {
+        private final WeakReference<CarTrustAgentEnrollmentManager> mEnrollmentManager;
+
+        EventCallbackHandler(CarTrustAgentEnrollmentManager manager, Looper looper) {
+            super(looper);
+            mEnrollmentManager = new WeakReference<>(manager);
+        }
+
+        @Override
+        public void handleMessage(Message message) {
+            CarTrustAgentEnrollmentManager enrollmentManager = mEnrollmentManager.get();
+            if (enrollmentManager == null) {
+                return;
+            }
+            switch (message.what) {
+                case MSG_ENROLL_ADVERTISING_STARTED:
+                case MSG_ENROLL_ADVERTISING_FAILED:
+                case MSG_ENROLL_DEVICE_CONNECTED:
+                case MSG_ENROLL_DEVICE_DISCONNECTED:
+                    enrollmentManager.dispatchBleCallback(message);
+                    break;
+                case MSG_ENROLL_HANDSHAKE_FAILURE:
+                case MSG_ENROLL_AUTH_STRING_AVAILABLE:
+                case MSG_ENROLL_TOKEN_ADDED:
+                case MSG_ENROLL_TOKEN_REVOKED:
+                case MSG_ENROLL_TOKEN_STATE_CHANGED:
+                    enrollmentManager.dispatchEnrollmentCallback(message);
+                    break;
+                default:
+                    Log.e(TAG, "Unknown message:" + message.what);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Dispatch BLE related state change callbacks
+     *
+     * @param message Message to handle and dispatch
+     */
+    private void dispatchBleCallback(Message message) {
+        CarTrustAgentBleCallback bleCallback;
+        synchronized (mListenerLock) {
+            bleCallback = mBleCallback;
+        }
+        if (bleCallback == null) {
+            return;
+        }
+        switch (message.what) {
+            case MSG_ENROLL_ADVERTISING_STARTED:
+                bleCallback.onEnrollmentAdvertisingStarted();
+                break;
+            case MSG_ENROLL_ADVERTISING_FAILED:
+                bleCallback.onEnrollmentAdvertisingFailed((int) message.obj);
+                break;
+            case MSG_ENROLL_DEVICE_CONNECTED:
+                bleCallback.onBleEnrollmentDeviceConnected((BluetoothDevice) message.obj);
+                break;
+            case MSG_ENROLL_DEVICE_DISCONNECTED:
+                bleCallback.onBleEnrollmentDeviceDisconnected((BluetoothDevice) message.obj);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Dispatch Enrollment related state changes to the listener.
+     *
+     * @param message Message to handle and dispatch
+     */
+    private void dispatchEnrollmentCallback(Message message) {
+        CarTrustAgentEnrollmentCallback enrollmentCallback;
+        synchronized (mListenerLock) {
+            enrollmentCallback = mEnrollmentCallback;
+        }
+        if (enrollmentCallback == null) {
+            return;
+        }
+        AuthInfo auth;
+        Bundle data;
+        switch (message.what) {
+            case MSG_ENROLL_HANDSHAKE_FAILURE:
+                auth = (AuthInfo) message.obj;
+                enrollmentCallback.onEnrollmentHandshakeFailure(auth.mDevice, auth.mErrorCode);
+                break;
+            case MSG_ENROLL_AUTH_STRING_AVAILABLE:
+                auth = (AuthInfo) message.obj;
+                if (auth.mDevice != null && auth.mAuthString != null) {
+                    enrollmentCallback.onAuthStringAvailable(auth.mDevice, auth.mAuthString);
+                }
+                break;
+            case MSG_ENROLL_TOKEN_ADDED:
+                data = message.getData();
+                if (data == null) {
+                    break;
+                }
+                enrollmentCallback.onEscrowTokenAdded(data.getLong(KEY_HANDLE));
+                break;
+            case MSG_ENROLL_TOKEN_REVOKED:
+                data = message.getData();
+                if (data == null) {
+                    break;
+                }
+                enrollmentCallback.onTrustRevoked(data.getLong(KEY_HANDLE),
+                        data.getBoolean(KEY_SUCCESS));
+                break;
+            case MSG_ENROLL_TOKEN_STATE_CHANGED:
+                data = message.getData();
+                if (data == null) {
+                    break;
+                }
+                enrollmentCallback.onEscrowTokenActiveStateChanged(data.getLong(KEY_HANDLE),
+                        data.getBoolean(KEY_ACTIVE));
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Container class to pass information through a Message to the handler.
+     */
+    private static class AuthInfo {
+        final BluetoothDevice mDevice;
+        @Nullable
+        final String mAuthString;
+        final int mErrorCode;
+
+        AuthInfo(BluetoothDevice device, @Nullable String authString, int errorCode) {
+            mDevice = device;
+            mAuthString = authString;
+            mErrorCode = errorCode;
         }
     }
 }
