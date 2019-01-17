@@ -56,6 +56,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.internal.util.Preconditions;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,6 +84,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     // allows listening for both GROUP/MEDIA and GROUP/NAVIGATION.
     private static final String VOLUME_SETTINGS_KEY_FOR_GROUP_PREFIX = "android.car.VOLUME_GROUP/";
 
+    // CarAudioService reads configuration from the following paths respectively.
+    // If the first one is found, all others are ignored.
+    // If no one is found, it fallbacks to car_volume_groups.xml resource file.
+    private static final String[] AUDIO_CONFIGURATION_PATHS = new String[] {
+            "/vendor/etc/car_audio_configuration.xml",
+            "/system/etc/car_audio_configuration.xml"
+    };
+
     /**
      * Gets the key to persist volume for a volume group in settings
      *
@@ -101,7 +110,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final TelephonyManager mTelephonyManager;
     private final AudioManager mAudioManager;
     private final boolean mUseDynamicRouting;
-    private final boolean mUseUnifiedConfiguration;
     private final boolean mPersistMasterMuteState;
 
     private final AudioPolicy.AudioPolicyVolumeCallback mAudioPolicyVolumeCallback =
@@ -175,6 +183,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private AudioPolicy mAudioPolicy;
     private CarAudioFocus mFocusHandler;
+    private String mCarAudioConfigurationPath;
     private CarAudioZone[] mCarAudioZones;
 
     public CarAudioService(Context context) {
@@ -182,8 +191,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
-        mUseUnifiedConfiguration = mContext.getResources().getBoolean(
-                R.bool.audioUseUnifiedConfiguration);
         mPersistMasterMuteState = mContext.getResources().getBoolean(
                 R.bool.audioPersistMasterMuteState);
     }
@@ -254,9 +261,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void dump(PrintWriter writer) {
         writer.println("*CarAudioService*");
         writer.println("\tRun in legacy mode? " + (!mUseDynamicRouting));
-        writer.println("\tUse unified configuration? " + mUseUnifiedConfiguration);
         writer.println("\tPersist master mute state? " + mPersistMasterMuteState);
         writer.println("\tMaster muted? " + mAudioManager.isMasterMute());
+        if (mCarAudioConfigurationPath != null) {
+            writer.println("\tCar audio configuration path: " + mCarAudioConfigurationPath);
+        }
         // Empty line for comfortable reading
         writer.println();
         if (mUseDynamicRouting) {
@@ -407,8 +416,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         builder.setLooper(Looper.getMainLooper());
 
         final CarAudioZonesLoader zonesLoader;
-        if (mUseUnifiedConfiguration) {
-            zonesLoader = new CarAudioZonesHelper(mContext, R.xml.car_audio_configuration,
+        mCarAudioConfigurationPath = getAudioConfigurationPath();
+        if (mCarAudioConfigurationPath != null) {
+            zonesLoader = new CarAudioZonesHelper(mContext, mCarAudioConfigurationPath,
                     busToCarAudioDeviceInfo);
         } else {
             // In legacy mode, context -> bus mapping is done by querying IAudioControl HAL.
@@ -456,6 +466,21 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         if (r != AudioManager.SUCCESS) {
             throw new RuntimeException("registerAudioPolicy failed " + r);
         }
+    }
+
+    /**
+     * Read from {@link #AUDIO_CONFIGURATION_PATHS} respectively.
+     * @return File path of the first hit in {@link #AUDIO_CONFIGURATION_PATHS}
+     */
+    @Nullable
+    private String getAudioConfigurationPath() {
+        for (String path : AUDIO_CONFIGURATION_PATHS) {
+            File configuration = new File(path);
+            if (configuration.exists()) {
+                return path;
+            }
+        }
+        return null;
     }
 
     /**

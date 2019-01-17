@@ -25,13 +25,6 @@
           during initial development where audio hal does not support bus based addressing yet. -->
     <bool name="audioUseDynamicRouting">false</bool>
 
-    <!--  Configuration to use the unified audio configuration.
-          This flag has no effect if audioUseDynamicRouting is set to false.
-          When audioUseDynamicRouting is enabled
-          - car_volume_groups.xml will be picked if this flag is false
-          - car_audio_configuration.xml will be used otherwise. -->
-    <bool name="audioUseUnifiedConfiguration">false</bool>
-
     <!--  Configuration to persist master mute state. If this is set to true,
           Android will restore the master mute state on boot. -->
     <bool name="audioPersistMasterMuteState">true</bool>
