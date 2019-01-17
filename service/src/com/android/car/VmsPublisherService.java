@@ -22,26 +22,21 @@ import android.car.vms.IVmsSubscriberClient;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsSubscriptionState;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
-import android.os.UserHandle;
-import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
 import com.android.car.hal.VmsHalService;
 import com.android.car.hal.VmsHalService.VmsHalPublisherListener;
+import com.android.car.vms.VmsClientManager;
 
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,94 +52,40 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
     private static final int MSG_HAL_SUBSCRIPTION_CHANGED = 1;
 
     private final Context mContext;
+    private final VmsClientManager mClientManager;
+    private final VmsListener mClientListener = new VmsListener();
     private final VmsHalService mHal;
-    private final Map<String, PublisherConnection> mPublisherConnectionMap = new ArrayMap<>();
-    private final Map<String, IVmsPublisherClient> mPublisherMap = new ArrayMap<>();
-    private final Handler mHandler = new EventHandler();
     private final VmsHalPublisherListener mHalPublisherListener;
+    private final Map<String, IVmsPublisherClient> mPublisherMap = Collections.synchronizedMap(
+            new ArrayMap<>());
+    private final Handler mHandler = new EventHandler();
 
-    private BroadcastReceiver mBootCompleteReceiver;
-
-    public VmsPublisherService(Context context, VmsHalService hal) {
+    public VmsPublisherService(Context context, VmsClientManager clientManager, VmsHalService hal) {
         mContext = context;
+        mClientManager = clientManager;
         mHal = hal;
-
         mHalPublisherListener = subscriptionState -> mHandler.sendMessage(
                 mHandler.obtainMessage(MSG_HAL_SUBSCRIPTION_CHANGED, subscriptionState));
     }
 
-    // Implements CarServiceBase interface.
     @Override
     public void init() {
+        mClientManager.registerConnectionListener(mClientListener);
         mHal.addPublisherListener(mHalPublisherListener);
-
-        if (isTestEnvironment()) {
-            Log.d(TAG, "Running under test environment");
-            bindToAllPublishers();
-        } else {
-            mBootCompleteReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(intent.getAction())) {
-                        onLockedBootCompleted();
-                    } else {
-                        Log.e(TAG, "Unexpected action received: " + intent);
-                    }
-                }
-            };
-
-            mContext.registerReceiver(mBootCompleteReceiver,
-                    new IntentFilter(Intent.ACTION_LOCKED_BOOT_COMPLETED));
-        }
-        // Signal to publishers that the PublisherService is ready.
         mHal.signalPublisherServiceIsReady();
-    }
-
-    private void bindToAllPublishers() {
-        String[] publisherNames = mContext.getResources().getStringArray(
-                R.array.vmsPublisherClients);
-        if (DBG) Log.d(TAG, "Publishers found: " + publisherNames.length);
-
-        for (String publisherName : publisherNames) {
-            if (TextUtils.isEmpty(publisherName)) {
-                Log.e(TAG, "empty publisher name");
-                continue;
-            }
-            ComponentName name = ComponentName.unflattenFromString(publisherName);
-            if (name == null) {
-                Log.e(TAG, "invalid publisher name: " + publisherName);
-                continue;
-            }
-
-            if (!mContext.getPackageManager().isPackageAvailable(name.getPackageName())) {
-                Log.w(TAG, "VMS publisher not installed: " + publisherName);
-                continue;
-            }
-
-            bind(name);
-        }
     }
 
     @Override
     public void release() {
-        if (mBootCompleteReceiver != null) {
-            mContext.unregisterReceiver(mBootCompleteReceiver);
-            mBootCompleteReceiver = null;
-        }
+        mClientManager.unregisterConnectionListener(mClientListener);
         mHal.removePublisherListener(mHalPublisherListener);
-
-        for (PublisherConnection connection : mPublisherConnectionMap.values()) {
-            mContext.unbindService(connection);
-        }
-        mPublisherConnectionMap.clear();
         mPublisherMap.clear();
     }
 
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*" + getClass().getSimpleName() + "*");
-        writer.println("mPublisherMap:" + mPublisherMap);
-        writer.println("mPublisherConnectionMap:" + mPublisherConnectionMap);
+        writer.println("mPublisherMap:" + mPublisherMap.keySet());
     }
 
     /* Called in arbitrary binder thread */
@@ -199,12 +140,6 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
         return mHal.getPublisherId(publisherInfo);
     }
 
-    private void onLockedBootCompleted() {
-        if (DBG) Log.i(TAG, "onLockedBootCompleted");
-
-        bindToAllPublishers();
-    }
-
     /**
      * This method is only invoked by VmsHalService.notifyPublishers which is synchronized.
      * Therefore this method only sees a non-decreasing sequence.
@@ -222,110 +157,30 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
         }
     }
 
-    /**
-     * Tries to bind to a publisher.
-     *
-     * @param name publisher component name (e.g. android.car.vms.logger/.LoggingService).
-     */
-    private void bind(ComponentName name) {
-        String publisherName = name.flattenToString();
-        if (DBG) {
-            Log.d(TAG, "binding to: " + publisherName);
-        }
-
-        if (mPublisherConnectionMap.containsKey(publisherName)) {
-            // Already registered, nothing to do.
-            return;
-        }
-        Intent intent = new Intent();
-        intent.setComponent(name);
-        PublisherConnection connection = new PublisherConnection(name);
-        if (mContext.bindServiceAsUser(intent, connection,
-                Context.BIND_AUTO_CREATE, UserHandle.SYSTEM)) {
-            mPublisherConnectionMap.put(publisherName, connection);
-        } else {
-            Log.e(TAG, "unable to bind to: " + publisherName);
-        }
-    }
-
-    /**
-     * Removes the publisher and associated connection.
-     *
-     * @param name publisher component name (e.g. android.car.vms.Logger).
-     */
-    private void unbind(ComponentName name) {
-        String publisherName = name.flattenToString();
-        if (DBG) {
-            Log.d(TAG, "unbinding from: " + publisherName);
-        }
-
-        boolean found = mPublisherMap.remove(publisherName) != null;
-        if (found) {
-            PublisherConnection connection = mPublisherConnectionMap.get(publisherName);
-            mContext.unbindService(connection);
-            mPublisherConnectionMap.remove(publisherName);
-        } else {
-            Log.e(TAG, "unbind: unknown publisher." + publisherName);
-        }
-    }
-
-    private boolean isTestEnvironment() {
-        // If the context has "test" in it.
-        return mContext.getBasePackageName().contains("test");
-    }
-
-    class PublisherConnection implements ServiceConnection {
-        private final IBinder mToken = new Binder();
-        private final ComponentName mName;
-
-        PublisherConnection(ComponentName name) {
-            mName = name;
-        }
-
-        private final Runnable mBindRunnable = new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "delayed binding for: " + mName);
-                bind(mName);
-            }
-        };
-
+    private class VmsListener implements VmsClientManager.ConnectionListener {
         /**
-         * Once the service binds to a publisher service, the publisher binder is added to
-         * mPublisherMap
-         * and the publisher is configured to use this service.
+         * Once the manager binds to a publisher client, the client's binder is added to
+         * {@code mPublisherMap} and the client is configured to use this service.
          */
         @Override
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            if (DBG) {
-                Log.d(TAG, "onServiceConnected, name: " + name + ", binder: " + binder);
-            }
+        public void onClientConnected(String publisherName, IBinder binder) {
+            if (DBG) Log.d(TAG, "onClientConnected: " + publisherName);
             IVmsPublisherClient service = IVmsPublisherClient.Stub.asInterface(binder);
-            mPublisherMap.put(name.flattenToString(), service);
+            mPublisherMap.put(publisherName, service);
             try {
-                service.setVmsPublisherService(mToken, VmsPublisherService.this);
+                service.setVmsPublisherService(new Binder(), VmsPublisherService.this);
             } catch (RemoteException e) {
-                Log.e(TAG, "unable to configure publisher: " + name, e);
+                Log.e(TAG, "unable to configure publisher: " + publisherName, e);
             }
         }
 
         /**
-         * Tries to rebind to the publisher service.
+         * Removes disconnected clients from {@code mPublisherMap}.
          */
         @Override
-        public void onServiceDisconnected(ComponentName name) {
-            String publisherName = name.flattenToString();
-            Log.d(TAG, "onServiceDisconnected, name: " + publisherName);
-
-            int millisecondsToWait = mContext.getResources().getInteger(
-                    com.android.car.R.integer.millisecondsBeforeRebindToVmsPublisher);
-            if (!mName.flattenToString().equals(name.flattenToString())) {
-                throw new IllegalArgumentException(
-                    "Mismatch on publisherConnection. Expected: " + mName + " Got: " + name);
-            }
-            mHandler.postDelayed(mBindRunnable, millisecondsToWait);
-
-            unbind(name);
+        public void onClientDisconnected(String publisherName) {
+            if (DBG) Log.d(TAG, "onClientDisconnected: " + publisherName);
+            mPublisherMap.remove(publisherName);
         }
     }
 
