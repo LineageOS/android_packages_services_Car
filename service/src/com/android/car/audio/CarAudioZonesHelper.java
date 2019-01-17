@@ -16,30 +16,32 @@
 package com.android.car.audio;
 
 import android.annotation.NonNull;
-import android.annotation.XmlRes;
 import android.car.media.CarAudioManager;
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.content.res.XmlResourceParser;
-import android.util.AttributeSet;
+import android.hardware.automotive.audiocontrol.V1_0.ContextNumber;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.Xml;
 
 import com.android.car.CarLog;
-import com.android.car.R;
 
+import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A helper class loads all audio zones from the configuration XML file.
  */
 /* package */ class CarAudioZonesHelper implements CarAudioService.CarAudioZonesLoader {
 
+    private static final String NAMESPACE = null;
     private static final String TAG_ROOT = "carAudioConfiguration";
     private static final String TAG_AUDIO_ZONES = "zones";
     private static final String TAG_AUDIO_ZONE = "zone";
@@ -47,18 +49,37 @@ import java.util.List;
     private static final String TAG_VOLUME_GROUP = "group";
     private static final String TAG_AUDIO_DEVICE = "device";
     private static final String TAG_CONTEXT = "context";
+    private static final String ATTR_VERSION = "version";
+    private static final String ATTR_IS_PRIMARY = "isPrimary";
+    private static final String ATTR_ZONE_NAME = "name";
+    private static final String ATTR_DEVICE_ADDRESS = "address";
+    private static final String ATTR_CONTEXT_NAME = "context";
     private static final int SUPPORTED_VERSION = 1;
 
+    private static final Map<String, Integer> CONTEXT_NAME_MAP;
+
+    static {
+        CONTEXT_NAME_MAP = new HashMap<>();
+        CONTEXT_NAME_MAP.put("music", ContextNumber.MUSIC);
+        CONTEXT_NAME_MAP.put("navigation", ContextNumber.NAVIGATION);
+        CONTEXT_NAME_MAP.put("voice_command", ContextNumber.VOICE_COMMAND);
+        CONTEXT_NAME_MAP.put("call_ring", ContextNumber.CALL_RING);
+        CONTEXT_NAME_MAP.put("call", ContextNumber.CALL);
+        CONTEXT_NAME_MAP.put("alarm", ContextNumber.ALARM);
+        CONTEXT_NAME_MAP.put("notification", ContextNumber.NOTIFICATION);
+        CONTEXT_NAME_MAP.put("system_sound", ContextNumber.SYSTEM_SOUND);
+    }
+
     private final Context mContext;
-    private final int mXmlConfiguration;
+    private final String mXmlConfigurationPath;
     private final SparseArray<CarAudioDeviceInfo> mBusToCarAudioDeviceInfo;
 
     private int mNextSecondaryZoneId;
 
-    CarAudioZonesHelper(Context context, @XmlRes int xmlConfiguration,
+    CarAudioZonesHelper(Context context, @NonNull String xmlConfigurationPath,
             @NonNull SparseArray<CarAudioDeviceInfo> busToCarAudioDeviceInfo) {
         mContext = context;
-        mXmlConfiguration = xmlConfiguration;
+        mXmlConfigurationPath = xmlConfigurationPath;
         mBusToCarAudioDeviceInfo = busToCarAudioDeviceInfo;
 
         mNextSecondaryZoneId = CarAudioManager.PRIMARY_AUDIO_ZONE + 1;
@@ -67,131 +88,135 @@ import java.util.List;
     @Override
     public CarAudioZone[] loadAudioZones() {
         List<CarAudioZone> carAudioZones = new ArrayList<>();
-        try (XmlResourceParser parser = mContext.getResources().getXml(mXmlConfiguration)) {
-            AttributeSet attrs = Xml.asAttributeSet(parser);
-            int type;
-            // Traverse to the first start tag, <carAudioConfiguration> in this case
-            while ((type = parser.next()) != XmlResourceParser.END_DOCUMENT
-                    && type != XmlResourceParser.START_TAG) {
-                // ignored
-            }
-            if (!TAG_ROOT.equals(parser.getName())) {
-                throw new RuntimeException("Meta-data does not start with " + TAG_ROOT);
-            }
+        try (InputStream stream = new FileInputStream(mXmlConfigurationPath)) {
+            final XmlPullParser parser = Xml.newPullParser();
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, NAMESPACE != null);
+            parser.setInput(stream, null);
+
+            // Ensure <carAudioConfiguration> is the root
+            parser.nextTag();
+            parser.require(XmlPullParser.START_TAG, NAMESPACE, TAG_ROOT);
 
             // Version check
-            TypedArray c = mContext.getResources().obtainAttributes(
-                    attrs, R.styleable.carAudioConfiguration);
-            final int versionNumber = c.getInt(R.styleable.carAudioConfiguration_version, -1);
+            final int versionNumber = Integer.parseInt(
+                    parser.getAttributeValue(NAMESPACE, ATTR_VERSION));
             if (versionNumber != SUPPORTED_VERSION) {
                 throw new RuntimeException("Support version:"
                         + SUPPORTED_VERSION + " only, got version:" + versionNumber);
             }
-            c.recycle();
 
-            // And follows with the <zones> tag
-            while ((type = parser.next()) != XmlResourceParser.END_DOCUMENT
-                    && type != XmlResourceParser.START_TAG) {
-                // ignored
-            }
-            if (!TAG_AUDIO_ZONES.equals(parser.getName())) {
-                throw new RuntimeException("Configuration should begin with a <zones> tag");
-            }
-            int outerDepth = parser.getDepth();
-            while ((type = parser.next()) != XmlResourceParser.END_DOCUMENT
-                    && (type != XmlResourceParser.END_TAG || parser.getDepth() > outerDepth)) {
-                if (type == XmlResourceParser.END_TAG) {
-                    continue;
-                }
-                if (TAG_AUDIO_ZONE.equals(parser.getName())) {
-                    carAudioZones.add(parseAudioZone(attrs, parser));
+            // Get all zones configured under <zones> tag
+            while (parser.next() != XmlPullParser.END_TAG) {
+                if (parser.getEventType() != XmlPullParser.START_TAG) continue;
+                if (TAG_AUDIO_ZONES.equals(parser.getName())) {
+                    parseAudioZones(parser, carAudioZones);
+                } else {
+                    skip(parser);
                 }
             }
         } catch (Exception e) {
             Log.e(CarLog.TAG_AUDIO, "Error parsing unified car audio configuration", e);
-
         }
         return carAudioZones.toArray(new CarAudioZone[0]);
     }
 
-    private CarAudioZone parseAudioZone(AttributeSet attrs, XmlResourceParser parser)
+    private void parseAudioZones(XmlPullParser parser, List<CarAudioZone> carAudioZones)
             throws XmlPullParserException, IOException {
-        TypedArray c = mContext.getResources().obtainAttributes(
-                attrs, R.styleable.carAudioConfiguration);
-        final boolean isPrimary = c.getBoolean(R.styleable.carAudioConfiguration_isPrimary, false);
-        final String zoneName = c.getString(R.styleable.carAudioConfiguration_name);
-        c.recycle();
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) continue;
+            if (TAG_AUDIO_ZONE.equals(parser.getName())) {
+                carAudioZones.add(parseAudioZone(parser));
+            } else {
+                skip(parser);
+            }
+        }
+    }
+
+    private CarAudioZone parseAudioZone(XmlPullParser parser)
+            throws XmlPullParserException, IOException {
+        final boolean isPrimary = Boolean.parseBoolean(
+                parser.getAttributeValue(NAMESPACE, ATTR_IS_PRIMARY));
+        final String zoneName = parser.getAttributeValue(NAMESPACE, ATTR_ZONE_NAME);
 
         CarAudioZone zone = new CarAudioZone(
                 isPrimary ? CarAudioManager.PRIMARY_AUDIO_ZONE : getNextSecondaryZoneId(),
                 zoneName);
-        int type;
-        // Traverse to the first start tag, <volumeGroups> in this case
-        while ((type = parser.next()) != XmlResourceParser.END_DOCUMENT
-                && type != XmlResourceParser.START_TAG) {
-            // ignored
-        }
-
-        if (!TAG_VOLUME_GROUPS.equals(parser.getName())) {
-            throw new RuntimeException("Audio zone does not start with <volumeGroups> tag");
-        }
-        int outerDepth = parser.getDepth();
-        int groupId = 0;
-        while ((type = parser.next()) != XmlResourceParser.END_DOCUMENT
-                && (type != XmlResourceParser.END_TAG || parser.getDepth() > outerDepth)) {
-            if (type == XmlResourceParser.END_TAG) {
-                continue;
-            }
-            if (TAG_VOLUME_GROUP.equals(parser.getName())) {
-                zone.addVolumeGroup(parseVolumeGroup(zone.getId(), groupId, attrs, parser));
-                groupId += 1;
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) continue;
+            // Expect one <volumeGroups> in one audio zone
+            if (TAG_VOLUME_GROUPS.equals(parser.getName())) {
+                parseVolumeGroups(parser, zone);
+            } else {
+                skip(parser);
             }
         }
         return zone;
     }
 
-    private CarVolumeGroup parseVolumeGroup(
-            int zoneId, int groupId, AttributeSet attrs, XmlResourceParser parser)
+    private void parseVolumeGroups(XmlPullParser parser, CarAudioZone zone)
+            throws XmlPullParserException, IOException {
+        int groupId = 0;
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) continue;
+            if (TAG_VOLUME_GROUP.equals(parser.getName())) {
+                zone.addVolumeGroup(parseVolumeGroup(parser, zone.getId(), groupId));
+                groupId++;
+            } else {
+                skip(parser);
+            }
+        }
+    }
+
+    private CarVolumeGroup parseVolumeGroup(XmlPullParser parser, int zoneId, int groupId)
             throws XmlPullParserException, IOException {
         final CarVolumeGroup group = new CarVolumeGroup(mContext, zoneId, groupId);
-        int type;
-        int outerDepth = parser.getDepth();
-        while ((type = parser.next()) != XmlResourceParser.END_DOCUMENT
-                && (type != XmlResourceParser.END_TAG || parser.getDepth() > outerDepth)) {
-            if (type == XmlResourceParser.END_TAG) {
-                continue;
-            }
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_AUDIO_DEVICE.equals(parser.getName())) {
-                TypedArray c = mContext.getResources().obtainAttributes(
-                        attrs, R.styleable.carAudioConfiguration);
-                final String address = c.getString(R.styleable.carAudioConfiguration_address);
-                parseVolumeGroupContexts(group,
-                        CarAudioDeviceInfo.parseDeviceAddress(address), attrs, parser);
-                c.recycle();
+                String address = parser.getAttributeValue(NAMESPACE, ATTR_DEVICE_ADDRESS);
+                parseVolumeGroupContexts(parser, group,
+                        CarAudioDeviceInfo.parseDeviceAddress(address));
+            } else {
+                skip(parser);
             }
         }
         return group;
     }
 
     private void parseVolumeGroupContexts(
-            CarVolumeGroup group, int busNumber, AttributeSet attrs, XmlResourceParser parser)
+            XmlPullParser parser, CarVolumeGroup group, int busNumber)
             throws XmlPullParserException, IOException {
-        int type;
-        int innerDepth = parser.getDepth();
-        while ((type = parser.next()) != XmlResourceParser.END_DOCUMENT
-                && (type != XmlResourceParser.END_TAG || parser.getDepth() > innerDepth)) {
-            if (type == XmlResourceParser.END_TAG) {
-                continue;
-            }
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_CONTEXT.equals(parser.getName())) {
-                TypedArray c = mContext.getResources().obtainAttributes(
-                        attrs, R.styleable.volumeGroups_context);
-                final int contextNumber = c.getInt(
-                        R.styleable.volumeGroups_context_context, -1);
-                c.recycle();
-                group.bind(contextNumber, busNumber, mBusToCarAudioDeviceInfo.get(busNumber));
+                group.bind(
+                        parseContextNumber(parser.getAttributeValue(NAMESPACE, ATTR_CONTEXT_NAME)),
+                        busNumber, mBusToCarAudioDeviceInfo.get(busNumber));
+            }
+            // Always skip to upper level since we're at the lowest.
+            skip(parser);
+        }
+    }
+
+    private void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
+        if (parser.getEventType() != XmlPullParser.START_TAG) {
+            throw new IllegalStateException();
+        }
+        int depth = 1;
+        while (depth != 0) {
+            switch (parser.next()) {
+                case XmlPullParser.END_TAG:
+                    depth--;
+                    break;
+                case XmlPullParser.START_TAG:
+                    depth++;
+                    break;
             }
         }
+    }
+
+    private int parseContextNumber(String context) {
+        return CONTEXT_NAME_MAP.getOrDefault(context.toLowerCase(), ContextNumber.INVALID);
     }
 
     private int getNextSecondaryZoneId() {
