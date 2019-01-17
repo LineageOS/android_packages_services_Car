@@ -429,11 +429,9 @@ public class MainClusterActivity extends FragmentActivity {
      * have a default navigation activity selected yet.
      */
     private void tryLaunchNavigationActivity() {
-        int userHandle = ActivityManager.getCurrentUser();
-        if (userHandle == UserHandle.USER_SYSTEM || mNavigationDisplayId == NO_DISPLAY) {
+        if (mNavigationDisplayId == NO_DISPLAY) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, String.format("Launch activity ignored (user: %d, display: %d)",
-                        userHandle, mNavigationDisplayId));
+                Log.d(TAG, String.format("Launch activity ignored (no display yet)"));
             }
             // Not ready to launch yet.
             return;
