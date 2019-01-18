@@ -16,7 +16,9 @@
 package android.car.media;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresPermission;
 import android.annotation.TestApi;
+import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarNotConnectedException;
@@ -99,8 +101,6 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Sets the volume index for a volume group.
      *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
      * @param zoneId The zone id whose volume group is affected.
      * @param groupId The volume group id whose volume index should be set.
      * @param index The volume index to set. See
@@ -108,6 +108,7 @@ public final class CarAudioManager implements CarManagerBase {
      * @param flags One or more flags (e.g., {@link android.media.AudioManager#FLAG_SHOW_UI},
      *              {@link android.media.AudioManager#FLAG_PLAY_SOUND})
      */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     public void setGroupVolume(int zoneId, int groupId, int index, int flags)
             throws CarNotConnectedException {
         try {
@@ -130,12 +131,11 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Returns the maximum volume index for a volume group.
      *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
      * @param zoneId The zone id whose volume group is queried.
      * @param groupId The volume group id whose maximum volume index is returned.
      * @return The maximum valid volume index for the given group.
      */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     public int getGroupMaxVolume(int zoneId, int groupId) throws CarNotConnectedException {
         try {
             return mService.getGroupMaxVolume(zoneId, groupId);
@@ -157,12 +157,11 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Returns the minimum volume index for a volume group.
      *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
      * @param zoneId The zone id whose volume group is queried.
      * @param groupId The volume group id whose minimum volume index is returned.
      * @return The minimum valid volume index for the given group, non-negative
      */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     public int getGroupMinVolume(int zoneId, int groupId) throws CarNotConnectedException {
         try {
             return mService.getGroupMinVolume(zoneId, groupId);
@@ -184,8 +183,6 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Returns the current volume index for a volume group.
      *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
      * @param zoneId The zone id whose volume groups is queried.
      * @param groupId The volume group id whose volume index is returned.
      * @return The current volume index for the given group.
@@ -193,6 +190,7 @@ public final class CarAudioManager implements CarManagerBase {
      * @see #getGroupMaxVolume(int, int)
      * @see #setGroupVolume(int, int, int, int)
      */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     public int getGroupVolume(int zoneId, int groupId) throws CarNotConnectedException {
         try {
             return mService.getGroupVolume(zoneId, groupId);
@@ -205,13 +203,12 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Adjust the relative volume in the front vs back of the vehicle cabin.
      *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
      * @param value in the range -1.0 to 1.0 for fully toward the back through
      *              fully toward the front.  0.0 means evenly balanced.
      *
      * @see #setBalanceTowardRight(float)
      */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     public void setFadeTowardFront(float value) throws CarNotConnectedException {
         try {
             mService.setFadeTowardFront(value);
@@ -224,13 +221,12 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Adjust the relative volume on the left vs right side of the vehicle cabin.
      *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
      * @param value in the range -1.0 to 1.0 for fully toward the left through
      *              fully toward the right.  0.0 means evenly balanced.
      *
      * @see #setFadeTowardFront(float)
      */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     public void setBalanceTowardRight(float value) throws CarNotConnectedException {
         try {
             mService.setBalanceTowardRight(value);
@@ -244,8 +240,6 @@ public final class CarAudioManager implements CarManagerBase {
      * Queries the system configuration in order to report the available, non-microphone audio
      * input devices.
      *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
-     *
      * @return An array of strings representing the available input ports.
      * Each port is identified by it's "address" tag in the audioPolicyConfiguration xml file.
      * Empty array if we find nothing.
@@ -253,6 +247,7 @@ public final class CarAudioManager implements CarManagerBase {
      * @see #createAudioPatch(String, int, int)
      * @see #releaseAudioPatch(CarAudioPatchHandle)
      */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public @NonNull String[] getExternalSources() throws CarNotConnectedException {
         try {
             return mService.getExternalSources();
@@ -268,8 +263,6 @@ public final class CarAudioManager implements CarManagerBase {
      * The output of a tuner might be routed directly to the output buss associated with
      * AudioAttributes.USAGE_MEDIA while the tuner is playing.
      *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
-     *
      * @param sourceAddress the input port name obtained from getExternalSources().
      * @param usage the type of audio represented by this source (usually USAGE_MEDIA).
      * @param gainInMillibels How many steps above the minimum value defined for the source port to
@@ -282,6 +275,7 @@ public final class CarAudioManager implements CarManagerBase {
      * @see #getExternalSources()
      * @see #releaseAudioPatch(CarAudioPatchHandle)
      */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public CarAudioPatchHandle createAudioPatch(String sourceAddress,
             @AudioAttributes.AttributeUsage int usage, int gainInMillibels)
             throws CarNotConnectedException {
@@ -297,13 +291,12 @@ public final class CarAudioManager implements CarManagerBase {
      * Removes the association between an input port and an output port identified by the provided
      * handle.
      *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_SETTINGS} permission.
-     *
      * @param patch CarAudioPatchHandle returned from createAudioPatch().
      *
      * @see #getExternalSources()
      * @see #createAudioPatch(String, int, int)
      */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void releaseAudioPatch(CarAudioPatchHandle patch) throws CarNotConnectedException {
         try {
             mService.releaseAudioPatch(patch);
@@ -325,11 +318,10 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Gets the count of available volume groups in the system.
      *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
      * @param zoneId The zone id whois count of volume groups is queried.
      * @return Count of volume groups
      */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     public int getVolumeGroupCount(int zoneId) throws CarNotConnectedException {
         try {
             return mService.getVolumeGroupCount(zoneId);
@@ -352,12 +344,11 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Gets the volume group id for a given {@link AudioAttributes} usage.
      *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
      * @param zoneId The zone id whose volume group is queried.
      * @param usage The {@link AudioAttributes} usage to get a volume group from.
      * @return The volume group id where the usage belongs to
      */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     public int getVolumeGroupIdForUsage(int zoneId, @AudioAttributes.AttributeUsage int usage)
             throws CarNotConnectedException {
         try {
@@ -380,12 +371,11 @@ public final class CarAudioManager implements CarManagerBase {
     /**
      * Gets array of {@link AudioAttributes} usages for a volume group in a zone.
      *
-     * Requires {@link android.car.Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
-     *
      * @param zoneId The zone id whose volume group is queried.
      * @param groupId The volume group id whose associated audio usages is returned.
      * @return Array of {@link AudioAttributes} usages for a given volume group id
      */
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     public @NonNull int[] getUsagesForVolumeGroupId(int zoneId, int groupId)
             throws CarNotConnectedException {
         try {
