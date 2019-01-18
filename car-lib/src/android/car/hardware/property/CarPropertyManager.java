@@ -252,8 +252,7 @@ public class CarPropertyManager implements CarManagerBase {
             Log.d(mTag, "getReadPermission, propId: 0x" + toHexString(propId));
         }
         try {
-            String permission = mService.getReadPermission(propId);
-            return permission;
+            return mService.getReadPermission(propId);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
@@ -270,8 +269,7 @@ public class CarPropertyManager implements CarManagerBase {
             Log.d(mTag, "getWritePermission, propId: 0x" + toHexString(propId));
         }
         try {
-            String permission = mService.getWritePermission(propId);
-            return permission;
+            return mService.getWritePermission(propId);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
         }
