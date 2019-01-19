@@ -47,9 +47,8 @@ PRODUCT_PACKAGES += \
 BOARD_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
 endif
 
-PRODUCT_COPY_FILES := \
-    frameworks/av/media/libeffects/data/audio_effects.conf:system/etc/audio_effects.conf \
-    packages/services/Car/car_product/preloaded-classes-car:system/etc/preloaded-classes \
+PRODUCT_COPY_FILES += \
+    frameworks/av/media/libeffects/data/audio_effects.conf:system/etc/audio_effects.conf
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.carrier=unknown \
