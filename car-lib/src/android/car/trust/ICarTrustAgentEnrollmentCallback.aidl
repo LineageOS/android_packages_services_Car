@@ -32,7 +32,7 @@ oneway interface ICarTrustAgentEnrollmentCallback {
     /**
      * Present the pairing/authentication string to the user.
      */
-    void onAuthStringAvailable(in BluetoothDevice device, in byte[] authString);
+    void onAuthStringAvailable(in BluetoothDevice device, in String authString);
 
     /**
      * Escrow token was received and the Trust Agent framework has generated a corresponding handle.
