@@ -20,6 +20,7 @@ import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES;
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICES;
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES;
+import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_TEMPORARY_DISCONNECTS;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -46,11 +47,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.os.Binder;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
 import android.os.ParcelUuid;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -62,8 +68,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 
 /**
@@ -91,6 +99,10 @@ public class BluetoothDeviceConnectionPolicy {
     private static final String TAG = "BTDevConnectionPolicy";
     private static final String SETTINGS_DELIMITER = ",";
     private static final boolean DBG = Utils.DBG;
+
+    private static final Binder RESTORED_TEMPORARY_DISCONNECT_TOKEN = new Binder();
+    private static final long RESTORE_BACKOFF_MILLIS = 1000L;
+
     private final Context mContext;
     private boolean mInitialized = false;
     private boolean mUserSpecificInfoInitialized = false;
@@ -145,6 +157,13 @@ public class BluetoothDeviceConnectionPolicy {
     private boolean mAllowReadWriteToSettings = true;
     // Maintain a list of Paired devices which haven't connected on any profiles yet.
     private Set<BluetoothDevice> mPairedButUnconnectedDevices = new HashSet<>();
+
+    // State for temporary disconnects. Guarded by lock on `this`.
+    private final SetMultimap<ConnectionParams, DisconnectRecord> mTemporaryDisconnects;
+    private final HashSet<DisconnectRecord> mRestoredDisconnects = new HashSet<>();
+    private final HashSet<ConnectionParams> mAlreadyDisabledProfiles = new HashSet<>();
+
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     public static BluetoothDeviceConnectionPolicy create(Context context,
             CarPropertyService carPropertyService, PerUserCarServiceHelper userServiceHelper,
@@ -208,6 +227,8 @@ public class BluetoothDeviceConnectionPolicy {
             Log.w(TAG, "No Bluetooth Adapter Available");
         }
         mFastPairProvider = new FastPairProvider(mContext);
+
+        mTemporaryDisconnects = new SetMultimap<>();
     }
 
     /**
@@ -218,37 +239,141 @@ public class BluetoothDeviceConnectionPolicy {
      * Used as the currency that methods use to talk to each other in the policy.
      */
     public static class ConnectionParams {
-        private BluetoothDevice mBluetoothDevice;
-        private Integer mBluetoothProfile;
+        // Examples:
+        // 01:23:45:67:89:AB/9
+        // null/0
+        // null/null
+        private static final String FLATTENED_PATTERN =
+                "^(([0-9A-F]{2}:){5}[0-9A-F]{2}|null)/([0-9]+|null)$";
+
+        @Nullable private final BluetoothDevice mBluetoothDevice;
+        @Nullable private final Integer mBluetoothProfile;
 
         public ConnectionParams() {
-            // default constructor
+            this(null, null);
         }
 
-        public ConnectionParams(Integer profile) {
-            mBluetoothProfile = profile;
+        public ConnectionParams(@Nullable Integer profile) {
+            this(profile, null);
         }
 
-        public ConnectionParams(Integer profile, BluetoothDevice device) {
+        public ConnectionParams(@Nullable Integer profile, @Nullable BluetoothDevice device) {
             mBluetoothProfile = profile;
             mBluetoothDevice = device;
         }
 
-        // getters & Setters
-        public void setBluetoothDevice(BluetoothDevice device) {
-            mBluetoothDevice = device;
-        }
-
-        public void setBluetoothProfile(Integer profile) {
-            mBluetoothProfile = profile;
-        }
-
+        @Nullable
         public BluetoothDevice getBluetoothDevice() {
             return mBluetoothDevice;
         }
 
+        @Nullable
         public Integer getBluetoothProfile() {
             return mBluetoothProfile;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof ConnectionParams)) {
+                return false;
+            }
+            ConnectionParams otherParams = (ConnectionParams) other;
+            return Objects.equals(mBluetoothDevice, otherParams.mBluetoothDevice)
+                && Objects.equals(mBluetoothProfile, otherParams.mBluetoothProfile);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mBluetoothDevice, mBluetoothProfile);
+        }
+
+        @Override
+        public String toString() {
+            return flattenToString();
+        }
+
+        /** Converts these {@link ConnectionParams} to a parseable string representation. */
+        public String flattenToString() {
+            return mBluetoothDevice + "/" + mBluetoothProfile;
+        }
+
+        /**
+         * Creates a {@link ConnectionParams} from a previous output of {@link #flattenToString()}.
+         *
+         * @param flattenedParams A flattened string representation of a {@link ConnectionParams}.
+         * @param adapter A {@link BluetoothAdapter} used to convert Bluetooth addresses into
+         *         {@link BluetoothDevice} objects.
+         */
+        public static ConnectionParams parse(String flattenedParams, BluetoothAdapter adapter) {
+            if (!flattenedParams.matches(FLATTENED_PATTERN)) {
+                throw new IllegalArgumentException("Bad format for flattened ConnectionParams");
+            }
+            String[] parts = flattenedParams.split("/");
+
+            BluetoothDevice device;
+            if (!"null".equals(parts[0])) {
+                device = adapter.getRemoteDevice(parts[0]);
+            } else {
+                device = null;
+            }
+
+            Integer profile;
+            if (!"null".equals(parts[1])) {
+                profile = Integer.valueOf(parts[1]);
+            } else {
+                profile = null;
+            }
+
+            return new ConnectionParams(profile, device);
+        }
+    }
+
+    private class DisconnectRecord implements IBinder.DeathRecipient {
+        private final ConnectionParams mParams;
+        private final IBinder mToken;
+
+        private boolean mRemoved = false;
+
+        DisconnectRecord(ConnectionParams params, IBinder token) {
+            this.mParams = params;
+            this.mToken = token;
+        }
+
+        public ConnectionParams getParams() {
+            return mParams;
+        }
+
+        public IBinder getToken() {
+            return mToken;
+        }
+
+        public boolean removeSelf() {
+            synchronized (BluetoothDeviceConnectionPolicy.this) {
+                if (mRemoved) {
+                    return true;
+                }
+
+                if (removeDisconnectRecord(this)) {
+                    mRemoved = true;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        @Override
+        public void binderDied() {
+            if (DBG) {
+                Log.d(TAG, "Releasing disconnect request on profile "
+                        + Utils.getProfileName(mParams.getBluetoothProfile())
+                        + " for device " + mParams.getBluetoothDevice()
+                        + ": requesting process died");
+            }
+            removeSelf();
         }
     }
 
@@ -372,6 +497,19 @@ public class BluetoothDeviceConnectionPolicy {
         }
         if (mCarBluetoothUserService != null) {
             for (Integer profile : mProfilesToConnect) {
+                // If this profile is temporarily disconnected, don't try to change its priority
+                // until the temporary disconnect is released.
+                synchronized (this) {
+                    ConnectionParams params = new ConnectionParams(profile, device);
+                    if (mTemporaryDisconnects.keySet().contains(params)) {
+                        if (DBG) {
+                            Log.i(TAG, "Not setting profile " + profile + " priority of "
+                                    + device.getAddress() + " to " + priority + ": "
+                                    + "temporarily disconnected");
+                        }
+                        continue;
+                    }
+                }
                 setBluetoothProfilePriorityIfUuidFound(uuids, profile, device, priority);
             }
         }
@@ -440,6 +578,10 @@ public class BluetoothDeviceConnectionPolicy {
             mCarBluetoothUserService = setupBluetoothUserService();
             // re-initialize for current user.
             initializeUserSpecificInfo();
+            // Restore temporary disconnects, if any, that were saved from last run...
+            restoreTemporaryDisconnectsFromSettings();
+            // ... and start trying to remove them.
+            removeRestoredTemporaryDisconnects();
         }
 
         @Override
@@ -447,6 +589,15 @@ public class BluetoothDeviceConnectionPolicy {
             if (DBG) {
                 Log.d(TAG, "Before Unbinding from UserService");
             }
+
+            // Try to release temporary disconnects now, before CarBluetoothUserService goes away.
+            // This also stops any active attempts to remove restored disconnects.
+            //
+            // If any can't be released, they'll persist in settings and will be cleaned up
+            // next time this user starts. This can happen if the Bluetooth profile proxies in
+            // CarBluetoothUserService unbind before we get the chance to make calls on them.
+            releaseAllDisconnectRecordsBeforeUnbind();
+
             try {
                 if (mCarBluetoothUserService != null) {
                     mCarBluetoothUserService.closeBluetoothConnectionProxy();
@@ -456,6 +607,7 @@ public class BluetoothDeviceConnectionPolicy {
                         "Remote Exception during closeBluetoothConnectionProxy(): "
                                 + e.getMessage());
             }
+
             // Clean up information related to user who went background.
             cleanupUserSpecificInfo();
         }
@@ -820,6 +972,309 @@ public class BluetoothDeviceConnectionPolicy {
     }
 
     /**
+     * Request to disconnect the given profile on the given device, and prevent it from reconnecting
+     * until either the request is released, or the process owning the given token dies.
+     * @return True if the profile was successfully disconnected, false if an error occurred.
+     */
+    public boolean requestProfileDisconnect(BluetoothDevice device, int profile, IBinder token) {
+        if (DBG) {
+            Log.d(TAG, "Request profile disconnect: profile " + Utils.getProfileName(profile)
+                    + ", device " + device.getAddress());
+        }
+        ConnectionParams params = new ConnectionParams(profile, device);
+        DisconnectRecord record = new DisconnectRecord(params, token);
+        return addDisconnectRecord(record);
+    }
+
+    /**
+     * Undo a previous call to {@link #requestProfileDisconnect} with the same parameters,
+     * and reconnect the profile if no other requests are active.
+     *
+     * @return True if the request was released, false if an error occurred.
+     */
+    public boolean releaseProfileDisconnect(BluetoothDevice device, int profile, IBinder token) {
+        if (DBG) {
+            Log.d(TAG, "Release profile disconnect: profile " + Utils.getProfileName(profile)
+                    + ", device " + device.getAddress());
+        }
+
+        ConnectionParams params = new ConnectionParams(profile, device);
+        DisconnectRecord record;
+        synchronized (this) {
+            record = findDisconnectRecordLocked(params, token);
+        }
+
+        if (record == null) {
+            Log.e(TAG, "Record not found");
+            return false;
+        }
+
+        return record.removeSelf();
+    }
+
+    /** Add a temporary disconnect record, disconnecting if necessary. */
+    private synchronized boolean addDisconnectRecord(DisconnectRecord record) {
+        ConnectionParams params = record.getParams();
+        if (!isProxyAvailable(params.getBluetoothProfile())) {
+            return false;
+        }
+
+        Set<DisconnectRecord> previousRecords = mTemporaryDisconnects.get(params);
+        if (findDisconnectRecordLocked(params, record.getToken()) != null) {
+            Log.e(TAG, "Disconnect request already registered - skipping duplicate");
+            return false;
+        }
+
+        try {
+            record.getToken().linkToDeath(record, 0);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not link to death on disconnect token (already dead?)", e);
+            return false;
+        }
+
+        boolean isNewlyAdded = previousRecords.isEmpty();
+        mTemporaryDisconnects.put(params, record);
+
+        if (isNewlyAdded) {
+            try {
+                int priority =
+                        mCarBluetoothUserService.getProfilePriority(
+                                params.getBluetoothProfile(),
+                                params.getBluetoothDevice());
+                if (priority == BluetoothProfile.PRIORITY_OFF) {
+                    // This profile was already disabled (and not as the result of a temporary
+                    // disconnect). Add it to the already-disabled list, and do nothing else.
+                    mAlreadyDisabledProfiles.add(params);
+
+                    if (DBG) {
+                        Log.d(TAG, "Profile " + Utils.getProfileName(params.getBluetoothProfile())
+                                + " already disabled for device " + params.getBluetoothDevice()
+                                + " - suppressing re-enable");
+                    }
+                } else {
+                    mCarBluetoothUserService.setProfilePriority(
+                            params.getBluetoothProfile(),
+                            params.getBluetoothDevice(),
+                            BluetoothProfile.PRIORITY_OFF);
+                    mCarBluetoothUserService.bluetoothDisconnectFromProfile(
+                            params.getBluetoothProfile(),
+                            params.getBluetoothDevice());
+                    if (DBG) {
+                        Log.d(TAG, "Disabled profile "
+                                + Utils.getProfileName(params.getBluetoothProfile())
+                                + " for device " + params.getBluetoothDevice());
+                    }
+                }
+            } catch (RemoteException e) {
+                Log.e(TAG, "Could not disable profile", e);
+                record.getToken().unlinkToDeath(record, 0);
+                mTemporaryDisconnects.remove(params, record);
+                return false;
+            }
+        }
+
+        saveTemporaryDisconnectsToSettingsLocked();
+        return true;
+    }
+
+    /** Remove a given temporary disconnect record, reconnecting if necessary. */
+    private synchronized boolean removeDisconnectRecord(DisconnectRecord record) {
+        ConnectionParams params = record.getParams();
+        if (!isProxyAvailable(params.getBluetoothProfile())) {
+            return false;
+        }
+        if (!mTemporaryDisconnects.containsEntry(params, record)) {
+            Log.e(TAG, "Record already removed");
+            // Removing something a second time vacuously succeeds.
+            return true;
+        }
+
+        // Re-enable profile before unlinking and removing the record, in case of error.
+        // The profile should be re-enabled if this record is the only one left for that
+        // device and profile combination.
+        if (mTemporaryDisconnects.get(params).size() == 1) {
+            if (!restoreProfilePriority(params)) {
+                return false;
+            }
+        }
+
+        record.getToken().unlinkToDeath(record, 0);
+        mTemporaryDisconnects.remove(params, record);
+
+        saveTemporaryDisconnectsToSettingsLocked();
+        return true;
+    }
+
+    /** Find the disconnect record, if any, corresponding to the given parameters and token. */
+    @Nullable
+    private DisconnectRecord findDisconnectRecordLocked(ConnectionParams params, IBinder token) {
+        return mTemporaryDisconnects.get(params)
+            .stream()
+            .filter(r -> r.getToken() == token)
+            .findAny()
+            .orElse(null);
+    }
+
+    /** Re-enable and reconnect a given profile for a device. */
+    private boolean restoreProfilePriority(ConnectionParams params) {
+        if (!isProxyAvailable(params.getBluetoothProfile())) {
+            return false;
+        }
+
+        if (mAlreadyDisabledProfiles.remove(params)) {
+            // The profile does not need any state changes, since it was disabled
+            // before it was temporarily disconnected. Leave it disconnected.
+            if (DBG) {
+                Log.d(TAG, "Not restoring profile "
+                        + Utils.getProfileName(params.getBluetoothProfile()) + " for device "
+                        + params.getBluetoothDevice() + " - was manually disabled");
+            }
+            return true;
+        }
+
+        try {
+            mCarBluetoothUserService.setProfilePriority(
+                    params.getBluetoothProfile(),
+                    params.getBluetoothDevice(),
+                    BluetoothProfile.PRIORITY_ON);
+            mCarBluetoothUserService.bluetoothConnectToProfile(
+                    params.getBluetoothProfile(),
+                    params.getBluetoothDevice());
+            if (DBG) {
+                Log.d(TAG, "Restored profile " + Utils.getProfileName(params.getBluetoothProfile())
+                        + " for device " + params.getBluetoothDevice());
+            }
+            return true;
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not enable profile", e);
+            return false;
+        }
+    }
+
+    /** Dump all currently-active temporary disconnects to {@link Settings.Secure}. */
+    private void saveTemporaryDisconnectsToSettingsLocked() {
+        Set<ConnectionParams> disconnectedProfiles = new HashSet<>(mTemporaryDisconnects.keySet());
+        // Don't write out profiles that were disconnected before a request was made, since
+        // restoring those profiles is a no-op.
+        disconnectedProfiles.removeAll(mAlreadyDisabledProfiles);
+        String savedDisconnects =
+                disconnectedProfiles
+                        .stream()
+                        .map(ConnectionParams::flattenToString)
+                        .collect(Collectors.joining(SETTINGS_DELIMITER));
+
+        if (DBG) {
+            Log.d(TAG, "Saving disconnects to settings for u" + mUserId + ": " + savedDisconnects);
+        }
+
+        Settings.Secure.putStringForUser(
+                mContext.getContentResolver(), KEY_BLUETOOTH_TEMPORARY_DISCONNECTS,
+                savedDisconnects, mUserId);
+    }
+
+    /** Create {@link DisconnectRecord}s for all temporary disconnects written to settings. */
+    private synchronized void restoreTemporaryDisconnectsFromSettings() {
+        if (mBluetoothAdapter == null) {
+            Log.e(TAG, "Cannot restore disconnect records - Bluetooth not available");
+            return;
+        }
+
+        String savedConnectionParams = Settings.Secure.getStringForUser(
+                mContext.getContentResolver(),
+                KEY_BLUETOOTH_TEMPORARY_DISCONNECTS,
+                mUserId);
+
+        if (TextUtils.isEmpty(savedConnectionParams)) {
+            return;
+        }
+
+        if (DBG) {
+            Log.d(TAG, "Restoring temporary disconnects: " + savedConnectionParams);
+        }
+
+        for (String paramsStr : savedConnectionParams.split(SETTINGS_DELIMITER)) {
+            try {
+                ConnectionParams params = ConnectionParams.parse(paramsStr, mBluetoothAdapter);
+                DisconnectRecord record =
+                        new DisconnectRecord(params, RESTORED_TEMPORARY_DISCONNECT_TOKEN);
+                mTemporaryDisconnects.put(params, record);
+                mRestoredDisconnects.add(record);
+                if (DBG) {
+                    Log.d(TAG, "Restored temporary disconnect for " + params);
+                }
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "Bad format for saved temporary disconnect: " + paramsStr, e);
+                // We won't ever be able to fix a bad parse, so skip it and move on.
+            }
+        }
+    }
+
+    /**
+     * Try once to remove all temporary disconnects.
+     *
+     * If the CarBluetoothUserService is not yet available, or it hasn't yet bound its profile
+     * proxies, the removal will fail, and will need to be retried later.
+     */
+    private void tryRemoveRestoredTemporaryDisconnectsLocked() {
+        HashSet<DisconnectRecord> successfullyRemoved = new HashSet<>();
+
+        for (DisconnectRecord record : mRestoredDisconnects) {
+            if (removeDisconnectRecord(record)) {
+                successfullyRemoved.add(record);
+            }
+        }
+
+        mRestoredDisconnects.removeAll(successfullyRemoved);
+    }
+
+    /**
+     * Keep trying to remove all temporary disconnects that were restored from settings
+     * until all such temporary disconnects have been removed.
+     */
+    private synchronized void removeRestoredTemporaryDisconnects() {
+        tryRemoveRestoredTemporaryDisconnectsLocked();
+
+        if (!mRestoredDisconnects.isEmpty()) {
+            if (DBG) {
+                Log.d(TAG, "Could not remove all restored temporary disconnects - "
+                        + "trying again in " + RESTORE_BACKOFF_MILLIS + "ms");
+            }
+            mHandler.postDelayed(
+                    this::removeRestoredTemporaryDisconnects,
+                    RESTORED_TEMPORARY_DISCONNECT_TOKEN,
+                    RESTORE_BACKOFF_MILLIS);
+        }
+    }
+
+    /** Release all active disconnect records prior to user switch or shutdown. */
+    private synchronized void releaseAllDisconnectRecordsBeforeUnbind() {
+        if (DBG) {
+            Log.d(TAG, "Unbinding CarBluetoothUserService - releasing all temporary disconnects");
+        }
+        for (ConnectionParams params : mTemporaryDisconnects.keySet()) {
+            for (DisconnectRecord record : mTemporaryDisconnects.get(params)) {
+                record.removeSelf();
+            }
+        }
+
+        // Some disconnects might be hanging around because they couldn't be cleaned up.
+        // Make sure they get persisted...
+        saveTemporaryDisconnectsToSettingsLocked();
+        // ...then clear them from the map.
+        mTemporaryDisconnects.clear();
+
+        // We don't need to maintain previously-disconnected profiles any more - they were already
+        // skipped in saveTemporaryDisconnectsToSettingsLocked() above, and they don't need any
+        // further handling when the user resumes.
+        mAlreadyDisabledProfiles.clear();
+
+        // Clean up bookkeeping for restored disconnects. (If any are still around, they'll be
+        // restored again when this user restarts.)
+        mHandler.removeCallbacksAndMessages(RESTORED_TEMPORARY_DISCONNECT_TOKEN);
+        mRestoredDisconnects.clear();
+    }
+
+    /**
      * Add or remove a device based on the bonding state change.
      *
      * @param device    - device to add/remove
@@ -946,13 +1401,9 @@ public class BluetoothDeviceConnectionPolicy {
                 if (DBG) {
                     Log.d(TAG, "Found device to connect to");
                 }
-                BluetoothDeviceConnectionPolicy.ConnectionParams btParams =
-                        new BluetoothDeviceConnectionPolicy.ConnectionParams(
-                                mConnectionInFlight.getBluetoothProfile(),
-                                mConnectionInFlight.getBluetoothDevice());
                 // set up a time out
                 mBluetoothAutoConnectStateMachine.sendMessageDelayed(
-                        BluetoothAutoConnectStateMachine.CONNECT_TIMEOUT, btParams,
+                        BluetoothAutoConnectStateMachine.CONNECT_TIMEOUT, mConnectionInFlight,
                         BluetoothAutoConnectStateMachine.CONNECTION_TIMEOUT_MS);
                 break;
             } else {
@@ -1072,8 +1523,7 @@ public class BluetoothDeviceConnectionPolicy {
                 devInfo.setConnectionStateLocked(device, BluetoothProfile.STATE_CONNECTING);
                 // Increment the retry count & cache what is being connected to
                 // This method is already called from a synchronized context.
-                mConnectionInFlight.setBluetoothDevice(device);
-                mConnectionInFlight.setBluetoothProfile(profile);
+                mConnectionInFlight = new ConnectionParams(profile, device);
                 devInfo.incrementRetryCountLocked();
                 if (DBG) {
                     Log.d(TAG, "Increment Retry to: " + devInfo.getRetryCountLocked() +
@@ -1097,8 +1547,7 @@ public class BluetoothDeviceConnectionPolicy {
      * @param devInfo the {@link BluetoothDevicesInfo} where the info is to be reset.
      */
     private void setProfileOnDeviceToUnavailable(BluetoothDevicesInfo devInfo) {
-        mConnectionInFlight.setBluetoothProfile(0);
-        mConnectionInFlight.setBluetoothDevice(null);
+        mConnectionInFlight = new ConnectionParams(0, null);
         devInfo.setDeviceAvailableToConnectLocked(false);
     }
 
@@ -1625,5 +2074,11 @@ public class BluetoothDeviceConnectionPolicy {
         writer.println("*BluetoothDeviceConnectionPolicy*");
         printDeviceMap(writer);
         mBluetoothAutoConnectStateMachine.dump(writer);
+        writer.println("Temporary disconnects active:");
+        String disconnects;
+        synchronized (this) {
+            disconnects = mTemporaryDisconnects.keySet().toString();
+        }
+        writer.println(disconnects);
     }
 }

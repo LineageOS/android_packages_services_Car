@@ -24,5 +24,7 @@ interface ICarBluetoothUserService {
     void closeBluetoothConnectionProxy();
     boolean isBluetoothConnectionProxyAvailable(in int profile);
     void bluetoothConnectToProfile(in int profile, in BluetoothDevice device);
+    void bluetoothDisconnectFromProfile(in int profile, in BluetoothDevice device);
+    int getProfilePriority(in int profile, in BluetoothDevice device);
     void setProfilePriority(in int profile, in BluetoothDevice device, in int priority);
 }
