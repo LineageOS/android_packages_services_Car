@@ -57,4 +57,9 @@ public class Sensor<T> {
         mExpectedPropertyType = expectedPropertyType;
         mAdapter = adapter;
     }
+
+    @Override
+    public String toString() {
+        return mName;
+    }
 }

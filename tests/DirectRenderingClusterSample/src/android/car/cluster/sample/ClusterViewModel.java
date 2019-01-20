@@ -74,23 +74,8 @@ public class ClusterViewModel extends AndroidViewModel {
             try {
                 Log.i(TAG, "onServiceConnected, name: " + name + ", service: " + service);
 
-                // Listen navigation focus state
-                mCarAppFocusManager = (CarAppFocusManager) mCar.getCarManager(
-                        Car.APP_FOCUS_SERVICE);
-                if (mCarAppFocusManager == null) {
-                    Log.e(TAG, "onServiceConnected: unable to obtain CarAppFocusManager");
-                    return;
-                }
-                mCarAppFocusManager.addFocusListener(
-                        (appType, active) -> setNavigationFocus(active),
-                        CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-
-                // Listen property value changes
-                mCarPropertyManager = (CarPropertyManager) mCar.getCarManager(Car.PROPERTY_SERVICE);
-                for (Integer propertyId : Sensors.getInstance().getPropertyIds()) {
-                    mCarPropertyManager.registerListener(mCarPropertyEventListener,
-                            propertyId, PROPERTIES_REFRESH_RATE_UI);
-                }
+                registerAppFocusListener();
+                registerCarPropertiesListener();
             } catch (CarNotConnectedException e) {
                 Log.e(TAG, "onServiceConnected: error obtaining manager", e);
             }
@@ -103,6 +88,33 @@ public class ClusterViewModel extends AndroidViewModel {
             mCarPropertyManager = null;
         }
     };
+
+    private void registerAppFocusListener() throws CarNotConnectedException {
+        mCarAppFocusManager = (CarAppFocusManager) mCar.getCarManager(
+                Car.APP_FOCUS_SERVICE);
+        if (mCarAppFocusManager != null) {
+            mCarAppFocusManager.addFocusListener(
+                    (appType, active) -> setNavigationFocus(active),
+                    CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
+        } else {
+            Log.e(TAG, "onServiceConnected: unable to obtain CarAppFocusManager");
+        }
+    }
+
+    private void registerCarPropertiesListener() throws CarNotConnectedException {
+        Sensors sensors = Sensors.getInstance();
+        mCarPropertyManager = (CarPropertyManager) mCar.getCarManager(Car.PROPERTY_SERVICE);
+        for (Integer propertyId : sensors.getPropertyIds()) {
+            try {
+                mCarPropertyManager.registerListener(mCarPropertyEventListener,
+                        propertyId, PROPERTIES_REFRESH_RATE_UI);
+            } catch (SecurityException ex) {
+                Log.e(TAG, "onServiceConnected: Unable to listen to car property: " + propertyId
+                        + " sensors: " + sensors.getSensorsForPropertyId(propertyId), ex);
+            }
+        }
+    }
+
 
     private CarPropertyManager.CarPropertyEventListener mCarPropertyEventListener =
             new CarPropertyManager.CarPropertyEventListener() {

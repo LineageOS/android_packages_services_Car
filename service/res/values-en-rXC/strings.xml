@@ -16,7 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_title" msgid="2818894849672603016">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‎‏‏‏‎‎‎‏‏‏‏‎‏‎‏‏‏‎‎‏‏‏‏‎‏‏‏‎‎‎‏‏‏‏‎‏‏‏‏‎‏‎‎‏‏‏‏‎‎‏‎‏‏‎‎‎‏‎‎‎‎Car service‎‏‎‎‏‎"</string>
     <string name="car_permission_label" msgid="2215078736675564541">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‏‎‏‎‏‏‏‏‎‏‏‎‎‎‏‎‏‎‎‏‏‎‎‎‎‎‎‎‎‎‎‎‎‏‎‎‎‏‎‎‎‏‎‏‏‎‏‎‏‏‏‏‏‏‏‏‎‏‎Car information‎‏‎‎‏‎"</string>
     <string name="car_permission_desc" msgid="37967366937946700">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‎‎‏‎‎‎‎‏‏‎‏‏‏‎‎‎‏‏‎‎‎‏‏‏‏‎‎‏‏‏‏‎‏‏‎‏‏‎‎‏‎‎‏‎‏‎‏‎‏‎‎‏‎‎‏‏‎‎‎Access your car\'s information.‎‏‎‎‏‎"</string>
     <string name="car_permission_label_cabin" msgid="7737204489497269651">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‏‎‏‎‏‏‎‏‏‎‎‎‎‎‎‎‎‏‎‎‏‎‎‏‏‏‏‏‎‏‎‏‎‏‏‏‏‏‎‎‎‎‏‎‏‎‏‏‎‏‎‏‎‏‏‎‎‏‎‎‏‏‎Car Cabin‎‏‎‎‏‎"</string>
