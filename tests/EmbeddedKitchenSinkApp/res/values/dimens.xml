@@ -63,4 +63,10 @@
     <dimen name="car_keyline_2">108dp</dimen>
     <dimen name="car_keyline_3">152dp</dimen>
     <dimen name="car_keyline_4">182dp</dimen>
+
+    <!-- Users -->
+    <dimen name="users_button_padding">10dp</dimen>
+    <dimen name="users_button_text_size">24sp</dimen>
+    <dimen name="users_checkbox_padding">5dp</dimen>
+    <dimen name="users_checkbox_text_size">32sp</dimen>
 </resources>

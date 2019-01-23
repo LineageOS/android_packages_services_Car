@@ -301,4 +301,7 @@
     <string name="weblink_nytimes" translatable="false">www.nytimes.com</string>
     <string name="weblink_support_name" translatable="false">support.google.com</string>
     <string name="weblink_support" translatable="false">https://support.google.com/chrome/answer/95414?hl=en&amp;ref_topic=7438008</string>
+
+    <!-- Users -->
+    <string name="users_apply_button" translatable="false">Apply</string>
 </resources>
