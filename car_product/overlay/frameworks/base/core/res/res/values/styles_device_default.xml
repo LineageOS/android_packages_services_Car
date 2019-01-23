@@ -84,10 +84,19 @@
         <item name="paddingEnd">@dimen/car_button_horizontal_padding</item>
     </style>
 
-     <style name="Widget.DeviceDefault.ProgressBar.Horizontal" parent="Widget.Material.ProgressBar.Horizontal">
-         <item name="minHeight">@dimen/car_progress_bar_height</item>
-         <item name="maxHeight">@dimen/car_progress_bar_height</item>
-     </style>
+    <style name="Widget.DeviceDefault.CompoundButton.CheckBox" parent="Widget.Material.CompoundButton.CheckBox">
+        <item name="button">@drawable/car_checkbox</item>
+    </style>
+
+    <style name="Widget.DeviceDefault.CompoundButton.Switch" parent="Widget.Material.CompoundButton.Switch">
+        <item name="thumb">@drawable/car_switch_thumb</item>
+        <item name="switchMinWidth">@dimen/car_primary_icon_size</item>
+    </style>
+
+    <style name="Widget.DeviceDefault.ProgressBar.Horizontal" parent="Widget.Material.ProgressBar.Horizontal">
+        <item name="minHeight">@dimen/car_progress_bar_height</item>
+        <item name="maxHeight">@dimen/car_progress_bar_height</item>
+    </style>
 
     <style name="Widget.DeviceDefault.SeekBar" parent="Widget.Material.SeekBar">
         <item name="progressDrawable">@drawable/car_seekbar_track</item>
@@ -96,6 +105,26 @@
 
     <style name="Widget.DeviceDefault.ActionBar.Solid" parent="Widget.Material.ActionBar.Solid">
         <item name="textSize">@dimen/car_body3_size</item>
+    </style>
+
+    <!-- Preference Styles -->
+    <style name="Preference.DeviceDefault" parent="Preference.Material">
+        <item name="layout">@layout/car_preference</item>
+    </style>
+    <style name="Preference.DeviceDefault.Category" parent="Preference.Material.Category">
+        <item name="layout">@layout/car_preference_category</item>
+    </style>
+    <style name="Preference.DeviceDefault.CheckBoxPreference" parent="Preference.Material.CheckBoxPreference">
+        <item name="layout">@layout/car_preference</item>
+    </style>
+    <style name="Preference.DeviceDefault.DialogPreference" parent="Preference.Material.DialogPreference">
+        <item name="layout">@layout/car_preference</item>
+    </style>
+    <style name="Preference.DeviceDefault.DialogPreference.EditTextPreference" parent="Preference.Material.DialogPreference.EditTextPreference">
+        <item name="layout">@layout/car_preference</item>
+    </style>
+    <style name="Preference.DeviceDefault.SwitchPreference" parent="Preference.Material.SwitchPreference">
+        <item name="layout">@layout/car_preference</item>
     </style>
 
 </resources>
