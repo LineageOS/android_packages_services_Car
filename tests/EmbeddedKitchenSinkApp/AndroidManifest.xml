@@ -93,13 +93,13 @@
                   android:theme="@android:style/Theme.Material.Light.Dialog"
                   android:launchMode="singleTop">
         </activity>
+
         <activity android:name=".cluster.FakeClusterNavigationActivity"
                   android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
                   android:launchMode="singleInstance"
                   android:resizeableActivity="true"
-                  android:allowEmbedded="true"
-                  android:permission="android.car.permission.CAR_DISPLAY_IN_CLUSTER">
-            <intent-filter android:priority="-1">
+                  android:allowEmbedded="true">
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.car.cluster.NAVIGATION"/>
             </intent-filter>

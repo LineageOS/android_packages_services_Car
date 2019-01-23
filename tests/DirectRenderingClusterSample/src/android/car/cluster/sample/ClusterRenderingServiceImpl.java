@@ -165,7 +165,7 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
     }
 
     @Override
-    protected void onKeyEvent(KeyEvent keyEvent) {
+    public void onKeyEvent(KeyEvent keyEvent) {
         Log.d(TAG, "onKeyEvent, keyEvent: " + keyEvent);
         Bundle data = new Bundle();
         data.putParcelable(MSG_KEY_KEY_EVENT, keyEvent);
@@ -194,7 +194,7 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
     }
 
     @Override
-    protected NavigationRenderer getNavigationRenderer() {
+    public NavigationRenderer getNavigationRenderer() {
         NavigationRenderer navigationRenderer = new NavigationRenderer() {
             @Override
             public CarNavigationInstrumentCluster getNavigationProperties() {
@@ -243,7 +243,7 @@ public class ClusterRenderingServiceImpl extends InstrumentClusterRenderingServi
         if (args != null && args.length > 0) {
             execShellCommand(args);
         } else {
-            writer.println("* dump " + getClass().getCanonicalName() + " *");
+            super.dump(fd, writer, args);
             writer.println("DisplayProvider: " + mDisplayProvider);
         }
     }

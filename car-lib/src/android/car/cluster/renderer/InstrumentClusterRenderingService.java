@@ -15,30 +15,44 @@
  */
 package android.car.cluster.renderer;
 
+import static android.content.PermissionChecker.PERMISSION_GRANTED;
+
 import android.annotation.CallSuper;
 import android.annotation.MainThread;
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.app.ActivityOptions;
 import android.app.Service;
+import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarNotConnectedException;
+import android.car.cluster.ClusterActivityState;
 import android.car.navigation.CarNavigationInstrumentCluster;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Message;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.util.Log;
-import android.util.Pair;
 import android.view.KeyEvent;
 
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 /**
  * A service that used for interaction between Car Service and Instrument Cluster. Car Service may
@@ -58,33 +72,37 @@ import java.lang.ref.WeakReference;
  */
 @SystemApi
 public abstract class InstrumentClusterRenderingService extends Service {
-
     private static final String TAG = CarLibLog.TAG_CLUSTER;
 
-    private RendererBinder mRendererBinder;
-
-    /** @hide */
-    public static final String EXTRA_KEY_CALLBACK_SERVICE =
-            "android.car.cluster.IInstrumentClusterCallback";
-
     private final Object mLock = new Object();
+    private RendererBinder mRendererBinder;
+    private Handler mUiHandler = new Handler(Looper.getMainLooper());
+    private ActivityOptions mActivityOptions;
+    private ClusterActivityState mActivityState;
+    private ComponentName mNavigationComponent;
     @GuardedBy("mLock")
-    private IInstrumentClusterCallback mCallback;
+    private ContextOwner mNavContextOwner;
+
+    private static class ContextOwner {
+        final int mUid;
+        final int mPid;
+
+        ContextOwner(int uid, int pid) {
+            mUid = uid;
+            mPid = pid;
+        }
+
+        @Override
+        public String toString() {
+            return "{uid: " + mUid + ", pid: " + mPid + "}";
+        }
+    }
 
     @Override
     @CallSuper
     public IBinder onBind(Intent intent) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onBind, intent: " + intent);
-        }
-
-        if (intent.getExtras().containsKey(EXTRA_KEY_CALLBACK_SERVICE)) {
-            IBinder callbackBinder = intent.getExtras().getBinder(EXTRA_KEY_CALLBACK_SERVICE);
-            synchronized (mLock) {
-                mCallback = IInstrumentClusterCallback.Stub.asInterface(callbackBinder);
-            }
-        } else {
-            Log.w(TAG, "onBind, no callback in extra!");
         }
 
         if (mRendererBinder == null) {
@@ -94,196 +112,314 @@ public abstract class InstrumentClusterRenderingService extends Service {
         return mRendererBinder;
     }
 
-    /** Returns {@link NavigationRenderer} or null if it's not supported. */
+    /**
+     * Returns {@link NavigationRenderer} or null if it's not supported. This renderer will be
+     * shared with the navigation context owner (application holding navigation focus).
+     */
     @MainThread
-    protected abstract NavigationRenderer getNavigationRenderer();
+    @Nullable
+    public abstract NavigationRenderer getNavigationRenderer();
 
-    /** Called when key event that was addressed to instrument cluster display has been received. */
+    /**
+     * Called when key event that was addressed to instrument cluster display has been received.
+     */
     @MainThread
-    protected void onKeyEvent(KeyEvent keyEvent) {
+    public void onKeyEvent(@NonNull KeyEvent keyEvent) {
     }
 
     /**
+     * Called when a navigation application becomes a context owner (receives navigation focus) and
+     * its {@link Car#CATEGORY_NAVIGATION} activity is launched.
+     */
+    @MainThread
+    public void onNavigationComponentLaunched() {
+    }
+
+    /**
+     * Called when the current context owner (application holding navigation focus) releases the
+     * focus and its {@link Car#CAR_CATEGORY_NAVIGATION} activity is ready to be replaced by a
+     * system default.
+     */
+    @MainThread
+    public void onNavigationComponentReleased() {
+    }
+
+    /**
+     * Updates the cluster navigation activity by checking which activity to show (an activity of
+     * the {@link #mNavContextOwner}). If not yet launched, it will do so.
+     */
+    private void updateNavigationActivity() {
+        ContextOwner contextOwner = getNavigationContextOwner();
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, String.format("updateNavigationActivity (mActivityOptions: %s, "
+                    + "mActivityState: %s, mNavContextOwnerUid: %s)", mActivityOptions,
+                    mActivityState, contextOwner));
+        }
+
+        if (contextOwner == null || contextOwner.mUid == 0 || mActivityOptions == null
+                || mActivityState == null || !mActivityState.isVisible()) {
+            // We are not yet ready to display an activity on the cluster
+            if (mNavigationComponent != null) {
+                mNavigationComponent = null;
+                onNavigationComponentReleased();
+            }
+            return;
+        }
+
+        ComponentName component = getNavigationComponentByOwner(contextOwner);
+        if (Objects.equals(mNavigationComponent, component)) {
+            // We have already launched this component.
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Already launched component: " + component);
+            }
+            return;
+        }
+
+        if (component == null) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "No component found for owner: " + contextOwner);
+            }
+            return;
+        }
+
+        if (!startNavigationActivity(component)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Unable to launch component: " + component);
+            }
+            return;
+        }
+
+        mNavigationComponent = component;
+        onNavigationComponentLaunched();
+    }
+
+    /**
+     * Returns a component with category {@link Car#CAR_CATEGORY_NAVIGATION} from the same package
+     * as the given navigation context owner.
+     */
+    @Nullable
+    private ComponentName getNavigationComponentByOwner(ContextOwner contextOwner) {
+        for (String packageName : getPackageNamesForUid(contextOwner)) {
+            ComponentName component = getComponentFromPackage(packageName);
+            if (component != null) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Found component: " + component);
+                }
+                return component;
+            }
+        }
+        return null;
+    }
+
+    private String[] getPackageNamesForUid(ContextOwner contextOwner) {
+        if (contextOwner == null || contextOwner.mUid == 0 || contextOwner.mPid == 0) {
+            return new String[0];
+        }
+        String[] packageNames  = getPackageManager().getPackagesForUid(contextOwner.mUid);
+        return packageNames != null ? packageNames : new String[0];
+    }
+
+    private ContextOwner getNavigationContextOwner() {
+        synchronized (mLock) {
+            return mNavContextOwner;
+        }
+    }
+
+    @Nullable
+    private ComponentName getComponentFromPackage(@NonNull String packageName) {
+        PackageManager packageManager = getPackageManager();
+
+        // Check package permission.
+        if (packageManager.checkPermission(Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER, packageName)
+                != PERMISSION_GRANTED) {
+            Log.i(TAG, String.format("Package '%s' doesn't have permission %s", packageName,
+                    Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER));
+            return null;
+        }
+
+        Intent intent = new Intent(Intent.ACTION_MAIN)
+                .addCategory(Car.CAR_CATEGORY_NAVIGATION)
+                .setPackage(packageName);
+        List<ResolveInfo> resolveList = packageManager.queryIntentActivities(intent,
+                PackageManager.GET_RESOLVED_FILTER);
+        if (resolveList == null || resolveList.isEmpty()
+                || resolveList.get(0).getComponentInfo() == null) {
+            Log.i(TAG, "Failed to resolve an intent: " + intent);
+            return null;
+        }
+
+        // In case of multiple matching activities in the same package, we pick the first one.
+        return resolveList.get(0).getComponentInfo().getComponentName();
+    }
+
+    /**
+     * Starts an activity on the cluster using the given component.
      *
+     * @return false if the activity couldn't be started.
+     */
+    protected boolean startNavigationActivity(@NonNull ComponentName component) {
+        // Create an explicit intent.
+        Intent intent = new Intent();
+        intent.setComponent(component);
+        intent.putExtra(Car.CAR_EXTRA_CLUSTER_ACTIVITY_STATE, mActivityState.toBundle());
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            startActivityAsUser(intent, mActivityOptions.toBundle(), UserHandle.CURRENT);
+            Log.i(TAG, String.format("Activity launched: %s (options: %s, displayId: %d)",
+                    mActivityOptions, intent, mActivityOptions.getLaunchDisplayId()));
+        } catch (ActivityNotFoundException ex) {
+            Log.w(TAG, "Unable to find activity for intent: " + intent);
+            return false;
+        } catch (Exception ex) {
+            // Catch all other possible exception to prevent service disruption by misbehaving
+            // applications.
+            Log.e(TAG, "Error trying to launch intent: " + intent + ". Ignored", ex);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @deprecated Use {@link #setClusterActivityLaunchOptions(ActivityOptions)} instead.
+     *
+     * @hide
+     */
+    @Deprecated
+    public void setClusterActivityLaunchOptions(String category, ActivityOptions activityOptions)
+            throws CarNotConnectedException {
+        setClusterActivityLaunchOptions(activityOptions);
+    }
+
+    /**
      * Sets configuration for activities that should be launched directly in the instrument
      * cluster.
      *
-     * @param category category of cluster activity
      * @param activityOptions contains information of how to start cluster activity (on what display
-     *                        or activity stack.
+     *                        or activity stack).
      *
      * @hide
      */
-    public void setClusterActivityLaunchOptions(String category,
-            ActivityOptions activityOptions) throws CarNotConnectedException {
-        IInstrumentClusterCallback cb;
-        synchronized (mLock) {
-            cb = mCallback;
-        }
-        if (cb == null) throw new CarNotConnectedException();
-        try {
-            cb.setClusterActivityLaunchOptions(category, activityOptions.toBundle());
-        } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
-        }
+    public void setClusterActivityLaunchOptions(ActivityOptions activityOptions) {
+        mActivityOptions = activityOptions;
+        updateNavigationActivity();
     }
 
     /**
-     *
-     * @param category cluster activity category,
-     *        see {@link android.car.cluster.CarInstrumentClusterManager}
-     * @param state pass information about activity state,
-     *        see {@link android.car.cluster.ClusterActivityState}
-     * @return true if information was sent to Car Service
-     * @throws CarNotConnectedException
+     * @deprecated Use {@link #setClusterActivityState(ClusterActivityState)} instead.
      *
      * @hide
      */
-    public void setClusterActivityState(String category, Bundle state)
-            throws CarNotConnectedException {
-        IInstrumentClusterCallback cb;
-        synchronized (mLock) {
-            cb = mCallback;
-        }
-        if (cb == null) throw new CarNotConnectedException();
-        try {
-            cb.setClusterActivityState(category, state);
-        } catch (RemoteException e) {
-            throw new CarNotConnectedException(e);
-        }
+    @Deprecated
+    public void setClusterActivityState(String category, Bundle state) throws
+            CarNotConnectedException {
+        setClusterActivityState(ClusterActivityState.fromBundle(state));
     }
 
+    /**
+     * Set activity state (such as unobscured bounds).
+     *
+     * @param state pass information about activity state, see
+     *              {@link android.car.cluster.ClusterActivityState}
+     *
+     * @hide
+     */
+    public void setClusterActivityState(ClusterActivityState state) {
+        mActivityState = state;
+        updateNavigationActivity();
+    }
 
+    @CallSuper
     @Override
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         writer.println("**" + getClass().getSimpleName() + "**");
         writer.println("renderer binder: " + mRendererBinder);
         if (mRendererBinder != null) {
             writer.println("navigation renderer: " + mRendererBinder.mNavigationRenderer);
-            String owner = "none";
-            synchronized (mLock) {
-                if (mRendererBinder.mNavContextOwner != null) {
-                    owner = "[uid: " + mRendererBinder.mNavContextOwner.first
-                            + ", pid: " + mRendererBinder.mNavContextOwner.second + "]";
-                }
-            }
-            writer.println("navigation focus owner: " + owner);
         }
-        IInstrumentClusterCallback cb;
-        synchronized (mLock) {
-            cb = mCallback;
-        }
-        writer.println("callback: " + cb);
+        writer.println("navigation focus owner: " + getNavigationContextOwner());
+        writer.println("activity options: " + mActivityOptions);
+        writer.println("activity state: " + mActivityState);
+        writer.println("current nav component: " + mNavigationComponent);
+        writer.println("current nav packages: " + Arrays.toString(getPackageNamesForUid(
+                getNavigationContextOwner())));
     }
 
     private class RendererBinder extends IInstrumentCluster.Stub {
-
         private final NavigationRenderer mNavigationRenderer;
-        private final UiHandler mUiHandler;
-
-        @GuardedBy("mLock")
-        private NavigationBinder mNavigationBinder;
-        @GuardedBy("mLock")
-        private Pair<Integer, Integer> mNavContextOwner;
 
         RendererBinder(NavigationRenderer navigationRenderer) {
             mNavigationRenderer = navigationRenderer;
-            mUiHandler = new UiHandler(InstrumentClusterRenderingService.this);
         }
 
         @Override
         public IInstrumentClusterNavigation getNavigationService() throws RemoteException {
-            synchronized (mLock) {
-                if (mNavigationBinder == null) {
-                    mNavigationBinder = new NavigationBinder(mNavigationRenderer);
-                    if (mNavContextOwner != null) {
-                        mNavigationBinder.setNavigationContextOwner(
-                                mNavContextOwner.first, mNavContextOwner.second);
-                    }
-                }
-                return mNavigationBinder;
-            }
+            return new NavigationBinder(mNavigationRenderer);
         }
 
         @Override
         public void setNavigationContextOwner(int uid, int pid) throws RemoteException {
             synchronized (mLock) {
-                mNavContextOwner = new Pair<>(uid, pid);
-                if (mNavigationBinder != null) {
-                    mNavigationBinder.setNavigationContextOwner(uid, pid);
-                }
+                mNavContextOwner = new ContextOwner(uid, pid);
             }
+            mUiHandler.post(InstrumentClusterRenderingService.this::updateNavigationActivity);
         }
 
         @Override
         public void onKeyEvent(KeyEvent keyEvent) throws RemoteException {
-            mUiHandler.doKeyEvent(keyEvent);
+            mUiHandler.post(() -> InstrumentClusterRenderingService.this.onKeyEvent(keyEvent));
         }
     }
 
     private class NavigationBinder extends IInstrumentClusterNavigation.Stub {
-
-        private final NavigationRenderer mNavigationRenderer;  // Thread-safe navigation renderer.
-
-        private volatile Pair<Integer, Integer> mNavContextOwner;
+        private final NavigationRenderer mNavigationRenderer;
 
         NavigationBinder(NavigationRenderer navigationRenderer) {
-            mNavigationRenderer = ThreadSafeNavigationRenderer.createFor(
-                    Looper.getMainLooper(),
-                    navigationRenderer);
-        }
-
-        void setNavigationContextOwner(int uid, int pid) {
-            mNavContextOwner = new Pair<>(uid, pid);
+            mNavigationRenderer = navigationRenderer;
         }
 
         @Override
         public void onEvent(int eventType, Bundle bundle) throws RemoteException {
             assertContextOwnership();
-            mNavigationRenderer.onEvent(eventType, bundle);
+            mUiHandler.post(() -> {
+                if (mNavigationRenderer != null) {
+                    mNavigationRenderer.onEvent(eventType, bundle);
+                }
+            });
         }
 
         @Override
         public CarNavigationInstrumentCluster getInstrumentClusterInfo() throws RemoteException {
-            return mNavigationRenderer.getNavigationProperties();
+            return runAndWaitResult(() -> mNavigationRenderer.getNavigationProperties());
         }
 
         private void assertContextOwnership() {
             int uid = getCallingUid();
             int pid = getCallingPid();
 
-            Pair<Integer, Integer> owner = mNavContextOwner;
-            if (owner == null || owner.first != uid || owner.second != pid) {
-                throw new IllegalStateException("Client (uid:" + uid + ", pid: " + pid + ") is"
-                        + " not an owner of APP_FOCUS_TYPE_NAVIGATION");
+            synchronized (mLock) {
+                if (mNavContextOwner.mUid != uid || mNavContextOwner.mPid != pid) {
+                    throw new IllegalStateException("Client {uid:" + uid + ", pid: " + pid + "} is"
+                            + " not an owner of APP_FOCUS_TYPE_NAVIGATION " + mNavContextOwner);
+                }
             }
         }
     }
 
-    private static class UiHandler extends Handler {
-        private static int KEY_EVENT = 0;
-        private final WeakReference<InstrumentClusterRenderingService> mRefService;
+    private <E> E runAndWaitResult(final Supplier<E> supplier) {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<E> result = new AtomicReference<>();
 
-        UiHandler(InstrumentClusterRenderingService service) {
-            mRefService = new WeakReference<>(service);
+        mUiHandler.post(() -> {
+            result.set(supplier.get());
+            latch.countDown();
+        });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-
-        @Override
-        public void handleMessage(Message msg) {
-            InstrumentClusterRenderingService service = mRefService.get();
-            if (service == null) {
-                return;
-            }
-
-            if (msg.what == KEY_EVENT) {
-                service.onKeyEvent((KeyEvent) msg.obj);
-            } else {
-                throw new IllegalArgumentException("Unexpected message: " + msg);
-            }
-        }
-
-        void doKeyEvent(KeyEvent event) {
-            sendMessage(obtainMessage(KEY_EVENT, event));
-        }
+        return result.get();
     }
 }

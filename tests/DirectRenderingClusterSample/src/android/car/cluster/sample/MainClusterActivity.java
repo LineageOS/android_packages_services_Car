@@ -15,7 +15,6 @@
  */
 package android.car.cluster.sample;
 
-import static android.car.cluster.CarInstrumentClusterManager.CATEGORY_NAVIGATION;
 import static android.car.cluster.sample.ClusterRenderingServiceImpl.LOCAL_BINDING_ACTION;
 import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_ACTIVITY_DISPLAY_ID;
 import static android.car.cluster.sample.ClusterRenderingServiceImpl.MSG_KEY_ACTIVITY_STATE;
@@ -33,7 +32,7 @@ import static android.content.Intent.ACTION_USER_UNLOCKED;
 
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
-import android.car.cluster.CarInstrumentClusterManager;
+import android.car.Car;
 import android.car.cluster.ClusterActivityState;
 import android.car.cluster.sample.sensors.Sensors;
 import android.content.ActivityNotFoundException;
@@ -340,7 +339,7 @@ public class MainClusterActivity extends FragmentActivity {
 
     private void reportNavDisplay(VirtualDisplay virtualDisplay) {
         Bundle data = new Bundle();
-        data.putString(MSG_KEY_CATEGORY, CATEGORY_NAVIGATION);
+        data.putString(MSG_KEY_CATEGORY, Car.CAR_CATEGORY_NAVIGATION);
         data.putInt(MSG_KEY_ACTIVITY_DISPLAY_ID, virtualDisplay.mDisplayId);
         data.putBundle(MSG_KEY_ACTIVITY_STATE, ClusterActivityState
                 .create(virtualDisplay.mDisplayId != Display.INVALID_DISPLAY,
@@ -445,7 +444,7 @@ public class MainClusterActivity extends FragmentActivity {
             if (navigationActivity == null) {
                 throw new ActivityNotFoundException();
             }
-            Intent intent = new Intent(Intent.ACTION_MAIN).addCategory(CATEGORY_NAVIGATION)
+            Intent intent = new Intent(Intent.ACTION_MAIN).addCategory(Car.CAR_CATEGORY_NAVIGATION)
                     .setPackage(navigationActivity.getPackageName())
                     .setComponent(navigationActivity)
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -467,7 +466,7 @@ public class MainClusterActivity extends FragmentActivity {
     /**
      * Returns a default navigation activity to show in the cluster.
      * In the current implementation we search for an activity with the
-     * {@link CarInstrumentClusterManager#CATEGORY_NAVIGATION} category from the same navigation app
+     * {@link Car#CAR_CATEGORY_NAVIGATION} category from the same navigation app
      * selected from CarLauncher (see CarLauncher#getMapsIntent()).
      * Alternatively, other implementations could:
      * <ul>
@@ -486,7 +485,7 @@ public class MainClusterActivity extends FragmentActivity {
                 PackageManager.MATCH_DEFAULT_ONLY, userId);
 
         // Get all possible cluster activities
-        intent = new Intent(Intent.ACTION_MAIN).addCategory(CATEGORY_NAVIGATION);
+        intent = new Intent(Intent.ACTION_MAIN).addCategory(Car.CAR_CATEGORY_NAVIGATION);
         List<ResolveInfo> candidates = pm.queryIntentActivitiesAsUser(intent, 0, userId);
 
         // If there is a select navigation app, try finding a matching auxiliary navigation activity
