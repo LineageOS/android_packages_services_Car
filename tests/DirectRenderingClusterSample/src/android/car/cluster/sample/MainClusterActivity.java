@@ -247,7 +247,7 @@ public class MainClusterActivity extends FragmentActivity {
 
         Intent intent = new Intent(this, ClusterRenderingServiceImpl.class);
         intent.setAction(LOCAL_BINDING_ACTION);
-        bindService(intent, mClusterRenderingServiceConnection, 0);
+        bindServiceAsUser(intent, mClusterRenderingServiceConnection, 0, UserHandle.SYSTEM);
 
         registerFacet(new Facet<>(findViewById(R.id.btn_nav), 0, NavigationFragment.class));
         registerFacet(new Facet<>(findViewById(R.id.btn_phone), 1, PhoneFragment.class));
