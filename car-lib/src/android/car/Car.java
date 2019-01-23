@@ -237,7 +237,6 @@ public final class Car {
 
     /**
      * Permission necessary to change car audio settings through {@link CarAudioManager}.
-     * @hide
      */
     public static final String PERMISSION_CAR_CONTROL_AUDIO_SETTINGS =
             "android.car.permission.CAR_CONTROL_AUDIO_SETTINGS";

@@ -22,6 +22,7 @@ package android.car {
     field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
     field public static final String INFO_SERVICE = "info";
     field public static final String PACKAGE_SERVICE = "package";
+    field public static final String PERMISSION_CAR_CONTROL_AUDIO_SETTINGS = "android.car.permission.CAR_CONTROL_AUDIO_SETTINGS";
     field public static final String PERMISSION_CAR_CONTROL_AUDIO_VOLUME = "android.car.permission.CAR_CONTROL_AUDIO_VOLUME";
     field public static final String PERMISSION_CAR_INFO = "android.car.permission.CAR_INFO";
     field public static final String PERMISSION_CAR_NAVIGATION_MANAGER = "android.car.permission.CAR_NAVIGATION_MANAGER";
@@ -447,26 +448,26 @@ package android.car.hardware {
 package android.car.media {
 
   public final class CarAudioManager {
-    method public android.car.media.CarAudioPatchHandle createAudioPatch(String, int, int) throws android.car.CarNotConnectedException;
-    method @NonNull public String[] getExternalSources() throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.media.CarAudioPatchHandle createAudioPatch(String, int, int) throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) @NonNull public String[] getExternalSources() throws android.car.CarNotConnectedException;
     method public int getGroupMaxVolume(int) throws android.car.CarNotConnectedException;
-    method public int getGroupMaxVolume(int, int) throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupMaxVolume(int, int) throws android.car.CarNotConnectedException;
     method public int getGroupMinVolume(int) throws android.car.CarNotConnectedException;
-    method public int getGroupMinVolume(int, int) throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupMinVolume(int, int) throws android.car.CarNotConnectedException;
     method public int getGroupVolume(int) throws android.car.CarNotConnectedException;
-    method public int getGroupVolume(int, int) throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupVolume(int, int) throws android.car.CarNotConnectedException;
     method @NonNull public int[] getUsagesForVolumeGroupId(int) throws android.car.CarNotConnectedException;
-    method @NonNull public int[] getUsagesForVolumeGroupId(int, int) throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) @NonNull public int[] getUsagesForVolumeGroupId(int, int) throws android.car.CarNotConnectedException;
     method public int getVolumeGroupCount() throws android.car.CarNotConnectedException;
-    method public int getVolumeGroupCount(int) throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupCount(int) throws android.car.CarNotConnectedException;
     method public int getVolumeGroupIdForUsage(int) throws android.car.CarNotConnectedException;
-    method public int getVolumeGroupIdForUsage(int, int) throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupIdForUsage(int, int) throws android.car.CarNotConnectedException;
     method public void registerCarVolumeCallback(@NonNull android.car.media.CarAudioManager.CarVolumeCallback);
-    method public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
-    method public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
-    method public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void releaseAudioPatch(android.car.media.CarAudioPatchHandle) throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void setBalanceTowardRight(float) throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void setFadeTowardFront(float) throws android.car.CarNotConnectedException;
     method public void setGroupVolume(int, int, int) throws android.car.CarNotConnectedException;
-    method public void setGroupVolume(int, int, int, int) throws android.car.CarNotConnectedException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void setGroupVolume(int, int, int, int) throws android.car.CarNotConnectedException;
     method public void unregisterCarVolumeCallback(@NonNull android.car.media.CarAudioManager.CarVolumeCallback);
     field public static final int PRIMARY_AUDIO_ZONE = 0; // 0x0
   }
