@@ -26,6 +26,7 @@ import android.widget.TextView;
 import androidx.car.cluster.navigation.Distance;
 import androidx.car.cluster.navigation.Maneuver;
 import androidx.car.cluster.navigation.NavigationState;
+import androidx.car.cluster.navigation.Segment;
 import androidx.car.cluster.navigation.Step;
 
 /**
@@ -35,10 +36,12 @@ public class NavStateController {
     private static final String TAG = "Cluster.NavController";
 
     private ImageView mManeuver;
+    private LaneView mLane;
     private TextView mDistance;
     private TextView mSegment;
-    private View mNavigationState;
+    private CueView mCue;
     private Context mContext;
+    private View mNavigationState;
 
     /**
      * Creates a controller to coordinate updates to the views displaying navigation state
@@ -49,8 +52,11 @@ public class NavStateController {
     public NavStateController(View container) {
         mNavigationState = container;
         mManeuver = container.findViewById(R.id.maneuver);
+        mLane = container.findViewById(R.id.lane);
         mDistance = container.findViewById(R.id.distance);
         mSegment = container.findViewById(R.id.segment);
+        mCue = container.findViewById(R.id.cue);
+
         mContext = container.getContext();
     }
 
@@ -64,6 +70,15 @@ public class NavStateController {
         Step step = getImmediateStep(state);
         mManeuver.setImageDrawable(getManeuverIcon(step != null ? step.getManeuver() : null));
         mDistance.setText(formatDistance(step != null ? step.getDistance() : null));
+        mSegment.setText(getSegmentString(state.getCurrentSegment()));
+        mCue.setRichText(step.getCue());
+
+        if (step.getLanes().size() > 0) {
+            mLane.setLanes(step.getLanes());
+            mLane.setVisibility(View.VISIBLE);
+        } else {
+            mLane.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -77,7 +92,18 @@ public class NavStateController {
         if (!active) {
             mManeuver.setImageDrawable(null);
             mDistance.setText(null);
+            mLane.setVisibility(View.GONE);
+            mCue.setText(null);
+            mSegment.setText(null);
         }
+    }
+
+    private String getSegmentString(Segment segment) {
+        if (segment != null) {
+            return segment.getName();
+        }
+
+        return null;
     }
 
     private Drawable getManeuverIcon(@Nullable Maneuver maneuver) {
@@ -110,7 +136,7 @@ public class NavStateController {
             case U_TURN_LEFT:
                 return mContext.getDrawable(R.drawable.direction_uturn);
             case U_TURN_RIGHT:
-                return mContext.getDrawable(R.drawable.direction_uturn);
+                return mContext.getDrawable(R.drawable.direction_uturn_right);
             case ON_RAMP_SLIGHT_LEFT:
                 return mContext.getDrawable(R.drawable.direction_on_ramp_slight_left);
             case ON_RAMP_SLIGHT_RIGHT:
@@ -126,7 +152,7 @@ public class NavStateController {
             case ON_RAMP_U_TURN_LEFT:
                 return mContext.getDrawable(R.drawable.direction_uturn);
             case ON_RAMP_U_TURN_RIGHT:
-                return mContext.getDrawable(R.drawable.direction_uturn);
+                return mContext.getDrawable(R.drawable.direction_uturn_right);
             case OFF_RAMP_SLIGHT_LEFT:
                 return mContext.getDrawable(R.drawable.direction_off_ramp_slight_left);
             case OFF_RAMP_SLIGHT_RIGHT:
@@ -162,7 +188,7 @@ public class NavStateController {
             case ROUNDABOUT_ENTER_AND_EXIT_CW_SLIGHT_LEFT:
                 return mContext.getDrawable(R.drawable.direction_roundabout_slight_left);
             case ROUNDABOUT_ENTER_AND_EXIT_CW_U_TURN:
-                return mContext.getDrawable(R.drawable.direction_uturn);
+                return mContext.getDrawable(R.drawable.direction_uturn_right);
             case ROUNDABOUT_ENTER_AND_EXIT_CCW_SHARP_RIGHT:
                 return mContext.getDrawable(R.drawable.direction_roundabout_sharp_right);
             case ROUNDABOUT_ENTER_AND_EXIT_CCW_NORMAL_RIGHT:

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="200dp"
-    android:height="200dp"
-    android:viewportHeight="64"
-    android:viewportWidth="64">
+        xmlns:aapt="http://schemas.android.com/aapt"
+        android:width="200dp"
+        android:height="200dp"
+        android:viewportHeight="64"
+        android:viewportWidth="64">
 
     <path
         android:pathData="M0,32
@@ -18,13 +18,13 @@
                 android:type="radial">
                 <item
                     android:color="#FF000000"
-                    android:offset="0.0" />
+                    android:offset="0.0"/>
                 <item
                     android:color="#FF000000"
-                    android:offset="0.94" />
+                    android:offset="0.94"/>
                 <item
                     android:color="#00000000"
-                    android:offset="1.0" />
+                    android:offset="1.0"/>
             </gradient>
         </aapt:attr>
     </path>

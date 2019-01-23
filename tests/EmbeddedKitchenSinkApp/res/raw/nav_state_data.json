@@ -9,9 +9,49 @@
         },
         "mManeuver": {
           "mType": { "mValues": [ "DEPART" ] }
-        }
+        },
+        "mCue":{
+          "mElements": [
+            {
+              "mText": "Stay on"
+            },
+            {
+              "mImage": {
+                "mContentUri": "content://com.google.android.car.kitchensink.cluster.clustercontentprovider/img/US_101.png"
+              }
+            },
+            {
+              "mText": "East"
+            }
+          ]
+        },
+        "mLanes": [
+          {
+            "mDirections": [
+              {
+                "mShape": { "mValues": [ "SLIGHT_LEFT" ] },
+                "mHighlighted": false
+              }
+            ]
+          },
+          {
+            "mDirections": [
+              {
+                "mShape": { "mValues": [ "STRAIGHT" ] },
+                "mHighlighted": false
+              },
+              {
+                "mShape": { "mValues": [ "SLIGHT_RIGHT" ] },
+                "mHighlighted": true
+              }
+            ]
+          }
+        ]
       }
     ],
+    "mCurrentSegment": {
+      "mName": "On McCowan St"
+    },
     "mDestinations": [
       {
         "mTitle": "Home",
