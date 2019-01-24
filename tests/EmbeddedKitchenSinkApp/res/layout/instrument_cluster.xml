@@ -48,12 +48,5 @@
                 android:padding="20dp"
                 android:text="@string/cluster_stop"
                 android:id="@+id/cluster_stop_button"/>
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:padding="20dp"
-                android:text="@string/cluster_start_activity"
-                android:id="@+id/cluster_start_activity"/>
     </LinearLayout>
 </LinearLayout>

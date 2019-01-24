@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="0dp"
-    android:layout_height="match_parent"
-    android:orientation="horizontal">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/maneuver"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_margin="10dp"
+        android:layout_width="@dimen/maneuver_width"
+        android:layout_height="@dimen/maneuver_height"
+        android:layout_margin="@dimen/maneuver_margin"
         android:tint="@android:color/white"/>
 
     <LinearLayout
-        android:layout_width="250dp"
+        android:layout_width="@dimen/nav_state_width"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
@@ -20,12 +20,27 @@
             android:id="@+id/distance"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:textSize="30sp"/>
+            android:textSize="@dimen/distance_text_size"/>
         <TextView
             android:id="@+id/segment"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:textSize="18sp"/>
+            android:textSize="@dimen/segment_text_size"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="@dimen/nav_state_width"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <android.car.cluster.sample.CueView
+            android:id="@+id/cue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lineHeight="@dimen/cue_line_height"/>
+        <android.car.cluster.sample.LaneView
+            android:id="@+id/lane"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/laneview_height"/>
+    </LinearLayout>
 </LinearLayout>

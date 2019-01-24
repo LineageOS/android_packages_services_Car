@@ -46,12 +46,12 @@ public class InstrumentClusterRenderingServiceImpl extends InstrumentClusterRend
     }
 
     @Override
-    protected NavigationRenderer getNavigationRenderer() {
+    public NavigationRenderer getNavigationRenderer() {
         return mController.getNavigationRenderer();
     }
 
     @Override
-    protected void onKeyEvent(KeyEvent keyEvent) {
+    public void onKeyEvent(KeyEvent keyEvent) {
         // No need to handle key events in this implementation.
     }
 }

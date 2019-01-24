@@ -19,10 +19,8 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.CarNotConnectedException;
-import android.car.cluster.CarInstrumentClusterManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.content.ComponentName;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -39,7 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.car.cluster.navigation.NavigationState;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -161,7 +158,6 @@ public class InstrumentClusterFragment extends Fragment {
 
         view.findViewById(R.id.cluster_start_button).setOnClickListener(v -> initCluster());
         view.findViewById(R.id.cluster_stop_button).setOnClickListener(v -> stopCluster());
-        view.findViewById(R.id.cluster_start_activity).setOnClickListener(v -> startNavActivity());
 
         mTurnByTurnButton = view.findViewById(R.id.cluster_turn_left_button);
         mTurnByTurnButton.setOnClickListener(v -> toggleSendTurn());
@@ -173,32 +169,6 @@ public class InstrumentClusterFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         initCarApi();
         super.onCreate(savedInstanceState);
-    }
-
-    private void startNavActivity() {
-        CarInstrumentClusterManager clusterManager;
-        try {
-            clusterManager = (CarInstrumentClusterManager) mCarApi.getCarManager(
-                    android.car.Car.CAR_INSTRUMENT_CLUSTER_SERVICE);
-        } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to get CarInstrumentClusterManager", e);
-            Toast.makeText(getContext(), "Failed to get CarInstrumentClusterManager",
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        // Implicit intent ("startActivity" method doesn't work with explicit intents)
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(CarInstrumentClusterManager.CATEGORY_NAVIGATION);
-        intent.setPackage(KitchenSinkActivity.class.getPackage().getName());
-        try {
-            clusterManager.startActivity(intent);
-        } catch (android.car.CarNotConnectedException e) {
-            Log.e(TAG, "Failed to startActivity in cluster", e);
-            Toast.makeText(getContext(), getText(R.string.cluster_start_activity_failed),
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
     }
 
     /**
@@ -264,6 +234,7 @@ public class InstrumentClusterFragment extends Fragment {
 
     private void initCluster() {
         if (hasFocus()) {
+            Log.i(TAG, "Already has focus");
             return;
         }
         try {
@@ -271,11 +242,9 @@ public class InstrumentClusterFragment extends Fragment {
                     CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
             mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                     mFocusCallback);
-            if (!hasFocus()) {
-                throw new RuntimeException("Focus was not acquired.");
-            }
+            Log.i(TAG, "Focus requested");
         } catch (CarNotConnectedException e) {
-            Log.e(TAG, "Failed to set active focus", e);
+            Log.e(TAG, "Failed to request focus", e);
         }
     }
 

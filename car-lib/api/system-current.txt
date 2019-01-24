@@ -4,6 +4,7 @@ package android.car {
   public final class Car {
     field public static final String CABIN_SERVICE = "cabin";
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
+    field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_TRUST_AGENT_ENROLLMENT_SERVICE = "trust_enroll";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
     field public static final String HVAC_SERVICE = "hvac";
@@ -138,37 +139,40 @@ package android.car {
 
 package android.car.cluster {
 
-  public class CarInstrumentClusterManager {
-    method public void registerCallback(String, android.car.cluster.CarInstrumentClusterManager.Callback) throws android.car.CarNotConnectedException;
-    method public void startActivity(android.content.Intent) throws android.car.CarNotConnectedException;
-    method public void unregisterCallback(android.car.cluster.CarInstrumentClusterManager.Callback) throws android.car.CarNotConnectedException;
-    field public static final String CATEGORY_NAVIGATION = "android.car.cluster.NAVIGATION";
-    field public static final String KEY_EXTRA_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
+  @Deprecated public class CarInstrumentClusterManager {
+    method @Deprecated public void registerCallback(String, android.car.cluster.CarInstrumentClusterManager.Callback) throws android.car.CarNotConnectedException;
+    method @Deprecated public void startActivity(android.content.Intent) throws android.car.CarNotConnectedException;
+    method @Deprecated public void unregisterCallback(android.car.cluster.CarInstrumentClusterManager.Callback) throws android.car.CarNotConnectedException;
+    field @Deprecated public static final String CATEGORY_NAVIGATION = "android.car.cluster.NAVIGATION";
+    field @Deprecated public static final String KEY_EXTRA_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
   }
 
-  public static interface CarInstrumentClusterManager.Callback {
-    method public void onClusterActivityStateChanged(String, android.os.Bundle);
+  @Deprecated public static interface CarInstrumentClusterManager.Callback {
+    method @Deprecated public void onClusterActivityStateChanged(String, android.os.Bundle);
   }
 
 }
 
 package android.car.cluster.renderer {
 
-  public abstract class InstrumentClusterRenderer {
-    ctor public InstrumentClusterRenderer();
-    method protected abstract android.car.cluster.renderer.NavigationRenderer createNavigationRenderer();
-    method @Nullable public android.car.cluster.renderer.NavigationRenderer getNavigationRenderer();
-    method @UiThread public final void initialize();
-    method public abstract void onCreate(android.content.Context);
-    method public abstract void onStart();
-    method public abstract void onStop();
+  @Deprecated public abstract class InstrumentClusterRenderer {
+    ctor @Deprecated public InstrumentClusterRenderer();
+    method @Deprecated protected abstract android.car.cluster.renderer.NavigationRenderer createNavigationRenderer();
+    method @Deprecated @Nullable public android.car.cluster.renderer.NavigationRenderer getNavigationRenderer();
+    method @Deprecated @UiThread public final void initialize();
+    method @Deprecated public abstract void onCreate(android.content.Context);
+    method @Deprecated public abstract void onStart();
+    method @Deprecated public abstract void onStop();
   }
 
   public abstract class InstrumentClusterRenderingService extends android.app.Service {
     ctor public InstrumentClusterRenderingService();
-    method @MainThread protected abstract android.car.cluster.renderer.NavigationRenderer getNavigationRenderer();
+    method @MainThread @Nullable public abstract android.car.cluster.renderer.NavigationRenderer getNavigationRenderer();
     method @CallSuper public android.os.IBinder onBind(android.content.Intent);
-    method @MainThread protected void onKeyEvent(android.view.KeyEvent);
+    method @MainThread public void onKeyEvent(@NonNull android.view.KeyEvent);
+    method @MainThread public void onNavigationComponentLaunched();
+    method @MainThread public void onNavigationComponentReleased();
+    method protected boolean startNavigationActivity(@NonNull android.content.ComponentName);
   }
 
   @UiThread public abstract class NavigationRenderer {

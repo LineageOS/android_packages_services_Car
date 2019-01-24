@@ -16,8 +16,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="android.car.cluster.sample"
-      android:versionCode="1"
-      android:versionName="1.0">
+    android:sharedUserId="android.uid.system">
 
     <uses-sdk android:targetSdkVersion="25" android:minSdkVersion="25"/>
 
