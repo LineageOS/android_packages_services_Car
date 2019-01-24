@@ -11,6 +11,7 @@ import android.app.Person;
 import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -156,8 +157,14 @@ public class NotificationFragment extends Fragment {
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Person personJohn = new Person.Builder().setName("John Doe").build();
-            Person personJane = new Person.Builder().setName("Jane Roe").build();
+            Person personJohn = new Person.Builder()
+                    .setName("John Doe")
+                    .setIcon(Icon.createWithResource(v.getContext(), R.drawable.avatar1))
+                    .build();
+            Person personJane = new Person.Builder()
+                    .setName("Jane Roe")
+                    .setIcon(Icon.createWithResource(v.getContext(), R.drawable.avatar2))
+                    .build();
             Notification.MessagingStyle messagingStyle =
                     new Notification.MessagingStyle(personJohn)
                             .setConversationTitle("Whassup")
