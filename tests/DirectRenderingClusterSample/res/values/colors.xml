@@ -9,4 +9,7 @@
     <color name="icon_selected">#6EDDFF</color>
     <color name="icon_unselected">#1B378A</color>
 
+    <!-- LaneView highlight colors -->
+    <color name="laneDirection">#888888</color>
+    <color name="laneDirectionHighlighted">#FFFFFF</color>
 </resources>

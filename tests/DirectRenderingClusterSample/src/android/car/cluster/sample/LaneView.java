@@ -19,7 +19,8 @@ import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.util.AttributeSet;
@@ -60,7 +61,6 @@ public class LaneView extends LinearLayout {
         for (Lane lane : mLanes) {
             Bitmap bitmap = combineBitmapFromLane(lane);
             ImageView imgView = new ImageView(getContext());
-            imgView.setColorFilter(Color.WHITE);
             imgView.setImageBitmap(bitmap);
             imgView.setAdjustViewBounds(true);
             addView(imgView);
@@ -68,23 +68,37 @@ public class LaneView extends LinearLayout {
     }
 
     private Bitmap combineBitmapFromLane(Lane lane) {
-        Bitmap bitmap = null;
-        Canvas canvas = null;
+        if (lane.getDirections().isEmpty()) {
+            return null;
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
 
         for (LaneDirection laneDir : lane.getDirections()) {
-            VectorDrawable icon = (VectorDrawable) getLaneIcon(laneDir);
-
-            icon.setBounds(0, 0, mWidth, mHeight);
-
-            if (bitmap == null) {
-                bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
-                canvas = new Canvas(bitmap);
+            if (!laneDir.isHighlighted()) {
+                drawToCanvas(laneDir, canvas, false);
             }
+        }
 
-            icon.draw(canvas);
+        for (LaneDirection laneDir : lane.getDirections()) {
+            if (laneDir.isHighlighted()) {
+                drawToCanvas(laneDir, canvas, true);
+            }
         }
 
         return bitmap;
+    }
+
+
+    private void drawToCanvas(LaneDirection laneDir, Canvas canvas, boolean isHighlighted) {
+        VectorDrawable icon = (VectorDrawable) getLaneIcon(laneDir);
+        icon.setBounds(0, 0, mWidth, mHeight);
+        icon.setColorFilter(new PorterDuffColorFilter(isHighlighted
+                ? getContext().getColor(R.color.laneDirectionHighlighted)
+                : getContext().getColor(R.color.laneDirection),
+                PorterDuff.Mode.SRC_ATOP));
+        icon.draw(canvas);
     }
 
     private Drawable getLaneIcon(@Nullable LaneDirection laneDir) {
