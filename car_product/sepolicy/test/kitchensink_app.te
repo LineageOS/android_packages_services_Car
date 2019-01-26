@@ -1,5 +1,6 @@
 # Domain to run EmbeddedKitchenSink app (for test-purpose)
 type kitchensink_app, domain;
+type kitchensink_app_tmpfs, file_type;
 app_domain(kitchensink_app);
 
 # Allow Car Service to be the client of Vehicle HAL
