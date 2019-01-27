@@ -71,7 +71,7 @@ public class NavStateController {
         mManeuver.setImageDrawable(getManeuverIcon(step != null ? step.getManeuver() : null));
         mDistance.setText(formatDistance(step != null ? step.getDistance() : null));
         mSegment.setText(getSegmentString(state.getCurrentSegment()));
-        mCue.setRichText(step.getCue());
+        mCue.setRichText(step != null ? step.getCue() : null);
 
         if (step.getLanes().size() > 0) {
             mLane.setLanes(step.getLanes());

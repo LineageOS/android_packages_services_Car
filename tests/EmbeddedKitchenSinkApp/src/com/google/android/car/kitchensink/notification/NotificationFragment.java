@@ -1,213 +1,400 @@
 package com.google.android.car.kitchensink.notification;
 
-import static android.security.KeyStore.getApplicationContext;
-
 import android.annotation.Nullable;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Person;
-import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationCompat.Action;
+import androidx.core.app.NotificationCompat.MessagingStyle;
+import androidx.core.app.Person;
+import androidx.core.app.RemoteInput;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
+import java.util.HashMap;
+
 /**
  * Test fragment that can send all sorts of notifications.
  */
 public class NotificationFragment extends Fragment {
-    private static final String CHANNEL_ID_1 = "kitchensink.channel1";
-    private static final String CHANNEL_ID_2 = "kitchensink.channel2";
-    private static final String CHANNEL_ID_3 = "kitchensink.channel3";
-    private static final String CHANNEL_ID_4 = "kitchensink.channel4";
-    private static final String CHANNEL_ID_5 = "kitchensink.channel5";
-    private static final String CHANNEL_ID_6 = "kitchensink.channel6";
+    private static final String IMPORTANCE_HIGH_ID = "importance_high";
+    private static final String IMPORTANCE_HIGH_NO_SOUND_ID = "importance_high_no_sound";
+    private static final String IMPORTANCE_DEFAULT_ID = "importance_default";
+    private static final String IMPORTANCE_LOW_ID = "importance_low";
+    private static final String IMPORTANCE_MIN_ID = "importance_min";
+    private static final String IMPORTANCE_NONE_ID = "importance_none";
+    private int mCurrentNotificationId = 0;
+    private NotificationManager mManager;
+    private Context mContext;
+    private Handler mHandler = new Handler();
+    private HashMap<Integer, Runnable> mUpdateRunnables = new HashMap<>();
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mManager =
+                (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        mContext = getActivity();
+
+        mManager.createNotificationChannel(new NotificationChannel(
+                IMPORTANCE_HIGH_ID, "Importance High", NotificationManager.IMPORTANCE_HIGH));
+
+        NotificationChannel noSoundChannel = new NotificationChannel(
+                IMPORTANCE_HIGH_NO_SOUND_ID, "No sound", NotificationManager.IMPORTANCE_HIGH);
+        noSoundChannel.setSound(null, null);
+        mManager.createNotificationChannel(noSoundChannel);
+
+        mManager.createNotificationChannel(new NotificationChannel(
+                IMPORTANCE_DEFAULT_ID,
+                "Importance Default",
+                NotificationManager.IMPORTANCE_DEFAULT));
+
+        mManager.createNotificationChannel(new NotificationChannel(
+                IMPORTANCE_LOW_ID, "Importance Low", NotificationManager.IMPORTANCE_LOW));
+
+        mManager.createNotificationChannel(new NotificationChannel(
+                IMPORTANCE_MIN_ID, "Importance Min", NotificationManager.IMPORTANCE_MIN));
+
+        mManager.createNotificationChannel(new NotificationChannel(
+                IMPORTANCE_NONE_ID, "Importance None", NotificationManager.IMPORTANCE_NONE));
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.notification_fragment, container, false);
-        Button cancelAllButton = view.findViewById(R.id.cancel_all_button);
-        Button importanceHighButton = view.findViewById(R.id.importance_high_button);
-        Button importanceHighButton2 = view.findViewById(R.id.importance_high_button_2);
-        Button importanceLowButton = view.findViewById(R.id.importance_low_button);
-        Button importanceMinButton = view.findViewById(R.id.importance_min_button);
-        Button importanceDefaultButton = view.findViewById(R.id.importance_default_button);
-        Button ongoingButton = view.findViewById(R.id.ongoing_button);
-        Button messageButton = view.findViewById(R.id.category_message_button);
-        Button emerg = view.findViewById(R.id.category_car_emerg_button);
-        Button warn = view.findViewById(R.id.category_car_warning_button);
 
-        NotificationManager manager =
-                (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        initCancelAllButton(view);
 
-        // cancel all button
-        cancelAllButton.setOnClickListener(v -> manager.cancelAll());
+        initCarCategoriesButton(view);
 
-        // importance high notifications
-        NotificationChannel highImportanceChannel =
-                new NotificationChannel(
-                        CHANNEL_ID_1, "Importance High", NotificationManager.IMPORTANCE_HIGH);
-        manager.createNotificationChannel(highImportanceChannel);
+        initImportanceHighBotton(view);
+        initImportanceDefaultButton(view);
+        initImportanceLowButton(view);
+        initImportanceMinButton(view);
 
-        importanceHighButton.setOnClickListener(v -> {
+        initOngoingButton(view);
+        initMessagingStyleButton(view);
+        initProgressButton(view);
+        initNavigationButton(view);
 
-            Notification notification = new Notification.Builder(getActivity(), CHANNEL_ID_1)
-                    .setContentTitle("Importance High")
-                    .setContentText("blah")
+        return view;
+    }
+
+    private void initCancelAllButton(View view) {
+        view.findViewById(R.id.cancel_all_button).setOnClickListener(v -> {
+            for (Runnable runnable : mUpdateRunnables.values()) {
+                mHandler.removeCallbacks(runnable);
+            }
+            mUpdateRunnables.clear();
+            mManager.cancelAll();
+        });
+    }
+
+    private void initCarCategoriesButton(View view) {
+        view.findViewById(R.id.category_car_emergency_button).setOnClickListener(v -> {
+            Notification notification = new Notification
+                    .Builder(getActivity(), IMPORTANCE_DEFAULT_ID)
+                    .setContentTitle("Car Emergency")
+                    .setContentText("Shows heads-up; Shows on top of the list; Does not group")
+                    .setCategory(Notification.CATEGORY_CAR_EMERGENCY)
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .build();
-            manager.notify(1, notification);
+            mManager.notify(mCurrentNotificationId++, notification);
         });
 
-        importanceHighButton2.setOnClickListener(v -> {
-            Notification notification = new Notification.Builder(getActivity(), CHANNEL_ID_1)
-                    .setContentTitle("Importance High 2")
-                    .setContentText("blah blah blah")
+        view.findViewById(R.id.category_car_warning_button).setOnClickListener(v -> {
+
+            Notification notification = new Notification
+                    .Builder(getActivity(), IMPORTANCE_MIN_ID)
+                    .setContentTitle("Car Warning")
+                    .setContentText(
+                            "Shows heads-up; Shows on top of the list but below Car Emergency; "
+                                    + "Does not group")
+                    .setCategory(Notification.CATEGORY_CAR_WARNING)
+                    .setColor(mContext.getColor(android.R.color.holo_orange_dark))
+                    .setColorized(true)
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .build();
-            manager.notify(2, notification);
+            mManager.notify(mCurrentNotificationId++, notification);
         });
 
-        // importance default
-        importanceDefaultButton.setOnClickListener(v -> {
-            NotificationChannel channel =
-                    new NotificationChannel(
-                            CHANNEL_ID_3,
-                            "Importance Default",
-                            NotificationManager.IMPORTANCE_DEFAULT);
-            manager.createNotificationChannel(channel);
-
-            Notification notification = new Notification.Builder(getActivity(), CHANNEL_ID_3)
-                    .setContentTitle("Importance Default")
+        view.findViewById(R.id.category_car_info_button).setOnClickListener(v -> {
+            Notification notification = new Notification
+                    .Builder(getActivity(), IMPORTANCE_DEFAULT_ID)
+                    .setContentTitle("Car information")
+                    .setContentText("Doesn't show heads-up; Importance Default; Groups")
+                    .setCategory(Notification.CATEGORY_CAR_INFORMATION)
+                    .setColor(mContext.getColor(android.R.color.holo_orange_light))
+                    .setColorized(true)
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .build();
-            manager.notify(4, notification);
+            mManager.notify(mCurrentNotificationId++, notification);
         });
 
-        // importance low
-        importanceLowButton.setOnClickListener(v -> {
-            NotificationChannel channel =
-                    new NotificationChannel(
-                            CHANNEL_ID_4, "Importance Low", NotificationManager.IMPORTANCE_LOW);
-            manager.createNotificationChannel(channel);
+    }
 
-            Notification notification = new Notification.Builder(getActivity(), CHANNEL_ID_4)
+    private void initImportanceHighBotton(View view) {
+        Intent mIntent = new Intent(getActivity(), KitchenSinkActivity.class);
+        PendingIntent mPendingIntent = PendingIntent.getActivity(getActivity(), 0, mIntent, 0);
+
+        Notification notification1 = new Notification
+                .Builder(getActivity(), IMPORTANCE_HIGH_ID)
+                .setContentTitle("Importance High: Shows as a heads-up")
+                .setContentText(
+                        "Each click generates a new notification. And some "
+                                + "looooooong text. "
+                                + "Loooooooooooooooooooooong. "
+                                + "Loooooooooooooooooooooooooooooooooooooooooooooooooong.")
+                .setSmallIcon(R.drawable.car_ic_mode)
+                .addAction(
+                        new Notification.Action.Builder(
+                                null, "Long Action (no-op)", mPendingIntent).build())
+                .addAction(
+                        new Notification.Action.Builder(
+                                null, "Action (no-op)", mPendingIntent).build())
+                .addAction(
+                        new Notification.Action.Builder(
+                                null, "Long Action (no-op)", mPendingIntent).build())
+                .setColor(mContext.getColor(android.R.color.holo_red_light))
+                .build();
+
+        view.findViewById(R.id.importance_high_button).setOnClickListener(
+                v -> mManager.notify(mCurrentNotificationId++, notification1)
+        );
+    }
+
+    private void initImportanceDefaultButton(View view) {
+        view.findViewById(R.id.importance_default_button).setOnClickListener(v -> {
+            Notification notification = new Notification
+                    .Builder(getActivity(), IMPORTANCE_DEFAULT_ID)
+                    .setContentTitle("No heads-up; Importance Default; Groups")
+                    .setSmallIcon(R.drawable.car_ic_mode)
+                    .build();
+            mManager.notify(mCurrentNotificationId++, notification);
+        });
+    }
+
+    private void initImportanceLowButton(View view) {
+        view.findViewById(R.id.importance_low_button).setOnClickListener(v -> {
+
+            Notification notification = new Notification.Builder(getActivity(), IMPORTANCE_LOW_ID)
                     .setContentTitle("Importance Low")
-                    .setContentText("low low low")
+                    .setContentText("No heads-up; Below Importance Default; Groups")
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .build();
-            manager.notify(5, notification);
+            mManager.notify(mCurrentNotificationId++, notification);
         });
+    }
 
-        // importance min
-        importanceMinButton.setOnClickListener(v -> {
-            NotificationChannel channel =
-                    new NotificationChannel(
-                            CHANNEL_ID_5, "Importance Min", NotificationManager.IMPORTANCE_MIN);
-            manager.createNotificationChannel(channel);
+    private void initImportanceMinButton(View view) {
+        view.findViewById(R.id.importance_min_button).setOnClickListener(v -> {
 
-            Notification notification = new Notification.Builder(getActivity(), CHANNEL_ID_5)
+            Notification notification = new Notification.Builder(getActivity(), IMPORTANCE_MIN_ID)
                     .setContentTitle("Importance Min")
-                    .setContentText("min min min")
+                    .setContentText("No heads-up; Below Importance Low; Groups")
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .build();
-            manager.notify(6, notification);
+            mManager.notify(mCurrentNotificationId++, notification);
         });
+    }
 
-        // ongoing
-        ongoingButton.setOnClickListener(v -> {
-            NotificationChannel channel =
-                    new NotificationChannel(
-                            CHANNEL_ID_6, "Ongoing", NotificationManager.IMPORTANCE_DEFAULT);
-            manager.createNotificationChannel(channel);
+    private void initOngoingButton(View view) {
+        view.findViewById(R.id.ongoing_button).setOnClickListener(v -> {
 
-            Notification notification = new Notification.Builder(getActivity(), CHANNEL_ID_6)
-                    .setContentTitle("Playing music or something")
+            Notification notification = new Notification
+                    .Builder(getActivity(), IMPORTANCE_DEFAULT_ID)
+                    .setContentTitle("Persistent/Ongoing Notification")
+                    .setContentText("Cannot be dismissed; No heads-up; Importance default; Groups")
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .setOngoing(true)
                     .build();
-            manager.notify(7, notification);
+            mManager.notify(mCurrentNotificationId++, notification);
         });
+    }
 
-        // category message
-        messageButton.setOnClickListener(v -> {
-            NotificationChannel channel =
-                    new NotificationChannel(
-                            CHANNEL_ID_2, "Message", NotificationManager.IMPORTANCE_HIGH);
-            manager.createNotificationChannel(channel);
+    private void initMessagingStyleButton(View view) {
+        int id = mCurrentNotificationId++;
 
-            Intent intent = new Intent(getActivity(), KitchenSinkActivity.class);
-            PendingIntent readIntent = PendingIntent.getActivity(getActivity(), 0, intent, 0);
+        view.findViewById(R.id.category_message_button).setOnClickListener(v -> {
 
-            RemoteInput remoteInput = new RemoteInput.Builder("voice reply").build();
-            PendingIntent replyIntent = PendingIntent.getBroadcast(getApplicationContext(),
-                    12345,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent replyIntent = createServiceIntent(id, "reply");
+            PendingIntent markAsReadIntent = createServiceIntent(id, "read");
 
-            Person personJohn = new Person.Builder().setName("John Doe").build();
-            Person personJane = new Person.Builder().setName("Jane Roe").build();
-            Notification.MessagingStyle messagingStyle =
-                    new Notification.MessagingStyle(personJohn)
-                            .setConversationTitle("Whassup")
-                            .addHistoricMessage(
-                                    new Notification.MessagingStyle.Message(
-                                            "historic message",
+            Person personJohn = new Person.Builder()
+                    .setName("John Doe")
+                    .build();
+            Person personJane = new Person.Builder()
+                    .setName("Jane Roe")
+                    .build();
+            MessagingStyle messagingStyle =
+                    new MessagingStyle(personJohn)
+                            .setConversationTitle("Heads-up: New Message")
+                            .addMessage(
+                                    new MessagingStyle.Message(
+                                            "The meaning of life, or the answer to the question"
+                                                    + "What is the meaning of life?, pertains to "
+                                                    + "the significance of living or existence in"
+                                                    + " general. Many other related questions "
+                                                    + "include: Why are we here?, What is "
+                                                    + "life all about?, or What is the "
+                                                    + "purpose of existence?",
                                             System.currentTimeMillis() - 3600,
                                             personJohn))
-                            .addMessage(new Notification.MessagingStyle.Message(
-                                    "message", System.currentTimeMillis(), personJane));
+                            .addMessage(
+                                    new MessagingStyle.Message(
+                                            "Importance High; Groups", System.currentTimeMillis(),
+                                            personJane));
 
-            Notification notification = new Notification.Builder(getActivity(), CHANNEL_ID_2)
+            NotificationCompat.Builder notification = new NotificationCompat
+                    .Builder(getActivity(), IMPORTANCE_HIGH_ID)
                     .setContentTitle("Message from someone")
                     .setContentText("hi")
+                    .setShowWhen(true)
                     .setCategory(Notification.CATEGORY_MESSAGE)
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .setStyle(messagingStyle)
                     .setAutoCancel(true)
+                    .setColor(mContext.getColor(android.R.color.holo_green_light))
                     .addAction(
-                            new Notification.Action.Builder(null, "read", readIntent).build())
+                            new Action.Builder(R.drawable.ic_check_box, "read", markAsReadIntent)
+                                    .setSemanticAction(Action.SEMANTIC_ACTION_MARK_AS_READ)
+                                    .setShowsUserInterface(false)
+                                    .build())
                     .addAction(
-                            new Notification.Action.Builder(null, "reply", replyIntent)
-                                    .addRemoteInput(remoteInput).build())
-                    .extend(new Notification.CarExtender().setColor(R.color.car_red_500))
-                    .build();
-            manager.notify(3, notification);
+                            new Action.Builder(R.drawable.ic_check_box, "reply", replyIntent)
+                                    .setSemanticAction(Action.SEMANTIC_ACTION_REPLY)
+                                    .setShowsUserInterface(false)
+                                    .addRemoteInput(new RemoteInput.Builder("input").build())
+                                    .build());
+
+            mManager.notify(id, notification.build());
         });
+    }
 
-        emerg.setOnClickListener(v -> {
+    private PendingIntent createServiceIntent(int notificationId, String action) {
+        Intent intent = new Intent(mContext, KitchenSinkActivity.class).setAction(action);
 
-            Notification notification = new Notification.Builder(getActivity(), CHANNEL_ID_1)
-                    .setContentTitle("OMG")
-                    .setContentText("This is of top importance")
-                    .setCategory(Notification.CATEGORY_CAR_EMERGENCY)
+        return PendingIntent.getForegroundService(mContext, notificationId, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    private void initProgressButton(View view) {
+        view.findViewById(R.id.progress_button).setOnClickListener(v -> {
+            int id = mCurrentNotificationId++;
+
+            Notification notification = new Notification
+                    .Builder(getActivity(), IMPORTANCE_DEFAULT_ID)
+                    .setContentTitle("Progress")
+                    .setContentText("Doesn't show heads-up; Importance Default; Groups")
+                    .setProgress(100, 0, false)
+                    .setColor(mContext.getColor(android.R.color.holo_purple))
+                    .setContentInfo("0%")
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .build();
-            manager.notify(10, notification);
+            mManager.notify(id, notification);
+
+            Runnable runnable = new Runnable() {
+                int mProgress = 0;
+
+                @Override
+                public void run() {
+                    Notification updateNotification = new Notification
+                            .Builder(getActivity(), IMPORTANCE_DEFAULT_ID)
+                            .setContentTitle("Progress")
+                            .setContentText("Doesn't show heads-up; Importance Default; Groups")
+                            .setProgress(100, mProgress, false)
+                            .setColor(mContext.getColor(android.R.color.holo_purple))
+                            .setContentInfo(mProgress + "%")
+                            .setSmallIcon(R.drawable.car_ic_mode)
+                            .build();
+                    mManager.notify(id, updateNotification);
+                    mProgress += 5;
+                    if (mProgress <= 100) {
+                        mHandler.postDelayed(this, 1000);
+                    }
+                }
+            };
+            mUpdateRunnables.put(id, runnable);
+            mHandler.post(runnable);
         });
+    }
 
-        warn.setOnClickListener(v -> {
+    private void initNavigationButton(View view) {
+        view.findViewById(R.id.navigation_button).setOnClickListener(v -> {
+            int id = mCurrentNotificationId++;
 
-            Notification notification = new Notification.Builder(getActivity(), CHANNEL_ID_1)
-                    .setContentTitle("OMG -ish ")
-                    .setContentText("This is of less importance but still")
-                    .setCategory(Notification.CATEGORY_CAR_WARNING)
+            Notification notification = new Notification
+                    .Builder(getActivity(), IMPORTANCE_HIGH_ID)
+                    .setContentTitle("Navigation")
+                    .setContentText("Turn right in 900 ft")
+                    .setColor(mContext.getColor(android.R.color.holo_green_dark))
+                    .setColorized(true)
+                    .setSubText("900 ft")
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .build();
-            manager.notify(11, notification);
-        });
+            mManager.notify(id, notification);
 
-        return view;
+            Runnable rightTurnRunnable = new Runnable() {
+                int mDistance = 800;
+
+                @Override
+                public void run() {
+                    Notification updateNotification = new Notification
+                            .Builder(getActivity(), IMPORTANCE_HIGH_NO_SOUND_ID)
+                            .setContentTitle("Navigation")
+                            .setContentText("Turn right in " + mDistance + " ft")
+                            .setColor(mContext.getColor(android.R.color.holo_green_dark))
+                            .setColorized(true)
+                            .setSubText(mDistance + " ft")
+                            .setSmallIcon(R.drawable.car_ic_mode)
+                            .build();
+                    mManager.notify(id, updateNotification);
+                    mDistance -= 100;
+                    if (mDistance >= 0) {
+                        mHandler.postDelayed(this, 1000);
+                    }
+                }
+            };
+
+            Runnable exitRunnable = new Runnable() {
+                int mDistance = 9;
+
+                @Override
+                public void run() {
+                    Notification updateNotification = new Notification
+                            .Builder(getActivity(), IMPORTANCE_HIGH_NO_SOUND_ID)
+                            .setContentTitle("Navigation")
+                            .setContentText("Exit in " + mDistance + " miles")
+                            .setColor(mContext.getColor(android.R.color.holo_green_dark))
+                            .setColorized(true)
+                            .setSubText(mDistance + " miles")
+                            .setSmallIcon(R.drawable.car_ic_mode)
+                            .build();
+                    mManager.notify(id, updateNotification);
+                    mDistance -= 1;
+                    if (mDistance >= 0) {
+                        mHandler.postDelayed(this, 1000);
+                    }
+                }
+            };
+
+            mUpdateRunnables.put(id, rightTurnRunnable);
+            mUpdateRunnables.put(id, exitRunnable);
+            mHandler.postDelayed(rightTurnRunnable, 1000);
+            mHandler.postDelayed(exitRunnable, 10000);
+        });
     }
 }

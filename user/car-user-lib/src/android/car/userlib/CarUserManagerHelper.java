@@ -68,6 +68,17 @@ public class CarUserManagerHelper {
     );
 
     /**
+     * Additional optional set of restrictions for Non-Admin users.
+     */
+    public static final Set<String> OPTIONAL_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
+            UserManager.DISALLOW_ADD_USER,
+            UserManager.DISALLOW_OUTGOING_CALLS,
+            UserManager.DISALLOW_SMS,
+            UserManager.DISALLOW_INSTALL_APPS,
+            UserManager.DISALLOW_UNINSTALL_APPS
+    );
+
+    /**
      * Default set of restrictions for Guest users.
      */
     private static final Set<String> DEFAULT_GUEST_RESTRICTIONS = Sets.newArraySet(
@@ -733,6 +744,7 @@ public class CarUserManagerHelper {
 
         // Remove restrictions imposed on non-admins.
         setDefaultNonAdminRestrictions(user, /* enable= */ false);
+        setOptionalNonAdminRestrictions(user, /* enable= */ false);
     }
 
     /**
@@ -805,6 +817,18 @@ public class CarUserManagerHelper {
      */
     private void setDefaultNonAdminRestrictions(UserInfo userInfo, boolean enable) {
         for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
+            setUserRestriction(userInfo, restriction, enable);
+        }
+    }
+
+    /**
+     * Sets the values of settings controllable restrictions to the passed in value.
+     *
+     * @param userInfo User to set restrictions on.
+     * @param enable If true, restriction is ON, If false, restriction is OFF.
+     */
+    private void setOptionalNonAdminRestrictions(UserInfo userInfo, boolean enable) {
+        for (String restriction : OPTIONAL_NON_ADMIN_RESTRICTIONS) {
             setUserRestriction(userInfo, restriction, enable);
         }
     }
