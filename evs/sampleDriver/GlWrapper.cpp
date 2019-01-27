@@ -207,8 +207,12 @@ bool GlWrapper::initialize() {
     }
 
     // Get main display parameters.
-    sp <IBinder> mainDpy = SurfaceComposerClient::getBuiltInDisplay(
-            ISurfaceComposer::eDisplayIdMain);
+    sp<IBinder> mainDpy = SurfaceComposerClient::getInternalDisplayToken();
+    if (mainDpy == nullptr) {
+        ALOGE("ERROR: no internal display");
+        return false;
+    }
+
     DisplayInfo mainDpyInfo;
     err = SurfaceComposerClient::getDisplayInfo(mainDpy, &mainDpyInfo);
     if (err != NO_ERROR) {
