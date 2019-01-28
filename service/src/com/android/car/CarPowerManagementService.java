@@ -244,7 +244,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void handleWaitForVhal(CpmsState state) {
         int carPowerStateListenerState = state.mCarPowerStateListenerState;
-        sendPowerManagerEvent(carPowerStateListenerState, false);
+        sendPowerManagerEvent(carPowerStateListenerState);
         // Inspect CarPowerStateListenerState to decide which message to send via VHAL
         switch (carPowerStateListenerState) {
             case CarPowerStateListener.WAIT_FOR_VHAL:
@@ -261,7 +261,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void handleOn() {
         mSystemInterface.setDisplayState(true);
-        sendPowerManagerEvent(CarPowerStateListener.ON, false);
+        sendPowerManagerEvent(CarPowerStateListener.ON);
         mHal.sendOn();
     }
 
@@ -273,7 +273,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 || !newState.mCanSleep;
         if (newState.mCanPostpone) {
             Log.i(CarLog.TAG_POWER, "starting shutdown postpone");
-            sendPowerManagerEvent(CarPowerStateListener.SHUTDOWN_PREPARE, true);
+            sendPowerManagerEvent(CarPowerStateListener.SHUTDOWN_PREPARE);
             mHal.sendShutdownPrepare();
             doHandlePreprocessing();
         } else {
@@ -290,7 +290,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void handleWaitForFinish(CpmsState state) {
-        sendPowerManagerEvent(state.mCarPowerStateListenerState, false);
+        sendPowerManagerEvent(state.mCarPowerStateListenerState);
         switch (state.mCarPowerStateListenerState) {
             case CarPowerStateListener.SUSPEND_ENTER:
                 mHal.sendSleepEntry(mNextWakeupSec);
@@ -333,26 +333,46 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void sendPowerManagerEvent(int newState, boolean useTokens) {
+    private void sendPowerManagerEvent(int newState) {
+        // Based on new state, do we need to use tokens? In current design, SHUTDOWN_PREPARE
+        // is the only state where we need to maintain callback from listener components.
+        boolean useTokens = (newState == CarPowerStateListener.SHUTDOWN_PREPARE);
+
+        // First lets generate the tokens
+        generateTokensList(useTokens);
+
+        // Now lets notify listeners that we are making a state transition
+        sendBroadcasts(newState, useTokens);
+    }
+
+    private void generateTokensList(boolean useTokens) {
         synchronized (mPowerManagerListenerTokens) {
             if (useTokens) {
                 mPowerManagerListenerTokens.clear();
             }
             int i = mPowerManagerListeners.beginBroadcast();
             while (i-- > 0) {
+                ICarPowerStateListener listener = mPowerManagerListeners.getBroadcastItem(i);
+                if (useTokens) {
+                    mPowerManagerListenerTokens.put(listener.asBinder(), mTokenValue);
+                    mTokenValue++;
+                }
+            }
+            mPowerManagerListeners.finishBroadcast();
+        }
+    }
+
+    private void sendBroadcasts(int newState, boolean useTokens) {
+        synchronized (mPowerManagerListenerTokens) {
+            int i = mPowerManagerListeners.beginBroadcast();
+            while (i-- > 0) {
+                ICarPowerStateListener listener = mPowerManagerListeners.getBroadcastItem(i);
+                int token = useTokens ? mPowerManagerListenerTokens.get(listener.asBinder()) : 0;
                 try {
-                    int token = 0;
-                    ICarPowerStateListener listener = mPowerManagerListeners.getBroadcastItem(i);
-                    if (useTokens) {
-                        mPowerManagerListenerTokens.put(listener.asBinder(), mTokenValue);
-                        listener.onStateChanged(newState, mTokenValue);
-                        mTokenValue++;
-                    } else {
-                        listener.onStateChanged(newState, 0);
-                    }
+                    listener.onStateChanged(newState, token);
                 } catch (RemoteException e) {
                     // Its likely the connection snapped. Let binder death handle the situation.
-                    Log.e(CarLog.TAG_POWER, "onStateChanged calling failed: " + e);
+                    Log.e(CarLog.TAG_POWER, "onStateChanged() call failed: " + e, e);
                 }
             }
             mPowerManagerListeners.finishBroadcast();
@@ -472,7 +492,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public void registerListener(ICarPowerStateListener listener) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         mPowerManagerListeners.register(listener);
-        // TODO:  Need to send current state to newly registered listener?  If so, need to handle
+        // TODO: Need to send current state to newly registered listener?  If so, need to handle
         //          token for SHUTDOWN_PREPARE state
     }
 
