@@ -781,6 +781,9 @@ public class CarUserManagerHelper {
             return null;
         }
         assignDefaultIcon(user);
+
+        // Set disallow background run for admin users, users will be killed when switched away.
+        setUserRestriction(user, UserManager.DISALLOW_RUN_IN_BACKGROUND, /* enable= */ true);
         return user;
     }
 
