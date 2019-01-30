@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_title" translatable="false">Car service</string>
     <!--  For permissions -->
     <!-- Permission text: can access your car's information [CHAR LIMIT=NONE] -->
@@ -105,11 +105,13 @@
         box and restart the car</string>
 
     <!-- Blocking activity: Message to show to user when a feature of current application is not allowed. [CHAR LIMIT=120] -->
-    <string name="activity_blocked_text">For your safety, this activity isn’t available while you’re driving</string>
+    <string name="activity_blocked_text">For your safety, this activity isn\'t available while driving.\nTo continue, wait until you\'re parked.</string>
+    <!-- Blocking activity: Message to accompany the exit_button that restarts the blocked app. [CHAR LIMIT=120] -->
+    <string name="exit_button_message">To start over with app features that can be used safely, select <xliff:g id="exit_button" example="Back">%s</xliff:g>.</string>
+    <!-- Blocking activity: Text for button that restarts the current blocked application. [CHAR LIMIT=15] -->
+    <string name="exit_button">Back</string>
     <!-- Blocking activity: Text for button that shows debug info for non-user build. [CHAR LIMIT=10] -->
     <string name="debug_button_text">Debug Info</string>
-    <!-- Blocking activity: Text for button that restarts the current blocked application. [CHAR LIMIT=15] -->
-    <string name="exit_button">Restart App</string>
 
     <!-- Permission text: apps can control diagnostic data [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_diag_read">Diagnostic Data</string>

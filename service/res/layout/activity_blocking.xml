@@ -20,16 +20,9 @@
     android:orientation="vertical"
     android:background="@color/activity_blocking_activity_background"
     android:gravity="center">
-    <TextView
-        android:id="@+id/blocking_text"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textAppearance="@style/ActivityBlockingActivityText" />
-
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_marginTop="@dimen/common_margin"
         android:orientation="horizontal"
         android:gravity="center">
         <ImageView
@@ -45,8 +38,23 @@
             android:textAppearance="@style/ActivityBlockingActivityText" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/blocking_text"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="@dimen/common_margin"
+        android:gravity="center"
+        android:textAppearance="@style/ActivityBlockingActivityText" />
+
+    <!-- Show exit button if we need to (and are able to) restart the blocked task -->
+    <TextView
+        android:id="@+id/exit_button_message"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="@dimen/common_margin"
+        android:textAppearance="@style/ActivityBlockingActivityText" />
     <Button
-        android:id="@+id/exit"
+        android:id="@+id/exit_button"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_marginTop="@dimen/common_margin"
