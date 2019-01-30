@@ -16,22 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_name (6963366455471441257) -->
-    <skip />
-    <!-- no translation found for usb_saved_devices (2829442070749964872) -->
-    <skip />
-    <!-- no translation found for usb_pref_delete_title (3885061814853467483) -->
-    <skip />
-    <!-- no translation found for usb_pref_delete_message (5849493572520646218) -->
-    <skip />
-    <!-- no translation found for usb_pref_delete_yes (7803356145103146036) -->
-    <skip />
-    <!-- no translation found for usb_pref_delete_cancel (5999791462730255929) -->
-    <skip />
-    <!-- no translation found for usb_resolving_handlers (1943100136172948686) -->
-    <skip />
-    <!-- no translation found for usb_unknown_device (4211439272338937095) -->
-    <skip />
+    <string name="app_name" msgid="6963366455471441257">"USB കൈകാര്യം ചെയ്യുന്ന സംവിധാനം"</string>
+    <string name="usb_saved_devices" msgid="2829442070749964872">"സംരക്ഷിച്ച ഉപകരണങ്ങൾ"</string>
+    <string name="usb_pref_delete_title" msgid="3885061814853467483">"USB ഉപകരണത്തിനായി, കൈകാര്യം ചെയ്യുന്ന ആപ്പ് നീക്കം ചെയ്യുക"</string>
+    <string name="usb_pref_delete_message" msgid="5849493572520646218">"%1$s എന്നതിനുള്ള ഡിഫോൾട്ടായ കൈകാര്യം ചെയ്യുന്ന സംവിധാനം മായ്ക്കണമെന്ന് നിങ്ങൾക്കുറപ്പാണോ?"</string>
+    <string name="usb_pref_delete_yes" msgid="7803356145103146036">"അതെ"</string>
+    <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"റദ്ദാക്കുക"</string>
+    <string name="usb_resolving_handlers" msgid="1943100136172948686">"പിന്തുണയുള്ള കൈകാര്യം ചെയ്യുന്ന സംവിധാനം ലഭ്യമാക്കുന്നു"</string>
+    <string name="usb_unknown_device" msgid="4211439272338937095">"അജ്ഞാത USB ഉപകരണം"</string>
   <string-array name="config_AoapIncompatibleDeviceIds">
     <item msgid="4267974637522344258">"18d1:9302"</item>
   </string-array>

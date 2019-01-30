@@ -16,22 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_name (6963366455471441257) -->
-    <skip />
-    <!-- no translation found for usb_saved_devices (2829442070749964872) -->
-    <skip />
-    <!-- no translation found for usb_pref_delete_title (3885061814853467483) -->
-    <skip />
-    <!-- no translation found for usb_pref_delete_message (5849493572520646218) -->
-    <skip />
-    <!-- no translation found for usb_pref_delete_yes (7803356145103146036) -->
-    <skip />
-    <!-- no translation found for usb_pref_delete_cancel (5999791462730255929) -->
-    <skip />
-    <!-- no translation found for usb_resolving_handlers (1943100136172948686) -->
-    <skip />
-    <!-- no translation found for usb_unknown_device (4211439272338937095) -->
-    <skip />
+    <string name="app_name" msgid="6963366455471441257">"USB-hjálparforrit"</string>
+    <string name="usb_saved_devices" msgid="2829442070749964872">"Vistuð tæki"</string>
+    <string name="usb_pref_delete_title" msgid="3885061814853467483">"Fjarlægja umsjónarforrit fyrir USB-tæki"</string>
+    <string name="usb_pref_delete_message" msgid="5849493572520646218">"Viltu örugglega eyða sjálfgefnu umsjónarforriti fyrir %1$s?"</string>
+    <string name="usb_pref_delete_yes" msgid="7803356145103146036">"Já"</string>
+    <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"Hætta við"</string>
+    <string name="usb_resolving_handlers" msgid="1943100136172948686">"Sækir studd hjálparforrit"</string>
+    <string name="usb_unknown_device" msgid="4211439272338937095">"Óþekkt USB-tæki"</string>
   <string-array name="config_AoapIncompatibleDeviceIds">
     <item msgid="4267974637522344258">"18d1:9302"</item>
   </string-array>

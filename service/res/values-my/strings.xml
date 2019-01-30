@@ -33,19 +33,19 @@
     <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"ယာဉ်၏ လှုပ်ရှားမှုစက်အား အခြေအနေ"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="2458601597024393569">"သင့်ကား၏ လှုပ်ရှားမှုစက်အားဆိုင်ရာ အခြေအနေကို အသုံးပြုပါမည်"</string>
     <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"ကားရောင်းချသူ ချန်နယ်"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="7223384502421767491">"ကား၏တိကျသည့် အချက်အလက်များဖလှယ်ရန်အတွက် သင့်ကားအား ရောင်းချခဲ့သည့် ချန်နယ်နှင့် ဆက်သွယ်ရန်"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="7223384502421767491">"ကား၏တိကျသည့် အချက်အလက်များဖလှယ်ရန်အတွက် သင့်ကားအား ရောင်းချခဲ့သည့် ချန်နယ်ကို အသုံးပြုရန်"</string>
     <string name="car_permission_label_radio" msgid="4768692394049267617">"ကားရေဒီယို"</string>
     <string name="car_permission_desc_radio" msgid="3544198603152937942">"သင့်ကား၏ ရေဒီယိုကို အသုံးပြုပါမည်။"</string>
     <string name="car_permission_label_projection" msgid="7830068427803303154">"ကားအား ပုံရိပ်ဖော်ပြသမှု"</string>
-    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"ကား၏ အသံအတိုးအကျယ်"</string>
-    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"ကား၏ အသံဆက်တင်များ"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"ကားတွင် အသံအတိုးအကျယ်"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"ကားတွင် အသံဆက်တင်များ"</string>
     <string name="car_permission_desc_projection" msgid="2680001094361534439">"ကားရှိ မျက်နှာပြင်ပြသမှုပေါ်တွင် ဖုန်းအင်တာဖေ့စ်ကို ဖော်ပြပါမည်။"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"ယာဉ်၏ \"HAL အလွှာ\" ကို အသွင်ယူလုပ်ဆောင်ရန်"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="3549687008625373417">"အတွင်းပိုင်းစမ်းသပ်မှုဆိုင်ရာ ရည်ရွယ်ချက်အတွက် သင့်ကား၏ \"HAL အလွှာ\"ကို အသွင်ယူလုပ်ဆောင်ပါ။"</string>
-    <string name="car_permission_desc_audio_volume" msgid="7484628324723179580">"သင့်ကား၏ အသံအတိုးအကျယ်ကို ထိန်းချုပ်ပါမည်။"</string>
-    <string name="car_permission_desc_audio_settings" msgid="2871870084988702516">"သင့်ကား၏ အသံဆက်တင်များကို ထိန်းချုပ်ပါမည်"</string>
+    <string name="car_permission_desc_audio_volume" msgid="7484628324723179580">"သင့်ကားတွင် အသံအတိုးအကျယ်ကို ထိန်းချုပ်ပါမည်။"</string>
+    <string name="car_permission_desc_audio_settings" msgid="2871870084988702516">"သင့်ကားတွင် အသံဆက်တင်များကို ထိန်းချုပ်ပါမည်"</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"အပလီကေးရှင်းကို ပိတ်ထားခြင်း"</string>
-    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"ကားမောင်းနေစဉ် အပလီကေးရှင်းပိတ်သိမ်းခြင်းကို ထိန်းချုပ်ပါမည်။"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"ကားမောင်းနေစဉ် အပလီကေးရှင်းပိတ်ထားခြင်းကို ထိန်းချုပ်ပါမည်။"</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"လမ်းညွှန်မှု မန်နေဂျာ"</string>
     <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"လမ်းညွှန်ချက်ဒေတာကို ကိရိယာအစုအဝေးထံသို့  သတင်းပို့ပါမည်"</string>
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"ကိရိယာပစ္စည်းများ အစုအဝေးကို တိုက်ရိုက်ပြင်ဆင်ခြင်း"</string>
@@ -60,7 +60,7 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"အချက်အလက်ထည့်သွင်းခြင်း အစီအစဉ်များကို စီမံပါမည်"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\"CAN bus\" စနစ် အသုံးပြုမှု မအောင်မြင်ပါ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus စနစ်က တုန့်ပြန်မှုမရှိပါ။ စက်အထိုင်ဘောက်စ်ကို ပလတ်ဖြုတ်ပြီး ပြန်တပ်ကာ ကားကို ပြန်လည်စတင်ပါ"</string>
-    <string name="activity_blocked_text" msgid="7117775117422916032">"လုံခြုံရေးအရ ဤလုပ်ဆောင်ချက်ကို ကားမောင်းနေစဉ် အသုံးမပြုခွင့်မရှိပါ။"</string>
+    <string name="activity_blocked_text" msgid="7117775117422916032">"လုံခြုံရေးအရ ဤလုပ်ဆောင်ချက်ကို ကားမောင်းနေစဉ် အသုံးပြုခွင့် မရှိပါ။"</string>
     <string name="debug_button_text" msgid="6395881820644544676">"တွေ့ရှိမှု"</string>
     <string name="exit_button" msgid="626660628135437972">"အက်ပ်ပြန်စရန်"</string>
     <string name="car_permission_label_diag_read" msgid="2539365760945541902">"စစ်ဆေးတွေ့ရှိသည့် ဒေတာ"</string>
@@ -68,10 +68,10 @@
     <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"စစ်ဆေးတွေ့ရှိသည့် ဒေတာ"</string>
     <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"ကားမှ စစ်ဆေးတွေ့ရှိသည့် ရှင်းလင်းပြတ်သားသောဒေတာ"</string>
     <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"VMS ထုတ်ဝေသူ"</string>
-    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"vms မက်ဆေ့ဂျ်များကို ထုတ်ဝေပါမည်"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"VMS မက်ဆေ့ဂျ်များကို ထုတ်ဝေပါမည်"</string>
     <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"\"VMS \" အတွက် စာရင်းသွင်းသူ"</string>
-    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"vms မက်ဆေ့ဂျ်များရယူရန်အတွက် စာရင်းသွင်းရန်"</string>
-    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"မြန်နှုန်းမြင့် သိုလှောင်မှုအား  စောင့်ကြပ်ခြင်း"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"VMS မက်ဆေ့ဂျ်များရယူရန်အတွက် စာရင်းသွင်းရန်"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"မြန်နှုန်းမြင့် သိုလှောင်မှုအား  စောင့်ကြည့်ခြင်း"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"မြန်နှုန်းမြင့်သိုလှောင်မှုအား အသုံးပြုခြင်းကို စောင့်ကြည့်ပါမည်"</string>
     <string name="car_permission_label_driving_state" msgid="6069696010591163256">"မောင်းနှင်မှုအခြေအနေ"</string>
     <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"\'မောင်းနှင်မှုဆိုင်ရာ\' အခြေအနေ ပြောင်းလဲမှုများကို နားထောင်ပါမည်"</string>

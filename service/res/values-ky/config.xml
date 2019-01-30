@@ -21,20 +21,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for inputService (3911088558664251138) -->
-    <skip />
-    <!-- no translation found for instrumentClusterRendererService (2610429499504752025) -->
-    <skip />
-    <!-- no translation found for activityBlockingActivity (1307583481022873450) -->
-    <skip />
-    <!-- no translation found for activityWhitelist (3812149730686980242) -->
-    <skip />
+    <string name="inputService" msgid="3911088558664251138">"android.car.input.service/.DefaultInputService"</string>
+    <string name="instrumentClusterRendererService" msgid="2610429499504752025">"android.car.cluster.loggingrenderer/.LoggingClusterRenderingService"</string>
+    <string name="activityBlockingActivity" msgid="1307583481022873450">"com.android.car/com.android.car.pm.ActivityBlockingActivity"</string>
+    <string name="activityWhitelist" msgid="3812149730686980242">"com.android.systemui,com.google.android.packageinstaller/com.android.packageinstaller.permission.ui.GrantPermissionsActivity"</string>
     <string name="activityBlacklist" msgid="4824386090073724380"></string>
   <string-array name="allowedAppInstallSources">
   </string-array>
     <string name="defaultHomeActivity" msgid="5991064545193106309"></string>
-    <!-- no translation found for activityHandlerForFlashWearChanges (8628535766919400479) -->
-    <skip />
-    <!-- no translation found for intentReceiverForUnacceptableIoMetrics (4017502061746918341) -->
-    <skip />
+    <string name="activityHandlerForFlashWearChanges" msgid="8628535766919400479">"com.google.android.car.defaultstoragemonitoringcompanionapp/.MainActivity"</string>
+    <string name="intentReceiverForUnacceptableIoMetrics" msgid="4017502061746918341">"com.google.android.car.defaultstoragemonitoringcompanionapp/.ExcessiveIoIntentReceiver"</string>
 </resources>

@@ -17,13 +17,13 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="6963366455471441257">"Rukovatelj USB-om"</string>
-    <string name="usb_saved_devices" msgid="2829442070749964872">"Spremljeni uređaji"</string>
-    <string name="usb_pref_delete_title" msgid="3885061814853467483">"Uklanjanje aplikacije za rukovanje za USB uređaj"</string>
+    <string name="usb_saved_devices" msgid="2829442070749964872">"Sačuvani uređaji"</string>
+    <string name="usb_pref_delete_title" msgid="3885061814853467483">"Uklonite upravljačku aplikaciju za USB uređaj"</string>
     <string name="usb_pref_delete_message" msgid="5849493572520646218">"Jeste li sigurni da želite izbrisati zadanu aplikaciju za rukovanje za %1$s?"</string>
     <string name="usb_pref_delete_yes" msgid="7803356145103146036">"Da"</string>
-    <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"Odustani"</string>
-    <string name="usb_resolving_handlers" msgid="1943100136172948686">"Dohvaćanje podržanih rukovatelja"</string>
-    <string name="usb_unknown_device" msgid="4211439272338937095">"Nepoznati USB uređaj"</string>
+    <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"Otkaži"</string>
+    <string name="usb_resolving_handlers" msgid="1943100136172948686">"Pribavljanje kompatibilnih upravljačkih programa"</string>
+    <string name="usb_unknown_device" msgid="4211439272338937095">"Nepoznat USB uređaj"</string>
   <string-array name="config_AoapIncompatibleDeviceIds">
     <item msgid="4267974637522344258">"18d1:9302"</item>
   </string-array>

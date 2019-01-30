@@ -24,8 +24,8 @@
     <string name="car_permission_desc_camera" msgid="7177565584644606387">"Kufikia kamera ya gari lako."</string>
     <string name="car_permission_label_energy" msgid="3398092932402178393">"Nishati ya gari"</string>
     <string name="car_permission_desc_energy" msgid="2925098075119509004">"Kufikia maelezo ya nishati ya gari lako."</string>
-    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Hvac ya Gari"</string>
-    <string name="car_permission_desc_hvac" msgid="7837686458309247154">"Kufikia hvac ya gari lako."</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Hali ya joto, hewa na kiyoyozi (Hvac) ya Gari"</string>
+    <string name="car_permission_desc_hvac" msgid="7837686458309247154">"Kufikia hali ya joto, hewa na kiyoyozi (hvac) ya gari lako."</string>
     <string name="car_permission_label_mileage" msgid="811821331694754443">"Masafa ya gari"</string>
     <string name="car_permission_desc_mileage" msgid="261946195057016914">"Kufikia maelezo ya masafa ya gari lako."</string>
     <string name="car_permission_label_speed" msgid="7315924371063443241">"Kasi ya gari"</string>
@@ -102,5 +102,5 @@
     <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"Mfumo wa Usambazaji wa Nishati Garini"</string>
     <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"Kufikia maelezo ya kisambazaji cha nishati garini"</string>
     <string name="car_permission_label_car_power" msgid="3671174734416372201">"Nishati ya Gari"</string>
-    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"Kufikia hali ya nishari ya gari"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"Kufikia hali ya nishati ya gari"</string>
 </resources>

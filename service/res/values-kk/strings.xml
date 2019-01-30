@@ -24,7 +24,7 @@
     <string name="car_permission_desc_camera" msgid="7177565584644606387">"Көлігіңіздің камераларын пайдалануға болады."</string>
     <string name="car_permission_label_energy" msgid="3398092932402178393">"Көліктің қуаты"</string>
     <string name="car_permission_desc_energy" msgid="2925098075119509004">"Көлігіңіздің қуаты туралы ақпаратты көруге болады."</string>
-    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Көліктің кондиционері"</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Көліктің климат басқару жүйесі"</string>
     <string name="car_permission_desc_hvac" msgid="7837686458309247154">"Көліктің кондиционерін пайдалануға болады."</string>
     <string name="car_permission_label_mileage" msgid="811821331694754443">"Көлік километражы"</string>
     <string name="car_permission_desc_mileage" msgid="261946195057016914">"Көліктің километраж туралы ақпаратын көруге болады."</string>
@@ -46,7 +46,7 @@
     <string name="car_permission_desc_audio_settings" msgid="2871870084988702516">"Көліктің аудио параметрлерін басқаруға болады."</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Қолданбаны бөгеу"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Жүргізу кезінде қолданбаны блоктау функциясын басқаруға болады."</string>
-    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Навигация менеджері"</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Навигация басқарушысы"</string>
     <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Навигациялық деректерді құралдар кластеріне хабарлауға болады"</string>
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Құралдар кластеріне тікелей рендеринг"</string>
     <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Қолданбаға құралдар кластерінде көрсетілетін әрекеттерді мәлімдеуге рұқсат ету"</string>
@@ -61,8 +61,8 @@
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN шинасы істен шықты"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN шинасы жауап бермейді. Негізгі модульді ажыратып, қайта жалғаңыз және көлікті қайта оталдырыңыз"</string>
     <string name="activity_blocked_text" msgid="7117775117422916032">"Көлік жүргізгенде, қауіпсіздік мақсатында бұл әрекетті орындау мүмкін емес"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"Түзету туралы ақпарат"</string>
-    <string name="exit_button" msgid="626660628135437972">"Қолданбаны қайта қосу"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"Түзету"</string>
+    <string name="exit_button" msgid="626660628135437972">"Қайта қосу"</string>
     <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Диагностикалық дерек"</string>
     <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Көліктен диагностикалық деректі оқуға болады"</string>
     <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Диагностикалық дерек"</string>
