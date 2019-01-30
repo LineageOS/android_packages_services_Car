@@ -197,6 +197,14 @@ public class ActivityBlockingActivity extends Activity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        // Finish when blocking activity goes invisible to avoid it accidentally re-surfaces with
+        // stale string regarding blocked activity.
+        finish();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mCar.isConnected() && mUxRManager != null) {
