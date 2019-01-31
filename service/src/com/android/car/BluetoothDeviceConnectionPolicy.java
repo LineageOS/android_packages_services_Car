@@ -20,7 +20,7 @@ import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_MUSIC_DEVICES;
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_NETWORK_DEVICES;
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_AUTOCONNECT_PHONE_DEVICES;
-import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_TEMPORARY_DISCONNECTS;
+import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_PROFILES_INHIBITED;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -59,6 +59,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
@@ -100,7 +101,7 @@ public class BluetoothDeviceConnectionPolicy {
     private static final String SETTINGS_DELIMITER = ",";
     private static final boolean DBG = Utils.DBG;
 
-    private static final Binder RESTORED_TEMPORARY_DISCONNECT_TOKEN = new Binder();
+    private static final Binder RESTORED_PROFILE_INHIBIT_TOKEN = new Binder();
     private static final long RESTORE_BACKOFF_MILLIS = 1000L;
 
     private final Context mContext;
@@ -158,9 +159,13 @@ public class BluetoothDeviceConnectionPolicy {
     // Maintain a list of Paired devices which haven't connected on any profiles yet.
     private Set<BluetoothDevice> mPairedButUnconnectedDevices = new HashSet<>();
 
-    // State for temporary disconnects. Guarded by lock on `this`.
-    private final SetMultimap<ConnectionParams, DisconnectRecord> mTemporaryDisconnects;
-    private final HashSet<DisconnectRecord> mRestoredDisconnects = new HashSet<>();
+    // State for profile inhibits.
+    @GuardedBy("this")
+    private final SetMultimap<ConnectionParams, InhibitRecord> mProfileInhibits =
+            new SetMultimap<>();
+    @GuardedBy("this")
+    private final HashSet<InhibitRecord> mRestoredInhibits = new HashSet<>();
+    @GuardedBy("this")
     private final HashSet<ConnectionParams> mAlreadyDisabledProfiles = new HashSet<>();
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -227,8 +232,6 @@ public class BluetoothDeviceConnectionPolicy {
             Log.w(TAG, "No Bluetooth Adapter Available");
         }
         mFastPairProvider = new FastPairProvider(mContext);
-
-        mTemporaryDisconnects = new SetMultimap<>();
     }
 
     /**
@@ -331,13 +334,13 @@ public class BluetoothDeviceConnectionPolicy {
         }
     }
 
-    private class DisconnectRecord implements IBinder.DeathRecipient {
+    private class InhibitRecord implements IBinder.DeathRecipient {
         private final ConnectionParams mParams;
         private final IBinder mToken;
 
         private boolean mRemoved = false;
 
-        DisconnectRecord(ConnectionParams params, IBinder token) {
+        InhibitRecord(ConnectionParams params, IBinder token) {
             this.mParams = params;
             this.mToken = token;
         }
@@ -356,7 +359,7 @@ public class BluetoothDeviceConnectionPolicy {
                     return true;
                 }
 
-                if (removeDisconnectRecord(this)) {
+                if (removeInhibitRecord(this)) {
                     mRemoved = true;
                     return true;
                 } else {
@@ -368,7 +371,7 @@ public class BluetoothDeviceConnectionPolicy {
         @Override
         public void binderDied() {
             if (DBG) {
-                Log.d(TAG, "Releasing disconnect request on profile "
+                Log.d(TAG, "Releasing inhibit request on profile "
                         + Utils.getProfileName(mParams.getBluetoothProfile())
                         + " for device " + mParams.getBluetoothDevice()
                         + ": requesting process died");
@@ -497,15 +500,19 @@ public class BluetoothDeviceConnectionPolicy {
         }
         if (mCarBluetoothUserService != null) {
             for (Integer profile : mProfilesToConnect) {
-                // If this profile is temporarily disconnected, don't try to change its priority
-                // until the temporary disconnect is released.
                 synchronized (this) {
                     ConnectionParams params = new ConnectionParams(profile, device);
-                    if (mTemporaryDisconnects.keySet().contains(params)) {
+                    // If this profile is inhibited, don't try to change its priority until the
+                    // inhibit is released. Instead, if the profile is being enabled, take it off of
+                    // the "previously disabled profiles" list, so it will be restored when all
+                    // inhibits are removed.
+                    if (mProfileInhibits.keySet().contains(params)) {
                         if (DBG) {
                             Log.i(TAG, "Not setting profile " + profile + " priority of "
-                                    + device.getAddress() + " to " + priority + ": "
-                                    + "temporarily disconnected");
+                                    + device.getAddress() + " to " + priority + ": inhibited");
+                        }
+                        if (priority == BluetoothProfile.PRIORITY_ON) {
+                            mAlreadyDisabledProfiles.remove(params);
                         }
                         continue;
                     }
@@ -578,10 +585,10 @@ public class BluetoothDeviceConnectionPolicy {
             mCarBluetoothUserService = setupBluetoothUserService();
             // re-initialize for current user.
             initializeUserSpecificInfo();
-            // Restore temporary disconnects, if any, that were saved from last run...
-            restoreTemporaryDisconnectsFromSettings();
+            // Restore profile inhibits, if any, that were saved from last run...
+            restoreProfileInhibitsFromSettings();
             // ... and start trying to remove them.
-            removeRestoredTemporaryDisconnects();
+            removeRestoredProfileInhibits();
         }
 
         @Override
@@ -590,13 +597,13 @@ public class BluetoothDeviceConnectionPolicy {
                 Log.d(TAG, "Before Unbinding from UserService");
             }
 
-            // Try to release temporary disconnects now, before CarBluetoothUserService goes away.
-            // This also stops any active attempts to remove restored disconnects.
+            // Try to release profile inhibits now, before CarBluetoothUserService goes away.
+            // This also stops any active attempts to remove restored inhibits.
             //
             // If any can't be released, they'll persist in settings and will be cleaned up
             // next time this user starts. This can happen if the Bluetooth profile proxies in
             // CarBluetoothUserService unbind before we get the chance to make calls on them.
-            releaseAllDisconnectRecordsBeforeUnbind();
+            releaseAllInhibitsBeforeUnbind();
 
             try {
                 if (mCarBluetoothUserService != null) {
@@ -974,34 +981,34 @@ public class BluetoothDeviceConnectionPolicy {
     /**
      * Request to disconnect the given profile on the given device, and prevent it from reconnecting
      * until either the request is released, or the process owning the given token dies.
-     * @return True if the profile was successfully disconnected, false if an error occurred.
+     * @return True if the profile was successfully inhibited, false if an error occurred.
      */
-    public boolean requestProfileDisconnect(BluetoothDevice device, int profile, IBinder token) {
+    boolean requestProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
         if (DBG) {
-            Log.d(TAG, "Request profile disconnect: profile " + Utils.getProfileName(profile)
+            Log.d(TAG, "Request profile inhibit: profile " + Utils.getProfileName(profile)
                     + ", device " + device.getAddress());
         }
         ConnectionParams params = new ConnectionParams(profile, device);
-        DisconnectRecord record = new DisconnectRecord(params, token);
-        return addDisconnectRecord(record);
+        InhibitRecord record = new InhibitRecord(params, token);
+        return addInhibitRecord(record);
     }
 
     /**
-     * Undo a previous call to {@link #requestProfileDisconnect} with the same parameters,
+     * Undo a previous call to {@link #requestProfileInhibit} with the same parameters,
      * and reconnect the profile if no other requests are active.
      *
      * @return True if the request was released, false if an error occurred.
      */
-    public boolean releaseProfileDisconnect(BluetoothDevice device, int profile, IBinder token) {
+    boolean releaseProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
         if (DBG) {
-            Log.d(TAG, "Release profile disconnect: profile " + Utils.getProfileName(profile)
+            Log.d(TAG, "Release profile inhibit: profile " + Utils.getProfileName(profile)
                     + ", device " + device.getAddress());
         }
 
         ConnectionParams params = new ConnectionParams(profile, device);
-        DisconnectRecord record;
+        InhibitRecord record;
         synchronized (this) {
-            record = findDisconnectRecordLocked(params, token);
+            record = findInhibitRecordLocked(params, token);
         }
 
         if (record == null) {
@@ -1012,28 +1019,28 @@ public class BluetoothDeviceConnectionPolicy {
         return record.removeSelf();
     }
 
-    /** Add a temporary disconnect record, disconnecting if necessary. */
-    private synchronized boolean addDisconnectRecord(DisconnectRecord record) {
+    /** Add a profile inhibit record, disabling the profile if necessary. */
+    private synchronized boolean addInhibitRecord(InhibitRecord record) {
         ConnectionParams params = record.getParams();
         if (!isProxyAvailable(params.getBluetoothProfile())) {
             return false;
         }
 
-        Set<DisconnectRecord> previousRecords = mTemporaryDisconnects.get(params);
-        if (findDisconnectRecordLocked(params, record.getToken()) != null) {
-            Log.e(TAG, "Disconnect request already registered - skipping duplicate");
+        Set<InhibitRecord> previousRecords = mProfileInhibits.get(params);
+        if (findInhibitRecordLocked(params, record.getToken()) != null) {
+            Log.e(TAG, "Inhibit request already registered - skipping duplicate");
             return false;
         }
 
         try {
             record.getToken().linkToDeath(record, 0);
         } catch (RemoteException e) {
-            Log.e(TAG, "Could not link to death on disconnect token (already dead?)", e);
+            Log.e(TAG, "Could not link to death on inhibit token (already dead?)", e);
             return false;
         }
 
         boolean isNewlyAdded = previousRecords.isEmpty();
-        mTemporaryDisconnects.put(params, record);
+        mProfileInhibits.put(params, record);
 
         if (isNewlyAdded) {
             try {
@@ -1042,8 +1049,8 @@ public class BluetoothDeviceConnectionPolicy {
                                 params.getBluetoothProfile(),
                                 params.getBluetoothDevice());
                 if (priority == BluetoothProfile.PRIORITY_OFF) {
-                    // This profile was already disabled (and not as the result of a temporary
-                    // disconnect). Add it to the already-disabled list, and do nothing else.
+                    // This profile was already disabled (and not as the result of an inhibit).
+                    // Add it to the already-disabled list, and do nothing else.
                     mAlreadyDisabledProfiles.add(params);
 
                     if (DBG) {
@@ -1068,22 +1075,22 @@ public class BluetoothDeviceConnectionPolicy {
             } catch (RemoteException e) {
                 Log.e(TAG, "Could not disable profile", e);
                 record.getToken().unlinkToDeath(record, 0);
-                mTemporaryDisconnects.remove(params, record);
+                mProfileInhibits.remove(params, record);
                 return false;
             }
         }
 
-        saveTemporaryDisconnectsToSettingsLocked();
+        saveProfileInhibitsToSettingsLocked();
         return true;
     }
 
-    /** Remove a given temporary disconnect record, reconnecting if necessary. */
-    private synchronized boolean removeDisconnectRecord(DisconnectRecord record) {
+    /** Remove a given profile inhibit record, reconnecting if necessary. */
+    private synchronized boolean removeInhibitRecord(InhibitRecord record) {
         ConnectionParams params = record.getParams();
         if (!isProxyAvailable(params.getBluetoothProfile())) {
             return false;
         }
-        if (!mTemporaryDisconnects.containsEntry(params, record)) {
+        if (!mProfileInhibits.containsEntry(params, record)) {
             Log.e(TAG, "Record already removed");
             // Removing something a second time vacuously succeeds.
             return true;
@@ -1092,23 +1099,23 @@ public class BluetoothDeviceConnectionPolicy {
         // Re-enable profile before unlinking and removing the record, in case of error.
         // The profile should be re-enabled if this record is the only one left for that
         // device and profile combination.
-        if (mTemporaryDisconnects.get(params).size() == 1) {
+        if (mProfileInhibits.get(params).size() == 1) {
             if (!restoreProfilePriority(params)) {
                 return false;
             }
         }
 
         record.getToken().unlinkToDeath(record, 0);
-        mTemporaryDisconnects.remove(params, record);
+        mProfileInhibits.remove(params, record);
 
-        saveTemporaryDisconnectsToSettingsLocked();
+        saveProfileInhibitsToSettingsLocked();
         return true;
     }
 
-    /** Find the disconnect record, if any, corresponding to the given parameters and token. */
+    /** Find the inhibit record, if any, corresponding to the given parameters and token. */
     @Nullable
-    private DisconnectRecord findDisconnectRecordLocked(ConnectionParams params, IBinder token) {
-        return mTemporaryDisconnects.get(params)
+    private InhibitRecord findInhibitRecordLocked(ConnectionParams params, IBinder token) {
+        return mProfileInhibits.get(params)
             .stream()
             .filter(r -> r.getToken() == token)
             .findAny()
@@ -1123,7 +1130,7 @@ public class BluetoothDeviceConnectionPolicy {
 
         if (mAlreadyDisabledProfiles.remove(params)) {
             // The profile does not need any state changes, since it was disabled
-            // before it was temporarily disconnected. Leave it disconnected.
+            // before it was inhibited. Leave it disabled.
             if (DBG) {
                 Log.d(TAG, "Not restoring profile "
                         + Utils.getProfileName(params.getBluetoothProfile()) + " for device "
@@ -1151,37 +1158,37 @@ public class BluetoothDeviceConnectionPolicy {
         }
     }
 
-    /** Dump all currently-active temporary disconnects to {@link Settings.Secure}. */
-    private void saveTemporaryDisconnectsToSettingsLocked() {
-        Set<ConnectionParams> disconnectedProfiles = new HashSet<>(mTemporaryDisconnects.keySet());
-        // Don't write out profiles that were disconnected before a request was made, since
+    /** Dump all currently-active profile inhibits to {@link Settings.Secure}. */
+    private void saveProfileInhibitsToSettingsLocked() {
+        Set<ConnectionParams> inhibitedProfiles = new HashSet<>(mProfileInhibits.keySet());
+        // Don't write out profiles that were disabled before a request was made, since
         // restoring those profiles is a no-op.
-        disconnectedProfiles.removeAll(mAlreadyDisabledProfiles);
+        inhibitedProfiles.removeAll(mAlreadyDisabledProfiles);
         String savedDisconnects =
-                disconnectedProfiles
+                inhibitedProfiles
                         .stream()
                         .map(ConnectionParams::flattenToString)
                         .collect(Collectors.joining(SETTINGS_DELIMITER));
 
         if (DBG) {
-            Log.d(TAG, "Saving disconnects to settings for u" + mUserId + ": " + savedDisconnects);
+            Log.d(TAG, "Saving inhibits to settings for u" + mUserId + ": " + savedDisconnects);
         }
 
         Settings.Secure.putStringForUser(
-                mContext.getContentResolver(), KEY_BLUETOOTH_TEMPORARY_DISCONNECTS,
+                mContext.getContentResolver(), KEY_BLUETOOTH_PROFILES_INHIBITED,
                 savedDisconnects, mUserId);
     }
 
-    /** Create {@link DisconnectRecord}s for all temporary disconnects written to settings. */
-    private synchronized void restoreTemporaryDisconnectsFromSettings() {
+    /** Create {@link InhibitRecord}s for all profile inhibits written to settings. */
+    private synchronized void restoreProfileInhibitsFromSettings() {
         if (mBluetoothAdapter == null) {
-            Log.e(TAG, "Cannot restore disconnect records - Bluetooth not available");
+            Log.e(TAG, "Cannot restore inhibit records - Bluetooth not available");
             return;
         }
 
         String savedConnectionParams = Settings.Secure.getStringForUser(
                 mContext.getContentResolver(),
-                KEY_BLUETOOTH_TEMPORARY_DISCONNECTS,
+                KEY_BLUETOOTH_PROFILES_INHIBITED,
                 mUserId);
 
         if (TextUtils.isEmpty(savedConnectionParams)) {
@@ -1189,89 +1196,89 @@ public class BluetoothDeviceConnectionPolicy {
         }
 
         if (DBG) {
-            Log.d(TAG, "Restoring temporary disconnects: " + savedConnectionParams);
+            Log.d(TAG, "Restoring profile inhibits: " + savedConnectionParams);
         }
 
         for (String paramsStr : savedConnectionParams.split(SETTINGS_DELIMITER)) {
             try {
                 ConnectionParams params = ConnectionParams.parse(paramsStr, mBluetoothAdapter);
-                DisconnectRecord record =
-                        new DisconnectRecord(params, RESTORED_TEMPORARY_DISCONNECT_TOKEN);
-                mTemporaryDisconnects.put(params, record);
-                mRestoredDisconnects.add(record);
+                InhibitRecord record =
+                        new InhibitRecord(params, RESTORED_PROFILE_INHIBIT_TOKEN);
+                mProfileInhibits.put(params, record);
+                mRestoredInhibits.add(record);
                 if (DBG) {
-                    Log.d(TAG, "Restored temporary disconnect for " + params);
+                    Log.d(TAG, "Restored profile inhibits for " + params);
                 }
             } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Bad format for saved temporary disconnect: " + paramsStr, e);
+                Log.e(TAG, "Bad format for saved profile inhibit: " + paramsStr, e);
                 // We won't ever be able to fix a bad parse, so skip it and move on.
             }
         }
     }
 
     /**
-     * Try once to remove all temporary disconnects.
+     * Try once to remove all restored profile inhibits.
      *
      * If the CarBluetoothUserService is not yet available, or it hasn't yet bound its profile
      * proxies, the removal will fail, and will need to be retried later.
      */
-    private void tryRemoveRestoredTemporaryDisconnectsLocked() {
-        HashSet<DisconnectRecord> successfullyRemoved = new HashSet<>();
+    private void tryRemoveRestoredProfileInhibitsLocked() {
+        HashSet<InhibitRecord> successfullyRemoved = new HashSet<>();
 
-        for (DisconnectRecord record : mRestoredDisconnects) {
-            if (removeDisconnectRecord(record)) {
+        for (InhibitRecord record : mRestoredInhibits) {
+            if (removeInhibitRecord(record)) {
                 successfullyRemoved.add(record);
             }
         }
 
-        mRestoredDisconnects.removeAll(successfullyRemoved);
+        mRestoredInhibits.removeAll(successfullyRemoved);
     }
 
     /**
-     * Keep trying to remove all temporary disconnects that were restored from settings
-     * until all such temporary disconnects have been removed.
+     * Keep trying to remove all profile inhibits that were restored from settings
+     * until all such inhibits have been removed.
      */
-    private synchronized void removeRestoredTemporaryDisconnects() {
-        tryRemoveRestoredTemporaryDisconnectsLocked();
+    private synchronized void removeRestoredProfileInhibits() {
+        tryRemoveRestoredProfileInhibitsLocked();
 
-        if (!mRestoredDisconnects.isEmpty()) {
+        if (!mRestoredInhibits.isEmpty()) {
             if (DBG) {
-                Log.d(TAG, "Could not remove all restored temporary disconnects - "
+                Log.d(TAG, "Could not remove all restored profile inhibits - "
                         + "trying again in " + RESTORE_BACKOFF_MILLIS + "ms");
             }
             mHandler.postDelayed(
-                    this::removeRestoredTemporaryDisconnects,
-                    RESTORED_TEMPORARY_DISCONNECT_TOKEN,
+                    this::removeRestoredProfileInhibits,
+                    RESTORED_PROFILE_INHIBIT_TOKEN,
                     RESTORE_BACKOFF_MILLIS);
         }
     }
 
-    /** Release all active disconnect records prior to user switch or shutdown. */
-    private synchronized void releaseAllDisconnectRecordsBeforeUnbind() {
+    /** Release all active inhibit records prior to user switch or shutdown. */
+    private synchronized void releaseAllInhibitsBeforeUnbind() {
         if (DBG) {
-            Log.d(TAG, "Unbinding CarBluetoothUserService - releasing all temporary disconnects");
+            Log.d(TAG, "Unbinding CarBluetoothUserService - releasing all profile inhibits");
         }
-        for (ConnectionParams params : mTemporaryDisconnects.keySet()) {
-            for (DisconnectRecord record : mTemporaryDisconnects.get(params)) {
+        for (ConnectionParams params : mProfileInhibits.keySet()) {
+            for (InhibitRecord record : mProfileInhibits.get(params)) {
                 record.removeSelf();
             }
         }
 
-        // Some disconnects might be hanging around because they couldn't be cleaned up.
+        // Some inhibits might be hanging around because they couldn't be cleaned up.
         // Make sure they get persisted...
-        saveTemporaryDisconnectsToSettingsLocked();
+        saveProfileInhibitsToSettingsLocked();
         // ...then clear them from the map.
-        mTemporaryDisconnects.clear();
+        mProfileInhibits.clear();
 
-        // We don't need to maintain previously-disconnected profiles any more - they were already
-        // skipped in saveTemporaryDisconnectsToSettingsLocked() above, and they don't need any
+        // We don't need to maintain previously-disabled profiles any more - they were already
+        // skipped in saveProfileInhibitsToSettingsLocked() above, and they don't need any
         // further handling when the user resumes.
         mAlreadyDisabledProfiles.clear();
 
-        // Clean up bookkeeping for restored disconnects. (If any are still around, they'll be
+        // Clean up bookkeeping for restored inhibits. (If any are still around, they'll be
         // restored again when this user restarts.)
-        mHandler.removeCallbacksAndMessages(RESTORED_TEMPORARY_DISCONNECT_TOKEN);
-        mRestoredDisconnects.clear();
+        mHandler.removeCallbacksAndMessages(RESTORED_PROFILE_INHIBIT_TOKEN);
+        mRestoredInhibits.clear();
     }
 
     /**
@@ -2074,11 +2081,10 @@ public class BluetoothDeviceConnectionPolicy {
         writer.println("*BluetoothDeviceConnectionPolicy*");
         printDeviceMap(writer);
         mBluetoothAutoConnectStateMachine.dump(writer);
-        writer.println("Temporary disconnects active:");
-        String disconnects;
+        String inhibits;
         synchronized (this) {
-            disconnects = mTemporaryDisconnects.keySet().toString();
+            inhibits = mProfileInhibits.keySet().toString();
         }
-        writer.println(disconnects);
+        writer.println("Inhibited profiles: " + inhibits);
     }
 }
