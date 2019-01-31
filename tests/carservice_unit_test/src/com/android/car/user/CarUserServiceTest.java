@@ -20,8 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import android.car.settings.CarSettings;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.Intent;
@@ -30,7 +32,9 @@ import android.content.pm.UserInfo;
 import android.location.LocationManager;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 
+import androidx.test.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
@@ -77,10 +81,15 @@ public class CarUserServiceTest {
         MockitoAnnotations.initMocks(this);
         doReturn(mApplicationContext).when(mMockContext).getApplicationContext();
         doReturn(mLocationManager).when(mMockContext).getSystemService(Context.LOCATION_SERVICE);
+        doReturn(InstrumentationRegistry.getTargetContext().getContentResolver())
+                .when(mMockContext).getContentResolver();
 
         mCarUserService = new CarUserService(mMockContext, mCarUserManagerHelper);
 
         doReturn(new ArrayList<>()).when(mCarUserManagerHelper).getAllUsers();
+
+        // Restore default value at the beginning of each test.
+        putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 0);
     }
 
     /**
@@ -118,8 +127,6 @@ public class CarUserServiceTest {
         systemUser.id = UserHandle.USER_SYSTEM;
         doReturn(systemUser).when(mCarUserManagerHelper).getSystemUserInfo();
 
-        mockAdmin(10);
-
         mCarUserService.onReceive(mMockContext,
                 new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
 
@@ -128,12 +135,29 @@ public class CarUserServiceTest {
     }
 
     /**
+     * Test that the {@link CarUserService} does not set restrictions on user 0 if they have already
+     * been set.
+     */
+    @Test
+    public void testDoesNotSetSystemUserRestrictions_IfRestrictionsAlreadySet() {
+        // Mock system user.
+        UserInfo systemUser = new UserInfo();
+        systemUser.id = UserHandle.USER_SYSTEM;
+        doReturn(systemUser).when(mCarUserManagerHelper).getSystemUserInfo();
+
+        putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
+        mCarUserService.onReceive(mMockContext,
+                new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
+
+        verify(mCarUserManagerHelper, never())
+                .setUserRestriction(systemUser, UserManager.DISALLOW_MODIFY_ACCOUNTS, true);
+    }
+
+    /**
      * Test that the {@link CarUserService} disable location service for user 0 upon first run.
      */
     @Test
     public void testDisableLocationForSystemUserOnFirstRun() {
-        mockAdmin(/* adminId= */ 10);
-
         mCarUserService.onReceive(mMockContext,
                 new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
 
@@ -162,13 +186,31 @@ public class CarUserServiceTest {
      * Test that the {@link CarUserService} sets default guest restrictions on first boot.
      */
     @Test
-    public void testInitializeGuestRestrictionsOnFirstRun() {
-        mockAdmin(/* adminId= */ 10);
-
-        mCarUserService.onReceive(mMockContext,
-                new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
-
+    public void testInitializeGuestRestrictions_IfNotAlreadySet() {
+        mCarUserService.onReceive(mMockContext, new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
         verify(mCarUserManagerHelper).initDefaultGuestRestrictions();
+        assertThat(getSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET)).isEqualTo(1);
+    }
+
+    /**
+     * Test that the {@link CarUserService} does not set restrictions after they have been set once.
+     */
+    @Test
+    public void test_DoesNotInitializeGuestRestrictions_IfAlreadySet() {
+        putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
+        mCarUserService.onReceive(mMockContext, new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED));
+        verify(mCarUserManagerHelper, never()).initDefaultGuestRestrictions();
+    }
+
+    private void putSettingsInt(String key, int value) {
+        Settings.Global.putInt(InstrumentationRegistry.getTargetContext().getContentResolver(),
+                key, value);
+    }
+
+    private int getSettingsInt(String key) {
+        return Settings.Global.getInt(
+                InstrumentationRegistry.getTargetContext().getContentResolver(),
+                key, /* default= */ 0);
     }
 
     private UserInfo mockAdmin(int adminId) {
