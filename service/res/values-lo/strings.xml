@@ -30,7 +30,7 @@
     <string name="car_permission_desc_mileage" msgid="261946195057016914">"ເຂົ້າເຖິງຂໍ້ມູນຈຳນວນໄມລ໌ຂອງລົດທ່ານ."</string>
     <string name="car_permission_label_speed" msgid="7315924371063443241">"ຄວາມໄວລົດ"</string>
     <string name="car_permission_desc_speed" msgid="4394638712070011650">"ເຂົ້າເຖິງຂໍ້ມູນຄວາມໄວຂອງລົດທ່ານ."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"ສະຖານະໄດນາມິກຂອງພາຫານະ"</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"ສະຖານະໄດນາມິກຂອງພາຫະນະ"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="2458601597024393569">"ເຂົ້າເຖິງສະຖານະໄດນາມິກຂອງລົດທ່ານ"</string>
     <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"ຊ່ອງທາງຜູ້ຂາຍລົດ"</string>
     <string name="car_permission_desc_vendor_extension" msgid="7223384502421767491">"ເຂົ້າເຖິງຊ່ອງທາງຜູ້ຂາຍລົດຂອງທ່ານເພື່ອແລກປ່ຽນຂໍ້ມູນສະເພາະຂອງລົດ."</string>
@@ -40,12 +40,12 @@
     <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"ລະດັບສຽງຂອງເຄື່ອງສຽງໃນລົດ"</string>
     <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"ການຕັ້ງຄ່າເຄື່ອງສຽງໃນລົດ"</string>
     <string name="car_permission_desc_projection" msgid="2680001094361534439">"ສາຍພາບສ່ວນຕິດຕໍ່ຂອງໂທລະສັບຢູ່ໃນໜ້າຈໍຂອງລົດ."</string>
-    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"ຈຳລອງ HAL ພາຫານະ"</string>
-    <string name="car_permission_desc_mock_vehicle_hal" msgid="3549687008625373417">"ຈໍາລອງ HAL ພາຫານະຂອງລົດທ່ານສຳລັບຈຸດປະສົງການທົດສອບພາຍໃນ."</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"ຈຳລອງ HAL ພາຫະນະ"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="3549687008625373417">"ຈໍາລອງ HAL ພາຫະນະຂອງລົດທ່ານສຳລັບຈຸດປະສົງການທົດສອບພາຍໃນ."</string>
     <string name="car_permission_desc_audio_volume" msgid="7484628324723179580">"ຄວບຄຸມລະດັບສຽງຂອງເຄື່ອງສຽງໃນລົດຂອງທ່ານ."</string>
     <string name="car_permission_desc_audio_settings" msgid="2871870084988702516">"ຄວບຄຸມການຕັ້ງຄ່າເຄື່ອງສຽງຂອງລົດທ່ານ."</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"ການບລັອກແອັບພລິເຄຊັນ"</string>
-    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"ຄວບຄຸມການບລັອກແອັບພລິເຄຊັນໃນຂະນະຂັດລົດ."</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"ຄວບຄຸມການບລັອກແອັບພລິເຄຊັນໃນຂະນະຂັບລົດ."</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"ຕົວຈັດການການນໍາທາງ"</string>
     <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"ລາຍງານຂໍ້ມູນການນໍາທາງຫາແຜງໜ້າປັດ"</string>
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"ການສະແດງຜົນໄປຍັງແຜງໜ້າປັດໂດຍກົງ"</string>
@@ -61,7 +61,7 @@
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus ບໍ່ສຳເລັດ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ບໍ່ຕອບສະໜອງ. ຖອດປລັກກ່ອງເຄື່ອງຫຼິ້ນວິທະຍຸ (Headunit) ແລ້ວສຽບເຂົ້າຄືນໃໝ່ ແລະ ຣິສະຕາດລົດ"</string>
     <string name="activity_blocked_text" msgid="7117775117422916032">"ເພື່ອຄວາມປອດໄພຂອງທ່ານ, ກິດຈະກຳນີ້ບໍ່ມີໃຫ້ນໍາໃຊ້ໃນຂະນະທີ່ທ່ານກຳລັງຂັບລົດຢູ່"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"ຂໍ້ມູນດີບັກ"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
     <string name="exit_button" msgid="626660628135437972">"ເລີ່ມແອັບໃໝ່"</string>
     <string name="car_permission_label_diag_read" msgid="2539365760945541902">"ຂໍ້ມູນການວິເຄາະ"</string>
     <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"ອ່ານຂໍ້ມູນການວິເຄາະຈາກລົດ"</string>

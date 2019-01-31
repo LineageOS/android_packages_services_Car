@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="2215078736675564541">"Информације о аутомобилу"</string>
+    <string name="car_permission_desc" msgid="37967366937946700">"Приступи информацијама о аутомобилу."</string>
+    <string name="car_permission_label_cabin" msgid="7737204489497269651">"Путнички простор"</string>
+    <string name="car_permission_desc_cabin" msgid="5658746726474282714">"Приступи опреми аутомобила, укључујући врата, ретровизоре, седишта и прозоре."</string>
+    <string name="car_permission_label_camera" msgid="608969838109034886">"Камера аутомобила"</string>
+    <string name="car_permission_desc_camera" msgid="7177565584644606387">"Приступи камерама аутомобила."</string>
+    <string name="car_permission_label_energy" msgid="3398092932402178393">"Енергија аутомобила"</string>
+    <string name="car_permission_desc_energy" msgid="2925098075119509004">"Приступи информацијама о енергији аутомобила"</string>
+    <string name="car_permission_label_hvac" msgid="8047274427463154164">"Грејање, вентилација и климатизација аутомобила"</string>
+    <string name="car_permission_desc_hvac" msgid="7837686458309247154">"Приступи грејању, вентилацији и климатизацији аутомобила."</string>
+    <string name="car_permission_label_mileage" msgid="811821331694754443">"Пређени пут аутомобила"</string>
+    <string name="car_permission_desc_mileage" msgid="261946195057016914">"Приступи информацијама о пређеном путу аутомобила."</string>
+    <string name="car_permission_label_speed" msgid="7315924371063443241">"Брзина аутомобила"</string>
+    <string name="car_permission_desc_speed" msgid="4394638712070011650">"Приступи брзини аутомобила."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Статус динамике возила"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="2458601597024393569">"Приступи статусу динамике аутомобила"</string>
+    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Канал продавца аутомобила"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="7223384502421767491">"Приступи каналу продавца аутомобила ради размене посебних информација у вези са аутомобилом."</string>
+    <string name="car_permission_label_radio" msgid="4768692394049267617">"Радио аутомобила"</string>
+    <string name="car_permission_desc_radio" msgid="3544198603152937942">"Приступа радију аутомобила."</string>
+    <string name="car_permission_label_projection" msgid="7830068427803303154">"Пројекција у аутомобилу"</string>
+    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Јачина звука у аутомобилу"</string>
+    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Подешавања звука у аутомобилу"</string>
+    <string name="car_permission_desc_projection" msgid="2680001094361534439">"Пројектује интерфејс телефона на екран у аутомобилу."</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"Емулација HAL возила"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="3549687008625373417">"Емулира HAL возила за аутомобил у сврхе интерног тестирања"</string>
+    <string name="car_permission_desc_audio_volume" msgid="7484628324723179580">"Контролише јачину звука у аутомобилу."</string>
+    <string name="car_permission_desc_audio_settings" msgid="2871870084988702516">"Контролише подешавања звука у аутомобилу."</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Блокирање апликација"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Контролише блокирање апликација током вожње."</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Менаџер навигације"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Шаље податке за навигацију инструмент табли"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Директно приказивање на инструмент табли"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Дозволи да апликација наведе активности које ће се приказивати на инструмент табли"</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Контрола инструмент табле"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Покреће апликације на инструмент табли"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Приказивање на инструмент табли"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Прима податке са инструмент табле"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Конфигурација ограничења КД-а"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Конфигурише ограничења КД-а"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Услуга аутомобилског уноса"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Управља догађајима уноса"</string>
+    <string name="car_can_bus_failure" msgid="2334035748788283914">"Грешка CAN магистрале"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN магистрала не реагује. Искључите и поново укључите главну јединицу и поново покрените аутомобил"</string>
+    <string name="activity_blocked_text" msgid="7117775117422916032">"Ова активност није доступна док возите ради ваше безбедности"</string>
+    <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
+    <string name="exit_button" msgid="626660628135437972">"Рестартуј апл."</string>
+    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Дијагностички подаци"</string>
+    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Чита дијагностичке податке из аутомобила"</string>
+    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Дијагностички подаци"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"Брише дијагностичке податке из аутомобила"</string>
+    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"Објављивање VMS података"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"Објављује vms поруке"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"Претплати на VMS поруке"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"Пријави на vms поруке"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Праћење флеш меморије"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Надгледа коришћење флеш меморије"</string>
+    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Статус вожње"</string>
+    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Слуша промена статуса вожње"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Детаљни подаци о аутомобилу"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="7360817472577625295">"Приступи детаљним подацима о мотору аутомобила"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Енергетски портови"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Приступи енергетским портовима"</string>
+    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Идентификација аутомобила"</string>
+    <string name="car_permission_desc_car_identification" msgid="3446202891279037295">"Приступ подацима за идентификацију аутомобила"</string>
+    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Врата аутомобила"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="438796526924485694">"Контролише врата аутомобила"</string>
+    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Прозори аутомобила"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7191531366203590752">"Контролише прозоре аутомобила"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"Ретровизори аутомобила"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="1329068133900689986">"Контролише ретровизоре аутомобила"</string>
+    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Седишта у аутомобилу"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="5319108612196099191">"Контролише седишта у аутомобилу"</string>
+    <string name="car_permission_label_car_info" msgid="5638680944359440535">"Основне информације о аутомобилу"</string>
+    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Приступи основним подацима о аутомобилу"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Спољна светла аутомобила"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"Приступи статусу спољних светла аутомобила"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"Спољна светла аутомобила"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"Контролише спољна светла аутомобила"</string>
+    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"Спољна температура аутомобила"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"Приступи спољној температури аутомобила"</string>
+    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"Гуме аутомобила"</string>
+    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"Приступ подацима о гумама аутомобила"</string>
+    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"Погон аутомобила"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"Приступи подацима о погону аутомобила"</string>
+    <string name="car_permission_label_car_power" msgid="3671174734416372201">"Напајање аутомобила"</string>
+    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"Приступ статусу напајања аутомобила"</string>
+</resources>
