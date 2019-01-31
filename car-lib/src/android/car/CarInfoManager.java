@@ -148,8 +148,8 @@ public final class CarInfoManager implements CarManagerBase{
      * @return Unique identifier for the car. This is not VIN, and vehicle id is
      * persistent until user resets it. This ID is guaranteed to be always
      * available.
-     * TODO: BASIC_INFO_KEY_VEHICLE_ID property?
      */
+    // TODO: BASIC_INFO_KEY_VEHICLE_ID property?
     public String getVehicleId() throws CarNotConnectedException {
         return "";
     }
