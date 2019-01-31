@@ -14,22 +14,22 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License
   -->
-<resources>
-    <string name="app_name">AAE Theme Playground</string>
-    <string name="text_elements">Text Elements</string>
-    <string name="panel_elements">Color Panels</string>
-    <string name="dialog_elements">Dialogs</string>
-    <string name="toggle_theme">Change configuration(Day/Night)</string>
-    <string name="apply">Apply</string>
-    <string name="widgets">Widgets</string>
-    <string name="paged_list_view">Paged List View</string>
-    <string name="widget_checkbox">Checkbox</string>
-    <string name="toggle_switch">Toggle Switch</string>
-    <string name="reset">Reset</string>
-    <string name="progress_bar">Progress Bar</string>
-    <string name="background_name">Set background color :</string>
-    <string name="default_themes">Apply Themes</string>
-    <string name="theme_name">Theme Name:</string>
-    <string name="multiple_intent">Chooser Activity</string>
-    <string name="default_background_color">#90CAF9</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" translable="false">AAE Theme Playground</string>
+    <string name="text_elements" translable="false">Text Elements</string>
+    <string name="panel_elements" translable="false">Color Panels</string>
+    <string name="dialog_elements" translable="false">Dialogs</string>
+    <string name="toggle_theme" translable="false">Change configuration(Day/Night)</string>
+    <string name="apply" translable="false">Apply</string>
+    <string name="widgets" translable="false">Widgets</string>
+    <string name="paged_list_view" translable="false">Paged List View</string>
+    <string name="widget_checkbox" translable="false">Checkbox</string>
+    <string name="toggle_switch" translable="false">Toggle Switch</string>
+    <string name="reset" translable="false">Reset</string>
+    <string name="progress_bar" translable="false">Progress Bar</string>
+    <string name="background_name" translable="false">Set background color :</string>
+    <string name="default_themes" translable="false">Apply Themes</string>
+    <string name="theme_name" translable="false">Theme Name:</string>
+    <string name="multiple_intent" translable="false">Chooser Activity</string>
+    <string name="default_background_color" translable="false">#90CAF9</string>
 </resources>
