@@ -23,11 +23,17 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.car.cluster.navigation.Destination;
+import androidx.car.cluster.navigation.Destination.Traffic;
 import androidx.car.cluster.navigation.Distance;
 import androidx.car.cluster.navigation.Maneuver;
 import androidx.car.cluster.navigation.NavigationState;
 import androidx.car.cluster.navigation.Segment;
 import androidx.car.cluster.navigation.Step;
+
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.util.List;
 
 /**
  * View controller for navigation state rendering.
@@ -39,6 +45,7 @@ public class NavStateController {
     private LaneView mLane;
     private TextView mDistance;
     private TextView mSegment;
+    private TextView mEta;
     private CueView mCue;
     private Context mContext;
     private View mNavigationState;
@@ -55,6 +62,7 @@ public class NavStateController {
         mLane = container.findViewById(R.id.lane);
         mDistance = container.findViewById(R.id.distance);
         mSegment = container.findViewById(R.id.segment);
+        mEta = container.findViewById(R.id.eta);
         mCue = container.findViewById(R.id.cue);
 
         mContext = container.getContext();
@@ -68,6 +76,17 @@ public class NavStateController {
             Log.d(TAG, "Updating nav state: " + state);
         }
         Step step = getImmediateStep(state);
+
+        List<Destination> destinations = state.getDestinations();
+        ZonedDateTime eta = null;
+        Traffic traffic = null;
+        if (!destinations.isEmpty()) {
+            eta = state.getDestinations().get(0).getEta();
+            traffic = state.getDestinations().get(0).getTraffic();
+        }
+
+        mEta.setText(eta != null ? formatEta(eta) : null);
+        mEta.setTextColor(getTrafficColor(traffic));
         mManeuver.setImageDrawable(getManeuverIcon(step != null ? step.getManeuver() : null));
         mDistance.setText(formatDistance(step != null ? step.getDistance() : null));
         mSegment.setText(getSegmentString(state.getCurrentSegment()));
@@ -78,6 +97,38 @@ public class NavStateController {
             mLane.setVisibility(View.VISIBLE);
         } else {
             mLane.setVisibility(View.GONE);
+        }
+    }
+
+
+    private int getTrafficColor(@Nullable Traffic traffic) {
+        if (traffic == Traffic.LOW) {
+            return mContext.getColor(R.color.low_traffic);
+        } else if (traffic == Traffic.MEDIUM) {
+            return mContext.getColor(R.color.medium_traffic);
+        } else if (traffic == Traffic.HIGH) {
+            return mContext.getColor(R.color.high_traffic);
+        }
+
+        return mContext.getColor(R.color.unknown_traffic);
+    }
+
+    private String formatEta(@Nullable ZonedDateTime eta) {
+        ZonedDateTime now = ZonedDateTime.now();
+        Duration duration = Duration.between(now, eta);
+        long seconds = duration.getSeconds();
+
+        // TODO: move formatting into common lib somewhere
+        long minutes = (seconds / 60) % 60;
+        long hours = (seconds / 3600) % 24;
+        long days = seconds / (3600 * 24);
+
+        if (days > 0) {
+            return String.format("%d d %d hr", days, hours);
+        } else if (hours > 0) {
+            return String.format("%d hr %d min", hours, minutes);
+        } else {
+            return String.format("%d min", minutes);
         }
     }
 

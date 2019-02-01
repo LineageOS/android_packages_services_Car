@@ -12,4 +12,10 @@
     <!-- LaneView highlight colors -->
     <color name="laneDirection">#888888</color>
     <color name="laneDirectionHighlighted">#FFFFFF</color>
+
+    <!-- Traffic colors -->
+    <color name="low_traffic">#0F9D58</color>
+    <color name="medium_traffic">#F2B300</color>
+    <color name="high_traffic">#E06055</color>
+    <color name="unknown_traffic">#4285F4</color>
 </resources>

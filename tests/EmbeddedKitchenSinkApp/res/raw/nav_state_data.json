@@ -60,7 +60,12 @@
           "mMeters": 2000,
           "mDisplayValue": "2",
           "mDisplayUnit": { "mValues": [ "KILOMETERS" ] }
-        }
+        },
+        "mEta": {
+          "mSecondsSinceEpoch": 1551318762,
+          "mZoneId": "America/Los_Angeles"
+        },
+        "mTraffic": { "mValues": [ "MEDIUM" ] }
       }
     ]
   },
