@@ -54,7 +54,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
-import android.view.KeyEvent;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -110,23 +109,11 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
     private final WifiConfiguration mProjectionWifiConfiguration;
 
-    private final CarInputService.KeyEventListener mVoiceAssistantKeyListener =
-            new CarInputService.KeyEventListener() {
-                @Override
-                public boolean onKeyEvent(KeyEvent event) {
-                    handleVoiceAssitantRequest(false);
-                    return true;
-                }
-            };
+    private final Runnable mVoiceAssistantKeyListener =
+            () -> handleVoiceAssistantRequest(false);
 
-    private final CarInputService.KeyEventListener mLongVoiceAssistantKeyListener =
-            new CarInputService.KeyEventListener() {
-                @Override
-                public boolean onKeyEvent(KeyEvent event) {
-                    handleVoiceAssitantRequest(true);
-                    return true;
-                }
-            };
+    private final Runnable mLongVoiceAssistantKeyListener =
+            () -> handleVoiceAssistantRequest(true);
 
     private final ServiceConnection mConnection = new ServiceConnection() {
             @Override
@@ -208,7 +195,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         mContext.unbindService(mConnection);
     }
 
-    private void handleVoiceAssitantRequest(boolean isTriggeredByLongPress) {
+    private void handleVoiceAssistantRequest(boolean isTriggeredByLongPress) {
+        Log.i(TAG, "Voice assistant request, long press = " + isTriggeredByLongPress);
         synchronized (mLock) {
             for (BinderInterfaceContainer.BinderInterface<ICarProjectionCallback> listener :
                     mProjectionCallbacks.getInterfaces()) {

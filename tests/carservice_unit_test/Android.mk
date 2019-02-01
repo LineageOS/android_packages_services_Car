@@ -42,6 +42,7 @@ LOCAL_JAVA_LIBRARIES := \
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
     junit \
+    androidx.test.core \
     androidx.test.rules \
     mockito-target-minus-junit4 \
     com.android.car.test.utils \
