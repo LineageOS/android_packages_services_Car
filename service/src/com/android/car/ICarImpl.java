@@ -44,6 +44,7 @@ import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.trust.CarTrustAgentEnrollmentService;
 import com.android.car.user.CarUserService;
+import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.car.ICarServiceHelper;
@@ -90,6 +91,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarUserManagerHelper mUserManagerHelper;
     private final CarUserService mCarUserService;
     private final VmsClientManager mVmsClientManager;
+    private final VmsBrokerService mVmsBrokerService;
     private final VmsSubscriberService mVmsSubscriberService;
     private final VmsPublisherService mVmsPublisherService;
 
@@ -141,10 +143,12 @@ public class ICarImpl extends ICar.Stub {
                 mAppFocusService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(
                 serviceContext, mCarAudioService, this);
+        mVmsBrokerService = new VmsBrokerService();
         mVmsClientManager = new VmsClientManager(serviceContext, mUserManagerHelper);
-        mVmsSubscriberService = new VmsSubscriberService(serviceContext, mHal.getVmsHal());
-        mVmsPublisherService = new VmsPublisherService(serviceContext, mVmsClientManager,
-                mHal.getVmsHal());
+        mVmsSubscriberService = new VmsSubscriberService(
+                serviceContext, mVmsBrokerService, mHal.getVmsHal());
+        mVmsPublisherService = new VmsPublisherService(
+                serviceContext, mVmsBrokerService, mVmsClientManager, mHal.getVmsHal());
         mCarDiagnosticService = new CarDiagnosticService(serviceContext, mHal.getDiagnosticHal());
         mCarStorageMonitoringService = new CarStorageMonitoringService(serviceContext,
                 systemInterface);

@@ -24,15 +24,13 @@ import android.car.vms.VmsLayersOffering;
 import android.car.vms.VmsSubscriptionState;
 import android.content.Context;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.RemoteException;
 import android.util.ArrayMap;
 import android.util.Log;
 
 import com.android.car.hal.VmsHalService;
-import com.android.car.hal.VmsHalService.VmsHalPublisherListener;
+import com.android.car.vms.VmsBrokerService;
 import com.android.car.vms.VmsClientManager;
 
 import java.io.PrintWriter;
@@ -45,40 +43,40 @@ import java.util.Set;
  * Binds to publishers and configures them to use this service.
  * Notifies publishers of subscription changes.
  */
-public class VmsPublisherService extends IVmsPublisherService.Stub implements CarServiceBase {
+public class VmsPublisherService extends IVmsPublisherService.Stub implements CarServiceBase,
+        VmsBrokerService.PublisherListener {
     private static final boolean DBG = true;
     private static final String TAG = "VmsPublisherService";
 
-    private static final int MSG_HAL_SUBSCRIPTION_CHANGED = 1;
-
     private final Context mContext;
     private final VmsClientManager mClientManager;
-    private final VmsListener mClientListener = new VmsListener();
+    private final VmsBrokerService mBrokerService;
     private final VmsHalService mHal;
-    private final VmsHalPublisherListener mHalPublisherListener;
+    private final VmsListener mClientListener = new VmsListener();
     private final Map<String, IVmsPublisherClient> mPublisherMap = Collections.synchronizedMap(
             new ArrayMap<>());
-    private final Handler mHandler = new EventHandler();
 
-    public VmsPublisherService(Context context, VmsClientManager clientManager, VmsHalService hal) {
+    public VmsPublisherService(Context context, VmsBrokerService brokerService,
+            VmsClientManager clientManager,
+            VmsHalService hal) {
         mContext = context;
         mClientManager = clientManager;
+        mBrokerService = brokerService;
         mHal = hal;
-        mHalPublisherListener = subscriptionState -> mHandler.sendMessage(
-                mHandler.obtainMessage(MSG_HAL_SUBSCRIPTION_CHANGED, subscriptionState));
     }
 
     @Override
     public void init() {
+        mClientListener.onClientConnected("VmsHalService", mHal.getPublisherClient());
         mClientManager.registerConnectionListener(mClientListener);
-        mHal.addPublisherListener(mHalPublisherListener);
-        mHal.signalPublisherServiceIsReady();
+        mBrokerService.addPublisherListener(this);
     }
 
     @Override
     public void release() {
+        mClientListener.onClientDisconnected("VmsHalService");
         mClientManager.unregisterConnectionListener(mClientListener);
-        mHal.removePublisherListener(mHalPublisherListener);
+        mBrokerService.removePublisherListener(this);
         mPublisherMap.clear();
     }
 
@@ -88,13 +86,12 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
         writer.println("mPublisherMap:" + mPublisherMap.keySet());
     }
 
-    /* Called in arbitrary binder thread */
     @Override
     public void setLayersOffering(IBinder token, VmsLayersOffering offering) {
-        mHal.setPublisherLayersOffering(token, offering);
+        ICarImpl.assertVmsPublisherPermission(mContext);
+        mBrokerService.setPublisherLayersOffering(token, offering);
     }
 
-    /* Called in arbitrary binder thread */
     @Override
     public void publish(IBinder token, VmsLayer layer, int publisherId, byte[] payload) {
         if (DBG) {
@@ -104,7 +101,7 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
 
         // Send the message to application listeners.
         Set<IVmsSubscriberClient> listeners =
-                mHal.getSubscribersForLayerFromPublisher(layer, publisherId);
+                mBrokerService.getSubscribersForLayerFromPublisher(layer, publisherId);
 
         if (DBG) {
             Log.d(TAG, "Number of subscribed apps: " + listeners.size());
@@ -116,35 +113,22 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
                 Log.e(TAG, "unable to publish to listener: " + listener);
             }
         }
-
-        // Send the message to HAL
-        if (mHal.isHalSubscribed(layer)) {
-            Log.d(TAG, "HAL is subscribed");
-            mHal.setDataMessage(layer, payload);
-        } else {
-            Log.d(TAG, "HAL is NOT subscribed");
-        }
     }
 
-    /* Called in arbitrary binder thread */
     @Override
     public VmsSubscriptionState getSubscriptions() {
         ICarImpl.assertVmsPublisherPermission(mContext);
-        return mHal.getSubscriptionState();
+        return mBrokerService.getSubscriptionState();
     }
 
-    /* Called in arbitrary binder thread */
     @Override
     public int getPublisherId(byte[] publisherInfo) {
         ICarImpl.assertVmsPublisherPermission(mContext);
-        return mHal.getPublisherId(publisherInfo);
+        return mBrokerService.getPublisherId(publisherInfo);
     }
 
-    /**
-     * This method is only invoked by VmsHalService.notifyPublishers which is synchronized.
-     * Therefore this method only sees a non-decreasing sequence.
-     */
-    private void handleHalSubscriptionChanged(VmsSubscriptionState subscriptionState) {
+    @Override
+    public void onSubscriptionChange(VmsSubscriptionState subscriptionState) {
         // Send the message to application listeners.
         synchronized (mPublisherMap) {
             for (IVmsPublisherClient client : mPublisherMap.values()) {
@@ -181,18 +165,6 @@ public class VmsPublisherService extends IVmsPublisherService.Stub implements Ca
         public void onClientDisconnected(String publisherName) {
             if (DBG) Log.d(TAG, "onClientDisconnected: " + publisherName);
             mPublisherMap.remove(publisherName);
-        }
-    }
-
-    private class EventHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_HAL_SUBSCRIPTION_CHANGED:
-                    handleHalSubscriptionChanged((VmsSubscriptionState) msg.obj);
-                    return;
-            }
-            super.handleMessage(msg);
         }
     }
 }

@@ -387,7 +387,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         }
     }
 
-    void set(VehiclePropValue propValue) throws PropertyTimeoutException {
+    protected void set(VehiclePropValue propValue) throws PropertyTimeoutException {
         mHalClient.setValue(propValue);
     }
 

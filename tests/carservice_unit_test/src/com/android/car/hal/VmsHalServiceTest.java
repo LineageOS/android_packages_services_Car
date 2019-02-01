@@ -15,153 +15,798 @@
  */
 package com.android.car.hal;
 
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import android.car.vms.IVmsPublisherClient;
+import android.car.vms.IVmsPublisherService;
+import android.car.vms.IVmsSubscriberClient;
+import android.car.vms.IVmsSubscriberService;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
+import android.car.vms.VmsSubscriptionState;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
 import android.os.Binder;
 import android.os.IBinder;
 
 import androidx.test.runner.AndroidJUnit4;
 
-import com.google.android.collect.Sets;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 @RunWith(AndroidJUnit4.class)
 public class VmsHalServiceTest {
-    @Rule public MockitoRule mockito = MockitoJUnit.rule();
-    @Mock private VehicleHal mMockVehicleHal;
-    @Mock private VmsHalService.VmsHalSubscriberListener mMockHalSusbcriber;
+    private static final int LAYER_TYPE = 1;
+    private static final int LAYER_SUBTYPE = 2;
+    private static final int LAYER_VERSION = 3;
+    private static final VmsLayer LAYER = new VmsLayer(LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION);
+    private static final int PUBLISHER_ID = 12345;
+    private static final byte[] PAYLOAD = new byte[]{1, 2, 3, 4};
+    private static final List<Byte> PAYLOAD_AS_LIST = Arrays.asList(
+            new Byte[]{1, 2, 3, 4});
+
+    @Rule
+    public MockitoRule mockito = MockitoJUnit.rule();
+    @Mock
+    private VehicleHal mVehicleHal;
+    @Mock
+    private IVmsPublisherService mPublisherService;
+    @Mock
+    private IVmsSubscriberService mSubscriberService;
+
     private IBinder mToken;
     private VmsHalService mHalService;
+    private IVmsPublisherClient mPublisherClient;
+    private IVmsSubscriberClient mSubscriberClient;
 
     @Before
     public void setUp() throws Exception {
+        mHalService = new VmsHalService(mVehicleHal);
+        mHalService.setVmsSubscriberService(mSubscriberService);
+
         mToken = new Binder();
-        mHalService = new VmsHalService(mMockVehicleHal);
-        mHalService.addSubscriberListener(mMockHalSusbcriber);
+        mPublisherClient = IVmsPublisherClient.Stub.asInterface(mHalService.getPublisherClient());
+        mPublisherClient.setVmsPublisherService(mToken, mPublisherService);
+
+        VehiclePropConfig propConfig = new VehiclePropConfig();
+        propConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
+        mHalService.takeSupportedProperties(Collections.singleton(propConfig));
+
+        when(mSubscriberService.getAvailableLayers()).thenReturn(
+                new VmsAvailableLayers(Collections.emptySet(), 0));
+        mHalService.init();
+        waitForHandlerCompletion();
+
+        ArgumentCaptor<IVmsSubscriberClient> subscriberCaptor = ArgumentCaptor.forClass(
+                IVmsSubscriberClient.class);
+        verify(mSubscriberService).addVmsSubscriberToNotifications(subscriberCaptor.capture());
+        mSubscriberClient = subscriberCaptor.getValue();
+        reset(mSubscriberService);
+        verify(mVehicleHal).set(createHalMessage(
+                VmsMessageType.AVAILABILITY_CHANGE, // Message type
+                0,                                  // Sequence number
+                0));                                // # of associated layers
+        reset(mVehicleHal);
     }
 
     @Test
-    public void testSetPublisherLayersOffering() {
-        VmsLayer layer = new VmsLayer(1, 2, 3);
-        VmsLayersOffering offering = new VmsLayersOffering(
-                Sets.newHashSet(new VmsLayerDependency(layer)), 12345);
-        mHalService.setPublisherLayersOffering(mToken, offering);
+    public void testTakeSupportedProperties() {
+        VehiclePropConfig vmsPropConfig = new VehiclePropConfig();
+        vmsPropConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
 
-        VmsAssociatedLayer associatedLayer = new VmsAssociatedLayer(layer, Sets.newHashSet(12345));
-        verify(mMockHalSusbcriber).onLayersAvaiabilityChange(eq(new VmsAvailableLayers(
-                Sets.newHashSet(associatedLayer),
-                1)));
+        VehiclePropConfig otherPropConfig = new VehiclePropConfig();
+        otherPropConfig.prop = VehicleProperty.CURRENT_GEAR;
+
+        assertEquals(Collections.singleton(vmsPropConfig),
+                mHalService.takeSupportedProperties(Arrays.asList(otherPropConfig, vmsPropConfig)));
+    }
+
+    /**
+     * DATA message format:
+     * <ul>
+     * <li>Message type
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Publisher ID
+     * <li>Payload
+     * </ul>
+     */
+    @Test
+    public void testHandleDataEvent() throws Exception {
+        VehiclePropValue message = createHalMessage(
+                VmsMessageType.DATA,                       // Message type
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // VmsLayer
+                PUBLISHER_ID                               // PublisherId
+        );
+        message.value.bytes.addAll(PAYLOAD_AS_LIST);
+
+        sendHalMessage(message);
+        verify(mPublisherService).publish(mToken, LAYER, PUBLISHER_ID, PAYLOAD);
+    }
+
+    /**
+     * SUBSCRIBE message format:
+     * <ul>
+     * <li>Message type
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * </ul>
+     */
+    @Test
+    public void testHandleSubscribeEvent() throws Exception {
+        VehiclePropValue message = createHalMessage(
+                VmsMessageType.SUBSCRIBE,                 // Message type
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION  // VmsLayer
+        );
+
+        sendHalMessage(message);
+        verify(mSubscriberService).addVmsSubscriber(mSubscriberClient, LAYER);
+    }
+
+    /**
+     * SUBSCRIBE_TO_PUBLISHER message format:
+     * <ul>
+     * <li>Message type
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Publisher ID
+     * </ul>
+     */
+    @Test
+    public void testHandleSubscribeToPublisherEvent() throws Exception {
+        VehiclePropValue message = createHalMessage(
+                VmsMessageType.SUBSCRIBE_TO_PUBLISHER,     // Message type
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // VmsLayer
+                PUBLISHER_ID                               // PublisherId
+        );
+
+        sendHalMessage(message);
+        verify(mSubscriberService).addVmsSubscriberToPublisher(mSubscriberClient, LAYER,
+                PUBLISHER_ID);
+    }
+
+    /**
+     * UNSUBSCRIBE message format:
+     * <ul>
+     * <li>Message type
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * </ul>
+     */
+    @Test
+    public void testHandleUnsubscribeEvent() throws Exception {
+        VehiclePropValue message = createHalMessage(
+                VmsMessageType.UNSUBSCRIBE,               // Message type
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION  // VmsLayer
+        );
+
+        sendHalMessage(message);
+        verify(mSubscriberService).removeVmsSubscriber(mSubscriberClient, LAYER);
+    }
+
+    /**
+     * UNSUBSCRIBE_TO_PUBLISHER message format:
+     * <ul>
+     * <li>Message type
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Publisher ID
+     * </ul>
+     */
+    @Test
+    public void testHandleUnsubscribeFromPublisherEvent() throws Exception {
+        VehiclePropValue message = createHalMessage(
+                VmsMessageType.UNSUBSCRIBE_TO_PUBLISHER,   // Message type
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // VmsLayer
+                PUBLISHER_ID                               // PublisherId
+        );
+
+        sendHalMessage(message);
+        verify(mSubscriberService).removeVmsSubscriberToPublisher(mSubscriberClient, LAYER,
+                PUBLISHER_ID);
+    }
+
+    /**
+     * OFFERING message format:
+     * <ul>
+     * <li>Message type
+     * <li>Publisher ID
+     * <li>Number of offerings.
+     * <li>Offerings (x number of offerings)
+     * <ul>
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Number of layer dependencies.
+     * <li>Layer dependencies (x number of layer dependencies)
+     * <ul>
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * </ul>
+     * </ul>
+     * </ul>
+     */
+    @Test
+    public void testHandleOfferingEvent_ZeroOfferings() throws Exception {
+        VehiclePropValue message = createHalMessage(
+                VmsMessageType.OFFERING,  // Message type
+                PUBLISHER_ID,             // PublisherId
+                0                         // # of offerings
+        );
+
+        sendHalMessage(message);
+        verify(mPublisherService).setLayersOffering(
+                mToken,
+                new VmsLayersOffering(Collections.emptySet(), PUBLISHER_ID));
     }
 
     @Test
-    public void testSetPublisherLayersOffering_Repeated() {
-        VmsLayer layer = new VmsLayer(1, 2, 3);
-        VmsLayersOffering offering = new VmsLayersOffering(
-                Sets.newHashSet(new VmsLayerDependency(layer)), 12345);
-        mHalService.setPublisherLayersOffering(mToken, offering);
-        mHalService.setPublisherLayersOffering(mToken, offering);
+    public void testHandleOfferingEvent_LayerOnly() throws Exception {
+        VehiclePropValue message = createHalMessage(
+                VmsMessageType.OFFERING,                   // Message type
+                PUBLISHER_ID,                              // PublisherId
+                1,                                         // # of offerings
+                // Offered layer
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,
+                0                                          // # of dependencies
+        );
 
-        VmsAssociatedLayer associatedLayer = new VmsAssociatedLayer(layer, Sets.newHashSet(12345));
-        verify(mMockHalSusbcriber).onLayersAvaiabilityChange(eq(new VmsAvailableLayers(
-                Sets.newHashSet(associatedLayer),
-                1)));
-        verify(mMockHalSusbcriber).onLayersAvaiabilityChange(eq(new VmsAvailableLayers(
-                Sets.newHashSet(associatedLayer),
-                2)));
-
+        sendHalMessage(message);
+        verify(mPublisherService).setLayersOffering(
+                mToken,
+                new VmsLayersOffering(Collections.singleton(
+                        new VmsLayerDependency(LAYER)),
+                        PUBLISHER_ID));
     }
 
     @Test
-    public void testSetPublisherLayersOffering_MultiplePublishers() {
-        VmsLayer layer = new VmsLayer(1, 2, 3);
-        VmsLayersOffering offering = new VmsLayersOffering(
-                Sets.newHashSet(new VmsLayerDependency(layer)), 12345);
-        VmsLayersOffering offering2 = new VmsLayersOffering(
-                Sets.newHashSet(new VmsLayerDependency(layer)), 54321);
-        mHalService.setPublisherLayersOffering(mToken, offering);
-        mHalService.setPublisherLayersOffering(new Binder(), offering2);
+    public void testHandleOfferingEvent_LayerAndDependency() throws Exception {
+        VehiclePropValue message = createHalMessage(
+                VmsMessageType.OFFERING,                   // Message type
+                PUBLISHER_ID,                              // PublisherId
+                1,                                         // # of offerings
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // Layer
+                1,                                         // # of dependencies
+                4, 5, 6                                    // Dependency layer
+        );
 
-        verify(mMockHalSusbcriber).onLayersAvaiabilityChange(eq(new VmsAvailableLayers(
-                Sets.newHashSet(new VmsAssociatedLayer(layer, Sets.newHashSet(12345))),
-                1)));
-        verify(mMockHalSusbcriber).onLayersAvaiabilityChange(eq(new VmsAvailableLayers(
-                Sets.newHashSet(new VmsAssociatedLayer(layer, Sets.newHashSet(12345, 54321))),
-                2)));
-
+        sendHalMessage(message);
+        verify(mPublisherService).setLayersOffering(
+                mToken,
+                new VmsLayersOffering(Collections.singleton(
+                        new VmsLayerDependency(LAYER, Collections.singleton(
+                                new VmsLayer(4, 5, 6)))),
+                        PUBLISHER_ID));
     }
 
     @Test
-    public void testSetPublisherLayersOffering_MultiplePublishers_SharedToken() {
-        VmsLayer layer = new VmsLayer(1, 2, 3);
-        VmsLayersOffering offering = new VmsLayersOffering(
-                Sets.newHashSet(new VmsLayerDependency(layer)), 12345);
-        VmsLayersOffering offering2 = new VmsLayersOffering(
-                Sets.newHashSet(new VmsLayerDependency(layer)), 54321);
-        mHalService.setPublisherLayersOffering(mToken, offering);
-        mHalService.setPublisherLayersOffering(mToken, offering2);
+    public void testHandleOfferingEvent_MultipleLayersAndDependencies() throws Exception {
+        VehiclePropValue message = createHalMessage(
+                VmsMessageType.OFFERING,                   // Message type
+                PUBLISHER_ID,                              // PublisherId
+                3,                                         // # of offerings
+                // Offered layer #1
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // Layer
+                2,                                         // # of dependencies
+                4, 5, 6,                                   // Dependency layer
+                7, 8, 9,                                   // Dependency layer
+                // Offered layer #2
+                3, 2, 1,                                   // Layer
+                0,                                         // # of dependencies
+                // Offered layer #3
+                6, 5, 4,                                   // Layer
+                1,                                         // # of dependencies
+                7, 8, 9                                    // Dependency layer
+        );
 
-        verify(mMockHalSusbcriber).onLayersAvaiabilityChange(eq(new VmsAvailableLayers(
-                Sets.newHashSet(new VmsAssociatedLayer(layer, Sets.newHashSet(12345))),
-                1)));
-        verify(mMockHalSusbcriber).onLayersAvaiabilityChange(eq(new VmsAvailableLayers(
-                Sets.newHashSet(new VmsAssociatedLayer(layer, Sets.newHashSet(12345, 54321))),
-                2)));
+        sendHalMessage(message);
+        verify(mPublisherService).setLayersOffering(
+                mToken,
+                new VmsLayersOffering(new LinkedHashSet<>(Arrays.asList(
+                        new VmsLayerDependency(LAYER, new LinkedHashSet<>(Arrays.asList(
+                                new VmsLayer(4, 5, 6),
+                                new VmsLayer(7, 8, 9)
+                        ))),
+                        new VmsLayerDependency(new VmsLayer(3, 2, 1), Collections.emptySet()),
+                        new VmsLayerDependency(new VmsLayer(6, 5, 4), Collections.singleton(
+                                new VmsLayer(7, 8, 9)
+                        )))),
+                        PUBLISHER_ID));
+    }
+
+    /**
+     * AVAILABILITY_REQUEST message format:
+     * <ul>
+     * <li>Message type
+     * </ul>
+     *
+     * AVAILABILITY_RESPONSE message format:
+     * <ul>
+     * <li>Message type
+     * <li>Sequence number.
+     * <li>Number of associated layers.
+     * <li>Associated layers (x number of associated layers)
+     * <ul>
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Number of publishers
+     * <li>Publisher ID (x number of publishers)
+     * </ul>
+     * </ul>
+     */
+    @Test
+    public void testHandleAvailabilityRequestEvent_ZeroLayers() throws Exception {
+        VehiclePropValue request = createHalMessage(
+                VmsMessageType.AVAILABILITY_REQUEST  // Message type
+        );
+
+        when(mSubscriberService.getAvailableLayers()).thenReturn(
+                new VmsAvailableLayers(Collections.emptySet(), 123));
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.AVAILABILITY_RESPONSE,  // Message type
+                123,                                   // Sequence number
+                0                                      // # of associated layers
+        );
+
+        sendHalMessage(request);
+        verify(mVehicleHal).set(response);
     }
 
     @Test
-    public void testSetPublisherLayersOffering_MultiplePublishers_MultipleLayers() {
-        VmsLayer layer = new VmsLayer(1, 2, 3);
-        VmsLayer layer2 = new VmsLayer(2, 2, 3);
-        VmsLayersOffering offering = new VmsLayersOffering(
-                Sets.newHashSet(new VmsLayerDependency(layer)), 12345);
-        VmsLayersOffering offering2 = new VmsLayersOffering(
-                Sets.newHashSet(new VmsLayerDependency(layer2)), 54321);
-        mHalService.setPublisherLayersOffering(mToken, offering);
-        mHalService.setPublisherLayersOffering(new Binder(), offering2);
+    public void testHandleAvailabilityRequestEvent_OneLayer() throws Exception {
+        VehiclePropValue request = createHalMessage(
+                VmsMessageType.AVAILABILITY_REQUEST  // Message type
+        );
 
-        verify(mMockHalSusbcriber).onLayersAvaiabilityChange(eq(new VmsAvailableLayers(
-                Sets.newHashSet(new VmsAssociatedLayer(layer, Sets.newHashSet(12345))),
-                1)));
-        verify(mMockHalSusbcriber).onLayersAvaiabilityChange(eq(new VmsAvailableLayers(
-                Sets.newHashSet(
-                        new VmsAssociatedLayer(layer, Sets.newHashSet(12345)),
-                        new VmsAssociatedLayer(layer2, Sets.newHashSet(54321))),
-                2)));
+        when(mSubscriberService.getAvailableLayers()).thenReturn(
+                new VmsAvailableLayers(Collections.singleton(
+                        new VmsAssociatedLayer(LAYER, Collections.singleton(PUBLISHER_ID))), 123));
 
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.AVAILABILITY_RESPONSE,      // Message type
+                123,                                       // Sequence number
+                1,                                         // # of associated layers
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // Layer
+                1,                                         // # of publisher IDs
+                PUBLISHER_ID                               // Publisher ID
+        );
+
+        sendHalMessage(request);
+        verify(mVehicleHal).set(response);
+    }
+
+
+    @Test
+    public void testHandleAvailabilityRequestEvent_MultipleLayers() throws Exception {
+        VehiclePropValue request = createHalMessage(
+                VmsMessageType.AVAILABILITY_REQUEST  // Message type
+        );
+
+        when(mSubscriberService.getAvailableLayers()).thenReturn(
+                new VmsAvailableLayers(new LinkedHashSet<>(Arrays.asList(
+                        new VmsAssociatedLayer(LAYER,
+                                new LinkedHashSet<>(Arrays.asList(PUBLISHER_ID, 54321))),
+                        new VmsAssociatedLayer(new VmsLayer(3, 2, 1),
+                                Collections.emptySet()),
+                        new VmsAssociatedLayer(new VmsLayer(6, 5, 4),
+                                Collections.singleton(99999)))),
+                        123));
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.AVAILABILITY_RESPONSE,      // Message type
+                123,                                       // Sequence number
+                3,                                         // # of associated layers
+                // Associated layer #1
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // Layer
+                2,                                         // # of publisher IDs
+                PUBLISHER_ID,                              // Publisher ID
+                54321,                                     // Publisher ID #2
+                // Associated layer #2
+                3, 2, 1,                                   // Layer
+                0,                                         // # of publisher IDs
+                // Associated layer #3
+                6, 5, 4,                                   // Layer
+                1,                                         // # of publisher IDs
+                99999                                      // Publisher ID
+
+        );
+
+        sendHalMessage(request);
+        verify(mVehicleHal).set(response);
+    }
+
+    /**
+     * AVAILABILITY_CHANGE message format:
+     * <ul>
+     * <li>Message type
+     * <li>Sequence number.
+     * <li>Number of associated layers.
+     * <li>Associated layers (x number of associated layers)
+     * <ul>
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Number of publishers
+     * <li>Publisher ID (x number of publishers)
+     * </ul>
+     * </ul>
+     */
+    @Test
+    public void testOnLayersAvailabilityChanged_ZeroLayers() throws Exception {
+        mSubscriberClient.onLayersAvailabilityChanged(
+                new VmsAvailableLayers(Collections.emptySet(), 123));
+
+        VehiclePropValue message = createHalMessage(
+                VmsMessageType.AVAILABILITY_CHANGE,    // Message type
+                123,                                   // Sequence number
+                0                                      // # of associated layers
+        );
+
+        waitForHandlerCompletion();
+        verify(mVehicleHal).set(message);
     }
 
     @Test
-    public void testSetPublisherLayersOffering_MultiplePublishers_MultipleLayers_SharedToken() {
-        VmsLayer layer = new VmsLayer(1, 2, 3);
-        VmsLayer layer2 = new VmsLayer(2, 2, 3);
-        VmsLayersOffering offering = new VmsLayersOffering(
-                Sets.newHashSet(new VmsLayerDependency(layer)), 12345);
-        VmsLayersOffering offering2 = new VmsLayersOffering(
-                Sets.newHashSet(new VmsLayerDependency(layer2)), 54321);
-        mHalService.setPublisherLayersOffering(mToken, offering);
-        mHalService.setPublisherLayersOffering(mToken, offering2);
+    public void testOnLayersAvailabilityChanged_OneLayer() throws Exception {
+        mSubscriberClient.onLayersAvailabilityChanged(
+                new VmsAvailableLayers(Collections.singleton(
+                        new VmsAssociatedLayer(LAYER, Collections.singleton(PUBLISHER_ID))), 123));
 
-        verify(mMockHalSusbcriber).onLayersAvaiabilityChange(eq(new VmsAvailableLayers(
-                Sets.newHashSet(new VmsAssociatedLayer(layer, Sets.newHashSet(12345))),
-                1)));
-        verify(mMockHalSusbcriber).onLayersAvaiabilityChange(eq(new VmsAvailableLayers(
-                Sets.newHashSet(
-                        new VmsAssociatedLayer(layer, Sets.newHashSet(12345)),
-                        new VmsAssociatedLayer(layer2, Sets.newHashSet(54321))),
-                2)));
+        VehiclePropValue message = createHalMessage(
+                VmsMessageType.AVAILABILITY_CHANGE,        // Message type
+                123,                                       // Sequence number
+                1,                                         // # of associated layers
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // Layer
+                1,                                         // # of publisher IDs
+                PUBLISHER_ID                               // Publisher ID
+        );
 
+        waitForHandlerCompletion();
+        verify(mVehicleHal).set(message);
+    }
+
+
+    @Test
+    public void testOnLayersAvailabilityChanged_MultipleLayers() throws Exception {
+        mSubscriberClient.onLayersAvailabilityChanged(
+                new VmsAvailableLayers(new LinkedHashSet<>(Arrays.asList(
+                        new VmsAssociatedLayer(LAYER,
+                                new LinkedHashSet<>(Arrays.asList(PUBLISHER_ID, 54321))),
+                        new VmsAssociatedLayer(new VmsLayer(3, 2, 1),
+                                Collections.emptySet()),
+                        new VmsAssociatedLayer(new VmsLayer(6, 5, 4),
+                                Collections.singleton(99999)))),
+                        123));
+
+        VehiclePropValue message = createHalMessage(
+                VmsMessageType.AVAILABILITY_CHANGE,      // Message type
+                123,                                       // Sequence number
+                3,                                         // # of associated layers
+                // Associated layer #1
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // Layer
+                2,                                         // # of publisher IDs
+                PUBLISHER_ID,                              // Publisher ID
+                54321,                                     // Publisher ID #2
+                // Associated layer #2
+                3, 2, 1,                                   // Layer
+                0,                                         // # of publisher IDs
+                // Associated layer #3
+                6, 5, 4,                                   // Layer
+                1,                                         // # of publisher IDs
+                99999                                      // Publisher ID
+
+        );
+
+        waitForHandlerCompletion();
+        verify(mVehicleHal).set(message);
+    }
+
+    /**
+     * SUBSCRIPTION_REQUEST message format:
+     * <ul>
+     * <li>Message type
+     * </ul>
+     *
+     * SUBSCRIPTION_RESPONSE message format:
+     * <ul>
+     * <li>Message type
+     * <li>Sequence number
+     * <li>Number of layers
+     * <li>Number of associated layers
+     * <li>Layers (x number of layers)
+     * <ul>
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * </ul>
+     * <li>Associated layers (x number of associated layers)
+     * <ul>
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Number of publishers
+     * <li>Publisher ID (x number of publishers)
+     * </ul>
+     * </ul>
+     */
+    @Test
+    public void testHandleSubscriptionsRequestEvent_ZeroLayers() throws Exception {
+        VehiclePropValue request = createHalMessage(
+                VmsMessageType.SUBSCRIPTIONS_REQUEST  // Message type
+        );
+
+        when(mPublisherService.getSubscriptions()).thenReturn(
+                new VmsSubscriptionState(123, Collections.emptySet(), Collections.emptySet()));
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.SUBSCRIPTIONS_RESPONSE,  // Message type
+                123,                                    // Sequence number
+                0,                                      // # of layers
+                0                                       // # of associated layers
+        );
+
+        sendHalMessage(request);
+        verify(mVehicleHal).set(response);
+    }
+
+    @Test
+    public void testHandleSubscriptionsRequestEvent_OneLayer_ZeroAssociatedLayers()
+            throws Exception {
+        VehiclePropValue request = createHalMessage(
+                VmsMessageType.SUBSCRIPTIONS_REQUEST  // Message type
+        );
+
+        when(mPublisherService.getSubscriptions()).thenReturn(
+                new VmsSubscriptionState(123, Collections.singleton(LAYER),
+                        Collections.emptySet()));
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.SUBSCRIPTIONS_RESPONSE,     // Message type
+                123,                                       // Sequence number
+                1,                                         // # of layers
+                0,                                         // # of associated layers
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION   // Layer
+        );
+
+        sendHalMessage(request);
+        verify(mVehicleHal).set(response);
+    }
+
+    @Test
+    public void testHandleSubscriptionsRequestEvent_ZeroLayers_OneAssociatedLayer()
+            throws Exception {
+        VehiclePropValue request = createHalMessage(
+                VmsMessageType.SUBSCRIPTIONS_REQUEST  // Message type
+        );
+
+        when(mPublisherService.getSubscriptions()).thenReturn(
+                new VmsSubscriptionState(123, Collections.emptySet(), Collections.singleton(
+                        new VmsAssociatedLayer(LAYER, Collections.singleton(PUBLISHER_ID)))));
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.SUBSCRIPTIONS_RESPONSE,     // Message type
+                123,                                       // Sequence number
+                0,                                         // # of layers
+                1,                                         // # of associated layers
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // Layer
+                1,                                         // # of publisher IDs
+                PUBLISHER_ID                               // Publisher ID
+        );
+
+        sendHalMessage(request);
+        verify(mVehicleHal).set(response);
+    }
+
+    @Test
+    public void testHandleSubscriptionsRequestEvent_MultipleLayersAndAssociatedLayers()
+            throws Exception {
+        VehiclePropValue request = createHalMessage(
+                VmsMessageType.SUBSCRIPTIONS_REQUEST  // Message type
+        );
+
+        when(mPublisherService.getSubscriptions()).thenReturn(
+                new VmsSubscriptionState(123,
+                        new LinkedHashSet<>(Arrays.asList(
+                                LAYER,
+                                new VmsLayer(4, 5, 6),
+                                new VmsLayer(7, 8, 9)
+                        )),
+                        new LinkedHashSet<>(Arrays.asList(
+                                new VmsAssociatedLayer(LAYER, Collections.emptySet()),
+                                new VmsAssociatedLayer(new VmsLayer(6, 5, 4),
+                                        new LinkedHashSet<>(Arrays.asList(
+                                                PUBLISHER_ID,
+                                                54321))))))
+        );
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.SUBSCRIPTIONS_RESPONSE,     // Message type
+                123,                                       // Sequence number
+                3,                                         // # of layers
+                2,                                         // # of associated layers
+                // Layer #1
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // Layer
+                // Layer #2
+                4, 5, 6,                                   // Layer
+                // Layer #3
+                7, 8, 9,                                   // Layer
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // Layer
+                0,                                         // # of publisher IDs
+                6, 5, 4,                                   // Layer
+                2,                                         // # of publisher IDs
+                PUBLISHER_ID,                              // Publisher ID
+                54321                                      // Publisher ID #2
+        );
+
+        sendHalMessage(request);
+        verify(mVehicleHal).set(response);
+    }
+
+    /**
+     * SUBSCRIPTIONS_CHANGE message format:
+     * <ul>
+     * <li>Message type
+     * <li>Sequence number
+     * <li>Number of layers
+     * <li>Number of associated layers
+     * <li>Layers (x number of layers)
+     * <ul>
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * </ul>
+     * <li>Associated layers (x number of associated layers)
+     * <ul>
+     * <li>Layer ID
+     * <li>Layer subtype
+     * <li>Layer version
+     * <li>Number of publishers
+     * <li>Publisher ID (x number of publishers)
+     * </ul>
+     * </ul>
+     */
+    @Test
+    public void testOnVmsSubscriptionChange_ZeroLayers() throws Exception {
+        mPublisherClient.onVmsSubscriptionChange(
+                new VmsSubscriptionState(123, Collections.emptySet(), Collections.emptySet()));
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.SUBSCRIPTIONS_CHANGE,    // Message type
+                123,                                    // Sequence number
+                0,                                      // # of layers
+                0                                       // # of associated layers
+        );
+
+        waitForHandlerCompletion();
+        verify(mVehicleHal).set(response);
+    }
+
+    @Test
+    public void testOnVmsSubscriptionChange_OneLayer_ZeroAssociatedLayers()
+            throws Exception {
+        mPublisherClient.onVmsSubscriptionChange(
+                new VmsSubscriptionState(123, Collections.singleton(LAYER),
+                        Collections.emptySet()));
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.SUBSCRIPTIONS_CHANGE,       // Message type
+                123,                                       // Sequence number
+                1,                                         // # of layers
+                0,                                         // # of associated layers
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION   // Layer
+        );
+
+        waitForHandlerCompletion();
+        verify(mVehicleHal).set(response);
+    }
+
+    @Test
+    public void testOnVmsSubscriptionChange_ZeroLayers_OneAssociatedLayer()
+            throws Exception {
+        mPublisherClient.onVmsSubscriptionChange(
+                new VmsSubscriptionState(123, Collections.emptySet(), Collections.singleton(
+                        new VmsAssociatedLayer(LAYER, Collections.singleton(PUBLISHER_ID)))));
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.SUBSCRIPTIONS_CHANGE,       // Message type
+                123,                                       // Sequence number
+                0,                                         // # of layers
+                1,                                         // # of associated layers
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // Layer
+                1,                                         // # of publisher IDs
+                PUBLISHER_ID                               // Publisher ID
+        );
+
+        waitForHandlerCompletion();
+        verify(mVehicleHal).set(response);
+    }
+
+    @Test
+    public void testOnVmsSubscriptionChange_MultipleLayersAndAssociatedLayers()
+            throws Exception {
+        mPublisherClient.onVmsSubscriptionChange(
+                new VmsSubscriptionState(123,
+                        new LinkedHashSet<>(Arrays.asList(
+                                LAYER,
+                                new VmsLayer(4, 5, 6),
+                                new VmsLayer(7, 8, 9)
+                        )),
+                        new LinkedHashSet<>(Arrays.asList(
+                                new VmsAssociatedLayer(LAYER, Collections.emptySet()),
+                                new VmsAssociatedLayer(new VmsLayer(6, 5, 4),
+                                        new LinkedHashSet<>(Arrays.asList(
+                                                PUBLISHER_ID,
+                                                54321))))))
+        );
+
+        VehiclePropValue response = createHalMessage(
+                VmsMessageType.SUBSCRIPTIONS_CHANGE,       // Message type
+                123,                                       // Sequence number
+                3,                                         // # of layers
+                2,                                         // # of associated layers
+                // Layer #1
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // Layer
+                // Layer #2
+                4, 5, 6,                                   // Layer
+                // Layer #3
+                7, 8, 9,                                   // Layer
+                LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // Layer
+                0,                                         // # of publisher IDs
+                6, 5, 4,                                   // Layer
+                2,                                         // # of publisher IDs
+                PUBLISHER_ID,                              // Publisher ID
+                54321                                      // Publisher ID #2
+        );
+
+        waitForHandlerCompletion();
+        verify(mVehicleHal).set(response);
+    }
+
+    private static VehiclePropValue createHalMessage(Integer... message) {
+        VehiclePropValue result = new VehiclePropValue();
+        result.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
+        result.value.int32Values.addAll(Arrays.asList(message));
+        return result;
+    }
+
+    private void sendHalMessage(VehiclePropValue message) {
+        mHalService.handleHalEvents(Collections.singletonList(message));
+    }
+
+    private void waitForHandlerCompletion() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+        mHalService.getHandler().post(() -> {
+            latch.countDown();
+        });
+        latch.await(5, TimeUnit.SECONDS);
     }
 }
