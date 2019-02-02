@@ -17,33 +17,33 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Տեղեկություններ մեքենայի մասին"</string>
-    <string name="car_permission_desc" msgid="37967366937946700">"Ընթերցել մեքենայի մասին տեղեկությունները"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"Ընթերցել մեքենայի մասին տեղեկությունները"</string>
     <string name="car_permission_label_cabin" msgid="7737204489497269651">"Խցիկ"</string>
-    <string name="car_permission_desc_cabin" msgid="5658746726474282714">"Կառավարել թափքի և խցիկի տարրերը՝ դռները, հայելիները, նստատեղերը և պատուհանները"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Կառավարել թափքի և խցիկի տարրերը՝ դռները, հայելիները, նստատեղերը և պատուհանները"</string>
     <string name="car_permission_label_camera" msgid="608969838109034886">"Մեքենայի տեսախցիկ"</string>
-    <string name="car_permission_desc_camera" msgid="7177565584644606387">"Կառավարել մեքենայի տեսախցիկ(ներ)ը"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"Կառավարել մեքենայի տեսախցիկ(ներ)ը"</string>
     <string name="car_permission_label_energy" msgid="3398092932402178393">"Էներգառեսուրսներ"</string>
-    <string name="car_permission_desc_energy" msgid="2925098075119509004">"Ընթերցել մեքենայի էներգառեսուրսների մասին տվյալները"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Ընթերցել մեքենայի էներգառեսուրսների մասին տվյալները"</string>
     <string name="car_permission_label_hvac" msgid="8047274427463154164">"HVAC համակարգ"</string>
-    <string name="car_permission_desc_hvac" msgid="7837686458309247154">"Կառավարել HVAC համակարգը"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Կառավարել HVAC համակարգը"</string>
     <string name="car_permission_label_mileage" msgid="811821331694754443">"Մեքենայի վազքը"</string>
-    <string name="car_permission_desc_mileage" msgid="261946195057016914">"Օգտագործել մեքենայի վազքի մասին տվյալները"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Օգտագործել մեքենայի վազքի մասին տեղեկությունները"</string>
     <string name="car_permission_label_speed" msgid="7315924371063443241">"Մեքենայի արագություն"</string>
-    <string name="car_permission_desc_speed" msgid="4394638712070011650">"Օգտագործել մեքենայի արագության մասին տվյալները"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Ընթերցել մեքենայի արագության մասին տեղեկությունները"</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Մեքենայի դինամիկայի մասին տվյալներ"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="2458601597024393569">"Ընթերցել մեքենայի դինամիկայի մասին տվյալները"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"Ընթերցել մեքենայի դինամիկայի մասին տվյալները"</string>
     <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Մեքենայի վաճառողի ալիք"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="7223384502421767491">"Մուտք գործել վաճառողի ցանց՝ մեքենային բնորոշ տեղեկություններ փոխանակելու համար"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Մուտք գործել վաճառողի ալիք՝ մեքենային բնորոշ տեղեկություններ փոխանակելու համար"</string>
     <string name="car_permission_label_radio" msgid="4768692394049267617">"Ռադիո"</string>
-    <string name="car_permission_desc_radio" msgid="3544198603152937942">"Կառավարել մեքենայի ռադիոն"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"Կառավարել մեքենայի ռադիոն"</string>
     <string name="car_permission_label_projection" msgid="7830068427803303154">"ՀԵռարձակում մեքենայի էկրանին"</string>
     <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Աուդիո համակարգի ձայնի ուժգնություն"</string>
     <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Մեքենայի աուդիո համակարգի կարգավորումներ"</string>
     <string name="car_permission_desc_projection" msgid="2680001094361534439">"Ցուցադրել հեռախոսի միջերեսը մեքենայի էկրանին"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"Նմանակել HAL միջերեսը"</string>
-    <string name="car_permission_desc_mock_vehicle_hal" msgid="3549687008625373417">"Նմանակել HAL միջերեսը ներքին փորձարկման համար"</string>
-    <string name="car_permission_desc_audio_volume" msgid="7484628324723179580">"Կառավարել մեքենայի աուդիո համակարգի ձայնի ուժգնությունը"</string>
-    <string name="car_permission_desc_audio_settings" msgid="2871870084988702516">"Կառավարել մեքենայի աուդիո համակարգի կարգավորումները"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Նմանակել HAL միջերեսը ներքին փորձարկման համար"</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Կառավարել մեքենայի աուդիո համակարգի ձայնի ուժգնությունը"</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Կառավարել մեքենայի աուդիո համակարգի կարգավորումները"</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Հավելվածների արգելափակում"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Արգելափակել հավելվածները վարելու ռեժիմում"</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Նավիգատոր"</string>
@@ -60,9 +60,10 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Մշակել ներածման իրադարձությունները"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN անվադողի սխալ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN անվադողը չի պատասխանում: Անջատեք և նորից միացրեք միակցիչը, ապա անջատեք վառոցքը և վերագործարկեք մեքենան:"</string>
-    <string name="activity_blocked_text" msgid="7117775117422916032">"Անվտանգության նկատառումներով այս գործողությունը հասանելի չէ վարելու ռեժիմում"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"Անվտանգության նկատառումներով այս գործողությունը հասանելի չէ վարելու ռեժիմում:\nՇարունակելու համար կայանեք մեքենան:"</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"Հավելվածն անվտանգ ռեժիմում վերագործարկելու համար սեղմեք<xliff:g id="EXIT_BUTTON">%s</xliff:g> կոճակը:"</string>
+    <string name="exit_button" msgid="5829638404777671253">"Հետ"</string>
     <string name="debug_button_text" msgid="6395881820644544676">"Debug Info"</string>
-    <string name="exit_button" msgid="626660628135437972">"Վերագործարկել"</string>
     <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Ախտորոշման տվյալներ"</string>
     <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Ընթերցել մեքենայի ախտորոշման տվյալները"</string>
     <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Ախտորոշման տվյալներ"</string>
@@ -76,19 +77,19 @@
     <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Վարելու ռեժիմ"</string>
     <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Հետագծել վարելու ռեժիմի փոփոխությունները"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Շարժիչ"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="7360817472577625295">"Ընթերցել շարժիչի մանրամասն տվյալները"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"Ընթերցել շարժիչի մասին մանրամասն տեղեկությունները"</string>
     <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Վառելիքի բաքի դռնակ կամ լիցքավորման վարդակ"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Կառավարել վառելիքի բաքի դռնակը կամ լիցքավորման վարդակը"</string>
     <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Մեքենայի նույնականացում"</string>
-    <string name="car_permission_desc_car_identification" msgid="3446202891279037295">"Ընթերցել մեքենայի նույնականացման տվյալները"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"Ընթերցել մեքենայի նույնականացման տվյալները"</string>
     <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Մեքենայի դռներ"</string>
-    <string name="car_permission_desc_control_car_doors" msgid="438796526924485694">"Կառավարել մեքենայի դռները"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"Կառավարել մեքենայի դռները"</string>
     <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Պատուհաններ"</string>
-    <string name="car_permission_desc_control_car_windows" msgid="7191531366203590752">"Կառավարել մեքենայի պատուհանները"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"Կառավարել մեքենայի պատուհանները"</string>
     <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"ՄԵքենայի հայելիներ"</string>
-    <string name="car_permission_desc_control_car_mirrors" msgid="1329068133900689986">"Կառավարել մեքենայի հայելիները"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"Կառավարել մեքենայի հայելիները"</string>
     <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Նստատեղեր"</string>
-    <string name="car_permission_desc_control_car_seats" msgid="5319108612196099191">"Կառավարել նստատեղերը"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Կառավարել նստատեղերը"</string>
     <string name="car_permission_label_car_info" msgid="5638680944359440535">"Ընդհանուր տեղեկություններ մեքենայի մասին"</string>
     <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Ընթերցել մեքենայի մասին ընդհանուր տեղեկությունները"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Մեքենայի արտաքին լույսեր"</string>

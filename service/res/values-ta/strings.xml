@@ -17,33 +17,33 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"காரின் தகவல்"</string>
-    <string name="car_permission_desc" msgid="37967366937946700">"காரின் தகவலை அணுகுதல்."</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"காரின் தகவலை அணுகுதல்."</string>
     <string name="car_permission_label_cabin" msgid="7737204489497269651">"காரின் கேபின்"</string>
-    <string name="car_permission_desc_cabin" msgid="5658746726474282714">"காரின் கதவுகள், கண்ணாடிகள், இருக்கைகள், ஜன்னல்கள் போன்றவற்றை அணுகுதல்."</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"காரின் கதவுகள், கண்ணாடிகள், இருக்கைகள், ஜன்னல்கள் போன்றவற்றை அணுகுதல்."</string>
     <string name="car_permission_label_camera" msgid="608969838109034886">"காரின் கேமரா"</string>
-    <string name="car_permission_desc_camera" msgid="7177565584644606387">"காரின் கேமராவை அணுகுதல்."</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"காரின் கேமராவை அணுகுதல்."</string>
     <string name="car_permission_label_energy" msgid="3398092932402178393">"காரின் எரிபொருள்"</string>
-    <string name="car_permission_desc_energy" msgid="2925098075119509004">"காரின் எரிபொருள் தகவலை அணுகுதல்."</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"காரின் எரிபொருள் தகவலை அணுகுதல்."</string>
     <string name="car_permission_label_hvac" msgid="8047274427463154164">"காரில் வெப்பம், காற்றோட்டம், குளிர்சாதன வசதி ஆகியவற்றை உள்ளடக்கிய அமைப்பு (hvac)"</string>
-    <string name="car_permission_desc_hvac" msgid="7837686458309247154">"காரில் வெப்பம், காற்றோட்டம், குளிர்சாதன வசதி ஆகியவற்றை உள்ளடக்கிய அமைப்பை (hvac) அணுகுதல்."</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"காரில் வெப்பம், காற்றோட்டம், குளிர்சாதன வசதி ஆகியவற்றை உள்ளடக்கிய அமைப்பை (hvac) அணுகுதல்."</string>
     <string name="car_permission_label_mileage" msgid="811821331694754443">"காரின் மைலேஜ்"</string>
-    <string name="car_permission_desc_mileage" msgid="261946195057016914">"காரின் மைலேஜ் தகவலை அணுகுதல்."</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"காரின் மைலேஜ் தகவலை அணுகுதல்."</string>
     <string name="car_permission_label_speed" msgid="7315924371063443241">"காரின் வேகம்"</string>
-    <string name="car_permission_desc_speed" msgid="4394638712070011650">"காரின் வேகத்தை அணுகுதல்."</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"காரின் வேகத்தை அணுகுதல்."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"வாகனத்தின் இயக்கவியல் நிலை"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="2458601597024393569">"காரின் இயக்கவியல் நிலையை அணுகுதல்"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"காரின் இயக்கவியலை அணுகுதல்"</string>
     <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"காரின் தயாரிப்பாளர் விவரங்கள்"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="7223384502421767491">"கார் பற்றிய தகவலைப் பகிர்ந்துகொள்ள காரின் தயாரிப்பாளர் விவரங்களை அணுகுதல்."</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"கார் பற்றிய தகவலைப் பகிர்ந்துகொள்ள காரின் தயாரிப்பாளர் விவரங்களை அணுகுதல்."</string>
     <string name="car_permission_label_radio" msgid="4768692394049267617">"கார் ரேடியோ"</string>
-    <string name="car_permission_desc_radio" msgid="3544198603152937942">"காரின் ரேடியோவை அணுகுதல்."</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"காரின் ரேடியோவை அணுகுதல்."</string>
     <string name="car_permission_label_projection" msgid="7830068427803303154">"காரின் காட்சிப்படுத்தல்"</string>
     <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"காரின் ஆடியோ அளவு"</string>
     <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"கார் ஆடியோ அமைப்புகள்"</string>
     <string name="car_permission_desc_projection" msgid="2680001094361534439">"காரின் திரையில் மொபைல் திரையைக் காட்சிப்படுத்துதல்."</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"வாகனத்தின் HAL போன்றே இன்னொன்றை உருவாக்குதல்"</string>
-    <string name="car_permission_desc_mock_vehicle_hal" msgid="3549687008625373417">"உள்ளுக்குள்ளேயே சோதனை செய்து பார்ப்பதற்காகக் காரின் HALலைப் போன்றே இன்னொன்றை உருவாக்குதல்."</string>
-    <string name="car_permission_desc_audio_volume" msgid="7484628324723179580">"காரின் ஆடியோ அளவைச் சரிசெய்தல்."</string>
-    <string name="car_permission_desc_audio_settings" msgid="2871870084988702516">"காரின் ஆடியோ அமைப்புகளை நிர்வகித்தல்."</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"உள்ளுக்குள்ளேயே சோதனை செய்து பார்ப்பதற்காகக் காரின் HALலைப் போன்றே இன்னொன்றை உருவாக்குதல்."</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"காரின் ஆடியோ அளவைச் சரிசெய்தல்."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"காரின் ஆடியோ அமைப்புகளை நிர்வகித்தல்."</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"ஆப்ஸைத் தடுத்தல்"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"வாகனம் ஓட்டும்போது ஆப்ஸ் தடுக்கப்படுவதை நிர்வகித்தல்."</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"வழிசெலுத்தல் நிர்வாகி"</string>
@@ -60,9 +60,10 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"உற்பத்தியாளர் வழங்கும் சேவைகளைக் கையாளுதல்"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus அமைப்பு தோல்வியடைந்தது"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus அமைப்பு இயங்கவில்லை. ஹெட்யூனிட் பாக்ஸைப் பிளக்கில் இருந்து அகற்றிச் செருகியபின் காரை மீண்டும் தொடங்கவும்"</string>
-    <string name="activity_blocked_text" msgid="7117775117422916032">"உங்கள் பாதுகாப்பை முன்னிட்டு இந்தச் செயல்பாடானது வாகனம் ஓட்டும்போது இயங்காது"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"உங்கள் பாதுகாப்பை முன்னிட்டு இந்தச் செயல்பாடு, வாகனம் ஓட்டும்போது இயங்காது.\nதொடர வாகனத்தை நிறுத்தும்வரை காத்திருக்கவும்."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"ஆப்ஸைப் பாதுகாப்பான அம்சங்களுடன் மீண்டும் தொடங்க <xliff:g id="EXIT_BUTTON">%s</xliff:g>ஐத் தேர்ந்தெடுக்கவும்."</string>
+    <string name="exit_button" msgid="5829638404777671253">"பின்செல்"</string>
     <string name="debug_button_text" msgid="6395881820644544676">"பிழைதிருத்தத் தகவல்"</string>
-    <string name="exit_button" msgid="626660628135437972">"மறுபடி தொடங்கு"</string>
     <string name="car_permission_label_diag_read" msgid="2539365760945541902">"கண்டறியப்பட்ட தரவு"</string>
     <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"காரைக் குறித்துக் கண்டறிந்த தரவைப் படித்தல்"</string>
     <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"கண்டறியப்பட்ட தரவு"</string>
@@ -76,19 +77,19 @@
     <string name="car_permission_label_driving_state" msgid="6069696010591163256">"வாகனம் ஓட்டும் நிலை"</string>
     <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"ஓட்டும் நிலையில் ஏற்படும் மாற்றங்களைக் கவனித்தல்"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"இன்ஜின் விவரம்"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="7360817472577625295">"கார் இன்ஜினின் விரிவான தகவலை அணுகுதல்"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"காரின் இன்ஜின் தகவலை முழுமையாக அணுகுதல்"</string>
     <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"எரிபொருள் டாங்கின் போர்ட்டுகள்"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"எரிபொருள் டாங்கின் போர்ட்டுகளை அணுகுதல்"</string>
     <string name="car_permission_label_car_identification" msgid="1729154715508060432">"காரின் VIN"</string>
-    <string name="car_permission_desc_car_identification" msgid="3446202891279037295">"காரின் VIN தகவலை அணுகுதல்"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"காரின் VIN தகவலை அணுகுதல்"</string>
     <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"கார் கதவுகள்"</string>
-    <string name="car_permission_desc_control_car_doors" msgid="438796526924485694">"காரின் கதவுகளை இயக்குதல்"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"காரின் கதவுகளை இயக்குதல்"</string>
     <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"காரின் ஜன்னல்கள்"</string>
-    <string name="car_permission_desc_control_car_windows" msgid="7191531366203590752">"காரின் ஜன்னல்களை இயக்குதல்"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"காரின் ஜன்னல்களை இயக்குதல்"</string>
     <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"கார் கண்ணாடிகள்"</string>
-    <string name="car_permission_desc_control_car_mirrors" msgid="1329068133900689986">"கார் கண்ணாடிகளை இயக்குதல்"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"காரின் கண்ணாடிகளை இயக்குதல்"</string>
     <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"கார் இருக்கைகள்"</string>
-    <string name="car_permission_desc_control_car_seats" msgid="5319108612196099191">"காரின் இருக்கைகளை இயக்குதல்"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"காரின் இருக்கைகளை இயக்குதல்"</string>
     <string name="car_permission_label_car_info" msgid="5638680944359440535">"காரின் அடிப்படைத் தகவல்"</string>
     <string name="car_permission_desc_car_info" msgid="1697298888275875496">"காரின் அடிப்படைத் தகவலை அணுகுதல்"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"காரின் வெளிப்புறத்தில் உள்ள முகப்பு விளக்கு, இண்டிகேட்டர் போன்றவை"</string>

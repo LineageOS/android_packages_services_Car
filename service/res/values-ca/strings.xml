@@ -17,33 +17,33 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Informació del cotxe"</string>
-    <string name="car_permission_desc" msgid="37967366937946700">"Accedir a la informació del cotxe"</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"Accedir a la informació del cotxe"</string>
     <string name="car_permission_label_cabin" msgid="7737204489497269651">"Cabina del cotxe"</string>
-    <string name="car_permission_desc_cabin" msgid="5658746726474282714">"Accedir als accessoris del cotxe, inclosos els retrovisors, les portes, els seients i les finestres"</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Accedir als accessoris del cotxe, inclosos els retrovisors, les portes, els seients i les finestres"</string>
     <string name="car_permission_label_camera" msgid="608969838109034886">"Càmera del cotxe"</string>
-    <string name="car_permission_desc_camera" msgid="7177565584644606387">"Accedir a les càmeres del cotxe"</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"Accedir a la càmera del cotxe"</string>
     <string name="car_permission_label_energy" msgid="3398092932402178393">"Energia del cotxe"</string>
-    <string name="car_permission_desc_energy" msgid="2925098075119509004">"Accedir a la informació sobre l\'energia del cotxe"</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Accedir a la informació sobre l\'energia del cotxe"</string>
     <string name="car_permission_label_hvac" msgid="8047274427463154164">"Sistema HVAC del cotxe"</string>
-    <string name="car_permission_desc_hvac" msgid="7837686458309247154">"Accedir al sistema HVAC del cotxe"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Accedir al sistema HVAC del cotxe"</string>
     <string name="car_permission_label_mileage" msgid="811821331694754443">"Quilometratge del cotxe"</string>
-    <string name="car_permission_desc_mileage" msgid="261946195057016914">"Accedir a la informació sobre el quilometratge del cotxe"</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Accedir a la informació sobre el quilometratge del cotxe"</string>
     <string name="car_permission_label_speed" msgid="7315924371063443241">"Velocitat del cotxe"</string>
-    <string name="car_permission_desc_speed" msgid="4394638712070011650">"Accedir a la velocitat del cotxe"</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Accedir a la velocitat del cotxe"</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Estat de la dinàmica del vehicle"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="2458601597024393569">"Accedir a l\'estat de la dinàmica del cotxe"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"Accedir a l\'estat de la dinàmica del cotxe"</string>
     <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Canal del fabricant del cotxe"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="7223384502421767491">"Accedir al canal del fabricant del cotxe per intercanviar informació específica del cotxe"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Accedir al canal del fabricant del cotxe per intercanviar informació específica del cotxe"</string>
     <string name="car_permission_label_radio" msgid="4768692394049267617">"Ràdio del cotxe"</string>
-    <string name="car_permission_desc_radio" msgid="3544198603152937942">"Accedir a la ràdio del cotxe"</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"Accedir a la ràdio del cotxe"</string>
     <string name="car_permission_label_projection" msgid="7830068427803303154">"Projecció del cotxe"</string>
     <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Volum d\'àudio del cotxe"</string>
     <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Configuració d\'àudio del cotxe"</string>
     <string name="car_permission_desc_projection" msgid="2680001094361534439">"Projectar la interfície del telèfon al monitor del cotxe"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"Emular l\'API vehicle HAL"</string>
-    <string name="car_permission_desc_mock_vehicle_hal" msgid="3549687008625373417">"Emular l\'API vehicle HAL del cotxe per fer proves internes"</string>
-    <string name="car_permission_desc_audio_volume" msgid="7484628324723179580">"Controlar el volum d\'àudio del cotxe"</string>
-    <string name="car_permission_desc_audio_settings" msgid="2871870084988702516">"Controlar la configuració d\'àudio del cotxe"</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Emular l\'API vehicle HAL del cotxe per fer proves internes"</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Controlar el volum d\'àudio del cotxe"</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Controlar la configuració d\'àudio del cotxe"</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Bloqueig d\'aplicacions"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Controlar el bloqueig d\'aplicacions mentre condueixes"</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Gestor de navegació"</string>
@@ -60,9 +60,10 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Gestionar els esdeveniments d\'entrada"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Ha fallat el bus CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"El bus CAN no respon. Desendolla i torna a endollar el capçal i torna a engegar el cotxe."</string>
-    <string name="activity_blocked_text" msgid="7117775117422916032">"Per motius de seguretat, aquesta activitat no està disponible mentre condueixes"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"Per motius de seguretat, aquesta activitat no està disponible mentre condueixes.\nPer continuar, has d\'estar aparcat."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"Per tornar a començar amb unes funcions d\'aplicació segures, selecciona <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
+    <string name="exit_button" msgid="5829638404777671253">"Enrere"</string>
     <string name="debug_button_text" msgid="6395881820644544676">"Depuració"</string>
-    <string name="exit_button" msgid="626660628135437972">"Reinicia l\'app"</string>
     <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Dades de diagnòstic"</string>
     <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Llegir les dades de diagnòstic del cotxe"</string>
     <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Dades de diagnòstic"</string>
@@ -76,19 +77,19 @@
     <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Estat de conducció"</string>
     <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Escoltar els canvis en l\'estat de conducció"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Detalls del motor"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="7360817472577625295">"Accedir a la informació detallada sobre el motor del cotxe"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"Accedir a la informació detallada sobre el motor del cotxe"</string>
     <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Ports d\'energia"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Accedir als ports d\'energia"</string>
     <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Identificació del cotxe"</string>
-    <string name="car_permission_desc_car_identification" msgid="3446202891279037295">"Accedir a la identificació del cotxe"</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"Accedir a la identificació del cotxe"</string>
     <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Portes del cotxe"</string>
-    <string name="car_permission_desc_control_car_doors" msgid="438796526924485694">"Controlar les portes del cotxe"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"Controlar les portes del cotxe"</string>
     <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Finestres del cotxe"</string>
-    <string name="car_permission_desc_control_car_windows" msgid="7191531366203590752">"Controlar les finestres del cotxe"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"Controlar les finestres del cotxe"</string>
     <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"Retrovisors del cotxe"</string>
-    <string name="car_permission_desc_control_car_mirrors" msgid="1329068133900689986">"Controlar els retrovisors del cotxe"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"Controlar els retrovisors del cotxe"</string>
     <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Seients del cotxe"</string>
-    <string name="car_permission_desc_control_car_seats" msgid="5319108612196099191">"Controlar els seients del cotxe"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Controlar els seients del cotxe"</string>
     <string name="car_permission_label_car_info" msgid="5638680944359440535">"Informació bàsica del cotxe"</string>
     <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Accedir a la informació bàsica del cotxe"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Llums exteriors del cotxe"</string>

@@ -17,33 +17,33 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Upplýsingar um bíl"</string>
-    <string name="car_permission_desc" msgid="37967366937946700">"Fá aðgang að upplýsingum um bílinn."</string>
+    <string name="car_permission_desc" msgid="162499818870052725">"Fá aðgang að upplýsingum um bílinn."</string>
     <string name="car_permission_label_cabin" msgid="7737204489497269651">"Farþegarými bíls"</string>
-    <string name="car_permission_desc_cabin" msgid="5658746726474282714">"Aðgangur að aukahlutum bílsins, þ.m.t. hurðum, speglum, sætum og gluggum."</string>
+    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"Aðgangur að aukahlutum bílsins, þ.m.t. hurðum, speglum, sætum og gluggum."</string>
     <string name="car_permission_label_camera" msgid="608969838109034886">"Myndavél bíls"</string>
-    <string name="car_permission_desc_camera" msgid="7177565584644606387">"Fá aðgang að myndavélum bílsins."</string>
+    <string name="car_permission_desc_camera" msgid="917024932164501426">"Fá aðgang að myndavél(um) bílsins."</string>
     <string name="car_permission_label_energy" msgid="3398092932402178393">"Orka bílsins"</string>
-    <string name="car_permission_desc_energy" msgid="2925098075119509004">"Fá aðgang að upplýsingum um orku bílsins."</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Aðgangur að upplýsingum um orkunotkun bílsins."</string>
     <string name="car_permission_label_hvac" msgid="8047274427463154164">"Hita- og loftræstikerfi bíls"</string>
-    <string name="car_permission_desc_hvac" msgid="7837686458309247154">"Fá aðgang að hitun og loftræstingu bílsins."</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Fá aðgang að hitun og loftræstingu bílsins."</string>
     <string name="car_permission_label_mileage" msgid="811821331694754443">"Ekin vegalengd bíls"</string>
-    <string name="car_permission_desc_mileage" msgid="261946195057016914">"Aðgangur að upplýsingum um ekna vegalengd bílsins."</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Fá aðgang að upplýsingum um ekna vegalengd bílsins."</string>
     <string name="car_permission_label_speed" msgid="7315924371063443241">"Hraði bíls"</string>
-    <string name="car_permission_desc_speed" msgid="4394638712070011650">"Fá aðgang að upplýsingum um hraða bílsins."</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Fá upplýsingar um hraða bílsins."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"Staða aksturseiginleika bíls"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="2458601597024393569">"Aðgangur að stöðu aksturseiginleika bílsins"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"Aðgangur að stöðu aksturseiginleika bílsins"</string>
     <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"Framleiðandarás bíls"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="7223384502421767491">"Fá aðgang að framleiðandarás bílsins til að skiptast á bílatengdum upplýsingum."</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Fá aðgang að framleiðandarás bílsins til að skiptast á bílatengdum upplýsingum."</string>
     <string name="car_permission_label_radio" msgid="4768692394049267617">"Útvarp bíls"</string>
-    <string name="car_permission_desc_radio" msgid="3544198603152937942">"Fá aðgang að útvarpi bílsins."</string>
+    <string name="car_permission_desc_radio" msgid="3385999027478186964">"Fá aðgang að útvarpi bílsins."</string>
     <string name="car_permission_label_projection" msgid="7830068427803303154">"Vörpun bíls"</string>
     <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"Hljóðstyrkur í bílnum"</string>
     <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"Stillingar á hljóðkerfi bíls"</string>
     <string name="car_permission_desc_projection" msgid="2680001094361534439">"Sýna viðmót síma á skjá bílsins."</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"Líkja eftir HAL ökutækis"</string>
-    <string name="car_permission_desc_mock_vehicle_hal" msgid="3549687008625373417">"Líkja eftir HAL ökutækisins vegna innri prófunar."</string>
-    <string name="car_permission_desc_audio_volume" msgid="7484628324723179580">"Stjórna hljóðstyrk í bílnum."</string>
-    <string name="car_permission_desc_audio_settings" msgid="2871870084988702516">"Stjórna hljóðstillingum bílsins."</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Líkja eftir HAL ökutækis til að gera innri prófanir."</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Stjórna hljóðstyrk í bílnum."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Stjórna stillingum fyrir hljóðkerfi bílsins."</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Lokað á forrit"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Stjórna útilokun forrita við akstur."</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Umsjón með leiðsögn"</string>
@@ -60,9 +60,10 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Stjórna inntakstilvikum"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Bilun í CAN-gagnabraut"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-gagnabraut svarar ekki. Taktu stjórneiningarboxið úr sambandi, settu það aftur í samband og gangsettu bílinn aftur."</string>
-    <string name="activity_blocked_text" msgid="7117775117422916032">"Af öryggisástæðum er þessi aðgerð ekki í boði við akstur"</string>
+    <string name="activity_blocked_text" msgid="5342114426610711378">"Af öryggisástæðum er þessi aðgerð ekki í boði við akstur.\nLeggðu ökutækinu áður en þú heldur áfram."</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"Til að byrja aftur að setja upp örugga forritseiginleika skaltu velja <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
+    <string name="exit_button" msgid="5829638404777671253">"Til baka"</string>
     <string name="debug_button_text" msgid="6395881820644544676">"Villuleit"</string>
-    <string name="exit_button" msgid="626660628135437972">"Endurræsa forrit"</string>
     <string name="car_permission_label_diag_read" msgid="2539365760945541902">"Greiningargögn"</string>
     <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"Lesa greiningargögn úr bílnum"</string>
     <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"Greiningargögn"</string>
@@ -76,19 +77,19 @@
     <string name="car_permission_label_driving_state" msgid="6069696010591163256">"Akstursstaða"</string>
     <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"Hlusta á breytingar í akstursstöðu"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"Upplýsingar um vél"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="7360817472577625295">"Fá aðgang að ítarlegum upplýsingum um vél bílsins"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"Fá aðgang að ítarlegum upplýsingum um vél bílsins"</string>
     <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"Áfyllingarop"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"Aðgangur að áfyllingaropum"</string>
     <string name="car_permission_label_car_identification" msgid="1729154715508060432">"Auðkenni bíls"</string>
-    <string name="car_permission_desc_car_identification" msgid="3446202891279037295">"Fá aðgang að auðkenni bílsins."</string>
+    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"Fá aðgang að auðkenni bílsins"</string>
     <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"Bílhurðir"</string>
-    <string name="car_permission_desc_control_car_doors" msgid="438796526924485694">"Stjórna hurðum bílsins"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"Stjórna hurðum bílsins"</string>
     <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"Gluggar bíls"</string>
-    <string name="car_permission_desc_control_car_windows" msgid="7191531366203590752">"Stjórna gluggum bílsins"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"Stjórna gluggum bílsins"</string>
     <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"Speglar bíls"</string>
-    <string name="car_permission_desc_control_car_mirrors" msgid="1329068133900689986">"Stjórna speglum bílsins"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"Stjórna speglum bíls"</string>
     <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"Bílsæti"</string>
-    <string name="car_permission_desc_control_car_seats" msgid="5319108612196099191">"Stjórna bílsætum"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"Stjórna bílsætum"</string>
     <string name="car_permission_label_car_info" msgid="5638680944359440535">"Grunnupplýsingar um bíl"</string>
     <string name="car_permission_desc_car_info" msgid="1697298888275875496">"Fá aðgang að grunnupplýsingum bílsins"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"Ljós bíls að utanverðu"</string>
