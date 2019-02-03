@@ -18,6 +18,8 @@ package android.car;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
+import android.annotation.SdkConstant;
+import android.annotation.SdkConstant.SdkConstantType;
 import android.annotation.SystemApi;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.content.pm.CarPackageManager;
@@ -439,6 +441,7 @@ public final class Car {
      * package name of the media app which user wants to play media on.
      * <p>Output: nothing.
      */
+    @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
     public static final String CAR_INTENT_ACTION_MEDIA_TEMPLATE =
             "android.car.intent.action.MEDIA_TEMPLATE";
 
